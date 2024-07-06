@@ -15,7 +15,7 @@
   </p>
 </div>
 
-### Built With
+## 🧰 Built With
 
 ![Nuxt.js](https://img.shields.io/static/v1?style=for-the-badge&message=Nuxt.js&color=222222&logo=Nuxt.js&logoColor=00DC82&label=)
 ![Vue.js](https://img.shields.io/static/v1?style=for-the-badge&message=Vue.js&color=222222&logo=Vue.js&logoColor=4FC08D&label=)
@@ -27,11 +27,26 @@
 ![Prettier](https://img.shields.io/static/v1?style=for-the-badge&message=Prettier&color=222222&logo=Prettier&logoColor=F7B93E&label=)
 ![Vite](https://img.shields.io/static/v1?style=for-the-badge&message=Vite&color=646CFF&logo=Vite&logoColor=FFFFFF&label=)
 
-<!-- GETTING STARTED -->
+## 📦 Features
 
-## Getting Started
+-   Fast & Secure
+-   Self-hosted
+-   Easy to use
+-   Chirpy themes
+-   Auto-generated statistics
+-   Discord embeds
+-   Folder support
+-   Note taking
+-   Code sharing
+-   URL shortening
+-   Image compression
+-   Two-factor authentication
+-   Password protected files, urls and code
+-   Delete files, urls and code after a certain number of views
 
-To get a local copy up and running follow these simple steps.
+## 🚀 Getting Started
+
+To get started with Fileship, follow these steps:
 
 ### Install & run using Docker
 
@@ -83,12 +98,14 @@ This section requires [Node.js v20.1.0+](https://nodejs.org/) and [pnpm v9.4.0+]
     ```
 7. Open your browser and go to `http://localhost:3000`
 
-<!-- LICENSE -->
-
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-## Documentation
+## 📖 Documentation
 
 The documentation for Fileship can be found [here](https://fileship.hanzy.dev).
+
+## ❤️ Contribute
+
+Contributions are always welcome! Please read the [contribution guidelines](CONTRIBUTING.md) first.
+
+## ⚖️ License
+
+[MIT](LICENSE)
