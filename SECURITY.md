@@ -16,4 +16,4 @@ currently being supported with security updates.
 
 ## Reporting a Vulnerability
 
-To report a security issue, please email [INSERT CONTACT METHOD] with a description of the issue, the steps you took to create the issue, affected versions, and, if known, mitigations for the issue. This project follows a 90 day disclosure timeline.
+Report a Vulnerability by issuing a bug report, with exact details with how the vulnerability happened, what "exploits" can happen, and possible fixes (optional). Vulnerability reports are treated with high priority and will be resolved most of the time quickly.
