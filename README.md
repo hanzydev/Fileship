@@ -89,8 +89,6 @@ This section requires [Node.js v20.1.0+](https://nodejs.org/) and [pnpm v9.4.0+]
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-<!-- ALL CONTRIBUTORS HERE -->
-
 ## Documentation
 
 The documentation for Fileship can be found [here](https://fileship.hanzy.dev).
