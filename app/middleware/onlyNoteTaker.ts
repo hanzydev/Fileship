@@ -1,4 +1,4 @@
-import { canTakeNotes } from "~~/utils/user";
+import { canTakeNotes } from '~~/utils/user';
 
 export default defineNuxtRouteMiddleware(() => {
     const user = useAuthUser();

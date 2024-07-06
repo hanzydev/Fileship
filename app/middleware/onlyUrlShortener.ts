@@ -1,4 +1,4 @@
-import { canShortenUrls } from "~~/utils/user";
+import { canShortenUrls } from '~~/utils/user';
 
 export default defineNuxtRouteMiddleware(() => {
     const user = useAuthUser();

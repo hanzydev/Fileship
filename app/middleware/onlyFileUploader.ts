@@ -1,4 +1,4 @@
-import { canUploadFiles } from "~~/utils/user";
+import { canUploadFiles } from '~~/utils/user';
 
 export default defineNuxtRouteMiddleware(() => {
     const user = useAuthUser();
