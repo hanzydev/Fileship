@@ -1,0 +1,141 @@
+<template>
+    <ModalsAreYouSure
+        v-model="areYouSureModalOpen"
+        title="Are you really sure you want to load this backup?"
+        description="Your current data will be lost and replaced with the backup data."
+        @yes="handleLoad"
+    />
+
+    <ModalsVerifyTotp
+        v-if="currentUser!.totpEnabled"
+        v-model="verifyModalOpen"
+        :error="verificationError"
+        :disabled="loading"
+        @got="handleLoad"
+    />
+    <ModalsVerifyUserPassword
+        v-else
+        v-model="verifyModalOpen"
+        :error="verificationError"
+        :disabled="loading"
+        @got="handleLoad"
+    />
+
+    <UiDropdown v-model="ctxOpen" as-ctx-menu placement="bottom">
+        <div
+            h132px
+            wfull
+            rounded-md
+            bg-fs3
+            p4
+            space-y-4
+            motion-safe:transition-shadow
+            :class="
+                ctxOpen
+                    ? 'cursor-default'
+                    : 'cursor-pointer hover:(ring-2 ring-fs-accent)'
+            "
+            @click="
+                ctxOpen = false;
+                areYouSureModalOpen = true;
+            "
+        >
+            <h5 line-clamp-1 break-words text-slate400>
+                {{ data.id }}
+            </h5>
+
+            <div text-slate300 font-medium space-y-2>
+                <div flex="~ gap2 items-center">
+                    <Icon name="mdi:sd-storage" size="20" />
+                    <span>
+                        {{ data.size.formatted }}
+                    </span>
+                </div>
+
+                <div flex="~ gap2 items-center">
+                    <Icon name="heroicons-solid:calendar" size="20" />
+                    <span>
+                        {{
+                            moment(data.createdAt).format('MMM D, YYYY h:mm A')
+                        }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <template #content>
+            <div w48 rounded-lg bg-fs3 p1.5 space-y-1 ring="2 fs-accent">
+                <UiButton
+                    icon="heroicons-solid:download"
+                    icon-size="20"
+                    wfull
+                    gap2
+                    :href="`/api/users/backups/${data.id}`"
+                    target="_blank"
+                >
+                    Download
+                </UiButton>
+                <UiButton
+                    icon="heroicons-solid:trash"
+                    icon-size="20"
+                    wfull
+                    gap2
+                    text-red-500
+                    :disabled="deleting"
+                    @click="handleDelete"
+                >
+                    Delete
+                </UiButton>
+            </div>
+        </template>
+    </UiDropdown>
+</template>
+
+<script setup lang="ts">
+import moment from 'moment';
+import { toast } from 'vue-sonner';
+
+const { data } = defineProps<{
+    data: BackupData;
+}>();
+
+const currentUser = useAuthUser();
+
+const areYouSureModalOpen = ref(false);
+const ctxOpen = ref(false);
+const deleting = ref(false);
+const loading = ref(false);
+
+const verifyModalOpen = ref(false);
+const verificationError = ref<string>();
+
+const handleDelete = async () => {
+    deleting.value = true;
+    await $fetch(`/api/users/backups/${data.id}`, { method: 'DELETE' });
+    deleting.value = false;
+
+    toast.success('Backup deleted successfully');
+};
+
+const handleLoad = async (verificationData?: string) => {
+    loading.value = true;
+    verificationError.value = undefined;
+
+    try {
+        await $fetch(`/api/users/backups/${data.id}`, {
+            method: 'PUT',
+            body: { verificationData },
+        });
+
+        verifyModalOpen.value = false;
+
+        toast.success(
+            "Backup is being loaded, this may take a while. Don't do anything until it's done!",
+        );
+    } catch (error: any) {
+        if (verifyModalOpen.value) verificationError.value = error.data.message;
+        else verifyModalOpen.value = true;
+    }
+
+    loading.value = false;
+};
+</script>

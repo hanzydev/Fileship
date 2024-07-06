@@ -1,0 +1,95 @@
+<template>
+    <div>
+        <Transition
+            enter-active-class="motion-safe:animate-in motion-safe:fade-in"
+            leave-active-class="motion-safe:animate-out motion-safe:fade-out"
+        >
+            <div
+                v-if="isOpen && width < 1024"
+                absolute
+                inset-0
+                z20
+                backdrop-blur-sm
+                lg:ml64
+                bg-black="/20"
+                :style="{
+                    height: `calc(100vh - 70px${adminSessionId ? ' - 3rem' : ''})`,
+                    marginTop: `calc(70px${adminSessionId ? ' + 48px' : ''})`,
+                }"
+                @click="isOpen = false"
+            />
+        </Transition>
+        <Transition
+            enter-active-class="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-left-full"
+            leave-active-class="motion-safe:animate-out motion-safe:fade-out motion-safe:slide-out-left-full"
+        >
+            <aside
+                v-if="width < 1024 ? isOpen : true"
+                :class="width === Infinity && 'lt-lg:hidden'"
+                absolute
+                z20
+                flex="~ col gap2"
+                wfull
+                overflow-y-auto
+                bg-fs3
+                pt0.5
+                sm:w64
+                lg:pt4
+                :style="{
+                    height: `calc(100vh - 70px${adminSessionId ? ' - 3rem' : ''})`,
+                }"
+            >
+                <UiButton
+                    v-for="item in items"
+                    :key="item.name"
+                    :href="item.href"
+                    :variant="item.href === $route.path ? 'accent' : 'primary'"
+                    :icon="item.icon"
+                    icon-size="20"
+                    alignment="left"
+                    mx3
+                    gap2.5
+                    px2.5
+                >
+                    {{ item.name }}
+                </UiButton>
+            </aside>
+        </Transition>
+    </div>
+</template>
+
+<script setup lang="ts">
+defineProps<{
+    items: { name: string; href: string; icon: string }[];
+}>();
+
+const isOpen = useSidebar();
+const router = useRouter();
+const overflow = useOverflow();
+
+const adminSessionId = useCookie('adminSessionId');
+
+const { width } = useWindowSize();
+
+onKeyStroke(
+    'Escape',
+    () => {
+        if (isOpen.value) isOpen.value = false;
+    },
+    { eventName: 'keydown' },
+);
+
+onUnmounted(() => (overflow.value = true));
+
+watch(isOpen, (value) => (overflow.value = !value));
+
+watch(
+    width,
+    (value) => (overflow.value = value >= 1024 ? true : !isOpen.value),
+);
+
+router.beforeEach((_, __, next) => {
+    if (isOpen.value) isOpen.value = false;
+    next();
+});
+</script>

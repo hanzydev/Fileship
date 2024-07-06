@@ -1,0 +1,174 @@
+<template>
+    <div relative @mouseover="handleMouseMove" @mouseleave="handleMouseLeave">
+        <div
+            ref="triggerRef"
+            :class="triggerClass"
+            @click="handleClick"
+            @contextmenu="handleContextMenu"
+        >
+            <slot />
+        </div>
+        <component :is="asCtxMenu ? Teleport : 'div'" to="body">
+            <Transition
+                enter-active-class="motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:data-[placement=top]:slide-in-b-2% motion-safe:data-[placement=bottom]:slide-in-top-2% motion-safe:data-[placement=left]:slide-in-right-2% motion-safe:data-[placement=right]:slide-in-left-2%"
+                leave-active-class="motion-safe:animate-out motion-safe:fade-out motion-safe:zoom-out-95 motion-safe:data-[placement=top]:slide-out-bottom-2% motion-safe:data-[placement=bottom]:slide-out-top-2% motion-safe:data-[placement=left]:slide-out-right-2% motion-safe:data-[placement=right]:slide-out-left-2%"
+                :data-placement="placement"
+            >
+                <div
+                    v-if="isOpen"
+                    v-bind="$attrs"
+                    :id
+                    ref="contentRef"
+                    z50
+                    :class="[
+                        {
+                            'bottom-full': placement === 'top',
+                            'top-full': placement === 'bottom',
+                            'right-full top-0': placement === 'left',
+                            'left-full top-0': placement === 'right',
+                            pb1: placement === 'top',
+                            pt1: placement === 'bottom',
+                            pl1: placement === 'right',
+                            pr1: placement === 'left',
+                        },
+                        asCtxMenu ? 'fixed' : 'absolute',
+                    ]"
+                    :style="
+                        asCtxMenu && {
+                            top: `${menuPosition.y}px`,
+                            left: `${menuPosition.x}px`,
+                        }
+                    "
+                >
+                    <slot name="content" />
+                </div>
+            </Transition>
+        </component>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { Teleport } from 'vue';
+
+const {
+    placement = 'top',
+    asCtxMenu,
+    hover,
+} = defineProps<{
+    placement?: 'left' | 'right' | 'top' | 'bottom';
+    asCtxMenu?: boolean;
+    hover?: boolean;
+    openable?: boolean;
+    triggerClass?: unknown;
+}>();
+
+defineOptions({
+    inheritAttrs: false,
+});
+
+const isOpen = defineModel<boolean>({ required: false, default: false });
+const router = useRouter();
+
+const triggerRef = ref<HTMLDivElement>();
+const contentRef = ref<HTMLDivElement>();
+
+const mousePosition = reactive({ x: 0, y: 0 });
+const menuPosition = reactive({ x: 0, y: 0 });
+
+const id = useId();
+const overflow = useOverflow();
+
+const activeCtxMenu = useActiveCtxMenu();
+const activeDropdown = useActiveDropdown();
+
+const calculateMenuPosition = async () => {
+    isOpen.value = true;
+    await nextTick();
+
+    const { width, height } = contentRef.value!.getBoundingClientRect();
+
+    menuPosition.x = Math.min(mousePosition.x, window.innerWidth - width - 20);
+    menuPosition.y = Math.min(
+        mousePosition.y,
+        window.innerHeight - height - 20,
+    );
+
+    if (menuPosition.y < 0) menuPosition.y = 0;
+
+    isOpen.value = false;
+};
+
+const handleContextMenu = async (event: MouseEvent) => {
+    if (!asCtxMenu || hover) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    mousePosition.x = event.clientX;
+    mousePosition.y = event.clientY;
+
+    if (menuPosition.x !== 0 && menuPosition.y !== 0) {
+        isOpen.value = false;
+        await nextTick();
+    }
+
+    await calculateMenuPosition();
+    isOpen.value = true;
+};
+
+const handleClick = () => {
+    if (asCtxMenu || hover) return;
+
+    isOpen.value = !isOpen.value;
+};
+
+const handleMouseMove = () => {
+    if (hover && !asCtxMenu && !isOpen.value) isOpen.value = true;
+};
+
+const handleMouseLeave = () => {
+    if (hover && !asCtxMenu && isOpen.value) isOpen.value = false;
+};
+
+onClickOutside(
+    contentRef,
+    (event) => {
+        const activeCtx = document.getElementById(activeCtxMenu.value!);
+
+        if (isOpen.value && !activeCtx?.contains(event.target as Node)) {
+            isOpen.value = false;
+        }
+    },
+    {
+        ignore: asCtxMenu ? [] : [triggerRef],
+    },
+);
+
+onKeyStroke(
+    'Escape',
+    () => {
+        if (isOpen.value) isOpen.value = false;
+    },
+    { eventName: 'keydown' },
+);
+
+onUnmounted(() => (overflow.value = true));
+
+watch(isOpen, (value) => {
+    if (value) {
+        if (asCtxMenu) activeCtxMenu.value = id;
+        else activeDropdown.value = id;
+    }
+
+    overflow.value = !(activeCtxMenu.value || activeDropdown.value);
+});
+
+watch(activeCtxMenu, (value) => {
+    if (asCtxMenu && value !== id && isOpen.value) isOpen.value = false;
+});
+
+router.beforeEach((_, __, next) => {
+    if (isOpen.value) isOpen.value = false;
+    next();
+});
+</script>

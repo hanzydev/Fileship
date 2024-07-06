@@ -1,0 +1,55 @@
+:root {
+    color-scheme: dark;
+}
+
+h1 {
+    @apply !my0 !text-4xl !font-bold;
+}
+
+h2 {
+    @apply !text-3xl !font-bold;
+}
+
+h3 {
+    @apply !text-2xl !font-semibold;
+}
+
+h4 {
+    @apply !text-xl !font-semibold;
+}
+
+h5 {
+    @apply !text-lg !font-semibold;
+}
+
+h6 {
+    @apply !text-base !font-semibold;
+}
+
+p,
+a,
+span {
+    @apply !text-base;
+}
+
+a[type='button'],
+button {
+    @apply !text-base !font-medium;
+}
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+    @apply hidden;
+}
+
+::-webkit-scrollbar {
+    @apply block w1.25;
+}
+
+::-webkit-scrollbar-button {
+    @apply hidden;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply rounded-md bg-fs1;
+}

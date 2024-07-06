@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserPermission {
+  Admin
+  UploadFiles
+  TakeNotes
+  ShareCodes
+  ShortenUrls
+}
+
+model User {
+  id          String           @id @unique @default(uuid())
+  username    String           @unique
+  password    String
+  avatar      String?
+  permissions UserPermission[]
+  files       File[]
+  notes       Note[]
+  codes       Code[]
+  urls        Url[]
+  folders     Folder[]
+  sessions    Session[]
+  logs        Log[]
+  totpEnabled Boolean          @default(false)
+  totpSecret  String?
+  superAdmin  Boolean          @default(false)
+  limits      Json             @default("{}")
+  embed       Json             @default("{}")
+  createdAt   DateTime         @default(now())
+}
+
+model File {
+  id        String    @id @unique @default(uuid())
+  fileName  String    @unique
+  mimeType  String
+  size      BigInt
+  maxViews  Int       @default(0)
+  expiresAt DateTime?
+  password  String?
+  createdAt DateTime  @default(now())
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+  folder    Folder?   @relation(fields: [folderId], references: [id])
+  folderId  String?
+  views     View[]
+}
+
+model Note {
+  id        String   @id @unique @default(uuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+}
+
+model Code {
+  id        String    @id @unique @default(uuid())
+  title     String
+  code      String
+  language  String
+  maxViews  Int       @default(0)
+  expiresAt DateTime?
+  password  String?
+  createdAt DateTime  @default(now())
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+  views     View[]
+}
+
+model Url {
+  id             String    @id @unique @default(uuid())
+  vanity         String    @unique
+  destinationUrl String
+  maxViews       Int       @default(0)
+  expiresAt      DateTime?
+  password       String?
+  createdAt      DateTime  @default(now())
+  author         User      @relation(fields: [authorId], references: [id])
+  authorId       String
+  views          View[]
+}
+
+model Folder {
+  id        String   @id @unique @default(uuid())
+  name      String
+  public    Boolean
+  createdAt DateTime @default(now())
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  files     File[]
+}
+
+model Log {
+  id        String   @id @unique @default(uuid())
+  action    String
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  message   String
+  ip        String
+  system    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model View {
+  id        Int      @id @unique @default(autoincrement())
+  ip        String
+  createdAt DateTime @default(now())
+  file      File?    @relation(fields: [fileId], references: [id])
+  fileId    String?
+  code      Code?    @relation(fields: [codeId], references: [id])
+  codeId    String?
+  url       Url?     @relation(fields: [urlId], references: [id])
+  urlId     String?
+}
+
+model Session {
+  id         String    @id @unique @default(uuid())
+  privateId  String    @unique
+  ip         String
+  os         String
+  platform   String
+  location   String
+  lastSeen   DateTime  @default(now())
+  lastVerify DateTime?
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String
+}
+
+model Stat {
+  id                Int      @id @unique @default(autoincrement())
+  users             Int
+  storageUsed       BigInt
+  storageUsedByUser Json
+  views             Json
+  viewsByUser       Json
+  files             Int
+  filesByUser       Json
+  types             Json
+  createdAt         DateTime @default(now())
+}

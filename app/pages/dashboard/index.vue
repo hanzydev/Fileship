@@ -1,0 +1,292 @@
+<template>
+    <div>
+        <Head>
+            <Title>Dashboard</Title>
+        </Head>
+
+        <ModalsViewFile
+            v-if="viewModal.file"
+            v-model="viewModal.open"
+            :data="viewModal.file!"
+        />
+
+        <ModalsEditFile
+            v-if="editModal.file"
+            :key="editModal.file!.id"
+            v-model="editModal.open"
+            :data="editModal.file!"
+        />
+
+        <div space-y-6>
+            <h2>Welcome back, {{ upperFirst(currentUser!.username) }} 👋</h2>
+
+            <div space-y-2>
+                <h3>Your Statistics</h3>
+
+                <div grid="~ gap6 md:cols-3 sm:cols-2 xl:cols-4">
+                    <StatCard
+                        title="Files"
+                        description="uploaded files"
+                        icon="heroicons-solid:document"
+                        :data="stats!.files.count"
+                        :growth="stats!.files.growth"
+                    />
+                    <StatCard
+                        title="Views"
+                        description="total file views"
+                        icon="heroicons-solid:eye"
+                        :data="stats!.views.count"
+                        :growth="stats!.views.growth"
+                    />
+                    <StatCard
+                        title="Storage"
+                        description="used storage"
+                        icon="mdi:sd-storage"
+                        :data="stats!.storageUsed.size"
+                        :growth="stats!.storageUsed.growth"
+                    />
+                    <StatCard
+                        title="Users"
+                        description="total users"
+                        icon="iconamoon:profile-fill"
+                        :data="stats!.users.count"
+                        :growth="stats!.users.growth"
+                    />
+                </div>
+            </div>
+
+            <div pt6 space-y-2>
+                <h3>Recent Files</h3>
+                <div
+                    v-if="files.length"
+                    grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4"
+                >
+                    <FileCard
+                        v-for="file in files.slice(0, 4)"
+                        :key="file.id"
+                        :data="file"
+                    />
+                </div>
+                <NothingHere
+                    v-else
+                    message="There are no files to display."
+                    icon="heroicons-solid:document-duplicate"
+                />
+            </div>
+
+            <div pt6 space-y-2>
+                <h3>Files</h3>
+                <div space-y-4>
+                    <UiTable
+                        :columns="[
+                            {
+                                key: 'fileName',
+                                width: '25%',
+                            },
+                            {
+                                key: 'mimeType',
+                                width: '20%',
+                            },
+                            {
+                                key: 'size',
+                                width: '10%',
+                                resolve: ({ size }) => size.formatted,
+                            },
+                            {
+                                key: 'createdAt',
+                                width: '15%',
+                                resolve: ({ createdAt }) =>
+                                    moment(createdAt).fromNow(),
+                            },
+                            {
+                                key: 'Actions',
+                                width: '20%',
+                                render: (row) => {
+                                    const isImage =
+                                        row.mimeType.startsWith('image/');
+
+                                    const isVideo =
+                                        row.mimeType.startsWith('video/');
+
+                                    const isAudio =
+                                        row.mimeType.startsWith('audio/');
+
+                                    const canBeViewed =
+                                        isImage || isVideo || isAudio;
+
+                                    return h(
+                                        'div',
+                                        { class: 'flex items-center gap4' },
+                                        [
+                                            h(UiButton, {
+                                                variant: 'outline',
+                                                alignment: 'center',
+                                                class: 'h8 w8 !p0 !ring-1 text-slate300 hover:text-white',
+                                                icon: canBeViewed
+                                                    ? 'heroicons:eye-16-solid'
+                                                    : 'heroicons-solid:external-link',
+                                                iconSize: '20',
+                                                ...(canBeViewed
+                                                    ? {
+                                                          onClick: () => {
+                                                              viewModal.file =
+                                                                  row;
+                                                              nextTick(
+                                                                  () =>
+                                                                      (viewModal.open = true),
+                                                              );
+                                                          },
+                                                      }
+                                                    : {
+                                                          href: `/view/${row.fileName}`,
+                                                          target: '_blank',
+                                                      }),
+                                            }),
+                                            h(UiButton, {
+                                                variant: 'outline',
+                                                alignment: 'center',
+                                                class: [
+                                                    'h8 w8 !p0 !ring-1 hover:text-white',
+                                                    copied.has(row.fileName)
+                                                        ? 'text-green500'
+                                                        : 'text-slate300',
+                                                ],
+                                                icon: copied.has(row.fileName)
+                                                    ? 'heroicons-solid:clipboard-check'
+                                                    : 'heroicons-solid:clipboard-copy',
+                                                iconSize: '20',
+                                                onClick: () =>
+                                                    handleCopy(row.fileName),
+                                            }),
+                                            h(UiButton, {
+                                                variant: 'outline',
+                                                alignment: 'center',
+                                                class: 'h8 w8 !p0 !ring-1 text-slate300 hover:text-white',
+                                                href: `/u/${row.fileName}?download`,
+                                                target: '_blank',
+                                                icon: 'heroicons-solid:download',
+                                                iconSize: '20',
+                                            }),
+                                            h(UiButton, {
+                                                variant: 'outline',
+                                                alignment: 'center',
+                                                class: 'h8 w8 !p0 !ring-1 text-slate300 hover:text-white',
+                                                icon: 'heroicons:pencil-16-solid',
+                                                iconSize: '20',
+                                                onClick: () => {
+                                                    editModal.file = row;
+                                                    nextTick(
+                                                        () =>
+                                                            (editModal.open = true),
+                                                    );
+                                                },
+                                            }),
+                                            h(UiButton, {
+                                                variant: 'outline',
+                                                alignment: 'center',
+                                                class: 'h8 w8 !p0 !ring-1 ring-red-500 text-slate300 hover:text-white hover:!bg-red-500',
+                                                icon: 'heroicons-solid:trash',
+                                                iconSize: '20',
+                                                disabled: willBeDeleted.has(
+                                                    row.id,
+                                                ),
+                                                onClick: () =>
+                                                    handleDelete(row.id),
+                                            }),
+                                        ],
+                                    );
+                                },
+                            },
+                        ]"
+                        :rows="calculatedFiles"
+                        nothing-here-message="There are no files to display."
+                        nothing-here-icon="heroicons-solid:document-duplicate"
+                    />
+                    <UiPagination
+                        v-model="currentPage"
+                        :item-count="files.length"
+                        :items-per-page="20"
+                    />
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup lang="ts">
+import moment from 'moment';
+import { upperFirst } from 'scule';
+import { toast } from 'vue-sonner';
+
+import { UiButton } from '#components';
+
+const { data: stats } = await useFetch('/api/users/@me/stats');
+const { data: filesData } = await useFetch('/api/files');
+
+const files = useFiles();
+const currentUser = useAuthUser();
+
+const currentPage = ref(1);
+
+const willBeDeleted = ref(new Set<string>());
+const copied = ref(new Map<string, NodeJS.Timeout>());
+
+const viewModal = reactive({
+    open: false,
+    file: null as FileData | null,
+});
+const editModal = reactive({
+    open: false,
+    file: null as FileData | null,
+});
+
+const calculatedFiles = computed(() => {
+    const start = (currentPage.value - 1) * 20;
+    const end = start + 20;
+    return files.value.slice(start, end);
+});
+
+const handleCopy = async (fileName: string) => {
+    const timeout = copied.value.get(fileName);
+    if (timeout) clearTimeout(timeout);
+
+    await navigator.clipboard.writeText(
+        `${useRequestURL().origin}/${currentUser.value!.embed?.enabled ? 'view' : 'u'}/${fileName}`,
+    );
+
+    toast.success('Link copied to clipboard');
+
+    copied.value.set(
+        fileName,
+        setTimeout(() => {
+            copied.value.delete(fileName);
+        }, 2_000),
+    );
+};
+
+const handleDelete = async (id: string) => {
+    willBeDeleted.value.add(id);
+
+    try {
+        await $fetch(`/api/files/${id}`, {
+            method: 'DELETE',
+        });
+        toast.success('File deleted successfully');
+    } catch (error: any) {
+        toast.error(error.data.message);
+    }
+
+    willBeDeleted.value.delete(id);
+};
+
+files.value = filesData.value!.map((f) => ({
+    ...f,
+    expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
+    createdAt: new Date(f.createdAt),
+}));
+
+definePageMeta({
+    layout: 'dashboard',
+    middleware: 'user-only',
+});
+</script>

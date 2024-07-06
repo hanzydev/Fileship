@@ -1,0 +1,23 @@
+[data-sonner-toast] {
+    @apply !border-none !bg-fs2 !font-sans !ring-2 !ring-fs-accent data-[type=error]:!ring-red-500 data-[type=warning]:!ring-yellow-500;
+}
+
+[data-sonner-toast] [data-title] {
+    @apply !text-sm !text-white;
+}
+
+[data-sonner-toast] [data-description] {
+    @apply !text-slate200;
+}
+
+[data-sonner-toast][data-type='success'] [data-icon] {
+    @apply !text-fs-accent;
+}
+
+[data-sonner-toast][data-type='error'] [data-icon] {
+    @apply !text-red-500;
+}
+
+[data-sonner-toast][data-type='warning'] [data-icon] {
+    @apply !text-yellow-400;
+}
