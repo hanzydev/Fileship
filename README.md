@@ -53,7 +53,7 @@ This section requires [Docker](https://www.docker.com/) and [Docker Compose](htt
 
 ### Building & running from source
 
-This section requires [Node.js](https://nodejs.org/) and [pnpm](https://pnpm.io/) to be installed on your machine.
+This section requires [Node.js v20.1.0+](https://nodejs.org/) and [pnpm v9.4.0+](https://pnpm.io/) to be installed on your machine.
 
 1. Clone the repo
     ```sh
