@@ -4,8 +4,8 @@
     "version": "1.0.0",
     "type": "module",
     "scripts": {
-        "build": "prisma db push && nuxt build",
-        "dev": "prisma db push && nuxt dev -o",
+        "build": "prisma db generate && nuxt build",
+        "dev": "prisma db generate && nuxt dev -o",
         "preview": "nuxt preview",
         "postinstall": "nuxt prepare",
         "lint": "eslint . && prettier --check .",
