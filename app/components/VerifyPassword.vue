@@ -7,7 +7,7 @@
         space-y-10
         @submit.prevent="$emit('password', password)"
     >
-        <div flex="~ gap4">
+        <div flex="~ gap4 items-center">
             <Icon name="heroicons-solid:hand" size="48" />
             <h3>Verify password</h3>
         </div>
