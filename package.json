@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "type": "module",
     "scripts": {
-        "build": "nuxt build",
+        "build": "prisma generate && nuxt build",
         "dev": "prisma db push && nuxt dev -o",
         "preview": "prisma db push && nuxt preview",
         "postinstall": "nuxt prepare",
