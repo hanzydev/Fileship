@@ -4,9 +4,9 @@
     "version": "1.0.0",
     "type": "module",
     "scripts": {
-        "build": "prisma generate && nuxt build",
-        "dev": "prisma generate && nuxt dev -o",
-        "preview": "nuxt preview",
+        "build": "nuxt build",
+        "dev": "prisma db push && nuxt dev -o",
+        "preview": "prisma db push && nuxt preview",
         "postinstall": "nuxt prepare",
         "lint": "eslint . && prettier --check .",
         "lint:fix": "eslint --fix . && prettier --write .",
