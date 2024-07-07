@@ -1,5 +1,7 @@
 import { hash } from 'argon2';
 
+import { UserPermission } from '@prisma/client';
+
 export default defineNitroPlugin(async () => {
     const findUser = await prisma.user.findFirst();
 
@@ -8,6 +10,8 @@ export default defineNitroPlugin(async () => {
             data: {
                 username: 'root',
                 password: await hash('password'),
+                superAdmin: true,
+                permissions: [UserPermission.Admin],
             },
         });
     }

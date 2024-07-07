@@ -83,9 +83,6 @@ export default defineNuxtConfig({
         build: {
             rollupOptions: {
                 output: {
-                    assetFileNames: '_fileship/module.[ext]',
-                    chunkFileNames: '_fileship/module.js',
-                    entryFileNames: '_fileship/module.js',
                     banner: `/*
 * Fileship v${pkg.version}
 * https://fileship.hanzy.dev

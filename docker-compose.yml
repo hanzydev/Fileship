@@ -1,0 +1,32 @@
+services:
+    postgres:
+        image: postgres:16.3
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: postgres
+        volumes:
+            - pg_data:/var/lib/postgresql/data
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    fileship:
+        build: .
+        ports:
+            - '3000:3000'
+        restart: unless-stopped
+        environment:
+            HOST: 0.0.0.0
+            PORT: 3000
+            DATABASE_URL: postgres://postgres:postgres@postgres/postgres
+        volumes:
+            - ./data:/fileship/data
+        depends_on:
+            - postgres
+
+volumes:
+    pg_data:
