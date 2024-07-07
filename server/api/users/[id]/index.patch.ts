@@ -262,6 +262,29 @@ export default defineEventHandler(async (event) => {
         }
 
         (body.data as any).password = await hash(body.data.password);
+
+        await prisma.session.deleteMany({
+            where: {
+                userId,
+                id: {
+                    not: currentUser.currentSessionId,
+                },
+            },
+        });
+
+        await sendByFilter(
+            (socket) =>
+                socket.handshake.auth.user.id === userId
+                    ? userId === currentUser.id
+                        ? socket.handshake.auth.user.currentSessionId !==
+                          currentUser.currentSessionId
+                        : true
+                    : false,
+            'logout',
+            null,
+        );
+
+        sendToUser(userId!, 'delete:session:all', null);
     } else delete body.data.password;
 
     delete body.data.verificationData;
@@ -278,26 +301,15 @@ export default defineEventHandler(async (event) => {
             permissions: true,
             totpEnabled: true,
             createdAt: true,
+            limits: true,
             superAdmin: true,
             embed: true,
         },
     });
 
-    const log = await prisma.log.create({
-        data: {
-            action: 'Update User',
-            userId: currentUser!.id,
-            message: `Updated user ${updatedUser.username}`,
-            ip: getRequestIP(event, { xForwardedFor: true }) || 'Unknown',
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                },
-            },
-        },
+    await createLog(event, {
+        action: 'Update User',
+        message: `Updated user ${updatedUser.username}`,
     });
 
     await sendByFilter(
@@ -305,26 +317,6 @@ export default defineEventHandler(async (event) => {
         'update:user',
         updatedUser,
     );
-
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
-    );
-
-    if ('password' in body.data) {
-        await sendByFilter(
-            (socket) =>
-                socket.handshake.auth.user.id === currentUser.id &&
-                userId === currentUser.id
-                    ? socket.handshake.auth.user.currentSessionId !==
-                      currentUser.currentSessionId
-                    : true,
-            'logout',
-            null,
-        );
-        sendToUser(userId!, 'delete:session:all', null);
-    }
 
     sendToUser(updatedUser.id, 'update:currentUser', updatedUser);
 

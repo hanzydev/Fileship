@@ -2,8 +2,7 @@ import { existsSync, promises as fsp } from 'node:fs';
 
 import { join } from 'pathe';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { sendToUser } from '~~/server/plugins/socketIO';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -31,29 +30,12 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    await fsp.rm(backupPath);
+    await fsp.rm(backupPath, { force: true });
 
-    const log = await prisma.log.create({
-        data: {
-            action: 'Delete Backup',
-            userId: currentUser.id,
-            message: `Deleted ${backupId}`,
-            ip: getRequestIP(event, { xForwardedFor: true })!,
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                },
-            },
-        },
+    await createLog(event, {
+        action: 'Delete Backup',
+        message: `Deleted ${backupId}`,
     });
 
     sendToUser(currentUser.id, 'delete:backup', backupId);
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
-    );
 });

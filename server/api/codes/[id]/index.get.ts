@@ -1,5 +1,4 @@
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { sendToUser } from '~~/server/plugins/socketIO';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -50,28 +49,11 @@ export default defineEventHandler(async (event) => {
             },
         });
 
-        const createLog = await prisma.log.create({
-            data: {
-                action: 'View Code',
-                message: `Viewed ${findCodeById.title}`,
-                system: true,
-                ip: getRequestIP(event, { xForwardedFor: true })!,
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        username: true,
-                    },
-                },
-            },
+        await createLog(event, {
+            action: 'View Code',
+            message: `Viewed ${findCodeById.title}`,
+            system: true,
         });
-
-        await sendByFilter(
-            (socket) => isAdmin(socket.handshake.auth.user)!,
-            'create:log',
-            createLog,
-        );
 
         if (
             findCodeById.maxViews &&
@@ -83,28 +65,11 @@ export default defineEventHandler(async (event) => {
                 },
             });
 
-            const deleteLog = await prisma.log.create({
-                data: {
-                    action: 'Delete Code',
-                    message: `Deleted ${findCodeById.title} due to max views reached`,
-                    system: true,
-                    ip: getRequestIP(event, { xForwardedFor: true })!,
-                },
-                include: {
-                    user: {
-                        select: {
-                            id: true,
-                            username: true,
-                        },
-                    },
-                },
+            await createLog(event, {
+                action: 'Delete Code',
+                message: `Deleted ${findCodeById.title} due to max views reached`,
+                system: true,
             });
-
-            await sendByFilter(
-                (socket) => isAdmin(socket.handshake.auth.user)!,
-                'create:log',
-                deleteLog,
-            );
 
             sendToUser(findCodeById.authorId, 'delete:code', findCodeById.id);
         }

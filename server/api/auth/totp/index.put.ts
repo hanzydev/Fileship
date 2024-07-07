@@ -73,33 +73,15 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const log = await prisma.log.create({
-        data: {
-            action: 'TOTP',
-            userId: currentUser!.id,
-            message: `${body.data.enabled ? 'Enabled' : 'Disabled'} Two-Factor Authentication`,
-            ip: getRequestIP(event, { xForwardedFor: true }) || 'Unknown',
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                },
-            },
-        },
+    await createLog(event, {
+        action: 'TOTP',
+        message: `${body.data.enabled ? 'Enabled' : 'Disabled'} Two-Factor Authentication`,
     });
 
     await sendByFilter(
         (socket) => isAdmin(socket.handshake.auth.user)!,
         'update:user:totp',
         body.data.enabled,
-    );
-
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
     );
 
     sendToUser(currentUser.id, 'update:currentUser:totp', body.data.enabled);

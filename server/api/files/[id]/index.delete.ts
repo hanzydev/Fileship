@@ -2,8 +2,7 @@ import { rm } from 'node:fs/promises';
 
 import { join } from 'pathe';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { sendToUser } from '~~/server/plugins/socketIO';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -39,9 +38,9 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    await rm(join(dataDirectory, 'uploads', findFileById.fileName)).catch(
-        () => null,
-    );
+    await rm(join(dataDirectory, 'uploads', findFileById.fileName), {
+        force: true,
+    });
 
     await prisma.view.deleteMany({
         where: {
@@ -55,27 +54,10 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const log = await prisma.log.create({
-        data: {
-            action: 'Delete File',
-            userId: currentUser.id,
-            message: `Deleted ${findFileById.fileName}`,
-            ip: getRequestIP(event, { xForwardedFor: true })!,
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                },
-            },
-        },
+    await createLog(event, {
+        action: 'Delete File',
+        message: `Deleted ${findFileById.fileName}`,
     });
 
     sendToUser(currentUser.id, 'delete:file', fileId);
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
-    );
 });

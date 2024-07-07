@@ -1,8 +1,8 @@
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { canShortenUrls, isAdmin } from '~~/utils/user';
+import { sendToUser } from '~~/server/plugins/socketIO';
+import { canShortenUrls } from '~~/utils/user';
 
 const validationSchema = z.object(
     {
@@ -114,29 +114,12 @@ export default defineEventHandler(async (event) => {
         },
     } as never;
 
-    const log = await prisma.log.create({
-        data: {
-            action: 'Shorten URL',
-            userId: currentUser.id,
-            message: `Shortened url ${url.vanity}`,
-            ip: getRequestIP(event, { xForwardedFor: true })!,
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                },
-            },
-        },
+    await createLog(event, {
+        action: 'Shorten URL',
+        message: `Shortened url ${url.vanity}`,
     });
 
     sendToUser(currentUser.id, 'create:url', url);
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
-    );
 
     return {
         ...url,

@@ -7,7 +7,7 @@ import { extname, join } from 'pathe';
 import sharp from 'sharp';
 import { z } from 'zod';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
+import { sendToUser } from '~~/server/plugins/socketIO';
 import { canUploadFiles, isAdmin } from '~~/utils/user';
 
 const validationSchema = z.object(
@@ -244,29 +244,12 @@ export default defineEventHandler(async (event) => {
             },
         } as never;
 
-        const log = await prisma.log.create({
-            data: {
-                action: 'Upload File',
-                userId: currentUser.id,
-                message: `Uploaded file ${fileName}`,
-                ip: getRequestIP(event, { xForwardedFor: true })!,
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        username: true,
-                    },
-                },
-            },
+        await createLog(event, {
+            action: 'Upload File',
+            message: `Uploaded file ${fileName}`,
         });
 
         sendToUser(currentUser.id, 'create:file', upload);
-        await sendByFilter(
-            (socket) => isAdmin(socket.handshake.auth.user)!,
-            'create:log',
-            log,
-        );
 
         return {
             ...upload,

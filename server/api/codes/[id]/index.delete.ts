@@ -1,5 +1,4 @@
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { sendToUser } from '~~/server/plugins/socketIO';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -47,27 +46,10 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const log = await prisma.log.create({
-        data: {
-            action: 'Delete Code',
-            userId: currentUser.id,
-            message: `Deleted ${findCodeById.title}`,
-            ip: getRequestIP(event, { xForwardedFor: true })!,
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                },
-            },
-        },
+    await createLog(event, {
+        action: 'Delete Code',
+        message: `Deleted ${findCodeById.title}`,
     });
 
     sendToUser(currentUser.id, 'delete:code', codeId);
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
-    );
 });

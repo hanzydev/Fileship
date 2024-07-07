@@ -118,6 +118,7 @@ export default defineEventHandler(async (event) => {
             password: await hash(body.data.password),
             permissions: body.data.permissions,
             limits: defu(body.data.limits, defaultUserLimits),
+            superAdmin: body.data.superAdmin,
         },
         select: {
             id: true,
@@ -132,35 +133,17 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const log = await prisma.log.create({
-        data: {
-            action: 'Create User',
-            userId: currentUser!.id,
-            message: `Created user ${user.username} with permissions ${user.permissions.join(
-                ', ',
-            )}`,
-            ip: getRequestIP(event, { xForwardedFor: true }) || 'Unknown',
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                },
-            },
-        },
+    await createLog(event, {
+        action: 'Create User',
+        message: `Created user ${user.username} with permissions ${user.permissions.join(
+            ', ',
+        )}`,
     });
 
     await sendByFilter(
         (socket) => isAdmin(socket.handshake.auth.user)!,
         'create:user',
         user,
-    );
-
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
     );
 
     return {

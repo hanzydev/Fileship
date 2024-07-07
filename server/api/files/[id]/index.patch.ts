@@ -4,8 +4,7 @@ import { filesize } from 'filesize';
 import { join } from 'pathe';
 import { z } from 'zod';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { sendToUser } from '~~/server/plugins/socketIO';
 
 const validationSchema = z
     .object(
@@ -174,29 +173,12 @@ export default defineEventHandler(async (event) => {
         },
     } as never;
 
-    const log = await prisma.log.create({
-        data: {
-            action: 'Update File',
-            userId: currentUser.id,
-            message: `Updated file ${updatedFile.fileName}`,
-            ip: getRequestIP(event, { xForwardedFor: true })!,
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                },
-            },
-        },
+    await createLog(event, {
+        action: 'Update File',
+        message: `Updated file ${updatedFile.fileName}`,
     });
 
     sendToUser(currentUser.id, 'update:file', updatedFile);
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
-    );
 
     if (body.data.folderId === null && findFileById.folderId !== null) {
         sendToUser(currentUser.id, 'folder:file:remove', {

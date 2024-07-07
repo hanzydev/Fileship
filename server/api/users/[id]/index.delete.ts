@@ -2,7 +2,7 @@ import { rm } from 'node:fs/promises';
 
 import { join } from 'pathe';
 
-import { sendByFilter } from '~~/server/plugins/socketIO';
+import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
 import { isAdmin } from '~~/utils/user';
 
 export default defineEventHandler(async (event) => {
@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
 
     const userFiles = await prisma.file.findMany({
         where: {
-            authorId: currentUser.id,
+            authorId: userId,
         },
         select: {
             fileName: true,
@@ -121,21 +121,9 @@ export default defineEventHandler(async (event) => {
         }),
     ]);
 
-    const log = await prisma.log.create({
-        data: {
-            action: 'Delete User',
-            userId: currentUser.id,
-            message: `Deleted ${findUserById.username}`,
-            ip: getRequestIP(event, { xForwardedFor: true })!,
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                },
-            },
-        },
+    await createLog(event, {
+        action: 'Delete User',
+        message: `Deleted ${findUserById.username}`,
     });
 
     await sendByFilter(
@@ -144,9 +132,5 @@ export default defineEventHandler(async (event) => {
         userId,
     );
 
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
-    );
+    sendToUser(findUserById.id, 'logout', null);
 });

@@ -1,5 +1,4 @@
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { sendToUser } from '~~/server/plugins/socketIO';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -57,28 +56,11 @@ export default defineEventHandler(async (event) => {
             },
         });
 
-        const createLog = await prisma.log.create({
-            data: {
-                action: 'View URL',
-                message: `Viewed ${findUrlById.vanity}`,
-                system: true,
-                ip: getRequestIP(event, { xForwardedFor: true })!,
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        username: true,
-                    },
-                },
-            },
+        await createLog(event, {
+            action: 'View URL',
+            message: `Viewed ${findUrlById.vanity}`,
+            system: true,
         });
-
-        await sendByFilter(
-            (socket) => isAdmin(socket.handshake.auth.user)!,
-            'create:log',
-            createLog,
-        );
 
         if (
             findUrlById.maxViews &&
@@ -90,28 +72,11 @@ export default defineEventHandler(async (event) => {
                 },
             });
 
-            const deleteLog = await prisma.log.create({
-                data: {
-                    action: 'Delete URL',
-                    message: `Deleted ${findUrlById.vanity} due to max views reached`,
-                    system: true,
-                    ip: getRequestIP(event, { xForwardedFor: true })!,
-                },
-                include: {
-                    user: {
-                        select: {
-                            id: true,
-                            username: true,
-                        },
-                    },
-                },
+            await createLog(event, {
+                action: 'Delete URL',
+                message: `Deleted ${findUrlById.vanity} due to max views reached`,
+                system: true,
             });
-
-            await sendByFilter(
-                (socket) => isAdmin(socket.handshake.auth.user)!,
-                'create:log',
-                deleteLog,
-            );
 
             sendToUser(findUrlById.authorId, 'delete:url', findUrlById.id);
         }

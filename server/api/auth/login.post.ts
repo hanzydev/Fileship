@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 import { authenticator } from 'otplib';
 import { z } from 'zod';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
+import { sendToUser } from '~~/server/plugins/socketIO';
 import { defaultEmbed } from '~~/utils/constants';
 import type { IEmbed } from '~~/utils/types';
 import { isAdmin } from '~~/utils/user';
@@ -153,22 +153,13 @@ export default defineEventHandler(async (event) => {
         (session) => session.privateId === sessionPrivateId,
     )!;
 
-    const log = await prisma.log.create({
-        data: {
+    await createLog(
+        Object.assign({}, event, { context: { user: findUserByUsername } }),
+        {
             action: 'Login',
-            userId: findUserByUsername.id,
             message: `Logged in using ${os} on ${platform}`,
-            ip,
         },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                },
-            },
-        },
-    });
+    );
 
     setCookie(event, 'sessionId', sessionPrivateId, {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
@@ -177,12 +168,6 @@ export default defineEventHandler(async (event) => {
     });
 
     sendToUser(findUserByUsername.id, 'create:session', session);
-
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
-    );
 
     return {
         user: {

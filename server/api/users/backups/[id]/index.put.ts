@@ -8,8 +8,7 @@ import StreamArray from 'stream-json/streamers/StreamArray.js';
 import { extract } from 'tar';
 import { z } from 'zod';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { sendToUser } from '~~/server/plugins/socketIO';
 
 const validationSchema = z
     .object({
@@ -130,8 +129,6 @@ export default defineEventHandler(async (event) => {
     const tempPath = join(dataDirectory, 'temp', backupId!);
     await fsp.mkdir(tempPath);
 
-    const ip = getRequestIP(event, { xForwardedFor: true })!;
-
     extract({
         file: backupPath,
         cwd: tempPath,
@@ -200,27 +197,9 @@ export default defineEventHandler(async (event) => {
 
         await fsp.rm(tempPath, { recursive: true });
 
-        const log = await prisma.log.create({
-            data: {
-                action: 'Load Backup',
-                userId: currentUser.id,
-                message: `Loaded backup ${backupId}`,
-                ip,
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        username: true,
-                    },
-                },
-            },
+        await createLog(event, {
+            action: 'Load Backup',
+            message: `Loaded backup ${backupId}`,
         });
-
-        await sendByFilter(
-            (socket) => isAdmin(socket.handshake.auth.user)!,
-            'create:log',
-            log,
-        );
     });
 });

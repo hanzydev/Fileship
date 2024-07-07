@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { sendToUser } from '~~/server/plugins/socketIO';
 
 const validationSchema = z
     .object(
@@ -140,29 +139,12 @@ export default defineEventHandler(async (event) => {
         },
     } as never;
 
-    const log = await prisma.log.create({
-        data: {
-            action: 'Update Code',
-            userId: currentUser.id,
-            message: `Updated code ${findCodeById.title}`,
-            ip: getRequestIP(event, { xForwardedFor: true })!,
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                },
-            },
-        },
+    await createLog(event, {
+        action: 'Update Code',
+        message: `Updated code ${findCodeById.title}`,
     });
 
     sendToUser(currentUser.id, 'update:code', updatedCode);
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
-    );
 
     return { ...updatedCode, password: undefined };
 });

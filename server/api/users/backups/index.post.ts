@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid';
 import { join } from 'pathe';
 import { create } from 'tar';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
+import { sendToUser } from '~~/server/plugins/socketIO';
 import { isAdmin } from '~~/utils/user';
 
 export default defineEventHandler(async (event) => {
@@ -143,8 +143,6 @@ export default defineEventHandler(async (event) => {
     const backupId = nanoid();
     const backupPath = join(userBackupsPath, `${backupId}.tgz`);
 
-    const ip = getRequestIP(event, { xForwardedFor: true })!;
-
     create(
         {
             file: backupPath,
@@ -157,21 +155,9 @@ export default defineEventHandler(async (event) => {
 
         const backupStat = await fsp.stat(backupPath);
 
-        const log = await prisma.log.create({
-            data: {
-                action: 'Create Backup',
-                userId: currentUser.id,
-                message: `Created backup ${backupId}`,
-                ip,
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        username: true,
-                    },
-                },
-            },
+        await createLog(event, {
+            action: 'Create Backup',
+            message: `Created backup ${backupId}`,
         });
 
         sendToUser(currentUser.id, 'create:backup', {
@@ -182,10 +168,5 @@ export default defineEventHandler(async (event) => {
                 formatted: filesize(backupStat.size),
             },
         });
-        await sendByFilter(
-            (socket) => isAdmin(socket.handshake.auth.user)!,
-            'create:log',
-            log,
-        );
     });
 });

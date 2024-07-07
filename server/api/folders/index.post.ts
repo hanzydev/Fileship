@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { canUploadFiles, isAdmin } from '~~/utils/user';
+import { sendToUser } from '~~/server/plugins/socketIO';
+import { canUploadFiles } from '~~/utils/user';
 
 const validationSchema = z.object(
     {
@@ -82,29 +82,12 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const log = await prisma.log.create({
-        data: {
-            action: 'Create Folder',
-            userId: currentUser.id,
-            message: 'Created a folder',
-            ip: getRequestIP(event, { xForwardedFor: true })!,
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                },
-            },
-        },
+    await createLog(event, {
+        action: 'Create Folder',
+        message: 'Created a folder',
     });
 
     sendToUser(currentUser.id, 'create:folder', folder);
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
-    );
 
     folder.files.forEach((file) => {
         sendToUser(currentUser.id, 'folder:file:add', {

@@ -4,8 +4,7 @@ import { filesize } from 'filesize';
 import { basename, extname, join } from 'pathe';
 import { z } from 'zod';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { sendToUser } from '~~/server/plugins/socketIO';
 
 const validationSchema = z.object(
     {
@@ -118,29 +117,12 @@ export default defineEventHandler(async (event) => {
             },
         };
 
-        const log = await prisma.log.create({
-            data: {
-                action: 'Upload Backup',
-                userId: currentUser.id,
-                message: `Uploaded backup ${backupName}`,
-                ip: getRequestIP(event, { xForwardedFor: true })!,
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        username: true,
-                    },
-                },
-            },
+        await createLog(event, {
+            action: 'Upload Backup',
+            message: `Uploaded backup ${backupName}`,
         });
 
         sendToUser(currentUser.id, 'create:backup', backupObject);
-        await sendByFilter(
-            (socket) => isAdmin(socket.handshake.auth.user)!,
-            'create:log',
-            log,
-        );
 
         return backupObject;
     } else if (body.data.currentChunk === 1) {

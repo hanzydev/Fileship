@@ -1,5 +1,4 @@
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { sendToUser } from '~~/server/plugins/socketIO';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -44,29 +43,12 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const log = await prisma.log.create({
-        data: {
-            action: 'Delete Folder',
-            userId: currentUser.id,
-            message: `Deleted ${findFolderById.name}`,
-            ip: getRequestIP(event, { xForwardedFor: true })!,
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                },
-            },
-        },
+    await createLog(event, {
+        action: 'Delete Folder',
+        message: `Deleted ${findFolderById.name}`,
     });
 
     sendToUser(currentUser.id, 'delete:folder', folderId);
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
-    );
 
     findFolderById.files.forEach((f) => {
         sendToUser(currentUser.id, 'folder:file:remove', {
