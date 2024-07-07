@@ -52,23 +52,17 @@ To get started with Fileship, follow these steps:
 
 This section requires [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) to be installed on your machine.
 
-1. Clone the repo
-    ```sh
-    git clone https://github.com/hanzydev/Fileship.git
-    ```
-2. Go into the repo directory
-    ```sh
-    cd Fileship
-    ```
-3. Run the following command to start the server
-    ```sh
-    docker-compose up -d
-    ```
-4. Open your browser and go to `http://localhost:3000`
+```sh
+git clone https://github.com/hanzydev/Fileship.git
+cd Fileship
+docker-compose up -d
+```
+
+Open your browser and go to `http://localhost:3000`
 
 ### Building & running from source
 
-This section requires [Node.js v20.1.0+](https://nodejs.org/) and [pnpm v9.4.0+](https://pnpm.io/) to be installed on your machine.
+This section requires [Node.js v20.1.0+](https://nodejs.org/) to be installed on your machine.
 
 1. Clone the repo
     ```sh
@@ -78,25 +72,29 @@ This section requires [Node.js v20.1.0+](https://nodejs.org/) and [pnpm v9.4.0+]
     ```sh
     cd Fileship
     ```
-3. Install NPM packages
+3. Enable [Corepack](https://github.com/nodejs/corepack)
+    ```sh
+    corepack enable
+    ```
+4. Install NPM packages
     ```sh
     pnpm i
     ```
-4. Create an .env file using .env.example. The only one required is the `DATABASE_URL` which is the connection string to your database.
+5. Create an .env file using .env.example. The only one required is the `DATABASE_URL` which is the connection string to your database.
 
     ```sh
     cp .env.example .env
     ```
 
-5. Build the project
+6. Build the project
     ```sh
     pnpm build
     ```
-6. Start the server
+7. Start the server
     ```sh
     pnpm preview
     ```
-7. Open your browser and go to `http://localhost:3000`
+8. Open your browser and go to `http://localhost:3000`
 
 ## 📖 Documentation
 
