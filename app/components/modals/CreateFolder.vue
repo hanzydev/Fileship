@@ -2,7 +2,6 @@
     <ModalsFolderFiles
         v-if="createdFolder"
         v-model="selectFilesModalOpen"
-        v-model:selectedFiles="folder.files"
         :data="createdFolder!"
         editable
     />
