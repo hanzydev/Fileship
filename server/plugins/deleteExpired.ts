@@ -31,6 +31,6 @@ export default defineNitroPlugin(async () => {
                 }
             }
         },
-        +(process.env.DELETE_EXPIRED_INTERVAL ?? 300) * 1_000,
+        +(process.env.DELETE_EXPIRED_INTERVAL || 300) * 1_000,
     );
 });

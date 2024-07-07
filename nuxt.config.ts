@@ -45,17 +45,7 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
-            fileChunkSize: +(process.env.NUXT_PUBLIC_FILE_CHUNK_SIZE || 10),
-            tunstile: {
-                siteKey:
-                    process.env.NUXT_PUBLIC_TURNSTILE_SITE_KEY ||
-                    '1x00000000000000000000AA',
-            },
-        },
-        turnstile: {
-            secretKey:
-                process.env.TURNSTILE_SECRET_KEY ||
-                '1x0000000000000000000000000000000AA',
+            fileChunkSize: 10,
         },
     },
     app: {

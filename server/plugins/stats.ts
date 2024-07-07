@@ -117,6 +117,6 @@ export default defineNitroPlugin(() => {
                 },
             });
         },
-        +(process.env.STATS_INTERVAL ?? 1800) * 1_000,
+        +(process.env.STATS_INTERVAL || 1800) * 1_000,
     );
 });
