@@ -140,20 +140,24 @@ export default defineEventHandler(async (event) => {
 
     await Promise.all(cpPromises);
 
-    const backupId = nanoid();
-    const backupPath = join(userBackupsPath, `${backupId}.tgz`);
+    const backupCompressedPath = join(tempPath, 'backup.tgz');
 
     create(
         {
-            file: backupPath,
+            file: backupCompressedPath,
             cwd: tempPath,
             gzip: { level: 9 },
         },
         ['uploads', 'database'],
     ).then(async () => {
-        await fsp.rm(tempPath, { recursive: true });
+        const backupStat = await fsp.stat(backupCompressedPath);
 
-        const backupStat = await fsp.stat(backupPath);
+        const backupId = nanoid();
+        await fsp.rename(
+            backupCompressedPath,
+            join(userBackupsPath, `${backupId}.tgz`),
+        );
+        await fsp.rm(tempPath, { recursive: true });
 
         await createLog(event, {
             action: 'Create Backup',
