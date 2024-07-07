@@ -1,3 +1,7 @@
+import { rm } from 'node:fs/promises';
+
+import { join } from 'pathe';
+
 import { sendByFilter } from '~~/server/plugins/socketIO';
 import { isAdmin } from '~~/utils/user';
 
@@ -41,6 +45,21 @@ export default defineEventHandler(async (event) => {
             statusMessage: 'Forbidden',
             message: 'You cannot delete a super admin',
         });
+    }
+
+    const userFiles = await prisma.file.findMany({
+        where: {
+            authorId: currentUser.id,
+        },
+        select: {
+            fileName: true,
+        },
+    });
+
+    const uploadsPath = join(dataDirectory, 'uploads');
+
+    for (const { fileName } of userFiles) {
+        await rm(join(uploadsPath, fileName), { force: true });
     }
 
     await prisma.$transaction([
