@@ -1,14 +1,12 @@
 <div align="center">
   <a href="https://github.com/hanzydev/Fileship">
-    <img src="banner.png" alt="Fileship" width="600" height="120">
+    <img src="banner.png" alt="Fileship" width="550" height="110">
   </a>
 
   <p align="center">
     Fileship is an open-source and self-hosted image uploading service with cool features.
     <br />
     <br />
-    <a href="https://fileship.hanzy.dev">Docs</a>
-    ·
     <a href="https://github.com/hanzydev/Fileship/issues">Report Bug</a>
     ·
     <a href="https://github.com/hanzydev/Fileship/issues">Request Feature</a>
@@ -96,9 +94,33 @@ This section requires [Node.js v20.1.0+](https://nodejs.org/) to be installed on
     ```
 8. Open your browser and go to `http://localhost:3000`
 
-## 📖 Documentation
+### Web server configuration (optional)
 
-The documentation for Fileship can be found [here](https://fileship.hanzy.dev).
+This section requires [Nginx](https://nginx.org/) to be installed on your machine.
+
+```nginx
+server {
+    listen 80;
+    server_name <domain>;
+
+    client_max_body_size 100M;
+
+    location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_pass http://127.0.0.1:3000;
+    }
+
+    location /socket.io/ {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+```
 
 ## ❤️ Contribute
 
