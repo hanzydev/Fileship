@@ -10,7 +10,8 @@
         "postinstall": "nuxt prepare",
         "lint": "eslint . && prettier --check .",
         "lint:fix": "eslint --fix . && prettier --write .",
-        "check": "pnpm build && pnpm lint"
+        "check": "pnpm build && pnpm lint",
+        "release": "changelogen --release"
     },
     "dependencies": {
         "@unocss/reset": "^0.61.0",
