@@ -53,7 +53,7 @@ This section requires [Docker](https://www.docker.com/) and [Docker Compose](htt
 ```sh
 git clone https://github.com/hanzydev/Fileship.git
 cd Fileship
-docker-compose up -d
+docker compose up -d
 ```
 
 Open your browser and go to `http://localhost:3000`
