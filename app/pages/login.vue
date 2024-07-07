@@ -53,6 +53,7 @@
                             </div>
 
                             <NuxtTurnstile
+                                v-if="runtimeConfig.public.turnstile.siteKey"
                                 ref="turnstileRef"
                                 v-model="auth.turnstile"
                                 class="[&>iframe]:!wfull"
@@ -107,6 +108,7 @@
                             </div>
 
                             <NuxtTurnstile
+                                v-if="runtimeConfig.public.turnstile.siteKey"
                                 ref="turnstileRef"
                                 v-model="auth.turnstile"
                                 class="[&>iframe]:!wfull"
