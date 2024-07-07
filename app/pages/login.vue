@@ -4,7 +4,16 @@
             <Title>Login</Title>
         </Head>
         <UiCentered>
-            <div relative h30.75rem w20rem overflow-hidden text-start sm:w35rem>
+            <div
+                relative
+                w20rem
+                overflow-hidden
+                text-start
+                sm:w35rem
+                :style="{
+                    height: `calc(23.75rem${runtimeConfig.public.turnstile.siteKey ? ' + 7rem' : ''})`,
+                }"
+            >
                 <Transition
                     enter-active-class="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-left-52"
                     leave-active-class="motion-safe:animate-out motion-safe:fade-out motion-safe:slide-out-left-52"
@@ -129,11 +138,12 @@
 import { toast } from 'vue-sonner';
 
 const formErrors = ref();
-
 const turnstileRef = ref();
 
 const error = ref<string>();
 const disabled = ref(false);
+
+const runtimeConfig = useRuntimeConfig();
 
 const auth = reactive({
     username: '',

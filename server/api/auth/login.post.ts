@@ -70,16 +70,19 @@ export default defineEventHandler(async (event) => {
                   : true)
             : false)
     ) {
-        const turnstileResult = await verifyTurnstileToken(
-            body.data.turnstile!,
-            event,
-        );
-        if (!turnstileResult.success) {
-            throw createError({
-                statusCode: 400,
-                statusMessage: 'Bad Request',
-                message: 'Invalid turnstile',
-            });
+        const runtimeConfig = useRuntimeConfig();
+        if (runtimeConfig.turnstile.secretKey) {
+            const turnstileResult = await verifyTurnstileToken(
+                body.data.turnstile!,
+                event,
+            );
+            if (!turnstileResult.success) {
+                throw createError({
+                    statusCode: 400,
+                    statusMessage: 'Bad Request',
+                    message: 'Invalid turnstile',
+                });
+            }
         }
 
         const passwordMatch = await verify(
