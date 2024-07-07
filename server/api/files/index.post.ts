@@ -89,7 +89,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (!(file instanceof File)) {
+    if (typeof file === 'string') {
         throw createError({
             statusCode: 400,
             statusMessage: 'Bad Request',

@@ -3,7 +3,7 @@
         v-if="createdFolder"
         v-model="selectFilesModalOpen"
         v-model:selectedFiles="folder.files"
-        :folder="createdFolder!"
+        :data="createdFolder!"
         editable
     />
 
@@ -77,12 +77,7 @@ const folder = reactive({
     files: [],
 });
 
-const createdFolder = ref<{
-    id: string;
-    files: {
-        id: string;
-    }[];
-}>();
+const createdFolder = ref<FolderData>();
 
 const handleSubmit = async () => {
     disabled.value = true;
@@ -96,7 +91,10 @@ const handleSubmit = async () => {
 
         createModalOpen.value = false;
         selectFilesModalOpen.value = true;
-        createdFolder.value = folderData;
+        createdFolder.value = {
+            ...folderData,
+            createdAt: new Date(folderData.createdAt),
+        };
 
         toast.success('Folder created successfully, now select files to add');
     } catch (error: any) {

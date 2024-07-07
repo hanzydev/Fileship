@@ -48,11 +48,11 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (!(backup instanceof File)) {
+    if (typeof backup === 'string') {
         throw createError({
             statusCode: 400,
             statusMessage: 'Bad Request',
-            message: 'Invalid file',
+            message: 'Invalid backup file',
         });
     }
 
