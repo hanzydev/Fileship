@@ -131,6 +131,7 @@
                                             />
                                             Queued
                                         </template>
+
                                         <template
                                             v-else-if="file.status?.progress"
                                         >
@@ -140,6 +141,17 @@
                                                 flex-shrink-0
                                             />
                                             Uploading
+                                        </template>
+                                        <template
+                                            v-else-if="file.status?.started"
+                                        >
+                                            <Icon
+                                                name="heroicons:rocket-launch-20-solid"
+                                                size="16"
+                                                flex-shrink-0
+                                                text-green-500
+                                            />
+                                            Starting
                                         </template>
                                     </div>
                                     <UiProgress
