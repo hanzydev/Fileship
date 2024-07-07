@@ -1,9 +1,5 @@
 <template>
-    <NuxtLoadingIndicator
-        color="var(--color-fs-accent)"
-        :duration="3000"
-        :throttle="0"
-    />
+    <NuxtLoadingIndicator color="var(--color-fs-accent)" />
     <Toaster position="top-center" theme="dark" />
 
     <Head>
