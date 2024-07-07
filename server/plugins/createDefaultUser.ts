@@ -7,7 +7,7 @@ export default defineNitroPlugin(async () => {
         await prisma.user.create({
             data: {
                 username: 'root',
-                password: await hash('root'),
+                password: await hash('password'),
             },
         });
     }
