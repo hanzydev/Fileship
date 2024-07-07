@@ -4,7 +4,9 @@
         h-12
         flex="~ items-center"
         bg-fs-accent
-        px4
+        pl3
+        pr5
+        lg:px5
         border="b b-fs-5"
     >
         <UiButton
