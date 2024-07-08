@@ -61,7 +61,7 @@
                                 },
                                 chart: {
                                     background: 'transparent',
-                                    fontFamily: 'Montserrat, sans-serif',
+                                    fontFamily: 'Quicksand, sans-serif',
                                     foreColor: theme.colors.slate[200],
                                     toolbar: {
                                         show: false,
@@ -197,7 +197,7 @@
                                     },
                                     chart: {
                                         background: 'transparent',
-                                        fontFamily: 'Montserrat, sans-serif',
+                                        fontFamily: 'Quicksand, sans-serif',
                                         foreColor: theme.colors.slate[200],
                                         toolbar: {
                                             show: false,
@@ -269,7 +269,7 @@
                                     },
                                     chart: {
                                         background: 'transparent',
-                                        fontFamily: 'Montserrat, sans-serif',
+                                        fontFamily: 'Quicksand, sans-serif',
                                         foreColor: theme.colors.slate[200],
                                         toolbar: {
                                             show: false,
