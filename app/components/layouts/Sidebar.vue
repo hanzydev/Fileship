@@ -58,11 +58,12 @@
                     href="https://github.com/hanzydev/Fileship"
                     target="_blank"
                     flex="~ items-center gap2.5"
-                    text="slate300 hover:white"
                     m5.5
                     mta
                     wfit
+                    text-slate300
                     font-medium
+                    hover:text-white
                     motion-safe:transition-colors
                 >
                     <Icon name="heroicons-solid:external-link" size="20" />

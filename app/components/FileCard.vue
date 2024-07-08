@@ -223,7 +223,8 @@
                                 "
                                 mx4
                                 translate-y-16
-                                text="center slate-300"
+                                text-center
+                                text-slate300
                             >
                                 There are no folders to display.
                             </p>
