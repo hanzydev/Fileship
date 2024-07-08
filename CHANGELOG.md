@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.2.5
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.4...v1.2.5)
+
+### 🩹 Fixes
+
+- Fix issue where files disappear when a folder is deleted ([53aabb3](https://github.com/hanzydev/Fileship/commit/53aabb3))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.2.4
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.3...v1.2.4)
