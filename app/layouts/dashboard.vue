@@ -1,12 +1,14 @@
 <template>
-    <div v-if="currentUser" bg-fs3>
-        <LayoutsImpersonatingUser />
-        <LayoutsNavbar />
-        <LayoutsSidebar :items="sidebarItems" />
-        <LayoutsDashboard>
-            <slot />
-        </LayoutsDashboard>
-        <LayoutsUploadingFiles />
+    <div>
+        <div v-if="currentUser" bg-fs3>
+            <LayoutsImpersonatingUser />
+            <LayoutsNavbar />
+            <LayoutsSidebar :items="sidebarItems" />
+            <LayoutsDashboard>
+                <slot />
+            </LayoutsDashboard>
+            <LayoutsUploadingFiles />
+        </div>
     </div>
 </template>
 
