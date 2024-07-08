@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.2.4
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.3...v1.2.4)
+
+### 🩹 Fixes
+
+- Fix folders not shown in the context menu of files ([09cc627](https://github.com/hanzydev/Fileship/commit/09cc627))
+- Handle key events only when the color picker is open ([e00fe60](https://github.com/hanzydev/Fileship/commit/e00fe60))
+
+### 🏡 Chore
+
+- **release:** V1.2.3 ([f73bb81](https://github.com/hanzydev/Fileship/commit/f73bb81))
+- Fix repo name in build banner ([7ba6ebc](https://github.com/hanzydev/Fileship/commit/7ba6ebc))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.2.3
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.2...v1.2.3)
