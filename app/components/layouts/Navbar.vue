@@ -57,7 +57,7 @@
                 d="m 30,67 h 40 c 0,0 8.5,0.68551 8.5,-10.375 0,-8.292653 -6.122707,-9.002293 -8.5,-6.625 l -11.071429,11.071429"
             />
         </svg>
-        <div flex="~ gap2 items-center">
+        <div flex="~ gap2 items-center lg:items-end">
             <UiButton
                 v-if="$route.path.startsWith('/admin')"
                 p0="!"
@@ -72,6 +72,25 @@
             <h2 lt-lg:mxa lt-lg:text-2xl="!">
                 {{ appConfig.site.name }}
             </h2>
+            <UiButton
+                variant="outline"
+                alignment="center"
+                p0="!"
+                h6
+                w12
+                rounded
+                bg-fs-2
+                ring-1
+                :class="
+                    latestRelease.tag_name === `v${pkg.version}`
+                        ? 'ring-fs-accent'
+                        : 'ring-red-500'
+                "
+                :href="latestRelease.html_url"
+                target="_blank"
+            >
+                v{{ pkg.version }}
+            </UiButton>
         </div>
         <div lg:mlauto>
             <UiDropdown placement="bottom" right-0 pt2.5>
@@ -214,7 +233,12 @@ import { upperFirst } from 'scule';
 import { toast } from 'vue-sonner';
 
 import themes from '~/styles/themes.json';
+import pkg from '~~/package.json';
 import { isAdmin } from '~~/utils/user';
+
+const { data: latestRelease } = await useFetch<any>(
+    'https://api.github.com/repos/hanzydev/Fileship/releases/latest',
+);
 
 const { width } = useWindowSize();
 
