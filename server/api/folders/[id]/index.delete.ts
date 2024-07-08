@@ -48,12 +48,12 @@ export default defineEventHandler(async (event) => {
         message: `Deleted ${findFolderById.name}`,
     });
 
-    sendToUser(currentUser.id, 'delete:folder', folderId);
-
     findFolderById.files.forEach((f) => {
         sendToUser(currentUser.id, 'folder:file:remove', {
             folderId,
             fileId: f.id,
         });
     });
+
+    sendToUser(currentUser.id, 'delete:folder', folderId);
 });
