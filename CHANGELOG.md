@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.2.3
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.2...v1.2.3)
+
+### 🩹 Fixes
+
+- Fix folders not shown in the context menu of files ([09cc627](https://github.com/hanzydev/Fileship/commit/09cc627))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.2.2
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.1...v1.2.2)
