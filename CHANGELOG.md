@@ -1,5 +1,38 @@
 # Changelog
 
+## v1.2.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.1.0...v1.2.0)
+
+### 🚀 Enhancements
+
+- **pkg:** Add release script ([3a2cefc](https://github.com/hanzydev/Fileship/commit/3a2cefc))
+- **lint:** Better check script ([0bfccfb](https://github.com/hanzydev/Fileship/commit/0bfccfb))
+- **UploadingFiles:** Show 'Starting' if progress is 0 ([f99c089](https://github.com/hanzydev/Fileship/commit/f99c089))
+- Better loading indicator ([ac68a48](https://github.com/hanzydev/Fileship/commit/ac68a48))
+- Add github link ([6c14800](https://github.com/hanzydev/Fileship/commit/6c14800))
+- Add version info ([678436d](https://github.com/hanzydev/Fileship/commit/678436d))
+
+### 🩹 Fixes
+
+- Fix the backup that appears when it has not yet been created ([88b3592](https://github.com/hanzydev/Fileship/commit/88b3592))
+- **pkg:** Fix docker compose command ([07ee2ed](https://github.com/hanzydev/Fileship/commit/07ee2ed))
+- Fix outlined button ([4aeafaf](https://github.com/hanzydev/Fileship/commit/4aeafaf))
+- Fix build banner ([9ec6dcf](https://github.com/hanzydev/Fileship/commit/9ec6dcf))
+
+### 🏡 Chore
+
+- **release:** V1.1.0 ([821dd92](https://github.com/hanzydev/Fileship/commit/821dd92))
+
+### 🎨 Styles
+
+- Lint fix ([a799b6b](https://github.com/hanzydev/Fileship/commit/a799b6b))
+- Change font to Quicksand ([172cdb5](https://github.com/hanzydev/Fileship/commit/172cdb5))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.1.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/1.0.0...v1.1.0)
