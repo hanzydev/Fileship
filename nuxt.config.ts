@@ -85,7 +85,7 @@ export default defineNuxtConfig({
                 output: {
                     banner: `/*
 * Fileship v${pkg.version}
-* https://github.com/hanzydev/fileship/
+* https://github.com/hanzydev/Fileship
 * (c) 2024-present Hànzy and Fileship contributors
 * @license MIT
 */`,
