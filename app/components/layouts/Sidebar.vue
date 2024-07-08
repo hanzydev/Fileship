@@ -53,6 +53,21 @@
                 >
                     {{ item.name }}
                 </UiButton>
+
+                <a
+                    href="https://github.com/hanzydev/Fileship"
+                    target="_blank"
+                    flex="~ items-center gap2.5"
+                    text="slate300 hover:white"
+                    m5.5
+                    mta
+                    wfit
+                    font-medium
+                    motion-safe:transition-colors
+                >
+                    <Icon name="heroicons-solid:external-link" size="20" />
+                    Github
+                </a>
             </aside>
         </Transition>
     </div>
