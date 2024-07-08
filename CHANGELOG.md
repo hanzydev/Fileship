@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.2.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.0...v1.2.1)
+
+### 🏡 Chore
+
+- **release:** V1.2.0 ([3e5b7b3](https://github.com/hanzydev/Fileship/commit/3e5b7b3))
+- Ignore CHANGELOG.md in prettier formatting ([6c3d3b7](https://github.com/hanzydev/Fileship/commit/6c3d3b7))
+
+### 🎨 Styles
+
+- Fix font family on charts ([f3effbd](https://github.com/hanzydev/Fileship/commit/f3effbd))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.2.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.1.0...v1.2.0)
