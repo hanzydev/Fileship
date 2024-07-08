@@ -26,13 +26,20 @@
 
 <script setup lang="ts">
 const files = useFiles();
+const folders = useFolders();
 
 const searchQuery = ref('');
 const currentPage = ref(1);
 
-const { data } = await useFetch('/api/files');
+const { data: foldersData } = await useFetch('/api/folders');
+const { data: filesData } = await useFetch('/api/files');
 
-files.value = data.value!.map((f) => ({
+folders.value = foldersData.value!.map((f) => ({
+    ...f,
+    createdAt: new Date(f.createdAt),
+}));
+
+files.value = filesData.value!.map((f) => ({
     ...f,
     expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
     createdAt: new Date(f.createdAt),

@@ -28,29 +28,29 @@
                         title="Files"
                         description="uploaded files"
                         icon="heroicons-solid:document"
-                        :data="stats!.files.count"
-                        :growth="stats!.files.growth"
+                        :data="statsData!.files.count"
+                        :growth="statsData!.files.growth"
                     />
                     <StatCard
                         title="Views"
                         description="total file views"
                         icon="heroicons-solid:eye"
-                        :data="stats!.views.count"
-                        :growth="stats!.views.growth"
+                        :data="statsData!.views.count"
+                        :growth="statsData!.views.growth"
                     />
                     <StatCard
                         title="Storage"
                         description="used storage"
                         icon="mdi:sd-storage"
-                        :data="stats!.storageUsed.size"
-                        :growth="stats!.storageUsed.growth"
+                        :data="statsData!.storageUsed.size"
+                        :growth="statsData!.storageUsed.growth"
                     />
                     <StatCard
                         title="Users"
                         description="total users"
                         icon="iconamoon:profile-fill"
-                        :data="stats!.users.count"
-                        :growth="stats!.users.growth"
+                        :data="statsData!.users.count"
+                        :growth="statsData!.users.growth"
                     />
                 </div>
             </div>
@@ -220,11 +220,24 @@ import { toast } from 'vue-sonner';
 
 import { UiButton } from '#components';
 
-const { data: stats } = await useFetch('/api/users/@me/stats');
+const { data: foldersData } = await useFetch('/api/folders');
 const { data: filesData } = await useFetch('/api/files');
+const { data: statsData } = await useFetch('/api/users/@me/stats');
 
 const files = useFiles();
+const folders = useFolders();
 const currentUser = useAuthUser();
+
+folders.value = foldersData.value!.map((f) => ({
+    ...f,
+    createdAt: new Date(f.createdAt),
+}));
+
+files.value = filesData.value!.map((f) => ({
+    ...f,
+    expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
+    createdAt: new Date(f.createdAt),
+}));
 
 const currentPage = ref(1);
 
@@ -278,12 +291,6 @@ const handleDelete = async (id: string) => {
 
     willBeDeleted.value.delete(id);
 };
-
-files.value = filesData.value!.map((f) => ({
-    ...f,
-    expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
-    createdAt: new Date(f.createdAt),
-}));
 
 definePageMeta({
     layout: 'dashboard',
