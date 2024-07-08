@@ -39,8 +39,8 @@
 -   URL shortening
 -   Image compression
 -   Two-factor authentication
--   Password protected files, urls and code
--   Delete files, urls and code after a certain number of views
+-   Password protected files, urls and codes
+-   Delete files, urls and codes after a certain number of views
 
 ## 🚀 Getting Started
 
