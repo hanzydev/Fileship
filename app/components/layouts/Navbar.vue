@@ -78,7 +78,7 @@
                 p0="!"
                 h6
                 w12
-                rounded
+                rounded="!"
                 bg-fs-2
                 ring-1
                 :class="
