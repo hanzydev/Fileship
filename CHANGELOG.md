@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.2.2
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.1...v1.2.2)
+
+### 🩹 Fixes
+
+- Cannot read properties of null (reading 'insertBefore') error ([cca4725](https://github.com/hanzydev/Fileship/commit/cca4725))
+
+### 🏡 Chore
+
+- **release:** V1.2.1 ([aab00bf](https://github.com/hanzydev/Fileship/commit/aab00bf))
+
+### 🎨 Styles
+
+- Fix text styles ([57ff137](https://github.com/hanzydev/Fileship/commit/57ff137))
+- Fix border radius of version info button ([8e46f06](https://github.com/hanzydev/Fileship/commit/8e46f06))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.2.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.0...v1.2.1)
