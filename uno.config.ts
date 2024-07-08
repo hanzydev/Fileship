@@ -22,7 +22,7 @@ export default defineConfig({
             },
         },
         fontFamily: {
-            sans: ['Montserrat', 'sans-serif'],
+            sans: ['Quicksand', 'sans-serif'],
         },
     },
 });
