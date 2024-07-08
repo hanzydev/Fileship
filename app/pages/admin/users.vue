@@ -122,7 +122,7 @@
                                         h(UiButton, {
                                             variant: 'outline',
                                             alignment: 'center',
-                                            class: 'h8 w8 !p0 !ring-1 text-slate300 hover:text-white',
+                                            class: 'h8 w8 !p0 text-slate300 hover:text-white',
                                             icon: 'heroicons-solid:switch-horizontal',
                                             iconSize: '20',
                                             disabled:
@@ -138,7 +138,7 @@
                                         h(UiButton, {
                                             variant: 'outline',
                                             alignment: 'center',
-                                            class: 'h8 w8 !p0 !ring-1 text-slate300 hover:text-white',
+                                            class: 'h8 w8 !p0 text-slate300 hover:text-white',
                                             icon: 'heroicons:pencil-16-solid',
                                             iconSize: '20',
                                             disabled:
@@ -158,7 +158,7 @@
                                         h(UiButton, {
                                             variant: 'outline',
                                             alignment: 'center',
-                                            class: 'h8 w8 !p0 !ring-1 ring-red-500 text-slate300 hover:text-white hover:!bg-red-500',
+                                            class: 'h8 w8 !p0 ring-red-500 text-slate300 hover:text-white hover:!bg-red-500',
                                             icon: 'heroicons-solid:trash',
                                             iconSize: '20',
                                             disabled:

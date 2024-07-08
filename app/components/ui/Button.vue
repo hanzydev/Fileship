@@ -19,7 +19,7 @@
                     variant === 'danger',
                 'bg-red-500 hover:bg-red-600 hover:ring-white':
                     variant === 'dangerFill',
-                'bg-transparent ring-fs-accent hover:bg-fs-accent':
+                'bg-transparent ring-1 ring-fs-accent hover:bg-fs-accent':
                     variant === 'outline',
                 'cursor-not-allowed op50': $attrs.disabled,
                 'justify-start text-left': alignment === 'left',
