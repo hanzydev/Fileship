@@ -173,6 +173,8 @@ const handleSaturationPointerMove = (event: MouseEvent | TouchEvent) => {
 };
 
 const handleKeyDown = (event: KeyboardEvent) => {
+    if (!isOpen.value) return;
+
     const newPos = {
         top: saturationPointerPos.top,
         left: saturationPointerPos.left,
@@ -214,6 +216,8 @@ const handleKeyDown = (event: KeyboardEvent) => {
 };
 
 const handleKeyUp = (event: KeyboardEvent) => {
+    if (!isOpen.value) return;
+
     let isKey = true;
 
     switch (event.key) {
