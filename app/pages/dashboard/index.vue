@@ -58,11 +58,11 @@
             <div pt6 space-y-2>
                 <h3>Recent Files</h3>
                 <div
-                    v-if="files.length"
+                    v-if="filteredFiles.length"
                     grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4"
                 >
                     <FileCard
-                        v-for="file in files.slice(0, 4)"
+                        v-for="file in filteredFiles.slice(0, 4)"
                         :key="file.id"
                         :data="file"
                     />
@@ -253,10 +253,12 @@ const editModal = reactive({
     file: null as FileData | null,
 });
 
+const filteredFiles = computed(() => files.value.filter((f) => !f.folderId));
+
 const calculatedFiles = computed(() => {
     const start = (currentPage.value - 1) * 20;
     const end = start + 20;
-    return files.value.slice(start, end);
+    return filteredFiles.value.slice(start, end);
 });
 
 const handleCopy = async (fileName: string) => {
