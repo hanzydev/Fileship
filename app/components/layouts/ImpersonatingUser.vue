@@ -2,10 +2,11 @@
     <div
         v-if="adminSessionId"
         h-12
-        flex="~ items-center"
+        flex="~ items-center justify-center"
         bg-fs-accent
         pl3
         pr5
+        text-center
         lg:px5
         border="b b-fs-5"
     >
