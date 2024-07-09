@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.2.7
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.6...v1.2.7)
+
+### 🩹 Fixes
+
+- Color issue when hovering over version info ([d5b844d](https://github.com/hanzydev/Fileship/commit/d5b844d))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.2.6
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.5...v1.2.6)
