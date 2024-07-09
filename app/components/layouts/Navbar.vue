@@ -81,11 +81,11 @@
                 rounded="!"
                 bg-fs-2
                 ring-1
-                :class="
+                :class="[
                     latestRelease.tag_name === `v${pkg.version}`
                         ? 'ring-fs-accent'
-                        : 'ring-red-500'
-                "
+                        : 'ring-red-500 hover:!bg-red-500',
+                ]"
                 :href="latestRelease.html_url"
                 target="_blank"
             >
