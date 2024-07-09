@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.2.6
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.5...v1.2.6)
+
+### 💅 Refactors
+
+- Prevent foldered files from appearing on the main page ([f7682d5](https://github.com/hanzydev/Fileship/commit/f7682d5))
+
+### 🏡 Chore
+
+- **ImpersonatingUser:** Center align content ([669aa2f](https://github.com/hanzydev/Fileship/commit/669aa2f))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.2.5
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.4...v1.2.5)
