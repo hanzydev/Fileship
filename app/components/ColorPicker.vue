@@ -25,8 +25,22 @@
                     :style="{
                         backgroundColor: hueColor,
                     }"
-                    @mousedown="handleSaturationMouseDown"
-                    @touchstart="handleSaturationMouseDown"
+                    @mousedown.prevent="
+                        (event) => {
+                            saturationFocused = true;
+                            handleSaturationMove(event);
+                        }
+                    "
+                    @mousemove.prevent="handleSaturationMove"
+                    @mouseup.prevent="saturationFocused = false"
+                    @touchstart.prevent="
+                        (event) => {
+                            saturationFocused = true;
+                            handleSaturationMove(event);
+                        }
+                    "
+                    @touchmove.prevent="handleSaturationMove"
+                    @touchend.prevent="saturationFocused = false"
                 >
                     <div
                         ref="saturationPointerRef"
@@ -39,7 +53,7 @@
                         translate-y-="1/2"
                         ring="2 white"
                         :style="{
-                            backgroundColor: `rgb(${selectedColor.r}, ${selectedColor.g}, ${selectedColor.b})`,
+                            backgroundColor: _color,
                             top: `${saturationPointerPos.top}%`,
                             left: `${saturationPointerPos.left}%`,
                             width: saturationFocused ? '26px' : '24px',
@@ -54,8 +68,22 @@
                     wfull
                     rounded-b-0.75
                     bg="[linear-gradient(to_right,rgb(255,0,0),rgb(255,255,0),rgb(0,255,0),rgb(0,255,255),rgb(0,0,255),rgb(255,0,255),rgb(255,0,0))]"
-                    @mousedown="handleHueMouseDown"
-                    @touchstart="handleHueMouseDown"
+                    @mousedown.prevent="
+                        (event) => {
+                            hueFocused = true;
+                            handleHueMove(event);
+                        }
+                    "
+                    @mousemove.prevent="handleHueMove"
+                    @mouseup.prevent="hueFocused = false"
+                    @touchstart.prevent="
+                        (event) => {
+                            hueFocused = true;
+                            handleHueMove(event);
+                        }
+                    "
+                    @touchmove.prevent="handleHueMove"
+                    @touchend.prevent="hueFocused = false"
                 >
                     <div
                         ref="huePointerRef"
@@ -82,11 +110,6 @@
 <script setup lang="ts">
 import Color from 'color';
 
-import { getParentWindow } from '~/utils/getParentWindow';
-import { getRelativePosition } from '~/utils/getRelativePosition';
-import { getTouchId } from '~/utils/getTouchId';
-import { isTouch } from '~/utils/isTouch';
-
 const isOpen = ref(false);
 const _color = defineModel<string>({ required: true, default: '#ff0000' });
 
@@ -98,33 +121,53 @@ const color = reactive(
     },
 );
 
-const selectedColor = computed(() => Color.hsv(color).rgb().object());
-const hueColor = ref(Color.hsv(color.h, 100, 100).hex());
-
 const saturationRef = ref<HTMLDivElement>();
 const saturationPointerRef = ref<HTMLDivElement>();
 const saturationPointerPos = reactive({
     top: 100 - color.v,
     left: color.s,
 });
-const saturationFocused = ref(false);
 
 const hueRef = ref<HTMLDivElement>();
+const hueColor = ref(Color.hsv(color.h, 100, 100).hex());
 const huePointerRef = ref<HTMLDivElement>();
-const hueFocused = ref(false);
 
-const isKeyDown = ref(false);
+const hueFocused = ref(false);
+const saturationFocused = ref(false);
+
+const handleSaturationMove = (event: MouseEvent | TouchEvent) => {
+    if (!saturationFocused.value) return;
+
+    const { left, top } = getRelativePosition(
+        saturationRef.value!,
+        event,
+        getTouchId(event),
+    );
+
+    saturationPointerPos.left = clamp(left * 100, 0, 100);
+    saturationPointerPos.top = clamp(top * 100, 0, 100);
+};
+
+const handleHueMove = (event: MouseEvent | TouchEvent) => {
+    if (!hueFocused.value) return;
+
+    const { left } = getRelativePosition(
+        hueRef.value!,
+        event,
+        getTouchId(event),
+    );
+
+    color.h = clamp(left * 360, 0, 360);
+};
 
 watch(_color, (value) => {
-    if (saturationFocused.value || hueFocused.value || isKeyDown.value) {
-        return;
-    }
+    if (saturationFocused.value || hueFocused.value) return;
 
     const colorHSV = Color(value).hsv().object();
 
-    color.h = colorHSV.h!;
-    color.s = colorHSV.s!;
-    color.v = colorHSV.v!;
+    colorHSV.h = colorHSV.h!;
+    colorHSV.s = colorHSV.s!;
+    colorHSV.v = colorHSV.v!;
 
     hueColor.value = Color.hsv(colorHSV.h!, 100, 100).hex();
 
@@ -135,13 +178,10 @@ watch(_color, (value) => {
 watch(
     color,
     (value) => {
-        if (!saturationFocused.value && !hueFocused.value && !isKeyDown.value) {
-            return;
-        }
-
-        hueColor.value = Color.hsv(value.h, 100, 100).hex();
+        if (!saturationFocused.value && !hueFocused.value) return;
 
         _color.value = Color.hsv(value).hex().toLowerCase();
+        hueColor.value = Color.hsv(value.h, 100, 100).hex();
     },
     { deep: true },
 );
@@ -159,150 +199,4 @@ watch(
     },
     { deep: true },
 );
-
-const handleSaturationPointerMove = (event: MouseEvent | TouchEvent) => {
-    const { left, top } = getRelativePosition(
-        saturationRef.value!,
-        event,
-        getTouchId(event),
-    );
-
-    saturationFocused.value = true;
-    saturationPointerPos.left = clamp(left * 100, 0, 100);
-    saturationPointerPos.top = clamp(top * 100, 0, 100);
-};
-
-const handleKeyDown = (event: KeyboardEvent) => {
-    if (!isOpen.value) return;
-
-    const newPos = {
-        top: saturationPointerPos.top,
-        left: saturationPointerPos.left,
-    };
-
-    const point = event.shiftKey ? 10 : 1;
-
-    let isKey = true;
-
-    switch (event.key) {
-        case 'ArrowUp':
-            newPos.top -= point;
-            break;
-        case 'ArrowDown':
-            newPos.top += point;
-            break;
-        case 'ArrowLeft':
-            newPos.left -= point;
-            break;
-        case 'ArrowRight':
-            newPos.left += point;
-            break;
-        default:
-            isKey = false;
-            return;
-    }
-
-    if (isKey) {
-        event.preventDefault();
-
-        saturationFocused.value = true;
-        isKeyDown.value = true;
-
-        const affected =
-            newPos.top !== saturationPointerPos.top ? 'top' : 'left';
-
-        saturationPointerPos[affected] = clamp(newPos[affected], 0, 100);
-    }
-};
-
-const handleKeyUp = (event: KeyboardEvent) => {
-    if (!isOpen.value) return;
-
-    let isKey = true;
-
-    switch (event.key) {
-        case 'ArrowUp':
-        case 'ArrowDown':
-        case 'ArrowLeft':
-        case 'ArrowRight':
-            break;
-        default:
-            isKey = false;
-            return;
-    }
-
-    if (isKey) {
-        event.preventDefault();
-
-        saturationFocused.value = false;
-        isKeyDown.value = false;
-    }
-};
-
-const handleHuePointerMove = (event: MouseEvent | TouchEvent) => {
-    const { left } = getRelativePosition(
-        hueRef.value!,
-        event,
-        getTouchId(event),
-    );
-
-    hueFocused.value = true;
-    color.h = clamp(left * 360, 0, 360);
-};
-
-const handleSaturationMouseDown = (event: MouseEvent | TouchEvent) => {
-    handleSaturationPointerMove(event);
-
-    const parentWindow = getParentWindow(saturationRef.value);
-    const _isTouch = isTouch(event);
-
-    parentWindow.addEventListener(
-        _isTouch ? 'touchmove' : 'mousemove',
-        handleSaturationPointerMove,
-    );
-    parentWindow.addEventListener(
-        _isTouch ? 'touchend' : 'mouseup',
-        () => {
-            parentWindow.removeEventListener(
-                _isTouch ? 'touchmove' : 'mousemove',
-                handleSaturationPointerMove,
-            );
-            saturationFocused.value = false;
-        },
-        { once: true },
-    );
-};
-
-const handleHueMouseDown = (event: MouseEvent | TouchEvent) => {
-    handleHuePointerMove(event);
-
-    const parentWindow = getParentWindow(hueRef.value);
-    const _isTouch = isTouch(event);
-
-    parentWindow.addEventListener(
-        _isTouch ? 'touchmove' : 'mousemove',
-        handleHuePointerMove,
-    );
-    parentWindow.addEventListener(
-        _isTouch ? 'touchend' : 'mouseup',
-        () => {
-            parentWindow.removeEventListener(
-                _isTouch ? 'touchmove' : 'mousemove',
-                handleHuePointerMove,
-            );
-            hueFocused.value = false;
-        },
-        { once: true },
-    );
-};
-
-onMounted(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-});
-
-onUnmounted(() => {
-    window.removeEventListener('keydown', handleKeyDown);
-    window.removeEventListener('keyup', handleKeyUp);
-});
 </script>
