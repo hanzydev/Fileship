@@ -55,9 +55,7 @@
                 <div flex="~ gap2 items-center">
                     <Icon name="heroicons-solid:calendar" size="20" />
                     <span>
-                        {{
-                            dayjs(data.createdAt).format('MMM D, YYYY h:mm A')
-                        }}
+                        {{ dayjs(data.createdAt).format('MMM D, YYYY h:mm A') }}
                     </span>
                 </div>
             </div>
