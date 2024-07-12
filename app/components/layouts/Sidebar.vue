@@ -5,7 +5,7 @@
             leave-active-class="motion-safe:animate-out motion-safe:fade-out"
         >
             <div
-                v-if="isOpen && width < 1024"
+                v-if="isOpen && width > 640 && width < 1024"
                 absolute
                 inset-0
                 z20
