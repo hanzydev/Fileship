@@ -33,7 +33,7 @@
                     size="24"
                 />
                 <span font-medium="!">
-                    {{ moment(data.createdAt).fromNow() }}
+                    {{ dayjs(data.createdAt).fromNow() }}
                 </span>
             </div>
         </div>
@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const isOpen = defineModel<boolean>({ required: true });
 

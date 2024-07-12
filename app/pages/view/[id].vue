@@ -128,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 const route = useRoute();
 
@@ -171,8 +171,8 @@ const replaceString = (str: string) => {
         '{fileName}': data.value!.fileName,
         '{mimeType}': data.value!.mimeType,
         '{size}': data.value!.size!.formatted,
-        '{createdAt}': moment(data.value!.createdAt).format(dateFormat),
-        '{now}': moment().format(dateFormat),
+        '{createdAt}': dayjs(data.value!.createdAt).format(dateFormat),
+        '{now}': dayjs().format(dateFormat),
     };
 
     return str.replace(

@@ -109,7 +109,7 @@
                             key: 'createdAt',
                             width: '15%',
                             resolve: ({ createdAt }) =>
-                                moment(createdAt).fromNow(),
+                                dayjs(createdAt).fromNow(),
                         },
                         {
                             key: 'Actions',
@@ -201,7 +201,7 @@
 </template>
 
 <script setup lang="ts">
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
 import { Icon, UiAvatar, UiButton } from '#components';

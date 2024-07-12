@@ -52,7 +52,7 @@
                     <Icon name="heroicons-solid:calendar" size="20" />
                     <span>
                         {{
-                            moment(data.createdAt).format('MMM D, YYYY h:mm A')
+                            dayjs(data.createdAt).format('MMM D, YYYY h:mm A')
                         }}
                     </span>
                 </div>
@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
 const { data } = defineProps<{

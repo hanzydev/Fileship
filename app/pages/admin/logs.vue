@@ -59,7 +59,7 @@
                     {
                         key: 'createdAt',
                         width: '20%',
-                        resolve: ({ createdAt }) => moment(createdAt).fromNow(),
+                        resolve: ({ createdAt }) => dayjs(createdAt).fromNow(),
                     },
                 ]"
                 :rows="calculatedLogs"
@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 import { Icon, UiAvatar } from '#components';
 

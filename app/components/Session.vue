@@ -69,7 +69,7 @@
                     </span>
                     <span text-sm="!" font-medium="!">
                         {{ data.location }} ·
-                        {{ moment(data.lastSeen).fromNow() }}
+                        {{ dayjs(data.lastSeen).fromNow() }}
                     </span>
                 </div>
                 <button
@@ -88,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
 const currentUser = useAuthUser();
