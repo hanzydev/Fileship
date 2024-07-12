@@ -73,6 +73,7 @@
                 {{ appConfig.site.name }}
             </h2>
             <UiButton
+                v-if="latestRelease"
                 variant="outline"
                 alignment="center"
                 p0="!"
