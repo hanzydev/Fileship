@@ -1,5 +1,30 @@
 # Changelog
 
+## v1.2.8
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.7...v1.2.8)
+
+### 🩹 Fixes
+
+- Cannot read properties of undefined (reading 'tag_name') error ([0f7b2ab](https://github.com/hanzydev/Fileship/commit/0f7b2ab))
+
+### 💅 Refactors
+
+- Update Sidebar conditional rendering logic for responsive design ([ea061b4](https://github.com/hanzydev/Fileship/commit/ea061b4))
+- Use dayjs instead of moment for better date handling ([c2b9d12](https://github.com/hanzydev/Fileship/commit/c2b9d12))
+- Smaller emoji picker ([54bc7c3](https://github.com/hanzydev/Fileship/commit/54bc7c3))
+- Smaller stats page ([21ca206](https://github.com/hanzydev/Fileship/commit/21ca206))
+
+### 🏡 Chore
+
+- Update dependencies to latest versions ([7b77d7e](https://github.com/hanzydev/Fileship/commit/7b77d7e))
+- Remove execa ([5ee5368](https://github.com/hanzydev/Fileship/commit/5ee5368))
+- Lint fix ([948128f](https://github.com/hanzydev/Fileship/commit/948128f))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.2.7
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.6...v1.2.7)
