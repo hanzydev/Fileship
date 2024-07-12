@@ -185,39 +185,10 @@
                                 type="pie"
                                 height="350"
                                 :options="{
+                                    ...basePieOptions,
                                     labels: data!.topUploaders.map(
                                         (u) => u.user.username,
                                     ),
-                                    colors: ['var(--color-fs-1)'],
-                                    theme: {
-                                        mode: 'dark',
-                                    },
-                                    dropShadow: {
-                                        enabled: false,
-                                    },
-                                    chart: {
-                                        background: 'transparent',
-                                        fontFamily: 'Quicksand, sans-serif',
-                                        foreColor: theme.colors.slate[200],
-                                        toolbar: {
-                                            show: false,
-                                        },
-                                    },
-                                    dataLabels: {
-                                        enabled: false,
-                                    },
-                                    legend: {
-                                        show: false,
-                                    },
-                                    tooltip: {
-                                        y: {
-                                            formatter: (value: number) =>
-                                                value.toFixed(0),
-                                        },
-                                    },
-                                    grid: {
-                                        borderColor: 'var(--color-fs-5)',
-                                    },
                                     fill: {
                                         colors: data!.topUploaders.map((u) =>
                                             colorHash(u.user.id),
@@ -259,37 +230,8 @@
                                 type="pie"
                                 height="350"
                                 :options="{
+                                    ...basePieOptions,
                                     labels: data!.topTypes.map((t) => t.type),
-                                    colors: ['var(--color-fs-1)'],
-                                    theme: {
-                                        mode: 'dark',
-                                    },
-                                    dropShadow: {
-                                        enabled: false,
-                                    },
-                                    chart: {
-                                        background: 'transparent',
-                                        fontFamily: 'Quicksand, sans-serif',
-                                        foreColor: theme.colors.slate[200],
-                                        toolbar: {
-                                            show: false,
-                                        },
-                                    },
-                                    dataLabels: {
-                                        enabled: false,
-                                    },
-                                    legend: {
-                                        show: false,
-                                    },
-                                    tooltip: {
-                                        y: {
-                                            formatter: (value: number) =>
-                                                value.toFixed(0),
-                                        },
-                                    },
-                                    grid: {
-                                        borderColor: 'var(--color-fs-5)',
-                                    },
                                     fill: {
                                         colors: [
                                             ...new Set(data!.topTypes),
@@ -314,6 +256,55 @@ import { theme } from '@unocss/preset-mini';
 import { Icon, UiAvatar } from '#components';
 
 const { data } = await useFetch('/api/stats');
+
+const basePieOptions = {
+    colors: ['var(--color-fs-1)'],
+    theme: {
+        mode: 'dark',
+    },
+    dropShadow: {
+        enabled: false,
+    },
+    chart: {
+        background: 'transparent',
+        fontFamily: 'Quicksand, sans-serif',
+        foreColor: theme.colors.slate[200],
+        toolbar: {
+            show: false,
+        },
+    },
+    dataLabels: {
+        enabled: false,
+    },
+    legend: {
+        show: false,
+    },
+    tooltip: {
+        y: {
+            formatter: (value: number) => value.toFixed(0),
+        },
+    },
+    grid: {
+        borderColor: 'var(--color-fs-5)',
+    },
+    plotOptions: {
+        pie: {
+            expandOnClick: false,
+        },
+    },
+    states: {
+        active: {
+            filter: {
+                type: 'none',
+            },
+        },
+        hover: {
+            filter: {
+                type: 'none',
+            },
+        },
+    },
+};
 
 definePageMeta({
     layout: 'admin',
