@@ -15,7 +15,7 @@
                 outline-none
                 sm="h-14 w12 !text-2xl"
                 font-semibold="!"
-                focus:ring-2
+                focus:ring-1
                 focus:ring-fs-accent
                 motion-safe:transition-shadow
                 type="number"

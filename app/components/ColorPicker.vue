@@ -10,7 +10,7 @@
                 rounded
                 bg-fs3
                 p2
-                ring-2
+                ring-1
                 :style="{
                     '--un-ring-color': _color,
                 }"
@@ -51,7 +51,7 @@
                         rounded-full
                         translate-x-="1/2"
                         translate-y-="1/2"
-                        ring="2 white"
+                        ring="1 white"
                         :style="{
                             backgroundColor: _color,
                             top: `${saturationPointerPos.top}%`,
@@ -93,7 +93,7 @@
                         z10
                         rounded-full
                         translate-x-="1/2"
-                        ring="2 white"
+                        ring="1 white"
                         :style="{
                             backgroundColor: hueColor,
                             left: `${(color.h / 360) * 100}%`,

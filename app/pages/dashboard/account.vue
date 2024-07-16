@@ -473,7 +473,7 @@
                                         label="Color"
                                         wfull
                                         pl11
-                                        ring-2
+                                        ring-1
                                         rounded="!"
                                         transition-none="!"
                                         :error="

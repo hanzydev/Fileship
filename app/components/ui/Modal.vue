@@ -23,7 +23,7 @@
                 v-if="isOpen"
                 v-bind="$attrs"
                 ref="contentRef"
-                ring="2 fs-accent"
+                ring="1 fs-accent"
                 fixed
                 z40
                 max-w-640px

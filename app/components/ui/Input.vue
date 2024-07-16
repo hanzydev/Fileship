@@ -18,7 +18,7 @@
                 :class="[
                     disabled || $props.readonly
                         ? 'cursor-not-allowed'
-                        : 'focus:ring-2 focus:ring-fs-accent',
+                        : 'focus:ring-1 focus:ring-fs-accent',
                     {
                         'bg-fs2': variant === 'primary',
                         'bg-fs1': variant === 'secondary',
@@ -41,7 +41,6 @@
                 right-2
                 top-2
                 rounded
-                hover="ring-2 ring-fs-accent"
                 motion-safe:transition-all
                 p1="!"
                 :class="!readonly && !(value as any)?.length && 'invisible op0'"
@@ -69,7 +68,6 @@
             >
                 <UiButton
                     rounded="none tr-md"
-                    hover="ring-2 ring-fs-accent"
                     bg-transparent
                     p1="!"
                     icon="heroicons-solid:chevron-up"
@@ -81,7 +79,6 @@
                 />
                 <UiButton
                     rounded="none br-md"
-                    hover="ring-2 ring-fs-accent"
                     bg-transparent
                     p1="!"
                     icon="heroicons-solid:chevron-down"

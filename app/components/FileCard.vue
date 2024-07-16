@@ -20,10 +20,10 @@
             bg-fs3
             motion-safe:transition-shadow
             :class="[
-                selected && 'ring-2 ring-fs-accent',
+                selected && 'ring-1 ring-fs-accent',
                 ctxOpen
                     ? 'cursor-default'
-                    : 'cursor-pointer hover:(ring-2 ring-fs-accent)',
+                    : 'cursor-pointer hover:(ring-1 ring-fs-accent)',
             ]"
             @click="
                 selectable ? (selected = !selected) : (viewModalOpen = true)
@@ -74,10 +74,10 @@
             motion-safe:transition-shadow
             :class="[
                 {
-                    'hover:(ring-2 ring-fs-accent)':
+                    'hover:(ring-1 ring-fs-accent)':
                         (selectable || isAudio) && !ctxOpen,
                     'cursor-default': ctxOpen,
-                    'ring-2 ring-fs-accent': selected,
+                    'ring-1 ring-fs-accent': selected,
                     'cursor-pointer': selectable || (isAudio && !ctxOpen),
                 },
             ]"
@@ -111,7 +111,7 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-lg bg-fs3 p1.5 space-y-1 ring="2 fs-accent">
+            <div w48 rounded-lg bg-fs3 p1.5 space-y-1 ring="1 fs-accent">
                 <UiButton
                     v-if="selectable ? canBeViewed : true"
                     icon="heroicons:eye-16-solid"
@@ -203,7 +203,7 @@
                             rounded-lg
                             bg-fs3
                             p1.5
-                            ring="2 fs-accent"
+                            ring="1 fs-accent"
                             space-y-2
                         >
                             <UiSearchBar

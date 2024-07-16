@@ -11,7 +11,7 @@
                 rounded-lg
                 bg-fs3
                 p1.5
-                ring="2 fs-accent"
+                ring="1 fs-accent"
                 space-y-1
             >
                 <UiButton

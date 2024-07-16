@@ -11,7 +11,7 @@
                 bg-fs3
                 p1.5
                 space-y-1
-                ring="2 fs-accent"
+                ring="1 fs-accent"
             >
                 <UiButton
                     v-for="(option, index) in compressions"

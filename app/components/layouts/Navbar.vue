@@ -100,7 +100,7 @@
                     :src="currentUser!.avatar"
                     alt=""
                     size="sm"
-                    hover="ring-2 ring-fs-accent"
+                    hover="ring-1 ring-fs-accent"
                     cursor-pointer
                     active:scale-95
                     motion-safe:transition-all
@@ -119,7 +119,7 @@
                         rounded-lg
                         bg-fs3
                         p1.5
-                        ring="2 fs-accent"
+                        ring="1 fs-accent"
                         space-y-2
                     >
                         <div mx3.5 mt3.5 space-y-2>
@@ -169,7 +169,7 @@
                                         rounded-lg
                                         bg-fs3
                                         p1.5
-                                        ring="2 fs-accent"
+                                        ring="1 fs-accent"
                                         space-y-1
                                     >
                                         <UiButton

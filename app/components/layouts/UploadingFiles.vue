@@ -24,7 +24,7 @@
                     wfull
                     gap2
                     py3="!"
-                    ring-2
+                    ring-1
                     :class="isErrored ? 'ring-red-500' : 'ring-fs-accent'"
                     :icon-class="isErrored && 'text-red-500'"
                     icon-size="20"
@@ -49,7 +49,7 @@
                         rounded-md
                         bg-fs3
                         p4
-                        ring-2
+                        ring-1
                         md:w-40rem
                         space-y-4
                         :class="isErrored ? 'ring-red-500' : 'ring-fs-accent'"
@@ -166,7 +166,7 @@
                                         rounded-lg
                                         bg-fs3
                                         p1.5
-                                        ring="2 fs-accent"
+                                        ring="1 fs-accent"
                                     >
                                         <UiButton
                                             wfull

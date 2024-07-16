@@ -20,7 +20,7 @@
             :class="
                 ctxOpen
                     ? 'cursor-default'
-                    : 'cursor-pointer hover:(ring-2 ring-fs-accent)'
+                    : 'cursor-pointer hover:(ring-1 ring-fs-accent)'
             "
             @click="viewModalOpen = true"
         >
@@ -68,7 +68,7 @@
             space-y-8
             motion-safe:transition-shadow
             :class="{
-                'hover:(ring-2 ring-fs-accent)': isAudio && !ctxOpen,
+                'hover:(ring-1 ring-fs-accent)': isAudio && !ctxOpen,
                 'cursor-default': ctxOpen,
                 'cursor-pointer': isAudio && !ctxOpen,
             }"
@@ -98,7 +98,7 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-lg bg-fs3 p1.5 space-y-1 ring="2 fs-accent">
+            <div w48 rounded-lg bg-fs3 p1.5 space-y-1 ring="1 fs-accent">
                 <UiButton
                     icon="heroicons:eye-16-solid"
                     icon-size="20"

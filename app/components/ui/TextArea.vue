@@ -16,7 +16,7 @@
             :class="[
                 disabled || $props.readonly
                     ? 'cursor-not-allowed'
-                    : 'focus:ring-2 focus:ring-fs-accent',
+                    : 'focus:ring-1 focus:ring-fs-accent',
                 {
                     'bg-fs2': variant === 'primary',
                     'bg-fs1': variant === 'secondary',

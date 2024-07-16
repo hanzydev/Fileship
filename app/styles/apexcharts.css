@@ -1,5 +1,5 @@
 .apexcharts-tooltip {
-    @apply !bg-fs3 !shadow-none !ring-2 !ring-fs-accent;
+    @apply !bg-fs3 !shadow-none !ring-1 !ring-fs-accent;
 }
 
 .apexcharts-tooltip-title {

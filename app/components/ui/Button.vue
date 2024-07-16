@@ -15,7 +15,7 @@
                     variant === 'primary',
                 'bg-fs2 hover:bg-fs1 hover:ring-fs-accent':
                     variant === 'secondary',
-                'bg-transparent ring-2 ring-red-500 hover:bg-red-500':
+                'bg-transparent ring-1 ring-red-500 hover:bg-red-500':
                     variant === 'danger',
                 'bg-red-500 hover:bg-red-600 hover:ring-white':
                     variant === 'dangerFill',

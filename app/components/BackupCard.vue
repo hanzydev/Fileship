@@ -33,7 +33,7 @@
             :class="
                 ctxOpen
                     ? 'cursor-default'
-                    : 'cursor-pointer hover:(ring-2 ring-fs-accent)'
+                    : 'cursor-pointer hover:(ring-1 ring-fs-accent)'
             "
             @click="
                 ctxOpen = false;
@@ -61,7 +61,7 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-lg bg-fs3 p1.5 space-y-1 ring="2 fs-accent">
+            <div w48 rounded-lg bg-fs3 p1.5 space-y-1 ring="1 fs-accent">
                 <UiButton
                     icon="heroicons-solid:download"
                     icon-size="20"
