@@ -20,7 +20,8 @@
             pl11
             pr4
             outline-none
-            focus="ring-1 ring-fs-accent"
+            focus:ring-1
+            focus:ring-fs-accent
             motion-safe:transition-shadow
             placeholder-slate-300
             type="text"
