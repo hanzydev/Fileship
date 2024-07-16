@@ -12,7 +12,7 @@
         />
         <input
             v-model="searchQuery"
-            v-bind="$attrs"
+            :class="inputClass"
             h12
             wfull
             rounded-md
@@ -32,11 +32,8 @@
 <script setup lang="ts">
 defineProps<{
     placeholder: string;
+    inputClass?: unknown;
 }>();
-
-defineOptions({
-    inheritAttrs: false,
-});
 
 const searchQuery = defineModel<string>({ required: true });
 </script>

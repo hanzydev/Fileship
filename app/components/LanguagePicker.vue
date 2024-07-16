@@ -17,9 +17,7 @@
                 <UiSearchBar
                     v-model="searchQuery"
                     placeholder="Search languages..."
-                    h-10="!"
-                    bg-fs2="!"
-                    ring-0="!"
+                    input-class="!h10 !bg-fs2 !ring-0"
                 />
                 <div space-y-1>
                     <UiButton

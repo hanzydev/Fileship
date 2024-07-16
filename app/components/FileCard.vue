@@ -209,9 +209,7 @@
                             <UiSearchBar
                                 v-model="addToFolderSearchQuery"
                                 placeholder="Search folders..."
-                                h-10="!"
-                                bg-fs2="!"
-                                ring-0="!"
+                                input-class="!h10 !bg-fs2 !ring-0"
                             />
 
                             <p
