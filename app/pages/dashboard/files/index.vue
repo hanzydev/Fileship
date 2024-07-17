@@ -17,20 +17,22 @@
                         icon="heroicons-solid:filter"
                         icon-size="20"
                         h12
-                        w56
+                        w36
                         gap2
                         text-slate300
+                        sm:w56
                     >
                         Filter type
                     </UiButton>
                     <template #content>
                         <div
                             max-h64
-                            w56
+                            w36
                             overflow-y-auto
                             rounded-lg
                             bg-fs3
                             p1.5
+                            sm:w56
                             space-y-1
                             ring="1 fs-accent"
                         >
