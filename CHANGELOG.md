@@ -1,5 +1,31 @@
 # Changelog
 
+## v1.3.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.8...v1.3.0)
+
+### 🚀 Enhancements
+
+- Make search bar component more dynamic ([5ce2794](https://github.com/hanzydev/Fileship/commit/5ce2794))
+- Type filtering ([7667e12](https://github.com/hanzydev/Fileship/commit/7667e12))
+- Make type filtering responsive ([0bfef78](https://github.com/hanzydev/Fileship/commit/0bfef78))
+
+### 🩹 Fixes
+
+- Search bar focus style ([0761fdf](https://github.com/hanzydev/Fileship/commit/0761fdf))
+
+### 🏡 Chore
+
+- Update deps ([8ae3bed](https://github.com/hanzydev/Fileship/commit/8ae3bed))
+
+### 🎨 Styles
+
+- Thin the rings ([c2f8148](https://github.com/hanzydev/Fileship/commit/c2f8148))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.2.8
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.7...v1.2.8)
