@@ -25,177 +25,162 @@
                     @click="createUserModalOpen = true"
                 />
             </div>
-
-            <div space-y-4>
-                <UiSearchBar
-                    v-model="searchQuery"
-                    placeholder="Search users..."
-                />
-                <UiTable
-                    :columns="[
-                        {
-                            key: 'user',
-                            width: '15%',
-                            render: ({ user }) =>
-                                h(
-                                    'div',
-                                    {
-                                        class: 'flex items-center gap2',
-                                    },
-                                    [
-                                        user.avatar
-                                            ? h(UiAvatar, {
-                                                  size: 'xs',
-                                                  src: user.avatar,
-                                                  alt: user.username,
-                                                  class: '!ring-0',
-                                              })
-                                            : h(Icon, {
-                                                  name: 'iconamoon:profile-fill',
-                                                  size: '20',
-                                              }),
-                                        h(
-                                            'p',
-                                            {
-                                                class: 'text-slate200',
-                                            },
-                                            user.username,
-                                        ),
-                                    ],
-                                ),
-                        },
-                        {
-                            key: 'superAdmin',
-                            width: '10%',
-                            render: ({ superAdmin }) =>
-                                h(Icon, {
-                                    name: superAdmin
-                                        ? 'heroicons-solid:check'
-                                        : 'heroicons-solid:x',
-                                    size: '20',
-                                }),
-                        },
-                        {
-                            key: 'permissions',
-                            width: '25%',
-                            resolve: ({ permissions }) =>
-                                permissions.join(', '),
-                        },
-                        {
-                            key: 'files',
-                            width: '5%',
-                            resolve: ({ _count }) =>
-                                Intl.NumberFormat().format(_count?.files ?? 0),
-                        },
-                        {
-                            key: 'notes',
-                            width: '5%',
-                            resolve: ({ _count }) =>
-                                Intl.NumberFormat().format(_count?.notes ?? 0),
-                        },
-                        {
-                            key: 'codes',
-                            width: '5%',
-                            resolve: ({ _count }) =>
-                                Intl.NumberFormat().format(_count?.codes ?? 0),
-                        },
-                        {
-                            key: 'urls',
-                            width: '5%',
-                            resolve: ({ _count }) =>
-                                Intl.NumberFormat().format(_count?.urls ?? 0),
-                        },
-                        {
-                            key: 'createdAt',
-                            width: '15%',
-                            resolve: ({ createdAt }) =>
-                                dayjs(createdAt).fromNow(),
-                        },
-                        {
-                            key: 'Actions',
-                            width: '20%',
-                            render: (row) => {
-                                return h(
-                                    'div',
-                                    { class: 'flex items-center gap4' },
-                                    [
-                                        h(UiButton, {
-                                            variant: 'outline',
-                                            alignment: 'center',
-                                            class: 'h8 w8 !p0 text-slate300 hover:text-white',
-                                            icon: 'heroicons-solid:switch-horizontal',
-                                            iconSize: '20',
-                                            disabled:
-                                                (row.superAdmin &&
-                                                    !currentUser!.superAdmin) ||
-                                                row.user.username ===
-                                                    currentUser!.username ||
-                                                switching,
-                                            loading: switching,
-                                            onClick: () =>
-                                                handleSwitch(row.user.username),
-                                        }),
-                                        h(UiButton, {
-                                            variant: 'outline',
-                                            alignment: 'center',
-                                            class: 'h8 w8 !p0 text-slate300 hover:text-white',
-                                            icon: 'heroicons:pencil-16-solid',
-                                            iconSize: '20',
-                                            disabled:
-                                                row.superAdmin &&
-                                                !currentUser!.superAdmin,
-                                            onClick: () => {
-                                                editModal.user = {
-                                                    ...row.user,
-                                                    ...row,
-                                                };
-                                                nextTick(
-                                                    () =>
-                                                        (editModal.open = true),
-                                                );
-                                            },
-                                        }),
-                                        h(UiButton, {
-                                            variant: 'outline',
-                                            alignment: 'center',
-                                            class: 'h8 w8 !p0 ring-red-500 text-slate300 hover:text-white hover:!bg-red-500',
-                                            icon: 'heroicons-solid:trash',
-                                            iconSize: '20',
-                                            disabled:
-                                                (row.superAdmin &&
-                                                    !currentUser!.superAdmin) ||
-                                                row.user.username ===
-                                                    currentUser!.username ||
-                                                willBeDeleted.has(
-                                                    row.user.id,
-                                                ) ||
-                                                switching,
-                                            loading: willBeDeleted.has(
-                                                row.user.id,
-                                            ),
-                                            onClick: () =>
-                                                handleDelete(row.user.id),
-                                        }),
-                                    ],
-                                );
-                            },
-                        },
-                    ]"
-                    :rows="
-                        calculatedUsers.map(
-                            ({ id, username, avatar, ...u }) => ({
-                                ...u,
-                                user: { id, username, avatar },
+            <UiSearchBar v-model="searchQuery" placeholder="Search users..." />
+            <UiTable
+                :columns="[
+                    {
+                        key: 'user',
+                        width: '15%',
+                        render: ({ user }) =>
+                            h(
+                                'div',
+                                {
+                                    class: 'flex items-center gap2',
+                                },
+                                [
+                                    user.avatar
+                                        ? h(UiAvatar, {
+                                              size: 'xs',
+                                              src: user.avatar,
+                                              alt: user.username,
+                                              class: '!ring-0',
+                                          })
+                                        : h(Icon, {
+                                              name: 'iconamoon:profile-fill',
+                                              size: '20',
+                                          }),
+                                    h(
+                                        'p',
+                                        {
+                                            class: 'text-slate200',
+                                        },
+                                        user.username,
+                                    ),
+                                ],
+                            ),
+                    },
+                    {
+                        key: 'superAdmin',
+                        width: '10%',
+                        render: ({ superAdmin }) =>
+                            h(Icon, {
+                                name: superAdmin
+                                    ? 'heroicons-solid:check'
+                                    : 'heroicons-solid:x',
+                                size: '20',
                             }),
-                        )
-                    "
-                />
-                <UiPagination
-                    v-model="currentPage"
-                    :item-count="calculatedUsers.length"
-                    :items-per-page="20"
-                />
-            </div>
+                    },
+                    {
+                        key: 'permissions',
+                        width: '25%',
+                        resolve: ({ permissions }) => permissions.join(', '),
+                    },
+                    {
+                        key: 'files',
+                        width: '5%',
+                        resolve: ({ _count }) =>
+                            Intl.NumberFormat().format(_count?.files ?? 0),
+                    },
+                    {
+                        key: 'notes',
+                        width: '5%',
+                        resolve: ({ _count }) =>
+                            Intl.NumberFormat().format(_count?.notes ?? 0),
+                    },
+                    {
+                        key: 'codes',
+                        width: '5%',
+                        resolve: ({ _count }) =>
+                            Intl.NumberFormat().format(_count?.codes ?? 0),
+                    },
+                    {
+                        key: 'urls',
+                        width: '5%',
+                        resolve: ({ _count }) =>
+                            Intl.NumberFormat().format(_count?.urls ?? 0),
+                    },
+                    {
+                        key: 'createdAt',
+                        width: '15%',
+                        resolve: ({ createdAt }) => dayjs(createdAt).fromNow(),
+                    },
+                    {
+                        key: 'Actions',
+                        width: '20%',
+                        render: (row) => {
+                            return h(
+                                'div',
+                                { class: 'flex items-center gap4' },
+                                [
+                                    h(UiButton, {
+                                        variant: 'outline',
+                                        alignment: 'center',
+                                        class: 'h8 w8 !p0 text-slate300 hover:text-white',
+                                        icon: 'heroicons-solid:switch-horizontal',
+                                        iconSize: '20',
+                                        disabled:
+                                            (row.superAdmin &&
+                                                !currentUser!.superAdmin) ||
+                                            row.user.username ===
+                                                currentUser!.username ||
+                                            switching,
+                                        loading: switching,
+                                        onClick: () =>
+                                            handleSwitch(row.user.username),
+                                    }),
+                                    h(UiButton, {
+                                        variant: 'outline',
+                                        alignment: 'center',
+                                        class: 'h8 w8 !p0 text-slate300 hover:text-white',
+                                        icon: 'heroicons:pencil-16-solid',
+                                        iconSize: '20',
+                                        disabled:
+                                            row.superAdmin &&
+                                            !currentUser!.superAdmin,
+                                        onClick: () => {
+                                            editModal.user = {
+                                                ...row.user,
+                                                ...row,
+                                            };
+                                            nextTick(
+                                                () => (editModal.open = true),
+                                            );
+                                        },
+                                    }),
+                                    h(UiButton, {
+                                        variant: 'outline',
+                                        alignment: 'center',
+                                        class: 'h8 w8 !p0 ring-red-500 text-slate300 hover:text-white hover:!bg-red-500',
+                                        icon: 'heroicons-solid:trash',
+                                        iconSize: '20',
+                                        disabled:
+                                            (row.superAdmin &&
+                                                !currentUser!.superAdmin) ||
+                                            row.user.username ===
+                                                currentUser!.username ||
+                                            willBeDeleted.has(row.user.id) ||
+                                            switching,
+                                        loading: willBeDeleted.has(row.user.id),
+                                        onClick: () =>
+                                            handleDelete(row.user.id),
+                                    }),
+                                ],
+                            );
+                        },
+                    },
+                ]"
+                :rows="
+                    calculatedUsers.map(({ id, username, avatar, ...u }) => ({
+                        ...u,
+                        user: { id, username, avatar },
+                    }))
+                "
+            />
+            <UiPagination
+                v-model="currentPage"
+                :item-count="calculatedUsers.length"
+                :items-per-page="20"
+            />
         </div>
     </div>
 </template>
