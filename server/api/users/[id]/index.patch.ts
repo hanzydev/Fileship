@@ -97,14 +97,6 @@ const validationSchema = z
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
-    if (!isAdmin(currentUser)) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
-
     const userId = getRouterParam(event, 'id');
 
     if (userId !== currentUser.id && !isAdmin(currentUser)) {
