@@ -32,13 +32,17 @@ const validationSchema = z.object({
         .max(6, 'OTP must be 6 characters')
         .optional(),
     turnstile: z.string().optional(),
+    verificationData: z
+        .string({
+            invalid_type_error: 'Invalid verification data',
+        })
+        .optional(),
 });
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
-
     if (!body.success) {
         throw createError({
             statusCode: 400,
@@ -120,6 +124,14 @@ export default defineEventHandler(async (event) => {
                 });
             }
         }
+    }
+
+    if (
+        currentUser &&
+        isAdmin(currentUser) &&
+        findUserByUsername.id !== currentUser.id
+    ) {
+        await verifySession(currentUser, body.data?.verificationData);
     }
 
     const headers = getHeaders(event);
