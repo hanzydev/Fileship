@@ -94,6 +94,11 @@ This section requires [Node.js v20.1.0+](https://nodejs.org/) to be installed on
     ```
 8. Open your browser and go to `http://localhost:3000`
 
+### Default credentials
+
+-   Username: `admin`
+-   Password: `password`
+
 ### Web server configuration (optional)
 
 This section requires [Nginx](https://nginx.org/) to be installed on your machine.
