@@ -1,5 +1,40 @@
 # Changelog
 
+## v1.4.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.3.0...v1.4.0)
+
+### 🚀 Enhancements
+
+- Add session verification when deleting a user ([71dbcb2](https://github.com/hanzydev/Fileship/commit/71dbcb2))
+- Add session verification when creating an admin user ([ca63312](https://github.com/hanzydev/Fileship/commit/ca63312))
+- Add session validation when switching to a user ([e923256](https://github.com/hanzydev/Fileship/commit/e923256))
+- Show the verification modal when creating, editing, deleting and switching users in the client ([8e7d69c](https://github.com/hanzydev/Fileship/commit/8e7d69c))
+- **readme:** Add default credentials section ([115895c](https://github.com/hanzydev/Fileship/commit/115895c))
+
+### 🩹 Fixes
+
+- Solve the problem of non-admin users not being able to edit their information ([88b96de](https://github.com/hanzydev/Fileship/commit/88b96de))
+- Solve the gap problem on the users page ([2d68433](https://github.com/hanzydev/Fileship/commit/2d68433))
+- Disable button when file upload is in progress ([b1b64ea](https://github.com/hanzydev/Fileship/commit/b1b64ea))
+- Skip to the next one when there is no file to upload ([3bb84a5](https://github.com/hanzydev/Fileship/commit/3bb84a5))
+- Solve the problem of throwing errors if ipinfo.io is blocked ([4e1c982](https://github.com/hanzydev/Fileship/commit/4e1c982))
+- Fix session validation not working when editing user ([3082ebc](https://github.com/hanzydev/Fileship/commit/3082ebc))
+- Update logout functionality to clear adminSessionId cookie properly ([144a14f](https://github.com/hanzydev/Fileship/commit/144a14f))
+
+### 💅 Refactors
+
+- Switch to ip-api.com ([1ce56e7](https://github.com/hanzydev/Fileship/commit/1ce56e7))
+- Update default user username to 'admin' ([f330656](https://github.com/hanzydev/Fileship/commit/f330656))
+
+### 🏡 Chore
+
+- **release:** V1.3.0 ([e7d962f](https://github.com/hanzydev/Fileship/commit/e7d962f))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.3.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.2.8...v1.3.0)
