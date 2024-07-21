@@ -249,9 +249,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (body.data.password) {
-        if (!isAdmin(currentUser)) {
-            await verifySession(currentUser, body.data.verificationData!);
-        }
+        await verifySession(currentUser, body.data.verificationData!);
 
         (body.data as any).password = await hash(body.data.password);
 
