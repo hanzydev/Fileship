@@ -1,6 +1,25 @@
 <template>
+    <ModalsVerifyTotp
+        v-if="currentUser!.totpEnabled"
+        v-model="verifyModalOpen"
+        :error="verificationError"
+        :disabled="updating"
+        @got="handleEdit"
+        @cancel="isOpen = true"
+        @outer-click="isOpen = true"
+    />
+    <ModalsVerifyUserPassword
+        v-else
+        v-model="verifyModalOpen"
+        :error="verificationError"
+        :disabled="updating"
+        @got="handleEdit"
+        @cancel="isOpen = true"
+        @outer-click="isOpen = true"
+    />
+
     <UiModal v-model="isOpen">
-        <form p8 space-y-4 @submit.prevent="handleEdit">
+        <form p8 space-y-4 @submit.prevent="handleEdit()">
             <h2>Edit User</h2>
 
             <UiInput
@@ -171,13 +190,16 @@ const currentUser = useAuthUser();
 const formErrors = ref();
 const updating = ref(false);
 
+const verifyModalOpen = ref(false);
+const verificationError = ref<string>();
+
 const editData = useCloned({
     ...data,
     password: '',
     permissions: data.superAdmin ? [] : data.permissions,
 });
 
-const handleEdit = async () => {
+const handleEdit = async (verificationData?: string) => {
     updating.value = true;
     formErrors.value = {};
 
@@ -190,14 +212,26 @@ const handleEdit = async () => {
                 permissions: editData.cloned.value!.permissions,
                 limits: editData.cloned.value!.limits,
                 superAdmin: editData.cloned.value!.superAdmin,
+                verificationData,
             },
         });
 
         isOpen.value = false;
+        verifyModalOpen.value = false;
 
         toast.success('User updated successfully');
     } catch (error: any) {
-        if (!error.data.data) toast.error(error.data.message);
+        if (!error.data.data) {
+            if (verifyModalOpen.value) {
+                verificationError.value = error.data.message;
+            } else if (error.data.message === 'Verification is required') {
+                verifyModalOpen.value = true;
+                isOpen.value = false;
+            } else if (!verifyModalOpen.value) {
+                toast.error(error.data.message);
+            }
+        }
+
         formErrors.value = error.data.data;
     }
 

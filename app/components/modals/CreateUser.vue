@@ -1,16 +1,39 @@
 <template>
+    <ModalsVerifyTotp
+        v-if="currentUser!.totpEnabled"
+        v-model="verifyModalOpen"
+        :error="verificationError"
+        :disabled
+        @got="handleSubmit"
+        @cancel="isOpen = true"
+        @outer-click="isOpen = true"
+    />
+    <ModalsVerifyUserPassword
+        v-else
+        v-model="verifyModalOpen"
+        :error="verificationError"
+        :disabled
+        @got="handleSubmit"
+        @cancel="isOpen = true"
+        @outer-click="isOpen = true"
+    />
+
     <UiModal
         v-model="isOpen"
         @closed="
-            user.username = '';
-            user.password = '';
-            user.permissions = [];
-            user.superAdmin = false;
-            user.limits = { backupLimit: -1, usableSpace: -1 };
-            formErrors = {};
+            () => {
+                if (!verifyModalOpen) {
+                    user.username = '';
+                    user.password = '';
+                    user.permissions = [];
+                    user.superAdmin = false;
+                    user.limits = { backupLimit: -1, usableSpace: -1 };
+                    formErrors = {};
+                }
+            }
         "
     >
-        <form p8 space-y-4 @submit.prevent="handleSubmit">
+        <form p8 space-y-4 @submit.prevent="handleSubmit()">
             <h2>Create User</h2>
 
             <UiInput
@@ -162,6 +185,9 @@ const currentUser = useAuthUser();
 const formErrors = ref();
 const disabled = ref(false);
 
+const verifyModalOpen = ref(false);
+const verificationError = ref<string>();
+
 const user = reactive({
     username: '',
     password: '',
@@ -170,21 +196,36 @@ const user = reactive({
     limits: { backupLimit: -1, usableSpace: -1 },
 });
 
-const handleSubmit = async () => {
+const handleSubmit = async (verificationData?: string) => {
     disabled.value = true;
     formErrors.value = {};
+    verificationError.value = undefined;
 
     try {
         await $fetch('/api/users', {
             method: 'POST',
-            body: user,
+            body: {
+                ...user,
+                verificationData,
+            },
         });
 
         isOpen.value = false;
+        verifyModalOpen.value = false;
 
         toast.success('User created successfully');
     } catch (error: any) {
-        if (!error.data.data) toast.error(error.data.message);
+        if (!error.data.data) {
+            if (verifyModalOpen.value) {
+                verificationError.value = error.data.message;
+            } else if (error.data.message === 'Verification is required') {
+                verifyModalOpen.value = true;
+                isOpen.value = false;
+            } else if (!verifyModalOpen.value) {
+                toast.error(error.data.message);
+            }
+        }
+
         formErrors.value = error.data.data;
     }
 

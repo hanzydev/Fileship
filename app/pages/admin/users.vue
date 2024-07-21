@@ -12,6 +12,40 @@
             :data="editModal.user!"
         />
 
+        <ModalsVerifyTotp
+            v-if="currentUser!.totpEnabled"
+            v-model="verifyDeleteModal.open"
+            :error="verifyDeleteModal.error"
+            :disabled="willBeDeleted.has(verifyDeleteModal.userId)"
+            @got="(totp) => handleDelete(verifyDeleteModal.userId, totp)"
+        />
+        <ModalsVerifyUserPassword
+            v-else
+            v-model="verifyDeleteModal.open"
+            :error="verifyDeleteModal.error"
+            :disabled="willBeDeleted.has(verifyDeleteModal.userId)"
+            @got="
+                (password) => handleDelete(verifyDeleteModal.userId, password)
+            "
+        />
+
+        <ModalsVerifyTotp
+            v-if="currentUser!.totpEnabled"
+            v-model="verifySwitchModal.open"
+            :error="verifySwitchModal.error"
+            :disabled="switching"
+            @got="(totp) => handleSwitch(verifySwitchModal.username, totp)"
+        />
+        <ModalsVerifyUserPassword
+            v-else
+            v-model="verifySwitchModal.open"
+            :error="verifySwitchModal.error"
+            :disabled="switching"
+            @got="
+                (password) => handleSwitch(verifySwitchModal.username, password)
+            "
+        />
+
         <div space-y-6>
             <div flex="~ items-center justify-between">
                 <h2>Users</h2>
@@ -207,48 +241,86 @@ const editModal = reactive({
     open: false,
 });
 
-const handleSwitch = async (username: string) => {
-    switching.value = true;
+const verifyDeleteModal = reactive({
+    userId: '',
+    open: false,
+    error: undefined as string | undefined,
+});
 
-    useCookie('adminSessionId', {
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 6),
-        path: '/',
-        sameSite: true,
-    }).value = useCookie('sessionId').value;
+const verifySwitchModal = reactive({
+    username: '',
+    open: false,
+    error: undefined as string | undefined,
+});
 
-    const { user, session } = await $fetch('/api/auth/login', {
-        method: 'POST',
-        body: {
-            username,
-            password: '--------',
-        },
-    });
+const handleSwitch = async (username: string, verificationData?: string) => {
+    try {
+        switching.value = true;
+        verifySwitchModal.error = undefined;
 
-    currentUser.value = {
-        ...user,
-        currentSessionId: session.id,
-        createdAt: new Date(user.createdAt),
-    };
+        useCookie('adminSessionId', {
+            expires: new Date(Date.now() + 1000 * 60 * 60 * 6),
+            path: '/',
+            sameSite: true,
+        }).value = useCookie('sessionId').value;
 
-    await nextTick();
-    await refreshNuxtData();
-    await navigateTo('/dashboard');
+        const { user, session } = await $fetch('/api/auth/login', {
+            method: 'POST',
+            body: {
+                username,
+                password: '--------',
+                verificationData,
+            },
+        });
 
-    initSocket();
+        currentUser.value = {
+            ...user,
+            currentSessionId: session.id,
+            createdAt: new Date(user.createdAt),
+        };
+
+        await nextTick();
+        await refreshNuxtData();
+        await navigateTo('/dashboard');
+
+        initSocket();
+    } catch (error: any) {
+        if (verifySwitchModal.open) {
+            verifySwitchModal.error = error.data.message;
+        } else {
+            verifySwitchModal.open = true;
+            verifySwitchModal.username = username;
+        }
+
+        useCookie('adminSessionId').value = null;
+    }
 
     switching.value = false;
 };
 
-const handleDelete = async (id: string) => {
+const handleDelete = async (id: string, verificationData?: string) => {
     willBeDeleted.value.add(id);
+    verifyDeleteModal.error = undefined;
 
     try {
         await $fetch(`/api/users/${id}`, {
             method: 'DELETE',
+            body: {
+                verificationData,
+            },
         });
         toast.success('User deleted successfully');
+
+        verifyDeleteModal.open = false;
     } catch (error: any) {
-        toast.error(error.data.message);
+        if (verifyDeleteModal.open) {
+            verifyDeleteModal.error = error.data.message;
+        } else if (error.data.message === 'Verification is required') {
+            verifyDeleteModal.open = true;
+            verifyDeleteModal.userId = id;
+        } else if (!verifyDeleteModal.open) {
+            toast.error(error.data.message);
+        }
     }
 
     willBeDeleted.value.delete(id);
