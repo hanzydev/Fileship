@@ -204,6 +204,8 @@ const handleUpload = async () => {
                 (f) => f.name === file.name,
             )!;
 
+            if (!uploadingFile) continue;
+
             if (!uploadingFile.status) {
                 uploadingFile.status = reactive({
                     started: false,
