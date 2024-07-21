@@ -10,7 +10,7 @@ export default defineNitroPlugin(async () => {
     if (!findUser) {
         await prisma.user.create({
             data: {
-                username: 'root',
+                username: 'admin',
                 password: await hash('password'),
                 superAdmin: true,
                 permissions: [UserPermission.Admin],
