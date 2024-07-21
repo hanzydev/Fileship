@@ -22,8 +22,16 @@ export default defineEventHandler(async (event) => {
             ],
         },
         include: {
-            views: true,
-            author: true,
+            _count: {
+                select: {
+                    views: true,
+                },
+            },
+            folder: {
+                select: {
+                    public: true,
+                },
+            },
         },
     });
 
@@ -35,17 +43,27 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (findFileById.authorId !== currentUser?.id && findFileById.password) {
-        if (!query.password) {
-            return await sendRedirect(event, `/view/${fileNameOrId}`);
+    if (findFileById.authorId !== currentUser?.id) {
+        if (findFileById.folder?.public === false) {
+            throw createError({
+                statusCode: 403,
+                statusMessage: 'Forbidden',
+                message: 'You do not have permission to access this page',
+            });
         }
 
-        if (query.password !== findFileById.password) {
-            throw createError({
-                statusCode: 401,
-                statusMessage: 'Unauthorized',
-                message: 'Invalid password',
-            });
+        if (findFileById.password) {
+            if (!query.password) {
+                return await sendRedirect(event, `/view/${fileNameOrId}`);
+            }
+
+            if (query.password !== findFileById.password) {
+                throw createError({
+                    statusCode: 401,
+                    statusMessage: 'Unauthorized',
+                    message: 'Invalid password',
+                });
+            }
         }
     }
 
@@ -67,7 +85,7 @@ export default defineEventHandler(async (event) => {
 
         if (
             findFileById.maxViews &&
-            findFileById.maxViews > findFileById.views.length
+            findFileById.maxViews > findFileById._count.views
         ) {
             await fsp.rm(filePath, { force: true });
 

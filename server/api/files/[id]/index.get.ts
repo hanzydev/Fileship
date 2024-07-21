@@ -23,6 +23,11 @@ export default defineEventHandler(async (event) => {
         },
         include: {
             views: true,
+            folder: {
+                select: {
+                    public: true,
+                },
+            },
             author: {
                 select: {
                     embed: true,
@@ -39,21 +44,31 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (findFileById.authorId !== currentUser?.id && findFileById.password) {
-        if (!query.password) {
+    if (findFileById.authorId !== currentUser?.id) {
+        if (findFileById.folder?.public === false) {
             throw createError({
-                statusCode: 400,
-                statusMessage: 'Bad Request',
-                message: 'Verification is required',
+                statusCode: 403,
+                statusMessage: 'Forbidden',
+                message: 'You do not have permission to access this page',
             });
         }
 
-        if (query.password !== findFileById.password) {
-            throw createError({
-                statusCode: 401,
-                statusMessage: 'Unauthorized',
-                message: 'Invalid password',
-            });
+        if (findFileById.password) {
+            if (!query.password) {
+                throw createError({
+                    statusCode: 400,
+                    statusMessage: 'Bad Request',
+                    message: 'Verification is required',
+                });
+            }
+
+            if (query.password !== findFileById.password) {
+                throw createError({
+                    statusCode: 401,
+                    statusMessage: 'Unauthorized',
+                    message: 'Invalid password',
+                });
+            }
         }
     }
 
@@ -61,6 +76,7 @@ export default defineEventHandler(async (event) => {
         ...findFileById,
         password: undefined,
         author: undefined,
+        folder: undefined,
         size: {
             raw: findFileById.size.toString(),
             formatted: filesize(findFileById.size.toString()),
