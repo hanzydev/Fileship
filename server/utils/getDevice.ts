@@ -15,18 +15,24 @@ export const getDevice = async (
 
     const platform = platforms.find((b) => userAgent?.includes(b)) || 'Unknown';
 
-    let ipInfo = await $fetch<{
-        city: string;
-        region: string;
-        country: string;
-    }>(`https://ipinfo.io/${ip}/json`, { ignoreResponseError: true });
+    let ipInfo = {
+        city: 'Unknown',
+        region: 'Unknown',
+        country: 'Unknown',
+    };
 
-    if ('error' in ipInfo || 'bogon' in ipInfo) {
-        ipInfo = {
-            city: 'Unknown',
-            region: 'Unknown',
-            country: 'Unknown',
-        };
+    try {
+        const res = await $fetch<{
+            city: string;
+            region: string;
+            country: string;
+        }>(`https://ipinfo.io/${ip}/json`, { ignoreResponseError: true });
+
+        if (res.city && res.region && res.country) {
+            ipInfo = res;
+        }
+    } catch {
+        //
     }
 
     return {
