@@ -13,20 +13,20 @@
             <h2>Shorten URL</h2>
 
             <UiInput
+                v-model="url.vanity"
+                wfull
+                label="Vanity"
+                type="text"
+                :error="formErrors?.vanity?._errors?.[0]"
+                :disabled
+            />
+            <UiInput
                 v-model="url.destinationUrl"
                 label="Destination Url"
                 type="text"
                 :error="formErrors?.destinationUrl?._errors?.[0]"
                 required
                 wfull
-                :disabled
-            />
-            <UiInput
-                v-model="url.vanity"
-                wfull
-                label="Vanity"
-                type="text"
-                :error="formErrors?.vanity?._errors?.[0]"
                 :disabled
             />
             <UiInput

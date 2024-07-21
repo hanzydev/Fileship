@@ -4,20 +4,20 @@
             <h2>Edit URL</h2>
 
             <UiInput
+                v-model="editData.cloned.value!.vanity"
+                wfull
+                label="Vanity"
+                type="text"
+                :error="formErrors?.vanity?._errors?.[0]"
+                :disabled="updating"
+            />
+            <UiInput
                 v-model="editData.cloned.value!.destinationUrl"
                 label="Destination Url"
                 type="text"
                 :error="formErrors?.destinationUrl?._errors?.[0]"
                 required
                 wfull
-                :disabled="updating"
-            />
-            <UiInput
-                v-model="editData.cloned.value!.vanity"
-                wfull
-                label="Vanity"
-                type="text"
-                :error="formErrors?.vanity?._errors?.[0]"
                 :disabled="updating"
             />
             <UiInput
