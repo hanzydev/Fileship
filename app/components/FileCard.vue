@@ -14,28 +14,48 @@
         trigger-class="hfull"
     >
         <div
-            v-if="isImage || isVideo"
-            wfull
+            relative
             rounded-md
-            bg-fs3
             motion-safe:transition-shadow
             :class="[
                 selected && 'ring-1 ring-fs-accent',
-                ctxOpen
+                !selectable && (ctxOpen || !(isImage || isVideo || isAudio))
                     ? 'cursor-default'
                     : 'cursor-pointer hover:(ring-1 ring-fs-accent)',
             ]"
             @click="
-                selectable ? (selected = !selected) : (viewModalOpen = true)
+                selectable
+                    ? (selected = !selected)
+                    : (isImage || isVideo || isAudio) && (viewModalOpen = true)
             "
         >
+            <Transition
+                enter-active-class="motion-safe:animate-in motion-safe:fade-in"
+                leave-active-class="motion-safe:animate-out motion-safe:fade-out"
+            >
+                <div
+                    v-if="selected"
+                    flex="~ items-center justify-center"
+                    absolute
+                    z50
+                    hfull
+                    wfull
+                    cursor-pointer
+                    rounded-md
+                    backdrop-blur-sm
+                >
+                    <Icon name="heroicons-solid:check" size="56" />
+                </div>
+            </Transition>
             <div
                 v-if="isImage || isVideo"
                 relative
                 h208px
+                wfull
                 flex="~ col items-center justify-center gap2"
                 overflow-hidden
                 rounded-md
+                bg-fs3
                 p4
                 text-center
             >
@@ -43,70 +63,55 @@
                     v-if="isImage"
                     :src="`/u/${data.fileName}`"
                     :alt="data.fileName"
+                    :class="!selectable && 'hover:scale-105'"
                     absolute
                     hfull
                     wfull
                     object-contain
-                    hover:scale-105
                     motion-safe:transition-transform
                 />
                 <video
                     v-if="isVideo"
                     :src="`/u/${data.fileName}`"
                     :alt="data.fileName"
+                    :class="!selectable && 'hover:scale-105'"
                     absolute
                     hfull
                     wfull
                     object-contain
-                    hover:scale-105
                     motion-safe:transition-transform
                 />
             </div>
-        </div>
-        <div
-            v-else
-            h208px
-            wfull
-            rounded-md
-            bg-fs3
-            p8
-            space-y-8
-            motion-safe:transition-shadow
-            :class="[
-                {
-                    'hover:(ring-1 ring-fs-accent)':
-                        (selectable || isAudio) && !ctxOpen,
-                    'cursor-default': ctxOpen,
-                    'ring-1 ring-fs-accent': selected,
-                    'cursor-pointer': selectable || (isAudio && !ctxOpen),
-                },
-            ]"
-            @click="
-                selectable
-                    ? (selected = !selected)
-                    : isAudio && (viewModalOpen = true)
-            "
-        >
-            <h5 line-clamp-1 break-words text-slate400>
-                {{ data.fileName }}
-            </h5>
+            <div v-else h208px wfull rounded-md bg-fs3 p8 space-y-8>
+                <h5 line-clamp-1 break-words text-slate400>
+                    {{ data.fileName }}
+                </h5>
 
-            <div flex="~ col justify-between gap2" text-slate-300 font-medium>
-                <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:eye" size="20" />
-                    <span>{{ data.views.today }} today</span>
-                </div>
+                <div
+                    flex="~ col justify-between gap2"
+                    text-slate-300
+                    font-medium
+                >
+                    <div flex="~ gap2 items-center">
+                        <Icon name="heroicons-solid:eye" size="20" />
+                        <span>{{ data.views.today }} today</span>
+                    </div>
 
-                <div flex="~ gap2 items-center">
-                    <Icon name="mdi:sd-storage" size="20" />
-                    <span>{{ data.size.formatted }}</span>
-                </div>
+                    <div flex="~ gap2 items-center">
+                        <Icon name="mdi:sd-storage" size="20" />
+                        <span>{{ data.size.formatted }}</span>
+                    </div>
 
-                <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:calendar" size="20" />
-                    <span>
-                        {{ dayjs(data.createdAt).format('MMM D, YYYY h:mm A') }}
-                    </span>
+                    <div flex="~ gap2 items-center">
+                        <Icon name="heroicons-solid:calendar" size="20" />
+                        <span>
+                            {{
+                                dayjs(data.createdAt).format(
+                                    'MMM D, YYYY h:mm A',
+                                )
+                            }}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
