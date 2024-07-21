@@ -174,6 +174,7 @@
                                             py1="!"
                                             icon="heroicons-solid:x"
                                             icon-size="20"
+                                            :disabled="file.status?.started"
                                             @click="
                                                 uploadingFiles =
                                                     uploadingFiles.filter(
