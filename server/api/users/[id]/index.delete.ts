@@ -1,9 +1,20 @@
 import { rm } from 'node:fs/promises';
 
 import { join } from 'pathe';
+import { z } from 'zod';
 
 import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
 import { isAdmin } from '~~/utils/user';
+
+const validationSchema = z
+    .object({
+        verificationData: z
+            .string({
+                invalid_type_error: 'Invalid verification data',
+            })
+            .optional(),
+    })
+    .optional();
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
@@ -16,7 +27,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const userId = getRouterParam(event, 'id');
-
     if (userId === currentUser.id) {
         throw createError({
             statusCode: 403,
@@ -46,6 +56,19 @@ export default defineEventHandler(async (event) => {
             message: 'You cannot delete a super admin',
         });
     }
+
+    const body = await readValidatedBody(event, validationSchema.safeParse);
+
+    if (!body.success) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: 'Bad Request',
+            message: 'Invalid body',
+            data: body.error.format(),
+        });
+    }
+
+    await verifySession(currentUser, body.data?.verificationData);
 
     const userFiles = await prisma.file.findMany({
         where: {
