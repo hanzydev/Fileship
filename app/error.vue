@@ -17,7 +17,12 @@
 
                 <div h1 rounded-full bg-fs-accent></div>
                 <p text-slate200 font-medium>
-                    Houston, we have a problem. {{ error.message }}
+                    {{
+                        error.statusCode === 403
+                            ? "Houston you... you aren't houston!"
+                            : 'Houston, we have a problem.'
+                    }}
+                    {{ error.message }}.
                 </p>
 
                 <UiButton
