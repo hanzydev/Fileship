@@ -17,20 +17,19 @@ export const getDevice = async (
 
     let ipInfo = {
         city: 'Unknown',
-        region: 'Unknown',
+        regionName: 'Unknown',
         country: 'Unknown',
     };
 
     try {
         const res = await $fetch<{
+            status: 'success';
             city: string;
-            region: string;
+            regionName: string;
             country: string;
-        }>(`https://ipinfo.io/${ip}/json`, { ignoreResponseError: true });
+        }>(`http://ip-api.com/json/${ip}`, { ignoreResponseError: true });
 
-        if (res.city && res.region && res.country) {
-            ipInfo = res;
-        }
+        if (res.status === 'success') ipInfo = res;
     } catch {
         //
     }
@@ -38,6 +37,6 @@ export const getDevice = async (
     return {
         os,
         platform,
-        location: `${ipInfo.city}, ${ipInfo.region}, ${ipInfo.country}`,
+        location: `${ipInfo.city}, ${ipInfo.regionName}, ${ipInfo.country}`,
     };
 };
