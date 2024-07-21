@@ -285,7 +285,7 @@ const profileItems = computed(() => {
 const handleLogout = async () => {
     isLoggingOut.value = true;
 
-    useCookie('adminSessionId', { maxAge: 0 }).value = '';
+    useCookie('adminSessionId').value = null;
     await $fetch('/api/auth/logout', { method: 'POST' });
 
     toast.success('Logged out successfully');
