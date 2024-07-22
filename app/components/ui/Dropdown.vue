@@ -80,9 +80,7 @@ const menuPosition = reactive({ x: 0, y: 0 });
 const id = useId();
 const isIos = useIsIos();
 const overflow = useOverflow();
-
 const activeCtxMenu = useActiveCtxMenu();
-const activeDropdown = useActiveDropdown();
 
 let ctxMenuTimeout: NodeJS.Timeout;
 
@@ -174,15 +172,11 @@ onKeyStroke(
     { eventName: 'keydown' },
 );
 
-onUnmounted(() => (overflow.value = true));
+onUnmounted(() => asCtxMenu && (overflow.value = true));
 
 watch(isOpen, (value) => {
-    if (value) {
-        if (asCtxMenu) activeCtxMenu.value = id;
-        else activeDropdown.value = id;
-    }
-
-    overflow.value = !(activeCtxMenu.value || activeDropdown.value);
+    if (asCtxMenu) activeCtxMenu.value = value ? id : '';
+    overflow.value = !activeCtxMenu.value;
 });
 
 watch(activeCtxMenu, (value) => {
