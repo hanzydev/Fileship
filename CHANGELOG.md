@@ -1,5 +1,29 @@
 # Changelog
 
+## v1.6.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.6.0...v1.6.1)
+
+### 🩹 Fixes
+
+- Type fixes ([8fce8d0](https://github.com/hanzydev/Fileship/commit/8fce8d0))
+- Folder handling in socket ([cdad39c](https://github.com/hanzydev/Fileship/commit/cdad39c))
+
+### 💅 Refactors
+
+- Sort files in folder ([2750ba4](https://github.com/hanzydev/Fileship/commit/2750ba4))
+
+### 🏡 Chore
+
+- **release:** V1.6.0 ([9502313](https://github.com/hanzydev/Fileship/commit/9502313))
+- Update Fileship instructions for updating ([2f749a0](https://github.com/hanzydev/Fileship/commit/2f749a0))
+- How did this get here???? ([dc55648](https://github.com/hanzydev/Fileship/commit/dc55648))
+- Lint fix ([5afe7c1](https://github.com/hanzydev/Fileship/commit/5afe7c1))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.6.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.5.0...v1.6.0)
