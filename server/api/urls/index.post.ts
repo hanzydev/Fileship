@@ -121,8 +121,16 @@ export default defineEventHandler(async (event) => {
 
     sendToUser(currentUser.id, 'create:url', url);
 
+    const protocol = (process.env.RETURN_HTTPS ?? true) ? 'https' : 'http';
+
+    const domain = currentUser.domains.length
+        ? currentUser.domains[
+              Math.floor(Math.random() * currentUser.domains.length)
+          ]
+        : getRequestURL(event).host;
+
     return {
         ...url,
-        url: `${getRequestURL(event).origin}/link/${url.vanity}`,
+        url: `${protocol}://${domain}/link/${url.vanity}`,
     };
 });

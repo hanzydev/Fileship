@@ -376,6 +376,46 @@
 
             <UiExpander>
                 <div flex="~ gap2 items-center">
+                    <Icon name="heroicons-solid:globe-alt" size="24" />
+                    <h5>Domains</h5>
+                </div>
+
+                <template #content>
+                    <form space-y-4 @submit.prevent="handleDomainsEdit">
+                        <p text-slate200>
+                            Configure your domains. These domains will be used
+                            to output a random domain during upload.
+                        </p>
+
+                        <UiInput
+                            v-model="domains"
+                            label="Domains"
+                            rounded="!"
+                            wfull
+                            caption="Separate multiple domains with a comma"
+                            :disabled="domainsUpdating"
+                        />
+
+                        <UiButton
+                            wfull
+                            rounded="!"
+                            gap2
+                            alignment="center"
+                            variant="accent"
+                            type="submit"
+                            icon="heroicons:pencil-16-solid"
+                            icon-size="20"
+                            :loading="domainsUpdating"
+                            :disabled="domainsUpdating"
+                        >
+                            Save
+                        </UiButton>
+                    </form>
+                </template>
+            </UiExpander>
+
+            <UiExpander>
+                <div flex="~ gap2 items-center">
                     <Icon name="heroicons-solid:shield-check" size="24" />
                     <h5>Two-Factor Authentication</h5>
                 </div>
@@ -546,6 +586,10 @@ import { toast } from 'vue-sonner';
 const appConfig = useAppConfig();
 const currentUser = useAuthUser();
 
+const { data: _domains } = await useFetch('/api/users/@me/domains');
+
+const domains = ref(_domains.value!.domains.join(', '));
+
 const shareXConfigModal = reactive<{
     open: boolean;
     settings: {
@@ -607,6 +651,8 @@ const disable2FaModalOpen = ref(false);
 const verify2FaError = ref<string>();
 const verify2FaModalOpen = ref(false);
 
+const domainsUpdating = ref(false);
+
 const handleUserEdit = async (
     target: 'Account' | 'Avatar' | 'Embed config',
     verificationData?: string,
@@ -655,6 +701,21 @@ const handleUserEdit = async (
     }
 
     userUpdating.value = false;
+};
+
+const handleDomainsEdit = async () => {
+    domainsUpdating.value = true;
+
+    await $fetch('/api/users/@me/domains', {
+        method: 'PUT',
+        body: {
+            domains: domains.value.split(','),
+        },
+    });
+
+    domainsUpdating.value = false;
+
+    toast.success('Domains updated successfully');
 };
 
 const change2Fa = async (enabled: boolean, totp: string) => {

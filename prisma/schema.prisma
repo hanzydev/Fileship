@@ -34,6 +34,7 @@ model User {
   limits      Json             @default("{}")
   embed       Json             @default("{}")
   createdAt   DateTime         @default(now())
+  domains     String[]
 }
 
 model File {

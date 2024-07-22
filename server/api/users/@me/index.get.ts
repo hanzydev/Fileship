@@ -5,7 +5,6 @@ import type { IEmbed } from '~~/utils/types';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
-
     if (!currentUser) {
         throw createError({
             statusCode: 401,

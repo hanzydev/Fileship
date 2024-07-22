@@ -148,7 +148,7 @@ export default defineEventHandler(async (event) => {
     if (!existsSync(join(dataDirectory, 'temp', currentUser.id)))
         await fsp.mkdir(join(dataDirectory, 'temp', currentUser.id));
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const buffer = new Uint8Array(await file.arrayBuffer());
 
     if (body.data.currentChunk === body.data.totalChunks) {
         if (existsSync(tempPath)) {
@@ -167,17 +167,14 @@ export default defineEventHandler(async (event) => {
                 const metadata = await image.metadata();
 
                 if (metadata.width && metadata.height) {
-                    await fsp.writeFile(
-                        tempPath,
-                        await image
-                            .jpeg({
-                                quality: Math.min(
-                                    100,
-                                    Math.max(1, 100 - body.data.compression),
-                                ),
-                            })
-                            .toBuffer(),
-                    );
+                    await image
+                        .jpeg({
+                            quality: Math.min(
+                                100,
+                                Math.max(1, 100 - body.data.compression),
+                            ),
+                        })
+                        .toFile(tempPath);
                 }
             } catch {
                 throw createError({
@@ -251,9 +248,19 @@ export default defineEventHandler(async (event) => {
 
         sendToUser(currentUser.id, 'create:file', upload);
 
+        const protocol = (process.env.RETURN_HTTPS ?? true) ? 'https' : 'http';
+
+        const domain = currentUser.domains.length
+            ? currentUser.domains[
+                  Math.floor(Math.random() * currentUser.domains.length)
+              ]
+            : getRequestURL(event).host;
+
+        const route = currentUser.embed.enabled ? 'view' : 'u';
+
         return {
             ...upload,
-            url: `${getRequestURL(event).origin}/${currentUser.embed.enabled ? 'view' : 'u'}/${upload.fileName}`,
+            url: `${protocol}://${domain}/${route}/${upload.fileName}`,
         };
     } else if (body.data.currentChunk === 1) {
         await fsp.writeFile(tempPath, buffer);
