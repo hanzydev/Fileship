@@ -1,5 +1,35 @@
 # Changelog
 
+## v1.5.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.4.0...v1.5.0)
+
+### 🚀 Enhancements
+
+- If the folder is not public, keep the files in it safe ([e647024](https://github.com/hanzydev/Fileship/commit/e647024))
+- Add a check mark above the selected files ([5a0708a](https://github.com/hanzydev/Fileship/commit/5a0708a))
+- Make slide size better ([378a43b](https://github.com/hanzydev/Fileship/commit/378a43b))
+- Add touch event handling for iOS context menu in Dropdown component ([d57bb4e](https://github.com/hanzydev/Fileship/commit/d57bb4e))
+- Make selected files more distinct ([f9482fa](https://github.com/hanzydev/Fileship/commit/f9482fa))
+- Domains support ([8cce1f2](https://github.com/hanzydev/Fileship/commit/8cce1f2))
+- Add log level functionality ([347a06f](https://github.com/hanzydev/Fileship/commit/347a06f))
+
+### 💅 Refactors
+
+- Update error message ([acd65b2](https://github.com/hanzydev/Fileship/commit/acd65b2))
+- Take up the vanity ([66d7807](https://github.com/hanzydev/Fileship/commit/66d7807))
+- Grammar correction ([d470a16](https://github.com/hanzydev/Fileship/commit/d470a16))
+- Grammar correction ([039c63b](https://github.com/hanzydev/Fileship/commit/039c63b))
+- Reorganise api routes ([a0b0d94](https://github.com/hanzydev/Fileship/commit/a0b0d94))
+
+### 🏡 Chore
+
+- Update caption for domains input field ([a618fa9](https://github.com/hanzydev/Fileship/commit/a618fa9))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.4.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.3.0...v1.4.0)
