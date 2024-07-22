@@ -30,7 +30,15 @@
             />
         </div>
 
-        <UiSearchBar v-model="searchQuery" placeholder="Search files..." />
+        <div flex="~ gap4 1 items-center" wfull>
+            <UiSearchBar
+                v-model="searchQuery"
+                placeholder="Search files..."
+                wfull
+            />
+            <FileTypeFilter v-model="filterType" />
+        </div>
+
         <div v-if="filtered.length" grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
             <template v-for="file in calculatedFiles" :key="file.id">
                 <FileCard
@@ -94,6 +102,7 @@ const files = useFiles();
 
 const searchQuery = ref('');
 const currentPage = ref(1);
+const filterType = ref([]);
 const disabled = ref(false);
 
 const selectedFiles = ref(data.files.map((f) => f.id));
@@ -104,6 +113,11 @@ const filtered = computed(() =>
             editable
                 ? [null, data.id].includes(f.folderId)
                 : f.folderId === data.id,
+        )
+        .filter(
+            (f) =>
+                !filterType.value.length ||
+                filterType.value.some((t) => f.mimeType.startsWith(`${t}/`)),
         )
         .filter((f) =>
             Object.values(f).some((v) =>
