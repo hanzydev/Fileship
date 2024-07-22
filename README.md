@@ -127,6 +127,29 @@ server {
 }
 ```
 
+## 🔄 Updating
+
+To update Fileship, follow these steps:
+
+### Using Docker
+
+```sh
+cd Fileship
+git pull
+docker compose down
+docker compose up --build -d
+```
+
+### From source
+
+```sh
+cd Fileship
+git pull
+pnpm i
+pnpm build
+pnpm preview
+```
+
 ## ❤️ Contribute
 
 Contributions are always welcome! Please read the [contribution guidelines](CONTRIBUTING.md) first.
@@ -134,3 +157,7 @@ Contributions are always welcome! Please read the [contribution guidelines](CONT
 ## ⚖️ License
 
 [MIT](LICENSE)
+
+```
+
+```
