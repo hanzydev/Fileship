@@ -5,6 +5,8 @@
             :class="triggerClass"
             @click="handleClick"
             @contextmenu="handleContextMenu"
+            @touchstart="handleIosContextMenu"
+            @touchend="clearCtxMenuTimeout"
         >
             <slot />
         </div>
@@ -76,10 +78,13 @@ const mousePosition = reactive({ x: 0, y: 0 });
 const menuPosition = reactive({ x: 0, y: 0 });
 
 const id = useId();
+const isIos = useIsIos();
 const overflow = useOverflow();
 
 const activeCtxMenu = useActiveCtxMenu();
 const activeDropdown = useActiveDropdown();
+
+let ctxMenuTimeout: NodeJS.Timeout;
 
 const calculateMenuPosition = async () => {
     isOpen.value = true;
@@ -98,14 +103,20 @@ const calculateMenuPosition = async () => {
     isOpen.value = false;
 };
 
-const handleContextMenu = async (event: MouseEvent) => {
+const handleContextMenu = async (event: MouseEvent | TouchEvent) => {
     if (!asCtxMenu || hover) return;
 
     event.preventDefault();
     event.stopPropagation();
 
-    mousePosition.x = event.clientX;
-    mousePosition.y = event.clientY;
+    mousePosition.x =
+        'clientX' in event
+            ? event.clientX
+            : (event.touches[0]?.clientX as number);
+    mousePosition.y =
+        'clientY' in event
+            ? event.clientY
+            : (event.touches[0]?.clientY as number);
 
     if (menuPosition.x !== 0 && menuPosition.y !== 0) {
         isOpen.value = false;
@@ -115,6 +126,17 @@ const handleContextMenu = async (event: MouseEvent) => {
     await calculateMenuPosition();
     isOpen.value = true;
 };
+
+const handleIosContextMenu = (event: TouchEvent) => {
+    if (!asCtxMenu || hover || !isIos.value) return;
+
+    clearTimeout(ctxMenuTimeout);
+    ctxMenuTimeout = setTimeout(() => {
+        handleContextMenu(event);
+    }, 300);
+};
+
+const clearCtxMenuTimeout = () => clearTimeout(ctxMenuTimeout);
 
 const handleClick = () => {
     if (asCtxMenu || hover) return;
