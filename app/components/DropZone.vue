@@ -40,7 +40,7 @@ const {
     accept = [],
     max = Infinity,
     multiple = true,
-    placeholder = 'files',
+    placeholder = 'file(s)',
     disabled: _disabled = false,
 } = defineProps<{
     accept?: string[];

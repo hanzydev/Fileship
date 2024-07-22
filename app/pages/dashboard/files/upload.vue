@@ -82,7 +82,7 @@
                     w8
                     p0="!"
                     href="/dashboard/files"
-                    aria-label="View uploaded files"
+                    aria-label="View all files"
                 />
             </div>
 
@@ -100,7 +100,7 @@
                     :loading="uploading"
                     @click="handleUpload"
                 >
-                    Upload Files
+                    Upload File(s)
                 </UiButton>
                 <UiButton
                     h10
@@ -241,9 +241,9 @@ const handleUpload = async () => {
     uploading.value = false;
 
     if (!uploadingFiles.value.length) {
-        toast.success('All files uploaded successfully');
+        toast.success('All file(s) uploaded successfully');
     } else {
-        toast.error('Some files failed to upload');
+        toast.error('Some file(s) failed to upload');
     }
 };
 
