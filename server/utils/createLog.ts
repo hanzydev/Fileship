@@ -7,10 +7,20 @@ type CreateLogData = {
     system?: boolean;
 };
 
+const AllowedActions = ['Login', 'Create User', 'Update User', 'Delete User'];
+
 export const createLog = async (
     event: any,
     { action, message, system }: CreateLogData,
 ) => {
+    const logLevel = +(process.env.LOG_LEVEL ?? 2);
+    if (
+        logLevel === 0 ||
+        (!AllowedActions.includes(action) && logLevel !== 2)
+    ) {
+        return;
+    }
+
     const currentUser = event.context.user;
 
     const log = await prisma.log.create({
