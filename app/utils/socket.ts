@@ -229,9 +229,7 @@ export const initSocket = () => {
             );
             const fileIndex = files.value.findIndex((f) => f.id === fileId);
 
-            if (
-                !folders.value[folderIndex]!.files.find((f) => f === fileId)
-            ) {
+            if (!folders.value[folderIndex]!.files.find((f) => f === fileId)) {
                 folders.value[folderIndex]!.files.push(fileId);
             }
 
