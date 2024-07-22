@@ -230,9 +230,9 @@ export const initSocket = () => {
             const fileIndex = files.value.findIndex((f) => f.id === fileId);
 
             if (
-                !folders.value[folderIndex]!.files.find((f) => f.id === fileId)
+                !folders.value[folderIndex]!.files.find((f) => f === fileId)
             ) {
-                folders.value[folderIndex]!.files.push({ id: fileId });
+                folders.value[folderIndex]!.files.push(fileId);
             }
 
             files.value[fileIndex]!.folderId = folderId;
@@ -246,7 +246,7 @@ export const initSocket = () => {
 
             folders.value[folderIndex]!.files = folders.value[
                 folderIndex
-            ]!.files.filter((f) => f.id !== fileId);
+            ]!.files.filter((f) => f !== fileId);
             files.value[fileIndex]!.folderId = null;
         });
 
