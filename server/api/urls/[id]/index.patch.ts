@@ -104,7 +104,7 @@ export default defineEventHandler(async (event) => {
         delete body.data.expiration;
     }
 
-    let updatedUrl = await prisma.url.update({
+    const _updatedUrl = await prisma.url.update({
         where: {
             id: urlId,
         },
@@ -114,11 +114,11 @@ export default defineEventHandler(async (event) => {
         data: body.data,
     });
 
-    updatedUrl = {
-        ...updatedUrl,
+    const updatedUrl = {
+        ..._updatedUrl,
         views: {
-            total: updatedUrl.views.length,
-            today: updatedUrl.views.filter((view) => {
+            total: _updatedUrl.views.length,
+            today: _updatedUrl.views.filter((view) => {
                 const now = new Date();
 
                 return (
@@ -137,5 +137,5 @@ export default defineEventHandler(async (event) => {
 
     sendToUser(currentUser.id, 'update:url', updatedUrl);
 
-    return { ...updatedUrl, password: undefined };
+    return updatedUrl;
 });

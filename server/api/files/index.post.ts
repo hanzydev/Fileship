@@ -204,7 +204,7 @@ export default defineEventHandler(async (event) => {
 
         await fsp.rename(tempPath, filePath);
 
-        let upload = await prisma.file.create({
+        const _upload = await prisma.file.create({
             data: {
                 fileName,
                 mimeType: file.type,
@@ -221,15 +221,15 @@ export default defineEventHandler(async (event) => {
             },
         });
 
-        upload = {
-            ...upload,
+        const upload = {
+            ..._upload,
             size: {
-                raw: upload.size.toString(),
-                formatted: filesize(upload.size.toString()),
+                raw: _upload.size.toString(),
+                formatted: filesize(_upload.size.toString()),
             },
             views: {
-                total: upload.views.length,
-                today: upload.views.filter((view) => {
+                total: _upload.views.length,
+                today: _upload.views.filter((view) => {
                     const now = new Date();
 
                     return (
@@ -239,7 +239,7 @@ export default defineEventHandler(async (event) => {
                     );
                 }).length,
             },
-        } as never;
+        };
 
         await createLog(event, {
             action: 'Upload File',

@@ -82,7 +82,7 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    let url = await prisma.url.create({
+    const _url = await prisma.url.create({
         data: {
             vanity: body.data.vanity || nanoid(8),
             destinationUrl: body.data.destinationUrl,
@@ -98,11 +98,11 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    url = {
-        ...url,
+    const url = {
+        ..._url,
         views: {
-            total: url.views.length,
-            today: url.views.filter((view) => {
+            total: _url.views.length,
+            today: _url.views.filter((view) => {
                 const now = new Date();
 
                 return (
@@ -112,7 +112,7 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
-    } as never;
+    };
 
     await createLog(event, {
         action: 'Shorten URL',

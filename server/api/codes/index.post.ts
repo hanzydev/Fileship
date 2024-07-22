@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    let code = await prisma.code.create({
+    const _code = await prisma.code.create({
         data: {
             title: body.data.title,
             code: body.data.code,
@@ -89,11 +89,11 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    code = {
-        ...code,
+    const code = {
+        ..._code,
         views: {
-            total: code.views.length,
-            today: code.views.filter((view) => {
+            total: _code.views.length,
+            today: _code.views.filter((view) => {
                 const now = new Date();
 
                 return (
@@ -103,7 +103,7 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
-    } as never;
+    };
 
     await createLog(event, {
         action: 'Share Code',

@@ -143,7 +143,7 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    let updatedFile = await prisma.file.update({
+    const _updatedFile = await prisma.file.update({
         where: {
             id: fileId,
         },
@@ -153,15 +153,15 @@ export default defineEventHandler(async (event) => {
         data: body.data,
     });
 
-    updatedFile = {
-        ...updatedFile,
+    const updatedFile = {
+        ..._updatedFile,
         size: {
-            raw: updatedFile.size.toString(),
-            formatted: filesize(updatedFile.size.toString()),
+            raw: _updatedFile.size.toString(),
+            formatted: filesize(_updatedFile.size.toString()),
         },
         views: {
-            total: updatedFile.views.length,
-            today: updatedFile.views.filter((view) => {
+            total: _updatedFile.views.length,
+            today: _updatedFile.views.filter((view) => {
                 const now = new Date();
 
                 return (
@@ -171,7 +171,7 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
-    } as never;
+    };
 
     await createLog(event, {
         action: 'Update File',
@@ -192,5 +192,5 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    return { ...updatedFile, password: undefined };
+    return updatedFile;
 });

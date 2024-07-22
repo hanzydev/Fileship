@@ -113,7 +113,7 @@ export default defineEventHandler(async (event) => {
         delete body.data.expiration;
     }
 
-    let updatedCode = await prisma.code.update({
+    const _updatedCode = await prisma.code.update({
         where: {
             id: codeId,
         },
@@ -123,11 +123,11 @@ export default defineEventHandler(async (event) => {
         data: body.data,
     });
 
-    updatedCode = {
-        ...updatedCode,
+    const updatedCode = {
+        ..._updatedCode,
         views: {
-            total: updatedCode.views.length,
-            today: updatedCode.views.filter((view) => {
+            total: _updatedCode.views.length,
+            today: _updatedCode.views.filter((view) => {
                 const now = new Date();
 
                 return (
@@ -137,7 +137,7 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
-    } as never;
+    };
 
     await createLog(event, {
         action: 'Update Code',
@@ -146,5 +146,5 @@ export default defineEventHandler(async (event) => {
 
     sendToUser(currentUser.id, 'update:code', updatedCode);
 
-    return { ...updatedCode, password: undefined };
+    return updatedCode;
 });
