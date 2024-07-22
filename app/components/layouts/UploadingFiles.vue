@@ -29,10 +29,12 @@
                     :icon-class="isErrored && 'text-red-500'"
                     icon-size="20"
                 >
-                    <template v-if="isErrored">Some files have errors</template>
+                    <template v-if="isErrored">
+                        Some file(s) have errors
+                    </template>
                     <template v-else>
                         {{ unfinishedFiles.length }}
-                        files
+                        file(s)
                         {{ uploading ? 'uploading' : 'queued' }}
                         <UiProgress v-if="uploading" :value="progress" mlauto />
                     </template>
@@ -61,7 +63,7 @@
                                     name="heroicons-solid:document-duplicate"
                                     size="24"
                                 />
-                                <h3>{{ uploadingFiles.length }} files</h3>
+                                <h3>{{ uploadingFiles.length }} file(s)</h3>
                             </div>
                             <UiDivider />
                         </div>
