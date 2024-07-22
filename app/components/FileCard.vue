@@ -18,7 +18,7 @@
             rounded-md
             motion-safe:transition-shadow
             :class="[
-                selected && 'ring-1 ring-fs-accent',
+                selected && '!ring-2 ring-fs-accent',
                 !selectable && (ctxOpen || !(isImage || isVideo || isAudio))
                     ? 'cursor-default'
                     : 'cursor-pointer hover:(ring-1 ring-fs-accent)',
@@ -37,12 +37,13 @@
                     v-if="selected"
                     flex="~ items-center justify-center"
                     absolute
-                    z50
+                    z10
                     hfull
                     wfull
                     cursor-pointer
                     rounded-md
                     backdrop-blur-sm
+                    bg="[color-mix(in_srgb,_var(--color-fs-accent),_transparent_90%)]"
                 >
                     <Icon name="heroicons-solid:check" size="56" />
                 </div>
