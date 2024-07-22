@@ -42,6 +42,7 @@
             v-if="isImage"
             h96
             wfull
+            cursor-pointer
             select-none
             rounded-md
             bg-contain
@@ -50,6 +51,9 @@
             :style="{
                 backgroundImage: `url(/u/${data.fileName})`,
             }"
+            @click="
+                (event) => (event.target as HTMLDivElement).requestFullscreen()
+            "
         />
 
         <video
