@@ -1,12 +1,11 @@
 import type { User } from '@prisma/client';
 
-import type { IEmbed, IUserLimits } from '~~/utils/types';
+import type { IUserLimits } from '~~/utils/types';
 
 export type UserData = Omit<
     User,
-    'password' | 'totpSecret' | 'embed' | 'limits'
+    'password' | 'totpSecret' | 'embed' | 'limits' | 'domains'
 > & {
-    embed: IEmbed;
     limits: IUserLimits;
 };
 

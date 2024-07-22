@@ -1,3 +1,8 @@
+import { defu } from 'defu';
+
+import { defaultEmbed } from '~~/utils/constants';
+import type { IEmbed } from '~~/utils/types';
+
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
     if (!currentUser) {
@@ -8,12 +13,5 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    return (await prisma.user.findUnique({
-        where: {
-            id: currentUser.id,
-        },
-        select: {
-            domains: true,
-        },
-    }))!.domains;
+    return defu(currentUser.embed, defaultEmbed) as IEmbed;
 });

@@ -20,6 +20,7 @@ import {
     canUploadFiles,
 } from '~~/utils/user';
 
+const embed = useEmbed();
 const currentUser = useAuthUser();
 
 const sidebarItems = computed(() => {
@@ -71,5 +72,9 @@ const sidebarItems = computed(() => {
     }
 
     return filtered;
+});
+
+onMounted(async () => {
+    embed.value = (await $fetch('/api/users/@me/embed')) as any;
 });
 </script>

@@ -1,17 +1,13 @@
 import { z } from 'zod';
 
-const validationSchema = z.object({
-    domains: z
-        .array(z.string(), {
-            invalid_type_error: 'Invalid domains',
-            required_error: 'Missing domains',
-        })
-        .transform((value) =>
-            value
-                .filter((domain) => domain.length)
-                .map((domain) => domain.trim()),
-        ),
-});
+const validationSchema = z
+    .array(z.string(), {
+        invalid_type_error: 'Invalid domains',
+        required_error: 'Missing domains',
+    })
+    .transform((value) =>
+        value.filter((domain) => domain.length).map((domain) => domain.trim()),
+    );
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -39,9 +35,9 @@ export default defineEventHandler(async (event) => {
             id: currentUser.id,
         },
         data: {
-            domains: body.data.domains,
+            domains: body.data,
         },
     });
 
-    return { domains: body.data.domains };
+    return body.data;
 });

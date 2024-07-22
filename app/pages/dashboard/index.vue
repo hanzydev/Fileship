@@ -224,6 +224,7 @@ const { data: foldersData } = await useFetch('/api/folders');
 const { data: filesData } = await useFetch('/api/files');
 const { data: statsData } = await useFetch('/api/users/@me/stats');
 
+const embed = useEmbed();
 const files = useFiles();
 const folders = useFolders();
 const currentUser = useAuthUser();
@@ -266,7 +267,7 @@ const handleCopy = async (fileName: string) => {
     if (timeout) clearTimeout(timeout);
 
     await navigator.clipboard.writeText(
-        `${useRequestURL().origin}/${currentUser.value!.embed?.enabled ? 'view' : 'u'}/${fileName}`,
+        `${useRequestURL().origin}/${embed.value.enabled ? 'view' : 'u'}/${fileName}`,
     );
 
     toast.success('Link copied to clipboard');

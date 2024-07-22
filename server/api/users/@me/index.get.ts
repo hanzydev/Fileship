@@ -1,8 +1,3 @@
-import { defu } from 'defu';
-
-import { defaultEmbed } from '~~/utils/constants';
-import type { IEmbed } from '~~/utils/types';
-
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
     if (!currentUser) {
@@ -31,6 +26,5 @@ export default defineEventHandler(async (event) => {
         totpEnabled: currentUser.totpEnabled,
         currentSessionId: currentUser.currentSessionId,
         superAdmin: currentUser.superAdmin,
-        embed: defu(currentUser.embed, defaultEmbed) as IEmbed,
     };
 });

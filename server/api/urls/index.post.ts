@@ -121,7 +121,8 @@ export default defineEventHandler(async (event) => {
 
     sendToUser(currentUser.id, 'create:url', url);
 
-    const protocol = (process.env.RETURN_HTTPS ?? true) ? 'https' : 'http';
+    const protocol =
+        (process.env.RETURN_HTTPS || 'true') === 'true' ? 'https' : 'http';
 
     const domain = currentUser.domains.length
         ? currentUser.domains[

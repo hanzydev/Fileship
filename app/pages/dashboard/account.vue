@@ -350,7 +350,7 @@
                                 icon="heroicons-solid:trash"
                                 icon-size="20"
                                 :loading="userUpdating"
-                                :disabled="userUpdating"
+                                :disabled="userUpdating || !currentUser!.avatar"
                                 @click="userEditData.cloned.value.avatar = null"
                             >
                                 Reset
@@ -365,7 +365,10 @@
                                 icon="heroicons:pencil-16-solid"
                                 icon-size="20"
                                 :loading="userUpdating"
-                                :disabled="userUpdating"
+                                :disabled="
+                                    userUpdating ||
+                                    !userEditData.cloned.value.avatar
+                                "
                             >
                                 Save
                             </UiButton>
@@ -448,47 +451,37 @@
                     <h5>Embed Configuration</h5>
                 </div>
                 <template #content>
-                    <form
-                        space-y-4
-                        @submit.prevent="handleUserEdit('Embed config')"
-                    >
+                    <form space-y-4 @submit.prevent="handleEmbedEdit">
                         <p text-slate200>
                             Configure how your files are embedded when shared.
                         </p>
 
                         <div grid="~ gap4 sm:cols-2">
                             <UiInput
-                                v-model="
-                                    userEditData.cloned.value.embed!.title!
-                                "
+                                v-model="embedEditData.cloned.value.title!"
                                 label="Title"
                                 wfull
                                 rounded="!"
-                                :disabled="userUpdating"
+                                :disabled="embedUpdating"
                             />
                             <UiInput
                                 v-model="
-                                    userEditData.cloned.value.embed!
-                                        .description!
+                                    embedEditData.cloned.value.description!
                                 "
                                 label="Description"
                                 wfull
                                 rounded="!"
-                                :disabled="userUpdating"
+                                :disabled="embedUpdating"
                             />
                             <UiInput
-                                v-model="
-                                    userEditData.cloned.value.embed!.siteName!
-                                "
+                                v-model="embedEditData.cloned.value.siteName!"
                                 label="Site Name"
                                 wfull
                                 rounded="!"
-                                :disabled="userUpdating"
+                                :disabled="embedUpdating"
                             />
                             <ColorPicker
-                                v-model="
-                                    userEditData.cloned.value.embed!.color!
-                                "
+                                v-model="embedEditData.cloned.value.color!"
                             >
                                 <div relative>
                                     <div
@@ -501,14 +494,13 @@
                                         rounded-full
                                         :style="{
                                             backgroundColor:
-                                                userEditData.cloned.value.embed!
+                                                embedEditData.cloned.value
                                                     .color,
                                         }"
                                     ></div>
                                     <UiInput
                                         v-model="
-                                            userEditData.cloned.value.embed!
-                                                .color!
+                                            embedEditData.cloned.value.color!
                                         "
                                         label="Color"
                                         wfull
@@ -522,12 +514,12 @@
                                         "
                                         :style="{
                                             '--un-ring-color':
-                                                userEditData.cloned.value.embed!
+                                                embedEditData.cloned.value
                                                     .color,
                                         }"
                                         :min="1"
                                         :max="7"
-                                        :disabled="userUpdating"
+                                        :disabled="embedUpdating"
                                     />
                                 </div>
                             </ColorPicker>
@@ -541,10 +533,8 @@
                         </h6>
                         <div flex="~ gap2 items-center">
                             <UiSwitch
-                                v-model="
-                                    userEditData.cloned.value.embed!.enabled
-                                "
-                                :disabled="userUpdating"
+                                v-model="embedEditData.cloned.value.enabled"
+                                :disabled="embedUpdating"
                             />
                             <span font-medium="!">Enable embeds</span>
                         </div>
@@ -558,7 +548,7 @@
                             icon="heroicons:pencil-16-solid"
                             icon-size="20"
                             :loading="userUpdating"
-                            :disabled="userUpdating"
+                            :disabled="embedUpdating"
                         >
                             Save
                         </UiButton>
@@ -583,12 +573,13 @@
 import { render } from 'vue';
 import { toast } from 'vue-sonner';
 
+const embed = useEmbed();
 const appConfig = useAppConfig();
 const currentUser = useAuthUser();
 
 const { data: _domains } = await useFetch('/api/users/@me/domains');
 
-const domains = ref(_domains.value!.domains.join(', '));
+const domains = ref(_domains.value!.join(', '));
 
 const shareXConfigModal = reactive<{
     open: boolean;
@@ -633,6 +624,8 @@ const userEditData = useCloned({
     avatar: undefined as File | undefined | null,
 });
 
+const embedEditData = useCloned(embed);
+
 const userUpdating = ref(false);
 const userFormErrors = ref();
 
@@ -652,9 +645,10 @@ const verify2FaError = ref<string>();
 const verify2FaModalOpen = ref(false);
 
 const domainsUpdating = ref(false);
+const embedUpdating = ref(false);
 
 const handleUserEdit = async (
-    target: 'Account' | 'Avatar' | 'Embed config',
+    target: 'Account' | 'Avatar',
     verificationData?: string,
 ) => {
     userUpdating.value = true;
@@ -669,7 +663,6 @@ const handleUserEdit = async (
             body: {
                 username: userEditData.cloned.value.username,
                 password: userEditData.cloned.value.password || undefined,
-                embed: userEditData.cloned.value.embed,
                 avatar: ![null, undefined].includes(avatar as never)
                     ? Buffer.from(
                           await new Promise<ArrayBuffer>((resolve) => {
@@ -686,6 +679,7 @@ const handleUserEdit = async (
 
         verifyModalOpen.value = false;
         userEditData.cloned.value.password = '';
+        userEditData.cloned.value.avatar = undefined;
 
         toast.success(`${target} updated successfully`);
     } catch (error: any) {
@@ -703,14 +697,25 @@ const handleUserEdit = async (
     userUpdating.value = false;
 };
 
+const handleEmbedEdit = async () => {
+    embedUpdating.value = true;
+
+    await $fetch('/api/users/@me/embed', {
+        method: 'PATCH',
+        body: embedEditData.cloned.value,
+    });
+
+    embedUpdating.value = false;
+
+    toast.success('Embed config updated successfully');
+};
+
 const handleDomainsEdit = async () => {
     domainsUpdating.value = true;
 
     await $fetch('/api/users/@me/domains', {
         method: 'PUT',
-        body: {
-            domains: domains.value.split(','),
-        },
+        body: domains.value.split(','),
     });
 
     domainsUpdating.value = false;
@@ -859,11 +864,9 @@ const generateShareXConfig = () => {
 };
 
 watch(
-    userEditData.cloned,
+    embedEditData.cloned,
     (value) => {
-        if (value.embed!.color[0] !== '#') {
-            value.embed!.color = `#${value.embed!.color}`;
-        }
+        if (value.color[0] !== '#') value.color = `#${value.color}`;
     },
     { deep: true },
 );

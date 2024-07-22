@@ -291,6 +291,7 @@ const { width } = useWindowSize();
 
 const currentUser = useAuthUser();
 const folders = useFolders();
+const embed = useEmbed();
 
 const addToFolderSearchQuery = ref('');
 
@@ -330,7 +331,7 @@ const handleDelete = async () => {
 
 const handleCopy = () => {
     navigator.clipboard.writeText(
-        `${useRequestURL().origin}/${currentUser.value!.embed?.enabled ? 'view' : 'u'}/${data.fileName}`,
+        `${useRequestURL().origin}/${embed.value.enabled ? 'view' : 'u'}/${data.fileName}`,
     );
     ctxOpen.value = false;
 

@@ -1,6 +1,6 @@
 import type { UserPermission } from '@prisma/client';
 
-import type { IEmbed, IUserLimits } from '~~/utils/types';
+import type { IUserLimits } from '~~/utils/types';
 import { isAdmin } from '~~/utils/user';
 
 export default defineEventHandler((event) => {
@@ -24,7 +24,6 @@ export default defineEventHandler((event) => {
             totpEnabled: true,
             superAdmin: true,
             limits: true,
-            embed: true,
             createdAt: true,
             _count: {
                 select: { files: true, notes: true, codes: true, urls: true },
@@ -38,7 +37,6 @@ export default defineEventHandler((event) => {
             permissions: UserPermission[];
             totpEnabled: boolean;
             superAdmin: boolean;
-            embed: IEmbed;
             limits: IUserLimits;
             createdAt: Date;
             _count: {

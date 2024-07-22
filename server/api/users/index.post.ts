@@ -5,8 +5,8 @@ import { z } from 'zod';
 import { UserPermission } from '@prisma/client';
 
 import { sendByFilter } from '~~/server/plugins/socketIO';
-import { defaultEmbed, defaultUserLimits } from '~~/utils/constants';
-import type { IEmbed, IUserLimits } from '~~/utils/types';
+import { defaultUserLimits } from '~~/utils/constants';
+import type { IUserLimits } from '~~/utils/types';
 import { isAdmin } from '~~/utils/user';
 
 const validationSchema = z.object(
@@ -121,13 +121,15 @@ export default defineEventHandler(async (event) => {
         });
     }
 
+    const limits = defu(body.data.limits, defaultUserLimits);
+
     const user = await prisma.user.create({
         data: {
             username: body.data.username,
             password: await hash(body.data.password),
             permissions: body.data.permissions,
-            limits: defu(body.data.limits, defaultUserLimits),
             superAdmin: body.data.superAdmin,
+            limits,
         },
         select: {
             id: true,
@@ -138,7 +140,6 @@ export default defineEventHandler(async (event) => {
             createdAt: true,
             limits: true,
             superAdmin: true,
-            embed: true,
         },
     });
 
@@ -157,7 +158,6 @@ export default defineEventHandler(async (event) => {
 
     return {
         ...user,
-        limits: defu(user.limits, defaultUserLimits) as IUserLimits,
-        embed: defu(user.embed, defaultEmbed) as IEmbed,
+        limits: limits as IUserLimits,
     };
 });

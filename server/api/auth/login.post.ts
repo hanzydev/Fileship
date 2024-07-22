@@ -1,12 +1,9 @@
 import { verify } from 'argon2';
-import { defu } from 'defu';
 import { nanoid } from 'nanoid';
 import { authenticator } from 'otplib';
 import { z } from 'zod';
 
 import { sendToUser } from '~~/server/plugins/socketIO';
-import { defaultEmbed } from '~~/utils/constants';
-import type { IEmbed } from '~~/utils/types';
 import { isAdmin } from '~~/utils/user';
 
 const validationSchema = z.object({
@@ -190,7 +187,6 @@ export default defineEventHandler(async (event) => {
             createdAt: findUserByUsername.createdAt,
             totpEnabled: findUserByUsername.totpEnabled,
             superAdmin: findUserByUsername.superAdmin,
-            embed: defu(findUserByUsername.embed, defaultEmbed) as IEmbed,
         },
         session: {
             id: session.id,
