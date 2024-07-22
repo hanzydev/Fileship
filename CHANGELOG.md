@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.6.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.5.0...v1.6.0)
+
+### 🚀 Enhancements
+
+- Add fullscreen functionality to image in ViewFile modal ([a39f4e7](https://github.com/hanzydev/Fileship/commit/a39f4e7))
+- Add file type filter functionality to folder ([4f50630](https://github.com/hanzydev/Fileship/commit/4f50630))
+
+### 💅 Refactors
+
+- Remove unused code for dropdown ([ceebe40](https://github.com/hanzydev/Fileship/commit/ceebe40))
+
+### 🏡 Chore
+
+- **release:** V1.5.0 ([0278a34](https://github.com/hanzydev/Fileship/commit/0278a34))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.5.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.4.0...v1.5.0)
