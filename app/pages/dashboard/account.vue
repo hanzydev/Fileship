@@ -395,7 +395,7 @@
                             label="Domains"
                             rounded="!"
                             wfull
-                            caption="Separate multiple domains with a comma"
+                            caption="Separate multiple domains with a comma. Example: domain.com, i.domain2.com."
                             :disabled="domainsUpdating"
                         />
 
