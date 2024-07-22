@@ -117,7 +117,7 @@ export default defineEventHandler(async (event) => {
             .map((f) => ({ id: f.id }));
     }
 
-    const updatedFolder = await prisma.folder.update({
+    const _updatedFolder = await prisma.folder.update({
         where: {
             id: folderId,
         },
@@ -125,6 +125,7 @@ export default defineEventHandler(async (event) => {
             files: {
                 select: {
                     id: true,
+                    createdAt: true,
                 },
             },
         },
@@ -137,6 +138,13 @@ export default defineEventHandler(async (event) => {
             },
         },
     });
+
+    const updatedFolder = {
+        ..._updatedFolder,
+        files: _updatedFolder.files
+            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+            .map((file) => file.id),
+    };
 
     await createLog(event, {
         action: 'Update Folder',

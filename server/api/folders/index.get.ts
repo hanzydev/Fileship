@@ -20,10 +20,16 @@ export default defineEventHandler(async (event) => {
             files: {
                 select: {
                     id: true,
+                    createdAt: true,
                 },
             },
         },
     });
 
-    return folders;
+    return folders.map((folder) => ({
+        ...folder,
+        files: folder.files
+            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+            .map((file) => file.id),
+    }));
 });

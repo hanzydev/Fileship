@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    const folder = await prisma.folder.create({
+    const _folder = await prisma.folder.create({
         data: {
             name: body.data.name,
             public: body.data.public,
@@ -77,10 +77,18 @@ export default defineEventHandler(async (event) => {
             files: {
                 select: {
                     id: true,
+                    createdAt: true,
                 },
             },
         },
     });
+
+    const folder = {
+        ..._folder,
+        files: _folder.files
+            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+            .map((file) => file.id),
+    };
 
     await createLog(event, {
         action: 'Create Folder',
@@ -92,7 +100,7 @@ export default defineEventHandler(async (event) => {
     folder.files.forEach((file) => {
         sendToUser(currentUser.id, 'folder:file:add', {
             folderId: folder.id,
-            fileId: file.id,
+            fileId: file,
         });
     });
 

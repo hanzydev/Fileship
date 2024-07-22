@@ -105,7 +105,7 @@ const currentPage = ref(1);
 const filterType = ref([]);
 const disabled = ref(false);
 
-const selectedFiles = ref(data.files.map((f) => f.id));
+const selectedFiles = ref(data.files);
 
 const filtered = computed(() =>
     files.value
@@ -156,7 +156,7 @@ const saveChanges = async () => {
 watch(
     () => data.files,
     (value) => {
-        selectedFiles.value = value.map((f) => f.id);
+        selectedFiles.value = value;
     },
 );
 </script>

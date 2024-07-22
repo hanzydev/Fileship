@@ -38,16 +38,18 @@ export default defineEventHandler(async (event) => {
 
     return {
         ...findFolderById,
-        files: findFolderById.files.map((file) => ({
-            ...file,
-            password: undefined,
-            maxViews: undefined,
-            expiresAt: undefined,
-            folderId: undefined,
-            size: {
-                raw: file.size.toString(),
-                formatted: filesize(file.size.toString()),
-            },
-        })),
+        files: findFolderById.files
+            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+            .map((file) => ({
+                ...file,
+                password: undefined,
+                maxViews: undefined,
+                expiresAt: undefined,
+                folderId: undefined,
+                size: {
+                    raw: file.size.toString(),
+                    formatted: filesize(file.size.toString()),
+                },
+            })),
     };
 });
