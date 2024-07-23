@@ -1,5 +1,32 @@
 # Changelog
 
+## v1.7.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.6.1...v1.7.0)
+
+### 🚀 Enhancements
+
+- Add play icon for videos ([937cc31](https://github.com/hanzydev/Fileship/commit/937cc31))
+
+### 🩹 Fixes
+
+- Nothing here bug on main page ([9fd8ac5](https://github.com/hanzydev/Fileship/commit/9fd8ac5))
+
+### 💅 Refactors
+
+- Improve ViewFile modal layout and functionality ([867dd77](https://github.com/hanzydev/Fileship/commit/867dd77))
+- Improve NoteCard and ViewFile modals ([6020253](https://github.com/hanzydev/Fileship/commit/6020253))
+
+### 🏡 Chore
+
+- **release:** V1.6.1 ([c2b5bfe](https://github.com/hanzydev/Fileship/commit/c2b5bfe))
+- Lint fix ([86dab02](https://github.com/hanzydev/Fileship/commit/86dab02))
+
+### ❤️ Contributors
+
+- Nazım Sarp Tekbaş <sarp@sarptekbas.com>
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.6.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.6.0...v1.6.1)
