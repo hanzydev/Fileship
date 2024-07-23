@@ -1,4 +1,10 @@
 <template>
+    <ModalsEditFile
+        v-if="currentUser?.id === data.authorId"
+        v-model="editModalOpen"
+        :data
+    />
+
     <UiModal
         v-if="isImage || isVideo || isAudio"
         v-model="isOpen"
@@ -9,22 +15,25 @@
         <div flex="~ justify-between" wfull>
             <h2 line-clamp-2 break-all>{{ data.fileName }}</h2>
 
-            <div flex="~ gap2">
+            <div flex="~ gap4">
                 <UiButton
-                    variant="outline"
+                    v-if="currentUser?.id === data.authorId"
                     alignment="center"
-                    class="h8 w8 !p0 hover:text-white"
-                    icon="heroicons-solid:clipboard-copy"
-                    icon-size="20"
-                    @click="handleCopy"
+                    class="h10 w10 !p0 hover:text-white"
+                    icon="heroicons:pencil-16-solid"
+                    icon-size="24"
+                    @click="
+                        isOpen = false;
+                        editModalOpen = true;
+                    "
                 />
 
                 <UiButton
                     variant="accent"
                     alignment="center"
-                    class="h8 w8 !p0 hover:text-white"
+                    class="h10 w10 !p0 hover:text-white"
                     icon="heroicons-solid:x"
-                    icon-size="20"
+                    icon-size="24"
                     @click="isOpen = false"
                 />
             </div>
@@ -118,12 +127,11 @@
 
             <UiButton
                 v-if="currentUser?.id === data.authorId"
+                variant="dangerFill"
                 icon="heroicons-solid:trash"
                 icon-size="20"
                 wfull
                 gap2
-                text-red-500
-                hover:ring-red-500
                 :disabled="deleting"
                 @click="handleDelete"
             >
@@ -140,7 +148,7 @@ import { toast } from 'vue-sonner';
 const isOpen = defineModel<boolean>({ required: true });
 
 const { data } = defineProps<{
-    data: Partial<FileData>;
+    data: FileData;
 }>();
 
 const isImage = computed(() => data.mimeType!.startsWith('image/'));
@@ -151,6 +159,7 @@ const currentUser = useAuthUser();
 const embed = useEmbed();
 
 const deleting = ref(false);
+const editModalOpen = ref(false);
 
 const handleDelete = async () => {
     deleting.value = true;
