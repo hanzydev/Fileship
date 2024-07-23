@@ -2,7 +2,7 @@
     <ModalsEditFile
         v-if="currentUser?.id === data.authorId"
         v-model="editModalOpen"
-        :data
+        :data="data as never"
     />
 
     <UiModal
@@ -148,7 +148,7 @@ import { toast } from 'vue-sonner';
 const isOpen = defineModel<boolean>({ required: true });
 
 const { data } = defineProps<{
-    data: FileData;
+    data: Partial<FileData>;
 }>();
 
 const isImage = computed(() => data.mimeType!.startsWith('image/'));
