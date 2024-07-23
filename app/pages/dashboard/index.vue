@@ -204,7 +204,7 @@
                     />
                     <UiPagination
                         v-model="currentPage"
-                        :item-count="files.length"
+                        :item-count="filteredFiles.length"
                         :items-per-page="20"
                     />
                 </div>

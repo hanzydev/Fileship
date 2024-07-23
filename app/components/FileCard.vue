@@ -48,6 +48,18 @@
                     <Icon name="heroicons-solid:check" size="56" />
                 </div>
             </Transition>
+            <Icon
+                v-if="isVideo && !selected"
+                name="heroicons:play-solid"
+                size="64"
+                absolute
+                z10
+                top="1/2"
+                left="1/2"
+                translate-y-="1/2"
+                translate-x-="1/2"
+                opacity-75
+            />
             <div
                 v-if="isImage || isVideo"
                 relative
