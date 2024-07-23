@@ -1,20 +1,59 @@
 <template>
     <UiModal v-model="noteModalOpen" p8 space-y-4>
-        <h2 line-clamp-2 break-all>{{ data.title }}</h2>
+        <div flex="~ justify-between" wfull>
+            <h2 line-clamp-2 break-all>{{ data.title }}</h2>
+
+            <div flex="~ gap4">
+                <UiButton
+                    v-if="currentUser?.id === data.authorId"
+                    alignment="center"
+                    class="h10 w10 !p0 hover:text-white"
+                    icon="heroicons:pencil-16-solid"
+                    icon-size="24"
+                    @click="
+                        noteModalOpen = false;
+                        editModalOpen = true;
+                    "
+                />
+
+                <UiButton
+                    variant="accent"
+                    alignment="center"
+                    class="h10 w10 !p0 hover:text-white"
+                    icon="heroicons-solid:x"
+                    icon-size="24"
+                    @click="noteModalOpen = false"
+                />
+            </div>
+        </div>
 
         <UiTextArea v-model="data!.content" label="Content" readonly wfull />
 
-        <UiButton
-            alignment="center"
-            variant="accent"
-            icon="heroicons-solid:x"
-            icon-size="24"
-            wfull
-            gap2
-            @click="noteModalOpen = false"
-        >
-            Close
-        </UiButton>
+        <div flex gap4>
+            <UiButton
+                icon="heroicons-solid:clipboard-copy"
+                icon-size="24"
+                wfull
+                gap2
+                target="_blank"
+                @click="handleCopy"
+            >
+                Copy
+            </UiButton>
+
+            <UiButton
+                v-if="currentUser?.id === data.authorId"
+                variant="dangerFill"
+                icon="heroicons-solid:trash"
+                icon-size="20"
+                wfull
+                gap2
+                :disabled="deleting"
+                @click="handleDelete"
+            >
+                Delete
+            </UiButton>
+        </div>
     </UiModal>
 
     <ModalsEditNote v-model="editModalOpen" :data />
@@ -96,6 +135,8 @@ import { toast } from 'vue-sonner';
 const { data } = defineProps<{
     data: NoteData;
 }>();
+
+const currentUser = useAuthUser();
 
 const noteModalOpen = ref(false);
 const editModalOpen = ref(false);

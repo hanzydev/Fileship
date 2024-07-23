@@ -1,4 +1,10 @@
 <template>
+    <ModalsEditFile
+        v-if="currentUser?.id === data.authorId"
+        v-model="editModalOpen"
+        :data="data as never"
+    />
+
     <UiModal
         v-if="isImage || isVideo || isAudio"
         v-model="isOpen"
@@ -6,7 +12,32 @@
         p8
         space-y-4
     >
-        <h2 line-clamp-2 break-all>{{ data.fileName }}</h2>
+        <div flex="~ justify-between" wfull>
+            <h2 line-clamp-2 break-all>{{ data.fileName }}</h2>
+
+            <div flex="~ gap4">
+                <UiButton
+                    v-if="currentUser?.id === data.authorId"
+                    alignment="center"
+                    class="h10 w10 !p0 hover:text-white"
+                    icon="heroicons:pencil-16-solid"
+                    icon-size="24"
+                    @click="
+                        isOpen = false;
+                        editModalOpen = true;
+                    "
+                />
+
+                <UiButton
+                    variant="accent"
+                    alignment="center"
+                    class="h10 w10 !p0 hover:text-white"
+                    icon="heroicons-solid:x"
+                    icon-size="24"
+                    @click="isOpen = false"
+                />
+            </div>
+        </div>
 
         <div
             grid="~ gap4"
@@ -72,22 +103,47 @@
             wfull
         />
 
-        <UiButton
-            alignment="center"
-            variant="accent"
-            icon="heroicons-solid:x"
-            icon-size="24"
-            wfull
-            gap2
-            @click="isOpen = false"
-        >
-            Close
-        </UiButton>
+        <div flex gap4>
+            <UiButton
+                icon="heroicons-solid:download"
+                icon-size="24"
+                wfull
+                gap2
+                :href="`/u/${data.fileName}?download`"
+                target="_blank"
+            >
+                Download
+            </UiButton>
+
+            <UiButton
+                icon="heroicons-solid:clipboard-copy"
+                icon-size="20"
+                wfull
+                gap2
+                @click="handleCopy"
+            >
+                Copy Link
+            </UiButton>
+
+            <UiButton
+                v-if="currentUser?.id === data.authorId"
+                variant="dangerFill"
+                icon="heroicons-solid:trash"
+                icon-size="20"
+                wfull
+                gap2
+                :disabled="deleting"
+                @click="handleDelete"
+            >
+                Delete
+            </UiButton>
+        </div>
     </UiModal>
 </template>
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
+import { toast } from 'vue-sonner';
 
 const isOpen = defineModel<boolean>({ required: true });
 
@@ -98,4 +154,26 @@ const { data } = defineProps<{
 const isImage = computed(() => data.mimeType!.startsWith('image/'));
 const isVideo = computed(() => data.mimeType!.startsWith('video/'));
 const isAudio = computed(() => data.mimeType!.startsWith('audio/'));
+
+const currentUser = useAuthUser();
+const embed = useEmbed();
+
+const deleting = ref(false);
+const editModalOpen = ref(false);
+
+const handleDelete = async () => {
+    deleting.value = true;
+    await $fetch(`/api/files/${data.id}`, { method: 'DELETE' });
+    deleting.value = false;
+
+    toast.success('File deleted successfully');
+};
+
+const handleCopy = () => {
+    navigator.clipboard.writeText(
+        `${useRequestURL().origin}/${embed.value.enabled ? 'view' : 'u'}/${data.fileName}`,
+    );
+
+    toast.success('Link copied to clipboard');
+};
 </script>
