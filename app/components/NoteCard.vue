@@ -3,7 +3,7 @@
         <div flex="~ justify-between" wfull>
             <h2 line-clamp-2 break-all>{{ data.title }}</h2>
 
-            <div flex="~ gap4">
+            <div flex="~ gap2.5">
                 <UiButton
                     v-if="currentUser?.id === data.authorId"
                     alignment="center"
@@ -31,7 +31,12 @@
 
         <div flex gap4>
             <UiButton
-                icon="heroicons-solid:clipboard-copy"
+                :icon="
+                    copied
+                        ? 'heroicons-solid:clipboard-check'
+                        : 'heroicons-solid:clipboard-copy'
+                "
+                :icon-class="copied ? 'text-green500' : 'text-slate300'"
                 icon-size="24"
                 wfull
                 gap2
@@ -141,8 +146,11 @@ const currentUser = useAuthUser();
 const noteModalOpen = ref(false);
 const editModalOpen = ref(false);
 
+const copied = ref(false);
 const ctxOpen = ref(false);
 const deleting = ref(false);
+
+let copyTimeout: NodeJS.Timeout;
 
 const handleDelete = async () => {
     deleting.value = true;
@@ -153,9 +161,17 @@ const handleDelete = async () => {
 };
 
 const handleCopy = () => {
+    if (copyTimeout) clearTimeout(copyTimeout);
+
     navigator.clipboard.writeText(data.content);
     ctxOpen.value = false;
 
     toast.success('Note copied to clipboard');
+
+    copied.value = true;
+
+    copyTimeout = setTimeout(() => {
+        copied.value = false;
+    }, 2_000);
 };
 </script>

@@ -15,7 +15,7 @@
         <div flex="~ justify-between" wfull>
             <h2 line-clamp-2 break-all>{{ data.fileName }}</h2>
 
-            <div flex="~ gap4">
+            <div flex="~ gap2.5">
                 <UiButton
                     v-if="currentUser?.id === data.authorId"
                     alignment="center"
@@ -116,7 +116,12 @@
             </UiButton>
 
             <UiButton
-                icon="heroicons-solid:clipboard-copy"
+                :icon="
+                    copied
+                        ? 'heroicons-solid:clipboard-check'
+                        : 'heroicons-solid:clipboard-copy'
+                "
+                :icon-class="copied ? 'text-green500' : 'text-slate300'"
                 icon-size="20"
                 wfull
                 gap2
@@ -158,8 +163,11 @@ const isAudio = computed(() => data.mimeType!.startsWith('audio/'));
 const currentUser = useAuthUser();
 const embed = useEmbed();
 
+const copied = ref(false);
 const deleting = ref(false);
 const editModalOpen = ref(false);
+
+let copyTimeout: NodeJS.Timeout;
 
 const handleDelete = async () => {
     deleting.value = true;
@@ -170,10 +178,18 @@ const handleDelete = async () => {
 };
 
 const handleCopy = () => {
+    if (copyTimeout) clearTimeout(copyTimeout);
+
     navigator.clipboard.writeText(
         `${useRequestURL().origin}/${embed.value.enabled ? 'view' : 'u'}/${data.fileName}`,
     );
 
     toast.success('Link copied to clipboard');
+
+    copied.value = true;
+
+    copyTimeout = setTimeout(() => {
+        copied.value = false;
+    }, 2_000);
 };
 </script>
