@@ -141,7 +141,6 @@ To update Fileship, follow these steps:
 ```sh
 cd Fileship
 git pull
-docker compose down
 docker compose up --build -d
 ```
 
