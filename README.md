@@ -43,6 +43,7 @@
 -   URL shortening
 -   Image compression
 -   Two-factor authentication
+-   Multi-user support with roles
 -   Password protected files, urls and codes
 -   Delete files, urls and codes after a certain number of views
 
