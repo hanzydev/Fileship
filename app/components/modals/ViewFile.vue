@@ -103,7 +103,7 @@
             wfull
         />
 
-        <div flex gap4>
+        <div flex="~ gap4 max-md:col">
             <UiButton
                 icon="heroicons-solid:download"
                 icon-size="24"
