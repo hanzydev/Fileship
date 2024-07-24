@@ -42,6 +42,7 @@
 -   Code sharing
 -   URL shortening
 -   Image compression
+-   Custom domains
 -   Two-factor authentication
 -   Multi-user support with roles
 -   Password protected files, urls and codes
