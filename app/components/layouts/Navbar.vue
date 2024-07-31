@@ -77,10 +77,10 @@
                 variant="outline"
                 alignment="center"
                 p0="!"
-                h6
-                w12
                 rounded="!"
                 bg-fs-2
+                h6
+                w12
                 ring-1
                 :class="[
                     latestRelease.tag_name === `v${pkg.version}`
@@ -204,7 +204,7 @@
                                                     backgroundColor: accent,
                                                 }"
                                             ></div>
-                                            {{ theme }}
+                                            {{ titleCase(theme) }}
                                         </UiButton>
                                     </div>
                                 </template>
@@ -230,7 +230,7 @@
 </template>
 
 <script setup lang="ts">
-import { upperFirst } from 'scule';
+import { titleCase, upperFirst } from 'scule';
 import { toast } from 'vue-sonner';
 
 import themes from '~/styles/themes.json';
