@@ -1,5 +1,11 @@
 <template>
-    <div flex="~ items-center justify-between gap4" wfull rounded-md bg-fs-overlay-2 p2>
+    <div
+        flex="~ items-center justify-between gap4"
+        wfull
+        rounded-md
+        bg-fs-overlay-2
+        p2
+    >
         <div grid="~ cols-2 gap2">
             <UiButton
                 icon="heroicons-solid:chevron-double-left"

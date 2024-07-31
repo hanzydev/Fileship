@@ -129,7 +129,14 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-accent">
+            <div
+                w48
+                rounded-lg
+                bg-fs-overlay-2
+                p1.5
+                space-y-1
+                ring="1 fs-accent"
+            >
                 <UiButton
                     v-if="!selectable || canBeViewed"
                     icon="heroicons:eye-16-solid"

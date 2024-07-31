@@ -25,7 +25,14 @@
                 :disabled="inputDisabled"
                 @change.stop.prevent="handleUpload"
             />
-            <div flex="~ justify-center" absolute top-0 hfull wfull bg-fs-overlay-2>
+            <div
+                flex="~ justify-center"
+                absolute
+                top-0
+                hfull
+                wfull
+                bg-fs-overlay-2
+            >
                 <div flex="~ items-center justify-center col gap4">
                     <Icon name="heroicons-solid:cloud-upload" size="40" />
                     <h5>Drag and drop {{ placeholder }} here</h5>

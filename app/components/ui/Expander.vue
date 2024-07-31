@@ -30,7 +30,13 @@
             leave-from-class="h[--height]"
             :style="{ '--height': `${height}px` }"
         >
-            <div v-if="isOpen" ref="contentRef" wfull rounded-b-md bg-fs-overlay-2>
+            <div
+                v-if="isOpen"
+                ref="contentRef"
+                wfull
+                rounded-b-md
+                bg-fs-overlay-2
+            >
                 <div px4 pb4 :class="contentClass">
                     <slot name="content" />
                 </div>

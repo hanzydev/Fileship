@@ -128,7 +128,11 @@
             <div space-y-2>
                 <h3>Top Uploaders</h3>
 
-                <div flex="~ justify-between lt-xl:col" rounded-md bg-fs-overlay-2>
+                <div
+                    flex="~ justify-between lt-xl:col"
+                    rounded-md
+                    bg-fs-overlay-2
+                >
                     <UiTable
                         :class="
                             data!.topUploaders.length ? 'xl:w-3/4' : 'wfull'
@@ -205,7 +209,11 @@
             <div space-y-2>
                 <h3>Top Types</h3>
 
-                <div flex="~ justify-between lt-xl:col" rounded-md bg-fs-overlay-2>
+                <div
+                    flex="~ justify-between lt-xl:col"
+                    rounded-md
+                    bg-fs-overlay-2
+                >
                     <UiTable
                         :class="data!.topTypes.length ? 'xl:w3/4' : 'wfull'"
                         :columns="[

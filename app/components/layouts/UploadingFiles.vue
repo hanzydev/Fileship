@@ -68,7 +68,14 @@
                             <UiDivider />
                         </div>
 
-                        <div flex="~ items-center" wfull rounded bg-fs-overlay-3 px3 py2>
+                        <div
+                            flex="~ items-center"
+                            wfull
+                            rounded
+                            bg-fs-overlay-3
+                            px3
+                            py2
+                        >
                             <h6 w="2/4">File</h6>
                             <h6 w="1/4">Size</h6>
                             <h6 w="2/4">Status</h6>

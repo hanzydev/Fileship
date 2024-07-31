@@ -8,7 +8,9 @@
                 p4
                 :class="[
                     !fullScreen && 'rounded',
-                    shouldRenderMarkdown && fullScreen ? 'bg-fs-overlay-1' : 'bg-fs-overlay-3',
+                    shouldRenderMarkdown && fullScreen
+                        ? 'bg-fs-overlay-1'
+                        : 'bg-fs-overlay-3',
                 ]"
             >
                 <Icon
