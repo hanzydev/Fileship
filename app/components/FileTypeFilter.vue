@@ -6,7 +6,6 @@
             h12
             w36
             gap2
-            bg-fs-overlay-2
             text-slate300
             sm:w56
         >

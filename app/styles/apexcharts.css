@@ -3,7 +3,7 @@
 }
 
 .apexcharts-tooltip-title {
-    @apply !border-fs1 !bg-fs-overlay-1;
+    @apply !border-fs-overlay-4 !bg-fs-overlay-1;
 }
 
 .apexcharts-tooltip-text-y-label,

@@ -7,7 +7,7 @@
                 cy="50"
                 r="45"
                 fill="none"
-                stroke-fs1
+                stroke-fs-overlay-4
                 stroke-width="10"
             />
             <circle
