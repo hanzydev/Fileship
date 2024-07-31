@@ -13,7 +13,7 @@
         "check": "pnpm build && nuxt typecheck && pnpm lint",
         "release": "changelogen --release"
     },
-    "dependencies": {
+   "dependencies": {
         "argon2": "^0.40.3",
         "color": "^4.2.3",
         "defu": "^6.1.4",
