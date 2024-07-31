@@ -16,7 +16,11 @@
                 <UiButton
                     v-for="(option, index) in compressions"
                     :key="index"
-                    icon="heroicons-solid:archive"
+                    :icon="
+                        option.value === compression.value
+                            ? 'heroicons-solid:check'
+                            : 'heroicons-solid:archive'
+                    "
                     :variant="
                         option.value === compression.value
                             ? 'accent'

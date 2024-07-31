@@ -17,7 +17,11 @@
                 <UiButton
                     v-for="(option, index) in expirations"
                     :key="index"
-                    icon="heroicons-solid:clock"
+                    :icon="
+                        option.value === expiration.value
+                            ? 'heroicons-solid:check'
+                            : 'heroicons-solid:clock'
+                    "
                     :variant="
                         option.value === expiration.value ? 'accent' : 'primary'
                     "

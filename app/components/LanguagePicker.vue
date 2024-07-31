@@ -23,7 +23,11 @@
                     <UiButton
                         v-for="(lang, index) in filtered"
                         :key="index"
-                        icon="heroicons-solid:code"
+                        :icon="
+                            lang.label === language.label
+                                ? 'heroicons-solid:check'
+                                : 'heroicons-solid:code'
+                        "
                         :variant="
                             lang.label === language.label ? 'accent' : 'primary'
                         "
