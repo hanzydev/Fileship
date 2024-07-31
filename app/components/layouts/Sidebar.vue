@@ -31,7 +31,7 @@
                 flex="~ col gap2"
                 wfull
                 overflow-y-auto
-                bg-fs3
+                bg-fs-overlay-2
                 pt0.5
                 sm:w64
                 lg:pt4

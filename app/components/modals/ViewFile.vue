@@ -47,17 +47,17 @@
                 v-if="data.views"
                 flex="~ items-center gap2"
                 rounded-md
-                bg-fs3
+                bg-fs-overlay-2
                 p4
             >
                 <Icon name="heroicons-solid:eye" text-fs-accent size="24" />
                 <span font-medium="!">{{ data.views.today }} today</span>
             </div>
-            <div flex="~ items-center gap2" rounded-md bg-fs3 p4>
+            <div flex="~ items-center gap2" rounded-md bg-fs-overlay-2 p4>
                 <Icon name="mdi:sd-storage" text-fs-accent size="24" />
                 <span font-medium="!">{{ data.size!.formatted }}</span>
             </div>
-            <div flex="~ items-center gap2" rounded-md bg-fs3 p4>
+            <div flex="~ items-center gap2" rounded-md bg-fs-overlay-2 p4>
                 <Icon
                     name="heroicons-solid:calendar"
                     text-fs-accent

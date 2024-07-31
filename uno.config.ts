@@ -13,12 +13,14 @@ export default defineConfig({
     theme: {
         colors: {
             fs: {
-                1: 'var(--color-fs-1)',
-                2: 'var(--color-fs-2)',
-                3: 'var(--color-fs-3)',
-                4: 'var(--color-fs-4)',
-                5: 'var(--color-fs-5)',
-                accent: 'var(--color-fs-accent)',
+                overlay: {
+                    1: 'var(--fs-overlay-1)',
+                    2: 'var(--fs-overlay-2)',
+                    3: 'var(--fs-overlay-3)',
+                    4: 'var(--fs-overlay-4)',
+                },
+                background: 'var(--fs-background)',
+                accent: 'var(--fs-accent)',
             },
         },
         fontFamily: {

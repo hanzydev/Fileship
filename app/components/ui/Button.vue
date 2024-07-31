@@ -11,9 +11,9 @@
         :class="[
             {
                 'bg-fs-accent hover:ring-white': variant === 'accent',
-                'bg-fs3 hover:bg-fs2 hover:ring-fs-accent':
+                'bg-fs-overlay-2 hover:bg-fs-overlay-3 hover:ring-fs-accent':
                     variant === 'primary',
-                'bg-fs2 hover:bg-fs1 hover:ring-fs-accent':
+                'bg-fs-overlay-3 hover:bg-fs-overlay-4 hover:ring-fs-accent':
                     variant === 'secondary',
                 'bg-transparent ring-1 ring-red-500 hover:bg-red-500':
                     variant === 'danger',

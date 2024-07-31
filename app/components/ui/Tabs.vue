@@ -1,5 +1,5 @@
 <template>
-    <div flex="~ items-center gap2" wfull rounded bg-fs3 p2>
+    <div flex="~ items-center gap2" wfull rounded bg-fs-overlay-2 p2>
         <UiButton
             v-for="(item, index) in filtered"
             :key="index"

@@ -49,7 +49,7 @@
                         wfull
                         overflow-y-auto
                         rounded-md
-                        bg-fs3
+                        bg-fs-overlay-2
                         p4
                         ring-1
                         md:w-40rem
@@ -68,7 +68,7 @@
                             <UiDivider />
                         </div>
 
-                        <div flex="~ items-center" wfull rounded bg-fs2 px3 py2>
+                        <div flex="~ items-center" wfull rounded bg-fs-overlay-3 px3 py2>
                             <h6 w="2/4">File</h6>
                             <h6 w="1/4">Size</h6>
                             <h6 w="2/4">Status</h6>
@@ -166,7 +166,7 @@
                                     <div
                                         w40
                                         rounded-lg
-                                        bg-fs3
+                                        bg-fs-overlay-2
                                         p1.5
                                         ring="1 fs-accent"
                                     >

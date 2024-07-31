@@ -15,7 +15,7 @@
             v-if="isImage || isVideo"
             wfull
             rounded-md
-            bg-fs3
+            bg-fs-overlay-2
             motion-safe:transition-shadow
             :class="
                 ctxOpen
@@ -63,7 +63,7 @@
             h52
             wfull
             rounded-md
-            bg-fs3
+            bg-fs-overlay-2
             p8
             space-y-8
             motion-safe:transition-shadow
@@ -98,7 +98,7 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-lg bg-fs3 p1.5 space-y-1 ring="1 fs-accent">
+            <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-accent">
                 <UiButton
                     icon="heroicons:eye-16-solid"
                     icon-size="20"

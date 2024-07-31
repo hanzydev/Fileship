@@ -43,7 +43,7 @@
                     cursor-pointer
                     rounded-md
                     backdrop-blur-sm
-                    bg="[color-mix(in_srgb,_var(--color-fs-accent),_transparent_90%)]"
+                    bg="[color-mix(in_srgb,_var(--fs-accent),_transparent_90%)]"
                 >
                     <Icon name="heroicons-solid:check" size="56" />
                 </div>
@@ -68,7 +68,7 @@
                 flex="~ col items-center justify-center gap2"
                 overflow-hidden
                 rounded-md
-                bg-fs3
+                bg-fs-overlay-2
                 p4
                 text-center
             >
@@ -95,7 +95,7 @@
                     motion-safe:transition-transform
                 />
             </div>
-            <div v-else h208px wfull rounded-md bg-fs3 p8 space-y-8>
+            <div v-else h208px wfull rounded-md bg-fs-overlay-2 p8 space-y-8>
                 <h5 line-clamp-1 break-words text-slate400>
                     {{ data.fileName }}
                 </h5>
@@ -129,7 +129,7 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-lg bg-fs3 p1.5 space-y-1 ring="1 fs-accent">
+            <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-accent">
                 <UiButton
                     v-if="!selectable || canBeViewed"
                     icon="heroicons:eye-16-solid"
@@ -219,7 +219,7 @@
                             w64
                             overflow-y-auto
                             rounded-lg
-                            bg-fs3
+                            bg-fs-overlay-2
                             p1.5
                             ring="1 fs-accent"
                             space-y-2
@@ -227,7 +227,7 @@
                             <UiSearchBar
                                 v-model="addToFolderSearchQuery"
                                 placeholder="Search folders..."
-                                input-class="!h10 !bg-fs2 !ring-0"
+                                input-class="!h10 !bg-fs-overlay-3 !ring-0"
                             />
 
                             <p

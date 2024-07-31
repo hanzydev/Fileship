@@ -9,7 +9,7 @@
                 h12
                 w10
                 rounded-md
-                bg-fs3
+                bg-fs-overlay-2
                 text-center
                 text-xl
                 outline-none

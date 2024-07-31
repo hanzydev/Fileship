@@ -29,7 +29,7 @@
                 max-w-640px
                 overflow-auto
                 rounded-lg
-                bg-fs4
+                bg-fs-overlay-1
                 left="1/2"
                 top="1/2"
                 max-h="90%"

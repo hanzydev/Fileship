@@ -17,7 +17,7 @@
                 w36
                 overflow-y-auto
                 rounded-lg
-                bg-fs3
+                bg-fs-overlay-2
                 p1.5
                 sm:w56
                 space-y-1

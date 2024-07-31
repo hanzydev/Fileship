@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="currentUser" bg-fs3>
+        <div v-if="currentUser" bg-fs-overlay-2>
             <LayoutsImpersonatingUser />
             <LayoutsNavbar />
             <LayoutsSidebar :items="sidebarItems" />

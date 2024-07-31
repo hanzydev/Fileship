@@ -1,8 +1,8 @@
 <template>
     <section
-        border="l t fs5"
+        border="l t fs-background"
         wfull
-        bg-fs4
+        bg-fs-overlay-1
         p6
         lg:ml64
         lg:w="[calc(100%-256px)]"

@@ -1,5 +1,5 @@
 [data-sonner-toast] {
-    @apply !border-none !bg-fs2 !font-sans !ring-1 !ring-fs-accent data-[type=error]:!ring-red-500 data-[type=warning]:!ring-yellow-500;
+    @apply !border-none !bg-fs-overlay-3 !font-sans !ring-1 !ring-fs-accent data-[type=error]:!ring-red-500 data-[type=warning]:!ring-yellow-500;
 }
 
 [data-sonner-toast] [data-title] {

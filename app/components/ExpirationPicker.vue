@@ -9,7 +9,7 @@
                 w48
                 overflow-y-auto
                 rounded-lg
-                bg-fs3
+                bg-fs-overlay-2
                 p1.5
                 ring="1 fs-accent"
                 space-y-1

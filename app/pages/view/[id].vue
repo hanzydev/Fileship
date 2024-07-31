@@ -104,7 +104,7 @@
                     :src="fileUrl"
                 />
                 <audio v-else-if="isAudio" controls :src="fileUrl" />
-                <div v-else rounded-lg bg-fs4 p8 sm:max-w35rem space-y-10>
+                <div v-else rounded-lg bg-fs-overlay-1 p8 sm:max-w35rem space-y-10>
                     <h2 line-clamp-2 break-all>{{ data.fileName }}</h2>
                     <p text-slate300 font-medium="!">
                         Sorry, we cannot preview this file. But you can download

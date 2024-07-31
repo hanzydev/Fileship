@@ -8,7 +8,7 @@
                 p4
                 :class="[
                     !fullScreen && 'rounded',
-                    shouldRenderMarkdown && fullScreen ? 'bg-fs4' : 'bg-fs2',
+                    shouldRenderMarkdown && fullScreen ? 'bg-fs-overlay-1' : 'bg-fs-overlay-3',
                 ]"
             >
                 <Icon
@@ -28,7 +28,7 @@
                     :class="
                         fullScreen &&
                         shouldRenderMarkdown &&
-                        '!bg-fs4 hover:!bg-fs3'
+                        '!bg-fs-overlay-1 hover:!bg-fs-overlay-2'
                     "
                     mlauto
                     h8
@@ -57,7 +57,7 @@
                 ><code rounded :class="[`hljs language-${language}`, fullScreen ? language === 'markdown' ? 'min-h-[calc(100vh-4rem)]' : 'min-hscreen' : '']" v-html="html" /></pre>
                 <div
                     v-else
-                    bg-fs2
+                    bg-fs-overlay-3
                     p4
                     :class="
                         fullScreen
@@ -178,6 +178,6 @@ const handleCopy = () => {
 }
 
 .codeBlock table th {
-    @apply bg-fs1 first:rounded-l-sm last:rounded-r-sm;
+    @apply bg-fs-overlay-4 first:rounded-l-sm last:rounded-r-sm;
 }
 </style>

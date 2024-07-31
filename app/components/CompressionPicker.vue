@@ -8,7 +8,7 @@
                 w56
                 overflow-y-auto
                 rounded-lg
-                bg-fs3
+                bg-fs-overlay-2
                 p1.5
                 space-y-1
                 ring="1 fs-accent"

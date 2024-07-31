@@ -1,9 +1,9 @@
 .apexcharts-tooltip {
-    @apply !bg-fs3 !shadow-none !ring-1 !ring-fs-accent;
+    @apply !bg-fs-overlay-2 !shadow-none !ring-1 !ring-fs-accent;
 }
 
 .apexcharts-tooltip-title {
-    @apply !border-fs1 !bg-fs4;
+    @apply !border-fs1 !bg-fs-overlay-1;
 }
 
 .apexcharts-tooltip-text-y-label,

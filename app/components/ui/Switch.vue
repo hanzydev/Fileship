@@ -16,7 +16,7 @@
             h6
             w11
             rounded-full
-            bg-fs2
+            bg-fs-overlay-3
             after:absolute
             after:left-0.5
             after:top-0.5

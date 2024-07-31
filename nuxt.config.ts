@@ -66,7 +66,7 @@ export default defineNuxtConfig({
             ],
             script: [
                 {
-                    innerHTML: `const themes=${JSON.stringify(themes)};Object.defineProperty(window,"theme",{get(){return localStorage.getItem("theme")},set(e){const o=themes[e]||themes.Fileship,t=[["--color-fs-1",o[1]],["--color-fs-2",o[2]],["--color-fs-3",o[3]],["--color-fs-4",o[4]],["--color-fs-5",o[5]],["--color-fs-accent",o.accent]];for(const[c,l]of t)document.documentElement.style.setProperty(c,l);localStorage.setItem("theme",e)}}),window.theme=localStorage.getItem("theme")||"Fileship";`,
+                    innerHTML: `const themes=${JSON.stringify(themes)};Object.defineProperty(window,"theme",{get(){return localStorage.getItem("theme")},set(c){const e=themes[c]||themes.Fileship,s=[["--fs-background",e.background],["--fs-accent",e.accent],...e.overlays.map((t,o)=>[\`--fs-overlay-\${o+1}\`,t])];for(const[t,o]of s)document.documentElement.style.setProperty(t,o);localStorage.setItem("theme",c)}}),window.theme=localStorage.getItem("theme")||"Fileship";`,
                 },
             ],
         },

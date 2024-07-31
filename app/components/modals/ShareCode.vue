@@ -40,7 +40,7 @@
                     :id
                     :class="
                         code.language.label !== 'Plain Text' &&
-                        'space-y-4 rounded-md bg-fs3 p4'
+                        'space-y-4 rounded-md bg-fs-overlay-2 p4'
                     "
                 >
                     <UiTabs

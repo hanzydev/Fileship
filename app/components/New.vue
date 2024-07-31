@@ -4,7 +4,7 @@
         border="2 dashed fs-accent"
         wfull
         rounded-md
-        bg-fs3
+        bg-fs-overlay-2
         p4
         active:scale-95
         motion-safe:transition-transform

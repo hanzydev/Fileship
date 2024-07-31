@@ -1,5 +1,5 @@
 <template>
-    <div hfull overflow-auto rounded-md bg-fs3 p4>
+    <div hfull overflow-auto rounded-md bg-fs-overlay-2 p4>
         <table wfull>
             <thead>
                 <tr>
@@ -8,7 +8,7 @@
                         :key="index"
                         h10
                         whitespace-nowrap
-                        bg-fs2
+                        bg-fs-overlay-3
                         px4
                         text-left
                         text-slate300

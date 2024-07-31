@@ -20,8 +20,8 @@
                         ? 'cursor-not-allowed'
                         : 'focus:ring-1 focus:ring-fs-accent',
                     {
-                        'bg-fs2': variant === 'primary',
-                        'bg-fs1': variant === 'secondary',
+                        'bg-fs-overlay-3': variant === 'primary',
+                        'bg-fs-overlay-4': variant === 'secondary',
                         pr11: $attrs.type === 'password',
                     },
                 ]"
@@ -63,7 +63,7 @@
                 top-0
                 hfull
                 rounded-r-md
-                bg-fs1
+                bg-fs-overlay-4
                 flex="~ col items-center justify-center"
             >
                 <UiButton

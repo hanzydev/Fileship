@@ -8,7 +8,7 @@
                 z10
                 w200px
                 rounded
-                bg-fs3
+                bg-fs-overlay-2
                 p2
                 ring-1
                 :style="{

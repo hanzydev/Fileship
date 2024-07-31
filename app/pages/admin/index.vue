@@ -45,14 +45,14 @@
             <div space-y-2>
                 <h3>Views</h3>
 
-                <div min-h-365px rounded-md bg-fs3>
+                <div min-h-365px rounded-md bg-fs-overlay-2>
                     <ClientOnly>
                         <VueApexCharts
                             type="area"
                             height="350"
                             :options="{
                                 labels: data!.views.byMonth.labels,
-                                colors: ['var(--color-fs-accent)'],
+                                colors: ['var(--fs-accent)'],
                                 theme: {
                                     mode: 'dark',
                                 },
@@ -72,7 +72,7 @@
                                 },
                                 stroke: {
                                     curve: 'smooth',
-                                    colors: ['var(--color-fs-accent)'],
+                                    colors: ['var(--fs-accent)'],
                                 },
                                 dataLabels: {
                                     enabled: false,
@@ -83,7 +83,7 @@
                                     },
                                     crosshairs: {
                                         stroke: {
-                                            color: 'var(--color-fs-accent)',
+                                            color: 'var(--fs-accent)',
                                         },
                                     },
                                     axisBorder: {
@@ -100,10 +100,10 @@
                                     },
                                 },
                                 grid: {
-                                    borderColor: 'var(--color-fs-5)',
+                                    borderColor: 'var(--fs-background)',
                                 },
                                 fill: {
-                                    colors: ['var(--color-fs-accent)'],
+                                    colors: ['var(--fs-accent)'],
                                     gradient: {
                                         enabled: true,
                                         opacityFrom: 0.6,
@@ -111,7 +111,7 @@
                                     },
                                 },
                                 markers: {
-                                    colors: ['var(--color-fs-accent)'],
+                                    colors: ['var(--fs-accent)'],
                                 },
                             }"
                             :series="[
@@ -128,7 +128,7 @@
             <div space-y-2>
                 <h3>Top Uploaders</h3>
 
-                <div flex="~ justify-between lt-xl:col" rounded-md bg-fs3>
+                <div flex="~ justify-between lt-xl:col" rounded-md bg-fs-overlay-2>
                     <UiTable
                         :class="
                             data!.topUploaders.length ? 'xl:w-3/4' : 'wfull'
@@ -205,7 +205,7 @@
             <div space-y-2>
                 <h3>Top Types</h3>
 
-                <div flex="~ justify-between lt-xl:col" rounded-md bg-fs3>
+                <div flex="~ justify-between lt-xl:col" rounded-md bg-fs-overlay-2>
                     <UiTable
                         :class="data!.topTypes.length ? 'xl:w3/4' : 'wfull'"
                         :columns="[
@@ -258,7 +258,7 @@ import { Icon, UiAvatar } from '#components';
 const { data } = await useFetch('/api/stats');
 
 const basePieOptions = {
-    colors: ['var(--color-fs-1)'],
+    colors: ['var(--fs-overlay-1)'],
     theme: {
         mode: 'dark',
     },
@@ -285,7 +285,7 @@ const basePieOptions = {
         },
     },
     grid: {
-        borderColor: 'var(--color-fs-5)',
+        borderColor: 'var(--fs-background)',
     },
     plotOptions: {
         pie: {

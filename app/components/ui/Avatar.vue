@@ -4,7 +4,7 @@
         :alt
         select-none
         rounded-full
-        bg-fs3
+        bg-fs-overlay-2
         :class="[size === 'xs' && 'h8 w8', size === 'sm' && 'h9 w9']"
         draggable="false"
     />

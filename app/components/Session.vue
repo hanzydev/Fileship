@@ -23,7 +23,7 @@
                         h14
                         w14
                         rounded-full
-                        bg-fs3
+                        bg-fs-overlay-2
                     >
                         <Icon
                             :name="
@@ -44,7 +44,7 @@
                         h6
                         w6
                         rounded-full
-                        bg-fs4
+                        bg-fs-overlay-1
                     >
                         <Icon
                             :name="

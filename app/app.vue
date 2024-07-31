@@ -1,11 +1,11 @@
 <template>
-    <NuxtLoadingIndicator color="var(--color-fs-accent)" />
+    <NuxtLoadingIndicator color="var(--fs-accent)" />
     <Toaster position="top-center" theme="dark" />
 
     <Head>
         <Title>{{ appConfig.site.name }}</Title>
     </Head>
-    <Body hfull wfull bg-fs5 text-white font-sans antialiased>
+    <Body hfull wfull bg-fs-background text-white font-sans antialiased>
         <NuxtLayout>
             <NuxtPage />
         </NuxtLayout>

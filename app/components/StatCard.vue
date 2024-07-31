@@ -1,5 +1,5 @@
 <template>
-    <div rounded-md bg-fs3 p4 space-y-2>
+    <div rounded-md bg-fs-overlay-2 p4 space-y-2>
         <div flex="~ items-center justify-between">
             <h6 text-slate400 uppercase>{{ title }}</h6>
             <Icon :name="icon" size="24" text-fs-accent />

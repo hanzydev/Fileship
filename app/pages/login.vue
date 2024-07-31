@@ -24,7 +24,7 @@
                         hfull
                         wfull
                         rounded-lg
-                        bg-fs4
+                        bg-fs-overlay-1
                         p8
                         flex="~ col justify-between"
                         @submit.prevent="handleSubmit()"
@@ -85,7 +85,7 @@
                         hfull
                         wfull
                         rounded-lg
-                        bg-fs4
+                        bg-fs-overlay-1
                         p8
                         flex="~ col justify-between"
                     >

@@ -1,7 +1,7 @@
 <template>
     <form
         rounded-lg
-        bg-fs4
+        bg-fs-overlay-1
         p8
         sm:w35rem
         space-y-10

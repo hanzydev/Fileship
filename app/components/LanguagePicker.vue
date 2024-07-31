@@ -9,7 +9,7 @@
                 w64
                 overflow-y-auto
                 rounded-lg
-                bg-fs3
+                bg-fs-overlay-2
                 p1.5
                 ring="1 fs-accent"
                 space-y-2
@@ -17,7 +17,7 @@
                 <UiSearchBar
                     v-model="searchQuery"
                     placeholder="Search languages..."
-                    input-class="!h10 !bg-fs2 !ring-0"
+                    input-class="!h10 !bg-fs-overlay-3 !ring-0"
                 />
                 <div space-y-1>
                     <UiButton

@@ -16,7 +16,7 @@
             h12
             wfull
             rounded-md
-            bg-fs3
+            bg-fs-overlay-2
             pl11
             pr4
             outline-none

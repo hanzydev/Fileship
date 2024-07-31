@@ -4,7 +4,7 @@
             <Title>{{ data!.name }}</Title>
         </Head>
 
-        <div hfull min-hscreen bg-fs4 p8="!">
+        <div hfull min-hscreen bg-fs-overlay-1 p8="!">
             <div space-y-6>
                 <h2>{{ data!.name }}</h2>
 

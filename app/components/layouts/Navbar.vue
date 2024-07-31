@@ -4,7 +4,7 @@
         z30
         h70px
         wfull
-        bg-fs3
+        bg-fs-overlay-2
         pl3
         pr5
         lg:px5
@@ -117,7 +117,7 @@
                     <div
                         w60
                         rounded-lg
-                        bg-fs3
+                        bg-fs-overlay-2
                         p1.5
                         ring="1 fs-accent"
                         space-y-2
@@ -167,7 +167,7 @@
                                     <div
                                         w60
                                         rounded-lg
-                                        bg-fs3
+                                        bg-fs-overlay-2
                                         p1.5
                                         ring="1 fs-accent"
                                         space-y-1

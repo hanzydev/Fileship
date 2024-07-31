@@ -18,8 +18,8 @@
                     ? 'cursor-not-allowed'
                     : 'focus:ring-1 focus:ring-fs-accent',
                 {
-                    'bg-fs2': variant === 'primary',
-                    'bg-fs1': variant === 'secondary',
+                    'bg-fs-overlay-3': variant === 'primary',
+                    'bg-fs-overlay-4': variant === 'secondary',
                 },
             ]"
             :rows="value.split('\n').length"
