@@ -131,7 +131,7 @@
         <template #content>
             <div w48 rounded-lg bg-fs3 p1.5 space-y-1 ring="1 fs-accent">
                 <UiButton
-                    v-if="selectable ? canBeViewed : true"
+                    v-if="!selectable || canBeViewed"
                     icon="heroicons:eye-16-solid"
                     icon-size="20"
                     wfull
