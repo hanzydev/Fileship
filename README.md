@@ -34,9 +34,9 @@
 -   Fast & Secure
 -   Self-hosted
 -   Easy to use
--   Chirpy themes
+-   Vibrant themes
 -   Auto-generated statistics
--   Discord embeds
+-   OpenGraph embeds
 -   Folder support
 -   Note taking
 -   Code sharing
