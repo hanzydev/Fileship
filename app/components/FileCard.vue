@@ -19,14 +19,14 @@
             motion-safe:transition-shadow
             :class="[
                 selected && '!ring-2 ring-fs-accent',
-                !selectable && (ctxOpen || !(isImage || isVideo || isAudio))
+                !selectable && (ctxOpen || !canBeViewed)
                     ? 'cursor-default'
                     : 'cursor-pointer hover:(ring-1 ring-fs-accent)',
             ]"
             @click="
                 selectable
                     ? (selected = !selected)
-                    : (isImage || isVideo || isAudio) && (viewModalOpen = true)
+                    : canBeViewed && (viewModalOpen = true)
             "
         >
             <Transition
