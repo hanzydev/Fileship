@@ -34,8 +34,8 @@
                     icon="heroicons-solid:arrow-right"
                     @click="
                         canHistoryComeBack
-                            ? $router.back()
-                            : $router.push('/dashboard')
+                            ? router.back()
+                            : router.push('/dashboard')
                     "
                 >
                     Go back
@@ -51,6 +51,8 @@ import type { NuxtError } from '#app';
 const { error } = defineProps<{
     error: NuxtError;
 }>();
+
+const router = useRouter();
 
 const title = computed(
     () =>

@@ -59,7 +59,7 @@
         </svg>
         <div flex="~ gap2 items-center lg:items-end">
             <UiButton
-                v-if="$route.path.startsWith('/admin')"
+                v-if="route.path.startsWith('/admin')"
                 p0="!"
                 h10
                 w10
@@ -135,7 +135,7 @@
                                 v-for="item in profileItems"
                                 :key="item.name"
                                 :variant="
-                                    $route.path.startsWith(item.href)
+                                    route.path.startsWith(item.href)
                                         ? 'accent'
                                         : 'primary'
                                 "
@@ -243,10 +243,10 @@ const { data: latestRelease } = await useFetch<any>(
 
 const { width } = useWindowSize();
 
+const route = useRoute();
 const appConfig = useAppConfig();
 const sidebarOpen = useSidebar();
 const currentUser = useAuthUser();
-
 const currentTheme = useTheme();
 
 const isLoggingOut = ref(false);

@@ -43,7 +43,7 @@
                     v-for="item in items"
                     :key="item.name"
                     :href="item.href"
-                    :variant="item.href === $route.path ? 'accent' : 'primary'"
+                    :variant="item.href === route.path ? 'accent' : 'primary'"
                     :icon="item.icon"
                     icon-size="20"
                     alignment="left"
@@ -81,6 +81,7 @@ defineProps<{
 
 const isOpen = useSidebar();
 const router = useRouter();
+const route = useRoute();
 const overflow = useOverflow();
 
 const adminSessionId = useCookie('adminSessionId');

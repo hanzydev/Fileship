@@ -15,7 +15,7 @@
                 <FileTypeFilter v-model="filterType" />
             </div>
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
-                <New h208px @action="$router.push('/dashboard/files/upload')" />
+                <New h208px @action="router.push('/dashboard/files/upload')" />
                 <FileCard
                     v-for="file in calculatedFiles"
                     :key="file.id"
@@ -34,6 +34,8 @@
 <script setup lang="ts">
 const files = useFiles();
 const folders = useFolders();
+
+const router = useRouter();
 
 const searchQuery = ref('');
 const currentPage = ref(1);
