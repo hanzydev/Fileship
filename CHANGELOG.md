@@ -1,5 +1,33 @@
 # Changelog
 
+## v1.8.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.8.0...v1.8.1)
+
+### 🩹 Fixes
+
+- Background of the type filter ([ea3e621](https://github.com/hanzydev/Fileship/commit/ea3e621))
+- Dropzone not showing up ([fe625ee](https://github.com/hanzydev/Fileship/commit/fe625ee))
+
+### 💅 Refactors
+
+- Recreate pnpm-lock ([47459c7](https://github.com/hanzydev/Fileship/commit/47459c7))
+- Fix old color names ([6040ffa](https://github.com/hanzydev/Fileship/commit/6040ffa))
+- Add check icon to selected item in pickers ([bbe0ce6](https://github.com/hanzydev/Fileship/commit/bbe0ce6))
+- Revert old lock file ([ea98848](https://github.com/hanzydev/Fileship/commit/ea98848))
+
+### 🏡 Chore
+
+- **release:** V1.8.0 ([f90c6bd](https://github.com/hanzydev/Fileship/commit/f90c6bd))
+- Upgrade deps ([094454f](https://github.com/hanzydev/Fileship/commit/094454f))
+- Lint fix ([49fb3ea](https://github.com/hanzydev/Fileship/commit/49fb3ea))
+- Type fixes ([f4b629e](https://github.com/hanzydev/Fileship/commit/f4b629e))
+- Revert "upgrade deps" ([99a9de2](https://github.com/hanzydev/Fileship/commit/99a9de2))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.8.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.7.0...v1.8.0)
