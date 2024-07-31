@@ -1,5 +1,40 @@
 # Changelog
 
+## v1.8.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.7.0...v1.8.0)
+
+### 🚀 Enhancements
+
+- Add more themes ([03d8a2c](https://github.com/hanzydev/Fileship/commit/03d8a2c))
+
+### 💅 Refactors
+
+- Update NoteCard and ViewFile modals with improved UI and functionality ([b94fd1b](https://github.com/hanzydev/Fileship/commit/b94fd1b))
+- Add loading state to delete button in NoteCard and ViewFile modals ([6428c05](https://github.com/hanzydev/Fileship/commit/6428c05))
+- Add screenshot to README ([ebee96a](https://github.com/hanzydev/Fileship/commit/ebee96a))
+- Update screenshot image ([5905f72](https://github.com/hanzydev/Fileship/commit/5905f72))
+- Update screenshot image again ([728b6cc](https://github.com/hanzydev/Fileship/commit/728b6cc))
+- Improve mobile responsiveness in NoteCard and ViewFile modals ([73b3db3](https://github.com/hanzydev/Fileship/commit/73b3db3))
+- Update copyright notice in LICENSE ([dd45c48](https://github.com/hanzydev/Fileship/commit/dd45c48))
+- Add multi-user support with roles to the readme Features section ([d90f2f1](https://github.com/hanzydev/Fileship/commit/d90f2f1))
+- A better update guide for Docker in README ([3628470](https://github.com/hanzydev/Fileship/commit/3628470))
+- Add custom domains to the README Features section ([4c5d9bc](https://github.com/hanzydev/Fileship/commit/4c5d9bc))
+- Improve file card interactivity and view modal behavior ([32e0f84](https://github.com/hanzydev/Fileship/commit/32e0f84))
+- Better if statement ([33f6baf](https://github.com/hanzydev/Fileship/commit/33f6baf))
+- Update color names for better dev experience ([5b565b4](https://github.com/hanzydev/Fileship/commit/5b565b4))
+- Add spaces to theme names ([0a31667](https://github.com/hanzydev/Fileship/commit/0a31667))
+- Update features section in README ([4f52c10](https://github.com/hanzydev/Fileship/commit/4f52c10))
+
+### 🏡 Chore
+
+- Lint fix ([d239258](https://github.com/hanzydev/Fileship/commit/d239258))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+- Nazım Sarp Tekbaş <sarp@sarptekbas.com>
+
 ## v1.7.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.6.1...v1.7.0)
