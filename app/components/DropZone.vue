@@ -21,7 +21,7 @@
                 :class="inputDisabled ? 'cursor-not-allowed' : 'cursor-pointer'"
                 type="file"
                 :multiple
-                :accept="accept.join(',')"
+                :accept="accept?.join(',')"
                 :disabled="inputDisabled"
                 @change.stop.prevent="handleUpload"
             />
