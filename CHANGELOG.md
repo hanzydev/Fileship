@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.9.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.8.1...v1.9.0)
+
+### 🚀 Enhancements
+
+- Better avatar component with placeholder ([fb61129](https://github.com/hanzydev/Fileship/commit/fb61129))
+
+### 💅 Refactors
+
+- Revert lock file again ([3eb1b01](https://github.com/hanzydev/Fileship/commit/3eb1b01))
+- Disable experimental reactive props destructure ([bea7fdb](https://github.com/hanzydev/Fileship/commit/bea7fdb))
+
+### 🏡 Chore
+
+- **release:** V1.8.1 ([55ea96e](https://github.com/hanzydev/Fileship/commit/55ea96e))
+- Update deps ([9a87e0c](https://github.com/hanzydev/Fileship/commit/9a87e0c))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.8.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.8.0...v1.8.1)
