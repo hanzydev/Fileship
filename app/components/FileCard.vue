@@ -296,10 +296,12 @@
 import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
-const { data } = defineProps<{
+const props = defineProps<{
     data: FileData;
     selectable?: boolean;
 }>();
+
+const { data } = toRefs(props);
 
 const selected = defineModel<boolean>('selected', {
     required: false,
@@ -325,9 +327,9 @@ const filteredFolders = computed(() =>
     ),
 );
 
-const isImage = computed(() => data.mimeType.startsWith('image/'));
-const isVideo = computed(() => data.mimeType.startsWith('video/'));
-const isAudio = computed(() => data.mimeType.startsWith('audio/'));
+const isImage = computed(() => data.value.mimeType.startsWith('image/'));
+const isVideo = computed(() => data.value.mimeType.startsWith('video/'));
+const isAudio = computed(() => data.value.mimeType.startsWith('audio/'));
 
 const canBeViewed = computed(
     () => isImage.value || isVideo.value || isAudio.value,
@@ -342,7 +344,7 @@ const updating = ref(false);
 
 const handleDelete = async () => {
     deleting.value = true;
-    await $fetch(`/api/files/${data.id}`, { method: 'DELETE' });
+    await $fetch(`/api/files/${data.value.id}`, { method: 'DELETE' });
     deleting.value = false;
 
     toast.success('File deleted successfully');
@@ -350,7 +352,7 @@ const handleDelete = async () => {
 
 const handleCopy = () => {
     navigator.clipboard.writeText(
-        `${useRequestURL().origin}/${embed.value.enabled ? 'view' : 'u'}/${data.fileName}`,
+        `${useRequestURL().origin}/${embed.value.enabled ? 'view' : 'u'}/${data.value.fileName}`,
     );
     ctxOpen.value = false;
 
@@ -360,7 +362,7 @@ const handleCopy = () => {
 const changeFolder = async (folderId: string | null) => {
     updating.value = true;
 
-    await $fetch(`/api/files/${data!.id}`, {
+    await $fetch(`/api/files/${data.value.id}`, {
         method: 'PATCH',
         body: {
             folderId,
@@ -381,7 +383,7 @@ const createFolderAndAdd = async () => {
             body: {
                 name: addToFolderSearchQuery.value,
                 public: false,
-                files: [data.id],
+                files: [data.value.id],
             },
         });
 

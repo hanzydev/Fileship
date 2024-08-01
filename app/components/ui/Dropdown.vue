@@ -52,17 +52,18 @@
 <script setup lang="ts">
 import { Teleport } from 'vue';
 
-const {
-    placement = 'top',
-    asCtxMenu,
-    hover,
-} = defineProps<{
-    placement?: 'left' | 'right' | 'top' | 'bottom';
-    asCtxMenu?: boolean;
-    hover?: boolean;
-    openable?: boolean;
-    triggerClass?: unknown;
-}>();
+const props = withDefaults(
+    defineProps<{
+        placement?: 'left' | 'right' | 'top' | 'bottom';
+        asCtxMenu?: boolean;
+        hover?: boolean;
+        triggerClass?: unknown;
+    }>(),
+    {
+        placement: 'top',
+    },
+);
+const { placement, asCtxMenu, hover, triggerClass } = toRefs(props);
 
 defineOptions({
     inheritAttrs: false,
@@ -102,7 +103,7 @@ const calculateMenuPosition = async () => {
 };
 
 const handleContextMenu = async (event: MouseEvent | TouchEvent) => {
-    if (!asCtxMenu || hover) return;
+    if (!asCtxMenu.value || hover.value) return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -126,7 +127,7 @@ const handleContextMenu = async (event: MouseEvent | TouchEvent) => {
 };
 
 const handleIosContextMenu = (event: TouchEvent) => {
-    if (!asCtxMenu || hover || !isIos.value) return;
+    if (!asCtxMenu.value || hover.value || !isIos.value) return;
 
     clearTimeout(ctxMenuTimeout);
     ctxMenuTimeout = setTimeout(() => {
@@ -137,17 +138,17 @@ const handleIosContextMenu = (event: TouchEvent) => {
 const clearCtxMenuTimeout = () => clearTimeout(ctxMenuTimeout);
 
 const handleClick = () => {
-    if (asCtxMenu || hover) return;
+    if (asCtxMenu.value || hover.value) return;
 
     isOpen.value = !isOpen.value;
 };
 
 const handleMouseMove = () => {
-    if (hover && !asCtxMenu && !isOpen.value) isOpen.value = true;
+    if (hover.value && !asCtxMenu.value && !isOpen.value) isOpen.value = true;
 };
 
 const handleMouseLeave = () => {
-    if (hover && !asCtxMenu && isOpen.value) isOpen.value = false;
+    if (hover.value && !asCtxMenu.value && isOpen.value) isOpen.value = false;
 };
 
 onClickOutside(
@@ -160,7 +161,7 @@ onClickOutside(
         }
     },
     {
-        ignore: asCtxMenu ? [] : [triggerRef],
+        ignore: asCtxMenu.value ? [] : [triggerRef],
     },
 );
 
@@ -172,15 +173,15 @@ onKeyStroke(
     { eventName: 'keydown' },
 );
 
-onUnmounted(() => asCtxMenu && (overflow.value = true));
+onUnmounted(() => asCtxMenu.value && (overflow.value = true));
 
 watch(isOpen, (value) => {
-    if (asCtxMenu) activeCtxMenu.value = value ? id : '';
+    if (asCtxMenu.value) activeCtxMenu.value = value ? id : '';
     overflow.value = !activeCtxMenu.value;
 });
 
 watch(activeCtxMenu, (value) => {
-    if (asCtxMenu && value !== id && isOpen.value) isOpen.value = false;
+    if (asCtxMenu.value && value !== id && isOpen.value) isOpen.value = false;
 });
 
 router.beforeEach((_, __, next) => {

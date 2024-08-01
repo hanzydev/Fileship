@@ -153,13 +153,14 @@ import { toast } from 'vue-sonner';
 
 const isOpen = defineModel<boolean>({ required: true });
 
-const { data } = defineProps<{
+const props = defineProps<{
     data: Partial<FileData>;
 }>();
+const { data } = toRefs(props);
 
-const isImage = computed(() => data.mimeType!.startsWith('image/'));
-const isVideo = computed(() => data.mimeType!.startsWith('video/'));
-const isAudio = computed(() => data.mimeType!.startsWith('audio/'));
+const isImage = computed(() => data.value.mimeType!.startsWith('image/'));
+const isVideo = computed(() => data.value.mimeType!.startsWith('video/'));
+const isAudio = computed(() => data.value.mimeType!.startsWith('audio/'));
 
 const currentUser = useAuthUser();
 const embed = useEmbed();
@@ -172,7 +173,7 @@ let copyTimeout: NodeJS.Timeout;
 
 const handleDelete = async () => {
     deleting.value = true;
-    await $fetch(`/api/files/${data.id}`, { method: 'DELETE' });
+    await $fetch(`/api/files/${data.value.id}`, { method: 'DELETE' });
     deleting.value = false;
 
     toast.success('File deleted successfully');
@@ -182,7 +183,7 @@ const handleCopy = () => {
     if (copyTimeout) clearTimeout(copyTimeout);
 
     navigator.clipboard.writeText(
-        `${useRequestURL().origin}/${embed.value.enabled ? 'view' : 'u'}/${data.fileName}`,
+        `${useRequestURL().origin}/${embed.value.enabled ? 'view' : 'u'}/${data.value.fileName}`,
     );
 
     toast.success('Link copied to clipboard');

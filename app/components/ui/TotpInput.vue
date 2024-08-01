@@ -31,7 +31,12 @@
 <script setup lang="ts">
 const totpInputs = reactive<HTMLInputElement[]>([]);
 
-defineProps<{ error?: string; disabled?: boolean; inputClass?: unknown }>();
+const props = defineProps<{
+    error?: string;
+    disabled?: boolean;
+    inputClass?: unknown;
+}>();
+const { error, disabled, inputClass } = toRefs(props);
 
 const emit = defineEmits<{
     got: [totp: string];

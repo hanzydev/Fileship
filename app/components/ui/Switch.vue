@@ -37,9 +37,10 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
     disabled?: boolean;
 }>();
+const { disabled } = toRefs(props);
 
 const checked = defineModel<boolean>({ required: true });
 </script>

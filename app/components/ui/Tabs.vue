@@ -18,14 +18,15 @@
 </template>
 
 <script setup lang="ts">
-const { items } = defineProps<{
+const props = defineProps<{
     items: { label: string; icon?: string; condition?: () => boolean }[];
     widthFull?: boolean;
 }>();
+const { items, widthFull } = toRefs(props);
 
 const selected = defineModel<string>({ required: true });
 
 const filtered = computed(() =>
-    items.filter((item) => !item.condition || item.condition()),
+    items.value.filter((item) => !item.condition || item.condition()),
 );
 </script>

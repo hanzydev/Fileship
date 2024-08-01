@@ -98,21 +98,24 @@
 </template>
 
 <script setup lang="ts">
-const {
-    min,
-    max,
-    variant = 'primary',
-} = defineProps<{
-    variant?: 'primary' | 'secondary';
-    error?: string;
-    label?: string;
-    required?: boolean;
-    disabled?: boolean;
-    readonly?: boolean;
-    min?: number;
-    max?: number;
-    caption?: string;
-}>();
+const props = withDefaults(
+    defineProps<{
+        variant?: 'primary' | 'secondary';
+        error?: string;
+        label?: string;
+        required?: boolean;
+        disabled?: boolean;
+        readonly?: boolean;
+        min?: number;
+        max?: number;
+        caption?: string;
+    }>(),
+    {
+        variant: 'primary',
+    },
+);
+const { variant, label, required, disabled, readonly, min, max } =
+    toRefs(props);
 
 defineOptions({
     inheritAttrs: false,
@@ -126,7 +129,10 @@ const passwordVisible = ref(false);
 
 watch(value, (newValue) => {
     if (typeof newValue === 'number') {
-        value.value = Math.max(min ?? 0, Math.min(max ?? Infinity, newValue));
+        value.value = Math.max(
+            min.value ?? 0,
+            Math.min(max.value ?? Infinity, newValue),
+        );
     }
 });
 </script>

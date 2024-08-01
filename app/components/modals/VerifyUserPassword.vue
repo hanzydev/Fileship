@@ -54,11 +54,11 @@
 </template>
 
 <script setup lang="ts">
+const props = defineProps<{ error?: string; disabled?: boolean }>();
+const { error, disabled } = toRefs(props);
+
 const isOpen = defineModel<boolean>({ required: false, default: true });
-
 const password = ref('');
-
-defineProps<{ error?: string; disabled?: boolean }>();
 
 defineEmits<{
     got: [password: string];

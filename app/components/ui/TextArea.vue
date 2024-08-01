@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(
+const props = withDefaults(
     defineProps<{
         variant?: 'primary' | 'secondary';
         error?: string;
@@ -42,6 +42,7 @@ withDefaults(
     }>(),
     { variant: 'primary' },
 );
+const { variant, error, label, required, disabled, readonly } = toRefs(props);
 
 defineOptions({
     inheritAttrs: false,

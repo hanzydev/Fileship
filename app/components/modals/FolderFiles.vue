@@ -93,10 +93,12 @@ import { toast } from 'vue-sonner';
 
 const isOpen = defineModel<boolean>({ required: true });
 
-const { data, editable } = defineProps<{
+const props = defineProps<{
     data: FolderData;
     editable?: boolean;
 }>();
+
+const { data, editable } = toRefs(props);
 
 const files = useFiles();
 
@@ -105,14 +107,14 @@ const currentPage = ref(1);
 const filterType = ref([]);
 const disabled = ref(false);
 
-const selectedFiles = ref(data.files);
+const selectedFiles = ref(data.value.files);
 
 const filtered = computed(() =>
     files.value
         .filter((f) =>
-            editable
-                ? [null, data.id].includes(f.folderId)
-                : f.folderId === data.id,
+            editable.value
+                ? [null, data.value.id].includes(f.folderId)
+                : f.folderId === data.value.id,
         )
         .filter(
             (f) =>
@@ -138,7 +140,7 @@ const calculatedFiles = computed(() => {
 const saveChanges = async () => {
     disabled.value = true;
 
-    await $fetch(`/api/folders/${data.id}`, {
+    await $fetch(`/api/folders/${data.value.id}`, {
         method: 'PATCH',
         body: {
             files: files.value
@@ -154,9 +156,7 @@ const saveChanges = async () => {
 };
 
 watch(
-    () => data.files,
-    (value) => {
-        selectedFiles.value = value;
-    },
+    () => data.value.files,
+    (value) => (selectedFiles.value = value),
 );
 </script>

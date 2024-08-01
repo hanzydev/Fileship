@@ -76,11 +76,9 @@ const props = defineProps<{
     itemCount: number;
     itemsPerPage: number;
 }>();
+const { itemCount, itemsPerPage } = toRefs(props);
 
 const currentPage = defineModel<number>({ required: true });
-
-const itemCount = computed(() => props.itemCount);
-const itemsPerPage = computed(() => props.itemsPerPage);
 
 const { pageCount, prev, next, isFirstPage, isLastPage } = useOffsetPagination({
     total: itemCount,

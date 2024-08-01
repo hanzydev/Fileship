@@ -43,29 +43,36 @@
 </template>
 
 <script setup lang="ts">
-const {
-    accept = [],
-    max = Infinity,
-    multiple = true,
-    placeholder = 'file(s)',
-    disabled: _disabled = false,
-} = defineProps<{
-    accept?: string[];
-    max?: number;
-    multiple?: boolean;
-    placeholder?: string;
-    disabled?: boolean;
-}>();
+const props = withDefaults(
+    defineProps<{
+        accept?: string[];
+        max?: number;
+        multiple?: boolean;
+        placeholder?: string;
+        disabled?: boolean;
+    }>(),
+    {
+        accept: () => [],
+        max: Infinity,
+        multiple: true,
+        placeholder: 'file(s)',
+        disabled: false,
+    },
+);
+
+const { accept, max, disabled: _disabled } = toRefs(props);
 
 const files = defineModel<File[]>({ required: true });
 
-const inputDisabled = computed(() => _disabled || files.value.length >= max);
+const inputDisabled = computed(
+    () => _disabled.value || files.value.length >= max.value,
+);
 
 const handleUpload = async (event: Event) => {
     const newFiles = Array.from(
         (event.target as HTMLInputElement).files!,
     ).filter((f) => !files.value.map((f) => f.name).includes(f.name));
 
-    files.value = [...files.value, ...newFiles].slice(0, max);
+    files.value = [...files.value, ...newFiles].slice(0, max.value);
 };
 </script>

@@ -143,20 +143,22 @@
 import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
-const { data } = defineProps<{
+const props = defineProps<{
     data: Partial<FileData>;
 }>();
 
-const isImage = computed(() => data.mimeType!.startsWith('image/'));
-const isVideo = computed(() => data.mimeType!.startsWith('video/'));
-const isAudio = computed(() => data.mimeType!.startsWith('audio/'));
+const { data } = toRefs(props);
+
+const isImage = computed(() => data.value.mimeType!.startsWith('image/'));
+const isVideo = computed(() => data.value.mimeType!.startsWith('video/'));
+const isAudio = computed(() => data.value.mimeType!.startsWith('audio/'));
 
 const viewModalOpen = ref(false);
 const ctxOpen = ref(false);
 
 const handleCopy = () => {
     navigator.clipboard.writeText(
-        `${useRequestURL().origin}/u/${data.fileName}`,
+        `${useRequestURL().origin}/u/${data.value.fileName}`,
     );
     ctxOpen.value = false;
 

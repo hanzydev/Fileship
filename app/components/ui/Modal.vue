@@ -44,9 +44,14 @@
 </template>
 
 <script setup lang="ts">
-const { closeOnOuterClick = true } = defineProps<{
-    closeOnOuterClick?: boolean;
-}>();
+const { closeOnOuterClick } = withDefaults(
+    defineProps<{
+        closeOnOuterClick?: boolean;
+    }>(),
+    {
+        closeOnOuterClick: true,
+    },
+);
 
 defineOptions({
     inheritAttrs: false,

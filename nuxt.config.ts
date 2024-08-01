@@ -23,9 +23,6 @@ export default defineNuxtConfig({
     devtools: {
         enabled: true,
     },
-    vue: {
-        propsDestructure: true,
-    },
     experimental: {
         clientNodeCompat: true,
     },

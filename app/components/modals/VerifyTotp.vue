@@ -34,7 +34,8 @@
 <script setup lang="ts">
 const isOpen = defineModel<boolean>({ required: false, default: true });
 
-defineProps<{ error?: string; disabled?: boolean }>();
+const props = defineProps<{ error?: string; disabled?: boolean }>();
+const { error, disabled } = toRefs(props);
 
 defineEmits<{
     got: [totp: string];

@@ -11,9 +11,10 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
     size: 'xs' | 'sm';
     src: string;
     alt: string;
 }>();
+const { size, src, alt } = toRefs(props);
 </script>
