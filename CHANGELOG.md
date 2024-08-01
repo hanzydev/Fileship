@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.9.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.9.0...v1.9.1)
+
+### 💅 Refactors
+
+- Use avatar component fully everywhere ([559de4e](https://github.com/hanzydev/Fileship/commit/559de4e))
+
+### 🏡 Chore
+
+- **release:** V1.9.0 ([42ec476](https://github.com/hanzydev/Fileship/commit/42ec476))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.9.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.8.1...v1.9.0)

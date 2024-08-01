@@ -1,7 +1,7 @@
 {
     "name": "fileship",
     "description": "Fileship is an open-source and self-hosted image uploading service with cool features.",
-    "version": "1.9.0",
+    "version": "1.9.1",
     "type": "module",
     "scripts": {
         "build": "prisma generate && nuxt build",
