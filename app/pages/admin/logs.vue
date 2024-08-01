@@ -27,19 +27,12 @@
                                     class: 'flex items-center gap2',
                                 },
                                 [
-                                    user?.avatar
-                                        ? h(UiAvatar, {
-                                              size: 'xs',
-                                              src: user.avatar,
-                                              alt: user.username,
-                                              class: '!ring-0',
-                                          })
-                                        : h(Icon, {
-                                              name: system
-                                                  ? 'heroicons-solid:chip'
-                                                  : 'iconamoon:profile-fill',
-                                              size: '20',
-                                          }),
+                                    h(UiAvatar, {
+                                        size: 'xs',
+                                        src: user.avatar,
+                                        alt: user.username,
+                                        class: '!ring-0',
+                                    }),
                                     h(
                                         'p',
                                         {
@@ -78,7 +71,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
-import { Icon, UiAvatar } from '#components';
+import { UiAvatar } from '#components';
 
 const logs = useLogs();
 

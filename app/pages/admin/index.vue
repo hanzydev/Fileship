@@ -148,17 +148,12 @@
                                             class: 'flex items-center gap2',
                                         },
                                         [
-                                            row.user.avatar
-                                                ? h(UiAvatar, {
-                                                      size: 'xs',
-                                                      src: row.user.avatar,
-                                                      alt: row.user.username,
-                                                      class: '!ring-0',
-                                                  })
-                                                : h(Icon, {
-                                                      name: 'iconamoon:profile-fill',
-                                                      size: '20',
-                                                  }),
+                                            h(UiAvatar, {
+                                                size: 'xs',
+                                                src: row.user.avatar,
+                                                alt: row.user.username,
+                                                class: '!ring-0',
+                                            }),
                                             h(
                                                 'p',
                                                 {
@@ -261,7 +256,7 @@ import VueApexCharts from 'vue3-apexcharts';
 
 import { theme } from '@unocss/preset-mini';
 
-import { Icon, UiAvatar } from '#components';
+import { UiAvatar } from '#components';
 
 const { data } = await useFetch('/api/stats');
 

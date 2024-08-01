@@ -72,17 +72,12 @@
                                     class: 'flex items-center gap2',
                                 },
                                 [
-                                    user.avatar
-                                        ? h(UiAvatar, {
-                                              size: 'xs',
-                                              src: user.avatar,
-                                              alt: user.username,
-                                              class: '!ring-0',
-                                          })
-                                        : h(Icon, {
-                                              name: 'iconamoon:profile-fill',
-                                              size: '20',
-                                          }),
+                                    h(UiAvatar, {
+                                        size: 'xs',
+                                        src: user.avatar,
+                                        alt: user.username,
+                                        class: '!ring-0',
+                                    }),
                                     h(
                                         'p',
                                         {
