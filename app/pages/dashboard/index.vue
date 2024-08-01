@@ -147,9 +147,8 @@
                                                 alignment: 'center',
                                                 class: [
                                                     'h8 w8 !p0 hover:text-white',
-                                                    copied.has(row.fileName)
-                                                        ? 'text-green500'
-                                                        : 'text-slate300',
+                                                    copied.has(row.fileName) &&
+                                                        'text-green500',
                                                 ],
                                                 icon: copied.has(row.fileName)
                                                     ? 'heroicons-solid:clipboard-check'

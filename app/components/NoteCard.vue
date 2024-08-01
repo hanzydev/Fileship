@@ -36,7 +36,7 @@
                         ? 'heroicons-solid:clipboard-check'
                         : 'heroicons-solid:clipboard-copy'
                 "
-                :icon-class="copied ? 'text-green500' : 'text-slate300'"
+                :icon-class="copied && 'text-green500'"
                 icon-size="24"
                 wfull
                 gap2
