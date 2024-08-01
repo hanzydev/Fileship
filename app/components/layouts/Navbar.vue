@@ -96,23 +96,14 @@
         <div lg:mlauto>
             <UiDropdown placement="bottom" right-0 pt2.5>
                 <UiAvatar
-                    v-if="currentUser!.avatar"
-                    :src="currentUser!.avatar"
-                    alt=""
+                    :src="currentUser!.avatar || undefined"
+                    :alt="currentUser!.username"
                     size="sm"
                     hover="ring-1 ring-fs-accent"
                     cursor-pointer
                     active:scale-95
                     motion-safe:transition-all
                 />
-                <UiButton
-                    v-else
-                    gap2
-                    icon="iconamoon:profile-fill"
-                    icon-size="20"
-                >
-                    {{ currentUser!.username }}
-                </UiButton>
                 <template #content>
                     <div
                         w60
