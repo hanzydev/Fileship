@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.9.2
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.9.1...v1.9.2)
+
+### 🩹 Fixes
+
+- Old color names ([eb97e8d](https://github.com/hanzydev/Fileship/commit/eb97e8d))
+
+### 💅 Refactors
+
+- Make the clipboard icon white ([c489621](https://github.com/hanzydev/Fileship/commit/c489621))
+
+### 🏡 Chore
+
+- **release:** V1.9.1 ([d49212b](https://github.com/hanzydev/Fileship/commit/d49212b))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.9.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.9.0...v1.9.1)
