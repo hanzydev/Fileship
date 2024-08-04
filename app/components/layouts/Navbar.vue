@@ -78,9 +78,9 @@
                 alignment="center"
                 p0="!"
                 rounded="!"
-                bg-fs-2
                 h6
                 w12
+                bg-fs-overlay-2
                 ring-1
                 :class="[
                     latestRelease.tag_name === `v${pkg.version}`

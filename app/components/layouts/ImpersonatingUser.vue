@@ -8,7 +8,7 @@
         pr5
         text-center
         lg:px5
-        border="b b-fs-5"
+        border="b b-fs-background"
     >
         <UiButton
             p0="!"
