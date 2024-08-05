@@ -76,6 +76,7 @@
                     v-if="data.id !== currentUser!.currentSessionId"
                     mlauto
                     text-slate200
+                    aria-label="Remove session"
                     :disabled
                     @click="removeSession()"
                 >

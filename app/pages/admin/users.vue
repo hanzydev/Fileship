@@ -154,6 +154,7 @@
                                                 currentUser!.username ||
                                             switching,
                                         loading: switching,
+                                        ariaLabel: 'Switch user',
                                         onClick: () =>
                                             handleSwitch(row.user.username),
                                     }),
@@ -166,6 +167,7 @@
                                         disabled:
                                             row.superAdmin &&
                                             !currentUser!.superAdmin,
+                                        ariaLabel: 'Edit user',
                                         onClick: () => {
                                             editModal.user = {
                                                 ...row.user,
@@ -190,6 +192,7 @@
                                             willBeDeleted.has(row.user.id) ||
                                             switching,
                                         loading: willBeDeleted.has(row.user.id),
+                                        ariaLabel: 'Delete user',
                                         onClick: () =>
                                             handleDelete(row.user.id),
                                     }),
