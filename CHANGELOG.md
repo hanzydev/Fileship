@@ -12,10 +12,6 @@
 
 - Make the clipboard icon white ([c489621](https://github.com/hanzydev/Fileship/commit/c489621))
 
-### 🏡 Chore
-
-- **release:** V1.9.1 ([d49212b](https://github.com/hanzydev/Fileship/commit/d49212b))
-
 ### ❤️ Contributors
 
 - Hanzydev <contact@hanzy.dev>
@@ -27,10 +23,6 @@
 ### 💅 Refactors
 
 - Use avatar component fully everywhere ([559de4e](https://github.com/hanzydev/Fileship/commit/559de4e))
-
-### 🏡 Chore
-
-- **release:** V1.9.0 ([42ec476](https://github.com/hanzydev/Fileship/commit/42ec476))
 
 ### ❤️ Contributors
 
@@ -51,7 +43,6 @@
 
 ### 🏡 Chore
 
-- **release:** V1.8.1 ([55ea96e](https://github.com/hanzydev/Fileship/commit/55ea96e))
 - Update deps ([9a87e0c](https://github.com/hanzydev/Fileship/commit/9a87e0c))
 
 ### ❤️ Contributors
@@ -76,7 +67,6 @@
 
 ### 🏡 Chore
 
-- **release:** V1.8.0 ([f90c6bd](https://github.com/hanzydev/Fileship/commit/f90c6bd))
 - Upgrade deps ([094454f](https://github.com/hanzydev/Fileship/commit/094454f))
 - Lint fix ([49fb3ea](https://github.com/hanzydev/Fileship/commit/49fb3ea))
 - Type fixes ([f4b629e](https://github.com/hanzydev/Fileship/commit/f4b629e))
@@ -140,7 +130,6 @@
 
 ### 🏡 Chore
 
-- **release:** V1.6.1 ([c2b5bfe](https://github.com/hanzydev/Fileship/commit/c2b5bfe))
 - Lint fix ([86dab02](https://github.com/hanzydev/Fileship/commit/86dab02))
 
 ### ❤️ Contributors
@@ -163,7 +152,6 @@
 
 ### 🏡 Chore
 
-- **release:** V1.6.0 ([9502313](https://github.com/hanzydev/Fileship/commit/9502313))
 - Update Fileship instructions for updating ([2f749a0](https://github.com/hanzydev/Fileship/commit/2f749a0))
 - How did this get here???? ([dc55648](https://github.com/hanzydev/Fileship/commit/dc55648))
 - Lint fix ([5afe7c1](https://github.com/hanzydev/Fileship/commit/5afe7c1))
@@ -184,10 +172,6 @@
 ### 💅 Refactors
 
 - Remove unused code for dropdown ([ceebe40](https://github.com/hanzydev/Fileship/commit/ceebe40))
-
-### 🏡 Chore
-
-- **release:** V1.5.0 ([0278a34](https://github.com/hanzydev/Fileship/commit/0278a34))
 
 ### ❤️ Contributors
 
@@ -249,10 +233,6 @@
 
 - Switch to ip-api.com ([1ce56e7](https://github.com/hanzydev/Fileship/commit/1ce56e7))
 - Update default user username to 'admin' ([f330656](https://github.com/hanzydev/Fileship/commit/f330656))
-
-### 🏡 Chore
-
-- **release:** V1.3.0 ([e7d962f](https://github.com/hanzydev/Fileship/commit/e7d962f))
 
 ### ❤️ Contributors
 
