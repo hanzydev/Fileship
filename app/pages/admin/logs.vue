@@ -29,8 +29,10 @@
                                 [
                                     h(UiAvatar, {
                                         size: 'xs',
-                                        src: user.avatar,
-                                        alt: user.username,
+                                        src: user?.avatar,
+                                        alt: system
+                                            ? 'System'
+                                            : user?.username || 'Deleted User',
                                         class: '!ring-0',
                                     }),
                                     h(
