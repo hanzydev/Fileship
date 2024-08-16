@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.9.3
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.9.2...v1.9.3)
+
+### 🩹 Fixes
+
+- Logs not showing ([58f0c1d](https://github.com/hanzydev/Fileship/commit/58f0c1d))
+
+### 🏡 Chore
+
+- **release:** V1.9.2 ([cd5f5d2](https://github.com/hanzydev/Fileship/commit/cd5f5d2))
+- Add aria-label to buttons for accessibility ([a5de973](https://github.com/hanzydev/Fileship/commit/a5de973))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.9.2
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.9.1...v1.9.2)
