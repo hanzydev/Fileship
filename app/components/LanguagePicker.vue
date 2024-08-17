@@ -21,7 +21,7 @@
                 />
                 <div space-y-1>
                     <UiButton
-                        v-for="(lang, index) in filtered"
+                        v-for="(lang, index) in results.map((r) => r.item)"
                         :key="index"
                         :icon="
                             lang.label === language.label
@@ -48,6 +48,8 @@
 </template>
 
 <script setup lang="ts">
+import { useFuse } from '@vueuse/integrations/useFuse';
+
 const isOpen = ref(false);
 
 const language = defineModel<{
@@ -59,14 +61,10 @@ const language = defineModel<{
 
 const searchQuery = ref('');
 
-const filtered = computed(() =>
-    languages.filter((l) =>
-        Object.values(l).some((v) =>
-            v
-                ?.toString()
-                ?.toLowerCase()
-                ?.includes(searchQuery.value.toLowerCase()),
-        ),
-    ),
-);
+const { results } = useFuse(searchQuery, languages, {
+    matchAllWhenSearchEmpty: true,
+    fuseOptions: {
+        keys: ['label'],
+    },
+});
 </script>

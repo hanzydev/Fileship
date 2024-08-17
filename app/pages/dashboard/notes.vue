@@ -19,7 +19,7 @@
             </div>
             <UiPagination
                 v-model="currentPage"
-                :item-count="filtered.length"
+                :item-count="results.length"
                 :items-per-page="19"
             />
         </div>
@@ -27,6 +27,8 @@
 </template>
 
 <script setup lang="ts">
+import { useFuse } from '@vueuse/integrations/useFuse';
+
 const notes = useNotes();
 
 const searchQuery = ref('');
@@ -41,21 +43,17 @@ notes.value = data.value!.map((n) => ({
     createdAt: new Date(n.createdAt),
 }));
 
-const filtered = computed(() =>
-    notes.value.filter((n) =>
-        Object.values(n).some((v) =>
-            v
-                ?.toString()
-                ?.toLowerCase()
-                ?.includes(searchQuery.value.toLowerCase()),
-        ),
-    ),
-);
+const { results } = useFuse(searchQuery, notes, {
+    matchAllWhenSearchEmpty: true,
+    fuseOptions: {
+        keys: ['title'],
+    },
+});
 
-const calculatedNotes = computed(() => {
+const calculatedNotes = computed<NoteData[]>(() => {
     const start = (currentPage.value - 1) * 19;
     const end = start + 19;
-    return filtered.value.slice(start, end);
+    return results.value.map((r) => r.item).slice(start, end);
 });
 
 definePageMeta({

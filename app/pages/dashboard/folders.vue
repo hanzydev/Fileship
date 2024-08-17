@@ -22,7 +22,7 @@
             </div>
             <UiPagination
                 v-model="currentPage"
-                :item-count="filtered.length"
+                :item-count="results.length"
                 :items-per-page="19"
             />
         </div>
@@ -30,6 +30,8 @@
 </template>
 
 <script setup lang="ts">
+import { useFuse } from '@vueuse/integrations/useFuse';
+
 const folders = useFolders();
 const files = useFiles();
 
@@ -52,21 +54,17 @@ files.value = filesData.value!.map((f) => ({
     createdAt: new Date(f.createdAt),
 }));
 
-const filtered = computed(() =>
-    folders.value.filter((f) =>
-        Object.values(f).some((v) =>
-            v
-                ?.toString()
-                ?.toLowerCase()
-                ?.includes(searchQuery.value.toLowerCase()),
-        ),
-    ),
-);
+const { results } = useFuse(searchQuery, folders, {
+    matchAllWhenSearchEmpty: true,
+    fuseOptions: {
+        keys: ['name'],
+    },
+});
 
-const calculatedFolders = computed(() => {
+const calculatedFolders = computed<FolderData[]>(() => {
     const start = (currentPage.value - 1) * 19;
     const end = start + 19;
-    return filtered.value.slice(start, end);
+    return results.value.map((r) => r.item).slice(start, end);
 });
 
 definePageMeta({

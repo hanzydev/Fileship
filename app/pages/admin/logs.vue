@@ -63,7 +63,7 @@
             />
             <UiPagination
                 v-model="currentPage"
-                :item-count="filtered.length"
+                :item-count="results.length"
                 :items-per-page="20"
             />
         </div>
@@ -72,6 +72,8 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
+
+import { useFuse } from '@vueuse/integrations/useFuse';
 
 import { UiAvatar } from '#components';
 
@@ -87,21 +89,27 @@ logs.value = data.value!.map((l) => ({
     createdAt: new Date(l.createdAt),
 }));
 
-const filtered = computed(() =>
-    logs.value.filter((l) =>
-        Object.values(l).some((v) =>
-            v
-                ?.toString()
-                ?.toLowerCase()
-                ?.includes(searchQuery.value.toLowerCase()),
-        ),
-    ),
-);
+const { results } = useFuse(searchQuery, logs, {
+    matchAllWhenSearchEmpty: true,
+    fuseOptions: {
+        keys: [
+            {
+                name: 'action',
+                weight: 2,
+            },
+            {
+                name: 'ip',
+                weight: 2,
+            },
+            'message',
+        ],
+    },
+});
 
-const calculatedLogs = computed(() => {
+const calculatedLogs = computed<LogData[]>(() => {
     const start = (currentPage.value - 1) * 20;
     const end = start + 20;
-    return filtered.value.slice(start, end);
+    return results.value.map((r) => r.item).slice(start, end);
 });
 
 definePageMeta({

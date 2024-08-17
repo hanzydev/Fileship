@@ -91,6 +91,8 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner';
 
+import { useFuse } from '@vueuse/integrations/useFuse';
+
 const isOpen = defineModel<boolean>({ required: true });
 
 const props = defineProps<{
@@ -109,8 +111,22 @@ const disabled = ref(false);
 
 const selectedFiles = ref(data.value.files);
 
-const filtered = computed(() =>
-    files.value
+const { results } = useFuse(searchQuery, files, {
+    matchAllWhenSearchEmpty: true,
+    fuseOptions: {
+        keys: [
+            {
+                name: 'fileName',
+                weight: 2,
+            },
+            'mimeType',
+        ],
+    },
+});
+
+const filtered = computed<FileData[]>(() =>
+    results.value
+        .map((r) => r.item)
         .filter((f) =>
             editable.value
                 ? [null, data.value.id].includes(f.folderId)
@@ -120,14 +136,6 @@ const filtered = computed(() =>
             (f) =>
                 !filterType.value.length ||
                 filterType.value.some((t) => f.mimeType.startsWith(`${t}/`)),
-        )
-        .filter((f) =>
-            Object.values(f).some((v) =>
-                v
-                    ?.toString()
-                    ?.toLowerCase()
-                    ?.includes(searchQuery.value.toLowerCase()),
-            ),
         ),
 );
 

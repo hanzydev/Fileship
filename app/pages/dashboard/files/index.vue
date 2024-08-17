@@ -32,6 +32,8 @@
 </template>
 
 <script setup lang="ts">
+import { useFuse } from '@vueuse/integrations/useFuse';
+
 const files = useFiles();
 const folders = useFolders();
 
@@ -55,21 +57,27 @@ files.value = filesData.value!.map((f) => ({
     createdAt: new Date(f.createdAt),
 }));
 
-const filtered = computed(() =>
-    files.value
+const { results } = useFuse(searchQuery, files, {
+    matchAllWhenSearchEmpty: true,
+    fuseOptions: {
+        keys: [
+            {
+                name: 'fileName',
+                weight: 2,
+            },
+            'mimeType',
+        ],
+    },
+});
+
+const filtered = computed<FileData[]>(() =>
+    results.value
+        .map((r) => r.item)
         .filter((f) => !f.folderId)
         .filter(
             (f) =>
                 !filterType.value.length ||
                 filterType.value.some((t) => f.mimeType.startsWith(`${t}/`)),
-        )
-        .filter((f) =>
-            Object.values(f).some((v) =>
-                v
-                    ?.toString()
-                    ?.toLowerCase()
-                    ?.includes(searchQuery.value.toLowerCase()),
-            ),
         ),
 );
 

@@ -239,8 +239,7 @@
 
                             <p
                                 v-if="
-                                    !filteredFolders.length &&
-                                    !addToFolderSearchQuery
+                                    !results.length && !addToFolderSearchQuery
                                 "
                                 mx4
                                 translate-y-16
@@ -252,7 +251,14 @@
 
                             <div space-y-1>
                                 <UiButton
-                                    v-if="addToFolderSearchQuery"
+                                    v-if="
+                                        addToFolderSearchQuery &&
+                                        !results.find(
+                                            (r) =>
+                                                r.item.name ===
+                                                addToFolderSearchQuery.trim(),
+                                        )
+                                    "
                                     :disabled="updating"
                                     wfull
                                     break-all
@@ -262,7 +268,9 @@
                                 </UiButton>
 
                                 <UiButton
-                                    v-for="(folder, index) in filteredFolders"
+                                    v-for="(folder, index) in results.map(
+                                        (r) => r.item,
+                                    )"
                                     :key="index"
                                     :disabled="updating"
                                     wfull
@@ -296,6 +304,8 @@
 import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
+import { useFuse } from '@vueuse/integrations/useFuse';
+
 const props = defineProps<{
     data: FileData;
     selectable?: boolean;
@@ -316,16 +326,12 @@ const embed = useEmbed();
 
 const addToFolderSearchQuery = ref('');
 
-const filteredFolders = computed(() =>
-    folders.value.filter((l) =>
-        Object.values(l).some((v) =>
-            v
-                ?.toString()
-                ?.toLowerCase()
-                ?.includes(addToFolderSearchQuery.value.toLowerCase()),
-        ),
-    ),
-);
+const { results } = useFuse(addToFolderSearchQuery, folders, {
+    matchAllWhenSearchEmpty: true,
+    fuseOptions: {
+        keys: ['name'],
+    },
+});
 
 const isImage = computed(() => data.value.mimeType.startsWith('image/'));
 const isVideo = computed(() => data.value.mimeType.startsWith('video/'));

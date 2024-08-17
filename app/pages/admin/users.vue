@@ -221,6 +221,8 @@
 import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
+import { useFuse } from '@vueuse/integrations/useFuse';
+
 import { Icon, UiAvatar, UiButton } from '#components';
 
 const currentUser = useAuthUser();
@@ -326,27 +328,33 @@ const handleDelete = async (id: string, verificationData?: string) => {
 
 const { data } = await useFetch('/api/users');
 
-const filtered = computed(() =>
-    users.value.filter((l) =>
-        Object.values(l).some((v) =>
-            v
-                ?.toString()
-                ?.toLowerCase()
-                ?.includes(searchQuery.value.toLowerCase()),
-        ),
-    ),
-);
-
-const calculatedUsers = computed(() => {
-    const start = (currentPage.value - 1) * 20;
-    const end = start + 20;
-    return filtered.value.slice(start, end);
-});
-
 users.value = data.value!.map((u) => ({
     ...u,
     createdAt: new Date(u.createdAt),
 }));
+
+const { results } = useFuse(searchQuery, users, {
+    matchAllWhenSearchEmpty: true,
+    fuseOptions: {
+        keys: [
+            {
+                name: 'username',
+                weight: 3,
+            },
+            {
+                name: 'permissions',
+                weight: 2,
+            },
+            'domains',
+        ],
+    },
+});
+
+const calculatedUsers = computed<UserData[]>(() => {
+    const start = (currentPage.value - 1) * 20;
+    const end = start + 20;
+    return results.value.map((r) => r.item).slice(start, end);
+});
 
 definePageMeta({
     layout: 'admin',
