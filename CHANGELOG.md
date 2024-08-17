@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.11.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.10.0...v1.11.0)
+
+### 🚀 Enhancements
+
+- Better solarized dark and material dark theme ([1a63f58](https://github.com/hanzydev/Fileship/commit/1a63f58))
+- Better version information ([301ecf8](https://github.com/hanzydev/Fileship/commit/301ecf8))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.10.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.9.3...v1.10.0)
