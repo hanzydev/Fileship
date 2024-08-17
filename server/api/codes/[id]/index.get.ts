@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
 
         if (
             findCodeById.maxViews &&
-            findCodeById.maxViews <= findCodeById.views.length
+            findCodeById.views.length + 1 >= findCodeById.maxViews
         ) {
             await prisma.code.delete({
                 where: {

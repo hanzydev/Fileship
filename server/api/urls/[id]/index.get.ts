@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
 
         if (
             findUrlById.maxViews &&
-            findUrlById.maxViews <= findUrlById.views.length
+            findUrlById.views.length + 1 >= findUrlById.maxViews
         ) {
             await prisma.url.delete({
                 where: {

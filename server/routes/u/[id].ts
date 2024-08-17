@@ -85,7 +85,7 @@ export default defineEventHandler(async (event) => {
 
         if (
             findFileById.maxViews &&
-            findFileById.maxViews > findFileById._count.views
+            findFileById._count.views >= findFileById.maxViews
         ) {
             await fsp.rm(filePath, { force: true });
 
