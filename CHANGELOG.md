@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.10.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.9.3...v1.10.0)
+
+### 🚀 Enhancements
+
+- Use fuzzy-search for better experience ([b088a56](https://github.com/hanzydev/Fileship/commit/b088a56))
+
+### 🩹 Fixes
+
+- Not being deleted after reaching the maximum number of views ([ddf3005](https://github.com/hanzydev/Fileship/commit/ddf3005))
+
+### 🏡 Chore
+
+- **release:** V1.9.3 ([ecbd184](https://github.com/hanzydev/Fileship/commit/ecbd184))
+- Update dependencies ([aff45b1](https://github.com/hanzydev/Fileship/commit/aff45b1))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.9.3
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.9.2...v1.9.3)
