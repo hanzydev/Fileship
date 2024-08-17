@@ -55,13 +55,13 @@
         "accent": "#61afef"
     },
     "SolarizedDark": {
-        "overlays": ["#002b36", "#073642", "#586e75", "#657b83"],
-        "background": "#002b36",
+        "overlays": ["#002b36", "#073642", "#0b5568", "#0f748e"],
+        "background": "#00232c",
         "accent": "#268bd2"
     },
     "MaterialDark": {
         "overlays": ["#121212", "#1e1e1e", "#2c2c2c", "#3c3c3c"],
-        "background": "#121212",
+        "background": "#090909",
         "accent": "#bb86fc"
     }
 }
