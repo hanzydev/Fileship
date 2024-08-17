@@ -76,10 +76,8 @@
                 v-if="latestRelease"
                 variant="outline"
                 alignment="center"
-                p0="!"
+                p="y-0! x-1.5!"
                 rounded="!"
-                h6
-                w12
                 bg-fs-overlay-2
                 ring-1
                 :class="[
