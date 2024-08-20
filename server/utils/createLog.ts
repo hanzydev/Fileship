@@ -1,3 +1,7 @@
+import consola from 'consola';
+import dayjs from 'dayjs';
+import { lowerFirst, titleCase } from 'scule';
+
 import { sendByFilter } from '~~/server/plugins/socketIO';
 import { isAdmin } from '~~/utils/user';
 
@@ -22,6 +26,15 @@ export const createLog = async (
     }
 
     const currentUser = event.context.user;
+    const ip = getRequestIP(event, { xForwardedFor: true }) || 'Unknown';
+
+    if (system) {
+        consola.info(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - ${message}`);
+    } else {
+        consola.info(
+            `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - User ${titleCase(currentUser!.username)}, ${lowerFirst(message)}`,
+        );
+    }
 
     const log = await prisma.log.create({
         data: {
@@ -29,7 +42,7 @@ export const createLog = async (
             userId: system ? null : currentUser!.id,
             message,
             system,
-            ip: getRequestIP(event, { xForwardedFor: true }) || 'Unknown',
+            ip,
         },
         select: {
             ip: true,
