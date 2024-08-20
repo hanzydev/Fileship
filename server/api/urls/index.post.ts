@@ -116,7 +116,7 @@ export default defineEventHandler(async (event) => {
 
     await createLog(event, {
         action: 'Shorten URL',
-        message: `Shortened url ${url.vanity}`,
+        message: `Shortened URL ${url.vanity}`,
     });
 
     sendToUser(currentUser.id, 'create:url', url);

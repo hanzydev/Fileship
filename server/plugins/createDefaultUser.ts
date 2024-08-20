@@ -1,4 +1,6 @@
 import { hash } from 'argon2';
+import consola from 'consola';
+import dayjs from 'dayjs';
 
 import { UserPermission } from '@prisma/client';
 
@@ -17,5 +19,9 @@ export default defineNitroPlugin(async () => {
                 limits: defaultUserLimits as never,
             },
         });
+
+        consola.success(
+            `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Default user created`,
+        );
     }
 });

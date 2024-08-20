@@ -1,3 +1,5 @@
+import consola from 'consola';
+import dayjs from 'dayjs';
 import { Server as Engine } from 'engine.io';
 import { type RemoteSocket, Server } from 'socket.io';
 
@@ -83,5 +85,9 @@ export default defineNitroPlugin((nitroApp) => {
                 },
             },
         }),
+    );
+
+    consola.success(
+        `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Socket server ready`,
     );
 });

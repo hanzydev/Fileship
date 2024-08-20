@@ -25,8 +25,10 @@ export const createLog = async (
         return;
     }
 
-    const currentUser = event.context.user;
-    const ip = getRequestIP(event, { xForwardedFor: true }) || 'Unknown';
+    const currentUser = event?.context?.user;
+    const ip = system
+        ? '::1'
+        : getRequestIP(event, { xForwardedFor: true }) || 'Unknown';
 
     if (system) {
         consola.info(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - ${message}`);

@@ -3,10 +3,10 @@ import { sendToUser } from './socketIO';
 export default defineNitroPlugin(async () => {
     setInterval(
         async () => {
-            const keys = ['file', 'code', 'url'];
+            const keys = ['File', 'Code', 'URL'];
 
             for (const key of keys) {
-                const model = prisma[key as never] as any;
+                const model = prisma[key.toLowerCase() as never] as any;
 
                 const expired = (await model.findMany({
                     where: {
@@ -26,7 +26,17 @@ export default defineNitroPlugin(async () => {
                     });
 
                     expired.forEach((e) => {
-                        sendToUser(e.authorId, `delete:${key}`, e.id);
+                        createLog(null, {
+                            action: `Delete ${key}`,
+                            message: `Deleted ${key.toLowerCase()} ${e.vanity || e.title || e.fileName} due to expiration`,
+                            system: true,
+                        });
+
+                        sendToUser(
+                            e.authorId,
+                            `delete:${key.toLowerCase()}`,
+                            e.id,
+                        );
                     });
                 }
             }
