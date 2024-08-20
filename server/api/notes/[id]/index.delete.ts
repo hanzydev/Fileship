@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
 
     await createLog(event, {
         action: 'Delete Note',
-        message: `Deleted ${findNoteById.title}`,
+        message: `Deleted note ${findNoteById.title}`,
     });
 
     sendToUser(currentUser.id, 'delete:note', noteId);

@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
 
     await createLog(event, {
         action: 'Delete Folder',
-        message: `Deleted ${findFolderById.name}`,
+        message: `Deleted folder ${findFolderById.name}`,
     });
 
     findFolderById.files.forEach((f) => {

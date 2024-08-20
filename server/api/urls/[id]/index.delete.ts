@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
 
     await createLog(event, {
         action: 'Delete URL',
-        message: `Deleted ${findUrlById.vanity}`,
+        message: `Deleted URL ${findUrlById.vanity}`,
     });
 
     sendToUser(currentUser.id, 'delete:url', urlId);

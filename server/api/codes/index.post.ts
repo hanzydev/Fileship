@@ -107,7 +107,7 @@ export default defineEventHandler(async (event) => {
 
     await createLog(event, {
         action: 'Share Code',
-        message: 'Shared a code',
+        message: `Shared code ${code.title}`,
     });
 
     sendToUser(currentUser.id, 'create:code', code);

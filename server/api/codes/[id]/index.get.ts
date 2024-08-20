@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
 
             await createLog(event, {
                 action: 'Delete Code',
-                message: `Deleted ${findCodeById.title} due to max views reached`,
+                message: `Deleted code ${findCodeById.title} due to max views reached`,
                 system: true,
             });
 

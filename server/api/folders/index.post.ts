@@ -92,7 +92,7 @@ export default defineEventHandler(async (event) => {
 
     await createLog(event, {
         action: 'Create Folder',
-        message: 'Created a folder',
+        message: `Created folder ${folder.name}`,
     });
 
     sendToUser(currentUser.id, 'create:folder', folder);

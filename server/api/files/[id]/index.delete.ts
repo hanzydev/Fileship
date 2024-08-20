@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
 
     await createLog(event, {
         action: 'Delete File',
-        message: `Deleted ${findFileById.fileName}`,
+        message: `Deleted file ${findFileById.fileName}`,
     });
 
     sendToUser(currentUser.id, 'delete:file', fileId);

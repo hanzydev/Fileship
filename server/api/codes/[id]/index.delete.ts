@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
 
     await createLog(event, {
         action: 'Delete Code',
-        message: `Deleted ${findCodeById.title}`,
+        message: `Deleted code ${findCodeById.title}`,
     });
 
     sendToUser(currentUser.id, 'delete:code', codeId);

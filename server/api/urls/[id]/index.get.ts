@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
 
             await createLog(event, {
                 action: 'Delete URL',
-                message: `Deleted ${findUrlById.vanity} due to max views reached`,
+                message: `Deleted URL ${findUrlById.vanity} due to max views reached`,
                 system: true,
             });
 

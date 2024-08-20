@@ -146,7 +146,7 @@ export default defineEventHandler(async (event) => {
 
     await createLog(event, {
         action: 'Delete User',
-        message: `Deleted ${findUserById.username}`,
+        message: `Deleted user ${findUserById.username}`,
     });
 
     await sendByFilter(

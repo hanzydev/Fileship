@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
 
     await createLog(event, {
         action: 'Delete Backup',
-        message: `Deleted ${backupId}`,
+        message: `Deleted backup ${backupId}`,
     });
 
     sendToUser(currentUser.id, 'delete:backup', backupId);

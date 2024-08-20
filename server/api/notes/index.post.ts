@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
 
     await createLog(event, {
         action: 'Take Note',
-        message: 'Took a note',
+        message: `Took note ${note.title}`,
     });
 
     sendToUser(currentUser.id, 'create:note', note);

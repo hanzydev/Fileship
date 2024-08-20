@@ -97,7 +97,7 @@ export default defineEventHandler(async (event) => {
 
             await createLog(event, {
                 action: 'Delete File',
-                message: `Deleted ${findFileById.fileName} due to max views reached`,
+                message: `Deleted file ${findFileById.fileName} due to max views reached`,
                 system: true,
             });
 
