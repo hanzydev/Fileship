@@ -1,5 +1,32 @@
 # Changelog
 
+## v1.12.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.11.0...v1.12.0)
+
+### 🚀 Enhancements
+
+- Add option to remove exif data from images during upload ([f3b0c9c](https://github.com/hanzydev/Fileship/commit/f3b0c9c))
+- Send generated logs to console ([2baa9d6](https://github.com/hanzydev/Fileship/commit/2baa9d6))
+- Add logs to server plugins ([9a35fce](https://github.com/hanzydev/Fileship/commit/9a35fce))
+
+### 🩹 Fixes
+
+- "itemsPerPage" failed: target is readonly. ([b1d3e92](https://github.com/hanzydev/Fileship/commit/b1d3e92))
+
+### 💅 Refactors
+
+- Better log messages ([8470222](https://github.com/hanzydev/Fileship/commit/8470222))
+- Set default value of DELETE_EXPIRED_INTERVAL to 30 seconds ([f591fa8](https://github.com/hanzydev/Fileship/commit/f591fa8))
+
+### 🏡 Chore
+
+- **release:** V1.11.0 ([a542d97](https://github.com/hanzydev/Fileship/commit/a542d97))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.11.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.10.0...v1.11.0)
