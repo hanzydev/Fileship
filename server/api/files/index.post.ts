@@ -157,16 +157,26 @@ export default defineEventHandler(async (event) => {
             await fsp.writeFile(tempPath, buffer);
         }
 
-        if (
-            file.type.startsWith('image/') &&
-            file.type !== 'image/gif' &&
-            body.data.compression
-        ) {
+        if (file.type.startsWith('image/') && file.type !== 'image/gif') {
             try {
+                const temp2Path = join(
+                    dataDirectory,
+                    'temp',
+                    currentUser.id,
+                    `${nanoid(8)}${extname(file.name)}`,
+                );
+
                 const image = sharp(tempPath);
                 const metadata = await image.metadata();
 
-                if (metadata.width && metadata.height) {
+                const removeExifData =
+                    (process.env.REMOVE_EXIF_DATA || 'true') === 'true';
+
+                if (
+                    metadata.width &&
+                    metadata.height &&
+                    body.data.compression
+                ) {
                     await image
                         .jpeg({
                             quality: Math.min(
@@ -174,7 +184,11 @@ export default defineEventHandler(async (event) => {
                                 Math.max(1, 100 - body.data.compression),
                             ),
                         })
-                        .toFile(tempPath);
+                        .toFile(temp2Path);
+                    await fsp.rename(temp2Path, tempPath);
+                } else if (removeExifData) {
+                    await image.rotate().toFile(temp2Path);
+                    await fsp.rename(temp2Path, tempPath);
                 }
             } catch {
                 throw createError({
