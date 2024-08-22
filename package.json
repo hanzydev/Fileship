@@ -58,7 +58,7 @@
         "highlight.js": "^11.10.0",
         "marked": "^14.0.0",
         "marked-highlight": "^2.1.4",
-        "nuxt": "^3.12.4",
+        "nuxt": "^3.13.0",
         "nuxt-icon": "^0.6.10",
         "prettier": "^3.3.3",
         "prisma": "^5.18.0",
