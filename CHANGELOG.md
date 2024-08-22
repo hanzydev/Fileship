@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.13.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.12.0...v1.13.0)
+
+### 🚀 Enhancements
+
+- Use route groups ([0f8ecc4](https://github.com/hanzydev/Fileship/commit/0f8ecc4))
+
+### 💅 Refactors
+
+- Fix IP address assignment in createLog utility ([e67d2cb](https://github.com/hanzydev/Fileship/commit/e67d2cb))
+
+### 🏡 Chore
+
+- **release:** V1.12.0 ([2fb0a64](https://github.com/hanzydev/Fileship/commit/2fb0a64))
+- Upgrade nuxt ([e41ef90](https://github.com/hanzydev/Fileship/commit/e41ef90))
+- Upgrade dependencies ([10615b2](https://github.com/hanzydev/Fileship/commit/10615b2))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.12.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.11.0...v1.12.0)
