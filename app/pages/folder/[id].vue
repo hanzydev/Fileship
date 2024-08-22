@@ -74,6 +74,6 @@ const { results } = useFuse(searchQuery, data.value!.files, {
 const calculatedFiles = computed<FileData[]>(() => {
     const start = (currentPage.value - 1) * 20;
     const end = start + 20;
-    return results.value.map((r) => r.item).slice(start, end);
+    return results.value.map((r) => r.item).slice(start, end) as never;
 });
 </script>

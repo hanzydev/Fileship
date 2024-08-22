@@ -26,7 +26,7 @@
         "qrcode": "^1.5.4",
         "sharp": "^0.33.5",
         "socket.io": "^4.7.5",
-        "stream-chain": "^2.2.5",
+        "stream-chain": "^3.0.1",
         "stream-json": "^1.8.0",
         "tar": "^7.4.3",
         "vue": "^3.4.38",
@@ -34,9 +34,9 @@
         "zod": "^3.23.8"
     },
     "devDependencies": {
-        "@nuxt/eslint": "^0.5.0",
+        "@nuxt/eslint": "^0.5.2",
         "@nuxt/fonts": "^0.7.2",
-        "@nuxt/kit": "^3.12.4",
+        "@nuxt/kit": "^3.13.0",
         "@nuxtjs/turnstile": "^0.9.3",
         "@prisma/client": "^5.18.0",
         "@types/color": "^3.0.6",
@@ -46,12 +46,12 @@
         "@unocss/eslint-config": "^0.62.2",
         "@unocss/nuxt": "^0.62.2",
         "@unocss/reset": "^0.62.2",
-        "@vueuse/core": "^11.0.0",
-        "@vueuse/nuxt": "^11.0.0",
+        "@vueuse/core": "^11.0.1",
+        "@vueuse/nuxt": "^11.0.1",
         "apexcharts": "^3.52.0",
         "bufferutil": "^4.0.8",
         "changelogen": "^0.5.5",
-        "dayjs": "^1.11.12",
+        "dayjs": "^1.11.13",
         "eslint": "^9.9.0",
         "eslint-plugin-simple-import-sort": "^12.1.1",
         "fuse.js": "^7.0.0",
@@ -71,5 +71,5 @@
         "vue-tsc": "^2.0.29",
         "vue3-apexcharts": "^1.5.3"
     },
-    "packageManager": "pnpm@9.7.1"
+    "packageManager": "pnpm@9.8.0"
 }
