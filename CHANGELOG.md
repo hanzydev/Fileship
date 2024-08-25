@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.14.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.13.0...v1.14.0)
+
+### 🚀 Enhancements
+
+- Improve number input compability ([990afd2](https://github.com/hanzydev/Fileship/commit/990afd2))
+
+### 🩹 Fixes
+
+- Prevent dropdown from overflowing off-screen ([c547695](https://github.com/hanzydev/Fileship/commit/c547695))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.13.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.12.0...v1.13.0)
