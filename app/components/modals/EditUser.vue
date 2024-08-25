@@ -40,7 +40,7 @@
                 :disabled="updating"
             />
 
-            <UiDropdown placement="top">
+            <UiDropdown placement="top" pb0.5="!">
                 <UiInput
                     :model-value="editData.cloned.value!.permissions.join(', ')"
                     :required="!editData.cloned.value!.superAdmin"

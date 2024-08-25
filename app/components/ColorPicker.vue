@@ -1,5 +1,5 @@
 <template>
-    <UiDropdown v-model="isOpen" placement="top">
+    <UiDropdown v-model="isOpen" placement="top" pb0.5="!">
         <slot />
         <template #content>
             <div
