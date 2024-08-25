@@ -206,10 +206,8 @@
                         !selectable &&
                         !data.folderId
                     "
-                    :placement="width < 768 ? 'bottom' : 'right'"
+                    placement="right"
                     hover
-                    md:pl4
-                    lt-md:-left-10
                 >
                     <UiButton
                         icon="heroicons-solid:folder-add"
@@ -317,8 +315,6 @@ const selected = defineModel<boolean>('selected', {
     required: false,
     default: false,
 });
-
-const { width } = useWindowSize();
 
 const currentUser = useAuthUser();
 const folders = useFolders();

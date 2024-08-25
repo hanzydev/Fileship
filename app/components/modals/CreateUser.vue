@@ -54,7 +54,7 @@
                 :error="formErrors?.password?._errors?.[0]"
                 :disabled
             />
-            <UiDropdown placement="top" lt-md:right-10 md:pr4>
+            <UiDropdown placement="top">
                 <UiInput
                     :model-value="user.permissions.join(', ')"
                     :required="!user.superAdmin"

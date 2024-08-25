@@ -14,7 +14,7 @@
             <Transition
                 enter-active-class="motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:data-[placement=top]:slide-in-b-2 motion-safe:data-[placement=bottom]:slide-in-top-2 motion-safe:data-[placement=left]:slide-in-right-2 motion-safe:data-[placement=right]:slide-in-left-2"
                 leave-active-class="motion-safe:animate-out motion-safe:fade-out motion-safe:zoom-out-95 motion-safe:data-[placement=top]:slide-out-bottom-2 motion-safe:data-[placement=bottom]:slide-out-top-2 motion-safe:data-[placement=left]:slide-out-right-2 motion-safe:data-[placement=right]:slide-out-left-2"
-                :data-placement="placement"
+                :data-placement="_placement"
             >
                 <div
                     v-if="isOpen"
@@ -24,14 +24,14 @@
                     z50
                     :class="[
                         {
-                            'bottom-full': placement === 'top',
-                            'top-full': placement === 'bottom',
-                            'right-full top-0': placement === 'left',
-                            'left-full top-0': placement === 'right',
-                            pb1: placement === 'top',
-                            pt1: placement === 'bottom',
-                            pl1: placement === 'right',
-                            pr1: placement === 'left',
+                            'bottom-full': _placement === 'top',
+                            'top-full': _placement === 'bottom',
+                            'right-full top-0': _placement === 'left',
+                            'left-full top-0': _placement === 'right',
+                            pb4: _placement === 'top',
+                            pt4: _placement === 'bottom',
+                            pl4: _placement === 'right',
+                            pr4: _placement === 'left',
                         },
                         asCtxMenu ? 'fixed' : 'absolute',
                     ]"
@@ -63,11 +63,18 @@ const props = withDefaults(
         placement: 'top',
     },
 );
-const { placement, asCtxMenu, hover, triggerClass } = toRefs(props);
+const {
+    placement: __placement,
+    asCtxMenu,
+    hover,
+    triggerClass,
+} = toRefs(props);
 
 defineOptions({
     inheritAttrs: false,
 });
+
+const _placement = ref(__placement.value);
 
 const isOpen = defineModel<boolean>({ required: false, default: false });
 const router = useRouter();
@@ -84,8 +91,11 @@ const overflow = useOverflow();
 const activeCtxMenu = useActiveCtxMenu();
 
 let ctxMenuTimeout: NodeJS.Timeout;
+let calculatingMenuPosition = false;
 
 const calculateMenuPosition = async () => {
+    calculatingMenuPosition = true;
+
     isOpen.value = true;
     await nextTick();
 
@@ -99,6 +109,7 @@ const calculateMenuPosition = async () => {
 
     if (menuPosition.y < 0) menuPosition.y = 0;
 
+    calculatingMenuPosition = false;
     isOpen.value = false;
 };
 
@@ -151,6 +162,33 @@ const handleMouseLeave = () => {
     if (hover.value && !asCtxMenu.value && isOpen.value) isOpen.value = false;
 };
 
+const preventOverflow = async () => {
+    if (_placement.value !== __placement.value) return;
+
+    const rect = contentRef.value!.getBoundingClientRect();
+
+    const space = {
+        left: rect.left,
+        right: window.innerWidth - rect.right,
+        top: rect.top,
+        bottom: window.innerHeight - rect.bottom,
+    };
+
+    let newPlacement = _placement.value;
+
+    if (space.left < 0) newPlacement = 'right';
+    if (space.right < 0) newPlacement = 'left';
+    if (space.top < 0) newPlacement = 'bottom';
+    if (space.bottom < 0) newPlacement = 'top';
+
+    if (window.innerWidth < 768 && (space.right < 0 || space.left < 0)) {
+        if (space.top < 0 || space.bottom < 0) newPlacement = 'top';
+        else newPlacement = 'bottom';
+    }
+
+    _placement.value = newPlacement;
+};
+
 onClickOutside(
     contentRef,
     (event) => {
@@ -175,14 +213,20 @@ onKeyStroke(
 
 onUnmounted(() => asCtxMenu.value && (overflow.value = true));
 
-watch(isOpen, (value) => {
+watch(isOpen, async (value) => {
+    if (calculatingMenuPosition) return;
+
     if (asCtxMenu.value) activeCtxMenu.value = value ? id : '';
     overflow.value = !activeCtxMenu.value;
+
+    if (value && !asCtxMenu.value) nextTick(preventOverflow);
 });
 
 watch(activeCtxMenu, (value) => {
     if (asCtxMenu.value && value !== id && isOpen.value) isOpen.value = false;
 });
+
+watch(__placement, (value) => (_placement.value = value));
 
 router.beforeEach((_, __, next) => {
     if (isOpen.value) isOpen.value = false;

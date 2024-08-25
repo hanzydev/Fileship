@@ -92,7 +92,7 @@
             </UiButton>
         </div>
         <div lg:mlauto>
-            <UiDropdown placement="bottom" right-0 pt2.5>
+            <UiDropdown placement="bottom" right-0>
                 <UiAvatar
                     :src="currentUser!.avatar || undefined"
                     :alt="currentUser!.username"
@@ -137,12 +137,7 @@
                                 {{ item.name }}
                             </UiButton>
 
-                            <UiDropdown
-                                :placement="width < 768 ? 'bottom' : 'left'"
-                                hover
-                                lt-md:right-10
-                                md:pr4
-                            >
+                            <UiDropdown placement="left" hover>
                                 <UiButton
                                     wfull
                                     gap2.5
@@ -229,8 +224,6 @@ import { isAdmin } from '~~/utils/user';
 const { data: latestRelease } = await useFetch<any>(
     'https://api.github.com/repos/hanzydev/Fileship/releases/latest',
 );
-
-const { width } = useWindowSize();
 
 const route = useRoute();
 const appConfig = useAppConfig();
