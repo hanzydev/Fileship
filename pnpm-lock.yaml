@@ -76,8 +76,8 @@ importers:
         specifier: ^0.9.3
         version: 0.9.3(@nuxt/scripts@0.6.6(@nuxt/devtools@1.3.14(bufferutil@4.0.8)(rollup@4.21.0)(utf-8-validate@6.0.4)(vite@5.4.2(@types/node@22.5.0)(terser@5.31.6)))(@unocss/webpack@0.62.2(rollup@4.21.0)(webpack@5.94.0(esbuild@0.23.1)))(@vue/compiler-core@3.4.38)(fuse.js@7.0.0)(ioredis@5.4.1)(magicast@0.3.4)(nuxt@3.13.0(@parcel/watcher@2.4.1)(@types/node@22.5.0)(bufferutil@4.0.8)(eslint@9.9.0(jiti@1.21.6))(ioredis@5.4.1)(magicast@0.3.4)(optionator@0.9.4)(rollup@4.21.0)(terser@5.31.6)(typescript@5.5.4)(utf-8-validate@6.0.4)(vite@5.4.2(@types/node@22.5.0)(terser@5.31.6))(vue-tsc@2.0.29(typescript@5.5.4)))(postcss@8.4.41)(qrcode@1.5.4)(rollup@4.21.0)(typescript@5.5.4)(vite@5.4.2(@types/node@22.5.0)(terser@5.31.6))(vue@3.4.38(typescript@5.5.4))(webpack@5.94.0(esbuild@0.23.1)))(magicast@0.3.4)(rollup@4.21.0)
       '@prisma/client':
-        specifier: ^5.18.0
-        version: 5.18.0(prisma@5.19.0)
+        specifier: ^5.19.0
+        version: 5.19.0(prisma@5.18.0)
       '@types/color':
         specifier: ^3.0.6
         version: 3.0.6
@@ -1231,8 +1231,8 @@ packages:
   '@polka/url@1.0.0-next.25':
     resolution: {integrity: sha512-j7P6Rgr3mmtdkeDGTe0E/aYyWEWVtc5yFXtHCRHs28/jptDEWfaVOc5T7cblqy1XKPPfCxJc/8DwQ5YgLOZOVQ==}
 
-  '@prisma/client@5.18.0':
-    resolution: {integrity: sha512-BWivkLh+af1kqC89zCJYkHsRcyWsM8/JHpsDMM76DjP3ZdEquJhXa4IeX+HkWPnwJ5FanxEJFZZDTWiDs/Kvyw==}
+  '@prisma/client@5.19.0':
+    resolution: {integrity: sha512-CzOpau+q1kEWQyoQMvlnXIHqPvwmWbh48xZ4n8KWbAql0p8PC0BIgSTYW5ncxXa4JSEff0tcoxSZB874wDstdg==}
     engines: {node: '>=16.13'}
     peerDependencies:
       prisma: '*'
@@ -6423,7 +6423,7 @@ snapshots:
 
   '@polka/url@1.0.0-next.25': {}
 
-  '@prisma/client@5.18.0(prisma@5.19.0)':
+  '@prisma/client@5.19.0(prisma@5.18.0)':
     optionalDependencies:
       prisma: 5.19.0
 
