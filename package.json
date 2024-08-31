@@ -46,7 +46,7 @@
         "@unocss/eslint-config": "^0.62.2",
         "@unocss/nuxt": "^0.62.2",
         "@unocss/reset": "^0.62.2",
-        "@vueuse/core": "^11.0.1",
+        "@vueuse/core": "^11.0.3",
         "@vueuse/nuxt": "^11.0.3",
         "apexcharts": "^3.52.0",
         "bufferutil": "^4.0.8",
