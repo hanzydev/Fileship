@@ -14,7 +14,7 @@
         "release": "changelogen --release"
     },
     "dependencies": {
-        "argon2": "^0.40.3",
+        "argon2": "^0.41.0",
         "color": "^4.2.3",
         "consola": "^3.2.3",
         "defu": "^6.1.4",
