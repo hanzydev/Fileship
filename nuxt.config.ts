@@ -9,7 +9,7 @@ export default defineNuxtConfig({
         '@nuxt/fonts',
         '@vueuse/nuxt',
         '@unocss/nuxt',
-        "@nuxt/icon"
+        '@nuxt/icon',
     ],
     css: ['~/styles/main.css', '@unocss/reset/tailwind.css'],
     fonts: {
