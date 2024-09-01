@@ -29,7 +29,7 @@ h6 {
 p,
 a,
 span {
-    @apply !text-base;
+    @apply text-base;
 }
 
 a[type='button'],

@@ -34,8 +34,12 @@
         "zod": "^3.23.8"
     },
     "devDependencies": {
+        "@iconify-json/heroicons": "^1.2.0",
+        "@iconify-json/heroicons-solid": "^1.2.0",
+        "@iconify-json/iconamoon": "^1.2.0",
         "@nuxt/eslint": "^0.5.2",
         "@nuxt/fonts": "^0.7.2",
+        "@nuxt/icon": "^1.5.0",
         "@nuxt/kit": "^3.13.0",
         "@nuxtjs/turnstile": "^0.9.3",
         "@prisma/client": "^5.19.0",
@@ -58,6 +62,7 @@
         "highlight.js": "^11.10.0",
         "marked": "^14.0.0",
         "marked-highlight": "^2.1.4",
+        "mdi": "link:@iconify-json\\mdi",
         "nuxt": "^3.13.0",
         "nuxt-icon": "^0.6.10",
         "prettier": "^3.3.3",
