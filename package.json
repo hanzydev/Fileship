@@ -14,7 +14,7 @@
         "release": "changelogen --release"
     },
     "dependencies": {
-        "argon2": "^0.41.0",
+        "argon2": "^0.41.1",
         "color": "^4.2.3",
         "consola": "^3.2.3",
         "defu": "^6.1.4",
@@ -37,7 +37,7 @@
         "@iconify-json/heroicons": "^1.2.0",
         "@iconify-json/heroicons-solid": "^1.2.0",
         "@iconify-json/iconamoon": "^1.2.0",
-        "@nuxt/eslint": "^0.5.2",
+        "@nuxt/eslint": "^0.5.5",
         "@nuxt/fonts": "^0.7.2",
         "@nuxt/icon": "^1.5.0",
         "@nuxt/kit": "^3.13.0",
@@ -48,8 +48,8 @@
         "@types/stream-chain": "^2.1.0",
         "@types/stream-json": "^1.7.7",
         "@unocss/eslint-config": "^0.62.3",
-        "@unocss/nuxt": "^0.62.2",
-        "@unocss/reset": "^0.62.2",
+        "@unocss/nuxt": "^0.62.3",
+        "@unocss/reset": "^0.62.3",
         "@vueuse/core": "^11.0.3",
         "@vueuse/nuxt": "^11.0.3",
         "apexcharts": "^3.53.0",
@@ -60,7 +60,7 @@
         "eslint-plugin-simple-import-sort": "^12.1.1",
         "fuse.js": "^7.0.0",
         "highlight.js": "^11.10.0",
-        "marked": "^14.0.0",
+        "marked": "^14.1.0",
         "marked-highlight": "^2.1.4",
         "mdi": "link:@iconify-json\\mdi",
         "nuxt": "^3.13.0",
@@ -72,9 +72,9 @@
         "typescript": "^5.5.4",
         "unocss-preset-animations": "^1.1.0",
         "utf-8-validate": "^6.0.4",
-        "vue-sonner": "^1.1.4",
-        "vue-tsc": "^2.0.29",
-        "vue3-apexcharts": "^1.5.3"
+        "vue-sonner": "^1.1.5",
+        "vue-tsc": "^2.1.4",
+        "vue3-apexcharts": "^1.6.0"
     },
-    "packageManager": "pnpm@9.8.0"
+    "packageManager": "pnpm@9.9.0"
 }
