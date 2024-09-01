@@ -1,5 +1,37 @@
 # Changelog
 
+## v1.14.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.14.0...v1.14.1)
+
+### 🩹 Fixes
+
+- Extra gap in select menus ([cc66041](https://github.com/hanzydev/Fileship/commit/cc66041))
+- Dependabot config ([e2f5d4f](https://github.com/hanzydev/Fileship/commit/e2f5d4f))
+- Expander icon animation ([635c038](https://github.com/hanzydev/Fileship/commit/635c038))
+
+### 💅 Refactors
+
+- Group routes wisely ([18bcfaa](https://github.com/hanzydev/Fileship/commit/18bcfaa))
+- Use @nuxt/icon instead of nuxt-icon ([8b7e1ff](https://github.com/hanzydev/Fileship/commit/8b7e1ff))
+- Better loading indicator ([fd1818a](https://github.com/hanzydev/Fileship/commit/fd1818a))
+
+### 🏡 Chore
+
+- **deps-dev:** Bump @vueuse/nuxt from 11.0.1 to 11.0.3 ([a4eb5b7](https://github.com/hanzydev/Fileship/commit/a4eb5b7))
+- **deps-dev:** Bump prisma from 5.18.0 to 5.19.0 ([c02368c](https://github.com/hanzydev/Fileship/commit/c02368c))
+- **deps-dev:** Bump @prisma/client from 5.18.0 to 5.19.0 ([010577a](https://github.com/hanzydev/Fileship/commit/010577a))
+- **deps-dev:** Bump eslint from 9.9.0 to 9.9.1 ([0f8bd4c](https://github.com/hanzydev/Fileship/commit/0f8bd4c))
+- **deps-dev:** Bump @unocss/eslint-config from 0.62.2 to 0.62.3 ([1a75a2e](https://github.com/hanzydev/Fileship/commit/1a75a2e))
+- **deps-dev:** Bump @vueuse/core from 11.0.1 to 11.0.3 ([29e441f](https://github.com/hanzydev/Fileship/commit/29e441f))
+- **deps-dev:** Bump apexcharts from 3.52.0 to 3.53.0 ([98292b2](https://github.com/hanzydev/Fileship/commit/98292b2))
+- Lint fix ([66c08c1](https://github.com/hanzydev/Fileship/commit/66c08c1))
+- Upgrade deps ([ac62e8f](https://github.com/hanzydev/Fileship/commit/ac62e8f))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.14.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.13.0...v1.14.0)
@@ -30,7 +62,6 @@
 
 ### 🏡 Chore
 
-- **release:** V1.12.0 ([2fb0a64](https://github.com/hanzydev/Fileship/commit/2fb0a64))
 - Upgrade nuxt ([e41ef90](https://github.com/hanzydev/Fileship/commit/e41ef90))
 - Upgrade dependencies ([10615b2](https://github.com/hanzydev/Fileship/commit/10615b2))
 
@@ -56,10 +87,6 @@
 
 - Better log messages ([8470222](https://github.com/hanzydev/Fileship/commit/8470222))
 - Set default value of DELETE_EXPIRED_INTERVAL to 30 seconds ([f591fa8](https://github.com/hanzydev/Fileship/commit/f591fa8))
-
-### 🏡 Chore
-
-- **release:** V1.11.0 ([a542d97](https://github.com/hanzydev/Fileship/commit/a542d97))
 
 ### ❤️ Contributors
 
@@ -92,7 +119,6 @@
 
 ### 🏡 Chore
 
-- **release:** V1.9.3 ([ecbd184](https://github.com/hanzydev/Fileship/commit/ecbd184))
 - Update dependencies ([aff45b1](https://github.com/hanzydev/Fileship/commit/aff45b1))
 
 ### ❤️ Contributors
@@ -109,7 +135,6 @@
 
 ### 🏡 Chore
 
-- **release:** V1.9.2 ([cd5f5d2](https://github.com/hanzydev/Fileship/commit/cd5f5d2))
 - Add aria-label to buttons for accessibility ([a5de973](https://github.com/hanzydev/Fileship/commit/a5de973))
 
 ### ❤️ Contributors
@@ -456,7 +481,6 @@
 
 ### 🏡 Chore
 
-- **release:** V1.2.3 ([f73bb81](https://github.com/hanzydev/Fileship/commit/f73bb81))
 - Fix repo name in build banner ([7ba6ebc](https://github.com/hanzydev/Fileship/commit/7ba6ebc))
 
 ### ❤️ Contributors
@@ -483,10 +507,6 @@
 
 - Cannot read properties of null (reading 'insertBefore') error ([cca4725](https://github.com/hanzydev/Fileship/commit/cca4725))
 
-### 🏡 Chore
-
-- **release:** V1.2.1 ([aab00bf](https://github.com/hanzydev/Fileship/commit/aab00bf))
-
 ### 🎨 Styles
 
 - Fix text styles ([57ff137](https://github.com/hanzydev/Fileship/commit/57ff137))
@@ -502,7 +522,6 @@
 
 ### 🏡 Chore
 
-- **release:** V1.2.0 ([3e5b7b3](https://github.com/hanzydev/Fileship/commit/3e5b7b3))
 - Ignore CHANGELOG.md in prettier formatting ([6c3d3b7](https://github.com/hanzydev/Fileship/commit/6c3d3b7))
 
 ### 🎨 Styles
@@ -532,10 +551,6 @@
 - **pkg:** Fix docker compose command ([07ee2ed](https://github.com/hanzydev/Fileship/commit/07ee2ed))
 - Fix outlined button ([4aeafaf](https://github.com/hanzydev/Fileship/commit/4aeafaf))
 - Fix build banner ([9ec6dcf](https://github.com/hanzydev/Fileship/commit/9ec6dcf))
-
-### 🏡 Chore
-
-- **release:** V1.1.0 ([821dd92](https://github.com/hanzydev/Fileship/commit/821dd92))
 
 ### 🎨 Styles
 
