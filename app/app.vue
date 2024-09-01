@@ -1,5 +1,12 @@
 <template>
-    <NuxtLoadingIndicator color="var(--fs-accent)" />
+    <NuxtLoadingIndicator
+        color="linear-gradient(
+            to right,
+            color-mix(in srgb, var(--fs-accent) 80%, white),
+            var(--fs-accent)
+        )"
+        :throttle="0"
+    />
     <Toaster position="top-center" theme="dark" />
 
     <Head>
