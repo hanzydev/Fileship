@@ -53,7 +53,7 @@
                                     : data.platform === 'Firefox'
                                       ? 'mingcute:firefox-fill'
                                       : data.platform === 'OPR'
-                                        ? 'ri:opera-fill'
+                                        ? 'mdi:opera'
                                         : data.platform === 'Edge'
                                           ? 'mingcute:edge-fill'
                                           : 'mingcute:safari-fill'

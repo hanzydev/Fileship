@@ -72,6 +72,9 @@ importers:
       '@iconify-json/iconamoon':
         specifier: ^1.2.0
         version: 1.2.0
+      '@iconify-json/mdi':
+        specifier: ^1.2.0
+        version: 1.2.0
       '@nuxt/eslint':
         specifier: ^0.5.5
         version: 0.5.5(bufferutil@4.0.8)(eslint@9.9.1(jiti@1.21.6))(magicast@0.3.5)(rollup@4.21.2)(typescript@5.5.4)(utf-8-validate@6.0.4)(vite@5.4.2(@types/node@22.5.2)(terser@5.31.6))
@@ -147,9 +150,6 @@ importers:
       marked-highlight:
         specifier: ^2.1.4
         version: 2.1.4(marked@14.1.0)
-      mdi:
-        specifier: link:@iconify-json\mdi
-        version: link:@iconify-json/mdi
       nuxt:
         specifier: ^3.13.0
         version: 3.13.0(@parcel/watcher@2.4.1)(@types/node@22.5.2)(bufferutil@4.0.8)(eslint@9.9.1(jiti@1.21.6))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.21.2)(terser@5.31.6)(typescript@5.5.4)(utf-8-validate@6.0.4)(vite@5.4.2(@types/node@22.5.2)(terser@5.31.6))(vue-tsc@2.1.4(typescript@5.5.4))
@@ -870,6 +870,9 @@ packages:
 
   '@iconify-json/logos@1.2.0':
     resolution: {integrity: sha512-VkU9QSqeZR2guWbecdqkcoZEAJfgJJTUm6QAsypuZQ7Cve6zy39wOXDjp2H31I8QyQy4O3Cz96+pNji6UQFg4w==}
+
+  '@iconify-json/mdi@1.2.0':
+    resolution: {integrity: sha512-E9/3l5Syg3wfuarorFodhn4s8YorxhH3U3U20LaNBNiqw1kFNIDWhF6HymuzAD35k7RH0OBasJ+ZUyFtVVV6eg==}
 
   '@iconify-json/ri@1.2.0':
     resolution: {integrity: sha512-br8It3uRHylNhEH72aU9VF6gIdL4BAi6JMdcxsCaVbAyWBJ0jd4RxfmsYnil6TmEfP5wxihiCKbtbQmIHZdqKg==}
@@ -5680,6 +5683,10 @@ snapshots:
       '@iconify/types': 2.0.0
 
   '@iconify-json/logos@1.2.0':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/mdi@1.2.0':
     dependencies:
       '@iconify/types': 2.0.0
 
