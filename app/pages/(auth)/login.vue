@@ -56,7 +56,10 @@
                                 v-if="runtimeConfig.public.turnstile.siteKey"
                                 ref="turnstileRef"
                                 v-model="auth.turnstile"
-                                class="[&>iframe]:!wfull"
+                                :options="{
+                                    theme: 'dark',
+                                    size: 'flexible',
+                                }"
                             />
                         </div>
 
@@ -111,7 +114,10 @@
                                 v-if="runtimeConfig.public.turnstile.siteKey"
                                 ref="turnstileRef"
                                 v-model="auth.turnstile"
-                                class="[&>iframe]:!wfull"
+                                :options="{
+                                    theme: 'dark',
+                                    size: 'flexible',
+                                }"
                             />
                         </div>
 
