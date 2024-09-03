@@ -121,20 +121,33 @@
                             />
                         </div>
 
-                        <UiButton
-                            alignment="center"
-                            wfull
-                            gap2
-                            variant="accent"
-                            type="submit"
-                            icon="heroicons-solid:arrow-left"
-                            icon-size="20"
-                            :loading="disabled"
-                            :disabled
-                            @click="section = 'login'"
-                        >
-                            Back
-                        </UiButton>
+                        <div grid="~ cols-2 gap-4">
+                            <UiButton
+                                alignment="center"
+                                wfull
+                                gap2
+                                type="submit"
+                                icon="heroicons-solid:arrow-left"
+                                icon-size="20"
+                                :disabled
+                                @click="section = 'login'"
+                            >
+                                Back
+                            </UiButton>
+                            <UiButton
+                                alignment="center"
+                                wfull
+                                gap2
+                                variant="accent"
+                                type="submit"
+                                icon="heroicons-solid:lock-closed"
+                                icon-size="20"
+                                :loading="disabled"
+                                :disabled
+                            >
+                                Login
+                            </UiButton>
+                        </div>
                     </div>
                 </Transition>
             </div>
