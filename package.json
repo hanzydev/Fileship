@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "build": "prisma generate && nuxt build",
-        "dev": "prisma db push && nuxt dev -o",
+        "dev": "prisma db push && nuxt dev",
         "preview": "prisma db push && nuxt preview",
         "postinstall": "nuxt prepare",
         "lint": "eslint . && prettier --check .",
