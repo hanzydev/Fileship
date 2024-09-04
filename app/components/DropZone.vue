@@ -59,9 +59,7 @@ const {
 
 const files = defineModel<File[]>({ required: true });
 
-const inputDisabled = computed(
-    () => _disabled || files.value.length >= max,
-);
+const inputDisabled = computed(() => _disabled || files.value.length >= max);
 
 const handleUpload = async (event: Event) => {
     const newFiles = Array.from(
