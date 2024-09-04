@@ -120,11 +120,9 @@
 import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
-const props = defineProps<{
+const { data } = defineProps<{
     data: FolderData;
 }>();
-
-const { data } = toRefs(props);
 
 const filesModal = reactive({ open: false, editMode: false });
 const editModalOpen = ref(false);
@@ -134,7 +132,7 @@ const deleting = ref(false);
 
 const handleDelete = async () => {
     deleting.value = true;
-    await $fetch(`/api/folders/${data.value.id}`, { method: 'DELETE' });
+    await $fetch(`/api/folders/${data.id}`, { method: 'DELETE' });
     deleting.value = false;
 
     toast.success('Folder deleted successfully');
@@ -142,7 +140,7 @@ const handleDelete = async () => {
 
 const handleCopy = () => {
     navigator.clipboard.writeText(
-        `${useRequestURL().origin}/folder/${data.value.id}`,
+        `${useRequestURL().origin}/folder/${data.id}`,
     );
     ctxOpen.value = false;
 

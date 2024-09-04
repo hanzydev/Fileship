@@ -98,18 +98,13 @@ const formErrors = ref();
 const updating = ref(false);
 
 const expirationPickerRef = ref<InstanceType<typeof ExpirationPicker>>();
-const expiration = computed(() =>
-    data.expiresAt && expirationPickerRef.value
-        ? expirationPickerRef.value.predictExpiration(data.expiresAt)
-        : {
-              label: 'Never',
-              value: null as number | null,
-          },
-);
 
 const editData = useCloned({
     ...data,
-    expiration: expiration.value!,
+    expiration: {
+        label: 'Never',
+        value: null as number | null,
+    },
 });
 
 const handleEdit = async () => {
@@ -138,4 +133,13 @@ const handleEdit = async () => {
 
     updating.value = false;
 };
+
+watch(isOpen, async (value) => {
+    await nextTick();
+
+    if (value && data.expiresAt && expirationPickerRef.value) {
+        editData.cloned.value.expiration =
+            expirationPickerRef.value.predictExpiration(data.expiresAt);
+    }
+});
 </script>

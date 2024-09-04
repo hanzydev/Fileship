@@ -1,7 +1,7 @@
 <template>
     <div relative @mouseover="handleMouseMove" @mouseleave="handleMouseLeave">
         <div
-            ref="triggerRef"
+            ref="trigger"
             :class="triggerClass"
             @click="handleClick"
             @contextmenu="handleContextMenu"
@@ -14,24 +14,24 @@
             <Transition
                 enter-active-class="motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:data-[placement=top]:slide-in-b-2 motion-safe:data-[placement=bottom]:slide-in-top-2 motion-safe:data-[placement=left]:slide-in-right-2 motion-safe:data-[placement=right]:slide-in-left-2"
                 leave-active-class="motion-safe:animate-out motion-safe:fade-out motion-safe:zoom-out-95 motion-safe:data-[placement=top]:slide-out-bottom-2 motion-safe:data-[placement=bottom]:slide-out-top-2 motion-safe:data-[placement=left]:slide-out-right-2 motion-safe:data-[placement=right]:slide-out-left-2"
-                :data-placement="_placement"
+                :data-placement="placement"
             >
                 <div
                     v-if="isOpen"
                     v-bind="$attrs"
                     :id
-                    ref="contentRef"
+                    ref="content"
                     z50
                     :class="[
                         {
-                            'bottom-full': _placement === 'top',
-                            'top-full': _placement === 'bottom',
-                            'right-full top-0': _placement === 'left',
-                            'left-full top-0': _placement === 'right',
-                            pb4: _placement === 'top',
-                            pt4: _placement === 'bottom',
-                            pl4: _placement === 'right',
-                            pr4: _placement === 'left',
+                            'bottom-full': placement === 'top',
+                            'top-full': placement === 'bottom',
+                            'right-full top-0': placement === 'left',
+                            'left-full top-0': placement === 'right',
+                            pb4: placement === 'top',
+                            pt4: placement === 'bottom',
+                            pl4: placement === 'right',
+                            pr4: placement === 'left',
                         },
                         asCtxMenu ? 'fixed' : 'absolute',
                     ]"
@@ -52,35 +52,29 @@
 <script setup lang="ts">
 import { Teleport } from 'vue';
 
-const props = withDefaults(
-    defineProps<{
-        placement?: 'left' | 'right' | 'top' | 'bottom';
-        asCtxMenu?: boolean;
-        hover?: boolean;
-        triggerClass?: unknown;
-    }>(),
-    {
-        placement: 'top',
-    },
-);
 const {
-    placement: __placement,
+    placement: _placement = 'top',
     asCtxMenu,
     hover,
     triggerClass,
-} = toRefs(props);
+} = defineProps<{
+    placement?: 'left' | 'right' | 'top' | 'bottom';
+    asCtxMenu?: boolean;
+    hover?: boolean;
+    triggerClass?: unknown;
+}>();
 
 defineOptions({
     inheritAttrs: false,
 });
 
-const _placement = ref(__placement.value);
+const placement = ref(_placement);
 
 const isOpen = defineModel<boolean>({ required: false, default: false });
 const router = useRouter();
 
-const triggerRef = ref<HTMLDivElement>();
-const contentRef = ref<HTMLDivElement>();
+const triggerRef = useTemplateRef<HTMLDivElement>('trigger');
+const contentRef = useTemplateRef<HTMLDivElement>('content');
 
 const mousePosition = reactive({ x: 0, y: 0 });
 const menuPosition = reactive({ x: 0, y: 0 });
@@ -114,7 +108,7 @@ const calculateMenuPosition = async () => {
 };
 
 const handleContextMenu = async (event: MouseEvent | TouchEvent) => {
-    if (!asCtxMenu.value || hover.value) return;
+    if (!asCtxMenu || hover) return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -138,7 +132,7 @@ const handleContextMenu = async (event: MouseEvent | TouchEvent) => {
 };
 
 const handleIosContextMenu = (event: TouchEvent) => {
-    if (!asCtxMenu.value || hover.value || !isIos.value) return;
+    if (!asCtxMenu || hover || !isIos.value) return;
 
     clearTimeout(ctxMenuTimeout);
     ctxMenuTimeout = setTimeout(() => {
@@ -149,21 +143,21 @@ const handleIosContextMenu = (event: TouchEvent) => {
 const clearCtxMenuTimeout = () => clearTimeout(ctxMenuTimeout);
 
 const handleClick = () => {
-    if (asCtxMenu.value || hover.value) return;
+    if (asCtxMenu || hover) return;
 
     isOpen.value = !isOpen.value;
 };
 
 const handleMouseMove = () => {
-    if (hover.value && !asCtxMenu.value && !isOpen.value) isOpen.value = true;
+    if (hover && !asCtxMenu && !isOpen.value) isOpen.value = true;
 };
 
 const handleMouseLeave = () => {
-    if (hover.value && !asCtxMenu.value && isOpen.value) isOpen.value = false;
+    if (hover && !asCtxMenu && isOpen.value) isOpen.value = false;
 };
 
 const preventOverflow = async () => {
-    if (_placement.value !== __placement.value) return;
+    if (placement.value !== _placement) return;
 
     const rect = contentRef.value!.getBoundingClientRect();
 
@@ -174,7 +168,7 @@ const preventOverflow = async () => {
         bottom: window.innerHeight - rect.bottom,
     };
 
-    let newPlacement = _placement.value;
+    let newPlacement = placement.value;
 
     if (space.left < 0) newPlacement = 'right';
     if (space.right < 0) newPlacement = 'left';
@@ -186,7 +180,7 @@ const preventOverflow = async () => {
         else newPlacement = 'bottom';
     }
 
-    _placement.value = newPlacement;
+    placement.value = newPlacement;
 };
 
 onClickOutside(
@@ -199,7 +193,7 @@ onClickOutside(
         }
     },
     {
-        ignore: asCtxMenu.value ? [] : [triggerRef],
+        ignore: asCtxMenu ? [] : [triggerRef],
     },
 );
 
@@ -211,22 +205,25 @@ onKeyStroke(
     { eventName: 'keydown' },
 );
 
-onUnmounted(() => asCtxMenu.value && (overflow.value = true));
+onUnmounted(() => asCtxMenu && (overflow.value = true));
 
 watch(isOpen, async (value) => {
     if (calculatingMenuPosition) return;
 
-    if (asCtxMenu.value) activeCtxMenu.value = value ? id : '';
+    if (asCtxMenu) activeCtxMenu.value = value ? id! : '';
     overflow.value = !activeCtxMenu.value;
 
-    if (value && !asCtxMenu.value) nextTick(preventOverflow);
+    if (value && !asCtxMenu) nextTick(preventOverflow);
 });
 
 watch(activeCtxMenu, (value) => {
-    if (asCtxMenu.value && value !== id && isOpen.value) isOpen.value = false;
+    if (asCtxMenu && value !== id && isOpen.value) isOpen.value = false;
 });
 
-watch(__placement, (value) => (_placement.value = value));
+watch(
+    () => _placement,
+    (value) => (placement.value = value),
+);
 
 router.beforeEach((_, __, next) => {
     if (isOpen.value) isOpen.value = false;

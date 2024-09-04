@@ -5,7 +5,7 @@
     >
         <div
             v-if="isOpen"
-            ref="uploadingFilesRef"
+            ref="uploadingFiles"
             fixed
             bottom-6
             z30
@@ -210,7 +210,6 @@ import { filesize } from 'filesize';
 const uploadingFiles = useUploadingFiles();
 const uploading = useIsUploading();
 
-const uploadingFilesRef = ref<HTMLElement>();
 const isOpen = ref(false);
 
 const isErrored = computed(

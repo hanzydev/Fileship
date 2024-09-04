@@ -85,11 +85,9 @@
 import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
-const props = defineProps<{
+const { data } = defineProps<{
     data: UrlData;
 }>();
-
-const { data } = toRefs(props);
 
 const ctxOpen = ref(false);
 const editModalOpen = ref(false);
@@ -98,7 +96,7 @@ const deleting = ref(false);
 
 const handleDelete = async () => {
     deleting.value = true;
-    await $fetch(`/api/urls/${data.value.id}`, { method: 'DELETE' });
+    await $fetch(`/api/urls/${data.id}`, { method: 'DELETE' });
     deleting.value = false;
 
     toast.success('URL deleted successfully');
@@ -106,7 +104,7 @@ const handleDelete = async () => {
 
 const handleCopy = () => {
     navigator.clipboard.writeText(
-        `${useRequestURL().origin}/link/${data.value.vanity}`,
+        `${useRequestURL().origin}/link/${data.vanity}`,
     );
     ctxOpen.value = false;
 

@@ -85,11 +85,9 @@
 import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
-const props = defineProps<{
+const { data } = defineProps<{
     data: CodeData;
 }>();
-
-const { data } = toRefs(props);
 
 const ctxOpen = ref(false);
 const editModalOpen = ref(false);
@@ -98,16 +96,14 @@ const deleting = ref(false);
 
 const handleDelete = async () => {
     deleting.value = true;
-    await $fetch(`/api/codes/${data.value.id}`, { method: 'DELETE' });
+    await $fetch(`/api/codes/${data.id}`, { method: 'DELETE' });
     deleting.value = false;
 
     toast.success('Code deleted successfully');
 };
 
 const handleCopy = () => {
-    navigator.clipboard.writeText(
-        `${useRequestURL().origin}/code/${data.value.id}`,
-    );
+    navigator.clipboard.writeText(`${useRequestURL().origin}/code/${data.id}`);
     ctxOpen.value = false;
 
     toast.success('Link copied to clipboard');

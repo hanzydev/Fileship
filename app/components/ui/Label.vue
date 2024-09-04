@@ -17,6 +17,5 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{ error?: string; required?: boolean }>();
-const { error, required } = toRefs(props);
+defineProps<{ error?: string; required?: boolean }>();
 </script>

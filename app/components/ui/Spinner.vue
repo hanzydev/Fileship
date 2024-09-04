@@ -33,13 +33,10 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(
-    defineProps<{
-        size: number;
-        duration?: string;
-    }>(),
-    { duration: '1.25s' },
-);
+const { duration = '1.25s' } = defineProps<{
+    size: number;
+    duration?: string;
+}>();
 </script>
 
 <style>

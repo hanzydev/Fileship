@@ -25,6 +25,5 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{ value: number; textClass?: unknown }>();
-const { value, textClass } = toRefs(props);
+defineProps<{ value: number; textClass?: unknown }>();
 </script>

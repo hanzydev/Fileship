@@ -26,6 +26,7 @@
             <aside
                 v-if="width < 1024 ? isOpen : true"
                 :class="width === Infinity && 'lt-lg:hidden'"
+                data-allow-mismatch
                 absolute
                 z20
                 flex="~ col gap2"

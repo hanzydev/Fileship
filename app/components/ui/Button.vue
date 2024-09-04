@@ -46,33 +46,40 @@
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(
-    defineProps<{
-        variant?:
-            | 'accent'
-            | 'primary'
-            | 'secondary'
-            | 'danger'
-            | 'dangerFill'
-            | 'outline';
-        alignment?: 'left' | 'center' | 'right';
-        loading?: boolean;
-        icon?: string;
-        iconSize?: string;
-        iconClass?: unknown;
-        href?: string;
-    }>(),
-    {
-        variant: 'primary',
-        alignment: 'left',
-        iconSize: '16',
-    },
-);
-const { variant, alignment, loading, icon, iconSize, iconClass, href } =
-    toRefs(props);
+const {
+    variant = 'primary',
+    alignment = 'left',
+    iconSize = '16',
+    href,
+} = defineProps<{
+    variant?:
+        | 'accent'
+        | 'primary'
+        | 'secondary'
+        | 'danger'
+        | 'dangerFill'
+        | 'outline';
+    alignment?: 'left' | 'center' | 'right';
+    loading?: boolean;
+    icon?: string;
+    iconSize?: string;
+    iconClass?: unknown;
+    href?: string;
+}>();
 
 const component = computed(() => {
-    if (href.value) return resolveComponent('NuxtLink');
+    if (href) {
+        if (
+            href.startsWith('http') ||
+            href.startsWith('/api') ||
+            href.startsWith('/u')
+        ) {
+            return 'a';
+        }
+
+        return resolveComponent('NuxtLink');
+    }
+
     return 'button';
 });
 </script>

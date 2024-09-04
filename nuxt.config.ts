@@ -3,6 +3,7 @@ import pkg from './package.json';
 
 export default defineNuxtConfig({
     future: { compatibilityVersion: 4 },
+
     modules: [
         '@nuxtjs/turnstile',
         '@nuxt/eslint',
@@ -11,7 +12,9 @@ export default defineNuxtConfig({
         '@unocss/nuxt',
         '@nuxt/icon',
     ],
+
     css: ['~/styles/main.css', '@unocss/reset/tailwind.css'],
+
     fonts: {
         families: [
             {
@@ -20,12 +23,15 @@ export default defineNuxtConfig({
             },
         ],
     },
+
     devtools: {
         enabled: true,
     },
+
     experimental: {
         clientNodeCompat: true,
     },
+
     nitro: {
         experimental: {
             websocket: true,
@@ -36,15 +42,18 @@ export default defineNuxtConfig({
             },
         },
     },
+
     routeRules: {
         '/api/**': { cors: true },
         '/u/:id': { cors: true },
     },
+
     runtimeConfig: {
         public: {
             fileChunkSize: 10,
         },
     },
+
     app: {
         buildAssetsDir: '/_fileship/',
         rootAttrs: {
@@ -68,6 +77,7 @@ export default defineNuxtConfig({
             ],
         },
     },
+
     vite: {
         $client: {
             resolve: {
@@ -90,5 +100,10 @@ export default defineNuxtConfig({
             },
         },
     },
-    compatibilityDate: '2024-07-04',
+
+    vue: {
+        propsDestructure: true,
+    },
+
+    compatibilityDate: '2024-09-04',
 });

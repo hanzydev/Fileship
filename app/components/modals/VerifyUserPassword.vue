@@ -54,8 +54,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{ error?: string; disabled?: boolean }>();
-const { error, disabled } = toRefs(props);
+defineProps<{ error?: string; disabled?: boolean }>();
 
 const isOpen = defineModel<boolean>({ required: false, default: true });
 const password = ref('');

@@ -145,11 +145,9 @@
 import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
-const props = defineProps<{
+const { data } = defineProps<{
     data: NoteData;
 }>();
-
-const { data } = toRefs(props);
 
 const currentUser = useAuthUser();
 
@@ -164,7 +162,7 @@ let copyTimeout: NodeJS.Timeout;
 
 const handleDelete = async () => {
     deleting.value = true;
-    await $fetch(`/api/notes/${data.value.id}`, { method: 'DELETE' });
+    await $fetch(`/api/notes/${data.id}`, { method: 'DELETE' });
     deleting.value = false;
 
     toast.success('Note deleted successfully');
@@ -173,7 +171,7 @@ const handleDelete = async () => {
 const handleCopy = () => {
     if (copyTimeout) clearTimeout(copyTimeout);
 
-    navigator.clipboard.writeText(data.value.content);
+    navigator.clipboard.writeText(data.content);
     ctxOpen.value = false;
 
     toast.success('Note copied to clipboard');

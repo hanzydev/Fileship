@@ -53,8 +53,7 @@
 <script setup lang="ts">
 const password = ref('');
 
-const props = defineProps<{ error?: string; disabled?: boolean }>();
-const { error, disabled } = toRefs(props);
+defineProps<{ error?: string; disabled?: boolean }>();
 
 defineEmits<{
     password: [password: string];

@@ -7,7 +7,6 @@
             <input
                 v-bind="$attrs"
                 :id="label && id"
-                ref="inputRef"
                 v-model="value"
                 rounded-md
                 px3.5
@@ -98,24 +97,21 @@
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(
-    defineProps<{
-        variant?: 'primary' | 'secondary';
-        error?: string;
-        label?: string;
-        required?: boolean;
-        disabled?: boolean;
-        readonly?: boolean;
-        min?: number;
-        max?: number;
-        caption?: string;
-    }>(),
-    {
-        variant: 'primary',
-    },
-);
-const { variant, label, required, disabled, readonly, min, max } =
-    toRefs(props);
+const {
+    variant = 'primary',
+    min = 0,
+    max = Infinity,
+} = defineProps<{
+    variant?: 'primary' | 'secondary';
+    error?: string;
+    label?: string;
+    required?: boolean;
+    disabled?: boolean;
+    readonly?: boolean;
+    min?: number;
+    max?: number;
+    caption?: string;
+}>();
 
 defineOptions({
     inheritAttrs: false,
@@ -124,15 +120,11 @@ defineOptions({
 const value = defineModel<number | string>({ required: true });
 
 const id = useId();
-const inputRef = ref<HTMLInputElement>();
 const passwordVisible = ref(false);
 
 watch(value, (newValue) => {
     if (typeof newValue === 'number') {
-        value.value = Math.max(
-            min.value ?? 0,
-            Math.min(max.value ?? Infinity, newValue),
-        );
+        value.value = Math.max(min, Math.min(max, newValue));
     }
 });
 </script>

@@ -101,19 +101,17 @@ import hljs from 'highlight.js';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 
-const props = defineProps<{
+const { language, code } = defineProps<{
     language: string;
     code: string;
     fullScreen?: boolean;
 }>();
 
-const { language, code } = toRefs(props);
-
 const renderMarkdown = ref(true);
 const copied = ref(false);
 
 const shouldRenderMarkdown = computed(
-    () => language.value === 'markdown' && renderMarkdown.value,
+    () => language === 'markdown' && renderMarkdown.value,
 );
 
 const marked = new Marked(
@@ -130,14 +128,14 @@ const html = computed(() => {
     registerLanguage();
 
     return shouldRenderMarkdown.value
-        ? marked.parse(code.value)
-        : hljs.highlight(code.value, { language: language.value }).value;
+        ? marked.parse(code)
+        : hljs.highlight(code, { language }).value;
 });
 
 const registerLanguage = () => {
-    import(/* @vite-ignore */ `highlight.js/lib/languages/${language.value}`)
+    import(/* @vite-ignore */ `highlight.js/lib/languages/${language}`)
         .then((module) => {
-            hljs.registerLanguage(language.value, module.default);
+            hljs.registerLanguage(language, module.default);
         })
         .catch(() => null);
 };
@@ -147,7 +145,7 @@ let copyTimeout: NodeJS.Timeout;
 const handleCopy = () => {
     if (copyTimeout) clearTimeout(copyTimeout);
 
-    navigator.clipboard.writeText(code.value);
+    navigator.clipboard.writeText(code);
     copied.value = true;
 
     copyTimeout = setTimeout(() => {

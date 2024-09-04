@@ -34,12 +34,11 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
     size: 'xs' | 'sm';
     src?: string;
     alt: string;
 }>();
-const { size, src, alt } = toRefs(props);
 
 const error = ref(false);
 

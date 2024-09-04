@@ -16,7 +16,7 @@
                 }"
             >
                 <div
-                    ref="saturationRef"
+                    ref="saturation"
                     relative
                     h164px
                     wfull
@@ -43,7 +43,6 @@
                     @touchend.prevent="saturationFocused = false"
                 >
                     <div
-                        ref="saturationPointerRef"
                         absolute
                         right-0
                         top-0
@@ -62,7 +61,7 @@
                     />
                 </div>
                 <div
-                    ref="hueRef"
+                    ref="hue"
                     relative
                     h25px
                     wfull
@@ -86,7 +85,6 @@
                     @touchend.prevent="hueFocused = false"
                 >
                     <div
-                        ref="huePointerRef"
                         absolute
                         left-0
                         top-0
@@ -121,16 +119,15 @@ const color = reactive(
     },
 );
 
-const saturationRef = ref<HTMLDivElement>();
-const saturationPointerRef = ref<HTMLDivElement>();
+const saturationRef = useTemplateRef('saturation');
+const hueRef = useTemplateRef('hue');
+
 const saturationPointerPos = reactive({
     top: 100 - color.v,
     left: color.s,
 });
 
-const hueRef = ref<HTMLDivElement>();
 const hueColor = ref(Color.hsv(color.h, 100, 100).hex());
-const huePointerRef = ref<HTMLDivElement>();
 
 const hueFocused = ref(false);
 const saturationFocused = ref(false);
@@ -139,7 +136,7 @@ const handleSaturationMove = (event: MouseEvent | TouchEvent) => {
     if (!saturationFocused.value) return;
 
     const { left, top } = getRelativePosition(
-        saturationRef.value!,
+        saturationRef.value as never,
         event,
         getTouchId(event),
     );
@@ -152,7 +149,7 @@ const handleHueMove = (event: MouseEvent | TouchEvent) => {
     if (!hueFocused.value) return;
 
     const { left } = getRelativePosition(
-        hueRef.value!,
+        hueRef.value as never,
         event,
         getTouchId(event),
     );

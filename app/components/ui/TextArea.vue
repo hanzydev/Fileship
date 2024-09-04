@@ -31,18 +31,14 @@
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(
-    defineProps<{
-        variant?: 'primary' | 'secondary';
-        error?: string;
-        label?: string;
-        required?: boolean;
-        disabled?: boolean;
-        readonly?: boolean;
-    }>(),
-    { variant: 'primary' },
-);
-const { variant, error, label, required, disabled, readonly } = toRefs(props);
+const { variant = 'primary' } = defineProps<{
+    variant?: 'primary' | 'secondary';
+    error?: string;
+    label?: string;
+    required?: boolean;
+    disabled?: boolean;
+    readonly?: boolean;
+}>();
 
 defineOptions({
     inheritAttrs: false,

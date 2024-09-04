@@ -17,13 +17,10 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(
-    defineProps<{
-        icon?: string;
-        disabled?: boolean;
-    }>(),
-    { icon: 'heroicons-solid:plus' },
-);
+const { icon = 'heroicons-solid:plus' } = defineProps<{
+    icon?: string;
+    disabled?: boolean;
+}>();
 
 defineEmits<{
     action: [];

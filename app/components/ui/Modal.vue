@@ -22,7 +22,7 @@
             <div
                 v-if="isOpen"
                 v-bind="$attrs"
-                ref="contentRef"
+                ref="content"
                 ring="1 fs-accent"
                 fixed
                 z40
@@ -44,14 +44,9 @@
 </template>
 
 <script setup lang="ts">
-const { closeOnOuterClick } = withDefaults(
-    defineProps<{
-        closeOnOuterClick?: boolean;
-    }>(),
-    {
-        closeOnOuterClick: true,
-    },
-);
+const { closeOnOuterClick = true } = defineProps<{
+    closeOnOuterClick?: boolean;
+}>();
 
 defineOptions({
     inheritAttrs: false,
@@ -67,7 +62,7 @@ const isOpen = defineModel<boolean>({ required: true });
 const router = useRouter();
 const overflow = useOverflow();
 
-const contentRef = ref<HTMLDivElement>();
+const contentRef = useTemplateRef<HTMLDivElement>('content');
 
 onClickOutside(contentRef, async () => {
     if (closeOnOuterClick && isOpen.value) isOpen.value = false;

@@ -1,5 +1,5 @@
 <template>
-    <div z20 wfull rounded-md bg-fs-overlay-2>
+    <div z20 wfull rounded-md bg-fs-overlay-2 >
         <div
             flex="~ items-center justify-between"
             cursor-pointer
@@ -32,13 +32,7 @@
             leave-from-class="h[--height]"
             :style="{ '--height': `${height}px` }"
         >
-            <div
-                v-if="isOpen"
-                ref="contentRef"
-                wfull
-                rounded-b-md
-                bg-fs-overlay-2
-            >
+            <div v-if="isOpen" ref="content" wfull rounded-b-md bg-fs-overlay-2>
                 <div px4 pb4 :class="contentClass">
                     <slot name="content" />
                 </div>
@@ -54,7 +48,7 @@ defineProps<{
     contentClass?: unknown;
 }>();
 
-const contentRef = ref<HTMLDivElement>();
+const contentRef = useTemplateRef<HTMLDivElement>('content');
 const height = ref(0);
 
 watch(isOpen, async (value) => {
