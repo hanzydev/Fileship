@@ -261,7 +261,7 @@ const handleSwitch = async (username: string, verificationData?: string) => {
         useCookie('adminSessionId', {
             expires: new Date(Date.now() + 1000 * 60 * 60 * 6),
             path: '/',
-            sameSite: true,
+            sameSite: 'lax',
         }).value = useCookie('sessionId').value;
 
         const { user, session } = await $fetch('/api/auth/login', {

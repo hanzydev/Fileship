@@ -78,7 +78,7 @@ const goBackAdminSession = async () => {
     useCookie('sessionId', {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 365),
         path: '/',
-        sameSite: true,
+        sameSite: 'lax',
     }).value = adminSessionId.value!;
     await nextTick();
 
