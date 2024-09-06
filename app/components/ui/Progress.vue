@@ -19,6 +19,7 @@
                 stroke-width="10"
                 :stroke-dasharray="282.7433388230814"
                 :stroke-dashoffset="282.7433388230814 * (1 - value / 100)"
+                motion-safe:transition-all
             />
         </svg>
     </div>
