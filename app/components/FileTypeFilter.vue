@@ -1,5 +1,5 @@
 <template>
-    <UiDropdown placement="bottom">
+    <UiDropdown placement="bottom" pt1.5="!">
         <UiButton
             icon="heroicons-solid:filter"
             icon-size="20"
