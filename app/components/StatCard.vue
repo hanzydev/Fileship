@@ -8,7 +8,7 @@
             <h4>{{ data }}</h4>
             <div
                 v-if="growth !== 0"
-                flex="~ gap2 items-center"
+                flex="~ gap0.5 items-center"
                 text-sm="!"
                 font-medium="!"
                 :class="growth > 0 ? 'text-green500' : 'text-red-500'"
