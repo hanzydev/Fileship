@@ -5,7 +5,6 @@
     >
         <div
             v-if="isOpen"
-            ref="uploadingFiles"
             fixed
             bottom-6
             z30
