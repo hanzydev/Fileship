@@ -82,9 +82,7 @@
             :style="{
                 backgroundImage: `url(/u/${data.fileName})`,
             }"
-            @click="
-                (event) => (event.target as HTMLDivElement).requestFullscreen()
-            "
+            @click="handleFullScreen"
         />
 
         <video
@@ -192,5 +190,15 @@ const handleCopy = () => {
     copyTimeout = setTimeout(() => {
         copied.value = false;
     }, 2_000);
+};
+
+const handleFullScreen = (event: MouseEvent) => {
+    const target = event.target as HTMLImageElement;
+
+    if (document.fullscreenElement) {
+        document.exitFullscreen();
+    } else {
+        target.requestFullscreen();
+    }
 };
 </script>
