@@ -606,7 +606,7 @@ const embed = useEmbed();
 const appConfig = useAppConfig();
 const currentUser = useAuthUser();
 
-const contentRef = useTemplateRef('content');
+const contentRef = useTemplateRef<HTMLDivElement>('content');
 
 const { data: _domains } = await useFetch('/api/users/@me/domains');
 
