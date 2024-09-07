@@ -16,11 +16,24 @@
             </div>
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
                 <New h208px @action="router.push('/dashboard/files/upload')" />
-                <FileCard
-                    v-for="file in calculatedFiles"
-                    :key="file.id"
-                    :data="file"
-                />
+                <TransitionGroup
+                    :css="false"
+                    @enter="
+                        (el, done) => (isAnimating ? done() : enter(el, done))
+                    "
+                    @leave="
+                        (el, done) => (isAnimating ? done() : leave(el, done))
+                    "
+                >
+                    <div
+                        v-for="file in calculatedFiles"
+                        :key="file.id"
+                        opacity-0
+                        class="fileCard"
+                    >
+                        <FileCard :data="file" />
+                    </div>
+                </TransitionGroup>
             </div>
             <UiPagination
                 v-model="currentPage"
@@ -85,6 +98,20 @@ const calculatedFiles = computed(() => {
     const start = (currentPage.value - 1) * 19;
     const end = start + 19;
     return filtered.value.slice(start, end);
+});
+
+const isAnimating = ref(false);
+const { all, enter, leave } = animateCards();
+
+onMounted(() => all('files', '.fileCard'));
+
+watch(currentPage, () => {
+    isAnimating.value = true;
+    nextTick(() => {
+        all('files', '.fileCard', () => {
+            isAnimating.value = false;
+        });
+    });
 });
 
 definePageMeta({

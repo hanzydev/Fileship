@@ -11,11 +11,25 @@
             <UiSearchBar v-model="searchQuery" placeholder="Search urls..." />
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
                 <New h132px @action="shortenUrlModalOpen = true" />
-                <UrlCard
-                    v-for="url in calculatedUrls"
-                    :key="url.id"
-                    :data="url"
-                />
+
+                <TransitionGroup
+                    :css="false"
+                    @enter="
+                        (el, done) => (isAnimating ? done() : enter(el, done))
+                    "
+                    @leave="
+                        (el, done) => (isAnimating ? done() : leave(el, done))
+                    "
+                >
+                    <div
+                        v-for="url in calculatedUrls"
+                        :key="url.id"
+                        opacity-0
+                        class="urlCard"
+                    >
+                        <UrlCard :data="url" />
+                    </div>
+                </TransitionGroup>
             </div>
             <UiPagination
                 v-model="currentPage"
@@ -61,6 +75,20 @@ const calculatedUrls = computed<UrlData[]>(() => {
     const start = (currentPage.value - 1) * 19;
     const end = start + 19;
     return results.value.map((r) => r.item).slice(start, end);
+});
+
+const isAnimating = ref(false);
+const { all, enter, leave } = animateCards();
+
+onMounted(() => all('urls', '.urlCard'));
+
+watch(currentPage, () => {
+    isAnimating.value = true;
+    nextTick(() => {
+        all('urls', '.urlCard', () => {
+            isAnimating.value = false;
+        });
+    });
 });
 
 definePageMeta({

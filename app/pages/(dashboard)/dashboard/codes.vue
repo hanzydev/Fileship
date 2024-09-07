@@ -11,11 +11,24 @@
             <UiSearchBar v-model="searchQuery" placeholder="Search codes..." />
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
                 <New h132px @action="shareCodeModalOpen = true" />
-                <CodeCard
-                    v-for="code in calculatedCodes"
-                    :key="code.id"
-                    :data="code"
-                />
+                <TransitionGroup
+                    :css="false"
+                    @enter="
+                        (el, done) => (isAnimating ? done() : enter(el, done))
+                    "
+                    @leave="
+                        (el, done) => (isAnimating ? done() : leave(el, done))
+                    "
+                >
+                    <div
+                        v-for="code in calculatedCodes"
+                        :key="code.id"
+                        opacity-0
+                        class="codeCard"
+                    >
+                        <CodeCard :data="code" />
+                    </div>
+                </TransitionGroup>
             </div>
             <UiPagination
                 v-model="currentPage"
@@ -61,6 +74,21 @@ const calculatedCodes = computed<CodeData[]>(() => {
     const start = (currentPage.value - 1) * 19;
     const end = start + 19;
     return results.value.map((r) => r.item).slice(start, end);
+});
+
+const isAnimating = ref(false);
+const { all, enter, leave } = animateCards();
+
+onMounted(() => all('codes', '.codeCard'));
+
+watch(currentPage, () => {
+    isAnimating.value = true;
+  
+    nextTick(() => {
+        all('codes', '.codeCard', () => {
+            isAnimating.value = false;
+        });
+    });
 });
 
 definePageMeta({

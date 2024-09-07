@@ -8,7 +8,7 @@ import {
 import presetAnimations from 'unocss-preset-animations';
 
 export default defineConfig({
-    presets: [presetAttributify(), presetUno(), presetAnimations() as never],
+    presets: [presetAttributify(), presetUno(), presetAnimations()],
     transformers: [transformerDirectives(), transformerVariantGroup()],
     theme: {
         colors: {

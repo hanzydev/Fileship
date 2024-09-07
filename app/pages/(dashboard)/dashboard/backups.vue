@@ -58,11 +58,17 @@
                         ></div>
                     </Transition>
                 </div>
-                <BackupCard
-                    v-for="backup in backups"
-                    :key="backup.id"
-                    :data="backup"
-                />
+
+                <TransitionGroup :css="false" @enter="enter" @leave="leave">
+                    <div
+                        v-for="backup in backups"
+                        :key="backup.id"
+                        opacity-0
+                        class="backupCard"
+                    >
+                        <BackupCard :data="backup" />
+                    </div>
+                </TransitionGroup>
             </div>
         </div>
     </div>
@@ -157,6 +163,10 @@ const handleLoad = async (event: Event) => {
         toast.success('Backup uploaded successfully, you can now restore it.');
     }
 };
+
+const { all, enter, leave } = animateCards();
+
+onMounted(() => all('backups', '.backupCard'));
 
 definePageMeta({
     layout: 'dashboard',

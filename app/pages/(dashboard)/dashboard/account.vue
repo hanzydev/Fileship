@@ -238,123 +238,55 @@
             </div>
         </UiModal>
 
-        <div space-y-6>
+        <div>
             <h2>Account</h2>
 
-            <UiExpander>
-                <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:identification" size="24" />
-                    <h5>My Account</h5>
-                </div>
-                <template #content>
-                    <form space-y-4 @submit.prevent="handleUserEdit('Account')">
-                        <p text-slate200>
-                            Update your account information here.
-                        </p>
-
-                        <div grid="~ sm:cols-2 gap4">
-                            <UiInput
-                                v-model="userEditData.cloned.value.username!"
-                                label="Username"
-                                rounded="!"
-                                required
-                                wfull
-                                :error="userFormErrors?.username?._errors?.[0]"
-                                :disabled="userUpdating"
-                            />
-                            <UiInput
-                                v-model="userEditData.cloned.value.password!"
-                                label="Password"
-                                wfull
-                                rounded="!"
-                                type="password"
-                                caption="If you leave the password field empty, your
-                                password will not be updated."
-                                :error="userFormErrors?.password?._errors?.[0]"
-                                :disabled="userUpdating"
-                            />
-                        </div>
-
-                        <UiButton
-                            wfull
-                            rounded="!"
-                            gap2
-                            alignment="center"
-                            variant="accent"
-                            type="submit"
-                            icon="heroicons:pencil-16-solid"
-                            icon-size="20"
-                            :loading="userUpdating"
-                            :disabled="userUpdating"
+            <div ref="content" mt6 space-y-6>
+                <UiExpander opacity-0>
+                    <div flex="~ gap2 items-center">
+                        <Icon name="heroicons-solid:identification" size="24" />
+                        <h5>My Account</h5>
+                    </div>
+                    <template #content>
+                        <form
+                            space-y-4
+                            @submit.prevent="handleUserEdit('Account')"
                         >
-                            Save
-                        </UiButton>
-                    </form>
-                </template>
-            </UiExpander>
+                            <p text-slate200>
+                                Update your account information here.
+                            </p>
 
-            <UiExpander>
-                <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:photograph" size="24" />
-                    <h5>Avatar</h5>
-                </div>
-                <template #content>
-                    <form space-y-4 @submit.prevent="handleUserEdit('Avatar')">
-                        <p text-slate200>Update your avatar here.</p>
-
-                        <div grid="~ gap4 sm:cols-3">
-                            <div relative>
-                                <input
-                                    :key="
-                                        userEditData.cloned.value.avatar?.name
+                            <div grid="~ sm:cols-2 gap4">
+                                <UiInput
+                                    v-model="
+                                        userEditData.cloned.value.username!
                                     "
-                                    absolute
-                                    z10
-                                    hfull
+                                    label="Username"
+                                    rounded="!"
+                                    required
                                     wfull
-                                    op0
-                                    :class="
-                                        userUpdating
-                                            ? 'cursor-not-allowed'
-                                            : 'cursor-pointer'
+                                    :error="
+                                        userFormErrors?.username?._errors?.[0]
                                     "
-                                    type="file"
-                                    accept="image/*"
                                     :disabled="userUpdating"
-                                    @change.stop.prevent="
-                                        (event) =>
-                                            (userEditData.cloned.value.avatar =
-                                                (
-                                                    event.target as HTMLInputElement
-                                                ).files![0]!)
-                                    "
                                 />
                                 <UiInput
-                                    :model-value="
-                                        userEditData.cloned.value.avatar?.name!
+                                    v-model="
+                                        userEditData.cloned.value.password!
                                     "
-                                    rounded="!"
-                                    readonly
+                                    label="Password"
                                     wfull
-                                    placeholder="Choose a file"
+                                    rounded="!"
+                                    type="password"
+                                    caption="If you leave the password field empty, your
+                                password will not be updated."
+                                    :error="
+                                        userFormErrors?.password?._errors?.[0]
+                                    "
                                     :disabled="userUpdating"
                                 />
                             </div>
-                            <UiButton
-                                wfull
-                                rounded="!"
-                                gap2
-                                alignment="center"
-                                variant="dangerFill"
-                                type="submit"
-                                icon="heroicons-solid:trash"
-                                icon-size="20"
-                                :loading="userUpdating"
-                                :disabled="userUpdating || !currentUser!.avatar"
-                                @click="userEditData.cloned.value.avatar = null"
-                            >
-                                Reset
-                            </UiButton>
+
                             <UiButton
                                 wfull
                                 rounded="!"
@@ -365,217 +297,316 @@
                                 icon="heroicons:pencil-16-solid"
                                 icon-size="20"
                                 :loading="userUpdating"
-                                :disabled="
-                                    userUpdating ||
-                                    !userEditData.cloned.value.avatar
-                                "
+                                :disabled="userUpdating"
                             >
                                 Save
                             </UiButton>
-                        </div>
-                    </form>
-                </template>
-            </UiExpander>
+                        </form>
+                    </template>
+                </UiExpander>
 
-            <UiExpander>
-                <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:globe-alt" size="24" />
-                    <h5>Domains</h5>
-                </div>
-
-                <template #content>
-                    <form space-y-4 @submit.prevent="handleDomainsEdit">
-                        <p text-slate200>
-                            Configure your domains. These domains will be used
-                            to output a random domain during upload.
-                        </p>
-
-                        <UiInput
-                            v-model="domains"
-                            label="Domains"
-                            rounded="!"
-                            wfull
-                            caption="Separate multiple domains with a comma. Example: domain.com, i.domain2.com."
-                            :disabled="domainsUpdating"
-                        />
-
-                        <UiButton
-                            wfull
-                            rounded="!"
-                            gap2
-                            alignment="center"
-                            variant="accent"
-                            type="submit"
-                            icon="heroicons:pencil-16-solid"
-                            icon-size="20"
-                            :loading="domainsUpdating"
-                            :disabled="domainsUpdating"
-                        >
-                            Save
-                        </UiButton>
-                    </form>
-                </template>
-            </UiExpander>
-
-            <UiExpander>
-                <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:shield-check" size="24" />
-                    <h5>Two-Factor Authentication</h5>
-                </div>
-
-                <template #content>
-                    <div space-y-4>
-                        <p text-slate200>
-                            Configuring an authenticator app is a good way to
-                            add an extra layer of security to your
-                            {{ appConfig.site.name }} account to make sure that
-                            only you have the ability to log in.
-                        </p>
-
-                        <div flex="~ gap2 items-center">
-                            <UiSwitch
-                                v-model="twoFaEnabled"
-                                :disabled="twoFaUpdating"
-                            />
-                            <span font-medium="!">
-                                Enable Two-Factor Authentication
-                            </span>
-                        </div>
+                <UiExpander opacity-0>
+                    <div flex="~ gap2 items-center">
+                        <Icon name="heroicons-solid:photograph" size="24" />
+                        <h5>Avatar</h5>
                     </div>
-                </template>
-            </UiExpander>
+                    <template #content>
+                        <form
+                            space-y-4
+                            @submit.prevent="handleUserEdit('Avatar')"
+                        >
+                            <p text-slate200>Update your avatar here.</p>
 
-            <UiExpander>
-                <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:lock-closed" size="24" />
-                    <h5>Embed Configuration</h5>
-                </div>
-                <template #content>
-                    <form space-y-4 @submit.prevent="handleEmbedEdit">
-                        <p text-slate200>
-                            Configure how your files are embedded when shared.
-                        </p>
-
-                        <div grid="~ gap4 sm:cols-2">
-                            <UiInput
-                                v-model="embedEditData.cloned.value.title!"
-                                label="Title"
-                                wfull
-                                rounded="!"
-                                :disabled="embedUpdating"
-                            />
-                            <UiInput
-                                v-model="
-                                    embedEditData.cloned.value.description!
-                                "
-                                label="Description"
-                                wfull
-                                rounded="!"
-                                :disabled="embedUpdating"
-                            />
-                            <UiInput
-                                v-model="embedEditData.cloned.value.siteName!"
-                                label="Site Name"
-                                wfull
-                                rounded="!"
-                                :disabled="embedUpdating"
-                            />
-                            <ColorPicker
-                                v-model="embedEditData.cloned.value.color!"
-                            >
+                            <div grid="~ gap4 sm:cols-3">
                                 <div relative>
-                                    <div
+                                    <input
+                                        :key="
+                                            userEditData.cloned.value.avatar
+                                                ?.name
+                                        "
                                         absolute
-                                        left-3.5
-                                        top-10
                                         z10
-                                        h5
-                                        w5
-                                        rounded-full
-                                        :style="{
-                                            backgroundColor:
-                                                embedEditData.cloned.value
-                                                    .color,
-                                        }"
-                                    ></div>
-                                    <UiInput
-                                        v-model="
-                                            embedEditData.cloned.value.color!
-                                        "
-                                        label="Color"
+                                        hfull
                                         wfull
-                                        pl11
-                                        ring-1
-                                        rounded="!"
-                                        transition-none="!"
-                                        :error="
-                                            userFormErrors?.embed?.color
-                                                ?._errors?.[0]
+                                        op0
+                                        :class="
+                                            userUpdating
+                                                ? 'cursor-not-allowed'
+                                                : 'cursor-pointer'
                                         "
-                                        :style="{
-                                            '--un-ring-color':
-                                                embedEditData.cloned.value
-                                                    .color,
-                                        }"
-                                        :min="1"
-                                        :max="7"
-                                        :disabled="embedUpdating"
+                                        type="file"
+                                        accept="image/*"
+                                        :disabled="userUpdating"
+                                        @change.stop.prevent="
+                                            (event) =>
+                                                (userEditData.cloned.value.avatar =
+                                                    (
+                                                        event.target as HTMLInputElement
+                                                    ).files![0]!)
+                                        "
+                                    />
+                                    <UiInput
+                                        :model-value="
+                                            userEditData.cloned.value.avatar
+                                                ?.name!
+                                        "
+                                        rounded="!"
+                                        readonly
+                                        wfull
+                                        placeholder="Choose a file"
+                                        :disabled="userUpdating"
                                     />
                                 </div>
-                            </ColorPicker>
-                        </div>
-                        <h6>
-                            Available parameters:
-                            <span font-medium="!">
-                                {fileName}, {mimeType}, {size}, {createdAt} and
-                                {now}
-                            </span>
-                        </h6>
-                        <div flex="~ gap2 items-center">
-                            <UiSwitch
-                                v-model="embedEditData.cloned.value.enabled"
-                                :disabled="embedUpdating"
+                                <UiButton
+                                    wfull
+                                    rounded="!"
+                                    gap2
+                                    alignment="center"
+                                    variant="dangerFill"
+                                    type="submit"
+                                    icon="heroicons-solid:trash"
+                                    icon-size="20"
+                                    :loading="userUpdating"
+                                    :disabled="
+                                        userUpdating || !currentUser!.avatar
+                                    "
+                                    @click="
+                                        userEditData.cloned.value.avatar = null
+                                    "
+                                >
+                                    Reset
+                                </UiButton>
+                                <UiButton
+                                    wfull
+                                    rounded="!"
+                                    gap2
+                                    alignment="center"
+                                    variant="accent"
+                                    type="submit"
+                                    icon="heroicons:pencil-16-solid"
+                                    icon-size="20"
+                                    :loading="userUpdating"
+                                    :disabled="
+                                        userUpdating ||
+                                        !userEditData.cloned.value.avatar
+                                    "
+                                >
+                                    Save
+                                </UiButton>
+                            </div>
+                        </form>
+                    </template>
+                </UiExpander>
+
+                <UiExpander opacity-0>
+                    <div flex="~ gap2 items-center">
+                        <Icon name="heroicons-solid:globe-alt" size="24" />
+                        <h5>Domains</h5>
+                    </div>
+
+                    <template #content>
+                        <form space-y-4 @submit.prevent="handleDomainsEdit">
+                            <p text-slate200>
+                                Configure your domains. These domains will be
+                                used to output a random domain during upload.
+                            </p>
+
+                            <UiInput
+                                v-model="domains"
+                                label="Domains"
+                                rounded="!"
+                                wfull
+                                caption="Separate multiple domains with a comma. Example: domain.com, i.domain2.com."
+                                :disabled="domainsUpdating"
                             />
-                            <span font-medium="!">Enable embeds</span>
+
+                            <UiButton
+                                wfull
+                                rounded="!"
+                                gap2
+                                alignment="center"
+                                variant="accent"
+                                type="submit"
+                                icon="heroicons:pencil-16-solid"
+                                icon-size="20"
+                                :loading="domainsUpdating"
+                                :disabled="domainsUpdating"
+                            >
+                                Save
+                            </UiButton>
+                        </form>
+                    </template>
+                </UiExpander>
+
+                <UiExpander opacity-0>
+                    <div flex="~ gap2 items-center">
+                        <Icon name="heroicons-solid:shield-check" size="24" />
+                        <h5>Two-Factor Authentication</h5>
+                    </div>
+
+                    <template #content>
+                        <div space-y-4>
+                            <p text-slate200>
+                                Configuring an authenticator app is a good way
+                                to add an extra layer of security to your
+                                {{ appConfig.site.name }} account to make sure
+                                that only you have the ability to log in.
+                            </p>
+
+                            <div flex="~ gap2 items-center">
+                                <UiSwitch
+                                    v-model="twoFaEnabled"
+                                    :disabled="twoFaUpdating"
+                                />
+                                <span font-medium="!">
+                                    Enable Two-Factor Authentication
+                                </span>
+                            </div>
                         </div>
+                    </template>
+                </UiExpander>
 
-                        <UiButton
-                            wfull
-                            gap2
-                            alignment="center"
-                            variant="accent"
-                            type="submit"
-                            icon="heroicons:pencil-16-solid"
-                            icon-size="20"
-                            :loading="userUpdating"
-                            :disabled="embedUpdating"
-                        >
-                            Save
-                        </UiButton>
-                    </form>
-                </template>
-            </UiExpander>
+                <UiExpander opacity-0>
+                    <div flex="~ gap2 items-center">
+                        <Icon name="heroicons-solid:lock-closed" size="24" />
+                        <h5>Embed Configuration</h5>
+                    </div>
+                    <template #content>
+                        <form space-y-4 @submit.prevent="handleEmbedEdit">
+                            <p text-slate200>
+                                Configure how your files are embedded when
+                                shared.
+                            </p>
 
-            <UiButton
-                gap2
-                variant="accent"
-                icon="heroicons-solid:download"
-                icon-size="20"
-                @click="shareXConfigModal.open = true"
-            >
-                Generate ShareX Config
-            </UiButton>
+                            <div grid="~ gap4 sm:cols-2">
+                                <UiInput
+                                    v-model="embedEditData.cloned.value.title!"
+                                    label="Title"
+                                    wfull
+                                    rounded="!"
+                                    :disabled="embedUpdating"
+                                />
+                                <UiInput
+                                    v-model="
+                                        embedEditData.cloned.value.description!
+                                    "
+                                    label="Description"
+                                    wfull
+                                    rounded="!"
+                                    :disabled="embedUpdating"
+                                />
+                                <UiInput
+                                    v-model="
+                                        embedEditData.cloned.value.siteName!
+                                    "
+                                    label="Site Name"
+                                    wfull
+                                    rounded="!"
+                                    :disabled="embedUpdating"
+                                />
+                                <ColorPicker
+                                    v-model="embedEditData.cloned.value.color!"
+                                >
+                                    <div relative>
+                                        <div
+                                            absolute
+                                            left-3.5
+                                            top-10
+                                            z10
+                                            h5
+                                            w5
+                                            rounded-full
+                                            :style="{
+                                                backgroundColor:
+                                                    embedEditData.cloned.value
+                                                        .color,
+                                            }"
+                                        ></div>
+                                        <UiInput
+                                            v-model="
+                                                embedEditData.cloned.value
+                                                    .color!
+                                            "
+                                            label="Color"
+                                            wfull
+                                            pl11
+                                            ring-1
+                                            rounded="!"
+                                            transition-none="!"
+                                            :error="
+                                                userFormErrors?.embed?.color
+                                                    ?._errors?.[0]
+                                            "
+                                            :style="{
+                                                '--un-ring-color':
+                                                    embedEditData.cloned.value
+                                                        .color,
+                                            }"
+                                            :min="1"
+                                            :max="7"
+                                            :disabled="embedUpdating"
+                                        />
+                                    </div>
+                                </ColorPicker>
+                            </div>
+                            <h6>
+                                Available parameters:
+                                <span font-medium="!">
+                                    {fileName}, {mimeType}, {size}, {createdAt}
+                                    and {now}
+                                </span>
+                            </h6>
+                            <div flex="~ gap2 items-center">
+                                <UiSwitch
+                                    v-model="embedEditData.cloned.value.enabled"
+                                    :disabled="embedUpdating"
+                                />
+                                <span font-medium="!">Enable embeds</span>
+                            </div>
+
+                            <UiButton
+                                wfull
+                                gap2
+                                alignment="center"
+                                variant="accent"
+                                type="submit"
+                                icon="heroicons:pencil-16-solid"
+                                icon-size="20"
+                                :loading="userUpdating"
+                                :disabled="embedUpdating"
+                            >
+                                Save
+                            </UiButton>
+                        </form>
+                    </template>
+                </UiExpander>
+
+                <div opacity-0>
+                    <UiButton
+                        gap2
+                        variant="accent"
+                        icon="heroicons-solid:download"
+                        icon-size="20"
+                        @click="shareXConfigModal.open = true"
+                    >
+                        Generate ShareX Config
+                    </UiButton>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { Cubic, gsap } from 'gsap';
 import { render } from 'vue';
 import { toast } from 'vue-sonner';
 
 const embed = useEmbed();
 const appConfig = useAppConfig();
 const currentUser = useAuthUser();
+
+const contentRef = useTemplateRef('content');
 
 const { data: _domains } = await useFetch('/api/users/@me/domains');
 
@@ -862,6 +893,18 @@ const generateShareXConfig = () => {
         generateShareXUrlShortenerConfig();
     }
 };
+
+onMounted(() => {
+    gsap.set(contentRef.value!.children, { opacity: 1 });
+    gsap.from(contentRef.value!.children, {
+        opacity: 0,
+        y: 10,
+        duration: 0.3,
+        stagger: 0.15,
+        filter: 'blur(0.125rem)',
+        ease: Cubic.easeOut,
+    });
+});
 
 watch(
     embedEditData.cloned,

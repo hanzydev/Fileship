@@ -11,11 +11,24 @@
             <UiSearchBar v-model="searchQuery" placeholder="Search notes..." />
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
                 <New h100px @action="takeNotesModalOpen = true" />
-                <NoteCard
-                    v-for="note in calculatedNotes"
-                    :key="note.id"
-                    :data="note"
-                />
+                <TransitionGroup
+                    :css="false"
+                    @enter="
+                        (el, done) => (isAnimating ? done() : enter(el, done))
+                    "
+                    @leave="
+                        (el, done) => (isAnimating ? done() : leave(el, done))
+                    "
+                >
+                    <div
+                        v-for="note in calculatedNotes"
+                        :key="note.id"
+                        opacity-0
+                        class="noteCard"
+                    >
+                        <NoteCard :data="note" />
+                    </div>
+                </TransitionGroup>
             </div>
             <UiPagination
                 v-model="currentPage"
@@ -54,6 +67,20 @@ const calculatedNotes = computed<NoteData[]>(() => {
     const start = (currentPage.value - 1) * 19;
     const end = start + 19;
     return results.value.map((r) => r.item).slice(start, end);
+});
+
+const isAnimating = ref(false);
+const { all, enter, leave } = animateCards();
+
+onMounted(() => all('notes', '.noteCard'));
+
+watch(currentPage, () => {
+    isAnimating.value = true;
+    nextTick(() => {
+        all('notes', '.noteCard', () => {
+            isAnimating.value = false;
+        });
+    });
 });
 
 definePageMeta({

@@ -14,11 +14,21 @@
             />
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
                 <New h164px @action="createFolderModalOpen = true" />
-                <FolderCard
-                    v-for="folder in calculatedFolders"
-                    :key="folder.id"
-                    :data="folder"
-                />
+
+                <TransitionGroup
+                    :css="false"
+                    @enter="!isAnimating && enter"
+                    @leave="!isAnimating && leave"
+                >
+                    <div
+                        v-for="folder in calculatedFolders"
+                        :key="folder.id"
+                        opacity-0
+                        class="folderCard"
+                    >
+                        <FolderCard :data="folder" />
+                    </div>
+                </TransitionGroup>
             </div>
             <UiPagination
                 v-model="currentPage"
@@ -66,6 +76,22 @@ const calculatedFolders = computed<FolderData[]>(() => {
     const end = start + 19;
     return results.value.map((r) => r.item).slice(start, end);
 });
+
+const isAnimating = ref(false);
+const { all, enter, leave } = animateCards();
+
+onMounted(() => all('folders', '.folderCard'));
+
+watch(
+    currentPage,
+    () => {
+        isAnimating.value = true;
+        all('folders', '.folderCard', () => {
+            isAnimating.value = false;
+        });
+    },
+    { flush: 'post' },
+);
 
 definePageMeta({
     layout: 'dashboard',

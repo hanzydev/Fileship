@@ -40,25 +40,36 @@
         </div>
 
         <div v-if="filtered.length" grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
-            <template v-for="file in calculatedFiles" :key="file.id">
-                <FileCard
-                    :selected="editable && selectedFiles.includes(file.id)"
-                    :data="file"
-                    :selectable="editable"
-                    @update:selected="
-                        (value) => {
-                            if (value) {
-                                selectedFiles.push(file.id);
-                            } else {
-                                selectedFiles.splice(
-                                    selectedFiles.indexOf(file.id),
-                                    1,
-                                );
+            <TransitionGroup
+                :css="false"
+                @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
+                @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
+            >
+                <div
+                    v-for="file in calculatedFiles"
+                    :key="file.id"
+                    opacity-0
+                    class="folderFileCard"
+                >
+                    <FileCard
+                        :selected="editable && selectedFiles.includes(file.id)"
+                        :data="file"
+                        :selectable="editable"
+                        @update:selected="
+                            (value) => {
+                                if (value) {
+                                    selectedFiles.push(file.id);
+                                } else {
+                                    selectedFiles.splice(
+                                        selectedFiles.indexOf(file.id),
+                                        1,
+                                    );
+                                }
                             }
-                        }
-                    "
-                />
-            </template>
+                        "
+                    />
+                </div>
+            </TransitionGroup>
         </div>
         <NothingHere
             v-else
@@ -81,7 +92,7 @@
             icon-size="20"
             :loading="disabled"
             :disabled
-            @click="saveChanges"
+            @click="handleChange"
         >
             Save
         </UiButton>
@@ -143,7 +154,7 @@ const calculatedFiles = computed(() => {
     return filtered.value.slice(start, end);
 });
 
-const saveChanges = async () => {
+const handleChange = async () => {
     disabled.value = true;
 
     await $fetch(`/api/folders/${data.id}`, {
@@ -160,6 +171,26 @@ const saveChanges = async () => {
 
     toast.success('Files saved successfully');
 };
+
+const isAnimating = ref(false);
+const { all, enter, leave } = animateCards();
+
+watch(
+    isOpen,
+    () => {
+        if (isOpen.value) all('folderFiles', '.folderFileCard');
+    },
+    { flush: 'post' },
+);
+
+watch(currentPage, () => {
+    isAnimating.value = true;
+    nextTick(() => {
+        all('folderFiles', '.folderFileCard', () => {
+            isAnimating.value = false;
+        });
+    });
+});
 
 watch(
     () => data.files,

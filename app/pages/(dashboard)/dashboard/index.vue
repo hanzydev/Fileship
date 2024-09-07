@@ -61,11 +61,16 @@
                     v-if="filteredFiles.length"
                     grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4"
                 >
-                    <FileCard
-                        v-for="file in filteredFiles.slice(0, 4)"
-                        :key="file.id"
-                        :data="file"
-                    />
+                    <TransitionGroup :css="false" @enter="enter" @leave="leave">
+                        <div
+                            v-for="file in filteredFiles.slice(0, 4)"
+                            :key="file.id"
+                            opacity-0
+                            class="fileCard"
+                        >
+                            <FileCard :data="file" />
+                        </div>
+                    </TransitionGroup>
                 </div>
                 <NothingHere
                     v-else
@@ -301,6 +306,10 @@ const handleDelete = async (id: string) => {
 
     willBeDeleted.value.delete(id);
 };
+
+const { all, enter, leave } = animateCards();
+
+onMounted(() => all('recentFiles', '.fileCard'));
 
 definePageMeta({
     layout: 'dashboard',
