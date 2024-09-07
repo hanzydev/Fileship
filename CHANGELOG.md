@@ -1,5 +1,42 @@
 # Changelog
 
+## v1.15.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.14.1...v1.15.0)
+
+### 🚀 Enhancements
+
+- Add login button to 2fa verification ([29f324e](https://github.com/hanzydev/Fileship/commit/29f324e))
+- Add transition to Progress component ([8058322](https://github.com/hanzydev/Fileship/commit/8058322))
+- Card animations ([535c247](https://github.com/hanzydev/Fileship/commit/535c247))
+
+### 🩹 Fixes
+
+- @iconify-json/mdi error ([1fff0be](https://github.com/hanzydev/Fileship/commit/1fff0be))
+- Files cannot be uploaded ([89a89a7](https://github.com/hanzydev/Fileship/commit/89a89a7))
+- Cannot minimize the full screen image ([e5b08dc](https://github.com/hanzydev/Fileship/commit/e5b08dc))
+
+### 💅 Refactors
+
+- Make turnstile size flexible ([f6412f2](https://github.com/hanzydev/Fileship/commit/f6412f2))
+- Use vue 3.5 features ([d249d78](https://github.com/hanzydev/Fileship/commit/d249d78))
+- Update sameSite attribute for cookies to 'lax' ([df5bc58](https://github.com/hanzydev/Fileship/commit/df5bc58))
+- Update file type filter paddings ([240f328](https://github.com/hanzydev/Fileship/commit/240f328))
+- Update gap in stat cards ([3ac1bc4](https://github.com/hanzydev/Fileship/commit/3ac1bc4))
+
+### 🏡 Chore
+
+- Update dev script to remove -o flag ([7aa5d82](https://github.com/hanzydev/Fileship/commit/7aa5d82))
+- Upgrade deps ([edf4f58](https://github.com/hanzydev/Fileship/commit/edf4f58))
+- Lint fix ([2948354](https://github.com/hanzydev/Fileship/commit/2948354))
+- Lint fix ([7550a19](https://github.com/hanzydev/Fileship/commit/7550a19))
+- Type fixes ([c88ce23](https://github.com/hanzydev/Fileship/commit/c88ce23))
+- Upgrade deps ([828be55](https://github.com/hanzydev/Fileship/commit/828be55))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.14.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.14.0...v1.14.1)
