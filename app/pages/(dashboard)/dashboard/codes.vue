@@ -83,7 +83,7 @@ onMounted(() => all('codes', '.codeCard'));
 
 watch(currentPage, () => {
     isAnimating.value = true;
-  
+
     nextTick(() => {
         all('codes', '.codeCard', () => {
             isAnimating.value = false;
