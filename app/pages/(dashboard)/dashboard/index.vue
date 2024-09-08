@@ -58,7 +58,7 @@
             <div pt6 space-y-2>
                 <h3>Recent Files</h3>
                 <div
-                    v-if="filteredFiles.length"
+                    v-show="filteredFiles.length"
                     grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4"
                 >
                     <TransitionGroup :css="false" @enter="enter" @leave="leave">
@@ -73,7 +73,7 @@
                     </TransitionGroup>
                 </div>
                 <NothingHere
-                    v-else
+                    v-if="!filteredFiles.length"
                     message="There are no files to display."
                     icon="heroicons-solid:document-duplicate"
                 />

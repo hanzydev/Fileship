@@ -39,7 +39,10 @@
             <FileTypeFilter v-model="filterType" />
         </div>
 
-        <div v-if="filtered.length" grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
+        <div
+            v-show="filtered.length"
+            grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4"
+        >
             <TransitionGroup
                 :css="false"
                 @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
@@ -72,7 +75,7 @@
             </TransitionGroup>
         </div>
         <NothingHere
-            v-else
+            v-if="!filtered.length"
             message="There are no files to display."
             icon="heroicons-solid:document-duplicate"
         />
