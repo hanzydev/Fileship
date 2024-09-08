@@ -131,7 +131,7 @@
                                                     ? 'heroicons:eye-16-solid'
                                                     : 'heroicons-solid:external-link',
                                                 iconSize: '20',
-                                                ariaLabel: canBeViewed
+                                                'aria-label': canBeViewed
                                                     ? 'View file'
                                                     : 'Open file in new tab',
                                                 ...(canBeViewed
@@ -162,7 +162,7 @@
                                                     ? 'heroicons-solid:clipboard-check'
                                                     : 'heroicons-solid:clipboard-copy',
                                                 iconSize: '20',
-                                                ariaLabel:
+                                                'aria-label':
                                                     'Copy link to clipboard',
                                                 onClick: () =>
                                                     handleCopy(row.fileName),
@@ -175,7 +175,7 @@
                                                 target: '_blank',
                                                 icon: 'heroicons-solid:download',
                                                 iconSize: '20',
-                                                ariaLabel: 'Download file',
+                                                'aria-label': 'Download file',
                                             }),
                                             h(UiButton, {
                                                 variant: 'outline',
@@ -183,7 +183,7 @@
                                                 class: 'h8 w8 !p0 text-slate300 hover:text-white',
                                                 icon: 'heroicons:pencil-16-solid',
                                                 iconSize: '20',
-                                                ariaLabel: 'Edit file',
+                                                'aria-label': 'Edit file',
                                                 onClick: () => {
                                                     editModal.file = row;
                                                     nextTick(
@@ -201,7 +201,7 @@
                                                 disabled: willBeDeleted.has(
                                                     row.id,
                                                 ),
-                                                ariaLabel: 'Delete file',
+                                                'aria-label': 'Delete file',
                                                 onClick: () =>
                                                     handleDelete(row.id),
                                             }),
