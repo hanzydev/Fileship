@@ -10,8 +10,8 @@
     "orientation": "portrait-primary",
     "icons": [
         {
-            "src": "/fileship-256x256.png",
-            "sizes": "256x256",
+            "src": "/fileship-192x192.png",
+            "sizes": "192x192",
             "type": "image/png"
         },
         {
