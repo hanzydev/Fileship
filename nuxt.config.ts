@@ -11,6 +11,7 @@ export default defineNuxtConfig({
         '@vueuse/nuxt',
         '@unocss/nuxt',
         '@nuxt/icon',
+        '@vite-pwa/nuxt',
     ],
 
     css: ['~/styles/main.css', '@unocss/reset/tailwind.css'],
@@ -68,6 +69,12 @@ export default defineNuxtConfig({
                 {
                     name: 'theme-color',
                     content: '#5e58f9',
+                },
+            ],
+            link: [
+                {
+                    rel: 'manifest',
+                    href: '/manifest.json',
                 },
             ],
             script: [
