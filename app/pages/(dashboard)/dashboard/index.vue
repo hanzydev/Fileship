@@ -61,7 +61,15 @@
                     v-show="filteredFiles.length"
                     grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4"
                 >
-                    <TransitionGroup :css="false" @enter="enter" @leave="leave">
+                    <TransitionGroup
+                        :css="false"
+                        @enter="
+                            (el, done) => {
+                                (el as HTMLDivElement).style.opacity = '1';
+                                done();
+                            }
+                        "
+                    >
                         <div
                             v-for="file in filteredFiles.slice(0, 4)"
                             :key="file.id"
@@ -307,7 +315,7 @@ const handleDelete = async (id: string) => {
     willBeDeleted.value.delete(id);
 };
 
-const { all, enter, leave } = animateCards();
+const { all, enter: _enter, leave: _leave } = animateCards();
 
 onMounted(() => all('recentFiles', '.fileCard'));
 
