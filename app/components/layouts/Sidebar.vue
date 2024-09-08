@@ -48,9 +48,10 @@
                     :icon="item.icon"
                     icon-size="20"
                     alignment="left"
-                    mx3
+                    mx5
                     gap2.5
                     px2.5
+                    lg:mx3
                 >
                     {{ item.name }}
                 </UiButton>
