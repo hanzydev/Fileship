@@ -17,8 +17,22 @@
         {
             "src": "/fileship-512x512.png",
             "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/previews/fileship-desktop.png",
+            "sizes": "1920x919",
             "type": "image/png",
-            "purpose": "any maskable"
+            "form_factor": "wide",
+            "label": "Fileship"
+        },
+        {
+            "src": "/previews/fileship-mobile.png",
+            "sizes": "348x755",
+            "type": "image/png",
+            "label": "Fileship"
         }
     ]
 }
