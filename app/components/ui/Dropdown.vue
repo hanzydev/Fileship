@@ -43,6 +43,7 @@
                             left: `${menuPosition.x}px`,
                         }
                     "
+                    @contextmenu.prevent
                 >
                     <slot name="content" />
                 </div>
