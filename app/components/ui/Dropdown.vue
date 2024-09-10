@@ -28,6 +28,8 @@
                             'top-full': placement === 'bottom',
                             'right-full top-0': placement === 'left',
                             'left-full top-0': placement === 'right',
+                        },
+                        !asCtxMenu && {
                             pb4: placement === 'top',
                             pt4: placement === 'bottom',
                             pl4: placement === 'right',
