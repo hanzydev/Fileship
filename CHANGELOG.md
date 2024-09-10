@@ -1,5 +1,37 @@
 # Changelog
 
+## v1.16.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.15.0...v1.16.0)
+
+### 🚀 Enhancements
+
+- Pwa ([ba77686](https://github.com/hanzydev/Fileship/commit/ba77686))
+
+### 🩹 Fixes
+
+- Sidebar items margin ([b87ac62](https://github.com/hanzydev/Fileship/commit/b87ac62))
+- Aria-label attributes ([f014905](https://github.com/hanzydev/Fileship/commit/f014905))
+- Prevent entry animation from not playing when a file is uploaded after no file was present ([a50c0b6](https://github.com/hanzydev/Fileship/commit/a50c0b6))
+
+### 💅 Refactors
+
+- Update pwa assets ([d10bd02](https://github.com/hanzydev/Fileship/commit/d10bd02))
+- Add preview screenshots to manifest ([e7a5646](https://github.com/hanzydev/Fileship/commit/e7a5646))
+- Remove enter and leave animations from recent files ([e4482c4](https://github.com/hanzydev/Fileship/commit/e4482c4))
+- Disable paddings in dropdown ([a2e03e6](https://github.com/hanzydev/Fileship/commit/a2e03e6))
+- Prevent contextmenu event in dropdown ([3dcacea](https://github.com/hanzydev/Fileship/commit/3dcacea))
+
+### 🏡 Chore
+
+- Remove old nuxt-icon package ([3f8ec04](https://github.com/hanzydev/Fileship/commit/3f8ec04))
+- **deps-dev:** Bump marked from 14.1.1 to 14.1.2 ([5167e88](https://github.com/hanzydev/Fileship/commit/5167e88))
+- Upgrade deps ([533f91f](https://github.com/hanzydev/Fileship/commit/533f91f))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.15.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.14.1...v1.15.0)
