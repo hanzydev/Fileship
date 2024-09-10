@@ -151,11 +151,11 @@ importers:
         specifier: ^11.10.0
         version: 11.10.0
       marked:
-        specifier: ^14.1.1
-        version: 14.1.1
+        specifier: ^14.1.2
+        version: 14.1.2
       marked-highlight:
         specifier: ^2.1.4
-        version: 2.1.4(marked@14.1.1)
+        version: 2.1.4(marked@14.1.2)
       nuxt:
         specifier: ^3.13.1
         version: 3.13.1(@parcel/watcher@2.4.1)(@types/node@22.5.4)(bufferutil@4.0.8)(eslint@9.10.0(jiti@1.21.6))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.21.2)(terser@5.31.6)(typescript@5.5.4)(utf-8-validate@6.0.4)(vite@5.4.3(@types/node@22.5.4)(terser@5.31.6))(vue-tsc@2.1.6(typescript@5.5.4))(webpack-sources@3.2.3)
@@ -4165,8 +4165,8 @@ packages:
     peerDependencies:
       marked: '>=4 <15'
 
-  marked@14.1.1:
-    resolution: {integrity: sha512-eS59oxof5eBVDCKTs+mJbvB/6Vq137GbimF9wkTIlto2/B2ppY5nigUUQgKVmA3bI2mPTIshUyDj5j612ZxlQQ==}
+  marked@14.1.2:
+    resolution: {integrity: sha512-f3r0yqpz31VXiDB/wj9GaOB0a2PRLQl6vJmXiFrniNwjkKdvakqJRULhjFKJpxOchlCRiG5fcacoUZY5Xa6PEQ==}
     engines: {node: '>= 18'}
     hasBin: true
 
@@ -10973,11 +10973,11 @@ snapshots:
     dependencies:
       semver: 6.3.1
 
-  marked-highlight@2.1.4(marked@14.1.1):
+  marked-highlight@2.1.4(marked@14.1.2):
     dependencies:
-      marked: 14.1.1
+      marked: 14.1.2
 
-  marked@14.1.1: {}
+  marked@14.1.2: {}
 
   mdn-data@2.0.28: {}
 
