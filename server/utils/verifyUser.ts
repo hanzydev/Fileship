@@ -4,21 +4,16 @@ export const verifyUser = async (sessionId: string) => {
             where: {
                 privateId: sessionId,
             },
+            include: {
+                user: true,
+            },
         });
 
         if (findSessionByPrivateId) {
-            const findUserById = await prisma.user.findUnique({
-                where: {
-                    id: findSessionByPrivateId.userId,
-                },
-            });
-
-            if (findUserById) {
-                return {
-                    ...findUserById,
-                    currentSessionId: findSessionByPrivateId.id,
-                };
-            }
+            return {
+                ...findSessionByPrivateId.user,
+                currentSessionId: findSessionByPrivateId.id,
+            };
         }
     }
 
