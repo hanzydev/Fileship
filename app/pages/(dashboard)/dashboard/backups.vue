@@ -59,11 +59,30 @@
                     </Transition>
                 </div>
 
-                <TransitionGroup :css="false" @enter="enter" @leave="leave">
+                <template v-if="isLoading">
+                    <UiSkeletonCard
+                        v-for="i in randomNumber(3, 7)"
+                        :key="i"
+                        h132px
+                        flex="~ col gap4 justify-between"
+                    >
+                        <UiSkeletonLine h5 wfull />
+                        <div text-slate300 space-y-2>
+                            <UiSkeletonLine h4 w16 />
+                            <UiSkeletonLine h4 w40 />
+                        </div>
+                    </UiSkeletonCard>
+                </template>
+                <TransitionGroup
+                    v-else
+                    :css="false"
+                    @enter="enter"
+                    @leave="leave"
+                >
                     <div
                         v-for="backup in backups"
                         :key="backup.id"
-                        opacity-0
+                        op0
                         class="backupCard"
                     >
                         <BackupCard :data="backup" />
@@ -79,16 +98,11 @@ import { toast } from 'vue-sonner';
 
 const backups = useBackups();
 
-const { data } = await useFetch('/api/users/backups');
-
-backups.value = data.value!.map((u) => ({
-    ...u,
-    createdAt: new Date(u.createdAt),
-}));
-
 const creating = ref(false);
 const uploading = ref(false);
 const uploadProgress = ref(0);
+
+const isLoading = ref(true);
 
 let {
     public: { fileChunkSize },
@@ -166,7 +180,19 @@ const handleLoad = async (event: Event) => {
 
 const { all, enter, leave } = animateCards();
 
-onMounted(() => all('backups', '.backupCard'));
+onMounted(async () => {
+    const data = await $fetch('/api/users/backups');
+
+    backups.value = data.map((u) => ({
+        ...u,
+        createdAt: new Date(u.createdAt),
+    }));
+
+    isLoading.value = false;
+    await nextTick();
+
+    all('backups', '.backupCard');
+});
 
 definePageMeta({
     layout: 'dashboard',

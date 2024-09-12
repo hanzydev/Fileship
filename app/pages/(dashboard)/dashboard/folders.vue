@@ -15,7 +15,28 @@
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
                 <New h164px @action="createFolderModalOpen = true" />
 
+                <template v-if="isLoading">
+                    <UiSkeletonCard
+                        v-for="i in randomNumber(3, 7)"
+                        :key="i"
+                        h164px
+                        flex="~ col gap4 justify-between"
+                    >
+                        <UiSkeletonLine
+                            h5
+                            :style="{
+                                width: `${randomNumber(30, 70)}%`,
+                            }"
+                        />
+                        <div text-slate300 space-y-2>
+                            <UiSkeletonLine h4 w16 />
+                            <UiSkeletonLine h4 w14 />
+                            <UiSkeletonLine h4 w40 />
+                        </div>
+                    </UiSkeletonCard>
+                </template>
                 <TransitionGroup
+                    v-else
                     :css="false"
                     @enter="!isAnimating && enter"
                     @leave="!isAnimating && leave"
@@ -23,7 +44,7 @@
                     <div
                         v-for="folder in calculatedFolders"
                         :key="folder.id"
-                        opacity-0
+                        op0
                         class="folderCard"
                     >
                         <FolderCard :data="folder" />
@@ -50,20 +71,6 @@ const currentPage = ref(1);
 
 const createFolderModalOpen = ref(false);
 
-const { data: foldersData } = await useFetch('/api/folders');
-const { data: filesData } = await useFetch('/api/files');
-
-folders.value = foldersData.value!.map((f) => ({
-    ...f,
-    createdAt: new Date(f.createdAt),
-}));
-
-files.value = filesData.value!.map((f) => ({
-    ...f,
-    expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
-    createdAt: new Date(f.createdAt),
-}));
-
 const { results } = useFuse(searchQuery, folders, {
     matchAllWhenSearchEmpty: true,
     fuseOptions: {
@@ -78,9 +85,30 @@ const calculatedFolders = computed<FolderData[]>(() => {
 });
 
 const isAnimating = ref(false);
+const isLoading = ref(true);
+
 const { all, enter, leave } = animateCards();
 
-onMounted(() => all('folders', '.folderCard'));
+onMounted(async () => {
+    const foldersData = await $fetch('/api/folders');
+    const filesData = await $fetch('/api/files');
+
+    folders.value = foldersData.map((f) => ({
+        ...f,
+        createdAt: new Date(f.createdAt),
+    }));
+
+    files.value = filesData.map((f) => ({
+        ...f,
+        expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
+        createdAt: new Date(f.createdAt),
+    }));
+
+    isLoading.value = false;
+    await nextTick();
+
+    all('folders', '.folderCard');
+});
 
 watch(
     currentPage,

@@ -61,6 +61,7 @@
             </div>
             <UiSearchBar v-model="searchQuery" placeholder="Search users..." />
             <UiTable
+                :loading="isLoading"
                 :columns="[
                     {
                         key: 'user',
@@ -236,6 +237,8 @@ const willBeDeleted = ref(new Set<string>());
 const createUserModalOpen = ref(false);
 const switching = ref(false);
 
+const isLoading = ref(true);
+
 const editModal = reactive({
     user: null as UserData | null,
     open: false,
@@ -326,13 +329,6 @@ const handleDelete = async (id: string, verificationData?: string) => {
     willBeDeleted.value.delete(id);
 };
 
-const { data } = await useFetch('/api/users');
-
-users.value = data.value!.map((u) => ({
-    ...u,
-    createdAt: new Date(u.createdAt),
-}));
-
 const { results } = useFuse(searchQuery, users, {
     matchAllWhenSearchEmpty: true,
     fuseOptions: {
@@ -354,6 +350,17 @@ const calculatedUsers = computed<UserData[]>(() => {
     const start = (currentPage.value - 1) * 20;
     const end = start + 20;
     return results.value.map((r) => r.item).slice(start, end);
+});
+
+onMounted(async () => {
+    const data = await $fetch('/api/users');
+
+    users.value = data.map((u) => ({
+        ...u,
+        createdAt: new Date(u.createdAt),
+    }));
+
+    isLoading.value = false;
 });
 
 definePageMeta({

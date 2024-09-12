@@ -242,7 +242,7 @@
             <h2>Account</h2>
 
             <div ref="content" mt6 space-y-6>
-                <UiExpander opacity-0>
+                <UiExpander op0>
                     <div flex="~ gap2 items-center">
                         <Icon name="heroicons-solid:identification" size="24" />
                         <h5>My Account</h5>
@@ -305,7 +305,7 @@
                     </template>
                 </UiExpander>
 
-                <UiExpander opacity-0>
+                <UiExpander op0>
                     <div flex="~ gap2 items-center">
                         <Icon name="heroicons-solid:photograph" size="24" />
                         <h5>Avatar</h5>
@@ -398,7 +398,7 @@
                     </template>
                 </UiExpander>
 
-                <UiExpander opacity-0>
+                <UiExpander op0>
                     <div flex="~ gap2 items-center">
                         <Icon name="heroicons-solid:globe-alt" size="24" />
                         <h5>Domains</h5>
@@ -438,7 +438,7 @@
                     </template>
                 </UiExpander>
 
-                <UiExpander opacity-0>
+                <UiExpander op0>
                     <div flex="~ gap2 items-center">
                         <Icon name="heroicons-solid:shield-check" size="24" />
                         <h5>Two-Factor Authentication</h5>
@@ -466,7 +466,7 @@
                     </template>
                 </UiExpander>
 
-                <UiExpander opacity-0>
+                <UiExpander op0>
                     <div flex="~ gap2 items-center">
                         <Icon name="heroicons-solid:lock-closed" size="24" />
                         <h5>Embed Configuration</h5>
@@ -581,7 +581,7 @@
                     </template>
                 </UiExpander>
 
-                <div opacity-0>
+                <div op0>
                     <UiButton
                         gap2
                         variant="accent"

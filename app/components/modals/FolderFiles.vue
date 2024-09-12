@@ -51,7 +51,7 @@
                 <div
                     v-for="file in calculatedFiles"
                     :key="file.id"
-                    opacity-0
+                    op0
                     class="folderFileCard"
                 >
                     <FileCard

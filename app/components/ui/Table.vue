@@ -21,7 +21,7 @@
                     </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody v-if="rows.length && !loading">
                 <tr v-for="row in rows" :key="row.key">
                     <td
                         v-for="(col, index) in columns"
@@ -41,25 +41,32 @@
             </tbody>
         </table>
         <NothingHere
-            v-if="!rows.length && nothingHereMessage && nothingHereIcon"
+            v-if="
+                !rows?.length &&
+                nothingHereMessage &&
+                nothingHereIcon &&
+                !loading
+            "
             :message="nothingHereMessage"
             :icon="nothingHereIcon"
         />
+        <Loading v-if="loading" />
     </div>
 </template>
 
 <script setup lang="ts">
 import { titleCase } from 'scule';
 
-defineProps<{
+const { rows = [] } = defineProps<{
     columns: {
         key: string;
         width?: string;
         resolve?: (row: any) => string;
         render?: (row: any) => globalThis.VNode | string;
     }[];
-    rows: Record<string, any>[];
+    rows?: Record<string, any>[];
     nothingHereMessage?: string;
     nothingHereIcon?: string;
+    loading?: boolean;
 }>();
 </script>

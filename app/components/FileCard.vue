@@ -58,7 +58,7 @@
                 left="1/2"
                 translate-y-="1/2"
                 translate-x-="1/2"
-                opacity-75
+                op75
             />
             <div
                 v-if="isImage || isVideo"

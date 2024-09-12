@@ -16,7 +16,32 @@
             </div>
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
                 <New h208px @action="router.push('/dashboard/files/upload')" />
+
+                <template v-if="isLoading">
+                    <UiSkeletonCard
+                        v-for="i in randomNumber(1, 4)"
+                        :key="i"
+                        flex="~ col items-center justify-center gap2"
+                        h208px
+                    >
+                        <Icon
+                            v-if="randomNumber(0, 1) === 0"
+                            name="heroicons:play-solid"
+                            size="64"
+                            animate-pulse
+                            op75
+                        />
+                        <Icon
+                            v-else
+                            name="heroicons:photo-16-solid"
+                            size="64"
+                            animate-pulse
+                            op75
+                        />
+                    </UiSkeletonCard>
+                </template>
                 <TransitionGroup
+                    v-else
                     :css="false"
                     @enter="
                         (el, done) => (isAnimating ? done() : enter(el, done))
@@ -28,7 +53,7 @@
                     <div
                         v-for="file in calculatedFiles"
                         :key="file.id"
-                        opacity-0
+                        op0
                         class="fileCard"
                     >
                         <FileCard :data="file" />
@@ -55,20 +80,6 @@ const router = useRouter();
 const searchQuery = ref('');
 const currentPage = ref(1);
 const filterType = ref([]);
-
-const { data: foldersData } = await useFetch('/api/folders');
-const { data: filesData } = await useFetch('/api/files');
-
-folders.value = foldersData.value!.map((f) => ({
-    ...f,
-    createdAt: new Date(f.createdAt),
-}));
-
-files.value = filesData.value!.map((f) => ({
-    ...f,
-    expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
-    createdAt: new Date(f.createdAt),
-}));
 
 const { results } = useFuse(searchQuery, files, {
     matchAllWhenSearchEmpty: true,
@@ -101,9 +112,30 @@ const calculatedFiles = computed(() => {
 });
 
 const isAnimating = ref(false);
+const isLoading = ref(true);
+
 const { all, enter, leave } = animateCards();
 
-onMounted(() => all('files', '.fileCard'));
+onMounted(async () => {
+    const foldersData = await $fetch('/api/folders');
+    const filesData = await $fetch('/api/files');
+
+    folders.value = foldersData.map((f) => ({
+        ...f,
+        createdAt: new Date(f.createdAt),
+    }));
+
+    files.value = filesData.map((f) => ({
+        ...f,
+        expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
+        createdAt: new Date(f.createdAt),
+    }));
+
+    isLoading.value = false;
+    await nextTick();
+
+    all('files', '.fileCard');
+});
 
 watch(currentPage, () => {
     isAnimating.value = true;

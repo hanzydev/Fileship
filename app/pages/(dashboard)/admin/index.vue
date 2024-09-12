@@ -15,29 +15,33 @@
                         title="Files"
                         description="uploaded files"
                         icon="heroicons-solid:document"
-                        :data="data!.files.count"
-                        :growth="data!.files.growth"
+                        :data="stats?.files?.count"
+                        :growth="stats?.files?.growth"
+                        :loading="isLoading"
                     />
                     <StatCard
                         title="Views"
                         description="total file views"
                         icon="heroicons-solid:eye"
-                        :data="data!.views.count"
-                        :growth="data!.views.growth"
+                        :data="stats?.views?.count"
+                        :growth="stats?.views?.growth"
+                        :loading="isLoading"
                     />
                     <StatCard
                         title="Storage"
                         description="used storage"
                         icon="mdi:sd-storage"
-                        :data="data!.storageUsed.size"
-                        :growth="data!.storageUsed.growth"
+                        :data="stats?.storageUsed?.size"
+                        :growth="stats?.storageUsed?.growth"
+                        :loading="isLoading"
                     />
                     <StatCard
                         title="Users"
                         description="total users"
                         icon="iconamoon:profile-fill"
-                        :data="data!.users.count"
-                        :growth="data!.users.growth"
+                        :data="stats?.users?.count"
+                        :growth="stats?.users?.growth"
+                        :loading="isLoading"
                     />
                 </div>
             </div>
@@ -45,13 +49,14 @@
             <div space-y-2>
                 <h3>Views</h3>
 
-                <div min-h-365px rounded-md bg-fs-overlay-2>
+                <Loading v-if="isLoading" />
+                <div v-else min-h-365px rounded-md bg-fs-overlay-2>
                     <ClientOnly>
                         <VueApexCharts
                             type="area"
                             height="350"
                             :options="{
-                                labels: data!.views.byMonth.labels,
+                                labels: stats.views.byMonth.labels,
                                 colors: ['var(--fs-accent)'],
                                 theme: {
                                     mode: 'dark',
@@ -117,7 +122,7 @@
                             :series="[
                                 {
                                     name: 'Views',
-                                    data: data!.views.byMonth.data,
+                                    data: stats.views.byMonth.data,
                                 },
                             ]"
                         />
@@ -134,8 +139,9 @@
                     bg-fs-overlay-2
                 >
                     <UiTable
+                        :loading="isLoading"
                         :class="
-                            data!.topUploaders.length ? 'xl:w-3/4' : 'wfull'
+                            stats?.topUploaders?.length ? 'xl:w-3/4' : 'wfull'
                         "
                         :columns="[
                             {
@@ -166,12 +172,12 @@
                             },
                             { key: 'count', width: '20%' },
                         ]"
-                        :rows="data!.topUploaders"
+                        :rows="stats?.topUploaders"
                         nothing-here-icon="heroicons-solid:document"
                         nothing-here-message="There is no data to display."
                     />
                     <div
-                        v-if="data!.topUploaders.length"
+                        v-if="stats?.topUploaders?.length && !isLoading"
                         hfull
                         w350px
                         py4
@@ -185,16 +191,18 @@
                                 height="350"
                                 :options="{
                                     ...basePieOptions,
-                                    labels: data!.topUploaders.map(
-                                        (u) => u.user.username,
+                                    labels: stats.topUploaders.map(
+                                        (u: any) => u.user.username,
                                     ),
                                     fill: {
-                                        colors: data!.topUploaders.map((u) =>
-                                            colorHash(u.user.id),
+                                        colors: stats.topUploaders.map(
+                                            (u: any) => colorHash(u.user.id),
                                         ),
                                     },
                                 }"
-                                :series="data!.topUploaders.map((u) => u.count)"
+                                :series="
+                                    stats.topUploaders.map((u: any) => u.count)
+                                "
                             />
                         </ClientOnly>
                     </div>
@@ -210,17 +218,18 @@
                     bg-fs-overlay-2
                 >
                     <UiTable
-                        :class="data!.topTypes.length ? 'xl:w3/4' : 'wfull'"
+                        :loading="isLoading"
+                        :class="stats?.topTypes?.length ? 'xl:w3/4' : 'wfull'"
                         :columns="[
                             { key: 'type', width: '20%' },
                             { key: 'count', width: '20%' },
                         ]"
-                        :rows="data!.topTypes"
+                        :rows="stats?.topTypes"
                         nothing-here-icon="heroicons-solid:document"
                         nothing-here-message="There is no data to display."
                     />
                     <div
-                        v-if="data!.topTypes.length"
+                        v-if="stats?.topTypes?.length && !isLoading"
                         hfull
                         w350px
                         py4
@@ -234,14 +243,18 @@
                                 height="350"
                                 :options="{
                                     ...basePieOptions,
-                                    labels: data!.topTypes.map((t) => t.type),
+                                    labels: stats.topTypes.map(
+                                        (t: any) => t.type,
+                                    ),
                                     fill: {
                                         colors: [
-                                            ...new Set(data!.topTypes),
-                                        ].map((t) => colorHash(t.type)),
+                                            ...new Set(stats.topTypes),
+                                        ].map((t: any) => colorHash(t.type)),
                                     },
                                 }"
-                                :series="data!.topTypes.map((t) => t.count)"
+                                :series="
+                                    stats.topTypes.map((t: any) => t.count)
+                                "
                             />
                         </ClientOnly>
                     </div>
@@ -258,7 +271,8 @@ import { theme } from '@unocss/preset-mini';
 
 import { UiAvatar } from '#components';
 
-const { data } = await useFetch('/api/stats');
+const stats = ref();
+const isLoading = ref(true);
 
 const basePieOptions = {
     colors: ['var(--fs-overlay-1)'],
@@ -308,6 +322,13 @@ const basePieOptions = {
         },
     },
 };
+
+onMounted(async () => {
+    const data = await $fetch('/api/stats');
+
+    stats.value = data;
+    isLoading.value = false;
+});
 
 definePageMeta({
     layout: 'admin',

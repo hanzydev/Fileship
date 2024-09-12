@@ -12,7 +12,27 @@
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
                 <New h132px @action="shortenUrlModalOpen = true" />
 
+                <template v-if="isLoading">
+                    <UiSkeletonCard
+                        v-for="i in randomNumber(3, 7)"
+                        :key="i"
+                        h132px
+                        flex="~ col gap4 justify-between"
+                    >
+                        <UiSkeletonLine
+                            h5
+                            :style="{
+                                width: `${randomNumber(30, 70)}%`,
+                            }"
+                        />
+                        <div text-slate300 space-y-2>
+                            <UiSkeletonLine h4 w16 />
+                            <UiSkeletonLine h4 w40 />
+                        </div>
+                    </UiSkeletonCard>
+                </template>
                 <TransitionGroup
+                    v-else
                     :css="false"
                     @enter="
                         (el, done) => (isAnimating ? done() : enter(el, done))
@@ -24,7 +44,7 @@
                     <div
                         v-for="url in calculatedUrls"
                         :key="url.id"
-                        opacity-0
+                        op0
                         class="urlCard"
                     >
                         <UrlCard :data="url" />
@@ -50,14 +70,6 @@ const currentPage = ref(1);
 
 const shortenUrlModalOpen = ref(false);
 
-const { data } = await useFetch('/api/urls');
-
-urls.value = data.value!.map((u) => ({
-    ...u,
-    expiresAt: u.expiresAt ? new Date(u.expiresAt) : null,
-    createdAt: new Date(u.createdAt),
-}));
-
 const { results } = useFuse(searchQuery, urls, {
     matchAllWhenSearchEmpty: true,
     fuseOptions: {
@@ -78,9 +90,24 @@ const calculatedUrls = computed<UrlData[]>(() => {
 });
 
 const isAnimating = ref(false);
+const isLoading = ref(true);
+
 const { all, enter, leave } = animateCards();
 
-onMounted(() => all('urls', '.urlCard'));
+onMounted(async () => {
+    const data = await $fetch('/api/urls');
+
+    urls.value = data.map((u) => ({
+        ...u,
+        expiresAt: u.expiresAt ? new Date(u.expiresAt) : null,
+        createdAt: new Date(u.createdAt),
+    }));
+
+    isLoading.value = false;
+    await nextTick();
+
+    all('urls', '.urlCard');
+});
 
 watch(currentPage, () => {
     isAnimating.value = true;

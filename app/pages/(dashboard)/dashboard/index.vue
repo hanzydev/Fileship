@@ -28,29 +28,33 @@
                         title="Files"
                         description="uploaded files"
                         icon="heroicons-solid:document"
-                        :data="statsData!.files.count"
-                        :growth="statsData!.files.growth"
+                        :data="stats?.files?.count"
+                        :growth="stats?.files?.growth"
+                        :loading="isLoading"
                     />
                     <StatCard
                         title="Views"
                         description="total file views"
                         icon="heroicons-solid:eye"
-                        :data="statsData!.views.count"
-                        :growth="statsData!.views.growth"
+                        :data="stats?.views?.count"
+                        :growth="stats?.views?.growth"
+                        :loading="isLoading"
                     />
                     <StatCard
                         title="Storage"
                         description="used storage"
                         icon="mdi:sd-storage"
-                        :data="statsData!.storageUsed.size"
-                        :growth="statsData!.storageUsed.growth"
+                        :data="stats?.storageUsed?.size"
+                        :growth="stats?.storageUsed?.growth"
+                        :loading="isLoading"
                     />
                     <StatCard
                         title="Users"
                         description="total users"
                         icon="iconamoon:profile-fill"
-                        :data="statsData!.users.count"
-                        :growth="statsData!.users.growth"
+                        :data="stats?.users?.count"
+                        :growth="stats?.users?.growth"
+                        :loading="isLoading"
                     />
                 </div>
             </div>
@@ -58,10 +62,34 @@
             <div pt6 space-y-2>
                 <h3>Recent Files</h3>
                 <div
-                    v-show="filteredFiles.length"
+                    v-show="filteredFiles.length || isLoading"
                     grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4"
                 >
+                    <template v-if="isLoading">
+                        <UiSkeletonCard
+                            v-for="i in 4"
+                            :key="i"
+                            flex="~ col items-center justify-center gap2"
+                            h208px
+                        >
+                            <Icon
+                                v-if="randomNumber(0, 1) === 0"
+                                name="heroicons:play-solid"
+                                size="64"
+                                animate-pulse
+                                op75
+                            />
+                            <Icon
+                                v-else
+                                name="heroicons:photo-16-solid"
+                                size="64"
+                                animate-pulse
+                                op75
+                            />
+                        </UiSkeletonCard>
+                    </template>
                     <TransitionGroup
+                        v-else
                         :css="false"
                         @enter="
                             (el, done) => {
@@ -73,7 +101,7 @@
                         <div
                             v-for="file in filteredFiles.slice(0, 4)"
                             :key="file.id"
-                            opacity-0
+                            op0
                             class="fileCard"
                         >
                             <FileCard :data="file" />
@@ -81,7 +109,7 @@
                     </TransitionGroup>
                 </div>
                 <NothingHere
-                    v-if="!filteredFiles.length"
+                    v-if="!filteredFiles.length && !isLoading"
                     message="There are no files to display."
                     icon="heroicons-solid:document-duplicate"
                 />
@@ -91,6 +119,7 @@
                 <h3>Files</h3>
                 <div space-y-4>
                     <UiTable
+                        :loading="isLoading"
                         :columns="[
                             {
                                 key: 'fileName',
@@ -240,30 +269,18 @@ import { toast } from 'vue-sonner';
 
 import { UiButton } from '#components';
 
-const { data: foldersData } = await useFetch('/api/folders');
-const { data: filesData } = await useFetch('/api/files');
-const { data: statsData } = await useFetch('/api/users/@me/stats');
-
+const stats = ref();
 const embed = useEmbed();
 const files = useFiles();
 const folders = useFolders();
 const currentUser = useAuthUser();
 
-folders.value = foldersData.value!.map((f) => ({
-    ...f,
-    createdAt: new Date(f.createdAt),
-}));
-
-files.value = filesData.value!.map((f) => ({
-    ...f,
-    expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
-    createdAt: new Date(f.createdAt),
-}));
-
 const currentPage = ref(1);
 
 const willBeDeleted = ref(new Set<string>());
 const copied = ref(new Map<string, NodeJS.Timeout>());
+
+const isLoading = ref(true);
 
 const viewModal = reactive({
     open: false,
@@ -317,7 +334,24 @@ const handleDelete = async (id: string) => {
 
 const { all, enter: _enter, leave: _leave } = animateCards();
 
-onMounted(() => all('recentFiles', '.fileCard'));
+onMounted(async () => {
+    const foldersData = await $fetch('/api/folders');
+    const filesData = await $fetch('/api/files');
+    const statsData = await $fetch('/api/users/@me/stats');
+    folders.value = foldersData.map((f) => ({
+        ...f,
+        createdAt: new Date(f.createdAt),
+    }));
+    files.value = filesData.map((f) => ({
+        ...f,
+        expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
+        createdAt: new Date(f.createdAt),
+    }));
+    stats.value = statsData;
+    isLoading.value = false;
+    await nextTick();
+    all('recentFiles', '.fileCard');
+});
 
 definePageMeta({
     layout: 'dashboard',

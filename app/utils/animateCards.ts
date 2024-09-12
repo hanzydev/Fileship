@@ -34,26 +34,27 @@ export const animateCards = () => {
     const all = (id: string, target: gsap.TweenTarget, done?: () => void) => {
         if (isReducedMotion()) return;
 
-        const tween = tweenMap.get(id);
-        if (tween) tween.kill();
+        const oldTween = tweenMap.get(id);
+        if (oldTween) oldTween.kill();
 
         gsap.set(target, { opacity: 1, x: 0, filter: 'blur(0)' });
 
-        tweenMap.set(
-            id,
-            gsap.from(target, {
-                opacity: 0,
-                x: -10,
-                filter: 'blur(0.25rem)',
-                duration: 0.3,
-                stagger: 0.1,
-                ease: Cubic.easeOut,
-                onComplete: () => {
-                    tweenMap.delete(id);
-                    done?.();
-                },
-            }),
-        );
+        const tween = gsap.from(target, {
+            opacity: 0,
+            x: -10,
+            filter: 'blur(0.25rem)',
+            duration: 0.3,
+            stagger: 0.1,
+            ease: Cubic.easeOut,
+            onComplete: () => {
+                tweenMap.delete(id);
+                done?.();
+            },
+        });
+
+        tweenMap.set(id, tween);
+
+        return tween;
     };
 
     return {

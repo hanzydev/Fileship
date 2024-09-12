@@ -11,7 +11,25 @@
             <UiSearchBar v-model="searchQuery" placeholder="Search notes..." />
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
                 <New h100px @action="takeNotesModalOpen = true" />
+
+                <template v-if="isLoading">
+                    <UiSkeletonCard
+                        v-for="i in randomNumber(3, 7)"
+                        :key="i"
+                        h100px
+                        flex="~ col gap4 justify-between"
+                    >
+                        <UiSkeletonLine
+                            h5
+                            :style="{
+                                width: `${randomNumber(30, 70)}%`,
+                            }"
+                        />
+                        <UiSkeletonLine h4 w40 text-slate300 />
+                    </UiSkeletonCard>
+                </template>
                 <TransitionGroup
+                    v-else
                     :css="false"
                     @enter="
                         (el, done) => (isAnimating ? done() : enter(el, done))
@@ -23,7 +41,7 @@
                     <div
                         v-for="note in calculatedNotes"
                         :key="note.id"
-                        opacity-0
+                        op0
                         class="noteCard"
                     >
                         <NoteCard :data="note" />
@@ -49,13 +67,6 @@ const currentPage = ref(1);
 
 const takeNotesModalOpen = ref(false);
 
-const { data } = await useFetch('/api/notes');
-
-notes.value = data.value!.map((n) => ({
-    ...n,
-    createdAt: new Date(n.createdAt),
-}));
-
 const { results } = useFuse(searchQuery, notes, {
     matchAllWhenSearchEmpty: true,
     fuseOptions: {
@@ -70,9 +81,23 @@ const calculatedNotes = computed<NoteData[]>(() => {
 });
 
 const isAnimating = ref(false);
+const isLoading = ref(true);
+
 const { all, enter, leave } = animateCards();
 
-onMounted(() => all('notes', '.noteCard'));
+onMounted(async () => {
+    const data = await $fetch('/api/notes');
+
+    notes.value = data.map((n) => ({
+        ...n,
+        createdAt: new Date(n.createdAt),
+    }));
+
+    isLoading.value = false;
+    await nextTick();
+
+    all('notes', '.noteCard');
+});
 
 watch(currentPage, () => {
     isAnimating.value = true;

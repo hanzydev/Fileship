@@ -38,7 +38,37 @@
             <div pt10 space-y-10>
                 <div text-slate300 space-y-4>
                     <span text-sm="!" font-semibold="!">CURRENT DEVICE</span>
+                    <div v-if="isLoading" flex="~ gap4">
+                        <UiSkeletonLine
+                            h14
+                            w14
+                            rounded-full="!"
+                            :color-steps="[
+                                'var(--fs-overlay-2)',
+                                'var(--fs-overlay-3)',
+                            ]"
+                        />
+                        <div flex="~ col gap2" overflow-hidden>
+                            <UiSkeletonLine
+                                h5
+                                w48
+                                :color-steps="[
+                                    'var(--fs-overlay-2)',
+                                    'var(--fs-overlay-3)',
+                                ]"
+                            />
+                            <UiSkeletonLine
+                                h4
+                                w72
+                                :color-steps="[
+                                    'var(--fs-overlay-2)',
+                                    'var(--fs-overlay-3)',
+                                ]"
+                            />
+                        </div>
+                    </div>
                     <Session
+                        v-else
                         :data="
                             sessions.find(
                                 (s) => s.id === currentUser!.currentSessionId,
@@ -51,10 +81,59 @@
                 <div text-slate300 space-y-4>
                     <span text-sm="!" font-semibold="!">OTHER DEVICES</span>
 
+                    <template v-if="isLoading">
+                        <div
+                            v-for="i in randomNumber(1, 3)"
+                            :key="i"
+                            wfull
+                            max-w-screen-sm
+                            space-y-4
+                        >
+                            <div flex="~ gap4">
+                                <UiSkeletonLine
+                                    h14
+                                    w14
+                                    rounded-full="!"
+                                    :color-steps="[
+                                        'var(--fs-overlay-2)',
+                                        'var(--fs-overlay-3)',
+                                    ]"
+                                />
+                                <div flex="~ col gap2" overflow-hidden>
+                                    <UiSkeletonLine
+                                        h5
+                                        w48
+                                        :color-steps="[
+                                            'var(--fs-overlay-2)',
+                                            'var(--fs-overlay-3)',
+                                        ]"
+                                    />
+                                    <UiSkeletonLine
+                                        h4
+                                        w72
+                                        :color-steps="[
+                                            'var(--fs-overlay-2)',
+                                            'var(--fs-overlay-3)',
+                                        ]"
+                                    />
+                                </div>
+                            </div>
+                            <UiSkeletonLine
+                                h0.25
+                                wfull
+                                :color-steps="[
+                                    'var(--fs-overlay-4)',
+                                    'var(--fs-overlay-3)',
+                                ]"
+                            />
+                        </div>
+                    </template>
+
                     <Session
                         v-for="session in sessions.filter(
                             (s) => s.id !== currentUser!.currentSessionId,
                         )"
+                        v-else
                         :key="session.id"
                         :data="session"
                     />
@@ -65,7 +144,12 @@
                     </p>
                 </div>
 
-                <div v-if="sessions.length > 1" wfit text-slate300 space-y-4>
+                <div
+                    v-if="sessions.length > 1 && !isLoading"
+                    wfit
+                    text-slate300
+                    space-y-4
+                >
                     <div space-y-1>
                         <span text-sm="!" font-semibold="!">
                             LOG OUT OF ALL KNOWN DEVICES
@@ -97,16 +181,11 @@ const appConfig = useAppConfig();
 const sessions = useSessions();
 const currentUser = useAuthUser();
 
-const { data } = await useFetch(`/api/users/sessions`);
-
-sessions.value = data.value!.map((s) => ({
-    ...s,
-    lastSeen: new Date(s.lastSeen),
-}));
-
 const error = ref<string>();
 const disabled = ref(false);
 const verifyModalOpen = ref(false);
+
+const isLoading = ref(true);
 
 const removeAllSessions = async (verificationData?: string) => {
     disabled.value = true;
@@ -128,6 +207,17 @@ const removeAllSessions = async (verificationData?: string) => {
 
     disabled.value = false;
 };
+
+onMounted(async () => {
+    const data = await $fetch(`/api/users/sessions`);
+
+    sessions.value = data.map((s) => ({
+        ...s,
+        lastSeen: new Date(s.lastSeen),
+    }));
+
+    isLoading.value = false;
+});
 
 definePageMeta({
     layout: 'dashboard',

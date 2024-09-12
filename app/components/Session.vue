@@ -78,6 +78,7 @@
                     text-slate200
                     aria-label="Remove session"
                     :disabled
+                    :class="disabled && 'cursor-not-allowed op50'"
                     @click="removeSession()"
                 >
                     <Icon name="heroicons-solid:x" size="24" />

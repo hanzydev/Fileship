@@ -8,6 +8,7 @@
             <h2>Logs</h2>
             <UiSearchBar v-model="searchQuery" placeholder="Search logs..." />
             <UiTable
+                :loading="isLoading"
                 :columns="[
                     {
                         key: 'ip',
@@ -82,12 +83,7 @@ const logs = useLogs();
 const searchQuery = ref('');
 const currentPage = ref(1);
 
-const { data } = await useFetch('/api/logs');
-
-logs.value = data.value!.map((l) => ({
-    ...l,
-    createdAt: new Date(l.createdAt),
-}));
+const isLoading = ref(true);
 
 const { results } = useFuse(searchQuery, logs, {
     matchAllWhenSearchEmpty: true,
@@ -110,6 +106,17 @@ const calculatedLogs = computed<LogData[]>(() => {
     const start = (currentPage.value - 1) * 20;
     const end = start + 20;
     return results.value.map((r) => r.item).slice(start, end);
+});
+
+onMounted(async () => {
+    const data = await $fetch('/api/logs');
+
+    logs.value = data.map((l) => ({
+        ...l,
+        createdAt: new Date(l.createdAt),
+    }));
+
+    isLoading.value = false;
 });
 
 definePageMeta({
