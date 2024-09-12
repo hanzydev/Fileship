@@ -72,14 +72,16 @@
 </template>
 
 <script setup lang="ts">
-const { itemCount, itemsPerPage } = defineProps<{
+const props = defineProps<{
     itemCount: number;
     itemsPerPage: number;
 }>();
 
+const { itemCount, itemsPerPage } = toRefs(props);
+
 const currentPage = defineModel<number>({ required: true });
 
-const { pageCount, prev, next, isFirstPage, isLastPage } = useOffsetPagination({
+const { pageCount, isFirstPage, isLastPage, prev, next } = useOffsetPagination({
     total: itemCount,
     pageSize: itemsPerPage,
     page: currentPage,
