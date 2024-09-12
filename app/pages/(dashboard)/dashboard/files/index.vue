@@ -19,7 +19,7 @@
 
                 <template v-if="isLoading">
                     <UiSkeletonCard
-                        v-for="i in randomNumber(1, 4)"
+                        v-for="i in randomNumber(3, 7)"
                         :key="i"
                         flex="~ col items-center justify-center gap2"
                         h208px
