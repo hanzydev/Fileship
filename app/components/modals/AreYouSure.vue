@@ -1,5 +1,5 @@
 <template>
-    <UiModal v-model="isOpen" @outer-click="handleSelect(false, false)">
+    <UiModal v-model="isOpen">
         <div flex="~ col gap4 justify-center items-center" wfull p8 text-center>
             <Icon name="heroicons-solid:exclamation" size="96" />
             <h3>{{ title }}</h3>
@@ -13,7 +13,7 @@
                     icon="heroicons-solid:x"
                     icon-size="24"
                     gap2
-                    @click="handleSelect(false)"
+                    @click="isOpen = false"
                 >
                     Cancel
                 </UiButton>
@@ -22,9 +22,12 @@
                     icon="heroicons-solid:check"
                     icon-size="24"
                     gap2
-                    @click="handleSelect(true)"
+                    @click="
+                        $emit('confirm');
+                        isOpen = false;
+                    "
                 >
-                    Yes
+                    Confirm
                 </UiButton>
             </div>
         </div>
@@ -37,17 +40,9 @@ defineProps<{
     description: string;
 }>();
 
-const isOpen = defineModel<boolean>({ required: false, default: true });
-
-const emit = defineEmits<{
-    yes: [];
-    no: [];
+defineEmits<{
+    confirm: [];
 }>();
 
-const handleSelect = (value: boolean, closeModal = true) => {
-    if (value) emit('yes');
-    else emit('no');
-
-    if (closeModal) isOpen.value = false;
-};
+const isOpen = defineModel<boolean>({ required: false, default: true });
 </script>
