@@ -274,6 +274,10 @@ export const initSocket = () => {
             ];
         });
 
+        socket.on('delete:log:all', () => {
+            logs.value = [];
+        });
+
         socket.on('create:user', (data) => {
             users.value = [
                 {

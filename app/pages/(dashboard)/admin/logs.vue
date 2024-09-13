@@ -4,8 +4,33 @@
             <Title>Logs | Admin Panel</Title>
         </Head>
 
+        <ModalsAreYouSure
+            v-model="areYouSureModalOpen"
+            title="Are you really sure you want to flush all logs?"
+            description="All logs will be deleted and cannot be undone."
+            :disabled="isFlushingLogs"
+            @confirm="handleFlushLogs"
+        />
+
         <div space-y-6>
-            <h2>Logs</h2>
+            <div flex="~ items-center justify-between">
+                <h2>Logs</h2>
+                <UiButton
+                    v-if="currentUser?.superAdmin"
+                    icon="heroicons-solid:trash"
+                    icon-size="20"
+                    alignment="center"
+                    variant="dangerFill"
+                    class="h-8 w-8 !p-0"
+                    aria-label="Flush logs"
+                    :disabled="
+                        isFlushingLogs ||
+                        !logs.filter((l) => l.action !== 'Flush Logs').length
+                    "
+                    :loading="isFlushingLogs"
+                    @click="areYouSureModalOpen = true"
+                />
+            </div>
             <UiSearchBar v-model="searchQuery" placeholder="Search logs..." />
             <UiTable
                 :loading="isLoading"
@@ -73,17 +98,22 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
+import { toast } from 'vue-sonner';
 
 import { useFuse } from '@vueuse/integrations/useFuse';
 
 import { UiAvatar } from '#components';
 
 const logs = useLogs();
+const currentUser = useAuthUser();
 
 const searchQuery = ref('');
 const currentPage = ref(1);
 
+const areYouSureModalOpen = ref(false);
+
 const isLoading = ref(true);
+const isFlushingLogs = ref(false);
 
 const { results } = useFuse(searchQuery, logs, {
     matchAllWhenSearchEmpty: true,
@@ -107,6 +137,18 @@ const calculatedLogs = computed<LogData[]>(() => {
     const end = start + 20;
     return results.value.map((r) => r.item).slice(start, end);
 });
+
+const handleFlushLogs = async () => {
+    isFlushingLogs.value = true;
+
+    await $fetch('/api/logs', {
+        method: 'DELETE',
+    });
+
+    isFlushingLogs.value = false;
+
+    toast.success('All logs flushed successfully');
+};
 
 onMounted(async () => {
     const data = await $fetch('/api/logs');

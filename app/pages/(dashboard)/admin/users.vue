@@ -55,7 +55,7 @@
                     alignment="center"
                     variant="accent"
                     class="h-8 w-8 !p-0"
-                    aria-label="Take notes"
+                    aria-label="Create user"
                     @click="createUserModalOpen = true"
                 />
             </div>
