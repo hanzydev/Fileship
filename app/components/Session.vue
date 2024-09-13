@@ -74,7 +74,7 @@
                 </div>
                 <button
                     v-if="data.id !== currentUser!.currentSessionId"
-                    mlauto
+                    mla
                     text-slate200
                     aria-label="Remove session"
                     :disabled

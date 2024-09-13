@@ -32,7 +32,7 @@
                         shouldRenderMarkdown &&
                         '!bg-fs-overlay-1 hover:!bg-fs-overlay-2'
                     "
-                    mlauto
+                    mla
                     h8
                     w8
                     p0="!"

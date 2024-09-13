@@ -91,7 +91,7 @@
                 v{{ pkg.version }}
             </UiButton>
         </div>
-        <div lg:mlauto>
+        <div lg:mla>
             <UiDropdown placement="bottom" right-0>
                 <UiAvatar
                     :src="currentUser!.avatar || undefined"
