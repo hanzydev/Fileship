@@ -135,7 +135,7 @@
                         resolve: ({ createdAt }) => dayjs(createdAt).fromNow(),
                     },
                     {
-                        key: 'Actions',
+                        key: 'Quick Actions',
                         width: '20%',
                         render: (row) => {
                             return h(
