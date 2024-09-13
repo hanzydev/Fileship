@@ -238,6 +238,9 @@
                                                 disabled: willBeDeleted.has(
                                                     row.id,
                                                 ),
+                                                loading: willBeDeleted.has(
+                                                    row.id,
+                                                ),
                                                 'aria-label': 'Delete file',
                                                 onClick: () =>
                                                     handleDelete(row.id),
