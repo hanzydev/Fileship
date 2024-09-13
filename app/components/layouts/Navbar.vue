@@ -85,7 +85,7 @@
                         ? 'ring-fs-accent'
                         : 'ring-red-500 hover:!bg-red-500',
                 ]"
-                :href="latestRelease.html_url"
+                :href="`https://github.com/${repoUrl}/releases/tag/v${pkg.version}`"
                 target="_blank"
             >
                 v{{ pkg.version }}
@@ -221,8 +221,10 @@ import themes from '~/styles/themes.json';
 import pkg from '~~/package.json';
 import { isAdmin } from '~~/utils/user';
 
+const repoUrl = 'hanzydev/Fileship';
+
 const { data: latestRelease } = await useFetch<any>(
-    'https://api.github.com/repos/hanzydev/Fileship/releases/latest',
+    `https://api.github.com/repos/${repoUrl}/releases/latest`,
 );
 
 const route = useRoute();
