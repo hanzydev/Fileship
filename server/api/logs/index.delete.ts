@@ -1,4 +1,4 @@
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
+import { sendByFilter } from '~~/server/plugins/socketIO';
 import { isAdmin } from '~~/utils/user';
 
 export default defineEventHandler(async (event) => {
