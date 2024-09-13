@@ -164,17 +164,30 @@ fileChunkSize = (+fileChunkSize || 10) * 1024 * 1024;
 const handleUpload = async () => {
     uploading.value = true;
 
-    for (const file of uploadingFiles.value) {
+    const uploadFile = async (file: File) => {
         const chunks = Math.ceil(file.size / fileChunkSize);
+        const uploadingFile = uploadingFiles.value.find(
+            (f) => f.name === file.name,
+        );
+
+        if (!uploadingFile) return;
+
+        if (!uploadingFile.status) {
+            uploadingFile.status = reactive({
+                started: false,
+                progress: 0,
+                error: null,
+            });
+        }
+
+        uploadingFile.status.started = true;
 
         for (let i = 0; i < chunks; i++) {
             const start = i * fileChunkSize;
             const end = Math.min(file.size, start + fileChunkSize);
-
             const chunk = file.slice(start, end);
 
             const formData = new FormData();
-
             formData.append(
                 'file',
                 new Blob([chunk], { type: file.type }),
@@ -182,39 +195,20 @@ const handleUpload = async () => {
             );
             formData.append('currentChunk', (i + 1).toString());
             formData.append('totalChunks', chunks.toString());
-            formData.append('fileNameType', settings.fileNameType.toString());
+            formData.append('fileNameType', settings.fileNameType);
             formData.append('maxViews', settings.maxViews.toString());
             formData.append(
                 'compression',
                 settings.compression.value.toString(),
             );
 
-            if (settings.password) {
-                formData.append('password', settings.password.toString());
-            }
-
-            if (settings.expiration.value) {
+            if (settings.password)
+                formData.append('password', settings.password);
+            if (settings.expiration.value)
                 formData.append(
                     'expiration',
-                    settings.expiration.value!.toString(),
+                    settings.expiration.value.toString(),
                 );
-            }
-
-            const uploadingFile = uploadingFiles.value.find(
-                (f) => f.name === file.name,
-            )!;
-
-            if (!uploadingFile) continue;
-
-            if (!uploadingFile.status) {
-                uploadingFile.status = reactive({
-                    started: false,
-                    progress: 0,
-                    error: null,
-                });
-            }
-
-            uploadingFile.status!.started = true;
 
             try {
                 await $fetch('/api/files', {
@@ -223,27 +217,29 @@ const handleUpload = async () => {
                     retry: 3,
                 });
 
-                uploadingFile.status!.progress = Math.round(
+                uploadingFile.status.progress = Math.round(
                     (end / file.size) * 100,
                 );
-
-                uploadingFile.status!.error = null;
+                uploadingFile.status.error = null;
             } catch (error: any) {
-                uploadingFile.status!.error = error.data.message;
-                break;
+                uploadingFile.status.error = error.data.message;
+                return false;
             }
         }
-    }
+        return true;
+    };
+
+    const results = await Promise.all(uploadingFiles.value.map(uploadFile));
 
     uploadingFiles.value = uploadingFiles.value.filter(
-        (file) => file.status?.error,
+        (_, index) => !results[index],
     );
     uploading.value = false;
 
-    if (!uploadingFiles.value.length) {
-        toast.success('All file(s) uploaded successfully');
+    if (uploadingFiles.value.length === 0) {
+        toast.success('All files uploaded successfully');
     } else {
-        toast.error('Some file(s) failed to upload');
+        toast.error('Some files could not be uploaded');
     }
 };
 
