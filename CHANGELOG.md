@@ -1,5 +1,44 @@
 # Changelog
 
+## v1.17.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.16.0...v1.17.0)
+
+### 🚀 Enhancements
+
+- Logs are now flushable ([a98edab](https://github.com/hanzydev/Fileship/commit/a98edab))
+
+### 🔥 Performance
+
+- Shorten and performant session verification ([82bd8b5](https://github.com/hanzydev/Fileship/commit/82bd8b5))
+- Skeleton loading ([15d53fa](https://github.com/hanzydev/Fileship/commit/15d53fa))
+
+### 🩹 Fixes
+
+- **pagination:** Resolve issue where pagination breaks on data change ([e6f7191](https://github.com/hanzydev/Fileship/commit/e6f7191))
+- Force the error information to red when a file gives an error while uploading ([29e84f3](https://github.com/hanzydev/Fileship/commit/29e84f3))
+- Target is readonly warning ([d8a43f3](https://github.com/hanzydev/Fileship/commit/d8a43f3))
+
+### 💅 Refactors
+
+- Increase skeleton count ([8b879d4](https://github.com/hanzydev/Fileship/commit/8b879d4))
+- A better way to upload files ([188a1e2](https://github.com/hanzydev/Fileship/commit/188a1e2))
+- Change class names from mlauto to mla ([d780456](https://github.com/hanzydev/Fileship/commit/d780456))
+- Redirect to the current release when clicking on the release information ([f762751](https://github.com/hanzydev/Fileship/commit/f762751))
+- Update conditional class name ([8923217](https://github.com/hanzydev/Fileship/commit/8923217))
+- Move css imports to nuxt config ([c0ee6df](https://github.com/hanzydev/Fileship/commit/c0ee6df))
+- Show spinner when deleting files in action buttons ([8274454](https://github.com/hanzydev/Fileship/commit/8274454))
+- Rename Actions to Quick Actions ([c05919c](https://github.com/hanzydev/Fileship/commit/c05919c))
+- **AreYouSure:** Improve component logic and event naming ([6c9f06d](https://github.com/hanzydev/Fileship/commit/6c9f06d))
+
+### 🏡 Chore
+
+- Lint fix ([fa8b086](https://github.com/hanzydev/Fileship/commit/fa8b086))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.16.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.15.0...v1.16.0)
