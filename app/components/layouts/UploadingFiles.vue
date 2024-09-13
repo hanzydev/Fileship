@@ -24,8 +24,8 @@
                     gap2
                     py3="!"
                     ring-1
-                    :class="isErrored ? 'ring-red-500' : 'ring-fs-accent'"
-                    :icon-class="isErrored && 'text-red-500'"
+                    :class="isErrored ? '!ring-red-500' : 'ring-fs-accent'"
+                    :icon-class="isErrored && '!text-red-500'"
                     icon-size="20"
                 >
                     <template v-if="isErrored">
@@ -35,7 +35,7 @@
                         {{ unfinishedFiles.length }}
                         file(s)
                         {{ uploading ? 'uploading' : 'queued' }}
-                        <UiProgress v-if="uploading" :value="progress" mlauto />
+                        <UiProgress v-if="uploading" :value="progress" mla />
                     </template>
                 </UiButton>
 
