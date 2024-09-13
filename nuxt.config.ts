@@ -14,7 +14,13 @@ export default defineNuxtConfig({
         '@vite-pwa/nuxt',
     ],
 
-    css: ['~/styles/main.css', '@unocss/reset/tailwind.css'],
+    css: [
+        '~/styles/main.css',
+        '@unocss/reset/tailwind.css',
+        '~/styles/apexcharts.css',
+        '~/styles/sonner.css',
+        'highlight.js/styles/tokyo-night-dark.css',
+    ],
 
     fonts: {
         families: [

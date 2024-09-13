@@ -20,10 +20,6 @@
 </template>
 
 <script setup lang="ts">
-import '~/styles/apexcharts.css';
-import '~/styles/sonner.css';
-import 'highlight.js/styles/tokyo-night-dark.css';
-
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Toaster } from 'vue-sonner';
