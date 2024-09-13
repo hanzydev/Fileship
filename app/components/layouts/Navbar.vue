@@ -10,9 +10,7 @@
         lg:px5
     >
         <svg
-            :class="{
-                'rotate-180': sidebarOpen,
-            }"
+            :class="sidebarOpen && 'rotate-180'"
             cursor-pointer
             lg:hidden
             motion-safe:transition-transform
