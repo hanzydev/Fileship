@@ -1,0 +1,13 @@
+diff --git a/dist/runtime/components/NuxtTurnstile.vue b/dist/runtime/components/NuxtTurnstile.vue
+index c4ffdc31f2192dddedd1d67c7c93b67f0f99c72f..1b04cf3b9b5d52af9f39be1b87811441a428e065 100644
+--- a/dist/runtime/components/NuxtTurnstile.vue
++++ b/dist/runtime/components/NuxtTurnstile.vue
+@@ -8,7 +8,7 @@ const props = withDefaults(defineProps<{
+   trigger?: ElementScriptTrigger
+   element?: string
+   siteKey?: string
+-  options?: Omit<Partial<Turnstile.RenderParameters>, 'callback'>
++  options?: any
+   resetInterval?: number
+ }>(), {
+   element: 'div',
