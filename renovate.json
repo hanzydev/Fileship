@@ -4,5 +4,8 @@
         "config:recommended",
         ":semanticCommitTypeAll(chore)",
         ":dependencyDashboard"
-    ]
+    ],
+    "major": {
+        "dependencyDashboardApproval": true
+    }
 }
