@@ -4,9 +4,10 @@ const tweenMap = new Map<gsap.TweenTarget, gsap.core.Tween>();
 
 export const animateCards = () => {
     const enter = (target: gsap.TweenTarget, done?: () => void) => {
+        gsap.set(target, { opacity: 1, scale: 1, filter: 'blur(0)' });
+
         if (isReducedMotion()) return done?.();
 
-        gsap.set(target, { opacity: 1, scale: 1, filter: 'blur(0)' });
         return gsap.from(target, {
             opacity: 0,
             filter: 'blur(0.25rem)',
@@ -18,9 +19,10 @@ export const animateCards = () => {
     };
 
     const leave = (target: gsap.TweenTarget, done?: () => void) => {
+        gsap.set(target, { opacity: 1, scale: 1, filter: 'blur(0)' });
+
         if (isReducedMotion()) return done?.();
 
-        gsap.set(target, { opacity: 1, scale: 1, filter: 'blur(0)' });
         return gsap.to(target, {
             opacity: 0,
             filter: 'blur(0.25rem)',
@@ -32,12 +34,12 @@ export const animateCards = () => {
     };
 
     const all = (id: string, target: gsap.TweenTarget, done?: () => void) => {
+        gsap.set(target, { opacity: 1, x: 0, filter: 'blur(0)' });
+
         if (isReducedMotion()) return done?.();
 
         const oldTween = tweenMap.get(id);
         if (oldTween) oldTween.kill();
-
-        gsap.set(target, { opacity: 1, x: 0, filter: 'blur(0)' });
 
         const tween = gsap.from(target, {
             opacity: 0,
