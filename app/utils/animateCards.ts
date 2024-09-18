@@ -32,7 +32,7 @@ export const animateCards = () => {
     };
 
     const all = (id: string, target: gsap.TweenTarget, done?: () => void) => {
-        if (isReducedMotion()) return;
+        if (isReducedMotion()) return done?.();
 
         const oldTween = tweenMap.get(id);
         if (oldTween) oldTween.kill();
@@ -44,7 +44,7 @@ export const animateCards = () => {
             x: -10,
             filter: 'blur(0.25rem)',
             duration: 0.3,
-            stagger: 0.1,
+            stagger: 0.05,
             ease: Cubic.easeOut,
             onComplete: () => {
                 tweenMap.delete(id);

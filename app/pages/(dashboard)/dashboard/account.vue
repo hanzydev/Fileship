@@ -900,7 +900,7 @@ onMounted(() => {
         opacity: 0,
         y: 10,
         duration: 0.3,
-        stagger: 0.15,
+        stagger: 0.1,
         filter: 'blur(0.125rem)',
         ease: Cubic.easeOut,
     });
