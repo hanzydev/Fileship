@@ -83,7 +83,7 @@ const currentPage = defineModel<number>({ required: true });
 
 const { pageCount, isFirstPage, isLastPage, prev, next } = useOffsetPagination({
     total: itemCount,
-    pageSize: ref(itemsPerPage),
+    pageSize: ref(itemsPerPage.value),
     page: currentPage,
 });
 
