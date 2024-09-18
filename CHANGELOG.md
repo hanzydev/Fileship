@@ -1,5 +1,42 @@
 # Changelog
 
+## v1.17.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.17.0...v1.17.1)
+
+### 🔥 Performance
+
+- Disable card animations in mobile ([c5c48e7](https://github.com/hanzydev/Fileship/commit/c5c48e7))
+
+### 🩹 Fixes
+
+- Turnstile type error ([437dec6](https://github.com/hanzydev/Fileship/commit/437dec6))
+- Target is readonly warning ([6d81254](https://github.com/hanzydev/Fileship/commit/6d81254))
+- Cards do not appear in reduced motion ([04afb01](https://github.com/hanzydev/Fileship/commit/04afb01))
+
+### 💅 Refactors
+
+- **renovate:** Enable dependency dashboard ([a58fb80](https://github.com/hanzydev/Fileship/commit/a58fb80))
+- **renovate:** Require approval for major updates ([0022586](https://github.com/hanzydev/Fileship/commit/0022586))
+- **renovate:** Enable scheduling ([7425f3b](https://github.com/hanzydev/Fileship/commit/7425f3b))
+- Remove reproduction textarea in bug report template ([e8e358b](https://github.com/hanzydev/Fileship/commit/e8e358b))
+- Shorten animation durations ([ea0b28c](https://github.com/hanzydev/Fileship/commit/ea0b28c))
+
+### 🏡 Chore
+
+- **deps-dev:** Bump @nuxt/eslint from 0.5.6 to 0.5.7 ([eea542d](https://github.com/hanzydev/Fileship/commit/eea542d))
+- **deps-dev:** Bump nuxt from 3.13.1 to 3.13.2 ([976ef01](https://github.com/hanzydev/Fileship/commit/976ef01))
+- **deps-dev:** Bump @nuxt/fonts from 0.7.2 to 0.8.0 ([293ece0](https://github.com/hanzydev/Fileship/commit/293ece0))
+- Bump deps ([feae2f2](https://github.com/hanzydev/Fileship/commit/feae2f2))
+- Remove dependabot ([49e1376](https://github.com/hanzydev/Fileship/commit/49e1376))
+- Lint fix ([51cc34e](https://github.com/hanzydev/Fileship/commit/51cc34e))
+- Update renovate config ([7e20507](https://github.com/hanzydev/Fileship/commit/7e20507))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+- Emirhan ([@hanzydev](http://github.com/hanzydev))
+
 ## v1.17.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.16.0...v1.17.0)
