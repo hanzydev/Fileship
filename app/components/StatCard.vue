@@ -20,7 +20,9 @@
                     width: `${randomNumber(20, 40)}%`,
                 }"
             />
-            <h4 v-else>{{ data }}</h4>
+            <h4 v-else>
+                {{ isNaN(data) ? data : Intl.NumberFormat().format(data) }}
+            </h4>
 
             <div
                 v-if="growth !== 0 && !loading"

@@ -101,7 +101,7 @@
                                 tooltip: {
                                     y: {
                                         formatter: (value: number) =>
-                                            value.toFixed(0),
+                                            Intl.NumberFormat().format(value),
                                     },
                                 },
                                 grid: {
@@ -170,7 +170,12 @@
                                         ],
                                     ),
                             },
-                            { key: 'count', width: '20%' },
+                            {
+                                key: 'count',
+                                width: '20%',
+                                resolve: ({ count }) =>
+                                    Intl.NumberFormat().format(count),
+                            },
                         ]"
                         :rows="stats?.topUploaders"
                         nothing-here-icon="heroicons-solid:document"
@@ -222,7 +227,12 @@
                         :class="stats?.topTypes?.length ? 'xl:w3/4' : 'wfull'"
                         :columns="[
                             { key: 'type', width: '20%' },
-                            { key: 'count', width: '20%' },
+                            {
+                                key: 'count',
+                                width: '20%',
+                                resolve: ({ count }) =>
+                                    Intl.NumberFormat().format(count),
+                            },
                         ]"
                         :rows="stats?.topTypes"
                         nothing-here-icon="heroicons-solid:document"
@@ -298,7 +308,7 @@ const basePieOptions = {
     },
     tooltip: {
         y: {
-            formatter: (value: number) => value.toFixed(0),
+            formatter: (value: number) => Intl.NumberFormat().format(value),
         },
     },
     grid: {
