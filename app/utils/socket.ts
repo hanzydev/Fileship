@@ -265,17 +265,27 @@ export const initSocket = () => {
 
         // Admin
         socket.on('create:log', (data) => {
-            logs.value = [
-                {
-                    ...data,
-                    createdAt: new Date(data.createdAt),
-                },
-                ...logs.value,
-            ];
+            logs.value = {
+                logs: [
+                    {
+                        ...data,
+                        user: undefined,
+                        userId: data.user?.id,
+                        createdAt: new Date(data.createdAt),
+                    },
+                    ...logs.value.logs,
+                ],
+                users: [...logs.value.users, data.user].filter(
+                    (u, i, self) => self.findIndex((t) => t.id === u.id) === i,
+                ),
+            };
         });
 
         socket.on('delete:log:all', () => {
-            logs.value = [];
+            logs.value = {
+                users: [],
+                logs: [],
+            };
         });
 
         socket.on('create:user', (data) => {

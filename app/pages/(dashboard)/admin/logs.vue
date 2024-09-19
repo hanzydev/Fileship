@@ -25,7 +25,8 @@
                     aria-label="Flush logs"
                     :disabled="
                         isFlushingLogs ||
-                        !logs.filter((l) => l.action !== 'Flush Logs').length
+                        !logs.logs.filter((l) => l.action !== 'Flush Logs')
+                            .length
                     "
                     :loading="isFlushingLogs"
                     @click="areYouSureModalOpen = true"
@@ -58,7 +59,10 @@
                                         src: user?.avatar,
                                         alt: system
                                             ? 'System'
-                                            : user?.username || 'Deleted User',
+                                            : upperFirst(
+                                                  user?.username ||
+                                                      'Deleted User',
+                                              ),
                                         class: '!ring-0',
                                     }),
                                     h(
@@ -68,7 +72,10 @@
                                         },
                                         system
                                             ? 'System'
-                                            : user?.username || 'Deleted User',
+                                            : upperFirst(
+                                                  user?.username ||
+                                                      'Deleted User',
+                                              ),
                                     ),
                                 ],
                             ),
@@ -98,6 +105,7 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
+import { upperFirst } from 'scule';
 import { toast } from 'vue-sonner';
 
 import { useFuse } from '@vueuse/integrations/useFuse';
@@ -115,27 +123,36 @@ const areYouSureModalOpen = ref(false);
 const isLoading = ref(true);
 const isFlushingLogs = ref(false);
 
-const { results } = useFuse(searchQuery, logs, {
-    matchAllWhenSearchEmpty: true,
-    fuseOptions: {
-        keys: [
-            {
-                name: 'action',
-                weight: 2,
-            },
-            {
-                name: 'ip',
-                weight: 2,
-            },
-            'message',
-        ],
+const { results } = useFuse(
+    searchQuery,
+    computed(() => logs.value.logs),
+    {
+        matchAllWhenSearchEmpty: true,
+        fuseOptions: {
+            keys: [
+                {
+                    name: 'action',
+                    weight: 2,
+                },
+                {
+                    name: 'ip',
+                    weight: 2,
+                },
+                'message',
+            ],
+        },
     },
-});
+);
 
-const calculatedLogs = computed<LogData[]>(() => {
+const calculatedLogs = computed<(LogData & { user: LogUser | null })[]>(() => {
     const start = (currentPage.value - 1) * 20;
     const end = start + 20;
-    return results.value.map((r) => r.item).slice(start, end);
+    return results.value
+        .map((r) => ({
+            ...r.item,
+            user: logs.value.users.find((u) => u.id === r.item.userId) || null,
+        }))
+        .slice(start, end);
 });
 
 const handleFlushLogs = async () => {
@@ -153,10 +170,13 @@ const handleFlushLogs = async () => {
 onMounted(async () => {
     const data = await $fetch('/api/logs');
 
-    logs.value = data.map((l) => ({
-        ...l,
-        createdAt: new Date(l.createdAt),
-    }));
+    logs.value = {
+        users: data.users,
+        logs: data.logs.map((l) => ({
+            ...l,
+            createdAt: new Date(l.createdAt),
+        })),
+    };
 
     isLoading.value = false;
 });

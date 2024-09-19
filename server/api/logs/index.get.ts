@@ -1,6 +1,6 @@
 import { isAdmin } from '~~/utils/user';
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
     if (!isAdmin(event)) {
         throw createError({
             statusCode: 401,
@@ -9,13 +9,14 @@ export default defineEventHandler((event) => {
         });
     }
 
-    return prisma.log.findMany({
+    const logs = await prisma.log.findMany({
         orderBy: {
             createdAt: 'desc',
         },
         select: {
             ip: true,
             action: true,
+            userId: true,
             user: {
                 select: {
                     id: true,
@@ -28,4 +29,19 @@ export default defineEventHandler((event) => {
             createdAt: true,
         },
     });
+
+    return {
+        logs: logs.map((log) => ({
+            ...log,
+            user: undefined,
+        })),
+        users: logs
+            .filter(
+                (log, index, self) =>
+                    log.user &&
+                    self.findIndex((t) => t.user?.id === log.user?.id) ===
+                        index,
+            )
+            .map((log) => log.user!),
+    };
 });
