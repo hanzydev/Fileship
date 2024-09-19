@@ -8,12 +8,5 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    return (await prisma.user.findUnique({
-        where: {
-            id: currentUser.id,
-        },
-        select: {
-            domains: true,
-        },
-    }))!.domains;
+    return currentUser.domains;
 });
