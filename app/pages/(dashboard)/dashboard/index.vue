@@ -183,7 +183,7 @@
                                                           },
                                                       }
                                                     : {
-                                                          href: `/view/${row.fileName}`,
+                                                          href: row.embedUrl,
                                                           target: '_blank',
                                                       }),
                                             }),
@@ -201,14 +201,13 @@
                                                 iconSize: '20',
                                                 'aria-label':
                                                     'Copy link to clipboard',
-                                                onClick: () =>
-                                                    handleCopy(row.fileName),
+                                                onClick: () => handleCopy(row),
                                             }),
                                             h(UiButton, {
                                                 variant: 'outline',
                                                 alignment: 'center',
                                                 class: 'h8 w8 !p0 text-slate300 hover:text-white',
-                                                href: `/u/${row.fileName}?download`,
+                                                href: `${row.directUrl}?download`,
                                                 target: '_blank',
                                                 icon: 'heroicons-solid:download',
                                                 iconSize: '20',
@@ -302,20 +301,20 @@ const calculatedFiles = computed(() => {
     return filteredFiles.value.slice(start, end);
 });
 
-const handleCopy = async (fileName: string) => {
-    const timeout = copied.value.get(fileName);
+const handleCopy = async (file: FileData) => {
+    const timeout = copied.value.get(file.fileName);
     if (timeout) clearTimeout(timeout);
 
     await navigator.clipboard.writeText(
-        `${useRequestURL().origin}/${embed.value.enabled ? 'view' : 'u'}/${fileName}`,
+        embed.value.enabled ? file.embedUrl : file.directUrl,
     );
 
     toast.success('Link copied to clipboard');
 
     copied.value.set(
-        fileName,
+        file.fileName,
         setTimeout(() => {
-            copied.value.delete(fileName);
+            copied.value.delete(file.fileName);
         }, 2_000),
     );
 };

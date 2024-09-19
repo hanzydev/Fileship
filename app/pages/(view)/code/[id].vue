@@ -26,7 +26,7 @@ const route = useRoute();
 
 const { data: _data, error } = await useFetch(`/api/codes/${route.params.id}`, {
     query: { log: true },
-    headers: useRequestHeaders(['x-forwarded-for']),
+    headers: useRequestHeaders(['x-forwarded-for', 'host']),
 });
 
 const data = ref(_data.value);

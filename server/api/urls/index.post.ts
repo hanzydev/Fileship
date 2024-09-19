@@ -82,6 +82,20 @@ export default defineEventHandler(async (event) => {
         }
     }
 
+    const reqUrl = getRequestURL(event);
+
+    const protocol = process.env.RETURN_HTTPS
+        ? process.env.RETURN_HTTPS === 'true'
+            ? 'https'
+            : 'http'
+        : reqUrl.protocol.slice(0, -1);
+
+    const domain = currentUser.domains.length
+        ? currentUser.domains[
+              Math.floor(Math.random() * currentUser.domains.length)
+          ]
+        : reqUrl.host;
+
     const _url = await prisma.url.create({
         data: {
             vanity: body.data.vanity || nanoid(8),
@@ -112,6 +126,7 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
+        url: `${protocol}://${domain}/link/${_url.vanity}`,
     };
 
     await createLog(event, {
@@ -121,17 +136,5 @@ export default defineEventHandler(async (event) => {
 
     sendToUser(currentUser.id, 'create:url', url);
 
-    const protocol =
-        (process.env.RETURN_HTTPS || 'true') === 'true' ? 'https' : 'http';
-
-    const domain = currentUser.domains.length
-        ? currentUser.domains[
-              Math.floor(Math.random() * currentUser.domains.length)
-          ]
-        : getRequestURL(event).host;
-
-    return {
-        ...url,
-        url: `${protocol}://${domain}/link/${url.vanity}`,
-    };
+    return url;
 });

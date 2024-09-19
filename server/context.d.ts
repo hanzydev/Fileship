@@ -5,7 +5,7 @@ import type { IEmbed, IUserLimits } from '~~/utils/types';
 declare module 'h3' {
     interface H3EventContext {
         user:
-            | (User & {
+            | (Omit<User, 'limits' | 'embed'> & {
                   currentSessionId: string;
                   limits: IUserLimits;
                   embed: IEmbed;

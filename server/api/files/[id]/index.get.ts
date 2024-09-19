@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
             author: {
                 select: {
                     embed: true,
+                    domains: true,
                 },
             },
         },
@@ -72,6 +73,20 @@ export default defineEventHandler(async (event) => {
         }
     }
 
+    const reqUrl = getRequestURL(event);
+
+    const protocol = process.env.RETURN_HTTPS
+        ? process.env.RETURN_HTTPS === 'true'
+            ? 'https'
+            : 'http'
+        : reqUrl.protocol.slice(0, -1);
+
+    const domain = findFileById.author.domains.length
+        ? findFileById.author.domains[
+              Math.floor(Math.random() * findFileById.author.domains.length)
+          ]
+        : reqUrl.host;
+
     return {
         ...findFileById,
         password: undefined,
@@ -94,5 +109,7 @@ export default defineEventHandler(async (event) => {
             }).length,
         },
         embed: defu(findFileById.author.embed, defaultEmbed) as IEmbed,
+        directUrl: `${protocol}://${domain}/u/${findFileById.fileName}`,
+        embedUrl: `${protocol}://${domain}/view/${findFileById.fileName}`,
     };
 });

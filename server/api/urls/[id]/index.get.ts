@@ -19,6 +19,11 @@ export default defineEventHandler(async (event) => {
         },
         include: {
             views: true,
+            author: {
+                select: {
+                    domains: true,
+                },
+            },
         },
     });
 
@@ -82,9 +87,24 @@ export default defineEventHandler(async (event) => {
         }
     }
 
+    const reqUrl = getRequestURL(event);
+
+    const protocol = process.env.RETURN_HTTPS
+        ? process.env.RETURN_HTTPS === 'true'
+            ? 'https'
+            : 'http'
+        : reqUrl.protocol.slice(0, -1);
+
+    const domain = findUrlById.author.domains.length
+        ? findUrlById.author.domains[
+              Math.floor(Math.random() * findUrlById.author.domains.length)
+          ]
+        : reqUrl.host;
+
     return {
         ...findUrlById,
         password: undefined,
+        author: undefined,
         views: {
             total: findUrlById.views.length,
             today: findUrlById.views.filter((view) => {
@@ -97,5 +117,6 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
+        url: `${protocol}://${domain}/link/${findUrlById.vanity}`,
     };
 });

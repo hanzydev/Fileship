@@ -38,8 +38,12 @@
                 <TransitionGroup
                     v-else
                     :css="false"
-                    @enter="!isAnimating && enter"
-                    @leave="!isAnimating && leave"
+                    @enter="
+                        (el, done) => (isAnimating ? done() : enter(el, done))
+                    "
+                    @leave="
+                        (el, done) => (isAnimating ? done() : leave(el, done))
+                    "
                 >
                     <div
                         v-for="folder in calculatedFolders"
@@ -110,16 +114,14 @@ onMounted(async () => {
     all('folders', '.folderCard');
 });
 
-watch(
-    currentPage,
-    () => {
-        isAnimating.value = true;
+watch(currentPage, () => {
+    isAnimating.value = true;
+    nextTick(() => {
         all('folders', '.folderCard', () => {
             isAnimating.value = false;
         });
-    },
-    { flush: 'post' },
-);
+    });
+});
 
 definePageMeta({
     layout: 'dashboard',

@@ -412,12 +412,22 @@
                             </p>
 
                             <UiInput
-                                v-model="domains"
                                 label="Domains"
                                 rounded="!"
                                 wfull
                                 caption="Separate multiple domains with a comma. Example: domain.com, i.domain2.com."
                                 :disabled="domainsUpdating"
+                                :model-value="
+                                    domainsEditData.cloned.value.join(', ')
+                                "
+                                @update:model-value="
+                                    (value) =>
+                                        (domainsEditData.cloned.value = (
+                                            value as string
+                                        )
+                                            .split(',')
+                                            .map((domain) => domain.trim()))
+                                "
                             />
 
                             <UiButton
@@ -603,14 +613,11 @@ import { render } from 'vue';
 import { toast } from 'vue-sonner';
 
 const embed = useEmbed();
+const domains = useDomains();
 const appConfig = useAppConfig();
 const currentUser = useAuthUser();
 
 const contentRef = useTemplateRef<HTMLDivElement>('content');
-
-const { data: _domains } = await useFetch('/api/users/@me/domains');
-
-const domains = ref(_domains.value!.join(', '));
 
 const shareXConfigModal = reactive<{
     open: boolean;
@@ -656,6 +663,7 @@ const userEditData = useCloned({
 });
 
 const embedEditData = useCloned(embed);
+const domainsEditData = useCloned(domains);
 
 const userUpdating = ref(false);
 const userFormErrors = ref();
@@ -746,7 +754,7 @@ const handleDomainsEdit = async () => {
 
     await $fetch('/api/users/@me/domains', {
         method: 'PUT',
-        body: domains.value.split(','),
+        body: domainsEditData.cloned.value,
     });
 
     domainsUpdating.value = false;

@@ -1,4 +1,8 @@
+import { defu } from 'defu';
 import { filesize } from 'filesize';
+
+import { defaultEmbed } from '~~/utils/constants';
+import type { IEmbed } from '~~/utils/types';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -11,6 +15,12 @@ export default defineEventHandler(async (event) => {
         },
         include: {
             files: true,
+            author: {
+                select: {
+                    domains: true,
+                    embed: true,
+                },
+            },
         },
     });
 
@@ -36,8 +46,23 @@ export default defineEventHandler(async (event) => {
         }
     }
 
+    const reqUrl = getRequestURL(event);
+
+    const protocol = process.env.RETURN_HTTPS
+        ? process.env.RETURN_HTTPS === 'true'
+            ? 'https'
+            : 'http'
+        : reqUrl.protocol.slice(0, -1);
+
+    const domain = findFolderById.author.domains.length
+        ? findFolderById.author.domains[
+              Math.floor(Math.random() * findFolderById.author.domains.length)
+          ]
+        : reqUrl.host;
+
     return {
         ...findFolderById,
+        author: undefined,
         files: findFolderById.files
             .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
             .map((file) => ({
@@ -50,6 +75,12 @@ export default defineEventHandler(async (event) => {
                     raw: file.size.toString(),
                     formatted: filesize(file.size.toString()),
                 },
+                directUrl: `${protocol}://${domain}/u/${file.fileName}`,
+                embedUrl: `${protocol}://${domain}/view/${file.fileName}`,
             })),
+        embed: defu(findFolderById.author.embed, defaultEmbed) as IEmbed,
+        publicUrl: findFolderById.public
+            ? `${protocol}://${domain}/folder/${findFolderById.id}`
+            : undefined,
     };
 });

@@ -218,6 +218,20 @@ export default defineEventHandler(async (event) => {
 
         await fsp.rename(tempPath, filePath);
 
+        const reqUrl = getRequestURL(event);
+
+        const protocol = process.env.RETURN_HTTPS
+            ? process.env.RETURN_HTTPS === 'true'
+                ? 'https'
+                : 'http'
+            : reqUrl.protocol.slice(0, -1);
+
+        const domain = currentUser.domains.length
+            ? currentUser.domains[
+                  Math.floor(Math.random() * currentUser.domains.length)
+              ]
+            : reqUrl.host;
+
         const _upload = await prisma.file.create({
             data: {
                 fileName,
@@ -253,6 +267,8 @@ export default defineEventHandler(async (event) => {
                     );
                 }).length,
             },
+            directUrl: `${protocol}://${domain}/u/${_upload.fileName}`,
+            embedUrl: `${protocol}://${domain}/view/${_upload.fileName}`,
         };
 
         await createLog(event, {
@@ -262,21 +278,7 @@ export default defineEventHandler(async (event) => {
 
         sendToUser(currentUser.id, 'create:file', upload);
 
-        const protocol =
-            (process.env.RETURN_HTTPS || 'true') === 'true' ? 'https' : 'http';
-
-        const domain = currentUser.domains.length
-            ? currentUser.domains[
-                  Math.floor(Math.random() * currentUser.domains.length)
-              ]
-            : getRequestURL(event).host;
-
-        const route = currentUser.embed.enabled ? 'view' : 'u';
-
-        return {
-            ...upload,
-            url: `${protocol}://${domain}/${route}/${upload.fileName}`,
-        };
+        return upload;
     } else if (body.data.currentChunk === 1) {
         await fsp.writeFile(tempPath, buffer);
     } else {

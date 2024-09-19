@@ -36,7 +36,7 @@
             >
                 <img
                     v-if="isImage"
-                    :src="`/u/${data.fileName}`"
+                    :src="data.directUrl"
                     :alt="data.fileName"
                     absolute
                     hfull
@@ -47,7 +47,7 @@
                 />
                 <video
                     v-if="isVideo"
-                    :src="`/u/${data.fileName}`"
+                    :src="data.directUrl"
                     :alt="data.fileName"
                     absolute
                     hfull
@@ -111,7 +111,7 @@
                     icon-size="20"
                     wfull
                     gap2
-                    :href="`/view/${data.fileName}`"
+                    :href="data.embedUrl"
                 >
                     Open
                 </UiButton>
@@ -129,7 +129,7 @@
                     icon-size="20"
                     wfull
                     gap2
-                    :href="`/u/${data.fileName}?download`"
+                    :href="`${data.directUrl}?download`"
                     target="_blank"
                 >
                     Download
@@ -143,8 +143,10 @@
 import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
+import type { IEmbed } from '~~/utils/types';
+
 const { data } = defineProps<{
-    data: Partial<FileData>;
+    data: Partial<FileData> & { embed: IEmbed };
 }>();
 
 const isImage = computed(() => data.mimeType!.startsWith('image/'));
@@ -156,7 +158,7 @@ const ctxOpen = ref(false);
 
 const handleCopy = () => {
     navigator.clipboard.writeText(
-        `${useRequestURL().origin}/u/${data.fileName}`,
+        data.embed.enabled ? data.embedUrl! : data.directUrl!,
     );
     ctxOpen.value = false;
 

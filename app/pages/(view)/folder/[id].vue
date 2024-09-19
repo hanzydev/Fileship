@@ -21,6 +21,7 @@
                             :data="{
                                 ...file,
                                 createdAt: new Date(file.createdAt),
+                                embed: data!.embed,
                             }"
                         />
                     </template>
@@ -45,7 +46,9 @@ import { useFuse } from '@vueuse/integrations/useFuse';
 
 const route = useRoute();
 
-const { data, error } = await useFetch(`/api/folders/${route.params.id}`);
+const { data, error } = await useFetch(`/api/folders/${route.params.id}`, {
+    headers: useRequestHeaders(['host']),
+});
 
 if (error.value) {
     throw createError({

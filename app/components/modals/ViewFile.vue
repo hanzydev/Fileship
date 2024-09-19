@@ -80,26 +80,21 @@
             bg-center
             bg-no-repeat
             :style="{
-                backgroundImage: `url(/u/${data.fileName})`,
+                backgroundImage: `url(${data.directUrl})`,
             }"
             @click="handleFullScreen"
         />
 
         <video
             v-else-if="isVideo"
-            :src="`/u/${data.fileName}`"
+            :src="data.directUrl"
             controls
             h96
             wfull
             rounded-md
         />
 
-        <audio
-            v-else-if="isAudio"
-            :src="`/u/${data.fileName}`"
-            controls
-            wfull
-        />
+        <audio v-else-if="isAudio" :src="data.directUrl" controls wfull />
 
         <div flex="~ gap4 max-md:col">
             <UiButton
@@ -107,7 +102,7 @@
                 icon-size="24"
                 wfull
                 gap2
-                :href="`/u/${data.fileName}?download`"
+                :href="`${data.directUrl}?download`"
                 target="_blank"
             >
                 Download
@@ -149,8 +144,10 @@
 import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
+import type { IEmbed } from '~~/utils/types';
+
 const { data } = defineProps<{
-    data: Partial<FileData>;
+    data: Partial<FileData> & { embed?: IEmbed };
 }>();
 
 const isOpen = defineModel<boolean>({ required: true });
@@ -180,7 +177,9 @@ const handleCopy = () => {
     if (copyTimeout) clearTimeout(copyTimeout);
 
     navigator.clipboard.writeText(
-        `${useRequestURL().origin}/${embed.value.enabled ? 'view' : 'u'}/${data.fileName}`,
+        embed.value.enabled || data.embed?.enabled
+            ? data.embedUrl!
+            : data.directUrl!,
     );
 
     toast.success('Link copied to clipboard');

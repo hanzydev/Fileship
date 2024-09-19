@@ -83,11 +83,28 @@ export default defineEventHandler(async (event) => {
         },
     });
 
+    const reqUrl = getRequestURL(event);
+
+    const protocol = process.env.RETURN_HTTPS
+        ? process.env.RETURN_HTTPS === 'true'
+            ? 'https'
+            : 'http'
+        : reqUrl.protocol.slice(0, -1);
+
+    const domain = currentUser.domains.length
+        ? currentUser.domains[
+              Math.floor(Math.random() * currentUser.domains.length)
+          ]
+        : reqUrl.host;
+
     const folder = {
         ..._folder,
         files: _folder.files
             .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
             .map((file) => file.id),
+        publicUrl: _folder.public
+            ? `${protocol}://${domain}/folder/${_folder.id}`
+            : undefined,
     };
 
     await createLog(event, {

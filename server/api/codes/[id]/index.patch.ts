@@ -123,6 +123,20 @@ export default defineEventHandler(async (event) => {
         data: body.data,
     });
 
+    const reqUrl = getRequestURL(event);
+
+    const protocol = process.env.RETURN_HTTPS
+        ? process.env.RETURN_HTTPS === 'true'
+            ? 'https'
+            : 'http'
+        : reqUrl.protocol.slice(0, -1);
+
+    const domain = currentUser.domains.length
+        ? currentUser.domains[
+              Math.floor(Math.random() * currentUser.domains.length)
+          ]
+        : reqUrl.host;
+
     const updatedCode = {
         ..._updatedCode,
         views: {
@@ -137,6 +151,7 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
+        url: `${protocol}://${domain}/code/${findCodeById.id}`,
     };
 
     await createLog(event, {

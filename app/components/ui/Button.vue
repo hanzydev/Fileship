@@ -69,11 +69,7 @@ const {
 
 const component = computed(() => {
     if (href) {
-        if (
-            href.startsWith('http') ||
-            href.startsWith('/api') ||
-            href.startsWith('/u')
-        ) {
+        if (href.startsWith('http') || href.startsWith('/api')) {
             return 'a';
         }
 

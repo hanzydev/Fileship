@@ -103,9 +103,7 @@ const handleDelete = async () => {
 };
 
 const handleCopy = () => {
-    navigator.clipboard.writeText(
-        `${useRequestURL().origin}/link/${data.vanity}`,
-    );
+    navigator.clipboard.writeText(data.url);
     ctxOpen.value = false;
 
     toast.success('Link copied to clipboard');

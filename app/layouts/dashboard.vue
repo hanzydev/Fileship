@@ -13,6 +13,7 @@
 </template>
 
 <script setup lang="ts">
+import type { IEmbed } from '~~/utils/types';
 import {
     canShareCodes,
     canShortenUrls,
@@ -21,6 +22,7 @@ import {
 } from '~~/utils/user';
 
 const embed = useEmbed();
+const domains = useDomains();
 const currentUser = useAuthUser();
 
 const sidebarItems = computed(() => {
@@ -75,6 +77,7 @@ const sidebarItems = computed(() => {
 });
 
 onMounted(async () => {
-    embed.value = (await $fetch('/api/users/@me/embed')) as any;
+    embed.value = await $fetch<IEmbed>('/api/users/@me/embed');
+    domains.value = await $fetch<string[]>('/api/users/@me/domains');
 });
 </script>

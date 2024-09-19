@@ -88,12 +88,15 @@ const handleSubmit = async () => {
             body: folder,
         });
 
-        createModalOpen.value = false;
-        selectFilesModalOpen.value = true;
         createdFolder.value = {
             ...folderData,
             createdAt: new Date(folderData.createdAt),
         };
+
+        await nextTick();
+
+        createModalOpen.value = false;
+        selectFilesModalOpen.value = true;
 
         toast.success('Folder created successfully, now select files to add');
     } catch (error: any) {

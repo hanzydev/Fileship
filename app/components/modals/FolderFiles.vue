@@ -178,13 +178,9 @@ const handleChange = async () => {
 const isAnimating = ref(false);
 const { all, enter, leave } = animateCards();
 
-watch(
-    isOpen,
-    () => {
-        if (isOpen.value) all('folderFiles', '.folderFileCard');
-    },
-    { flush: 'post' },
-);
+watch(isOpen, () => {
+    if (isOpen.value) nextTick(() => all('folderFiles', '.folderFileCard'));
+});
 
 watch(currentPage, () => {
     isAnimating.value = true;

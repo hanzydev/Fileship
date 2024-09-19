@@ -139,9 +139,7 @@ const handleDelete = async () => {
 };
 
 const handleCopy = () => {
-    navigator.clipboard.writeText(
-        `${useRequestURL().origin}/folder/${data.id}`,
-    );
+    navigator.clipboard.writeText(data.publicUrl!);
     ctxOpen.value = false;
 
     toast.success('Link copied to clipboard');

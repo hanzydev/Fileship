@@ -142,7 +142,7 @@ const route = useRoute();
 const { data: _data, error } = await useFetch(
     `/api/files/${route.params.id}${route.query.password ? `?password=${route.query.password}` : ''}`,
     {
-        headers: useRequestHeaders(['x-forwarded-for']),
+        headers: useRequestHeaders(['x-forwarded-for', 'host']),
     },
 );
 
@@ -157,7 +157,7 @@ const isAudio = computed(() => data.value?.mimeType?.startsWith('audio/'));
 
 const fileUrl = computed(
     () =>
-        `${useRequestURL().origin}/u/${route.params.id}${data.value?.password ? `?password=${data.value.password}` : ''}`,
+        `${data.value?.directUrl}${data.value?.password ? `?password=${data.value.password}` : ''}`,
 );
 
 if (error.value?.statusCode === 404) {

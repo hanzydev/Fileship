@@ -74,7 +74,7 @@
             >
                 <img
                     v-if="isImage"
-                    :src="`/u/${data.fileName}`"
+                    :src="data.directUrl"
                     :alt="data.fileName"
                     :class="!selectable && 'hover:scale-105'"
                     absolute
@@ -85,7 +85,7 @@
                 />
                 <video
                     v-if="isVideo"
-                    :src="`/u/${data.fileName}`"
+                    :src="data.directUrl"
                     :alt="data.fileName"
                     :class="!selectable && 'hover:scale-105'"
                     absolute
@@ -143,7 +143,7 @@
                     icon-size="20"
                     wfull
                     gap2
-                    :href="selectable ? undefined : `/view/${data.fileName}`"
+                    :href="selectable ? undefined : data.embedUrl"
                     @click="
                         if (selectable) {
                             ctxOpen = false;
@@ -167,7 +167,7 @@
                     icon-size="20"
                     wfull
                     gap2
-                    :href="`/u/${data.fileName}?download`"
+                    :href="`${data.directUrl}?download`"
                     target="_blank"
                 >
                     Download
@@ -352,7 +352,7 @@ const handleDelete = async () => {
 
 const handleCopy = () => {
     navigator.clipboard.writeText(
-        `${useRequestURL().origin}/${embed.value.enabled ? 'view' : 'u'}/${data.fileName}`,
+        embed.value.enabled ? data.embedUrl : data.directUrl,
     );
     ctxOpen.value = false;
 
