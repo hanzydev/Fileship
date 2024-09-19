@@ -94,7 +94,7 @@ importers:
         version: 3.13.2(magicast@0.3.5)(rollup@4.21.3)(webpack-sources@3.2.3)
       '@nuxtjs/turnstile':
         specifier: ^0.9.4
-        version: 0.9.5(patch_hash=n2vikwzspi3kn3mk3cnektidgm)(@nuxt/scripts@0.8.5(@nuxt/devtools@1.4.2(bufferutil@4.0.8)(rollup@4.21.3)(utf-8-validate@6.0.4)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))(webpack-sources@3.2.3))(@unocss/webpack@0.62.4(rollup@4.21.3)(webpack@5.94.0(esbuild@0.23.1)))(@vue/compiler-core@3.5.6)(fuse.js@7.0.0)(ioredis@5.4.1)(magicast@0.3.5)(nuxt@3.13.2(@parcel/watcher@2.4.1)(@types/node@22.5.5)(bufferutil@4.0.8)(eslint@9.10.0(jiti@1.21.6))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.21.3)(terser@5.33.0)(typescript@5.6.2)(utf-8-validate@6.0.4)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue-tsc@2.1.6(typescript@5.6.2))(webpack-sources@3.2.3))(postcss@8.4.47)(qrcode@1.5.4)(rollup@4.21.3)(typescript@5.6.2)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))(webpack-sources@3.2.3)(webpack@5.94.0(esbuild@0.23.1)))(magicast@0.3.5)(rollup@4.21.3)(webpack-sources@3.2.3)
+        version: 0.9.6(patch_hash=n2vikwzspi3kn3mk3cnektidgm)(@nuxt/scripts@0.8.5(@nuxt/devtools@1.4.2(bufferutil@4.0.8)(rollup@4.21.3)(utf-8-validate@6.0.4)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))(webpack-sources@3.2.3))(@unocss/webpack@0.62.4(rollup@4.21.3)(webpack@5.94.0(esbuild@0.23.1)))(@vue/compiler-core@3.5.6)(fuse.js@7.0.0)(ioredis@5.4.1)(magicast@0.3.5)(nuxt@3.13.2(@parcel/watcher@2.4.1)(@types/node@22.5.5)(bufferutil@4.0.8)(eslint@9.10.0(jiti@1.21.6))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.21.3)(terser@5.33.0)(typescript@5.6.2)(utf-8-validate@6.0.4)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue-tsc@2.1.6(typescript@5.6.2))(webpack-sources@3.2.3))(postcss@8.4.47)(qrcode@1.5.4)(rollup@4.21.3)(typescript@5.6.2)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))(webpack-sources@3.2.3)(webpack@5.94.0(esbuild@0.23.1)))(magicast@0.3.5)(rollup@4.21.3)(webpack-sources@3.2.3)
       '@prisma/client':
         specifier: ^5.19.1
         version: 5.19.1(prisma@5.19.1)
@@ -1612,8 +1612,8 @@ packages:
     peerDependencies:
       vue: ^3.3.4
 
-  '@nuxtjs/turnstile@0.9.5':
-    resolution: {integrity: sha512-GDMu+wuqJMopbE6LU7TF2tC5KhvqrU7SeObI0aZZrIXpxZrrsrfMH0C35fWCUqbqpc6Tg3tDnIgEUZIbx2QoXA==}
+  '@nuxtjs/turnstile@0.9.6':
+    resolution: {integrity: sha512-BP09JCxpwVx5r//+t6onqKwAndTRBu17bkpq14g7rCa+qLFYO6v1EFO65lr+BAupOKWetHXMwi0pWN6dSAteDw==}
     peerDependencies:
       '@nuxt/scripts': ^0.6.0 || ^0.7.0 || ^0.8.0 || ^0.9.0
 
@@ -1980,6 +1980,9 @@ packages:
 
   '@types/estree@1.0.5':
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
+
+  '@types/estree@1.0.6':
+    resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
 
   '@types/google.maps@3.58.0':
     resolution: {integrity: sha512-rZPrbNHoGxeY70uuQYFLGQqcz5mLd3pZy0u286GSugvN7PLFsHNRF2wN2QXtUgNiC33IC0LX+MD3LGAC3wN7Eg==}
@@ -7923,7 +7926,7 @@ snapshots:
       - vue-tsc
       - webpack-sources
 
-  '@nuxtjs/turnstile@0.9.5(patch_hash=n2vikwzspi3kn3mk3cnektidgm)(@nuxt/scripts@0.8.5(@nuxt/devtools@1.4.2(bufferutil@4.0.8)(rollup@4.21.3)(utf-8-validate@6.0.4)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))(webpack-sources@3.2.3))(@unocss/webpack@0.62.4(rollup@4.21.3)(webpack@5.94.0(esbuild@0.23.1)))(@vue/compiler-core@3.5.6)(fuse.js@7.0.0)(ioredis@5.4.1)(magicast@0.3.5)(nuxt@3.13.2(@parcel/watcher@2.4.1)(@types/node@22.5.5)(bufferutil@4.0.8)(eslint@9.10.0(jiti@1.21.6))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.21.3)(terser@5.33.0)(typescript@5.6.2)(utf-8-validate@6.0.4)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue-tsc@2.1.6(typescript@5.6.2))(webpack-sources@3.2.3))(postcss@8.4.47)(qrcode@1.5.4)(rollup@4.21.3)(typescript@5.6.2)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))(webpack-sources@3.2.3)(webpack@5.94.0(esbuild@0.23.1)))(magicast@0.3.5)(rollup@4.21.3)(webpack-sources@3.2.3)':
+  '@nuxtjs/turnstile@0.9.6(patch_hash=n2vikwzspi3kn3mk3cnektidgm)(@nuxt/scripts@0.8.5(@nuxt/devtools@1.4.2(bufferutil@4.0.8)(rollup@4.21.3)(utf-8-validate@6.0.4)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))(webpack-sources@3.2.3))(@unocss/webpack@0.62.4(rollup@4.21.3)(webpack@5.94.0(esbuild@0.23.1)))(@vue/compiler-core@3.5.6)(fuse.js@7.0.0)(ioredis@5.4.1)(magicast@0.3.5)(nuxt@3.13.2(@parcel/watcher@2.4.1)(@types/node@22.5.5)(bufferutil@4.0.8)(eslint@9.10.0(jiti@1.21.6))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.21.3)(terser@5.33.0)(typescript@5.6.2)(utf-8-validate@6.0.4)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue-tsc@2.1.6(typescript@5.6.2))(webpack-sources@3.2.3))(postcss@8.4.47)(qrcode@1.5.4)(rollup@4.21.3)(typescript@5.6.2)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))(webpack-sources@3.2.3)(webpack@5.94.0(esbuild@0.23.1)))(magicast@0.3.5)(rollup@4.21.3)(webpack-sources@3.2.3)':
     dependencies:
       '@nuxt/kit': 3.13.2(magicast@0.3.5)(rollup@4.21.3)(webpack-sources@3.2.3)
       '@nuxt/scripts': 0.8.5(@nuxt/devtools@1.4.2(bufferutil@4.0.8)(rollup@4.21.3)(utf-8-validate@6.0.4)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))(webpack-sources@3.2.3))(@unocss/webpack@0.62.4(rollup@4.21.3)(webpack@5.94.0(esbuild@0.23.1)))(@vue/compiler-core@3.5.6)(fuse.js@7.0.0)(ioredis@5.4.1)(magicast@0.3.5)(nuxt@3.13.2(@parcel/watcher@2.4.1)(@types/node@22.5.5)(bufferutil@4.0.8)(eslint@9.10.0(jiti@1.21.6))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.21.3)(terser@5.33.0)(typescript@5.6.2)(utf-8-validate@6.0.4)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue-tsc@2.1.6(typescript@5.6.2))(webpack-sources@3.2.3))(postcss@8.4.47)(qrcode@1.5.4)(rollup@4.21.3)(typescript@5.6.2)(vite@5.4.5(@types/node@22.5.5)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))(webpack-sources@3.2.3)(webpack@5.94.0(esbuild@0.23.1))
@@ -8275,6 +8278,8 @@ snapshots:
   '@types/estree@0.0.39': {}
 
   '@types/estree@1.0.5': {}
+
+  '@types/estree@1.0.6': {}
 
   '@types/google.maps@3.58.0': {}
 
@@ -12970,7 +12975,7 @@ snapshots:
 
   webpack@5.94.0(esbuild@0.23.1):
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
