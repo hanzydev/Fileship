@@ -172,11 +172,11 @@ export default defineEventHandler(async (event) => {
                     `${database}.json`,
                 );
 
-                const chain = new Chain([
+                const chain = Chain([
                     createReadStream(databasePath),
                     parser(),
                     new StreamArray(),
-                ]);
+                ] as const);
 
                 chain.on('data', async ({ value }) => {
                     if (value.authorId) value.authorId = currentUser.id;
