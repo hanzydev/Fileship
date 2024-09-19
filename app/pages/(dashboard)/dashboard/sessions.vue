@@ -192,7 +192,7 @@ const removeAllSessions = async (verificationData?: string) => {
     error.value = undefined;
 
     try {
-        await $fetch(`/api/users/sessions`, {
+        await $fetch(`/api/users/@me/sessions`, {
             method: 'DELETE',
             body: { verificationData },
         });
@@ -209,7 +209,7 @@ const removeAllSessions = async (verificationData?: string) => {
 };
 
 onMounted(async () => {
-    const data = await $fetch(`/api/users/sessions`);
+    const data = await $fetch(`/api/users/@me/sessions`);
 
     sessions.value = data.map((s) => ({
         ...s,

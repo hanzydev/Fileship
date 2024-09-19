@@ -108,7 +108,7 @@ const removeSession = async (verificationData?: string) => {
     error.value = undefined;
 
     try {
-        await $fetch(`/api/users/sessions/${data.id}`, {
+        await $fetch(`/api/users/@me/sessions/${data.id}`, {
             method: 'DELETE',
             body: { verificationData },
         });

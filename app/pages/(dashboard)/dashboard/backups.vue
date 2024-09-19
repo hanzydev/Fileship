@@ -114,7 +114,7 @@ const handleCreate = async () => {
     creating.value = true;
 
     try {
-        await $fetch('/api/users/backups', { method: 'POST' });
+        await $fetch('/api/users/@me/backups', { method: 'POST' });
         toast.success('Backup is being created, this may take a while.');
     } catch (error: any) {
         toast.error(error.data.message);
@@ -156,7 +156,7 @@ const handleLoad = async (event: Event) => {
         formData.append('totalChunks', chunks.toString());
 
         try {
-            await $fetch('/api/users/backups', {
+            await $fetch('/api/users/@me/backups', {
                 method: 'PUT',
                 body: formData,
                 retry: 3,
@@ -181,7 +181,7 @@ const handleLoad = async (event: Event) => {
 const { all, enter, leave } = animateCards();
 
 onMounted(async () => {
-    const data = await $fetch('/api/users/backups');
+    const data = await $fetch('/api/users/@me/backups');
 
     backups.value = data.map((u) => ({
         ...u,

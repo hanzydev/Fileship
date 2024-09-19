@@ -74,7 +74,7 @@
                     icon-size="20"
                     wfull
                     gap2
-                    :href="`/api/users/backups/${data.id}`"
+                    :href="`/api/users/@me/backups/${data.id}`"
                     target="_blank"
                 >
                     Download
@@ -115,7 +115,7 @@ const verificationError = ref<string>();
 
 const handleDelete = async () => {
     deleting.value = true;
-    await $fetch(`/api/users/backups/${data.id}`, { method: 'DELETE' });
+    await $fetch(`/api/users/@me/backups/${data.id}`, { method: 'DELETE' });
     deleting.value = false;
 
     toast.success('Backup deleted successfully');
@@ -126,7 +126,7 @@ const handleLoad = async (verificationData?: string) => {
     verificationError.value = undefined;
 
     try {
-        await $fetch(`/api/users/backups/${data.id}`, {
+        await $fetch(`/api/users/@me/backups/${data.id}`, {
             method: 'PUT',
             body: { verificationData },
         });
