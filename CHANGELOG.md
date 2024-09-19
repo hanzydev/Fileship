@@ -1,5 +1,32 @@
 # Changelog
 
+## v1.18.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.17.1...v1.18.0)
+
+### 🚀 Enhancements
+
+- Format numbers ([d093c13](https://github.com/hanzydev/Fileship/commit/d093c13))
+- Use domains everywhere ([40f7223](https://github.com/hanzydev/Fileship/commit/40f7223))
+
+### 🔥 Performance
+
+- Fix double fetching of user data when retrieving domain names ([10d7a7b](https://github.com/hanzydev/Fileship/commit/10d7a7b))
+- Significantly reduce the size of logs ([d63669d](https://github.com/hanzydev/Fileship/commit/d63669d))
+
+### 🩹 Fixes
+
+- Some types ([d0740cd](https://github.com/hanzydev/Fileship/commit/d0740cd))
+- Chain type ([6aa7863](https://github.com/hanzydev/Fileship/commit/6aa7863))
+
+### 💅 Refactors
+
+- Better user route groups ([544cacc](https://github.com/hanzydev/Fileship/commit/544cacc))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.17.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.17.0...v1.17.1)
