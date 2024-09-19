@@ -25,6 +25,7 @@ export default defineEventHandler((event) => {
             superAdmin: true,
             limits: true,
             createdAt: true,
+            domains: true,
             _count: {
                 select: { files: true, notes: true, codes: true, urls: true },
             },
@@ -38,6 +39,7 @@ export default defineEventHandler((event) => {
             totpEnabled: boolean;
             superAdmin: boolean;
             limits: IUserLimits;
+            domains: string[];
             createdAt: Date;
             _count: {
                 files: number;

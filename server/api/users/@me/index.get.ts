@@ -26,5 +26,6 @@ export default defineEventHandler(async (event) => {
         totpEnabled: currentUser.totpEnabled,
         currentSessionId: currentUser.currentSessionId,
         superAdmin: currentUser.superAdmin,
+        limits: currentUser.limits,
     };
 });

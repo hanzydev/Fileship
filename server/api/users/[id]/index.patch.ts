@@ -6,8 +6,8 @@ import { z } from 'zod';
 import { UserPermission } from '@prisma/client';
 
 import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { defaultEmbed } from '~~/utils/constants';
-import type { IEmbed } from '~~/utils/types';
+import { defaultEmbed, defaultUserLimits } from '~~/utils/constants';
+import type { IEmbed, IUserLimits } from '~~/utils/types';
 import { isAdmin } from '~~/utils/user';
 
 const validationSchema = z
@@ -313,5 +313,6 @@ export default defineEventHandler(async (event) => {
     return {
         ...updatedUser,
         embed: defu(updatedUser.embed, defaultEmbed) as IEmbed,
+        limits: defu(updatedUser.limits, defaultUserLimits) as IUserLimits,
     };
 });
