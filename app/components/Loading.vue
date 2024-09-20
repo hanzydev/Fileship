@@ -4,6 +4,7 @@
         h48
         rounded-md
         bg-fs-overlay-2
+        text-center
     >
         <div flex="~ gap4 items-center" text-slate300>
             <UiSpinner :size="32" />
