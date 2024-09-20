@@ -275,7 +275,7 @@ export const initSocket = () => {
         socket.on('update:domains', (data) => {
             domains.value = data;
 
-            const buildUrl = (route: string) => {
+            const buildPublicUrl = (route: `/${string}`) => {
                 const reqUrl = useRequestURL();
 
                 const protocol = runtimeConfig.public.returnHttps
@@ -293,24 +293,24 @@ export const initSocket = () => {
 
             files.value = files.value.map((file) => ({
                 ...file,
-                directUrl: buildUrl(`/u/${file.fileName}`),
-                embedUrl: buildUrl(`/view/${file.fileName}`),
+                directUrl: buildPublicUrl(`/u/${file.fileName}`),
+                embedUrl: buildPublicUrl(`/view/${file.fileName}`),
             }));
 
             urls.value = urls.value.map((url) => ({
                 ...url,
-                url: buildUrl(`/link/${url.vanity}`),
+                url: buildPublicUrl(`/link/${url.vanity}`),
             }));
 
             codes.value = codes.value.map((code) => ({
                 ...code,
-                url: buildUrl(`/code/${code.id}`),
+                url: buildPublicUrl(`/code/${code.id}`),
             }));
 
             folders.value = folders.value.map((folder) => ({
                 ...folder,
                 publicUrl: folder.public
-                    ? buildUrl(`/folder/${folder.id}`)
+                    ? buildPublicUrl(`/folder/${folder.id}`)
                     : undefined,
             }));
         });

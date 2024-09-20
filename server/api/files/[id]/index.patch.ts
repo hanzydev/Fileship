@@ -153,20 +153,6 @@ export default defineEventHandler(async (event) => {
         data: body.data,
     });
 
-    const reqUrl = getRequestURL(event);
-
-    const protocol = process.env.NUXT_PUBLIC_RETURN_HTTPS
-        ? process.env.NUXT_PUBLIC_RETURN_HTTPS === 'true'
-            ? 'https'
-            : 'http'
-        : reqUrl.protocol.slice(0, -1);
-
-    const domain = currentUser.domains.length
-        ? currentUser.domains[
-              Math.floor(Math.random() * currentUser.domains.length)
-          ]
-        : reqUrl.host;
-
     const updatedFile = {
         ..._updatedFile,
         size: {
@@ -185,8 +171,16 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
-        directUrl: `${protocol}://${domain}/u/${findFileById.fileName}`,
-        embedUrl: `${protocol}://${domain}/view/${findFileById.fileName}`,
+        directUrl: buildPublicUrl(
+            event,
+            currentUser.domains,
+            `/u/${findFileById.fileName}`,
+        ),
+        embedUrl: buildPublicUrl(
+            event,
+            currentUser.domains,
+            `/view/${findFileById.fileName}`,
+        ),
     };
 
     await createLog(event, {

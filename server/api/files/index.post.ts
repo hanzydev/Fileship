@@ -218,20 +218,6 @@ export default defineEventHandler(async (event) => {
 
         await fsp.rename(tempPath, filePath);
 
-        const reqUrl = getRequestURL(event);
-
-        const protocol = process.env.NUXT_PUBLIC_RETURN_HTTPS
-            ? process.env.NUXT_PUBLIC_RETURN_HTTPS === 'true'
-                ? 'https'
-                : 'http'
-            : reqUrl.protocol.slice(0, -1);
-
-        const domain = currentUser.domains.length
-            ? currentUser.domains[
-                  Math.floor(Math.random() * currentUser.domains.length)
-              ]
-            : reqUrl.host;
-
         const _upload = await prisma.file.create({
             data: {
                 fileName,
@@ -267,11 +253,21 @@ export default defineEventHandler(async (event) => {
                     );
                 }).length,
             },
-            directUrl: `${protocol}://${domain}/u/${_upload.fileName}`,
-            embedUrl: `${protocol}://${domain}/view/${_upload.fileName}`,
-            url: `${protocol}://${domain}/${
-                currentUser.embed.enabled ? 'view' : 'u'
-            }/${_upload.fileName}`,
+            directUrl: buildPublicUrl(
+                event,
+                currentUser.domains,
+                `/u/${_upload.fileName}`,
+            ),
+            embedUrl: buildPublicUrl(
+                event,
+                currentUser.domains,
+                `/view/${_upload.fileName}`,
+            ),
+            url: buildPublicUrl(
+                event,
+                currentUser.domains,
+                `/${currentUser.embed.enabled ? 'view' : 'u'}/${_upload.fileName}`,
+            ),
         };
 
         await createLog(event, {

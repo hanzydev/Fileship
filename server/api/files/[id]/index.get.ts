@@ -73,20 +73,6 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    const reqUrl = getRequestURL(event);
-
-    const protocol = process.env.NUXT_PUBLIC_RETURN_HTTPS
-        ? process.env.NUXT_PUBLIC_RETURN_HTTPS === 'true'
-            ? 'https'
-            : 'http'
-        : reqUrl.protocol.slice(0, -1);
-
-    const domain = findFileById.author.domains.length
-        ? findFileById.author.domains[
-              Math.floor(Math.random() * findFileById.author.domains.length)
-          ]
-        : reqUrl.host;
-
     return {
         ...findFileById,
         password: undefined,
@@ -109,7 +95,15 @@ export default defineEventHandler(async (event) => {
             }).length,
         },
         embed: defu(findFileById.author.embed, defaultEmbed) as IEmbed,
-        directUrl: `${protocol}://${domain}/u/${findFileById.fileName}`,
-        embedUrl: `${protocol}://${domain}/view/${findFileById.fileName}`,
+        directUrl: buildPublicUrl(
+            event,
+            findFileById.author.domains,
+            `/u/${findFileById.fileName}`,
+        ),
+        embedUrl: buildPublicUrl(
+            event,
+            findFileById.author.domains,
+            `/view/${findFileById.fileName}`,
+        ),
     };
 });

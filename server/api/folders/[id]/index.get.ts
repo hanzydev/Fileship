@@ -46,20 +46,6 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    const reqUrl = getRequestURL(event);
-
-    const protocol = process.env.NUXT_PUBLIC_RETURN_HTTPS
-        ? process.env.NUXT_PUBLIC_RETURN_HTTPS === 'true'
-            ? 'https'
-            : 'http'
-        : reqUrl.protocol.slice(0, -1);
-
-    const domain = findFolderById.author.domains.length
-        ? findFolderById.author.domains[
-              Math.floor(Math.random() * findFolderById.author.domains.length)
-          ]
-        : reqUrl.host;
-
     return {
         ...findFolderById,
         author: undefined,
@@ -75,12 +61,24 @@ export default defineEventHandler(async (event) => {
                     raw: file.size.toString(),
                     formatted: filesize(file.size.toString()),
                 },
-                directUrl: `${protocol}://${domain}/u/${file.fileName}`,
-                embedUrl: `${protocol}://${domain}/view/${file.fileName}`,
+                directUrl: buildPublicUrl(
+                    event,
+                    findFolderById.author.domains,
+                    `/u/${file.fileName}`,
+                ),
+                embedUrl: buildPublicUrl(
+                    event,
+                    findFolderById.author.domains,
+                    `/view/${file.fileName}`,
+                ),
             })),
         embed: defu(findFolderById.author.embed, defaultEmbed) as IEmbed,
         publicUrl: findFolderById.public
-            ? `${protocol}://${domain}/folder/${findFolderById.id}`
+            ? buildPublicUrl(
+                  event,
+                  findFolderById.author.domains,
+                  `/folder/${findFolderById.id}`,
+              )
             : undefined,
     };
 });

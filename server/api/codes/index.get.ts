@@ -21,20 +21,6 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const reqUrl = getRequestURL(event);
-
-    const protocol = process.env.NUXT_PUBLIC_RETURN_HTTPS
-        ? process.env.NUXT_PUBLIC_RETURN_HTTPS === 'true'
-            ? 'https'
-            : 'http'
-        : reqUrl.protocol.slice(0, -1);
-
-    const domain = currentUser.domains.length
-        ? currentUser.domains[
-              Math.floor(Math.random() * currentUser.domains.length)
-          ]
-        : reqUrl.host;
-
     return codes.map((code) => ({
         ...code,
         views: {
@@ -49,6 +35,6 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
-        url: `${protocol}://${domain}/code/${code.id}`,
+        url: buildPublicUrl(event, currentUser.domains, `/code/${code.id}`),
     }));
 });

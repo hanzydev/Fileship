@@ -87,20 +87,6 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    const reqUrl = getRequestURL(event);
-
-    const protocol = process.env.NUXT_PUBLIC_RETURN_HTTPS
-        ? process.env.NUXT_PUBLIC_RETURN_HTTPS === 'true'
-            ? 'https'
-            : 'http'
-        : reqUrl.protocol.slice(0, -1);
-
-    const domain = findUrlById.author.domains.length
-        ? findUrlById.author.domains[
-              Math.floor(Math.random() * findUrlById.author.domains.length)
-          ]
-        : reqUrl.host;
-
     return {
         ...findUrlById,
         password: undefined,
@@ -117,6 +103,10 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
-        url: `${protocol}://${domain}/link/${findUrlById.vanity}`,
+        url: buildPublicUrl(
+            event,
+            findUrlById.author.domains,
+            `/link/${findUrlById.vanity}`,
+        ),
     };
 });
