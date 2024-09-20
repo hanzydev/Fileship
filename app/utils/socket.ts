@@ -328,7 +328,8 @@ export const initSocket = () => {
                     ...logs.value.logs,
                 ],
                 users: [...logs.value.users, data.user].filter(
-                    (u, i, self) => self.findIndex((t) => t.id === u.id) === i,
+                    (u, i, self) =>
+                        u && self.findIndex((t) => t?.id === u?.id) === i,
                 ),
             };
         });
