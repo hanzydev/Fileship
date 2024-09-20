@@ -150,15 +150,13 @@ const { data } = defineProps<{
 }>();
 
 const currentUser = useAuthUser();
+const { copied, copy } = useClipboard({ legacy: true });
 
 const noteModalOpen = ref(false);
 const editModalOpen = ref(false);
 
-const copied = ref(false);
 const ctxOpen = ref(false);
 const deleting = ref(false);
-
-let copyTimeout: NodeJS.Timeout;
 
 const handleDelete = async () => {
     deleting.value = true;
@@ -169,17 +167,9 @@ const handleDelete = async () => {
 };
 
 const handleCopy = () => {
-    if (copyTimeout) clearTimeout(copyTimeout);
-
-    navigator.clipboard.writeText(data.content);
+    copy(data.content);
     ctxOpen.value = false;
 
     toast.success('Note copied to clipboard');
-
-    copied.value = true;
-
-    copyTimeout = setTimeout(() => {
-        copied.value = false;
-    }, 2_000);
 };
 </script>

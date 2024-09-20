@@ -158,12 +158,10 @@ const isAudio = computed(() => data.mimeType!.startsWith('audio/'));
 
 const currentUser = useAuthUser();
 const embed = useEmbed();
+const { copied, copy } = useClipboard({ legacy: true });
 
-const copied = ref(false);
 const deleting = ref(false);
 const editModalOpen = ref(false);
-
-let copyTimeout: NodeJS.Timeout;
 
 const handleDelete = async () => {
     deleting.value = true;
@@ -174,21 +172,13 @@ const handleDelete = async () => {
 };
 
 const handleCopy = () => {
-    if (copyTimeout) clearTimeout(copyTimeout);
-
-    navigator.clipboard.writeText(
+    copy(
         embed.value.enabled || data.embed?.enabled
             ? data.embedUrl!
             : data.directUrl!,
     );
 
     toast.success('Link copied to clipboard');
-
-    copied.value = true;
-
-    copyTimeout = setTimeout(() => {
-        copied.value = false;
-    }, 2_000);
 };
 
 const handleFullScreen = (event: MouseEvent) => {

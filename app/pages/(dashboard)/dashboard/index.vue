@@ -192,10 +192,15 @@
                                                 alignment: 'center',
                                                 class: [
                                                     'h8 w8 !p0 hover:text-white',
-                                                    copied.has(row.fileName) &&
-                                                        'text-green500',
+                                                    copiedFiles.has(
+                                                        row.fileName,
+                                                    )
+                                                        ? 'text-green500'
+                                                        : 'text-slate300',
                                                 ],
-                                                icon: copied.has(row.fileName)
+                                                icon: copiedFiles.has(
+                                                    row.fileName,
+                                                )
                                                     ? 'heroicons-solid:clipboard-check'
                                                     : 'heroicons-solid:clipboard-copy',
                                                 iconSize: '20',
@@ -280,7 +285,7 @@ const currentUser = useAuthUser();
 const currentPage = ref(1);
 
 const willBeDeleted = ref(new Set<string>());
-const copied = ref(new Map<string, NodeJS.Timeout>());
+const copiedFiles = ref(new Set<string>());
 
 const isLoading = ref(true);
 
@@ -302,21 +307,18 @@ const calculatedFiles = computed(() => {
 });
 
 const handleCopy = async (file: FileData) => {
-    const timeout = copied.value.get(file.fileName);
-    if (timeout) clearTimeout(timeout);
+    const { copy, copied } = useClipboard({ legacy: true });
 
-    await navigator.clipboard.writeText(
-        embed.value.enabled ? file.embedUrl : file.directUrl,
-    );
+    copy(embed.value.enabled ? file.embedUrl : file.directUrl);
 
     toast.success('Link copied to clipboard');
 
-    copied.value.set(
-        file.fileName,
-        setTimeout(() => {
-            copied.value.delete(file.fileName);
-        }, 2_000),
-    );
+    copiedFiles.value.add(file.fileName);
+
+    const unwatch = watch(copied, () => {
+        copiedFiles.value.delete(file.fileName);
+        unwatch();
+    });
 };
 
 const handleDelete = async (id: string) => {
@@ -340,18 +342,23 @@ onMounted(async () => {
     const foldersData = await $fetch('/api/folders');
     const filesData = await $fetch('/api/files');
     const statsData = await $fetch('/api/users/@me/stats');
+
     folders.value = foldersData.map((f) => ({
         ...f,
         createdAt: new Date(f.createdAt),
     }));
+
     files.value = filesData.map((f) => ({
         ...f,
         expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
         createdAt: new Date(f.createdAt),
     }));
+
     stats.value = statsData;
     isLoading.value = false;
+
     await nextTick();
+
     all('recentFiles', '.fileCard');
 });
 

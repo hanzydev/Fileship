@@ -196,7 +196,7 @@
                     wfull
                     gap2
                     :disabled="updating"
-                    @click="changeFolder(null)"
+                    @click="handleMoveFile(null)"
                 >
                     Take Out
                 </UiButton>
@@ -260,7 +260,7 @@
                                     :disabled="updating"
                                     wfull
                                     break-all
-                                    @click="createFolderAndAdd"
+                                    @click="handleCreateFolderWithFile"
                                 >
                                     Create folder "{{ addToFolderSearchQuery }}"
                                 </UiButton>
@@ -273,7 +273,7 @@
                                     :disabled="updating"
                                     wfull
                                     gap2
-                                    @click="changeFolder(folder.id)"
+                                    @click="handleMoveFile(folder.id)"
                                 >
                                     {{ folder.name }}
                                 </UiButton>
@@ -351,7 +351,7 @@ const handleDelete = async () => {
 };
 
 const handleCopy = () => {
-    navigator.clipboard.writeText(
+    useClipboard({ legacy: true }).copy(
         embed.value.enabled ? data.embedUrl : data.directUrl,
     );
     ctxOpen.value = false;
@@ -359,7 +359,7 @@ const handleCopy = () => {
     toast.success('Link copied to clipboard');
 };
 
-const changeFolder = async (folderId: string | null) => {
+const handleMoveFile = async (folderId: string | null) => {
     updating.value = true;
 
     await $fetch(`/api/files/${data.id}`, {
@@ -374,7 +374,7 @@ const changeFolder = async (folderId: string | null) => {
     toast.success('File moved successfully');
 };
 
-const createFolderAndAdd = async () => {
+const handleCreateFolderWithFile = async () => {
     updating.value = true;
 
     try {

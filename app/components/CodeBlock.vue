@@ -100,6 +100,7 @@
 import hljs from 'highlight.js';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
+import { toast } from 'vue-sonner';
 
 const { language, code } = defineProps<{
     language: string;
@@ -108,11 +109,12 @@ const { language, code } = defineProps<{
 }>();
 
 const renderMarkdown = ref(true);
-const copied = ref(false);
 
 const shouldRenderMarkdown = computed(
     () => language === 'markdown' && renderMarkdown.value,
 );
+
+const { copied, copy } = useClipboard({ legacy: true });
 
 const marked = new Marked(
     markedHighlight({
@@ -140,17 +142,9 @@ const registerLanguage = () => {
         .catch(() => null);
 };
 
-let copyTimeout: NodeJS.Timeout;
-
 const handleCopy = () => {
-    if (copyTimeout) clearTimeout(copyTimeout);
-
-    navigator.clipboard.writeText(code);
-    copied.value = true;
-
-    copyTimeout = setTimeout(() => {
-        copied.value = false;
-    }, 2_000);
+    copy(code);
+    toast.success('Code copied to clipboard');
 };
 </script>
 

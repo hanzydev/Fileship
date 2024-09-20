@@ -157,7 +157,7 @@ const viewModalOpen = ref(false);
 const ctxOpen = ref(false);
 
 const handleCopy = () => {
-    navigator.clipboard.writeText(
+    useClipboard({ legacy: true }).copy(
         data.embed.enabled ? data.embedUrl! : data.directUrl!,
     );
     ctxOpen.value = false;
