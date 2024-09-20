@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.18.2
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.1...v1.18.2)
+
+### 💅 Refactors
+
+- Use [useClipboard](https://vueuse.org/core/useClipboard/) for better compability ([7b3341e](https://github.com/hanzydev/Fileship/commit/7b3341e))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.18.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.0...v1.18.1)
