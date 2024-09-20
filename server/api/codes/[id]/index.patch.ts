@@ -125,8 +125,8 @@ export default defineEventHandler(async (event) => {
 
     const reqUrl = getRequestURL(event);
 
-    const protocol = process.env.RETURN_HTTPS
-        ? process.env.RETURN_HTTPS === 'true'
+    const protocol = process.env.NUXT_PUBLIC_RETURN_HTTPS
+        ? process.env.NUXT_PUBLIC_RETURN_HTTPS === 'true'
             ? 'https'
             : 'http'
         : reqUrl.protocol.slice(0, -1);

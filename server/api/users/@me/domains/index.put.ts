@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { sendToUser } from '~~/server/plugins/socketIO';
+
 const validationSchema = z
     .array(z.string(), {
         invalid_type_error: 'Invalid domains',
@@ -38,6 +40,8 @@ export default defineEventHandler(async (event) => {
             domains: body.data,
         },
     });
+
+    sendToUser(currentUser.id, 'update:domains', body.data);
 
     return body.data;
 });

@@ -1,6 +1,7 @@
 import defu from 'defu';
 import { z } from 'zod';
 
+import { sendToUser } from '~~/server/plugins/socketIO';
 import { defaultEmbed } from '~~/utils/constants';
 import type { IEmbed } from '~~/utils/types';
 
@@ -55,6 +56,8 @@ export default defineEventHandler(async (event) => {
             embed,
         },
     });
+
+    sendToUser(currentUser.id, 'update:embed', embed);
 
     return embed as IEmbed;
 });

@@ -20,10 +20,13 @@ export const initSocket = () => {
     const codes = useCodes();
     const files = useFiles();
     const users = useUsers();
+    const embed = useEmbed();
+    const domains = useDomains();
     const folders = useFolders();
     const backups = useBackups();
     const sessions = useSessions();
     const currentUser = useAuthUser();
+    const runtimeConfig = useRuntimeConfig();
 
     const route = useRoute();
     const sessionId = useCookie('sessionId');
@@ -261,6 +264,55 @@ export const initSocket = () => {
 
         socket.on('delete:backup', (backupId) => {
             backups.value = backups.value.filter((b) => b.id !== backupId);
+        });
+
+        // Embed
+        socket.on('update:embed', (data) => {
+            embed.value = data;
+        });
+
+        // Domains
+        socket.on('update:domains', (data) => {
+            domains.value = data;
+
+            const buildUrl = (route: string) => {
+                const reqUrl = useRequestURL();
+
+                const protocol = runtimeConfig.public.returnHttps
+                    ? runtimeConfig.public.returnHttps === 'true'
+                        ? 'https'
+                        : 'http'
+                    : reqUrl.protocol.slice(0, -1);
+
+                const domain = data.length
+                    ? data[Math.floor(Math.random() * data.length)]
+                    : reqUrl.host;
+
+                return `${protocol}://${domain}${route}`;
+            };
+
+            files.value = files.value.map((file) => ({
+                ...file,
+                directUrl: buildUrl(`/u/${file.fileName}`),
+                embedUrl: buildUrl(`/view/${file.fileName}`),
+            }));
+
+            urls.value = urls.value.map((url) => ({
+                ...url,
+                url: buildUrl(`/link/${url.vanity}`),
+            }));
+
+            codes.value = codes.value.map((code) => ({
+                ...code,
+                url: buildUrl(`/code/${code.id}`),
+            }));
+
+            folders.value = folders.value.map((folder) => ({
+                ...folder,
+                publicUrl: folder.public
+                    ? buildUrl(`/folder/${folder.id}`)
+                    : undefined,
+            }));
         });
 
         // Admin

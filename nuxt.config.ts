@@ -58,6 +58,7 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             fileChunkSize: 10,
+            returnHttps: '',
         },
     },
 
