@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.18.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.0...v1.18.1)
+
+### 🚀 Enhancements
+
+- Websocket support for embed config and domains ([ebd5602](https://github.com/hanzydev/Fileship/commit/ebd5602))
+
+### 🩹 Fixes
+
+- URL is empty error on ShareX ([aab41e8](https://github.com/hanzydev/Fileship/commit/aab41e8))
+- Align of texts on mobile ([6b424d3](https://github.com/hanzydev/Fileship/commit/6b424d3))
+
+### 💅 Refactors
+
+- Create a util to create public urls more easily ([15e7be9](https://github.com/hanzydev/Fileship/commit/15e7be9))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.18.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.17.1...v1.18.0)
