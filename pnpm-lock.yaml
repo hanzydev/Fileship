@@ -27,7 +27,7 @@ importers:
         version: 6.1.4
       engine.io:
         specifier: ^6.6.0
-        version: 6.6.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)
+        version: 6.6.1(bufferutil@4.0.8)(utf-8-validate@6.0.4)
       filesize:
         specifier: ^10.1.6
         version: 10.1.6
@@ -3176,8 +3176,8 @@ packages:
     resolution: {integrity: sha512-C5Pn8Wk+1vKBoHghJODM63yk8MvrO9EWZUfkAt5HAqIgPE4/8FF0PEGHXtEd40l223+cE5ABWuPzm38PHFXfMA==}
     engines: {node: '>=10.2.0'}
 
-  engine.io@6.6.0:
-    resolution: {integrity: sha512-+ky8JKEyy2WqFkzwp8ntm8EFZAW/o5YfTi2pQEoByAAFCtXiXhbBNpBi1HqLGPCjPHCqyKMlyLvc7GMNM8/1/w==}
+  engine.io@6.6.1:
+    resolution: {integrity: sha512-NEpDCw9hrvBW+hVEOK4T7v0jFJ++KgtPl4jKFwsZVfG1XhS0dCrSb3VMb9gPAd7VAdW52VT1EnaNiU2vM8C0og==}
     engines: {node: '>=10.2.0'}
 
   enhanced-resolve@5.17.1:
@@ -9715,7 +9715,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  engine.io@6.6.0(bufferutil@4.0.8)(utf-8-validate@6.0.4):
+  engine.io@6.6.1(bufferutil@4.0.8)(utf-8-validate@6.0.4):
     dependencies:
       '@types/cookie': 0.4.1
       '@types/cors': 2.8.17
