@@ -8,6 +8,5 @@
     "major": {
         "dependencyDashboardApproval": true
     },
-    "timezone": "Europe/Istanbul",
-    "schedule": ["every weekend"]
+    "timezone": "Europe/Istanbul"
 }
