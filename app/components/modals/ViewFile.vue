@@ -96,7 +96,7 @@
 
         <audio v-else-if="isAudio" :src="data.directUrl" controls wfull />
 
-        <div flex="~ gap4 max-md:col">
+        <div flex="~ gap4 <md:col">
             <UiButton
                 icon="heroicons-solid:download"
                 icon-size="24"

@@ -218,7 +218,7 @@
                 <h3>Top Types</h3>
 
                 <div
-                    flex="~ justify-between lt-xl:col"
+                    flex="~ justify-between <xl:col"
                     rounded-md
                     bg-fs-overlay-2
                 >

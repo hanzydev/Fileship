@@ -29,7 +29,7 @@
 
         <UiTextArea v-model="data!.content" label="Content" readonly wfull />
 
-        <div flex="~ gap4 max-md:col">
+        <div flex="~ gap4 <md:col">
             <UiButton
                 :icon="
                     copied
