@@ -1,4 +1,4 @@
-FROM node:22-alpine3.19 as builder
+FROM node:22.9.0-alpine3.19 as builder
 
 WORKDIR /fileship
 
@@ -9,7 +9,7 @@ RUN corepack enable
 RUN pnpm install --frozen-lockfile
 RUN pnpm build
 
-FROM node:22-alpine3.19 as runner
+FROM node:22.9.0-alpine3.19 as runner
 
 WORKDIR /fileship
 
