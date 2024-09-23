@@ -8,5 +8,6 @@
     "major": {
         "dependencyDashboardApproval": true
     },
-    "timezone": "Europe/Istanbul"
+    "timezone": "Europe/Istanbul",
+    "rangeStrategy": "bump"
 }
