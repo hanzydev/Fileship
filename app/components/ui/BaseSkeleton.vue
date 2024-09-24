@@ -1,5 +1,5 @@
 <template>
-    <div class="skeleton">
+    <div class="skeleton" data-allow-mismatch>
         <slot />
     </div>
 </template>

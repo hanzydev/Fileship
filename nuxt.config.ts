@@ -1,4 +1,3 @@
-import themes from './app/styles/themes.json';
 import pkg from './package.json';
 
 export default defineNuxtConfig({
@@ -90,11 +89,6 @@ export default defineNuxtConfig({
                 {
                     rel: 'manifest',
                     href: '/manifest.json',
-                },
-            ],
-            script: [
-                {
-                    innerHTML: `const themes=${JSON.stringify(themes)};Object.defineProperty(window,"theme",{get(){return localStorage.getItem("theme")},set(c){const e=themes[c]||themes.Fileship,s=[["--fs-background",e.background],["--fs-accent",e.accent],...e.overlays.map((t,o)=>[\`--fs-overlay-\${o+1}\`,t])];for(const[t,o]of s)document.documentElement.style.setProperty(t,o);localStorage.setItem("theme",c)}}),window.theme=localStorage.getItem("theme")||"Fileship";`,
                 },
             ],
         },
