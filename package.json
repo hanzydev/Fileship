@@ -39,7 +39,7 @@
         "@iconify-json/iconamoon": "^1.2.0",
         "@iconify-json/mdi": "^1.2.0",
         "@nuxt/eslint": "^0.5.7",
-        "@nuxt/fonts": "^0.8.0",
+        "@nuxt/fonts": "^0.9.1",
         "@nuxt/icon": "^1.5.1",
         "@nuxt/kit": "^3.13.2",
         "@nuxtjs/turnstile": "^0.9.10",
