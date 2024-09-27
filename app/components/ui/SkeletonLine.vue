@@ -1,5 +1,5 @@
 <template>
-    <UiBaseSkeleton rounded-sm :color-steps>
+    <UiBaseSkeleton rounded-xl :color-steps>
         <slot />
     </UiBaseSkeleton>
 </template>
