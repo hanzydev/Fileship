@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.18.3
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.2...v1.18.3)
+
+### 🩹 Fixes
+
+- "Cannot read properties of null" bug ([226177c](https://github.com/hanzydev/Fileship/commit/226177c))
+
+### 💅 Refactors
+
+- **renovate:** Disable scheduling ([af869c0](https://github.com/hanzydev/Fileship/commit/af869c0))
+- Remove @nuxtjs/turnstile patch ([983acb9](https://github.com/hanzydev/Fileship/commit/983acb9))
+- **renovate:** Set rangeStrategy to bump ([ff97fef](https://github.com/hanzydev/Fileship/commit/ff97fef))
+- Use windicss breakpoints instead of unocss ([01df63e](https://github.com/hanzydev/Fileship/commit/01df63e))
+- A better way to inject theme script ([84c8232](https://github.com/hanzydev/Fileship/commit/84c8232))
+- More rounded skeleton lines ([c2a1bf6](https://github.com/hanzydev/Fileship/commit/c2a1bf6))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+- Emirhan ([@hanzydev](http://github.com/hanzydev))
+
 ## v1.18.2
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.1...v1.18.2)
