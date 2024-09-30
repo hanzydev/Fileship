@@ -45,8 +45,8 @@ importers:
         specifier: ^4.8.0
         version: 4.8.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)
       stream-chain:
-        specifier: ^3.3.0
-        version: 3.3.0
+        specifier: ^3.3.1
+        version: 3.3.1
       stream-json:
         specifier: ^1.8.0
         version: 1.8.0
@@ -5470,8 +5470,8 @@ packages:
   stream-chain@2.2.5:
     resolution: {integrity: sha512-1TJmBx6aSWqZ4tx7aTpBDXK0/e2hhcNSTV8+CbFJtDjbb+I1mZ8lHit0Grw9GRT+6JbIrrDd8esncgBi8aBXGA==}
 
-  stream-chain@3.3.0:
-    resolution: {integrity: sha512-uNEIKxp7NtUY1mDI1RDCyDF7bNucmV93mxXI+xJhEI7QBIRrqm0swrJFzFK6uob80eq3YrNHt30lYXgIL+uakA==}
+  stream-chain@3.3.1:
+    resolution: {integrity: sha512-nnS2eajbUivriTAO1xVj4vn4eUOGsOHFc8b9w3IXkrQxWqiPbgYTp7bvH/P+dPyF8lNTjNEr39h1jo1zkotn4Q==}
 
   stream-json@1.8.0:
     resolution: {integrity: sha512-HZfXngYHUAr1exT4fxlbc1IOce1RYxp2ldeaf97LYCOPSoOqY/1Psp7iGvpb+6JIOgkra9zDYnPX01hGAHzEPw==}
@@ -12831,7 +12831,7 @@ snapshots:
 
   stream-chain@2.2.5: {}
 
-  stream-chain@3.3.0: {}
+  stream-chain@3.3.1: {}
 
   stream-json@1.8.0:
     dependencies:
