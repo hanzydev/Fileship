@@ -108,8 +108,10 @@ export default defineEventHandler(async (event) => {
 
         const backupStat = await fsp.stat(backupPath);
 
+        const id = basename(backupName, extname(backupName));
+
         const backupObject = {
-            id: basename(backupName, extname(backupName)),
+            id,
             createdAt: backupStat.birthtime,
             size: {
                 raw: backupStat.size,
@@ -119,7 +121,7 @@ export default defineEventHandler(async (event) => {
 
         await createLog(event, {
             action: 'Upload Backup',
-            message: `Uploaded backup ${backupName}`,
+            message: `Uploaded backup ${id}`,
         });
 
         sendToUser(currentUser.id, 'create:backup', backupObject);
