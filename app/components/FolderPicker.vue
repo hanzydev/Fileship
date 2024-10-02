@@ -60,6 +60,7 @@
                         icon-size="20"
                         wfull
                         gap2
+                        break-all
                         :disabled="isCreating"
                         @click="
                             folder =

@@ -273,6 +273,7 @@
                                     :disabled="updating"
                                     wfull
                                     gap2
+                                    break-all
                                     @click="handleMoveFile(folder.id)"
                                 >
                                     {{ folder.name }}
