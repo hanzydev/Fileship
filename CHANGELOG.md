@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.18.4
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.3...v1.18.4)
+
+### 🚀 Enhancements
+
+- Add folder selection to upload page ([cb3c17f](https://github.com/hanzydev/Fileship/commit/cb3c17f))
+
+### 🩹 Fixes
+
+- Unocss config ([7135ee2](https://github.com/hanzydev/Fileship/commit/7135ee2))
+
+### 💅 Refactors
+
+- **backups:** Remove extname from uploaded backup log ([a31de49](https://github.com/hanzydev/Fileship/commit/a31de49))
+- Use better naming for Impersonate User feature ([a1fbed1](https://github.com/hanzydev/Fileship/commit/a1fbed1))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.18.3
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.2...v1.18.3)
