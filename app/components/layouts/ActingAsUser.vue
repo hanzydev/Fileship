@@ -21,13 +21,13 @@
             icon="heroicons-solid:chevron-left"
             icon-size="24"
             variant="accent"
-            aria-label="Stop impersonating the user"
-            :loading="switching"
-            :disabled="switching"
+            :aria-label="`Stop acting as ${titleCase(currentUser!.username)}`"
+            :loading="isReturningBack"
+            :disabled="isReturningBack"
             @click="goBackAdminSession"
         />
         <p mx-auto font-medium>
-            You're now impersonating user
+            You're currently acting as
             {{ titleCase(currentUser!.username) }}.
         </p>
         <UiButton
@@ -41,9 +41,8 @@
             icon="heroicons-solid:x"
             icon-size="24"
             variant="accent"
-            aria-label="Always impersonate the user"
-            :loading="switching"
-            :disabled="switching"
+            :aria-label="`Always act as ${titleCase(currentUser!.username)}`"
+            :disabled="isReturningBack"
             @click="adminSessionId = null"
         />
     </div>
@@ -55,10 +54,10 @@ import { titleCase } from 'scule';
 const currentUser = useAuthUser();
 const adminSessionId = useCookie('adminSessionId');
 
-const switching = ref(false);
+const isReturningBack = ref(false);
 
 const goBackAdminSession = async () => {
-    switching.value = true;
+    isReturningBack.value = true;
 
     closeSocket();
 
@@ -89,6 +88,6 @@ const goBackAdminSession = async () => {
 
     initSocket();
 
-    switching.value = false;
+    isReturningBack.value = false;
 };
 </script>

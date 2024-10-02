@@ -31,18 +31,19 @@
 
         <ModalsVerifyTotp
             v-if="currentUser!.totpEnabled"
-            v-model="verifySwitchModal.open"
-            :error="verifySwitchModal.error"
-            :disabled="switching"
-            @got="(totp) => handleSwitch(verifySwitchModal.username, totp)"
+            v-model="verifyActingModal.open"
+            :error="verifyActingModal.error"
+            :disabled="!!willBeActed"
+            @got="(totp) => handleActAsUser(verifyActingModal.username, totp)"
         />
         <ModalsVerifyUserPassword
             v-else
-            v-model="verifySwitchModal.open"
-            :error="verifySwitchModal.error"
-            :disabled="switching"
+            v-model="verifyActingModal.open"
+            :error="verifyActingModal.error"
+            :disabled="!!willBeActed"
             @got="
-                (password) => handleSwitch(verifySwitchModal.username, password)
+                (password) =>
+                    handleActAsUser(verifyActingModal.username, password)
             "
         />
 
@@ -153,11 +154,12 @@
                                                 !currentUser!.superAdmin) ||
                                             row.user.username ===
                                                 currentUser!.username ||
-                                            switching,
-                                        loading: switching,
-                                        'aria-label': 'Switch user',
+                                            willBeActed,
+                                        loading:
+                                            willBeActed === row.user.username,
+                                        'aria-label': 'Act as user',
                                         onClick: () =>
-                                            handleSwitch(row.user.username),
+                                            handleActAsUser(row.user.username),
                                     }),
                                     h(UiButton, {
                                         variant: 'outline',
@@ -191,7 +193,7 @@
                                             row.user.username ===
                                                 currentUser!.username ||
                                             willBeDeleted.has(row.user.id) ||
-                                            switching,
+                                            willBeActed === row.user.username,
                                         loading: willBeDeleted.has(row.user.id),
                                         'aria-label': 'Delete user',
                                         onClick: () =>
@@ -232,12 +234,12 @@ const users = useUsers();
 const searchQuery = ref('');
 const currentPage = ref(1);
 
+const isLoading = ref(true);
+
 const willBeDeleted = ref(new Set<string>());
+const willBeActed = ref<string | null>(null);
 
 const createUserModalOpen = ref(false);
-const switching = ref(false);
-
-const isLoading = ref(true);
 
 const editModal = reactive({
     user: null as UserData | null,
@@ -250,16 +252,16 @@ const verifyDeleteModal = reactive({
     error: undefined as string | undefined,
 });
 
-const verifySwitchModal = reactive({
+const verifyActingModal = reactive({
     username: '',
     open: false,
     error: undefined as string | undefined,
 });
 
-const handleSwitch = async (username: string, verificationData?: string) => {
+const handleActAsUser = async (username: string, verificationData?: string) => {
     try {
-        switching.value = true;
-        verifySwitchModal.error = undefined;
+        willBeActed.value = username;
+        verifyActingModal.error = undefined;
 
         useCookie('adminSessionId', {
             expires: new Date(Date.now() + 1000 * 60 * 60 * 6),
@@ -288,17 +290,17 @@ const handleSwitch = async (username: string, verificationData?: string) => {
 
         initSocket();
     } catch (error: any) {
-        if (verifySwitchModal.open) {
-            verifySwitchModal.error = error.data.message;
+        if (verifyActingModal.open) {
+            verifyActingModal.error = error.data.message;
         } else {
-            verifySwitchModal.open = true;
-            verifySwitchModal.username = username;
+            verifyActingModal.open = true;
+            verifyActingModal.username = username;
         }
 
         useCookie('adminSessionId').value = null;
     }
 
-    switching.value = false;
+    willBeActed.value = null;
 };
 
 const handleDelete = async (id: string, verificationData?: string) => {

@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="isAdmin(currentUser)" bg-fs-overlay-2>
-            <LayoutsImpersonatingUser />
+            <LayoutsActingAsUser />
             <LayoutsNavbar />
             <LayoutsSidebar :items="sidebarItems" />
             <LayoutsDashboard>
