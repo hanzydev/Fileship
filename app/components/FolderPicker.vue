@@ -5,6 +5,7 @@
             <div
                 relative
                 top-6
+                h64
                 w56
                 overflow-y-auto
                 rounded-lg
@@ -21,7 +22,8 @@
 
                 <p
                     v-if="!folders.length && !searchQuery"
-                    m4
+                    mx4
+                    translate-y-16
                     text-center
                     text-slate300
                 >
