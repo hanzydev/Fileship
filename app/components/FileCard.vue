@@ -381,8 +381,7 @@ const handleCreateFolderWithFile = async () => {
         await $fetch('/api/folders', {
             method: 'POST',
             body: {
-                name: addToFolderSearchQuery.value,
-                public: false,
+                name: addToFolderSearchQuery.value.trim(),
                 files: [data.id],
             },
         });

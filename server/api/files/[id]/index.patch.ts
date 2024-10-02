@@ -12,7 +12,6 @@ const validationSchema = z
             fileName: z
                 .string({
                     invalid_type_error: 'Invalid file name',
-                    required_error: 'Missing file name',
                 })
                 .max(255, 'File name must be at most 255 characters')
                 .transform((value) => value.replace(/[^a-zA-Z0-9-_.]/g, ''))
@@ -20,28 +19,24 @@ const validationSchema = z
             password: z
                 .string({
                     invalid_type_error: 'Invalid password',
-                    required_error: 'Missing password',
                 })
                 .max(48, 'Password must be at most 48 characters')
                 .nullish(),
             maxViews: z
                 .number({
                     invalid_type_error: 'Invalid max views',
-                    required_error: 'Missing max views',
                 })
                 .min(0, 'Max views must be at least 0')
                 .optional(),
             expiration: z
                 .number({
                     invalid_type_error: 'Invalid expiration',
-                    required_error: 'Missing expiration',
                 })
                 .min(0, 'Expiration must be at least 0')
                 .nullish(),
             folderId: z
                 .string({
                     invalid_type_error: 'Invalid folder id',
-                    required_error: 'Missing folder id',
                 })
                 .nullish(),
         },
@@ -106,6 +101,22 @@ export default defineEventHandler(async (event) => {
         delete body.data.expiration;
     }
 
+    if (body.data.folderId) {
+        const findFolderById = await prisma.folder.findUnique({
+            where: {
+                id: body.data.folderId,
+            },
+        });
+
+        if (!findFolderById) {
+            throw createError({
+                statusCode: 404,
+                statusMessage: 'Not Found',
+                message: 'Folder not found',
+            });
+        }
+    }
+
     if (body.data.fileName && body.data.fileName !== findFileById.fileName) {
         const findFileByFileName = await prisma.file.findUnique({
             where: {
@@ -125,22 +136,6 @@ export default defineEventHandler(async (event) => {
             join(dataDirectory, 'uploads', findFileById.fileName),
             join(dataDirectory, 'uploads', body.data.fileName),
         );
-    }
-
-    if (body.data.folderId) {
-        const findFolderById = await prisma.folder.findUnique({
-            where: {
-                id: body.data.folderId,
-            },
-        });
-
-        if (!findFolderById) {
-            throw createError({
-                statusCode: 404,
-                statusMessage: 'Not Found',
-                message: 'Folder not found',
-            });
-        }
     }
 
     const _updatedFile = await prisma.file.update({

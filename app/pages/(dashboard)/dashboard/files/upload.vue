@@ -68,6 +68,17 @@
                     cursor-pointer="!"
                 />
             </CompressionPicker>
+            <FolderPicker v-model="settings.folder">
+                <UiInput
+                    v-model="settings.folder.label"
+                    label="Folder"
+                    type="string"
+                    :disabled="uploading"
+                    readonly
+                    wfull
+                    cursor-pointer="!"
+                />
+            </FolderPicker>
         </UiModal>
 
         <div space-y-6>
@@ -121,6 +132,14 @@
 import { toast } from 'vue-sonner';
 
 const router = useRouter();
+const folders = useFolders();
+
+const { data: foldersData } = await useFetch('/api/folders');
+
+folders.value = foldersData.value!.map((f) => ({
+    ...f,
+    createdAt: new Date(f.createdAt),
+}));
 
 const uploading = useIsUploading();
 const uploadingFiles = useUploadingFiles();
@@ -139,6 +158,10 @@ const settings = reactive<{
         label: string;
         value: number;
     };
+    folder: {
+        label: string;
+        value: string | null;
+    };
 }>({
     fileNameType: 'Random',
     maxViews: 0,
@@ -150,6 +173,10 @@ const settings = reactive<{
     compression: {
         label: 'None',
         value: 0,
+    },
+    folder: {
+        label: 'None',
+        value: null,
     },
 });
 
@@ -188,6 +215,7 @@ const handleUpload = async () => {
             const chunk = file.slice(start, end);
 
             const formData = new FormData();
+
             formData.append(
                 'file',
                 new Blob([chunk], { type: file.type }),
@@ -202,13 +230,20 @@ const handleUpload = async () => {
                 settings.compression.value.toString(),
             );
 
-            if (settings.password)
+            if (settings.password) {
                 formData.append('password', settings.password);
-            if (settings.expiration.value)
+            }
+
+            if (settings.expiration.value) {
                 formData.append(
                     'expiration',
                     settings.expiration.value.toString(),
                 );
+            }
+
+            if (settings.folder.value) {
+                formData.append('folderId', settings.folder.value);
+            }
 
             try {
                 await $fetch('/api/files', {
@@ -236,7 +271,7 @@ const handleUpload = async () => {
     );
     uploading.value = false;
 
-    if (uploadingFiles.value.length === 0) {
+    if (!uploadingFiles.value.length) {
         toast.success('All files uploaded successfully');
     } else {
         toast.error('Some files could not be uploaded');

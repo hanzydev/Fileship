@@ -15,14 +15,12 @@ const validationSchema = z.object(
         totalChunks: z
             .number({
                 invalid_type_error: 'Invalid total chunks',
-                required_error: 'Missing total chunks',
             })
             .min(1, 'Total chunks must be at least 1')
             .optional(),
         currentChunk: z
             .number({
                 invalid_type_error: 'Invalid current chunk',
-                required_error: 'Missing current chunk',
             })
             .min(1, 'Current chunk must be at least 1')
             .optional(),
@@ -38,7 +36,6 @@ const validationSchema = z.object(
         compression: z
             .number({
                 invalid_type_error: 'Invalid compression',
-                required_error: 'Missing compression',
             })
             .min(0, 'Compression must be at least 0')
             .max(100, 'Compression must be at most 100')
@@ -46,23 +43,25 @@ const validationSchema = z.object(
         password: z
             .string({
                 invalid_type_error: 'Invalid password',
-                required_error: 'Missing password',
             })
             .max(48, 'Password must be at most 48 characters')
             .nullish(),
         maxViews: z
             .number({
                 invalid_type_error: 'Invalid max views',
-                required_error: 'Missing max views',
             })
             .min(0, 'Max views must be at least 0')
             .nullish(),
         expiration: z
             .number({
                 invalid_type_error: 'Invalid expiration',
-                required_error: 'Missing expiration',
             })
             .min(0, 'Expiration must be at least 0')
+            .nullish(),
+        folderId: z
+            .string({
+                invalid_type_error: 'Invalid folder id',
+            })
             .nullish(),
     },
     { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
@@ -105,6 +104,7 @@ export default defineEventHandler(async (event) => {
         password: formData.get('password') as string,
         expiration: +formData.get('expiration')!,
         compression: +formData.get('compression')!,
+        folderId: formData.get('folderId') as string,
     });
 
     if (!body.success) {
@@ -138,6 +138,22 @@ export default defineEventHandler(async (event) => {
         });
     }
 
+    if (body.data.folderId) {
+        const findFolderById = await prisma.folder.findUnique({
+            where: {
+                id: body.data.folderId,
+            },
+        });
+
+        if (!findFolderById) {
+            throw createError({
+                statusCode: 404,
+                statusMessage: 'Not Found',
+                message: 'Folder not found',
+            });
+        }
+    }
+
     const tempPath = join(
         dataDirectory,
         'temp',
@@ -145,8 +161,9 @@ export default defineEventHandler(async (event) => {
         file.name.replace(/[^a-zA-Z0-9-_.]/g, ''),
     );
 
-    if (!existsSync(join(dataDirectory, 'temp', currentUser.id)))
+    if (!existsSync(join(dataDirectory, 'temp', currentUser.id))) {
         await fsp.mkdir(join(dataDirectory, 'temp', currentUser.id));
+    }
 
     const buffer = new Uint8Array(await file.arrayBuffer());
 
@@ -229,6 +246,7 @@ export default defineEventHandler(async (event) => {
                     ? new Date(Date.now() + body.data.expiration)
                     : null,
                 authorId: currentUser.id,
+                folderId: body.data.folderId || null,
             },
             include: {
                 views: true,
@@ -276,6 +294,10 @@ export default defineEventHandler(async (event) => {
         });
 
         sendToUser(currentUser.id, 'create:file', upload);
+        sendToUser(currentUser.id, 'folder:file:add', {
+            folderId: body.data.folderId,
+            fileId: upload.id,
+        });
 
         return upload;
     } else if (body.data.currentChunk === 1) {

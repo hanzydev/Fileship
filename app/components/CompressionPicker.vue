@@ -30,7 +30,10 @@
                     wfull
                     gap2
                     @click="
-                        compression = option;
+                        compression =
+                            compression.value === option.value
+                                ? compressions[0]!
+                                : option;
                         isOpen = false;
                     "
                 >
@@ -46,7 +49,7 @@ const isOpen = ref(false);
 
 const compression = defineModel<{
     label: string;
-    value: number | null;
+    value: number;
 }>({
     required: true,
 });

@@ -29,7 +29,10 @@
                     wfull
                     gap2
                     @click="
-                        expiration = option;
+                        expiration =
+                            expiration.value === option.value
+                                ? expirations[0]!
+                                : option;
                         isOpen = false;
                     "
                 >
