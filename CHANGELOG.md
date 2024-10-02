@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.18.5
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.4...v1.18.5)
+
+### 🩹 Fixes
+
+- Folder selector takes too long when there are many folders ([619f152](https://github.com/hanzydev/Fileship/commit/619f152))
+- Allow breaking in folder selectors ([34c858d](https://github.com/hanzydev/Fileship/commit/34c858d))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.18.4
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.3...v1.18.4)
