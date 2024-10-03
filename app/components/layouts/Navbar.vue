@@ -147,11 +147,13 @@
 
                                 <template #content>
                                     <div
+                                        ring="1 fs-accent"
+                                        h96
                                         w60
+                                        overflow-y-auto
                                         rounded-lg
                                         bg-fs-overlay-2
                                         p1.5
-                                        ring="1 fs-accent"
                                         space-y-1
                                     >
                                         <UiButton
