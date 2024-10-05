@@ -3,21 +3,13 @@ import { createReadStream, existsSync, promises as fsp } from 'node:fs';
 import { join } from 'pathe';
 
 export default defineEventHandler(async (event) => {
-    const currentUser = event.context.user;
-
-    if (!currentUser) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    userOnly(event);
 
     const backupId = getRouterParam(event, 'id');
     const backupPath = join(
         dataDirectory,
         'backups',
-        currentUser.id,
+        event.context.user!.id,
         `${backupId}.tgz`,
     );
 

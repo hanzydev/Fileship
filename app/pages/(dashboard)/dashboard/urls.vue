@@ -120,6 +120,6 @@ watch(currentPage, () => {
 
 definePageMeta({
     layout: 'dashboard',
-    middleware: 'only-url-shortener',
+    middleware: 'url-shortener-only',
 });
 </script>

@@ -125,6 +125,6 @@ watch(currentPage, () => {
 
 definePageMeta({
     layout: 'dashboard',
-    middleware: 'only-file-uploader',
+    middleware: 'file-uploader-only',
 });
 </script>

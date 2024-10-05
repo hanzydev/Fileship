@@ -7,13 +7,13 @@ export const getDevice = async (
     const oss = ['Android', 'iPhone', 'Windows', 'Macintosh', 'Linux'];
     const platforms = ['OPR', 'Edge', 'Chrome', 'Firefox', 'Safari'];
 
-    let os = oss.find((p) => userAgent?.includes(p)) || 'Unknown';
+    let os = oss.find((o) => userAgent?.includes(o)) || 'Unknown';
 
     if (os === 'iPhone' || os === 'Android') os = 'Mobile';
     if (os === 'Windows' || os === 'Macintosh' || os === 'Linux')
         os = 'Desktop';
 
-    const platform = platforms.find((b) => userAgent?.includes(b)) || 'Unknown';
+    const platform = platforms.find((p) => userAgent?.includes(p)) || 'Unknown';
 
     let ipInfo = {
         city: 'Unknown',

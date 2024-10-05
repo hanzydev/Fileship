@@ -49,16 +49,9 @@ const validationSchema = z
     });
 
 export default defineEventHandler(async (event) => {
-    const currentUser = event.context.user;
+    userOnly(event);
 
-    if (!currentUser) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
-
+    const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {

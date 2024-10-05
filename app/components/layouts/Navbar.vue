@@ -219,7 +219,7 @@ import { toast } from 'vue-sonner';
 
 import themes from '~/styles/themes.json';
 import pkg from '~~/package.json';
-import { isAdmin } from '~~/utils/user';
+import { isAdmin } from '~~/utils/permissions';
 
 const repoUrl = 'hanzydev/Fileship';
 

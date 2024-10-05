@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { lowerFirst, titleCase } from 'scule';
 
 import { sendByFilter } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { isAdmin } from '~~/utils/permissions';
 
 type CreateLogData = {
     action: string;

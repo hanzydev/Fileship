@@ -1,13 +1,7 @@
 export default defineEventHandler((event) => {
-    const currentUser = event.context.user;
+    userOnly(event);
 
-    if (!currentUser) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    const currentUser = event.context.user!;
 
     return prisma.note.findMany({
         where: {

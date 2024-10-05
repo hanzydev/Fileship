@@ -121,6 +121,6 @@ watch(currentPage, () => {
 
 definePageMeta({
     layout: 'dashboard',
-    middleware: 'only-code-sharer',
+    middleware: 'code-sharer-only',
 });
 </script>

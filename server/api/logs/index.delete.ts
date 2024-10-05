@@ -1,15 +1,8 @@
 import { sendByFilter } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { isAdmin } from '~~/utils/permissions';
 
 export default defineEventHandler(async (event) => {
-    const currentUser = event.context.user;
-    if (!currentUser?.superAdmin) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    superAdminOnly(event);
 
     await prisma.log.deleteMany({});
 

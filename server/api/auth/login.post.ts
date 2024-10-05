@@ -4,7 +4,7 @@ import { authenticator } from 'otplib';
 import { z } from 'zod';
 
 import { sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { isAdmin } from '~~/utils/permissions';
 
 const validationSchema = z.object({
     username: z

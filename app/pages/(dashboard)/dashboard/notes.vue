@@ -110,6 +110,6 @@ watch(currentPage, () => {
 
 definePageMeta({
     layout: 'dashboard',
-    middleware: 'only-note-taker',
+    middleware: 'note-taker-only',
 });
 </script>

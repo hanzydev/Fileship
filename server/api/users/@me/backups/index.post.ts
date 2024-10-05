@@ -6,7 +6,7 @@ import { join } from 'pathe';
 import { create } from 'tar';
 
 import { sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { isAdmin } from '~~/utils/permissions';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;

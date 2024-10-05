@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 import { sendToUser } from '~~/server/plugins/socketIO';
-import { canTakeNotes } from '~~/utils/user';
 
 const validationSchema = z.object(
     {
@@ -24,15 +23,9 @@ const validationSchema = z.object(
 );
 
 export default defineEventHandler(async (event) => {
-    const currentUser = event.context.user!;
-    if (!canTakeNotes(currentUser)) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    noteTakerOnly(event);
 
+    const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {

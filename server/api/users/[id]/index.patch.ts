@@ -7,8 +7,8 @@ import { UserPermission } from '@prisma/client';
 
 import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
 import { defaultEmbed, defaultUserLimits } from '~~/utils/constants';
+import { isAdmin } from '~~/utils/permissions';
 import type { IEmbed, IUserLimits } from '~~/utils/types';
-import { isAdmin } from '~~/utils/user';
 
 const validationSchema = z
     .object(
@@ -96,6 +96,8 @@ const validationSchema = z
     });
 
 export default defineEventHandler(async (event) => {
+    userOnly(event);
+
     const currentUser = event.context.user!;
     const userId = getRouterParam(event, 'id');
 

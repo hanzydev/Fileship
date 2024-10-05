@@ -27,15 +27,9 @@ const validationSchema = z.object(
 );
 
 export default defineEventHandler(async (event) => {
-    const currentUser = event.context.user;
-    if (!currentUser) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    userOnly(event);
 
+    const currentUser = event.context.user!;
     const formData = await readFormData(event);
 
     const backup = formData.get('backup');
@@ -43,7 +37,7 @@ export default defineEventHandler(async (event) => {
         throw createError({
             statusCode: 400,
             statusMessage: 'Bad Request',
-            message: 'Missing backup',
+            message: 'Missing backup file',
         });
     }
 
@@ -73,7 +67,6 @@ export default defineEventHandler(async (event) => {
     if (!existsSync(userBackupsPath)) await fsp.mkdir(userBackupsPath);
 
     const userBackups = await fsp.readdir(userBackupsPath);
-
     if (userBackups.includes(backup.name)) {
         throw createError({
             statusCode: 409,
@@ -88,7 +81,7 @@ export default defineEventHandler(async (event) => {
     if (!existsSync(join(dataDirectory, 'temp', currentUser.id)))
         await fsp.mkdir(join(dataDirectory, 'temp', currentUser.id));
 
-    const buffer = Buffer.from(await backup.arrayBuffer());
+    const buffer = new Uint8Array(await backup.arrayBuffer());
 
     if (body.data.currentChunk === body.data.totalChunks) {
         if (existsSync(tempPath)) {
@@ -107,7 +100,6 @@ export default defineEventHandler(async (event) => {
         await fsp.rename(tempPath, backupPath);
 
         const backupStat = await fsp.stat(backupPath);
-
         const id = basename(backupName, extname(backupName));
 
         const backupObject = {

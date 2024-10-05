@@ -1,10 +1,10 @@
-import { canShortenUrls } from '~~/utils/user';
+import { canUploadFiles } from '~~/utils/permissions';
 
 export default defineNuxtRouteMiddleware(() => {
     const user = useAuthUser();
     if (!user.value) return navigateTo('/login');
 
-    if (!canShortenUrls(user)) {
+    if (!canUploadFiles(user)) {
         return abortNavigation({
             statusCode: 403,
             statusMessage: 'Forbidden',

@@ -2,7 +2,7 @@ import { authenticator } from 'otplib';
 import { z } from 'zod';
 
 import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { isAdmin } from '~~/utils/permissions';
 
 const validationSchema = z.object({
     enabled: z.boolean({
@@ -19,15 +19,9 @@ const validationSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
-    const currentUser = event.context.user;
-    if (!currentUser) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    userOnly(event);
 
+    const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {

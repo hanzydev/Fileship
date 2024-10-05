@@ -1,4 +1,4 @@
-import { canShareCodes } from '~~/utils/user';
+import { canShareCodes } from '~~/utils/permissions';
 
 export default defineNuxtRouteMiddleware(() => {
     const user = useAuthUser();

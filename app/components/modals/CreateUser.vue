@@ -176,7 +176,7 @@ import { toast } from 'vue-sonner';
 
 import { UserPermission } from '@prisma/client';
 
-import { PermissionIcon } from '~~/utils/user';
+import { PermissionIcon } from '~~/utils/permissions';
 
 const isOpen = defineModel<boolean>({ required: true });
 

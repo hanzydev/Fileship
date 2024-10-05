@@ -1,16 +1,9 @@
 import type { UserPermission } from '@prisma/client';
 
 import type { IUserLimits } from '~~/utils/types';
-import { isAdmin } from '~~/utils/user';
 
 export default defineEventHandler((event) => {
-    if (!isAdmin(event)) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    adminOnly(event);
 
     return prisma.user.findMany({
         orderBy: {

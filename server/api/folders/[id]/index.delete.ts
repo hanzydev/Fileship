@@ -1,15 +1,9 @@
 import { sendToUser } from '~~/server/plugins/socketIO';
 
 export default defineEventHandler(async (event) => {
-    const currentUser = event.context.user;
-    if (!currentUser) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    userOnly(event);
 
+    const currentUser = event.context.user!;
     const folderId = getRouterParam(event, 'id');
 
     const findFolderById = await prisma.folder.findUnique({

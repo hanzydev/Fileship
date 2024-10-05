@@ -1,6 +1,6 @@
 import { io, type Socket } from 'socket.io-client';
 
-import { isAdmin } from '~~/utils/user';
+import { isAdmin } from '~~/utils/permissions';
 
 let socket: Socket | null;
 

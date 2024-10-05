@@ -1,15 +1,7 @@
 import { filesize } from 'filesize';
 
-import { isAdmin } from '~~/utils/user';
-
 export default defineEventHandler(async (event) => {
-    if (!isAdmin(event)) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    adminOnly(event);
 
     const [stat, prevStat] = await prisma.stat.findMany({
         where: {

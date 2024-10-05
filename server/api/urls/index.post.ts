@@ -2,7 +2,6 @@ import { nanoid } from 'nanoid';
 import { z } from 'zod';
 
 import { sendToUser } from '~~/server/plugins/socketIO';
-import { canShortenUrls } from '~~/utils/user';
 
 const validationSchema = z.object(
     {
@@ -46,15 +45,9 @@ const validationSchema = z.object(
 );
 
 export default defineEventHandler(async (event) => {
-    const currentUser = event.context.user!;
-    if (!canShortenUrls(currentUser)) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    urlShortenerOnly(event);
 
+    const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {

@@ -286,6 +286,6 @@ router.beforeEach((_, __, next) => {
 
 definePageMeta({
     layout: 'dashboard',
-    middleware: 'only-file-uploader',
+    middleware: 'file-uploader-only',
 });
 </script>

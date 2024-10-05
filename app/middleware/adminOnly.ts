@@ -1,4 +1,4 @@
-import { isAdmin } from '~~/utils/user';
+import { isAdmin } from '~~/utils/permissions';
 
 export default defineNuxtRouteMiddleware(() => {
     const user = useAuthUser();

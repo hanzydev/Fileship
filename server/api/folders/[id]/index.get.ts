@@ -6,7 +6,6 @@ import type { IEmbed } from '~~/utils/types';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
-
     const folderId = getRouterParam(event, 'id');
 
     const findFolderById = await prisma.folder.findUnique({

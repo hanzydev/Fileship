@@ -13,13 +13,13 @@
 </template>
 
 <script setup lang="ts">
-import type { IEmbed } from '~~/utils/types';
 import {
     canShareCodes,
     canShortenUrls,
     canTakeNotes,
     canUploadFiles,
-} from '~~/utils/user';
+} from '~~/utils/permissions';
+import type { IEmbed } from '~~/utils/types';
 
 const embed = useEmbed();
 const domains = useDomains();

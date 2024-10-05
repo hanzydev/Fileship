@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { isAdmin } from '~~/utils/user';
+import { isAdmin } from '~~/utils/permissions';
 
 const currentUser = useAuthUser();
 

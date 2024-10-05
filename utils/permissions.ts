@@ -1,11 +1,13 @@
 import { UserPermission } from '@prisma/client';
 
-type User = {
+export type User = {
     permissions: UserPermission[];
     superAdmin: boolean;
 } | null;
 
-type UserOrEvent = MaybeRef<User> | { context: { user: User } };
+export type Event = { context: { user: User } };
+
+type UserOrEvent = MaybeRef<User> | Event;
 
 const hasPermission = (user: UserOrEvent, permission: UserPermission) => {
     if (!user) return false;

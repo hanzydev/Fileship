@@ -4,7 +4,7 @@ import { join } from 'pathe';
 import { z } from 'zod';
 
 import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-import { isAdmin } from '~~/utils/user';
+import { isAdmin } from '~~/utils/permissions';
 
 const validationSchema = z
     .object({
@@ -17,16 +17,11 @@ const validationSchema = z
     .optional();
 
 export default defineEventHandler(async (event) => {
-    const currentUser = event.context.user!;
-    if (!isAdmin(currentUser)) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    adminOnly(event);
 
+    const currentUser = event.context.user!;
     const userId = getRouterParam(event, 'id');
+
     if (userId === currentUser.id) {
         throw createError({
             statusCode: 403,
