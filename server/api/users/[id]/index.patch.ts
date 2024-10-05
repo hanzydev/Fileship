@@ -22,7 +22,6 @@ const validationSchema = z
                 .optional(),
             avatar: z
                 .string({ invalid_type_error: 'Invalid avatar' })
-                .base64('Avatar must be a base64 encoded string')
                 .nullish(),
             password: z
                 .string({

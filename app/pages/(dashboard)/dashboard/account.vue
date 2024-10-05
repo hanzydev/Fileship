@@ -9,14 +9,14 @@
             v-model="verifyModalOpen"
             :error="verificationError"
             :disabled="userUpdating"
-            @got="(totp) => handleUserEdit('Account', totp)"
+            @got="handleUserEdit"
         />
         <ModalsVerifyUserPassword
             v-else
             v-model="verifyModalOpen"
             :error="verificationError"
             :disabled="userUpdating"
-            @got="(password) => handleUserEdit('Account', password)"
+            @got="handleUserEdit"
         />
 
         <ModalsVerifyTotp
@@ -248,10 +248,7 @@
                         <h5>My Account</h5>
                     </div>
                     <template #content>
-                        <form
-                            space-y-4
-                            @submit.prevent="handleUserEdit('Account')"
-                        >
+                        <form space-y-4 @submit.prevent="handleUserEdit()">
                             <p text-slate200>
                                 Update your account information here.
                             </p>
@@ -311,10 +308,7 @@
                         <h5>Avatar</h5>
                     </div>
                     <template #content>
-                        <form
-                            space-y-4
-                            @submit.prevent="handleUserEdit('Avatar')"
-                        >
+                        <form space-y-4 @submit.prevent="handleAvatarEdit">
                             <p text-slate200>Update your avatar here.</p>
 
                             <div grid="~ gap4 sm:cols-3">
@@ -335,13 +329,15 @@
                                         wfull
                                         op0
                                         :class="
-                                            userUpdating
+                                            avatarUpdating || avatarResetting
                                                 ? 'cursor-not-allowed'
                                                 : 'cursor-pointer'
                                         "
                                         type="file"
                                         accept="image/*"
-                                        :disabled="userUpdating"
+                                        :disabled="
+                                            avatarUpdating || avatarResetting
+                                        "
                                         @change.stop.prevent="
                                             (event) =>
                                                 (userEditData.cloned.value.avatar =
@@ -359,7 +355,9 @@
                                         readonly
                                         wfull
                                         placeholder="Choose a file"
-                                        :disabled="userUpdating"
+                                        :disabled="
+                                            avatarUpdating || avatarResetting
+                                        "
                                     />
                                 </div>
                                 <UiButton
@@ -371,9 +369,11 @@
                                     type="submit"
                                     icon="heroicons-solid:trash"
                                     icon-size="20"
-                                    :loading="userUpdating"
+                                    :loading="avatarResetting"
                                     :disabled="
-                                        userUpdating || !currentUser!.avatar
+                                        avatarUpdating ||
+                                        avatarResetting ||
+                                        !currentUser!.avatar
                                     "
                                     @click="
                                         userEditData.cloned.value.avatar = null
@@ -390,9 +390,10 @@
                                     type="submit"
                                     icon="heroicons:pencil-16-solid"
                                     icon-size="20"
-                                    :loading="userUpdating"
+                                    :loading="avatarUpdating"
                                     :disabled="
-                                        userUpdating ||
+                                        avatarUpdating ||
+                                        avatarResetting ||
                                         !userEditData.cloned.value.avatar
                                     "
                                 >
@@ -691,32 +692,55 @@ const verify2FaModalOpen = ref(false);
 const domainsUpdating = ref(false);
 const embedUpdating = ref(false);
 
-const handleUserEdit = async (
-    target: 'Account' | 'Avatar',
-    verificationData?: string,
-) => {
-    userUpdating.value = true;
-    userFormErrors.value = {};
-    verificationError.value = undefined;
+const avatarUpdating = ref(false);
+const avatarResetting = ref(false);
+
+const handleAvatarEdit = async () => {
+    const avatar = userEditData.cloned.value.avatar;
+    const isResetting = [null, undefined].includes(avatar as never);
+
+    if (isResetting) avatarResetting.value = true;
+    else avatarUpdating.value = true;
 
     try {
-        const avatar = userEditData.cloned.value.avatar;
-
         await $fetch(`/api/users/${currentUser.value!.id}`, {
             method: 'PATCH',
             body: {
-                username: userEditData.cloned.value.username,
-                password: userEditData.cloned.value.password || undefined,
-                avatar: ![null, undefined].includes(avatar as never)
-                    ? Buffer.from(
+                avatar: isResetting
+                    ? null
+                    : Buffer.from(
                           await new Promise<ArrayBuffer>((resolve) => {
                               const reader = new FileReader();
                               reader.readAsArrayBuffer(avatar!);
                               reader.onload = () =>
                                   resolve(reader.result as never);
                           }),
-                      ).toString('base64')
-                    : avatar,
+                      ).toString('base64'),
+            },
+        });
+
+        userEditData.cloned.value.avatar = undefined;
+
+        toast.success('Avatar updated successfully');
+    } catch (error: any) {
+        toast.error(error.data.message);
+    }
+
+    avatarUpdating.value = false;
+    avatarResetting.value = false;
+};
+
+const handleUserEdit = async (verificationData?: string) => {
+    userUpdating.value = true;
+    userFormErrors.value = {};
+    verificationError.value = undefined;
+
+    try {
+        await $fetch(`/api/users/${currentUser.value!.id}`, {
+            method: 'PATCH',
+            body: {
+                username: userEditData.cloned.value.username,
+                password: userEditData.cloned.value.password || undefined,
                 verificationData,
             },
         });
@@ -725,7 +749,7 @@ const handleUserEdit = async (
         userEditData.cloned.value.password = '';
         userEditData.cloned.value.avatar = undefined;
 
-        toast.success(`${target} updated successfully`);
+        toast.success('Account updated successfully');
     } catch (error: any) {
         userFormErrors.value = error.data.data;
 
