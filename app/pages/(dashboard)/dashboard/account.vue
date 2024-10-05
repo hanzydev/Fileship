@@ -318,7 +318,12 @@
                             <p text-slate200>Update your avatar here.</p>
 
                             <div grid="~ gap4 sm:cols-3">
-                                <div relative>
+                                <div
+                                    relative
+                                    rounded
+                                    hover="ring-1 ring-fs-accent"
+                                    motion-safe:transition-shadow
+                                >
                                     <input
                                         :key="
                                             userEditData.cloned.value.avatar
