@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.18.7
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.5...v1.18.7)
+
+### 💅 Refactors
+
+- Add ring to change avatar input ([6822a43](https://github.com/hanzydev/Fileship/commit/6822a43))
+- Better avatar system ([bd4a695](https://github.com/hanzydev/Fileship/commit/bd4a695))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.18.6
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.5...v1.18.6)
