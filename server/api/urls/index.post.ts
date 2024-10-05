@@ -1,8 +1,6 @@
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
 
-import { sendToUser } from '~~/server/plugins/socketIO';
-
 const validationSchema = z.object(
     {
         destinationUrl: z

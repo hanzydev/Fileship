@@ -1,5 +1,3 @@
-import { sendToSession, sendToUser } from '~~/server/plugins/socketIO';
-
 export default defineEventHandler(async (event) => {
     userOnly(event);
 

@@ -3,7 +3,6 @@ import { rm } from 'node:fs/promises';
 import { join } from 'pathe';
 import { z } from 'zod';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
 import { isAdmin } from '~~/utils/permissions';
 
 const validationSchema = z
@@ -144,11 +143,7 @@ export default defineEventHandler(async (event) => {
         message: `Deleted user ${findUserById.username}`,
     });
 
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'delete:user',
-        userId,
-    );
+    await sendByFilter((user) => isAdmin(user), 'delete:user', userId);
 
     sendToUser(findUserById.id, 'logout', null);
 });

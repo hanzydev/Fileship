@@ -5,7 +5,6 @@ import { z } from 'zod';
 
 import { UserPermission } from '@prisma/client';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
 import { defaultEmbed, defaultUserLimits } from '~~/utils/constants';
 import { isAdmin } from '~~/utils/permissions';
 import type { IEmbed, IUserLimits } from '~~/utils/types';
@@ -265,11 +264,10 @@ export default defineEventHandler(async (event) => {
         });
 
         await sendByFilter(
-            (socket) =>
-                socket.handshake.auth.user.id === userId
+            (user) =>
+                user.id === userId
                     ? userId === currentUser.id
-                        ? socket.handshake.auth.user.currentSessionId !==
-                          currentUser.currentSessionId
+                        ? user.currentSessionId !== currentUser.currentSessionId
                         : true
                     : false,
             'logout',
@@ -304,11 +302,7 @@ export default defineEventHandler(async (event) => {
         message: `Updated user ${updatedUser.username}`,
     });
 
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'update:user',
-        updatedUser,
-    );
+    await sendByFilter((user) => isAdmin(user), 'update:user', updatedUser);
 
     sendToUser(updatedUser.id, 'update:currentUser', updatedUser);
 

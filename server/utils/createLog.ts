@@ -2,7 +2,6 @@ import consola from 'consola';
 import dayjs from 'dayjs';
 import { lowerFirst, titleCase } from 'scule';
 
-import { sendByFilter } from '~~/server/plugins/socketIO';
 import { isAdmin } from '~~/utils/permissions';
 
 type CreateLogData = {
@@ -62,9 +61,5 @@ export const createLog = async (
         },
     });
 
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:log',
-        log,
-    );
+    await sendByFilter((user) => isAdmin(user), 'create:log', log);
 };

@@ -4,8 +4,6 @@ import { filesize } from 'filesize';
 import { join } from 'pathe';
 import { z } from 'zod';
 
-import { sendToUser } from '~~/server/plugins/socketIO';
-
 const validationSchema = z
     .object(
         {

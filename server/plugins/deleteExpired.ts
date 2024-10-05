@@ -1,5 +1,3 @@
-import { sendToUser } from './socketIO';
-
 export default defineNitroPlugin(async () => {
     setInterval(
         async () => {

@@ -1,5 +1,3 @@
-import { sendToUser } from '~~/server/plugins/socketIO';
-
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
 

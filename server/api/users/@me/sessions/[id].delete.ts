@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-import { sendToSession, sendToUser } from '~~/server/plugins/socketIO';
-
 const validationSchema = z
     .object({
         verificationData: z

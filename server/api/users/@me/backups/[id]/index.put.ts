@@ -8,8 +8,6 @@ import StreamArray from 'stream-json/streamers/StreamArray.js';
 import { extract } from 'tar';
 import { z } from 'zod';
 
-import { sendToUser } from '~~/server/plugins/socketIO';
-
 const validationSchema = z
     .object({
         verificationData: z

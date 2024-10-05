@@ -7,7 +7,6 @@ import { extname, join } from 'pathe';
 import sharp from 'sharp';
 import { z } from 'zod';
 
-import { sendToUser } from '~~/server/plugins/socketIO';
 import { isAdmin } from '~~/utils/permissions';
 
 const validationSchema = z.object(

@@ -2,8 +2,6 @@ import { rm } from 'node:fs/promises';
 
 import { join } from 'pathe';
 
-import { sendToUser } from '~~/server/plugins/socketIO';
-
 export default defineEventHandler(async (event) => {
     userOnly(event);
 

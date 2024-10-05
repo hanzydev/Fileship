@@ -1,39 +1,11 @@
 import consola from 'consola';
 import dayjs from 'dayjs';
 import { Server as Engine } from 'engine.io';
-import { type RemoteSocket, Server } from 'socket.io';
+import { Server } from 'socket.io';
 
 let io: Server;
 
-export const sendToSession = async (
-    userId: string,
-    sessionId: string,
-    event: string,
-    data: any,
-) => {
-    const clients = await io.in(userId).fetchSockets();
-    const client = clients.find(
-        (client) => client.handshake.auth.user.currentSessionId === sessionId,
-    );
-
-    return client?.emit(event, data);
-};
-
-export const sendToUser = (userId: string, event: string, data: any) =>
-    io.to(userId).emit(event, data);
-
-export const sendToAll = (event: string, data: any) => io.emit(event, data);
-
-export const sendByFilter = async (
-    filter: (socket: RemoteSocket<any, any>) => boolean,
-    event: string,
-    data: any,
-) => {
-    const clients = await io.fetchSockets();
-    const filteredClients = clients.filter(filter);
-
-    return filteredClients.map((client) => client.emit(event, data));
-};
+export const getIO = () => io;
 
 export default defineNitroPlugin((nitroApp) => {
     const engine = new Engine();
@@ -42,11 +14,9 @@ export default defineNitroPlugin((nitroApp) => {
     io.bind(engine as never);
 
     io.use(async (socket, next) => {
-        socket.handshake.auth.user = await verifyUser(
-            socket.handshake.auth.sessionId,
-        );
+        socket.data.user = await verifyUser(socket.handshake.auth.sessionId);
 
-        if (!socket.handshake.auth.user) {
+        if (!socket.data.user) {
             return next(new Error('Unauthorized'));
         }
 
@@ -54,7 +24,7 @@ export default defineNitroPlugin((nitroApp) => {
     });
 
     io.on('connection', (socket) => {
-        const user = socket.handshake.auth.user;
+        const user = socket.data.user;
         socket.join(user.id);
 
         socket.on('disconnect', () => {

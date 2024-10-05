@@ -4,7 +4,6 @@ import { z } from 'zod';
 
 import { UserPermission } from '@prisma/client';
 
-import { sendByFilter } from '~~/server/plugins/socketIO';
 import { defaultUserLimits } from '~~/utils/constants';
 import { isAdmin } from '~~/utils/permissions';
 import type { IUserLimits } from '~~/utils/types';
@@ -144,11 +143,7 @@ export default defineEventHandler(async (event) => {
         )}`,
     });
 
-    await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
-        'create:user',
-        user,
-    );
+    await sendByFilter((user) => isAdmin(user), 'create:user', user);
 
     return {
         ...user,

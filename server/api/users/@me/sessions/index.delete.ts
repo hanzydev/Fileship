@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
-
 const validationSchema = z
     .object({
         verificationData: z
@@ -39,10 +37,9 @@ export default defineEventHandler(async (event) => {
     });
 
     await sendByFilter(
-        (socket) =>
-            socket.handshake.auth.user.id === currentUser.id &&
-            socket.handshake.auth.user.currentSessionId !==
-                currentUser.currentSessionId,
+        (user) =>
+            user.id === currentUser.id &&
+            user.currentSessionId !== currentUser.currentSessionId,
         'logout',
         null,
     );

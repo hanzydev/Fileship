@@ -2,8 +2,6 @@ import { existsSync, promises as fsp } from 'node:fs';
 
 import { join } from 'pathe';
 
-import { sendToUser } from '~~/server/plugins/socketIO';
-
 export default defineEventHandler(async (event) => {
     userOnly(event);
 

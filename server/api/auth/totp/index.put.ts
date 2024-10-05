@@ -1,7 +1,6 @@
 import { authenticator } from 'otplib';
 import { z } from 'zod';
 
-import { sendByFilter, sendToUser } from '~~/server/plugins/socketIO';
 import { isAdmin } from '~~/utils/permissions';
 
 const validationSchema = z.object({
@@ -73,7 +72,7 @@ export default defineEventHandler(async (event) => {
     });
 
     await sendByFilter(
-        (socket) => isAdmin(socket.handshake.auth.user)!,
+        (user) => isAdmin(user),
         'update:user:totp',
         body.data.enabled,
     );
