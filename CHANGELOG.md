@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.18.6
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.5...v1.18.6)
+
+### 💅 Refactors
+
+- Adjust height of theme dropdown for compability reasons ([594253e](https://github.com/hanzydev/Fileship/commit/594253e))
+- Better permission control ([4f52954](https://github.com/hanzydev/Fileship/commit/4f52954))
+- Better socket system ([7bb36d1](https://github.com/hanzydev/Fileship/commit/7bb36d1))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.18.5
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.4...v1.18.5)
