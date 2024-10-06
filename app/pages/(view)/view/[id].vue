@@ -115,7 +115,7 @@
                     <h2 line-clamp-2 break-all>{{ data.fileName }}</h2>
                     <p text-slate300 font-medium="!">
                         Sorry, we cannot preview this file. But you can download
-                        it
+                        it.
                     </p>
                     <UiButton
                         wfull
