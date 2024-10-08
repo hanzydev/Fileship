@@ -22,5 +22,6 @@ export default defineEventHandler(async (event) => {
         currentSessionId: currentUser.currentSessionId,
         superAdmin: currentUser.superAdmin,
         limits: currentUser.limits,
+        backupRestoreState: currentUser.backupRestoreState,
     };
 });

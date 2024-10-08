@@ -15,26 +15,33 @@ enum UserPermission {
   ShortenUrls
 }
 
+enum BackupRestoreState {
+  Extracting
+  DeletingPreviousData
+  RestoringData
+}
+
 model User {
-  id          String           @id @unique @default(uuid())
-  username    String           @unique
-  password    String
-  avatar      String?
-  permissions UserPermission[]
-  files       File[]
-  notes       Note[]
-  codes       Code[]
-  urls        Url[]
-  folders     Folder[]
-  sessions    Session[]
-  logs        Log[]
-  totpEnabled Boolean          @default(false)
-  totpSecret  String?
-  superAdmin  Boolean          @default(false)
-  limits      Json             @default("{}")
-  embed       Json             @default("{}")
-  createdAt   DateTime         @default(now())
-  domains     String[]
+  id                 String              @id @unique @default(uuid())
+  username           String              @unique
+  password           String
+  avatar             String?
+  permissions        UserPermission[]
+  files              File[]
+  notes              Note[]
+  codes              Code[]
+  urls               Url[]
+  folders            Folder[]
+  sessions           Session[]
+  logs               Log[]
+  totpEnabled        Boolean             @default(false)
+  totpSecret         String?
+  superAdmin         Boolean             @default(false)
+  limits             Json                @default("{}")
+  embed              Json                @default("{}")
+  createdAt          DateTime            @default(now())
+  domains            String[]
+  backupRestoreState BackupRestoreState?
 }
 
 model File {

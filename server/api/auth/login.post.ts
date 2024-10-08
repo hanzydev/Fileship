@@ -186,6 +186,8 @@ export default defineEventHandler(async (event) => {
             createdAt: findUserByUsername.createdAt,
             totpEnabled: findUserByUsername.totpEnabled,
             superAdmin: findUserByUsername.superAdmin,
+            limits: findUserByUsername.limits,
+            backupRestoreState: findUserByUsername.backupRestoreState,
         },
         session: {
             id: session.id,

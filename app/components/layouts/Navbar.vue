@@ -70,24 +70,28 @@
             <h2 lt-lg:mxa lt-lg:text-2xl="!">
                 {{ appConfig.site.name }}
             </h2>
-            <UiButton
-                v-if="latestRelease"
-                variant="outline"
-                alignment="center"
-                p="y-0! x-1.5!"
-                rounded="!"
-                bg-fs-overlay-2
-                ring-1
-                :class="[
-                    latestRelease.tag_name === `v${pkg.version}`
-                        ? 'ring-fs-accent'
-                        : 'ring-red-500 hover:!bg-red-500',
-                ]"
-                :href="`https://github.com/${repoUrl}/releases/tag/v${pkg.version}`"
-                target="_blank"
+            <Transition
+                enter-active-class="motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:slide-in-left-2"
             >
-                v{{ pkg.version }}
-            </UiButton>
+                <UiButton
+                    v-if="latestRelease"
+                    variant="outline"
+                    alignment="center"
+                    p="y-0! x-1.5!"
+                    rounded="!"
+                    bg-fs-overlay-2
+                    ring-1
+                    :class="[
+                        latestRelease.tag_name === `v${pkg.version}`
+                            ? 'ring-fs-accent'
+                            : 'ring-red-500 hover:!bg-red-500',
+                    ]"
+                    :href="`https://github.com/${repoUrl}/releases/tag/v${pkg.version}`"
+                    target="_blank"
+                >
+                    v{{ pkg.version }}
+                </UiButton>
+            </Transition>
         </div>
         <div lg:mla>
             <UiDropdown placement="bottom" right-0>
@@ -223,9 +227,7 @@ import { isAdmin } from '~~/utils/permissions';
 
 const repoUrl = 'hanzydev/Fileship';
 
-const { data: latestRelease } = await useFetch<any>(
-    `https://api.github.com/repos/${repoUrl}/releases/latest`,
-);
+const latestRelease = ref();
 
 const route = useRoute();
 const appConfig = useAppConfig();
@@ -274,4 +276,10 @@ const handleLogout = async () => {
 
     toast.success('Logged out successfully');
 };
+
+onMounted(async () => {
+    latestRelease.value = await $fetch<any>(
+        `https://api.github.com/repos/${repoUrl}/releases/latest`,
+    );
+});
 </script>

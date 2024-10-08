@@ -133,9 +133,7 @@ const handleLoad = async (verificationData?: string) => {
 
         verifyModalOpen.value = false;
 
-        toast.success(
-            "Backup is being loaded, this may take a while. Don't do anything until it's done!",
-        );
+        toast.success('Backup is being loaded, this may take a while.');
     } catch (error: any) {
         if (verifyModalOpen.value) verificationError.value = error.data.message;
         else verifyModalOpen.value = true;

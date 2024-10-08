@@ -8,6 +8,8 @@ import StreamArray from 'stream-json/streamers/StreamArray.js';
 import { extract } from 'tar';
 import { z } from 'zod';
 
+import { BackupRestoreState } from '@prisma/client';
+
 import { isAdmin } from '~~/utils/permissions';
 
 const validationSchema = z
@@ -53,6 +55,23 @@ export default defineEventHandler(async (event) => {
 
     await verifySession(currentUser, body.data?.verificationData);
 
+    const updateState = async (state: BackupRestoreState | null) => {
+        await prisma.user.update({
+            where: {
+                id: currentUser.id,
+            },
+            data: {
+                backupRestoreState: state,
+            },
+        });
+
+        sendToUser(currentUser.id, 'update:currentUser', {
+            backupRestoreState: state,
+        });
+    };
+
+    await updateState(BackupRestoreState.DeletingPreviousData);
+
     const userFiles = await prisma.file.findMany({
         where: {
             authorId: currentUser.id,
@@ -65,7 +84,9 @@ export default defineEventHandler(async (event) => {
     const uploadsPath = join(dataDirectory, 'uploads');
 
     for (const { fileName } of userFiles) {
-        await fsp.rm(join(uploadsPath, fileName), { force: true });
+        await fsp
+            .rm(join(uploadsPath, fileName), { force: true })
+            .catch(() => null);
     }
 
     await prisma.$transaction([
@@ -122,18 +143,20 @@ export default defineEventHandler(async (event) => {
     const tempPath = join(dataDirectory, 'temp', backupId!);
     await fsp.mkdir(tempPath);
 
+    await updateState(BackupRestoreState.Extracting);
+
     extract({
         file: backupPath,
         cwd: tempPath,
     }).then(async () => {
         const databases = [
-            'view',
             'folder',
             'note',
             'code',
             'url',
             'file',
             'user',
+            'view',
         ];
 
         const backupUploadsPath = join(tempPath, 'uploads');
@@ -165,32 +188,42 @@ export default defineEventHandler(async (event) => {
             }
         }
 
+        await updateState(BackupRestoreState.RestoringData);
+
         for (const database of databases) {
             const databasePath = join(tempPath, 'database', `${database}.json`);
 
             if (database === 'user') {
-                const userData = JSON.parse(
-                    await fsp.readFile(databasePath, { encoding: 'utf-8' }),
-                );
+                try {
+                    const userData = JSON.parse(
+                        await fsp.readFile(databasePath, { encoding: 'utf-8' }),
+                    );
 
-                await prisma.user.update({
-                    where: {
+                    await prisma.user.update({
+                        where: {
+                            id: currentUser.id,
+                        },
+                        data: userData,
+                    });
+
+                    sendToUser(
+                        currentUser.id,
+                        'update:domains',
+                        userData.domains,
+                    );
+                    sendToUser(currentUser.id, 'update:embed', userData.embed);
+
+                    await sendByFilter((user) => isAdmin(user), 'update:user', {
                         id: currentUser.id,
-                    },
-                    data: userData,
-                });
+                        avatar: userData.avatar,
+                    });
 
-                sendToUser(currentUser.id, 'update:domains', userData.domains);
-                sendToUser(currentUser.id, 'update:embed', userData.embed);
-
-                await sendByFilter((user) => isAdmin(user), 'update:user', {
-                    id: currentUser.id,
-                    avatar: userData.avatar,
-                });
-
-                sendToUser(currentUser.id, 'update:currentUser', {
-                    avatar: userData.avatar,
-                });
+                    sendToUser(currentUser.id, 'update:currentUser', {
+                        avatar: userData.avatar,
+                    });
+                } catch {
+                    //
+                }
             } else {
                 await new Promise((resolve) => {
                     const chain = Chain([
@@ -205,11 +238,19 @@ export default defineEventHandler(async (event) => {
                             value.fileName = renamedUploads.get(value.fileName);
                         }
 
-                        await (prisma as any)[database].create({
-                            data: value,
-                        });
+                        try {
+                            await (prisma as any)[database].create({
+                                data: value,
+                            });
 
-                        sendToUser(currentUser.id, `create:${database}`, value);
+                            sendToUser(
+                                currentUser.id,
+                                `create:${database}`,
+                                value,
+                            );
+                        } catch {
+                            //
+                        }
                     });
 
                     chain.on('end', resolve);
@@ -223,5 +264,7 @@ export default defineEventHandler(async (event) => {
             action: 'Load Backup',
             message: `Loaded backup ${backupId}`,
         });
+
+        await updateState(null);
     });
 });

@@ -2,7 +2,7 @@ import type { User } from '@prisma/client';
 
 export type AuthUserData = Omit<
     User,
-    'password' | 'totpSecret' | 'embed' | 'limits' | 'domains'
+    'password' | 'totpSecret' | 'embed' | 'domains'
 > & {
     currentSessionId: string;
 };
