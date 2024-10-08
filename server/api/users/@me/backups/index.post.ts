@@ -120,6 +120,14 @@ export default defineEventHandler(async (event) => {
             key: 'view',
             data: userData[5],
         },
+        {
+            key: 'user',
+            data: {
+                avatar: currentUser.avatar,
+                embed: currentUser.embed,
+                domains: currentUser.domains,
+            },
+        },
     ]) {
         await fsp.writeFile(
             join(backupDatabasePath, `${key}.json`),

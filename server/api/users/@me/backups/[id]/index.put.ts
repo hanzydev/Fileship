@@ -8,6 +8,8 @@ import StreamArray from 'stream-json/streamers/StreamArray.js';
 import { extract } from 'tar';
 import { z } from 'zod';
 
+import { isAdmin } from '~~/utils/permissions';
+
 const validationSchema = z
     .object({
         verificationData: z
@@ -124,7 +126,15 @@ export default defineEventHandler(async (event) => {
         file: backupPath,
         cwd: tempPath,
     }).then(async () => {
-        const databases = ['view', 'folder', 'note', 'code', 'url', 'file'];
+        const databases = [
+            'view',
+            'folder',
+            'note',
+            'code',
+            'url',
+            'file',
+            'user',
+        ];
 
         const backupUploadsPath = join(tempPath, 'uploads');
         const backupUploads = await fsp.readdir(backupUploadsPath);
@@ -156,34 +166,55 @@ export default defineEventHandler(async (event) => {
         }
 
         for (const database of databases) {
-            await new Promise((resolve) => {
-                const databasePath = join(
-                    tempPath,
-                    'database',
-                    `${database}.json`,
+            const databasePath = join(tempPath, 'database', `${database}.json`);
+
+            if (database === 'user') {
+                const userData = JSON.parse(
+                    await fsp.readFile(databasePath, { encoding: 'utf-8' }),
                 );
 
-                const chain = Chain([
-                    createReadStream(databasePath),
-                    parser(),
-                    new StreamArray(),
-                ] as const);
-
-                chain.on('data', async ({ value }) => {
-                    if (value.authorId) value.authorId = currentUser.id;
-                    if (value.fileName) {
-                        value.fileName = renamedUploads.get(value.fileName);
-                    }
-
-                    await (prisma as any)[database].create({
-                        data: value,
-                    });
-
-                    sendToUser(currentUser.id, `create:${database}`, value);
+                await prisma.user.update({
+                    where: {
+                        id: currentUser.id,
+                    },
+                    data: userData,
                 });
 
-                chain.on('end', resolve);
-            });
+                sendToUser(currentUser.id, 'update:domains', userData.domains);
+                sendToUser(currentUser.id, 'update:embed', userData.embed);
+
+                await sendByFilter((user) => isAdmin(user), 'update:user', {
+                    id: currentUser.id,
+                    avatar: userData.avatar,
+                });
+
+                sendToUser(currentUser.id, 'update:currentUser', {
+                    avatar: userData.avatar,
+                });
+            } else {
+                await new Promise((resolve) => {
+                    const chain = Chain([
+                        createReadStream(databasePath),
+                        parser(),
+                        new StreamArray(),
+                    ] as const);
+
+                    chain.on('data', async ({ value }) => {
+                        if (value.authorId) value.authorId = currentUser.id;
+                        if (value.fileName) {
+                            value.fileName = renamedUploads.get(value.fileName);
+                        }
+
+                        await (prisma as any)[database].create({
+                            data: value,
+                        });
+
+                        sendToUser(currentUser.id, `create:${database}`, value);
+                    });
+
+                    chain.on('end', resolve);
+                });
+            }
         }
 
         await fsp.rm(tempPath, { recursive: true });

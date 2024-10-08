@@ -357,9 +357,12 @@ export const initSocket = () => {
 
         socket.on('update:user', (data) => {
             const index = users.value.findIndex((u) => u.id === data.id);
+
+            if (data.createdAt) data.createdAt = new Date(data.createdAt);
+
             users.value[index] = {
+                ...users.value[index],
                 ...data,
-                createdAt: new Date(data.createdAt),
             };
         });
 
