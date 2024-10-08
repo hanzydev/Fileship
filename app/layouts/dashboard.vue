@@ -2,8 +2,8 @@
     <div>
         <div v-if="currentUser" bg-fs-overlay-2>
             <Transition
-                enter-active-class="motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:slide-in-top-2"
-                leave-active-class="motion-safe:animate-out motion-safe:fade-out motion-safe:zoom-out-95 motion-safe:slide-out-top-2"
+                enter-active-class="motion-safe:(animate-in fade-in zoom-in-95 slide-in-top-2)"
+                leave-active-class="motion-safe:(animate-out fade-out zoom-out-95 slide-out-top-2)"
             >
                 <div v-if="!currentUser.backupRestoreState">
                     <LayoutsActingAsUser />

@@ -71,7 +71,7 @@
                 {{ appConfig.site.name }}
             </h2>
             <Transition
-                enter-active-class="motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:slide-in-left-2"
+                enter-active-class="motion-safe:(animate-in fade-in zoom-in-95 slide-in-left-2)"
             >
                 <UiButton
                     v-if="latestRelease"

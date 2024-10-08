@@ -30,8 +30,8 @@
             "
         >
             <Transition
-                enter-active-class="motion-safe:animate-in motion-safe:fade-in"
-                leave-active-class="motion-safe:animate-out motion-safe:fade-out"
+                enter-active-class="motion-safe:(animate-in fade-in)"
+                leave-active-class="motion-safe:(animate-out fade-out)"
             >
                 <div
                     v-if="selected"

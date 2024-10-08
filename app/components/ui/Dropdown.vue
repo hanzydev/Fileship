@@ -12,8 +12,8 @@
         </div>
         <component :is="asCtxMenu ? Teleport : 'div'" to="body">
             <Transition
-                enter-active-class="motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:data-[placement=top]:slide-in-b-2 motion-safe:data-[placement=bottom]:slide-in-top-2 motion-safe:data-[placement=left]:slide-in-right-2 motion-safe:data-[placement=right]:slide-in-left-2"
-                leave-active-class="motion-safe:animate-out motion-safe:fade-out motion-safe:zoom-out-95 motion-safe:data-[placement=top]:slide-out-bottom-2 motion-safe:data-[placement=bottom]:slide-out-top-2 motion-safe:data-[placement=left]:slide-out-right-2 motion-safe:data-[placement=right]:slide-out-left-2"
+                enter-active-class="motion-safe:(animate-in fade-in zoom-in-95 data-[placement=top]:slide-in-b-2 data-[placement=bottom]:slide-in-top-2 data-[placement=left]:slide-in-right-2 data-[placement=right]:slide-in-left-2)"
+                leave-active-class="motion-safe:(animate-out fade-out zoom-out-95 data-[placement=top]:slide-out-bottom-2 data-[placement=bottom]:slide-out-top-2 data-[placement=left]:slide-out-right-2 data-[placement=right]:slide-out-left-2)"
                 :data-placement="placement"
             >
                 <div

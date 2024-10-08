@@ -1,8 +1,8 @@
 <template>
     <Teleport to="body">
         <Transition
-            enter-active-class="motion-safe:animate-in motion-safe:fade-in"
-            leave-active-class="motion-safe:animate-out motion-safe:fade-out"
+            enter-active-class="motion-safe:(animate-in fade-in)"
+            leave-active-class="motion-safe:(animate-out fade-out)"
             @after-leave="$emit('closed')"
         >
             <div
@@ -16,8 +16,8 @@
             ></div>
         </Transition>
         <Transition
-            enter-active-class="motion-safe:animate-in overflow-hidden motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:slide-in-left-1/2 motion-safe:slide-in-top-48%"
-            leave-active-class="motion-safe:animate-out overflow-hidden motion-safe:fade-out motion-safe:zoom-out-95 motion-safe:slide-out-left-1/2 motion-safe:slide-out-top-48%"
+            enter-active-class="motion-safe:(animate-in overflow-hidden fade-in zoom-in-95 slide-in-left-1/2 slide-in-top-48%)"
+            leave-active-class="motion-safe:(animate-out overflow-hidden fade-out zoom-out-95 slide-out-left-1/2 slide-out-top-48%)"
         >
             <div
                 v-if="isOpen"

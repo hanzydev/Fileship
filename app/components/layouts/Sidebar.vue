@@ -1,8 +1,8 @@
 <template>
     <div>
         <Transition
-            enter-active-class="motion-safe:animate-in motion-safe:fade-in"
-            leave-active-class="motion-safe:animate-out motion-safe:fade-out"
+            enter-active-class="motion-safe:(animate-in fade-in)"
+            leave-active-class="motion-safe:(animate-out fade-out)"
         >
             <div
                 v-if="isOpen && width > 640 && width < 1024"
@@ -20,8 +20,8 @@
             />
         </Transition>
         <Transition
-            enter-active-class="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-left-full"
-            leave-active-class="motion-safe:animate-out motion-safe:fade-out motion-safe:slide-out-left-full"
+            enter-active-class="motion-safe:(animate-in fade-in slide-in-left-full)"
+            leave-active-class="motion-safe:(animate-out fade-out slide-out-left-full)"
         >
             <aside
                 v-if="width < 1024 ? isOpen : true"

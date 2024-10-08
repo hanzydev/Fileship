@@ -15,8 +15,8 @@
                 }"
             >
                 <Transition
-                    enter-active-class="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-left-52"
-                    leave-active-class="motion-safe:animate-out motion-safe:fade-out motion-safe:slide-out-left-52"
+                    enter-active-class="motion-safe:(animate-in fade-in slide-in-left-52)"
+                    leave-active-class="motion-safe:(animate-out fade-out slide-out-left-52)"
                 >
                     <form
                         v-if="section === 'login'"
@@ -79,8 +79,8 @@
                     </form>
                 </Transition>
                 <Transition
-                    enter-active-class="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-right-52"
-                    leave-active-class="motion-safe:animate-out motion-safe:fade-out motion-safe:slide-out-right-52"
+                    enter-active-class="motion-safe:(animate-in fade-in slide-in-right-52)"
+                    leave-active-class="motion-safe:(animate-out fade-out slide-out-right-52)"
                 >
                     <div
                         v-if="section === 'totp'"
