@@ -115,7 +115,7 @@ const handleCreate = async () => {
 
     try {
         await $fetch('/api/users/@me/backups', { method: 'POST' });
-        toast.success('Backup is being created, this may take a while.');
+        toast.success('Backup is being created, this may take a while');
     } catch (error: any) {
         toast.error(error.data.message);
     }
@@ -174,7 +174,7 @@ const handleLoad = async (event: Event) => {
     uploadProgress.value = 0;
 
     if (success) {
-        toast.success('Backup uploaded successfully, you can now restore it.');
+        toast.success('Backup uploaded successfully, you can now restore it');
     }
 };
 
