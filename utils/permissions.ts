@@ -21,9 +21,9 @@ const hasPermission = (user: UserOrEvent, permission: UserPermission) => {
     if (!_user) return false;
 
     return (
-        _user.superAdmin ||
-        _user.permissions.includes(UserPermission.Admin) ||
-        _user.permissions.includes(permission)
+        _user?.superAdmin ||
+        _user?.permissions?.includes(UserPermission.Admin) ||
+        _user?.permissions?.includes(permission)
     );
 };
 
