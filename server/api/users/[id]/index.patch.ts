@@ -31,27 +31,6 @@ const validationSchema = z
                 .min(8, 'Password must be at least 8 characters')
                 .max(48, 'Password must be at most 48 characters')
                 .optional(),
-            embed: z
-                .object({
-                    title: z
-                        .string({ invalid_type_error: 'Invalid title' })
-                        .optional(),
-                    description: z
-                        .string({ invalid_type_error: 'Invalid description' })
-                        .optional(),
-                    siteName: z
-                        .string({ invalid_type_error: 'Invalid site name' })
-                        .optional(),
-                    color: z
-                        .string({ invalid_type_error: 'Invalid color' })
-                        .startsWith('#', 'Color must start with #')
-                        .length(7, 'Color must be 7 characters')
-                        .optional(),
-                    enabled: z.boolean({
-                        invalid_type_error: 'Invalid enabled',
-                    }),
-                })
-                .optional(),
             permissions: z
                 .array(z.nativeEnum(UserPermission), {
                     invalid_type_error: 'Invalid permissions',
