@@ -74,7 +74,7 @@
                 enter-active-class="motion-safe:(animate-in fade-in zoom-in-95 slide-in-left-2)"
             >
                 <UiButton
-                    v-if="latestRelease"
+                    v-if="version"
                     variant="outline"
                     alignment="center"
                     p="y-0! x-1.5!"
@@ -82,14 +82,14 @@
                     bg-fs-overlay-2
                     ring-1
                     :class="[
-                        latestRelease.tag_name === `v${pkg.version}`
+                        version.latest
                             ? 'ring-fs-accent'
                             : 'ring-red-500 hover:!bg-red-500',
                     ]"
-                    :href="`https://github.com/${repoUrl}/releases/tag/v${pkg.version}`"
+                    :href="version.url"
                     target="_blank"
                 >
-                    v{{ pkg.version }}
+                    v{{ version.number }}
                 </UiButton>
             </Transition>
         </div>
@@ -222,12 +222,13 @@ import { titleCase, upperFirst } from 'scule';
 import { toast } from 'vue-sonner';
 
 import themes from '~/styles/themes.json';
-import pkg from '~~/package.json';
 import { isAdmin } from '~~/utils/permissions';
 
-const repoUrl = 'hanzydev/Fileship';
-
-const latestRelease = ref();
+const version = ref<{
+    number: string;
+    url: string;
+    latest: boolean;
+} | null>(null);
 
 const route = useRoute();
 const appConfig = useAppConfig();
@@ -278,8 +279,10 @@ const handleLogout = async () => {
 };
 
 onMounted(async () => {
-    latestRelease.value = await $fetch<any>(
-        `https://api.github.com/repos/${repoUrl}/releases/latest`,
-    );
+    try {
+        version.value = await $fetch<never>('/api/version');
+    } catch {
+        //
+    }
 });
 </script>

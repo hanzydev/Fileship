@@ -124,6 +124,6 @@ export default defineNitroPlugin(() => {
                 `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Stats generated`,
             );
         },
-        +(process.env.STATS_INTERVAL || 1800) * 1_000,
+        +(process.env.STATS_INTERVAL || 1_800) * 1_000,
     );
 });
