@@ -1,5 +1,38 @@
 # Changelog
 
+## v1.19.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.7...v1.19.0)
+
+### 🚀 Enhancements
+
+- **backups:** Backup some user settings ([728f45e](https://github.com/hanzydev/Fileship/commit/728f45e))
+- **backups:** Add restore progress feedback ([5ebc568](https://github.com/hanzydev/Fileship/commit/5ebc568))
+
+### 🔥 Performance
+
+- Cache the version information to improve performance and prevent potential errors ([d5ff8ad](https://github.com/hanzydev/Fileship/commit/d5ff8ad))
+
+### 🩹 Fixes
+
+- Typo on view file page ([a7bbe73](https://github.com/hanzydev/Fileship/commit/a7bbe73))
+- **permissions:** Cannot read properties of null 'includes' ([e4fdff8](https://github.com/hanzydev/Fileship/commit/e4fdff8))
+
+### 💅 Refactors
+
+- Remove unused validation ([c6621b4](https://github.com/hanzydev/Fileship/commit/c6621b4))
+- Use groups on motion-safe ([133cc46](https://github.com/hanzydev/Fileship/commit/133cc46))
+- Update some toast messages ([0b4e316](https://github.com/hanzydev/Fileship/commit/0b4e316))
+- Regenerate lock file ([12b4fa0](https://github.com/hanzydev/Fileship/commit/12b4fa0))
+- **readme:** Add some features not in ([f0e5af2](https://github.com/hanzydev/Fileship/commit/f0e5af2))
+- Remove unused process global variable ([ccfd65e](https://github.com/hanzydev/Fileship/commit/ccfd65e))
+- Make avatar input better ([eaecdd7](https://github.com/hanzydev/Fileship/commit/eaecdd7))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+- Emirhan ([@hanzydev](http://github.com/hanzydev))
+
 ## v1.18.7
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.5...v1.18.7)
