@@ -36,7 +36,7 @@
     "devDependencies": {
         "@iconify-json/heroicons": "^1.2.1",
         "@iconify-json/heroicons-solid": "^1.2.0",
-        "@iconify-json/iconamoon": "^1.2.0",
+        "@iconify-json/iconamoon": "^1.2.1",
         "@iconify-json/mdi": "^1.2.0",
         "@nuxt/eslint": "^0.5.7",
         "@nuxt/fonts": "^0.10.0",
