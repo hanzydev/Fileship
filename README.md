@@ -45,6 +45,8 @@
 -   Custom domains
 -   Two-factor authentication
 -   Multi-user support with roles
+-   Real-time updates with Socket.IO
+-   Backup creation and restoration
 -   Password protected files, urls and codes
 -   Delete files, urls and codes after a certain number of views
 
