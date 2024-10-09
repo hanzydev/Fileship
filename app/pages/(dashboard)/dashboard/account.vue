@@ -316,7 +316,8 @@
                                     relative
                                     rounded
                                     hover="ring-1 ring-fs-accent"
-                                    motion-safe:transition-shadow
+                                    active:scale-95
+                                    motion-safe:transition-all
                                 >
                                     <input
                                         :key="
