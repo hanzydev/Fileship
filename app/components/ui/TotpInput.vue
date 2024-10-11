@@ -1,7 +1,7 @@
 <template>
     <div space-y-1>
         <UiLabel :for="id" :error required>TOTP Code</UiLabel>
-        <div :id class="grid grid-cols-6 gap4">
+        <div :id grid="~ cols-6 gap2 sm:gap4">
             <input
                 v-for="digit in 6"
                 :key="digit"
