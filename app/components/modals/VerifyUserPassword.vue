@@ -6,9 +6,9 @@
             text-center
             @submit.prevent="$emit('got', password)"
         >
-            <div flex="~ items-center gap4">
+            <div flex="~ lt-sm:col items-center gap4">
                 <Icon name="heroicons-solid:hand" size="96" />
-                <h3>Verify your password</h3>
+                <h3>Verify your current password</h3>
             </div>
 
             <div wfull>
