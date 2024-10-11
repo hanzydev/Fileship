@@ -5,9 +5,12 @@
         p8
         text-center
     >
-        <div flex="~ items-center gap4">
+        <div flex="~ lt-sm:col items-center gap4">
             <Icon name="heroicons-solid:hand" size="96" />
-            <h3>Verify TOTP</h3>
+            <div lt-sm:space-y-2>
+                <h3 sm:text-left>Two-Factor Authentication</h3>
+                <p text-slate200>Enter the code from your authenticator app.</p>
+            </div>
         </div>
 
         <UiTotpInput
