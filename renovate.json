@@ -5,6 +5,7 @@
         ":semanticCommitTypeAll(chore)",
         ":dependencyDashboard"
     ],
+    "labels": ["🧩 dependencies"],
     "major": {
         "dependencyDashboardApproval": true
     },
