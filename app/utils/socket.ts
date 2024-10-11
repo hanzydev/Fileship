@@ -359,16 +359,19 @@ export const initSocket = () => {
             const index = users.value.findIndex((u) => u.id === data.id);
 
             if (data.createdAt) data.createdAt = new Date(data.createdAt);
-
-            users.value[index] = {
-                ...users.value[index],
-                ...data,
-            };
+            if (index > -1) {
+                users.value[index] = {
+                    ...users.value[index],
+                    ...data,
+                };
+            }
         });
 
         socket.on('update:user:totp', (data) => {
             const index = users.value.findIndex((u) => u.id === data.id);
-            users.value[index]!.totpEnabled = data.totpEnabled;
+            if (index > -1) {
+                users.value[index]!.totpEnabled = data.totpEnabled;
+            }
         });
     }
 };
