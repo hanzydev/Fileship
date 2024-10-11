@@ -10,7 +10,7 @@ export const sendToSession = async (
 ) => {
     const clients = await getIO().in(userId).fetchSockets();
     const client = clients.find(
-        (client) => client.handshake.auth.user.currentSessionId === sessionId,
+        (client) => client.data.user.currentSessionId === sessionId,
     );
 
     return client?.emit(event, data);
