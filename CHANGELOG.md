@@ -1,5 +1,30 @@
 # Changelog
 
+## v1.19.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.19.0...v1.19.1)
+
+### 🚀 Enhancements
+
+- **renovate:** Add labels ([65172c2](https://github.com/hanzydev/Fileship/commit/65172c2))
+
+### 🩹 Fixes
+
+- **socket:** Fix legacy code ([ec62618](https://github.com/hanzydev/Fileship/commit/ec62618))
+- **socket:** Socket-related issues when updating users not in the store ([07848c0](https://github.com/hanzydev/Fileship/commit/07848c0))
+
+### 💅 Refactors
+
+- **login:** Update old error messages ([e25e8b4](https://github.com/hanzydev/Fileship/commit/e25e8b4))
+- **login:** Corrected typo ([bb66673](https://github.com/hanzydev/Fileship/commit/bb66673))
+- **totp:** Better verify modal ([19fa875](https://github.com/hanzydev/Fileship/commit/19fa875))
+- More understandable and responsive password verify modal ([508a556](https://github.com/hanzydev/Fileship/commit/508a556))
+- More responsive totp input ([11df7e9](https://github.com/hanzydev/Fileship/commit/11df7e9))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.19.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.18.7...v1.19.0)
