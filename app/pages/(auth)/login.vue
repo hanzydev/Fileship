@@ -96,7 +96,7 @@
                             <div space-y-2>
                                 <h2>Two-Factor Authentication</h2>
                                 <p text-slate200>
-                                    Enter the code from your authenticator app
+                                    Enter the code from your authenticator app.
                                 </p>
                             </div>
                             <div mt10 wfit>
