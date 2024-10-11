@@ -24,8 +24,8 @@ const validationSchema = z.object({
         .string({
             invalid_type_error: 'Invalid TOTP',
         })
-        .min(6, 'OTP must be 6 characters')
-        .max(6, 'OTP must be 6 characters')
+        .length(6, 'TOTP must be 6 digits')
+        .regex(/^\d+$/, 'TOTP must be a number')
         .optional(),
     turnstile: z.string().optional(),
     verificationData: z
