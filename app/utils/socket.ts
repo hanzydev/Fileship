@@ -250,7 +250,7 @@ export const initSocket = () => {
             if (
                 folderIndex > -1 &&
                 fileIndex > -1 &&
-                folders.value[folderIndex]!.files.find((f) => f === fileId)
+                !folders.value[folderIndex]!.files.includes(fileId)
             ) {
                 folders.value[folderIndex]!.files.push(fileId);
             }
