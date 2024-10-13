@@ -119,10 +119,13 @@ export const initSocket = () => {
 
         socket.on('update:note', (data) => {
             const index = notes.value.findIndex((n) => n.id === data.id);
-            notes.value[index] = {
-                ...data,
-                createdAt: new Date(data.createdAt),
-            };
+
+            if (index > -1) {
+                notes.value[index] = {
+                    ...data,
+                    createdAt: new Date(data.createdAt),
+                };
+            }
         });
         socket.on('delete:note', (noteId) => {
             notes.value = notes.value.filter((n) => n.id !== noteId);
@@ -142,11 +145,14 @@ export const initSocket = () => {
 
         socket.on('update:url', (data) => {
             const index = urls.value.findIndex((u) => u.id === data.id);
-            urls.value[index] = {
-                ...data,
-                expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-                createdAt: new Date(data.createdAt),
-            };
+
+            if (index > -1) {
+                urls.value[index] = {
+                    ...data,
+                    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+                    createdAt: new Date(data.createdAt),
+                };
+            }
         });
 
         socket.on('delete:url', (urlId) => {
@@ -167,11 +173,14 @@ export const initSocket = () => {
 
         socket.on('update:code', (data) => {
             const index = codes.value.findIndex((c) => c.id === data.id);
-            codes.value[index] = {
-                ...data,
-                expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-                createdAt: new Date(data.createdAt),
-            };
+
+            if (index > -1) {
+                codes.value[index] = {
+                    ...data,
+                    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+                    createdAt: new Date(data.createdAt),
+                };
+            }
         });
 
         socket.on('delete:code', (codeId) => {
@@ -192,11 +201,14 @@ export const initSocket = () => {
 
         socket.on('update:file', (data) => {
             const index = files.value.findIndex((f) => f.id === data.id);
-            files.value[index] = {
-                ...data,
-                expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-                createdAt: new Date(data.createdAt),
-            };
+
+            if (index > -1) {
+                files.value[index] = {
+                    ...data,
+                    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+                    createdAt: new Date(data.createdAt),
+                };
+            }
         });
 
         socket.on('delete:file', (fileId) => {
@@ -216,10 +228,13 @@ export const initSocket = () => {
 
         socket.on('update:folder', (data) => {
             const index = folders.value.findIndex((f) => f.id === data.id);
-            folders.value[index] = {
-                ...data,
-                createdAt: new Date(data.createdAt),
-            };
+
+            if (index > -1) {
+                folders.value[index] = {
+                    ...data,
+                    createdAt: new Date(data.createdAt),
+                };
+            }
         });
 
         socket.on('delete:folder', (folderId) => {
@@ -232,7 +247,11 @@ export const initSocket = () => {
             );
             const fileIndex = files.value.findIndex((f) => f.id === fileId);
 
-            if (!folders.value[folderIndex]!.files.find((f) => f === fileId)) {
+            if (
+                folderIndex > -1 &&
+                fileIndex > -1 &&
+                folders.value[folderIndex]!.files.find((f) => f === fileId)
+            ) {
                 folders.value[folderIndex]!.files.push(fileId);
             }
 
@@ -245,10 +264,12 @@ export const initSocket = () => {
             );
             const fileIndex = files.value.findIndex((f) => f.id === fileId);
 
-            folders.value[folderIndex]!.files = folders.value[
-                folderIndex
-            ]!.files.filter((f) => f !== fileId);
-            files.value[fileIndex]!.folderId = null;
+            if (folderIndex > -1 && fileIndex > -1) {
+                folders.value[folderIndex]!.files = folders.value[
+                    folderIndex
+                ]!.files.filter((f) => f !== fileId);
+                files.value[fileIndex]!.folderId = null;
+            }
         });
 
         // Backups
