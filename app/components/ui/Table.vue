@@ -1,11 +1,5 @@
 <template>
-    <div
-        hfull
-        overflow-auto
-        rounded-md
-        bg-fs-overlay-2
-        p4
-    >
+    <div hfull overflow-auto rounded-md bg-fs-overlay-2 p4>
         <table wfull>
             <thead>
                 <tr>
