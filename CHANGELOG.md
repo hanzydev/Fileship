@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.19.2
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.19.1...v1.19.2)
+
+### 🔥 Performance
+
+- **folders:** Add only the necessary files to the search algorithm ([0980117](https://github.com/hanzydev/Fileship/commit/0980117))
+
+### 🩹 Fixes
+
+- **socket:** Fix bugs when updating non-store items ([735bc4a](https://github.com/hanzydev/Fileship/commit/735bc4a))
+- **socket:** Re-adding already existing files to a folder ([fa3a20e](https://github.com/hanzydev/Fileship/commit/fa3a20e))
+
+### 💅 Refactors
+
+- Ui improvements ([addda20](https://github.com/hanzydev/Fileship/commit/addda20))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.19.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.19.0...v1.19.1)
