@@ -123,27 +123,30 @@ const disabled = ref(false);
 
 const selectedFiles = ref(data.files);
 
-const { results } = useFuse(searchQuery, files, {
-    matchAllWhenSearchEmpty: true,
-    fuseOptions: {
-        keys: [
-            {
-                name: 'fileName',
-                weight: 2,
-            },
-            'mimeType',
-        ],
+const { results } = useFuse(
+    searchQuery,
+    computed(() =>
+        editable
+            ? files.value.filter((f) => [null, data.id].includes(f.folderId))
+            : files.value.filter((f) => selectedFiles.value.includes(f.id)),
+    ),
+    {
+        matchAllWhenSearchEmpty: true,
+        fuseOptions: {
+            keys: [
+                {
+                    name: 'fileName',
+                    weight: 2,
+                },
+                'mimeType',
+            ],
+        },
     },
-});
+);
 
 const filtered = computed<FileData[]>(() =>
     results.value
         .map((r) => r.item)
-        .filter((f) =>
-            editable
-                ? [null, data.id].includes(f.folderId)
-                : f.folderId === data.id,
-        )
         .filter(
             (f) =>
                 !filterType.value.length ||
