@@ -11,6 +11,7 @@
             p4
             space-y-4
             motion-safe:transition-shadow
+            ring="1 fs-overlay-4"
             :class="
                 ctxOpen ? 'cursor-default' : 'hover:(ring-1 ring-fs-accent)'
             "

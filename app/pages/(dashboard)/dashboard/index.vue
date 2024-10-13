@@ -119,6 +119,7 @@
                 <h3>Files</h3>
                 <div space-y-4>
                     <UiTable
+                        ring="1 fs-overlay-4"
                         :loading="isLoading"
                         :columns="[
                             {

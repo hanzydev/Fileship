@@ -8,6 +8,8 @@
             gap2
             text-slate300
             sm:w56
+            ring-none="!"
+            border="1 dashed fs-overlay-4 hover:fs-accent hover:solid"
         >
             Filter type
         </UiButton>

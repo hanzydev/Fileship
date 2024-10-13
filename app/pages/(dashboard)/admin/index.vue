@@ -50,7 +50,13 @@
                 <h3>Views</h3>
 
                 <Loading v-if="isLoading" />
-                <div v-else min-h-365px rounded-md bg-fs-overlay-2>
+                <div
+                    v-else
+                    min-h-365px
+                    rounded-md
+                    bg-fs-overlay-2
+                    ring="1 fs-overlay-4"
+                >
                     <ClientOnly>
                         <VueApexCharts
                             type="area"
@@ -137,6 +143,7 @@
                     flex="~ justify-between lt-xl:col"
                     rounded-md
                     bg-fs-overlay-2
+                    ring="1 fs-overlay-4"
                 >
                     <UiTable
                         :loading="isLoading"
@@ -221,6 +228,7 @@
                     flex="~ justify-between <xl:col"
                     rounded-md
                     bg-fs-overlay-2
+                    ring="1 fs-overlay-4"
                 >
                     <UiTable
                         :loading="isLoading"

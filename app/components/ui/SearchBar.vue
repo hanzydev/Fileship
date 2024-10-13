@@ -20,12 +20,13 @@
             pl11
             pr4
             outline-none
-            focus:ring-1
-            focus:ring-fs-accent
-            motion-safe:transition-shadow
+            focus:border-fs-accent
+            focus:border-solid
+            motion-safe:transition-all
             placeholder-slate-300
             type="text"
             :placeholder
+            border="1 dashed fs-overlay-4"
         />
     </div>
 </template>

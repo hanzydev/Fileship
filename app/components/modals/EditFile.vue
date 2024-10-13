@@ -21,7 +21,7 @@
                 :disabled="updating"
             />
             <UiInput
-                v-model="editData.cloned.value!.maxViews"
+                v-model="editData.cloned.value!.maxViews!"
                 wfull
                 label="Max Views"
                 caption="Set to 0 for unlimited views"
@@ -81,7 +81,7 @@ import { toast } from 'vue-sonner';
 import { ExpirationPicker } from '#components';
 
 const { data } = defineProps<{
-    data: FileData;
+    data: Partial<FileData>;
 }>();
 
 const isOpen = defineModel<boolean>({ required: true });
@@ -93,7 +93,7 @@ const expirationPickerRef = ref<InstanceType<typeof ExpirationPicker>>();
 
 const editData = useCloned({
     ...data,
-    fileName: getBasename(data.fileName),
+    fileName: getBasename(data.fileName!),
     expiration: {
         label: 'Never',
         value: null as number | null,
@@ -108,7 +108,7 @@ const handleEdit = async () => {
         await $fetch(`/api/files/${data!.id}`, {
             method: 'PATCH',
             body: {
-                fileName: `${editData.cloned.value!.fileName}${getExtname(data.fileName)}`,
+                fileName: `${editData.cloned.value!.fileName}${getExtname(data.fileName!)}`,
                 password: editData.cloned.value!.password,
                 maxViews: editData.cloned.value!.maxViews,
                 expiration: editData.cloned.value!.expiration.value,

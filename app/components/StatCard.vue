@@ -7,6 +7,7 @@
         bg-fs-overlay-2
         p4
         space-y-2
+        :class="!loading && 'border-1 border-fs-overlay-4'"
     >
         <div flex="~ items-center justify-between">
             <h6 text-slate400 uppercase>{{ title }}</h6>
@@ -15,9 +16,9 @@
         <div flex="~ items-baseline gap2">
             <UiSkeletonLine
                 v-if="loading"
-                h6
+                h7
                 :style="{
-                    width: `${randomNumber(20, 40)}%`,
+                    width: `${randomNumber(25, 50)}%`,
                 }"
             />
             <h4 v-else>

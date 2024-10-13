@@ -9,20 +9,18 @@
                 :id="label && id"
                 v-model="value"
                 rounded-md
+                bg-fs-overlay-3
                 px3.5
                 py2.5
                 outline-none
                 motion-safe:transition-shadow
                 placeholder-slate-300
+                ring="1 fs-overlay-4"
                 :class="[
                     disabled || $props.readonly
                         ? 'cursor-not-allowed'
-                        : 'focus:ring-1 focus:ring-fs-accent',
-                    {
-                        'bg-fs-overlay-3': variant === 'primary',
-                        'bg-fs-overlay-4': variant === 'secondary',
-                        pr11: $attrs.type === 'password',
-                    },
+                        : 'focus:ring-fs-accent',
+                    $attrs.type === 'password' && 'pr11',
                 ]"
                 :required
                 :disabled
@@ -97,12 +95,7 @@
 </template>
 
 <script setup lang="ts">
-const {
-    variant = 'primary',
-    min = 0,
-    max = Infinity,
-} = defineProps<{
-    variant?: 'primary' | 'secondary';
+const { min = 0, max = Infinity } = defineProps<{
     error?: string;
     label?: string;
     required?: boolean;

@@ -17,6 +17,7 @@
             relative
             rounded-md
             motion-safe:transition-shadow
+            ring="1 fs-overlay-4"
             :class="[
                 selected && '!ring-2 ring-fs-accent',
                 !selectable && (ctxOpen || !canBeViewed)

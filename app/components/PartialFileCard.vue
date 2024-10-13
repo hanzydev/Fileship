@@ -17,6 +17,7 @@
             rounded-md
             bg-fs-overlay-2
             motion-safe:transition-shadow
+            ring="1 fs-overlay-4"
             :class="
                 ctxOpen
                     ? 'cursor-default'

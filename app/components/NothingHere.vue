@@ -5,6 +5,7 @@
         rounded-md
         bg-fs-overlay-2
         text-center
+        ring="1 fs-overlay-4"
     >
         <div flex="~ gap4 items-center" text-slate300>
             <Icon :name="icon" size="32" />

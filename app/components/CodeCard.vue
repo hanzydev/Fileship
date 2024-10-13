@@ -15,6 +15,7 @@
             p4
             space-y-4
             motion-safe:transition-shadow
+            ring="1 fs-overlay-4"
             target="_blank"
         >
             <h5 line-clamp-1 break-words text-slate400>

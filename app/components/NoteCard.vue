@@ -1,67 +1,5 @@
 <template>
-    <UiModal v-model="noteModalOpen" p8 space-y-4>
-        <div flex="~ justify-between" wfull>
-            <h2 line-clamp-2 break-all>{{ data.title }}</h2>
-
-            <div flex="~ gap2.5">
-                <UiButton
-                    v-if="currentUser?.id === data.authorId"
-                    alignment="center"
-                    class="h10 w10 !p0 hover:text-white"
-                    icon="heroicons:pencil-16-solid"
-                    icon-size="24"
-                    @click="
-                        noteModalOpen = false;
-                        editModalOpen = true;
-                    "
-                />
-
-                <UiButton
-                    variant="accent"
-                    alignment="center"
-                    class="h10 w10 !p0 hover:text-white"
-                    icon="heroicons-solid:x"
-                    icon-size="24"
-                    @click="noteModalOpen = false"
-                />
-            </div>
-        </div>
-
-        <UiTextArea v-model="data!.content" label="Content" readonly wfull />
-
-        <div flex="~ gap4 <md:col">
-            <UiButton
-                :icon="
-                    copied
-                        ? 'heroicons-solid:clipboard-check'
-                        : 'heroicons-solid:clipboard-copy'
-                "
-                :icon-class="copied && 'text-green500'"
-                icon-size="24"
-                wfull
-                gap2
-                target="_blank"
-                @click="handleCopy"
-            >
-                Copy
-            </UiButton>
-
-            <UiButton
-                v-if="currentUser?.id === data.authorId"
-                variant="dangerFill"
-                icon="heroicons-solid:trash"
-                icon-size="20"
-                wfull
-                gap2
-                :disabled="deleting"
-                :loading="deleting"
-                @click="handleDelete"
-            >
-                Delete
-            </UiButton>
-        </div>
-    </UiModal>
-
+    <ModalsViewNote v-model="viewModalOpen" :data />
     <ModalsEditNote v-model="editModalOpen" :data />
 
     <UiDropdown v-model="ctxOpen" as-ctx-menu placement="bottom">
@@ -74,12 +12,13 @@
             p4
             space-y-4
             motion-safe:transition-shadow
+            ring="1 fs-overlay-4"
             :class="
                 ctxOpen ? 'cursor-default' : 'hover:(ring-1 ring-fs-accent)'
             "
             @click="
                 ctxOpen = false;
-                noteModalOpen = true;
+                viewModalOpen = true;
             "
         >
             <h5 line-clamp-1 break-words text-slate400>
@@ -149,10 +88,9 @@ const { data } = defineProps<{
     data: NoteData;
 }>();
 
-const currentUser = useAuthUser();
-const { copied, copy } = useClipboard({ legacy: true });
+const { copy } = useClipboard({ legacy: true });
 
-const noteModalOpen = ref(false);
+const viewModalOpen = ref(false);
 const editModalOpen = ref(false);
 
 const ctxOpen = ref(false);

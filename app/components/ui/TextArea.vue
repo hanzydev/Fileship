@@ -22,7 +22,7 @@
                     'bg-fs-overlay-4': variant === 'secondary',
                 },
             ]"
-            :rows="value.split('\n').length"
+            :rows="lines > 2 ? lines : 2"
             :required
             :disabled
             :readonly
@@ -47,4 +47,6 @@ defineOptions({
 const value = defineModel<string>({ required: true });
 
 const id = useId();
+
+const lines = computed(() => value.value.split('\n').length);
 </script>

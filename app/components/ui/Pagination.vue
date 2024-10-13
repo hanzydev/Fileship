@@ -5,6 +5,7 @@
         rounded-md
         bg-fs-overlay-2
         p2
+        ring="1 fs-overlay-4"
     >
         <div grid="~ cols-2 gap2">
             <UiButton

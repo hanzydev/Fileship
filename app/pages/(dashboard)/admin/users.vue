@@ -62,6 +62,7 @@
             </div>
             <UiSearchBar v-model="searchQuery" placeholder="Search users..." />
             <UiTable
+                ring="1 fs-overlay-4"
                 :loading="isLoading"
                 :columns="[
                     {

@@ -1,5 +1,5 @@
 <template>
-    <div z20 wfull rounded-md bg-fs-overlay-2>
+    <div z20 wfull rounded-md bg-fs-overlay-2 ring="1 fs-overlay-4">
         <div
             flex="~ items-center justify-between"
             cursor-pointer

@@ -34,6 +34,7 @@
             </div>
             <UiSearchBar v-model="searchQuery" placeholder="Search logs..." />
             <UiTable
+                ring="1 fs-overlay-4"
                 :loading="isLoading"
                 :columns="[
                     {

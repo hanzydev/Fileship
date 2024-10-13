@@ -1,19 +1,15 @@
 <template>
-    <div
-        flex="~ items-center justify-center"
+    <UiButton
+        alignment="center"
         border="2 dashed fs-accent"
+        ring-none="!"
         wfull
-        rounded-md
-        bg-fs-overlay-2
-        p4
-        active:scale-95
-        motion-safe:transition-transform
         :class="disabled ? 'cursor-not-allowed op75' : 'cursor-pointer'"
         @click="!disabled && $emit('action')"
     >
         <UiSpinner v-if="disabled" :size="56" stroke-slate400 />
         <Icon v-else :name="icon" size="56" text-slate400 />
-    </div>
+    </UiButton>
 </template>
 
 <script setup lang="ts">

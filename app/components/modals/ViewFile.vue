@@ -2,7 +2,7 @@
     <ModalsEditFile
         v-if="currentUser?.id === data.authorId"
         v-model="editModalOpen"
-        :data="data as never"
+        :data
     />
 
     <UiModal
@@ -22,6 +22,7 @@
                     class="h10 w10 !p0 hover:text-white"
                     icon="heroicons:pencil-16-solid"
                     icon-size="24"
+                    ring="1 fs-overlay-4"
                     @click="
                         isOpen = false;
                         editModalOpen = true;
