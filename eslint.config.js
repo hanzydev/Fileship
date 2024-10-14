@@ -17,6 +17,7 @@ export default withNuxt([
             'vue/html-closing-bracket-newline': 'off',
             'vue/first-attribute-linebreak': 'off',
             'vue/no-v-html': 'off',
+            'vue/require-valid-default-prop': 'off',
         },
     },
     {

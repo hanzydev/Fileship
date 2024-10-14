@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-const { colorSteps } = defineProps<{
+defineProps<{
     colorSteps: [string, string];
 }>();
 </script>
