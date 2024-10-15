@@ -22,5 +22,5 @@ export default cachedEventHandler(
             return { ...response, latest: true };
         }
     },
-    { swr: true, maxAge: 10_800_000 },
+    { maxAge: 1_800 },
 );
