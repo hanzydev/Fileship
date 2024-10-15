@@ -59,8 +59,8 @@
             <UiButton
                 v-if="route.path.startsWith('/admin')"
                 p0="!"
-                h10
-                w10
+                h9
+                w9
                 alignment="center"
                 icon="heroicons-solid:chevron-left"
                 icon-size="32"
