@@ -7,11 +7,11 @@
         text-center
         ring="1 fs-overlay-4"
     >
-        <div flex="~ gap4 items-center" text-slate300>
+        <div flex="~ gap4 items-center" text-slate200>
             <Icon :name="icon" size="32" />
             <h3>Nothing here</h3>
         </div>
-        <p text-slate400>{{ message }}</p>
+        <p text-slate300>{{ message }}</p>
     </div>
 </template>
 
