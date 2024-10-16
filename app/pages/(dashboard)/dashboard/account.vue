@@ -315,9 +315,13 @@
                                 <div
                                     relative
                                     rounded
-                                    hover="ring-1 ring-fs-accent"
+                                    border="1 dashed fs-overlay-4"
                                     active:scale-95
                                     motion-safe:transition-all
+                                    :class="
+                                        !(avatarUpdating || avatarResetting) &&
+                                        'hover:(border-fs-accent border-solid)'
+                                    "
                                 >
                                     <input
                                         :key="
@@ -359,6 +363,7 @@
                                         :disabled="
                                             avatarUpdating || avatarResetting
                                         "
+                                        ring-none
                                     />
                                 </div>
                                 <UiButton
