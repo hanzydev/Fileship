@@ -210,12 +210,20 @@ export default defineEventHandler(async (event) => {
         }
 
         const fileSize = (await fsp.stat(tempPath)).size;
-        const totalSize = (await fsp.stat(join(dataDirectory, 'uploads'))).size;
+        const totalSize = await prisma.file.aggregate({
+            where: {
+                authorId: currentUser.id,
+            },
+            _sum: {
+                size: true,
+            },
+        });
 
         if (
             !isAdmin(currentUser) &&
             currentUser.limits.usableSpace > -1 &&
-            totalSize + fileSize > currentUser.limits.usableSpace * 1024 * 1024
+            (totalSize._sum.size ?? 0n) + BigInt(fileSize) >
+                BigInt(currentUser.limits.usableSpace * 1024 * 1024)
         ) {
             throw createError({
                 statusCode: 400,
