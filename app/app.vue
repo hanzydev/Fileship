@@ -31,7 +31,7 @@ const currentTheme = useTheme();
 const currentUser = useAuthUser();
 
 onMounted(() => {
-    currentTheme.value = window!.theme;
+    window!.theme = currentTheme.value;
     initSocket();
 });
 

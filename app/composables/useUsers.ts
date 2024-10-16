@@ -4,7 +4,12 @@ import type { IUserLimits } from '~~/utils/types';
 
 export type UserData = Omit<
     User,
-    'password' | 'totpSecret' | 'embed' | 'limits' | 'backupRestoreState'
+    | 'password'
+    | 'totpSecret'
+    | 'embed'
+    | 'limits'
+    | 'backupRestoreState'
+    | 'theme'
 > & {
     limits: IUserLimits;
 };

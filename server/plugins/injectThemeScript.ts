@@ -8,7 +8,7 @@ const themes=${JSON.stringify(themes)};
 
 Object.defineProperty(window, 'theme', {
     get() {
-        return localStorage.getItem('theme');
+        return localStorage.getItem('unsyncedTheme');
     },
     set(themeName) {
         const theme = themes[themeName] || themes.Fileship;
@@ -23,11 +23,11 @@ Object.defineProperty(window, 'theme', {
             document.documentElement.style.setProperty(name, value);
         }
 
-        localStorage.setItem('theme', themeName);
+        localStorage.setItem('unsyncedTheme', themeName);
     },
 });
 
-window.theme = localStorage.getItem('theme') || 'Fileship';
+window.theme = localStorage.getItem('unsyncedTheme') || 'Fileship';
 </script>`,
         );
     });

@@ -23,5 +23,6 @@ export default defineEventHandler(async (event) => {
         superAdmin: currentUser.superAdmin,
         limits: currentUser.limits,
         backupRestoreState: currentUser.backupRestoreState,
+        theme: currentUser.theme,
     };
 });

@@ -42,6 +42,7 @@ model User {
   createdAt          DateTime            @default(now())
   domains            String[]
   backupRestoreState BackupRestoreState?
+  theme              String              @default("Fileship")
 }
 
 model File {

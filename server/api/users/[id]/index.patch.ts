@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import { UserPermission } from '@prisma/client';
 
+import themes from '~~/app/styles/themes.json';
 import { defaultEmbed, defaultUserLimits } from '~~/utils/constants';
 import { isAdmin } from '~~/utils/permissions';
 import type { IEmbed, IUserLimits } from '~~/utils/types';
@@ -65,6 +66,12 @@ const validationSchema = z
                     invalid_type_error: 'Invalid verification data',
                 })
                 .nullish(),
+            theme: z
+                .string({
+                    invalid_type_error: 'Invalid theme',
+                })
+                .refine((theme) => theme in themes, 'Invalid theme')
+                .optional(),
         },
         { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
     )
@@ -272,6 +279,7 @@ export default defineEventHandler(async (event) => {
             limits: true,
             superAdmin: true,
             embed: true,
+            theme: true,
         },
     });
 

@@ -179,12 +179,15 @@
                                             wfull
                                             gap2.5
                                             icon-size="20"
-                                            @click="
-                                                currentTheme = theme as never
-                                            "
+                                            :disabled="toBeSyncedTheme"
+                                            :loading="toBeSyncedTheme === theme"
+                                            @click="syncTheme(theme as never)"
                                         >
                                             <div
-                                                v-if="currentTheme !== theme"
+                                                v-if="
+                                                    currentTheme !== theme &&
+                                                    toBeSyncedTheme !== theme
+                                                "
                                                 h5
                                                 w5
                                                 rounded-full
@@ -237,6 +240,7 @@ const currentUser = useAuthUser();
 const currentTheme = useTheme();
 
 const isLoggingOut = ref(false);
+const toBeSyncedTheme = ref<keyof typeof themes | null>(null);
 
 const profileItems = computed(() => {
     const filtered = [
@@ -276,6 +280,17 @@ const handleLogout = async () => {
     await $fetch('/api/auth/logout', { method: 'POST' });
 
     toast.success('Logged out successfully');
+};
+
+const syncTheme = async (theme: keyof typeof themes) => {
+    toBeSyncedTheme.value = theme;
+
+    await $fetch(`/api/users/${currentUser.value!.id}`, {
+        method: 'PATCH',
+        body: { theme },
+    });
+
+    toBeSyncedTheme.value = null;
 };
 
 onMounted(async () => {

@@ -188,6 +188,7 @@ export default defineEventHandler(async (event) => {
             superAdmin: findUserByUsername.superAdmin,
             limits: findUserByUsername.limits,
             backupRestoreState: findUserByUsername.backupRestoreState,
+            theme: findUserByUsername.theme,
         },
         session: {
             id: session.id,

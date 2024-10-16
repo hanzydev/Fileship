@@ -26,6 +26,7 @@ export const initSocket = () => {
     const backups = useBackups();
     const sessions = useSessions();
     const currentUser = useAuthUser();
+    const currentTheme = useTheme();
     const runtimeConfig = useRuntimeConfig();
 
     const route = useRoute();
@@ -54,13 +55,18 @@ export const initSocket = () => {
 
         // User
         socket.on('update:currentUser', (data) => {
+            console.log(data);
+
             if (
+                data.permissions?.length &&
                 !isAdmin(data) &&
                 isAdmin(currentUser.value) &&
                 route.path.startsWith('/admin')
             ) {
                 navigateTo('/dashboard');
             }
+
+            if (data.theme) currentTheme.value = data.theme;
 
             currentUser.value = {
                 ...currentUser.value,
