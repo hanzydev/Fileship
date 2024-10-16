@@ -283,14 +283,16 @@ const handleLogout = async () => {
 };
 
 const syncTheme = async (theme: keyof typeof themes) => {
-    toBeSyncedTheme.value = theme;
+    if (currentTheme.value !== theme) {
+        toBeSyncedTheme.value = theme;
 
-    await $fetch(`/api/users/${currentUser.value!.id}`, {
-        method: 'PATCH',
-        body: { theme },
-    });
+        await $fetch(`/api/users/${currentUser.value!.id}`, {
+            method: 'PATCH',
+            body: { theme },
+        });
 
-    toBeSyncedTheme.value = null;
+        toBeSyncedTheme.value = null;
+    }
 };
 
 onMounted(async () => {
