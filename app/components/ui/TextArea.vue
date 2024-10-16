@@ -8,19 +8,17 @@
             :id="label && id"
             v-model="value"
             rounded-md
+            bg-fs-overlay-3
             px3.5
             py2.5
             outline-none
             motion-safe:transition-shadow
             placeholder-slate-300
+            ring="1 fs-overlay-4"
             :class="[
                 disabled || $props.readonly
                     ? 'cursor-not-allowed'
-                    : 'focus:ring-1 focus:ring-fs-accent',
-                {
-                    'bg-fs-overlay-3': variant === 'primary',
-                    'bg-fs-overlay-4': variant === 'secondary',
-                },
+                    : 'focus:ring-fs-accent',
             ]"
             :rows="lines > 2 ? lines : 2"
             :required
@@ -31,8 +29,7 @@
 </template>
 
 <script setup lang="ts">
-const { variant = 'primary' } = defineProps<{
-    variant?: 'primary' | 'secondary';
+defineProps<{
     error?: string;
     label?: string;
     required?: boolean;
