@@ -6,26 +6,38 @@
         px4
         py2
         active:scale-95
-        hover:ring-1
         motion-safe:transition-all
         :class="[
             {
-                'bg-fs-accent hover:ring-white': variant === 'accent',
-                'bg-fs-overlay-2 hover:bg-fs-overlay-3 hover:ring-fs-accent':
-                    variant === 'primary',
-                'bg-fs-overlay-3 ring-1 ring-fs-overlay-4 hover:bg-fs-overlay-4 hover:ring-fs-accent':
+                // variants
+                'bg-fs-accent': variant === 'accent',
+                'bg-fs-overlay-2': variant === 'primary',
+                'bg-fs-overlay-3 ring-1 ring-fs-overlay-4':
                     variant === 'secondary',
-                'bg-transparent ring-1 ring-red-500 hover:bg-red-500':
-                    variant === 'danger',
-                'bg-red-500 hover:bg-red-600 hover:ring-white':
-                    variant === 'dangerFill',
-                'bg-transparent ring-1 ring-fs-accent hover:bg-fs-accent':
-                    variant === 'outline',
-                'cursor-not-allowed op50': $attrs.disabled,
+                'bg-transparent ring-1 ring-red-500': variant === 'danger',
+                'bg-red-500': variant === 'dangerFill',
+                'bg-transparent ring-1 ring-fs-accent': variant === 'outline',
+
+                // alignments
                 'justify-start text-left': alignment === 'left',
                 'justify-center text-center': alignment === 'center',
                 'justify-end text-right': alignment === 'right',
             },
+            $attrs.disabled
+                ? // disabled
+                  'cursor-not-allowed op50'
+                : {
+                      // hover
+                      'hover:(ring-1 ring-white)': variant === 'accent',
+                      'hover:bg-fs-overlay-3 hover:(ring-1 ring-fs-accent)':
+                          variant === 'primary',
+                      'hover:(bg-fs-overlay-4 ring-fs-accent)':
+                          variant === 'secondary',
+                      'hover:bg-red-500': variant === 'danger',
+                      'hover:(bg-red-600 ring-1 ring-white)':
+                          variant === 'dangerFill',
+                      'hover:bg-fs-accent': variant === 'outline',
+                  },
         ]"
         :target="
             href ? (href?.startsWith('http') ? '_blank' : '_self') : undefined
@@ -46,6 +58,8 @@
 </template>
 
 <script setup lang="ts">
+import { NuxtLink } from '#components';
+
 const {
     variant = 'primary',
     alignment = 'left',
@@ -73,7 +87,7 @@ const component = computed(() => {
             return 'a';
         }
 
-        return resolveComponent('NuxtLink');
+        return NuxtLink;
     }
 
     return 'button';
