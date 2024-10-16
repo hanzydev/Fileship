@@ -47,6 +47,7 @@
                 nothingHereIcon &&
                 !loading
             "
+            ring-none
             :message="nothingHereMessage"
             :icon="nothingHereIcon"
         />
