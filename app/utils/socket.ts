@@ -55,8 +55,6 @@ export const initSocket = () => {
 
         // User
         socket.on('update:currentUser', (data) => {
-            console.log(data);
-
             if (
                 data.permissions?.length &&
                 !isAdmin(data) &&
