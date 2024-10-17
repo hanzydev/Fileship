@@ -1,5 +1,40 @@
 # Changelog
 
+## v1.20.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.19.2...v1.20.0)
+
+### 🚀 Enhancements
+
+- Add initial database migration ([1d43de3](https://github.com/hanzydev/Fileship/commit/1d43de3))
+- Synced themes ([fe21763](https://github.com/hanzydev/Fileship/commit/fe21763))
+
+### 🩹 Fixes
+
+- Cache duration for version info ([023e21d](https://github.com/hanzydev/Fileship/commit/023e21d))
+- **files:** Storage limit control ([be9f824](https://github.com/hanzydev/Fileship/commit/be9f824))
+
+### 💅 Refactors
+
+- **eslint:** Disable vue/require-valid-default-prop ([1f535c8](https://github.com/hanzydev/Fileship/commit/1f535c8))
+- **navbar:** Better back button ([5f8a0b7](https://github.com/hanzydev/Fileship/commit/5f8a0b7))
+- Better nothing here component ([dccb610](https://github.com/hanzydev/Fileship/commit/dccb610))
+- **table:** Hide the ring of nothing here ([174f757](https://github.com/hanzydev/Fileship/commit/174f757))
+- Better choose a file input when changing avatar ([09a20e4](https://github.com/hanzydev/Fileship/commit/09a20e4))
+- Use variant groups ([1a9ca8c](https://github.com/hanzydev/Fileship/commit/1a9ca8c))
+- Do not change theme if already set ([a56ec64](https://github.com/hanzydev/Fileship/commit/a56ec64))
+- Remove variant prop from TextArea component and add border ([e4c6881](https://github.com/hanzydev/Fileship/commit/e4c6881))
+- Remove current user update log ([be28f9c](https://github.com/hanzydev/Fileship/commit/be28f9c))
+- Better button component ([1ba7355](https://github.com/hanzydev/Fileship/commit/1ba7355))
+
+### 🏡 Chore
+
+- Lint fix ([a9c584e](https://github.com/hanzydev/Fileship/commit/a9c584e))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.19.2
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.19.1...v1.19.2)
