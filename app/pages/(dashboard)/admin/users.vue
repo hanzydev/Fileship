@@ -230,6 +230,7 @@ import { useFuse } from '@vueuse/integrations/useFuse';
 import { Icon, UiAvatar, UiButton } from '#components';
 
 const currentUser = useAuthUser();
+const currentTheme = useTheme();
 const users = useUsers();
 
 const searchQuery = ref('');
@@ -284,6 +285,8 @@ const handleActAsUser = async (username: string, verificationData?: string) => {
             currentSessionId: session.id,
             createdAt: new Date(user.createdAt),
         };
+
+        currentTheme.value = user.theme as never;
 
         await nextTick();
         await refreshNuxtData();

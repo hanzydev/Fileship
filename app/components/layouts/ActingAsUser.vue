@@ -52,6 +52,7 @@
 import { titleCase } from 'scule';
 
 const currentUser = useAuthUser();
+const currentTheme = useTheme();
 const adminSessionId = useCookie('adminSessionId');
 
 const isReturningBack = ref(false);
@@ -73,6 +74,8 @@ const goBackAdminSession = async () => {
         ...user,
         createdAt: new Date(user.createdAt),
     };
+
+    currentTheme.value = user.theme as never;
 
     useCookie('sessionId', {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 365),
