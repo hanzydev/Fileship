@@ -176,6 +176,7 @@ const section = ref<'login' | 'totp'>('login');
 
 const route = useRoute();
 const currentUser = useAuthUser();
+const currentTheme = useTheme();
 
 const handleSubmit = async (totp?: string) => {
     disabled.value = true;
@@ -196,6 +197,8 @@ const handleSubmit = async (totp?: string) => {
             currentSessionId: session.id,
             createdAt: new Date(user.createdAt),
         };
+
+        currentTheme.value = user.theme as never;
 
         await navigateTo((route.query.redirectTo as string) || '/dashboard');
 
