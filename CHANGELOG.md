@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.20.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.20.0...v1.20.1)
+
+### 🩹 Fixes
+
+- Load the user's theme when acting as a user ([bfadc4f](https://github.com/hanzydev/Fileship/commit/bfadc4f))
+- Load the user's theme at login ([2b5451f](https://github.com/hanzydev/Fileship/commit/2b5451f))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.20.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.19.2...v1.20.0)
