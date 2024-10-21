@@ -181,8 +181,8 @@ importers:
         specifier: ^6.0.4
         version: 6.0.4
       vue-sonner:
-        specifier: ^1.2.2
-        version: 1.2.2
+        specifier: ^1.2.3
+        version: 1.2.3
       vue-tsc:
         specifier: ^2.1.6
         version: 2.1.6(typescript@5.6.3)
@@ -6096,8 +6096,8 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
-  vue-sonner@1.2.2:
-    resolution: {integrity: sha512-aDziD+CXlYmmdjP2k6N7uiE4tWPx+x0bqBiyHr3zxtItmAZdagKkR5C9eHgpHUFAjNKPLMnmDzdE+kjqdjOjkg==}
+  vue-sonner@1.2.3:
+    resolution: {integrity: sha512-eUdc/Lcm8cYv/14O0gLerjSyeIkf29oKRJAPkkimfJTE5CnaCW6I+/1/WtH4zQW9nWkeW03ZRi0rIS+m9eC5CA==}
 
   vue-tsc@2.1.6:
     resolution: {integrity: sha512-f98dyZp5FOukcYmbFpuSCJ4Z0vHSOSmxGttZJCsFeX0M4w/Rsq0s4uKXjcSRsZqsRgQa6z7SfuO+y0HVICE57Q==}
@@ -13460,7 +13460,7 @@ snapshots:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.12(typescript@5.6.3)
 
-  vue-sonner@1.2.2: {}
+  vue-sonner@1.2.3: {}
 
   vue-tsc@2.1.6(typescript@5.6.3):
     dependencies:
