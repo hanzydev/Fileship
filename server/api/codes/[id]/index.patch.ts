@@ -131,7 +131,7 @@ export default defineEventHandler(async (event) => {
         url: buildPublicUrl(
             event,
             currentUser.domains,
-            `/code/${findCodeById.id}`,
+            `/code/${_updatedCode.id}`,
         ),
     };
 

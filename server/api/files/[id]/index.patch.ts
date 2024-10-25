@@ -161,12 +161,12 @@ export default defineEventHandler(async (event) => {
         directUrl: buildPublicUrl(
             event,
             currentUser.domains,
-            `/u/${findFileById.fileName}`,
+            `/u/${_updatedFile.fileName}`,
         ),
         embedUrl: buildPublicUrl(
             event,
             currentUser.domains,
-            `/view/${findFileById.fileName}`,
+            `/view/${_updatedFile.fileName}`,
         ),
     };
 
