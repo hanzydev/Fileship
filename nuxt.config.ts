@@ -58,6 +58,12 @@ export default defineNuxtConfig({
         public: {
             fileChunkSize: 10,
             returnHttps: '',
+            turnstile: {
+                siteKey: '',
+            },
+        },
+        turnstile: {
+            secretKey: '',
         },
     },
 
