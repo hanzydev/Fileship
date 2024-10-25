@@ -82,8 +82,8 @@ importers:
         specifier: ^0.10.2
         version: 0.10.2(ioredis@5.4.1)(magicast@0.3.5)(rollup@4.21.3)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))(webpack-sources@3.2.3)
       '@nuxt/icon':
-        specifier: ^1.5.6
-        version: 1.5.6(magicast@0.3.5)(rollup@4.21.3)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
+        specifier: ^1.5.7
+        version: 1.5.7(magicast@0.3.5)(rollup@4.21.3)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
       '@nuxt/kit':
         specifier: ^3.13.2
         version: 3.13.2(magicast@0.3.5)(rollup@4.21.3)(webpack-sources@3.2.3)
@@ -1492,8 +1492,8 @@ packages:
   '@iconify-json/tabler@1.2.5':
     resolution: {integrity: sha512-BDDLgDCbJ2btwi6cPmBL04QyPyNmWy6H13ynUAX48xxpxqUuG+hT+yrqL+RCugFimrvuhcecbSfEKnFc0BW1Ng==}
 
-  '@iconify/collections@1.0.470':
-    resolution: {integrity: sha512-6N1f1iNMNWvM56pUhcv+0TSP6Apl2VRfejtZH8h9H8fMRiDsROWxeQeEBxI394QnVWrOyoK1XXnNyVbn6xlF6A==}
+  '@iconify/collections@1.0.474':
+    resolution: {integrity: sha512-24NyXV43CZ6fGY5HX7fwur5HgefoL37HVgyw+JAXMMBvkOvdUe3KvQi+lujo/U0hvvcKkqWiy3BiWASDdE2qPA==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -1750,8 +1750,8 @@ packages:
   '@nuxt/fonts@0.10.2':
     resolution: {integrity: sha512-WYsrKBv9tPEgEntNwe4Zov2taKO/cnct+tR/g5EQ1jgADkFeEGkfCsUDwTG/pZFkW0FlKSR/KRLMB3U6O+C6Ow==}
 
-  '@nuxt/icon@1.5.6':
-    resolution: {integrity: sha512-7l99CWc/laHphSsoLikh99Hkwjv+59cwAMJ0f9eZddBV+vO7zLGWwocH/TDNjlX0IACgVoG+AfbP/p1fqlLKpg==}
+  '@nuxt/icon@1.5.7':
+    resolution: {integrity: sha512-i6pDpHlcx1qXlzS42E2hvOnMTPtSekvvzqIx1AY0g49bQUgFrtPEN2+EdRqg5hgIdo3MDT5T9957LbcK0qsU9Q==}
 
   '@nuxt/kit@3.13.2':
     resolution: {integrity: sha512-KvRw21zU//wdz25IeE1E5m/aFSzhJloBRAQtv+evcFeZvuroIxpIQuUqhbzuwznaUwpiWbmwlcsp5uOWmi4vwA==}
@@ -7597,7 +7597,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify/collections@1.0.470':
+  '@iconify/collections@1.0.474':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -8042,13 +8042,13 @@ snapshots:
       - vite
       - webpack-sources
 
-  '@nuxt/icon@1.5.6(magicast@0.3.5)(rollup@4.21.3)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)':
+  '@nuxt/icon@1.5.7(magicast@0.3.5)(rollup@4.21.3)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)':
     dependencies:
-      '@iconify/collections': 1.0.470
+      '@iconify/collections': 1.0.474
       '@iconify/types': 2.0.0
       '@iconify/utils': 2.1.33
       '@iconify/vue': 4.1.3-beta.1(vue@3.5.12(typescript@5.6.3))
-      '@nuxt/devtools-kit': 1.5.2(magicast@0.3.5)(rollup@4.21.3)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))(webpack-sources@3.2.3)
+      '@nuxt/devtools-kit': 1.6.0(magicast@0.3.5)(rollup@4.21.3)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))(webpack-sources@3.2.3)
       '@nuxt/kit': 3.13.2(magicast@0.3.5)(rollup@4.21.3)(webpack-sources@3.2.3)
       consola: 3.2.3
       local-pkg: 0.5.0
