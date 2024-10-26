@@ -74,7 +74,7 @@
         "unocss-preset-animations": "^1.1.0",
         "utf-8-validate": "^6.0.4",
         "vue-sonner": "^1.2.3",
-        "vue-tsc": "^2.1.6",
+        "vue-tsc": "^2.1.8",
         "vue3-apexcharts": "^1.7.0"
     },
     "packageManager": "pnpm@9.12.2"
