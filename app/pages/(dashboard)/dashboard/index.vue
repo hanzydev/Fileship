@@ -277,7 +277,7 @@ import { toast } from 'vue-sonner';
 
 import { UiButton } from '#components';
 
-const stats = ref();
+const stats = useStats();
 const embed = useEmbed();
 const files = useFiles();
 const folders = useFolders();
