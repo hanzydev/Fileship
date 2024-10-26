@@ -288,7 +288,7 @@ const currentPage = ref(1);
 const willBeDeleted = ref(new Set<string>());
 const copiedFiles = ref(new Set<string>());
 
-const isLoading = ref(false);
+const isLoading = ref(!(files.value.length || stats.value));
 
 const viewModal = reactive({
     open: false,
@@ -340,22 +340,27 @@ const handleDelete = async (id: string) => {
 const { all, enter: _enter, leave: _leave } = animateCards();
 
 onMounted(async () => {
-    const foldersData = await $fetch('/api/folders');
-    const filesData = await $fetch('/api/files');
-    const statsData = await $fetch('/api/users/@me/stats');
+    if (!files.value.length) {
+        const filesData = await $fetch('/api/files');
+        const foldersData = await $fetch('/api/folders');
 
-    folders.value = foldersData.map((f) => ({
-        ...f,
-        createdAt: new Date(f.createdAt),
-    }));
+        files.value = filesData.map((f) => ({
+            ...f,
+            expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
+            createdAt: new Date(f.createdAt),
+        }));
 
-    files.value = filesData.map((f) => ({
-        ...f,
-        expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
-        createdAt: new Date(f.createdAt),
-    }));
+        folders.value = foldersData.map((f) => ({
+            ...f,
+            createdAt: new Date(f.createdAt),
+        }));
+    }
 
-    stats.value = statsData;
+    if (!stats.value) {
+        const statsData = await $fetch('/api/users/@me/stats');
+        stats.value = statsData;
+    }
+
     isLoading.value = false;
 
     await nextTick();
