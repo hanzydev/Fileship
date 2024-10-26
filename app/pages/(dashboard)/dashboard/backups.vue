@@ -102,7 +102,7 @@ const creating = ref(false);
 const uploading = ref(false);
 const uploadProgress = ref(0);
 
-const isLoading = ref(true);
+const isLoading = ref(!backups.value.length);
 
 let {
     public: { fileChunkSize },
@@ -181,15 +181,17 @@ const handleLoad = async (event: Event) => {
 const { all, enter, leave } = animateCards();
 
 onMounted(async () => {
-    const data = await $fetch('/api/users/@me/backups');
+    if (!backups.value.length) {
+        const data = await $fetch('/api/users/@me/backups');
 
-    backups.value = data.map((u) => ({
-        ...u,
-        createdAt: new Date(u.createdAt),
-    }));
+        backups.value = data.map((u) => ({
+            ...u,
+            createdAt: new Date(u.createdAt),
+        }));
 
-    isLoading.value = false;
-    await nextTick();
+        isLoading.value = false;
+        await nextTick();
+    }
 
     all('backups', '.backupCard');
 });

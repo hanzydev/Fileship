@@ -90,21 +90,23 @@ const calculatedUrls = computed<UrlData[]>(() => {
 });
 
 const isAnimating = ref(false);
-const isLoading = ref(true);
+const isLoading = ref(!urls.value.length);
 
 const { all, enter, leave } = animateCards();
 
 onMounted(async () => {
-    const data = await $fetch('/api/urls');
+    if (!urls.value.length) {
+        const data = await $fetch('/api/urls');
 
-    urls.value = data.map((u) => ({
-        ...u,
-        expiresAt: u.expiresAt ? new Date(u.expiresAt) : null,
-        createdAt: new Date(u.createdAt),
-    }));
+        urls.value = data.map((u) => ({
+            ...u,
+            expiresAt: u.expiresAt ? new Date(u.expiresAt) : null,
+            createdAt: new Date(u.createdAt),
+        }));
 
-    isLoading.value = false;
-    await nextTick();
+        isLoading.value = false;
+        await nextTick();
+    }
 
     all('urls', '.urlCard');
 });

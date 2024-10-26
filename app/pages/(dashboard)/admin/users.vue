@@ -236,7 +236,7 @@ const users = useUsers();
 const searchQuery = ref('');
 const currentPage = ref(1);
 
-const isLoading = ref(true);
+const isLoading = ref(!users.value.length);
 
 const willBeDeleted = ref(new Set<string>());
 const willBeActed = ref<string | null>(null);
@@ -359,14 +359,16 @@ const calculatedUsers = computed<UserData[]>(() => {
 });
 
 onMounted(async () => {
-    const data = await $fetch('/api/users');
+    if (!users.value.length) {
+        const data = await $fetch('/api/users');
 
-    users.value = data.map((u) => ({
-        ...u,
-        createdAt: new Date(u.createdAt),
-    }));
+        users.value = data.map((u) => ({
+            ...u,
+            createdAt: new Date(u.createdAt),
+        }));
 
-    isLoading.value = false;
+        isLoading.value = false;
+    }
 });
 
 definePageMeta({

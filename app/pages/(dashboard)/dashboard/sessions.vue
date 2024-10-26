@@ -185,7 +185,7 @@ const error = ref<string>();
 const disabled = ref(false);
 const verifyModalOpen = ref(false);
 
-const isLoading = ref(true);
+const isLoading = ref(!sessions.value.length);
 
 const removeAllSessions = async (verificationData?: string) => {
     disabled.value = true;
@@ -209,14 +209,16 @@ const removeAllSessions = async (verificationData?: string) => {
 };
 
 onMounted(async () => {
-    const data = await $fetch(`/api/users/@me/sessions`);
+    if (!sessions.value.length) {
+        const data = await $fetch(`/api/users/@me/sessions`);
 
-    sessions.value = data.map((s) => ({
-        ...s,
-        lastSeen: new Date(s.lastSeen),
-    }));
+        sessions.value = data.map((s) => ({
+            ...s,
+            lastSeen: new Date(s.lastSeen),
+        }));
 
-    isLoading.value = false;
+        isLoading.value = false;
+    }
 });
 
 definePageMeta({

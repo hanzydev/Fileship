@@ -288,7 +288,7 @@ const currentPage = ref(1);
 const willBeDeleted = ref(new Set<string>());
 const copiedFiles = ref(new Set<string>());
 
-const isLoading = ref(true);
+const isLoading = ref(false);
 
 const viewModal = reactive({
     open: false,

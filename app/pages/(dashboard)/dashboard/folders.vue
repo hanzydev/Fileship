@@ -89,27 +89,29 @@ const calculatedFolders = computed<FolderData[]>(() => {
 });
 
 const isAnimating = ref(false);
-const isLoading = ref(true);
+const isLoading = ref(!folders.value.length);
 
 const { all, enter, leave } = animateCards();
 
 onMounted(async () => {
-    const foldersData = await $fetch('/api/folders');
-    const filesData = await $fetch('/api/files');
+    if (!folders.value.length) {
+        const foldersData = await $fetch('/api/folders');
+        const filesData = await $fetch('/api/files');
 
-    folders.value = foldersData.map((f) => ({
-        ...f,
-        createdAt: new Date(f.createdAt),
-    }));
+        folders.value = foldersData.map((f) => ({
+            ...f,
+            createdAt: new Date(f.createdAt),
+        }));
 
-    files.value = filesData.map((f) => ({
-        ...f,
-        expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
-        createdAt: new Date(f.createdAt),
-    }));
+        files.value = filesData.map((f) => ({
+            ...f,
+            expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
+            createdAt: new Date(f.createdAt),
+        }));
 
-    isLoading.value = false;
-    await nextTick();
+        isLoading.value = false;
+        await nextTick();
+    }
 
     all('folders', '.folderCard');
 });

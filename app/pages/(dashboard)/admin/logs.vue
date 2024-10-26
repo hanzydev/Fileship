@@ -121,7 +121,7 @@ const currentPage = ref(1);
 
 const areYouSureModalOpen = ref(false);
 
-const isLoading = ref(true);
+const isLoading = ref(!logs.value.logs.length);
 const isFlushingLogs = ref(false);
 
 const { results } = useFuse(
@@ -169,17 +169,19 @@ const handleFlushLogs = async () => {
 };
 
 onMounted(async () => {
-    const data = await $fetch('/api/logs');
+    if (!logs.value.logs.length) {
+        const data = await $fetch('/api/logs');
 
-    logs.value = {
-        users: data.users,
-        logs: data.logs.map((l) => ({
-            ...l,
-            createdAt: new Date(l.createdAt),
-        })),
-    };
+        logs.value = {
+            users: data.users,
+            logs: data.logs.map((l) => ({
+                ...l,
+                createdAt: new Date(l.createdAt),
+            })),
+        };
 
-    isLoading.value = false;
+        isLoading.value = false;
+    }
 });
 
 definePageMeta({

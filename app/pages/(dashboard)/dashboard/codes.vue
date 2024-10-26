@@ -90,21 +90,23 @@ const calculatedCodes = computed<CodeData[]>(() => {
 });
 
 const isAnimating = ref(false);
-const isLoading = ref(true);
+const isLoading = ref(!codes.value.length);
 
 const { all, enter, leave } = animateCards();
 
 onMounted(async () => {
-    const data = await $fetch('/api/codes');
+    if (!codes.value.length) {
+        const data = await $fetch('/api/codes');
 
-    codes.value = data.map((c) => ({
-        ...c,
-        expiresAt: c.expiresAt ? new Date(c.expiresAt) : null,
-        createdAt: new Date(c.createdAt),
-    }));
+        codes.value = data.map((c) => ({
+            ...c,
+            expiresAt: c.expiresAt ? new Date(c.expiresAt) : null,
+            createdAt: new Date(c.createdAt),
+        }));
 
-    isLoading.value = false;
-    await nextTick();
+        isLoading.value = false;
+        await nextTick();
+    }
 
     all('codes', '.codeCard');
 });

@@ -81,20 +81,22 @@ const calculatedNotes = computed<NoteData[]>(() => {
 });
 
 const isAnimating = ref(false);
-const isLoading = ref(true);
+const isLoading = ref(!notes.value.length);
 
 const { all, enter, leave } = animateCards();
 
 onMounted(async () => {
-    const data = await $fetch('/api/notes');
+    if (!notes.value.length) {
+        const data = await $fetch('/api/notes');
 
-    notes.value = data.map((n) => ({
-        ...n,
-        createdAt: new Date(n.createdAt),
-    }));
+        notes.value = data.map((n) => ({
+            ...n,
+            createdAt: new Date(n.createdAt),
+        }));
 
-    isLoading.value = false;
-    await nextTick();
+        isLoading.value = false;
+        await nextTick();
+    }
 
     all('notes', '.noteCard');
 });
