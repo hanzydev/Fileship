@@ -992,7 +992,7 @@ const handleRegisterPasskey = async (verificationData?: any) => {
         if (error.data?.message === 'Verification is required') {
             passkeyVerificationModalOpen.value = true;
             verificationMethods.value = error.data.data.mfa.methods;
-        } else if (passkeyVerificationModalOpen.value) {
+        } else if (passkeyVerificationModalOpen.value && error.data?.message) {
             passkeyVerificationError.value = error.data.message;
         } else {
             toast.error('An error occurred while registering passkey');
