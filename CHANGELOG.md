@@ -1,5 +1,21 @@
 # Changelog
 
+## v2.0.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.0.0...v2.0.1)
+
+### 🩹 Fixes
+
+- **socket:** Passkey name is empty ([1352639](https://github.com/hanzydev/Fileship/commit/1352639))
+
+### 💅 Refactors
+
+- Focus input on login ([adde2c8](https://github.com/hanzydev/Fileship/commit/adde2c8))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.0.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.20.1...v2.0.0)
