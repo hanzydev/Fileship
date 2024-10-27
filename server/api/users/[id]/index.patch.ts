@@ -82,11 +82,7 @@ export default defineEventHandler(async (event) => {
     const userId = getRouterParam(event, 'id');
 
     if (userId !== currentUser.id && !isAdmin(currentUser)) {
-        throw createError({
-            statusCode: 403,
-            statusMessage: 'Forbidden',
-            message: 'You do not have permission to perform this action',
-        });
+        throw forbiddenError;
     }
 
     const findUserById = await prisma.user.findUnique({
@@ -126,11 +122,7 @@ export default defineEventHandler(async (event) => {
         !isAdmin(currentUser) &&
         ('permissions' in body.data || 'limits' in body.data)
     ) {
-        throw createError({
-            statusCode: 403,
-            statusMessage: 'Forbidden',
-            message: 'You do not have permission to perform this action',
-        });
+        throw forbiddenError;
     }
 
     const superAdmins = await prisma.user.count({

@@ -42,13 +42,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (currentUser.id !== findCredentialById.userId) {
-        throw createError({
-            statusCode: 403,
-            statusMessage: 'Forbidden',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    if (currentUser.id !== findCredentialById.userId) throw forbiddenError;
 
     const updatedCredential = await prisma.credential.update({
         where: {

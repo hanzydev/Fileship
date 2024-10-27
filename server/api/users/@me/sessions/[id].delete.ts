@@ -38,13 +38,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (currentUser.id !== findSessionById.userId) {
-        throw createError({
-            statusCode: 403,
-            statusMessage: 'Forbidden',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    if (currentUser.id !== findSessionById.userId) throw forbiddenError;
 
     await prisma.session.delete({
         where: {

@@ -18,13 +18,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (findUrlById.authorId !== currentUser.id) {
-        throw createError({
-            statusCode: 403,
-            statusMessage: 'Forbidden',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    if (findUrlById.authorId !== currentUser.id) throw forbiddenError;
 
     await prisma.view.deleteMany({
         where: {

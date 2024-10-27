@@ -8,15 +8,9 @@ import { create } from 'tar';
 import { isAdmin } from '~~/utils/permissions';
 
 export default defineEventHandler(async (event) => {
-    const currentUser = event.context.user;
+    userOnly(event);
 
-    if (!currentUser) {
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    const currentUser = event.context.user!;
 
     const userBackupsPath = join(dataDirectory, 'backups', currentUser.id);
     const uploadsPath = join(dataDirectory, 'uploads');

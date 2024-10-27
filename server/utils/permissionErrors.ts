@@ -8,18 +8,6 @@ import {
     isAdmin,
 } from '~~/utils/permissions';
 
-const unauthorizedError = createError({
-    statusCode: 401,
-    statusMessage: 'Unauthorized',
-    message: 'You must be logged in to perform this action',
-});
-
-const forbiddenError = createError({
-    statusCode: 403,
-    statusMessage: 'Forbidden',
-    message: 'You do not have permission to perform this action',
-});
-
 export const userOnly = (event: H3Event) => {
     if (!event.context.user) throw unauthorizedError;
 };

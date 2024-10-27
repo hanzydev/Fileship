@@ -22,13 +22,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (findFileById.authorId !== currentUser.id) {
-        throw createError({
-            statusCode: 403,
-            statusMessage: 'Forbidden',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    if (findFileById.authorId !== currentUser.id) throw forbiddenError;
 
     await rm(join(dataDirectory, 'uploads', findFileById.fileName), {
         force: true,

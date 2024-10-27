@@ -55,13 +55,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (findNoteById.authorId !== currentUser.id) {
-        throw createError({
-            statusCode: 403,
-            statusMessage: 'Forbidden',
-            message: 'You do not have permission to perform this action',
-        });
-    }
+    if (findNoteById.authorId !== currentUser.id) throw forbiddenError;
 
     const updatedNote = await prisma.note.update({
         where: {

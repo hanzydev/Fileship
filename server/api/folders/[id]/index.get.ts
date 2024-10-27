@@ -33,11 +33,7 @@ export default defineEventHandler(async (event) => {
 
     if (findFolderById.authorId !== currentUser?.id) {
         if (!findFolderById.public) {
-            throw createError({
-                statusCode: 403,
-                statusMessage: 'Forbidden',
-                message: 'You do not have permission to perform this action',
-            });
+            throw forbiddenError;
         } else {
             findFolderById.files = findFolderById.files.filter(
                 (f) => !f.password,
