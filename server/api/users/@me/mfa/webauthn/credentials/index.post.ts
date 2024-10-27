@@ -59,7 +59,8 @@ export default defineEventHandler(async (event) => {
             const name =
                 body.data.name ||
                 body.data.registrationResponse!.clientExtensionResults
-                    ?.credProps?.authenticatorDisplayName;
+                    ?.credProps?.authenticatorDisplayName ||
+                'Untitled';
 
             await prisma.user.update({
                 where: { id: currentUser.id },
