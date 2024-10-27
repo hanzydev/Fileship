@@ -231,6 +231,8 @@
 </template>
 
 <script setup lang="ts">
+import { toast } from 'vue-sonner';
+
 import { startAuthentication } from '@simplewebauthn/browser';
 import type {
     AuthenticationResponseJSON,
@@ -297,17 +299,21 @@ const calculateHeight = (el: Element) => {
 const handlePasskey = async () => {
     const optionsJSON = methods.find((m) => m.type === 'passkey')!.challange!;
 
-    const authenticationResponse = await startAuthentication({
-        optionsJSON,
-    });
+    try {
+        const authenticationResponse = await startAuthentication({
+            optionsJSON,
+        });
 
-    emit('got', {
-        type: 'passkey',
-        data: {
-            expectedChallenge: optionsJSON.challenge,
-            authenticationResponse,
-        },
-    });
+        emit('got', {
+            type: 'passkey',
+            data: {
+                expectedChallenge: optionsJSON.challenge,
+                authenticationResponse,
+            },
+        });
+    } catch {
+        toast.error('Failed to verify passkey');
+    }
 };
 
 watch(bestMethod, () => (selectedMethod.value = bestMethod.value));
