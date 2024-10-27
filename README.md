@@ -43,7 +43,7 @@
 -   URL shortening
 -   Image compression
 -   Custom domains
--   Two-factor authentication
+-   Multi-factor authentication
 -   Multi-user support with roles
 -   Real-time updates with Socket.IO
 -   Backup creation and restoration
@@ -68,7 +68,7 @@ Open your browser and go to `http://localhost:3000`
 
 ### Building & running from source
 
-This section requires [Node.js v20.1.0+](https://nodejs.org/) to be installed on your machine.
+This section requires [Node.js 20.x or higher](https://nodejs.org/) to be installed on your machine.
 
 1. Clone the repo
     ```sh
