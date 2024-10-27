@@ -17,6 +17,7 @@
                 <Transition
                     enter-active-class="motion-safe:(animate-in fade-in slide-in-left-52)"
                     leave-active-class="motion-safe:(animate-out fade-out slide-out-left-52)"
+                    @after-enter="(el) => el.querySelector('input')?.focus()"
                 >
                     <form
                         v-if="section === 'login'"
@@ -100,6 +101,7 @@
                 <Transition
                     enter-active-class="motion-safe:(animate-in fade-in slide-in-right-52)"
                     leave-active-class="motion-safe:(animate-out fade-out slide-out-right-52)"
+                    @after-enter="(el) => el.querySelector('input')?.focus()"
                 >
                     <div
                         v-if="section === 'totp'"
@@ -145,7 +147,6 @@
                                 alignment="center"
                                 wfull
                                 gap2
-                                type="submit"
                                 icon="heroicons-solid:arrow-left"
                                 icon-size="20"
                                 :disabled
@@ -172,6 +173,7 @@
                 <Transition
                     enter-active-class="motion-safe:(animate-in fade-in slide-in-right-52)"
                     leave-active-class="motion-safe:(animate-out fade-out slide-out-right-52)"
+                    @after-enter="(el) => el.querySelector('input')?.focus()"
                 >
                     <form
                         v-if="section === 'passkey'"
@@ -355,6 +357,10 @@ const handleSubmit = async (totp?: string) => {
 
     disabled.value = false;
 };
+
+onMounted(() => {
+    document.querySelector('input')?.focus();
+});
 
 definePageMeta({
     middleware: 'guest-only',
