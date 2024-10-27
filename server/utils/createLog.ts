@@ -1,5 +1,6 @@
 import consola from 'consola';
 import dayjs from 'dayjs';
+import type { H3Event } from 'h3';
 import { lowerFirst, titleCase } from 'scule';
 
 import { isAdmin } from '~~/utils/permissions';
@@ -13,7 +14,7 @@ type CreateLogData = {
 const AllowedActions = ['Login', 'Create User', 'Update User', 'Delete User'];
 
 export const createLog = async (
-    event: any,
+    event: H3Event | null,
     { action, message, system }: CreateLogData,
 ) => {
     const logLevel = +(process.env.LOG_LEVEL ?? 2);

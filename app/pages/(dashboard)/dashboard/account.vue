@@ -4,59 +4,59 @@
             <Title>My Account</Title>
         </Head>
 
-        <ModalsVerifyTotp
-            v-if="currentUser!.totpEnabled"
+        <ModalsVerifyMFA
             v-model="verifyModalOpen"
             :error="verificationError"
             :disabled="userUpdating"
-            @got="handleUserEdit"
-        />
-        <ModalsVerifyUserPassword
-            v-else
-            v-model="verifyModalOpen"
-            :error="verificationError"
-            :disabled="userUpdating"
+            :methods="verificationMethods"
             @got="handleUserEdit"
         />
 
-        <ModalsVerifyTotp
-            v-if="currentUser!.totpEnabled"
-            v-model="disable2FaModalOpen"
-            :error="change2FaError"
-            :disabled="twoFaUpdating"
-            @got="(totp) => change2Fa(false, totp)"
-            @closed="
-                twoFaEnabled = currentUser!.totpEnabled;
-                change2FaError = undefined;
-            "
+        <ModalsVerifyMFA
+            v-model="verifyMfaModalOpen"
+            :error="verifyMfaError"
+            :disabled="mfaUpdating"
+            :methods="verificationMethods"
+            @got="handleGenAuthAppQrCode"
+            @outer-click="authAppEnabled = currentUser!.totpEnabled"
+            @cancel="authAppEnabled = currentUser!.totpEnabled"
+            @closed="verifyMfaError = undefined"
         />
-        <ModalsVerifyUserPassword
-            v-else
-            v-model="verify2FaModalOpen"
-            :error="verify2FaError"
-            :disabled="twoFaUpdating"
-            @got="generate2FaQrCode"
-            @closed="verify2FaError = undefined"
-            @outer-click="twoFaEnabled = currentUser!.totpEnabled"
-            @cancel="twoFaEnabled = currentUser!.totpEnabled"
+
+        <ModalsVerifyMFA
+            v-model="disableAuthAppModalOpen"
+            :error="verifyMfaError"
+            :disabled="mfaUpdating"
+            :methods="verificationMethods"
+            @got="handleDisableAuthApp"
+            @outer-click="authAppEnabled = currentUser!.totpEnabled"
+            @cancel="authAppEnabled = currentUser!.totpEnabled"
+            @closed="verifyMfaError = undefined"
+        />
+
+        <ModalsVerifyMFA
+            v-model="passkeyVerificationModalOpen"
+            :error="passkeyVerificationError"
+            :disabled="registeringPasskey"
+            :methods="verificationMethods"
+            @got="handleRegisterPasskey"
         />
 
         <UiModal
-            v-model="enable2FaModalOpen"
+            v-model="enableAuthAppModalOpen"
             flex="~ col items-center justify-center gap8"
             p8
             text-center
             @closed="
-                twoFaEnabled = currentUser!.totpEnabled;
-                twoFaQrCode = '';
-                change2FaError = undefined;
+                authAppEnabled = currentUser!.totpEnabled;
+                authAppQrCode = '';
+                enableMfaError = undefined;
             "
         >
-            <h3>Enable Two-Factor Authentication</h3>
+            <h3>Enable Authenticator App</h3>
 
             <p text-slate200 font-medium="!">
-                Scan the QR code below with your authenticator app to enable
-                two-factor authentication.
+                Scan the QR code below with your authenticator app.
             </p>
 
             <div relative p8>
@@ -80,7 +80,7 @@
                     rounded="tr-md"
                     class="zortr"
                 ></div>
-                <img :src="twoFaQrCode" h48 w48 rounded draggable="false" />
+                <img :src="authAppQrCode" h48 w48 rounded draggable="false" />
                 <div
                     absolute
                     bottom-0
@@ -106,9 +106,9 @@
             <div wfit>
                 <UiTotpInput
                     flex="~ col items-center justify-center text-center"
-                    :error="change2FaError"
-                    :disabled="twoFaUpdating"
-                    @got="(totp) => change2Fa(true, totp)"
+                    :error="enableMfaError"
+                    :disabled="mfaUpdating"
+                    @got="handleEnableAuthApp"
                 />
             </div>
 
@@ -119,7 +119,7 @@
                 icon-size="24"
                 wfull
                 gap2
-                @click="enable2FaModalOpen = false"
+                @click="enableAuthAppModalOpen = false"
             >
                 Cancel
             </UiButton>
@@ -231,7 +231,7 @@
                     type="submit"
                     icon="heroicons-solid:download"
                     icon-size="20"
-                    @click="generateShareXConfig"
+                    @click="handleGenShareXConfig"
                 >
                     Generate
                 </UiButton>
@@ -463,27 +463,87 @@
                 <UiExpander op0>
                     <div flex="~ gap2 items-center">
                         <Icon name="heroicons-solid:shield-check" size="24" />
-                        <h5>Two-Factor Authentication</h5>
+                        <h5>Multi-Factor Authentication</h5>
                     </div>
 
                     <template #content>
                         <div space-y-4>
-                            <p text-slate200>
-                                Configuring an authenticator app is a good way
-                                to add an extra layer of security to your
-                                {{ appConfig.site.name }} account to make sure
-                                that only you have the ability to log in.
-                            </p>
+                            <div space-y-2>
+                                <span text-sm text-slate300 font-bold uppercase>
+                                    Authenticator App
+                                </span>
+                                <p text-slate200>
+                                    Configuring an authenticator app is a good
+                                    way to add an extra layer of security to
+                                    your
+                                    {{ appConfig.site.name }} account to make
+                                    sure that only you have the ability to log
+                                    in.
+                                </p>
+                            </div>
 
                             <div flex="~ gap2 items-center">
                                 <UiSwitch
-                                    v-model="twoFaEnabled"
-                                    :disabled="twoFaUpdating"
+                                    v-model="authAppEnabled"
+                                    :disabled="mfaUpdating"
                                 />
                                 <span font-medium="!">
-                                    Enable Two-Factor Authentication
+                                    Enable Authenticator App
                                 </span>
                             </div>
+
+                            <UiDivider />
+
+                            <div space-y-2>
+                                <span text-sm text-slate300 font-bold uppercase>
+                                    Passkeys
+                                </span>
+                                <p text-slate200>
+                                    Add an additional layer of protection to
+                                    your account with a passkey.
+                                </p>
+                            </div>
+
+                            <div
+                                v-if="passkeys?.length"
+                                grid="~ gap4 sm:cols-2 md:cols-4"
+                            >
+                                <PasskeyCard
+                                    v-for="passkey in passkeys"
+                                    :key="passkey.id"
+                                    :data="passkey"
+                                />
+                            </div>
+
+                            <ClientOnly>
+                                <div
+                                    v-if="!browserSupportsWebAuthn()"
+                                    flex="~ gap1 items-center"
+                                    text-red-600
+                                    font-medium
+                                >
+                                    <Icon
+                                        name="heroicons-solid:exclamation"
+                                        size="20"
+                                    />
+                                    <p>
+                                        Your browser does not support passkeys.
+                                    </p>
+                                </div>
+                                <UiButton
+                                    v-else
+                                    variant="accent"
+                                    rounded="!"
+                                    gap2
+                                    icon="heroicons:key-20-solid"
+                                    icon-size="20"
+                                    :disabled="registeringPasskey"
+                                    :loading="registeringPasskey"
+                                    @click="handleRegisterPasskey()"
+                                >
+                                    Register a Passkey
+                                </UiButton>
+                            </ClientOnly>
                         </div>
                     </template>
                 </UiExpander>
@@ -624,10 +684,26 @@ import { Cubic, gsap } from 'gsap';
 import { render } from 'vue';
 import { toast } from 'vue-sonner';
 
+import {
+    browserSupportsWebAuthn,
+    startRegistration,
+} from '@simplewebauthn/browser';
+import type { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types';
+
 const embed = useEmbed();
 const domains = useDomains();
 const appConfig = useAppConfig();
 const currentUser = useAuthUser();
+const passkeys = usePasskeys();
+
+const { data: passkeysData } = await useFetch(
+    '/api/users/@me/mfa/webauthn/credentials',
+);
+
+passkeys.value = passkeysData.value!.map((p) => ({
+    ...p,
+    createdAt: new Date(p.createdAt),
+}));
 
 const contentRef = useTemplateRef<HTMLDivElement>('content');
 
@@ -682,24 +758,29 @@ const userFormErrors = ref();
 
 const verifyModalOpen = ref(false);
 const verificationError = ref<string>();
+const verificationMethods = ref([]);
 
-const change2FaError = ref<string>();
+const enableMfaError = ref<string>();
 
-const twoFaQrCode = ref<string>();
-const twoFaEnabled = ref(currentUser.value!.totpEnabled);
-const twoFaUpdating = ref(false);
+const authAppQrCode = ref<string>();
+const authAppEnabled = ref(currentUser.value!.totpEnabled);
+const mfaUpdating = ref(false);
 
-const enable2FaModalOpen = ref(false);
-const disable2FaModalOpen = ref(false);
+const enableAuthAppModalOpen = ref(false);
+const disableAuthAppModalOpen = ref(false);
 
-const verify2FaError = ref<string>();
-const verify2FaModalOpen = ref(false);
+const verifyMfaError = ref<string>();
+const verifyMfaModalOpen = ref(false);
 
 const domainsUpdating = ref(false);
 const embedUpdating = ref(false);
 
 const avatarUpdating = ref(false);
 const avatarResetting = ref(false);
+
+const registeringPasskey = ref(false);
+const passkeyVerificationError = ref<string>();
+const passkeyVerificationModalOpen = ref(false);
 
 const handleAvatarEdit = async () => {
     const avatar = userEditData.cloned.value.avatar;
@@ -736,7 +817,7 @@ const handleAvatarEdit = async () => {
     avatarResetting.value = false;
 };
 
-const handleUserEdit = async (verificationData?: string) => {
+const handleUserEdit = async (verificationData?: any) => {
     userUpdating.value = true;
     userFormErrors.value = {};
     verificationError.value = undefined;
@@ -757,13 +838,14 @@ const handleUserEdit = async (verificationData?: string) => {
 
         toast.success('Account updated successfully');
     } catch (error: any) {
-        userFormErrors.value = error.data.data;
+        userFormErrors.value = error.data.data?.formErrors;
 
-        if (!error.data.data && error.data.message) {
+        if (!error.data.data?.formErrors && error.data.message) {
             if (verifyModalOpen.value) {
                 verificationError.value = error.data.message;
             } else {
                 verifyModalOpen.value = true;
+                verificationMethods.value = error.data.data.mfa.methods;
             }
         }
     }
@@ -797,63 +879,130 @@ const handleDomainsEdit = async () => {
     toast.success('Domains updated successfully');
 };
 
-const change2Fa = async (enabled: boolean, totp: string) => {
-    twoFaUpdating.value = true;
-    change2FaError.value = undefined;
+const handleEnableAuthApp = async (totp: string) => {
+    mfaUpdating.value = true;
+    enableMfaError.value = undefined;
 
     try {
-        await $fetch('/api/auth/totp', {
+        await $fetch('/api/users/@me/mfa/totp', {
             method: 'PUT',
             body: {
-                enabled,
+                enabled: true,
                 totp,
             },
         });
 
-        toast.success(
-            `Two-Factor Authentication ${
-                enabled ? 'enabled' : 'disabled'
-            } successfully`,
-        );
+        toast.success('Authenticator App enabled successfully');
 
-        enable2FaModalOpen.value = false;
-        disable2FaModalOpen.value = false;
+        enableAuthAppModalOpen.value = false;
     } catch (error: any) {
-        change2FaError.value = error.data.message;
+        enableMfaError.value = error.data.message;
     }
 
-    twoFaUpdating.value = false;
+    mfaUpdating.value = false;
 };
 
-const generate2FaQrCode = async (verificationData?: string) => {
-    twoFaUpdating.value = true;
-    verify2FaError.value = undefined;
+const handleDisableAuthApp = async (verificationData?: any) => {
+    mfaUpdating.value = true;
+    verifyMfaError.value = undefined;
 
     try {
-        const { base64 } = await $fetch('/api/auth/totp/qrcode', {
+        await $fetch('/api/users/@me/mfa/totp', {
+            method: 'PUT',
+            body: {
+                enabled: false,
+                verificationData,
+            },
+        });
+
+        toast.success('Authenticator App disabled successfully');
+
+        disableAuthAppModalOpen.value = false;
+    } catch (error: any) {
+        if (disableAuthAppModalOpen.value) {
+            verifyMfaError.value = error.data.message;
+        } else {
+            disableAuthAppModalOpen.value = true;
+            verificationMethods.value = error.data.data.mfa.methods;
+        }
+    }
+
+    mfaUpdating.value = false;
+};
+
+const handleGenAuthAppQrCode = async (verificationData?: any) => {
+    mfaUpdating.value = true;
+    verifyMfaError.value = undefined;
+
+    try {
+        const { base64 } = await $fetch('/api/users/@me/mfa/totp/qrcode', {
             method: 'POST',
             body: { verificationData },
         });
 
-        twoFaQrCode.value = base64;
-        verify2FaModalOpen.value = false;
-        enable2FaModalOpen.value = true;
+        authAppQrCode.value = base64;
+        verifyMfaModalOpen.value = false;
+        enableAuthAppModalOpen.value = true;
     } catch (error: any) {
-        if (verify2FaModalOpen.value) verify2FaError.value = error.data.message;
-        else verify2FaModalOpen.value = true;
+        if (verifyMfaModalOpen.value) {
+            verifyMfaError.value = error.data.message;
+        } else {
+            verifyMfaModalOpen.value = true;
+            verificationMethods.value = error.data.data.mfa.methods;
+        }
     }
 
-    twoFaUpdating.value = false;
+    mfaUpdating.value = false;
 };
 
-const handle2FaChange = (enabled: boolean) => {
-    if (enabled === currentUser.value!.totpEnabled) return;
+const handleRegisterPasskey = async (verificationData?: any) => {
+    registeringPasskey.value = true;
+    passkeyVerificationError.value = undefined;
 
-    if (enabled) generate2FaQrCode();
-    else disable2FaModalOpen.value = true;
+    try {
+        const optionsJSON =
+            await $fetch<PublicKeyCredentialCreationOptionsJSON>(
+                '/api/users/@me/mfa/webauthn/credentials',
+                {
+                    method: 'POST',
+                    body: { verify: false, verificationData },
+                },
+            );
+
+        const registrationResponse = await startRegistration({
+            optionsJSON,
+        });
+
+        try {
+            await $fetch('/api/users/@me/mfa/webauthn/credentials', {
+                method: 'POST',
+                body: {
+                    registrationResponse,
+                    expectedChallenge: optionsJSON.challenge,
+                    verify: true,
+                },
+            });
+
+            passkeyVerificationModalOpen.value = false;
+            toast.success('Passkey registered successfully');
+        } catch {
+            toast.error('Failed to verify passkey');
+        }
+    } catch (error: any) {
+        if (error.data?.message === 'Verification is required') {
+            passkeyVerificationModalOpen.value = true;
+            verificationMethods.value = error.data.data.mfa.methods;
+        } else if (passkeyVerificationModalOpen.value) {
+            passkeyVerificationError.value = error.data.message;
+        } else {
+            toast.error('An error occurred while registering passkey');
+        }
+    }
+
+    registeringPasskey.value = false;
 };
 
-const generateShareXFileUploaderConfig = () => {
+const handleGenShareXUploaderConfig = () => {
     const config = {
         Version: '16.1.0',
         Name: `${appConfig.site.name} - File Uploader`,
@@ -892,7 +1041,7 @@ const generateShareXFileUploaderConfig = () => {
     });
 };
 
-const generateShareXUrlShortenerConfig = () => {
+const handleGenShareXShortenerConfig = () => {
     const config = {
         Version: '16.1.0',
         Name: `${appConfig.site.name} - URL Shortener`,
@@ -929,11 +1078,11 @@ const generateShareXUrlShortenerConfig = () => {
     });
 };
 
-const generateShareXConfig = () => {
+const handleGenShareXConfig = () => {
     if (shareXConfigModal.settings.configType === 'File Uploader') {
-        generateShareXFileUploaderConfig();
+        handleGenShareXUploaderConfig();
     } else {
-        generateShareXUrlShortenerConfig();
+        handleGenShareXShortenerConfig();
     }
 };
 
@@ -959,10 +1108,15 @@ watch(
 
 watch(
     () => currentUser.value!.totpEnabled,
-    (value) => (twoFaEnabled.value = value),
+    (value) => (authAppEnabled.value = value),
 );
 
-watch(twoFaEnabled, handle2FaChange);
+watch(authAppEnabled, (enabled) => {
+    if (enabled === currentUser.value!.totpEnabled) return;
+
+    if (enabled) handleGenAuthAppQrCode();
+    else handleDisableAuthApp();
+});
 
 definePageMeta({
     layout: 'dashboard',

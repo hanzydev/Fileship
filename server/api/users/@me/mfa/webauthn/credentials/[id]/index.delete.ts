@@ -23,22 +23,22 @@ export default defineEventHandler(async (event) => {
 
     await verifySession(event, body.data?.verificationData);
 
-    const sessionId = getRouterParam(event, 'id');
-    const findSessionById = await prisma.session.findUnique({
+    const credentialId = getRouterParam(event, 'id');
+    const findCredentialById = await prisma.credential.findUnique({
         where: {
-            id: sessionId,
+            id: credentialId,
         },
     });
 
-    if (!findSessionById) {
+    if (!findCredentialById) {
         throw createError({
             statusCode: 404,
             statusMessage: 'Not Found',
-            message: 'Session not found',
+            message: 'Credential not found',
         });
     }
 
-    if (currentUser.id !== findSessionById.userId) {
+    if (currentUser.id !== findCredentialById.userId) {
         throw createError({
             statusCode: 403,
             statusMessage: 'Forbidden',
@@ -46,12 +46,11 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    await prisma.session.delete({
+    await prisma.credential.delete({
         where: {
-            id: sessionId,
+            id: credentialId,
         },
     });
 
-    await sendToSession(currentUser.id, sessionId!, 'logout', null);
-    sendToUser(currentUser.id, 'delete:session', sessionId);
+    sendToUser(currentUser.id, 'delete:passkey', credentialId);
 });

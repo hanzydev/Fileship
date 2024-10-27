@@ -43,6 +43,19 @@ model User {
   domains            String[]
   backupRestoreState BackupRestoreState?
   theme              String              @default("Fileship")
+  credentials        Credential[]
+}
+
+model Credential {
+  id         String   @id @unique
+  name       String   @default("Untitled")
+  publicKey  String
+  counter    Int
+  transports String[]
+  backedUp   Boolean
+  createdAt  DateTime @default(now())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
 }
 
 model File {

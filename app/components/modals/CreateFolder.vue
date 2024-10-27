@@ -100,7 +100,7 @@ const handleSubmit = async () => {
 
         toast.success('Folder created successfully, now select files to add');
     } catch (error: any) {
-        formErrors.value = error.data.data;
+        formErrors.value = error.data.data?.formErrors;
     }
 
     disabled.value = false;

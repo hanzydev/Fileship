@@ -12,39 +12,20 @@
             :data="editModal.user!"
         />
 
-        <ModalsVerifyTotp
-            v-if="currentUser!.totpEnabled"
+        <ModalsVerifyMFA
             v-model="verifyDeleteModal.open"
             :error="verifyDeleteModal.error"
             :disabled="willBeDeleted.has(verifyDeleteModal.userId)"
-            @got="(totp) => handleDelete(verifyDeleteModal.userId, totp)"
-        />
-        <ModalsVerifyUserPassword
-            v-else
-            v-model="verifyDeleteModal.open"
-            :error="verifyDeleteModal.error"
-            :disabled="willBeDeleted.has(verifyDeleteModal.userId)"
-            @got="
-                (password) => handleDelete(verifyDeleteModal.userId, password)
-            "
+            :methods="verifyDeleteModal.methods"
+            @got="(data) => handleDelete(verifyDeleteModal.userId, data)"
         />
 
-        <ModalsVerifyTotp
-            v-if="currentUser!.totpEnabled"
+        <ModalsVerifyMFA
             v-model="verifyActingModal.open"
             :error="verifyActingModal.error"
             :disabled="!!willBeActed"
-            @got="(totp) => handleActAsUser(verifyActingModal.username, totp)"
-        />
-        <ModalsVerifyUserPassword
-            v-else
-            v-model="verifyActingModal.open"
-            :error="verifyActingModal.error"
-            :disabled="!!willBeActed"
-            @got="
-                (password) =>
-                    handleActAsUser(verifyActingModal.username, password)
-            "
+            :methods="verifyActingModal.methods"
+            @got="(data) => handleActAsUser(verifyActingModal.username, data)"
         />
 
         <div space-y-6>
@@ -55,7 +36,7 @@
                     icon-size="20"
                     alignment="center"
                     variant="accent"
-                    class="h-8 w-8 !p-0"
+                    class="h8 w8 !p0"
                     aria-label="Create user"
                     @click="createUserModalOpen = true"
                 />
@@ -252,15 +233,17 @@ const verifyDeleteModal = reactive({
     userId: '',
     open: false,
     error: undefined as string | undefined,
+    methods: [],
 });
 
 const verifyActingModal = reactive({
     username: '',
     open: false,
     error: undefined as string | undefined,
+    methods: [],
 });
 
-const handleActAsUser = async (username: string, verificationData?: string) => {
+const handleActAsUser = async (username: string, verificationData?: any) => {
     try {
         willBeActed.value = username;
         verifyActingModal.error = undefined;
@@ -299,6 +282,7 @@ const handleActAsUser = async (username: string, verificationData?: string) => {
         } else {
             verifyActingModal.open = true;
             verifyActingModal.username = username;
+            verifyActingModal.methods = error.data.data.mfa.methods;
         }
 
         useCookie('adminSessionId').value = null;
@@ -307,7 +291,7 @@ const handleActAsUser = async (username: string, verificationData?: string) => {
     willBeActed.value = null;
 };
 
-const handleDelete = async (id: string, verificationData?: string) => {
+const handleDelete = async (id: string, verificationData?: any) => {
     willBeDeleted.value.add(id);
     verifyDeleteModal.error = undefined;
 
@@ -327,6 +311,7 @@ const handleDelete = async (id: string, verificationData?: string) => {
         } else if (error.data.message === 'Verification is required') {
             verifyDeleteModal.open = true;
             verifyDeleteModal.userId = id;
+            verifyDeleteModal.methods = error.data.data.mfa.methods;
         } else if (!verifyDeleteModal.open) {
             toast.error(error.data.message);
         }

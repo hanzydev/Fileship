@@ -28,11 +28,7 @@ const validationSchema = z.object({
         .regex(/^\d+$/, 'TOTP must be a number')
         .optional(),
     turnstile: z.string().optional(),
-    verificationData: z
-        .string({
-            invalid_type_error: 'Invalid verification data',
-        })
-        .optional(),
+    verificationData: z.any().optional(),
 });
 
 export default defineEventHandler(async (event) => {
@@ -44,7 +40,7 @@ export default defineEventHandler(async (event) => {
             statusCode: 400,
             statusMessage: 'Bad Request',
             message: 'Invalid body',
-            data: body.error.format(),
+            data: { formErrors: body.error.format() },
         });
     }
 
@@ -127,7 +123,7 @@ export default defineEventHandler(async (event) => {
         isAdmin(currentUser) &&
         findUserByUsername.id !== currentUser.id
     ) {
-        await verifySession(currentUser, body.data?.verificationData);
+        await verifySession(event, body.data?.verificationData);
     }
 
     const headers = getHeaders(event);

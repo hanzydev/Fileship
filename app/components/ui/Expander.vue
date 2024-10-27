@@ -26,8 +26,8 @@
         <Transition
             enter-from-class="h0"
             leave-to-class="h0"
-            enter-active-class="motion-safe:(animate-in fade-in) motion-safe:transition-height overflow-hidden"
-            leave-active-class="motion-safe:(animate-out fade-out) motion-safe:transition-height overflow-hidden"
+            enter-active-class="motion-safe:(animate-in fade-in transition-height) overflow-hidden"
+            leave-active-class="motion-safe:(animate-out fade-out transition-height) overflow-hidden"
             enter-to-class="h[--height]"
             leave-from-class="h[--height]"
             :style="{ '--height': `${height}px` }"

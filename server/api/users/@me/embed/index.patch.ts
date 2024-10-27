@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
             statusCode: 400,
             statusMessage: 'Bad Request',
             message: 'Invalid body',
-            data: body.error.format(),
+            data: { formErrors: body.error.format() },
         });
     }
 

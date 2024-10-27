@@ -6,18 +6,11 @@
         @confirm="handleLoad"
     />
 
-    <ModalsVerifyTotp
-        v-if="currentUser!.totpEnabled"
+    <ModalsVerifyMFA
         v-model="verifyModalOpen"
         :error="verificationError"
         :disabled="loading"
-        @got="handleLoad"
-    />
-    <ModalsVerifyUserPassword
-        v-else
-        v-model="verifyModalOpen"
-        :error="verificationError"
-        :disabled="loading"
+        :methods="verificationMethods"
         @got="handleLoad"
     />
 
@@ -104,8 +97,6 @@ const { data } = defineProps<{
     data: BackupData;
 }>();
 
-const currentUser = useAuthUser();
-
 const areYouSureModalOpen = ref(false);
 const ctxOpen = ref(false);
 const deleting = ref(false);
@@ -113,6 +104,7 @@ const loading = ref(false);
 
 const verifyModalOpen = ref(false);
 const verificationError = ref<string>();
+const verificationMethods = ref([]);
 
 const handleDelete = async () => {
     deleting.value = true;
@@ -122,7 +114,7 @@ const handleDelete = async () => {
     toast.success('Backup deleted successfully');
 };
 
-const handleLoad = async (verificationData?: string) => {
+const handleLoad = async (verificationData?: any) => {
     loading.value = true;
     verificationError.value = undefined;
 
@@ -136,8 +128,12 @@ const handleLoad = async (verificationData?: string) => {
 
         toast.success('Backup is being loaded, this may take a while');
     } catch (error: any) {
-        if (verifyModalOpen.value) verificationError.value = error.data.message;
-        else verifyModalOpen.value = true;
+        if (verifyModalOpen.value) {
+            verificationError.value = error.data.message;
+        } else {
+            verifyModalOpen.value = true;
+            verificationMethods.value = error.data.data.mfa.methods;
+        }
     }
 
     loading.value = false;

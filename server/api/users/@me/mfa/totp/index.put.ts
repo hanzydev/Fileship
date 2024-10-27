@@ -14,7 +14,9 @@ const validationSchema = z.object({
             required_error: 'Missing TOTP',
         })
         .length(6, 'TOTP must be 6 digits')
-        .regex(/^\d+$/, 'TOTP must be a number'),
+        .regex(/^\d+$/, 'TOTP must be a number')
+        .optional(),
+    verificationData: z.any().optional(),
 });
 
 export default defineEventHandler(async (event) => {
@@ -28,7 +30,7 @@ export default defineEventHandler(async (event) => {
             statusCode: 400,
             statusMessage: 'Bad Request',
             message: 'Invalid body',
-            data: body.error.format(),
+            data: { formErrors: body.error.format() },
         });
     }
 
@@ -36,11 +38,18 @@ export default defineEventHandler(async (event) => {
         throw createError({
             statusCode: 400,
             statusMessage: 'Bad Request',
-            message: `You cannot access the QR Code because the Two-Factor Authentication is already ${body.data.enabled ? 'enabled' : 'disabled'}`,
+            message: `Authenticator App is already ${body.data.enabled ? 'enabled' : 'disabled'}`,
         });
     }
 
-    if (!authenticator.check(body.data.totp, currentUser.totpSecret!)) {
+    if (!body.data.enabled) {
+        await verifySession(event, body.data.verificationData);
+    }
+
+    if (
+        body.data.enabled &&
+        !authenticator.check(body.data.totp!, currentUser.totpSecret!)
+    ) {
         throw createError({
             statusCode: 400,
             statusMessage: 'Bad Request',

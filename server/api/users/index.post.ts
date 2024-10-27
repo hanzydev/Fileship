@@ -53,11 +53,7 @@ const validationSchema = z.object(
                 invalid_type_error: 'Invalid super admin',
             })
             .optional(),
-        verificationData: z
-            .string({
-                invalid_type_error: 'Invalid verification data',
-            })
-            .optional(),
+        verificationData: z.any().optional(),
     },
     { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
 );
@@ -73,7 +69,7 @@ export default defineEventHandler(async (event) => {
             statusCode: 400,
             statusMessage: 'Bad Request',
             message: 'Invalid body',
-            data: body.error.format(),
+            data: { formErrors: body.error.format() },
         });
     }
 
@@ -97,7 +93,7 @@ export default defineEventHandler(async (event) => {
     if (body.data.superAdmin) body.data.permissions = [UserPermission.Admin];
 
     if (body.data.permissions?.includes(UserPermission.Admin)) {
-        await verifySession(currentUser, body.data?.verificationData);
+        await verifySession(event, body.data?.verificationData);
     }
 
     const findUserByUsername = await prisma.user.findFirst({

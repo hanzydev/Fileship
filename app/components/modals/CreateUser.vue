@@ -1,18 +1,9 @@
 <template>
-    <ModalsVerifyTotp
-        v-if="currentUser!.totpEnabled"
+    <ModalsVerifyMFA
         v-model="verifyModalOpen"
         :error="verificationError"
         :disabled
-        @got="handleSubmit"
-        @cancel="isOpen = true"
-        @outer-click="isOpen = true"
-    />
-    <ModalsVerifyUserPassword
-        v-else
-        v-model="verifyModalOpen"
-        :error="verificationError"
-        :disabled
+        :methods="verificationMethods"
         @got="handleSubmit"
         @cancel="isOpen = true"
         @outer-click="isOpen = true"
@@ -187,6 +178,7 @@ const disabled = ref(false);
 
 const verifyModalOpen = ref(false);
 const verificationError = ref<string>();
+const verificationMethods = ref([]);
 
 const user = reactive({
     username: '',
@@ -196,7 +188,7 @@ const user = reactive({
     limits: { backupLimit: -1, usableSpace: -1 },
 });
 
-const handleSubmit = async (verificationData?: string) => {
+const handleSubmit = async (verificationData?: any) => {
     disabled.value = true;
     formErrors.value = {};
     verificationError.value = undefined;
@@ -215,18 +207,19 @@ const handleSubmit = async (verificationData?: string) => {
 
         toast.success('User created successfully');
     } catch (error: any) {
-        if (!error.data.data) {
+        if (!error.data.data.formErrors) {
             if (verifyModalOpen.value) {
                 verificationError.value = error.data.message;
             } else if (error.data.message === 'Verification is required') {
                 verifyModalOpen.value = true;
+                verificationMethods.value = error.data.data.mfa.methods;
                 isOpen.value = false;
             } else if (!verifyModalOpen.value) {
                 toast.error(error.data.message);
             }
         }
 
-        formErrors.value = error.data.data;
+        formErrors.value = error.data.data?.formErrors;
     }
 
     disabled.value = false;

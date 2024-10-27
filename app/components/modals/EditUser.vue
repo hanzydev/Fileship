@@ -1,18 +1,9 @@
 <template>
-    <ModalsVerifyTotp
-        v-if="currentUser!.totpEnabled"
+    <ModalsVerifyMFA
         v-model="verifyModalOpen"
         :error="verificationError"
         :disabled="updating"
-        @got="handleEdit"
-        @cancel="isOpen = true"
-        @outer-click="isOpen = true"
-    />
-    <ModalsVerifyUserPassword
-        v-else
-        v-model="verifyModalOpen"
-        :error="verificationError"
-        :disabled="updating"
+        :methods="verificationMethods"
         @got="handleEdit"
         @cancel="isOpen = true"
         @outer-click="isOpen = true"
@@ -192,6 +183,7 @@ const updating = ref(false);
 
 const verifyModalOpen = ref(false);
 const verificationError = ref<string>();
+const verificationMethods = ref([]);
 
 const editData = useCloned({
     ...data,
@@ -199,7 +191,7 @@ const editData = useCloned({
     permissions: data.superAdmin ? [] : data.permissions,
 });
 
-const handleEdit = async (verificationData?: string) => {
+const handleEdit = async (verificationData?: any) => {
     updating.value = true;
     formErrors.value = {};
 
@@ -221,18 +213,19 @@ const handleEdit = async (verificationData?: string) => {
 
         toast.success('User updated successfully');
     } catch (error: any) {
-        if (!error.data.data) {
+        if (!error.data.data.formErrors) {
             if (verifyModalOpen.value) {
                 verificationError.value = error.data.message;
             } else if (error.data.message === 'Verification is required') {
                 verifyModalOpen.value = true;
+                verificationMethods.value = error.data.data.mfa.methods;
                 isOpen.value = false;
             } else if (!verifyModalOpen.value) {
                 toast.error(error.data.message);
             }
         }
 
-        formErrors.value = error.data.data;
+        formErrors.value = error.data.data?.formErrors;
     }
 
     updating.value = false;

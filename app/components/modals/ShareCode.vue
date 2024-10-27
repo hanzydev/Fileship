@@ -194,7 +194,7 @@ const handleSubmit = async () => {
 
         toast.success('Code shared successfully');
     } catch (error: any) {
-        formErrors.value = error.data.data;
+        formErrors.value = error.data.data?.formErrors;
     }
 
     disabled.value = false;

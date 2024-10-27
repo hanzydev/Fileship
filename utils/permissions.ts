@@ -1,3 +1,5 @@
+import type { H3Event } from 'h3';
+
 import { UserPermission } from '@prisma/client';
 
 export type User = {
@@ -5,9 +7,7 @@ export type User = {
     superAdmin: boolean;
 } | null;
 
-export type Event = { context: { user: User } };
-
-type UserOrEvent = MaybeRef<User> | Event;
+type UserOrEvent = MaybeRef<User> | H3Event;
 
 const hasPermission = (user: UserOrEvent, permission: UserPermission) => {
     if (!user) return false;

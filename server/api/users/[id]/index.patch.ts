@@ -61,11 +61,7 @@ const validationSchema = z
                     invalid_type_error: 'Invalid super admin',
                 })
                 .optional(),
-            verificationData: z
-                .string({
-                    invalid_type_error: 'Invalid verification data',
-                })
-                .nullish(),
+            verificationData: z.any().nullish(),
             theme: z
                 .string({
                     invalid_type_error: 'Invalid theme',
@@ -122,7 +118,7 @@ export default defineEventHandler(async (event) => {
             statusCode: 400,
             statusMessage: 'Bad Request',
             message: 'Invalid body',
-            data: body.error.format(),
+            data: { formErrors: body.error.format() },
         });
     }
 
@@ -235,7 +231,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (body.data.password) {
-        await verifySession(currentUser, body.data.verificationData!);
+        await verifySession(event, body.data.verificationData!);
 
         (body.data as any).password = await hash(body.data.password);
 

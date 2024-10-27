@@ -1,18 +1,11 @@
 <template>
     <div>
-        <ModalsVerifyTotp
-            v-if="currentUser!.totpEnabled"
+        <ModalsVerifyMFA
             v-model="verifyModalOpen"
-            :error
+            :error="verificationError"
             :disabled
-            @got="removeSession"
-        />
-        <ModalsVerifyUserPassword
-            v-else
-            v-model="verifyModalOpen"
-            :error
-            :disabled
-            @got="removeSession"
+            :methods="verificationMethods"
+            @got="handleRemoveSession"
         />
 
         <div wfull max-w-screen-sm space-y-4>
@@ -79,7 +72,7 @@
                     aria-label="Remove session"
                     :disabled
                     :class="disabled && 'cursor-not-allowed op50'"
-                    @click="removeSession()"
+                    @click="handleRemoveSession()"
                 >
                     <Icon name="heroicons-solid:x" size="24" />
                 </button>
@@ -99,13 +92,15 @@ const { data } = defineProps<{
     data: SessionData;
 }>();
 
-const error = ref<string>();
 const disabled = ref(false);
-const verifyModalOpen = ref(false);
 
-const removeSession = async (verificationData?: string) => {
+const verifyModalOpen = ref(false);
+const verificationError = ref<string>();
+const verificationMethods = ref([]);
+
+const handleRemoveSession = async (verificationData?: any) => {
     disabled.value = true;
-    error.value = undefined;
+    verificationError.value = undefined;
 
     try {
         await $fetch(`/api/users/@me/sessions/${data.id}`, {
@@ -116,9 +111,13 @@ const removeSession = async (verificationData?: string) => {
         verifyModalOpen.value = false;
 
         toast.success('Session removed successfully');
-    } catch (_error: any) {
-        if (verifyModalOpen.value) error.value = _error.data.message;
-        else verifyModalOpen.value = true;
+    } catch (error: any) {
+        if (verifyModalOpen.value) {
+            verificationError.value = error.data.message;
+        } else {
+            verifyModalOpen.value = true;
+            verificationMethods.value = error.data.data.mfa.methods;
+        }
     }
 
     disabled.value = false;

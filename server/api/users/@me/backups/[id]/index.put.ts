@@ -14,11 +14,7 @@ import { isAdmin } from '~~/utils/permissions';
 
 const validationSchema = z
     .object({
-        verificationData: z
-            .string({
-                invalid_type_error: 'Invalid verification data',
-            })
-            .optional(),
+        verificationData: z.any().optional(),
     })
     .optional();
 
@@ -33,7 +29,7 @@ export default defineEventHandler(async (event) => {
             statusCode: 400,
             statusMessage: 'Bad Request',
             message: 'Invalid body',
-            data: body.error.format(),
+            data: { formErrors: body.error.format() },
         });
     }
 
@@ -53,7 +49,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    await verifySession(currentUser, body.data?.verificationData);
+    await verifySession(event, body.data?.verificationData);
 
     const updateState = async (state: BackupRestoreState | null) => {
         await prisma.user.update({

@@ -2,6 +2,10 @@ import { z } from 'zod';
 
 const validationSchema = z
     .object({
+        name: z
+            .string({ invalid_type_error: 'Invalid name' })
+            .min(3, { message: 'Name must be at least 3 characters' })
+            .max(32, { message: 'Name must be less than 32 characters' }),
         verificationData: z.any().optional(),
     })
     .optional();
@@ -23,22 +27,22 @@ export default defineEventHandler(async (event) => {
 
     await verifySession(event, body.data?.verificationData);
 
-    const sessionId = getRouterParam(event, 'id');
-    const findSessionById = await prisma.session.findUnique({
+    const credentialId = getRouterParam(event, 'id');
+    const findCredentialById = await prisma.credential.findUnique({
         where: {
-            id: sessionId,
+            id: credentialId,
         },
     });
 
-    if (!findSessionById) {
+    if (!findCredentialById) {
         throw createError({
             statusCode: 404,
             statusMessage: 'Not Found',
-            message: 'Session not found',
+            message: 'Credential not found',
         });
     }
 
-    if (currentUser.id !== findSessionById.userId) {
+    if (currentUser.id !== findCredentialById.userId) {
         throw createError({
             statusCode: 403,
             statusMessage: 'Forbidden',
@@ -46,12 +50,19 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    await prisma.session.delete({
+    const updatedCredential = await prisma.credential.update({
         where: {
-            id: sessionId,
+            id: credentialId,
+        },
+        data: {
+            name: body.data?.name,
+        },
+        select: {
+            id: true,
+            name: true,
+            createdAt: true,
         },
     });
 
-    await sendToSession(currentUser.id, sessionId!, 'logout', null);
-    sendToUser(currentUser.id, 'delete:session', sessionId);
+    sendToUser(currentUser.id, 'update:passkey', updatedCredential);
 });

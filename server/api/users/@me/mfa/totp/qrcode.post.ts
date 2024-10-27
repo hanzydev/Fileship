@@ -4,11 +4,7 @@ import { z } from 'zod';
 
 const validationSchema = z
     .object({
-        verificationData: z
-            .string({
-                invalid_type_error: 'Invalid verification data',
-            })
-            .optional(),
+        verificationData: z.any().optional(),
     })
     .optional();
 
@@ -23,7 +19,7 @@ export default defineEventHandler(async (event) => {
             statusCode: 400,
             statusMessage: 'Bad Request',
             message: 'Invalid body',
-            data: body.error.format(),
+            data: { formErrors: body.error.format() },
         });
     }
 
@@ -31,12 +27,11 @@ export default defineEventHandler(async (event) => {
         throw createError({
             statusCode: 400,
             statusMessage: 'Bad Request',
-            message:
-                'You cannot access the QR Code because the Two-Factor Authentication is already switched on',
+            message: 'Authenticator App is already enabled',
         });
     }
 
-    await verifySession(currentUser, body.data?.verificationData);
+    await verifySession(event, body.data?.verificationData);
 
     const totpSecret = authenticator.generateSecret(64);
 

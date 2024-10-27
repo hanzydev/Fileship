@@ -21,7 +21,7 @@
                     icon-size="20"
                     alignment="center"
                     variant="dangerFill"
-                    class="h-8 w-8 !p-0"
+                    class="h8 w8 !p0"
                     aria-label="Flush logs"
                     :disabled="
                         isFlushingLogs ||

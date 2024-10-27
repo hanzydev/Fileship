@@ -25,6 +25,7 @@ export const initSocket = () => {
     const folders = useFolders();
     const backups = useBackups();
     const sessions = useSessions();
+    const passkeys = usePasskeys();
     const currentUser = useAuthUser();
     const currentTheme = useTheme();
     const runtimeConfig = useRuntimeConfig();
@@ -338,6 +339,25 @@ export const initSocket = () => {
                     ? buildPublicUrl(`/folder/${folder.id}`)
                     : undefined,
             }));
+        });
+
+        // Passkeys
+        socket.on('create:passkey', (data) => {
+            passkeys.value = [
+                ...passkeys.value,
+                { ...data, createdAt: new Date(data.createdAt) },
+            ];
+        });
+
+        socket.on('delete:passkey', (passkeyId) => {
+            passkeys.value = passkeys.value.filter((p) => p.id !== passkeyId);
+        });
+
+        socket.on('update:passkey', (data) => {
+            const index = passkeys.value.findIndex((p) => p.id === data.id);
+            if (index > -1) {
+                passkeys.value[index] = { ...passkeys.value[index], ...data };
+            }
         });
 
         // Admin

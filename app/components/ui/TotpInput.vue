@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-const totpInputs = reactive<HTMLInputElement[]>([]);
+const totpInputs = ref<HTMLInputElement[]>([]);
 
 defineProps<{
     error?: string;
@@ -40,6 +40,8 @@ defineProps<{
 const emit = defineEmits<{
     got: [totp: string];
 }>();
+
+const value = defineModel<string>({ required: false, default: '' });
 
 const id = useId();
 
@@ -52,41 +54,47 @@ const handleInput = (e: Event, index: number) => {
 
     input.value = first ?? '';
 
-    const lastInputBox = index === totpInputs.length - 1;
+    const lastInputBox = index === totpInputs.value.length - 1;
     const didInsertContent = first !== undefined;
 
     if (didInsertContent && lastInputBox) {
-        emit('got', totpInputs.map((el) => el.value).join(''));
+        const _value = totpInputs.value.map((el) => el.value).join('');
+        value.value = _value;
+        emit('got', _value);
     }
 
     if (didInsertContent && !lastInputBox) {
-        totpInputs[index + 1]!.focus();
+        totpInputs.value[index + 1]!.focus();
 
         if (rest.length > 1) {
             for (
                 let inputIndex = 0;
-                inputIndex < totpInputs.length;
+                inputIndex < totpInputs.value.length;
                 inputIndex++
             ) {
                 const char = (first + rest)[inputIndex];
                 if (!char) break;
 
-                totpInputs[inputIndex]!.focus();
-                totpInputs[inputIndex]!.value = char;
+                totpInputs.value[inputIndex]!.focus();
+                totpInputs.value[inputIndex]!.value = char;
 
                 if (inputIndex === 5) {
-                    emit('got', totpInputs.map((el) => el.value).join(''));
+                    const _value = totpInputs.value
+                        .map((el) => el.value)
+                        .join('');
+                    value.value = _value;
+                    emit('got', _value);
                 }
             }
         } else {
-            totpInputs[index + 1]!.value = rest;
+            totpInputs.value[index + 1]!.value = rest;
         }
     }
 };
 
 const handleBackspace = (e: any, index: number) => {
-    if (e.target.value === '') totpInputs[Math.max(0, index - 1)]!.focus();
+    if (e.target.value === '') {
+        totpInputs.value[Math.max(0, index - 1)]!.focus();
+    }
 };
-
-onMounted(() => totpInputs[0]?.focus());
 </script>

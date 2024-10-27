@@ -1,5 +1,7 @@
+import type { H3Event } from 'h3';
+
 export const buildPublicUrl = (
-    event: any,
+    event: H3Event,
     domains: string[],
     route: `/${string}`,
 ) => {

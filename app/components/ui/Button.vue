@@ -14,6 +14,7 @@
                 'bg-fs-overlay-2': variant === 'primary',
                 'bg-fs-overlay-3 ring-1 ring-fs-overlay-4':
                     variant === 'secondary',
+                'bg-fs-overlay-4': variant === 'tertiary',
                 'bg-transparent ring-1 ring-red-500': variant === 'danger',
                 'bg-red-500': variant === 'dangerFill',
                 'bg-transparent ring-1 ring-fs-accent': variant === 'outline',
@@ -29,10 +30,11 @@
                 : {
                       // hover
                       'hover:(ring-1 ring-white)': variant === 'accent',
-                      'hover:bg-fs-overlay-3 hover:(ring-1 ring-fs-accent)':
+                      'hover:(ring-1 ring-fs-accent bg-fs-overlay-3)':
                           variant === 'primary',
                       'hover:(bg-fs-overlay-4 ring-fs-accent)':
                           variant === 'secondary',
+                      'hover:(ring-1 ring-fs-accent)': variant === 'tertiary',
                       'hover:bg-red-500': variant === 'danger',
                       'hover:(bg-red-600 ring-1 ring-white)':
                           variant === 'dangerFill',
@@ -70,6 +72,7 @@ const {
         | 'accent'
         | 'primary'
         | 'secondary'
+        | 'tertiary'
         | 'danger'
         | 'dangerFill'
         | 'outline';
