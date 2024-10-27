@@ -55,36 +55,29 @@ export default defineEventHandler(async (event) => {
         if (response.verified) {
             const { registrationInfo } = response;
 
-            const id = registrationInfo!.credential.id;
-            const name =
-                body.data.name ||
-                body.data.registrationResponse!.clientExtensionResults
-                    ?.credProps?.authenticatorDisplayName ||
-                'Untitled';
-
-            await prisma.user.update({
-                where: { id: currentUser.id },
+            const passkey = await prisma.credential.create({
                 data: {
-                    credentials: {
-                        create: {
-                            id,
-                            name,
-                            publicKey: bufferToBase64URLString(
-                                registrationInfo!.credential.publicKey as never,
-                            ),
-                            counter: registrationInfo!.credential.counter,
-                            backedUp: registrationInfo!.credentialBackedUp,
-                            transports: registrationInfo!.credential.transports,
-                        },
-                    },
+                    id: registrationInfo!.credential.id,
+                    name:
+                        body.data.name ||
+                        body.data.registrationResponse!.clientExtensionResults
+                            ?.credProps?.authenticatorDisplayName,
+                    publicKey: bufferToBase64URLString(
+                        registrationInfo!.credential.publicKey as never,
+                    ),
+                    counter: registrationInfo!.credential.counter,
+                    backedUp: registrationInfo!.credentialBackedUp,
+                    transports: registrationInfo!.credential.transports,
+                    userId: currentUser.id,
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    createdAt: true,
                 },
             });
 
-            sendToUser(currentUser.id, 'create:passkey', {
-                id,
-                name,
-                createdAt: new Date(),
-            });
+            sendToUser(currentUser.id, 'create:passkey', passkey);
         }
 
         return { verified: response.verified };
