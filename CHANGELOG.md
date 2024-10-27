@@ -1,5 +1,32 @@
 # Changelog
 
+## v2.0.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v1.20.1...v2.0.0)
+
+### 🚀 Enhancements
+
+- Passkeys ([d6a29ca](https://github.com/hanzydev/Fileship/commit/d6a29ca))
+
+### 🔥 Performance
+
+- Do not fetch the data again if they are already in ([f96952a](https://github.com/hanzydev/Fileship/commit/f96952a))
+- Do not fetch the data again if they are already in ([955f5f6](https://github.com/hanzydev/Fileship/commit/955f5f6))
+
+### 🩹 Fixes
+
+- Embed and direct urls not updating when changing the name of the file or code ([98a02c9](https://github.com/hanzydev/Fileship/commit/98a02c9))
+
+### 💅 Refactors
+
+- Always disable turnstile if there's no turnstile secret and site key ([23d01b6](https://github.com/hanzydev/Fileship/commit/23d01b6))
+- Use store for stats ([0f705a3](https://github.com/hanzydev/Fileship/commit/0f705a3))
+- Expose forbiddenError to handle 403 errors better ([8e687f2](https://github.com/hanzydev/Fileship/commit/8e687f2))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v1.20.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v1.20.0...v1.20.1)
