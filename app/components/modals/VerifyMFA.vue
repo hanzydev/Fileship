@@ -4,25 +4,22 @@
             flex="~ col items-center justify-center gap8"
             relative
             overflow-hidden
-            p8
             text-center
             transition-height
             duration-250
-            :style="{ height: `${height + 32}px` }"
+            :style="{ height: `${height + (width < 640 ? 128 : 32)}px` }"
         >
             <Transition
                 enter-active-class="motion-safe:(animate-in fade-in data-[hubmode=true]:slide-in-from-left data-[hubmode=false]:slide-in-from-right animate-duration-250)"
                 leave-active-class="motion-safe:(animate-out fade-out data-[hubmode=true]:slide-out-to-left data-[hubmode=false]:slide-out-to-right animate-duration-250)"
                 :data-hubmode="hubMode"
-                @enter="(el) => calculateHeight(el)"
-                @after-enter="(el) => el.querySelector('input')?.focus()"
+                @enter="height = $event.clientHeight"
+                @after-enter="$event.querySelector('input')?.focus()"
             >
                 <div
                     v-if="hubMode"
                     flex="~ col items-center justify-center gap8"
                     absolute
-                    left-auto
-                    right-auto
                     wfull
                     p8
                 >
@@ -104,8 +101,6 @@
                     flex="~ col items-center justify-center gap8"
                     data-selectedmethod
                     absolute
-                    left-auto
-                    right-auto
                     wfull
                     p8
                 >
@@ -284,6 +279,8 @@ const bestMethod = computed(() =>
           : 'password',
 );
 
+const { width } = useWindowSize();
+
 const selectedMethod = ref<MethodType>(bestMethod.value);
 
 const password = ref('');
@@ -291,10 +288,6 @@ const totp = ref('');
 
 const hubMode = ref(false);
 const height = ref(320 /** initial */);
-
-const calculateHeight = (el: Element) => {
-    height.value = el.clientHeight;
-};
 
 const handlePasskey = async () => {
     const optionsJSON = methods.find((m) => m.type === 'passkey')!.challange!;
@@ -320,9 +313,14 @@ watch(bestMethod, () => (selectedMethod.value = bestMethod.value));
 
 watch(isOpen, (value) => {
     if (value) {
-        nextTick(() =>
-            calculateHeight(document.querySelector('[data-selectedmethod]')!),
-        );
+        nextTick(() => {
+            const container = document.querySelector('[data-selectedmethod]');
+
+            if (container) {
+                height.value = container.clientHeight;
+                container.querySelector('input')?.focus();
+            }
+        });
     }
 });
 </script>
