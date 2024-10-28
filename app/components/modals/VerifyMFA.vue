@@ -1,5 +1,5 @@
 <template>
-    <UiModal v-model="isOpen">
+    <UiModal v-model="isOpen" @closed="selectedMethod = bestMethod">
         <div
             flex="~ col items-center justify-center gap8"
             relative
