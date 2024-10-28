@@ -1,5 +1,23 @@
 # Changelog
 
+## v2.0.3
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.0.2...v2.0.3)
+
+### 🩹 Fixes
+
+- Verify mfa modal in mobile ([3c5047e](https://github.com/hanzydev/Fileship/commit/3c5047e))
+
+### 💅 Refactors
+
+- Move isMobile and isReducedMotion to  animateCards utility ([b54a1e2](https://github.com/hanzydev/Fileship/commit/b54a1e2))
+- Better login page ([5520c0c](https://github.com/hanzydev/Fileship/commit/5520c0c))
+- Better cacheing function for version information ([afb6c10](https://github.com/hanzydev/Fileship/commit/afb6c10))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.0.2
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.0.1...v2.0.2)
