@@ -8,63 +8,62 @@
                 relative
                 w20rem
                 overflow-hidden
+                rounded-lg
+                bg-fs-overlay-1
                 text-start
+                transition-height
+                duration-250
                 sm:w35rem
-                :style="{
-                    height: `calc(23.75rem${runtimeConfig.public.turnstile.siteKey ? ' + 7rem' : ''})`,
-                }"
+                :style="{ height: `${height}px` }"
             >
                 <Transition
-                    enter-active-class="motion-safe:(animate-in fade-in slide-in-left-52)"
-                    leave-active-class="motion-safe:(animate-out fade-out slide-out-left-52)"
-                    @after-enter="(el) => el.querySelector('input')?.focus()"
+                    enter-active-class="motion-safe:(animate-in fade-in data-[hubmode=true]:slide-in-from-left data-[hubmode=false]:slide-in-from-right animate-duration-250)"
+                    leave-active-class="motion-safe:(animate-out fade-out data-[hubmode=true]:slide-out-to-left data-[hubmode=false]:slide-out-to-right animate-duration-250)"
+                    :data-hubmode="section === 'login'"
+                    @enter="calculateHeight"
+                    @after-enter="$event.querySelector('input')?.focus()"
                 >
                     <form
                         v-if="section === 'login'"
                         absolute
-                        hfull
                         wfull
-                        rounded-lg
-                        bg-fs-overlay-1
                         p8
                         flex="~ col justify-between"
                         @submit.prevent="handleSubmit()"
                     >
-                        <div space-y-10>
-                            <h2>Login</h2>
-                            <div mt10 space-y-4>
-                                <UiInput
-                                    v-model="auth.username"
-                                    label="Username"
-                                    type="text"
-                                    :error="formErrors?.username?._errors?.[0]"
-                                    required
-                                    wfull
-                                    :disabled
-                                />
-                                <UiInput
-                                    v-model="auth.password"
-                                    label="Password"
-                                    type="password"
-                                    :error="formErrors?.password?._errors?.[0]"
-                                    required
-                                    wfull
-                                    :disabled
-                                />
-                            </div>
-
-                            <NuxtTurnstile
-                                v-if="runtimeConfig.public.turnstile.siteKey"
-                                ref="turnstileRef"
-                                v-model="auth.turnstile"
-                                :options="{
-                                    theme: 'dark',
-                                    size: 'flexible',
-                                }"
+                        <h2>Login</h2>
+                        <div mt10 space-y-4>
+                            <UiInput
+                                v-model="auth.username"
+                                label="Username"
+                                type="text"
+                                :error="formErrors?.username?._errors?.[0]"
+                                required
+                                wfull
+                                :disabled
+                            />
+                            <UiInput
+                                v-model="auth.password"
+                                label="Password"
+                                type="password"
+                                :error="formErrors?.password?._errors?.[0]"
+                                required
+                                wfull
+                                :disabled
                             />
                         </div>
 
-                        <div flex="~ items-center gap4">
+                        <NuxtTurnstile
+                            v-if="runtimeConfig.public.turnstile.siteKey"
+                            ref="turnstileRef"
+                            v-model="auth.turnstile"
+                            :options="{
+                                theme: 'dark',
+                                size: 'flexible',
+                            }"
+                        />
+
+                        <div flex="~ items-center gap4" mt10>
                             <UiButton
                                 alignment="center"
                                 wfull
@@ -85,64 +84,54 @@
                                     variant="secondary"
                                     max-w-fit
                                     wfull
+                                    flex-shrink-0
                                     gap2
-                                    type="submit"
                                     icon="heroicons-solid:finger-print"
                                     icon-size="20"
+                                    lt-md:h10
                                     :disabled
                                     @click="section = 'passkey'"
                                 >
-                                    Use passkey
+                                    <span lt-md:hidden>Use passkey</span>
                                 </UiButton>
                             </ClientOnly>
                         </div>
                     </form>
-                </Transition>
-                <Transition
-                    enter-active-class="motion-safe:(animate-in fade-in slide-in-right-52)"
-                    leave-active-class="motion-safe:(animate-out fade-out slide-out-right-52)"
-                    @after-enter="(el) => el.querySelector('input')?.focus()"
-                >
                     <div
-                        v-if="section === 'totp'"
+                        v-else-if="section === 'totp'"
                         absolute
-                        hfull
                         wfull
-                        rounded-lg
-                        bg-fs-overlay-1
                         p8
                         flex="~ col justify-between"
                     >
-                        <div space-y-10>
-                            <div space-y-2>
-                                <h2>Two-Factor Authentication</h2>
-                                <p text-slate200>
-                                    Enter the code from your authenticator app.
-                                </p>
-                            </div>
-                            <div mt10 wfit>
-                                <UiTotpInput
-                                    type="text"
-                                    :error
-                                    required
-                                    :disabled
-                                    input-class="!wfull"
-                                    @got="handleSubmit"
-                                />
-                            </div>
-
-                            <NuxtTurnstile
-                                v-if="runtimeConfig.public.turnstile.siteKey"
-                                ref="turnstileRef"
-                                v-model="auth.turnstile"
-                                :options="{
-                                    theme: 'dark',
-                                    size: 'flexible',
-                                }"
+                        <div space-y-2>
+                            <h2>Two-Factor Authentication</h2>
+                            <p text-slate200>
+                                Enter the code from your authenticator app.
+                            </p>
+                        </div>
+                        <div mt10 wfit>
+                            <UiTotpInput
+                                type="text"
+                                :error
+                                required
+                                :disabled
+                                input-class="!wfull"
+                                @got="handleSubmit"
                             />
                         </div>
 
-                        <div grid="~ cols-2 gap-4">
+                        <NuxtTurnstile
+                            v-if="runtimeConfig.public.turnstile.siteKey"
+                            ref="turnstileRef"
+                            v-model="auth.turnstile"
+                            :options="{
+                                theme: 'dark',
+                                size: 'flexible',
+                            }"
+                        />
+
+                        <div grid="~ cols-2 gap-4" mt10>
                             <UiButton
                                 alignment="center"
                                 wfull
@@ -169,44 +158,32 @@
                             </UiButton>
                         </div>
                     </div>
-                </Transition>
-                <Transition
-                    enter-active-class="motion-safe:(animate-in fade-in slide-in-right-52)"
-                    leave-active-class="motion-safe:(animate-out fade-out slide-out-right-52)"
-                    @after-enter="(el) => el.querySelector('input')?.focus()"
-                >
                     <form
-                        v-if="section === 'passkey'"
+                        v-else
                         absolute
-                        hfull
                         wfull
-                        rounded-lg
-                        bg-fs-overlay-1
                         p8
                         flex="~ col justify-between"
                         @submit.prevent="handleSubmit()"
                     >
-                        <div space-y-10>
-                            <h2>Login with passkey</h2>
-                            <div mt10>
-                                <UiInput
-                                    v-model="auth.username"
-                                    label="Username"
-                                    type="text"
-                                    :error="formErrors?.username?._errors?.[0]"
-                                    required
-                                    wfull
-                                    :disabled
-                                />
-                            </div>
+                        <h2>Login with passkey</h2>
+                        <div mt10>
+                            <UiInput
+                                v-model="auth.username"
+                                label="Username"
+                                type="text"
+                                :error="formErrors?.username?._errors?.[0]"
+                                required
+                                wfull
+                                :disabled
+                            />
                         </div>
 
-                        <div grid="~ cols-2 gap-4">
+                        <div grid="~ cols-2 gap-4" mt10>
                             <UiButton
                                 alignment="center"
                                 wfull
                                 gap2
-                                type="submit"
                                 icon="heroicons-solid:arrow-left"
                                 icon-size="20"
                                 :disabled
@@ -249,6 +226,8 @@ const turnstileRef = ref();
 
 const error = ref<string>();
 const disabled = ref(false);
+
+const height = ref(380 /** initial */);
 
 const runtimeConfig = useRuntimeConfig();
 
@@ -344,7 +323,6 @@ const handleSubmit = async (totp?: string) => {
 
         toast.success('Logged in successfully');
     } catch (_error: any) {
-        console.log(_error);
         if (_error.data.message === 'Missing TOTP') {
             section.value = 'totp';
         } else {
@@ -358,8 +336,18 @@ const handleSubmit = async (totp?: string) => {
     disabled.value = false;
 };
 
+const calculateHeight = (el: Element) => {
+    height.value =
+        el.clientHeight + (runtimeConfig.public.turnstile.siteKey ? 7 : 0);
+};
+
 onMounted(() => {
-    document.querySelector('input')?.focus();
+    const container = document.querySelector('form');
+
+    if (container) {
+        calculateHeight(container);
+        container.querySelector('input')?.focus();
+    }
 });
 
 definePageMeta({
