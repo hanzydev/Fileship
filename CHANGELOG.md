@@ -1,5 +1,23 @@
 # Changelog
 
+## v2.0.2
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.0.1...v2.0.2)
+
+### 💅 Refactors
+
+- Better error handling for passkey registration ([7aa7554](https://github.com/hanzydev/Fileship/commit/7aa7554))
+- Error handling for verifying with passkey ([1407181](https://github.com/hanzydev/Fileship/commit/1407181))
+- Better way to create passkeys in db ([c19e4c4](https://github.com/hanzydev/Fileship/commit/c19e4c4))
+- Update readme ([e60050d](https://github.com/hanzydev/Fileship/commit/e60050d))
+- Reset selected method to best method if modal is closed ([525c66d](https://github.com/hanzydev/Fileship/commit/525c66d))
+- Update passkey register error message ([3e6a5a9](https://github.com/hanzydev/Fileship/commit/3e6a5a9))
+- Remove caching for version info ([3d156f9](https://github.com/hanzydev/Fileship/commit/3d156f9))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.0.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.0.0...v2.0.1)
