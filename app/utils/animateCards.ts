@@ -2,6 +2,15 @@ import { Cubic, gsap } from 'gsap';
 
 const tweenMap = new Map<gsap.TweenTarget, gsap.core.Tween>();
 
+const isMobile = () => {
+    const { width } = useWindowSize();
+    return width.value < 768;
+};
+
+const isReducedMotion = () => {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+};
+
 export const animateCards = () => {
     const enter = (target: gsap.TweenTarget, done?: () => void) => {
         gsap.set(target, { opacity: 1, scale: 1, filter: 'blur(0)' });
