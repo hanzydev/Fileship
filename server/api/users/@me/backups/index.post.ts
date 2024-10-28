@@ -147,7 +147,7 @@ export default defineEventHandler(async (event) => {
         {
             file: backupCompressedPath,
             cwd: tempPath,
-            gzip: { level: 9 },
+            gzip: { level: 5 },
         },
         ['uploads', 'database'],
     ).then(async () => {
