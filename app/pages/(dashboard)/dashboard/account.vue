@@ -995,7 +995,7 @@ const handleRegisterPasskey = async (verificationData?: any) => {
         } else if (passkeyVerificationModalOpen.value && error.data?.message) {
             passkeyVerificationError.value = error.data.message;
         } else {
-            toast.error('An error occurred while registering passkey');
+            toast.error('Failed to register passkey');
         }
     }
 
