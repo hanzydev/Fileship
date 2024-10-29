@@ -9,27 +9,29 @@ export default defineNitroPlugin(() => {
                 include: { views: true },
             });
 
-            const storageUsedByUser = files.reduce(
-                (acc, file) => {
-                    const userIndex = acc.findIndex(
-                        ({ userId }) => userId === file.authorId,
-                    );
+            const storageUsedByUser = files
+                .reduce(
+                    (acc, file) => {
+                        const userIndex = acc.findIndex(
+                            ({ userId }) => userId === file.authorId,
+                        );
 
-                    if (userIndex === -1) {
-                        acc.push({
-                            userId: file.authorId,
-                            size: file.size.toString(),
-                        });
-                    } else {
-                        acc[userIndex]!.size = (
-                            BigInt(acc[userIndex]!.size) + file.size
-                        ).toString();
-                    }
+                        if (userIndex === -1) {
+                            acc.push({
+                                userId: file.authorId,
+                                size: file.size.toString(),
+                            });
+                        } else {
+                            acc[userIndex]!.size = (
+                                BigInt(acc[userIndex]!.size) + file.size
+                            ).toString();
+                        }
 
-                    return acc;
-                },
-                [] as { userId: string; size: string }[],
-            );
+                        return acc;
+                    },
+                    [] as { userId: string; size: string }[],
+                )
+                .sort((a, b) => +b.size - +a.size);
 
             const views = files.reduce((acc, file) => {
                 file.views.forEach((view) =>
