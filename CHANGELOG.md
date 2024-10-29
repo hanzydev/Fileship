@@ -1,5 +1,24 @@
 # Changelog
 
+## v2.1.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.0.3...v2.1.0)
+
+### 🚀 Enhancements
+
+- **stats:** Storage used by user ([b1093a7](https://github.com/hanzydev/Fileship/commit/b1093a7))
+
+### 💅 Refactors
+
+- Decrease gzip level to 5 for faster backup creation ([2b5c0ee](https://github.com/hanzydev/Fileship/commit/2b5c0ee))
+- Better AMOLED theme ([5596e32](https://github.com/hanzydev/Fileship/commit/5596e32))
+- Better avatar component ([a515d3e](https://github.com/hanzydev/Fileship/commit/a515d3e))
+- Better loading component ([6f9d403](https://github.com/hanzydev/Fileship/commit/6f9d403))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.0.3
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.0.2...v2.0.3)
