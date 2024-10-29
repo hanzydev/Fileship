@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.1.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.1.0...v2.1.1)
+
+### 🩹 Fixes
+
+- Storage used chart on bigint numbers ([39c7ea4](https://github.com/hanzydev/Fileship/commit/39c7ea4))
+
+### 💅 Refactors
+
+- Remove unnecessary if statement ([8e59133](https://github.com/hanzydev/Fileship/commit/8e59133))
+- Sort storage used by user data ([d23d6d4](https://github.com/hanzydev/Fileship/commit/d23d6d4))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.1.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.0.3...v2.1.0)
