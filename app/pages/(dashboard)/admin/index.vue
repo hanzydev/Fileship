@@ -165,7 +165,6 @@
                                                 size: 'xs',
                                                 src: row.user.avatar,
                                                 alt: row.user.username,
-                                                class: '!ring-0',
                                             }),
                                             h(
                                                 'p',

@@ -99,9 +99,9 @@
                     :src="currentUser!.avatar || undefined"
                     :alt="currentUser!.username"
                     size="sm"
-                    hover="ring-1 ring-fs-accent"
                     cursor-pointer
                     active:scale-95
+                    hover:ring-fs-accent
                     motion-safe:transition-all
                 />
                 <template #content>

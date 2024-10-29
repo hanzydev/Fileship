@@ -60,7 +60,6 @@
                                         size: 'xs',
                                         src: user.avatar,
                                         alt: user.username,
-                                        class: '!ring-0',
                                     }),
                                     h(
                                         'p',

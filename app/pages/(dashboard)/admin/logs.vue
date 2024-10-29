@@ -64,7 +64,6 @@
                                                   user?.username ||
                                                       'Deleted User',
                                               ),
-                                        class: '!ring-0',
                                     }),
                                     h(
                                         'p',
