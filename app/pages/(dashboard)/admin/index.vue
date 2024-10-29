@@ -303,7 +303,7 @@
                                 }"
                                 :series="
                                     stats.storageUsed.byUser.map(
-                                        (u: any) => u.size,
+                                        (u: any) => +u.size,
                                     )
                                 "
                             />
