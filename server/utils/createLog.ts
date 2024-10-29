@@ -34,7 +34,7 @@ export const createLog = async (
         consola.info(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - ${message}`);
     } else {
         consola.info(
-            `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - User ${titleCase(currentUser!.username)}, ${lowerFirst(message)}`,
+            `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - User ${titleCase(currentUser!.username)}, ${lowerFirst(message)} from ${ip}`,
         );
     }
 
