@@ -264,7 +264,15 @@ const handleUpload = async () => {
         return true;
     };
 
-    const results = await Promise.all(uploadingFiles.value.map(uploadFile));
+    const results: boolean[] = [];
+    const parallelUploads = 3;
+    const files = [...uploadingFiles.value];
+
+    while (files.length > 0) {
+        const chunk = files.splice(0, parallelUploads);
+        const chunkResults = await Promise.all(chunk.map(uploadFile));
+        results.push(...(chunkResults.filter(Boolean) as boolean[]));
+    }
 
     uploadingFiles.value = uploadingFiles.value.filter(
         (_, index) => !results[index],
