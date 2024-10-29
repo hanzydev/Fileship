@@ -171,7 +171,7 @@
                                                 {
                                                     class: 'text-slate200',
                                                 },
-                                                row.user.username,
+                                                titleCase(row.user.username),
                                             ),
                                         ],
                                     ),
@@ -202,8 +202,8 @@
                                 height="350"
                                 :options="{
                                     ...basePieOptions,
-                                    labels: stats.topUploaders.map(
-                                        (u: any) => u.user.username,
+                                    labels: stats.topUploaders.map((u: any) =>
+                                        titleCase(u.user.username),
                                     ),
                                     fill: {
                                         colors: stats.topUploaders.map(
@@ -213,6 +213,98 @@
                                 }"
                                 :series="
                                     stats.topUploaders.map((u: any) => u.count)
+                                "
+                            />
+                        </ClientOnly>
+                    </div>
+                </div>
+            </div>
+
+            <div space-y-2>
+                <h3>Storage Used by User</h3>
+
+                <div
+                    flex="~ justify-between lt-xl:col"
+                    rounded-md
+                    bg-fs-overlay-2
+                    ring="1 fs-overlay-4"
+                >
+                    <UiTable
+                        :loading="isLoading"
+                        :class="
+                            stats?.storageUsed?.byUser?.length
+                                ? 'xl:w-3/4'
+                                : 'wfull'
+                        "
+                        :columns="[
+                            {
+                                key: 'user',
+                                width: '20%',
+                                render: (row) =>
+                                    h(
+                                        'div',
+                                        {
+                                            class: 'flex items-center gap2',
+                                        },
+                                        [
+                                            h(UiAvatar, {
+                                                size: 'xs',
+                                                src: row.user.avatar,
+                                                alt: row.user.username,
+                                            }),
+                                            h(
+                                                'p',
+                                                {
+                                                    class: 'text-slate200',
+                                                },
+                                                titleCase(row.user.username),
+                                            ),
+                                        ],
+                                    ),
+                            },
+                            {
+                                key: 'Used Storage',
+                                width: '20%',
+                                resolve: ({ formattedSize }) => formattedSize,
+                            },
+                        ]"
+                        :rows="stats?.storageUsed?.byUser"
+                        nothing-here-icon="heroicons-solid:document"
+                        nothing-here-message="There is no data to display."
+                    />
+                    <div
+                        v-if="stats?.storageUsed?.byUser?.length && !isLoading"
+                        hfull
+                        w350px
+                        py4
+                        lt-xl:mxa
+                        xl:mya
+                        lt-sm:hidden
+                    >
+                        <ClientOnly>
+                            <VueApexCharts
+                                type="pie"
+                                height="350"
+                                :options="{
+                                    ...basePieOptions,
+                                    labels: stats.storageUsed.byUser.map(
+                                        (u: any) => titleCase(u.user.username),
+                                    ),
+                                    fill: {
+                                        colors: stats.storageUsed.byUser.map(
+                                            (u: any) => colorHash(u.user.id),
+                                        ),
+                                    },
+                                    tooltip: {
+                                        y: {
+                                            formatter: filesize,
+                                        },
+                                    },
+                                }"
+                                :series="
+                                    stats.storageUsed.byUser.map(
+                                        (u: any) => u.size,
+                                    )
                                 "
                             />
                         </ClientOnly>
@@ -282,6 +374,8 @@
 </template>
 
 <script setup lang="ts">
+import { filesize } from 'filesize';
+import { titleCase } from 'scule';
 import VueApexCharts from 'vue3-apexcharts';
 
 import { theme } from '@unocss/preset-mini';
@@ -343,7 +437,20 @@ const basePieOptions = {
 onMounted(async () => {
     const data = await $fetch('/api/stats');
 
-    stats.value = data;
+    stats.value = {
+        ...data,
+        topUploaders: data.topUploaders.map((u: any) => ({
+            ...u,
+            user: data.users.all.find((user: any) => user.id === u.userId),
+        })),
+        storageUsed: {
+            ...data.storageUsed,
+            byUser: data.storageUsed.byUser.map((u: any) => ({
+                ...u,
+                user: data.users.all.find((user: any) => user.id === u.userId),
+            })),
+        },
+    };
     isLoading.value = false;
 });
 

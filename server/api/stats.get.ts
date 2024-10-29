@@ -61,13 +61,21 @@ export default defineEventHandler(async (event) => {
         },
     );
 
-    const topUploadersRaw =
+    const topUploaders =
         (stat?.filesByUser as { userId: string; count: number }[]) ?? [];
+
+    const storageUsedByUser =
+        (stat?.storageUsedByUser as { userId: string; size: string }[]) ?? [];
 
     const users = await prisma.user.findMany({
         where: {
             id: {
-                in: topUploadersRaw.map((user) => user.userId),
+                in: [
+                    ...topUploaders.map((user) => user.userId),
+                    ...storageUsedByUser.map((user) => user.userId),
+                ].filter(
+                    (userId, index, self) => self.indexOf(userId) === index,
+                ),
             },
         },
         select: {
@@ -77,25 +85,6 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const topUploaders = topUploadersRaw.reduce(
-        (acc, topUploader) => {
-            const user = users.find((user) => user.id === topUploader.userId);
-
-            if (user) {
-                acc.push({
-                    user,
-                    count: topUploader.count,
-                });
-            }
-
-            return acc;
-        },
-        [] as {
-            user: { id: string; username: string; avatar: string | null };
-            count: number;
-        }[],
-    );
-
     return {
         users: {
             count: stat?.users ?? 0,
@@ -103,6 +92,7 @@ export default defineEventHandler(async (event) => {
                 stat?.users ?? 0,
                 prevStat?.users ?? 0,
             ),
+            all: users,
         },
         files: {
             count: stat?.files ?? 0,
@@ -117,6 +107,12 @@ export default defineEventHandler(async (event) => {
                 stat?.storageUsed ?? 0,
                 prevStat?.storageUsed ?? 0,
             ),
+            byUser: storageUsedByUser
+                .map((data) => ({
+                    ...data,
+                    formattedSize: filesize(data.size),
+                }))
+                .filter((u) => users.find((user) => user.id === u.userId)),
         },
         views: {
             count: currentViews.length ?? 0,
@@ -127,6 +123,8 @@ export default defineEventHandler(async (event) => {
             byMonth: viewsByMonth,
         },
         topTypes: (stat?.types ?? []) as { type: string; count: number }[],
-        topUploaders,
+        topUploaders: topUploaders.filter((u) =>
+            users.find((user) => user.id === u.userId),
+        ),
     };
 });
