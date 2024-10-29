@@ -51,7 +51,7 @@
             :message="nothingHereMessage"
             :icon="nothingHereIcon"
         />
-        <Loading v-if="loading" />
+        <Loading v-if="loading" ring-none />
     </div>
 </template>
 
