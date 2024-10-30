@@ -1,5 +1,5 @@
 <template>
-    <div flex="~" relative>
+    <div flex="~ shrink-0" relative>
         <img
             v-if="src && !error"
             v-bind="$attrs"
