@@ -56,7 +56,7 @@
         "@unocss/reset": "^0.63.6",
         "@vite-pwa/nuxt": "^0.10.5",
         "@vueuse/core": "^11.1.0",
-        "@vueuse/nuxt": "^11.1.0",
+        "@vueuse/nuxt": "^11.2.0",
         "apexcharts": "^3.54.1",
         "bufferutil": "^4.0.8",
         "changelogen": "^0.5.7",
