@@ -127,8 +127,8 @@ importers:
         specifier: ^0.10.5
         version: 0.10.5(magicast@0.3.5)(rollup@4.21.3)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))(webpack-sources@3.2.3)(workbox-build@7.1.1)(workbox-window@7.1.0)
       '@vueuse/core':
-        specifier: ^11.1.0
-        version: 11.1.0(vue@3.5.12(typescript@5.6.3))
+        specifier: ^11.2.0
+        version: 11.2.0(vue@3.5.12(typescript@5.6.3))
       '@vueuse/nuxt':
         specifier: ^11.2.0
         version: 11.2.0(magicast@0.3.5)(nuxt@3.13.2(@parcel/watcher@2.4.1)(@types/node@22.7.5)(bufferutil@4.0.8)(eslint@9.13.0(jiti@2.3.3))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.21.3)(terser@5.34.1)(typescript@5.6.3)(utf-8-validate@6.0.4)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))(vue-tsc@2.1.10(typescript@5.6.3))(webpack-sources@3.2.3))(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
@@ -7941,7 +7941,7 @@ snapshots:
       '@unocss/preset-icons': 0.62.4
       '@unocss/preset-mini': 0.62.4
       '@unocss/reset': 0.62.4
-      '@vueuse/core': 11.1.0(vue@3.5.12(typescript@5.6.3))
+      '@vueuse/core': 11.2.0(vue@3.5.12(typescript@5.6.3))
       '@vueuse/integrations': 11.1.0(focus-trap@7.6.0)(fuse.js@7.0.0)(qrcode@1.5.4)(vue@3.5.12(typescript@5.6.3))
       '@vueuse/nuxt': 11.2.0(magicast@0.3.5)(nuxt@3.13.2(@parcel/watcher@2.4.1)(@types/node@22.7.5)(bufferutil@4.0.8)(eslint@9.13.0(jiti@2.3.3))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.21.3)(terser@5.34.1)(typescript@5.6.3)(utf-8-validate@6.0.4)(vite@5.4.8(@types/node@22.7.5)(terser@5.34.1))(vue-tsc@2.1.10(typescript@5.6.3))(webpack-sources@3.2.3))(rollup@4.21.3)(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
       defu: 6.1.4
@@ -8218,7 +8218,7 @@ snapshots:
       '@types/vimeo__player': 2.18.3
       '@types/youtube': 0.1.0
       '@unhead/vue': 1.11.1(vue@3.5.12(typescript@5.6.3))
-      '@vueuse/core': 11.1.0(vue@3.5.12(typescript@5.6.3))
+      '@vueuse/core': 11.2.0(vue@3.5.12(typescript@5.6.3))
       consola: 3.2.3
       defu: 6.1.4
       h3: 1.13.0
