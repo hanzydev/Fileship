@@ -1,5 +1,25 @@
 # Changelog
 
+## v2.1.2
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.1.1...v2.1.2)
+
+### 🩹 Fixes
+
+- Parallel uploading ([5162046](https://github.com/hanzydev/Fileship/commit/5162046))
+- Log out all known devices ([215d8c0](https://github.com/hanzydev/Fileship/commit/215d8c0))
+
+### 💅 Refactors
+
+- Include IP address in log message ([46cff01](https://github.com/hanzydev/Fileship/commit/46cff01))
+- Set flex shrink to 0 on avatar ([b76cef2](https://github.com/hanzydev/Fileship/commit/b76cef2))
+- Show spinner when logging out ([1558438](https://github.com/hanzydev/Fileship/commit/1558438))
+- Flush all states on logout ([a55c478](https://github.com/hanzydev/Fileship/commit/a55c478))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.1.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.1.0...v2.1.1)
