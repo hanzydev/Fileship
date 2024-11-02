@@ -105,7 +105,7 @@
                         flex="~ col justify-between"
                     >
                         <div space-y-2>
-                            <h2>Two-Factor Authentication</h2>
+                            <h2>Multi-Factor Authentication</h2>
                             <p text-slate200>
                                 Enter the code from your authenticator app.
                             </p>

@@ -77,7 +77,7 @@ export default defineEventHandler(async (event) => {
 
     await createLog(event, {
         action: 'TOTP',
-        message: `${body.data.enabled ? 'Enabled' : 'Disabled'} Two-Factor Authentication`,
+        message: `${body.data.enabled ? 'Enabled' : 'Disabled'} Authenticator App`,
     });
 
     await sendByFilter(
