@@ -1,5 +1,6 @@
 import { io, type Socket } from 'socket.io-client';
 
+import { defaultEmbed } from '~~/utils/constants';
 import { isAdmin } from '~~/utils/permissions';
 
 let socket: Socket | null;
@@ -32,6 +33,26 @@ export const initSocket = () => {
 
     const route = useRoute();
     const sessionId = useCookie('sessionId');
+
+    const clearStates = (hard = false) => {
+        urls.value = [];
+        notes.value = [];
+        codes.value = [];
+        files.value = [];
+        folders.value = [];
+
+        if (hard) {
+            users.value = [];
+            domains.value = [];
+            backups.value = [];
+            sessions.value = [];
+            passkeys.value = [];
+            logs.value = { users: [], logs: [] };
+            embed.value = defaultEmbed;
+            currentUser.value = null;
+            currentTheme.value = 'Fileship';
+        }
+    };
 
     if (currentUser.value && sessionId.value) {
         closeSocket();
@@ -78,19 +99,13 @@ export const initSocket = () => {
         });
 
         socket.on('logout', () => {
-            currentUser.value = null;
+            clearStates(true);
 
             useCookie('sessionId', { path: '/', sameSite: true }).value = null;
             nextTick(() => navigateTo(`/login?redirectTo=${route.path}`));
         });
 
-        socket.on('delete:all', () => {
-            files.value = [];
-            folders.value = [];
-            notes.value = [];
-            codes.value = [];
-            urls.value = [];
-        });
+        socket.on('delete:all', clearStates);
 
         // Sessions
         socket.on('create:session', (data) => {
