@@ -4,18 +4,11 @@
             <Title>Sessions</Title>
         </Head>
 
-        <ModalsVerifyTotp
-            v-if="currentUser!.totpEnabled"
+        <ModalsVerifyMFA
             v-model="verifyModalOpen"
-            :error
+            :error="verificationError"
             :disabled
-            @got="removeAllSessions"
-        />
-        <ModalsVerifyUserPassword
-            v-else
-            v-model="verifyModalOpen"
-            :error
-            :disabled
+            :methods="verificationMethods"
             @got="removeAllSessions"
         />
 
@@ -162,8 +155,10 @@
 
                     <UiButton
                         variant="danger"
-                        :disabled
+                        gap2
                         text-white
+                        :disabled
+                        :loading="disabled"
                         @click="removeAllSessions()"
                     >
                         Log out all known devices
@@ -181,15 +176,17 @@ const appConfig = useAppConfig();
 const sessions = useSessions();
 const currentUser = useAuthUser();
 
-const error = ref<string>();
 const disabled = ref(false);
+
 const verifyModalOpen = ref(false);
+const verificationMethods = ref([]);
+const verificationError = ref<string>();
 
 const isLoading = ref(!sessions.value.length);
 
-const removeAllSessions = async (verificationData?: string) => {
+const removeAllSessions = async (verificationData?: any) => {
     disabled.value = true;
-    error.value = undefined;
+    verificationError.value = undefined;
 
     try {
         await $fetch(`/api/users/@me/sessions`, {
@@ -200,9 +197,13 @@ const removeAllSessions = async (verificationData?: string) => {
         verifyModalOpen.value = false;
 
         toast.success('All sessions removed successfully');
-    } catch (_error: any) {
-        if (verifyModalOpen.value) error.value = _error.data.message;
-        else verifyModalOpen.value = true;
+    } catch (error: any) {
+        if (verifyModalOpen.value) {
+            verificationError.value = error.data.message;
+        } else {
+            verifyModalOpen.value = true;
+            verificationMethods.value = error.data.data.mfa.methods;
+        }
     }
 
     disabled.value = false;
