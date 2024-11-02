@@ -132,6 +132,7 @@
                 wfull
                 gap2
                 :disabled="deleting"
+                :loading="deleting"
                 @click="handleDelete"
             >
                 Delete
