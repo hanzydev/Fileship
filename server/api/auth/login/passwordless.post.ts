@@ -9,13 +9,6 @@ import {
 import type { AuthenticatorTransportFuture } from '@simplewebauthn/types';
 
 const validationSchema = z.object({
-    username: z
-        .string({
-            invalid_type_error: 'Invalid username',
-            required_error: 'Missing username',
-        })
-        .min(3, 'Username must be at least 3 characters')
-        .max(24, 'Username must be at most 24 characters'),
     verify: z.boolean({
         required_error: 'Missing verify',
         invalid_type_error: 'Invalid verify',
@@ -39,21 +32,32 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const findUserByUsername = await prisma.user.findUnique({
-        where: { username: body.data.username },
-    });
-
-    if (!findUserByUsername) {
-        throw createError({
-            statusCode: 404,
-            statusMessage: 'Not Found',
-            message: 'User not found',
-        });
-    }
-
     const reqUrl = getRequestURL(event);
 
     if (body.data.verify) {
+        const userHandle =
+            body.data.authenticationResponse?.response?.userHandle;
+
+        if (!userHandle) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: 'Bad Request',
+                message: 'Invalid authentication response',
+            });
+        }
+
+        const findUserByUsername = await prisma.user.findUnique({
+            where: { id: Buffer.from(userHandle, 'base64url').toString() },
+        });
+
+        if (!findUserByUsername) {
+            throw createError({
+                statusCode: 404,
+                statusMessage: 'Not Found',
+                message: 'User not found',
+            });
+        }
+
         const findCredentialById = (await prisma.credential.findUnique({
             where: { id: body.data.authenticationResponse!.id },
         }))!;
@@ -63,6 +67,7 @@ export default defineEventHandler(async (event) => {
             expectedChallenge: body.data.expectedChallenge!,
             expectedOrigin: reqUrl.origin,
             expectedRPID: reqUrl.hostname,
+            requireUserVerification: true,
             credential: {
                 id: findCredentialById.id,
                 publicKey: new Uint8Array(
@@ -159,18 +164,8 @@ export default defineEventHandler(async (event) => {
         return { verified: false };
     }
 
-    const allowCredentials = (await prisma.credential.findMany({
-        where: {
-            userId: findUserByUsername.id,
-        },
-        select: {
-            id: true,
-            transports: true,
-        },
-    })) as { id: string; transports: AuthenticatorTransportFuture[] }[];
-
     return generateAuthenticationOptions({
         rpID: reqUrl.hostname,
-        allowCredentials,
+        userVerification: 'required',
     });
 });

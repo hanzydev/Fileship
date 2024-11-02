@@ -12,16 +12,16 @@ import type {
     AuthenticatorTransportFuture,
 } from '@simplewebauthn/types';
 
+interface PasskeyVerificationData {
+    expectedChallenge: string;
+    authenticationResponse: AuthenticationResponseJSON;
+}
+
 export const verifySession = async (
     event: H3Event,
     verificationData?: {
         type: 'passkey' | 'totp' | 'password';
-        data:
-            | string
-            | {
-                  expectedChallenge: string;
-                  authenticationResponse: AuthenticationResponseJSON;
-              };
+        data: string | PasskeyVerificationData;
     },
 ) => {
     const currentUser = event.context.user!;
@@ -61,6 +61,7 @@ export const verifySession = async (
                                 challange: await generateAuthenticationOptions({
                                     rpID: reqUrl.hostname,
                                     allowCredentials,
+                                    userVerification: 'required',
                                 }),
                             },
                             {
@@ -112,24 +113,16 @@ export const verifySession = async (
         } else if (verificationData?.type === 'passkey') {
             const findCredentialById = (await prisma.credential.findUnique({
                 where: {
-                    id: (
-                        verificationData.data as {
-                            authenticationResponse: AuthenticationResponseJSON;
-                        }
-                    ).authenticationResponse.id,
+                    id: (verificationData.data as PasskeyVerificationData)
+                        .authenticationResponse.id,
                 },
             }))!;
 
             const response = await verifyAuthenticationResponse({
-                response: (
-                    verificationData.data as {
-                        authenticationResponse: AuthenticationResponseJSON;
-                    }
-                ).authenticationResponse,
+                response: (verificationData.data as PasskeyVerificationData)
+                    .authenticationResponse,
                 expectedChallenge: (
-                    verificationData.data as {
-                        expectedChallenge: string;
-                    }
+                    verificationData.data as PasskeyVerificationData
                 ).expectedChallenge,
                 expectedOrigin: reqUrl.origin,
                 expectedRPID: reqUrl.hostname,
@@ -142,6 +135,7 @@ export const verifySession = async (
                     transports:
                         findCredentialById.transports as AuthenticatorTransportFuture[],
                 },
+                requireUserVerification: true,
             });
 
             if (!response.verified) {

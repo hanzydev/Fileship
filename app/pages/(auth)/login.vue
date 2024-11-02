@@ -63,39 +63,20 @@
                             }"
                         />
 
-                        <div flex="~ items-center gap4" mt10>
-                            <UiButton
-                                alignment="center"
-                                wfull
-                                gap2
-                                variant="accent"
-                                type="submit"
-                                icon="heroicons-solid:lock-closed"
-                                icon-size="20"
-                                :loading="disabled"
-                                :disabled
-                            >
-                                Login
-                            </UiButton>
-                            <ClientOnly>
-                                <UiButton
-                                    v-if="browserSupportsWebAuthn()"
-                                    alignment="center"
-                                    variant="secondary"
-                                    max-w-fit
-                                    wfull
-                                    flex-shrink-0
-                                    gap2
-                                    icon="heroicons-solid:finger-print"
-                                    icon-size="20"
-                                    lt-md:h10
-                                    :disabled
-                                    @click="section = 'passkey'"
-                                >
-                                    <span lt-md:hidden>Use passkey</span>
-                                </UiButton>
-                            </ClientOnly>
-                        </div>
+                        <UiButton
+                            alignment="center"
+                            mt10
+                            wfull
+                            gap2
+                            variant="accent"
+                            type="submit"
+                            icon="heroicons-solid:lock-closed"
+                            icon-size="20"
+                            :loading="disabled"
+                            :disabled
+                        >
+                            Login
+                        </UiButton>
                     </form>
                     <div
                         v-else-if="section === 'totp'"
@@ -158,54 +139,6 @@
                             </UiButton>
                         </div>
                     </div>
-                    <form
-                        v-else
-                        absolute
-                        wfull
-                        p8
-                        flex="~ col justify-between"
-                        @submit.prevent="handleSubmit()"
-                    >
-                        <h2>Login with passkey</h2>
-                        <div mt10>
-                            <UiInput
-                                v-model="auth.username"
-                                label="Username"
-                                type="text"
-                                :error="formErrors?.username?._errors?.[0]"
-                                required
-                                wfull
-                                :disabled
-                            />
-                        </div>
-
-                        <div grid="~ cols-2 gap-4" mt10>
-                            <UiButton
-                                alignment="center"
-                                wfull
-                                gap2
-                                icon="heroicons-solid:arrow-left"
-                                icon-size="20"
-                                :disabled
-                                @click="section = 'login'"
-                            >
-                                Back
-                            </UiButton>
-                            <UiButton
-                                alignment="center"
-                                wfull
-                                gap2
-                                variant="accent"
-                                type="submit"
-                                icon="heroicons-solid:finger-print"
-                                icon-size="20"
-                                :loading="disabled"
-                                :disabled
-                            >
-                                Login
-                            </UiButton>
-                        </div>
-                    </form>
                 </Transition>
             </div>
         </UiCentered>
@@ -237,70 +170,16 @@ const auth = reactive({
     turnstile: '',
 });
 
-const section = ref<'login' | 'totp' | 'passkey'>('login');
+const section = ref<'login' | 'totp'>('login');
 
 const route = useRoute();
 const currentUser = useAuthUser();
 const currentTheme = useTheme();
 
-const handleUsePasskey = async () => {
-    try {
-        const optionsJSON = await $fetch<PublicKeyCredentialRequestOptionsJSON>(
-            '/api/auth/login/passwordless',
-            {
-                method: 'POST',
-                body: { username: auth.username, verify: false },
-            },
-        );
-
-        const authenticationResponse = await startAuthentication({
-            optionsJSON,
-        });
-
-        const { user, session } = await $fetch<any>(
-            '/api/auth/login/passwordless',
-            {
-                method: 'POST',
-                body: {
-                    username: auth.username,
-                    authenticationResponse,
-                    expectedChallenge: optionsJSON.challenge,
-                    verify: true,
-                },
-            },
-        );
-
-        currentUser.value = {
-            ...user,
-            currentSessionId: session.id,
-            createdAt: new Date(user.createdAt),
-        };
-
-        currentTheme.value = user.theme as never;
-
-        await navigateTo((route.query.redirectTo as string) || '/dashboard');
-
-        toast.success('Logged in successfully with passkey');
-    } catch (_error: any) {
-        if (_error.data) {
-            if (_error.data.message) toast.error(_error.data.message);
-            else formErrors.value = _error.data.data;
-        } else {
-            toast.error('Failed to verify passkey');
-        }
-    }
-
-    disabled.value = false;
-};
-
 const handleSubmit = async (totp?: string) => {
     disabled.value = true;
     formErrors.value = {};
     error.value = undefined;
-
-    if (section.value === 'passkey') {
-        return handleUsePasskey();
-    }
 
     try {
         const { user, session } = await $fetch('/api/auth/login', {
@@ -341,12 +220,64 @@ const calculateHeight = (el: Element) => {
         el.clientHeight + (runtimeConfig.public.turnstile.siteKey ? 7 : 0);
 };
 
-onMounted(() => {
+onMounted(async () => {
     const container = document.querySelector('form');
 
     if (container) {
         calculateHeight(container);
         container.querySelector('input')?.focus();
+    }
+
+    if (browserSupportsWebAuthn()) {
+        const optionsJSON = await $fetch<PublicKeyCredentialRequestOptionsJSON>(
+            '/api/auth/login/passwordless',
+            {
+                method: 'POST',
+                body: { verify: false },
+                credentials: 'include',
+            },
+        );
+
+        const authenticationResponse = await startAuthentication({
+            optionsJSON,
+        }).catch(() => null);
+
+        if (authenticationResponse) {
+            try {
+                const { user, session } = await $fetch<any>(
+                    '/api/auth/login/passwordless',
+                    {
+                        method: 'POST',
+                        body: {
+                            authenticationResponse,
+                            expectedChallenge: optionsJSON.challenge,
+                            verify: true,
+                        },
+                    },
+                );
+
+                currentUser.value = {
+                    ...user,
+                    currentSessionId: session.id,
+                    createdAt: new Date(user.createdAt),
+                };
+
+                currentTheme.value = user.theme as never;
+
+                await navigateTo(
+                    (route.query.redirectTo as string) || '/dashboard',
+                );
+
+                toast.success('Logged in successfully with passkey');
+            } catch (_error: any) {
+                if (_error.data) {
+                    if (_error.data.message) toast.error(_error.data.message);
+                    else formErrors.value = _error.data.data;
+                } else {
+                    toast.error('Failed to verify passkey');
+                }
+            }
+        }
     }
 });
 
