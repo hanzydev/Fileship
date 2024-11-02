@@ -208,6 +208,7 @@
                                 icon-size="20"
                                 icon="heroicons-solid:logout"
                                 :disabled="isLoggingOut"
+                                :loading="isLoggingOut"
                                 @click="handleLogout"
                             >
                                 Logout
