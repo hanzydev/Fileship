@@ -103,8 +103,8 @@ importers:
         specifier: ^11.0.0
         version: 11.0.0
       '@types/color':
-        specifier: ^3.0.6
-        version: 3.0.6
+        specifier: ^4.2.0
+        version: 4.2.0
       '@types/qrcode':
         specifier: ^1.5.5
         version: 1.5.5
@@ -2200,8 +2200,8 @@ packages:
   '@types/color-name@1.1.4':
     resolution: {integrity: sha512-hulKeREDdLFesGQjl96+4aoJSHY5b2GRjagzzcqCfIrWhe5vkCqIvrLbqzBaI1q94Vg8DNJZZqTR5ocdWmWclg==}
 
-  '@types/color@3.0.6':
-    resolution: {integrity: sha512-NMiNcZFRUAiUUCCf7zkAelY8eV3aKqfbzyFQlXpPIEeoNDbsEHGpb854V3gzTsGKYj830I5zPuOwU/TP5/cW6A==}
+  '@types/color@4.2.0':
+    resolution: {integrity: sha512-6+xrIRImMtGAL2X3qYkd02Mgs+gFGs+WsK0b7VVMaO4mYRISwyTjcqNrO0mNSmYEoq++rSLDB2F5HDNmqfOe+A==}
 
   '@types/cookie@0.4.1':
     resolution: {integrity: sha512-XW/Aa8APYr6jSVVA1y/DEIZX0/GMKLEVekNG727R8cs56ahETkRAy/3DR7+fJyh7oUgGwNQaRfXCun0+KbWY7Q==}
@@ -8802,7 +8802,7 @@ snapshots:
 
   '@types/color-name@1.1.4': {}
 
-  '@types/color@3.0.6':
+  '@types/color@4.2.0':
     dependencies:
       '@types/color-convert': 2.0.3
 
