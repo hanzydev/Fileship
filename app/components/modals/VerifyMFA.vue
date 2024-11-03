@@ -99,7 +99,6 @@
                 <div
                     v-else
                     flex="~ col items-center justify-center gap8"
-                    data-selectedmethod
                     absolute
                     wfull
                     p8
@@ -314,7 +313,7 @@ watch(bestMethod, () => (selectedMethod.value = bestMethod.value));
 watch(isOpen, (value) => {
     if (value) {
         nextTick(() => {
-            const container = document.querySelector('[data-selectedmethod]');
+            const container = document.querySelector('[data-hubmode=false]');
 
             if (container) {
                 height.value = container.clientHeight;
