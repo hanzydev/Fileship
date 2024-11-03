@@ -10,5 +10,8 @@ export default defineEventHandler((event) => {
             name: true,
             createdAt: true,
         },
+        orderBy: {
+            createdAt: 'desc',
+        },
     });
 });
