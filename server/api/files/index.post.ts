@@ -3,7 +3,7 @@ import { existsSync, promises as fsp } from 'node:fs';
 
 import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
-import { extname, join } from 'pathe';
+import { basename, extname, join } from 'pathe';
 import sharp from 'sharp';
 import { z } from 'zod';
 
@@ -109,12 +109,21 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    let fileName = file.name.replace(/[^a-zA-Z0-9-_.]/g, '');
+    const compressible =
+        file.type.startsWith('image/') &&
+        file.type !== 'image/gif' &&
+        body.data.compression;
+
+    const extensionName = compressible ? '.jpeg' : extname(file.name);
+
+    let fileName = `${basename(file.name.replace(/[^a-zA-Z0-9-_.]/g, ''), extname(file.name))}${
+        extensionName
+    }`;
 
     if (body.data.fileNameType === 'Random') {
-        fileName = `${nanoid(8)}${extname(file.name)}`;
+        fileName = `${nanoid(8)}${extensionName}`;
     } else if (body.data.fileNameType === 'UUID') {
-        fileName = `${randomUUID()}${extname(file.name)}`;
+        fileName = `${randomUUID()}${extensionName}`;
     }
 
     const findFileByFileName = await prisma.file.findUnique({
@@ -160,6 +169,8 @@ export default defineEventHandler(async (event) => {
 
     const buffer = new Uint8Array(await file.arrayBuffer());
 
+    const removeExifData = (process.env.REMOVE_EXIF_DATA || 'true') === 'true';
+
     if (body.data.currentChunk === body.data.totalChunks) {
         if (existsSync(tempPath)) {
             await fsp.appendFile(tempPath, buffer);
@@ -178,9 +189,6 @@ export default defineEventHandler(async (event) => {
 
                 const image = sharp(tempPath);
                 const metadata = await image.metadata();
-
-                const removeExifData =
-                    (process.env.REMOVE_EXIF_DATA || 'true') === 'true';
 
                 if (
                     metadata.width &&
@@ -239,7 +247,7 @@ export default defineEventHandler(async (event) => {
         const _upload = await prisma.file.create({
             data: {
                 fileName,
-                mimeType: file.type,
+                mimeType: compressible ? 'image/jpeg' : file.type,
                 size: fileSize,
                 password: body.data.password || null,
                 maxViews: body.data.maxViews || 0,
