@@ -44,6 +44,7 @@ export default defineEventHandler(async (event) => {
     const findNoteById = await prisma.note.findUnique({
         where: {
             id: noteId,
+            authorId: currentUser.id,
         },
     });
 
@@ -54,8 +55,6 @@ export default defineEventHandler(async (event) => {
             message: 'Note not found',
         });
     }
-
-    if (findNoteById.authorId !== currentUser.id) throw forbiddenError;
 
     const updatedNote = await prisma.note.update({
         where: {

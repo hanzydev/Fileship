@@ -49,6 +49,7 @@ export default defineEventHandler(async (event) => {
     const findFolderById = await prisma.folder.findUnique({
         where: {
             id: folderId,
+            authorId: currentUser.id,
         },
         include: {
             files: {
@@ -66,8 +67,6 @@ export default defineEventHandler(async (event) => {
             message: 'Folder not found',
         });
     }
-
-    if (findFolderById.authorId !== currentUser.id) throw forbiddenError;
 
     let connect: { id: string }[] = [];
     let disconnect: { id: string }[] = [];

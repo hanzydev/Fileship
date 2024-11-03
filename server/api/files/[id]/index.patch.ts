@@ -64,6 +64,7 @@ export default defineEventHandler(async (event) => {
     const findFileById = await prisma.file.findUnique({
         where: {
             id: fileId,
+            authorId: currentUser.id,
         },
     });
 
@@ -74,8 +75,6 @@ export default defineEventHandler(async (event) => {
             message: 'File not found',
         });
     }
-
-    if (findFileById.authorId !== currentUser.id) throw forbiddenError;
 
     if ('expiration' in body.data) {
         if (body.data.expiration) {

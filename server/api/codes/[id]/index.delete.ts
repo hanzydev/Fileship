@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
     const findCodeById = await prisma.code.findUnique({
         where: {
             id: codeId,
+            authorId: currentUser.id,
         },
     });
 
@@ -17,8 +18,6 @@ export default defineEventHandler(async (event) => {
             message: 'Code not found',
         });
     }
-
-    if (findCodeById.authorId !== currentUser.id) throw forbiddenError;
 
     await prisma.view.deleteMany({
         where: {

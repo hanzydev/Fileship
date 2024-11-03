@@ -66,6 +66,7 @@ export default defineEventHandler(async (event) => {
     const findUrlById = await prisma.url.findUnique({
         where: {
             id: urlId,
+            authorId: currentUser.id,
         },
     });
 
@@ -76,8 +77,6 @@ export default defineEventHandler(async (event) => {
             message: 'URL not found',
         });
     }
-
-    if (findUrlById.authorId !== currentUser.id) throw forbiddenError;
 
     if ('expiration' in body.data) {
         if (body.data.expiration) {

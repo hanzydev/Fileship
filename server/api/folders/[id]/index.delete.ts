@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
     const findFolderById = await prisma.folder.findUnique({
         where: {
             id: folderId,
+            authorId: currentUser.id,
         },
         include: {
             files: true,
@@ -20,8 +21,6 @@ export default defineEventHandler(async (event) => {
             message: 'Folder not found',
         });
     }
-
-    if (findFolderById.authorId !== currentUser.id) throw forbiddenError;
 
     await prisma.folder.delete({
         where: {

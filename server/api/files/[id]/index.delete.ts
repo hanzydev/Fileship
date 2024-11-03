@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
     const findFileById = await prisma.file.findUnique({
         where: {
             id: fileId,
+            authorId: currentUser.id,
         },
     });
 
@@ -21,8 +22,6 @@ export default defineEventHandler(async (event) => {
             message: 'File not found',
         });
     }
-
-    if (findFileById.authorId !== currentUser.id) throw forbiddenError;
 
     await rm(join(dataDirectory, 'uploads', findFileById.fileName), {
         force: true,
