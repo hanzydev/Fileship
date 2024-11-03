@@ -78,9 +78,7 @@ export default defineEventHandler(async (event) => {
 
     if ('expiration' in body.data) {
         if (body.data.expiration) {
-            (body.data as any).expiresAt = new Date(
-                Date.now() + body.data.expiration,
-            );
+            (body.data as any).expiresAt = new Date(Date.now() + body.data.expiration);
         } else (body.data as any).expiresAt = null;
 
         delete body.data.expiration;
@@ -151,16 +149,8 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
-        directUrl: buildPublicUrl(
-            event,
-            currentUser.domains,
-            `/u/${_updatedFile.fileName}`,
-        ),
-        embedUrl: buildPublicUrl(
-            event,
-            currentUser.domains,
-            `/view/${_updatedFile.fileName}`,
-        ),
+        directUrl: buildPublicUrl(event, currentUser.domains, `/u/${_updatedFile.fileName}`),
+        embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${_updatedFile.fileName}`),
     };
 
     await createLog(event, {

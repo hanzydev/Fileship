@@ -34,8 +34,7 @@ export default defineEventHandler(async (event) => {
 
     await sendByFilter(
         (user) =>
-            user.id === currentUser.id &&
-            user.currentSessionId !== currentUser.currentSessionId,
+            user.id === currentUser.id && user.currentSessionId !== currentUser.currentSessionId,
         'logout',
         null,
     );

@@ -35,8 +35,7 @@ export const verifySession = async (
 
     if (
         !findCurrentSessionById!.lastVerify ||
-        Date.now() - findCurrentSessionById!.lastVerify.getTime() >
-            5 * 60 * 1000 /** 5 minutes */
+        Date.now() - findCurrentSessionById!.lastVerify.getTime() > 5 * 60 * 1000 /** 5 minutes */
     ) {
         if (!verificationData) {
             const allowCredentials = (await prisma.credential.findMany({
@@ -65,9 +64,7 @@ export const verifySession = async (
                                 }),
                             },
                             {
-                                type: currentUser.totpEnabled
-                                    ? 'totp'
-                                    : 'password',
+                                type: currentUser.totpEnabled ? 'totp' : 'password',
                             },
                         ].filter(Boolean),
                     },
@@ -78,10 +75,7 @@ export const verifySession = async (
         if (currentUser.totpEnabled) {
             if (verificationData?.type === 'totp') {
                 if (
-                    !authenticator.check(
-                        verificationData.data as string,
-                        currentUser.totpSecret!,
-                    )
+                    !authenticator.check(verificationData.data as string, currentUser.totpSecret!)
                 ) {
                     throw createError({
                         statusCode: 401,
@@ -93,8 +87,7 @@ export const verifySession = async (
                 throw createError({
                     statusCode: 400,
                     statusMessage: 'Bad Request',
-                    message:
-                        'Password verification is not allowed because TOTP is enabled',
+                    message: 'Password verification is not allowed because TOTP is enabled',
                 });
             }
         } else if (verificationData?.type === 'password') {
@@ -113,17 +106,15 @@ export const verifySession = async (
         } else if (verificationData?.type === 'passkey') {
             const findCredentialById = (await prisma.credential.findUnique({
                 where: {
-                    id: (verificationData.data as PasskeyVerificationData)
-                        .authenticationResponse.id,
+                    id: (verificationData.data as PasskeyVerificationData).authenticationResponse
+                        .id,
                 },
             }))!;
 
             const response = await verifyAuthenticationResponse({
-                response: (verificationData.data as PasskeyVerificationData)
-                    .authenticationResponse,
-                expectedChallenge: (
-                    verificationData.data as PasskeyVerificationData
-                ).expectedChallenge,
+                response: (verificationData.data as PasskeyVerificationData).authenticationResponse,
+                expectedChallenge: (verificationData.data as PasskeyVerificationData)
+                    .expectedChallenge,
                 expectedOrigin: reqUrl.origin,
                 expectedRPID: reqUrl.hostname,
                 credential: {
@@ -132,8 +123,7 @@ export const verifySession = async (
                         base64URLStringToBuffer(findCredentialById.publicKey),
                     ),
                     counter: findCredentialById.counter,
-                    transports:
-                        findCredentialById.transports as AuthenticatorTransportFuture[],
+                    transports: findCredentialById.transports as AuthenticatorTransportFuture[],
                 },
                 requireUserVerification: true,
             });

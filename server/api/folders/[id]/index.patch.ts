@@ -12,16 +12,11 @@ const validationSchema = z
                 .max(32, 'Name must be at most 32 characters')
                 .optional(),
             files: z
-                .array(
-                    z.string({ invalid_type_error: 'File must be a string' }),
-                    {
-                        invalid_type_error: 'Invalid files',
-                    },
-                )
+                .array(z.string({ invalid_type_error: 'File must be a string' }), {
+                    invalid_type_error: 'Invalid files',
+                })
                 .optional(),
-            public: z
-                .boolean({ invalid_type_error: 'Invalid public' })
-                .optional(),
+            public: z.boolean({ invalid_type_error: 'Invalid public' }).optional(),
         },
         { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
     )
@@ -92,9 +87,7 @@ export default defineEventHandler(async (event) => {
         }
 
         connect = body.data.files
-            .filter(
-                (fileId) => !findFolderById.files.some((f) => f.id === fileId),
-            )
+            .filter((fileId) => !findFolderById.files.some((f) => f.id === fileId))
             .map((fileId) => ({ id: fileId }));
 
         disconnect = findFolderById.files
@@ -130,11 +123,7 @@ export default defineEventHandler(async (event) => {
             .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
             .map((file) => file.id),
         publicUrl: _updatedFolder.public
-            ? buildPublicUrl(
-                  event,
-                  currentUser.domains,
-                  `/folder/${_updatedFolder.id}`,
-              )
+            ? buildPublicUrl(event, currentUser.domains, `/folder/${_updatedFolder.id}`)
             : undefined,
     };
 

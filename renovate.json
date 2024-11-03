@@ -1,10 +1,6 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": [
-        "config:recommended",
-        ":semanticCommitTypeAll(chore)",
-        ":dependencyDashboard"
-    ],
+    "extends": ["config:recommended", ":semanticCommitTypeAll(chore)", ":dependencyDashboard"],
     "labels": ["🧩 dependencies"],
     "major": {
         "dependencyDashboardApproval": true

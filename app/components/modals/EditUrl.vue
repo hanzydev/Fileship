@@ -38,10 +38,7 @@
                 :error="formErrors?.maxViews?._errors?.[0]"
                 :disabled="updating"
             />
-            <ExpirationPicker
-                ref="expirationPickerRef"
-                v-model="editData.cloned.value!.expiration"
-            >
+            <ExpirationPicker ref="expirationPickerRef" v-model="editData.cloned.value!.expiration">
                 <UiInput
                     v-model="editData.cloned.value!.expiration.label"
                     label="Expiration"
@@ -138,8 +135,9 @@ watch(isOpen, async (value) => {
     await nextTick();
 
     if (value && data.expiresAt && expirationPickerRef.value) {
-        editData.cloned.value.expiration =
-            expirationPickerRef.value.predictExpiration(data.expiresAt);
+        editData.cloned.value.expiration = expirationPickerRef.value.predictExpiration(
+            data.expiresAt,
+        );
     }
 });
 </script>

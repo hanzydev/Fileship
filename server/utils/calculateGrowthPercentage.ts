@@ -1,7 +1,4 @@
-export const calculateGrowthPercentage = (
-    current: number | bigint,
-    previous: number | bigint,
-) => {
+export const calculateGrowthPercentage = (current: number | bigint, previous: number | bigint) => {
     current = Number(current);
     previous = Number(previous);
 

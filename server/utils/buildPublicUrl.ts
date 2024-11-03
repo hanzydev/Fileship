@@ -1,10 +1,6 @@
 import type { H3Event } from 'h3';
 
-export const buildPublicUrl = (
-    event: H3Event,
-    domains: string[],
-    route: `/${string}`,
-) => {
+export const buildPublicUrl = (event: H3Event, domains: string[], route: `/${string}`) => {
     const reqUrl = getRequestURL(event);
 
     const protocol = process.env.NUXT_PUBLIC_RETURN_HTTPS

@@ -35,8 +35,7 @@ export default defineEventHandler(async (event) => {
     const reqUrl = getRequestURL(event);
 
     if (body.data.verify) {
-        const userHandle =
-            body.data.authenticationResponse?.response?.userHandle;
+        const userHandle = body.data.authenticationResponse?.response?.userHandle;
 
         if (!userHandle) {
             throw createError({
@@ -70,12 +69,9 @@ export default defineEventHandler(async (event) => {
             requireUserVerification: true,
             credential: {
                 id: findCredentialById.id,
-                publicKey: new Uint8Array(
-                    base64URLStringToBuffer(findCredentialById.publicKey),
-                ),
+                publicKey: new Uint8Array(base64URLStringToBuffer(findCredentialById.publicKey)),
                 counter: findCredentialById.counter,
-                transports:
-                    findCredentialById.transports as AuthenticatorTransportFuture[],
+                transports: findCredentialById.transports as AuthenticatorTransportFuture[],
             },
         });
 
@@ -88,13 +84,9 @@ export default defineEventHandler(async (event) => {
             });
 
             const headers = getHeaders(event);
-            const ip =
-                getRequestIP(event, { xForwardedFor: true }) || 'Unknown';
+            const ip = getRequestIP(event, { xForwardedFor: true }) || 'Unknown';
 
-            const { os, platform, location } = await getDevice(
-                headers as never,
-                ip,
-            );
+            const { os, platform, location } = await getDevice(headers as never, ip);
 
             const sessionPrivateId = nanoid(128);
 

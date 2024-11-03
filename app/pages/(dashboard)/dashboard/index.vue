@@ -4,11 +4,7 @@
             <Title>Dashboard</Title>
         </Head>
 
-        <ModalsViewFile
-            v-if="viewModal.file"
-            v-model="viewModal.open"
-            :data="viewModal.file!"
-        />
+        <ModalsViewFile v-if="viewModal.file" v-model="viewModal.open" :data="viewModal.file!" />
 
         <ModalsEditFile
             v-if="editModal.file"
@@ -138,120 +134,94 @@
                             {
                                 key: 'createdAt',
                                 width: '15%',
-                                resolve: ({ createdAt }) =>
-                                    dayjs(createdAt).fromNow(),
+                                resolve: ({ createdAt }) => dayjs(createdAt).fromNow(),
                             },
                             {
                                 key: 'Quick Actions',
                                 width: '20%',
                                 render: (row) => {
-                                    const isImage =
-                                        row.mimeType.startsWith('image/');
+                                    const isImage = row.mimeType.startsWith('image/');
 
-                                    const isVideo =
-                                        row.mimeType.startsWith('video/');
+                                    const isVideo = row.mimeType.startsWith('video/');
 
-                                    const isAudio =
-                                        row.mimeType.startsWith('audio/');
+                                    const isAudio = row.mimeType.startsWith('audio/');
 
-                                    const canBeViewed =
-                                        isImage || isVideo || isAudio;
+                                    const canBeViewed = isImage || isVideo || isAudio;
 
-                                    return h(
-                                        'div',
-                                        { class: 'flex items-center gap4' },
-                                        [
-                                            h(UiButton, {
-                                                variant: 'outline',
-                                                alignment: 'center',
-                                                class: 'h8 w8 !p0 text-slate300 hover:text-white',
-                                                icon: canBeViewed
-                                                    ? 'heroicons:eye-16-solid'
-                                                    : 'heroicons-solid:external-link',
-                                                iconSize: '20',
-                                                'aria-label': canBeViewed
-                                                    ? 'View file'
-                                                    : 'Open file in new tab',
-                                                ...(canBeViewed
-                                                    ? {
-                                                          onClick: () => {
-                                                              viewModal.file =
-                                                                  row;
-                                                              nextTick(
-                                                                  () =>
-                                                                      (viewModal.open = true),
-                                                              );
-                                                          },
-                                                      }
-                                                    : {
-                                                          href: row.embedUrl,
-                                                          target: '_blank',
-                                                      }),
-                                            }),
-                                            h(UiButton, {
-                                                variant: 'outline',
-                                                alignment: 'center',
-                                                class: [
-                                                    'h8 w8 !p0 hover:text-white',
-                                                    copiedFiles.has(
-                                                        row.fileName,
-                                                    )
-                                                        ? 'text-green500'
-                                                        : 'text-slate300',
-                                                ],
-                                                icon: copiedFiles.has(
-                                                    row.fileName,
-                                                )
-                                                    ? 'heroicons-solid:clipboard-check'
-                                                    : 'heroicons-solid:clipboard-copy',
-                                                iconSize: '20',
-                                                'aria-label':
-                                                    'Copy link to clipboard',
-                                                onClick: () => handleCopy(row),
-                                            }),
-                                            h(UiButton, {
-                                                variant: 'outline',
-                                                alignment: 'center',
-                                                class: 'h8 w8 !p0 text-slate300 hover:text-white',
-                                                href: `${row.directUrl}?download`,
-                                                target: '_blank',
-                                                icon: 'heroicons-solid:download',
-                                                iconSize: '20',
-                                                'aria-label': 'Download file',
-                                            }),
-                                            h(UiButton, {
-                                                variant: 'outline',
-                                                alignment: 'center',
-                                                class: 'h8 w8 !p0 text-slate300 hover:text-white',
-                                                icon: 'heroicons:pencil-16-solid',
-                                                iconSize: '20',
-                                                'aria-label': 'Edit file',
-                                                onClick: () => {
-                                                    editModal.file = row;
-                                                    nextTick(
-                                                        () =>
-                                                            (editModal.open = true),
-                                                    );
-                                                },
-                                            }),
-                                            h(UiButton, {
-                                                variant: 'outline',
-                                                alignment: 'center',
-                                                class: 'h8 w8 !p0 ring-red-500 text-slate300 hover:text-white hover:!bg-red-500',
-                                                icon: 'heroicons-solid:trash',
-                                                iconSize: '20',
-                                                disabled: willBeDeleted.has(
-                                                    row.id,
-                                                ),
-                                                loading: willBeDeleted.has(
-                                                    row.id,
-                                                ),
-                                                'aria-label': 'Delete file',
-                                                onClick: () =>
-                                                    handleDelete(row.id),
-                                            }),
-                                        ],
-                                    );
+                                    return h('div', { class: 'flex items-center gap4' }, [
+                                        h(UiButton, {
+                                            variant: 'outline',
+                                            alignment: 'center',
+                                            class: 'h8 w8 !p0 text-slate300 hover:text-white',
+                                            icon: canBeViewed
+                                                ? 'heroicons:eye-16-solid'
+                                                : 'heroicons-solid:external-link',
+                                            iconSize: '20',
+                                            'aria-label': canBeViewed
+                                                ? 'View file'
+                                                : 'Open file in new tab',
+                                            ...(canBeViewed
+                                                ? {
+                                                      onClick: () => {
+                                                          viewModal.file = row;
+                                                          nextTick(() => (viewModal.open = true));
+                                                      },
+                                                  }
+                                                : {
+                                                      href: row.embedUrl,
+                                                      target: '_blank',
+                                                  }),
+                                        }),
+                                        h(UiButton, {
+                                            variant: 'outline',
+                                            alignment: 'center',
+                                            class: [
+                                                'h8 w8 !p0 hover:text-white',
+                                                copiedFiles.has(row.fileName)
+                                                    ? 'text-green500'
+                                                    : 'text-slate300',
+                                            ],
+                                            icon: copiedFiles.has(row.fileName)
+                                                ? 'heroicons-solid:clipboard-check'
+                                                : 'heroicons-solid:clipboard-copy',
+                                            iconSize: '20',
+                                            'aria-label': 'Copy link to clipboard',
+                                            onClick: () => handleCopy(row),
+                                        }),
+                                        h(UiButton, {
+                                            variant: 'outline',
+                                            alignment: 'center',
+                                            class: 'h8 w8 !p0 text-slate300 hover:text-white',
+                                            href: `${row.directUrl}?download`,
+                                            target: '_blank',
+                                            icon: 'heroicons-solid:download',
+                                            iconSize: '20',
+                                            'aria-label': 'Download file',
+                                        }),
+                                        h(UiButton, {
+                                            variant: 'outline',
+                                            alignment: 'center',
+                                            class: 'h8 w8 !p0 text-slate300 hover:text-white',
+                                            icon: 'heroicons:pencil-16-solid',
+                                            iconSize: '20',
+                                            'aria-label': 'Edit file',
+                                            onClick: () => {
+                                                editModal.file = row;
+                                                nextTick(() => (editModal.open = true));
+                                            },
+                                        }),
+                                        h(UiButton, {
+                                            variant: 'outline',
+                                            alignment: 'center',
+                                            class: 'h8 w8 !p0 ring-red-500 text-slate300 hover:text-white hover:!bg-red-500',
+                                            icon: 'heroicons-solid:trash',
+                                            iconSize: '20',
+                                            disabled: willBeDeleted.has(row.id),
+                                            loading: willBeDeleted.has(row.id),
+                                            'aria-label': 'Delete file',
+                                            onClick: () => handleDelete(row.id),
+                                        }),
+                                    ]);
                                 },
                             },
                         ]"

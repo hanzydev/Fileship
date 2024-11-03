@@ -154,10 +154,7 @@ export default defineEventHandler(async (event) => {
         const backupStat = await fsp.stat(backupCompressedPath);
 
         const backupId = nanoid();
-        await fsp.rename(
-            backupCompressedPath,
-            join(userBackupsPath, `${backupId}.tgz`),
-        );
+        await fsp.rename(backupCompressedPath, join(userBackupsPath, `${backupId}.tgz`));
         await fsp.rm(tempPath, { recursive: true });
 
         await createLog(event, {

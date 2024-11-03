@@ -18,17 +18,12 @@ export const createLog = async (
     { action, message, system }: CreateLogData,
 ) => {
     const logLevel = +(process.env.LOG_LEVEL ?? 2);
-    if (
-        logLevel === 0 ||
-        (!AllowedActions.includes(action) && logLevel !== 2)
-    ) {
+    if (logLevel === 0 || (!AllowedActions.includes(action) && logLevel !== 2)) {
         return;
     }
 
     const currentUser = event?.context?.user;
-    const ip = event
-        ? getRequestIP(event, { xForwardedFor: true }) || 'Unknown'
-        : '::1';
+    const ip = event ? getRequestIP(event, { xForwardedFor: true }) || 'Unknown' : '::1';
 
     if (system) {
         consola.info(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - ${message}`);

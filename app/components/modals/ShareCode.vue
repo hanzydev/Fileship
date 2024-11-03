@@ -28,12 +28,7 @@
                 wfull
             />
             <div space-y-1>
-                <UiLabel
-                    :error="formErrors?.code?._errors?.[0]"
-                    :disabled
-                    :for="id"
-                    required
-                >
+                <UiLabel :error="formErrors?.code?._errors?.[0]" :disabled :for="id" required>
                     Code
                 </UiLabel>
                 <div
@@ -55,8 +50,7 @@
                                 label: 'Preview',
                                 icon: 'heroicons-solid:eye',
                                 condition: () =>
-                                    code.language.label !== 'Plain Text' &&
-                                    code.code.trim() !== '',
+                                    code.language.label !== 'Plain Text' && code.code.trim() !== '',
                             },
                         ]"
                         p0="!"
@@ -64,9 +58,7 @@
                     <UiTextArea
                         v-if="selectedTab === 'Code'"
                         v-model="code.code"
-                        :class="
-                            code.language.label === 'Plain Text' && '!rounded'
-                        "
+                        :class="code.language.label === 'Plain Text' && '!rounded'"
                         :error="formErrors?.code?._errors?.[0]"
                         :disabled
                         required
@@ -203,10 +195,7 @@ const handleSubmit = async () => {
 watch(
     () => code.language,
     (language) => {
-        if (
-            language.label === 'Plain Text' &&
-            selectedTab.value === 'Preview'
-        ) {
+        if (language.label === 'Plain Text' && selectedTab.value === 'Preview') {
             selectedTab.value = 'Code';
         }
     },

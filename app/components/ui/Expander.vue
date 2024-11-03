@@ -17,10 +17,7 @@
                 alignment="center"
                 icon="heroicons-solid:chevron-down"
                 icon-size="20"
-                :icon-class="[
-                    'motion-safe:transition-transform',
-                    isOpen && 'rotate-x-180',
-                ]"
+                :icon-class="['motion-safe:transition-transform', isOpen && 'rotate-x-180']"
             />
         </div>
         <Transition

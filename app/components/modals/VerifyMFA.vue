@@ -16,20 +16,12 @@
                 @enter="height = $event.clientHeight"
                 @after-enter="$event.querySelector('input')?.focus()"
             >
-                <div
-                    v-if="hubMode"
-                    flex="~ col items-center justify-center gap8"
-                    absolute
-                    wfull
-                    p8
-                >
+                <div v-if="hubMode" flex="~ col items-center justify-center gap8" absolute wfull p8>
                     <div flex="~ lt-sm:col items-center gap4">
                         <Icon name="heroicons-solid:hand" size="96" />
                         <div sm:text-left lt-sm:space-y-2>
                             <h3 sm:text-left>Multi-Factor Authentication</h3>
-                            <p text-slate200>
-                                This extra step shows that it's really you.
-                            </p>
+                            <p text-slate200>This extra step shows that it's really you.</p>
                         </div>
                     </div>
                     <div space-y-2 w="full sm:3/4">
@@ -96,13 +88,7 @@
                         Cancel
                     </UiButton>
                 </div>
-                <div
-                    v-else
-                    flex="~ col items-center justify-center gap8"
-                    absolute
-                    wfull
-                    p8
-                >
+                <div v-else flex="~ col items-center justify-center gap8" absolute wfull p8>
                     <div flex="~ lt-sm:col items-center gap4">
                         <Icon name="heroicons-solid:hand" size="96" />
                         <div sm:text-left lt-sm:space-y-2>
@@ -136,18 +122,13 @@
                             required
                             :error
                             :disabled
-                            @got="
-                                (totp) =>
-                                    emit('got', { type: 'totp', data: totp })
-                            "
+                            @got="(totp) => emit('got', { type: 'totp', data: totp })"
                         />
                     </div>
                     <form
                         v-else-if="selectedMethod === 'password'"
                         wfull
-                        @submit.prevent="
-                            emit('got', { type: 'password', data: password })
-                        "
+                        @submit.prevent="emit('got', { type: 'password', data: password })"
                     >
                         <UiInput
                             v-model="password"
@@ -162,10 +143,7 @@
                         <button type="submit" hidden></button>
                     </form>
 
-                    <div
-                        flex="~ gap2 md:(justify-between items-center) lt-md:(col gap4)"
-                        wfull
-                    >
+                    <div flex="~ gap2 md:(justify-between items-center) lt-md:(col gap4)" wfull>
                         <p
                             v-if="methods.length > 1"
                             cursor-pointer
@@ -207,10 +185,7 @@
                                 @click="
                                     emit('got', {
                                         type: selectedMethod,
-                                        data:
-                                            selectedMethod === 'totp'
-                                                ? totp
-                                                : password,
+                                        data: selectedMethod === 'totp' ? totp : password,
                                     })
                                 "
                             >
@@ -261,21 +236,13 @@ const emit = defineEmits<{
     cancel: [];
 }>();
 
-const passkeyAvailable = computed(() =>
-    methods.some((m) => m.type === 'passkey'),
-);
+const passkeyAvailable = computed(() => methods.some((m) => m.type === 'passkey'));
 const totpAvailable = computed(() => methods.some((m) => m.type === 'totp'));
 
-const passwordAvailable = computed(() =>
-    methods.some((m) => m.type === 'password'),
-);
+const passwordAvailable = computed(() => methods.some((m) => m.type === 'password'));
 
 const bestMethod = computed(() =>
-    passkeyAvailable.value
-        ? 'passkey'
-        : totpAvailable.value
-          ? 'totp'
-          : 'password',
+    passkeyAvailable.value ? 'passkey' : totpAvailable.value ? 'totp' : 'password',
 );
 
 const { width } = useWindowSize();

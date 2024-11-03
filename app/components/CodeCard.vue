@@ -3,9 +3,7 @@
 
     <UiDropdown v-model="ctxOpen" as-ctx-menu placement="bottom">
         <NuxtLink
-            :class="
-                ctxOpen ? 'cursor-default' : 'hover:(ring-1 ring-fs-accent)'
-            "
+            :class="ctxOpen ? 'cursor-default' : 'hover:(ring-1 ring-fs-accent)'"
             :to="`/code/${data.id}`"
             block
             h132px
@@ -37,14 +35,7 @@
             </div>
         </NuxtLink>
         <template #content>
-            <div
-                w48
-                rounded-lg
-                bg-fs-overlay-2
-                p1.5
-                space-y-1
-                ring="1 fs-accent"
-            >
+            <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-accent">
                 <UiButton
                     icon="heroicons-solid:clipboard-copy"
                     icon-size="20"

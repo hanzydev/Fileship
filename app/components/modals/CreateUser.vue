@@ -72,11 +72,7 @@
                         <UiButton
                             v-for="permission in Object.values(UserPermission)"
                             :key="permission"
-                            :variant="
-                                user.permissions.includes(permission)
-                                    ? 'accent'
-                                    : 'primary'
-                            "
+                            :variant="user.permissions.includes(permission) ? 'accent' : 'primary'"
                             :icon="
                                 user.permissions.includes(permission)
                                     ? 'heroicons-solid:check'
@@ -86,9 +82,8 @@
                             gap2.5
                             icon-size="20"
                             :disabled="
-                                user.permissions.includes(
-                                    UserPermission.Admin,
-                                ) && permission !== UserPermission.Admin
+                                user.permissions.includes(UserPermission.Admin) &&
+                                permission !== UserPermission.Admin
                             "
                             @click="
                                 user.permissions.includes(permission)

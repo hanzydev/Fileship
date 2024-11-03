@@ -1,14 +1,5 @@
 <template>
-    <nav
-        flex="~ items-center justify-between"
-        z30
-        h70px
-        wfull
-        bg-fs-overlay-2
-        pl3
-        pr5
-        lg:px5
-    >
+    <nav flex="~ items-center justify-between" z30 h70px wfull bg-fs-overlay-2 pl3 pr5 lg:px5>
         <svg
             :class="sidebarOpen && 'rotate-180'"
             cursor-pointer
@@ -81,11 +72,7 @@
                     rounded="!"
                     bg-fs-overlay-2
                     ring-1
-                    :class="[
-                        version.latest
-                            ? 'ring-fs-accent'
-                            : 'ring-red-500 hover:!bg-red-500',
-                    ]"
+                    :class="[version.latest ? 'ring-fs-accent' : 'ring-red-500 hover:!bg-red-500']"
                     :href="version.url"
                     target="_blank"
                 >
@@ -105,14 +92,7 @@
                     motion-safe:transition-all
                 />
                 <template #content>
-                    <div
-                        w60
-                        rounded-lg
-                        bg-fs-overlay-2
-                        p1.5
-                        ring="1 fs-accent"
-                        space-y-2
-                    >
+                    <div w60 rounded-lg bg-fs-overlay-2 p1.5 ring="1 fs-accent" space-y-2>
                         <div mx3.5 mt3.5 space-y-2>
                             <h4>
                                 {{ upperFirst(currentUser!.username) }}
@@ -125,11 +105,7 @@
                             <UiButton
                                 v-for="item in profileItems"
                                 :key="item.name"
-                                :variant="
-                                    route.path.startsWith(item.href)
-                                        ? 'accent'
-                                        : 'primary'
-                                "
+                                :variant="route.path.startsWith(item.href) ? 'accent' : 'primary'"
                                 wfull
                                 gap2.5
                                 icon-size="20"
@@ -161,16 +137,9 @@
                                         space-y-1
                                     >
                                         <UiButton
-                                            v-for="[
-                                                theme,
-                                                { accent },
-                                            ] in Object.entries(themes)"
+                                            v-for="[theme, { accent }] in Object.entries(themes)"
                                             :key="theme"
-                                            :variant="
-                                                currentTheme === theme
-                                                    ? 'accent'
-                                                    : 'primary'
-                                            "
+                                            :variant="currentTheme === theme ? 'accent' : 'primary'"
                                             :icon="
                                                 currentTheme === theme
                                                     ? 'heroicons-solid:check'

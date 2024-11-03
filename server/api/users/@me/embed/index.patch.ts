@@ -7,12 +7,8 @@ import type { IEmbed } from '~~/utils/types';
 const validationSchema = z
     .object({
         title: z.string({ invalid_type_error: 'Invalid title' }).optional(),
-        description: z
-            .string({ invalid_type_error: 'Invalid description' })
-            .optional(),
-        siteName: z
-            .string({ invalid_type_error: 'Invalid site name' })
-            .optional(),
+        description: z.string({ invalid_type_error: 'Invalid description' }).optional(),
+        siteName: z.string({ invalid_type_error: 'Invalid site name' }).optional(),
         color: z
             .string({ invalid_type_error: 'Invalid color' })
             .startsWith('#', 'Color must start with #')

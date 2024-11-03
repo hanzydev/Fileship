@@ -48,11 +48,7 @@ export default defineEventHandler(async (event) => {
 
     return {
         base64: await qrcode.toDataURL(
-            authenticator.keyuri(
-                currentUser.username,
-                appConfig.site.name,
-                totpSecret,
-            ),
+            authenticator.keyuri(currentUser.username, appConfig.site.name, totpSecret),
         ),
     };
 });

@@ -30,11 +30,7 @@ export default defineNitroPlugin(async () => {
                             system: true,
                         });
 
-                        sendToUser(
-                            e.authorId,
-                            `delete:${key.toLowerCase()}`,
-                            e.id,
-                        );
+                        sendToUser(e.authorId, `delete:${key.toLowerCase()}`, e.id);
                     });
                 }
             }

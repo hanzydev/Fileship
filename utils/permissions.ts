@@ -12,12 +12,7 @@ type UserOrEvent = MaybeRef<User> | H3Event;
 const hasPermission = (user: UserOrEvent, permission: UserPermission) => {
     if (!user) return false;
 
-    const _user =
-        'context' in user
-            ? user.context.user
-            : 'value' in user
-              ? user.value
-              : user;
+    const _user = 'context' in user ? user.context.user : 'value' in user ? user.value : user;
     if (!_user) return false;
 
     return (
@@ -27,17 +22,14 @@ const hasPermission = (user: UserOrEvent, permission: UserPermission) => {
     );
 };
 
-export const isAdmin = (user: UserOrEvent) =>
-    hasPermission(user, UserPermission.Admin);
+export const isAdmin = (user: UserOrEvent) => hasPermission(user, UserPermission.Admin);
 
 export const canUploadFiles = (user: UserOrEvent) =>
     hasPermission(user, UserPermission.UploadFiles);
 
-export const canTakeNotes = (user: UserOrEvent) =>
-    hasPermission(user, UserPermission.TakeNotes);
+export const canTakeNotes = (user: UserOrEvent) => hasPermission(user, UserPermission.TakeNotes);
 
-export const canShareCodes = (user: UserOrEvent) =>
-    hasPermission(user, UserPermission.ShareCodes);
+export const canShareCodes = (user: UserOrEvent) => hasPermission(user, UserPermission.ShareCodes);
 
 export const canShortenUrls = (user: UserOrEvent) =>
     hasPermission(user, UserPermission.ShortenUrls);

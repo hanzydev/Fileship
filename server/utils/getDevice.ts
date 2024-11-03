@@ -1,7 +1,4 @@
-export const getDevice = async (
-    headers: Record<string, string>,
-    ip: string,
-) => {
+export const getDevice = async (headers: Record<string, string>, ip: string) => {
     const userAgent = headers['user-agent'];
 
     const oss = ['Android', 'iPhone', 'Windows', 'Macintosh', 'Linux'];
@@ -10,8 +7,7 @@ export const getDevice = async (
     let os = oss.find((o) => userAgent?.includes(o)) || 'Unknown';
 
     if (os === 'iPhone' || os === 'Android') os = 'Mobile';
-    if (os === 'Windows' || os === 'Macintosh' || os === 'Linux')
-        os = 'Desktop';
+    if (os === 'Windows' || os === 'Macintosh' || os === 'Linux') os = 'Desktop';
 
     const platform = platforms.find((p) => userAgent?.includes(p)) || 'Unknown';
 

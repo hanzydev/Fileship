@@ -1,9 +1,6 @@
 import type { User } from '@prisma/client';
 
-export type AuthUserData = Omit<
-    User,
-    'password' | 'totpSecret' | 'embed' | 'domains'
-> & {
+export type AuthUserData = Omit<User, 'password' | 'totpSecret' | 'embed' | 'domains'> & {
     currentSessionId: string;
 };
 

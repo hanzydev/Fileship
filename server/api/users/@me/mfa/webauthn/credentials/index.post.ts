@@ -1,10 +1,7 @@
 import { z } from 'zod';
 
 import { bufferToBase64URLString } from '@simplewebauthn/browser';
-import {
-    generateRegistrationOptions,
-    verifyRegistrationResponse,
-} from '@simplewebauthn/server';
+import { generateRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server';
 
 const validationSchema = z.object({
     name: z
@@ -60,8 +57,8 @@ export default defineEventHandler(async (event) => {
                     id: registrationInfo!.credential.id,
                     name:
                         body.data.name ||
-                        body.data.registrationResponse!.clientExtensionResults
-                            ?.credProps?.authenticatorDisplayName,
+                        body.data.registrationResponse!.clientExtensionResults?.credProps
+                            ?.authenticatorDisplayName,
                     publicKey: bufferToBase64URLString(
                         registrationInfo!.credential.publicKey as never,
                     ),

@@ -16,8 +16,7 @@
     >
         <h2 max-w-2xl>Your data is now being restored from backup.</h2>
         <p text-slate-300 font-medium>
-            You cannot perform any actions on this user until this process is
-            completed.
+            You cannot perform any actions on this user until this process is completed.
         </p>
         <UiButton ring-none="!" cursor-default bg-fs-overlay-1="!">
             {{ state }}

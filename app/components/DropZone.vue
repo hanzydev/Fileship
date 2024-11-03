@@ -25,14 +25,7 @@
                 :disabled="inputDisabled"
                 @change.stop.prevent="handleUpload"
             />
-            <div
-                flex="~ justify-center"
-                absolute
-                top-0
-                hfull
-                wfull
-                bg-fs-overlay-2
-            >
+            <div flex="~ justify-center" absolute top-0 hfull wfull bg-fs-overlay-2>
                 <div flex="~ items-center justify-center col gap4">
                     <Icon name="heroicons-solid:cloud-upload" size="40" />
                     <h5>Drag and drop {{ placeholder }} here</h5>
@@ -62,9 +55,9 @@ const files = defineModel<File[]>({ required: true });
 const inputDisabled = computed(() => _disabled || files.value.length >= max);
 
 const handleUpload = async (event: Event) => {
-    const newFiles = Array.from(
-        (event.target as HTMLInputElement).files!,
-    ).filter((f) => !files.value.map((f) => f.name).includes(f.name));
+    const newFiles = Array.from((event.target as HTMLInputElement).files!).filter(
+        (f) => !files.value.map((f) => f.name).includes(f.name),
+    );
 
     files.value = [...files.value, ...newFiles].slice(0, max);
 };

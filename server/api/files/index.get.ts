@@ -35,15 +35,7 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
-        directUrl: buildPublicUrl(
-            event,
-            currentUser.domains,
-            `/u/${file.fileName}`,
-        ),
-        embedUrl: buildPublicUrl(
-            event,
-            currentUser.domains,
-            `/view/${file.fileName}`,
-        ),
+        directUrl: buildPublicUrl(event, currentUser.domains, `/u/${file.fileName}`),
+        embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${file.fileName}`),
     }));
 });

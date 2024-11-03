@@ -13,10 +13,7 @@
                 :disabled="updating"
             />
             <div flex="~ gap2 items-center">
-                <UiSwitch
-                    v-model="editData.cloned.value!.public"
-                    :disabled="updating"
-                />
+                <UiSwitch v-model="editData.cloned.value!.public" :disabled="updating" />
                 <span text-slate200 font-medium="!">Public</span>
             </div>
 

@@ -7,11 +7,7 @@
         <div space-y-6>
             <h2>Files</h2>
             <div flex="~ gap4 1 items-center" wfull>
-                <UiSearchBar
-                    v-model="searchQuery"
-                    placeholder="Search files..."
-                    wfull
-                />
+                <UiSearchBar v-model="searchQuery" placeholder="Search files..." wfull />
                 <FileTypeFilter v-model="filterType" />
             </div>
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
@@ -31,31 +27,16 @@
                             animate-pulse
                             op75
                         />
-                        <Icon
-                            v-else
-                            name="heroicons:photo-16-solid"
-                            size="64"
-                            animate-pulse
-                            op75
-                        />
+                        <Icon v-else name="heroicons:photo-16-solid" size="64" animate-pulse op75 />
                     </UiSkeletonCard>
                 </template>
                 <TransitionGroup
                     v-else
                     :css="false"
-                    @enter="
-                        (el, done) => (isAnimating ? done() : enter(el, done))
-                    "
-                    @leave="
-                        (el, done) => (isAnimating ? done() : leave(el, done))
-                    "
+                    @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
+                    @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
                 >
-                    <div
-                        v-for="file in calculatedFiles"
-                        :key="file.id"
-                        op0
-                        class="fileCard"
-                    >
+                    <div v-for="file in calculatedFiles" :key="file.id" op0 class="fileCard">
                         <FileCard :data="file" />
                     </div>
                 </TransitionGroup>

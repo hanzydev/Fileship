@@ -76,9 +76,7 @@
                         width: '10%',
                         render: ({ superAdmin }) =>
                             h(Icon, {
-                                name: superAdmin
-                                    ? 'heroicons-solid:check'
-                                    : 'heroicons-solid:x',
+                                name: superAdmin ? 'heroicons-solid:check' : 'heroicons-solid:x',
                                 size: '20',
                             }),
                     },
@@ -90,26 +88,22 @@
                     {
                         key: 'files',
                         width: '5%',
-                        resolve: ({ _count }) =>
-                            Intl.NumberFormat().format(_count?.files ?? 0),
+                        resolve: ({ _count }) => Intl.NumberFormat().format(_count?.files ?? 0),
                     },
                     {
                         key: 'notes',
                         width: '5%',
-                        resolve: ({ _count }) =>
-                            Intl.NumberFormat().format(_count?.notes ?? 0),
+                        resolve: ({ _count }) => Intl.NumberFormat().format(_count?.notes ?? 0),
                     },
                     {
                         key: 'codes',
                         width: '5%',
-                        resolve: ({ _count }) =>
-                            Intl.NumberFormat().format(_count?.codes ?? 0),
+                        resolve: ({ _count }) => Intl.NumberFormat().format(_count?.codes ?? 0),
                     },
                     {
                         key: 'urls',
                         width: '5%',
-                        resolve: ({ _count }) =>
-                            Intl.NumberFormat().format(_count?.urls ?? 0),
+                        resolve: ({ _count }) => Intl.NumberFormat().format(_count?.urls ?? 0),
                     },
                     {
                         key: 'createdAt',
@@ -120,68 +114,53 @@
                         key: 'Quick Actions',
                         width: '20%',
                         render: (row) => {
-                            return h(
-                                'div',
-                                { class: 'flex items-center gap4' },
-                                [
-                                    h(UiButton, {
-                                        variant: 'outline',
-                                        alignment: 'center',
-                                        class: 'h8 w8 !p0 text-slate300 hover:text-white',
-                                        icon: 'heroicons-solid:switch-horizontal',
-                                        iconSize: '20',
-                                        disabled:
-                                            (row.superAdmin &&
-                                                !currentUser!.superAdmin) ||
-                                            row.user.username ===
-                                                currentUser!.username ||
-                                            willBeActed,
-                                        loading:
-                                            willBeActed === row.user.username,
-                                        'aria-label': 'Act as user',
-                                        onClick: () =>
-                                            handleActAsUser(row.user.username),
-                                    }),
-                                    h(UiButton, {
-                                        variant: 'outline',
-                                        alignment: 'center',
-                                        class: 'h8 w8 !p0 text-slate300 hover:text-white',
-                                        icon: 'heroicons:pencil-16-solid',
-                                        iconSize: '20',
-                                        disabled:
-                                            row.superAdmin &&
-                                            !currentUser!.superAdmin,
-                                        'aria-label': 'Edit user',
-                                        onClick: () => {
-                                            editModal.user = {
-                                                ...row.user,
-                                                ...row,
-                                            };
-                                            nextTick(
-                                                () => (editModal.open = true),
-                                            );
-                                        },
-                                    }),
-                                    h(UiButton, {
-                                        variant: 'outline',
-                                        alignment: 'center',
-                                        class: 'h8 w8 !p0 ring-red-500 text-slate300 hover:text-white hover:!bg-red-500',
-                                        icon: 'heroicons-solid:trash',
-                                        iconSize: '20',
-                                        disabled:
-                                            (row.superAdmin &&
-                                                !currentUser!.superAdmin) ||
-                                            row.user.username ===
-                                                currentUser!.username ||
-                                            willBeDeleted.has(row.user.id) ||
-                                            willBeActed === row.user.username,
-                                        loading: willBeDeleted.has(row.user.id),
-                                        'aria-label': 'Delete user',
-                                        onClick: () =>
-                                            handleDelete(row.user.id),
-                                    }),
-                                ],
-                            );
+                            return h('div', { class: 'flex items-center gap4' }, [
+                                h(UiButton, {
+                                    variant: 'outline',
+                                    alignment: 'center',
+                                    class: 'h8 w8 !p0 text-slate300 hover:text-white',
+                                    icon: 'heroicons-solid:switch-horizontal',
+                                    iconSize: '20',
+                                    disabled:
+                                        (row.superAdmin && !currentUser!.superAdmin) ||
+                                        row.user.username === currentUser!.username ||
+                                        willBeActed,
+                                    loading: willBeActed === row.user.username,
+                                    'aria-label': 'Act as user',
+                                    onClick: () => handleActAsUser(row.user.username),
+                                }),
+                                h(UiButton, {
+                                    variant: 'outline',
+                                    alignment: 'center',
+                                    class: 'h8 w8 !p0 text-slate300 hover:text-white',
+                                    icon: 'heroicons:pencil-16-solid',
+                                    iconSize: '20',
+                                    disabled: row.superAdmin && !currentUser!.superAdmin,
+                                    'aria-label': 'Edit user',
+                                    onClick: () => {
+                                        editModal.user = {
+                                            ...row.user,
+                                            ...row,
+                                        };
+                                        nextTick(() => (editModal.open = true));
+                                    },
+                                }),
+                                h(UiButton, {
+                                    variant: 'outline',
+                                    alignment: 'center',
+                                    class: 'h8 w8 !p0 ring-red-500 text-slate300 hover:text-white hover:!bg-red-500',
+                                    icon: 'heroicons-solid:trash',
+                                    iconSize: '20',
+                                    disabled:
+                                        (row.superAdmin && !currentUser!.superAdmin) ||
+                                        row.user.username === currentUser!.username ||
+                                        willBeDeleted.has(row.user.id) ||
+                                        willBeActed === row.user.username,
+                                    loading: willBeDeleted.has(row.user.id),
+                                    'aria-label': 'Delete user',
+                                    onClick: () => handleDelete(row.user.id),
+                                }),
+                            ]);
                         },
                     },
                 ]"

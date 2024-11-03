@@ -50,13 +50,7 @@
                 <h3>Views</h3>
 
                 <Loading v-if="isLoading" />
-                <div
-                    v-else
-                    min-h-365px
-                    rounded-md
-                    bg-fs-overlay-2
-                    ring="1 fs-overlay-4"
-                >
+                <div v-else min-h-365px rounded-md bg-fs-overlay-2 ring="1 fs-overlay-4">
                     <ClientOnly>
                         <VueApexCharts
                             type="area"
@@ -147,9 +141,7 @@
                 >
                     <UiTable
                         :loading="isLoading"
-                        :class="
-                            stats?.topUploaders?.length ? 'xl:w-3/4' : 'wfull'
-                        "
+                        :class="stats?.topUploaders?.length ? 'xl:w-3/4' : 'wfull'"
                         :columns="[
                             {
                                 key: 'user',
@@ -179,8 +171,7 @@
                             {
                                 key: 'count',
                                 width: '20%',
-                                resolve: ({ count }) =>
-                                    Intl.NumberFormat().format(count),
+                                resolve: ({ count }) => Intl.NumberFormat().format(count),
                             },
                         ]"
                         :rows="stats?.topUploaders"
@@ -206,14 +197,12 @@
                                         titleCase(u.user.username),
                                     ),
                                     fill: {
-                                        colors: stats.topUploaders.map(
-                                            (u: any) => colorHash(u.user.id),
+                                        colors: stats.topUploaders.map((u: any) =>
+                                            colorHash(u.user.id),
                                         ),
                                     },
                                 }"
-                                :series="
-                                    stats.topUploaders.map((u: any) => u.count)
-                                "
+                                :series="stats.topUploaders.map((u: any) => u.count)"
                             />
                         </ClientOnly>
                     </div>
@@ -231,11 +220,7 @@
                 >
                     <UiTable
                         :loading="isLoading"
-                        :class="
-                            stats?.storageUsed?.byUser?.length
-                                ? 'xl:w-3/4'
-                                : 'wfull'
-                        "
+                        :class="stats?.storageUsed?.byUser?.length ? 'xl:w-3/4' : 'wfull'"
                         :columns="[
                             {
                                 key: 'user',
@@ -287,12 +272,12 @@
                                 height="350"
                                 :options="{
                                     ...basePieOptions,
-                                    labels: stats.storageUsed.byUser.map(
-                                        (u: any) => titleCase(u.user.username),
+                                    labels: stats.storageUsed.byUser.map((u: any) =>
+                                        titleCase(u.user.username),
                                     ),
                                     fill: {
-                                        colors: stats.storageUsed.byUser.map(
-                                            (u: any) => colorHash(u.user.id),
+                                        colors: stats.storageUsed.byUser.map((u: any) =>
+                                            colorHash(u.user.id),
                                         ),
                                     },
                                     tooltip: {
@@ -301,11 +286,7 @@
                                         },
                                     },
                                 }"
-                                :series="
-                                    stats.storageUsed.byUser.map(
-                                        (u: any) => +u.size,
-                                    )
-                                "
+                                :series="stats.storageUsed.byUser.map((u: any) => +u.size)"
                             />
                         </ClientOnly>
                     </div>
@@ -329,8 +310,7 @@
                             {
                                 key: 'count',
                                 width: '20%',
-                                resolve: ({ count }) =>
-                                    Intl.NumberFormat().format(count),
+                                resolve: ({ count }) => Intl.NumberFormat().format(count),
                             },
                         ]"
                         :rows="stats?.topTypes"
@@ -352,18 +332,14 @@
                                 height="350"
                                 :options="{
                                     ...basePieOptions,
-                                    labels: stats.topTypes.map(
-                                        (t: any) => t.type,
-                                    ),
+                                    labels: stats.topTypes.map((t: any) => t.type),
                                     fill: {
-                                        colors: [
-                                            ...new Set(stats.topTypes),
-                                        ].map((t: any) => colorHash(t.type)),
+                                        colors: [...new Set(stats.topTypes)].map((t: any) =>
+                                            colorHash(t.type),
+                                        ),
                                     },
                                 }"
-                                :series="
-                                    stats.topTypes.map((t: any) => t.count)
-                                "
+                                :series="stats.topTypes.map((t: any) => t.count)"
                             />
                         </ClientOnly>
                     </div>

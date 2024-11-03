@@ -5,8 +5,7 @@
 </template>
 
 <script setup lang="ts">
-const { colorSteps = ['var(--fs-overlay-2)', 'var(--fs-overlay-3)'] } =
-    defineProps<{
-        colorSteps?: [string, string];
-    }>();
+const { colorSteps = ['var(--fs-overlay-2)', 'var(--fs-overlay-3)'] } = defineProps<{
+    colorSteps?: [string, string];
+}>();
 </script>

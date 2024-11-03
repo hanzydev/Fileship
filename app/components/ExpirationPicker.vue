@@ -22,17 +22,12 @@
                             ? 'heroicons-solid:check'
                             : 'heroicons-solid:clock'
                     "
-                    :variant="
-                        option.value === expiration.value ? 'accent' : 'primary'
-                    "
+                    :variant="option.value === expiration.value ? 'accent' : 'primary'"
                     icon-size="20"
                     wfull
                     gap2
                     @click="
-                        expiration =
-                            expiration.value === option.value
-                                ? expirations[0]!
-                                : option;
+                        expiration = expiration.value === option.value ? expirations[0]! : option;
                         isOpen = false;
                     "
                 >
@@ -117,9 +112,7 @@ defineExpose({
         const diff = date.getTime() - Date.now();
 
         return expirations.reduce((prev, curr) =>
-            Math.abs(curr.value! - diff) < Math.abs(prev.value! - diff)
-                ? curr
-                : prev,
+            Math.abs(curr.value! - diff) < Math.abs(prev.value! - diff) ? curr : prev,
         );
     },
 });

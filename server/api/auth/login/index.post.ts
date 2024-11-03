@@ -61,17 +61,12 @@ export default defineEventHandler(async (event) => {
     if (
         !(currentUser
             ? isAdmin(currentUser) &&
-              (findUserByUsername.superAdmin && !currentUser.superAdmin
-                  ? false
-                  : true)
+              (findUserByUsername.superAdmin && !currentUser.superAdmin ? false : true)
             : false)
     ) {
         const runtimeConfig = useRuntimeConfig();
         if (runtimeConfig.turnstile.secretKey) {
-            const turnstileResult = await verifyTurnstileToken(
-                body.data.turnstile!,
-                event,
-            );
+            const turnstileResult = await verifyTurnstileToken(body.data.turnstile!, event);
             if (!turnstileResult.success) {
                 throw createError({
                     statusCode: 400,
@@ -81,10 +76,7 @@ export default defineEventHandler(async (event) => {
             }
         }
 
-        const passwordMatch = await verify(
-            findUserByUsername.password,
-            body.data.password,
-        );
+        const passwordMatch = await verify(findUserByUsername.password, body.data.password);
 
         if (!passwordMatch) {
             throw createError({
@@ -103,12 +95,7 @@ export default defineEventHandler(async (event) => {
                 });
             }
 
-            if (
-                !authenticator.check(
-                    body.data.totp,
-                    findUserByUsername.totpSecret!,
-                )
-            ) {
+            if (!authenticator.check(body.data.totp, findUserByUsername.totpSecret!)) {
                 throw createError({
                     statusCode: 401,
                     statusMessage: 'Unauthorized',
@@ -118,11 +105,7 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    if (
-        currentUser &&
-        isAdmin(currentUser) &&
-        findUserByUsername.id !== currentUser.id
-    ) {
+    if (currentUser && isAdmin(currentUser) && findUserByUsername.id !== currentUser.id) {
         await verifySession(event, body.data?.verificationData);
     }
 
@@ -153,17 +136,12 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const session = user.sessions.find(
-        (session) => session.privateId === sessionPrivateId,
-    )!;
+    const session = user.sessions.find((session) => session.privateId === sessionPrivateId)!;
 
-    await createLog(
-        Object.assign({}, event, { context: { user: findUserByUsername } }),
-        {
-            action: 'Login',
-            message: `Logged in using ${os} on ${platform}`,
-        },
-    );
+    await createLog(Object.assign({}, event, { context: { user: findUserByUsername } }), {
+        action: 'Login',
+        message: `Logged in using ${os} on ${platform}`,
+    });
 
     setCookie(event, 'sessionId', sessionPrivateId, {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),

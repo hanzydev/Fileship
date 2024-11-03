@@ -14,10 +14,7 @@ const validationSchema = z.object(
                 invalid_type_error: 'Invalid files',
             })
             .optional(),
-        public: z
-            .boolean({ invalid_type_error: 'Invalid public' })
-            .optional()
-            .default(false),
+        public: z.boolean({ invalid_type_error: 'Invalid public' }).optional().default(false),
     },
     { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
 );
@@ -80,11 +77,7 @@ export default defineEventHandler(async (event) => {
             .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
             .map((file) => file.id),
         publicUrl: _folder.public
-            ? buildPublicUrl(
-                  event,
-                  currentUser.domains,
-                  `/folder/${_folder.id}`,
-              )
+            ? buildPublicUrl(event, currentUser.domains, `/folder/${_folder.id}`)
             : undefined,
     };
 

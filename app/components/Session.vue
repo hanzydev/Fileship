@@ -11,13 +11,7 @@
         <div wfull max-w-screen-sm space-y-4>
             <div flex="~ gap4">
                 <div relative>
-                    <div
-                        flex="~ items-center justify-center"
-                        h14
-                        w14
-                        rounded-full
-                        bg-fs-overlay-2
-                    >
+                    <div flex="~ items-center justify-center" h14 w14 rounded-full bg-fs-overlay-2>
                         <Icon
                             :name="
                                 data.os === 'Mobile'

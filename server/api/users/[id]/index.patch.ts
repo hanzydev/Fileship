@@ -21,9 +21,7 @@ const validationSchema = z
                 .min(3, 'Username must be at least 3 characters')
                 .max(24, 'Username must be at most 24 characters')
                 .optional(),
-            avatar: z
-                .string({ invalid_type_error: 'Invalid avatar' })
-                .nullish(),
+            avatar: z.string({ invalid_type_error: 'Invalid avatar' }).nullish(),
             password: z
                 .string({
                     invalid_type_error: 'Invalid password',
@@ -118,10 +116,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (
-        !isAdmin(currentUser) &&
-        ('permissions' in body.data || 'limits' in body.data)
-    ) {
+    if (!isAdmin(currentUser) && ('permissions' in body.data || 'limits' in body.data)) {
         throw forbiddenError;
     }
 
@@ -141,21 +136,15 @@ export default defineEventHandler(async (event) => {
         throw createError({
             statusCode: 403,
             statusMessage: 'Forbidden',
-            message:
-                'You cannot remove super admin from yourself if you are the only super admin',
+            message: 'You cannot remove super admin from yourself if you are the only super admin',
         });
     }
 
-    if (
-        body.data.permissions &&
-        !body.data.permissions.length &&
-        !body.data.superAdmin
-    ) {
+    if (body.data.permissions && !body.data.permissions.length && !body.data.superAdmin) {
         throw createError({
             statusCode: 400,
             statusMessage: 'Bad Request',
-            message:
-                'Permissions must be provided if user is not a super admin',
+            message: 'Permissions must be provided if user is not a super admin',
         });
     }
 
@@ -210,9 +199,7 @@ export default defineEventHandler(async (event) => {
                 .resize(64, 64)
                 .toBuffer();
 
-            body.data.avatar = `data:image/png;base64,${resizedAvatar.toString(
-                'base64',
-            )}`;
+            body.data.avatar = `data:image/png;base64,${resizedAvatar.toString('base64')}`;
         } catch {
             throw createError({
                 statusCode: 400,

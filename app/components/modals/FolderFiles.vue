@@ -31,29 +31,17 @@
         </div>
 
         <div flex="~ gap4 1 items-center" wfull>
-            <UiSearchBar
-                v-model="searchQuery"
-                placeholder="Search files..."
-                wfull
-            />
+            <UiSearchBar v-model="searchQuery" placeholder="Search files..." wfull />
             <FileTypeFilter v-model="filterType" />
         </div>
 
-        <div
-            v-show="filtered.length"
-            grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4"
-        >
+        <div v-show="filtered.length" grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
             <TransitionGroup
                 :css="false"
                 @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
                 @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
             >
-                <div
-                    v-for="file in calculatedFiles"
-                    :key="file.id"
-                    op0
-                    class="folderFileCard"
-                >
+                <div v-for="file in calculatedFiles" :key="file.id" op0 class="folderFileCard">
                     <FileCard
                         :selected="editable && selectedFiles.includes(file.id)"
                         :data="file"
@@ -63,10 +51,7 @@
                                 if (value) {
                                     selectedFiles.push(file.id);
                                 } else {
-                                    selectedFiles.splice(
-                                        selectedFiles.indexOf(file.id),
-                                        1,
-                                    );
+                                    selectedFiles.splice(selectedFiles.indexOf(file.id), 1);
                                 }
                             }
                         "
@@ -79,11 +64,7 @@
             message="There are no files to display."
             icon="heroicons-solid:document-duplicate"
         />
-        <UiPagination
-            v-model="currentPage"
-            :item-count="filtered.length"
-            :items-per-page="20"
-        />
+        <UiPagination v-model="currentPage" :item-count="filtered.length" :items-per-page="20" />
 
         <UiButton
             v-if="editable"
@@ -166,9 +147,7 @@ const handleChange = async () => {
     await $fetch(`/api/folders/${data.id}`, {
         method: 'PATCH',
         body: {
-            files: files.value
-                .filter((f) => selectedFiles.value.includes(f.id))
-                .map((f) => f.id),
+            files: files.value.filter((f) => selectedFiles.value.includes(f.id)).map((f) => f.id),
         },
     });
 

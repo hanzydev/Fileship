@@ -8,17 +8,8 @@
             <h2>Backups</h2>
             <div grid="~ 2xl:cols-5 lg:cols-3 md:cols-2 xl:cols-4 gap6">
                 <New h132px :disabled="creating" @action="handleCreate" />
-                <div
-                    relative
-                    overflow-hidden
-                    active:scale-95
-                    motion-safe:transition-transform
-                >
-                    <New
-                        h132px
-                        icon="heroicons-solid:upload"
-                        :disabled="uploading"
-                    />
+                <div relative overflow-hidden active:scale-95 motion-safe:transition-transform>
+                    <New h132px icon="heroicons-solid:upload" :disabled="uploading" />
                     <input
                         :key="uploading.toString()"
                         absolute
@@ -27,9 +18,7 @@
                         hfull
                         wfull
                         op0
-                        :class="
-                            uploading ? 'cursor-not-allowed' : 'cursor-pointer'
-                        "
+                        :class="uploading ? 'cursor-not-allowed' : 'cursor-pointer'"
                         type="file"
                         accept=".tgz"
                         :disabled="uploading"
@@ -50,11 +39,7 @@
                             :style="{
                                 width: `${uploadProgress}%`,
                             }"
-                            :class="
-                                uploadProgress < 100
-                                    ? 'rounded-bl-md'
-                                    : 'rounded-b-md'
-                            "
+                            :class="uploadProgress < 100 ? 'rounded-bl-md' : 'rounded-b-md'"
                         ></div>
                     </Transition>
                 </div>
@@ -73,18 +58,8 @@
                         </div>
                     </UiSkeletonCard>
                 </template>
-                <TransitionGroup
-                    v-else
-                    :css="false"
-                    @enter="enter"
-                    @leave="leave"
-                >
-                    <div
-                        v-for="backup in backups"
-                        :key="backup.id"
-                        op0
-                        class="backupCard"
-                    >
+                <TransitionGroup v-else :css="false" @enter="enter" @leave="leave">
+                    <div v-for="backup in backups" :key="backup.id" op0 class="backupCard">
                         <BackupCard :data="backup" />
                     </div>
                 </TransitionGroup>
@@ -147,11 +122,7 @@ const handleLoad = async (event: Event) => {
 
         const formData = new FormData();
 
-        formData.append(
-            'backup',
-            new Blob([chunk], { type: file.type }),
-            file.name,
-        );
+        formData.append('backup', new Blob([chunk], { type: file.type }), file.name);
         formData.append('currentChunk', (i + 1).toString());
         formData.append('totalChunks', chunks.toString());
 

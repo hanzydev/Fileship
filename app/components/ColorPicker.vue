@@ -148,11 +148,7 @@ const handleSaturationMove = (event: MouseEvent | TouchEvent) => {
 const handleHueMove = (event: MouseEvent | TouchEvent) => {
     if (!hueFocused.value) return;
 
-    const { left } = getRelativePosition(
-        hueRef.value as never,
-        event,
-        getTouchId(event),
-    );
+    const { left } = getRelativePosition(hueRef.value as never, event, getTouchId(event));
 
     color.h = clamp(left * 360, 0, 360);
 };

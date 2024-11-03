@@ -193,9 +193,7 @@ const handleUpload = async () => {
 
     const uploadFile = async (file: File) => {
         const chunks = Math.ceil(file.size / fileChunkSize);
-        const uploadingFile = uploadingFiles.value.find(
-            (f) => f.name === file.name,
-        );
+        const uploadingFile = uploadingFiles.value.find((f) => f.name === file.name);
 
         if (!uploadingFile) return;
 
@@ -216,29 +214,19 @@ const handleUpload = async () => {
 
             const formData = new FormData();
 
-            formData.append(
-                'file',
-                new Blob([chunk], { type: file.type }),
-                file.name,
-            );
+            formData.append('file', new Blob([chunk], { type: file.type }), file.name);
             formData.append('currentChunk', (i + 1).toString());
             formData.append('totalChunks', chunks.toString());
             formData.append('fileNameType', settings.fileNameType);
             formData.append('maxViews', settings.maxViews.toString());
-            formData.append(
-                'compression',
-                settings.compression.value.toString(),
-            );
+            formData.append('compression', settings.compression.value.toString());
 
             if (settings.password) {
                 formData.append('password', settings.password);
             }
 
             if (settings.expiration.value) {
-                formData.append(
-                    'expiration',
-                    settings.expiration.value.toString(),
-                );
+                formData.append('expiration', settings.expiration.value.toString());
             }
 
             if (settings.folder.value) {
@@ -252,9 +240,7 @@ const handleUpload = async () => {
                     retry: 3,
                 });
 
-                uploadingFile.status.progress = Math.round(
-                    (end / file.size) * 100,
-                );
+                uploadingFile.status.progress = Math.round((end / file.size) * 100);
                 uploadingFile.status.error = null;
             } catch (error: any) {
                 uploadingFile.status.error = error.data.message;
@@ -274,9 +260,7 @@ const handleUpload = async () => {
         results.push(...(chunkResults.filter(Boolean) as boolean[]));
     }
 
-    uploadingFiles.value = uploadingFiles.value.filter(
-        (_, index) => !results[index],
-    );
+    uploadingFiles.value = uploadingFiles.value.filter((_, index) => !results[index]);
     uploading.value = false;
 
     if (!uploadingFiles.value.length) {

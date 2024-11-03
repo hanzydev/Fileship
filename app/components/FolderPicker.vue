@@ -33,10 +33,7 @@
                 <div space-y-1>
                     <UiButton
                         v-if="
-                            searchQuery &&
-                            !results.find(
-                                (r) => r.item.name === searchQuery.trim(),
-                            )
+                            searchQuery && !results.find((r) => r.item.name === searchQuery.trim())
                         "
                         wfull
                         break-all
@@ -54,9 +51,7 @@
                                 ? 'heroicons-solid:check'
                                 : 'heroicons-solid:folder'
                         "
-                        :variant="
-                            option.id === folder.value ? 'accent' : 'primary'
-                        "
+                        :variant="option.id === folder.value ? 'accent' : 'primary'"
                         icon-size="20"
                         wfull
                         gap2

@@ -17,19 +17,13 @@
                 placeholder-slate-300
                 ring="1 fs-overlay-4"
                 :class="[
-                    disabled || $props.readonly
-                        ? 'cursor-not-allowed'
-                        : 'focus:ring-fs-accent',
+                    disabled || $props.readonly ? 'cursor-not-allowed' : 'focus:ring-fs-accent',
                     $attrs.type === 'password' && 'pr11',
                 ]"
                 :required
                 :disabled
                 :readonly
-                :type="
-                    passwordVisible || !$attrs.type
-                        ? 'text'
-                        : ($attrs.type as never)
-                "
+                :type="passwordVisible || !$attrs.type ? 'text' : ($attrs.type as never)"
             />
 
             <UiButton
@@ -41,11 +35,7 @@
                 motion-safe:transition-all
                 p1="!"
                 :class="!readonly && !(value as any)?.length && 'invisible op0'"
-                :icon="
-                    passwordVisible
-                        ? 'heroicons-solid:eye'
-                        : 'heroicons-solid:eye-off'
-                "
+                :icon="passwordVisible ? 'heroicons-solid:eye' : 'heroicons-solid:eye-off'"
                 icon-size="20"
                 variant="secondary"
                 aria-label="Toggle password visibility"
@@ -69,9 +59,7 @@
                     p1="!"
                     icon="heroicons-solid:chevron-up"
                     aria-label="Increment value"
-                    :disabled="
-                        disabled || readonly || (value as number) >= max!
-                    "
+                    :disabled="disabled || readonly || (value as number) >= max!"
                     @click="(value as number)++"
                 />
                 <UiButton
@@ -80,9 +68,7 @@
                     p1="!"
                     icon="heroicons-solid:chevron-down"
                     aria-label="Decrement value"
-                    :disabled="
-                        disabled || readonly || (value as number) <= min!
-                    "
+                    :disabled="disabled || readonly || (value as number) <= min!"
                     @click="(value as number)--"
                 />
             </div>

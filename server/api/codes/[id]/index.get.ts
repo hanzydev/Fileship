@@ -58,10 +58,7 @@ export default defineEventHandler(async (event) => {
             system: true,
         });
 
-        if (
-            findCodeById.maxViews &&
-            findCodeById.views.length + 1 >= findCodeById.maxViews
-        ) {
+        if (findCodeById.maxViews && findCodeById.views.length + 1 >= findCodeById.maxViews) {
             await prisma.code.delete({
                 where: {
                     id: findCodeById.id,
@@ -94,10 +91,6 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
-        url: buildPublicUrl(
-            event,
-            findCodeById.author.domains,
-            `/code/${findCodeById.id}`,
-        ),
+        url: buildPublicUrl(event, findCodeById.author.domains, `/code/${findCodeById.id}`),
     };
 });

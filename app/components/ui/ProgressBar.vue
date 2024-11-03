@@ -1,11 +1,5 @@
 <template>
-    <svg
-        flex="~ items-center"
-        w-full
-        role="progressbar"
-        width="100%"
-        height="3"
-    >
+    <svg flex="~ items-center" w-full role="progressbar" width="100%" height="3">
         <rect
             height="3"
             ry="3"

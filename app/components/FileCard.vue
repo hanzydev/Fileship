@@ -1,18 +1,9 @@
 <template>
     <ModalsViewFile v-if="canBeViewed" v-model="viewModalOpen" :data />
 
-    <ModalsEditFile
-        v-if="currentUser?.id === data.authorId"
-        v-model="editModalOpen"
-        :data
-    />
+    <ModalsEditFile v-if="currentUser?.id === data.authorId" v-model="editModalOpen" :data />
 
-    <UiDropdown
-        v-model="ctxOpen"
-        as-ctx-menu
-        placement="bottom"
-        trigger-class="hfull"
-    >
+    <UiDropdown v-model="ctxOpen" as-ctx-menu placement="bottom" trigger-class="hfull">
         <div
             relative
             rounded-md
@@ -24,11 +15,7 @@
                     ? 'cursor-default'
                     : 'cursor-pointer hover:(ring-1 ring-fs-accent)',
             ]"
-            @click="
-                selectable
-                    ? (selected = !selected)
-                    : canBeViewed && (viewModalOpen = true)
-            "
+            @click="selectable ? (selected = !selected) : canBeViewed && (viewModalOpen = true)"
         >
             <Transition
                 enter-active-class="motion-safe:(animate-in fade-in)"
@@ -101,11 +88,7 @@
                     {{ data.fileName }}
                 </h5>
 
-                <div
-                    flex="~ col justify-between gap2"
-                    text-slate-300
-                    font-medium
-                >
+                <div flex="~ col justify-between gap2" text-slate-300 font-medium>
                     <div flex="~ gap2 items-center">
                         <Icon name="heroicons-solid:eye" size="20" />
                         <span>{{ data.views.today }} today</span>
@@ -119,25 +102,14 @@
                     <div flex="~ gap2 items-center">
                         <Icon name="heroicons-solid:calendar" size="20" />
                         <span>
-                            {{
-                                dayjs(data.createdAt).format(
-                                    'MMM D, YYYY h:mm A',
-                                )
-                            }}
+                            {{ dayjs(data.createdAt).format('MMM D, YYYY h:mm A') }}
                         </span>
                     </div>
                 </div>
             </div>
         </div>
         <template #content>
-            <div
-                w48
-                rounded-lg
-                bg-fs-overlay-2
-                p1.5
-                space-y-1
-                ring="1 fs-accent"
-            >
+            <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-accent">
                 <UiButton
                     v-if="!selectable || canBeViewed"
                     icon="heroicons:eye-16-solid"
@@ -187,11 +159,7 @@
                     Edit
                 </UiButton>
                 <UiButton
-                    v-if="
-                        currentUser?.id === data.authorId &&
-                        data.folderId &&
-                        !selectable
-                    "
+                    v-if="currentUser?.id === data.authorId && data.folderId && !selectable"
                     icon="heroicons-solid:folder-remove"
                     icon-size="20"
                     wfull
@@ -202,11 +170,7 @@
                     Take Out
                 </UiButton>
                 <UiDropdown
-                    v-if="
-                        currentUser?.id === data.authorId &&
-                        !selectable &&
-                        !data.folderId
-                    "
+                    v-if="currentUser?.id === data.authorId && !selectable && !data.folderId"
                     placement="right"
                     hover
                 >
@@ -237,9 +201,7 @@
                             />
 
                             <p
-                                v-if="
-                                    !results.length && !addToFolderSearchQuery
-                                "
+                                v-if="!results.length && !addToFolderSearchQuery"
                                 mx4
                                 translate-y-16
                                 text-center
@@ -253,9 +215,7 @@
                                     v-if="
                                         addToFolderSearchQuery &&
                                         !results.find(
-                                            (r) =>
-                                                r.item.name ===
-                                                addToFolderSearchQuery.trim(),
+                                            (r) => r.item.name === addToFolderSearchQuery.trim(),
                                         )
                                     "
                                     :disabled="updating"
@@ -267,9 +227,7 @@
                                 </UiButton>
 
                                 <UiButton
-                                    v-for="(folder, index) in results.map(
-                                        (r) => r.item,
-                                    )"
+                                    v-for="(folder, index) in results.map((r) => r.item)"
                                     :key="index"
                                     :disabled="updating"
                                     wfull
@@ -333,9 +291,7 @@ const isImage = computed(() => data.mimeType.startsWith('image/'));
 const isVideo = computed(() => data.mimeType.startsWith('video/'));
 const isAudio = computed(() => data.mimeType.startsWith('audio/'));
 
-const canBeViewed = computed(
-    () => isImage.value || isVideo.value || isAudio.value,
-);
+const canBeViewed = computed(() => isImage.value || isVideo.value || isAudio.value);
 
 const viewModalOpen = ref(false);
 const editModalOpen = ref(false);
@@ -353,9 +309,7 @@ const handleDelete = async () => {
 };
 
 const handleCopy = () => {
-    useClipboard({ legacy: true }).copy(
-        embed.value.enabled ? data.embedUrl : data.directUrl,
-    );
+    useClipboard({ legacy: true }).copy(embed.value.enabled ? data.embedUrl : data.directUrl);
     ctxOpen.value = false;
 
     toast.success('Link copied to clipboard');

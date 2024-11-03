@@ -8,14 +8,8 @@
             <div space-y-6>
                 <h2>{{ data!.name }}</h2>
 
-                <UiSearchBar
-                    v-model="searchQuery"
-                    placeholder="Search files..."
-                />
-                <div
-                    v-if="results.length"
-                    grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4"
-                >
+                <UiSearchBar v-model="searchQuery" placeholder="Search files..." />
+                <div v-if="results.length" grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
                     <template v-for="file in calculatedFiles" :key="file.id">
                         <PartialFileCard
                             :data="{

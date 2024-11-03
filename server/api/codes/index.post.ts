@@ -69,9 +69,7 @@ export default defineEventHandler(async (event) => {
             code: body.data.code,
             password: body.data.password || null,
             maxViews: body.data.maxViews || 0,
-            expiresAt: body.data.expiration
-                ? new Date(Date.now() + body.data.expiration)
-                : null,
+            expiresAt: body.data.expiration ? new Date(Date.now() + body.data.expiration) : null,
             language: body.data.language,
             authorId: currentUser.id,
         },

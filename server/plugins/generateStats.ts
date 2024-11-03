@@ -12,9 +12,7 @@ export default defineNitroPlugin(() => {
             const storageUsedByUser = files
                 .reduce(
                     (acc, file) => {
-                        const userIndex = acc.findIndex(
-                            ({ userId }) => userId === file.authorId,
-                        );
+                        const userIndex = acc.findIndex(({ userId }) => userId === file.authorId);
 
                         if (userIndex === -1) {
                             acc.push({
@@ -34,18 +32,14 @@ export default defineNitroPlugin(() => {
                 .sort((a, b) => +b.size - +a.size);
 
             const views = files.reduce((acc, file) => {
-                file.views.forEach((view) =>
-                    acc.push(view.createdAt.getTime()),
-                );
+                file.views.forEach((view) => acc.push(view.createdAt.getTime()));
                 return acc;
             }, [] as number[]);
 
             const viewsByUser = files
                 .reduce(
                     (acc, file) => {
-                        const userIndex = acc.findIndex(
-                            ({ userId }) => userId === file.authorId,
-                        );
+                        const userIndex = acc.findIndex(({ userId }) => userId === file.authorId);
 
                         if (userIndex === -1) {
                             acc.push({
@@ -65,9 +59,7 @@ export default defineNitroPlugin(() => {
             const filesByUser = files
                 .reduce(
                     (acc, file) => {
-                        const userIndex = acc.findIndex(
-                            ({ userId }) => userId === file.authorId,
-                        );
+                        const userIndex = acc.findIndex(({ userId }) => userId === file.authorId);
 
                         if (userIndex === -1) {
                             acc.push({
@@ -87,9 +79,7 @@ export default defineNitroPlugin(() => {
             const types = files
                 .reduce(
                     (acc, file) => {
-                        const typeIndex = acc.findIndex(
-                            ({ type }) => type === file.mimeType,
-                        );
+                        const typeIndex = acc.findIndex(({ type }) => type === file.mimeType);
 
                         if (typeIndex === -1) {
                             acc.push({
@@ -109,10 +99,7 @@ export default defineNitroPlugin(() => {
             await prisma.stat.create({
                 data: {
                     users,
-                    storageUsed: files.reduce(
-                        (acc, file) => acc + file.size,
-                        0n,
-                    ),
+                    storageUsed: files.reduce((acc, file) => acc + file.size, 0n),
                     storageUsedByUser,
                     views,
                     viewsByUser,
@@ -122,9 +109,7 @@ export default defineNitroPlugin(() => {
                 },
             });
 
-            consola.success(
-                `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Stats generated`,
-            );
+            consola.success(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Stats generated`);
         },
         +(process.env.STATS_INTERVAL || 1_800) * 1_000,
     );

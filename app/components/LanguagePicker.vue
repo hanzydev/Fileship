@@ -28,9 +28,7 @@
                                 ? 'heroicons-solid:check'
                                 : 'heroicons-solid:code'
                         "
-                        :variant="
-                            lang.label === language.label ? 'accent' : 'primary'
-                        "
+                        :variant="lang.label === language.label ? 'accent' : 'primary'"
                         icon-size="20"
                         wfull
                         gap2

@@ -24,16 +24,12 @@
                 <div
                     :id
                     :class="
-                        editData.cloned.value!.language.label !==
-                            'Plain Text' &&
+                        editData.cloned.value!.language.label !== 'Plain Text' &&
                         'space-y-4 rounded-md bg-fs-overlay-2 p4'
                     "
                 >
                     <UiTabs
-                        v-if="
-                            editData.cloned.value!.language.label !==
-                            'Plain Text'
-                        "
+                        v-if="editData.cloned.value!.language.label !== 'Plain Text'"
                         v-model="selectedTab"
                         :items="[
                             {
@@ -44,8 +40,7 @@
                                 label: 'Preview',
                                 icon: 'heroicons-solid:eye',
                                 condition: () =>
-                                    editData.cloned.value!.language.label !==
-                                        'Plain Text' &&
+                                    editData.cloned.value!.language.label !== 'Plain Text' &&
                                     editData.cloned.value!.code.trim() !== '',
                             },
                         ]"
@@ -55,8 +50,7 @@
                         v-if="selectedTab === 'Code'"
                         v-model="editData.cloned.value!.code"
                         :class="
-                            editData.cloned.value!.language.label ===
-                                'Plain Text' && '!rounded'
+                            editData.cloned.value!.language.label === 'Plain Text' && '!rounded'
                         "
                         :error="formErrors?.code?._errors?.[0]"
                         :disabled="updating"
@@ -64,10 +58,7 @@
                         wfull
                     />
                     <CodeBlock
-                        v-if="
-                            editData.cloned.value!.language.label !==
-                            'Plain Text'
-                        "
+                        v-if="editData.cloned.value!.language.label !== 'Plain Text'"
                         v-show="selectedTab === 'Preview'"
                         :language="editData.cloned.value!.language.hljs"
                         :code="editData.cloned.value!.code"
@@ -92,10 +83,7 @@
                 :error="formErrors?.maxViews?._errors?.[0]"
                 :disabled="updating"
             />
-            <ExpirationPicker
-                ref="expirationPickerRef"
-                v-model="editData.cloned.value!.expiration"
-            >
+            <ExpirationPicker ref="expirationPickerRef" v-model="editData.cloned.value!.expiration">
                 <UiInput
                     v-model="editData.cloned.value!.expiration.label"
                     label="Expiration"
@@ -209,8 +197,9 @@ watch(isOpen, async (value) => {
     await nextTick();
 
     if (value && data.expiresAt && expirationPickerRef.value) {
-        editData.cloned.value.expiration =
-            expirationPickerRef.value.predictExpiration(data.expiresAt);
+        editData.cloned.value.expiration = expirationPickerRef.value.predictExpiration(
+            data.expiresAt,
+        );
     }
 });
 </script>

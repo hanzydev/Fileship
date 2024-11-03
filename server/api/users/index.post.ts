@@ -85,8 +85,7 @@ export default defineEventHandler(async (event) => {
         throw createError({
             statusCode: 400,
             statusMessage: 'Bad Request',
-            message:
-                'Permissions must be provided if user is not a super admin',
+            message: 'Permissions must be provided if user is not a super admin',
         });
     }
 
@@ -134,9 +133,7 @@ export default defineEventHandler(async (event) => {
 
     await createLog(event, {
         action: 'Create User',
-        message: `Created user ${user.username} with permissions ${user.permissions.join(
-            ', ',
-        )}`,
+        message: `Created user ${user.username} with permissions ${user.permissions.join(', ')}`,
     });
 
     await sendByFilter((user) => isAdmin(user), 'create:user', user);

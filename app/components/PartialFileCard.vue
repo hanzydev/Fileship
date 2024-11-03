@@ -1,16 +1,7 @@
 <template>
-    <ModalsViewFile
-        v-if="isImage || isVideo || isAudio"
-        v-model="viewModalOpen"
-        :data
-    />
+    <ModalsViewFile v-if="isImage || isVideo || isAudio" v-model="viewModalOpen" :data />
 
-    <UiDropdown
-        v-model="ctxOpen"
-        as-ctx-menu
-        placement="bottom"
-        trigger-class="hfull"
-    >
+    <UiDropdown v-model="ctxOpen" as-ctx-menu placement="bottom" trigger-class="hfull">
         <div
             v-if="isImage || isVideo"
             wfull
@@ -18,11 +9,7 @@
             bg-fs-overlay-2
             motion-safe:transition-shadow
             ring="1 fs-overlay-4"
-            :class="
-                ctxOpen
-                    ? 'cursor-default'
-                    : 'cursor-pointer hover:(ring-1 ring-fs-accent)'
-            "
+            :class="ctxOpen ? 'cursor-default' : 'cursor-pointer hover:(ring-1 ring-fs-accent)'"
             @click="viewModalOpen = true"
         >
             <div
@@ -79,12 +66,7 @@
                 {{ data.fileName }}
             </h5>
 
-            <div
-                flex="~ col justify-between gap2"
-                justify-between
-                text-slate300
-                font-medium="!"
-            >
+            <div flex="~ col justify-between gap2" justify-between text-slate300 font-medium="!">
                 <div flex="~ gap2 items-center">
                     <Icon name="mdi:sd-storage" size="20" />
                     <span>{{ data.size!.formatted }}</span>
@@ -99,14 +81,7 @@
             </div>
         </div>
         <template #content>
-            <div
-                w48
-                rounded-lg
-                bg-fs-overlay-2
-                p1.5
-                space-y-1
-                ring="1 fs-accent"
-            >
+            <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-accent">
                 <UiButton
                     icon="heroicons:eye-16-solid"
                     icon-size="20"
@@ -158,9 +133,7 @@ const viewModalOpen = ref(false);
 const ctxOpen = ref(false);
 
 const handleCopy = () => {
-    useClipboard({ legacy: true }).copy(
-        data.embed.enabled ? data.embedUrl! : data.directUrl!,
-    );
+    useClipboard({ legacy: true }).copy(data.embed.enabled ? data.embedUrl! : data.directUrl!);
     ctxOpen.value = false;
 
     toast.success('Link copied to clipboard');

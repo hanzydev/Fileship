@@ -79,9 +79,7 @@ export default defineEventHandler(async (event) => {
             destinationUrl: body.data.destinationUrl,
             password: body.data.password || null,
             maxViews: body.data.maxViews || 0,
-            expiresAt: body.data.expiration
-                ? new Date(Date.now() + body.data.expiration)
-                : null,
+            expiresAt: body.data.expiration ? new Date(Date.now() + body.data.expiration) : null,
             authorId: currentUser.id,
         },
         include: {

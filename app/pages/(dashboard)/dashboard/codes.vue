@@ -34,28 +34,15 @@
                 <TransitionGroup
                     v-else
                     :css="false"
-                    @enter="
-                        (el, done) => (isAnimating ? done() : enter(el, done))
-                    "
-                    @leave="
-                        (el, done) => (isAnimating ? done() : leave(el, done))
-                    "
+                    @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
+                    @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
                 >
-                    <div
-                        v-for="code in calculatedCodes"
-                        :key="code.id"
-                        op0
-                        class="codeCard"
-                    >
+                    <div v-for="code in calculatedCodes" :key="code.id" op0 class="codeCard">
                         <CodeCard :data="code" />
                     </div>
                 </TransitionGroup>
             </div>
-            <UiPagination
-                v-model="currentPage"
-                :item-count="results.length"
-                :items-per-page="19"
-            />
+            <UiPagination v-model="currentPage" :item-count="results.length" :items-per-page="19" />
         </div>
     </div>
 </template>

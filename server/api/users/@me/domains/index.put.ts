@@ -5,9 +5,7 @@ const validationSchema = z
         invalid_type_error: 'Invalid domains',
         required_error: 'Missing domains',
     })
-    .transform((value) =>
-        value.filter((domain) => domain.length).map((domain) => domain.trim()),
-    );
+    .transform((value) => value.filter((domain) => domain.length).map((domain) => domain.trim()));
 
 export default defineEventHandler(async (event) => {
     userOnly(event);

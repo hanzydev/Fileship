@@ -3,16 +3,7 @@
         enter-active-class="motion-safe:(animate-in fade-in zoom-in-95 slide-in-bottom-2)"
         leave-active-class="motion-safe:(animate-out fade-out zoom-out-95 slide-out-bottom-2)"
     >
-        <div
-            v-if="isOpen"
-            fixed
-            bottom-6
-            z30
-            wfull
-            rounded-md
-            md="right-6 w40rem"
-            lt-md:px4
-        >
+        <div v-if="isOpen" fixed bottom-6 z30 wfull rounded-md md="right-6 w40rem" lt-md:px4>
             <UiDropdown placement="top" wfull md:w40rem>
                 <UiButton
                     :icon="
@@ -28,9 +19,7 @@
                     :icon-class="isErrored && '!text-red-500'"
                     icon-size="20"
                 >
-                    <template v-if="isErrored">
-                        Some file(s) have errors
-                    </template>
+                    <template v-if="isErrored">Some file(s) have errors</template>
                     <template v-else>
                         {{ unfinishedFiles.length }}
                         file(s)
@@ -58,23 +47,13 @@
                     >
                         <div space-y-2>
                             <div flex="~ items-center gap2">
-                                <Icon
-                                    name="heroicons-solid:document-duplicate"
-                                    size="24"
-                                />
+                                <Icon name="heroicons-solid:document-duplicate" size="24" />
                                 <h3>{{ uploadingFiles.length }} file(s)</h3>
                             </div>
                             <UiDivider />
                         </div>
 
-                        <div
-                            flex="~ items-center"
-                            wfull
-                            rounded
-                            bg-fs-overlay-3
-                            px3
-                            py2
-                        >
+                        <div flex="~ items-center" wfull rounded bg-fs-overlay-3 px3 py2>
                             <h6 w="2/4">File</h6>
                             <h6 w="1/4">Size</h6>
                             <h6 w="2/4">Status</h6>
@@ -82,11 +61,7 @@
                         </div>
 
                         <div v-bind="wrapperProps">
-                            <UiDropdown
-                                v-for="{ data: file } in list"
-                                :key="file.name"
-                                as-ctx-menu
-                            >
+                            <UiDropdown v-for="{ data: file } in list" :key="file.name" as-ctx-menu>
                                 <div flex="~ items-center" mx3 h10>
                                     <span
                                         line-clamp-1
@@ -115,11 +90,7 @@
                                             />
                                             {{ file.status?.error }}
                                         </template>
-                                        <template
-                                            v-else-if="
-                                                file.status?.progress === 100
-                                            "
-                                        >
+                                        <template v-else-if="file.status?.progress === 100">
                                             <Icon
                                                 name="heroicons-solid:check-circle"
                                                 size="16"
@@ -128,9 +99,7 @@
                                             />
                                             Finished
                                         </template>
-                                        <template
-                                            v-else-if="!file.status?.started"
-                                        >
+                                        <template v-else-if="!file.status?.started">
                                             <Icon
                                                 name="heroicons-solid:clock"
                                                 size="16"
@@ -140,9 +109,7 @@
                                             Queued
                                         </template>
 
-                                        <template
-                                            v-else-if="file.status?.progress"
-                                        >
+                                        <template v-else-if="file.status?.progress">
                                             <Icon
                                                 name="heroicons-solid:upload"
                                                 size="16"
@@ -150,9 +117,7 @@
                                             />
                                             Uploading
                                         </template>
-                                        <template
-                                            v-else-if="file.status?.started"
-                                        >
+                                        <template v-else-if="file.status?.started">
                                             <Icon
                                                 name="heroicons:rocket-launch-20-solid"
                                                 size="16"
@@ -169,13 +134,7 @@
                                     />
                                 </div>
                                 <template #content>
-                                    <div
-                                        w40
-                                        rounded-lg
-                                        bg-fs-overlay-2
-                                        p1.5
-                                        ring="1 fs-accent"
-                                    >
+                                    <div w40 rounded-lg bg-fs-overlay-2 p1.5 ring="1 fs-accent">
                                         <UiButton
                                             wfull
                                             gap2
@@ -184,10 +143,9 @@
                                             icon-size="20"
                                             :disabled="file.status?.started"
                                             @click="
-                                                uploadingFiles =
-                                                    uploadingFiles.filter(
-                                                        (f) => f !== file,
-                                                    )
+                                                uploadingFiles = uploadingFiles.filter(
+                                                    (f) => f !== file,
+                                                )
                                             "
                                         >
                                             Remove
@@ -212,17 +170,13 @@ const uploading = useIsUploading();
 const isOpen = ref(false);
 
 const isErrored = computed(
-    () =>
-        !uploading.value &&
-        uploadingFiles.value.some((file) => file.status?.error),
+    () => !uploading.value && uploadingFiles.value.some((file) => file.status?.error),
 );
 
 const progress = computed(() =>
     Math.round(
-        uploadingFiles.value.reduce(
-            (acc, file) => acc + (file.status?.progress || 0),
-            0,
-        ) / uploadingFiles.value.length,
+        uploadingFiles.value.reduce((acc, file) => acc + (file.status?.progress || 0), 0) /
+            uploadingFiles.value.length,
     ),
 );
 

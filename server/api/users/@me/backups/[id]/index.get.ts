@@ -6,12 +6,7 @@ export default defineEventHandler(async (event) => {
     userOnly(event);
 
     const backupId = getRouterParam(event, 'id');
-    const backupPath = join(
-        dataDirectory,
-        'backups',
-        event.context.user!.id,
-        `${backupId}.tgz`,
-    );
+    const backupPath = join(dataDirectory, 'backups', event.context.user!.id, `${backupId}.tgz`);
 
     if (!existsSync(backupPath)) {
         throw createError({
@@ -29,11 +24,7 @@ export default defineEventHandler(async (event) => {
         'Accept-Ranges': 'bytes',
     });
 
-    setResponseHeader(
-        event,
-        'Content-Disposition',
-        `attachment; filename="${backupId}.tgz"`,
-    );
+    setResponseHeader(event, 'Content-Disposition', `attachment; filename="${backupId}.tgz"`);
 
     return sendStream(event, createReadStream(backupPath));
 });

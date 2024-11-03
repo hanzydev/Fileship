@@ -99,10 +99,7 @@ const calculateMenuPosition = async () => {
     const { width, height } = contentRef.value!.getBoundingClientRect();
 
     menuPosition.x = Math.min(mousePosition.x, window.innerWidth - width - 20);
-    menuPosition.y = Math.min(
-        mousePosition.y,
-        window.innerHeight - height - 20,
-    );
+    menuPosition.y = Math.min(mousePosition.y, window.innerHeight - height - 20);
 
     if (menuPosition.y < 0) menuPosition.y = 0;
 
@@ -116,14 +113,8 @@ const handleContextMenu = async (event: MouseEvent | TouchEvent) => {
     event.preventDefault();
     event.stopPropagation();
 
-    mousePosition.x =
-        'clientX' in event
-            ? event.clientX
-            : (event.touches[0]?.clientX as number);
-    mousePosition.y =
-        'clientY' in event
-            ? event.clientY
-            : (event.touches[0]?.clientY as number);
+    mousePosition.x = 'clientX' in event ? event.clientX : (event.touches[0]?.clientX as number);
+    mousePosition.y = 'clientY' in event ? event.clientY : (event.touches[0]?.clientY as number);
 
     if (menuPosition.x !== 0 && menuPosition.y !== 0) {
         isOpen.value = false;

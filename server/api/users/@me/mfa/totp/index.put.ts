@@ -46,10 +46,7 @@ export default defineEventHandler(async (event) => {
         await verifySession(event, body.data.verificationData);
     }
 
-    if (
-        body.data.enabled &&
-        !authenticator.check(body.data.totp!, currentUser.totpSecret!)
-    ) {
+    if (body.data.enabled && !authenticator.check(body.data.totp!, currentUser.totpSecret!)) {
         throw createError({
             statusCode: 400,
             statusMessage: 'Bad Request',
@@ -80,11 +77,7 @@ export default defineEventHandler(async (event) => {
         message: `${body.data.enabled ? 'Enabled' : 'Disabled'} Authenticator App`,
     });
 
-    await sendByFilter(
-        (user) => isAdmin(user),
-        'update:user:totp',
-        body.data.enabled,
-    );
+    await sendByFilter((user) => isAdmin(user), 'update:user:totp', body.data.enabled);
 
     sendToUser(currentUser.id, 'update:currentUser:totp', body.data.enabled);
 });

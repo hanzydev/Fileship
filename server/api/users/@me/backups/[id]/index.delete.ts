@@ -7,12 +7,7 @@ export default defineEventHandler(async (event) => {
 
     const currentUser = event.context.user!;
     const backupId = getRouterParam(event, 'id');
-    const backupPath = join(
-        dataDirectory,
-        'backups',
-        currentUser.id,
-        `${backupId}.tgz`,
-    );
+    const backupPath = join(dataDirectory, 'backups', currentUser.id, `${backupId}.tgz`);
 
     if (!existsSync(backupPath)) {
         throw createError({

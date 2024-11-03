@@ -41,9 +41,7 @@
                     type="text"
                     :error="formErrors?.permissions?._errors?.[0]"
                     :disabled="editData.cloned.value!.superAdmin || updating"
-                    :cursor-pointer="
-                        editData.cloned.value!.superAdmin ? '' : '!'
-                    "
+                    :cursor-pointer="editData.cloned.value!.superAdmin ? '' : '!'"
                 />
 
                 <template #content>
@@ -61,16 +59,12 @@
                             v-for="permission in Object.values(UserPermission)"
                             :key="permission"
                             :variant="
-                                editData.cloned.value!.permissions.includes(
-                                    permission,
-                                )
+                                editData.cloned.value!.permissions.includes(permission)
                                     ? 'accent'
                                     : 'primary'
                             "
                             :icon="
-                                editData.cloned.value!.permissions.includes(
-                                    permission,
-                                )
+                                editData.cloned.value!.permissions.includes(permission)
                                     ? 'heroicons-solid:check'
                                     : PermissionIcon[permission]
                             "
@@ -78,23 +72,16 @@
                             gap2.5
                             icon-size="20"
                             :disabled="
-                                editData.cloned.value!.permissions.includes(
-                                    UserPermission.Admin,
-                                ) && permission !== UserPermission.Admin
+                                editData.cloned.value!.permissions.includes(UserPermission.Admin) &&
+                                permission !== UserPermission.Admin
                             "
                             @click="
-                                editData.cloned.value!.permissions.includes(
-                                    permission,
-                                )
+                                editData.cloned.value!.permissions.includes(permission)
                                     ? editData.cloned.value!.permissions.splice(
-                                          editData.cloned.value!.permissions.indexOf(
-                                              permission,
-                                          ),
+                                          editData.cloned.value!.permissions.indexOf(permission),
                                           1,
                                       )
-                                    : editData.cloned.value!.permissions.push(
-                                          permission,
-                                      )
+                                    : editData.cloned.value!.permissions.push(permission)
                             "
                         >
                             {{ titleCase(permission) }}
@@ -126,10 +113,7 @@
             </div>
 
             <div v-if="currentUser!.superAdmin" flex="~ gap2 items-center">
-                <UiSwitch
-                    v-model="editData.cloned.value!.superAdmin"
-                    :disabled="updating"
-                />
+                <UiSwitch v-model="editData.cloned.value!.superAdmin" :disabled="updating" />
                 <span font-medium="!">Super admin</span>
             </div>
 

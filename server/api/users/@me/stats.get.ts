@@ -45,9 +45,9 @@ export default defineEventHandler(async (event) => {
         )?.size ?? '0';
 
     const prevStorageUsed =
-        (
-            prevStat?.storageUsedByUser as { userId: string; size: string }[]
-        )?.find((storage) => storage.userId === currentUser.id)?.size ?? '0';
+        (prevStat?.storageUsedByUser as { userId: string; size: string }[])?.find(
+            (storage) => storage.userId === currentUser.id,
+        )?.size ?? '0';
 
     const currentViews =
         (stat?.viewsByUser as { userId: string; count: number }[])?.find(
@@ -62,10 +62,7 @@ export default defineEventHandler(async (event) => {
     return {
         users: {
             count: stat?.users ?? 0,
-            growth: calculateGrowthPercentage(
-                stat?.users ?? 0,
-                prevStat?.users ?? 0,
-            ),
+            growth: calculateGrowthPercentage(stat?.users ?? 0, prevStat?.users ?? 0),
         },
         files: {
             count: currentFiles,
@@ -73,10 +70,7 @@ export default defineEventHandler(async (event) => {
         },
         storageUsed: {
             size: filesize(currentStorageUsed),
-            growth: calculateGrowthPercentage(
-                BigInt(currentStorageUsed),
-                BigInt(prevStorageUsed),
-            ),
+            growth: calculateGrowthPercentage(BigInt(currentStorageUsed), BigInt(prevStorageUsed)),
         },
         views: {
             count: currentViews,

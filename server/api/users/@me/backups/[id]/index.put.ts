@@ -34,12 +34,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const backupId = getRouterParam(event, 'id');
-    const backupPath = join(
-        dataDirectory,
-        'backups',
-        currentUser.id,
-        `${backupId}.tgz`,
-    );
+    const backupPath = join(dataDirectory, 'backups', currentUser.id, `${backupId}.tgz`);
 
     if (!existsSync(backupPath)) {
         throw createError({
@@ -80,9 +75,7 @@ export default defineEventHandler(async (event) => {
     const uploadsPath = join(dataDirectory, 'uploads');
 
     for (const { fileName } of userFiles) {
-        await fsp
-            .rm(join(uploadsPath, fileName), { force: true })
-            .catch(() => null);
+        await fsp.rm(join(uploadsPath, fileName), { force: true }).catch(() => null);
     }
 
     await prisma.$transaction([
@@ -145,15 +138,7 @@ export default defineEventHandler(async (event) => {
         file: backupPath,
         cwd: tempPath,
     }).then(async () => {
-        const databases = [
-            'folder',
-            'note',
-            'code',
-            'url',
-            'file',
-            'user',
-            'view',
-        ];
+        const databases = ['folder', 'note', 'code', 'url', 'file', 'user', 'view'];
 
         const backupUploadsPath = join(tempPath, 'uploads');
         const backupUploads = await fsp.readdir(backupUploadsPath);
@@ -164,10 +149,7 @@ export default defineEventHandler(async (event) => {
             const uploadPath = join(uploadsPath, backupUpload);
 
             if (existsSync(uploadPath)) {
-                renamedUploads.set(
-                    backupUpload,
-                    `${nanoid(8)}${extname(backupUpload)}`,
-                );
+                renamedUploads.set(backupUpload, `${nanoid(8)}${extname(backupUpload)}`);
             } else {
                 renamedUploads.set(backupUpload, backupUpload);
             }
@@ -175,10 +157,7 @@ export default defineEventHandler(async (event) => {
             const renamed = renamedUploads.get(backupUpload)!;
 
             try {
-                await fsp.rename(
-                    join(backupUploadsPath, backupUpload),
-                    join(uploadsPath, renamed),
-                );
+                await fsp.rename(join(backupUploadsPath, backupUpload), join(uploadsPath, renamed));
             } catch {
                 //
             }
@@ -202,11 +181,7 @@ export default defineEventHandler(async (event) => {
                         data: userData,
                     });
 
-                    sendToUser(
-                        currentUser.id,
-                        'update:domains',
-                        userData.domains,
-                    );
+                    sendToUser(currentUser.id, 'update:domains', userData.domains);
                     sendToUser(currentUser.id, 'update:embed', userData.embed);
 
                     await sendByFilter((user) => isAdmin(user), 'update:user', {
@@ -239,11 +214,7 @@ export default defineEventHandler(async (event) => {
                                 data: value,
                             });
 
-                            sendToUser(
-                                currentUser.id,
-                                `create:${database}`,
-                                value,
-                            );
+                            sendToUser(currentUser.id, `create:${database}`, value);
                         } catch {
                             //
                         }

@@ -87,9 +87,7 @@
                     >
                         <div space-y-2>
                             <h2>Multi-Factor Authentication</h2>
-                            <p text-slate200>
-                                Enter the code from your authenticator app.
-                            </p>
+                            <p text-slate200>Enter the code from your authenticator app.</p>
                         </div>
                         <div mt10 wfit>
                             <UiTotpInput
@@ -148,10 +146,7 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner';
 
-import {
-    browserSupportsWebAuthn,
-    startAuthentication,
-} from '@simplewebauthn/browser';
+import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser';
 import type { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types';
 
 const formErrors = ref();
@@ -216,8 +211,7 @@ const handleSubmit = async (totp?: string) => {
 };
 
 const calculateHeight = (el: Element) => {
-    height.value =
-        el.clientHeight + (runtimeConfig.public.turnstile.siteKey ? 7 : 0);
+    height.value = el.clientHeight + (runtimeConfig.public.turnstile.siteKey ? 7 : 0);
 };
 
 onMounted(async () => {
@@ -244,17 +238,14 @@ onMounted(async () => {
 
         if (authenticationResponse) {
             try {
-                const { user, session } = await $fetch<any>(
-                    '/api/auth/login/passwordless',
-                    {
-                        method: 'POST',
-                        body: {
-                            authenticationResponse,
-                            expectedChallenge: optionsJSON.challenge,
-                            verify: true,
-                        },
+                const { user, session } = await $fetch<any>('/api/auth/login/passwordless', {
+                    method: 'POST',
+                    body: {
+                        authenticationResponse,
+                        expectedChallenge: optionsJSON.challenge,
+                        verify: true,
                     },
-                );
+                });
 
                 currentUser.value = {
                     ...user,
@@ -264,9 +255,7 @@ onMounted(async () => {
 
                 currentTheme.value = user.theme as never;
 
-                await navigateTo(
-                    (route.query.redirectTo as string) || '/dashboard',
-                );
+                await navigateTo((route.query.redirectTo as string) || '/dashboard');
 
                 toast.success('Logged in successfully with passkey');
             } catch (_error: any) {

@@ -65,10 +65,7 @@ export default defineEventHandler(async (event) => {
             system: true,
         });
 
-        if (
-            findUrlById.maxViews &&
-            findUrlById.views.length + 1 >= findUrlById.maxViews
-        ) {
+        if (findUrlById.maxViews && findUrlById.views.length + 1 >= findUrlById.maxViews) {
             await prisma.url.delete({
                 where: {
                     id: findUrlById.id,
@@ -101,10 +98,6 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
-        url: buildPublicUrl(
-            event,
-            findUrlById.author.domains,
-            `/link/${findUrlById.vanity}`,
-        ),
+        url: buildPublicUrl(event, findUrlById.author.domains, `/link/${findUrlById.vanity}`),
     };
 });

@@ -35,9 +35,7 @@ export default defineEventHandler(async (event) => {
         if (!findFolderById.public) {
             throw forbiddenError;
         } else {
-            findFolderById.files = findFolderById.files.filter(
-                (f) => !f.password,
-            );
+            findFolderById.files = findFolderById.files.filter((f) => !f.password);
         }
     }
 
@@ -69,11 +67,7 @@ export default defineEventHandler(async (event) => {
             })),
         embed: defu(findFolderById.author.embed, defaultEmbed) as IEmbed,
         publicUrl: findFolderById.public
-            ? buildPublicUrl(
-                  event,
-                  findFolderById.author.domains,
-                  `/folder/${findFolderById.id}`,
-              )
+            ? buildPublicUrl(event, findFolderById.author.domains, `/folder/${findFolderById.id}`)
             : undefined,
     };
 });

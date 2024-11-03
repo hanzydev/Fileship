@@ -1,17 +1,7 @@
 <template>
-    <ModalsEditFile
-        v-if="currentUser?.id === data.authorId"
-        v-model="editModalOpen"
-        :data
-    />
+    <ModalsEditFile v-if="currentUser?.id === data.authorId" v-model="editModalOpen" :data />
 
-    <UiModal
-        v-if="isImage || isVideo || isAudio"
-        v-model="isOpen"
-        max-w768px
-        p8
-        space-y-4
-    >
+    <UiModal v-if="isImage || isVideo || isAudio" v-model="isOpen" max-w768px p8 space-y-4>
         <div flex="~ justify-between" wfull>
             <h2 line-clamp-2 break-all>{{ data.fileName }}</h2>
 
@@ -40,17 +30,8 @@
             </div>
         </div>
 
-        <div
-            grid="~ gap4"
-            :class="data.views ? 'sm:grid-cols-3' : 'sm:grid-cols-2'"
-        >
-            <div
-                v-if="data.views"
-                flex="~ items-center gap2"
-                rounded-md
-                bg-fs-overlay-2
-                p4
-            >
+        <div grid="~ gap4" :class="data.views ? 'sm:grid-cols-3' : 'sm:grid-cols-2'">
+            <div v-if="data.views" flex="~ items-center gap2" rounded-md bg-fs-overlay-2 p4>
                 <Icon name="heroicons-solid:eye" text-fs-accent size="24" />
                 <span font-medium="!">{{ data.views.today }} today</span>
             </div>
@@ -59,11 +40,7 @@
                 <span font-medium="!">{{ data.size!.formatted }}</span>
             </div>
             <div flex="~ items-center gap2" rounded-md bg-fs-overlay-2 p4>
-                <Icon
-                    name="heroicons-solid:calendar"
-                    text-fs-accent
-                    size="24"
-                />
+                <Icon name="heroicons-solid:calendar" text-fs-accent size="24" />
                 <span font-medium="!">
                     {{ dayjs(data.createdAt).fromNow() }}
                 </span>
@@ -86,14 +63,7 @@
             @click="handleFullScreen"
         />
 
-        <video
-            v-else-if="isVideo"
-            :src="data.directUrl"
-            controls
-            h96
-            wfull
-            rounded-md
-        />
+        <video v-else-if="isVideo" :src="data.directUrl" controls h96 wfull rounded-md />
 
         <audio v-else-if="isAudio" :src="data.directUrl" controls wfull />
 
@@ -111,9 +81,7 @@
 
             <UiButton
                 :icon="
-                    copied
-                        ? 'heroicons-solid:clipboard-check'
-                        : 'heroicons-solid:clipboard-copy'
+                    copied ? 'heroicons-solid:clipboard-check' : 'heroicons-solid:clipboard-copy'
                 "
                 :icon-class="copied && 'text-green500'"
                 icon-size="20"
@@ -173,11 +141,7 @@ const handleDelete = async () => {
 };
 
 const handleCopy = () => {
-    copy(
-        embed.value.enabled || data.embed?.enabled
-            ? data.embedUrl!
-            : data.directUrl!,
-    );
+    copy(embed.value.enabled || data.embed?.enabled ? data.embedUrl! : data.directUrl!);
 
     toast.success('Link copied to clipboard');
 };

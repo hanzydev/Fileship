@@ -21,19 +21,13 @@
                             ? 'heroicons-solid:check'
                             : 'heroicons-solid:archive'
                     "
-                    :variant="
-                        option.value === compression.value
-                            ? 'accent'
-                            : 'primary'
-                    "
+                    :variant="option.value === compression.value ? 'accent' : 'primary'"
                     icon-size="20"
                     wfull
                     gap2
                     @click="
                         compression =
-                            compression.value === option.value
-                                ? compressions[0]!
-                                : option;
+                            compression.value === option.value ? compressions[0]! : option;
                         isOpen = false;
                     "
                 >

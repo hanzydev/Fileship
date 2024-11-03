@@ -88,12 +88,7 @@ export default defineEventHandler(async (event) => {
             await fsp.writeFile(tempPath, buffer);
         }
 
-        const backupPath = join(
-            dataDirectory,
-            'backups',
-            currentUser.id,
-            backupName,
-        );
+        const backupPath = join(dataDirectory, 'backups', currentUser.id, backupName);
 
         await fsp.rename(tempPath, backupPath);
 

@@ -16,15 +16,13 @@
             <h2>Sessions</h2>
             <div text-slate300 space-y-2>
                 <p>
-                    Here are all the devices that are currently logged in with
-                    your
-                    {{ appConfig.site.name }} account. You can log out of each
-                    one individually or all other devices.
+                    Here are all the devices that are currently logged in with your
+                    {{ appConfig.site.name }} account. You can log out of each one individually or
+                    all other devices.
                 </p>
                 <p>
-                    If you see an entry you don't recognize, log out of that
-                    device and change your {{ appConfig.site.name }} account
-                    password immediately.
+                    If you see an entry you don't recognize, log out of that device and change your
+                    {{ appConfig.site.name }} account password immediately.
                 </p>
             </div>
 
@@ -36,37 +34,24 @@
                             h14
                             w14
                             rounded-full="!"
-                            :color-steps="[
-                                'var(--fs-overlay-2)',
-                                'var(--fs-overlay-3)',
-                            ]"
+                            :color-steps="['var(--fs-overlay-2)', 'var(--fs-overlay-3)']"
                         />
                         <div flex="~ col gap2" overflow-hidden>
                             <UiSkeletonLine
                                 h5
                                 w48
-                                :color-steps="[
-                                    'var(--fs-overlay-2)',
-                                    'var(--fs-overlay-3)',
-                                ]"
+                                :color-steps="['var(--fs-overlay-2)', 'var(--fs-overlay-3)']"
                             />
                             <UiSkeletonLine
                                 h4
                                 w72
-                                :color-steps="[
-                                    'var(--fs-overlay-2)',
-                                    'var(--fs-overlay-3)',
-                                ]"
+                                :color-steps="['var(--fs-overlay-2)', 'var(--fs-overlay-3)']"
                             />
                         </div>
                     </div>
                     <Session
                         v-else
-                        :data="
-                            sessions.find(
-                                (s) => s.id === currentUser!.currentSessionId,
-                            )!
-                        "
+                        :data="sessions.find((s) => s.id === currentUser!.currentSessionId)!"
                         wfit
                     />
                 </div>
@@ -87,10 +72,7 @@
                                     h14
                                     w14
                                     rounded-full="!"
-                                    :color-steps="[
-                                        'var(--fs-overlay-2)',
-                                        'var(--fs-overlay-3)',
-                                    ]"
+                                    :color-steps="['var(--fs-overlay-2)', 'var(--fs-overlay-3)']"
                                 />
                                 <div flex="~ col gap2" overflow-hidden>
                                     <UiSkeletonLine
@@ -114,10 +96,7 @@
                             <UiSkeletonLine
                                 h0.25
                                 wfull
-                                :color-steps="[
-                                    'var(--fs-overlay-4)',
-                                    'var(--fs-overlay-3)',
-                                ]"
+                                :color-steps="['var(--fs-overlay-4)', 'var(--fs-overlay-3)']"
                             />
                         </div>
                     </template>
@@ -132,24 +111,16 @@
                     />
 
                     <p v-if="sessions.length === 1">
-                        No other devices are currently logged in with your
-                        account.
+                        No other devices are currently logged in with your account.
                     </p>
                 </div>
 
-                <div
-                    v-if="sessions.length > 1 && !isLoading"
-                    wfit
-                    text-slate300
-                    space-y-4
-                >
+                <div v-if="sessions.length > 1 && !isLoading" wfit text-slate300 space-y-4>
                     <div space-y-1>
-                        <span text-sm="!" font-semibold="!">
-                            LOG OUT OF ALL KNOWN DEVICES
-                        </span>
+                        <span text-sm="!" font-semibold="!">LOG OUT OF ALL KNOWN DEVICES</span>
                         <p text-sm="!">
-                            You'll have to log back in on all logged out
-                            devices. Current device won't be logged out.
+                            You'll have to log back in on all logged out devices. Current device
+                            won't be logged out.
                         </p>
                     </div>
 

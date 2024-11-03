@@ -55,9 +55,7 @@
         >
             <h3>Enable Authenticator App</h3>
 
-            <p text-slate200 font-medium="!">
-                Scan the QR code below with your authenticator app.
-            </p>
+            <p text-slate200 font-medium="!">Scan the QR code below with your authenticator app.</p>
 
             <div relative p8>
                 <div
@@ -148,10 +146,7 @@
                 />
             </div>
 
-            <div
-                v-if="shareXConfigModal.settings.configType === 'File Uploader'"
-                space-y-1
-            >
+            <div v-if="shareXConfigModal.settings.configType === 'File Uploader'" space-y-1>
                 <UiLabel :for="shareXFileNameTypeId">File Name Type</UiLabel>
 
                 <UiTabs
@@ -249,37 +244,27 @@
                     </div>
                     <template #content>
                         <form space-y-4 @submit.prevent="handleUserEdit()">
-                            <p text-slate200>
-                                Update your account information here.
-                            </p>
+                            <p text-slate200>Update your account information here.</p>
 
                             <div grid="~ sm:cols-2 gap4">
                                 <UiInput
-                                    v-model="
-                                        userEditData.cloned.value.username!
-                                    "
+                                    v-model="userEditData.cloned.value.username!"
                                     label="Username"
                                     rounded="!"
                                     required
                                     wfull
-                                    :error="
-                                        userFormErrors?.username?._errors?.[0]
-                                    "
+                                    :error="userFormErrors?.username?._errors?.[0]"
                                     :disabled="userUpdating"
                                 />
                                 <UiInput
-                                    v-model="
-                                        userEditData.cloned.value.password!
-                                    "
+                                    v-model="userEditData.cloned.value.password!"
                                     label="Password"
                                     wfull
                                     rounded="!"
                                     type="password"
                                     caption="If you leave the password field empty, your
                                 password will not be updated."
-                                    :error="
-                                        userFormErrors?.password?._errors?.[0]
-                                    "
+                                    :error="userFormErrors?.password?._errors?.[0]"
                                     :disabled="userUpdating"
                                 />
                             </div>
@@ -324,10 +309,7 @@
                                     "
                                 >
                                     <input
-                                        :key="
-                                            userEditData.cloned.value.avatar
-                                                ?.name
-                                        "
+                                        :key="userEditData.cloned.value.avatar?.name"
                                         absolute
                                         z10
                                         hfull
@@ -340,29 +322,21 @@
                                         "
                                         type="file"
                                         accept="image/*"
-                                        :disabled="
-                                            avatarUpdating || avatarResetting
-                                        "
+                                        :disabled="avatarUpdating || avatarResetting"
                                         @change.stop.prevent="
                                             (event) =>
-                                                (userEditData.cloned.value.avatar =
-                                                    (
-                                                        event.target as HTMLInputElement
-                                                    ).files![0]!)
+                                                (userEditData.cloned.value.avatar = (
+                                                    event.target as HTMLInputElement
+                                                ).files![0]!)
                                         "
                                     />
                                     <UiInput
-                                        :model-value="
-                                            userEditData.cloned.value.avatar
-                                                ?.name!
-                                        "
+                                        :model-value="userEditData.cloned.value.avatar?.name!"
                                         rounded="!"
                                         readonly
                                         wfull
                                         placeholder="Choose a file"
-                                        :disabled="
-                                            avatarUpdating || avatarResetting
-                                        "
+                                        :disabled="avatarUpdating || avatarResetting"
                                         ring-none
                                     />
                                 </div>
@@ -377,13 +351,9 @@
                                     icon-size="20"
                                     :loading="avatarResetting"
                                     :disabled="
-                                        avatarUpdating ||
-                                        avatarResetting ||
-                                        !currentUser!.avatar
+                                        avatarUpdating || avatarResetting || !currentUser!.avatar
                                     "
-                                    @click="
-                                        userEditData.cloned.value.avatar = null
-                                    "
+                                    @click="userEditData.cloned.value.avatar = null"
                                 >
                                     Reset
                                 </UiButton>
@@ -419,8 +389,8 @@
                     <template #content>
                         <form space-y-4 @submit.prevent="handleDomainsEdit">
                             <p text-slate200>
-                                Configure your domains. These domains will be
-                                used to output a random domain during upload.
+                                Configure your domains. These domains will be used to output a
+                                random domain during upload.
                             </p>
 
                             <UiInput
@@ -429,14 +399,10 @@
                                 wfull
                                 caption="Separate multiple domains with a comma. Example: domain.com, i.domain2.com."
                                 :disabled="domainsUpdating"
-                                :model-value="
-                                    domainsEditData.cloned.value.join(', ')
-                                "
+                                :model-value="domainsEditData.cloned.value.join(', ')"
                                 @update:model-value="
                                     (value) =>
-                                        (domainsEditData.cloned.value = (
-                                            value as string
-                                        )
+                                        (domainsEditData.cloned.value = (value as string)
                                             .split(',')
                                             .map((domain) => domain.trim()))
                                 "
@@ -473,41 +439,29 @@
                                     Authenticator App
                                 </span>
                                 <p text-slate200>
-                                    Configuring an authenticator app is a good
-                                    way to add an extra layer of security to
-                                    your
-                                    {{ appConfig.site.name }} account to make
-                                    sure that only you have the ability to log
-                                    in.
+                                    Configuring an authenticator app is a good way to add an extra
+                                    layer of security to your
+                                    {{ appConfig.site.name }} account to make sure that only you
+                                    have the ability to log in.
                                 </p>
                             </div>
 
                             <div flex="~ gap2 items-center">
-                                <UiSwitch
-                                    v-model="authAppEnabled"
-                                    :disabled="mfaUpdating"
-                                />
-                                <span font-medium="!">
-                                    Enable Authenticator App
-                                </span>
+                                <UiSwitch v-model="authAppEnabled" :disabled="mfaUpdating" />
+                                <span font-medium="!">Enable Authenticator App</span>
                             </div>
 
                             <UiDivider />
 
                             <div space-y-2>
-                                <span text-sm text-slate300 font-bold uppercase>
-                                    Passkeys
-                                </span>
+                                <span text-sm text-slate300 font-bold uppercase>Passkeys</span>
                                 <p text-slate200>
-                                    Add an additional layer of protection to
-                                    your account with a passkey.
+                                    Add an additional layer of protection to your account with a
+                                    passkey.
                                 </p>
                             </div>
 
-                            <div
-                                v-if="passkeys?.length"
-                                grid="~ gap4 sm:cols-2 md:cols-4"
-                            >
+                            <div v-if="passkeys?.length" grid="~ gap4 sm:cols-2 md:cols-4">
                                 <PasskeyCard
                                     v-for="passkey in passkeys"
                                     :key="passkey.id"
@@ -522,13 +476,8 @@
                                     text-red-600
                                     font-medium
                                 >
-                                    <Icon
-                                        name="heroicons-solid:exclamation"
-                                        size="20"
-                                    />
-                                    <p>
-                                        Your browser does not support passkeys.
-                                    </p>
+                                    <Icon name="heroicons-solid:exclamation" size="20" />
+                                    <p>Your browser does not support passkeys.</p>
                                 </div>
                                 <UiButton
                                     v-else
@@ -555,10 +504,7 @@
                     </div>
                     <template #content>
                         <form space-y-4 @submit.prevent="handleEmbedEdit">
-                            <p text-slate200>
-                                Configure how your files are embedded when
-                                shared.
-                            </p>
+                            <p text-slate200>Configure how your files are embedded when shared.</p>
 
                             <div grid="~ gap4 sm:cols-2">
                                 <UiInput
@@ -569,26 +515,20 @@
                                     :disabled="embedUpdating"
                                 />
                                 <UiInput
-                                    v-model="
-                                        embedEditData.cloned.value.description!
-                                    "
+                                    v-model="embedEditData.cloned.value.description!"
                                     label="Description"
                                     wfull
                                     rounded="!"
                                     :disabled="embedUpdating"
                                 />
                                 <UiInput
-                                    v-model="
-                                        embedEditData.cloned.value.siteName!
-                                    "
+                                    v-model="embedEditData.cloned.value.siteName!"
                                     label="Site Name"
                                     wfull
                                     rounded="!"
                                     :disabled="embedUpdating"
                                 />
-                                <ColorPicker
-                                    v-model="embedEditData.cloned.value.color!"
-                                >
+                                <ColorPicker v-model="embedEditData.cloned.value.color!">
                                     <div relative>
                                         <div
                                             absolute
@@ -599,30 +539,20 @@
                                             w5
                                             rounded-full
                                             :style="{
-                                                backgroundColor:
-                                                    embedEditData.cloned.value
-                                                        .color,
+                                                backgroundColor: embedEditData.cloned.value.color,
                                             }"
                                         ></div>
                                         <UiInput
-                                            v-model="
-                                                embedEditData.cloned.value
-                                                    .color!
-                                            "
+                                            v-model="embedEditData.cloned.value.color!"
                                             label="Color"
                                             wfull
                                             pl11
                                             ring-1
                                             rounded="!"
                                             transition-none="!"
-                                            :error="
-                                                userFormErrors?.embed?.color
-                                                    ?._errors?.[0]
-                                            "
+                                            :error="userFormErrors?.embed?.color?._errors?.[0]"
                                             :style="{
-                                                '--un-ring-color':
-                                                    embedEditData.cloned.value
-                                                        .color,
+                                                '--un-ring-color': embedEditData.cloned.value.color,
                                             }"
                                             :min="1"
                                             :max="7"
@@ -634,8 +564,7 @@
                             <h6>
                                 Available parameters:
                                 <span font-medium="!">
-                                    {fileName}, {mimeType}, {size}, {createdAt}
-                                    and {now}
+                                    {fileName}, {mimeType}, {size}, {createdAt} and {now}
                                 </span>
                             </h6>
                             <div flex="~ gap2 items-center">
@@ -684,10 +613,7 @@ import { Cubic, gsap } from 'gsap';
 import { render } from 'vue';
 import { toast } from 'vue-sonner';
 
-import {
-    browserSupportsWebAuthn,
-    startRegistration,
-} from '@simplewebauthn/browser';
+import { browserSupportsWebAuthn, startRegistration } from '@simplewebauthn/browser';
 import type { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types';
 
 const embed = useEmbed();
@@ -696,9 +622,7 @@ const appConfig = useAppConfig();
 const currentUser = useAuthUser();
 const passkeys = usePasskeys();
 
-const { data: passkeysData } = await useFetch(
-    '/api/users/@me/mfa/webauthn/credentials',
-);
+const { data: passkeysData } = await useFetch('/api/users/@me/mfa/webauthn/credentials');
 
 passkeys.value = passkeysData.value!.map((p) => ({
     ...p,
@@ -799,8 +723,7 @@ const handleAvatarEdit = async () => {
                           await new Promise<ArrayBuffer>((resolve) => {
                               const reader = new FileReader();
                               reader.readAsArrayBuffer(avatar!);
-                              reader.onload = () =>
-                                  resolve(reader.result as never);
+                              reader.onload = () => resolve(reader.result as never);
                           }),
                       ).toString('base64'),
             },
@@ -960,14 +883,13 @@ const handleRegisterPasskey = async (verificationData?: any) => {
     passkeyVerificationError.value = undefined;
 
     try {
-        const optionsJSON =
-            await $fetch<PublicKeyCredentialCreationOptionsJSON>(
-                '/api/users/@me/mfa/webauthn/credentials',
-                {
-                    method: 'POST',
-                    body: { verify: false, verificationData },
-                },
-            );
+        const optionsJSON = await $fetch<PublicKeyCredentialCreationOptionsJSON>(
+            '/api/users/@me/mfa/webauthn/credentials',
+            {
+                method: 'POST',
+                body: { verify: false, verificationData },
+            },
+        );
 
         const registrationResponse = await startRegistration({
             optionsJSON,

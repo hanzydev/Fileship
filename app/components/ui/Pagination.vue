@@ -97,8 +97,7 @@ const calculatedRange = computed(() => {
         if (
             i == 1 ||
             i == pageCount.value ||
-            (i >= currentPage.value - delta &&
-                i < currentPage.value + delta + 1)
+            (i >= currentPage.value - delta && i < currentPage.value + delta + 1)
         ) {
             range.push(i);
         }

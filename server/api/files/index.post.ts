@@ -24,13 +24,9 @@ const validationSchema = z.object(
             .min(1, 'Current chunk must be at least 1')
             .optional(),
         fileNameType: z
-            .union(
-                [z.literal('Random'), z.literal('UUID'), z.literal('Original')],
-                {
-                    invalid_type_error:
-                        'File name type must be Random, UUID, or Original',
-                },
-            )
+            .union([z.literal('Random'), z.literal('UUID'), z.literal('Original')], {
+                invalid_type_error: 'File name type must be Random, UUID, or Original',
+            })
             .nullish(),
         compression: z
             .number({
@@ -110,9 +106,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const compressible =
-        file.type.startsWith('image/') &&
-        file.type !== 'image/gif' &&
-        body.data.compression;
+        file.type.startsWith('image/') && file.type !== 'image/gif' && body.data.compression;
 
     const extensionName = compressible ? '.jpeg' : extname(file.name);
 
@@ -190,17 +184,10 @@ export default defineEventHandler(async (event) => {
                 const image = sharp(tempPath);
                 const metadata = await image.metadata();
 
-                if (
-                    metadata.width &&
-                    metadata.height &&
-                    body.data.compression
-                ) {
+                if (metadata.width && metadata.height && body.data.compression) {
                     await image
                         .jpeg({
-                            quality: Math.min(
-                                100,
-                                Math.max(1, 100 - body.data.compression),
-                            ),
+                            quality: Math.min(100, Math.max(1, 100 - body.data.compression)),
                         })
                         .toFile(temp2Path);
                     await fsp.rename(temp2Path, tempPath);
@@ -280,16 +267,8 @@ export default defineEventHandler(async (event) => {
                     );
                 }).length,
             },
-            directUrl: buildPublicUrl(
-                event,
-                currentUser.domains,
-                `/u/${_upload.fileName}`,
-            ),
-            embedUrl: buildPublicUrl(
-                event,
-                currentUser.domains,
-                `/view/${_upload.fileName}`,
-            ),
+            directUrl: buildPublicUrl(event, currentUser.domains, `/u/${_upload.fileName}`),
+            embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${_upload.fileName}`),
             url: buildPublicUrl(
                 event,
                 currentUser.domains,

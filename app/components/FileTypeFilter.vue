@@ -33,19 +33,13 @@
                             ? 'heroicons-solid:check'
                             : 'heroicons-solid:filter'
                     "
-                    :variant="
-                        filterType.includes(_type as never)
-                            ? 'accent'
-                            : 'primary'
-                    "
+                    :variant="filterType.includes(_type as never) ? 'accent' : 'primary'"
                     icon-size="20"
                     wfull
                     gap2
                     @click="
                         () => {
-                            const findIndex = filterType.indexOf(
-                                _type as never,
-                            );
+                            const findIndex = filterType.indexOf(_type as never);
                             if (findIndex === -1) {
                                 filterType.push(_type as never);
                             } else {

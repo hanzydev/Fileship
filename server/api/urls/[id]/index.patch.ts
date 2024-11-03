@@ -80,9 +80,7 @@ export default defineEventHandler(async (event) => {
 
     if ('expiration' in body.data) {
         if (body.data.expiration) {
-            (body.data as any).expiresAt = new Date(
-                Date.now() + body.data.expiration,
-            );
+            (body.data as any).expiresAt = new Date(Date.now() + body.data.expiration);
         } else (body.data as any).expiresAt = null;
 
         delete body.data.expiration;
@@ -112,11 +110,7 @@ export default defineEventHandler(async (event) => {
                 );
             }).length,
         },
-        url: buildPublicUrl(
-            event,
-            currentUser.domains,
-            `/link/${_updatedUrl.vanity}`,
-        ),
+        url: buildPublicUrl(event, currentUser.domains, `/link/${_updatedUrl.vanity}`),
     } as never;
 
     await createLog(event, {

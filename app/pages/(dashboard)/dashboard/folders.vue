@@ -8,10 +8,7 @@
 
         <div space-y-6>
             <h2>Folders</h2>
-            <UiSearchBar
-                v-model="searchQuery"
-                placeholder="Search folders..."
-            />
+            <UiSearchBar v-model="searchQuery" placeholder="Search folders..." />
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
                 <New h164px @action="createFolderModalOpen = true" />
 
@@ -38,12 +35,8 @@
                 <TransitionGroup
                     v-else
                     :css="false"
-                    @enter="
-                        (el, done) => (isAnimating ? done() : enter(el, done))
-                    "
-                    @leave="
-                        (el, done) => (isAnimating ? done() : leave(el, done))
-                    "
+                    @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
+                    @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
                 >
                     <div
                         v-for="folder in calculatedFolders"
@@ -55,11 +48,7 @@
                     </div>
                 </TransitionGroup>
             </div>
-            <UiPagination
-                v-model="currentPage"
-                :item-count="results.length"
-                :items-per-page="19"
-            />
+            <UiPagination v-model="currentPage" :item-count="results.length" :items-per-page="19" />
         </div>
     </div>
 </template>

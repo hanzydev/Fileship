@@ -25,7 +25,5 @@ const { items } = defineProps<{
 
 const selected = defineModel<string>({ required: true });
 
-const filtered = computed(() =>
-    items.filter((item) => !item.condition || item.condition()),
-);
+const filtered = computed(() => items.filter((item) => !item.condition || item.condition()));
 </script>

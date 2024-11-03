@@ -30,9 +30,7 @@ export default defineEventHandler(async (event) => {
         users: logs
             .filter(
                 (log, index, self) =>
-                    log.user &&
-                    self.findIndex((t) => t.user?.id === log.user?.id) ===
-                        index,
+                    log.user && self.findIndex((t) => t.user?.id === log.user?.id) === index,
             )
             .map((log) => log.user!),
     };

@@ -102,10 +102,7 @@ onUnmounted(() => (overflow.value = true));
 
 watch(isOpen, (value) => (overflow.value = !value));
 
-watch(
-    width,
-    (value) => (overflow.value = value >= 1024 ? true : !isOpen.value),
-);
+watch(width, (value) => (overflow.value = value >= 1024 ? true : !isOpen.value));
 
 router.beforeEach((_, __, next) => {
     if (isOpen.value) isOpen.value = false;

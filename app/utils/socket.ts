@@ -64,15 +64,11 @@ export const initSocket = () => {
         });
 
         socket.on('connect', () => {
-            console.log(
-                '\x1B[38;2;3;198;252m\x1B[1m[ Socket.IO ]\x1B[0m Connected',
-            );
+            console.log('\x1B[38;2;3;198;252m\x1B[1m[ Socket.IO ]\x1B[0m Connected');
         });
 
         socket.on('disconnect', () => {
-            console.log(
-                '\x1B[38;2;3;198;252m\x1B[1m[ Socket.IO ]\x1B[0m Disconnected',
-            );
+            console.log('\x1B[38;2;3;198;252m\x1B[1m[ Socket.IO ]\x1B[0m Disconnected');
         });
 
         // User
@@ -262,9 +258,7 @@ export const initSocket = () => {
         });
 
         socket.on('folder:file:add', ({ folderId, fileId }) => {
-            const folderIndex = folders.value.findIndex(
-                (f) => f.id === folderId,
-            );
+            const folderIndex = folders.value.findIndex((f) => f.id === folderId);
             const fileIndex = files.value.findIndex((f) => f.id === fileId);
 
             if (
@@ -279,15 +273,13 @@ export const initSocket = () => {
         });
 
         socket.on('folder:file:remove', ({ folderId, fileId }) => {
-            const folderIndex = folders.value.findIndex(
-                (f) => f.id === folderId,
-            );
+            const folderIndex = folders.value.findIndex((f) => f.id === folderId);
             const fileIndex = files.value.findIndex((f) => f.id === fileId);
 
             if (folderIndex > -1 && fileIndex > -1) {
-                folders.value[folderIndex]!.files = folders.value[
-                    folderIndex
-                ]!.files.filter((f) => f !== fileId);
+                folders.value[folderIndex]!.files = folders.value[folderIndex]!.files.filter(
+                    (f) => f !== fileId,
+                );
                 files.value[fileIndex]!.folderId = null;
             }
         });
@@ -350,18 +342,13 @@ export const initSocket = () => {
 
             folders.value = folders.value.map((folder) => ({
                 ...folder,
-                publicUrl: folder.public
-                    ? buildPublicUrl(`/folder/${folder.id}`)
-                    : undefined,
+                publicUrl: folder.public ? buildPublicUrl(`/folder/${folder.id}`) : undefined,
             }));
         });
 
         // Passkeys
         socket.on('create:passkey', (data) => {
-            passkeys.value = [
-                ...passkeys.value,
-                { ...data, createdAt: new Date(data.createdAt) },
-            ];
+            passkeys.value = [...passkeys.value, { ...data, createdAt: new Date(data.createdAt) }];
         });
 
         socket.on('delete:passkey', (passkeyId) => {
@@ -388,8 +375,7 @@ export const initSocket = () => {
                     ...logs.value.logs,
                 ],
                 users: [...logs.value.users, data.user].filter(
-                    (u, i, self) =>
-                        u && self.findIndex((t) => t?.id === u?.id) === i,
+                    (u, i, self) => u && self.findIndex((t) => t?.id === u?.id) === i,
                 ),
             };
         });

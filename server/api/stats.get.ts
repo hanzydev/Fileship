@@ -61,11 +61,9 @@ export default defineEventHandler(async (event) => {
         },
     );
 
-    const topUploaders =
-        (stat?.filesByUser as { userId: string; count: number }[]) ?? [];
+    const topUploaders = (stat?.filesByUser as { userId: string; count: number }[]) ?? [];
 
-    const storageUsedByUser =
-        (stat?.storageUsedByUser as { userId: string; size: string }[]) ?? [];
+    const storageUsedByUser = (stat?.storageUsedByUser as { userId: string; size: string }[]) ?? [];
 
     const users = await prisma.user.findMany({
         where: {
@@ -73,9 +71,7 @@ export default defineEventHandler(async (event) => {
                 in: [
                     ...topUploaders.map((user) => user.userId),
                     ...storageUsedByUser.map((user) => user.userId),
-                ].filter(
-                    (userId, index, self) => self.indexOf(userId) === index,
-                ),
+                ].filter((userId, index, self) => self.indexOf(userId) === index),
             },
         },
         select: {
@@ -88,25 +84,16 @@ export default defineEventHandler(async (event) => {
     return {
         users: {
             count: stat?.users ?? 0,
-            growth: calculateGrowthPercentage(
-                stat?.users ?? 0,
-                prevStat?.users ?? 0,
-            ),
+            growth: calculateGrowthPercentage(stat?.users ?? 0, prevStat?.users ?? 0),
             all: users,
         },
         files: {
             count: stat?.files ?? 0,
-            growth: calculateGrowthPercentage(
-                stat?.files ?? 0,
-                prevStat?.files ?? 0,
-            ),
+            growth: calculateGrowthPercentage(stat?.files ?? 0, prevStat?.files ?? 0),
         },
         storageUsed: {
             size: filesize(stat?.storageUsed?.toString() ?? 0),
-            growth: calculateGrowthPercentage(
-                stat?.storageUsed ?? 0,
-                prevStat?.storageUsed ?? 0,
-            ),
+            growth: calculateGrowthPercentage(stat?.storageUsed ?? 0, prevStat?.storageUsed ?? 0),
             byUser: storageUsedByUser
                 .map((data) => ({
                     ...data,
@@ -116,15 +103,10 @@ export default defineEventHandler(async (event) => {
         },
         views: {
             count: currentViews.length ?? 0,
-            growth: calculateGrowthPercentage(
-                currentViews.length ?? 0,
-                prevViews.length ?? 0,
-            ),
+            growth: calculateGrowthPercentage(currentViews.length ?? 0, prevViews.length ?? 0),
             byMonth: viewsByMonth,
         },
         topTypes: (stat?.types ?? []) as { type: string; count: number }[],
-        topUploaders: topUploaders.filter((u) =>
-            users.find((user) => user.id === u.userId),
-        ),
+        topUploaders: topUploaders.filter((u) => users.find((user) => user.id === u.userId)),
     };
 });

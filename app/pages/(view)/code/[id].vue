@@ -12,12 +12,7 @@
                 @password="handlePassword"
             />
         </UiCentered>
-        <CodeBlock
-            v-else
-            :language="data!.language"
-            :code="data!.code"
-            full-screen
-        />
+        <CodeBlock v-else :language="data!.language" :code="data!.code" full-screen />
     </div>
 </template>
 

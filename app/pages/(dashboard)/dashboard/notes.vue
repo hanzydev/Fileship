@@ -31,28 +31,15 @@
                 <TransitionGroup
                     v-else
                     :css="false"
-                    @enter="
-                        (el, done) => (isAnimating ? done() : enter(el, done))
-                    "
-                    @leave="
-                        (el, done) => (isAnimating ? done() : leave(el, done))
-                    "
+                    @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
+                    @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
                 >
-                    <div
-                        v-for="note in calculatedNotes"
-                        :key="note.id"
-                        op0
-                        class="noteCard"
-                    >
+                    <div v-for="note in calculatedNotes" :key="note.id" op0 class="noteCard">
                         <NoteCard :data="note" />
                     </div>
                 </TransitionGroup>
             </div>
-            <UiPagination
-                v-model="currentPage"
-                :item-count="results.length"
-                :items-per-page="19"
-            />
+            <UiPagination v-model="currentPage" :item-count="results.length" :items-per-page="19" />
         </div>
     </div>
 </template>

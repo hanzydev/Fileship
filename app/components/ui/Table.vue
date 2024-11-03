@@ -41,12 +41,7 @@
             </tbody>
         </table>
         <NothingHere
-            v-if="
-                !rows?.length &&
-                nothingHereMessage &&
-                nothingHereIcon &&
-                !loading
-            "
+            v-if="!rows?.length && nothingHereMessage && nothingHereIcon && !loading"
             ring-none
             :message="nothingHereMessage"
             :icon="nothingHereIcon"

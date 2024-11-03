@@ -35,9 +35,7 @@
         <div flex="~ gap4 <md:col">
             <UiButton
                 :icon="
-                    copied
-                        ? 'heroicons-solid:clipboard-check'
-                        : 'heroicons-solid:clipboard-copy'
+                    copied ? 'heroicons-solid:clipboard-check' : 'heroicons-solid:clipboard-copy'
                 "
                 :icon-class="copied && 'text-green500'"
                 icon-size="24"

@@ -25,13 +25,7 @@
         </div>
 
         <div grid="~ gap2 sm:cols-2 sm:gap4" wfull>
-            <UiButton
-                alignment="center"
-                icon="heroicons-solid:x"
-                icon-size="24"
-                gap2
-                href="/login"
-            >
+            <UiButton alignment="center" icon="heroicons-solid:x" icon-size="24" gap2 href="/login">
                 Cancel
             </UiButton>
             <UiButton

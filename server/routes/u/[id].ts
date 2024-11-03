@@ -81,10 +81,7 @@ export default defineEventHandler(async (event) => {
             system: true,
         });
 
-        if (
-            findFileById.maxViews &&
-            findFileById._count.views >= findFileById.maxViews
-        ) {
+        if (findFileById.maxViews && findFileById._count.views >= findFileById.maxViews) {
             await fsp.rm(filePath, { force: true });
 
             await prisma.file.delete({

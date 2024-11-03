@@ -12,8 +12,7 @@
                 // variants
                 'bg-fs-accent': variant === 'accent',
                 'bg-fs-overlay-2': variant === 'primary',
-                'bg-fs-overlay-3 ring-1 ring-fs-overlay-4':
-                    variant === 'secondary',
+                'bg-fs-overlay-3 ring-1 ring-fs-overlay-4': variant === 'secondary',
                 'bg-fs-overlay-4': variant === 'tertiary',
                 'bg-transparent ring-1 ring-red-500': variant === 'danger',
                 'bg-red-500': variant === 'dangerFill',
@@ -30,20 +29,15 @@
                 : {
                       // hover
                       'hover:(ring-1 ring-white)': variant === 'accent',
-                      'hover:(ring-1 ring-fs-accent bg-fs-overlay-3)':
-                          variant === 'primary',
-                      'hover:(bg-fs-overlay-4 ring-fs-accent)':
-                          variant === 'secondary',
+                      'hover:(ring-1 ring-fs-accent bg-fs-overlay-3)': variant === 'primary',
+                      'hover:(bg-fs-overlay-4 ring-fs-accent)': variant === 'secondary',
                       'hover:(ring-1 ring-fs-accent)': variant === 'tertiary',
                       'hover:bg-red-500': variant === 'danger',
-                      'hover:(bg-red-600 ring-1 ring-white)':
-                          variant === 'dangerFill',
+                      'hover:(bg-red-600 ring-1 ring-white)': variant === 'dangerFill',
                       'hover:bg-fs-accent': variant === 'outline',
                   },
         ]"
-        :target="
-            href ? (href?.startsWith('http') ? '_blank' : '_self') : undefined
-        "
+        :target="href ? (href?.startsWith('http') ? '_blank' : '_self') : undefined"
         :href
         type="button"
     >
@@ -68,14 +62,7 @@ const {
     iconSize = '16',
     href,
 } = defineProps<{
-    variant?:
-        | 'accent'
-        | 'primary'
-        | 'secondary'
-        | 'tertiary'
-        | 'danger'
-        | 'dangerFill'
-        | 'outline';
+    variant?: 'accent' | 'primary' | 'secondary' | 'tertiary' | 'danger' | 'dangerFill' | 'outline';
     alignment?: 'left' | 'center' | 'right';
     loading?: boolean;
     icon?: string;

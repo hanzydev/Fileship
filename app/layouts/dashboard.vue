@@ -26,12 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-    canShareCodes,
-    canShortenUrls,
-    canTakeNotes,
-    canUploadFiles,
-} from '~~/utils/permissions';
+import { canShareCodes, canShortenUrls, canTakeNotes, canUploadFiles } from '~~/utils/permissions';
 import type { IEmbed } from '~~/utils/types';
 
 const embed = useEmbed();

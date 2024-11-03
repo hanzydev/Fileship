@@ -8,16 +8,10 @@
                 p4
                 :class="[
                     !fullScreen && 'rounded',
-                    shouldRenderMarkdown && fullScreen
-                        ? 'bg-fs-overlay-1'
-                        : 'bg-fs-overlay-3',
+                    shouldRenderMarkdown && fullScreen ? 'bg-fs-overlay-1' : 'bg-fs-overlay-3',
                 ]"
             >
-                <Icon
-                    name="heroicons-solid:information-circle"
-                    size="20"
-                    text-fs-accent
-                />
+                <Icon name="heroicons-solid:information-circle" size="20" text-fs-accent />
                 <p text-slate300 text-sm="!">
                     {{
                         renderMarkdown
@@ -37,16 +31,8 @@
                     w8
                     p0="!"
                     alignment="center"
-                    :variant="
-                        fullScreen && shouldRenderMarkdown
-                            ? 'primary'
-                            : 'secondary'
-                    "
-                    :icon="
-                        renderMarkdown
-                            ? 'heroicons-solid:code'
-                            : 'heroicons-solid:eye'
-                    "
+                    :variant="fullScreen && shouldRenderMarkdown ? 'primary' : 'secondary'"
+                    :icon="renderMarkdown ? 'heroicons-solid:code' : 'heroicons-solid:eye'"
                     icon-size="20"
                     aria-label="Toggle markdown view"
                     @click="renderMarkdown = !renderMarkdown"
@@ -110,9 +96,7 @@ const { language, code } = defineProps<{
 
 const renderMarkdown = ref(true);
 
-const shouldRenderMarkdown = computed(
-    () => language === 'markdown' && renderMarkdown.value,
-);
+const shouldRenderMarkdown = computed(() => language === 'markdown' && renderMarkdown.value);
 
 const { copied, copy } = useClipboard({ legacy: true });
 

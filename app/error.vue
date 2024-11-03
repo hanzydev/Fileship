@@ -32,11 +32,7 @@
                     gap2
                     px6
                     icon="heroicons-solid:arrow-right"
-                    @click="
-                        canHistoryComeBack
-                            ? router.back()
-                            : router.push('/dashboard')
-                    "
+                    @click="canHistoryComeBack ? router.back() : router.push('/dashboard')"
                 >
                     Go back
                 </UiButton>

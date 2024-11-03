@@ -24,9 +24,7 @@
                     class="h8 w8 !p0"
                     aria-label="Flush logs"
                     :disabled="
-                        isFlushingLogs ||
-                        !logs.logs.filter((l) => l.action !== 'Flush Logs')
-                            .length
+                        isFlushingLogs || !logs.logs.filter((l) => l.action !== 'Flush Logs').length
                     "
                     :loading="isFlushingLogs"
                     @click="areYouSureModalOpen = true"
@@ -60,10 +58,7 @@
                                         src: user?.avatar,
                                         alt: system
                                             ? 'System'
-                                            : upperFirst(
-                                                  user?.username ||
-                                                      'Deleted User',
-                                              ),
+                                            : upperFirst(user?.username || 'Deleted User'),
                                     }),
                                     h(
                                         'p',
@@ -72,10 +67,7 @@
                                         },
                                         system
                                             ? 'System'
-                                            : upperFirst(
-                                                  user?.username ||
-                                                      'Deleted User',
-                                              ),
+                                            : upperFirst(user?.username || 'Deleted User'),
                                     ),
                                 ],
                             ),
@@ -94,11 +86,7 @@
                 nothing-here-message="There are no logs to display."
                 nothing-here-icon="heroicons-solid:document-search"
             />
-            <UiPagination
-                v-model="currentPage"
-                :item-count="results.length"
-                :items-per-page="20"
-            />
+            <UiPagination v-model="currentPage" :item-count="results.length" :items-per-page="20" />
         </div>
     </div>
 </template>

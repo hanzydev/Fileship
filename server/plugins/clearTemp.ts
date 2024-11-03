@@ -10,9 +10,7 @@ export default defineNitroPlugin(() => {
     if (existsSync(tempPath)) {
         const files = readdirSync(tempPath);
 
-        consola.info(
-            `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Clearing temp folder`,
-        );
+        consola.info(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Clearing temp folder`);
 
         for (const file of files) {
             rmSync(join(tempPath, file), { recursive: true, force: true });

@@ -20,8 +20,6 @@ export default defineNitroPlugin(async () => {
             },
         });
 
-        consola.success(
-            `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Default user created`,
-        );
+        consola.success(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Default user created`);
     }
 });

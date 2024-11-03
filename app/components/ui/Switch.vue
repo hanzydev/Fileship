@@ -4,14 +4,7 @@
         inline-flex="~ items-center"
         :class="disabled ? 'cursor-not-allowed' : 'cursor-pointer'"
     >
-        <input
-            v-model="checked"
-            type="checkbox"
-            value=""
-            class="peer"
-            sr-only
-            :disabled
-        />
+        <input v-model="checked" type="checkbox" value="" class="peer" sr-only :disabled />
         <div
             h6
             w11

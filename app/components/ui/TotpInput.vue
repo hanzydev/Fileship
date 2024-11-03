@@ -67,11 +67,7 @@ const handleInput = (e: Event, index: number) => {
         totpInputs.value[index + 1]!.focus();
 
         if (rest.length > 1) {
-            for (
-                let inputIndex = 0;
-                inputIndex < totpInputs.value.length;
-                inputIndex++
-            ) {
+            for (let inputIndex = 0; inputIndex < totpInputs.value.length; inputIndex++) {
                 const char = (first + rest)[inputIndex];
                 if (!char) break;
 
@@ -79,9 +75,7 @@ const handleInput = (e: Event, index: number) => {
                 totpInputs.value[inputIndex]!.value = char;
 
                 if (inputIndex === 5) {
-                    const _value = totpInputs.value
-                        .map((el) => el.value)
-                        .join('');
+                    const _value = totpInputs.value.map((el) => el.value).join('');
                     value.value = _value;
                     emit('got', _value);
                 }
