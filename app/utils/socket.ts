@@ -1,8 +1,5 @@
 import { io, type Socket } from 'socket.io-client';
 
-import { defaultEmbed } from '~~/utils/constants';
-import { isAdmin } from '~~/utils/permissions';
-
 let socket: Socket | null;
 
 export const closeSocket = () => {

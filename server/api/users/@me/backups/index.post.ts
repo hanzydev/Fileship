@@ -5,8 +5,6 @@ import { nanoid } from 'nanoid';
 import { join } from 'pathe';
 import { create } from 'tar';
 
-import { isAdmin } from '~~/utils/permissions';
-
 export default defineEventHandler(async (event) => {
     userOnly(event);
 

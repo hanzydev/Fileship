@@ -3,8 +3,6 @@ import { nanoid } from 'nanoid';
 import { authenticator } from 'otplib';
 import { z } from 'zod';
 
-import { isAdmin } from '~~/utils/permissions';
-
 const validationSchema = z.object({
     username: z
         .string({

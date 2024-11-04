@@ -113,8 +113,6 @@
 import dayjs from 'dayjs';
 import { toast } from 'vue-sonner';
 
-import type { IEmbed } from '~~/utils/types';
-
 const { data } = defineProps<{
     data: Partial<FileData> & { embed?: IEmbed };
 }>();

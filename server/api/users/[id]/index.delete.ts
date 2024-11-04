@@ -3,8 +3,6 @@ import { rm } from 'node:fs/promises';
 import { join } from 'pathe';
 import { z } from 'zod';
 
-import { isAdmin } from '~~/utils/permissions';
-
 const validationSchema = z
     .object({
         verificationData: z.any().optional(),

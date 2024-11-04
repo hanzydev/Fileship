@@ -4,10 +4,6 @@ import { z } from 'zod';
 
 import { UserPermission } from '@prisma/client';
 
-import { defaultUserLimits } from '~~/utils/constants';
-import { isAdmin } from '~~/utils/permissions';
-import type { IUserLimits } from '~~/utils/types';
-
 const validationSchema = z.object(
     {
         username: z

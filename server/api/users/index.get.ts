@@ -1,7 +1,5 @@
 import type { UserPermission } from '@prisma/client';
 
-import type { IUserLimits } from '~~/utils/types';
-
 export default defineEventHandler((event) => {
     adminOnly(event);
 

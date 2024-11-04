@@ -10,8 +10,6 @@ import { z } from 'zod';
 
 import { BackupRestoreState } from '@prisma/client';
 
-import { isAdmin } from '~~/utils/permissions';
-
 const validationSchema = z
     .object({
         verificationData: z.any().optional(),

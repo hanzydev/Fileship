@@ -1,5 +1,3 @@
-import { isAdmin } from '~~/utils/permissions';
-
 export default defineEventHandler(async (event) => {
     superAdminOnly(event);
 

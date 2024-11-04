@@ -1,13 +1,5 @@
 import type { H3Event } from 'h3';
 
-import {
-    canShareCodes,
-    canShortenUrls,
-    canTakeNotes,
-    canUploadFiles,
-    isAdmin,
-} from '~~/utils/permissions';
-
 export const userOnly = (event: H3Event) => {
     if (!event.context.user) throw unauthorizedError;
 };

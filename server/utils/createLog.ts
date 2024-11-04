@@ -3,8 +3,6 @@ import dayjs from 'dayjs';
 import type { H3Event } from 'h3';
 import { lowerFirst, titleCase } from 'scule';
 
-import { isAdmin } from '~~/utils/permissions';
-
 type CreateLogData = {
     action: string;
     message: string;

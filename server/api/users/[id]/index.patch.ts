@@ -6,9 +6,6 @@ import { z } from 'zod';
 import { UserPermission } from '@prisma/client';
 
 import themes from '~~/app/styles/themes.json';
-import { defaultEmbed, defaultUserLimits } from '~~/utils/constants';
-import { isAdmin } from '~~/utils/permissions';
-import type { IEmbed, IUserLimits } from '~~/utils/types';
 
 const validationSchema = z
     .object(

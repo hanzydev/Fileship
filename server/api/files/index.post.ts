@@ -7,8 +7,6 @@ import { basename, extname, join } from 'pathe';
 import sharp from 'sharp';
 import { z } from 'zod';
 
-import { isAdmin } from '~~/utils/permissions';
-
 const validationSchema = z.object(
     {
         totalChunks: z

@@ -13,8 +13,6 @@
 </template>
 
 <script setup lang="ts">
-import { isAdmin } from '~~/utils/permissions';
-
 const currentUser = useAuthUser();
 
 const sidebarItems = [

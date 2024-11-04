@@ -1,9 +1,6 @@
 import defu from 'defu';
 import { z } from 'zod';
 
-import { defaultEmbed } from '~~/utils/constants';
-import type { IEmbed } from '~~/utils/types';
-
 const validationSchema = z
     .object({
         title: z.string({ invalid_type_error: 'Invalid title' }).optional(),

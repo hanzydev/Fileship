@@ -1,9 +1,6 @@
 import { defu } from 'defu';
 import { filesize } from 'filesize';
 
-import { defaultEmbed } from '~~/utils/constants';
-import type { IEmbed } from '~~/utils/types';
-
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
     const folderId = getRouterParam(event, 'id');

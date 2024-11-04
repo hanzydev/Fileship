@@ -1,8 +1,6 @@
 import { authenticator } from 'otplib';
 import { z } from 'zod';
 
-import { isAdmin } from '~~/utils/permissions';
-
 const validationSchema = z.object({
     enabled: z.boolean({
         invalid_type_error: 'Invalid enabled',

@@ -195,7 +195,6 @@ import { titleCase, upperFirst } from 'scule';
 import { toast } from 'vue-sonner';
 
 import themes from '~/styles/themes.json';
-import { isAdmin } from '~~/utils/permissions';
 
 const version = ref<{
     number: string;
