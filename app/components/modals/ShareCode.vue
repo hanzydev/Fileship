@@ -84,7 +84,7 @@
                 v-model="code.maxViews"
                 wfull
                 label="Max Views"
-                caption="Set to 0 for unlimited views"
+                caption="Set to 0 for unlimited views."
                 type="number"
                 :min="0"
                 :error="formErrors?.maxViews?._errors?.[0]"
