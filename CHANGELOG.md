@@ -1,5 +1,31 @@
 # Changelog
 
+## v2.2.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.1.2...v2.2.0)
+
+### 🚀 Enhancements
+
+- Usernameless passkey login ([e50f3d2](https://github.com/hanzydev/Fileship/commit/e50f3d2))
+
+### 💅 Refactors
+
+- Add loading state to delete button in ViewFile and ViewNote modals ([74d618b](https://github.com/hanzydev/Fileship/commit/74d618b))
+- Update authentication terminology in login and TOTP endpoint ([a094e8f](https://github.com/hanzydev/Fileship/commit/a094e8f))
+- Remove unnecessary data attribute in VerifyMFA modal ([65493b0](https://github.com/hanzydev/Fileship/commit/65493b0))
+- Better author check ([0d04d2d](https://github.com/hanzydev/Fileship/commit/0d04d2d))
+- Improve file name handling and compression in file upload ([1100576](https://github.com/hanzydev/Fileship/commit/1100576))
+- Sort passkeys ([1e3c147](https://github.com/hanzydev/Fileship/commit/1e3c147))
+- Use nuxt's new shared folder feature ([aafca41](https://github.com/hanzydev/Fileship/commit/aafca41))
+
+### 🏡 Chore
+
+- Set print width to 100 in prettier config ([247824e](https://github.com/hanzydev/Fileship/commit/247824e))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.1.2
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.1.1...v2.1.2)
