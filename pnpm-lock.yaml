@@ -163,8 +163,8 @@ importers:
         specifier: ^14.1.4
         version: 14.1.4
       marked-highlight:
-        specifier: ^2.2.0
-        version: 2.2.0(marked@14.1.4)
+        specifier: ^2.2.1
+        version: 2.2.1(marked@14.1.4)
       nuxt:
         specifier: ^3.14.159
         version: 3.14.159(@parcel/watcher@2.5.0)(@types/node@22.8.7)(bufferutil@4.0.8)(eslint@9.14.0(jiti@2.4.0))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.36.0)(typescript@5.6.3)(utf-8-validate@6.0.5)(vite@5.4.10(@types/node@22.8.7)(terser@5.36.0))(vue-tsc@2.1.10(typescript@5.6.3))(webpack-sources@3.2.3)
@@ -4343,10 +4343,10 @@ packages:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
     engines: {node: '>=8'}
 
-  marked-highlight@2.2.0:
-    resolution: {integrity: sha512-36LzwtVf7HEbbMITKU4j+iZuyWKgdXJfgYr4F5j27vs79oRPyApuBF3WkS5OsqO1+1lypWxztad7zNRM4qgXFw==}
+  marked-highlight@2.2.1:
+    resolution: {integrity: sha512-SiCIeEiQbs9TxGwle9/OwbOejHCZsohQRaNTY2u8euEXYt2rYUFoiImUirThU3Gd/o6Q1gHGtH9qloHlbJpNIA==}
     peerDependencies:
-      marked: '>=4 <15'
+      marked: '>=4 <16'
 
   marked@14.1.4:
     resolution: {integrity: sha512-vkVZ8ONmUdPnjCKc5uTRvmkRbx4EAi2OkTOXmfTDhZz3OFqMNBM1oTTWwTr4HY4uAEojhzPf+Fy8F1DWa3Sndg==}
@@ -11478,7 +11478,7 @@ snapshots:
     dependencies:
       semver: 6.3.1
 
-  marked-highlight@2.2.0(marked@14.1.4):
+  marked-highlight@2.2.1(marked@14.1.4):
     dependencies:
       marked: 14.1.4
 
