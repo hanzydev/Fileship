@@ -1,6 +1,5 @@
 <template>
     <ModalsViewFile v-if="canBeViewed" v-model="viewModalOpen" :data />
-
     <ModalsEditFile v-if="currentUser?.id === data.authorId" v-model="editModalOpen" :data />
 
     <UiDropdown v-model="ctxOpen" as-ctx-menu placement="bottom" trigger-class="hfull">

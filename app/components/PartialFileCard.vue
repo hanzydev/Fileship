@@ -33,17 +33,31 @@
                     hover:scale-105
                     motion-safe:transition-transform
                 />
-                <video
-                    v-if="isVideo"
-                    :src="data.directUrl"
-                    :alt="data.fileName"
-                    absolute
-                    hfull
-                    wfull
-                    object-contain
-                    hover:scale-105
-                    motion-safe:transition-transform
-                />
+
+                <template v-if="isVideo">
+                    <Icon
+                        name="heroicons:play-solid"
+                        size="64"
+                        absolute
+                        z10
+                        top="1/2"
+                        left="1/2"
+                        translate-y-="1/2"
+                        translate-x-="1/2"
+                        op75
+                    />
+                    <video
+                        v-if="isVideo"
+                        :src="data.directUrl"
+                        :alt="data.fileName"
+                        absolute
+                        hfull
+                        wfull
+                        object-contain
+                        hover:scale-105
+                        motion-safe:transition-transform
+                    />
+                </template>
             </div>
         </div>
         <div

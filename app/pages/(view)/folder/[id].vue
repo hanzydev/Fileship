@@ -8,23 +8,34 @@
             <div space-y-6>
                 <h2>{{ data!.name }}</h2>
 
-                <UiSearchBar v-model="searchQuery" placeholder="Search files..." />
-                <div v-if="results.length" grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
-                    <template v-for="file in calculatedFiles" :key="file.id">
-                        <PartialFileCard
-                            :data="{
-                                ...file,
-                                createdAt: new Date(file.createdAt),
-                                embed: data!.embed,
-                            }"
-                        />
-                    </template>
+                <div flex="~ gap4 1 items-center" wfull>
+                    <UiSearchBar v-model="searchQuery" placeholder="Search files..." wfull />
+                    <FileTypeFilter v-model="filterType" />
+                </div>
+
+                <div v-show="filtered.length" grid="~ gap6 md:cols-2 lg:cols-3 xl:cols-4">
+                    <TransitionGroup
+                        :css="false"
+                        @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
+                        @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
+                    >
+                        <div v-for="file in calculatedFiles" :key="file.id" op0 class="fileCard">
+                            <PartialFileCard
+                                :data="{
+                                    ...file,
+                                    createdAt: new Date(file.createdAt),
+                                    embed: data!.embed,
+                                }"
+                            />
+                        </div>
+                    </TransitionGroup>
                 </div>
                 <NothingHere
-                    v-else
+                    v-if="!filtered.length"
                     message="There are no files to display."
                     icon="heroicons-solid:document-duplicate"
                 />
+
                 <UiPagination
                     v-model="currentPage"
                     :item-count="results.length"
@@ -54,6 +65,7 @@ if (error.value) {
 
 const searchQuery = ref('');
 const currentPage = ref(1);
+const filterType = ref([]);
 
 const { results } = useFuse(searchQuery, data.value!.files, {
     matchAllWhenSearchEmpty: true,
@@ -68,9 +80,34 @@ const { results } = useFuse(searchQuery, data.value!.files, {
     },
 });
 
-const calculatedFiles = computed<FileData[]>(() => {
+const filtered = computed(() =>
+    results.value
+        .map((r) => r.item)
+        .filter(
+            (f) =>
+                !filterType.value.length ||
+                filterType.value.some((t) => f.mimeType.startsWith(`${t}/`)),
+        ),
+);
+
+const calculatedFiles = computed(() => {
     const start = (currentPage.value - 1) * 20;
     const end = start + 20;
-    return results.value.map((r) => r.item).slice(start, end) as never;
+    return filtered.value.slice(start, end);
+});
+
+const isAnimating = ref(false);
+
+const { all, enter, leave } = animateCards();
+
+onMounted(() => all('files', '.fileCard'));
+
+watch(currentPage, () => {
+    isAnimating.value = true;
+    nextTick(() => {
+        all('files', '.fileCard', () => {
+            isAnimating.value = false;
+        });
+    });
 });
 </script>
