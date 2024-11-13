@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.2.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.2.0...v2.2.1)
+
+### 🩹 Fixes
+
+- Cors configuration ([d4e0ee1](https://github.com/hanzydev/Fileship/commit/d4e0ee1))
+
+### 💅 Refactors
+
+- Update caption for max views input fields ([b7aa32b](https://github.com/hanzydev/Fileship/commit/b7aa32b))
+- Add missing features to folder page and partial file card ([3e90c7d](https://github.com/hanzydev/Fileship/commit/3e90c7d))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.2.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.1.2...v2.2.0)
