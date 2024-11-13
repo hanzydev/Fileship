@@ -1,5 +1,13 @@
 import pkg from './package.json';
 
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': '*',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Expose-Headers': '*',
+};
+
 export default defineNuxtConfig({
     future: { compatibilityVersion: 4 },
 
@@ -50,8 +58,8 @@ export default defineNuxtConfig({
     },
 
     routeRules: {
-        '/api/**': { cors: true },
-        '/u/:id': { cors: true },
+        '/api/**': { cors: true, headers: corsHeaders },
+        '/u/:id': { cors: true, headers: corsHeaders },
     },
 
     runtimeConfig: {
