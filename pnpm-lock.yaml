@@ -85,8 +85,8 @@ importers:
         specifier: ^0.10.2
         version: 0.10.2(ioredis@5.4.1)(magicast@0.3.5)(rollup@4.24.4)(vite@5.4.10(@types/node@22.8.7)(terser@5.36.0))(webpack-sources@3.2.3)
       '@nuxt/icon':
-        specifier: ^1.7.2
-        version: 1.7.2(magicast@0.3.5)(rollup@4.24.4)(vite@5.4.10(@types/node@22.8.7)(terser@5.36.0))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
+        specifier: ^1.7.4
+        version: 1.7.4(magicast@0.3.5)(rollup@4.24.4)(vite@5.4.10(@types/node@22.8.7)(terser@5.36.0))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)
       '@nuxt/kit':
         specifier: ^3.14.159
         version: 3.14.159(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)
@@ -1292,8 +1292,8 @@ packages:
   '@iconify-json/tabler@1.2.7':
     resolution: {integrity: sha512-q6FbDeC5caOC7i7/dcJOv7PdovHWItd84hCvsnlD/mzsrl5Nhol6eSQOMRv1bIpyxykGEiSDbOsVK5f23j/aFg==}
 
-  '@iconify/collections@1.0.480':
-    resolution: {integrity: sha512-NXupTwRQABEGN4lL2KgikaYNWliBNvpXEDlqGTUJbMLPylZv+E/dMsinhm7WXUNebhANj2koWNluboOnR5apAw==}
+  '@iconify/collections@1.0.483':
+    resolution: {integrity: sha512-zBN+RzT6yjgME39Lhr2gQ54yGSvVZevg0rXbNbjc8iXDnBafv34gaMvwv2UB9+xAtaENwg6d9L97Qj2qneLqAg==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -1301,8 +1301,8 @@ packages:
   '@iconify/utils@2.1.33':
     resolution: {integrity: sha512-jP9h6v/g0BIZx0p7XGJJVtkVnydtbgTgt9mVNcGDYwaa7UhdHdI9dvoq+gKj9sijMSJKxUPEG2JyjsgXjxL7Kw==}
 
-  '@iconify/vue@4.2.0-dev.1':
-    resolution: {integrity: sha512-ojS7VyinX55KmcOt7Q7DfsvPhSoawLjFh3abywio7pWUfTqKRJZn6XaoBwAmduNN0A+Jl1ZjjTB7UX+Oeksnyw==}
+  '@iconify/vue@4.2.0-dev.2':
+    resolution: {integrity: sha512-fHsLaBaegrXyshUR2j9sV4TXkTgRQ9FhQ9PIqWgW/dFTPcMe2uEtUr1H9XQaDTpN8F9chnVqhLH8FT9asTDaSQ==}
     peerDependencies:
       vue: '>=3'
 
@@ -1543,8 +1543,8 @@ packages:
   '@nuxt/fonts@0.10.2':
     resolution: {integrity: sha512-WYsrKBv9tPEgEntNwe4Zov2taKO/cnct+tR/g5EQ1jgADkFeEGkfCsUDwTG/pZFkW0FlKSR/KRLMB3U6O+C6Ow==}
 
-  '@nuxt/icon@1.7.2':
-    resolution: {integrity: sha512-E2sH/wchLfcUIuUPIFFtaFNHfPP7sVSnJNWfvOOzq1KnRNA1sWWEhr1DriuCF2g+QukrSM96Xp5b9OrQCso/8w==}
+  '@nuxt/icon@1.7.4':
+    resolution: {integrity: sha512-oUzCc/6nsS1K50xEg1C/eW3m9Mk6Jhrumm89srd35enkUiuKTZUjENbouV0ghrmLbn3ACghojGNHeqlWDffi7g==}
 
   '@nuxt/kit@3.14.159':
     resolution: {integrity: sha512-ZqxsCI1NKV/gjfEUUZjMcr82sg0MKYZOuyB6bu9QY5Zr7NGpfIZY/z5Z822AKTmFxKGChnuz9M0UaS4ze6p42g==}
@@ -4469,6 +4469,9 @@ packages:
   mlly@1.7.2:
     resolution: {integrity: sha512-tN3dvVHYVz4DhSXinXIk7u9syPYaJvio118uomkovAtWBT+RdbP6Lfh/5Lvo519YMmwBafwlh20IPTXIStscpA==}
 
+  mlly@1.7.3:
+    resolution: {integrity: sha512-xUsx5n/mN0uQf4V548PKQ+YShA4/IW0KI1dZhrNrPCLG+xizETbHTkOa1f8/xut9JRPp8kQuMnz0oqwkTiLo/A==}
+
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
     engines: {node: '>=4'}
@@ -5394,6 +5397,9 @@ packages:
 
   std-env@3.7.0:
     resolution: {integrity: sha512-JPbdCEQLj1w5GilpiHAx3qJvFndqybBysA3qUOnznweH4QbNYUsW/ea8QzSrnh0vNsezMMw5bcVool8lM0gwzg==}
+
+  std-env@3.8.0:
+    resolution: {integrity: sha512-Bc3YwwCB+OzldMxOXJIIvC6cPRWr/LxOp48CdQTOkPyk/t4JWWJbrilwBd7RJzKV8QW7tJkcgAmeuLLJugl5/w==}
 
   stream-chain@2.2.5:
     resolution: {integrity: sha512-1TJmBx6aSWqZ4tx7aTpBDXK0/e2hhcNSTV8+CbFJtDjbb+I1mZ8lHit0Grw9GRT+6JbIrrDd8esncgBi8aBXGA==}
@@ -7392,7 +7398,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify/collections@1.0.480':
+  '@iconify/collections@1.0.483':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -7406,11 +7412,11 @@ snapshots:
       debug: 4.3.7(supports-color@9.4.0)
       kolorist: 1.8.0
       local-pkg: 0.5.0
-      mlly: 1.7.2
+      mlly: 1.7.3
     transitivePeerDependencies:
       - supports-color
 
-  '@iconify/vue@4.2.0-dev.1(vue@3.5.12(typescript@5.6.3))':
+  '@iconify/vue@4.2.0-dev.2(vue@3.5.12(typescript@5.6.3))':
     dependencies:
       '@iconify/types': 2.0.0
       vue: 3.5.12(typescript@5.6.3)
@@ -7813,20 +7819,19 @@ snapshots:
       - vite
       - webpack-sources
 
-  '@nuxt/icon@1.7.2(magicast@0.3.5)(rollup@4.24.4)(vite@5.4.10(@types/node@22.8.7)(terser@5.36.0))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)':
+  '@nuxt/icon@1.7.4(magicast@0.3.5)(rollup@4.24.4)(vite@5.4.10(@types/node@22.8.7)(terser@5.36.0))(vue@3.5.12(typescript@5.6.3))(webpack-sources@3.2.3)':
     dependencies:
-      '@iconify/collections': 1.0.480
+      '@iconify/collections': 1.0.483
       '@iconify/types': 2.0.0
       '@iconify/utils': 2.1.33
-      '@iconify/vue': 4.2.0-dev.1(vue@3.5.12(typescript@5.6.3))
+      '@iconify/vue': 4.2.0-dev.2(vue@3.5.12(typescript@5.6.3))
       '@nuxt/devtools-kit': 1.6.0(magicast@0.3.5)(rollup@4.24.4)(vite@5.4.10(@types/node@22.8.7)(terser@5.36.0))(webpack-sources@3.2.3)
       '@nuxt/kit': 3.14.159(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)
-      consola: 3.2.3
       local-pkg: 0.5.0
-      mlly: 1.7.2
+      mlly: 1.7.3
       ohash: 1.1.4
       pathe: 1.1.2
-      std-env: 3.7.0
+      std-env: 3.8.0
       tinyglobby: 0.2.10
     transitivePeerDependencies:
       - magicast
@@ -11405,7 +11410,7 @@ snapshots:
 
   local-pkg@0.5.0:
     dependencies:
-      mlly: 1.7.2
+      mlly: 1.7.3
       pkg-types: 1.2.1
 
   locate-path@5.0.0:
@@ -11581,6 +11586,13 @@ snapshots:
   mkdirp@3.0.1: {}
 
   mlly@1.7.2:
+    dependencies:
+      acorn: 8.14.0
+      pathe: 1.1.2
+      pkg-types: 1.2.1
+      ufo: 1.5.4
+
+  mlly@1.7.3:
     dependencies:
       acorn: 8.14.0
       pathe: 1.1.2
@@ -12733,6 +12745,8 @@ snapshots:
   statuses@2.0.1: {}
 
   std-env@3.7.0: {}
+
+  std-env@3.8.0: {}
 
   stream-chain@2.2.5: {}
 
