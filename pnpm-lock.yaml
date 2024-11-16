@@ -3125,10 +3125,6 @@ packages:
   cross-fetch@4.0.0:
     resolution: {integrity: sha512-e4a5N8lVvuLgAWgnCrLr2PP0YyDOTHa9H/Rj54dirp61qXnNq46m82bRhNqIA5VccJtWBvPTFRV3TtvHUKPB1g==}
 
-  cross-spawn@7.0.3:
-    resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
-    engines: {node: '>= 8'}
-
   cross-spawn@7.0.5:
     resolution: {integrity: sha512-ZVJrKKYunU38/76t0RMOulHOnUcbU9GbpWKAOZ0mhjr7CX6FVrH+4FrAapSOekrgFQ3f/8gwMEuIft0aKq6Hug==}
     engines: {node: '>= 8'}
@@ -8013,7 +8009,7 @@ snapshots:
       std-env: 3.8.0
       third-party-capital: 2.3.0
       ufo: 1.5.4
-      unimport: 3.13.1(rollup@4.24.4)(webpack-sources@3.2.3)
+      unimport: 3.13.2(rollup@4.24.4)(webpack-sources@3.2.3)
       unplugin: 1.15.0(webpack-sources@3.2.3)
       unstorage: 1.13.1(ioredis@5.4.1)
       valibot: 0.42.1(typescript@5.6.3)
@@ -10149,12 +10145,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  cross-spawn@7.0.3:
-    dependencies:
-      path-key: 3.1.1
-      shebang-command: 2.0.0
-      which: 2.0.2
-
   cross-spawn@7.0.5:
     dependencies:
       path-key: 3.1.1
@@ -10833,7 +10823,7 @@ snapshots:
 
   execa@8.0.1:
     dependencies:
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.5
       get-stream: 8.0.1
       human-signals: 5.0.0
       is-stream: 3.0.0
