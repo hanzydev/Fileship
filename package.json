@@ -50,7 +50,7 @@
         "@types/color": "^4.2.0",
         "@types/qrcode": "^1.5.5",
         "@types/stream-chain": "^2.1.0",
-        "@types/stream-json": "^1.7.7",
+        "@types/stream-json": "^1.7.8",
         "@unocss/eslint-config": "^0.64.1",
         "@unocss/nuxt": "^0.64.1",
         "@unocss/reset": "^0.64.1",
