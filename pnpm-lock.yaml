@@ -30,8 +30,8 @@ importers:
         specifier: ^10.1.6
         version: 10.1.6
       nanoid:
-        specifier: ^5.0.8
-        version: 5.0.8
+        specifier: ^5.0.9
+        version: 5.0.9
       otplib:
         specifier: ^12.0.1
         version: 12.0.1
@@ -4603,8 +4603,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanoid@5.0.8:
-    resolution: {integrity: sha512-TcJPw+9RV9dibz1hHUzlLVy8N4X9TnwirAjrU08Juo6BNKggzVfP2ZJ/3ZUSq15Xl5i85i+Z89XBO90pB2PghQ==}
+  nanoid@5.0.9:
+    resolution: {integrity: sha512-Aooyr6MXU6HpvvWXKoVoXwKMs/KyVakWwg7xQfv5/S/RIgJMy0Ifa45H9qqYy7pTCszrHzP21Uk4PZq2HpEM8Q==}
     engines: {node: ^18 || >=20}
     hasBin: true
 
@@ -8065,7 +8065,7 @@ snapshots:
 
   '@nuxt/scripts@0.9.5(@nuxt/devtools@1.6.0(bufferutil@4.0.8)(rollup@4.24.4)(utf-8-validate@6.0.5)(vite@5.4.11(@types/node@22.8.7)(terser@5.36.0))(vue@3.5.13(typescript@5.6.3))(webpack-sources@3.2.3))(@unocss/webpack@0.64.1(rollup@4.24.4)(webpack@5.96.1(esbuild@0.23.1)))(@vue/compiler-core@3.5.13)(change-case@5.4.4)(fuse.js@7.0.0)(ioredis@5.4.1)(magicast@0.3.5)(nuxt@3.14.1592(@parcel/watcher@2.5.0)(@types/node@22.8.7)(bufferutil@4.0.8)(eslint@9.15.0(jiti@2.4.0))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.36.0)(typescript@5.6.3)(utf-8-validate@6.0.5)(vite@5.4.11(@types/node@22.8.7)(terser@5.36.0))(vue-tsc@2.1.10(typescript@5.6.3))(webpack-sources@3.2.3))(postcss@8.4.49)(qrcode@1.5.4)(rollup@4.24.4)(typescript@5.6.3)(vite@5.4.11(@types/node@22.8.7)(terser@5.36.0))(vue@3.5.13(typescript@5.6.3))(webpack-sources@3.2.3)(webpack@5.96.1(esbuild@0.23.1))':
     dependencies:
-      '@nuxt/devtools-kit': 1.6.0(magicast@0.3.5)(rollup@4.24.4)(vite@5.4.11(@types/node@22.8.7)(terser@5.36.0))(webpack-sources@3.2.3)
+      '@nuxt/devtools-kit': 1.6.1(magicast@0.3.5)(rollup@4.24.4)(vite@5.4.11(@types/node@22.8.7)(terser@5.36.0))(webpack-sources@3.2.3)
       '@nuxt/devtools-ui-kit': 1.6.0(@nuxt/devtools@1.6.0(bufferutil@4.0.8)(rollup@4.24.4)(utf-8-validate@6.0.5)(vite@5.4.11(@types/node@22.8.7)(terser@5.36.0))(vue@3.5.13(typescript@5.6.3))(webpack-sources@3.2.3))(@unocss/webpack@0.64.1(rollup@4.24.4)(webpack@5.96.1(esbuild@0.23.1)))(@vue/compiler-core@3.5.13)(change-case@5.4.4)(fuse.js@7.0.0)(magicast@0.3.5)(nuxt@3.14.1592(@parcel/watcher@2.5.0)(@types/node@22.8.7)(bufferutil@4.0.8)(eslint@9.15.0(jiti@2.4.0))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.36.0)(typescript@5.6.3)(utf-8-validate@6.0.5)(vite@5.4.11(@types/node@22.8.7)(terser@5.36.0))(vue-tsc@2.1.10(typescript@5.6.3))(webpack-sources@3.2.3))(postcss@8.4.49)(qrcode@1.5.4)(rollup@4.24.4)(vite@5.4.11(@types/node@22.8.7)(terser@5.36.0))(vue@3.5.13(typescript@5.6.3))(webpack-sources@3.2.3)(webpack@5.96.1(esbuild@0.23.1))
       '@nuxt/kit': 3.14.1592(magicast@0.3.5)(rollup@4.24.4)(webpack-sources@3.2.3)
       '@stripe/stripe-js': 4.9.0
@@ -8089,7 +8089,7 @@ snapshots:
       std-env: 3.8.0
       third-party-capital: 2.3.0
       ufo: 1.5.4
-      unimport: 3.13.2(rollup@4.24.4)(webpack-sources@3.2.3)
+      unimport: 3.13.3(rollup@4.24.4)
       unplugin: 1.16.0
       unstorage: 1.13.1(ioredis@5.4.1)
       valibot: 0.42.1(typescript@5.6.3)
@@ -8145,7 +8145,7 @@ snapshots:
       is-docker: 3.0.0
       jiti: 1.21.6
       mri: 1.2.0
-      nanoid: 5.0.8
+      nanoid: 5.0.9
       ofetch: 1.4.1
       package-manager-detector: 0.2.2
       parse-git-config: 3.0.0
@@ -11880,7 +11880,7 @@ snapshots:
 
   nanoid@3.3.7: {}
 
-  nanoid@5.0.8: {}
+  nanoid@5.0.9: {}
 
   nanotar@0.1.1: {}
 
