@@ -39,7 +39,7 @@
                     icon-size="24"
                     wfull
                     gap2
-                    @click="(createModalOpen = false)"
+                    @click="createModalOpen = false"
                 >
                     Cancel
                 </UiButton>

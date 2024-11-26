@@ -10,7 +10,7 @@
             <h2>Folders</h2>
             <UiSearchBar v-model="searchQuery" placeholder="Search folders..." />
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
-                <New h164px @action="(createFolderModalOpen = true)" />
+                <New h164px @action="createFolderModalOpen = true" />
 
                 <template v-if="isLoading">
                     <UiSkeletonCard

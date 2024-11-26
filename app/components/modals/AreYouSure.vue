@@ -13,7 +13,7 @@
                     icon="heroicons-solid:x"
                     icon-size="24"
                     gap2
-                    @click="(isOpen = false)"
+                    @click="isOpen = false"
                 >
                     Cancel
                 </UiButton>

@@ -26,7 +26,7 @@
                 icon-size="20"
                 alignment="center"
                 :disabled
-                @click="(isOpen = false)"
+                @click="isOpen = false"
             />
         </div>
 

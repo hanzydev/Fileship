@@ -10,7 +10,7 @@
             rounded="!"
             icon-size="20"
             alignment="center"
-            @click="(selected = item.label)"
+            @click="selected = item.label"
         >
             {{ item.label }}
         </UiButton>

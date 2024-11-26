@@ -25,7 +25,7 @@
                     class="h10 w10 !p0 hover:text-white"
                     icon="heroicons-solid:x"
                     icon-size="24"
-                    @click="(isOpen = false)"
+                    @click="isOpen = false"
                 />
             </div>
         </div>

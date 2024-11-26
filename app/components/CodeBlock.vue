@@ -35,7 +35,7 @@
                     :icon="renderMarkdown ? 'heroicons-solid:code' : 'heroicons-solid:eye'"
                     icon-size="20"
                     aria-label="Toggle markdown view"
-                    @click="(renderMarkdown = !renderMarkdown)"
+                    @click="renderMarkdown = !renderMarkdown"
                 />
             </div>
 

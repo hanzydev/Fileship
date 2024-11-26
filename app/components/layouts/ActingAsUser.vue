@@ -43,7 +43,7 @@
             variant="accent"
             :aria-label="`Always act as ${titleCase(currentUser!.username)}`"
             :disabled="isReturningBack"
-            @click="(adminSessionId = null)"
+            @click="adminSessionId = null"
         />
     </div>
 </template>

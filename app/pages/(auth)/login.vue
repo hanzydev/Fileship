@@ -118,7 +118,7 @@
                                 icon="heroicons-solid:arrow-left"
                                 icon-size="20"
                                 :disabled
-                                @click="(section = 'login')"
+                                @click="section = 'login'"
                             >
                                 Back
                             </UiButton>

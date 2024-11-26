@@ -5,8 +5,8 @@
         :disabled
         :methods="verificationMethods"
         @got="handleSubmit"
-        @cancel="(isOpen = true)"
-        @outer-click="(isOpen = true)"
+        @cancel="isOpen = true"
+        @outer-click="isOpen = true"
     />
 
     <UiModal
@@ -134,7 +134,7 @@
                     icon-size="24"
                     wfull
                     gap2
-                    @click="(isOpen = false)"
+                    @click="isOpen = false"
                 >
                     Cancel
                 </UiButton>

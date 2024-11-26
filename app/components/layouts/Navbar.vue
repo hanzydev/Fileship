@@ -8,7 +8,7 @@
             viewBox="0 0 100 100"
             width="42"
             aria-label="Toggle sidebar"
-            @click="(sidebarOpen = !sidebarOpen)"
+            @click="sidebarOpen = !sidebarOpen"
         >
             <path
                 stroke="white 5.5"

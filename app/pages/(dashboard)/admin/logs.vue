@@ -27,7 +27,7 @@
                         isFlushingLogs || !logs.logs.filter((l) => l.action !== 'Flush Logs').length
                     "
                     :loading="isFlushingLogs"
-                    @click="(areYouSureModalOpen = true)"
+                    @click="areYouSureModalOpen = true"
                 />
             </div>
             <UiSearchBar v-model="searchQuery" placeholder="Search logs..." />

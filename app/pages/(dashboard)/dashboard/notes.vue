@@ -10,7 +10,7 @@
             <h2>Notes</h2>
             <UiSearchBar v-model="searchQuery" placeholder="Search notes..." />
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
-                <New h100px @action="(takeNotesModalOpen = true)" />
+                <New h100px @action="takeNotesModalOpen = true" />
 
                 <template v-if="isLoading">
                     <UiSkeletonCard

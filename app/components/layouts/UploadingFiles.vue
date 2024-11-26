@@ -143,9 +143,9 @@
                                             icon-size="20"
                                             :disabled="file.status?.started"
                                             @click="
-                                                (uploadingFiles = uploadingFiles.filter(
+                                                uploadingFiles = uploadingFiles.filter(
                                                     (f) => f !== file,
-                                                ))
+                                                )
                                             "
                                         >
                                             Remove
