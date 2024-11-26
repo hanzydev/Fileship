@@ -1,5 +1,23 @@
 # Changelog
 
+## v2.2.2
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.2.1...v2.2.2)
+
+### 🩹 Fixes
+
+- Users cannot be created and edited when form errors are not received ([bf54d97](https://github.com/hanzydev/Fileship/commit/bf54d97))
+- Previous state not being cleared when acting as user ([c9004ea](https://github.com/hanzydev/Fileship/commit/c9004ea))
+
+### 🏡 Chore
+
+- Lint fix ([0a61daa](https://github.com/hanzydev/Fileship/commit/0a61daa))
+- Lint fix ([33e80b0](https://github.com/hanzydev/Fileship/commit/33e80b0))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.2.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.2.0...v2.2.1)
