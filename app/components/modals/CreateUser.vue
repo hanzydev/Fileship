@@ -200,7 +200,7 @@ const handleSubmit = async (verificationData?: any) => {
 
         toast.success('User created successfully');
     } catch (error: any) {
-        if (!error.data.data.formErrors) {
+        if (!error.data.data?.formErrors) {
             if (verifyModalOpen.value) {
                 verificationError.value = error.data.message;
             } else if (error.data.message === 'Verification is required') {
