@@ -10,7 +10,7 @@
             motion-safe:transition-shadow
             ring="1 fs-overlay-4"
             :class="ctxOpen ? 'cursor-default' : 'cursor-pointer hover:(ring-1 ring-fs-accent)'"
-            @click="viewModalOpen = true"
+            @click="(viewModalOpen = true)"
         >
             <div
                 v-if="isImage || isVideo"

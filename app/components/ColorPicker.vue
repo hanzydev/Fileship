@@ -32,7 +32,7 @@
                         }
                     "
                     @mousemove.prevent="handleSaturationMove"
-                    @mouseup.prevent="saturationFocused = false"
+                    @mouseup.prevent="(saturationFocused = false)"
                     @touchstart.prevent="
                         (event) => {
                             saturationFocused = true;
@@ -40,7 +40,7 @@
                         }
                     "
                     @touchmove.prevent="handleSaturationMove"
-                    @touchend.prevent="saturationFocused = false"
+                    @touchend.prevent="(saturationFocused = false)"
                 >
                     <div
                         absolute
@@ -74,7 +74,7 @@
                         }
                     "
                     @mousemove.prevent="handleHueMove"
-                    @mouseup.prevent="hueFocused = false"
+                    @mouseup.prevent="(hueFocused = false)"
                     @touchstart.prevent="
                         (event) => {
                             hueFocused = true;
@@ -82,7 +82,7 @@
                         }
                     "
                     @touchmove.prevent="handleHueMove"
-                    @touchend.prevent="hueFocused = false"
+                    @touchend.prevent="(hueFocused = false)"
                 >
                     <div
                         absolute

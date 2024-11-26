@@ -33,7 +33,7 @@
                             icon-size="20"
                             wfull
                             gap2
-                            @click="editModalOpen = true"
+                            @click="(editModalOpen = true)"
                         >
                             Edit
                         </UiButton>

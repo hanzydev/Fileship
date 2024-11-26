@@ -10,7 +10,7 @@
             <h2>URLs</h2>
             <UiSearchBar v-model="searchQuery" placeholder="Search urls..." />
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
-                <New h132px @action="shortenUrlModalOpen = true" />
+                <New h132px @action="(shortenUrlModalOpen = true)" />
 
                 <template v-if="isLoading">
                     <UiSkeletonCard

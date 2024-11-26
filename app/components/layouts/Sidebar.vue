@@ -16,7 +16,7 @@
                     height: `calc(100vh - 70px${adminSessionId ? ' - 3rem' : ''})`,
                     marginTop: `calc(70px${adminSessionId ? ' + 48px' : ''})`,
                 }"
-                @click="isOpen = false"
+                @click="(isOpen = false)"
             />
         </Transition>
         <Transition

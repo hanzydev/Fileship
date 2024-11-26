@@ -1,5 +1,5 @@
 <template>
-    <UiModal v-model="isOpen" @closed="selectedMethod = bestMethod">
+    <UiModal v-model="isOpen" @closed="(selectedMethod = bestMethod)">
         <div
             flex="~ col items-center justify-center gap8"
             relative
@@ -13,7 +13,7 @@
                 enter-active-class="motion-safe:(animate-in fade-in data-[hubmode=true]:slide-in-from-left data-[hubmode=false]:slide-in-from-right animate-duration-250)"
                 leave-active-class="motion-safe:(animate-out fade-out data-[hubmode=true]:slide-out-to-left data-[hubmode=false]:slide-out-to-right animate-duration-250)"
                 :data-hubmode="hubMode"
-                @enter="height = $event.clientHeight"
+                @enter="(height = $event.clientHeight)"
                 @after-enter="$event.querySelector('input')?.focus()"
             >
                 <div v-if="hubMode" flex="~ col items-center justify-center gap8" absolute wfull p8>
@@ -83,7 +83,7 @@
                         wfull
                         gap2
                         :disabled
-                        @click="isOpen = false"
+                        @click="(isOpen = false)"
                     >
                         Cancel
                     </UiButton>
@@ -150,7 +150,7 @@
                             text-slate200
                             font-medium
                             hover:underline
-                            @click="hubMode = true"
+                            @click="(hubMode = true)"
                         >
                             Verify with something else
                         </p>

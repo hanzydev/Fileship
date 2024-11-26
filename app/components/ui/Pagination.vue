@@ -16,7 +16,7 @@
                 alignment="center"
                 aria-label="First page"
                 :disabled="isFirstPage"
-                @click="currentPage = 1"
+                @click="(currentPage = 1)"
             />
             <UiButton
                 icon="heroicons-solid:chevron-left"
@@ -41,7 +41,7 @@
                     px3="!"
                     py0="!"
                     :variant="currentPage === page ? 'accent' : 'primary'"
-                    @click="currentPage = page"
+                    @click="(currentPage = page)"
                 >
                     {{ page }}
                 </UiButton>
@@ -66,7 +66,7 @@
                 alignment="center"
                 aria-label="Last page"
                 :disabled="isLastPage"
-                @click="currentPage = pageCount"
+                @click="(currentPage = pageCount)"
             />
         </div>
     </div>

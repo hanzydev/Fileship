@@ -40,7 +40,7 @@
                 variant="secondary"
                 aria-label="Toggle password visibility"
                 :disabled="disabled || readonly"
-                @click="passwordVisible = !passwordVisible"
+                @click="(passwordVisible = !passwordVisible)"
             />
 
             <div

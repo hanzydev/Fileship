@@ -26,14 +26,14 @@ We'd also love PRs. If you're thinking of a large PR, we advise opening up an is
 
 Here are a few things you can do that will increase the likelihood of your pull request being accepted:
 
--   Follow the [style guide][style] which is using standard. Any linting errors should be shown when running `pnpm check`.
--   Keep your changes as focused as possible. If there are multiple changes you would like to make that are not dependent upon each other, consider submitting them as separate pull requests.
--   Use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for your commit messages.
+- Follow the [style guide][style] which is using standard. Any linting errors should be shown when running `pnpm check`.
+- Keep your changes as focused as possible. If there are multiple changes you would like to make that are not dependent upon each other, consider submitting them as separate pull requests.
+- Use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for your commit messages.
 
 Work in Progress pull requests are also welcome to get feedback early on, or if there is something blocked you.
 
 ## Resources
 
--   [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/)
--   [Using Pull Requests](https://help.github.com/articles/about-pull-requests/)
--   [GitHub Help](https://help.github.com)
+- [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/)
+- [Using Pull Requests](https://help.github.com/articles/about-pull-requests/)
+- [GitHub Help](https://help.github.com)

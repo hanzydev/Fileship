@@ -121,7 +121,7 @@
                     icon="heroicons-solid:cog"
                     icon-size="20"
                     :disabled="uploading || !uploadingFiles.length"
-                    @click="settingsModalOpen = true"
+                    @click="(settingsModalOpen = true)"
                 />
             </div>
         </div>

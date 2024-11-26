@@ -38,7 +38,7 @@
                     variant="accent"
                     class="h8 w8 !p0"
                     aria-label="Create user"
-                    @click="createUserModalOpen = true"
+                    @click="(createUserModalOpen = true)"
                 />
             </div>
             <UiSearchBar v-model="searchQuery" placeholder="Search users..." />

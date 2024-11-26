@@ -5,7 +5,7 @@
             cursor-pointer
             select-none
             p4
-            @click="isOpen = !isOpen"
+            @click="(isOpen = !isOpen)"
         >
             <slot />
             <UiButton

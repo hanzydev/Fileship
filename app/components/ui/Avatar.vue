@@ -11,7 +11,7 @@
             bg-fs-overlay-3
             ring="1 fs-overlay-4"
             draggable="false"
-            @error="error = true"
+            @error="(error = true)"
         />
         <div
             v-else

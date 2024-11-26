@@ -18,9 +18,9 @@
             :disabled="mfaUpdating"
             :methods="verificationMethods"
             @got="handleGenAuthAppQrCode"
-            @outer-click="authAppEnabled = currentUser!.totpEnabled"
-            @cancel="authAppEnabled = currentUser!.totpEnabled"
-            @closed="verifyMfaError = undefined"
+            @outer-click="(authAppEnabled = currentUser!.totpEnabled)"
+            @cancel="(authAppEnabled = currentUser!.totpEnabled)"
+            @closed="(verifyMfaError = undefined)"
         />
 
         <ModalsVerifyMFA
@@ -29,9 +29,9 @@
             :disabled="mfaUpdating"
             :methods="verificationMethods"
             @got="handleDisableAuthApp"
-            @outer-click="authAppEnabled = currentUser!.totpEnabled"
-            @cancel="authAppEnabled = currentUser!.totpEnabled"
-            @closed="verifyMfaError = undefined"
+            @outer-click="(authAppEnabled = currentUser!.totpEnabled)"
+            @cancel="(authAppEnabled = currentUser!.totpEnabled)"
+            @closed="(verifyMfaError = undefined)"
         />
 
         <ModalsVerifyMFA
@@ -117,7 +117,7 @@
                 icon-size="24"
                 wfull
                 gap2
-                @click="enableAuthAppModalOpen = false"
+                @click="(enableAuthAppModalOpen = false)"
             >
                 Cancel
             </UiButton>
@@ -214,7 +214,7 @@
                     icon-size="24"
                     wfull
                     gap2
-                    @click="shareXConfigModal.open = false"
+                    @click="(shareXConfigModal.open = false)"
                 >
                     Cancel
                 </UiButton>
@@ -353,7 +353,7 @@
                                     :disabled="
                                         avatarUpdating || avatarResetting || !currentUser!.avatar
                                     "
-                                    @click="userEditData.cloned.value.avatar = null"
+                                    @click="(userEditData.cloned.value.avatar = null)"
                                 >
                                     Reset
                                 </UiButton>
@@ -598,7 +598,7 @@
                         variant="accent"
                         icon="heroicons-solid:download"
                         icon-size="20"
-                        @click="shareXConfigModal.open = true"
+                        @click="(shareXConfigModal.open = true)"
                     >
                         Generate ShareX Config
                     </UiButton>

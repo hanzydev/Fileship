@@ -31,24 +31,24 @@
 
 ## 📦 Features
 
--   Fast & Secure
--   Self-hosted
--   Easy to use
--   Vibrant themes
--   Auto-generated statistics
--   OpenGraph embeds
--   Folder support
--   Note taking
--   Code sharing
--   URL shortening
--   Image compression
--   Custom domains
--   Multi-factor authentication
--   Multi-user support with roles
--   Real-time updates with Socket.IO
--   Backup creation and restoration
--   Password protected files, urls and codes
--   Delete files, urls and codes after a certain number of views
+- Fast & Secure
+- Self-hosted
+- Easy to use
+- Vibrant themes
+- Auto-generated statistics
+- OpenGraph embeds
+- Folder support
+- Note taking
+- Code sharing
+- URL shortening
+- Image compression
+- Custom domains
+- Multi-factor authentication
+- Multi-user support with roles
+- Real-time updates with Socket.IO
+- Backup creation and restoration
+- Password protected files, urls and codes
+- Delete files, urls and codes after a certain number of views
 
 ## 🚀 Getting Started
 
@@ -104,8 +104,8 @@ This section requires [Node.js 20.x or higher](https://nodejs.org/) to be instal
 
 ### Default credentials
 
--   Username: `admin`
--   Password: `password`
+- Username: `admin`
+- Password: `password`
 
 ### Web server configuration (optional)
 
