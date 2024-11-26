@@ -89,6 +89,7 @@ const goBackAdminSession = async () => {
     await refreshNuxtData();
     await navigateTo('/admin/users');
 
+    clearStates(true);
     initSocket();
 
     isReturningBack.value = false;

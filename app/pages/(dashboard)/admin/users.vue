@@ -249,6 +249,8 @@ const handleActAsUser = async (username: string, verificationData?: any) => {
 
         currentTheme.value = user.theme as never;
 
+        clearStates(true);
+
         await nextTick();
         await refreshNuxtData();
         await navigateTo('/dashboard');

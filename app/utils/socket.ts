@@ -31,26 +31,6 @@ export const initSocket = () => {
     const route = useRoute();
     const sessionId = useCookie('sessionId');
 
-    const clearStates = (hard = false) => {
-        urls.value = [];
-        notes.value = [];
-        codes.value = [];
-        files.value = [];
-        folders.value = [];
-
-        if (hard) {
-            users.value = [];
-            domains.value = [];
-            backups.value = [];
-            sessions.value = [];
-            passkeys.value = [];
-            logs.value = { users: [], logs: [] };
-            embed.value = defaultEmbed;
-            currentUser.value = null;
-            currentTheme.value = 'Fileship';
-        }
-    };
-
     if (currentUser.value && sessionId.value) {
         closeSocket();
 
@@ -92,7 +72,7 @@ export const initSocket = () => {
         });
 
         socket.on('logout', () => {
-            clearStates(true);
+            clearStates(true, true);
 
             useCookie('sessionId', { path: '/', sameSite: true }).value = null;
             nextTick(() => navigateTo(`/login?redirectTo=${route.path}`));
