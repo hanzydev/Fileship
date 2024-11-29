@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@simplewebauthn/server':
-        specifier: ^11.0.0
-        version: 11.0.0
+        specifier: ^12.0.0
+        version: 12.0.0
       argon2:
         specifier: ^0.41.1
         version: 0.41.1
@@ -1968,8 +1968,8 @@ packages:
   '@simplewebauthn/browser@11.0.0':
     resolution: {integrity: sha512-KEGCStrl08QC2I561BzxqGiwoknblP6O1YW7jApdXLPtIqZ+vgJYAv8ssLCdm1wD8HGAHd49CJLkUF8X70x/pg==}
 
-  '@simplewebauthn/server@11.0.0':
-    resolution: {integrity: sha512-zu8dxKcPiRUNSN2kmrnNOzNbRI8VaR/rL4ENCHUfC6PEE7SAAdIql9g5GBOd/wOVZolIsaZz3ccFxuGoVP0iaw==}
+  '@simplewebauthn/server@12.0.0':
+    resolution: {integrity: sha512-aJdTe9GikOk40U7Q5Mm/Sqkxcq4a2oPZAcLcnyqMyFqrUaOS6vdsZW8/H3Mnsw9umcr88pcgB7kozPPt+5wOBw==}
     engines: {node: '>=20.0.0'}
 
   '@simplewebauthn/types@11.0.0':
@@ -8631,7 +8631,7 @@ snapshots:
     dependencies:
       '@simplewebauthn/types': 11.0.0
 
-  '@simplewebauthn/server@11.0.0':
+  '@simplewebauthn/server@12.0.0':
     dependencies:
       '@hexagon/base64': 1.1.28
       '@levischuck/tiny-cbor': 0.2.2
@@ -8640,7 +8640,7 @@ snapshots:
       '@peculiar/asn1-rsa': 2.3.13
       '@peculiar/asn1-schema': 2.3.13
       '@peculiar/asn1-x509': 2.3.13
-      '@simplewebauthn/types': 11.0.0
+      '@simplewebauthn/types': 12.0.0
       cross-fetch: 4.0.0
     transitivePeerDependencies:
       - encoding
