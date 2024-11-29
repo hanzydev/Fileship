@@ -191,15 +191,9 @@ onClickOutside(
     },
 );
 
-onKeyStroke(
-    'Escape',
-    () => {
-        if (isOpen.value) isOpen.value = false;
-    },
-    { eventName: 'keydown' },
-);
+onKeyStroke('Escape', () => (isOpen.value = false), { eventName: 'keydown' });
 
-onUnmounted(() => asCtxMenu && (overflow.value = true));
+onUnmounted(() => (activeCtxMenu.value = ''));
 
 watch(isOpen, async (value) => {
     if (calculatingMenuPosition) return;
