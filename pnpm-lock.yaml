@@ -97,8 +97,8 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0(prisma@6.0.0)
       '@simplewebauthn/browser':
-        specifier: ^11.0.0
-        version: 11.0.0
+        specifier: ^12.0.0
+        version: 12.0.0
       '@simplewebauthn/types':
         specifier: ^12.0.0
         version: 12.0.0
@@ -1965,8 +1965,8 @@ packages:
   '@shikijs/vscode-textmate@9.3.0':
     resolution: {integrity: sha512-jn7/7ky30idSkd/O5yDBfAnVt+JJpepofP/POZ1iMOxK59cOfqIgg/Dj0eFsjOTMw+4ycJN0uhZH/Eb0bs/EUA==}
 
-  '@simplewebauthn/browser@11.0.0':
-    resolution: {integrity: sha512-KEGCStrl08QC2I561BzxqGiwoknblP6O1YW7jApdXLPtIqZ+vgJYAv8ssLCdm1wD8HGAHd49CJLkUF8X70x/pg==}
+  '@simplewebauthn/browser@12.0.0':
+    resolution: {integrity: sha512-0w6W8qkACycyaRMb2XnHfpA9kkgs5e2Aw2Ul9ObBYmvFBbtzipyWu9u2+WP1wy98chM+GIlQFnPheUbiMBQr8w==}
 
   '@simplewebauthn/server@12.0.0':
     resolution: {integrity: sha512-aJdTe9GikOk40U7Q5Mm/Sqkxcq4a2oPZAcLcnyqMyFqrUaOS6vdsZW8/H3Mnsw9umcr88pcgB7kozPPt+5wOBw==}
@@ -8627,9 +8627,9 @@ snapshots:
 
   '@shikijs/vscode-textmate@9.3.0': {}
 
-  '@simplewebauthn/browser@11.0.0':
+  '@simplewebauthn/browser@12.0.0':
     dependencies:
-      '@simplewebauthn/types': 11.0.0
+      '@simplewebauthn/types': 12.0.0
 
   '@simplewebauthn/server@12.0.0':
     dependencies:
