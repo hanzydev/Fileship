@@ -157,8 +157,8 @@ importers:
         specifier: ^3.12.5
         version: 3.12.5
       highlight.js:
-        specifier: ^11.10.0
-        version: 11.10.0
+        specifier: ^11.11.0
+        version: 11.11.0
       marked:
         specifier: ^15.0.3
         version: 15.0.3
@@ -3959,8 +3959,8 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
-  highlight.js@11.10.0:
-    resolution: {integrity: sha512-SYVnVFswQER+zu1laSya563s+F8VDGt7o35d4utbamowvUNLLMovFqwCLSocpZTz3MgaSRA1IbqRWZv97dtErQ==}
+  highlight.js@11.11.0:
+    resolution: {integrity: sha512-6ErL7JlGu2CNFHyRQEuDogOyGPNiqcuWdt4iSSFUPyferNTGlNTPFqeV36Y/XwA4V/TJ8l0sxp6FTnxud/mf8g==}
     engines: {node: '>=12.0.0'}
 
   hookable@5.5.3:
@@ -8082,7 +8082,7 @@ snapshots:
       std-env: 3.8.0
       third-party-capital: 2.3.0
       ufo: 1.5.4
-      unimport: 3.13.3(rollup@4.24.4)
+      unimport: 3.14.5(rollup@4.24.4)
       unplugin: 1.16.0
       unstorage: 1.13.1(ioredis@5.4.1)
       valibot: 0.42.1(typescript@5.6.3)
@@ -11286,7 +11286,7 @@ snapshots:
 
   he@1.2.0: {}
 
-  highlight.js@11.10.0: {}
+  highlight.js@11.11.0: {}
 
   hookable@5.5.3: {}
 
