@@ -41,7 +41,7 @@
         "@iconify-json/mdi": "^1.2.2",
         "@nuxt/eslint": "^0.7.3",
         "@nuxt/fonts": "^0.10.3",
-        "@nuxt/icon": "^1.10.2",
+        "@nuxt/icon": "^1.10.3",
         "@nuxt/kit": "^3.14.1592",
         "@nuxtjs/turnstile": "^0.9.11",
         "@prisma/client": "^6.1.0",
