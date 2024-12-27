@@ -58,7 +58,7 @@
         "@vueuse/core": "^12.2.0",
         "@vueuse/nuxt": "^12.2.0",
         "apexcharts": "^4.3.0",
-        "bufferutil": "^4.0.8",
+        "bufferutil": "^4.0.9",
         "changelogen": "^0.5.7",
         "dayjs": "^1.11.13",
         "eslint": "^9.17.0",
