@@ -17,7 +17,7 @@
         "@simplewebauthn/server": "^13.0.0",
         "argon2": "^0.41.1",
         "color": "^4.2.3",
-        "consola": "^3.3.1",
+        "consola": "^3.3.3",
         "defu": "^6.1.4",
         "engine.io": "^6.6.2",
         "filesize": "^10.1.6",
