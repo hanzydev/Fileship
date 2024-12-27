@@ -65,7 +65,7 @@
         "eslint-plugin-simple-import-sort": "^12.1.1",
         "fuse.js": "^7.0.0",
         "gsap": "^3.12.5",
-        "highlight.js": "^11.11.0",
+        "highlight.js": "^11.11.1",
         "marked": "^15.0.4",
         "marked-highlight": "^2.2.1",
         "nuxt": "^3.15.0",
