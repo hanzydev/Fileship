@@ -4,6 +4,8 @@ import dayjs from 'dayjs';
 
 import { UserPermission } from '@prisma/client';
 
+import { defaultUserLimits } from '~~/shared/utils/constants';
+
 export default defineNitroPlugin(async () => {
     const findUser = await prisma.user.findFirst();
 
