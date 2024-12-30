@@ -158,7 +158,7 @@ const expirationPickerRef = ref<InstanceType<typeof ExpirationPicker>>();
 
 const editData = useCloned({
     ...data,
-    language: languages[0]!,
+    language: languages.find((l) => l.hljs === data.language) || languages[0]!,
     expiration: {
         label: 'Never',
         value: null as number | null,
