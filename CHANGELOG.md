@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.2.3
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.2.2...v2.2.3)
+
+### 🩹 Fixes
+
+- Overflow bug in dropdown component ([6eeb5b0](https://github.com/hanzydev/Fileship/commit/6eeb5b0))
+- Cannot create default user ([61d0c13](https://github.com/hanzydev/Fileship/commit/61d0c13))
+- Resetting the language after editing the code ([8d44f23](https://github.com/hanzydev/Fileship/commit/8d44f23))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.2.2
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.2.1...v2.2.2)
