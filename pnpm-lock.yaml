@@ -160,11 +160,11 @@ importers:
         specifier: ^11.11.1
         version: 11.11.1
       marked:
-        specifier: ^15.0.5
-        version: 15.0.5
+        specifier: ^15.0.6
+        version: 15.0.6
       marked-highlight:
         specifier: ^2.2.1
-        version: 2.2.1(marked@15.0.5)
+        version: 2.2.1(marked@15.0.6)
       nuxt:
         specifier: ^3.15.1
         version: 3.15.1(@parcel/watcher@2.5.0)(@types/node@22.8.7)(bufferutil@4.0.9)(db0@0.2.1)(eslint@9.17.0(jiti@2.4.2))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.36.0)(tsx@4.19.2)(typescript@5.7.2)(utf-8-validate@6.0.5)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))(vue-tsc@2.2.0(typescript@5.7.2))(yaml@2.6.1)
@@ -4614,8 +4614,8 @@ packages:
     peerDependencies:
       marked: '>=4 <16'
 
-  marked@15.0.5:
-    resolution: {integrity: sha512-xN+kSuqHjxWg+Q47yhhZMUP+kO1qHobvXkkm6FX+7N6lDvanLDd8H7AQ0jWDDyq+fDt/cSrJaBGyWYHXy0KQWA==}
+  marked@15.0.6:
+    resolution: {integrity: sha512-Y07CUOE+HQXbVDCGl3LXggqJDbXDP2pArc2C1N1RRMN0ONiShoSsIInMd5Gsxupe7fKLpgimTV+HOJ9r7bA+pg==}
     engines: {node: '>= 18'}
     hasBin: true
 
@@ -5464,6 +5464,7 @@ packages:
   rollup-plugin-visualizer@5.13.1:
     resolution: {integrity: sha512-vMg8i6BprL8aFm9DKvL2c8AwS8324EgymYQo9o6E26wgVvwMhsJxS37aNL6ZsU7X9iAcMYwdME7gItLfG5fwJg==}
     engines: {node: '>=18'}
+    deprecated: Contains unintended breaking changes
     hasBin: true
     peerDependencies:
       rolldown: 1.x
@@ -6154,65 +6155,6 @@ packages:
       idb-keyval:
         optional: true
       ioredis:
-        optional: true
-
-  unstorage@1.14.1:
-    resolution: {integrity: sha512-0MBKpoVhNLL/Ixvue9lIsrHkwwWW9/f3TRftsYu1R7nZJJyHSdgPMBDjny2op07nirnS3OX6H3u+YDFGld+1Bg==}
-    peerDependencies:
-      '@azure/app-configuration': ^1.8.0
-      '@azure/cosmos': ^4.2.0
-      '@azure/data-tables': ^13.3.0
-      '@azure/identity': ^4.5.0
-      '@azure/keyvault-secrets': ^4.9.0
-      '@azure/storage-blob': ^12.26.0
-      '@capacitor/preferences': ^6.0.3
-      '@deno/kv': '>=0.8.4'
-      '@netlify/blobs': ^6.5.0 || ^7.0.0 || ^8.1.0
-      '@planetscale/database': ^1.19.0
-      '@upstash/redis': ^1.34.3
-      '@vercel/blob': '>=0.27.0'
-      '@vercel/kv': ^1.0.1
-      aws4fetch: ^1.0.20
-      db0: '>=0.2.1'
-      idb-keyval: ^6.2.1
-      ioredis: ^5.4.1
-      uploadthing: ^7.4.1
-    peerDependenciesMeta:
-      '@azure/app-configuration':
-        optional: true
-      '@azure/cosmos':
-        optional: true
-      '@azure/data-tables':
-        optional: true
-      '@azure/identity':
-        optional: true
-      '@azure/keyvault-secrets':
-        optional: true
-      '@azure/storage-blob':
-        optional: true
-      '@capacitor/preferences':
-        optional: true
-      '@deno/kv':
-        optional: true
-      '@netlify/blobs':
-        optional: true
-      '@planetscale/database':
-        optional: true
-      '@upstash/redis':
-        optional: true
-      '@vercel/blob':
-        optional: true
-      '@vercel/kv':
-        optional: true
-      aws4fetch:
-        optional: true
-      db0:
-        optional: true
-      idb-keyval:
-        optional: true
-      ioredis:
-        optional: true
-      uploadthing:
         optional: true
 
   unstorage@1.14.4:
@@ -8157,7 +8099,7 @@ snapshots:
   '@nuxt/devtools-kit@1.6.0(magicast@0.3.5)(rollup@4.24.4)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))':
     dependencies:
       '@nuxt/kit': 3.15.1(magicast@0.3.5)(rollup@4.24.4)
-      '@nuxt/schema': 3.15.0(magicast@0.3.5)(rollup@4.24.4)
+      '@nuxt/schema': 3.15.1
       execa: 7.2.0
       vite: 6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1)
     transitivePeerDependencies:
@@ -8510,7 +8452,7 @@ snapshots:
 
   '@nuxt/scripts@0.9.5(@nuxt/devtools@1.7.0(bufferutil@4.0.9)(rollup@4.24.4)(utf-8-validate@6.0.5)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.2)))(@unocss/webpack@0.65.3(rollup@4.24.4)(webpack@5.96.1(esbuild@0.24.2)))(@vue/compiler-core@3.5.13)(change-case@5.4.4)(db0@0.2.1)(fuse.js@7.0.0)(ioredis@5.4.1)(magicast@0.3.5)(nuxt@3.15.1(@parcel/watcher@2.5.0)(@types/node@22.8.7)(bufferutil@4.0.9)(db0@0.2.1)(eslint@9.17.0(jiti@2.4.2))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.36.0)(tsx@4.19.2)(typescript@5.7.2)(utf-8-validate@6.0.5)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))(vue-tsc@2.2.0(typescript@5.7.2))(yaml@2.6.1))(postcss@8.4.49)(qrcode@1.5.4)(rollup@4.24.4)(typescript@5.7.2)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.2))(webpack@5.96.1(esbuild@0.24.2))':
     dependencies:
-      '@nuxt/devtools-kit': 1.6.4(magicast@0.3.5)(rollup@4.24.4)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))
+      '@nuxt/devtools-kit': 1.7.0(magicast@0.3.5)(rollup@4.24.4)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))
       '@nuxt/devtools-ui-kit': 1.6.0(@nuxt/devtools@1.7.0(bufferutil@4.0.9)(rollup@4.24.4)(utf-8-validate@6.0.5)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.2)))(@unocss/webpack@0.65.3(rollup@4.24.4)(webpack@5.96.1(esbuild@0.24.2)))(@vue/compiler-core@3.5.13)(change-case@5.4.4)(fuse.js@7.0.0)(magicast@0.3.5)(nuxt@3.15.1(@parcel/watcher@2.5.0)(@types/node@22.8.7)(bufferutil@4.0.9)(db0@0.2.1)(eslint@9.17.0(jiti@2.4.2))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.36.0)(tsx@4.19.2)(typescript@5.7.2)(utf-8-validate@6.0.5)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))(vue-tsc@2.2.0(typescript@5.7.2))(yaml@2.6.1))(postcss@8.4.49)(qrcode@1.5.4)(rollup@4.24.4)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.2))(webpack@5.96.1(esbuild@0.24.2))
       '@nuxt/kit': 3.15.1(magicast@0.3.5)(rollup@4.24.4)
       '@stripe/stripe-js': 4.9.0
@@ -8527,7 +8469,7 @@ snapshots:
       ofetch: 1.4.1
       ohash: 1.1.4
       pathe: 1.1.2
-      pkg-types: 1.2.1
+      pkg-types: 1.3.0
       semver: 7.6.3
       shiki: 1.22.0
       sirv: 3.0.0
@@ -8536,7 +8478,7 @@ snapshots:
       ufo: 1.5.4
       unimport: 3.14.5(rollup@4.24.4)
       unplugin: 1.16.0
-      unstorage: 1.14.1(db0@0.2.1)(ioredis@5.4.1)
+      unstorage: 1.14.4(db0@0.2.1)(ioredis@5.4.1)
       valibot: 0.42.1(typescript@5.7.2)
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -12224,11 +12166,11 @@ snapshots:
     dependencies:
       semver: 6.3.1
 
-  marked-highlight@2.2.1(marked@15.0.5):
+  marked-highlight@2.2.1(marked@15.0.6):
     dependencies:
-      marked: 15.0.5
+      marked: 15.0.6
 
-  marked@15.0.5: {}
+  marked@15.0.6: {}
 
   mdast-util-to-hast@13.2.0:
     dependencies:
@@ -14103,22 +14045,6 @@ snapshots:
       ofetch: 1.4.1
       ufo: 1.5.4
     optionalDependencies:
-      ioredis: 5.4.1
-
-  unstorage@1.14.1(db0@0.2.1)(ioredis@5.4.1):
-    dependencies:
-      anymatch: 3.1.3
-      chokidar: 3.6.0
-      citty: 0.1.6
-      destr: 2.0.3
-      h3: 1.13.0
-      listhen: 1.9.0
-      lru-cache: 10.4.3
-      node-fetch-native: 1.6.4
-      ofetch: 1.4.1
-      ufo: 1.5.4
-    optionalDependencies:
-      db0: 0.2.1
       ioredis: 5.4.1
 
   unstorage@1.14.4(db0@0.2.1)(ioredis@5.4.1):
