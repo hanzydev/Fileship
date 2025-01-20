@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
     const uploadsPath = join(dataDirectory, 'uploads');
 
     for (const { fileName } of userFiles) {
-        await rm(join(uploadsPath, fileName), { force: true });
+        await rm(join(uploadsPath, fileName), { force: true }).catch(() => null);
     }
 
     await prisma.$transaction([

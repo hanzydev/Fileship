@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
 
     await rm(join(dataDirectory, 'uploads', findFileById.fileName), {
         force: true,
-    });
+    }).catch(() => null);
 
     await prisma.view.deleteMany({
         where: {
