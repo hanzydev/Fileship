@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.2.4
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.2.3...v2.2.4)
+
+### 🩹 Fixes
+
+- Files are not deleted if they are missing locally ([956beb1](https://github.com/hanzydev/Fileship/commit/956beb1))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.2.3
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.2.2...v2.2.3)
