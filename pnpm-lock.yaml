@@ -184,8 +184,8 @@ importers:
         specifier: ^5.7.3
         version: 5.7.3
       unocss-preset-animations:
-        specifier: ^1.1.0
-        version: 1.1.0(@unocss/preset-wind@0.65.4)(unocss@0.65.4(@unocss/webpack@0.65.4(rollup@4.24.4)(webpack@5.96.1(esbuild@0.24.2)))(postcss@8.5.1)(rollup@4.24.4)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.3)))
+        specifier: ^1.1.1
+        version: 1.1.1(@unocss/preset-wind@0.65.4)(unocss@0.65.4(@unocss/webpack@0.65.4(rollup@4.24.4)(webpack@5.96.1(esbuild@0.24.2)))(postcss@8.5.1)(rollup@4.24.4)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.3)))
       utf-8-validate:
         specifier: ^6.0.5
         version: 6.0.5
@@ -6090,11 +6090,11 @@ packages:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
 
-  unocss-preset-animations@1.1.0:
-    resolution: {integrity: sha512-wCcVnu1IvQmzKK9dZpeZbPPuXO5sKmYGe5VaASjH8st6G3wgw4tw7HsVRP0bXHRhO0PXGtC5Kw9IRKh6dPGPtA==}
+  unocss-preset-animations@1.1.1:
+    resolution: {integrity: sha512-YBttRSHWH0r8OABPzXNcxDhRV67LNIsA0ZrWoYTMHUc/SzVYZBU79IXLtOneLk1NCpzlfkyxm+8DWLJnmG1R6g==}
     peerDependencies:
-      '@unocss/preset-wind': '>= 0.56.0 < 1'
-      unocss: '>= 0.56.0 < 1'
+      '@unocss/preset-wind': '>=0.56.0 < 101'
+      unocss: '>=0.56.0 < 101'
 
   unocss@0.62.4:
     resolution: {integrity: sha512-SaGbxXQkk8GDPeJpWsBCZ8a23Knu4ixVTt6pvcQWKjOCGTd9XBd+vLZzN2WwdwgBPVwmMmx5wp+/gPHKFNOmIw==}
@@ -14007,7 +14007,7 @@ snapshots:
 
   universalify@2.0.1: {}
 
-  unocss-preset-animations@1.1.0(@unocss/preset-wind@0.65.4)(unocss@0.65.4(@unocss/webpack@0.65.4(rollup@4.24.4)(webpack@5.96.1(esbuild@0.24.2)))(postcss@8.5.1)(rollup@4.24.4)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.3))):
+  unocss-preset-animations@1.1.1(@unocss/preset-wind@0.65.4)(unocss@0.65.4(@unocss/webpack@0.65.4(rollup@4.24.4)(webpack@5.96.1(esbuild@0.24.2)))(postcss@8.5.1)(rollup@4.24.4)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.3))):
     dependencies:
       '@unocss/preset-wind': 0.65.4
       unocss: 0.65.4(@unocss/webpack@0.65.4(rollup@4.24.4)(webpack@5.96.1(esbuild@0.24.2)))(postcss@8.5.1)(rollup@4.24.4)(vite@6.0.7(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.3))
