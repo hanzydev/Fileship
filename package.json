@@ -19,7 +19,7 @@
         "color": "^4.2.3",
         "consola": "^3.4.0",
         "defu": "^6.1.4",
-        "engine.io": "^6.6.2",
+        "engine.io": "^6.6.3",
         "filesize": "^10.1.6",
         "nanoid": "^5.0.9",
         "otplib": "^12.0.1",
