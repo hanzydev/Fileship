@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@simplewebauthn/server':
-        specifier: ^13.1.0
-        version: 13.1.0
+        specifier: ^13.1.1
+        version: 13.1.1
       argon2:
         specifier: ^0.41.1
         version: 0.41.1
@@ -2141,8 +2141,8 @@ packages:
   '@simplewebauthn/browser@13.1.0':
     resolution: {integrity: sha512-WuHZ/PYvyPJ9nxSzgHtOEjogBhwJfC8xzYkPC+rR/+8chl/ft4ngjiK8kSU5HtRJfczupyOh33b25TjYbvwAcg==}
 
-  '@simplewebauthn/server@13.1.0':
-    resolution: {integrity: sha512-vGz9sgzoN0c0IySnpdG0TG0B71GM75basrlTpXHDAw8tQ/JUH5O73x6s3UXzDWHlv7d2E4Hy4aX5ugoHkW4udg==}
+  '@simplewebauthn/server@13.1.1':
+    resolution: {integrity: sha512-1hsLpRHfSuMB9ee2aAdh0Htza/X3f4djhYISrggqGe3xopNjOcePiSDkDDoPzDYaaMCrbqGP1H2TYU7bgL9PmA==}
     engines: {node: '>=20.0.0'}
 
   '@simplewebauthn/types@12.0.0':
@@ -9048,7 +9048,7 @@ snapshots:
 
   '@simplewebauthn/browser@13.1.0': {}
 
-  '@simplewebauthn/server@13.1.0':
+  '@simplewebauthn/server@13.1.1':
     dependencies:
       '@hexagon/base64': 1.1.28
       '@levischuck/tiny-cbor': 0.2.2
