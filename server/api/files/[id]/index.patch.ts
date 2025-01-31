@@ -160,12 +160,30 @@ export default defineEventHandler(async (event) => {
 
     sendToUser(currentUser.id, 'update:file', updatedFile);
 
-    if (body.data.folderId === null && findFileById.folderId !== null) {
+    if (!findFileById.folderId && body.data.folderId) {
+        sendToUser(currentUser.id, 'folder:file:add', {
+            folderId: body.data.folderId,
+            fileId: updatedFile.id,
+        });
+    }
+
+    if (findFileById.folderId && body.data.folderId === null) {
         sendToUser(currentUser.id, 'folder:file:remove', {
             folderId: findFileById.folderId,
             fileId: updatedFile.id,
         });
-    } else if (body.data.folderId !== null && findFileById.folderId === null) {
+    }
+
+    if (
+        findFileById.folderId &&
+        body.data.folderId &&
+        body.data.folderId !== findFileById.folderId
+    ) {
+        sendToUser(currentUser.id, 'folder:file:remove', {
+            folderId: findFileById.folderId,
+            fileId: updatedFile.id,
+        });
+
         sendToUser(currentUser.id, 'folder:file:add', {
             folderId: body.data.folderId,
             fileId: updatedFile.id,

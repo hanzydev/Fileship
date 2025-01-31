@@ -280,10 +280,13 @@ export default defineEventHandler(async (event) => {
         });
 
         sendToUser(currentUser.id, 'create:file', upload);
-        sendToUser(currentUser.id, 'folder:file:add', {
-            folderId: body.data.folderId,
-            fileId: upload.id,
-        });
+
+        if (body.data.folderId) {
+            sendToUser(currentUser.id, 'folder:file:add', {
+                folderId: body.data.folderId,
+                fileId: upload.id,
+            });
+        }
 
         return upload;
     } else if (body.data.currentChunk === 1) {

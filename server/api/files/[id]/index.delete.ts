@@ -45,4 +45,11 @@ export default defineEventHandler(async (event) => {
     });
 
     sendToUser(currentUser.id, 'delete:file', fileId);
+
+    if (findFileById.folderId) {
+        sendToUser(currentUser.id, 'folder:file:remove', {
+            folderId: findFileById.folderId,
+            fileId,
+        });
+    }
 });
