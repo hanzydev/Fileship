@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.2.5
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.2.4...v2.2.5)
+
+### 💅 Refactors
+
+- Improve file and folder event handling ([19cc1f2](https://github.com/hanzydev/Fileship/commit/19cc1f2))
+- Better logging ([7773e53](https://github.com/hanzydev/Fileship/commit/7773e53))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.2.4
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.2.3...v2.2.4)
