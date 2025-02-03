@@ -80,5 +80,5 @@
         "vue-tsc": "^2.2.0",
         "vue3-apexcharts": "^1.8.0"
     },
-    "packageManager": "pnpm@9.15.5"
+    "packageManager": "pnpm@10.2.0"
 }
