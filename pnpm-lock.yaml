@@ -91,8 +91,8 @@ importers:
         specifier: ^3.15.4
         version: 3.15.4(magicast@0.3.5)(rollup@4.24.4)
       '@nuxtjs/turnstile':
-        specifier: ^0.9.11
-        version: 0.9.11(@nuxt/scripts@0.9.5(@nuxt/devtools@1.7.0(bufferutil@4.0.9)(rollup@4.24.4)(utf-8-validate@6.0.5)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3)))(@unocss/webpack@65.4.3(rollup@4.24.4)(webpack@5.96.1(esbuild@0.24.2)))(@vue/compiler-core@3.5.13)(change-case@5.4.4)(db0@0.2.1)(fuse.js@7.1.0)(ioredis@5.4.1)(magicast@0.3.5)(nuxt@3.15.4(@parcel/watcher@2.5.0)(@types/node@22.8.7)(bufferutil@4.0.9)(db0@0.2.1)(eslint@9.20.0(jiti@2.4.2))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.36.0)(tsx@4.19.2)(typescript@5.7.3)(utf-8-validate@6.0.5)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue-tsc@2.2.0(typescript@5.7.3))(yaml@2.7.0))(postcss@8.5.1)(qrcode@1.5.4)(rollup@4.24.4)(typescript@5.7.3)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3))(webpack@5.96.1(esbuild@0.24.2)))(magicast@0.3.5)(rollup@4.24.4)
+        specifier: ^0.9.12
+        version: 0.9.12(@nuxt/scripts@0.9.5(@nuxt/devtools@1.7.0(bufferutil@4.0.9)(rollup@4.24.4)(utf-8-validate@6.0.5)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3)))(@unocss/webpack@65.4.3(rollup@4.24.4)(webpack@5.96.1(esbuild@0.24.2)))(@vue/compiler-core@3.5.13)(change-case@5.4.4)(db0@0.2.1)(fuse.js@7.1.0)(ioredis@5.4.1)(magicast@0.3.5)(nuxt@3.15.4(@parcel/watcher@2.5.0)(@types/node@22.8.7)(bufferutil@4.0.9)(db0@0.2.1)(eslint@9.20.0(jiti@2.4.2))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.36.0)(tsx@4.19.2)(typescript@5.7.3)(utf-8-validate@6.0.5)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue-tsc@2.2.0(typescript@5.7.3))(yaml@2.7.0))(postcss@8.5.1)(qrcode@1.5.4)(rollup@4.24.4)(typescript@5.7.3)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3))(webpack@5.96.1(esbuild@0.24.2)))(magicast@0.3.5)(rollup@4.24.4)
       '@prisma/client':
         specifier: ^6.3.1
         version: 6.3.1(prisma@6.3.1(typescript@5.7.3))(typescript@5.7.3)
@@ -1633,10 +1633,10 @@ packages:
     peerDependencies:
       vue: ^3.3.4
 
-  '@nuxtjs/turnstile@0.9.11':
-    resolution: {integrity: sha512-kE2n1UZdpyw6XHVUMi8Ru0TG0RbB/2myN/ssM0oXPDnrAXUxeOA3DHq/9ejIVnu2kxJZsngAQM3cnmuDTIuUFw==}
+  '@nuxtjs/turnstile@0.9.12':
+    resolution: {integrity: sha512-/GRvI2ahQtHBoKLAErIt1p3zomm2vduLFwqQjiINaNbEIbm8mPsrNDVhPSlocdHJkASpBs+0GnYXZzJLfjatEA==}
     peerDependencies:
-      '@nuxt/scripts': ^0.6.0 || ^0.7.0 || ^0.8.0 || ^0.9.0
+      '@nuxt/scripts': ^0.10.0
 
   '@otplib/core@12.0.1':
     resolution: {integrity: sha512-4sGntwbA/AC+SbPhbsziRiD+jNDdIzsZ3JUyfZwjtKyc/wufl1pnSIaG4Uqx8ymPagujub0o92kgBnB89cuAMA==}
@@ -8422,13 +8422,13 @@ snapshots:
       - vue-tsc
       - yaml
 
-  '@nuxtjs/turnstile@0.9.11(@nuxt/scripts@0.9.5(@nuxt/devtools@1.7.0(bufferutil@4.0.9)(rollup@4.24.4)(utf-8-validate@6.0.5)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3)))(@unocss/webpack@65.4.3(rollup@4.24.4)(webpack@5.96.1(esbuild@0.24.2)))(@vue/compiler-core@3.5.13)(change-case@5.4.4)(db0@0.2.1)(fuse.js@7.1.0)(ioredis@5.4.1)(magicast@0.3.5)(nuxt@3.15.4(@parcel/watcher@2.5.0)(@types/node@22.8.7)(bufferutil@4.0.9)(db0@0.2.1)(eslint@9.20.0(jiti@2.4.2))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.36.0)(tsx@4.19.2)(typescript@5.7.3)(utf-8-validate@6.0.5)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue-tsc@2.2.0(typescript@5.7.3))(yaml@2.7.0))(postcss@8.5.1)(qrcode@1.5.4)(rollup@4.24.4)(typescript@5.7.3)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3))(webpack@5.96.1(esbuild@0.24.2)))(magicast@0.3.5)(rollup@4.24.4)':
+  '@nuxtjs/turnstile@0.9.12(@nuxt/scripts@0.9.5(@nuxt/devtools@1.7.0(bufferutil@4.0.9)(rollup@4.24.4)(utf-8-validate@6.0.5)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3)))(@unocss/webpack@65.4.3(rollup@4.24.4)(webpack@5.96.1(esbuild@0.24.2)))(@vue/compiler-core@3.5.13)(change-case@5.4.4)(db0@0.2.1)(fuse.js@7.1.0)(ioredis@5.4.1)(magicast@0.3.5)(nuxt@3.15.4(@parcel/watcher@2.5.0)(@types/node@22.8.7)(bufferutil@4.0.9)(db0@0.2.1)(eslint@9.20.0(jiti@2.4.2))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.36.0)(tsx@4.19.2)(typescript@5.7.3)(utf-8-validate@6.0.5)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue-tsc@2.2.0(typescript@5.7.3))(yaml@2.7.0))(postcss@8.5.1)(qrcode@1.5.4)(rollup@4.24.4)(typescript@5.7.3)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3))(webpack@5.96.1(esbuild@0.24.2)))(magicast@0.3.5)(rollup@4.24.4)':
     dependencies:
       '@nuxt/kit': 3.15.4(magicast@0.3.5)(rollup@4.24.4)
       '@nuxt/scripts': 0.9.5(@nuxt/devtools@1.7.0(bufferutil@4.0.9)(rollup@4.24.4)(utf-8-validate@6.0.5)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3)))(@unocss/webpack@65.4.3(rollup@4.24.4)(webpack@5.96.1(esbuild@0.24.2)))(@vue/compiler-core@3.5.13)(change-case@5.4.4)(db0@0.2.1)(fuse.js@7.1.0)(ioredis@5.4.1)(magicast@0.3.5)(nuxt@3.15.4(@parcel/watcher@2.5.0)(@types/node@22.8.7)(bufferutil@4.0.9)(db0@0.2.1)(eslint@9.20.0(jiti@2.4.2))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.36.0)(tsx@4.19.2)(typescript@5.7.3)(utf-8-validate@6.0.5)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue-tsc@2.2.0(typescript@5.7.3))(yaml@2.7.0))(postcss@8.5.1)(qrcode@1.5.4)(rollup@4.24.4)(typescript@5.7.3)(vite@6.0.11(@types/node@22.8.7)(jiti@2.4.2)(terser@5.36.0)(tsx@4.19.2)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3))(webpack@5.96.1(esbuild@0.24.2))
       '@types/cloudflare-turnstile': 0.2.2
       defu: 6.1.4
-      pathe: 1.1.2
+      pathe: 2.0.2
     transitivePeerDependencies:
       - magicast
       - rollup
