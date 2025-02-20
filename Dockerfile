@@ -4,6 +4,7 @@ WORKDIR /fileship
 
 COPY . .
 
+RUN npm i -g corepack@latest
 RUN corepack enable
 
 RUN pnpm install --frozen-lockfile
@@ -13,6 +14,7 @@ FROM node:22.12.0-alpine3.19 as runner
 
 WORKDIR /fileship
 
+RUN npm i -g corepack@latest
 RUN corepack enable
 
 COPY --from=builder /fileship/.output ./.output
