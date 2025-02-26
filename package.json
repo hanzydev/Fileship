@@ -60,7 +60,7 @@
         "@vueuse/nuxt": "^12.7.0",
         "apexcharts": "^4.5.0",
         "bufferutil": "^4.0.9",
-        "changelogen": "^0.5.7",
+        "changelogen": "^0.6.0",
         "dayjs": "^1.11.13",
         "eslint": "^9.21.0",
         "eslint-plugin-simple-import-sort": "^12.1.1",
