@@ -62,7 +62,7 @@
         "bufferutil": "^4.0.9",
         "changelogen": "^0.6.1",
         "dayjs": "^1.11.13",
-        "eslint": "^9.21.0",
+        "eslint": "^9.22.0",
         "eslint-plugin-simple-import-sort": "^12.1.1",
         "fuse.js": "^7.1.0",
         "gsap": "^3.12.7",
