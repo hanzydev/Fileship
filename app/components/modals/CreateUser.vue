@@ -72,7 +72,9 @@
                         <UiButton
                             v-for="permission in Object.values(UserPermission)"
                             :key="permission"
-                            :variant="user.permissions.includes(permission) ? 'accent' : 'onOverlay'"
+                            :variant="
+                                user.permissions.includes(permission) ? 'accent' : 'onOverlay'
+                            "
                             :icon="
                                 user.permissions.includes(permission)
                                     ? 'heroicons-solid:check'
