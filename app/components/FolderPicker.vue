@@ -51,7 +51,7 @@
                                 ? 'heroicons-solid:check'
                                 : 'heroicons-solid:folder'
                         "
-                        :variant="option.id === folder.value ? 'accent' : 'primary'"
+                        :variant="option.id === folder.value ? 'accent' : 'onOverlay'"
                         icon-size="20"
                         wfull
                         gap2

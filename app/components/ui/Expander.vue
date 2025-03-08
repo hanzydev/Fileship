@@ -13,7 +13,10 @@
                 w8
                 rounded="!"
                 pl="!"
-                variant="secondary"
+                variant="primary"
+                ring="1 fs-overlay-4"
+                bg-fs-overlay-3
+                hover="!ring-none !bg-fs-overlay-4"
                 alignment="center"
                 icon="heroicons-solid:chevron-down"
                 icon-size="20"

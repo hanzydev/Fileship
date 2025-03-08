@@ -33,7 +33,7 @@
                             ? 'heroicons-solid:check'
                             : 'heroicons-solid:filter'
                     "
-                    :variant="filterType.includes(_type as never) ? 'accent' : 'primary'"
+                    :variant="filterType.includes(_type as never) ? 'accent' : 'onOverlay'"
                     icon-size="20"
                     wfull
                     gap2

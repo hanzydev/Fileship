@@ -53,6 +53,7 @@
         <template #content>
             <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-accent">
                 <UiButton
+                    variant="onOverlay"
                     icon="heroicons-solid:download"
                     icon-size="20"
                     wfull
@@ -63,6 +64,7 @@
                     Download
                 </UiButton>
                 <UiButton
+                    variant="onOverlay"
                     icon="heroicons-solid:trash"
                     icon-size="20"
                     wfull

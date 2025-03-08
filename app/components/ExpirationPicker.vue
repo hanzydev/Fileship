@@ -22,7 +22,7 @@
                             ? 'heroicons-solid:check'
                             : 'heroicons-solid:clock'
                     "
-                    :variant="option.value === expiration.value ? 'accent' : 'primary'"
+                    :variant="option.value === expiration.value ? 'accent' : 'onOverlay'"
                     icon-size="20"
                     wfull
                     gap2

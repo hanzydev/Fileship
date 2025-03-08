@@ -29,6 +29,7 @@
                 <template #content>
                     <div w36 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-accent">
                         <UiButton
+                            variant="onOverlay"
                             icon="heroicons:pencil-16-solid"
                             icon-size="20"
                             wfull
@@ -38,6 +39,7 @@
                             Edit
                         </UiButton>
                         <UiButton
+                            variant="onOverlay"
                             icon="heroicons-solid:trash"
                             icon-size="20"
                             wfull

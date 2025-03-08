@@ -44,7 +44,7 @@
                     v-for="item in items"
                     :key="item.name"
                     :href="item.href"
-                    :variant="item.href === route.path ? 'accent' : 'primary'"
+                    :variant="item.href === route.path ? 'accent' : 'onOverlay'"
                     :icon="item.icon"
                     icon-size="20"
                     alignment="left"

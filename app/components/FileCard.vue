@@ -9,7 +9,7 @@
             motion-safe:transition-shadow
             ring="1 fs-overlay-4"
             :class="[
-                selected && '!ring-2 ring-fs-accent',
+                selected && '!ring-2 !ring-fs-accent',
                 !selectable && (ctxOpen || !canBeViewed)
                     ? 'cursor-default'
                     : 'cursor-pointer hover:(ring-1 ring-fs-accent)',
@@ -111,6 +111,7 @@
             <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-accent">
                 <UiButton
                     v-if="!selectable || canBeViewed"
+                    variant="onOverlay"
                     icon="heroicons:eye-16-solid"
                     icon-size="20"
                     wfull
@@ -126,6 +127,7 @@
                     Open
                 </UiButton>
                 <UiButton
+                    variant="onOverlay"
                     icon="heroicons-solid:clipboard-copy"
                     icon-size="20"
                     wfull
@@ -135,6 +137,7 @@
                     Copy Link
                 </UiButton>
                 <UiButton
+                    variant="onOverlay"
                     icon="heroicons-solid:download"
                     icon-size="20"
                     wfull
@@ -146,6 +149,7 @@
                 </UiButton>
                 <UiButton
                     v-if="currentUser?.id === data.authorId"
+                    variant="onOverlay"
                     icon="heroicons:pencil-16-solid"
                     icon-size="20"
                     wfull
@@ -159,6 +163,7 @@
                 </UiButton>
                 <UiButton
                     v-if="currentUser?.id === data.authorId && data.folderId && !selectable"
+                    variant="onOverlay"
                     icon="heroicons-solid:folder-remove"
                     icon-size="20"
                     wfull
@@ -229,6 +234,7 @@
                                     v-for="(folder, index) in results.map((r) => r.item)"
                                     :key="index"
                                     :disabled="updating"
+                                    variant="onOverlay"
                                     wfull
                                     gap2
                                     break-all
@@ -242,6 +248,7 @@
                 </UiDropdown>
                 <UiButton
                     v-if="currentUser?.id === data.authorId"
+                    variant="onOverlay"
                     icon="heroicons-solid:trash"
                     icon-size="20"
                     wfull

@@ -38,6 +38,7 @@
                 :icon="passwordVisible ? 'heroicons-solid:eye' : 'heroicons-solid:eye-off'"
                 icon-size="20"
                 variant="secondary"
+                hover="!ring-none"
                 aria-label="Toggle password visibility"
                 :disabled="disabled || readonly"
                 @click="passwordVisible = !passwordVisible"

@@ -35,6 +35,7 @@
                       'hover:bg-red-500': variant === 'danger',
                       'hover:(bg-red-600 ring-1 ring-white)': variant === 'dangerFill',
                       'hover:bg-fs-accent': variant === 'outline',
+                      'hover:bg-fs-overlay-3': variant === 'onOverlay',
                   },
         ]"
         :target="href ? (href?.startsWith('http') ? '_blank' : '_self') : undefined"
@@ -62,7 +63,15 @@ const {
     iconSize = '16',
     href,
 } = defineProps<{
-    variant?: 'accent' | 'primary' | 'secondary' | 'tertiary' | 'danger' | 'dangerFill' | 'outline';
+    variant?:
+        | 'accent'
+        | 'primary'
+        | 'secondary'
+        | 'tertiary'
+        | 'danger'
+        | 'dangerFill'
+        | 'outline'
+        | 'onOverlay';
     alignment?: 'left' | 'center' | 'right';
     loading?: boolean;
     icon?: string;

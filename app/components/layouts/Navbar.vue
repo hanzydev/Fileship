@@ -105,7 +105,7 @@
                             <UiButton
                                 v-for="item in profileItems"
                                 :key="item.name"
-                                :variant="route.path.startsWith(item.href) ? 'accent' : 'primary'"
+                                :variant="route.path.startsWith(item.href) ? 'accent' : 'onOverlay'"
                                 wfull
                                 gap2.5
                                 icon-size="20"
@@ -121,6 +121,7 @@
                                     gap2.5
                                     icon-size="20"
                                     icon="heroicons-solid:color-swatch"
+                                    variant="onOverlay"
                                 >
                                     Themes
                                 </UiButton>
@@ -139,7 +140,9 @@
                                         <UiButton
                                             v-for="[theme, { accent }] in Object.entries(themes)"
                                             :key="theme"
-                                            :variant="currentTheme === theme ? 'accent' : 'primary'"
+                                            :variant="
+                                                currentTheme === theme ? 'accent' : 'onOverlay'
+                                            "
                                             :icon="
                                                 currentTheme === theme
                                                     ? 'heroicons-solid:check'

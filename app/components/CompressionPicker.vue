@@ -21,7 +21,7 @@
                             ? 'heroicons-solid:check'
                             : 'heroicons-solid:archive'
                     "
-                    :variant="option.value === compression.value ? 'accent' : 'primary'"
+                    :variant="option.value === compression.value ? 'accent' : 'onOverlay'"
                     icon-size="20"
                     wfull
                     gap2
