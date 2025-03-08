@@ -1,5 +1,28 @@
 # Changelog
 
+## v2.3.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.2.5...v2.3.0)
+
+### 🩹 Fixes
+
+- Add missing @vueuse/integrations dep ([a81fe4b](https://github.com/hanzydev/Fileship/commit/a81fe4b))
+- Docker file ([a469e44](https://github.com/hanzydev/Fileship/commit/a469e44))
+- Override unconfig to ^7.3.0 ([a19d18a](https://github.com/hanzydev/Fileship/commit/a19d18a))
+
+### 💅 Refactors
+
+- Reduce ring usage for better UI ([4f3d109](https://github.com/hanzydev/Fileship/commit/4f3d109))
+- Reduce ring usage for better UI ([4ceb383](https://github.com/hanzydev/Fileship/commit/4ceb383))
+
+### 🏡 Chore
+
+- Lint fix ([73fcc6a](https://github.com/hanzydev/Fileship/commit/73fcc6a))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.2.5
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.2.4...v2.2.5)
