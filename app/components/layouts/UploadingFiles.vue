@@ -136,8 +136,10 @@
                                 <template #content>
                                     <div w40 rounded-lg bg-fs-overlay-2 p1.5 ring="1 fs-accent">
                                         <UiButton
+                                            variant="onOverlay"
                                             wfull
                                             gap2
+                                            text-red-500
                                             py1="!"
                                             icon="heroicons-solid:x"
                                             icon-size="20"

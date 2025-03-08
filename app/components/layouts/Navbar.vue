@@ -174,6 +174,7 @@
                             </UiDropdown>
 
                             <UiButton
+                                variant="onOverlay"
                                 wfull
                                 gap2.5
                                 text-red-500
