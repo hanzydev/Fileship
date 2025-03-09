@@ -125,6 +125,7 @@ const handleSubmit = async () => {
 
         toast.success('URL shortened successfully');
     } catch (error: any) {
+        if (!error.data.data?.formErrors) toast.error(error.data.message);
         formErrors.value = error.data.data?.formErrors;
     }
 
