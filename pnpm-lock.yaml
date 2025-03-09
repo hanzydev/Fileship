@@ -94,8 +94,8 @@ importers:
         specifier: ^3.15.4
         version: 3.15.4(magicast@0.3.5)
       '@nuxtjs/turnstile':
-        specifier: ^0.9.11
-        version: 0.9.12(@nuxt/scripts@0.10.5(@unhead/vue@1.11.20(vue@3.5.13(typescript@5.8.2)))(db0@0.3.1)(ioredis@5.5.0)(magicast@0.3.5)(typescript@5.8.2))(magicast@0.3.5)
+        specifier: ^0.9.13
+        version: 0.9.13(@nuxt/scripts@0.10.5(@unhead/vue@1.11.20(vue@3.5.13(typescript@5.8.2)))(db0@0.3.1)(ioredis@5.5.0)(magicast@0.3.5)(typescript@5.8.2))(magicast@0.3.5)
       '@prisma/client':
         specifier: ^6.4.1
         version: 6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2)
@@ -1437,6 +1437,10 @@ packages:
     resolution: {integrity: sha512-dr7I7eZOoRLl4uxdxeL2dQsH0OrbEiVPIyBHnBpA4co24CBnoJoF+JINuP9l3PAM3IhUzc5JIVq3/YY3lEc3Hw==}
     engines: {node: '>=18.12.0'}
 
+  '@nuxt/kit@3.16.0':
+    resolution: {integrity: sha512-yPfhk58BG6wJhELkGOTCOlkMDbZkizk3IaINcyTKm+hBKiK3SheLt7S9HStNL+qZSfH2Cf7A8sYp6M72lOIEtA==}
+    engines: {node: '>=18.12.0'}
+
   '@nuxt/schema@3.15.4':
     resolution: {integrity: sha512-pAYZb/3ocSC/db1EFd5y+otmgHqUkvfxfhd9EknDB5DygnJuOIQNuGJ7LMJM6S2c0DYgBIHOdEelLxKHOjwbgQ==}
     engines: {node: ^14.18.0 || >=16.10.0}
@@ -1470,8 +1474,8 @@ packages:
     peerDependencies:
       vue: ^3.3.4
 
-  '@nuxtjs/turnstile@0.9.12':
-    resolution: {integrity: sha512-/GRvI2ahQtHBoKLAErIt1p3zomm2vduLFwqQjiINaNbEIbm8mPsrNDVhPSlocdHJkASpBs+0GnYXZzJLfjatEA==}
+  '@nuxtjs/turnstile@0.9.13':
+    resolution: {integrity: sha512-g/Uhd3EKrQYOIbN/uQ0UjY4bf6hrTclAiGu+8MikUaYcAdeVL1w/X5VaS5E7QXkv/cI6v28lORnLVadHfv4vwQ==}
     peerDependencies:
       '@nuxt/scripts': ^0.10.0
 
@@ -3381,6 +3385,9 @@ packages:
 
   exsolve@1.0.1:
     resolution: {integrity: sha512-Smf0iQtkQVJLaph8r/qS8C8SWfQkaq9Q/dFcD44MLbJj6DNhlWefVuaS21SjfqOsBbjVlKtbCj6L9ekXK6EZUg==}
+
+  exsolve@1.0.4:
+    resolution: {integrity: sha512-xsZH6PXaER4XoV+NiT7JHp1bJodJVT+cxeSH1G0f0tlT0lJqYuHUP3bUx2HtfTDvOagMINYp8rsqusxud3RXhw==}
 
   externality@1.0.2:
     resolution: {integrity: sha512-LyExtJWKxtgVzmgtEHyQtLFpw1KFhQphF9nTG8TpAIVkiI/xQ3FJh75tRFLYl4hkn7BNIIdLJInuDAavX35pMw==}
@@ -7615,6 +7622,33 @@ snapshots:
       - magicast
       - supports-color
 
+  '@nuxt/kit@3.16.0(magicast@0.3.5)':
+    dependencies:
+      c12: 3.0.2(magicast@0.3.5)
+      consola: 3.4.0
+      defu: 6.1.4
+      destr: 2.0.3
+      errx: 0.1.0
+      exsolve: 1.0.4
+      globby: 14.1.0
+      ignore: 7.0.3
+      jiti: 2.4.2
+      klona: 2.0.6
+      knitwork: 1.2.0
+      mlly: 1.7.4
+      ohash: 2.0.11
+      pathe: 2.0.3
+      pkg-types: 2.1.0
+      scule: 1.3.0
+      semver: 7.7.1
+      std-env: 3.8.1
+      ufo: 1.5.4
+      unctx: 2.4.1
+      unimport: 4.1.2
+      untyped: 2.0.0
+    transitivePeerDependencies:
+      - magicast
+
   '@nuxt/schema@3.15.4':
     dependencies:
       consola: 3.4.0
@@ -7743,16 +7777,15 @@ snapshots:
       - vue-tsc
       - yaml
 
-  '@nuxtjs/turnstile@0.9.12(@nuxt/scripts@0.10.5(@unhead/vue@1.11.20(vue@3.5.13(typescript@5.8.2)))(db0@0.3.1)(ioredis@5.5.0)(magicast@0.3.5)(typescript@5.8.2))(magicast@0.3.5)':
+  '@nuxtjs/turnstile@0.9.13(@nuxt/scripts@0.10.5(@unhead/vue@1.11.20(vue@3.5.13(typescript@5.8.2)))(db0@0.3.1)(ioredis@5.5.0)(magicast@0.3.5)(typescript@5.8.2))(magicast@0.3.5)':
     dependencies:
-      '@nuxt/kit': 3.15.4(magicast@0.3.5)
+      '@nuxt/kit': 3.16.0(magicast@0.3.5)
       '@nuxt/scripts': 0.10.5(@unhead/vue@1.11.20(vue@3.5.13(typescript@5.8.2)))(db0@0.3.1)(ioredis@5.5.0)(magicast@0.3.5)(typescript@5.8.2)
       '@types/cloudflare-turnstile': 0.2.2
       defu: 6.1.4
       pathe: 2.0.3
     transitivePeerDependencies:
       - magicast
-      - supports-color
 
   '@otplib/core@12.0.1': {}
 
@@ -10078,6 +10111,8 @@ snapshots:
       yoctocolors: 2.1.1
 
   exsolve@1.0.1: {}
+
+  exsolve@1.0.4: {}
 
   externality@1.0.2:
     dependencies:
