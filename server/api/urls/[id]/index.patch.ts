@@ -97,7 +97,7 @@ export default defineEventHandler(async (event) => {
             throw createError({
                 statusCode: 409,
                 statusMessage: 'Conflict',
-                message: 'A url with that vanity already exists',
+                message: 'A URL with that vanity already exists',
             });
         }
     }
