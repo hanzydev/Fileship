@@ -186,7 +186,6 @@ const handleEdit = async () => {
 
         toast.success('Code updated successfully');
     } catch (error: any) {
-        if (!error.data.data?.formErrors) toast.error(error.data.message);
         formErrors.value = error.data.data?.formErrors;
     }
 

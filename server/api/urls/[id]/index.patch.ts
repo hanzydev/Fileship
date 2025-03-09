@@ -86,6 +86,22 @@ export default defineEventHandler(async (event) => {
         delete body.data.expiration;
     }
 
+    if (body.data.vanity && body.data.vanity !== findUrlById.vanity) {
+        const findUrlByVanity = await prisma.url.findUnique({
+            where: {
+                vanity: body.data.vanity,
+            },
+        });
+
+        if (findUrlByVanity) {
+            throw createError({
+                statusCode: 409,
+                statusMessage: 'Conflict',
+                message: 'A url with that vanity already exists',
+            });
+        }
+    }
+
     const _updatedUrl = await prisma.url.update({
         where: {
             id: urlId,
