@@ -94,8 +94,8 @@ importers:
         specifier: ^3.15.4
         version: 3.15.4(magicast@0.3.5)
       '@nuxtjs/turnstile':
-        specifier: ^0.9.13
-        version: 0.9.13(@nuxt/scripts@0.10.5(@unhead/vue@1.11.20(vue@3.5.13(typescript@5.8.2)))(db0@0.3.1)(ioredis@5.5.0)(magicast@0.3.5)(typescript@5.8.2))(magicast@0.3.5)
+        specifier: ^0.9.16
+        version: 0.9.16(@nuxt/scripts@0.10.5(@unhead/vue@1.11.20(vue@3.5.13(typescript@5.8.2)))(db0@0.3.1)(ioredis@5.5.0)(magicast@0.3.5)(typescript@5.8.2))(magicast@0.3.5)
       '@prisma/client':
         specifier: ^6.5.0
         version: 6.5.0(prisma@6.5.0(typescript@5.8.2))(typescript@5.8.2)
@@ -1467,10 +1467,10 @@ packages:
     peerDependencies:
       vue: ^3.3.4
 
-  '@nuxtjs/turnstile@0.9.13':
-    resolution: {integrity: sha512-g/Uhd3EKrQYOIbN/uQ0UjY4bf6hrTclAiGu+8MikUaYcAdeVL1w/X5VaS5E7QXkv/cI6v28lORnLVadHfv4vwQ==}
+  '@nuxtjs/turnstile@0.9.16':
+    resolution: {integrity: sha512-lx+CBgdBJ8wALZzVwlcDCWcHIJHFoXLVQnBKgCVnt0fPDz+8rSMY/p8jRW3TamFrPTxE3HdwEwXLotlPfLQVTQ==}
     peerDependencies:
-      '@nuxt/scripts': ^0.10.0
+      '@nuxt/scripts': ^0.11.0
 
   '@otplib/core@12.0.1':
     resolution: {integrity: sha512-4sGntwbA/AC+SbPhbsziRiD+jNDdIzsZ3JUyfZwjtKyc/wufl1pnSIaG4Uqx8ymPagujub0o92kgBnB89cuAMA==}
@@ -7764,7 +7764,7 @@ snapshots:
       - vue-tsc
       - yaml
 
-  '@nuxtjs/turnstile@0.9.13(@nuxt/scripts@0.10.5(@unhead/vue@1.11.20(vue@3.5.13(typescript@5.8.2)))(db0@0.3.1)(ioredis@5.5.0)(magicast@0.3.5)(typescript@5.8.2))(magicast@0.3.5)':
+  '@nuxtjs/turnstile@0.9.16(@nuxt/scripts@0.10.5(@unhead/vue@1.11.20(vue@3.5.13(typescript@5.8.2)))(db0@0.3.1)(ioredis@5.5.0)(magicast@0.3.5)(typescript@5.8.2))(magicast@0.3.5)':
     dependencies:
       '@nuxt/kit': 3.16.0(magicast@0.3.5)
       '@nuxt/scripts': 0.10.5(@unhead/vue@1.11.20(vue@3.5.13(typescript@5.8.2)))(db0@0.3.1)(ioredis@5.5.0)(magicast@0.3.5)(typescript@5.8.2)
