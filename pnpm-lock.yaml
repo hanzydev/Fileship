@@ -33,8 +33,8 @@ importers:
         specifier: ^10.1.6
         version: 10.1.6
       nanoid:
-        specifier: ^5.1.3
-        version: 5.1.3
+        specifier: ^5.1.5
+        version: 5.1.5
       otplib:
         specifier: ^12.0.1
         version: 12.0.1
@@ -4310,8 +4310,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanoid@5.1.3:
-    resolution: {integrity: sha512-zAbEOEr7u2CbxwoMRlz/pNSpRP0FdAU4pRaYunCdEezWohXFs+a0Xw7RfkKaezMsmSM1vttcLthJtwRnVtOfHQ==}
+  nanoid@5.1.5:
+    resolution: {integrity: sha512-Ir/+ZpE9fDsNH0hQ3C68uyThDXzYcim2EqcZ8zn8Chtt1iylPT9xXJB0kPCnqzgcEGikO9RxSrh63MsmVCU7Fw==}
     engines: {node: ^18 || >=20}
     hasBin: true
 
@@ -8715,7 +8715,7 @@ snapshots:
       '@vue/devtools-kit': 7.6.8
       '@vue/devtools-shared': 7.7.2
       mitt: 3.0.1
-      nanoid: 5.1.3
+      nanoid: 5.1.5
       pathe: 1.1.2
       vite-hot-client: 0.2.4(vite@6.2.0(@types/node@22.13.9)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))
       vue: 3.5.13(typescript@5.8.2)
@@ -10997,7 +10997,7 @@ snapshots:
 
   nanoid@3.3.8: {}
 
-  nanoid@5.1.3: {}
+  nanoid@5.1.5: {}
 
   nanotar@0.2.0: {}
 
