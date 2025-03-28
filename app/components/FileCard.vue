@@ -108,7 +108,7 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-accent">
+            <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
                 <UiButton
                     v-if="!selectable || canBeViewed"
                     variant="onOverlay"
@@ -183,6 +183,7 @@
                         icon-size="20"
                         wfull
                         gap2
+                        variant="onOverlay"
                         :disabled="updating"
                     >
                         Add to Folder
@@ -195,7 +196,7 @@
                             rounded-lg
                             bg-fs-overlay-2
                             p1.5
-                            ring="1 fs-accent"
+                            ring="1 fs-overlay-4"
                             space-y-2
                         >
                             <UiSearchBar

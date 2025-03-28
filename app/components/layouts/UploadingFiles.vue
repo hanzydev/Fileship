@@ -134,7 +134,7 @@
                                     />
                                 </div>
                                 <template #content>
-                                    <div w40 rounded-lg bg-fs-overlay-2 p1.5 ring="1 fs-accent">
+                                    <div w40 rounded-lg bg-fs-overlay-2 p1.5 ring="1 fs-overlay-4">
                                         <UiButton
                                             variant="onOverlay"
                                             wfull

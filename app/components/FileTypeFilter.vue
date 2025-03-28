@@ -23,7 +23,7 @@
                 p1.5
                 sm:w56
                 space-y-1
-                ring="1 fs-accent"
+          ring="1 fs-overlay-4"
             >
                 <UiButton
                     v-for="_type in ['image', 'video', 'audio']"

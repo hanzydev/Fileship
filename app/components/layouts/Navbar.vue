@@ -92,7 +92,7 @@
                     motion-safe:transition-all
                 />
                 <template #content>
-                    <div w60 rounded-lg bg-fs-overlay-2 p1.5 ring="1 fs-accent" space-y-2>
+                    <div w60 rounded-lg bg-fs-overlay-2 p1.5 ring="1 fs-overlay-4" space-y-2>
                         <div mx3.5 mt3.5 space-y-2>
                             <h4>
                                 {{ upperFirst(currentUser!.username) }}
@@ -128,7 +128,7 @@
 
                                 <template #content>
                                     <div
-                                        ring="1 fs-accent"
+                                        ring="1 fs-overlay-4"
                                         h96
                                         w60
                                         overflow-y-auto

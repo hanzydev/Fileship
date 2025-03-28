@@ -12,7 +12,7 @@
                 bg-fs-overlay-2
                 p1.5
                 space-y-2
-                ring="1 fs-accent"
+                ring="1 fs-overlay-4"
             >
                 <UiSearchBar
                     v-model="searchQuery"
