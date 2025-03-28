@@ -1,5 +1,37 @@
 # Changelog
 
+## v3.0.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v2.3.0...v3.0.0)
+
+### 🚀 Enhancements
+
+- **themes:** Make the default theme better and add onyx theme ([7219dd1](https://github.com/hanzydev/Fileship/commit/7219dd1))
+
+### 🩹 Fixes
+
+- Add error handler to url shortening ([53e3748](https://github.com/hanzydev/Fileship/commit/53e3748))
+- Prisma ([e3c61ab](https://github.com/hanzydev/Fileship/commit/e3c61ab))
+
+### 💅 Refactors
+
+- Add vanity checking to url editing ([9a1238c](https://github.com/hanzydev/Fileship/commit/9a1238c))
+- Correct typo ([61505a8](https://github.com/hanzydev/Fileship/commit/61505a8))
+- **ui:** Reduce accent ring usage ([8304e81](https://github.com/hanzydev/Fileship/commit/8304e81))
+- **ui:** Update border radius and colors for consistency ([1f5f61c](https://github.com/hanzydev/Fileship/commit/1f5f61c))
+- **ui:** Update border radius and colors for consistency ([3384d4c](https://github.com/hanzydev/Fileship/commit/3384d4c))
+- Update preview photos ([1d73d58](https://github.com/hanzydev/Fileship/commit/1d73d58))
+
+### 🏡 Chore
+
+- **release:** V2.3.0 ([50239cc](https://github.com/hanzydev/Fileship/commit/50239cc))
+- Upgrade deps ([7905e2f](https://github.com/hanzydev/Fileship/commit/7905e2f))
+- Lint fix ([993e06f](https://github.com/hanzydev/Fileship/commit/993e06f))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v2.3.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.2.5...v2.3.0)
