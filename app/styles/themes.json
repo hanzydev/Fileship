@@ -1,8 +1,13 @@
 {
     "Fileship": {
-        "overlays": ["#1b2233", "#20283b", "#242e44", "#2a364f"],
-        "background": "#121826",
-        "accent": "#5e58f9"
+        "overlays": ["#1a1a1e", "#202024", "#242428", "#2a2a2e"],
+        "background": "#121214",
+        "accent": "#5865f2"
+    },
+    "Onyx": {
+        "overlays": ["#070709", "#0c0c0e", "#121214", "#171719"],
+        "background": "#000000",
+        "accent": "#5865f2"
     },
     "AMOLED": {
         "overlays": ["#050505", "#121212", "#191919", "#262626"],
@@ -29,11 +34,6 @@
         "background": "#101119",
         "accent": "#5e3766"
     },
-    "StarryNights": {
-        "overlays": ["#15191e", "#1b1f24", "#21252b", "#282c34"],
-        "background": "#0b0d11",
-        "accent": "#ad00a8"
-    },
     "TokyoNight": {
         "overlays": ["#0a0a13", "#0d0d17", "#12121e", "#1a1b26"],
         "background": "#07070f",
@@ -58,10 +58,5 @@
         "overlays": ["#002b36", "#073642", "#0b5568", "#0f748e"],
         "background": "#00232c",
         "accent": "#268bd2"
-    },
-    "MaterialDark": {
-        "overlays": ["#121212", "#1e1e1e", "#2c2c2c", "#3c3c3c"],
-        "background": "#090909",
-        "accent": "#bb86fc"
     }
 }
