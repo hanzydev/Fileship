@@ -55,7 +55,9 @@
         >
             <h3>Enable Authenticator App</h3>
 
-            <p text-neutral200 font-medium="!">Scan the QR code below with your authenticator app.</p>
+            <p text-neutral200 font-medium="!">
+                Scan the QR code below with your authenticator app.
+            </p>
 
             <div relative p8>
                 <div
@@ -495,7 +497,9 @@
                     </div>
                     <template #content>
                         <form space-y-4 @submit.prevent="handleEmbedEdit">
-                            <p text-neutral200>Configure how your files are embedded when shared.</p>
+                            <p text-neutral200>
+                                Configure how your files are embedded when shared.
+                            </p>
 
                             <div grid="~ gap4 sm:cols-2">
                                 <UiInput
