@@ -50,7 +50,7 @@
                 <h3>Views</h3>
 
                 <Loading v-if="isLoading" />
-                <div v-else min-h-365px rounded-md bg-fs-overlay-2 ring="1 fs-overlay-4">
+                <div v-else min-h-365px rounded-xl bg-fs-overlay-2 ring="1 fs-overlay-4">
                     <ClientOnly>
                         <VueApexCharts
                             type="area"
@@ -135,7 +135,7 @@
 
                 <div
                     flex="~ justify-between lt-xl:col"
-                    rounded-md
+                    rounded-xl
                     bg-fs-overlay-2
                     ring="1 fs-overlay-4"
                 >
@@ -161,7 +161,7 @@
                                             h(
                                                 'p',
                                                 {
-                                                    class: 'text-slate200',
+                                                    class: 'text-neutral200',
                                                 },
                                                 titleCase(row.user.username),
                                             ),
@@ -214,7 +214,7 @@
 
                 <div
                     flex="~ justify-between lt-xl:col"
-                    rounded-md
+                    rounded-xl
                     bg-fs-overlay-2
                     ring="1 fs-overlay-4"
                 >
@@ -240,7 +240,7 @@
                                             h(
                                                 'p',
                                                 {
-                                                    class: 'text-slate200',
+                                                    class: 'text-neutral200',
                                                 },
                                                 titleCase(row.user.username),
                                             ),
@@ -298,7 +298,7 @@
 
                 <div
                     flex="~ justify-between <xl:col"
-                    rounded-md
+                    rounded-xl
                     bg-fs-overlay-2
                     ring="1 fs-overlay-4"
                 >

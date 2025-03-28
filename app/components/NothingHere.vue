@@ -2,16 +2,16 @@
     <div
         flex="~ col gap4 items-center justify-center"
         h48
-        rounded-md
+        rounded-xl
         bg-fs-overlay-2
         text-center
         ring="1 fs-overlay-4"
     >
-        <div flex="~ gap4 items-center" text-slate200>
+        <div flex="~ gap4 items-center" text-neutral200>
             <Icon :name="icon" size="32" />
             <h3>Nothing here</h3>
         </div>
-        <p text-slate300>{{ message }}</p>
+        <p text-neutral300>{{ message }}</p>
     </div>
 </template>
 

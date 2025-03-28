@@ -1,7 +1,7 @@
 <template>
     <div flex="~ col gap4" wfull>
         <div
-            border="~ 2 dashed rounded-md fs-accent"
+            border="~ 2 dashed rounded-xl fs-accent"
             relative
             h48
             wfull

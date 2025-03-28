@@ -16,7 +16,7 @@
                 </div>
 
                 <div h1 rounded-full bg-fs-accent></div>
-                <p text-slate200 font-medium>
+                <p text-neutral200 font-medium>
                     {{
                         error.statusCode === 403
                             ? "Houston you... you aren't houston!"

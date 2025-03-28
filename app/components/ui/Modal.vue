@@ -28,7 +28,7 @@
                 z40
                 max-w-640px
                 overflow-auto
-                rounded-lg
+                rounded-2xl
                 bg-fs-overlay-1
                 left="1/2"
                 top="1/2"

@@ -39,7 +39,7 @@
                             :style="{
                                 width: `${uploadProgress}%`,
                             }"
-                            :class="uploadProgress < 100 ? 'rounded-bl-md' : 'rounded-b-md'"
+                            :class="uploadProgress < 100 ? 'rounded-bl-lg' : 'rounded-b-lg'"
                         ></div>
                     </Transition>
                 </div>
@@ -52,7 +52,7 @@
                         flex="~ col gap4 justify-between"
                     >
                         <UiSkeletonLine h5 wfull />
-                        <div text-slate300 space-y-2>
+                        <div text-neutral300 space-y-2>
                             <UiSkeletonLine h4 w16 />
                             <UiSkeletonLine h4 w40 />
                         </div>

@@ -7,7 +7,7 @@
                 top-6
                 w56
                 overflow-y-auto
-                rounded-lg
+                rounded-xl
                 bg-fs-overlay-2
                 p1.5
                 space-y-1

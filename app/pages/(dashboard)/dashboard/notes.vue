@@ -25,7 +25,7 @@
                                 width: `${randomNumber(30, 70)}%`,
                             }"
                         />
-                        <UiSkeletonLine h4 w40 text-slate300 />
+                        <UiSkeletonLine h4 w40 text-neutral300 />
                     </UiSkeletonCard>
                 </template>
                 <TransitionGroup

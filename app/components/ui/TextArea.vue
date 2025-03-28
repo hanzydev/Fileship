@@ -7,13 +7,13 @@
             v-bind="$attrs"
             :id="label && id"
             v-model="value"
-            rounded-md
+            rounded-lg
             bg-fs-overlay-3
             px3.5
             py2.5
             outline-none
             motion-safe:transition-shadow
-            placeholder-slate-300
+            placeholder-neutral300
             ring="1 fs-overlay-4"
             :class="[disabled || $props.readonly ? 'cursor-not-allowed' : 'focus:ring-fs-accent']"
             :rows="lines > 2 ? lines : 2"

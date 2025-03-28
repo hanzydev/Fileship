@@ -63,7 +63,7 @@
                                     h(
                                         'p',
                                         {
-                                            class: 'text-slate200',
+                                            class: 'text-neutral200',
                                         },
                                         system
                                             ? 'System'

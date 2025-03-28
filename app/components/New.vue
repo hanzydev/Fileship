@@ -4,11 +4,12 @@
         border="2 dashed fs-accent"
         ring-none="!"
         wfull
-        :class="disabled ? 'cursor-not-allowed op75' : 'cursor-pointer'"
+        rounded-xl
+        :disabled
         @click="!disabled && $emit('action')"
     >
-        <UiSpinner v-if="disabled" :size="56" stroke-slate400 />
-        <Icon v-else :name="icon" size="56" text-slate400 />
+        <UiSpinner v-if="disabled" :size="56" stroke-neutral400 />
+        <Icon v-else :name="icon" size="56" text-neutral400 />
     </UiButton>
 </template>
 

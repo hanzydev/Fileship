@@ -3,7 +3,7 @@
         <div flex="~ col gap4 justify-center items-center" wfull p8 text-center>
             <Icon name="heroicons-solid:exclamation" size="96" />
             <h3>{{ title }}</h3>
-            <p text-slate300 font-medium>
+            <p text-neutral300 font-medium>
                 {{ description }}
             </p>
             <div grid="~ gap2 sm:cols-2 sm:gap4" wfull>

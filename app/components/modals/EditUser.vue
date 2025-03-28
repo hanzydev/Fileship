@@ -49,7 +49,7 @@
                         relative
                         top-6
                         w52
-                        rounded-lg
+                        rounded-xl
                         bg-fs-overlay-2
                         p1.5
                         ring="1 fs-overlay-4"

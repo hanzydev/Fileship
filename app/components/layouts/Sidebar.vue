@@ -63,7 +63,7 @@
                     m5.5
                     mta
                     wfit
-                    text-slate300
+                    text-neutral300
                     font-medium
                     hover:text-white
                     motion-safe:transition-colors

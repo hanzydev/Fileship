@@ -3,7 +3,7 @@
         enter-active-class="motion-safe:(animate-in fade-in zoom-in-95 slide-in-bottom-2)"
         leave-active-class="motion-safe:(animate-out fade-out zoom-out-95 slide-out-bottom-2)"
     >
-        <div v-if="isOpen" fixed bottom-6 z30 wfull rounded-md md="right-6 w40rem" lt-md:px4>
+        <div v-if="isOpen" fixed bottom-6 z30 wfull rounded-xl md="right-6 w40rem" lt-md:px4>
             <UiDropdown placement="top" wfull md:w40rem>
                 <UiButton
                     :icon="
@@ -11,13 +11,14 @@
                             ? 'heroicons-solid:exclamation-circle'
                             : 'heroicons-solid:information-circle'
                     "
-                    wfull
-                    gap2
                     py3="!"
-                    ring-1
                     :class="isErrored ? '!ring-red-500' : 'ring-fs-accent'"
                     :icon-class="isErrored && '!text-red-500'"
                     icon-size="20"
+                    wfull
+                    gap2
+                    rounded-xl
+                    ring-1
                 >
                     <template v-if="isErrored">Some file(s) have errors</template>
                     <template v-else>
@@ -36,7 +37,7 @@
                         max-h40rem
                         wfull
                         overflow-y-auto
-                        rounded-md
+                        rounded-xl
                         bg-fs-overlay-2
                         p4
                         ring-1
@@ -53,7 +54,7 @@
                             <UiDivider />
                         </div>
 
-                        <div flex="~ items-center" wfull rounded bg-fs-overlay-3 px3 py2>
+                        <div flex="~ items-center" wfull rounded-md bg-fs-overlay-3 px3 py2>
                             <h6 w="2/4">File</h6>
                             <h6 w="1/4">Size</h6>
                             <h6 w="2/4">Status</h6>
@@ -134,7 +135,7 @@
                                     />
                                 </div>
                                 <template #content>
-                                    <div w40 rounded-lg bg-fs-overlay-2 p1.5 ring="1 fs-overlay-4">
+                                    <div w40 rounded-xl bg-fs-overlay-2 p1.5 ring="1 fs-overlay-4">
                                         <UiButton
                                             variant="onOverlay"
                                             wfull

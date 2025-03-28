@@ -25,7 +25,7 @@
                                 width: `${randomNumber(30, 70)}%`,
                             }"
                         />
-                        <div text-slate300 space-y-2>
+                        <div text-neutral300 space-y-2>
                             <UiSkeletonLine h4 w16 />
                             <UiSkeletonLine h4 w40 />
                         </div>

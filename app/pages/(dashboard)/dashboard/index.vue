@@ -152,7 +152,7 @@
                                         h(UiButton, {
                                             variant: 'outline',
                                             alignment: 'center',
-                                            class: 'h8 w8 !p0 text-slate300 hover:text-white',
+                                            class: 'h8 w8 !p0 text-neutral300 hover:text-white',
                                             icon: canBeViewed
                                                 ? 'heroicons:eye-16-solid'
                                                 : 'heroicons-solid:external-link',
@@ -179,7 +179,7 @@
                                                 'h8 w8 !p0 hover:text-white',
                                                 copiedFiles.has(row.fileName)
                                                     ? 'text-green500'
-                                                    : 'text-slate300',
+                                                    : 'text-neutral300',
                                             ],
                                             icon: copiedFiles.has(row.fileName)
                                                 ? 'heroicons-solid:clipboard-check'
@@ -191,7 +191,7 @@
                                         h(UiButton, {
                                             variant: 'outline',
                                             alignment: 'center',
-                                            class: 'h8 w8 !p0 text-slate300 hover:text-white',
+                                            class: 'h8 w8 !p0 text-neutral300 hover:text-white',
                                             href: `${row.directUrl}?download`,
                                             target: '_blank',
                                             icon: 'heroicons-solid:download',
@@ -201,7 +201,7 @@
                                         h(UiButton, {
                                             variant: 'outline',
                                             alignment: 'center',
-                                            class: 'h8 w8 !p0 text-slate300 hover:text-white',
+                                            class: 'h8 w8 !p0 text-neutral300 hover:text-white',
                                             icon: 'heroicons:pencil-16-solid',
                                             iconSize: '20',
                                             'aria-label': 'Edit file',
@@ -213,7 +213,7 @@
                                         h(UiButton, {
                                             variant: 'outline',
                                             alignment: 'center',
-                                            class: 'h8 w8 !p0 ring-red-500 text-slate300 hover:text-white hover:!bg-red-500',
+                                            class: 'h8 w8 !p0 ring-red-500 text-neutral300 hover:text-white hover:!bg-red-500',
                                             icon: 'heroicons-solid:trash',
                                             iconSize: '20',
                                             disabled: willBeDeleted.has(row.id),

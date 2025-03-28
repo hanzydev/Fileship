@@ -18,7 +18,7 @@
         <div
             h132px
             wfull
-            rounded-md
+            rounded-xl
             bg-fs-overlay-2
             p4
             space-y-4
@@ -30,11 +30,11 @@
                 areYouSureModalOpen = true;
             "
         >
-            <h5 line-clamp-1 break-words text-slate400>
+            <h5 line-clamp-1 break-words text-neutral400>
                 {{ data.id }}
             </h5>
 
-            <div text-slate300 font-medium space-y-2>
+            <div text-neutral300 font-medium space-y-2>
                 <div flex="~ gap2 items-center">
                     <Icon name="mdi:sd-storage" size="20" />
                     <span>
@@ -51,7 +51,7 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
+            <div w48 rounded-xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
                 <UiButton
                     variant="onOverlay"
                     icon="heroicons-solid:download"

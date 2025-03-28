@@ -6,7 +6,7 @@
         <div
             h164px
             wfull
-            rounded-md
+            rounded-xl
             bg-fs-overlay-2
             p4
             space-y-4
@@ -19,11 +19,11 @@
                 filesModal.editMode = false;
             "
         >
-            <h5 line-clamp-1 break-words text-slate400>
+            <h5 line-clamp-1 break-words text-neutral400>
                 {{ data.name }}
             </h5>
 
-            <div text-slate300 space-y-2 font-medium="!">
+            <div text-neutral300 space-y-2 font-medium="!">
                 <div flex="~ gap2 items-center">
                     <Icon name="heroicons-solid:document" size="20" />
                     <span>{{ data.files.length }} files</span>
@@ -50,7 +50,7 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
+            <div w48 rounded-xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
                 <UiButton
                     v-if="data.public"
                     variant="onOverlay"

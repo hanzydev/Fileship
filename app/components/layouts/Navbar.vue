@@ -54,9 +54,10 @@
                 w9
                 alignment="center"
                 icon="heroicons-solid:chevron-left"
-                icon-size="32"
+                icon-size="28"
                 aria-label="Go back to dashboard"
                 href="/dashboard"
+                variant="onOverlay"
             />
             <h2 lt-lg:mxa lt-lg:text-2xl="!">
                 {{ appConfig.site.name }}
@@ -69,7 +70,7 @@
                     variant="outline"
                     alignment="center"
                     p="y-0! x-1.5!"
-                    rounded="!"
+                    rounded-md="!"
                     bg-fs-overlay-2
                     ring-1
                     :class="[version.latest ? 'ring-fs-accent' : 'ring-red-500 hover:!bg-red-500']"
@@ -92,7 +93,7 @@
                     motion-safe:transition-all
                 />
                 <template #content>
-                    <div w60 rounded-lg bg-fs-overlay-2 p1.5 ring="1 fs-overlay-4" space-y-2>
+                    <div w60 rounded-xl bg-fs-overlay-2 p1.5 ring="1 fs-overlay-4" space-y-2>
                         <div mx3.5 mt3.5 space-y-2>
                             <h4>
                                 {{ upperFirst(currentUser!.username) }}
@@ -132,7 +133,7 @@
                                         h96
                                         w60
                                         overflow-y-auto
-                                        rounded-lg
+                                        rounded-xl
                                         bg-fs-overlay-2
                                         p1.5
                                         space-y-1

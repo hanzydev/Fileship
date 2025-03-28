@@ -10,7 +10,7 @@
 
         <ModalsEditPasskey v-model="editModalOpen" :data="data" />
 
-        <div rounded bg-fs-overlay-3 p="2 l3" flex="~ items-center justify-between gap2">
+        <div rounded-lg bg-fs-overlay-3 p="2 l3" flex="~ items-center justify-between gap2">
             <span line-clamp-1 font-medium>
                 {{ data.name }}
             </span>
@@ -24,10 +24,10 @@
                     w8
                     flex-shrink-0
                     alignment="center"
-                    rounded-sm
+                    rounded-md
                 />
                 <template #content>
-                    <div w36 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
+                    <div w36 rounded-xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
                         <UiButton
                             variant="onOverlay"
                             icon="heroicons:pencil-16-solid"

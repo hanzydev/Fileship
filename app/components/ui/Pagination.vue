@@ -2,7 +2,7 @@
     <div
         flex="~ items-center justify-between gap4"
         wfull
-        rounded-md
+        rounded-xl
         bg-fs-overlay-2
         p2
         ring="1 fs-overlay-4"

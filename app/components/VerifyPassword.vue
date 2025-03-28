@@ -1,6 +1,6 @@
 <template>
     <form
-        rounded-lg
+        rounded-xl
         bg-fs-overlay-1
         p8
         sm:w35rem

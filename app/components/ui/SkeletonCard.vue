@@ -1,5 +1,5 @@
 <template>
-    <UiBaseSkeleton wfull rounded-md p4 border="1 fs-overlay-4" :color-steps>
+    <UiBaseSkeleton wfull rounded-xl p4 border="1 fs-overlay-4" :color-steps>
         <slot />
     </UiBaseSkeleton>
 </template>

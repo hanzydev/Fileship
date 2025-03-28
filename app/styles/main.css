@@ -55,5 +55,5 @@ input[type='number'] {
 }
 
 ::-webkit-scrollbar-thumb {
-    @apply rounded-md bg-fs-overlay-4;
+    @apply rounded-xl bg-fs-overlay-4;
 }

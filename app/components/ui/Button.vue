@@ -2,7 +2,7 @@
     <component
         :is="component"
         flex="~ items-center"
-        rounded-md
+        rounded-lg
         px4
         py2
         active:scale-95

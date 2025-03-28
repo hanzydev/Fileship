@@ -14,7 +14,7 @@
             p0="!"
             h8
             w8
-            rounded="!"
+            rounded-md="!"
             hover:bg-white="/20"
             motion-safe:transition-colors
             alignment="center"
@@ -34,7 +34,7 @@
             p0="!"
             h8
             w8
-            rounded="!"
+            rounded-md="!"
             hover:bg-white="/20"
             motion-safe:transition-colors
             alignment="center"

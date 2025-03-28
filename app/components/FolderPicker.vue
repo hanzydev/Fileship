@@ -8,7 +8,7 @@
                 h64
                 w56
                 overflow-y-auto
-                rounded-lg
+                rounded-xl
                 bg-fs-overlay-2
                 p1.5
                 space-y-2
@@ -25,7 +25,7 @@
                     mx4
                     translate-y-16
                     text-center
-                    text-slate300
+                    text-neutral300
                 >
                     There are no folders to display.
                 </p>

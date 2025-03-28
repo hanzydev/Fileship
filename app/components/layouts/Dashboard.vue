@@ -6,7 +6,7 @@
         p6
         lg:ml64
         lg:w="[calc(100%-256px)]"
-        lg:rounded-tl-lg
+        lg:rounded-tl-xl
         :style="{
             height: `calc(100vh - 70px${adminSessionId ? ' - 3rem' : ''})`,
         }"

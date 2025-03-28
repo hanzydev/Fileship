@@ -21,7 +21,7 @@
                         <Icon name="heroicons-solid:hand" size="96" />
                         <div sm:text-left lt-sm:space-y-2>
                             <h3 sm:text-left>Multi-Factor Authentication</h3>
-                            <p text-slate200>This extra step shows that it's really you.</p>
+                            <p text-neutral200>This extra step shows that it's really you.</p>
                         </div>
                     </div>
                     <div space-y-2 w="full sm:3/4">
@@ -93,7 +93,7 @@
                         <Icon name="heroicons-solid:hand" size="96" />
                         <div sm:text-left lt-sm:space-y-2>
                             <h3 sm:text-left>Multi-Factor Authentication</h3>
-                            <p text-slate200>
+                            <p text-neutral200>
                                 {{
                                     selectedMethod === 'passkey'
                                         ? 'Verify your identity with a passkey.'
@@ -147,7 +147,7 @@
                         <p
                             v-if="methods.length > 1"
                             cursor-pointer
-                            text-slate200
+                            text-neutral200
                             font-medium
                             hover:underline
                             @click="hubMode = true"

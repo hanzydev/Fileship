@@ -6,7 +6,7 @@
             h12
             w36
             gap2
-            text-slate300
+            text-neutral300
             sm:w56
             ring-none="!"
             border="1 dashed fs-overlay-4 hover:(fs-accent solid)"
@@ -18,7 +18,7 @@
                 max-h64
                 w36
                 overflow-y-auto
-                rounded-lg
+                rounded-xl
                 bg-fs-overlay-2
                 p1.5
                 sm:w56

@@ -1,5 +1,5 @@
 <template>
-    <div hfull overflow-auto rounded-md bg-fs-overlay-2 p4>
+    <div hfull overflow-auto rounded-xl bg-fs-overlay-2 p4>
         <table wfull>
             <thead>
                 <tr>
@@ -11,9 +11,9 @@
                         bg-fs-overlay-3
                         px4
                         text-left
-                        text-slate300
-                        first:rounded-l
-                        last:rounded-r
+                        text-neutral300
+                        first:rounded-l-lg
+                        last:rounded-r-lg
                         font-semibold="!"
                         :style="{ width: col.width }"
                     >
@@ -29,7 +29,7 @@
                         whitespace-normal
                         px4
                         py2
-                        text-slate200
+                        text-neutral200
                         font-normal="!"
                     >
                         <component :is="col.render(row)" v-if="col.render" />

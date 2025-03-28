@@ -12,7 +12,7 @@
                 ]"
             >
                 <Icon name="heroicons-solid:information-circle" size="20" text-fs-accent />
-                <p text-slate300 text-sm="!">
+                <p text-neutral300 text-sm="!">
                     {{
                         renderMarkdown
                             ? "You're viewing the rendered markdown"
@@ -42,7 +42,7 @@
             <div relative>
                 <pre
                     v-if="!shouldRenderMarkdown"
-                ><code rounded :class="[`hljs language-${language}`, fullScreen ? language === 'markdown' ? 'min-h-[calc(100vh-4rem)]' : 'min-hscreen' : '']" v-html="html" /></pre>
+                ><code rounded-md :class="[`hljs language-${language}`, fullScreen ? language === 'markdown' ? 'min-h-[calc(100vh-4rem)]' : 'min-hscreen' : '']" v-html="html" /></pre>
                 <div
                     v-else
                     bg-fs-overlay-3
@@ -102,7 +102,7 @@ const { copied, copy } = useClipboard({ legacy: true });
 
 const marked = new Marked(
     markedHighlight({
-        langPrefix: 'rounded hljs language-',
+        langPrefix: 'rounded-md hljs language-',
         highlight(code, lang) {
             const language = hljs.getLanguage(lang) ? lang : 'plaintext';
             return hljs.highlight(code, { language }).value;

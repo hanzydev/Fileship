@@ -1,5 +1,5 @@
 <template>
-    <div grid="~ sm:cols-3 gap2" wfull rounded bg-fs-overlay-2 p2>
+    <div grid="~ sm:cols-3 gap2" wfull rounded-md bg-fs-overlay-2 p2>
         <UiButton
             v-for="(item, index) in filtered"
             :key="index"
@@ -7,7 +7,7 @@
             :icon="item.icon"
             :class="widthFull && 'wfull'"
             gap2
-            rounded="!"
+            rounded-md="!"
             icon-size="20"
             :alignment="width > 768 ? 'center' : 'left'"
             @click="selected = item.label"

@@ -5,7 +5,7 @@
     <UiDropdown v-model="ctxOpen" as-ctx-menu placement="bottom" trigger-class="hfull">
         <div
             relative
-            rounded-md
+            rounded-xl
             motion-safe:transition-shadow
             ring="1 fs-overlay-4"
             :class="[
@@ -28,7 +28,7 @@
                     hfull
                     wfull
                     cursor-pointer
-                    rounded-md
+                    rounded-xl
                     backdrop-blur-sm
                     bg="[color-mix(in_srgb,_var(--fs-accent),_transparent_90%)]"
                 >
@@ -54,7 +54,7 @@
                 wfull
                 flex="~ col items-center justify-center gap2"
                 overflow-hidden
-                rounded-md
+                rounded-xl
                 bg-fs-overlay-2
                 p4
                 text-center
@@ -82,12 +82,12 @@
                     motion-safe:transition-transform
                 />
             </div>
-            <div v-else h208px wfull rounded-md bg-fs-overlay-2 p8 space-y-8>
-                <h5 line-clamp-1 break-words text-slate400>
+            <div v-else h208px wfull rounded-xl bg-fs-overlay-2 p8 space-y-8>
+                <h5 line-clamp-1 break-words text-neutral400>
                     {{ data.fileName }}
                 </h5>
 
-                <div flex="~ col justify-between gap2" text-slate-300 font-medium>
+                <div flex="~ col justify-between gap2" text-neutral300 font-medium>
                     <div flex="~ gap2 items-center">
                         <Icon name="heroicons-solid:eye" size="20" />
                         <span>{{ data.views.today }} today</span>
@@ -108,7 +108,7 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
+            <div w48 rounded-xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
                 <UiButton
                     v-if="!selectable || canBeViewed"
                     variant="onOverlay"
@@ -193,7 +193,7 @@
                             h64
                             w64
                             overflow-y-auto
-                            rounded-lg
+                            rounded-xl
                             bg-fs-overlay-2
                             p1.5
                             ring="1 fs-overlay-4"
@@ -210,7 +210,7 @@
                                 mx4
                                 translate-y-16
                                 text-center
-                                text-slate300
+                                text-neutral300
                             >
                                 There are no folders to display.
                             </p>

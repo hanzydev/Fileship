@@ -8,7 +8,7 @@
                 :ref="(el) => (totpInputs[digit - 1] = el as never)"
                 h12
                 w10
-                rounded-md
+                rounded-lg
                 bg-fs-overlay-2
                 text-center
                 text-xl

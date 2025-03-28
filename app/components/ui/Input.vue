@@ -8,13 +8,13 @@
                 v-bind="$attrs"
                 :id="label && id"
                 v-model="value"
-                rounded-md
+                rounded-lg
                 bg-fs-overlay-3
                 px3.5
                 py2.5
                 outline-none
                 motion-safe:transition-shadow
-                placeholder-slate-300
+                placeholder-neutral300
                 ring="1 fs-overlay-4"
                 :class="[
                     disabled || $props.readonly ? 'cursor-not-allowed' : 'focus:ring-fs-accent',
@@ -55,7 +55,7 @@
                 flex="~ col items-center justify-center"
             >
                 <UiButton
-                    rounded="none tr-md"
+                    rounded="none tr-lg"
                     bg-transparent
                     p1="!"
                     icon="heroicons-solid:chevron-up"
@@ -64,7 +64,7 @@
                     @click="(value as number)++"
                 />
                 <UiButton
-                    rounded="none br-md"
+                    rounded="none br-lg"
                     bg-transparent
                     p1="!"
                     icon="heroicons-solid:chevron-down"
@@ -75,7 +75,7 @@
             </div>
         </div>
 
-        <p v-if="caption" text-slate300 text-sm="!" font-medium="!">
+        <p v-if="caption" text-neutral300 text-sm="!" font-medium="!">
             {{ caption }}
         </p>
     </div>

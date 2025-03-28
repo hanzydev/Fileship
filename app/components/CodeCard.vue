@@ -8,7 +8,7 @@
             block
             h132px
             wfull
-            rounded-md
+            rounded-xl
             bg-fs-overlay-2
             p4
             space-y-4
@@ -16,11 +16,11 @@
             ring="1 fs-overlay-4"
             target="_blank"
         >
-            <h5 line-clamp-1 break-words text-slate400>
+            <h5 line-clamp-1 break-words text-neutral400>
                 {{ data.title }}
             </h5>
 
-            <div text-slate300 space-y-2 font-medium="!">
+            <div text-neutral300 space-y-2 font-medium="!">
                 <div flex="~ gap2 items-center">
                     <Icon name="heroicons-solid:eye" size="20" />
                     <span>{{ data.views.today }} today</span>
@@ -35,7 +35,7 @@
             </div>
         </NuxtLink>
         <template #content>
-            <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
+            <div w48 rounded-xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
                 <UiButton
                     variant="onOverlay"
                     icon="heroicons-solid:clipboard-copy"

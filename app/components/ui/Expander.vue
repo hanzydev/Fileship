@@ -1,5 +1,5 @@
 <template>
-    <div z20 wfull rounded-md bg-fs-overlay-2 ring="1 fs-overlay-4">
+    <div z20 wfull rounded-xl bg-fs-overlay-2 ring="1 fs-overlay-4">
         <div
             flex="~ items-center justify-between"
             cursor-pointer
@@ -11,7 +11,7 @@
             <UiButton
                 h8
                 w8
-                rounded="!"
+                rounded-md="!"
                 pl="!"
                 variant="primary"
                 ring="1 fs-overlay-4"
@@ -32,7 +32,7 @@
             leave-from-class="h[--height]"
             :style="{ '--height': `${height}px` }"
         >
-            <div v-if="isOpen" ref="content" wfull rounded-b-md bg-fs-overlay-2>
+            <div v-if="isOpen" ref="content" wfull rounded-b-xl bg-fs-overlay-2>
                 <div px4 pb4 :class="contentClass">
                     <slot name="content" />
                 </div>

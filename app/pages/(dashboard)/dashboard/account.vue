@@ -55,7 +55,7 @@
         >
             <h3>Enable Authenticator App</h3>
 
-            <p text-slate200 font-medium="!">Scan the QR code below with your authenticator app.</p>
+            <p text-neutral200 font-medium="!">Scan the QR code below with your authenticator app.</p>
 
             <div relative p8>
                 <div
@@ -65,7 +65,7 @@
                     h20
                     w20
                     b="l-5 t-5 fs-accent"
-                    rounded="tl-md"
+                    rounded="tl-lg"
                     class="zortr"
                 ></div>
                 <div
@@ -75,10 +75,10 @@
                     h20
                     w20
                     b="r-5 t-5 fs-accent"
-                    rounded="tr-md"
+                    rounded="tr-lg"
                     class="zortr"
                 ></div>
-                <img :src="authAppQrCode" h48 w48 rounded draggable="false" />
+                <img :src="authAppQrCode" h48 w48 rounded-md draggable="false" />
                 <div
                     absolute
                     bottom-0
@@ -86,7 +86,7 @@
                     h20
                     w20
                     b="l-5 b-5 fs-accent"
-                    rounded="bl-md"
+                    rounded="bl-lg"
                     class="zortr"
                 ></div>
                 <div
@@ -96,7 +96,7 @@
                     h20
                     w20
                     b="r-5 b-5 fs-accent"
-                    rounded="br-md"
+                    rounded="br-lg"
                     class="zortr"
                 ></div>
             </div>
@@ -244,13 +244,12 @@
                     </div>
                     <template #content>
                         <form space-y-4 @submit.prevent="handleUserEdit()">
-                            <p text-slate200>Update your account information here.</p>
+                            <p text-neutral200>Update your account information here.</p>
 
                             <div grid="~ sm:cols-2 gap4">
                                 <UiInput
                                     v-model="userEditData.cloned.value.username!"
                                     label="Username"
-                                    rounded="!"
                                     required
                                     wfull
                                     :error="userFormErrors?.username?._errors?.[0]"
@@ -260,7 +259,6 @@
                                     v-model="userEditData.cloned.value.password!"
                                     label="Password"
                                     wfull
-                                    rounded="!"
                                     type="password"
                                     caption="If you leave the password field empty, your
                                 password will not be updated."
@@ -271,7 +269,6 @@
 
                             <UiButton
                                 wfull
-                                rounded="!"
                                 gap2
                                 alignment="center"
                                 variant="accent"
@@ -294,12 +291,12 @@
                     </div>
                     <template #content>
                         <form space-y-4 @submit.prevent="handleAvatarEdit">
-                            <p text-slate200>Update your avatar here.</p>
+                            <p text-neutral200>Update your avatar here.</p>
 
                             <div grid="~ gap4 sm:cols-3">
                                 <div
                                     relative
-                                    rounded
+                                    rounded-lg
                                     border="1 dashed fs-overlay-4"
                                     active:scale-95
                                     motion-safe:transition-all
@@ -332,7 +329,6 @@
                                     />
                                     <UiInput
                                         :model-value="userEditData.cloned.value.avatar?.name!"
-                                        rounded="!"
                                         readonly
                                         wfull
                                         placeholder="Choose a file"
@@ -342,7 +338,6 @@
                                 </div>
                                 <UiButton
                                     wfull
-                                    rounded="!"
                                     gap2
                                     alignment="center"
                                     variant="dangerFill"
@@ -359,7 +354,6 @@
                                 </UiButton>
                                 <UiButton
                                     wfull
-                                    rounded="!"
                                     gap2
                                     alignment="center"
                                     variant="accent"
@@ -388,14 +382,13 @@
 
                     <template #content>
                         <form space-y-4 @submit.prevent="handleDomainsEdit">
-                            <p text-slate200>
+                            <p text-neutral200>
                                 Configure your domains. These domains will be used to output a
                                 random domain during upload.
                             </p>
 
                             <UiInput
                                 label="Domains"
-                                rounded="!"
                                 wfull
                                 caption="Separate multiple domains with a comma. Example: domain.com, i.domain2.com."
                                 :disabled="domainsUpdating"
@@ -410,7 +403,6 @@
 
                             <UiButton
                                 wfull
-                                rounded="!"
                                 gap2
                                 alignment="center"
                                 variant="accent"
@@ -435,10 +427,10 @@
                     <template #content>
                         <div space-y-4>
                             <div space-y-2>
-                                <span text-sm text-slate300 font-bold uppercase>
+                                <span text-sm text-neutral300 font-bold uppercase>
                                     Authenticator App
                                 </span>
-                                <p text-slate200>
+                                <p text-neutral200>
                                     Configuring an authenticator app is a good way to add an extra
                                     layer of security to your
                                     {{ appConfig.site.name }} account to make sure that only you
@@ -454,8 +446,8 @@
                             <UiDivider />
 
                             <div space-y-2>
-                                <span text-sm text-slate300 font-bold uppercase>Passkeys</span>
-                                <p text-slate200>
+                                <span text-sm text-neutral300 font-bold uppercase>Passkeys</span>
+                                <p text-neutral200>
                                     Add an additional layer of protection to your account with a
                                     passkey.
                                 </p>
@@ -482,7 +474,6 @@
                                 <UiButton
                                     v-else
                                     variant="accent"
-                                    rounded="!"
                                     gap2
                                     icon="heroicons:key-20-solid"
                                     icon-size="20"
@@ -504,28 +495,25 @@
                     </div>
                     <template #content>
                         <form space-y-4 @submit.prevent="handleEmbedEdit">
-                            <p text-slate200>Configure how your files are embedded when shared.</p>
+                            <p text-neutral200>Configure how your files are embedded when shared.</p>
 
                             <div grid="~ gap4 sm:cols-2">
                                 <UiInput
                                     v-model="embedEditData.cloned.value.title!"
                                     label="Title"
                                     wfull
-                                    rounded="!"
                                     :disabled="embedUpdating"
                                 />
                                 <UiInput
                                     v-model="embedEditData.cloned.value.description!"
                                     label="Description"
                                     wfull
-                                    rounded="!"
                                     :disabled="embedUpdating"
                                 />
                                 <UiInput
                                     v-model="embedEditData.cloned.value.siteName!"
                                     label="Site Name"
                                     wfull
-                                    rounded="!"
                                     :disabled="embedUpdating"
                                 />
                                 <ColorPicker v-model="embedEditData.cloned.value.color!">
@@ -548,7 +536,6 @@
                                             wfull
                                             pl11
                                             ring-1
-                                            rounded="!"
                                             transition-none="!"
                                             :error="userFormErrors?.embed?.color?._errors?.[0]"
                                             :style="{

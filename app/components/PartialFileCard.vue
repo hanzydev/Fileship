@@ -5,7 +5,7 @@
         <div
             v-if="isImage || isVideo"
             wfull
-            rounded-md
+            rounded-xl
             bg-fs-overlay-2
             motion-safe:transition-shadow
             ring="1 fs-overlay-4"
@@ -17,7 +17,7 @@
                 relative
                 h52
                 overflow-hidden
-                rounded-md
+                rounded-xl
                 p4
                 text-center
                 flex="~ col items-center justify-center gap2"
@@ -64,7 +64,7 @@
             v-else
             h52
             wfull
-            rounded-md
+            rounded-xl
             bg-fs-overlay-2
             p8
             space-y-8
@@ -76,11 +76,11 @@
             }"
             @click="isAudio && (viewModalOpen = true)"
         >
-            <h5 line-clamp-1 break-words text-slate400>
+            <h5 line-clamp-1 break-words text-neutral400>
                 {{ data.fileName }}
             </h5>
 
-            <div flex="~ col justify-between gap2" justify-between text-slate300 font-medium="!">
+            <div flex="~ col justify-between gap2" justify-between text-neutral300 font-medium="!">
                 <div flex="~ gap2 items-center">
                     <Icon name="mdi:sd-storage" size="20" />
                     <span>{{ data.size!.formatted }}</span>
@@ -95,7 +95,7 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-lg bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
+            <div w48 rounded-xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
                 <UiButton
                     variant="onOverlay"
                     icon="heroicons:eye-16-solid"

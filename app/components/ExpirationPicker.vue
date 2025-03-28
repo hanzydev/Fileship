@@ -8,7 +8,7 @@
                 h64
                 w48
                 overflow-y-auto
-                rounded-lg
+                rounded-xl
                 bg-fs-overlay-2
                 p1.5
                 ring="1 fs-overlay-4"

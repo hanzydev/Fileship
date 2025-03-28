@@ -6,7 +6,7 @@
             left-3
             h6
             w6
-            text-slate300
+            text-neutral300
             translate-y-="1/2"
             top="1/2"
         />
@@ -15,7 +15,7 @@
             :class="inputClass"
             h12
             wfull
-            rounded-md
+            rounded-xl
             bg-fs-overlay-2
             pl11
             pr4
@@ -23,7 +23,7 @@
             focus:border-fs-accent
             focus:border-solid
             motion-safe:transition-all
-            placeholder-slate-300
+            placeholder-neutral300
             type="text"
             :placeholder
             border="1 dashed fs-overlay-4"
