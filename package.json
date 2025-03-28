@@ -53,7 +53,7 @@
         "@unocss/eslint-config": "^65.5.0",
         "@unocss/nuxt": "^65.5.0",
         "@unocss/reset": "^65.5.0",
-        "@vite-pwa/nuxt": "^0.10.6",
+        "@vite-pwa/nuxt": "^0.10.8",
         "@vueuse/core": "^13.0.0",
         "@vueuse/integrations": "^13.0.0",
         "@vueuse/nuxt": "^13.0.0",
