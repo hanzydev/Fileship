@@ -7,7 +7,7 @@
             text-center
             transition-height
             duration-250
-            :style="{ height: `${height + (width < 640 ? 128 : 32)}px` }"
+            :style="{ height: `${height}px` }"
         >
             <Transition
                 enter-active-class="motion-safe:(animate-in fade-in data-[hubmode=true]:slide-in-from-left data-[hubmode=false]:slide-in-from-right animate-duration-250)"
@@ -245,8 +245,6 @@ const bestMethod = computed(() =>
     passkeyAvailable.value ? 'passkey' : totpAvailable.value ? 'totp' : 'password',
 );
 
-const { width } = useWindowSize();
-
 const selectedMethod = ref<MethodType>(bestMethod.value);
 
 const password = ref('');
@@ -275,18 +273,26 @@ const handlePasskey = async () => {
     }
 };
 
-watch(bestMethod, () => (selectedMethod.value = bestMethod.value));
-
 watch(isOpen, (value) => {
     if (value) {
         nextTick(() => {
-            const container = document.querySelector('[data-hubmode=false]');
+            setTimeout(() => {
+                const container = document.querySelector('[data-hubmode=false]');
 
-            if (container) {
-                height.value = container.clientHeight;
-                container.querySelector('input')?.focus();
-            }
+                if (container) {
+                    height.value = container.clientHeight;
+                    container.querySelector('input')?.focus();
+                }
+            }, 20);
         });
     }
 });
+
+watch(
+    () => methods,
+    () => {
+        selectedMethod.value = bestMethod.value;
+    },
+    { flush: 'pre' },
+);
 </script>
