@@ -24,7 +24,6 @@
 
 ### 🏡 Chore
 
-- **release:** V2.3.0 ([50239cc](https://github.com/hanzydev/Fileship/commit/50239cc))
 - Upgrade deps ([7905e2f](https://github.com/hanzydev/Fileship/commit/7905e2f))
 - Lint fix ([993e06f](https://github.com/hanzydev/Fileship/commit/993e06f))
 
