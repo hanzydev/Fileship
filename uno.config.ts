@@ -23,8 +23,5 @@ export default defineConfig({
                 accent: 'var(--fs-accent)',
             },
         },
-        fontFamily: {
-            sans: ['Quicksand', 'sans-serif'],
-        },
     },
 });

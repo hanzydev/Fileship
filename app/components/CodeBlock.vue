@@ -7,7 +7,7 @@
                 h16
                 p4
                 :class="[
-                    !fullScreen && 'rounded',
+                    !fullScreen && 'rounded-md',
                     shouldRenderMarkdown && fullScreen ? 'bg-fs-overlay-1' : 'bg-fs-overlay-3',
                 ]"
             >
@@ -22,16 +22,18 @@
 
                 <UiButton
                     :class="
-                        fullScreen &&
-                        shouldRenderMarkdown &&
-                        '!bg-fs-overlay-1 hover:!bg-fs-overlay-2'
+                        fullScreen && shouldRenderMarkdown
+                            ? 'ring-fs-overlay-2 !bg-fs-overlay-1 hover:!bg-fs-overlay-2'
+                            : 'ring-fs-overlay-4 hover:bg-fs-overlay-4'
                     "
                     mla
                     h8
                     w8
+                    ring-1
                     p0="!"
+                    rounded="!"
                     alignment="center"
-                    :variant="fullScreen && shouldRenderMarkdown ? 'primary' : 'secondary'"
+                    variant="ghost"
                     :icon="renderMarkdown ? 'heroicons-solid:code' : 'heroicons-solid:eye'"
                     icon-size="20"
                     aria-label="Toggle markdown view"
@@ -42,7 +44,7 @@
             <div relative>
                 <pre
                     v-if="!shouldRenderMarkdown"
-                ><code rounded-md :class="[`hljs language-${language}`, fullScreen ? language === 'markdown' ? 'min-h-[calc(100vh-4rem)]' : 'min-hscreen' : '']" v-html="html" /></pre>
+                ><code :class="[`hljs language-${language}`, fullScreen ? language === 'markdown' ? 'min-h-[calc(100vh-4rem)]' : 'min-hscreen' : 'rounded-lg']" v-html="html" /></pre>
                 <div
                     v-else
                     bg-fs-overlay-3
@@ -52,7 +54,7 @@
                             ? language === 'markdown'
                                 ? 'min-h-[calc(100vh-4rem)]'
                                 : 'min-hscreen'
-                            : 'rounded'
+                            : 'rounded-md'
                     "
                     v-html="html"
                 />
@@ -64,9 +66,11 @@
                     top-4
                     h8
                     w8
-                    bg-transparent
                     p0="!"
-                    :class="[' hover:bg-white/5', copied && 'text-green500']"
+                    ring="1 white/5"
+                    hover="bg-white/5"
+                    rounded="!"
+                    :class="copied && 'text-green500'"
                     alignment="center"
                     :icon="
                         copied
@@ -75,6 +79,7 @@
                     "
                     icon-size="20"
                     aria-label="Copy code"
+                    variant="ghost"
                     @click="handleCopy"
                 />
             </div>
@@ -102,7 +107,7 @@ const { copied, copy } = useClipboard({ legacy: true });
 
 const marked = new Marked(
     markedHighlight({
-        langPrefix: 'rounded-md hljs language-',
+        langPrefix: 'rounded-lg hljs language-',
         highlight(code, lang) {
             const language = hljs.getLanguage(lang) ? lang : 'plaintext';
             return hljs.highlight(code, { language }).value;
@@ -158,6 +163,6 @@ const handleCopy = () => {
 }
 
 .codeBlock table th {
-    @apply bg-fs-overlay-4 first:rounded-l-sm last:rounded-r-sm;
+    @apply bg-fs-overlay-4 first:rounded-l-md last:rounded-r-md;
 }
 </style>

@@ -4,7 +4,7 @@
         border="2 dashed fs-accent"
         ring-none="!"
         wfull
-        rounded-xl
+        rounded-xl="!"
         :disabled
         @click="!disabled && $emit('action')"
     >

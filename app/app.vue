@@ -12,7 +12,7 @@
     <Head>
         <Title>{{ appConfig.site.name }}</Title>
     </Head>
-    <Body hfull wfull bg-fs-background text-white font-sans antialiased>
+    <Body hfull wfull bg-fs-background text-white antialiased>
         <NuxtLayout>
             <NuxtPage />
         </NuxtLayout>

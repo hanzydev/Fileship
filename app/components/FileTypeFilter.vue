@@ -8,6 +8,7 @@
             gap2
             text-neutral300
             sm:w56
+            rounded-xl="!"
             ring-none="!"
             border="1 dashed fs-overlay-4 hover:(fs-accent solid)"
         >

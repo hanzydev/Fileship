@@ -12,12 +12,12 @@
                             : 'heroicons-solid:information-circle'
                     "
                     py3="!"
-                    :class="isErrored ? '!ring-red-500' : 'ring-fs-accent'"
+                    :class="isErrored ? '!ring-red-500' : 'ring-fs-overlay-4'"
                     :icon-class="isErrored && '!text-red-500'"
                     icon-size="20"
                     wfull
                     gap2
-                    rounded-xl
+                    rounded-xl="!"
                     ring-1
                 >
                     <template v-if="isErrored">Some file(s) have errors</template>
@@ -43,7 +43,7 @@
                         ring-1
                         md:w-40rem
                         space-y-4
-                        :class="isErrored ? 'ring-red-500' : 'ring-fs-accent'"
+                        :class="isErrored ? 'ring-red-500' : 'ring-fs-overlay-4'"
                         v-bind="containerProps"
                     >
                         <div space-y-2>

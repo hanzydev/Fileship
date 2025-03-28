@@ -58,7 +58,6 @@
                     <UiTextArea
                         v-if="selectedTab === 'Code'"
                         v-model="code.code"
-                        :class="code.language.label === 'Plain Text' && '!rounded'"
                         :error="formErrors?.code?._errors?.[0]"
                         :disabled
                         required

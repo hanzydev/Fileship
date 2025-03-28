@@ -3,7 +3,6 @@
         :is="loading ? UiSkeletonCard : 'div'"
         flex="~ col justify-between"
         h124px
-        rounded-xl
         bg-fs-overlay-2
         p4
         space-y-2

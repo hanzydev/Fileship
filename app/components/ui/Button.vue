@@ -71,7 +71,8 @@ const {
         | 'danger'
         | 'dangerFill'
         | 'outline'
-        | 'onOverlay';
+        | 'onOverlay'
+        | 'ghost';
     alignment?: 'left' | 'center' | 'right';
     loading?: boolean;
     icon?: string;

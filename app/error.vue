@@ -3,7 +3,7 @@
         <Title>{{ error.statusMessage }} | {{ error.statusCode }}</Title>
     </Head>
 
-    <Body hfull wfull bg-fs-background text-white font-sans antialiased>
+    <Body hfull wfull bg-fs-background text-white antialiased>
         <UiCentered text-left>
             <div space-y-4>
                 <div space-y-2>

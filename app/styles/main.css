@@ -1,5 +1,6 @@
 :root {
     color-scheme: dark;
+    font-family: 'Quicksand', sans-serif;
 }
 
 h1 {
@@ -47,13 +48,25 @@ input[type='number'] {
 }
 
 ::-webkit-scrollbar {
-    @apply block w1.25;
-}
-
-::-webkit-scrollbar-button {
-    @apply hidden;
+    @apply z9999 w4 h3;
 }
 
 ::-webkit-scrollbar-thumb {
-    @apply rounded-xl bg-fs-overlay-4;
+    @apply z9999 bg-clip-padding border-6 border-solid border-transparent rounded-2xl bg-fs-overlay-4;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply z9999 border-5 border-solid border-transparent;
+}
+
+::-webkit-scrollbar-track {
+    @apply z9999 bg-transparent;
+}
+
+::-moz-selection {
+    @apply bg-fs-accent;
+}
+
+::selection {
+    @apply bg-fs-accent;
 }

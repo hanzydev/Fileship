@@ -49,9 +49,6 @@
                     <UiTextArea
                         v-if="selectedTab === 'Code'"
                         v-model="editData.cloned.value!.code"
-                        :class="
-                            editData.cloned.value!.language.label === 'Plain Text' && '!rounded'
-                        "
                         :error="formErrors?.code?._errors?.[0]"
                         :disabled="updating"
                         required
