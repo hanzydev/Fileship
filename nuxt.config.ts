@@ -29,14 +29,14 @@ export default defineNuxtConfig({
         'highlight.js/styles/tokyo-night-dark.css',
     ],
 
-    fonts: {
-        families: [
-            {
-                name: 'Quicksand',
-                provider: 'google',
-            },
-        ],
-    },
+    // fonts: {
+    //     families: [
+    //         {
+    //             name: 'Quicksand',
+    //             provider: 'google',
+    //         },
+    //     ],
+    // },
 
     devtools: {
         enabled: true,
@@ -109,14 +109,6 @@ export default defineNuxtConfig({
     },
 
     vite: {
-        $client: {
-            resolve: {
-                alias: {
-                    '.prisma/client/index-browser':
-                        './node_modules/.prisma/client/index-browser.js',
-                },
-            },
-        },
         build: {
             rollupOptions: {
                 output: {
