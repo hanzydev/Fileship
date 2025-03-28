@@ -1001,14 +1001,17 @@ const handleGenShareXConfig = () => {
 
 onMounted(() => {
     gsap.set(contentRef.value!.children, { opacity: 1 });
-    gsap.from(contentRef.value!.children, {
-        opacity: 0,
-        y: 10,
-        duration: 0.3,
-        stagger: 0.1,
-        filter: 'blur(0.125rem)',
-        ease: Cubic.easeOut,
-    });
+
+    if (usePreferredReducedMotion().value === 'no-preference') {
+        gsap.from(contentRef.value!.children, {
+            opacity: 0,
+            y: 10,
+            duration: 0.3,
+            stagger: 0.1,
+            filter: 'blur(0.125rem)',
+            ease: Cubic.easeOut,
+        });
+    }
 });
 
 watch(
