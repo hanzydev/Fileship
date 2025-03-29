@@ -133,7 +133,7 @@ model Log {
 }
 
 model View {
-  id        Int      @id @unique @default(autoincrement())
+  id        String   @id @unique @default(uuid())
   ip        String
   createdAt DateTime @default(now())
   file      File?    @relation(fields: [fileId], references: [id])
@@ -158,7 +158,7 @@ model Session {
 }
 
 model Stat {
-  id                Int      @id @unique @default(autoincrement())
+  id                String   @id @unique @default(uuid())
   users             Int
   storageUsed       BigInt
   storageUsedByUser Json
