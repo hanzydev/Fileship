@@ -35,7 +35,7 @@
                     :id
                     :class="
                         code.language.label !== 'Plain Text' &&
-                        'space-y-4 rounded-xl bg-fs-overlay-2 p4'
+                        'space-y-4 rounded-xl bg-fs-overlay-3 p4 ring-1 ring-fs-overlay-4'
                     "
                 >
                     <UiTabs
@@ -53,7 +53,6 @@
                                     code.language.label !== 'Plain Text' && code.code.trim() !== '',
                             },
                         ]"
-                        p0="!"
                     />
                     <UiTextArea
                         v-if="selectedTab === 'Code'"

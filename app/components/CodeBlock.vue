@@ -7,8 +7,8 @@
                 h16
                 p4
                 :class="[
-                    !fullScreen && 'rounded-md',
-                    shouldRenderMarkdown && fullScreen ? 'bg-fs-overlay-1' : 'bg-fs-overlay-3',
+                    !fullScreen && 'rounded-lg',
+                    shouldRenderMarkdown && fullScreen ? 'bg-fs-overlay-1' : 'ring-1 ring-fs-overlay-4',
                 ]"
             >
                 <Icon name="heroicons-solid:information-circle" size="20" text-fs-accent />
@@ -54,7 +54,7 @@
                             ? language === 'markdown'
                                 ? 'min-h-[calc(100vh-4rem)]'
                                 : 'min-hscreen'
-                            : 'rounded-md'
+                            : 'rounded-lg ring-1 ring-fs-overlay-4'
                     "
                     v-html="html"
                 />
