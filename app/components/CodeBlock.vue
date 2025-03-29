@@ -8,7 +8,9 @@
                 p4
                 :class="[
                     !fullScreen && 'rounded-lg',
-                    shouldRenderMarkdown && fullScreen ? 'bg-fs-overlay-1' : 'ring-1 ring-fs-overlay-4',
+                    shouldRenderMarkdown && fullScreen
+                        ? 'bg-fs-overlay-1'
+                        : 'ring-1 ring-fs-overlay-4',
                 ]"
             >
                 <Icon name="heroicons-solid:information-circle" size="20" text-fs-accent />
