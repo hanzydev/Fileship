@@ -7,7 +7,7 @@
                 top-6
                 z10
                 w200px
-                rounded
+                rounded-lg
                 bg-fs-overlay-2
                 p2
                 ring-1
@@ -20,7 +20,7 @@
                     relative
                     h164px
                     wfull
-                    rounded-t-0.75
+                    rounded-t-md
                     bg="[linear-gradient(0deg,#000,transparent),linear-gradient(90deg,#fff,hsla(0,0%,100%,0))]"
                     :style="{
                         backgroundColor: hueColor,
@@ -65,7 +65,7 @@
                     relative
                     h25px
                     wfull
-                    rounded-b-0.75
+                    rounded-b-md
                     bg="[linear-gradient(to_right,rgb(255,0,0),rgb(255,255,0),rgb(0,255,0),rgb(0,255,255),rgb(0,0,255),rgb(255,0,255),rgb(255,0,0))]"
                     @mousedown.prevent="
                         (event) => {
