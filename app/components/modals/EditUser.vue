@@ -31,17 +31,17 @@
                 :disabled="updating"
             />
 
-            <UiDropdown placement="top" pb0.5="!">
+            <UiDropdown v-if="!editData.cloned.value!.superAdmin" placement="top" pb0.5="!">
                 <UiInput
                     :model-value="editData.cloned.value!.permissions.join(', ')"
-                    :required="!editData.cloned.value!.superAdmin"
+                    required
                     readonly
                     wfull
                     label="Permissions"
                     type="text"
                     :error="formErrors?.permissions?._errors?.[0]"
-                    :disabled="editData.cloned.value!.superAdmin || updating"
-                    :cursor-pointer="editData.cloned.value!.superAdmin ? '' : '!'"
+                    :disabled="updating"
+                    cursor-pointer="!"
                 />
 
                 <template #content>
@@ -170,7 +170,6 @@ const verificationMethods = ref([]);
 const editData = useCloned({
     ...data,
     password: '',
-    permissions: data.superAdmin ? [] : data.permissions,
 });
 
 const handleEdit = async (verificationData?: any) => {

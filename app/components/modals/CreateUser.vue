@@ -45,17 +45,17 @@
                 :error="formErrors?.password?._errors?.[0]"
                 :disabled
             />
-            <UiDropdown placement="top" pb0.5="!">
+            <UiDropdown v-if="!user.superAdmin" placement="top" pb0.5="!">
                 <UiInput
                     :model-value="user.permissions.join(', ')"
-                    :required="!user.superAdmin"
+                    required
                     readonly
                     wfull
                     label="Permissions"
                     type="text"
                     :error="formErrors?.permissions?._errors?.[0]"
-                    :disabled="user.superAdmin || disabled"
-                    :cursor-pointer="user.superAdmin ? '' : '!'"
+                    :disabled
+                    cursor-pointer="!"
                 />
 
                 <template #content>
