@@ -186,7 +186,7 @@ let {
     public: { fileChunkSize },
 } = useRuntimeConfig();
 
-fileChunkSize = (+fileChunkSize || 10) * 1024 * 1024;
+fileChunkSize = (+fileChunkSize || 25) * 1024 * 1024;
 
 const handleUpload = async () => {
     uploading.value = true;

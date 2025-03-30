@@ -55,7 +55,7 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
         public: {
-            fileChunkSize: 10,
+            fileChunkSize: 25,
             returnHttps: '',
             turnstile: {
                 siteKey: '',
