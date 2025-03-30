@@ -60,47 +60,11 @@
             </p>
 
             <div relative p8>
-                <div
-                    absolute
-                    left-0
-                    top-0
-                    h20
-                    w20
-                    b="l-5 t-5 fs-accent"
-                    rounded="tl-lg"
-                    class="zortr"
-                ></div>
-                <div
-                    absolute
-                    right-0
-                    top-0
-                    h20
-                    w20
-                    b="r-5 t-5 fs-accent"
-                    rounded="tr-lg"
-                    class="zortr"
-                ></div>
+                <div absolute left-0 top-0 h20 w20 b="l-5 t-5 fs-accent" rounded="tl-lg"></div>
+                <div absolute right-0 top-0 h20 w20 b="r-5 t-5 fs-accent" rounded="tr-lg"></div>
                 <img :src="authAppQrCode" h48 w48 rounded-md draggable="false" />
-                <div
-                    absolute
-                    bottom-0
-                    left-0
-                    h20
-                    w20
-                    b="l-5 b-5 fs-accent"
-                    rounded="bl-lg"
-                    class="zortr"
-                ></div>
-                <div
-                    absolute
-                    bottom-0
-                    right-0
-                    h20
-                    w20
-                    b="r-5 b-5 fs-accent"
-                    rounded="br-lg"
-                    class="zortr"
-                ></div>
+                <div absolute bottom-0 left-0 h20 w20 b="l-5 b-5 fs-accent" rounded="bl-lg"></div>
+                <div absolute bottom-0 right-0 h20 w20 b="r-5 b-5 fs-accent" rounded="br-lg"></div>
             </div>
 
             <div wfit>
