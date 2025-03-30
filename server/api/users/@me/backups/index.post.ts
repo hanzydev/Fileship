@@ -33,25 +33,40 @@ export default defineEventHandler(async (event) => {
             where: {
                 authorId: currentUser.id,
             },
+            orderBy: {
+                createdAt: 'desc',
+            },
         }),
         prisma.folder.findMany({
             where: {
                 authorId: currentUser.id,
+            },
+            orderBy: {
+                createdAt: 'desc',
             },
         }),
         prisma.note.findMany({
             where: {
                 authorId: currentUser.id,
             },
+            orderBy: {
+                createdAt: 'desc',
+            },
         }),
         prisma.code.findMany({
             where: {
                 authorId: currentUser.id,
             },
+            orderBy: {
+                createdAt: 'desc',
+            },
         }),
         prisma.url.findMany({
             where: {
                 authorId: currentUser.id,
+            },
+            orderBy: {
+                createdAt: 'desc',
             },
         }),
         prisma.view.findMany({
