@@ -18,8 +18,7 @@ export default defineNuxtConfig({
         '@vueuse/nuxt',
         '@unocss/nuxt',
         '@nuxt/icon',
-        '@vite-pwa/nuxt',
-    ],
+    ].concat((process.env.ENABLE_PWA || 'true') === 'true' ? ['@vite-pwa/nuxt'] : []),
 
     css: [
         '~/styles/main.css',
