@@ -9,7 +9,9 @@ export const getIO = () => io;
 
 export default defineNitroPlugin((nitroApp) => {
     const engine = new Engine();
-    io = new Server();
+    io = new Server({
+        pingTimeout: 60_000,
+    });
 
     io.bind(engine as never);
 
