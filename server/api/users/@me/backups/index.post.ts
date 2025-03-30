@@ -7,7 +7,6 @@ import { create } from 'tar';
 
 export default defineEventHandler(async (event) => {
     userOnly(event);
-
     const currentUser = event.context.user!;
 
     const userBackupsPath = join(dataDirectory, 'backups', currentUser.id);
@@ -28,105 +27,53 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const userData = await prisma.$transaction([
+    const [files, folders, notes, codes, urls, views] = await prisma.$transaction([
         prisma.file.findMany({
-            where: {
-                authorId: currentUser.id,
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
+            where: { authorId: currentUser.id },
+            orderBy: { createdAt: 'desc' },
         }),
         prisma.folder.findMany({
-            where: {
-                authorId: currentUser.id,
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
+            where: { authorId: currentUser.id },
+            orderBy: { createdAt: 'desc' },
         }),
         prisma.note.findMany({
-            where: {
-                authorId: currentUser.id,
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
+            where: { authorId: currentUser.id },
+            orderBy: { createdAt: 'desc' },
         }),
         prisma.code.findMany({
-            where: {
-                authorId: currentUser.id,
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
+            where: { authorId: currentUser.id },
+            orderBy: { createdAt: 'desc' },
         }),
         prisma.url.findMany({
-            where: {
-                authorId: currentUser.id,
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
+            where: { authorId: currentUser.id },
+            orderBy: { createdAt: 'desc' },
         }),
         prisma.view.findMany({
             where: {
                 OR: [
-                    {
-                        file: {
-                            authorId: currentUser.id,
-                        },
-                    },
-                    {
-                        code: {
-                            authorId: currentUser.id,
-                        },
-                    },
-                    {
-                        url: {
-                            authorId: currentUser.id,
-                        },
-                    },
+                    { file: { authorId: currentUser.id } },
+                    { code: { authorId: currentUser.id } },
+                    { url: { authorId: currentUser.id } },
                 ],
             },
         }),
     ]);
 
     const tempPath = join(dataDirectory, 'temp', nanoid());
-
     const backupUploadsPath = join(tempPath, 'uploads');
     const backupDatabasePath = join(tempPath, 'database');
 
     await fsp.mkdir(tempPath);
-
     await fsp.mkdir(backupUploadsPath);
     await fsp.mkdir(backupDatabasePath);
 
-    for (const { key, data } of [
-        {
-            key: 'file',
-            data: userData[0],
-        },
-        {
-            key: 'folder',
-            data: userData[1],
-        },
-        {
-            key: 'note',
-            data: userData[2],
-        },
-        {
-            key: 'code',
-            data: userData[3],
-        },
-        {
-            key: 'url',
-            data: userData[4],
-        },
-        {
-            key: 'view',
-            data: userData[5],
-        },
+    const jsonWriteTasks = [
+        { key: 'file', data: files },
+        { key: 'folder', data: folders },
+        { key: 'note', data: notes },
+        { key: 'code', data: codes },
+        { key: 'url', data: urls },
+        { key: 'view', data: views },
         {
             key: 'user',
             data: {
@@ -135,37 +82,32 @@ export default defineEventHandler(async (event) => {
                 domains: currentUser.domains,
             },
         },
-    ]) {
-        await fsp.writeFile(
-            join(backupDatabasePath, `${key}.json`),
-            JSON.stringify(data, (_, value) =>
-                typeof value === 'bigint' ? value.toString() : value,
+    ];
+
+    await Promise.all(
+        jsonWriteTasks.map(({ key, data }) =>
+            fsp.writeFile(
+                join(backupDatabasePath, `${key}.json`),
+                JSON.stringify(data, (_, v) => (typeof v === 'bigint' ? v.toString() : v)),
             ),
-        );
-    }
+        ),
+    );
 
     const userUploads = (await fsp.readdir(uploadsPath)).filter((file) =>
-        userData[0].some((upload) => upload.fileName === file),
+        files.some((upload) => upload.fileName === file),
     );
 
-    const cpPromises = userUploads.map((file) =>
-        fsp.cp(join(uploadsPath, file), join(backupUploadsPath, file)),
+    await Promise.all(
+        userUploads.map((file) => fsp.cp(join(uploadsPath, file), join(backupUploadsPath, file))),
     );
-
-    await Promise.all(cpPromises);
 
     const backupCompressedPath = join(tempPath, 'backup.tgz');
 
-    create(
-        {
-            file: backupCompressedPath,
-            cwd: tempPath,
-            gzip: { level: 5 },
-        },
-        ['uploads', 'database'],
-    ).then(async () => {
+    create({ file: backupCompressedPath, cwd: tempPath, gzip: { level: 5 } }, [
+        'uploads',
+        'database',
+    ]).then(async () => {
         const backupStat = await fsp.stat(backupCompressedPath);
-
         const backupId = nanoid();
         await fsp.rename(backupCompressedPath, join(userBackupsPath, `${backupId}.tgz`));
         await fsp.rm(tempPath, { recursive: true });

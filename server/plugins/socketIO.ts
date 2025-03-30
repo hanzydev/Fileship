@@ -9,9 +9,7 @@ export const getIO = () => io;
 
 export default defineNitroPlugin((nitroApp) => {
     const engine = new Engine();
-    io = new Server({
-        pingTimeout: 60_000,
-    });
+    io = new Server();
 
     io.bind(engine as never);
 
@@ -27,11 +25,13 @@ export default defineNitroPlugin((nitroApp) => {
 
     io.on('connection', (socket) => {
         const user = socket.data.user;
+
         socket.join(user.id);
 
-        socket.on('disconnect', () => {
-            socket.leave(user.id);
-        });
+        socket.on('disconnect', () => socket.leave(user.id));
+        socket.on('client:ready', () =>
+            socket.emit('update:currentUser', { backupRestoreState: user.backupRestoreState }),
+        );
     });
 
     nitroApp.router.use(

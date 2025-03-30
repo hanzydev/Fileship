@@ -42,6 +42,7 @@ export const initSocket = () => {
 
         socket.on('connect', () => {
             console.log('\x1B[38;2;3;198;252m\x1B[1m[ Socket.IO ]\x1B[0m Connected');
+            socket?.emit('client:ready');
         });
 
         socket.on('disconnect', () => {

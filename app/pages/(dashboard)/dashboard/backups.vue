@@ -25,8 +25,8 @@
                         @change.stop.prevent="handleLoad"
                     />
                     <Transition
-                        enter-active-class="motion-safe:(animate-in fade-in slide-in-left)"
-                        leave-active-class="motion-safe:(animate-out fade-out slide-out-right)"
+                        enter-active-class="motion-safe:(animate-in fade-in slide-in-left animate-duration-250)"
+                        leave-active-class="motion-safe:(animate-out fade-out slide-out-right animate-duration-250)"
                     >
                         <div
                             v-if="uploadProgress > 0"
