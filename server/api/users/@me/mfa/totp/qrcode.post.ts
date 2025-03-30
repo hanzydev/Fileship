@@ -1,5 +1,5 @@
 import { authenticator } from 'otplib';
-import qrcode from 'qrcode';
+import { renderSVG } from 'uqr';
 import { z } from 'zod';
 
 const validationSchema = z
@@ -47,8 +47,8 @@ export default defineEventHandler(async (event) => {
     const appConfig = useAppConfig();
 
     return {
-        base64: await qrcode.toDataURL(
-            authenticator.keyuri(currentUser.username, appConfig.site.name, totpSecret),
-        ),
+        base64: `data:image/svg+xml;base64,${Buffer.from(
+            renderSVG(authenticator.keyuri(currentUser.username, appConfig.site.name, totpSecret)),
+        ).toString('base64')}`,
     };
 });
