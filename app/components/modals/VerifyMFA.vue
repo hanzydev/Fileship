@@ -283,7 +283,7 @@ watch(isOpen, (value) => {
                     height.value = container.clientHeight;
                     container.querySelector('input')?.focus();
                 }
-            }, 20);
+            }, 100);
         });
     }
 });
