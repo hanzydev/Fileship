@@ -57,5 +57,5 @@ export const createLog = async (
         },
     });
 
-    await sendByFilter((user) => isAdmin(user), 'create:log', log);
+    await sendByFilter(isAdmin, 'create:log', log);
 };

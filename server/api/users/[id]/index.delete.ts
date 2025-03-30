@@ -137,7 +137,7 @@ export default defineEventHandler(async (event) => {
         message: `Deleted user ${findUserById.username}`,
     });
 
-    await sendByFilter((user) => isAdmin(user), 'delete:user', userId);
+    await sendByFilter(isAdmin, 'delete:user', userId);
 
     sendToUser(findUserById.id, 'logout', null);
 });

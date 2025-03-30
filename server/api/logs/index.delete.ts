@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
 
     await prisma.log.deleteMany({});
 
-    await sendByFilter((user) => isAdmin(user), 'delete:log:all', null);
+    await sendByFilter(isAdmin, 'delete:log:all', null);
 
     await createLog(event, {
         action: 'Flush Logs',

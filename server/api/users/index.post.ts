@@ -132,7 +132,7 @@ export default defineEventHandler(async (event) => {
         message: `Created user ${user.username} with permissions ${user.permissions.join(', ')}`,
     });
 
-    await sendByFilter((user) => isAdmin(user), 'create:user', user);
+    await sendByFilter(isAdmin, 'create:user', user);
 
     return {
         ...user,

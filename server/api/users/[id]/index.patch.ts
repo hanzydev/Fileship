@@ -260,7 +260,7 @@ export default defineEventHandler(async (event) => {
         message: `Updated user ${updatedUser.username}`,
     });
 
-    await sendByFilter((user) => isAdmin(user), 'update:user', updatedUser);
+    await sendByFilter(isAdmin, 'update:user', updatedUser);
 
     sendToUser(updatedUser.id, 'update:currentUser', updatedUser);
 
