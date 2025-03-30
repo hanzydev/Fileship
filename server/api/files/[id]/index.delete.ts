@@ -1,4 +1,5 @@
 import { rm } from 'node:fs/promises';
+import { nextTick } from 'node:process';
 
 import { join } from 'pathe';
 
@@ -44,12 +45,12 @@ export default defineEventHandler(async (event) => {
         message: `Deleted file ${findFileById.fileName}`,
     });
 
-    sendToUser(currentUser.id, 'delete:file', fileId);
-
     if (findFileById.folderId) {
         sendToUser(currentUser.id, 'folder:file:remove', {
             folderId: findFileById.folderId,
             fileId,
         });
     }
+
+    nextTick(() => sendToUser(currentUser.id, 'delete:file', fileId));
 });
