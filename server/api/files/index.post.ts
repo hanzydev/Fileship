@@ -267,11 +267,6 @@ export default defineEventHandler(async (event) => {
             },
             directUrl: buildPublicUrl(event, currentUser.domains, `/u/${_upload.fileName}`),
             embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${_upload.fileName}`),
-            url: buildPublicUrl(
-                event,
-                currentUser.domains,
-                `/${currentUser.embed.enabled ? 'view' : 'u'}/${_upload.fileName}`,
-            ),
         };
 
         await createLog(event, {
