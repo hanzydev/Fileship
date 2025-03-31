@@ -63,7 +63,15 @@
             @click="handleFullScreen"
         />
 
-        <video v-else-if="isVideo" :src="data.directUrl" controls h96 wfull rounded-lg />
+        <video
+            v-else-if="isVideo"
+            :src="data.directUrl"
+            :poster="data.thumbnailUrl !== null ? data.thumbnailUrl : undefined"
+            controls
+            h96
+            wfull
+            rounded-lg
+        />
 
         <audio v-else-if="isAudio" :src="data.directUrl" controls wfull />
 

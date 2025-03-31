@@ -75,7 +75,18 @@
             />
             <template v-else>
                 <img v-if="isImage" max-hfull max-wfull :src="fileUrl" :alt="data.fileName" />
-                <video v-else-if="isVideo" controls max-hfull max-wfull :src="fileUrl" />
+                <video
+                    v-else-if="isVideo"
+                    controls
+                    max-hfull
+                    max-wfull
+                    :src="fileUrl"
+                    :poster="
+                        data.thumbnailUrl !== null
+                            ? `${data.thumbnailUrl}${data.password ? `?password=${data.password}` : ''}`
+                            : undefined
+                    "
+                />
                 <audio v-else-if="isAudio" controls :src="fileUrl" />
                 <div v-else rounded-xl bg-fs-overlay-1 p8 sm:max-w35rem space-y-10>
                     <h2 line-clamp-2 break-all>{{ data.fileName }}</h2>

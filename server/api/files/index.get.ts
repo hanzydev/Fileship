@@ -1,4 +1,7 @@
+import { existsSync } from 'node:fs';
+
 import { filesize } from 'filesize';
+import { join } from 'pathe';
 
 export default defineEventHandler(async (event) => {
     userOnly(event);
@@ -37,5 +40,10 @@ export default defineEventHandler(async (event) => {
         },
         directUrl: buildPublicUrl(event, currentUser.domains, `/u/${file.fileName}`),
         embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${file.fileName}`),
+        thumbnailUrl: file.mimeType.startsWith('video/')
+            ? existsSync(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`))
+                ? buildPublicUrl(event, currentUser.domains, `/u/${file.fileName}/thumbnail`)
+                : null
+            : undefined,
     }));
 });

@@ -50,6 +50,7 @@
                         v-if="isVideo"
                         :src="data.directUrl"
                         :alt="data.fileName"
+                        :poster="data.thumbnailUrl !== null ? data.thumbnailUrl : undefined"
                         absolute
                         hfull
                         wfull

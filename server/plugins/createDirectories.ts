@@ -6,7 +6,7 @@ import { join } from 'pathe';
 import { titleCase } from 'scule';
 
 export default defineNitroPlugin(() => {
-    const directories = ['uploads', 'backups', 'temp'];
+    const directories = ['uploads', 'backups', 'temp', 'thumbnails'];
 
     directories.forEach((directory) => {
         const path = join(dataDirectory, directory);

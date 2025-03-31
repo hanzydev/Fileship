@@ -75,6 +75,7 @@
                     :src="data.directUrl"
                     :alt="data.fileName"
                     :class="!selectable && 'hover:scale-105'"
+                    :poster="data.thumbnailUrl !== null ? data.thumbnailUrl : undefined"
                     absolute
                     hfull
                     wfull

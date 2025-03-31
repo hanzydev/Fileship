@@ -1,5 +1,8 @@
+import { existsSync } from 'node:fs';
+
 import { defu } from 'defu';
 import { filesize } from 'filesize';
+import { join } from 'pathe';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -61,6 +64,15 @@ export default defineEventHandler(async (event) => {
                     findFolderById.author.domains,
                     `/view/${file.fileName}`,
                 ),
+                thumbnailUrl: file.mimeType.startsWith('video/')
+                    ? existsSync(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`))
+                        ? buildPublicUrl(
+                              event,
+                              findFolderById.author.domains,
+                              `/u/${file.fileName}/thumbnail`,
+                          )
+                        : null
+                    : undefined,
             })),
         embed: defu(findFolderById.author.embed, defaultEmbed) as IEmbed,
         publicUrl: findFolderById.public

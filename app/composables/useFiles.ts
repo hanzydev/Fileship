@@ -5,6 +5,7 @@ export type FileData = Omit<File, 'size'> & {
     size: { raw: string; formatted: string };
     directUrl: string;
     embedUrl: string;
+    thumbnailUrl?: string | null;
 };
 
 export const useFiles = () => {

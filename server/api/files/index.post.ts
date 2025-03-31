@@ -2,10 +2,15 @@ import { randomUUID } from 'node:crypto';
 import { existsSync, promises as fsp } from 'node:fs';
 
 import { filesize } from 'filesize';
+import fluentFfmpeg from 'fluent-ffmpeg';
 import { nanoid } from 'nanoid';
 import { basename, extname, join } from 'pathe';
 import sharp from 'sharp';
 import { z } from 'zod';
+
+import ffmpeg from '@ffmpeg-installer/ffmpeg';
+
+fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 
 const validationSchema = z.object(
     {
@@ -268,6 +273,21 @@ export default defineEventHandler(async (event) => {
             directUrl: buildPublicUrl(event, currentUser.domains, `/u/${_upload.fileName}`),
             embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${_upload.fileName}`),
         };
+
+        if (file.type.startsWith('video/')) {
+            const thumbnailPath = join(dataDirectory, 'thumbnails', `${upload.id}.jpeg`);
+
+            await new Promise<void>((resolve) => {
+                fluentFfmpeg(filePath)
+                    .videoFilters('thumbnail')
+                    .frames(1)
+                    .format('mjpeg')
+                    .output(thumbnailPath)
+                    .on('end', () => resolve())
+                    .on('error', () => resolve())
+                    .run();
+            });
+        }
 
         await createLog(event, {
             action: 'Upload File',

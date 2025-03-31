@@ -48,6 +48,7 @@
 - Real-time updates with Socket.IO
 - Backup creation and restoration
 - Password protected files, urls and codes
+- Automatic thumbnail generation for videos
 - Delete files, urls and codes after a certain number of views
 
 ## 🚀 Getting Started

@@ -1,4 +1,4 @@
-import { rename } from 'node:fs/promises';
+import { existsSync, promises as fsp } from 'node:fs';
 
 import { filesize } from 'filesize';
 import { join } from 'pathe';
@@ -115,7 +115,7 @@ export default defineEventHandler(async (event) => {
             });
         }
 
-        await rename(
+        await fsp.rename(
             join(dataDirectory, 'uploads', findFileById.fileName),
             join(dataDirectory, 'uploads', body.data.fileName),
         );
@@ -151,6 +151,15 @@ export default defineEventHandler(async (event) => {
         },
         directUrl: buildPublicUrl(event, currentUser.domains, `/u/${_updatedFile.fileName}`),
         embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${_updatedFile.fileName}`),
+        thumbnailUrl: _updatedFile.mimeType.startsWith('video/')
+            ? existsSync(join(dataDirectory, 'thumbnails', `${_updatedFile.id}.jpeg`))
+                ? buildPublicUrl(
+                      event,
+                      currentUser.domains,
+                      `/u/${_updatedFile.fileName}/thumbnail`,
+                  )
+                : null
+            : undefined,
     };
 
     await createLog(event, {

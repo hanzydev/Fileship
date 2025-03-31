@@ -306,6 +306,9 @@ export const initSocket = () => {
                 ...file,
                 directUrl: buildPublicUrl(`/u/${file.fileName}`),
                 embedUrl: buildPublicUrl(`/view/${file.fileName}`),
+                thumbnailUrl: file.thumbnailUrl?.length
+                    ? buildPublicUrl(`/u/${file.id}/thumbnail`)
+                    : file.thumbnailUrl,
             }));
 
             urls.value = urls.value.map((url) => ({
