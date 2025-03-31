@@ -8,7 +8,6 @@ import { defaultUserLimits } from '~~/shared/utils/constants';
 
 export default defineNitroPlugin(async () => {
     const findUser = await prisma.user.findFirst();
-
     if (!findUser) {
         await prisma.user.create({
             data: {
@@ -19,5 +18,7 @@ export default defineNitroPlugin(async () => {
                 limits: defaultUserLimits as never,
             },
         });
+
+        consola.success(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Default user created`);
     }
 });
