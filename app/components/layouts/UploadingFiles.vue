@@ -137,11 +137,7 @@
                                             "
                                         >
                                             <span mra text-sm>
-                                                {{
-                                                    filesize(file.status.progress.speed, {
-                                                        round: 2,
-                                                    })
-                                                }}/s
+                                                {{ filesize(file.status.progress.speed) }}/s
                                             </span>
                                             <span>|</span>
                                             <span mxa text-sm>
