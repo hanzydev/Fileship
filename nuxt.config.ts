@@ -105,10 +105,6 @@ export default defineNuxtConfig({
                 },
             },
         },
-
-        server: {
-            allowedHosts: true,
-        },
     },
 
     vue: {
