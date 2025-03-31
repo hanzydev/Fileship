@@ -1,5 +1,50 @@
 # Changelog
 
+## v3.1.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v3.0.0...v3.1.0)
+
+### 🚀 Enhancements
+
+- Add an option to enable/disable pwa ([6802aa4](https://github.com/hanzydev/Fileship/commit/6802aa4))
+- Dynamic theme colors ([6121a07](https://github.com/hanzydev/Fileship/commit/6121a07))
+- **upload:** Enhance file upload progress with speed and ETA ([092a2ef](https://github.com/hanzydev/Fileship/commit/092a2ef))
+- Automatic thumbnail generation for videos ([03017e4](https://github.com/hanzydev/Fileship/commit/03017e4))
+
+### 🩹 Fixes
+
+- Increase delay for ensure DOM readiness in verify mfa modal ([d13bf19](https://github.com/hanzydev/Fileship/commit/d13bf19))
+
+### 💅 Refactors
+
+- **VerifyMFA:** Improve height calculation ([b7e38de](https://github.com/hanzydev/Fileship/commit/b7e38de))
+- Use vueuse's usePreferredReducedMotion fn ([4e7968a](https://github.com/hanzydev/Fileship/commit/4e7968a))
+- Better code block & tabs ([9e8964a](https://github.com/hanzydev/Fileship/commit/9e8964a))
+- Use uuid for stats and views ([dec8790](https://github.com/hanzydev/Fileship/commit/dec8790))
+- Remove unknown class ([bb1276c](https://github.com/hanzydev/Fileship/commit/bb1276c))
+- Use uqr instead of qrcode ([499baa8](https://github.com/hanzydev/Fileship/commit/499baa8))
+- **files:** Remove unused url key ([4df4e88](https://github.com/hanzydev/Fileship/commit/4df4e88))
+- **backups:** Sort datas ([bf0e499](https://github.com/hanzydev/Fileship/commit/bf0e499))
+- Set default chunk size to 25mb ([fa8ca1b](https://github.com/hanzydev/Fileship/commit/fa8ca1b))
+- Hide permissions selector if user super admin ([ffbda43](https://github.com/hanzydev/Fileship/commit/ffbda43))
+- **files:** Defer delete:file for folder:file:remove event ([356d1db](https://github.com/hanzydev/Fileship/commit/356d1db))
+- **socket.io:** Increase ping timeout ([35e55e5](https://github.com/hanzydev/Fileship/commit/35e55e5))
+- **backups:** Rewrite backup logic for clarity ([be42f23](https://github.com/hanzydev/Fileship/commit/be42f23))
+- Simplify `sendByFilter` calls by directly passing `isAdmin` ([b00c835](https://github.com/hanzydev/Fileship/commit/b00c835))
+- Update border radius in ColorPicker ([27cbafb](https://github.com/hanzydev/Fileship/commit/27cbafb))
+- Remove old colors ([599df89](https://github.com/hanzydev/Fileship/commit/599df89))
+- Simplify filesize function call ([f56fef2](https://github.com/hanzydev/Fileship/commit/f56fef2))
+- Remove redundant log and improve directory creation message ([6b2817b](https://github.com/hanzydev/Fileship/commit/6b2817b))
+
+### 🏡 Chore
+
+- Lint fix ([bc5300a](https://github.com/hanzydev/Fileship/commit/bc5300a))
+- Lint fix ([b70c342](https://github.com/hanzydev/Fileship/commit/b70c342))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v3.0.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v2.3.0...v3.0.0)
