@@ -20,11 +20,6 @@ export default defineEventHandler(async (event) => {
             ],
         },
         include: {
-            _count: {
-                select: {
-                    views: true,
-                },
-            },
             folder: {
                 select: {
                     public: true,
