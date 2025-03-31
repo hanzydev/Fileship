@@ -19,7 +19,5 @@ export default defineNitroPlugin(async () => {
                 limits: defaultUserLimits as never,
             },
         });
-
-        consola.success(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Default user created`);
     }
 });
