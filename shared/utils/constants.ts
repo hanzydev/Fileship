@@ -4,7 +4,7 @@ export const defaultEmbed: IEmbed = {
     title: '{fileName}',
     description: '',
     siteName: '',
-    color: '#5e58f9',
+    color: '#5865f2',
     enabled: false,
 };
 
