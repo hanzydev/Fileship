@@ -21,9 +21,11 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Toaster } from 'vue-sonner';
 
+dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
 const appConfig = useAppConfig();

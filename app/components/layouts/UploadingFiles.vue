@@ -3,8 +3,8 @@
         enter-active-class="motion-safe:(animate-in fade-in zoom-in-95 slide-in-bottom-2)"
         leave-active-class="motion-safe:(animate-out fade-out zoom-out-95 slide-out-bottom-2)"
     >
-        <div v-if="isOpen" fixed bottom-6 z30 wfull rounded-xl md="right-6 w40rem" lt-md:px4>
-            <UiDropdown placement="top" wfull md:w40rem>
+        <div v-if="isOpen" fixed bottom-6 z30 wfull rounded-xl md="right-6 w45rem" lt-md:px4>
+            <UiDropdown placement="top" wfull md:w45rem>
                 <UiButton
                     :icon="
                         isErrored
@@ -34,14 +34,14 @@
                         absolute
                         bottom-0
                         mb2
-                        max-h40rem
+                        max-h45rem
                         wfull
                         overflow-y-auto
                         rounded-xl
                         bg-fs-overlay-2
                         p4
                         ring-1
-                        md:w-40rem
+                        md:w-45rem
                         space-y-4
                         :class="isErrored ? 'ring-red-500' : 'ring-fs-overlay-4'"
                         v-bind="containerProps"
@@ -58,7 +58,7 @@
                             <h6 w="2/4">File</h6>
                             <h6 w="1/4">Size</h6>
                             <h6 w="2/4">Status</h6>
-                            <h6 w="1/4">Progress</h6>
+                            <h6 w="3.2/4">Progress</h6>
                         </div>
 
                         <div v-bind="wrapperProps">
@@ -91,7 +91,9 @@
                                             />
                                             {{ file.status?.error }}
                                         </template>
-                                        <template v-else-if="file.status?.progress === 100">
+                                        <template
+                                            v-else-if="file.status?.progress?.percent === 100"
+                                        >
                                             <Icon
                                                 name="heroicons-solid:check-circle"
                                                 size="16"
@@ -110,7 +112,7 @@
                                             Queued
                                         </template>
 
-                                        <template v-else-if="file.status?.progress">
+                                        <template v-else-if="file.status?.progress?.percent">
                                             <Icon
                                                 name="heroicons-solid:upload"
                                                 size="16"
@@ -128,11 +130,42 @@
                                             Starting
                                         </template>
                                     </div>
-                                    <UiProgress
-                                        :value="file.status?.progress || 0"
-                                        w="1/4"
-                                        text-class="w1/3"
-                                    />
+                                    <div flex="~ items-center gap-1" w="3.2/4">
+                                        <template
+                                            v-if="
+                                                file.status?.progress?.speed && !file.status?.error
+                                            "
+                                        >
+                                            <span mra text-sm>
+                                                {{
+                                                    filesize(file.status.progress.speed, {
+                                                        round: 2,
+                                                    })
+                                                }}/s
+                                            </span>
+                                            <span>|</span>
+                                            <span mxa text-sm>
+                                                ETA:
+                                                {{
+                                                    dayjs
+                                                        .duration(
+                                                            file.status.progress.eta,
+                                                            'seconds',
+                                                        )
+                                                        .format('HH:mm:ss')
+                                                }}
+                                            </span>
+                                            <span>|</span>
+                                        </template>
+                                        <UiProgress
+                                            :value="file.status?.progress?.percent || 0"
+                                            :class="
+                                                file.status?.progress?.speed && !file.status?.error
+                                                    ? 'mla'
+                                                    : 'mra'
+                                            "
+                                        />
+                                    </div>
                                 </div>
                                 <template #content>
                                     <div w40 rounded-xl bg-fs-overlay-2 p1.5 ring="1 fs-overlay-4">
@@ -144,7 +177,7 @@
                                             py1="!"
                                             icon="heroicons-solid:x"
                                             icon-size="20"
-                                            :disabled="file.status?.started"
+                                            :disabled="!file.status?.error && file.status?.started"
                                             @click="
                                                 uploadingFiles = uploadingFiles.filter(
                                                     (f) => f !== file,
@@ -165,6 +198,7 @@
 </template>
 
 <script setup lang="ts">
+import dayjs from 'dayjs';
 import { filesize } from 'filesize';
 
 const uploadingFiles = useUploadingFiles();
@@ -178,13 +212,13 @@ const isErrored = computed(
 
 const progress = computed(() =>
     Math.round(
-        uploadingFiles.value.reduce((acc, file) => acc + (file.status?.progress || 0), 0) /
+        uploadingFiles.value.reduce((acc, file) => acc + (file.status?.progress?.percent || 0), 0) /
             uploadingFiles.value.length,
     ),
 );
 
 const unfinishedFiles = computed(() =>
-    uploadingFiles.value.filter((file) => file.status?.progress !== 100),
+    uploadingFiles.value.filter((file) => file.status?.progress?.percent !== 100),
 );
 
 const { list, containerProps, wrapperProps } = useVirtualList(uploadingFiles, {

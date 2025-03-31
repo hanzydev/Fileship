@@ -200,12 +200,19 @@ const handleUpload = async () => {
         if (!uploadingFile.status) {
             uploadingFile.status = reactive({
                 started: false,
-                progress: 0,
+                progress: {
+                    speed: 0,
+                    percent: 0,
+                    eta: 0,
+                },
                 error: null,
             });
         }
 
-        uploadingFile.status.started = true;
+        uploadingFile.status!.started = true;
+
+        const startedAt = Date.now();
+        let totalLoaded = 0;
 
         for (let i = 0; i < chunks; i++) {
             const start = i * fileChunkSize;
@@ -233,20 +240,50 @@ const handleUpload = async () => {
                 formData.append('folderId', settings.folder.value);
             }
 
-            try {
-                await $fetch('/api/files', {
-                    method: 'POST',
-                    body: formData,
-                    retry: 3,
+            const res = await new Promise<boolean>((resolve) => {
+                const req = new XMLHttpRequest();
+
+                let lastLoaded = 0;
+
+                req.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const sent = e.loaded - lastLoaded;
+                        lastLoaded = e.loaded;
+                        totalLoaded += sent;
+
+                        const speed = totalLoaded / ((Date.now() - startedAt) / 1000);
+                        const percent = Math.round((totalLoaded / file.size) * 100);
+                        const eta = Math.round((file.size - totalLoaded) / speed);
+
+                        uploadingFile.status!.progress = {
+                            speed,
+                            percent,
+                            eta,
+                        };
+                    }
                 });
 
-                uploadingFile.status.progress = Math.round((end / file.size) * 100);
-                uploadingFile.status.error = null;
-            } catch (error: any) {
-                uploadingFile.status.error = error.data.message;
-                return false;
-            }
+                req.addEventListener('load', () => {
+                    if (req.responseText.length) {
+                        const res = JSON.parse(req.responseText);
+                        if (res.error) {
+                            uploadingFile.status!.error = res.message;
+                            resolve(false);
+                            return;
+                        }
+                    }
+
+                    uploadingFile.status!.error = null;
+                    resolve(true);
+                });
+
+                req.open('POST', '/api/files');
+                req.send(formData);
+            });
+
+            if (!res) return false;
         }
+
         return true;
     };
 
@@ -257,7 +294,7 @@ const handleUpload = async () => {
     while (files.length > 0) {
         const chunk = files.splice(0, parallelUploads);
         const chunkResults = await Promise.all(chunk.map(uploadFile));
-        results.push(...(chunkResults.filter(Boolean) as boolean[]));
+        results.push(...chunkResults.filter((r) => r !== undefined));
     }
 
     uploadingFiles.value = uploadingFiles.value.filter((_, index) => !results[index]);

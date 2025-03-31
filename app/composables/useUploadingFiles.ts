@@ -3,7 +3,7 @@ import type { UnwrapNestedRefs } from 'vue';
 export type UploadingFileData = File & {
     status?: UnwrapNestedRefs<{
         started: boolean;
-        progress: number;
+        progress: { speed: number; percent: number; eta: number };
         error: string | null;
     }>;
 };

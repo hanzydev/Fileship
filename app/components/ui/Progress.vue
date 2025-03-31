@@ -1,6 +1,6 @@
 <template>
-    <div flex="~ gap2 items-center">
-        <span text-sm="!" :class="textClass">{{ value }}%</span>
+    <div flex="~ gap2 items-center justify-between">
+        <span text-sm :class="textClass">{{ value }}%</span>
         <svg h6 w6 viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <circle cx="50" cy="50" r="45" fill="none" stroke-fs-overlay-4 stroke-width="10" />
             <circle
