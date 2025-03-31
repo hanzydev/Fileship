@@ -75,12 +75,6 @@ export default defineNuxtConfig({
             htmlAttrs: {
                 lang: 'en',
             },
-            meta: [
-                {
-                    name: 'theme-color',
-                    content: '#5e58f9',
-                },
-            ],
             link: [
                 {
                     rel: 'icon',
@@ -110,6 +104,10 @@ export default defineNuxtConfig({
 */`,
                 },
             },
+        },
+
+        server: {
+            allowedHosts: true,
         },
     },
 

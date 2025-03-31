@@ -4,7 +4,23 @@ export default defineNitroPlugin((nitroApp) => {
     nitroApp.hooks.hook('render:html', (htmlContext) => {
         htmlContext.head.push(
             `<script>
+let el;
+
 const themes=${JSON.stringify(themes)};
+
+const handleThemeChange = () => {
+    if (!el) {
+        el = document.createElement('meta');
+        el.name = 'theme-color';
+        document.head.appendChild(el);
+    }
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        el.content = themes[window.theme].background;
+    } else {
+        el.content = themes[window.theme].accent;
+    }
+};
 
 Object.defineProperty(window, 'theme', {
     get() {
@@ -24,10 +40,14 @@ Object.defineProperty(window, 'theme', {
         }
 
         localStorage.setItem('unsyncedTheme', themeName);
+        handleThemeChange();
     },
 });
 
 window.theme = localStorage.getItem('unsyncedTheme') || 'Fileship';
+window.matchMedia('(display-mode: standalone)').onchange = handleThemeChange;
+
+handleThemeChange();
 </script>`,
         );
     });
