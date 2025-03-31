@@ -13,6 +13,7 @@
         bg-fs-background="!"
         flex="~ col items-center justify-center"
         :close-on-outer-click="false"
+        :closable="false"
     >
         <h2 max-w-2xl>Your data is now being restored from backup.</h2>
         <p text-neutral300 font-medium>

@@ -44,8 +44,9 @@
 </template>
 
 <script setup lang="ts">
-const { closeOnOuterClick = true } = defineProps<{
+const { closeOnOuterClick = true, closable = true } = defineProps<{
     closeOnOuterClick?: boolean;
+    closable?: boolean;
 }>();
 
 defineOptions({
@@ -65,14 +66,14 @@ const overflow = useOverflow();
 const contentRef = useTemplateRef<HTMLDivElement>('content');
 
 onClickOutside(contentRef, async () => {
-    if (closeOnOuterClick && isOpen.value) isOpen.value = false;
+    if (closeOnOuterClick && isOpen.value && closable) isOpen.value = false;
     emit('outerClick');
 });
 
 onKeyStroke(
     'Escape',
     () => {
-        if (isOpen.value) isOpen.value = false;
+        if (isOpen.value && closable) isOpen.value = false;
     },
     { eventName: 'keydown' },
 );
