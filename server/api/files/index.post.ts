@@ -303,7 +303,14 @@ export default defineEventHandler(async (event) => {
             });
         }
 
-        return upload;
+        return {
+            ...upload,
+            url: buildPublicUrl(
+                event,
+                currentUser.domains,
+                `/${currentUser.embed.enabled ? 'view' : 'u'}/${_upload.fileName}`,
+            ),
+        };
     } else if (body.data.currentChunk === 1) {
         await fsp.writeFile(tempPath, buffer);
     } else {
