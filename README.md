@@ -43,6 +43,7 @@
 - URL shortening
 - Image compression
 - Custom domains
+- Chunked uploads
 - Multi-factor authentication
 - Multi-user support with roles
 - Real-time updates with Socket.IO
