@@ -27,6 +27,7 @@ export default defineEventHandler(async (event) => {
     const findSessionById = await prisma.session.findUnique({
         where: {
             id: sessionId,
+            userId: currentUser.id,
         },
     });
 
@@ -37,8 +38,6 @@ export default defineEventHandler(async (event) => {
             message: 'Session not found',
         });
     }
-
-    if (currentUser.id !== findSessionById.userId) throw forbiddenError;
 
     await prisma.session.delete({
         where: {

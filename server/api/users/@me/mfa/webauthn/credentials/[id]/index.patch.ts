@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
     const findCredentialById = await prisma.credential.findUnique({
         where: {
             id: credentialId,
+            userId: currentUser.id,
         },
     });
 
@@ -41,8 +42,6 @@ export default defineEventHandler(async (event) => {
             message: 'Credential not found',
         });
     }
-
-    if (currentUser.id !== findCredentialById.userId) throw forbiddenError;
 
     const updatedCredential = await prisma.credential.update({
         where: {

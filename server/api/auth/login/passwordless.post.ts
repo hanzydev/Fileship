@@ -58,8 +58,16 @@ export default defineEventHandler(async (event) => {
         }
 
         const findCredentialById = (await prisma.credential.findUnique({
-            where: { id: body.data.authenticationResponse!.id },
+            where: { id: body.data.authenticationResponse!.id, userId: findUserByUsername.id },
         }))!;
+
+        if (!findCredentialById) {
+            throw createError({
+                statusCode: 404,
+                statusMessage: 'Not Found',
+                message: 'Credential not found',
+            });
+        }
 
         const response = await verifyAuthenticationResponse({
             response: body.data.authenticationResponse!,
