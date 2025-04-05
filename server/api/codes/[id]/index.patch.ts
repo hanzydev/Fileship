@@ -8,16 +8,17 @@ const validationSchema = z
                     invalid_type_error: 'Invalid title',
                     required_error: 'Missing title',
                 })
-                .min(1, 'Title must be at least 1 character')
-                .max(32, 'Title must be at most 32 characters')
-                .optional(),
+                .min(3, 'Title must be at least 3 characters')
+                .max(48, 'Title must be at most 48 characters')
+                .optional()
+                .transform((title) => title?.trim()),
             code: z
                 .string({
                     invalid_type_error: 'Invalid code',
                     required_error: 'Missing code',
                 })
-                .min(1, 'Code must be at least 1 character')
-                .max(50000, 'Code must be at most 50000 characters')
+                .min(5, 'Code must be at least 5 characters')
+                .max(100_000, 'Code must be at most 100000 characters')
                 .optional(),
             language: z
                 .string({
@@ -102,7 +103,10 @@ export default defineEventHandler(async (event) => {
         include: {
             views: true,
         },
-        data: body.data,
+        data: {
+            title: body.data.title || findCodeById.title,
+            ...body.data,
+        },
     });
 
     const updatedCode = {

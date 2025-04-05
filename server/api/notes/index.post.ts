@@ -7,15 +7,16 @@ const validationSchema = z.object(
                 invalid_type_error: 'Invalid title',
                 required_error: 'Missing title',
             })
-            .min(1, 'Title must be at least 1 character')
-            .max(32, 'Title must be at most 32 characters'),
+            .min(3, 'Title must be at least 3 characters')
+            .max(48, 'Title must be at most 48 characters')
+            .transform((title) => title.trim()),
         content: z
             .string({
                 invalid_type_error: 'Invalid content',
                 required_error: 'Missing content',
             })
             .min(1, 'Content must be at least 1 character')
-            .max(20000, 'Content must be at most 20000 characters'),
+            .max(50_000, 'Content must be at most 50000 characters'),
     },
     { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
 );

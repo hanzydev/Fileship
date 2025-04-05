@@ -11,8 +11,9 @@ const validationSchema = z
                 .string({
                     invalid_type_error: 'Invalid file name',
                 })
+                .min(3, 'File name must be at least 3 characters')
                 .max(255, 'File name must be at most 255 characters')
-                .transform((value) => value.replace(/[^a-zA-Z0-9-_.]/g, ''))
+                .transform((value) => value.replace(/[^a-zA-Z0-9-_.]/g, '').trim())
                 .optional(),
             password: z
                 .string({
@@ -128,7 +129,10 @@ export default defineEventHandler(async (event) => {
         include: {
             views: true,
         },
-        data: body.data,
+        data: {
+            fileName: body.data.fileName || findFileById.fileName,
+            ...body.data,
+        },
     });
 
     const updatedFile = {
