@@ -45,7 +45,7 @@
         "@nuxt/fonts": "^0.11.1",
         "@nuxt/icon": "^1.11.0",
         "@nuxt/kit": "^3.16.2",
-        "@nuxtjs/turnstile": "^0.9.16",
+        "@nuxtjs/turnstile": "^1.0.0",
         "@prisma/client": "^6.5.0",
         "@simplewebauthn/browser": "^13.1.0",
         "@simplewebauthn/types": "^12.0.0",
