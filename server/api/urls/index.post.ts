@@ -14,7 +14,6 @@ const validationSchema = z.object(
                 invalid_type_error: 'Invalid vanity',
                 required_error: 'Missing vanity',
             })
-            .min(3, 'Vanity must be at least 3 characters')
             .max(48, 'Vanity must be at most 48 characters')
             .transform((value) => value.replace(/[^a-zA-Z0-9-_.]/g, '').trim())
             .nullish(),
