@@ -5,6 +5,7 @@
 
             <UiInput
                 v-model="editData.cloned.value!.vanity"
+                required
                 wfull
                 label="Vanity"
                 type="text"
