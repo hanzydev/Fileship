@@ -30,7 +30,7 @@
             </div>
         </div>
 
-        <UiTextArea v-model="data!.content" label="Content" readonly wfull />
+        <UiTextArea v-model="data!.content" label="Content" readonly wfull cursor-text="!" />
 
         <div flex="~ gap4 <md:col">
             <UiButton
