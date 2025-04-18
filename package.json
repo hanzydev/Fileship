@@ -34,7 +34,7 @@
         "uqr": "^0.1.2",
         "vue": "^3.5.13",
         "vue-router": "^4.5.0",
-        "zod": "^3.24.2"
+        "zod": "^3.24.3"
     },
     "devDependencies": {
         "@iconify-json/heroicons": "^1.2.2",
