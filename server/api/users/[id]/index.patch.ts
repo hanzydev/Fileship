@@ -113,7 +113,10 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (!isAdmin(currentUser) && ('permissions' in body.data || 'limits' in body.data)) {
+    if (
+        !isAdmin(currentUser) &&
+        ('permissions' in body.data || 'limits' in body.data || 'superAdmin' in body.data)
+    ) {
         throw forbiddenError;
     }
 
