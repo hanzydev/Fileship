@@ -174,11 +174,11 @@ importers:
         specifier: ^11.11.1
         version: 11.11.1
       marked:
-        specifier: ^15.0.8
-        version: 15.0.8
+        specifier: ^15.0.9
+        version: 15.0.9
       marked-highlight:
         specifier: ^2.2.1
-        version: 2.2.1(marked@15.0.8)
+        version: 2.2.1(marked@15.0.9)
       nuxt:
         specifier: ^3.16.2
         version: 3.16.2(@parcel/watcher@2.5.1)(@types/node@22.13.14)(bufferutil@4.0.9)(db0@0.3.1)(eslint@9.25.0(jiti@2.4.2))(ioredis@5.6.0)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.37.0)(terser@5.39.0)(typescript@5.8.3)(utf-8-validate@6.0.5)(vite@6.2.4(@types/node@22.13.14)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vue-tsc@2.2.8(typescript@5.8.3))(yaml@2.7.0)
@@ -4246,8 +4246,8 @@ packages:
     peerDependencies:
       marked: '>=4 <16'
 
-  marked@15.0.8:
-    resolution: {integrity: sha512-rli4l2LyZqpQuRve5C0rkn6pj3hT8EWPC+zkAxFTAJLxRbENfTAhEQq9itrmf1Y81QtAX5D/MYlGlIomNgj9lA==}
+  marked@15.0.9:
+    resolution: {integrity: sha512-9AW/bn9DxQeZVjR52l5jsc0W2pwuhP04QaQewPvylil12Cfr2GBfWmgp6mu8i9Jy8UlBjqDZ9uMTDuJ8QOGZJA==}
     engines: {node: '>= 18'}
     hasBin: true
 
@@ -10808,11 +10808,11 @@ snapshots:
       '@babel/types': 7.27.0
       source-map-js: 1.2.1
 
-  marked-highlight@2.2.1(marked@15.0.8):
+  marked-highlight@2.2.1(marked@15.0.9):
     dependencies:
-      marked: 15.0.8
+      marked: 15.0.9
 
-  marked@15.0.8: {}
+  marked@15.0.9: {}
 
   math-intrinsics@1.1.0: {}
 
