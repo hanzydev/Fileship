@@ -109,31 +109,57 @@
             </div>
         </div>
 
-        <div
-            v-if="isImage"
-            h96
-            wfull
-            cursor-pointer
-            select-none
-            rounded-lg
-            bg-contain
-            bg-center
-            bg-no-repeat
-            :style="{
-                backgroundImage: `url(${data.directUrl})`,
-            }"
-            @click="handleFullScreen"
-        />
+        <div v-if="isImage" flex="~ items-center justify-center" relative wfull>
+            <div
+                v-if="reducedMotion === 'no-preference'"
+                flex="~ items-center justify-center'"
+                absolute
+                z10
+                size-full
+                h96
+                wfull
+                cursor-pointer
+                select-none
+                rounded-lg
+                bg-contain
+                bg-center
+                bg-no-repeat
+                blur-3xl
+                :style="{
+                    backgroundImage: `url(${data.directUrl})`,
+                }"
+            />
+            <div
+                z11
+                h96
+                wfull
+                cursor-pointer
+                select-none
+                rounded-lg
+                bg-contain
+                bg-center
+                bg-no-repeat
+                :style="{
+                    backgroundImage: `url(${data.directUrl})`,
+                }"
+                @click="handleFullScreen"
+            />
+        </div>
 
-        <video
-            v-else-if="isVideo"
-            :src="data.directUrl"
-            :poster="data.thumbnailUrl !== null ? data.thumbnailUrl : undefined"
-            controls
-            h96
-            wfull
-            rounded-lg
-        />
+        <div v-else-if="isVideo" flex="~ items-center justify-center" relative wfull>
+            <canvas ref="canvasRef" absolute z10 size-full blur-3xl />
+            <video
+                ref="videoRef"
+                :src="data.directUrl"
+                :poster="data.thumbnailUrl !== null ? data.thumbnailUrl : undefined"
+                controls
+                relative
+                z11
+                h96
+                wfull
+                rounded-lg
+            />
+        </div>
 
         <audio v-else-if="isAudio" :src="data.directUrl" controls wfull />
 
@@ -203,6 +229,9 @@ const { copied, copy } = useClipboard({ legacy: true });
 
 const modalId = useId();
 const reducedMotion = usePreferredReducedMotion();
+
+const canvas = useTemplateRef('canvasRef');
+const video = useTemplateRef('videoRef');
 
 const index = computed(() => files.value.findIndex((file) => file.id === data.value.id));
 const next = computed(() => {
@@ -292,6 +321,34 @@ const handleNext = async () => {
     await tl.value?.reverse();
 };
 
+const handleAmbientMode = () => {
+    if (!video.value || !canvas.value || reducedMotion.value !== 'no-preference' || !isOpen.value)
+        return;
+
+    const ctx = canvas.value!.getContext('2d')!;
+    let step: number | undefined;
+
+    const draw = () => {
+        ctx.drawImage(video.value!, 0, 0, canvas.value!.width, canvas.value!.height);
+    };
+
+    const drawLoop = () => {
+        draw();
+        step = window.requestAnimationFrame(drawLoop);
+    };
+
+    const drawPause = () => {
+        window.cancelAnimationFrame(step!);
+        step = undefined;
+    };
+
+    video.value.addEventListener('loadeddata', draw, false);
+    video.value.addEventListener('seeked', draw, false);
+    video.value.addEventListener('play', drawLoop, false);
+    video.value.addEventListener('pause', drawPause, false);
+    video.value.addEventListener('ended', drawPause, false);
+};
+
 onKeyStroke('ArrowLeft', handlePrev, { eventName: 'keydown' });
 onKeyStroke('ArrowRight', handleNext, { eventName: 'keydown' });
 
@@ -311,7 +368,8 @@ watch(
 );
 
 watch([isOpen, editModalOpen], ([open, editModalOpen]) => {
-    console.log(open, editModalOpen);
     if (!open && !editModalOpen) data.value = _data;
 });
+
+watch([isOpen, data], handleAmbientMode, { flush: 'post' });
 </script>
