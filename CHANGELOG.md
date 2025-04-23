@@ -1,5 +1,38 @@
 # Changelog
 
+## v3.2.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v3.1.0...v3.2.0)
+
+### 🚀 Enhancements
+
+- Add navigation buttons for file and note modals ([cd162eb](https://github.com/hanzydev/Fileship/commit/cd162eb))
+- Ambient mode ([d132c71](https://github.com/hanzydev/Fileship/commit/d132c71))
+
+### 🩹 Fixes
+
+- Backup restoring model can be closed with esc ([8e88384](https://github.com/hanzydev/Fileship/commit/8e88384))
+- **files:** Add `url` for ShareX ([2bd56cb](https://github.com/hanzydev/Fileship/commit/2bd56cb))
+- **urls:** Remove minimum length constraint for vanity field ([ffd66c8](https://github.com/hanzydev/Fileship/commit/ffd66c8))
+- **EditUrl:** Add required attribute to Vanity input ([daf1912](https://github.com/hanzydev/Fileship/commit/daf1912))
+- **users:** Prevent non-admin users from updating the superAdmin field ([87d93c1](https://github.com/hanzydev/Fileship/commit/87d93c1))
+
+### 💅 Refactors
+
+- Remove unnecessary _count field from query ([5639f8f](https://github.com/hanzydev/Fileship/commit/5639f8f))
+- Add chunked uploads feature to README ([942df27](https://github.com/hanzydev/Fileship/commit/942df27))
+- **passkeys:** Improve security by adding userId to query conditions ([43b1a1d](https://github.com/hanzydev/Fileship/commit/43b1a1d))
+- **body validation:** Update validation rules and trim inputs for consistency ([7d7c9e5](https://github.com/hanzydev/Fileship/commit/7d7c9e5))
+- Update cloned data when original data changes ([02a82b1](https://github.com/hanzydev/Fileship/commit/02a82b1))
+
+### 🎨 Styles
+
+- **ViewNote:** Add cursor-text prop to UiTextArea for better readability ([f0e7191](https://github.com/hanzydev/Fileship/commit/f0e7191))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v3.1.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v3.1.0...v3.1.1)
