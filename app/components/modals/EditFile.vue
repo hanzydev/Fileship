@@ -133,4 +133,19 @@ watch(isOpen, async (value) => {
         );
     }
 });
+
+watch(
+    () => data,
+    (value) =>
+        (editData.cloned.value = JSON.parse(
+            JSON.stringify({
+                ...value,
+                fileName: getBasename(value.fileName!),
+                expiration: {
+                    label: 'Never',
+                    value: null as number | null,
+                },
+            }),
+        )),
+);
 </script>

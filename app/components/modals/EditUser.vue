@@ -228,4 +228,15 @@ watch(
         if (value) editData.cloned.value.permissions = [];
     },
 );
+
+watch(
+    () => data,
+    (value) =>
+        (editData.cloned.value = JSON.parse(
+            JSON.stringify({
+                ...value,
+                password: '',
+            }),
+        )),
+);
 </script>

@@ -87,4 +87,9 @@ const handleEdit = async () => {
 
     updating.value = false;
 };
+
+watch(
+    () => data,
+    (value) => (editData.cloned.value = JSON.parse(JSON.stringify(value))),
+);
 </script>

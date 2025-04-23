@@ -197,4 +197,19 @@ watch(isOpen, async (value) => {
         );
     }
 });
+
+watch(
+    () => data,
+    (value) =>
+        (editData.cloned.value = JSON.parse(
+            JSON.stringify({
+                ...value,
+                language: languages.find((l) => l.hljs === value.language) || languages[0]!,
+                expiration: {
+                    label: 'Never',
+                    value: null as number | null,
+                },
+            }),
+        )),
+);
 </script>
