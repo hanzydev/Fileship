@@ -67,6 +67,8 @@ const searchQuery = ref('');
 const currentPage = ref(1);
 const filterType = ref([]);
 
+useFiles().value = data.value!.files as any[];
+
 const { results } = useFuse(searchQuery, data.value!.files, {
     matchAllWhenSearchEmpty: true,
     fuseOptions: {

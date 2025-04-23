@@ -1,7 +1,69 @@
 <template>
-    <ModalsEditFile v-if="currentUser?.id === data.authorId" v-model="editModalOpen" :data />
+    <ModalsEditFile v-if="currentUser?.id === data?.authorId" v-model="editModalOpen" :data />
 
-    <UiModal v-if="isImage || isVideo || isAudio" v-model="isOpen" max-w768px p8 space-y-4>
+    <Teleport to="body">
+        <Transition
+            enter-active-class="motion-safe:(animate-in fade-in zoom-in-95 slide-in-top-48%)"
+            leave-active-class="motion-safe:(animate-out fade-out zoom-out-95 slide-out-top-48%)"
+        >
+            <UiButton
+                v-if="isOpen && files.length > 1"
+                variant="secondary"
+                alignment="center"
+                icon="heroicons-solid:arrow-narrow-left"
+                icon-class="text-2xl! sm:text-3xl!"
+                rounded-full="!"
+                p0="!"
+                shadow="xl fs-overlay-1"
+                aria-label="Previous"
+                top="1/2"
+                translate-y-="1/2"
+                data-controller
+                absolute
+                sm="left-6"
+                left-3
+                z60
+                size="10 sm:14"
+                :disabled="isFirst || !prev"
+                @click="handlePrev"
+            />
+        </Transition>
+        <Transition
+            enter-active-class="motion-safe:(animate-in fade-in zoom-in-95 slide-in-top-48%)"
+            leave-active-class="motion-safe:(animate-out fade-out zoom-out-95 slide-out-top-48%)"
+        >
+            <UiButton
+                v-if="isOpen && files.length > 1"
+                variant="secondary"
+                alignment="center"
+                icon="heroicons-solid:arrow-narrow-right"
+                icon-class="text-2xl! sm:text-3xl!"
+                rounded-full="!"
+                p0="!"
+                shadow="xl fs-overlay-1"
+                aria-label="Previous"
+                top="1/2"
+                translate-y-="1/2"
+                data-controller
+                absolute
+                sm="right-6"
+                right-3
+                z60
+                size="10 sm:14"
+                :disabled="isLast || !next"
+                @click="handleNext"
+            />
+        </Transition>
+    </Teleport>
+
+    <UiModal
+        v-if="isImage || isVideo || isAudio"
+        :id="modalId"
+        v-model="isOpen"
+        max-w768px
+        p8
+        space-y-4
+    >
         <div flex="~ justify-between" wfull>
             <h2 line-clamp-2 break-all>{{ data.fileName }}</h2>
 
@@ -119,35 +181,87 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
+import { Cubic, gsap } from 'gsap';
 import { toast } from 'vue-sonner';
 
-const { data } = defineProps<{
+const { data: _data } = defineProps<{
     data: Partial<FileData> & { embed?: IEmbed };
 }>();
 
 const isOpen = defineModel<boolean>({ required: true });
 
-const isImage = computed(() => data.mimeType!.startsWith('image/'));
-const isVideo = computed(() => data.mimeType!.startsWith('video/'));
-const isAudio = computed(() => data.mimeType!.startsWith('audio/'));
+const data = ref(_data);
 
+const isImage = computed(() => data.value.mimeType!.startsWith('image/'));
+const isVideo = computed(() => data.value.mimeType!.startsWith('video/'));
+const isAudio = computed(() => data.value.mimeType!.startsWith('audio/'));
+
+const files = useFiles();
 const currentUser = useAuthUser();
 const embed = useEmbed();
 const { copied, copy } = useClipboard({ legacy: true });
+
+const modalId = useId();
+const reducedMotion = usePreferredReducedMotion();
+
+const index = computed(() => files.value.findIndex((file) => file.id === data.value.id));
+const next = computed(() => {
+    const file = files.value[index.value + 1];
+    if (!file) return null;
+
+    const allowedMimeTypes = ['image/', 'video/', 'audio/'];
+    if (allowedMimeTypes.some((type) => file.mimeType!.startsWith(type))) return file;
+
+    return files.value.find(
+        (file, fIndex) =>
+            allowedMimeTypes.some((type) => file.mimeType!.startsWith(type)) &&
+            fIndex > index.value,
+    );
+});
+const prev = computed(() => {
+    const file = files.value[index.value - 1];
+    if (!file) return null;
+
+    const allowedMimeTypes = ['image/', 'video/', 'audio/'];
+    if (allowedMimeTypes.some((type) => file.mimeType!.startsWith(type))) return file;
+
+    return files.value.find(
+        (file, fIndex) =>
+            allowedMimeTypes.some((type) => file.mimeType!.startsWith(type)) &&
+            fIndex < index.value,
+    );
+});
+const isFirst = computed(() => index.value === 0);
+const isLast = computed(() => index.value === files.value.length - 1);
+const tl = computed(() =>
+    reducedMotion.value === 'no-preference' && isOpen.value
+        ? gsap.timeline({ paused: true, reversed: true }).to(`#${modalId}`, {
+              opacity: 0,
+              duration: 0.15,
+              scale: 0.95,
+              y: '2%',
+              ease: Cubic.easeIn,
+          })
+        : null,
+);
 
 const deleting = ref(false);
 const editModalOpen = ref(false);
 
 const handleDelete = async () => {
     deleting.value = true;
-    await $fetch(`/api/files/${data.id}`, { method: 'DELETE' });
+    await $fetch(`/api/files/${data.value.id}`, { method: 'DELETE' });
     deleting.value = false;
 
     toast.success('File deleted successfully');
 };
 
 const handleCopy = () => {
-    copy(embed.value.enabled || data.embed?.enabled ? data.embedUrl! : data.directUrl!);
+    copy(
+        embed.value.enabled || data.value.embed?.enabled
+            ? data.value.embedUrl!
+            : data.value.directUrl!,
+    );
 
     toast.success('Link copied to clipboard');
 };
@@ -161,4 +275,43 @@ const handleFullScreen = (event: MouseEvent) => {
         target.requestFullscreen();
     }
 };
+
+const handlePrev = async () => {
+    if (!prev.value) return;
+
+    await tl.value?.play();
+    data.value = prev.value!;
+    await tl.value?.reverse();
+};
+
+const handleNext = async () => {
+    if (!next.value) return;
+
+    await tl.value?.play();
+    data.value = next.value!;
+    await tl.value?.reverse();
+};
+
+onKeyStroke('ArrowLeft', handlePrev, { eventName: 'keydown' });
+onKeyStroke('ArrowRight', handleNext, { eventName: 'keydown' });
+
+watch(
+    () => _data,
+    (value) => {
+        if (value.id === data.value.id) data.value = value;
+    },
+);
+
+watch(
+    files,
+    (value) => {
+        if (!value.find((file) => file.id === data.value.id)) isOpen.value = false;
+    },
+    { immediate: true },
+);
+
+watch([isOpen, editModalOpen], ([open, editModalOpen]) => {
+    console.log(open, editModalOpen);
+    if (!open && !editModalOpen) data.value = _data;
+});
 </script>

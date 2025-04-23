@@ -25,7 +25,7 @@
                 ref="content"
                 ring="1 fs-overlay-4"
                 fixed
-                z40
+                z50
                 max-w-640px
                 overflow-auto
                 rounded-2xl
@@ -65,10 +65,16 @@ const overflow = useOverflow();
 
 const contentRef = useTemplateRef<HTMLDivElement>('content');
 
-onClickOutside(contentRef, async () => {
-    if (closeOnOuterClick && isOpen.value && closable) isOpen.value = false;
-    emit('outerClick');
-});
+onClickOutside(
+    contentRef,
+    async () => {
+        if (closeOnOuterClick && isOpen.value && closable) isOpen.value = false;
+        emit('outerClick');
+    },
+    {
+        ignore: ['[data-controller]'],
+    },
+);
 
 onKeyStroke(
     'Escape',
