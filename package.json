@@ -84,7 +84,7 @@
     },
     "pnpm": {
         "overrides": {
-            "unconfig": "^7.3.1"
+            "unconfig": "^7.3.2"
         },
         "patchedDependencies": {
             "@prisma/client": "patches/@prisma__client.patch"
