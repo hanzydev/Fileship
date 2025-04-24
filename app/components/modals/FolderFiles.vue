@@ -9,6 +9,7 @@
         p8
         space-y-6
         ring-0="!"
+        background-class="hidden!"
         :close-on-outer-click="false"
     >
         <div flex="~ items-center justify-between">
