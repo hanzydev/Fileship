@@ -230,11 +230,13 @@ const { copied, copy } = useClipboard({ legacy: true });
 
 const allFiles = useFiles();
 const files = computed(() =>
-    data.value.folderId
-        ? folders.value
-              .find((folder) => folder.id === data.value.folderId)!
-              .files.map((fileId) => allFiles.value.find((file) => file.id === fileId)!)
-        : allFiles.value.filter((file) => !file.folderId),
+    isOpen.value
+        ? data.value.folderId
+            ? folders.value
+                  .find((folder) => folder.id === data.value.folderId)!
+                  .files.map((fileId) => allFiles.value.find((file) => file.id === fileId)!)
+            : allFiles.value.filter((file) => !file.folderId)
+        : [],
 );
 
 const modalId = useId();
