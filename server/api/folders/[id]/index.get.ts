@@ -13,7 +13,11 @@ export default defineEventHandler(async (event) => {
             id: folderId,
         },
         include: {
-            files: true,
+            files: {
+                orderBy: {
+                    createdAt: 'desc',
+                },
+            },
             author: {
                 select: {
                     domains: true,
@@ -42,38 +46,32 @@ export default defineEventHandler(async (event) => {
     return {
         ...findFolderById,
         author: undefined,
-        files: findFolderById.files
-            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-            .map((file) => ({
-                ...file,
-                password: undefined,
-                maxViews: undefined,
-                expiresAt: undefined,
-                folderId: undefined,
-                size: {
-                    raw: file.size.toString(),
-                    formatted: filesize(file.size.toString()),
-                },
-                directUrl: buildPublicUrl(
-                    event,
-                    findFolderById.author.domains,
-                    `/u/${file.fileName}`,
-                ),
-                embedUrl: buildPublicUrl(
-                    event,
-                    findFolderById.author.domains,
-                    `/view/${file.fileName}`,
-                ),
-                thumbnailUrl: file.mimeType.startsWith('video/')
-                    ? existsSync(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`))
-                        ? buildPublicUrl(
-                              event,
-                              findFolderById.author.domains,
-                              `/u/${file.fileName}/thumbnail`,
-                          )
-                        : null
-                    : undefined,
-            })),
+        files: findFolderById.files.map((file) => ({
+            ...file,
+            password: undefined,
+            maxViews: undefined,
+            expiresAt: undefined,
+            folderId: undefined,
+            size: {
+                raw: file.size.toString(),
+                formatted: filesize(file.size.toString()),
+            },
+            directUrl: buildPublicUrl(event, findFolderById.author.domains, `/u/${file.fileName}`),
+            embedUrl: buildPublicUrl(
+                event,
+                findFolderById.author.domains,
+                `/view/${file.fileName}`,
+            ),
+            thumbnailUrl: file.mimeType.startsWith('video/')
+                ? existsSync(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`))
+                    ? buildPublicUrl(
+                          event,
+                          findFolderById.author.domains,
+                          `/u/${file.fileName}/thumbnail`,
+                      )
+                    : null
+                : undefined,
+        })),
         embed: defu(findFolderById.author.embed, defaultEmbed) as IEmbed,
         publicUrl: findFolderById.public
             ? buildPublicUrl(event, findFolderById.author.domains, `/folder/${findFolderById.id}`)

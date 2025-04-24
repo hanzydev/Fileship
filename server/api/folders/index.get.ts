@@ -16,6 +16,9 @@ export default defineEventHandler(async (event) => {
                     id: true,
                     createdAt: true,
                 },
+                orderBy: {
+                    createdAt: 'desc',
+                },
             },
         },
     });
