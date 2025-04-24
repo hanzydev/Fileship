@@ -59,7 +59,7 @@
         "@vueuse/core": "^13.1.0",
         "@vueuse/integrations": "^13.1.0",
         "@vueuse/nuxt": "^13.1.0",
-        "apexcharts": "^4.6.0",
+        "apexcharts": "^4.7.0",
         "bufferutil": "^4.0.9",
         "changelogen": "^0.6.1",
         "dayjs": "^1.11.13",
