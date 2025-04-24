@@ -63,6 +63,7 @@
         max-w768px
         p8
         space-y-4
+        background-class="z50!"
     >
         <div flex="~ justify-between" wfull>
             <h2 line-clamp-2 break-all>{{ data.fileName }}</h2>
@@ -222,10 +223,19 @@ const isImage = computed(() => data.value.mimeType!.startsWith('image/'));
 const isVideo = computed(() => data.value.mimeType!.startsWith('video/'));
 const isAudio = computed(() => data.value.mimeType!.startsWith('audio/'));
 
-const files = useFiles();
+const folders = useFolders();
 const currentUser = useAuthUser();
 const embed = useEmbed();
 const { copied, copy } = useClipboard({ legacy: true });
+
+const allFiles = useFiles();
+const files = computed(() =>
+    data.value.folderId
+        ? folders.value
+              .find((folder) => folder.id === data.value.folderId)!
+              .files.map((fileId) => allFiles.value.find((file) => file.id === fileId)!)
+        : allFiles.value.filter((file) => !file.folderId),
+);
 
 const modalId = useId();
 const reducedMotion = usePreferredReducedMotion();
