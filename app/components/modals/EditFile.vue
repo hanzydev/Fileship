@@ -1,5 +1,5 @@
 <template>
-    <UiModal v-model="isOpen">
+    <UiModal v-model="isOpen" background-class="z50!">
         <form p8 space-y-4 @submit.prevent="handleEdit">
             <h2>Edit File</h2>
 
