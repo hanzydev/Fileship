@@ -159,7 +159,7 @@ importers:
         specifier: ^1.11.13
         version: 1.11.13
       eslint:
-        specifier: ^9.26.0
+        specifier: ^9.27.0
         version: 9.27.0(jiti@2.4.2)
       eslint-plugin-simple-import-sort:
         specifier: ^12.1.1
