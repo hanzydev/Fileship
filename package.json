@@ -68,7 +68,7 @@
         "fuse.js": "^7.1.0",
         "gsap": "^3.13.0",
         "highlight.js": "^11.11.1",
-        "marked": "^15.0.11",
+        "marked": "^15.0.12",
         "marked-highlight": "^2.2.1",
         "nuxt": "^3.17.3",
         "prettier": "^3.5.3",
