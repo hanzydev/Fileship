@@ -1,5 +1,28 @@
 # Changelog
 
+## v3.2.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v3.2.0...v3.2.1)
+
+### 🩹 Fixes
+
+- File navigation buttons and folder files background blur visibility ([6fe6480](https://github.com/hanzydev/Fileship/commit/6fe6480))
+- Sort folder files ([81c646c](https://github.com/hanzydev/Fileship/commit/81c646c))
+- **EditFile:** Background blur visibility ([876162b](https://github.com/hanzydev/Fileship/commit/876162b))
+- Font displayed in regular ([f2f8146](https://github.com/hanzydev/Fileship/commit/f2f8146))
+
+### 💅 Refactors
+
+- **ViewFile:** Optimize file list computation by checking modal state ([7d39ab8](https://github.com/hanzydev/Fileship/commit/7d39ab8))
+- **FolderFiles:** Hide background ([c6a39a2](https://github.com/hanzydev/Fileship/commit/c6a39a2))
+- Regenerate pnpm lock file ([9053498](https://github.com/hanzydev/Fileship/commit/9053498))
+- Migration to vue-sonner v2 ([b25af5b](https://github.com/hanzydev/Fileship/commit/b25af5b))
+- **unocss:** Use presetWind3 instead of presetUno ([5ce9b6f](https://github.com/hanzydev/Fileship/commit/5ce9b6f))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v3.2.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v3.1.0...v3.2.0)
