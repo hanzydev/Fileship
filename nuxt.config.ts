@@ -28,6 +28,16 @@ export default defineNuxtConfig({
         'highlight.js/styles/tokyo-night-dark.css',
     ],
 
+    fonts: {
+        families: [
+            {
+                name: 'Quicksand',
+                provider: 'google',
+                weights: [300, 400, 500, 600, 700],
+            },
+        ],
+    },
+
     devtools: {
         enabled: true,
     },
