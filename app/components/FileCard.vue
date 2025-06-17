@@ -268,7 +268,6 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { toast } from 'vue-sonner';
 
 import { useFuse } from '@vueuse/integrations/useFuse';
 
@@ -285,6 +284,7 @@ const selected = defineModel<boolean>('selected', {
 const currentUser = useAuthUser();
 const folders = useFolders();
 const embed = useEmbed();
+const { $toast } = useNuxtApp();
 
 const addToFolderSearchQuery = ref('');
 
@@ -313,14 +313,14 @@ const handleDelete = async () => {
     await $fetch(`/api/files/${data.id}`, { method: 'DELETE' });
     deleting.value = false;
 
-    toast.success('File deleted successfully');
+    $toast.success('File deleted successfully');
 };
 
 const handleCopy = () => {
     useClipboard({ legacy: true }).copy(embed.value.enabled ? data.embedUrl : data.directUrl);
     ctxOpen.value = false;
 
-    toast.success('Link copied to clipboard');
+    $toast.success('Link copied to clipboard');
 };
 
 const handleMoveFile = async (folderId: string | null) => {
@@ -335,7 +335,7 @@ const handleMoveFile = async (folderId: string | null) => {
 
     updating.value = false;
 
-    toast.success('File moved successfully');
+    $toast.success('File moved successfully');
 };
 
 const handleCreateFolderWithFile = async () => {
@@ -350,10 +350,10 @@ const handleCreateFolderWithFile = async () => {
             },
         });
 
-        toast.success('Folder created and file added successfully');
+        $toast.success('Folder created and file added successfully');
     } catch (error: any) {
-        if (error.data.data) toast.error(error.data.data.name._errors[0]);
-        else toast.error(error.data.message);
+        if (error.data.data) $toast.error(error.data.data.name._errors[0]);
+        else $toast.error(error.data.message);
     }
 
     updating.value = false;

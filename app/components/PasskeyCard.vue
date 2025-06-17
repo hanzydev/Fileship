@@ -58,9 +58,9 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 const { data } = defineProps<{ data: PasskeyData }>();
+
+const { $toast } = useNuxtApp();
 
 const deleting = ref(false);
 
@@ -81,7 +81,7 @@ const handleDelete = async (verificationData?: any) => {
 
         verifyModalOpen.value = false;
 
-        toast.success('Passkey deleted successfully');
+        $toast.success('Passkey deleted successfully');
     } catch (error: any) {
         if (verifyModalOpen.value) {
             verificationError.value = error.data.message;

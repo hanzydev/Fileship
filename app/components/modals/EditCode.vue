@@ -134,8 +134,6 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 import { ExpirationPicker } from '#components';
 
 const { data } = defineProps<{
@@ -144,12 +142,13 @@ const { data } = defineProps<{
 
 const isOpen = defineModel<boolean>({ required: true });
 
+const { $toast } = useNuxtApp();
+const id = useId();
+
 const formErrors = ref();
 const updating = ref(false);
 
-const id = useId();
 const selectedTab = ref('Code');
-
 const expirationPickerRef = ref<InstanceType<typeof ExpirationPicker>>();
 
 const editData = useCloned({
@@ -180,7 +179,7 @@ const handleEdit = async () => {
 
         isOpen.value = false;
 
-        toast.success('Code updated successfully');
+        $toast.success('Code updated successfully');
     } catch (error: any) {
         formErrors.value = error.data.data?.formErrors;
     }

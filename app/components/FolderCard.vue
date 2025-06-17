@@ -108,15 +108,15 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { toast } from 'vue-sonner';
 
 const { data } = defineProps<{
     data: FolderData;
 }>();
 
+const { $toast } = useNuxtApp();
+
 const filesModal = reactive({ open: false, editMode: false });
 const editModalOpen = ref(false);
-
 const ctxOpen = ref(false);
 const deleting = ref(false);
 
@@ -125,13 +125,13 @@ const handleDelete = async () => {
     await $fetch(`/api/folders/${data.id}`, { method: 'DELETE' });
     deleting.value = false;
 
-    toast.success('Folder deleted successfully');
+    $toast.success('Folder deleted successfully');
 };
 
 const handleCopy = () => {
     useClipboard({ legacy: true }).copy(data.publicUrl!);
     ctxOpen.value = false;
 
-    toast.success('Link copied to clipboard');
+    $toast.success('Link copied to clipboard');
 };
 </script>

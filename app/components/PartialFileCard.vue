@@ -135,11 +135,12 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { toast } from 'vue-sonner';
 
 const { data } = defineProps<{
     data: Partial<FileData> & { embed: IEmbed };
 }>();
+
+const { $toast } = useNuxtApp();
 
 const isImage = computed(() => data.mimeType!.startsWith('image/'));
 const isVideo = computed(() => data.mimeType!.startsWith('video/'));
@@ -152,6 +153,6 @@ const handleCopy = () => {
     useClipboard({ legacy: true }).copy(data.embed.enabled ? data.embedUrl! : data.directUrl!);
     ctxOpen.value = false;
 
-    toast.success('Link copied to clipboard');
+    $toast.success('Link copied to clipboard');
 };
 </script>

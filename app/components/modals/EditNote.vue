@@ -51,13 +51,13 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 const { data } = defineProps<{
     data: NoteData;
 }>();
 
 const isOpen = defineModel<boolean>({ required: true });
+
+const { $toast } = useNuxtApp();
 
 const formErrors = ref();
 const updating = ref(false);
@@ -79,9 +79,9 @@ const handleEdit = async () => {
 
         isOpen.value = false;
 
-        toast.success('Note updated successfully');
+        $toast.success('Note updated successfully');
     } catch (error: any) {
-        if (!error.data.data?.formErrors) toast.error(error.data.message);
+        if (!error.data.data?.formErrors) $toast.error(error.data.message);
         formErrors.value = error.data.data?.formErrors;
     }
 

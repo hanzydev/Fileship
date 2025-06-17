@@ -93,7 +93,6 @@
 import hljs from 'highlight.js';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
-import { toast } from 'vue-sonner';
 
 const { language, code } = defineProps<{
     language: string;
@@ -101,8 +100,9 @@ const { language, code } = defineProps<{
     fullScreen?: boolean;
 }>();
 
-const renderMarkdown = ref(true);
+const { $toast } = useNuxtApp();
 
+const renderMarkdown = ref(true);
 const shouldRenderMarkdown = computed(() => language === 'markdown' && renderMarkdown.value);
 
 const { copied, copy } = useClipboard({ legacy: true });
@@ -135,7 +135,7 @@ const registerLanguage = () => {
 
 const handleCopy = () => {
     copy(code);
-    toast.success('Code copied to clipboard');
+    $toast.success('Code copied to clipboard');
 };
 </script>
 

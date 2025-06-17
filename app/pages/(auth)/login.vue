@@ -144,8 +144,6 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser';
 import type { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types';
 
@@ -158,6 +156,7 @@ const disabled = ref(false);
 const height = ref(380 /** initial */);
 
 const runtimeConfig = useRuntimeConfig();
+const { $toast } = useNuxtApp();
 
 const auth = reactive({
     username: '',
@@ -195,12 +194,12 @@ const handleSubmit = async (totp?: string) => {
 
         await navigateTo((route.query.redirectTo as string) || '/dashboard');
 
-        toast.success('Logged in successfully');
+        $toast.success('Logged in successfully');
     } catch (_error: any) {
         if (_error.data.message === 'Missing TOTP') {
             section.value = 'totp';
         } else {
-            if (!_error.data.data) toast.error(_error.data.message);
+            if (!_error.data.data) $toast.error(_error.data.message);
             formErrors.value = _error.data.data;
         }
 
@@ -257,13 +256,13 @@ onMounted(async () => {
 
                 await navigateTo((route.query.redirectTo as string) || '/dashboard');
 
-                toast.success('Logged in successfully with passkey');
+                $toast.success('Logged in successfully with passkey');
             } catch (_error: any) {
                 if (_error.data) {
-                    if (_error.data.message) toast.error(_error.data.message);
+                    if (_error.data.message) $toast.error(_error.data.message);
                     else formErrors.value = _error.data.data;
                 } else {
-                    toast.error('Failed to verify passkey');
+                    $toast.error('Failed to verify passkey');
                 }
             }
         }

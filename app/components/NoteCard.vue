@@ -76,13 +76,13 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { toast } from 'vue-sonner';
 
 const { data } = defineProps<{
     data: NoteData;
 }>();
 
 const { copy } = useClipboard({ legacy: true });
+const { $toast } = useNuxtApp();
 
 const viewModalOpen = ref(false);
 const editModalOpen = ref(false);
@@ -95,13 +95,13 @@ const handleDelete = async () => {
     await $fetch(`/api/notes/${data.id}`, { method: 'DELETE' });
     deleting.value = false;
 
-    toast.success('Note deleted successfully');
+    $toast.success('Note deleted successfully');
 };
 
 const handleCopy = () => {
     copy(data.content);
     ctxOpen.value = false;
 
-    toast.success('Note copied to clipboard');
+    $toast.success('Note copied to clipboard');
 };
 </script>

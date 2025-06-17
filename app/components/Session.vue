@@ -78,9 +78,9 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { toast } from 'vue-sonner';
 
 const currentUser = useAuthUser();
+const { $toast } = useNuxtApp();
 
 const { data } = defineProps<{
     data: SessionData;
@@ -104,7 +104,7 @@ const handleRemoveSession = async (verificationData?: any) => {
 
         verifyModalOpen.value = false;
 
-        toast.success('Session removed successfully');
+        $toast.success('Session removed successfully');
     } catch (error: any) {
         if (verifyModalOpen.value) {
             verificationError.value = error.data.message;

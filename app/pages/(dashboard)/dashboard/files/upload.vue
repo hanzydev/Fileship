@@ -129,10 +129,9 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 const router = useRouter();
 const folders = useFolders();
+const { $toast } = useNuxtApp();
 
 const { data: foldersData } = await useFetch('/api/folders');
 
@@ -301,9 +300,9 @@ const handleUpload = async () => {
     uploading.value = false;
 
     if (!uploadingFiles.value.length) {
-        toast.success('All files uploaded successfully');
+        $toast.success('All files uploaded successfully');
     } else {
-        toast.error('Some files could not be uploaded');
+        $toast.error('Some files could not be uploaded');
     }
 };
 

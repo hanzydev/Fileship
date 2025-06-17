@@ -69,9 +69,8 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 const backups = useBackups();
+const { $toast } = useNuxtApp();
 
 const creating = ref(false);
 const uploading = ref(false);
@@ -90,9 +89,9 @@ const handleCreate = async () => {
 
     try {
         await $fetch('/api/users/@me/backups', { method: 'POST' });
-        toast.success('Backup is being created, this may take a while');
+        $toast.success('Backup is being created, this may take a while');
     } catch (error: any) {
-        toast.error(error.data.message);
+        $toast.error(error.data.message);
     }
 
     creating.value = false;
@@ -103,12 +102,12 @@ const handleLoad = async (event: Event) => {
     const file = files[0];
 
     if (!file?.name.endsWith('.tgz')) {
-        return toast.error('Invalid backup file');
+        return $toast.error('Invalid backup file');
     }
 
     uploading.value = true;
 
-    toast.info('Upload in progress...');
+    $toast.info('Upload in progress...');
 
     const chunks = Math.ceil(file.size / fileChunkSize);
 
@@ -136,7 +135,7 @@ const handleLoad = async (event: Event) => {
             uploadProgress.value = Math.round((end / file.size) * 100);
         } catch (error: any) {
             success = false;
-            toast.error(error.data.message);
+            $toast.error(error.data.message);
             break;
         }
     }
@@ -145,7 +144,7 @@ const handleLoad = async (event: Event) => {
     uploadProgress.value = 0;
 
     if (success) {
-        toast.success('Backup uploaded successfully, you can now restore it');
+        $toast.success('Backup uploaded successfully, you can now restore it');
     }
 };
 

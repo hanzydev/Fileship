@@ -27,14 +27,14 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 import type { BackupRestoreState } from '@prisma/client';
 
 const { open, state: _state } = defineProps<{
     open: boolean;
     state: BackupRestoreState;
 }>();
+
+const { $toast } = useNuxtApp();
 
 const state = computed(
     () =>
@@ -49,7 +49,7 @@ watch(
     () => open,
     (newValue, oldValue) => {
         if (!newValue && oldValue) {
-            toast.success('Backup restored successfully');
+            $toast.success('Backup restored successfully');
         }
     },
 );

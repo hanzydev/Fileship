@@ -182,7 +182,6 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { toast } from 'vue-sonner';
 
 import { useFuse } from '@vueuse/integrations/useFuse';
 
@@ -191,6 +190,7 @@ import { Icon, UiAvatar, UiButton } from '#components';
 const currentUser = useAuthUser();
 const currentTheme = useTheme();
 const users = useUsers();
+const { $toast } = useNuxtApp();
 
 const searchQuery = ref('');
 const currentPage = ref(1);
@@ -282,7 +282,7 @@ const handleDelete = async (id: string, verificationData?: any) => {
                 verificationData,
             },
         });
-        toast.success('User deleted successfully');
+        $toast.success('User deleted successfully');
 
         verifyDeleteModal.open = false;
     } catch (error: any) {
@@ -293,7 +293,7 @@ const handleDelete = async (id: string, verificationData?: any) => {
             verifyDeleteModal.userId = id;
             verifyDeleteModal.methods = error.data.data.mfa.methods;
         } else if (!verifyDeleteModal.open) {
-            toast.error(error.data.message);
+            $toast.error(error.data.message);
         }
     }
 

@@ -243,7 +243,6 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 import { upperFirst } from 'scule';
-import { toast } from 'vue-sonner';
 
 import { UiButton } from '#components';
 
@@ -252,6 +251,7 @@ const embed = useEmbed();
 const files = useFiles();
 const folders = useFolders();
 const currentUser = useAuthUser();
+const { $toast } = useNuxtApp();
 
 const currentPage = ref(1);
 
@@ -282,7 +282,7 @@ const handleCopy = async (file: FileData) => {
 
     copy(embed.value.enabled ? file.embedUrl : file.directUrl);
 
-    toast.success('Link copied to clipboard');
+    $toast.success('Link copied to clipboard');
 
     copiedFiles.value.add(file.fileName);
 
@@ -299,9 +299,9 @@ const handleDelete = async (id: string) => {
         await $fetch(`/api/files/${id}`, {
             method: 'DELETE',
         });
-        toast.success('File deleted successfully');
+        $toast.success('File deleted successfully');
     } catch (error: any) {
-        toast.error(error.data.message);
+        $toast.error(error.data.message);
     }
 
     willBeDeleted.value.delete(id);

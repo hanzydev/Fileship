@@ -148,7 +148,6 @@
 
 <script setup lang="ts">
 import { titleCase } from 'scule';
-import { toast } from 'vue-sonner';
 
 import { UserPermission } from '@prisma/client';
 
@@ -159,6 +158,7 @@ const { data } = defineProps<{
 const isOpen = defineModel<boolean>({ required: true });
 
 const currentUser = useAuthUser();
+const { $toast } = useNuxtApp();
 
 const formErrors = ref();
 const updating = ref(false);
@@ -192,7 +192,7 @@ const handleEdit = async (verificationData?: any) => {
         isOpen.value = false;
         verifyModalOpen.value = false;
 
-        toast.success('User updated successfully');
+        $toast.success('User updated successfully');
     } catch (error: any) {
         if (!error.data.data?.formErrors) {
             if (verifyModalOpen.value) {
@@ -202,7 +202,7 @@ const handleEdit = async (verificationData?: any) => {
                 verificationMethods.value = error.data.data.mfa.methods;
                 isOpen.value = false;
             } else if (!verifyModalOpen.value) {
-                toast.error(error.data.message);
+                $toast.error(error.data.message);
             }
         }
 

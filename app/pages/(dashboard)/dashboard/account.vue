@@ -566,7 +566,6 @@
 <script setup lang="ts">
 import { Cubic, gsap } from 'gsap';
 import { render } from 'vue';
-import { toast } from 'vue-sonner';
 
 import { browserSupportsWebAuthn, startRegistration } from '@simplewebauthn/browser';
 import type { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types';
@@ -576,6 +575,7 @@ const domains = useDomains();
 const appConfig = useAppConfig();
 const currentUser = useAuthUser();
 const passkeys = usePasskeys();
+const { $toast } = useNuxtApp();
 
 const { data: passkeysData } = await useFetch('/api/users/@me/mfa/webauthn/credentials');
 
@@ -686,9 +686,9 @@ const handleAvatarEdit = async () => {
 
         userEditData.cloned.value.avatar = undefined;
 
-        toast.success('Avatar updated successfully');
+        $toast.success('Avatar updated successfully');
     } catch (error: any) {
-        toast.error(error.data.message);
+        $toast.error(error.data.message);
     }
 
     avatarUpdating.value = false;
@@ -714,7 +714,7 @@ const handleUserEdit = async (verificationData?: any) => {
         userEditData.cloned.value.password = '';
         userEditData.cloned.value.avatar = undefined;
 
-        toast.success('Account updated successfully');
+        $toast.success('Account updated successfully');
     } catch (error: any) {
         userFormErrors.value = error.data.data?.formErrors;
 
@@ -741,7 +741,7 @@ const handleEmbedEdit = async () => {
 
     embedUpdating.value = false;
 
-    toast.success('Embed config updated successfully');
+    $toast.success('Embed config updated successfully');
 };
 
 const handleDomainsEdit = async () => {
@@ -754,7 +754,7 @@ const handleDomainsEdit = async () => {
 
     domainsUpdating.value = false;
 
-    toast.success('Domains updated successfully');
+    $toast.success('Domains updated successfully');
 };
 
 const handleEnableAuthApp = async (totp: string) => {
@@ -770,7 +770,7 @@ const handleEnableAuthApp = async (totp: string) => {
             },
         });
 
-        toast.success('Authenticator App enabled successfully');
+        $toast.success('Authenticator App enabled successfully');
 
         enableAuthAppModalOpen.value = false;
     } catch (error: any) {
@@ -793,7 +793,7 @@ const handleDisableAuthApp = async (verificationData?: any) => {
             },
         });
 
-        toast.success('Authenticator App disabled successfully');
+        $toast.success('Authenticator App disabled successfully');
 
         disableAuthAppModalOpen.value = false;
     } catch (error: any) {
@@ -861,9 +861,9 @@ const handleRegisterPasskey = async (verificationData?: any) => {
             });
 
             passkeyVerificationModalOpen.value = false;
-            toast.success('Passkey registered successfully');
+            $toast.success('Passkey registered successfully');
         } catch {
-            toast.error('Failed to verify passkey');
+            $toast.error('Failed to verify passkey');
         }
     } catch (error: any) {
         if (error.data?.message === 'Verification is required') {
@@ -872,7 +872,7 @@ const handleRegisterPasskey = async (verificationData?: any) => {
         } else if (passkeyVerificationModalOpen.value && error.data?.message) {
             passkeyVerificationError.value = error.data.message;
         } else {
-            toast.error('Failed to register passkey');
+            $toast.error('Failed to register passkey');
         }
     }
 

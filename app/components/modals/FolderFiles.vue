@@ -85,8 +85,6 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 import { useFuse } from '@vueuse/integrations/useFuse';
 
 const isOpen = defineModel<boolean>({ required: true });
@@ -97,6 +95,7 @@ const { data, editable } = defineProps<{
 }>();
 
 const files = useFiles();
+const { $toast } = useNuxtApp();
 
 const searchQuery = ref('');
 const currentPage = ref(1);
@@ -155,7 +154,7 @@ const handleChange = async () => {
     disabled.value = false;
     isOpen.value = false;
 
-    toast.success('Files saved successfully');
+    $toast.success('Files saved successfully');
 };
 
 const isAnimating = ref(false);

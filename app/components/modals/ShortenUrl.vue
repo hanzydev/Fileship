@@ -90,9 +90,9 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 const isOpen = defineModel<boolean>({ required: true });
+
+const { $toast } = useNuxtApp();
 
 const formErrors = ref();
 const disabled = ref(false);
@@ -123,9 +123,9 @@ const handleSubmit = async () => {
 
         isOpen.value = false;
 
-        toast.success('URL shortened successfully');
+        $toast.success('URL shortened successfully');
     } catch (error: any) {
-        if (!error.data.data?.formErrors) toast.error(error.data.message);
+        if (!error.data.data?.formErrors) $toast.error(error.data.message);
         formErrors.value = error.data.data?.formErrors;
     }
 

@@ -62,11 +62,11 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 const createModalOpen = defineModel<boolean>({ required: true });
-const selectFilesModalOpen = ref(false);
 
+const { $toast } = useNuxtApp();
+
+const selectFilesModalOpen = ref(false);
 const formErrors = ref();
 const disabled = ref(false);
 
@@ -98,7 +98,7 @@ const handleSubmit = async () => {
         createModalOpen.value = false;
         selectFilesModalOpen.value = true;
 
-        toast.success('Folder created successfully, now select files to add');
+        $toast.success('Folder created successfully, now select files to add');
     } catch (error: any) {
         formErrors.value = error.data.data?.formErrors;
     }

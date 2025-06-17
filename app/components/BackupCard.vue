@@ -82,11 +82,12 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { toast } from 'vue-sonner';
 
 const { data } = defineProps<{
     data: BackupData;
 }>();
+
+const { $toast } = useNuxtApp();
 
 const areYouSureModalOpen = ref(false);
 const ctxOpen = ref(false);
@@ -102,7 +103,7 @@ const handleDelete = async () => {
     await $fetch(`/api/users/@me/backups/${data.id}`, { method: 'DELETE' });
     deleting.value = false;
 
-    toast.success('Backup deleted successfully');
+    $toast.success('Backup deleted successfully');
 };
 
 const handleLoad = async (verificationData?: any) => {
@@ -117,7 +118,7 @@ const handleLoad = async (verificationData?: any) => {
 
         verifyModalOpen.value = false;
 
-        toast.success('Backup is being loaded, this may take a while');
+        $toast.success('Backup is being loaded, this may take a while');
     } catch (error: any) {
         if (verifyModalOpen.value) {
             verificationError.value = error.data.message;

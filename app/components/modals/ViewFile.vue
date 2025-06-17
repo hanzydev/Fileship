@@ -209,7 +209,6 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 import { Cubic, gsap } from 'gsap';
-import { toast } from 'vue-sonner';
 
 const { data: _data } = defineProps<{
     data: Partial<FileData> & { embed?: IEmbed };
@@ -227,8 +226,9 @@ const folders = useFolders();
 const currentUser = useAuthUser();
 const embed = useEmbed();
 const { copied, copy } = useClipboard({ legacy: true });
-
+const { $toast } = useNuxtApp();
 const allFiles = useFiles();
+
 const files = computed(() =>
     isOpen.value
         ? data.value.folderId
@@ -294,7 +294,7 @@ const handleDelete = async () => {
     await $fetch(`/api/files/${data.value.id}`, { method: 'DELETE' });
     deleting.value = false;
 
-    toast.success('File deleted successfully');
+    $toast.success('File deleted successfully');
 };
 
 const handleCopy = () => {
@@ -304,7 +304,7 @@ const handleCopy = () => {
             : data.value.directUrl!,
     );
 
-    toast.success('Link copied to clipboard');
+    $toast.success('Link copied to clipboard');
 };
 
 const handleFullScreen = (event: MouseEvent) => {

@@ -200,8 +200,6 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 import { startAuthentication } from '@simplewebauthn/browser';
 import type {
     AuthenticationResponseJSON,
@@ -236,6 +234,8 @@ const emit = defineEmits<{
     cancel: [];
 }>();
 
+const { $toast } = useNuxtApp();
+
 const passkeyAvailable = computed(() => methods.some((m) => m.type === 'passkey'));
 const totpAvailable = computed(() => methods.some((m) => m.type === 'totp'));
 
@@ -269,7 +269,7 @@ const handlePasskey = async () => {
             },
         });
     } catch {
-        toast.error('Failed to verify passkey');
+        $toast.error('Failed to verify passkey');
     }
 };
 

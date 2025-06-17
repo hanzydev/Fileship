@@ -78,15 +78,15 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { toast } from 'vue-sonner';
 
 const { data } = defineProps<{
     data: UrlData;
 }>();
 
+const { $toast } = useNuxtApp();
+
 const ctxOpen = ref(false);
 const editModalOpen = ref(false);
-
 const deleting = ref(false);
 
 const handleDelete = async () => {
@@ -94,13 +94,13 @@ const handleDelete = async () => {
     await $fetch(`/api/urls/${data.id}`, { method: 'DELETE' });
     deleting.value = false;
 
-    toast.success('URL deleted successfully');
+    $toast.success('URL deleted successfully');
 };
 
 const handleCopy = () => {
     useClipboard({ legacy: true }).copy(data.url);
     ctxOpen.value = false;
 
-    toast.success('Link copied to clipboard');
+    $toast.success('Link copied to clipboard');
 };
 </script>

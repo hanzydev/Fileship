@@ -197,7 +197,6 @@
 
 <script setup lang="ts">
 import { titleCase, upperFirst } from 'scule';
-import { toast } from 'vue-sonner';
 
 import themes from '~/styles/themes.json';
 
@@ -212,6 +211,7 @@ const appConfig = useAppConfig();
 const sidebarOpen = useSidebar();
 const currentUser = useAuthUser();
 const currentTheme = useTheme();
+const { $toast } = useNuxtApp();
 
 const isLoggingOut = ref(false);
 const toBeSyncedTheme = ref<keyof typeof themes | null>(null);
@@ -253,7 +253,7 @@ const handleLogout = async () => {
     useCookie('adminSessionId').value = null;
     await $fetch('/api/auth/logout', { method: 'POST' });
 
-    toast.success('Logged out successfully');
+    $toast.success('Logged out successfully');
 };
 
 const syncTheme = async (theme: keyof typeof themes) => {

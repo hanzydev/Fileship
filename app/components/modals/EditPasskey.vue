@@ -53,11 +53,11 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 const { data } = defineProps<{ data: PasskeyData }>();
 
 const isOpen = defineModel<boolean>({ required: true });
+
+const { $toast } = useNuxtApp();
 
 const formErrors = ref();
 const updating = ref(false);
@@ -80,7 +80,7 @@ const handleEdit = async (verificationData?: any) => {
         verifyModalOpen.value = false;
         isOpen.value = false;
 
-        toast.success('Passkey updated successfully');
+        $toast.success('Passkey updated successfully');
     } catch (error: any) {
         if (verifyModalOpen.value) {
             verificationError.value = error.data.message;

@@ -94,7 +94,6 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 import { upperFirst } from 'scule';
-import { toast } from 'vue-sonner';
 
 import { useFuse } from '@vueuse/integrations/useFuse';
 
@@ -102,6 +101,7 @@ import { UiAvatar } from '#components';
 
 const logs = useLogs();
 const currentUser = useAuthUser();
+const { $toast } = useNuxtApp();
 
 const searchQuery = ref('');
 const currentPage = ref(1);
@@ -152,7 +152,7 @@ const handleFlushLogs = async () => {
 
     isFlushingLogs.value = false;
 
-    toast.success('All logs flushed successfully');
+    $toast.success('All logs flushed successfully');
 };
 
 onMounted(async () => {

@@ -141,11 +141,10 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 const appConfig = useAppConfig();
 const sessions = useSessions();
 const currentUser = useAuthUser();
+const { $toast } = useNuxtApp();
 
 const disabled = ref(false);
 
@@ -167,7 +166,7 @@ const removeAllSessions = async (verificationData?: any) => {
 
         verifyModalOpen.value = false;
 
-        toast.success('All sessions removed successfully');
+        $toast.success('All sessions removed successfully');
     } catch (error: any) {
         if (verifyModalOpen.value) {
             verificationError.value = error.data.message;

@@ -74,8 +74,6 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 import { useFuse } from '@vueuse/integrations/useFuse';
 
 const folder = defineModel<{
@@ -86,6 +84,7 @@ const folder = defineModel<{
 });
 
 const folders = useFolders();
+const { $toast } = useNuxtApp();
 
 const searchQuery = ref('');
 const isOpen = ref(false);
@@ -116,10 +115,10 @@ const handleCreate = async (name: string) => {
         searchQuery.value = '';
         isOpen.value = false;
 
-        toast.success('Folder created and selected');
+        $toast.success('Folder created and selected');
     } catch (error: any) {
-        if (error.data.data) toast.error(error.data.data.name._errors[0]);
-        else toast.error(error.data.message);
+        if (error.data.data) $toast.error(error.data.data.name._errors[0]);
+        else $toast.error(error.data.message);
     }
 
     isCreating.value = false;

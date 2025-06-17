@@ -73,8 +73,6 @@
 </template>
 
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
-
 import { ExpirationPicker } from '#components';
 
 const { data } = defineProps<{
@@ -83,9 +81,10 @@ const { data } = defineProps<{
 
 const isOpen = defineModel<boolean>({ required: true });
 
+const { $toast } = useNuxtApp();
+
 const formErrors = ref();
 const updating = ref(false);
-
 const expirationPickerRef = ref<InstanceType<typeof ExpirationPicker>>();
 
 const editData = useCloned({
@@ -115,9 +114,9 @@ const handleEdit = async () => {
 
         isOpen.value = false;
 
-        toast.success('File updated successfully');
+        $toast.success('File updated successfully');
     } catch (error: any) {
-        if (!error.data.data?.formErrors) toast.error(error.data.message);
+        if (!error.data.data?.formErrors) $toast.error(error.data.message);
         formErrors.value = error.data.data?.formErrors;
     }
 

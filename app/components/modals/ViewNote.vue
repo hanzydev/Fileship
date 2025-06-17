@@ -121,7 +121,6 @@
 
 <script setup lang="ts">
 import { Cubic, gsap } from 'gsap';
-import { toast } from 'vue-sonner';
 
 const { data: _data } = defineProps<{
     data: NoteData;
@@ -134,9 +133,9 @@ const data = ref(_data);
 const notes = useNotes();
 const currentUser = useAuthUser();
 const { copied, copy } = useClipboard({ legacy: true });
-
-const modalId = useId();
 const reducedMotion = usePreferredReducedMotion();
+const { $toast } = useNuxtApp();
+const modalId = useId();
 
 const index = computed(() => notes.value.findIndex((note) => note.id === data.value.id));
 const next = computed(() => notes.value[index.value + 1]);
@@ -163,12 +162,12 @@ const handleDelete = async () => {
     await $fetch(`/api/notes/${data.value.id}`, { method: 'DELETE' });
     deleting.value = false;
 
-    toast.success('Note deleted successfully');
+    $toast.success('Note deleted successfully');
 };
 
 const handleCopy = () => {
     copy(data.value.content);
-    toast.success('Note copied to clipboard');
+    $toast.success('Note copied to clipboard');
 };
 
 const handlePrev = async () => {
