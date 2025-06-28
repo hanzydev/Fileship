@@ -69,7 +69,7 @@
         "gsap": "^3.13.0",
         "highlight.js": "^11.11.1",
         "marked": "^15.0.12",
-        "marked-highlight": "^2.2.1",
+        "marked-highlight": "^2.2.2",
         "nuxt": "^3.17.5",
         "prettier": "^3.6.2",
         "prisma": "^6.10.1",
