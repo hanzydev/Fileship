@@ -61,6 +61,10 @@ export default defineNuxtConfig({
             [process.env.DELETE_EXPIRED_CRON || '* * * * *']: 'db:deleteExpired',
             [process.env.GENERATE_STATS_CRON || '*/30 * * * *']: 'db:generateStats',
         },
+        framework: {
+            name: pkg.name,
+            version: pkg.version,
+        },
     },
 
     routeRules: {
