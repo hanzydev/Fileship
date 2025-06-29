@@ -50,11 +50,16 @@ export default defineNuxtConfig({
     nitro: {
         experimental: {
             websocket: true,
+            tasks: true,
         },
         esbuild: {
             options: {
                 target: 'esnext',
             },
+        },
+        scheduledTasks: {
+            [process.env.DELETE_EXPIRED_CRON || '* * * * *']: 'db:deleteExpired',
+            [process.env.GENERATE_STATS_CRON || '*/30 * * * *']: 'db:generateStats',
         },
     },
 
@@ -116,10 +121,6 @@ export default defineNuxtConfig({
                 },
             },
         },
-    },
-
-    vue: {
-        propsDestructure: true,
     },
 
     compatibilityDate: '2024-09-04',
