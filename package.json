@@ -6,7 +6,7 @@
     "scripts": {
         "build:prisma": "prisma generate --no-hints",
         "build:fileship": "nuxt build",
-        "build": "pnpm cleanup && pnpm --stream '/^build:.*/'",
+        "build": "pnpm --stream '/^build:.*/'",
         "dev": "nuxt dev",
         "preview": "nuxt preview",
         "postinstall": "nuxt prepare",
