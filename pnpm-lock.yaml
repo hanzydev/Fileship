@@ -99,8 +99,8 @@ importers:
         specifier: ^0.11.4
         version: 0.11.4(db0@0.3.2)(ioredis@5.6.1)(magicast@0.3.5)(vite@6.3.5(@types/node@22.15.18)(jiti@2.4.2)(terser@5.39.2)(yaml@2.8.0))
       '@nuxt/icon':
-        specifier: ^1.14.0
-        version: 1.14.0(magicast@0.3.5)(vite@6.3.5(@types/node@22.15.18)(jiti@2.4.2)(terser@5.39.2)(yaml@2.8.0))(vue@3.5.17(typescript@5.8.3))
+        specifier: ^1.15.0
+        version: 1.15.0(magicast@0.3.5)(vite@6.3.5(@types/node@22.15.18)(jiti@2.4.2)(terser@5.39.2)(yaml@2.8.0))(vue@3.5.17(typescript@5.8.3))
       '@nuxt/kit':
         specifier: ^3.17.5
         version: 3.17.5(magicast@0.3.5)
@@ -1233,8 +1233,8 @@ packages:
   '@iconify-json/mdi@1.2.3':
     resolution: {integrity: sha512-O3cLwbDOK7NNDf2ihaQOH5F9JglnulNDFV7WprU2dSoZu3h3cWH//h74uQAB87brHmvFVxIOkuBX2sZSzYhScg==}
 
-  '@iconify/collections@1.0.560':
-    resolution: {integrity: sha512-sXm0Io67deUIqWmaSGb+JJ4Y9DJvgT/seaQlCOHUuHhs3qcPuLY6WMlfoUSmmXV5yHFhZprRZEs1np2BZ/BCJw==}
+  '@iconify/collections@1.0.563':
+    resolution: {integrity: sha512-Y5GNkqMQW4RfF5nG7GN9zht2IexXpygFb01T1+xvm/hvEBgn7CDnxO2v3D586VhcA5N93iEBpLVGyV4gaHnZOA==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -1532,8 +1532,8 @@ packages:
   '@nuxt/fonts@0.11.4':
     resolution: {integrity: sha512-GbLavsC+9FejVwY+KU4/wonJsKhcwOZx/eo4EuV57C4osnF/AtEmev8xqI0DNlebMEhEGZbu1MGwDDDYbeR7Bw==}
 
-  '@nuxt/icon@1.14.0':
-    resolution: {integrity: sha512-4kb2rbvbSll784LUme2fDm62NW0Tryr8wADFEU3vIoOj4TZywcwPafIl0MT6ah3RNgbPd174EFVOaUdPSUQENA==}
+  '@nuxt/icon@1.15.0':
+    resolution: {integrity: sha512-kA0rxqr1B601zNJNcOXera8CyYcxUCEcT7dXEC7rwAz71PRCN5emf7G656eKEQgtqrD4JSj6NQqWDgrmFcf/GQ==}
 
   '@nuxt/kit@3.17.5':
     resolution: {integrity: sha512-NdCepmA+S/SzgcaL3oYUeSlXGYO6BXGr9K/m1D0t0O9rApF8CSq/QQ+ja5KYaYMO1kZAEWH4s2XVcE3uPrrAVg==}
@@ -7907,7 +7907,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify/collections@1.0.560':
+  '@iconify/collections@1.0.563':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -8416,9 +8416,9 @@ snapshots:
       - uploadthing
       - vite
 
-  '@nuxt/icon@1.14.0(magicast@0.3.5)(vite@6.3.5(@types/node@22.15.18)(jiti@2.4.2)(terser@5.39.2)(yaml@2.8.0))(vue@3.5.17(typescript@5.8.3))':
+  '@nuxt/icon@1.15.0(magicast@0.3.5)(vite@6.3.5(@types/node@22.15.18)(jiti@2.4.2)(terser@5.39.2)(yaml@2.8.0))(vue@3.5.17(typescript@5.8.3))':
     dependencies:
-      '@iconify/collections': 1.0.560
+      '@iconify/collections': 1.0.563
       '@iconify/types': 2.0.0
       '@iconify/utils': 2.3.0
       '@iconify/vue': 5.0.0(vue@3.5.17(typescript@5.8.3))
