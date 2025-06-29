@@ -22,5 +22,6 @@ node_modules
 .env.*
 !.env.example
 
-# Data directory
+# Fileship
 data/
+.eslintcache
