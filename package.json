@@ -47,6 +47,7 @@
         "@nuxt/kit": "^3.17.5",
         "@nuxtjs/turnstile": "^1.0.0",
         "@prisma/client": "^6.10.1",
+        "@prisma/migrate": "^6.10.1",
         "@simplewebauthn/browser": "^13.1.0",
         "@simplewebauthn/types": "^12.0.0",
         "@types/fluent-ffmpeg": "^2.1.27",
