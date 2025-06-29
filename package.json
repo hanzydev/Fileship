@@ -17,7 +17,7 @@
         "lint": "pnpm --stream '/^lint:.*/'",
         "check": "pnpm build && pnpm lint",
         "release": "changelogen --release",
-        "db:prototype": "prisma db push --skip-generate && prisma generate --no-hints",
+        "db:prototype": "prisma db push --skip-generate && pnpm build:prisma",
         "db:migrate": "prisma migrate dev --create-only",
         "db:studio": "prisma studio"
     },
