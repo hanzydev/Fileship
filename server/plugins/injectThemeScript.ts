@@ -15,10 +15,12 @@ const handleThemeChange = () => {
         document.head.appendChild(el);
     }
 
+    const theme = themes[window.theme] || themes.Fileship;
+
     if (window.matchMedia('(display-mode: standalone)').matches) {
-        el.content = themes[window.theme].background;
+        el.content = theme.background;
     } else {
-        el.content = themes[window.theme].accent;
+        el.content = theme.accent;
     }
 };
 
