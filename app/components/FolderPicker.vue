@@ -25,7 +25,7 @@
                     mx4
                     translate-y-16
                     text-center
-                    text-neutral300
+                    text-fs-muted-2
                 >
                     There are no folders to display.
                 </p>

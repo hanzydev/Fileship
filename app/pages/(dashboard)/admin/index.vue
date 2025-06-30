@@ -161,7 +161,7 @@
                                             h(
                                                 'p',
                                                 {
-                                                    class: 'text-neutral200',
+                                                    class: 'text-fs-muted-1',
                                                 },
                                                 titleCase(row.user.username),
                                             ),
@@ -240,7 +240,7 @@
                                             h(
                                                 'p',
                                                 {
-                                                    class: 'text-neutral200',
+                                                    class: 'text-fs-muted-1',
                                                 },
                                                 titleCase(row.user.username),
                                             ),

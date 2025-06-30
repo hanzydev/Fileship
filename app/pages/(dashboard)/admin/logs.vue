@@ -63,7 +63,7 @@
                                     h(
                                         'p',
                                         {
-                                            class: 'text-neutral200',
+                                            class: 'text-fs-muted-1',
                                         },
                                         system
                                             ? 'System'

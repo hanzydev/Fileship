@@ -5,7 +5,7 @@
         text-left
         uppercase
         font-semibold="!"
-        :class="error ? 'text-red-500' : 'text-neutral300'"
+        :class="error ? 'text-red-500' : 'text-fs-muted-2'"
     >
         <span text-sm="!">
             <slot />

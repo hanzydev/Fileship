@@ -7,7 +7,7 @@
 }
 
 [data-sonner-toast] [data-description] {
-    @apply !text-neutral200;
+    @apply !text-fs-muted-1;
 }
 
 [data-sonner-toast][data-type='success'] [data-icon] {

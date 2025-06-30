@@ -6,7 +6,7 @@
             left-3
             h6
             w6
-            text-neutral300
+            text-fs-muted-2
             translate-y-="1/2"
             top="1/2"
         />
@@ -23,7 +23,7 @@
             focus:border-fs-accent
             focus:border-solid
             motion-safe:transition-all
-            placeholder-neutral300
+            placeholder-fs-muted-2
             type="text"
             :placeholder
             border="1 dashed fs-overlay-4"

@@ -1,41 +1,49 @@
 {
     "Fileship": {
         "overlays": ["#1a1a1e", "#202024", "#242428", "#2a2a2e"],
+        "muted": ["#e5e5e5", "#d4d4d4", "#a3a3a3"],
         "background": "#121214",
         "accent": "#5865f2"
     },
     "Onyx": {
         "overlays": ["#070709", "#0c0c0e", "#121214", "#171719"],
+        "muted": ["#e5e5e5", "#d4d4d4", "#a3a3a3"],
         "background": "#000000",
         "accent": "#5865f2"
     },
     "Ayu": {
         "overlays": ["#0f1419", "#14191f", "#191f26", "#252832"],
+        "muted": ["#e5e5e5", "#d4d4d4", "#a3a3a3"],
         "background": "#0d1116",
         "accent": "#453724"
     },
     "Dracula": {
         "overlays": ["#14151f", "#181a23", "#21222c", "#282a36"],
+        "muted": ["#e5e5e5", "#d4d4d4", "#a3a3a3"],
         "background": "#101119",
         "accent": "#5e3766"
     },
     "TokyoNight": {
         "overlays": ["#0a0a13", "#0d0d17", "#12121e", "#1a1b26"],
+        "muted": ["#e2e8f0", "#cbd5e1", "#94a3b8"],
         "background": "#07070f",
         "accent": "#1a354f"
     },
     "MidnightBlue": {
         "overlays": ["#06070d", "#090a12", "#0b0e19", "#101320"],
+        "muted": ["#e2e8f0", "#cbd5e1", "#94a3b8"],
         "background": "#030409",
         "accent": "#123468"
     },
     "MatchaDarkAzul": {
         "overlays": ["#20232b", "#262a34", "#2e323e", "#383d4c"],
+        "muted": ["#e2e8f0", "#cbd5e1", "#94a3b8"],
         "background": "#15171d",
         "accent": "#355775"
     },
     "SolarizedDark": {
         "overlays": ["#002b36", "#073642", "#0b5568", "#0f748e"],
+        "muted": ["#ecfeff", "#cffafe", "#a5f3fc"],
         "background": "#00232c",
         "accent": "#268bd2"
     }

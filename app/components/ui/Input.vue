@@ -14,7 +14,7 @@
                 py2.5
                 outline-none
                 motion-safe:transition-shadow
-                placeholder-neutral300
+                placeholder-fs-muted-2
                 ring="1 fs-overlay-4"
                 :class="[
                     disabled || $props.readonly ? 'cursor-not-allowed' : 'focus:ring-fs-accent',
@@ -75,7 +75,7 @@
             </div>
         </div>
 
-        <p v-if="caption" text-neutral300 text-sm="!" font-medium="!">
+        <p v-if="caption" text-fs-muted-2 text-sm="!" font-medium="!">
             {{ caption }}
         </p>
     </div>

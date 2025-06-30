@@ -64,7 +64,7 @@
                                     h(
                                         'p',
                                         {
-                                            class: 'text-neutral200',
+                                            class: 'text-fs-muted-1',
                                         },
                                         user.username,
                                     ),
@@ -118,7 +118,7 @@
                                 h(UiButton, {
                                     variant: 'outline',
                                     alignment: 'center',
-                                    class: 'h8 w8 !p0 text-neutral300 hover:text-white',
+                                    class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
                                     icon: 'heroicons-solid:switch-horizontal',
                                     iconSize: '20',
                                     disabled:
@@ -132,7 +132,7 @@
                                 h(UiButton, {
                                     variant: 'outline',
                                     alignment: 'center',
-                                    class: 'h8 w8 !p0 text-neutral300 hover:text-white',
+                                    class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
                                     icon: 'heroicons:pencil-16-solid',
                                     iconSize: '20',
                                     disabled: row.superAdmin && !currentUser!.superAdmin,
@@ -148,7 +148,7 @@
                                 h(UiButton, {
                                     variant: 'outline',
                                     alignment: 'center',
-                                    class: 'h8 w8 !p0 ring-red-500 text-neutral300 hover:text-white hover:!bg-red-500',
+                                    class: 'h8 w8 !p0 ring-red-500 text-fs-muted-2 hover:text-white hover:!bg-red-500',
                                     icon: 'heroicons-solid:trash',
                                     iconSize: '20',
                                     disabled:

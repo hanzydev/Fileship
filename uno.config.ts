@@ -19,6 +19,11 @@ export default defineConfig({
                     3: 'var(--fs-overlay-3)',
                     4: 'var(--fs-overlay-4)',
                 },
+                muted: {
+                    1: 'var(--fs-muted-1)',
+                    2: 'var(--fs-muted-2)',
+                    3: 'var(--fs-muted-3)',
+                },
                 background: 'var(--fs-background)',
                 accent: 'var(--fs-accent)',
             },

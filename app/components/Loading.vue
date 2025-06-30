@@ -7,10 +7,10 @@
         text-center
         ring="1 fs-overlay-4"
     >
-        <div flex="~ gap4 items-center" text-neutral300>
+        <div flex="~ gap4 items-center" text-fs-muted-2>
             <UiSpinner :size="32" />
             <h3>Loading...</h3>
         </div>
-        <p text-neutral300>Please wait while we fetch the data for you.</p>
+        <p text-fs-muted-2>Please wait while we fetch the data for you.</p>
     </div>
 </template>

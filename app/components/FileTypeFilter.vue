@@ -6,7 +6,7 @@
             h12
             w36
             gap2
-            text-neutral300
+            text-fs-muted-2
             sm:w56
             rounded-xl="!"
             ring-none="!"

@@ -16,11 +16,11 @@
             ring="1 fs-overlay-4"
             target="_blank"
         >
-            <h5 line-clamp-1 break-words text-neutral400>
+            <h5 line-clamp-1 break-words text-fs-muted-3>
                 {{ data.title }}
             </h5>
 
-            <div text-neutral300 space-y-2 font-medium="!">
+            <div text-fs-muted-2 space-y-2 font-medium="!">
                 <div flex="~ gap2 items-center">
                     <Icon name="heroicons-solid:eye" size="20" />
                     <span>{{ data.views.today }} today</span>

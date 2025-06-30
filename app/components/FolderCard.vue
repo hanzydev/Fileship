@@ -19,11 +19,11 @@
                 filesModal.editMode = false;
             "
         >
-            <h5 line-clamp-1 break-words text-neutral400>
+            <h5 line-clamp-1 break-words text-fs-muted-3>
                 {{ data.name }}
             </h5>
 
-            <div text-neutral300 space-y-2 font-medium="!">
+            <div text-fs-muted-2 space-y-2 font-medium="!">
                 <div flex="~ gap2 items-center">
                     <Icon name="heroicons-solid:document" size="20" />
                     <span>{{ data.files.length }} files</span>

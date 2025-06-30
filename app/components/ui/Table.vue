@@ -11,7 +11,7 @@
                         bg-fs-overlay-3
                         px4
                         text-left
-                        text-neutral300
+                        text-fs-muted-2
                         first:rounded-l-lg
                         last:rounded-r-lg
                         font-semibold="!"
@@ -29,7 +29,7 @@
                         whitespace-normal
                         px4
                         py2
-                        text-neutral200
+                        text-fs-muted-1
                         font-normal="!"
                     >
                         <component :is="col.render(row)" v-if="col.render" />

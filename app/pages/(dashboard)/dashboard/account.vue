@@ -55,7 +55,7 @@
         >
             <h3>Enable Authenticator App</h3>
 
-            <p text-neutral200 font-medium="!">
+            <p text-fs-muted-1 font-medium="!">
                 Scan the QR code below with your authenticator app.
             </p>
 
@@ -210,7 +210,7 @@
                     </div>
                     <template #content>
                         <form space-y-4 @submit.prevent="handleUserEdit()">
-                            <p text-neutral200>Update your account information here.</p>
+                            <p text-fs-muted-1>Update your account information here.</p>
 
                             <div grid="~ sm:cols-2 gap4">
                                 <UiInput
@@ -257,7 +257,7 @@
                     </div>
                     <template #content>
                         <form space-y-4 @submit.prevent="handleAvatarEdit">
-                            <p text-neutral200>Update your avatar here.</p>
+                            <p text-fs-muted-1>Update your avatar here.</p>
 
                             <div grid="~ gap4 sm:cols-3">
                                 <div
@@ -348,7 +348,7 @@
 
                     <template #content>
                         <form space-y-4 @submit.prevent="handleDomainsEdit">
-                            <p text-neutral200>
+                            <p text-fs-muted-1>
                                 Configure your domains. These domains will be used to output a
                                 random domain during upload.
                             </p>
@@ -393,10 +393,10 @@
                     <template #content>
                         <div space-y-4>
                             <div space-y-2>
-                                <span text-sm text-neutral300 font-bold uppercase>
+                                <span text-sm text-fs-muted-2 font-bold uppercase>
                                     Authenticator App
                                 </span>
-                                <p text-neutral200>
+                                <p text-fs-muted-1>
                                     Configuring an authenticator app is a good way to add an extra
                                     layer of security to your
                                     {{ appConfig.site.name }} account to make sure that only you
@@ -412,8 +412,8 @@
                             <UiDivider />
 
                             <div space-y-2>
-                                <span text-sm text-neutral300 font-bold uppercase>Passkeys</span>
-                                <p text-neutral200>
+                                <span text-sm text-fs-muted-2 font-bold uppercase>Passkeys</span>
+                                <p text-fs-muted-1>
                                     Add an additional layer of protection to your account with a
                                     passkey.
                                 </p>
@@ -461,7 +461,7 @@
                     </div>
                     <template #content>
                         <form space-y-4 @submit.prevent="handleEmbedEdit">
-                            <p text-neutral200>
+                            <p text-fs-muted-1>
                                 Configure how your files are embedded when shared.
                             </p>
 

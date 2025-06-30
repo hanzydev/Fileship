@@ -84,11 +84,11 @@
                 />
             </div>
             <div v-else h208px wfull rounded-xl bg-fs-overlay-2 p8 space-y-8>
-                <h5 line-clamp-1 break-words text-neutral400>
+                <h5 line-clamp-1 break-words text-fs-muted-3>
                     {{ data.fileName }}
                 </h5>
 
-                <div flex="~ col justify-between gap2" text-neutral300 font-medium>
+                <div flex="~ col justify-between gap2" text-fs-muted-2 font-medium>
                     <div flex="~ gap2 items-center">
                         <Icon name="heroicons-solid:eye" size="20" />
                         <span>{{ data.views.today }} today</span>
@@ -211,7 +211,7 @@
                                 mx4
                                 translate-y-16
                                 text-center
-                                text-neutral300
+                                text-fs-muted-2
                             >
                                 There are no folders to display.
                             </p>

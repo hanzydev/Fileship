@@ -35,6 +35,7 @@ Object.defineProperty(window, 'theme', {
             ['--fs-background', theme.background],
             ['--fs-accent', theme.accent],
             ...theme.overlays.map((overlay, index) => [\`--fs-overlay-\${index + 1}\`, overlay]),
+            ...theme.muted.map((muted, index) => [\`--fs-muted-\${index + 1}\`, muted]),
         ];
         
         for (const [name, value] of cssVariables) {

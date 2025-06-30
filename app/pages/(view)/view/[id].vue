@@ -90,7 +90,7 @@
                 <audio v-else-if="isAudio" controls :src="fileUrl" />
                 <div v-else rounded-xl bg-fs-overlay-1 p8 sm:max-w35rem space-y-10>
                     <h2 line-clamp-2 break-all>{{ data.fileName }}</h2>
-                    <p text-neutral300 font-medium="!">
+                    <p text-fs-muted-2 font-medium="!">
                         Sorry, we cannot preview this file. But you can download it.
                     </p>
                     <UiButton

@@ -14,7 +14,7 @@
             />
             <div flex="~ gap2 items-center">
                 <UiSwitch v-model="editData.cloned.value!.public" :disabled="updating" />
-                <span text-neutral200 font-medium="!">Public</span>
+                <span text-fs-muted-1 font-medium="!">Public</span>
             </div>
 
             <div grid="~ cols-2 gap4">

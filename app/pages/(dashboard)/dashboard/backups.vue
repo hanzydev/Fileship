@@ -52,7 +52,7 @@
                         flex="~ col gap4 justify-between"
                     >
                         <UiSkeletonLine h5 wfull />
-                        <div text-neutral300 space-y-2>
+                        <div text-fs-muted-2 space-y-2>
                             <UiSkeletonLine h4 w16 />
                             <UiSkeletonLine h4 w40 />
                         </div>

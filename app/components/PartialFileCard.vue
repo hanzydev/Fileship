@@ -77,11 +77,11 @@
             }"
             @click="isAudio && (viewModalOpen = true)"
         >
-            <h5 line-clamp-1 break-words text-neutral400>
+            <h5 line-clamp-1 break-words text-fs-muted-3>
                 {{ data.fileName }}
             </h5>
 
-            <div flex="~ col justify-between gap2" justify-between text-neutral300 font-medium="!">
+            <div flex="~ col justify-between gap2" justify-between text-fs-muted-2 font-medium="!">
                 <div flex="~ gap2 items-center">
                     <Icon name="mdi:sd-storage" size="20" />
                     <span>{{ data.size!.formatted }}</span>

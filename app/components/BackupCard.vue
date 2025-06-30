@@ -30,11 +30,11 @@
                 areYouSureModalOpen = true;
             "
         >
-            <h5 line-clamp-1 break-words text-neutral400>
+            <h5 line-clamp-1 break-words text-fs-muted-3>
                 {{ data.id }}
             </h5>
 
-            <div text-neutral300 font-medium space-y-2>
+            <div text-fs-muted-2 font-medium space-y-2>
                 <div flex="~ gap2 items-center">
                     <Icon name="mdi:sd-storage" size="20" />
                     <span>

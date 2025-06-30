@@ -19,7 +19,7 @@
                                     : 'fluent:desktop-24-filled'
                             "
                             size="24"
-                            text-neutral300
+                            text-fs-muted-2
                         />
                     </div>
                     <div
@@ -62,7 +62,7 @@
                 <button
                     v-if="data.id !== currentUser!.currentSessionId"
                     mla
-                    text-neutral200
+                    text-fs-muted-1
                     aria-label="Remove session"
                     :disabled
                     :class="disabled && 'cursor-not-allowed op50'"

@@ -87,7 +87,7 @@
                     >
                         <div space-y-2>
                             <h2>Multi-Factor Authentication</h2>
-                            <p text-neutral200>Enter the code from your authenticator app.</p>
+                            <p text-fs-muted-1>Enter the code from your authenticator app.</p>
                         </div>
                         <div mt10 wfit>
                             <UiTotpInput

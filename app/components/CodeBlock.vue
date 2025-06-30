@@ -14,7 +14,7 @@
                 ]"
             >
                 <Icon name="heroicons-solid:information-circle" size="20" text-fs-accent />
-                <p text-neutral300 text-sm="!">
+                <p text-fs-muted-2 text-sm="!">
                     {{
                         renderMarkdown
                             ? "You're viewing the rendered markdown"

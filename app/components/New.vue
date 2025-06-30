@@ -8,8 +8,8 @@
         :disabled
         @click="!disabled && $emit('action')"
     >
-        <UiSpinner v-if="disabled" :size="56" stroke-neutral400 />
-        <Icon v-else :name="icon" size="56" text-neutral400 />
+        <UiSpinner v-if="disabled" :size="56" stroke-fs-muted-3 />
+        <Icon v-else :name="icon" size="56" text-fs-muted-3 />
     </UiButton>
 </template>
 

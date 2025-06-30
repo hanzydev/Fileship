@@ -10,7 +10,7 @@
         :class="!loading && 'border-1 border-fs-overlay-4'"
     >
         <div flex="~ items-center justify-between">
-            <h6 text-neutral400 uppercase>{{ title }}</h6>
+            <h6 text-fs-muted-3 uppercase>{{ title }}</h6>
             <Icon :name="icon" size="24" text-fs-accent />
         </div>
         <div flex="~ items-baseline gap2">
@@ -43,7 +43,7 @@
                 />
             </div>
         </div>
-        <div text-neutral300>{{ description }}</div>
+        <div text-fs-muted-2>{{ description }}</div>
     </component>
 </template>
 

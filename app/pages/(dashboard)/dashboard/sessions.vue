@@ -14,7 +14,7 @@
 
         <div space-y-6>
             <h2>Sessions</h2>
-            <div text-neutral300 space-y-2>
+            <div text-fs-muted-2 space-y-2>
                 <p>
                     Here are all the devices that are currently logged in with your
                     {{ appConfig.site.name }} account. You can log out of each one individually or
@@ -27,7 +27,7 @@
             </div>
 
             <div pt10 space-y-10>
-                <div text-neutral300 space-y-4>
+                <div text-fs-muted-2 space-y-4>
                     <span text-sm="!" font-semibold="!">CURRENT DEVICE</span>
                     <div v-if="isLoading" flex="~ gap4">
                         <UiSkeletonLine
@@ -56,7 +56,7 @@
                     />
                 </div>
 
-                <div text-neutral300 space-y-4>
+                <div text-fs-muted-2 space-y-4>
                     <span text-sm="!" font-semibold="!">OTHER DEVICES</span>
 
                     <template v-if="isLoading">
@@ -115,7 +115,7 @@
                     </p>
                 </div>
 
-                <div v-if="sessions.length > 1 && !isLoading" wfit text-neutral300 space-y-4>
+                <div v-if="sessions.length > 1 && !isLoading" wfit text-fs-muted-2 space-y-4>
                     <div space-y-1>
                         <span text-sm="!" font-semibold="!">LOG OUT OF ALL KNOWN DEVICES</span>
                         <p text-sm="!">
