@@ -46,5 +46,23 @@
         "muted": ["#ecfeff", "#cffafe", "#a5f3fc"],
         "background": "#00232c",
         "accent": "#268bd2"
+    },
+    "Catppuccin Frappé": {
+        "overlays": ["#292c3c", "#303446", "#3c4054", "#494d63"],
+        "muted": ["#c6d0f5", "#b5bfe2", "#a5adce"],
+        "background": "#232634",
+        "accent": "#6081c4"
+    },
+    "Catppuccin Macchiato": {
+        "overlays": ["#1e2030", "#24273a", "#2e3247", "#393d54"],
+        "muted": ["#cad3f5", "#b8c0e0", "#a5adcb"],
+        "background": "#181926",
+        "accent": "#6081c4"
+    },
+    "Catppuccin Mocha": {
+        "overlays": ["#181825", "#1e1e2e", "#2b2b40", "#36364d"],
+        "muted": ["#cdd6f4", "#bac2de", "#a6adc8"],
+        "background": "#11111b",
+        "accent": "#6081c4"
     }
 }

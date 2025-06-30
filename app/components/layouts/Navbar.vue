@@ -131,7 +131,7 @@
                                     <div
                                         ring="1 fs-overlay-4"
                                         h96
-                                        w60
+                                        w66
                                         overflow-y-auto
                                         rounded-xl
                                         bg-fs-overlay-2
