@@ -200,7 +200,7 @@ const handleSubmit = async (totp?: string) => {
             section.value = 'totp';
         } else {
             if (!_error.data.data) $toast.error(_error.data.message);
-            formErrors.value = _error.data.data;
+            formErrors.value = _error.data.data?.formErrors;
         }
 
         turnstileRef.value?.reset();
