@@ -9,25 +9,10 @@
         "background": "#000000",
         "accent": "#5865f2"
     },
-    "AMOLED": {
-        "overlays": ["#050505", "#121212", "#191919", "#262626"],
-        "background": "#000000",
-        "accent": "#0056a0"
-    },
     "Ayu": {
         "overlays": ["#0f1419", "#14191f", "#191f26", "#252832"],
         "background": "#0d1116",
         "accent": "#453724"
-    },
-    "Nord": {
-        "overlays": ["#2e3440", "#3b4252", "#434c5e", "#4c566a"],
-        "background": "#292e39",
-        "accent": "#5e81ac"
-    },
-    "Cobalt2": {
-        "overlays": ["#1e1f29", "#232430", "#2a2b3a", "#31324a"],
-        "background": "#171823",
-        "accent": "#3d8fd1"
     },
     "Dracula": {
         "overlays": ["#14151f", "#181a23", "#21222c", "#282a36"],
@@ -48,11 +33,6 @@
         "overlays": ["#20232b", "#262a34", "#2e323e", "#383d4c"],
         "background": "#15171d",
         "accent": "#355775"
-    },
-    "OneDarkPro": {
-        "overlays": ["#282c34", "#313640", "#3a3f4b", "#444b58"],
-        "background": "#21252b",
-        "accent": "#61afef"
     },
     "SolarizedDark": {
         "overlays": ["#002b36", "#073642", "#0b5568", "#0f748e"],
