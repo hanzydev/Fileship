@@ -171,7 +171,7 @@ const handleCopy = () => {
 };
 
 const handlePrev = async () => {
-    if (!prev.value) return;
+    if (!prev.value || !isOpen.value) return;
 
     await tl.value?.play();
     data.value = prev.value!;
@@ -179,7 +179,7 @@ const handlePrev = async () => {
 };
 
 const handleNext = async () => {
-    if (!next.value) return;
+    if (!next.value || !isOpen.value) return;
 
     await tl.value?.play();
     data.value = next.value!;
