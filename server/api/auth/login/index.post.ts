@@ -47,6 +47,11 @@ export default defineEventHandler(async (event) => {
         where: {
             username: body.data.username,
         },
+        include: {
+            _count: {
+                select: { files: true, folders: true, notes: true, codes: true, urls: true },
+            },
+        },
     });
 
     if (!findUserByUsername) {
@@ -162,6 +167,7 @@ export default defineEventHandler(async (event) => {
             limits: defu(findUserByUsername.limits, defaultUserLimits) as IUserLimits,
             backupRestoreState: findUserByUsername.backupRestoreState,
             theme: findUserByUsername.theme,
+            stats: findUserByUsername._count,
         },
         session: {
             id: session.id,

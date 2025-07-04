@@ -37,7 +37,6 @@ export default defineEventHandler(async (event) => {
 
     if (body.data.verify) {
         const userHandle = body.data.authenticationResponse?.response?.userHandle;
-
         if (!userHandle) {
             throw createError({
                 statusCode: 400,
@@ -48,6 +47,11 @@ export default defineEventHandler(async (event) => {
 
         const findUserByUsername = await prisma.user.findUnique({
             where: { id: Buffer.from(userHandle, 'base64url').toString() },
+            include: {
+                _count: {
+                    select: { files: true, folders: true, notes: true, codes: true, urls: true },
+                },
+            },
         });
 
         if (!findUserByUsername) {
@@ -154,6 +158,7 @@ export default defineEventHandler(async (event) => {
                     limits: defu(findUserByUsername.limits, defaultUserLimits) as IUserLimits,
                     backupRestoreState: findUserByUsername.backupRestoreState,
                     theme: findUserByUsername.theme,
+                    stats: findUserByUsername._count,
                 },
                 session: {
                     id: session.id,

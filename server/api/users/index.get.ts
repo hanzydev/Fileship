@@ -1,9 +1,9 @@
-import type { UserPermission } from '@prisma/client';
+import { defu } from 'defu';
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
     adminOnly(event);
 
-    return prisma.user.findMany({
+    const users = await prisma.user.findMany({
         orderBy: {
             createdAt: 'desc',
         },
@@ -18,26 +18,21 @@ export default defineEventHandler((event) => {
             createdAt: true,
             domains: true,
             _count: {
-                select: { files: true, notes: true, codes: true, urls: true },
+                select: { files: true, folders: true, notes: true, codes: true, urls: true },
             },
         },
-    }) as unknown as Promise<
-        {
-            id: string;
-            username: string;
-            avatar: string | null;
-            permissions: UserPermission[];
-            totpEnabled: boolean;
-            superAdmin: boolean;
-            limits: IUserLimits;
-            domains: string[];
-            createdAt: Date;
-            _count: {
-                files: number;
-                notes: number;
-                codes: number;
-                urls: number;
-            };
-        }[]
-    >;
+    });
+
+    return users.map((user) => ({
+        id: user.id,
+        username: user.username,
+        avatar: user.avatar,
+        permissions: user.permissions,
+        totpEnabled: user.totpEnabled,
+        superAdmin: user.superAdmin,
+        limits: defu(user.limits, defaultUserLimits) as IUserLimits,
+        createdAt: user.createdAt,
+        domains: user.domains,
+        stats: user._count,
+    }));
 });

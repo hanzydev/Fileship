@@ -1,3 +1,5 @@
+import defu from 'defu';
+
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
@@ -12,6 +14,17 @@ export default defineEventHandler(async (event) => {
         },
     });
 
+    const stats = await prisma.user.findUnique({
+        where: {
+            id: currentUser.id,
+        },
+        select: {
+            _count: {
+                select: { files: true, folders: true, notes: true, codes: true, urls: true },
+            },
+        },
+    });
+
     return {
         id: currentUser.id,
         username: currentUser.username,
@@ -21,8 +34,9 @@ export default defineEventHandler(async (event) => {
         totpEnabled: currentUser.totpEnabled,
         currentSessionId: currentUser.currentSessionId,
         superAdmin: currentUser.superAdmin,
-        limits: currentUser.limits,
+        limits: defu(currentUser.limits, defaultUserLimits) as IUserLimits,
         backupRestoreState: currentUser.backupRestoreState,
         theme: currentUser.theme,
+        stats: stats!._count,
     };
 });
