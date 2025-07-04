@@ -105,15 +105,13 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const limits = defu(body.data.limits, defaultUserLimits);
-
     const user = await prisma.user.create({
         data: {
             username: body.data.username,
             password: await hash(body.data.password),
             permissions: body.data.permissions,
             superAdmin: body.data.superAdmin,
-            limits,
+            limits: defu(body.data.limits, defaultUserLimits),
         },
         select: {
             id: true,
@@ -136,6 +134,6 @@ export default defineEventHandler(async (event) => {
 
     return {
         ...user,
-        limits: limits as IUserLimits,
+        limits: user.limits as unknown as IUserLimits,
     };
 });
