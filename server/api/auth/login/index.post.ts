@@ -1,4 +1,5 @@
 import { verify } from 'argon2';
+import { defu } from 'defu';
 import { nanoid } from 'nanoid';
 import { authenticator } from 'otplib';
 import { z } from 'zod';
@@ -158,7 +159,7 @@ export default defineEventHandler(async (event) => {
             createdAt: findUserByUsername.createdAt,
             totpEnabled: findUserByUsername.totpEnabled,
             superAdmin: findUserByUsername.superAdmin,
-            limits: findUserByUsername.limits,
+            limits: defu(findUserByUsername.limits, defaultUserLimits) as IUserLimits,
             backupRestoreState: findUserByUsername.backupRestoreState,
             theme: findUserByUsername.theme,
         },

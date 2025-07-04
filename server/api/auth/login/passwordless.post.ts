@@ -1,3 +1,4 @@
+import { defu } from 'defu';
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
 
@@ -150,7 +151,7 @@ export default defineEventHandler(async (event) => {
                     createdAt: findUserByUsername.createdAt,
                     totpEnabled: findUserByUsername.totpEnabled,
                     superAdmin: findUserByUsername.superAdmin,
-                    limits: findUserByUsername.limits,
+                    limits: defu(findUserByUsername.limits, defaultUserLimits) as IUserLimits,
                     backupRestoreState: findUserByUsername.backupRestoreState,
                     theme: findUserByUsername.theme,
                 },
