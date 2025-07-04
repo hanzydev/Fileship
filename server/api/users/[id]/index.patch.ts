@@ -253,7 +253,6 @@ export default defineEventHandler(async (event) => {
             createdAt: true,
             limits: true,
             superAdmin: true,
-            embed: true,
             theme: true,
         },
     });
@@ -269,7 +268,6 @@ export default defineEventHandler(async (event) => {
 
     return {
         ...updatedUser,
-        embed: defu(updatedUser.embed, defaultEmbed) as IEmbed,
         limits: defu(updatedUser.limits, defaultUserLimits) as IUserLimits,
     };
 });
