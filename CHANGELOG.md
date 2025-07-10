@@ -1,5 +1,64 @@
 # Changelog
 
+## v4.0.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v3.2.1...v4.0.0)
+
+### 🚀 Enhancements
+
+- Add custom muted colors for better consistency ([335afc4](https://github.com/hanzydev/Fileship/commit/335afc4))
+- Add catppuccin themes ([a17e79f](https://github.com/hanzydev/Fileship/commit/a17e79f))
+- Add user statistics to user data responses and update related types ([2edb83e](https://github.com/hanzydev/Fileship/commit/2edb83e))
+- Integrate Orama search with AI embedding for enhanced semantic search capabilities using OpenAI/CLIP ([39325bc](https://github.com/hanzydev/Fileship/commit/39325bc))
+
+### 🩹 Fixes
+
+- Copy prisma engine files after nitro server is built ([e82ad78](https://github.com/hanzydev/Fileship/commit/e82ad78))
+- Error handling in login ([0afa014](https://github.com/hanzydev/Fileship/commit/0afa014))
+- Prevent navigation when modal is closed ([62b4ce6](https://github.com/hanzydev/Fileship/commit/62b4ce6))
+- Memory leak in generate embeddings task ([9c7c970](https://github.com/hanzydev/Fileship/commit/9c7c970))
+- Import Prisma to resolve undefined reference in addToOrama task ([d6e17f2](https://github.com/hanzydev/Fileship/commit/d6e17f2))
+- Correct punctuation in success message for stats generation ([0cbda0b](https://github.com/hanzydev/Fileship/commit/0cbda0b))
+
+### 💅 Refactors
+
+- ⚠️  Use nitro's tasks feature ([2287783](https://github.com/hanzydev/Fileship/commit/2287783))
+- **prisma:** ⚠️  Use migrations ([69a7937](https://github.com/hanzydev/Fileship/commit/69a7937))
+- ⚠️  Overhauled scripts ([3c5f68a](https://github.com/hanzydev/Fileship/commit/3c5f68a))
+- Update db:prototype script to use pnpm build:prisma ([465e0fa](https://github.com/hanzydev/Fileship/commit/465e0fa))
+- Remove cleanup from build script ([de49934](https://github.com/hanzydev/Fileship/commit/de49934))
+- Add framework to nitro config ([23a5764](https://github.com/hanzydev/Fileship/commit/23a5764))
+- Better theme loading script ([91230cf](https://github.com/hanzydev/Fileship/commit/91230cf))
+- Remove inconsistent themes ([5a51121](https://github.com/hanzydev/Fileship/commit/5a51121))
+- Clean up .gitignore and improve package.json scripts ([7ac012a](https://github.com/hanzydev/Fileship/commit/7ac012a))
+- Remove embed property from user update response ([b66e910](https://github.com/hanzydev/Fileship/commit/b66e910))
+- Use defu to set default user limits in login responses ([d411e51](https://github.com/hanzydev/Fileship/commit/d411e51))
+- Streamline limits assignment using defu for default user limits ([0d58711](https://github.com/hanzydev/Fileship/commit/0d58711))
+- Add period to success messages in various tasks ([29de489](https://github.com/hanzydev/Fileship/commit/29de489))
+- Update currentUser stats on note, url, code, file, and folder changes ([fea6d51](https://github.com/hanzydev/Fileship/commit/fea6d51))
+- Omit embedding field from file and folder queries for improved performance ([893bd15](https://github.com/hanzydev/Fileship/commit/893bd15))
+
+### 🏡 Chore
+
+- Remove renovate configuration file ([527a83f](https://github.com/hanzydev/Fileship/commit/527a83f))
+- Rebuild pnpm-lock ([40a14cf](https://github.com/hanzydev/Fileship/commit/40a14cf))
+- Lint fix ([6fef3fb](https://github.com/hanzydev/Fileship/commit/6fef3fb))
+- Update dev script to include prisma build step ([e24b17c](https://github.com/hanzydev/Fileship/commit/e24b17c))
+
+### 🤖 CI
+
+- Use node.js 24 ([d3ef7f8](https://github.com/hanzydev/Fileship/commit/d3ef7f8))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Use nitro's tasks feature ([2287783](https://github.com/hanzydev/Fileship/commit/2287783))
+- **prisma:** ⚠️  Use migrations ([69a7937](https://github.com/hanzydev/Fileship/commit/69a7937))
+- ⚠️  Overhauled scripts ([3c5f68a](https://github.com/hanzydev/Fileship/commit/3c5f68a))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v3.2.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v3.2.0...v3.2.1)
