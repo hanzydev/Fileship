@@ -17,6 +17,9 @@ export default defineEventHandler(async (event) => {
                 orderBy: {
                     createdAt: 'desc',
                 },
+                omit: {
+                    embedding: true,
+                },
             },
             author: {
                 select: {

@@ -18,6 +18,9 @@ export default defineEventHandler(async (event) => {
         include: {
             views: true,
         },
+        omit: {
+            embedding: true,
+        },
     });
 
     return files.map((file) => ({
