@@ -1,8 +1,11 @@
 import fsp from 'node:fs/promises';
+import { createRequire } from 'node:module';
 
 import { join } from 'pathe';
 
 import pkg from './package.json';
+
+const require = createRequire(import.meta.url);
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -95,6 +98,7 @@ export default defineNuxtConfig({
                     ),
                 );
             },
+            'dev:reload': () => require('onnxruntime-node'),
         },
     },
 

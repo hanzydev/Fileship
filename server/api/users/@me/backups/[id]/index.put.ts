@@ -12,6 +12,7 @@ import { extract } from 'tar';
 import { z } from 'zod';
 
 import ffmpeg from '@ffmpeg-installer/ffmpeg';
+import { insert, removeMultiple } from '@orama/orama';
 import { BackupRestoreState } from '@prisma/client';
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
@@ -59,10 +60,49 @@ export default defineEventHandler(async (event) => {
 
     await updateState(BackupRestoreState.DeletingPreviousData);
 
-    const userFiles = await prisma.file.findMany({
-        where: { authorId: currentUser.id },
-        select: { id: true, fileName: true },
-    });
+    const [userFiles, userFolders, userNotes, userCodes, userUrls] = await prisma.$transaction([
+        prisma.file.findMany({
+            where: {
+                authorId: currentUser.id,
+            },
+            select: {
+                id: true,
+                fileName: true,
+            },
+        }),
+        prisma.folder.findMany({
+            where: {
+                authorId: currentUser.id,
+            },
+            select: {
+                id: true,
+            },
+        }),
+        prisma.note.findMany({
+            where: {
+                authorId: currentUser.id,
+            },
+            select: {
+                id: true,
+            },
+        }),
+        prisma.code.findMany({
+            where: {
+                authorId: currentUser.id,
+            },
+            select: {
+                id: true,
+            },
+        }),
+        prisma.url.findMany({
+            where: {
+                authorId: currentUser.id,
+            },
+            select: {
+                id: true,
+            },
+        }),
+    ]);
 
     const uploadsPath = join(dataDirectory, 'uploads');
     const thumbnailsPath = join(dataDirectory, 'thumbnails');
@@ -77,6 +117,31 @@ export default defineEventHandler(async (event) => {
         userFiles.map(({ id }) =>
             fsp.rm(join(thumbnailsPath, `${id}.jpeg`), { force: true }).catch(() => null),
         ),
+    );
+
+    await removeMultiple(
+        fileSearchDb,
+        userFiles.map((f) => f.id),
+    );
+
+    await removeMultiple(
+        folderSearchDb,
+        userFolders.map((f) => f.id),
+    );
+
+    await removeMultiple(
+        noteSearchDb,
+        userNotes.map((n) => n.id),
+    );
+
+    await removeMultiple(
+        codeSearchDb,
+        userCodes.map((c) => c.id),
+    );
+
+    await removeMultiple(
+        urlSearchDb,
+        userUrls.map((u) => u.id),
     );
 
     await prisma.$transaction([
@@ -208,9 +273,9 @@ export default defineEventHandler(async (event) => {
                                             formatted: filesize(created.size.toString()),
                                         };
 
-                                        if (created.mimeType.startsWith('video/')) {
-                                            const filePath = join(uploadsPath, created.fileName);
+                                        const filePath = join(uploadsPath, created.fileName);
 
+                                        if (created.mimeType.startsWith('video/')) {
                                             const thumbnailPath = join(
                                                 thumbnailsPath,
                                                 `${created.id}.jpeg`,
@@ -234,6 +299,33 @@ export default defineEventHandler(async (event) => {
                                                     .run();
                                             });
                                         }
+
+                                        let embedding: number[] = [];
+
+                                        if (
+                                            IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
+                                                extname(created.fileName),
+                                            )
+                                        ) {
+                                            const clip = await getClipInstance();
+                                            embedding = await clip.createImageEmbedding(filePath);
+
+                                            await prisma.file.update({
+                                                where: {
+                                                    id: created.id,
+                                                },
+                                                data: {
+                                                    embedding,
+                                                },
+                                            });
+                                        }
+
+                                        await insert(fileSearchDb, {
+                                            id: created.id,
+                                            fileName: created.fileName,
+                                            mimeType: created.mimeType,
+                                            embedding,
+                                        });
                                     }
                                     break;
                                 case 'code':
@@ -242,6 +334,12 @@ export default defineEventHandler(async (event) => {
                                         currentUser.domains,
                                         `/code/${created.id}`,
                                     );
+
+                                    await insert(codeSearchDb, {
+                                        id: created.id,
+                                        title: created.title,
+                                        language: created.language,
+                                    });
                                     break;
                                 case 'folder':
                                     created.publicUrl = created.public
@@ -252,6 +350,11 @@ export default defineEventHandler(async (event) => {
                                           )
                                         : undefined;
                                     created.files = [];
+
+                                    await insert(folderSearchDb, {
+                                        id: created.id,
+                                        name: created.name,
+                                    });
                                     break;
                                 case 'url':
                                     created.url = buildPublicUrl(
@@ -259,6 +362,18 @@ export default defineEventHandler(async (event) => {
                                         currentUser.domains,
                                         `/link/${created.vanity}`,
                                     );
+
+                                    await insert(urlSearchDb, {
+                                        id: created.id,
+                                        vanity: created.vanity,
+                                        destinationUrl: created.destinationUrl,
+                                    });
+                                    break;
+                                case 'note':
+                                    await insert(noteSearchDb, {
+                                        id: created.id,
+                                        title: created.title,
+                                    });
                                     break;
                             }
 

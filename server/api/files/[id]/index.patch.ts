@@ -4,6 +4,8 @@ import { filesize } from 'filesize';
 import { join } from 'pathe';
 import { z } from 'zod';
 
+import { update } from '@orama/orama';
+
 const validationSchema = z
     .object(
         {
@@ -133,6 +135,9 @@ export default defineEventHandler(async (event) => {
             fileName: body.data.fileName || findFileById.fileName,
             ...body.data,
         },
+        omit: {
+            embedding: true,
+        },
     });
 
     const updatedFile = {
@@ -165,6 +170,13 @@ export default defineEventHandler(async (event) => {
                 : null
             : undefined,
     };
+
+    await update(fileSearchDb, updatedFile.id, {
+        id: updatedFile.id,
+        fileName: updatedFile.fileName,
+        mimeType: updatedFile.mimeType,
+        embedding: findFileById.embedding as never[],
+    });
 
     await createLog(event, {
         action: 'Update File',

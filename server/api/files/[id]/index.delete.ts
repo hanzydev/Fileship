@@ -3,6 +3,8 @@ import { nextTick } from 'node:process';
 
 import { join } from 'pathe';
 
+import { remove } from '@orama/orama';
+
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
@@ -45,6 +47,8 @@ export default defineEventHandler(async (event) => {
             id: fileId,
         },
     });
+
+    await remove(fileSearchDb, fileId!);
 
     await createLog(event, {
         action: 'Delete File',

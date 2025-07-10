@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { insert } from '@orama/orama';
+
 const validationSchema = z.object(
     {
         title: z
@@ -42,6 +44,11 @@ export default defineEventHandler(async (event) => {
             content: body.data.content,
             authorId: currentUser.id,
         },
+    });
+
+    await insert(noteSearchDb, {
+        id: note.id,
+        title: note.title,
     });
 
     await createLog(event, {

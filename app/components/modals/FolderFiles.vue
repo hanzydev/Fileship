@@ -32,7 +32,14 @@
         </div>
 
         <div flex="~ gap4 1 items-center" wfull>
-            <UiSearchBar v-model="searchQuery" placeholder="Search files..." wfull />
+            <UiSearchBar
+                v-model="searchQuery"
+                v-model:ai-enabled="aiEnabled"
+                v-model:loading="isSearching"
+                placeholder="Search files..."
+                ai-available
+                wfull
+            />
             <FileTypeFilter v-model="filterType" />
         </div>
 
@@ -85,8 +92,6 @@
 </template>
 
 <script setup lang="ts">
-import { useFuse } from '@vueuse/integrations/useFuse';
-
 const isOpen = defineModel<boolean>({ required: true });
 
 const { data, editable } = defineProps<{
@@ -97,37 +102,26 @@ const { data, editable } = defineProps<{
 const files = useFiles();
 const { $toast } = useNuxtApp();
 
-const searchQuery = ref('');
 const currentPage = ref(1);
 const filterType = ref([]);
+const searchQuery = ref('');
+const aiEnabled = ref(false);
+const searched = ref<string[]>([]);
 const disabled = ref(false);
 
 const selectedFiles = ref(data.files);
 
-const { results } = useFuse(
-    searchQuery,
-    computed(() =>
-        editable
-            ? files.value.filter((f) => [null, data.id].includes(f.folderId))
-            : files.value.filter((f) => selectedFiles.value.includes(f.id)),
-    ),
-    {
-        matchAllWhenSearchEmpty: true,
-        fuseOptions: {
-            keys: [
-                {
-                    name: 'fileName',
-                    weight: 2,
-                },
-                'mimeType',
-            ],
-        },
-    },
-);
-
-const filtered = computed<FileData[]>(() =>
-    results.value
-        .map((r) => r.item)
+const filtered = computed(() =>
+    files.value
+        .filter(
+            (f) =>
+                (editable
+                    ? [null, data.id].includes(f.folderId)
+                    : selectedFiles.value.includes(f.id)) &&
+                (!isSearching.value && searchQuery.value.length
+                    ? searched.value.includes(f.id)
+                    : true),
+        )
         .filter(
             (f) =>
                 !filterType.value.length ||
@@ -157,8 +151,12 @@ const handleChange = async () => {
     $toast.success('Files saved successfully');
 };
 
+const isSearching = ref(false);
 const isAnimating = ref(false);
+
 const { all, enter, leave } = animateCards();
+
+let searchTimeout: NodeJS.Timeout;
 
 watch(isOpen, () => {
     if (isOpen.value) nextTick(() => all('folderFiles', '.folderFileCard'));
@@ -177,4 +175,35 @@ watch(
     () => data.files,
     (value) => (selectedFiles.value = value),
 );
+
+watch(searchQuery, (query) => {
+    clearTimeout(searchTimeout);
+
+    if (query.length) {
+        isSearching.value = true;
+
+        searchTimeout = setTimeout(async () => {
+            isAnimating.value = true;
+
+            try {
+                searched.value = await $fetch<string[]>('/api/files/search', {
+                    method: 'POST',
+                    body: { query, mode: aiEnabled.value ? 'vector' : 'fulltext' },
+                });
+            } catch {
+                searched.value = [];
+            }
+
+            isSearching.value = false;
+
+            nextTick(() => {
+                all('folderFiles', '.folderFileCard', () => {
+                    isAnimating.value = false;
+                });
+            });
+        }, 750);
+    } else {
+        searched.value = [];
+    }
+});
 </script>

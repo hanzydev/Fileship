@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { insert } from '@orama/orama';
+
 const validationSchema = z.object(
     {
         title: z
@@ -95,6 +97,12 @@ export default defineEventHandler(async (event) => {
         },
         url: buildPublicUrl(event, currentUser.domains, `/code/${_code.id}`),
     };
+
+    await insert(codeSearchDb, {
+        id: code.id,
+        title: code.title,
+        language: code.language,
+    });
 
     await createLog(event, {
         action: 'Share Code',

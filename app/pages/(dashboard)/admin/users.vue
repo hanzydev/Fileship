@@ -41,7 +41,11 @@
                     @click="createUserModalOpen = true"
                 />
             </div>
-            <UiSearchBar v-model="searchQuery" placeholder="Search users..." />
+            <UiSearchBar
+                v-model="searchQuery"
+                v-model:loading="isSearching"
+                placeholder="Search users..."
+            />
             <UiTable
                 ring="1 fs-overlay-4"
                 :loading="isLoading"
@@ -173,7 +177,7 @@
             />
             <UiPagination
                 v-model="currentPage"
-                :item-count="calculatedUsers.length"
+                :item-count="filtered.length"
                 :items-per-page="20"
             />
         </div>
@@ -183,8 +187,6 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
-import { useFuse } from '@vueuse/integrations/useFuse';
-
 import { Icon, UiAvatar, UiButton } from '#components';
 
 const currentUser = useAuthUser();
@@ -192,9 +194,11 @@ const currentTheme = useTheme();
 const users = useUsers();
 const { $toast } = useNuxtApp();
 
-const searchQuery = ref('');
 const currentPage = ref(1);
+const searchQuery = ref('');
+const searched = ref<string[]>([]);
 
+const isSearching = ref(false);
 const isLoading = ref(!users.value.length);
 
 const willBeDeleted = ref(new Set<string>());
@@ -300,27 +304,16 @@ const handleDelete = async (id: string, verificationData?: any) => {
     willBeDeleted.value.delete(id);
 };
 
-const { results } = useFuse(searchQuery, users, {
-    matchAllWhenSearchEmpty: true,
-    fuseOptions: {
-        keys: [
-            {
-                name: 'username',
-                weight: 3,
-            },
-            {
-                name: 'permissions',
-                weight: 2,
-            },
-            'domains',
-        ],
-    },
-});
+const filtered = computed(() =>
+    users.value.filter((u) =>
+        !isSearching.value && searchQuery.value.length ? searched.value.includes(u.id) : true,
+    ),
+);
 
-const calculatedUsers = computed<UserData[]>(() => {
+const calculatedUsers = computed(() => {
     const start = (currentPage.value - 1) * 20;
     const end = start + 20;
-    return results.value.map((r) => r.item).slice(start, end);
+    return filtered.value.slice(start, end);
 });
 
 onMounted(async () => {
@@ -333,6 +326,31 @@ onMounted(async () => {
         }));
 
         isLoading.value = false;
+    }
+});
+
+let searchTimeout: NodeJS.Timeout;
+
+watch(searchQuery, (query) => {
+    clearTimeout(searchTimeout);
+
+    if (query.length) {
+        isSearching.value = true;
+
+        searchTimeout = setTimeout(async () => {
+            try {
+                searched.value = await $fetch<string[]>('/api/users/search', {
+                    method: 'POST',
+                    body: { query },
+                });
+            } catch {
+                searched.value = [];
+            }
+
+            isSearching.value = false;
+        }, 750);
+    } else {
+        searched.value = [];
     }
 });
 

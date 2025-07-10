@@ -115,7 +115,7 @@ import dayjs from 'dayjs';
 
 const route = useRoute();
 
-const { data: _data, error } = await useFetch(
+const { data: _data, error } = await useFetch<FileData & { embed: IEmbed }>(
     `/api/files/${route.params.id}${route.query.password ? `?password=${route.query.password}` : ''}`,
     {
         headers: useRequestHeaders(['x-forwarded-for', 'host']),
@@ -175,7 +175,7 @@ const handlePassword = async (password: string) => {
     passwordDisabled.value = true;
 
     try {
-        const file = await $fetch(`/api/files/${route.params.id}`, {
+        const file = await $fetch<FileData & { embed: IEmbed }>(`/api/files/${route.params.id}`, {
             query: {
                 password,
             },

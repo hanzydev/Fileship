@@ -31,6 +31,9 @@ export default defineEventHandler(async (event) => {
         prisma.file.findMany({
             where: { authorId: currentUser.id },
             orderBy: { createdAt: 'desc' },
+            omit: {
+                embedding: true,
+            },
         }),
         prisma.folder.findMany({
             where: { authorId: currentUser.id },

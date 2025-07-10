@@ -1,6 +1,6 @@
 import type { Log } from '@prisma/client';
 
-export type LogData = Omit<Log, 'id'>;
+export type LogData = Log;
 
 export type LogUser = {
     id: string;

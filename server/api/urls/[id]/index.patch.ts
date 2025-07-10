@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { update } from '@orama/orama';
+
 const validationSchema = z
     .object(
         {
@@ -131,7 +133,13 @@ export default defineEventHandler(async (event) => {
             }).length,
         },
         url: buildPublicUrl(event, currentUser.domains, `/link/${_updatedUrl.vanity}`),
-    } as never;
+    };
+
+    await update(urlSearchDb, updatedUrl.id, {
+        id: updatedUrl.id,
+        vanity: updatedUrl.vanity,
+        destinationUrl: updatedUrl.destinationUrl,
+    });
 
     await createLog(event, {
         action: 'Update URL',

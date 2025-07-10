@@ -22,6 +22,14 @@ export const clearStates = (hard = false, clearUserAndTheme = false) => {
     folders.value = [];
     stats.value = null;
 
+    currentUser.value!.stats = {
+        notes: 0,
+        urls: 0,
+        codes: 0,
+        files: 0,
+        folders: 0,
+    };
+
     if (hard) {
         users.value = [];
         domains.value = [];

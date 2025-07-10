@@ -2,6 +2,7 @@ import { hash } from 'argon2';
 import defu from 'defu';
 import { z } from 'zod';
 
+import { insert } from '@orama/orama';
 import { UserPermission } from '@prisma/client';
 
 const validationSchema = z.object(
@@ -123,6 +124,11 @@ export default defineEventHandler(async (event) => {
             limits: true,
             superAdmin: true,
         },
+    });
+
+    await insert(userSearchDb, {
+        id: user.id,
+        username: user.username,
     });
 
     await createLog(event, {

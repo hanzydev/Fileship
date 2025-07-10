@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
             createdAt: 'desc',
         },
         select: {
+            id: true,
             ip: true,
             action: true,
             userId: true,

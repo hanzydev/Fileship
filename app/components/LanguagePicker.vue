@@ -17,11 +17,13 @@
                 <UiSearchBar
                     v-model="searchQuery"
                     placeholder="Search languages..."
-                    input-class="!h10 !bg-fs-overlay-3 !ring-0"
+                    h10="!"
+                    rounded-lg="!"
+                    input-class="!bg-fs-overlay-3 !rounded-lg"
                 />
                 <div space-y-1>
                     <UiButton
-                        v-for="(lang, index) in results.map((r) => r.item)"
+                        v-for="(lang, index) in searched"
                         :key="index"
                         :icon="
                             lang.label === language.label
@@ -46,8 +48,6 @@
 </template>
 
 <script setup lang="ts">
-import { useFuse } from '@vueuse/integrations/useFuse';
-
 const isOpen = ref(false);
 
 const language = defineModel<{
@@ -59,10 +59,7 @@ const language = defineModel<{
 
 const searchQuery = ref('');
 
-const { results } = useFuse(searchQuery, languages, {
-    matchAllWhenSearchEmpty: true,
-    fuseOptions: {
-        keys: ['label'],
-    },
-});
+const searched = computed(() =>
+    languages.filter((lang) => lang.label.toLowerCase().includes(searchQuery.value.toLowerCase())),
+);
 </script>

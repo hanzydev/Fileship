@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { insert } from '@orama/orama';
+
 const validationSchema = z.object(
     {
         name: z
@@ -80,6 +82,11 @@ export default defineEventHandler(async (event) => {
             ? buildPublicUrl(event, currentUser.domains, `/folder/${_folder.id}`)
             : undefined,
     };
+
+    await insert(folderSearchDb, {
+        id: folder.id,
+        name: folder.name,
+    });
 
     await createLog(event, {
         action: 'Create Folder',

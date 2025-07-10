@@ -8,7 +8,11 @@
 
         <div space-y-6>
             <h2>Folders</h2>
-            <UiSearchBar v-model="searchQuery" placeholder="Search folders..." />
+            <UiSearchBar
+                v-model="searchQuery"
+                v-model:loading="isSearching"
+                placeholder="Search folders..."
+            />
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
                 <New h164px @action="createFolderModalOpen = true" />
 
@@ -48,42 +52,46 @@
                     </div>
                 </TransitionGroup>
             </div>
-            <UiPagination v-model="currentPage" :item-count="results.length" :items-per-page="19" />
+            <UiPagination
+                v-model="currentPage"
+                :item-count="filtered.length"
+                :items-per-page="19"
+            />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { useFuse } from '@vueuse/integrations/useFuse';
-
 const folders = useFolders();
 const files = useFiles();
+const currentUser = useAuthUser();
 
-const searchQuery = ref('');
 const currentPage = ref(1);
+const searchQuery = ref('');
+const searched = ref<string[]>([]);
 
 const createFolderModalOpen = ref(false);
 
-const { results } = useFuse(searchQuery, folders, {
-    matchAllWhenSearchEmpty: true,
-    fuseOptions: {
-        keys: ['name'],
-    },
-});
+const filtered = computed(() =>
+    folders.value.filter((f) =>
+        !isSearching.value && searchQuery.value.length ? searched.value.includes(f.id) : true,
+    ),
+);
 
-const calculatedFolders = computed<FolderData[]>(() => {
+const calculatedFolders = computed(() => {
     const start = (currentPage.value - 1) * 19;
     const end = start + 19;
-    return results.value.map((r) => r.item).slice(start, end);
+    return filtered.value.slice(start, end);
 });
 
 const isAnimating = ref(false);
-const isLoading = ref(!folders.value.length);
+const isSearching = ref(false);
+const isLoading = ref(folders.value.length !== currentUser.value!.stats.folders);
 
 const { all, enter, leave } = animateCards();
 
 onMounted(async () => {
-    if (!folders.value.length) {
+    if (isLoading.value) {
         const foldersData = await $fetch('/api/folders');
         const filesData = await $fetch('/api/files');
 
@@ -105,6 +113,8 @@ onMounted(async () => {
     all('folders', '.folderCard');
 });
 
+let searchTimeout: NodeJS.Timeout;
+
 watch(currentPage, () => {
     isAnimating.value = true;
     nextTick(() => {
@@ -112,6 +122,37 @@ watch(currentPage, () => {
             isAnimating.value = false;
         });
     });
+});
+
+watch(searchQuery, (query) => {
+    clearTimeout(searchTimeout);
+
+    if (query.length) {
+        isSearching.value = true;
+
+        searchTimeout = setTimeout(async () => {
+            isAnimating.value = true;
+
+            try {
+                searched.value = await $fetch<string[]>('/api/folders/search', {
+                    method: 'POST',
+                    body: { query },
+                });
+            } catch {
+                searched.value = [];
+            }
+
+            isSearching.value = false;
+
+            nextTick(() => {
+                all('folders', '.folderCard', () => {
+                    isAnimating.value = false;
+                });
+            });
+        }, 750);
+    } else {
+        searched.value = [];
+    }
 });
 
 definePageMeta({

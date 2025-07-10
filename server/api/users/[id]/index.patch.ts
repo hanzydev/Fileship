@@ -3,6 +3,7 @@ import { defu } from 'defu';
 import sharp from 'sharp';
 import { z } from 'zod';
 
+import { update } from '@orama/orama';
 import { UserPermission } from '@prisma/client';
 
 import themes from '~~/app/styles/themes.json';
@@ -255,6 +256,11 @@ export default defineEventHandler(async (event) => {
             superAdmin: true,
             theme: true,
         },
+    });
+
+    await update(userSearchDb, updatedUser.id, {
+        id: updatedUser.id,
+        username: updatedUser.username,
     });
 
     await createLog(event, {

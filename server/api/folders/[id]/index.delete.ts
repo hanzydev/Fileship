@@ -1,3 +1,5 @@
+import { remove } from '@orama/orama';
+
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
@@ -27,6 +29,8 @@ export default defineEventHandler(async (event) => {
             id: folderId,
         },
     });
+
+    await remove(folderSearchDb, folderId!);
 
     await createLog(event, {
         action: 'Delete Folder',

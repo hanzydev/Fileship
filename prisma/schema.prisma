@@ -73,6 +73,7 @@ model File {
   folder    Folder?   @relation(fields: [folderId], references: [id])
   folderId  String?
   views     View[]
+  embedding Json?
 }
 
 model Note {

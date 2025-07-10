@@ -1,3 +1,5 @@
+import { remove } from '@orama/orama';
+
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
@@ -24,6 +26,8 @@ export default defineEventHandler(async (event) => {
             id: noteId,
         },
     });
+
+    await remove(noteSearchDb, noteId!);
 
     await createLog(event, {
         action: 'Delete Note',

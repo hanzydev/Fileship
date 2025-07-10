@@ -9,6 +9,7 @@ import sharp from 'sharp';
 import { z } from 'zod';
 
 import ffmpeg from '@ffmpeg-installer/ffmpeg';
+import { insert } from '@orama/orama';
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 
@@ -250,6 +251,9 @@ export default defineEventHandler(async (event) => {
             include: {
                 views: true,
             },
+            omit: {
+                embedding: true,
+            },
         });
 
         const upload = {
@@ -288,6 +292,29 @@ export default defineEventHandler(async (event) => {
                     .run();
             });
         }
+
+        let embedding: number[] = [];
+
+        if (IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
+            const clip = await getClipInstance();
+            embedding = await clip.createImageEmbedding(filePath);
+
+            await prisma.file.update({
+                where: {
+                    id: upload.id,
+                },
+                data: {
+                    embedding,
+                },
+            });
+        }
+
+        await insert(fileSearchDb, {
+            id: upload.id,
+            fileName: upload.fileName,
+            mimeType: upload.mimeType,
+            embedding,
+        });
 
         await createLog(event, {
             action: 'Upload File',

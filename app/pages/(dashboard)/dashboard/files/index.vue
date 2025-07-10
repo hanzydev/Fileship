@@ -7,7 +7,14 @@
         <div space-y-6>
             <h2>Files</h2>
             <div flex="~ gap4 1 items-center" wfull>
-                <UiSearchBar v-model="searchQuery" placeholder="Search files..." wfull />
+                <UiSearchBar
+                    v-model="searchQuery"
+                    v-model:ai-enabled="aiEnabled"
+                    v-model:loading="isSearching"
+                    placeholder="Search files..."
+                    ai-available
+                    wfull
+                />
                 <FileTypeFilter v-model="filterType" />
             </div>
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
@@ -51,33 +58,22 @@
 </template>
 
 <script setup lang="ts">
-import { useFuse } from '@vueuse/integrations/useFuse';
-
 const files = useFiles();
 const folders = useFolders();
-
 const router = useRouter();
+const currentUser = useAuthUser();
 
-const searchQuery = ref('');
 const currentPage = ref(1);
 const filterType = ref([]);
+const searchQuery = ref('');
+const aiEnabled = ref(false);
+const searched = ref<string[]>([]);
 
-const { results } = useFuse(searchQuery, files, {
-    matchAllWhenSearchEmpty: true,
-    fuseOptions: {
-        keys: [
-            {
-                name: 'fileName',
-                weight: 2,
-            },
-            'mimeType',
-        ],
-    },
-});
-
-const filtered = computed<FileData[]>(() =>
-    results.value
-        .map((r) => r.item)
+const filtered = computed(() =>
+    files.value
+        .filter((f) =>
+            !isSearching.value && searchQuery.value.length ? searched.value.includes(f.id) : true,
+        )
         .filter((f) => !f.folderId)
         .filter(
             (f) =>
@@ -93,12 +89,13 @@ const calculatedFiles = computed(() => {
 });
 
 const isAnimating = ref(false);
-const isLoading = ref(!files.value.length);
+const isSearching = ref(false);
+const isLoading = ref(files.value.length !== currentUser.value!.stats.files);
 
 const { all, enter, leave } = animateCards();
 
 onMounted(async () => {
-    if (!files.value.length) {
+    if (isLoading.value) {
         const foldersData = await $fetch('/api/folders');
         const filesData = await $fetch('/api/files');
 
@@ -120,6 +117,8 @@ onMounted(async () => {
     all('files', '.fileCard');
 });
 
+let searchTimeout: NodeJS.Timeout;
+
 watch(currentPage, () => {
     isAnimating.value = true;
     nextTick(() => {
@@ -127,6 +126,37 @@ watch(currentPage, () => {
             isAnimating.value = false;
         });
     });
+});
+
+watch(searchQuery, (query) => {
+    clearTimeout(searchTimeout);
+
+    if (query.length) {
+        isSearching.value = true;
+
+        searchTimeout = setTimeout(async () => {
+            isAnimating.value = true;
+
+            try {
+                searched.value = await $fetch<string[]>('/api/files/search', {
+                    method: 'POST',
+                    body: { query, mode: aiEnabled.value ? 'vector' : 'fulltext' },
+                });
+            } catch {
+                searched.value = [];
+            }
+
+            isSearching.value = false;
+
+            nextTick(() => {
+                all('files', '.fileCard', () => {
+                    isAnimating.value = false;
+                });
+            });
+        }, 750);
+    } else {
+        searched.value = [];
+    }
 });
 
 definePageMeta({

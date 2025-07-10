@@ -17,7 +17,7 @@
 <script setup lang="ts">
 const route = useRoute();
 
-const { data, error } = await useFetch(`/api/urls/${route.params.id}`, {
+const { data, error } = await useFetch<UrlData>(`/api/urls/${route.params.id}`, {
     query: { log: true },
     headers: useRequestHeaders(['x-forwarded-for', 'host']),
 });
@@ -40,7 +40,7 @@ const handlePassword = async (password: string) => {
     passwordDisabled.value = true;
 
     try {
-        const url = await $fetch(`/api/urls/${route.params.id}`, {
+        const url = await $fetch<UrlData>(`/api/urls/${route.params.id}`, {
             query: {
                 log: true,
                 password,

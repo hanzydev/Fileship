@@ -3,6 +3,8 @@ import { rm } from 'node:fs/promises';
 import { join } from 'pathe';
 import { z } from 'zod';
 
+import { remove, removeMultiple } from '@orama/orama';
+
 const validationSchema = z
     .object({
         verificationData: z.any().optional(),
@@ -58,14 +60,49 @@ export default defineEventHandler(async (event) => {
 
     await verifySession(event, body.data?.verificationData);
 
-    const userFiles = await prisma.file.findMany({
-        where: {
-            authorId: userId,
-        },
-        select: {
-            fileName: true,
-        },
-    });
+    const [userFiles, userFolders, userNotes, userCodes, userUrls] = await prisma.$transaction([
+        prisma.file.findMany({
+            where: {
+                authorId: userId,
+            },
+            select: {
+                id: true,
+                fileName: true,
+            },
+        }),
+        prisma.folder.findMany({
+            where: {
+                authorId: userId,
+            },
+            select: {
+                id: true,
+            },
+        }),
+        prisma.note.findMany({
+            where: {
+                authorId: userId,
+            },
+            select: {
+                id: true,
+            },
+        }),
+        prisma.code.findMany({
+            where: {
+                authorId: userId,
+            },
+            select: {
+                id: true,
+            },
+        }),
+        prisma.url.findMany({
+            where: {
+                authorId: userId,
+            },
+            select: {
+                id: true,
+            },
+        }),
+    ]);
 
     const uploadsPath = join(dataDirectory, 'uploads');
 
@@ -131,6 +168,33 @@ export default defineEventHandler(async (event) => {
             },
         }),
     ]);
+
+    await remove(userSearchDb, userId!);
+
+    await removeMultiple(
+        fileSearchDb,
+        userFiles.map((f) => f.id),
+    );
+
+    await removeMultiple(
+        folderSearchDb,
+        userFolders.map((f) => f.id),
+    );
+
+    await removeMultiple(
+        noteSearchDb,
+        userNotes.map((n) => n.id),
+    );
+
+    await removeMultiple(
+        codeSearchDb,
+        userCodes.map((c) => c.id),
+    );
+
+    await removeMultiple(
+        urlSearchDb,
+        userUrls.map((u) => u.id),
+    );
 
     await createLog(event, {
         action: 'Delete User',

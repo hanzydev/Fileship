@@ -35,6 +35,9 @@ export default defineEventHandler(async (event) => {
                 },
             },
         },
+        omit: {
+            embedding: true,
+        },
     });
 
     if (!findFileById) {

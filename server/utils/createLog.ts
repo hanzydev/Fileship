@@ -3,6 +3,8 @@ import dayjs from 'dayjs';
 import type { H3Event } from 'h3';
 import { lowerFirst, titleCase } from 'scule';
 
+import { insert } from '@orama/orama';
+
 type CreateLogData = {
     action: string;
     message: string;
@@ -42,6 +44,7 @@ export const createLog = async (
             ip,
         },
         select: {
+            id: true,
             ip: true,
             action: true,
             user: {
@@ -55,6 +58,13 @@ export const createLog = async (
             system: true,
             createdAt: true,
         },
+    });
+
+    await insert(logSearchDb, {
+        id: log.id,
+        action: log.action,
+        message: log.message,
+        ip: log.ip,
     });
 
     await sendByFilter(isAdmin, 'create:log', log);

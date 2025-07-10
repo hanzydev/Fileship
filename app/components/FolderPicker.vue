@@ -16,12 +16,15 @@
             >
                 <UiSearchBar
                     v-model="searchQuery"
+                    v-model:loading="isSearching"
                     placeholder="Search folders..."
-                    input-class="!h10 !bg-fs-overlay-3 !ring-0"
+                    h10="!"
+                    rounded-lg="!"
+                    input-class="!bg-fs-overlay-3 !rounded-lg"
                 />
 
                 <p
-                    v-if="!folders.length && !searchQuery"
+                    v-if="!filtered.length && !searchQuery"
                     mx4
                     translate-y-16
                     text-center
@@ -32,9 +35,7 @@
 
                 <div space-y-1>
                     <UiButton
-                        v-if="
-                            searchQuery && !results.find((r) => r.item.name === searchQuery.trim())
-                        "
+                        v-if="searchQuery && !filtered.find((f) => f.name === searchQuery.trim())"
                         wfull
                         break-all
                         :disabled="isCreating"
@@ -44,7 +45,7 @@
                     </UiButton>
 
                     <UiButton
-                        v-for="(option, index) in folders"
+                        v-for="(option, index) in filtered"
                         :key="index"
                         :icon="
                             option.id === folder.value
@@ -74,8 +75,6 @@
 </template>
 
 <script setup lang="ts">
-import { useFuse } from '@vueuse/integrations/useFuse';
-
 const folder = defineModel<{
     label: string;
     value: string | null;
@@ -87,20 +86,22 @@ const folders = useFolders();
 const { $toast } = useNuxtApp();
 
 const searchQuery = ref('');
+const searched = ref<string[]>([]);
+
 const isOpen = ref(false);
 const isCreating = ref(false);
+const isSearching = ref(false);
 
 const defaultValue = {
     label: 'None',
     value: null,
 };
 
-const { results } = useFuse(searchQuery, folders, {
-    matchAllWhenSearchEmpty: true,
-    fuseOptions: {
-        keys: ['name'],
-    },
-});
+const filtered = computed(() =>
+    folders.value.filter((f) =>
+        !isSearching.value && searchQuery.value.length ? searched.value.includes(f.id) : true,
+    ),
+);
 
 const handleCreate = async (name: string) => {
     isCreating.value = true;
@@ -123,4 +124,29 @@ const handleCreate = async (name: string) => {
 
     isCreating.value = false;
 };
+
+let searchTimeout: NodeJS.Timeout;
+
+watch(searchQuery, (query) => {
+    clearTimeout(searchTimeout);
+
+    if (query.length) {
+        isSearching.value = true;
+
+        searchTimeout = setTimeout(async () => {
+            try {
+                searched.value = await $fetch<string[]>('/api/folders/search', {
+                    method: 'POST',
+                    body: { query },
+                });
+            } catch {
+                searched.value = [];
+            }
+
+            isSearching.value = false;
+        }, 750);
+    } else {
+        searched.value = [];
+    }
+});
 </script>

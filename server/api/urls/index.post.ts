@@ -1,6 +1,8 @@
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
 
+import { insert } from '@orama/orama';
+
 const validationSchema = z.object(
     {
         destinationUrl: z
@@ -103,6 +105,12 @@ export default defineEventHandler(async (event) => {
         },
         url: buildPublicUrl(event, currentUser.domains, `/link/${_url.vanity}`),
     };
+
+    await insert(urlSearchDb, {
+        id: url.id,
+        vanity: url.vanity,
+        destinationUrl: url.destinationUrl,
+    });
 
     await createLog(event, {
         action: 'Shorten URL',

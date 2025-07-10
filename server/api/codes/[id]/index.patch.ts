@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { update } from '@orama/orama';
+
 const validationSchema = z
     .object(
         {
@@ -125,6 +127,12 @@ export default defineEventHandler(async (event) => {
         },
         url: buildPublicUrl(event, currentUser.domains, `/code/${_updatedCode.id}`),
     };
+
+    await update(codeSearchDb, _updatedCode.id, {
+        id: updatedCode.id,
+        title: updatedCode.title,
+        language: updatedCode.language,
+    });
 
     await createLog(event, {
         action: 'Update Code',

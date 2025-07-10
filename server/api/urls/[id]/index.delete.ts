@@ -1,3 +1,5 @@
+import { remove } from '@orama/orama';
+
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
@@ -30,6 +32,8 @@ export default defineEventHandler(async (event) => {
             id: urlId,
         },
     });
+
+    await remove(urlSearchDb, urlId!);
 
     await createLog(event, {
         action: 'Delete URL',

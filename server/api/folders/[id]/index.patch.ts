@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { update } from '@orama/orama';
+
 const validationSchema = z
     .object(
         {
@@ -126,6 +128,11 @@ export default defineEventHandler(async (event) => {
             ? buildPublicUrl(event, currentUser.domains, `/folder/${_updatedFolder.id}`)
             : undefined,
     };
+
+    await update(folderSearchDb, _updatedFolder.id, {
+        id: updatedFolder.id,
+        name: updatedFolder.name,
+    });
 
     await createLog(event, {
         action: 'Update Folder',

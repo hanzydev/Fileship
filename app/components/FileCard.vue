@@ -202,12 +202,15 @@
                         >
                             <UiSearchBar
                                 v-model="addToFolderSearchQuery"
+                                v-model:loading="isSearchingFolders"
                                 placeholder="Search folders..."
-                                input-class="!h10 !bg-fs-overlay-3 !ring-0"
+                                h10="!"
+                                rounded-lg="!"
+                                input-class="!bg-fs-overlay-3 !rounded-lg"
                             />
 
                             <p
-                                v-if="!results.length && !addToFolderSearchQuery"
+                                v-if="!filteredFolders.length && !addToFolderSearchQuery"
                                 mx4
                                 translate-y-16
                                 text-center
@@ -220,8 +223,8 @@
                                 <UiButton
                                     v-if="
                                         addToFolderSearchQuery &&
-                                        !results.find(
-                                            (r) => r.item.name === addToFolderSearchQuery.trim(),
+                                        !filteredFolders.find(
+                                            (f) => f.name === addToFolderSearchQuery.trim(),
                                         )
                                     "
                                     :disabled="updating"
@@ -233,13 +236,15 @@
                                 </UiButton>
 
                                 <UiButton
-                                    v-for="(folder, index) in results.map((r) => r.item)"
+                                    v-for="(folder, index) in filteredFolders"
                                     :key="index"
                                     :disabled="updating"
                                     variant="onOverlay"
                                     wfull
                                     gap2
                                     break-all
+                                    icon="heroicons-solid:folder"
+                                    icon-size="20"
                                     @click="handleMoveFile(folder.id)"
                                 >
                                     {{ folder.name }}
@@ -269,8 +274,6 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
-import { useFuse } from '@vueuse/integrations/useFuse';
-
 const { data } = defineProps<{
     data: FileData;
     selectable?: boolean;
@@ -287,13 +290,16 @@ const embed = useEmbed();
 const { $toast } = useNuxtApp();
 
 const addToFolderSearchQuery = ref('');
+const searchedFolders = ref<string[]>([]);
+const isSearchingFolders = ref(false);
 
-const { results } = useFuse(addToFolderSearchQuery, folders, {
-    matchAllWhenSearchEmpty: true,
-    fuseOptions: {
-        keys: ['name'],
-    },
-});
+const filteredFolders = computed(() =>
+    folders.value.filter((f) =>
+        !isSearchingFolders.value && addToFolderSearchQuery.value.length
+            ? searchedFolders.value.includes(f.id)
+            : true,
+    ),
+);
 
 const isImage = computed(() => data.mimeType.startsWith('image/'));
 const isVideo = computed(() => data.mimeType.startsWith('video/'));
@@ -358,4 +364,29 @@ const handleCreateFolderWithFile = async () => {
 
     updating.value = false;
 };
+
+let searchTimeout: NodeJS.Timeout;
+
+watch(addToFolderSearchQuery, (query) => {
+    clearTimeout(searchTimeout);
+
+    if (query.length) {
+        isSearchingFolders.value = true;
+
+        searchTimeout = setTimeout(async () => {
+            try {
+                searchedFolders.value = await $fetch<string[]>('/api/folders/search', {
+                    method: 'POST',
+                    body: { query },
+                });
+            } catch {
+                searchedFolders.value = [];
+            }
+
+            isSearchingFolders.value = false;
+        }, 750);
+    } else {
+        searchedFolders.value = [];
+    }
+});
 </script>

@@ -30,7 +30,11 @@
                     @click="areYouSureModalOpen = true"
                 />
             </div>
-            <UiSearchBar v-model="searchQuery" placeholder="Search logs..." />
+            <UiSearchBar
+                v-model="searchQuery"
+                v-model:loading="isSearching"
+                placeholder="Search logs..."
+            />
             <UiTable
                 ring="1 fs-overlay-4"
                 :loading="isLoading"
@@ -86,7 +90,11 @@
                 nothing-here-message="There are no logs to display."
                 nothing-here-icon="heroicons-solid:document-search"
             />
-            <UiPagination v-model="currentPage" :item-count="results.length" :items-per-page="20" />
+            <UiPagination
+                v-model="currentPage"
+                :item-count="filtered.length"
+                :items-per-page="20"
+            />
         </div>
     </div>
 </template>
@@ -95,50 +103,35 @@
 import dayjs from 'dayjs';
 import { upperFirst } from 'scule';
 
-import { useFuse } from '@vueuse/integrations/useFuse';
-
 import { UiAvatar } from '#components';
 
 const logs = useLogs();
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
 
-const searchQuery = ref('');
 const currentPage = ref(1);
+const searchQuery = ref('');
+const searched = ref<string[]>([]);
 
 const areYouSureModalOpen = ref(false);
 
+const isSearching = ref(false);
 const isLoading = ref(!logs.value.logs.length);
 const isFlushingLogs = ref(false);
 
-const { results } = useFuse(
-    searchQuery,
-    computed(() => logs.value.logs),
-    {
-        matchAllWhenSearchEmpty: true,
-        fuseOptions: {
-            keys: [
-                {
-                    name: 'action',
-                    weight: 2,
-                },
-                {
-                    name: 'ip',
-                    weight: 2,
-                },
-                'message',
-            ],
-        },
-    },
+const filtered = computed(() =>
+    logs.value.logs.filter((l) =>
+        !isSearching.value && searchQuery.value.length ? searched.value.includes(l.id) : true,
+    ),
 );
 
 const calculatedLogs = computed<(LogData & { user: LogUser | null })[]>(() => {
     const start = (currentPage.value - 1) * 20;
     const end = start + 20;
-    return results.value
-        .map((r) => ({
-            ...r.item,
-            user: logs.value.users.find((u) => u.id === r.item.userId) || null,
+    return filtered.value
+        .map((l) => ({
+            ...l,
+            user: logs.value.users.find((u) => u.id === l.userId) || null,
         }))
         .slice(start, end);
 });
@@ -168,6 +161,31 @@ onMounted(async () => {
         };
 
         isLoading.value = false;
+    }
+});
+
+let searchTimeout: NodeJS.Timeout;
+
+watch(searchQuery, (query) => {
+    clearTimeout(searchTimeout);
+
+    if (query.length) {
+        isSearching.value = true;
+
+        searchTimeout = setTimeout(async () => {
+            try {
+                searched.value = await $fetch<string[]>('/api/logs/search', {
+                    method: 'POST',
+                    body: { query },
+                });
+            } catch {
+                searched.value = [];
+            }
+
+            isSearching.value = false;
+        }, 750);
+    } else {
+        searched.value = [];
     }
 });
 

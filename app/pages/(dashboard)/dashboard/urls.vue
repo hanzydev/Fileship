@@ -8,7 +8,11 @@
 
         <div space-y-6>
             <h2>URLs</h2>
-            <UiSearchBar v-model="searchQuery" placeholder="Search urls..." />
+            <UiSearchBar
+                v-model="searchQuery"
+                v-model:loading="isSearching"
+                placeholder="Search urls..."
+            />
             <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
                 <New h132px @action="shortenUrlModalOpen = true" />
 
@@ -42,47 +46,45 @@
                     </div>
                 </TransitionGroup>
             </div>
-            <UiPagination v-model="currentPage" :item-count="results.length" :items-per-page="19" />
+            <UiPagination
+                v-model="currentPage"
+                :item-count="filtered.length"
+                :items-per-page="19"
+            />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { useFuse } from '@vueuse/integrations/useFuse';
-
 const urls = useUrls();
+const currentUser = useAuthUser();
 
-const searchQuery = ref('');
 const currentPage = ref(1);
+const searchQuery = ref('');
+const searched = ref<string[]>([]);
 
 const shortenUrlModalOpen = ref(false);
 
-const { results } = useFuse(searchQuery, urls, {
-    matchAllWhenSearchEmpty: true,
-    fuseOptions: {
-        keys: [
-            {
-                name: 'vanity',
-                weight: 2,
-            },
-            'destinationUrl',
-        ],
-    },
-});
+const filtered = computed(() =>
+    urls.value.filter((u) =>
+        !isSearching.value && searchQuery.value.length ? searched.value.includes(u.id) : true,
+    ),
+);
 
-const calculatedUrls = computed<UrlData[]>(() => {
+const calculatedUrls = computed(() => {
     const start = (currentPage.value - 1) * 19;
     const end = start + 19;
-    return results.value.map((r) => r.item).slice(start, end);
+    return filtered.value.slice(start, end);
 });
 
 const isAnimating = ref(false);
-const isLoading = ref(!urls.value.length);
+const isSearching = ref(false);
+const isLoading = ref(urls.value.length !== currentUser.value!.stats.urls);
 
 const { all, enter, leave } = animateCards();
 
 onMounted(async () => {
-    if (!urls.value.length) {
+    if (isLoading.value) {
         const data = await $fetch('/api/urls');
 
         urls.value = data.map((u) => ({
@@ -98,6 +100,8 @@ onMounted(async () => {
     all('urls', '.urlCard');
 });
 
+let searchTimeout: NodeJS.Timeout;
+
 watch(currentPage, () => {
     isAnimating.value = true;
     nextTick(() => {
@@ -105,6 +109,37 @@ watch(currentPage, () => {
             isAnimating.value = false;
         });
     });
+});
+
+watch(searchQuery, (query) => {
+    clearTimeout(searchTimeout);
+
+    if (query.length) {
+        isSearching.value = true;
+
+        searchTimeout = setTimeout(async () => {
+            isAnimating.value = true;
+
+            try {
+                searched.value = await $fetch<string[]>('/api/urls/search', {
+                    method: 'POST',
+                    body: { query },
+                });
+            } catch {
+                searched.value = [];
+            }
+
+            isSearching.value = false;
+
+            nextTick(() => {
+                all('urls', '.urlCard', () => {
+                    isAnimating.value = false;
+                });
+            });
+        }, 750);
+    } else {
+        searched.value = [];
+    }
 });
 
 definePageMeta({
