@@ -28,33 +28,45 @@
 ![ESLint](https://img.shields.io/static/v1?style=for-the-badge&message=ESLint&color=4B32C3&logo=ESLint&logoColor=FFFFFF&label=)
 ![Prettier](https://img.shields.io/static/v1?style=for-the-badge&message=Prettier&color=222222&logo=Prettier&logoColor=F7B93E&label=)
 ![Vite](https://img.shields.io/static/v1?style=for-the-badge&message=Vite&color=646CFF&logo=Vite&logoColor=FFFFFF&label=)
+![Node.js](https://img.shields.io/static/v1?style=for-the-badge&message=Node.js&color=339933&logo=Node.js&logoColor=FFFFFF&label=)
 
 ## 📦 Features
 
 - Fast & Secure
 - Self-hosted
-- Easy to use
-- Vibrant themes
-- Auto-generated statistics
-- OpenGraph embeds
-- Folder support
-- Note taking
-- Code sharing
-- URL shortening
-- Image compression
-- Custom domains
-- Chunked uploads
-- Multi-factor authentication
-- Multi-user support with roles
-- Real-time updates with Socket.IO
-- Backup creation and restoration
-- Password protected files, urls and codes
-- Automatic thumbnail generation for videos
-- Delete files, urls and codes after a certain number of views
+- Easy to Use
+- Vibrant Themes
+- Statistics
+- OpenGraph Embeds
+- Folders
+- Notes
+- Codes
+- URLs
+- Backups
+- Image Compression
+- Custom Domains
+- Chunked Uploads
+- AI Powered Image Search
+- Multi-Factor Authentication
+- Multi-User Support
+- Real-Time Updates
+- Password Protection
+- Video Thumbnails
+- Auto-Delete after Views
+- Auto-Delete after expiration
+- Ambient Mode
 
 ## 🚀 Getting Started
 
-To get started with Fileship, follow these steps:
+### Minimum system requirements
+
+Fileship is designed to run on a variety of systems, but the following minimum requirements are recommended for optimal performance:
+
+- **CPU**: 2 Core
+- **RAM**: 4 GB
+- **Disk Space**: 4 GB (plus space for uploaded files)
+- **Database**: PostgreSQL 16.x or higher
+- **Node.js**: 20.x or higher
 
 ### Install & run using Docker
 
