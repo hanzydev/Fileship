@@ -18,7 +18,7 @@ export default defineTask({
             if (!existsSync(path)) {
                 mkdirSync(path, { recursive: true });
                 consola.info(
-                    `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - ${titleCase(directory)} folder created`,
+                    `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - ${titleCase(directory)} folder created.`,
                 );
             }
         });

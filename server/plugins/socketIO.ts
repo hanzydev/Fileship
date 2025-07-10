@@ -59,5 +59,5 @@ export default defineNitroPlugin((nitroApp) => {
         }),
     );
 
-    consola.success(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Socket server ready`);
+    consola.success(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Socket server ready.`);
 });

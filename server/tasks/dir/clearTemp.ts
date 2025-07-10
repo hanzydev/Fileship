@@ -15,11 +15,11 @@ export default defineTask({
         if (existsSync(tempPath)) {
             const files = readdirSync(tempPath);
 
-            consola.info(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Clearing temp folder`);
-
             for (const file of files) {
                 rmSync(join(tempPath, file), { recursive: true, force: true });
             }
+
+            consola.success(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Temp folder cleared.`);
         }
 
         return { result: 'success' };
