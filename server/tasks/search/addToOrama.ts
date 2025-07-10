@@ -2,6 +2,7 @@ import consola from 'consola';
 import dayjs from 'dayjs';
 
 import { insertMultiple } from '@orama/orama';
+import { Prisma } from '@prisma/client';
 
 export default defineTask({
     meta: {
@@ -14,6 +15,11 @@ export default defineTask({
         );
 
         const files = await prisma.file.findMany({
+            where: {
+                embedding: {
+                    not: Prisma.AnyNull,
+                },
+            },
             select: {
                 id: true,
                 fileName: true,
