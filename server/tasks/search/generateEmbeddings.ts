@@ -34,12 +34,19 @@ export default defineTask({
             );
         }
 
-        const embeddings = await Promise.all(
-            filteredFiles.map(async (file) => {
-                const filePath = join(dataDirectory, 'uploads', file.fileName);
-                return { id: file.id, embedding: await clip.createImageEmbedding(filePath) };
-            }),
-        );
+        const batchSize = 10;
+        const embeddings = [];
+
+        for (let i = 0; i < filteredFiles.length; i += batchSize) {
+            const batch = filteredFiles.slice(i, i + batchSize);
+            const batchEmbeddings = await Promise.all(
+                batch.map(async (file) => {
+                    const filePath = join(dataDirectory, 'uploads', file.fileName);
+                    return { id: file.id, embedding: await clip.createImageEmbedding(filePath) };
+                }),
+            );
+            embeddings.push(...batchEmbeddings);
+        }
 
         await prisma.$transaction(
             embeddings.map(({ id, embedding }) =>
