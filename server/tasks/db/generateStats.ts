@@ -112,7 +112,7 @@ export default defineTask({
             },
         });
 
-        consola.success(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Stats generated`);
+        consola.success(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Stats generated.`);
 
         return { result: 'success' };
     },
