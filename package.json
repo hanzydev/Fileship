@@ -7,7 +7,7 @@
         "build:prisma": "prisma generate --no-hints",
         "build:fileship": "nuxt build",
         "build": "pnpm /^build:.*/",
-        "dev": "nuxt dev",
+        "dev": "pnpm build:prisma && nuxt dev",
         "preview": "nuxt preview",
         "postinstall": "nuxt prepare",
         "cleanup": "nuxt cleanup",
