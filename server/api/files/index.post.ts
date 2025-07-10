@@ -293,7 +293,7 @@ export default defineEventHandler(async (event) => {
             });
         }
 
-        let embedding: number[] = [];
+        let embedding: number[] | undefined = undefined;
 
         if (IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
             const clip = await getClipInstance();
