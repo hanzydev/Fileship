@@ -110,6 +110,8 @@ export const initSocket = () => {
                 },
                 ...notes.value,
             ];
+
+            currentUser.value!.stats.notes++;
         });
 
         socket.on('update:note', (data) => {
@@ -124,6 +126,7 @@ export const initSocket = () => {
         });
         socket.on('delete:note', (noteId) => {
             notes.value = notes.value.filter((n) => n.id !== noteId);
+            currentUser.value!.stats.notes--;
         });
 
         // Urls
@@ -136,6 +139,8 @@ export const initSocket = () => {
                 },
                 ...urls.value,
             ];
+
+            currentUser.value!.stats.urls++;
         });
 
         socket.on('update:url', (data) => {
@@ -152,6 +157,7 @@ export const initSocket = () => {
 
         socket.on('delete:url', (urlId) => {
             urls.value = urls.value.filter((u) => u.id !== urlId);
+            currentUser.value!.stats.urls--;
         });
 
         // Codes
@@ -164,6 +170,8 @@ export const initSocket = () => {
                 },
                 ...codes.value,
             ];
+
+            currentUser.value!.stats.codes++;
         });
 
         socket.on('update:code', (data) => {
@@ -180,6 +188,7 @@ export const initSocket = () => {
 
         socket.on('delete:code', (codeId) => {
             codes.value = codes.value.filter((c) => c.id !== codeId);
+            currentUser.value!.stats.codes--;
         });
 
         // Files
@@ -192,6 +201,8 @@ export const initSocket = () => {
                 },
                 ...files.value,
             ];
+
+            currentUser.value!.stats.files++;
         });
 
         socket.on('update:file', (data) => {
@@ -208,6 +219,7 @@ export const initSocket = () => {
 
         socket.on('delete:file', (fileId) => {
             files.value = files.value.filter((f) => f.id !== fileId);
+            currentUser.value!.stats.files--;
         });
 
         // Folders
@@ -219,6 +231,8 @@ export const initSocket = () => {
                 },
                 ...folders.value,
             ];
+
+            currentUser.value!.stats.folders++;
         });
 
         socket.on('update:folder', (data) => {
@@ -234,6 +248,7 @@ export const initSocket = () => {
 
         socket.on('delete:folder', (folderId) => {
             folders.value = folders.value.filter((f) => f.id !== folderId);
+            currentUser.value!.stats.folders--;
         });
 
         socket.on('folder:file:add', ({ folderId, fileId }) => {
