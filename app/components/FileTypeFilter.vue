@@ -1,10 +1,10 @@
 <template>
-    <UiDropdown placement="bottom" pt1.5="!">
+    <UiDropdown placement="bottom" wrapper-class="wfull sm:w56" pt1.5="!" wfull sm:w56>
         <UiButton
             icon="heroicons-solid:filter"
             icon-size="20"
             h12
-            w36
+            wfull
             gap2
             text-fs-muted-2
             sm:w56
@@ -16,8 +16,7 @@
         </UiButton>
         <template #content>
             <div
-                max-h64
-                w36
+                wfull
                 overflow-y-auto
                 rounded-xl
                 bg-fs-overlay-2

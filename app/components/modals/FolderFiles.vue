@@ -31,7 +31,7 @@
             />
         </div>
 
-        <div flex="~ gap4 1 items-center" wfull>
+        <div flex="~ gap4 1 items-center <sm:col" wfull>
             <UiSearchBar
                 v-model="searchQuery"
                 v-model:ai-enabled="aiEnabled"

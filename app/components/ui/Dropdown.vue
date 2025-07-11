@@ -1,5 +1,5 @@
 <template>
-    <div relative @mouseover="handleMouseMove" @mouseleave="handleMouseLeave">
+    <div :class="wrapperClass" relative @mouseover="handleMouseMove" @mouseleave="handleMouseLeave">
         <div
             ref="trigger"
             :class="triggerClass"
@@ -65,6 +65,7 @@ const {
     asCtxMenu?: boolean;
     hover?: boolean;
     triggerClass?: unknown;
+    wrapperClass?: unknown;
 }>();
 
 defineOptions({
