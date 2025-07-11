@@ -1,6 +1,6 @@
 import type { File } from '@prisma/client';
 
-export type FileData = Omit<File, 'size'> & {
+export type FileData = Omit<File, 'size' | 'embedding'> & {
     views: { total: number; today: number };
     size: { raw: string; formatted: string };
     directUrl: string;
