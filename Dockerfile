@@ -1,6 +1,8 @@
-FROM node:22.12.0-alpine3.19 as builder
+FROM node:22.12.0-slim as builder
 
 WORKDIR /fileship
+
+RUN apt-get update -y && apt-get install -y openssl
 
 COPY . .
 
@@ -10,9 +12,11 @@ RUN corepack enable
 RUN pnpm install --frozen-lockfile
 RUN pnpm build
 
-FROM node:22.12.0-alpine3.19 as runner
+FROM node:22.12.0-slim as runner
 
 WORKDIR /fileship
+
+RUN apt-get update -y && apt-get install -y openssl
 
 RUN npm i -g corepack@latest
 RUN corepack enable
