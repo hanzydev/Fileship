@@ -17,7 +17,6 @@ FROM node:22.12.0-slim as runner
 WORKDIR /fileship
 
 RUN apt-get update -y && apt-get install -y openssl
-
 RUN npm i -g corepack@latest
 RUN corepack enable
 
