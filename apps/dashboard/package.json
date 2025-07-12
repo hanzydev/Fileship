@@ -12,7 +12,7 @@
         "lint": "pnpm lint:code && pnpm lint:types",
         "check": "pnpm build && pnpm lint",
         "release": "changelogen --release",
-        "db:prototype": "prisma db push --skip-generate && pnpm build:prisma",
+        "db:prototype": "prisma db push",
         "db:migrate": "prisma migrate dev --create-only",
         "db:studio": "prisma studio",
         "db:generate": "prisma generate --no-hints"
