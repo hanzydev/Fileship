@@ -1,6 +1,5 @@
 <template>
     <div
-        class="gradient-wrapper"
         relative
         h12
         wfull
