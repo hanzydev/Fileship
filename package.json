@@ -96,20 +96,6 @@
         "overrides": {
             "unconfig": "^7.3.2",
             "sharp": "0.33.4"
-        },
-        "patchedDependencies": {
-            "@prisma/client": "patches/@prisma__client.patch"
-        },
-        "supportedArchitectures": {
-            "os": [
-                "win32",
-                "linux",
-                "darwin"
-            ],
-            "cpu": [
-                "x64",
-                "arm64"
-            ]
         }
     },
     "packageManager": "pnpm@10.12.4"
