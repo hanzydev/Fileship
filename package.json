@@ -6,7 +6,7 @@
     "scripts": {
         "build:prisma": "prisma generate --no-hints",
         "build:fileship": "nuxt build",
-        "build": "pnpm /^build:.*/",
+        "build": "pnpm build:prisma && pnpm build:fileship",
         "dev": "pnpm build:prisma && nuxt dev",
         "preview": "nuxt preview",
         "postinstall": "nuxt prepare",
@@ -14,7 +14,7 @@
         "lint:types": "nuxt typecheck",
         "lint:code": "eslint --fix .",
         "lint:style": "prettier --write .",
-        "lint": "pnpm /^lint:.*/",
+        "lint": "pnpm lint:code && pnpm lint:style && pnpm lint:types",
         "check": "pnpm build && pnpm lint",
         "release": "changelogen --release",
         "db:prototype": "prisma db push --skip-generate && pnpm build:prisma",
