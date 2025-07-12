@@ -9,6 +9,7 @@
         "build": "pnpm build:prisma && pnpm build:fileship",
         "dev": "pnpm build:prisma && nuxt dev",
         "preview": "nuxt preview",
+        "preinstall": "npx only-allow pnpm",
         "postinstall": "nuxt prepare",
         "cleanup": "nuxt cleanup",
         "lint:types": "nuxt typecheck",
