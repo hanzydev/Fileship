@@ -27,6 +27,8 @@ export default defineEventHandler(async (event) => {
 
     const options = { mode: body.data.mode } as any;
 
+    const start = Date.now();
+
     if (body.data.mode === 'vector') {
         options.similarity = 0.2;
         options.vector = {
@@ -47,7 +49,15 @@ export default defineEventHandler(async (event) => {
     });
 
     const searched = await search(fileSearchDb, options);
-    return searched.hits
-        .filter((hit) => userFiles.some((file) => file.id === hit.id))
-        .map((hit) => hit.id);
+    const filtered = searched.hits.filter((hit) => userFiles.some((file) => file.id === hit.id));
+
+    if (body.data.mode === 'vector') {
+        await telemetry.collectAISearchUsage({
+            query: body.data.query,
+            results: filtered.length,
+            duration: Date.now() - start,
+        });
+    }
+
+    return filtered.map((hit) => hit.id);
 });
