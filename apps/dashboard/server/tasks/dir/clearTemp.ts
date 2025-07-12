@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, rmSync } from 'node:fs';
+import { existsSync, promises as fsp } from 'node:fs';
 
 import consola from 'consola';
 import dayjs from 'dayjs';
@@ -9,14 +9,18 @@ export default defineTask({
         name: 'dir:clearTemp',
         description: 'Clears temporary directory',
     },
-    run() {
+    async run() {
         const tempPath = join(dataDirectory, 'temp');
 
         if (existsSync(tempPath)) {
-            const files = readdirSync(tempPath);
+            const files = await fsp.readdir(tempPath);
 
             for (const file of files) {
-                rmSync(join(tempPath, file), { recursive: true, force: true });
+                try {
+                    await fsp.rm(join(tempPath, file), { recursive: true, force: true });
+                } catch {
+                    //
+                }
             }
 
             consola.success(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Temp folder cleared.`);
