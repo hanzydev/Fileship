@@ -1,5 +1,10 @@
+packages:
+    - 'apps/*'
+    - 'packages/*'
+
 patchedDependencies:
     '@prisma/client': 'patches/@prisma__client.patch'
+
 supportedArchitectures:
     os:
         - win32
@@ -8,13 +13,14 @@ supportedArchitectures:
     cpu:
         - x64
         - arm64
+
 ignoredBuiltDependencies:
     - '@ffmpeg-installer/darwin-arm64'
     - '@ffmpeg-installer/darwin-x64'
     - '@ffmpeg-installer/linux-arm64'
     - '@ffmpeg-installer/linux-x64'
     - '@ffmpeg-installer/win32-x64'
-    - protobufjs
+
 onlyBuiltDependencies:
     - '@parcel/watcher'
     - '@prisma/client'
@@ -25,3 +31,4 @@ onlyBuiltDependencies:
     - sharp
     - bufferutil
     - utf-8-validate
+    - protobufjs

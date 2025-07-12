@@ -68,7 +68,7 @@ Fileship is designed to run on a variety of systems, but the following minimum r
 - **Database**: PostgreSQL 16.x or higher
 - **Node.js**: 20.x or higher
 
-### Install & run using Docker
+### Installing
 
 This section requires [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) to be installed on your machine.
 
@@ -79,42 +79,6 @@ docker compose up -d
 ```
 
 Open your browser and go to `http://localhost:3000`
-
-### Building & running from source
-
-This section requires [Node.js 20.x or higher](https://nodejs.org/) to be installed on your machine.
-
-1. Clone the repo
-    ```sh
-    git clone https://github.com/hanzydev/Fileship.git
-    ```
-2. Go into the repo directory
-    ```sh
-    cd Fileship
-    ```
-3. Enable [Corepack](https://github.com/nodejs/corepack)
-    ```sh
-    corepack enable
-    ```
-4. Install NPM packages
-    ```sh
-    pnpm i
-    ```
-5. Create an .env file using .env.example. The only one required is the `DATABASE_URL` which is the connection string to your database.
-
-    ```sh
-    cp .env.example .env
-    ```
-
-6. Build the project
-    ```sh
-    pnpm build
-    ```
-7. Start the server
-    ```sh
-    pnpm preview
-    ```
-8. Open your browser and go to `http://localhost:3000`
 
 ### Default credentials
 
@@ -153,22 +117,10 @@ server {
 
 To update Fileship, follow these steps:
 
-### Using Docker
-
 ```sh
 cd Fileship
 git pull
 docker compose up --build -d
-```
-
-### From source
-
-```sh
-cd Fileship
-git pull
-pnpm i
-pnpm build
-pnpm preview
 ```
 
 ## ❤️ Contribute

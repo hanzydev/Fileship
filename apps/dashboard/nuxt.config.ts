@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 
 import { join } from 'pathe';
 
-import pkg from './package.json';
+import pkg from '../../package.json';
 
 const require = createRequire(import.meta.url);
 
@@ -76,7 +76,13 @@ export default defineNuxtConfig({
             compiled: async () => {
                 if (process.env.NODE_ENV !== 'production') return;
 
-                const prismaEngineDirectory = join('node_modules', '@prisma', 'engines');
+                const prismaEngineDirectory = join(
+                    '..',
+                    '..',
+                    'node_modules',
+                    '@prisma',
+                    'engines',
+                );
                 const prismaEngineFiles = (await fsp.readdir(prismaEngineDirectory)).filter((f) =>
                     f.includes('engine'),
                 );
