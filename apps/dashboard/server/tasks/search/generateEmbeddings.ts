@@ -39,7 +39,7 @@ export default defineTask({
 
         for (let i = 0; i < filteredFiles.length; i += batchSize) {
             const batch = filteredFiles.slice(i, i + batchSize);
-            const batchEmbeddings = await Promise.all(
+            const batchEmbeddings = await Promise.allSettled(
                 batch.map(async (file) => {
                     const filePath = join(dataDirectory, 'uploads', file.fileName);
                     return { id: file.id, embedding: await clip.createImageEmbedding(filePath) };
@@ -49,12 +49,14 @@ export default defineTask({
         }
 
         await prisma.$transaction(
-            embeddings.map(({ id, embedding }) =>
-                prisma.file.update({
-                    where: { id },
-                    data: { embedding },
-                }),
-            ),
+            embeddings
+                .filter((result) => result.status === 'fulfilled')
+                .map(({ value: { id, embedding } }) =>
+                    prisma.file.update({
+                        where: { id },
+                        data: { embedding },
+                    }),
+                ),
         );
 
         if (embeddings.length) {
