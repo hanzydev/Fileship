@@ -123,6 +123,28 @@ git pull
 docker compose up --build -d
 ```
 
+## 📊 Telemetry
+
+Fileship collects **telemetry data** about general usage to help us accurately gauge feature usage and customization. This data is essential for guiding future development, prioritizing features, and improving the overall user experience.
+
+**This feature is completely optional.** You have full control over data collection and can easily opt-out if you do not wish to share any information.
+
+### What data is collected?
+
+The telemetry module collects the following types of data:
+
+- **Fileship Instance Information**: General statistics about your Fileship setup (e.g., app version, counts of files, users, folders, codes, notes, URLs) and the Node.js version it's running on. This helps us understand the scale and usage patterns of Fileship instances.
+- **System Information**: Non-identifying details about the host system (e.g., OS platform, release, architecture, CPU count/model, memory, disk usage, and whether it's running in Docker). This helps us optimize performance across different environments.
+- **AI Search Usage**: Usage statistics for the AI search feature, including the number of results and search duration. **Important: This includes the actual search query text entered by the user.** This data is collected to improve the relevance and performance of the AI search feature.
+
+**No personally identifiable information (PII) beyond the search query is collected.** All other collected data is anonymous and used in aggregate for statistical analysis.
+
+### How to Opt-Out
+
+To disable all telemetry data collection, you need to set the `TELEMETRY_ENABLED` environment variable to `false`.
+
+By default, telemetry is enabled to help us improve Fileship.
+
 ## ❤️ Contribute
 
 Contributions are always welcome! Please read the [contribution guidelines](CONTRIBUTING.md) first.
