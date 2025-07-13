@@ -15,7 +15,7 @@
 
 ## 📸 Screenshot
 
-<img src="public/previews/fileship-desktop.png" alt="Screenshot">
+<img src="apps/dashboard/public/previews/fileship-desktop.png" alt="Screenshot">
 
 ## 🧰 Built With
 
