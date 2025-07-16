@@ -3,9 +3,9 @@ import { z } from 'zod';
 const validationSchema = z
     .object({
         name: z
-            .string({ invalid_type_error: 'Invalid name' })
-            .min(3, { message: 'Name must be at least 3 characters' })
-            .max(32, { message: 'Name must be less than 32 characters' }),
+            .string()
+            .min(3, 'Name must be at least 3 characters')
+            .max(32, 'Name must be less than 32 characters'),
         verificationData: z.any().optional(),
     })
     .optional();

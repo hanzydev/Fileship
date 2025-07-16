@@ -3,60 +3,28 @@ import { z } from 'zod';
 import { update } from '@orama/orama';
 
 const validationSchema = z
-    .object(
-        {
-            title: z
-                .string({
-                    invalid_type_error: 'Invalid title',
-                    required_error: 'Missing title',
-                })
-                .min(3, 'Title must be at least 3 characters')
-                .max(48, 'Title must be at most 48 characters')
-                .optional()
-                .transform((title) => title?.trim()),
-            code: z
-                .string({
-                    invalid_type_error: 'Invalid code',
-                    required_error: 'Missing code',
-                })
-                .min(5, 'Code must be at least 5 characters')
-                .max(100_000, 'Code must be at most 100000 characters')
-                .optional(),
-            language: z
-                .string({
-                    invalid_type_error: 'Invalid language',
-                    required_error: 'Missing language',
-                })
-                .min(1, 'Language must be at least 1 character')
-                .max(32, 'Language must be at most 32 characters')
-                .optional(),
-            password: z
-                .string({
-                    invalid_type_error: 'Invalid password',
-                    required_error: 'Missing password',
-                })
-                .max(48, 'Password must be at most 48 characters')
-                .nullish(),
-            maxViews: z
-                .number({
-                    invalid_type_error: 'Invalid max views',
-                    required_error: 'Missing max views',
-                })
-                .min(0, 'Max views must be at least 0')
-                .optional(),
-            expiration: z
-                .number({
-                    invalid_type_error: 'Invalid expiration',
-                    required_error: 'Missing expiration',
-                })
-                .min(0, 'Expiration must be at least 0')
-                .nullish(),
-        },
-        { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
-    )
-    .strict({
-        message: 'Body contains unexpected keys',
-    });
+    .object({
+        title: z
+            .string()
+            .min(3, 'Title must be at least 3 characters')
+            .max(48, 'Title must be at most 48 characters')
+            .optional()
+            .transform((title) => title?.trim()),
+        code: z
+            .string()
+            .min(5, 'Code must be at least 5 characters')
+            .max(100_000, 'Code must be at most 100000 characters')
+            .optional(),
+        language: z
+            .string()
+            .min(1, 'Language must be at least 1 character')
+            .max(32, 'Language must be at most 32 characters')
+            .optional(),
+        password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
+        maxViews: z.number().min(0, 'Max views must be at least 0').optional(),
+        expiration: z.number().min(0, 'Expiration must be at least 0').nullish(),
+    })
+    .strict();
 
 export default defineEventHandler(async (event) => {
     userOnly(event);
@@ -105,10 +73,7 @@ export default defineEventHandler(async (event) => {
         include: {
             views: true,
         },
-        data: {
-            title: body.data.title || findCodeById.title,
-            ...body.data,
-        },
+        data: body.data,
     });
 
     const updatedCode = {

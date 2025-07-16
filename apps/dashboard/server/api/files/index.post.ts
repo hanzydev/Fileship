@@ -13,58 +13,22 @@ import { insert } from '@orama/orama';
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 
-const validationSchema = z.object(
-    {
-        totalChunks: z
-            .number({
-                invalid_type_error: 'Invalid total chunks',
-            })
-            .min(1, 'Total chunks must be at least 1')
-            .optional(),
-        currentChunk: z
-            .number({
-                invalid_type_error: 'Invalid current chunk',
-            })
-            .min(1, 'Current chunk must be at least 1')
-            .optional(),
-        fileNameType: z
-            .union([z.literal('Random'), z.literal('UUID'), z.literal('Original')], {
-                invalid_type_error: 'File name type must be Random, UUID, or Original',
-            })
-            .nullish(),
-        compression: z
-            .number({
-                invalid_type_error: 'Invalid compression',
-            })
-            .min(0, 'Compression must be at least 0')
-            .max(100, 'Compression must be at most 100')
-            .optional(),
-        password: z
-            .string({
-                invalid_type_error: 'Invalid password',
-            })
-            .max(48, 'Password must be at most 48 characters')
-            .nullish(),
-        maxViews: z
-            .number({
-                invalid_type_error: 'Invalid max views',
-            })
-            .min(0, 'Max views must be at least 0')
-            .nullish(),
-        expiration: z
-            .number({
-                invalid_type_error: 'Invalid expiration',
-            })
-            .min(0, 'Expiration must be at least 0')
-            .nullish(),
-        folderId: z
-            .string({
-                invalid_type_error: 'Invalid folder id',
-            })
-            .nullish(),
-    },
-    { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
-);
+const validationSchema = z.object({
+    totalChunks: z.number().min(1, 'Total chunks must be at least 1').optional(),
+    currentChunk: z.number().min(1, 'Current chunk must be at least 1').optional(),
+    fileNameType: z
+        .union([z.literal('Random'), z.literal('UUID'), z.literal('Original')])
+        .nullish(),
+    compression: z
+        .number()
+        .min(0, 'Compression must be at least 0')
+        .max(100, 'Compression must be at most 100')
+        .optional(),
+    password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
+    maxViews: z.number().min(0, 'Max views must be at least 0').nullish(),
+    expiration: z.number().min(0, 'Expiration must be at least 0').nullish(),
+    folderId: z.string().nullish(),
+});
 
 export default defineEventHandler(async (event) => {
     fileUploaderOnly(event);
@@ -260,7 +224,7 @@ export default defineEventHandler(async (event) => {
             ..._upload,
             size: {
                 raw: _upload.size.toString(),
-                formatted: filesize(_upload.size.toString()),
+                formatted: filesize(_upload.size),
             },
             views: {
                 total: _upload.views.length,

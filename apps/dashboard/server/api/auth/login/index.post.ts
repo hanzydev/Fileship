@@ -6,23 +6,15 @@ import { z } from 'zod';
 
 const validationSchema = z.object({
     username: z
-        .string({
-            invalid_type_error: 'Invalid username',
-            required_error: 'Missing username',
-        })
+        .string()
         .min(3, 'Username must be at least 3 characters')
         .max(24, 'Username must be at most 24 characters'),
     password: z
-        .string({
-            invalid_type_error: 'Invalid password',
-            required_error: 'Missing password',
-        })
+        .string()
         .min(8, 'Password must be at least 8 characters')
         .max(48, 'Password must be at most 48 characters'),
     totp: z
-        .string({
-            invalid_type_error: 'Invalid TOTP',
-        })
+        .string()
         .length(6, 'TOTP must be 6 digits')
         .regex(/^\d+$/, 'TOTP must be a number')
         .optional(),

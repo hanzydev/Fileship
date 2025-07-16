@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
         ...file,
         size: {
             raw: file.size.toString(),
-            formatted: filesize(file.size.toString()),
+            formatted: filesize(file.size),
         },
         views: {
             total: file.views.length,

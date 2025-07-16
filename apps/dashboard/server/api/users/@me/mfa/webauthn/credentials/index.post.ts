@@ -5,19 +5,12 @@ import { generateRegistrationOptions, verifyRegistrationResponse } from '@simple
 
 const validationSchema = z.object({
     name: z
-        .string({ invalid_type_error: 'Invalid name' })
-        .min(3, { message: 'Name must be at least 3 characters' })
-        .max(32, { message: 'Name must be less than 32 characters' })
+        .string()
+        .min(3, 'Name must be at least 3 characters')
+        .max(32, 'Name must be less than 32 characters')
         .optional(),
-    verify: z.boolean({
-        required_error: 'Missing verify',
-        invalid_type_error: 'Invalid verify',
-    }),
-    expectedChallenge: z
-        .string({
-            invalid_type_error: 'Invalid expectedChallenge',
-        })
-        .optional(),
+    verify: z.boolean(),
+    expectedChallenge: z.string().optional(),
     registrationResponse: z.any().optional(),
     verificationData: z.any().optional(),
 });

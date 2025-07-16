@@ -2,15 +2,9 @@ import { authenticator } from 'otplib';
 import { z } from 'zod';
 
 const validationSchema = z.object({
-    enabled: z.boolean({
-        invalid_type_error: 'Invalid enabled',
-        required_error: 'Missing enabled',
-    }),
+    enabled: z.boolean(),
     totp: z
-        .string({
-            invalid_type_error: 'Invalid TOTP',
-            required_error: 'Missing TOTP',
-        })
+        .string()
         .length(6, 'TOTP must be 6 digits')
         .regex(/^\d+$/, 'TOTP must be a number')
         .optional(),

@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
             growth: calculateGrowthPercentage(currentFiles, prevFiles),
         },
         storageUsed: {
-            size: filesize(currentStorageUsed),
+            size: filesize(BigInt(currentStorageUsed)),
             growth: calculateGrowthPercentage(BigInt(currentStorageUsed), BigInt(prevStorageUsed)),
         },
         views: {

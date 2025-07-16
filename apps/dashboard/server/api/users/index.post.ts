@@ -5,55 +5,25 @@ import { z } from 'zod';
 import { insert } from '@orama/orama';
 import { UserPermission } from '@prisma/client';
 
-const validationSchema = z.object(
-    {
-        username: z
-            .string({
-                invalid_type_error: 'Invalid username',
-                required_error: 'Missing username',
-            })
-            .min(3, 'Username must be at least 3 characters')
-            .max(24, 'Username must be at most 24 characters'),
-        password: z
-            .string({
-                invalid_type_error: 'Invalid password',
-                required_error: 'Missing password',
-            })
-            .min(8, 'Password must be at least 8 characters')
-            .max(48, 'Password must be at most 48 characters'),
-        permissions: z
-            .array(z.nativeEnum(UserPermission), {
-                invalid_type_error: 'Invalid permissions',
-                required_error: 'Missing permissions',
-            })
-            .optional(),
-        limits: z
-            .object({
-                backupLimit: z
-                    .number({
-                        invalid_type_error: 'Invalid backup limit',
-                        required_error: 'Missing backup limit',
-                    })
-                    .min(-1, 'Backup limit must be at least -1')
-                    .optional(),
-                usableSpace: z
-                    .number({
-                        invalid_type_error: 'Invalid usable space',
-                        required_error: 'Missing usable space',
-                    })
-                    .min(-1, 'Usable space must be at least -1')
-                    .optional(),
-            })
-            .optional(),
-        superAdmin: z
-            .boolean({
-                invalid_type_error: 'Invalid super admin',
-            })
-            .optional(),
-        verificationData: z.any().optional(),
-    },
-    { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
-);
+const validationSchema = z.object({
+    username: z
+        .string()
+        .min(3, 'Username must be at least 3 characters')
+        .max(24, 'Username must be at most 24 characters'),
+    password: z
+        .string()
+        .min(8, 'Password must be at least 8 characters')
+        .max(48, 'Password must be at most 48 characters'),
+    permissions: z.array(z.enum(UserPermission)).optional(),
+    limits: z
+        .object({
+            backupLimit: z.number().min(-1, 'Backup limit must be at least -1').optional(),
+            usableSpace: z.number().min(-1, 'Usable space must be at least -1').optional(),
+        })
+        .optional(),
+    superAdmin: z.boolean().optional(),
+    verificationData: z.any().optional(),
+});
 
 export default defineEventHandler(async (event) => {
     adminOnly(event);

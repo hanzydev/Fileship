@@ -92,12 +92,12 @@ export default defineEventHandler(async (event) => {
             growth: calculateGrowthPercentage(stat?.files ?? 0, prevStat?.files ?? 0),
         },
         storageUsed: {
-            size: filesize(stat?.storageUsed?.toString() ?? 0),
+            size: filesize(stat?.storageUsed ?? 0),
             growth: calculateGrowthPercentage(stat?.storageUsed ?? 0, prevStat?.storageUsed ?? 0),
             byUser: storageUsedByUser
                 .map((data) => ({
                     ...data,
-                    formattedSize: filesize(data.size),
+                    formattedSize: filesize(BigInt(data.size)),
                 }))
                 .filter((u) => users.find((user) => user.id === u.userId)),
         },

@@ -2,24 +2,14 @@ import { z } from 'zod';
 
 import { insert } from '@orama/orama';
 
-const validationSchema = z.object(
-    {
-        name: z
-            .string({
-                invalid_type_error: 'Invalid name',
-                required_error: 'Missing name',
-            })
-            .min(1, 'Name must be at least 1 character')
-            .max(32, 'Name must be at most 32 characters'),
-        files: z
-            .array(z.string({ invalid_type_error: 'File must be a string' }), {
-                invalid_type_error: 'Invalid files',
-            })
-            .optional(),
-        public: z.boolean({ invalid_type_error: 'Invalid public' }).optional().default(false),
-    },
-    { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
-);
+const validationSchema = z.object({
+    name: z
+        .string()
+        .min(1, 'Name must be at least 1 character')
+        .max(32, 'Name must be at most 32 characters'),
+    files: z.array(z.string()).optional(),
+    public: z.boolean().optional().default(false),
+});
 
 export default defineEventHandler(async (event) => {
     fileUploaderOnly(event);

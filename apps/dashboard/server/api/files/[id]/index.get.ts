@@ -83,7 +83,7 @@ export default defineEventHandler(async (event) => {
         folder: undefined,
         size: {
             raw: findFileById.size.toString(),
-            formatted: filesize(findFileById.size.toString()),
+            formatted: filesize(findFileById.size),
         },
         views: {
             total: findFileById.views.length,

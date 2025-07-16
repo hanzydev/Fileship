@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
             folderId: undefined,
             size: {
                 raw: file.size.toString(),
-                formatted: filesize(file.size.toString()),
+                formatted: filesize(file.size),
             },
             directUrl: buildPublicUrl(event, findFolderById.author.domains, `/u/${file.fileName}`),
             embedUrl: buildPublicUrl(

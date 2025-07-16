@@ -4,25 +4,10 @@ import { filesize } from 'filesize';
 import { basename, extname, join } from 'pathe';
 import { z } from 'zod';
 
-const validationSchema = z.object(
-    {
-        totalChunks: z
-            .number({
-                invalid_type_error: 'Invalid total chunks',
-                required_error: 'Missing total chunks',
-            })
-            .min(1, 'Total chunks must be at least 1')
-            .optional(),
-        currentChunk: z
-            .number({
-                invalid_type_error: 'Invalid current chunk',
-                required_error: 'Missing current chunk',
-            })
-            .min(1, 'Current chunk must be at least 1')
-            .optional(),
-    },
-    { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
-);
+const validationSchema = z.object({
+    totalChunks: z.number().min(1, 'Total chunks must be at least 1').optional(),
+    currentChunk: z.number().min(1, 'Current chunk must be at least 1').optional(),
+});
 
 export default defineEventHandler(async (event) => {
     userOnly(event);

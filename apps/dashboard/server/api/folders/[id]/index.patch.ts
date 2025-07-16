@@ -3,28 +3,16 @@ import { z } from 'zod';
 import { update } from '@orama/orama';
 
 const validationSchema = z
-    .object(
-        {
-            name: z
-                .string({
-                    invalid_type_error: 'Invalid name',
-                    required_error: 'Missing name',
-                })
-                .min(1, 'Name must be at least 1 character')
-                .max(32, 'Name must be at most 32 characters')
-                .optional(),
-            files: z
-                .array(z.string({ invalid_type_error: 'File must be a string' }), {
-                    invalid_type_error: 'Invalid files',
-                })
-                .optional(),
-            public: z.boolean({ invalid_type_error: 'Invalid public' }).optional(),
-        },
-        { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
-    )
-    .strict({
-        message: 'Body contains unexpected keys',
-    });
+    .object({
+        name: z
+            .string()
+            .min(1, 'Name must be at least 1 character')
+            .max(32, 'Name must be at most 32 characters')
+            .optional(),
+        files: z.array(z.string()).optional(),
+        public: z.boolean().optional(),
+    })
+    .strict();
 
 export default defineEventHandler(async (event) => {
     userOnly(event);

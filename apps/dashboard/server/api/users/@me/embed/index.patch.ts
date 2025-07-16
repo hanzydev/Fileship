@@ -3,19 +3,17 @@ import { z } from 'zod';
 
 const validationSchema = z
     .object({
-        title: z.string({ invalid_type_error: 'Invalid title' }).optional(),
-        description: z.string({ invalid_type_error: 'Invalid description' }).optional(),
-        siteName: z.string({ invalid_type_error: 'Invalid site name' }).optional(),
+        title: z.string().optional(),
+        description: z.string().optional(),
+        siteName: z.string().optional(),
         color: z
-            .string({ invalid_type_error: 'Invalid color' })
+            .string()
             .startsWith('#', 'Color must start with #')
             .length(7, 'Color must be 7 characters')
             .optional(),
-        enabled: z.boolean({
-            invalid_type_error: 'Invalid enabled',
-        }),
+        enabled: z.boolean(),
     })
-    .strict('Body contains unexpected keys');
+    .strict();
 
 export default defineEventHandler(async (event) => {
     userOnly(event);

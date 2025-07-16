@@ -10,14 +10,9 @@ import {
 import type { AuthenticatorTransportFuture } from '@simplewebauthn/types';
 
 const validationSchema = z.object({
-    verify: z.boolean({
-        required_error: 'Missing verify',
-        invalid_type_error: 'Invalid verify',
-    }),
+    verify: z.boolean(),
     expectedChallenge: z
-        .string({
-            invalid_type_error: 'Invalid expectedChallenge',
-        })
+        .string()
         .optional(),
     authenticationResponse: z.any().optional(),
 });

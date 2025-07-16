@@ -7,45 +7,19 @@ import { z } from 'zod';
 import { update } from '@orama/orama';
 
 const validationSchema = z
-    .object(
-        {
-            fileName: z
-                .string({
-                    invalid_type_error: 'Invalid file name',
-                })
-                .min(3, 'File name must be at least 3 characters')
-                .max(255, 'File name must be at most 255 characters')
-                .transform((value) => value.replace(/[^a-zA-Z0-9-_.]/g, '').trim())
-                .optional(),
-            password: z
-                .string({
-                    invalid_type_error: 'Invalid password',
-                })
-                .max(48, 'Password must be at most 48 characters')
-                .nullish(),
-            maxViews: z
-                .number({
-                    invalid_type_error: 'Invalid max views',
-                })
-                .min(0, 'Max views must be at least 0')
-                .optional(),
-            expiration: z
-                .number({
-                    invalid_type_error: 'Invalid expiration',
-                })
-                .min(0, 'Expiration must be at least 0')
-                .nullish(),
-            folderId: z
-                .string({
-                    invalid_type_error: 'Invalid folder id',
-                })
-                .nullish(),
-        },
-        { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
-    )
-    .strict({
-        message: 'Body contains unexpected keys',
-    });
+    .object({
+        fileName: z
+            .string()
+            .min(3, 'File name must be at least 3 characters')
+            .max(255, 'File name must be at most 255 characters')
+            .transform((value) => value.replace(/[^a-zA-Z0-9-_.]/g, '').trim())
+            .optional(),
+        password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
+        maxViews: z.number().min(0, 'Max views must be at least 0').optional(),
+        expiration: z.number().min(0, 'Expiration must be at least 0').nullish(),
+        folderId: z.string().nullish(),
+    })
+    .strict();
 
 export default defineEventHandler(async (event) => {
     userOnly(event);
@@ -131,10 +105,7 @@ export default defineEventHandler(async (event) => {
         include: {
             views: true,
         },
-        data: {
-            fileName: body.data.fileName || findFileById.fileName,
-            ...body.data,
-        },
+        data: body.data,
         omit: {
             embedding: true,
         },
@@ -144,7 +115,7 @@ export default defineEventHandler(async (event) => {
         ..._updatedFile,
         size: {
             raw: _updatedFile.size.toString(),
-            formatted: filesize(_updatedFile.size.toString()),
+            formatted: filesize(_updatedFile.size),
         },
         views: {
             total: _updatedFile.views.length,

@@ -1,10 +1,7 @@
 import { z } from 'zod';
 
 const validationSchema = z
-    .array(z.string(), {
-        invalid_type_error: 'Invalid domains',
-        required_error: 'Missing domains',
-    })
+    .array(z.string())
     .transform((value) => value.filter((domain) => domain.length).map((domain) => domain.trim()));
 
 export default defineEventHandler(async (event) => {

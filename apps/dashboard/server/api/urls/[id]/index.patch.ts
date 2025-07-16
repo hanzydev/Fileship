@@ -3,51 +3,19 @@ import { z } from 'zod';
 import { update } from '@orama/orama';
 
 const validationSchema = z
-    .object(
-        {
-            destinationUrl: z
-                .string({
-                    invalid_type_error: 'Invalid destination URL',
-                    required_error: 'Missing destination URL',
-                })
-                .url('Invalid destination URL')
-                .optional(),
-            vanity: z
-                .string({
-                    invalid_type_error: 'Invalid vanity',
-                    required_error: 'Missing vanity',
-                })
-                .min(3, 'Vanity must be at least 3 characters')
-                .max(48, 'Vanity must be at most 48 characters')
-                .transform((value) => value.replace(/[^a-zA-Z0-9-_.]/g, '').trim())
-                .optional(),
-            password: z
-                .string({
-                    invalid_type_error: 'Invalid password',
-                    required_error: 'Missing password',
-                })
-                .max(48, 'Password must be at most 48 characters')
-                .nullish(),
-            maxViews: z
-                .number({
-                    invalid_type_error: 'Invalid max views',
-                    required_error: 'Missing max views',
-                })
-                .min(0, 'Max views must be at least 0')
-                .optional(),
-            expiration: z
-                .number({
-                    invalid_type_error: 'Invalid expiration',
-                    required_error: 'Missing expiration',
-                })
-                .min(0, 'Expiration must be at least 0')
-                .nullish(),
-        },
-        { invalid_type_error: 'Invalid body', required_error: 'Missing body' },
-    )
-    .strict({
-        message: 'Body contains unexpected keys',
-    });
+    .object({
+        destinationUrl: z.url('Invalid destination URL').optional(),
+        vanity: z
+            .string()
+            .min(3, 'Vanity must be at least 3 characters')
+            .max(48, 'Vanity must be at most 48 characters')
+            .transform((value) => value.replace(/[^a-zA-Z0-9-_.]/g, '').trim())
+            .optional(),
+        password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
+        maxViews: z.number().min(0, 'Max views must be at least 0').optional(),
+        expiration: z.number().min(0, 'Expiration must be at least 0').nullish(),
+    })
+    .strict();
 
 export default defineEventHandler(async (event) => {
     userOnly(event);
@@ -112,10 +80,7 @@ export default defineEventHandler(async (event) => {
         include: {
             views: true,
         },
-        data: {
-            vanity: body.data.vanity || findUrlById.vanity,
-            ...body.data,
-        },
+        data: body.data,
     });
 
     const updatedUrl = {
