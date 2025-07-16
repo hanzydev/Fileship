@@ -1,5 +1,53 @@
 # Changelog
 
+## v4.0.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v4.0.0...v4.0.1)
+
+### 🚀 Enhancements
+
+- Migrate to turborepo ([84e4544](https://github.com/hanzydev/Fileship/commit/84e4544))
+- Add telemetry module ([794fd8e](https://github.com/hanzydev/Fileship/commit/794fd8e))
+
+### 🩹 Fixes
+
+- Unable to upload non-image files ([ba2c3e5](https://github.com/hanzydev/Fileship/commit/ba2c3e5))
+- Exclude embedding prop for client-side FileData type ([0240be8](https://github.com/hanzydev/Fileship/commit/0240be8))
+- Make file type filter responsive ([c25979e](https://github.com/hanzydev/Fileship/commit/c25979e))
+- Docker ([fa6f346](https://github.com/hanzydev/Fileship/commit/fa6f346))
+- Build and lint scripts ([9677430](https://github.com/hanzydev/Fileship/commit/9677430))
+- Db:prototype script ([a6dabb6](https://github.com/hanzydev/Fileship/commit/a6dabb6))
+- **readme:** Fix screenshot ([b8d6c0b](https://github.com/hanzydev/Fileship/commit/b8d6c0b))
+- Update embedding processing to handle rejected promises ([1aeefc2](https://github.com/hanzydev/Fileship/commit/1aeefc2))
+- Add type annotation for user data fetching ([4a5c000](https://github.com/hanzydev/Fileship/commit/4a5c000))
+
+### 💅 Refactors
+
+- Remove unnecessary class ([6826309](https://github.com/hanzydev/Fileship/commit/6826309))
+- Use async/await and promises for file operations in clearTemp and createDirectories tasks ([22e17a4](https://github.com/hanzydev/Fileship/commit/22e17a4))
+- Remove deprecated statusMessage property from error responses ([5a98152](https://github.com/hanzydev/Fileship/commit/5a98152))
+
+### 📖 Documentation
+
+- Enhance telemetry documentation for clarity ([4ea88a9](https://github.com/hanzydev/Fileship/commit/4ea88a9))
+
+### 🏡 Chore
+
+- Update README ([899a67b](https://github.com/hanzydev/Fileship/commit/899a67b))
+- Lint fix ([f7b4927](https://github.com/hanzydev/Fileship/commit/f7b4927))
+- Add preinstall script to enforce pnpm usage ([9a737bd](https://github.com/hanzydev/Fileship/commit/9a737bd))
+- Use pnpm workspace ([995e44b](https://github.com/hanzydev/Fileship/commit/995e44b))
+- Remove old Dockerfile ([561cb0f](https://github.com/hanzydev/Fileship/commit/561cb0f))
+- Update pnpm ([bfa4a09](https://github.com/hanzydev/Fileship/commit/bfa4a09))
+- Update deps ([c4aa25b](https://github.com/hanzydev/Fileship/commit/c4aa25b))
+- Update to nuxt v4 ([c976f5b](https://github.com/hanzydev/Fileship/commit/c976f5b))
+- Update zod ([c3f596b](https://github.com/hanzydev/Fileship/commit/c3f596b))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+- Emirhan ([@hanzydev](https://github.com/hanzydev))
+
 ## v4.0.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v3.2.1...v4.0.0)
