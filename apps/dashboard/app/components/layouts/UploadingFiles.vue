@@ -207,9 +207,15 @@ const isErrored = computed(
 );
 
 const progress = computed(() =>
-    Math.round(
-        uploadingFiles.value.reduce((acc, file) => acc + (file.status?.progress?.percent || 0), 0) /
-            uploadingFiles.value.length,
+    clamp(
+        Math.round(
+            uploadingFiles.value.reduce(
+                (acc, file) => acc + (file.status?.progress?.percent || 0),
+                0,
+            ) / uploadingFiles.value.length,
+        ),
+        0,
+        100,
     ),
 );
 
