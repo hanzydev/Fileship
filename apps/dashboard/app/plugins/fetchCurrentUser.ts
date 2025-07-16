@@ -1,5 +1,5 @@
 export default defineNuxtPlugin(async () => {
-    const { data } = await useFetch('/api/users/@me');
+    const { data } = await useFetch<AuthUserData>('/api/users/@me');
 
     const currentUser = useAuthUser();
     const currentTheme = useTheme();

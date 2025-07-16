@@ -64,7 +64,7 @@ const goBackAdminSession = async () => {
 
     await $fetch('/api/auth/logout', { method: 'POST' });
 
-    const user = await $fetch('/api/users/@me', {
+    const user = await $fetch<AuthUserData>('/api/users/@me', {
         headers: {
             Authorization: adminSessionId.value!,
         },
