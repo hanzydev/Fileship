@@ -4,7 +4,7 @@
     "scripts": {
         "build": "pnpm db:generate && nuxt build",
         "dev": "pnpm db:generate && nuxt dev",
-        "preview": "nuxt preview",
+        "preview": "node --env-file .env .output/server/index.mjs",
         "postinstall": "nuxt prepare",
         "cleanup": "nuxt cleanup",
         "lint:types": "nuxt typecheck",
