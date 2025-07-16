@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     const start = Date.now();
 
     if (body.data.mode === 'vector') {
-        options.similarity = 0.18;
+        options.similarity = 0.195;
         options.vector = {
             value: await clip.createTextEmbedding(body.data.query),
             property: 'embedding',
