@@ -19,6 +19,10 @@
         "overrides": {
             "unconfig": "^7.3.2",
             "sharp": "0.33.4"
+        },
+        "patchedDependencies": {
+            "@prisma/client": "patches/@prisma__client.patch",
+            "vue-sonner": "patches/vue-sonner.patch"
         }
     },
     "packageManager": "pnpm@10.13.1"

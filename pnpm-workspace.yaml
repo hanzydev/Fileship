@@ -2,9 +2,6 @@ packages:
     - 'apps/*'
     - 'packages/*'
 
-patchedDependencies:
-    '@prisma/client': 'patches/@prisma__client.patch'
-
 supportedArchitectures:
     os:
         - win32

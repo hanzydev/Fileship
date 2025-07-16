@@ -1,0 +1,13 @@
+diff --git a/lib/nuxt/module.mjs b/lib/nuxt/module.mjs
+index 7912a49a1cd63794e37dadc92abcccb9610e6f9a..489025457c60848c3e7a3a59e65a739275367779 100644
+--- a/lib/nuxt/module.mjs
++++ b/lib/nuxt/module.mjs
+@@ -5,7 +5,7 @@ const module = defineNuxtModule({
+     name: "vue-sonner",
+     configKey: "vueSonner",
+     compatibility: {
+-      nuxt: "^3.0.0"
++      nuxt: ">=3.0.0"
+     }
+   },
+   defaults: {
