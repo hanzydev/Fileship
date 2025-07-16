@@ -1,5 +1,20 @@
 # Changelog
 
+## v4.0.2
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v4.0.1...v4.0.2)
+
+### 💅 Refactors
+
+- Run server file directly instead of running preview command ([9d3d380](https://github.com/hanzydev/Fileship/commit/9d3d380))
+- Adjust similarity threshold for ai search mode ([81e5f24](https://github.com/hanzydev/Fileship/commit/81e5f24))
+- Clamp progress calculation to ensure percentage is within bounds ([42f4e46](https://github.com/hanzydev/Fileship/commit/42f4e46))
+- Adjust similarity threshold for ai search mode again ([e36ff64](https://github.com/hanzydev/Fileship/commit/e36ff64))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v4.0.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v4.0.0...v4.0.1)
