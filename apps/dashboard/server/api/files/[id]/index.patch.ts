@@ -30,7 +30,6 @@ export default defineEventHandler(async (event) => {
     if (!body.success) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -48,7 +47,6 @@ export default defineEventHandler(async (event) => {
     if (!findFileById) {
         throw createError({
             statusCode: 404,
-            statusMessage: 'Not Found',
             message: 'File not found',
         });
     }
@@ -71,7 +69,6 @@ export default defineEventHandler(async (event) => {
         if (!findFolderById) {
             throw createError({
                 statusCode: 404,
-                statusMessage: 'Not Found',
                 message: 'Folder not found',
             });
         }
@@ -87,7 +84,6 @@ export default defineEventHandler(async (event) => {
         if (findFileByFileName) {
             throw createError({
                 statusCode: 409,
-                statusMessage: 'Conflict',
                 message: 'A file with that name already exists',
             });
         }

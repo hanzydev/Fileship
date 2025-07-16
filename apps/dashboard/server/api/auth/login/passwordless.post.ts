@@ -11,9 +11,7 @@ import type { AuthenticatorTransportFuture } from '@simplewebauthn/types';
 
 const validationSchema = z.object({
     verify: z.boolean(),
-    expectedChallenge: z
-        .string()
-        .optional(),
+    expectedChallenge: z.string().optional(),
     authenticationResponse: z.any().optional(),
 });
 
@@ -22,7 +20,6 @@ export default defineEventHandler(async (event) => {
     if (!body.success) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -35,7 +32,6 @@ export default defineEventHandler(async (event) => {
         if (!userHandle) {
             throw createError({
                 statusCode: 400,
-                statusMessage: 'Bad Request',
                 message: 'Invalid authentication response',
             });
         }
@@ -52,7 +48,6 @@ export default defineEventHandler(async (event) => {
         if (!findUserByUsername) {
             throw createError({
                 statusCode: 404,
-                statusMessage: 'Not Found',
                 message: 'User not found',
             });
         }
@@ -64,7 +59,6 @@ export default defineEventHandler(async (event) => {
         if (!findCredentialById) {
             throw createError({
                 statusCode: 404,
-                statusMessage: 'Not Found',
                 message: 'Credential not found',
             });
         }

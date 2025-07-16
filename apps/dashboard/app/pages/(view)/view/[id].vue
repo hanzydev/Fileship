@@ -139,13 +139,11 @@ const fileUrl = computed(
 if (error.value?.statusCode === 404) {
     throw createError({
         statusCode: 404,
-        statusMessage: 'Not Found',
         message: 'File not found',
     });
 } else if (error.value?.statusCode === 403) {
     throw createError({
         statusCode: 403,
-        statusMessage: 'Forbidden',
         message: 'You do not have permission to access this page',
     });
 }

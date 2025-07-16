@@ -16,7 +16,6 @@ export default defineEventHandler(async (event) => {
     if (!findUrlById) {
         throw createError({
             statusCode: 404,
-            statusMessage: 'Not Found',
             message: 'URL not found',
         });
     }

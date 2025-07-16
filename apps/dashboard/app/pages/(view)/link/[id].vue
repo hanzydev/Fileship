@@ -27,7 +27,6 @@ if (data.value) {
 } else if (error.value?.statusCode === 404) {
     throw createError({
         statusCode: 404,
-        statusMessage: 'Not Found',
         message: 'URL not found',
     });
 }

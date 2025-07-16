@@ -90,7 +90,6 @@ const { data, error } = await useFetch<FolderData & { files: FileData[]; embed: 
 if (error.value) {
     throw createError({
         statusCode: 404,
-        statusMessage: 'Not Found',
         message: 'Folder not found',
     });
 }

@@ -29,7 +29,6 @@ export default defineEventHandler(async (event) => {
     if (!body.success) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -49,7 +48,6 @@ export default defineEventHandler(async (event) => {
     if (!findUserByUsername) {
         throw createError({
             statusCode: 401,
-            statusMessage: 'Unauthorized',
             message: 'Invalid username or password',
         });
     }
@@ -66,7 +64,6 @@ export default defineEventHandler(async (event) => {
             if (!turnstileResult.success) {
                 throw createError({
                     statusCode: 400,
-                    statusMessage: 'Bad Request',
                     message: 'Invalid turnstile',
                 });
             }
@@ -77,7 +74,6 @@ export default defineEventHandler(async (event) => {
         if (!passwordMatch) {
             throw createError({
                 statusCode: 401,
-                statusMessage: 'Unauthorized',
                 message: 'Invalid username or password',
             });
         }
@@ -86,7 +82,6 @@ export default defineEventHandler(async (event) => {
             if (!body.data.totp) {
                 throw createError({
                     statusCode: 400,
-                    statusMessage: 'Bad Request',
                     message: 'Missing TOTP',
                 });
             }
@@ -94,7 +89,6 @@ export default defineEventHandler(async (event) => {
             if (!authenticator.check(body.data.totp, findUserByUsername.totpSecret!)) {
                 throw createError({
                     statusCode: 401,
-                    statusMessage: 'Unauthorized',
                     message: 'Invalid TOTP',
                 });
             }

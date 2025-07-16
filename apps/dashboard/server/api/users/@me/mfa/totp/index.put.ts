@@ -20,7 +20,6 @@ export default defineEventHandler(async (event) => {
     if (!body.success) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -29,7 +28,6 @@ export default defineEventHandler(async (event) => {
     if (currentUser.totpEnabled === body.data.enabled) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: `Authenticator App is already ${body.data.enabled ? 'enabled' : 'disabled'}`,
         });
     }
@@ -41,7 +39,6 @@ export default defineEventHandler(async (event) => {
     if (body.data.enabled && !authenticator.check(body.data.totp!, currentUser.totpSecret!)) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'Invalid TOTP',
         });
     }

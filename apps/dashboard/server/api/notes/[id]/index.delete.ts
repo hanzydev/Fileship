@@ -16,7 +16,6 @@ export default defineEventHandler(async (event) => {
     if (!findNoteById) {
         throw createError({
             statusCode: 404,
-            statusMessage: 'Not Found',
             message: 'Note not found',
         });
     }

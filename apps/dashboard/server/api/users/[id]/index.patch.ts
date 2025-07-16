@@ -56,7 +56,6 @@ export default defineEventHandler(async (event) => {
     if (!findUserById) {
         throw createError({
             statusCode: 404,
-            statusMessage: 'Not Found',
             message: 'User not found',
         });
     }
@@ -64,7 +63,6 @@ export default defineEventHandler(async (event) => {
     if (findUserById.superAdmin && !currentUser.superAdmin) {
         throw createError({
             statusCode: 403,
-            statusMessage: 'Forbidden',
             message: 'You cannot update a super admin',
         });
     }
@@ -74,7 +72,6 @@ export default defineEventHandler(async (event) => {
     if (!body.success) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -102,7 +99,6 @@ export default defineEventHandler(async (event) => {
     ) {
         throw createError({
             statusCode: 403,
-            statusMessage: 'Forbidden',
             message: 'You cannot remove super admin from yourself if you are the only super admin',
         });
     }
@@ -110,7 +106,6 @@ export default defineEventHandler(async (event) => {
     if (body.data.permissions && !body.data.permissions.length && !body.data.superAdmin) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'Permissions must be provided if user is not a super admin',
         });
     }
@@ -125,7 +120,6 @@ export default defineEventHandler(async (event) => {
         if (buffer.length > avatarMaxSize * 1024 * 1024) {
             throw createError({
                 statusCode: 400,
-                statusMessage: 'Bad Request',
                 message: `Avatar must be less than ${avatarMaxSize}MB`,
             });
         }
@@ -138,7 +132,6 @@ export default defineEventHandler(async (event) => {
         } catch {
             throw createError({
                 statusCode: 400,
-                statusMessage: 'Bad Request',
                 message: 'Invalid avatar',
             });
         }
@@ -146,7 +139,6 @@ export default defineEventHandler(async (event) => {
         if (!metadata.width || !metadata.height) {
             throw createError({
                 statusCode: 400,
-                statusMessage: 'Bad Request',
                 message: 'Invalid avatar',
             });
         }
@@ -154,7 +146,6 @@ export default defineEventHandler(async (event) => {
         if (metadata.width < 64 || metadata.height < 64) {
             throw createError({
                 statusCode: 400,
-                statusMessage: 'Bad Request',
                 message: 'Avatar must be at least 64x64',
             });
         }
@@ -170,7 +161,6 @@ export default defineEventHandler(async (event) => {
         } catch {
             throw createError({
                 statusCode: 400,
-                statusMessage: 'Bad Request',
                 message: 'Failed to process avatar',
             });
         }

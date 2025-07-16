@@ -15,7 +15,6 @@ export default defineEventHandler(async (event) => {
     if (!body.success) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -34,7 +33,6 @@ export default defineEventHandler(async (event) => {
     if (!findSessionById) {
         throw createError({
             statusCode: 404,
-            statusMessage: 'Not Found',
             message: 'Session not found',
         });
     }

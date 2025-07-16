@@ -28,7 +28,6 @@ export default defineEventHandler(async (event) => {
     if (!findUrlById) {
         throw createError({
             statusCode: 404,
-            statusMessage: 'Not Found',
             message: 'URL not found',
         });
     }
@@ -37,7 +36,6 @@ export default defineEventHandler(async (event) => {
         if (!query.password) {
             throw createError({
                 statusCode: 400,
-                statusMessage: 'Bad Request',
                 message: 'Verification is required',
             });
         }
@@ -45,7 +43,6 @@ export default defineEventHandler(async (event) => {
         if (query.password !== findUrlById.password) {
             throw createError({
                 statusCode: 401,
-                statusMessage: 'Unauthorized',
                 message: 'Invalid password',
             });
         }

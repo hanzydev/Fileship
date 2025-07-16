@@ -50,7 +50,6 @@ export const verifySession = async (
 
             throw createError({
                 statusCode: 400,
-                statusMessage: 'Bad Request',
                 message: 'Verification is required',
                 data: {
                     mfa: {
@@ -79,14 +78,12 @@ export const verifySession = async (
                 ) {
                     throw createError({
                         statusCode: 401,
-                        statusMessage: 'Unauthorized',
                         message: 'Invalid TOTP',
                     });
                 }
             } else if (verificationData?.type === 'password') {
                 throw createError({
                     statusCode: 400,
-                    statusMessage: 'Bad Request',
                     message: 'Password verification is not allowed because TOTP is enabled',
                 });
             }
@@ -99,7 +96,6 @@ export const verifySession = async (
             if (!passwordMatch) {
                 throw createError({
                     statusCode: 401,
-                    statusMessage: 'Unauthorized',
                     message: 'Invalid password',
                 });
             }
@@ -131,14 +127,12 @@ export const verifySession = async (
             if (!response.verified) {
                 throw createError({
                     statusCode: 401,
-                    statusMessage: 'Unauthorized',
                     message: 'Invalid passkey',
                 });
             }
         } else {
             throw createError({
                 statusCode: 400,
-                statusMessage: 'Bad Request',
                 message: 'Invalid verification type',
             });
         }

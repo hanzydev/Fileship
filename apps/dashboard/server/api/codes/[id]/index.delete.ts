@@ -16,7 +16,6 @@ export default defineEventHandler(async (event) => {
     if (!findCodeById) {
         throw createError({
             statusCode: 404,
-            statusMessage: 'Not Found',
             message: 'Code not found',
         });
     }

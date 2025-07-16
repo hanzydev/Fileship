@@ -31,7 +31,6 @@ export default defineEventHandler(async (event) => {
     if (!findFileById) {
         throw createError({
             statusCode: 404,
-            statusMessage: 'Not Found',
             message: 'File not found',
         });
     }
@@ -40,7 +39,6 @@ export default defineEventHandler(async (event) => {
         if (findFileById.folder?.public === false) {
             throw createError({
                 statusCode: 403,
-                statusMessage: 'Forbidden',
                 message: 'You do not have permission to access this page',
             });
         }
@@ -48,7 +46,6 @@ export default defineEventHandler(async (event) => {
         if (findFileById.password && query.password !== findFileById.password) {
             throw createError({
                 statusCode: 401,
-                statusMessage: 'Unauthorized',
                 message: 'Invalid password',
             });
         }
@@ -57,7 +54,6 @@ export default defineEventHandler(async (event) => {
     if (!findFileById.mimeType.startsWith('video/')) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'File is not a video',
         });
     }
@@ -67,7 +63,6 @@ export default defineEventHandler(async (event) => {
     if (!existsSync(thumbnailPath)) {
         throw createError({
             statusCode: 404,
-            statusMessage: 'Not Found',
             message: 'Thumbnail not found',
         });
     }

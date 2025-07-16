@@ -33,7 +33,6 @@ export default defineEventHandler(async (event) => {
     if (!findFolderById) {
         throw createError({
             statusCode: 404,
-            statusMessage: 'Not Found',
             message: 'Folder not found',
         });
     }

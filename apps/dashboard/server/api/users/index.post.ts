@@ -34,7 +34,6 @@ export default defineEventHandler(async (event) => {
     if (!body.success) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -43,7 +42,6 @@ export default defineEventHandler(async (event) => {
     if (body.data.superAdmin && !currentUser.superAdmin) {
         throw createError({
             statusCode: 403,
-            statusMessage: 'Forbidden',
             message: 'You do not have permission to create a super admin',
         });
     }
@@ -51,7 +49,6 @@ export default defineEventHandler(async (event) => {
     if (!body.data.superAdmin && !body.data.permissions?.length) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'Permissions must be provided if user is not a super admin',
         });
     }
@@ -71,7 +68,6 @@ export default defineEventHandler(async (event) => {
     if (findUserByUsername) {
         throw createError({
             statusCode: 409,
-            statusMessage: 'Conflict',
             message: 'A user with that username already exists',
         });
     }

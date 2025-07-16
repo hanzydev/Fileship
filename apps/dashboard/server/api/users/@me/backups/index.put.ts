@@ -19,7 +19,6 @@ export default defineEventHandler(async (event) => {
     if (!backup) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'Missing backup file',
         });
     }
@@ -27,7 +26,6 @@ export default defineEventHandler(async (event) => {
     if (typeof backup === 'string') {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'Invalid backup file',
         });
     }
@@ -40,7 +38,6 @@ export default defineEventHandler(async (event) => {
     if (!body.success) {
         throw createError({
             statusCode: 400,
-            statusMessage: 'Bad Request',
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -53,7 +50,6 @@ export default defineEventHandler(async (event) => {
     if (userBackups.includes(backup.name)) {
         throw createError({
             statusCode: 409,
-            statusMessage: 'Conflict',
             message: 'A backup with that name already exists',
         });
     }

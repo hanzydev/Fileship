@@ -5,7 +5,6 @@ export default defineNuxtRouteMiddleware(() => {
     if (!canUploadFiles(user)) {
         return abortNavigation({
             statusCode: 403,
-            statusMessage: 'Forbidden',
             message: 'You do not have permission to access this page',
         });
     }
