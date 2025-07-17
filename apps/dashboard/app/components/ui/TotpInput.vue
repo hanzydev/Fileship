@@ -9,18 +9,17 @@
                 h12
                 w10
                 rounded-lg
-                bg-fs-overlay-2
+                bg-fs-overlay-3
                 text-center
                 text-xl
                 outline-none
+                ring="1 fs-overlay-4"
                 sm="h-14 w12 !text-2xl"
                 font-semibold="!"
-                focus:ring-1
-                focus:ring-fs-accent
                 motion-safe:transition-shadow
                 type="number"
                 :disabled
-                :class="inputClass"
+                :class="[inputClass, disabled ? 'cursor-not-allowed' : 'focus:ring-fs-accent']"
                 @input="(event) => handleInput(event, digit - 1)"
                 @keydown.delete="(event) => handleBackspace(event, digit - 1)"
             />
