@@ -142,7 +142,7 @@ export default defineEventHandler(async (event) => {
         id: updatedFile.id,
         fileName: updatedFile.fileName,
         mimeType: updatedFile.mimeType,
-        embedding: findFileById.embedding as never[],
+        embedding: (findFileById.embedding as never[]) || undefined,
     });
 
     await createLog(event, {
