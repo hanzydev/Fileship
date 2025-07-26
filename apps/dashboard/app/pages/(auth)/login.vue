@@ -28,11 +28,12 @@
                         absolute
                         wfull
                         p8
-                        flex="~ col justify-between"
+                        flex="~ col justify-between gap10"
                         @submit.prevent="handleSubmit()"
                     >
                         <h2>Login</h2>
-                        <div mt10 space-y-4>
+
+                        <div space-y-4>
                             <UiInput
                                 v-model="auth.username"
                                 label="Username"
@@ -63,7 +64,7 @@
                             }"
                         />
 
-                        <div flex="~ items-center gap-3" mt10>
+                        <div flex="~ items-center gap-3">
                             <UiButton
                                 alignment="center"
                                 wfull
@@ -100,22 +101,21 @@
                         absolute
                         wfull
                         p8
-                        flex="~ col justify-between"
+                        flex="~ col justify-between gap10"
                     >
                         <div space-y-2>
                             <h2>Multi-Factor Authentication</h2>
                             <p text-fs-muted-1>Enter the code from your authenticator app.</p>
                         </div>
-                        <div mt10 wfit>
-                            <UiTotpInput
-                                type="text"
-                                :error
-                                required
-                                :disabled="loggingIn"
-                                input-class="!wfull"
-                                @got="handleSubmit"
-                            />
-                        </div>
+
+                        <UiTotpInput
+                            type="text"
+                            :error
+                            required
+                            :disabled="loggingIn"
+                            input-class="!wfull"
+                            @got="handleSubmit"
+                        />
 
                         <NuxtTurnstile
                             v-if="runtimeConfig.public.turnstile.siteKey"
@@ -127,7 +127,7 @@
                             }"
                         />
 
-                        <div grid="~ cols-2 gap-4" mt10>
+                        <div grid="~ cols-2 gap-4">
                             <UiButton
                                 alignment="center"
                                 wfull
@@ -280,7 +280,7 @@ const handlePasskeyLogin = async () => {
 };
 
 const calculateHeight = (el: Element) => {
-    height.value = el.clientHeight + (runtimeConfig.public.turnstile.siteKey ? 7 : 0);
+    height.value = el.clientHeight + (runtimeConfig.public.turnstile.siteKey ? 71 : 0);
 };
 
 onMounted(async () => {
