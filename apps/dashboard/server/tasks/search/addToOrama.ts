@@ -50,14 +50,6 @@ export default defineTask({
             },
         });
 
-        const urls = await prisma.url.findMany({
-            select: {
-                id: true,
-                vanity: true,
-                destinationUrl: true,
-            },
-        });
-
         const users = await prisma.user.findMany({
             select: {
                 id: true,
@@ -78,7 +70,6 @@ export default defineTask({
         await insertMultiple(codeSearchDb, codes);
         await insertMultiple(folderSearchDb, folders);
         await insertMultiple(noteSearchDb, notes);
-        await insertMultiple(urlSearchDb, urls);
         await insertMultiple(userSearchDb, users);
         await insertMultiple(logSearchDb, logs);
 

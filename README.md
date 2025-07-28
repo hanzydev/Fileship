@@ -41,7 +41,6 @@
 - Folders
 - Notes
 - Codes
-- URLs
 - Backups
 - Image Compression
 - Custom Domains

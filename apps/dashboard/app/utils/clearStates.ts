@@ -1,6 +1,5 @@
 export const clearStates = (hard = false, clearUserAndTheme = false) => {
     const logs = useLogs();
-    const urls = useUrls();
     const notes = useNotes();
     const codes = useCodes();
     const files = useFiles();
@@ -15,7 +14,6 @@ export const clearStates = (hard = false, clearUserAndTheme = false) => {
     const currentUser = useAuthUser();
     const currentTheme = useTheme();
 
-    urls.value = [];
     notes.value = [];
     codes.value = [];
     files.value = [];
@@ -24,7 +22,6 @@ export const clearStates = (hard = false, clearUserAndTheme = false) => {
 
     currentUser.value!.stats = {
         notes: 0,
-        urls: 0,
         codes: 0,
         files: 0,
         folders: 0,

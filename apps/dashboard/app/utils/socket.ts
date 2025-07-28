@@ -14,7 +14,6 @@ export const getSocket = () => socket;
 
 export const initSocket = () => {
     const logs = useLogs();
-    const urls = useUrls();
     const notes = useNotes();
     const codes = useCodes();
     const files = useFiles();
@@ -127,37 +126,6 @@ export const initSocket = () => {
         socket.on('delete:note', (noteId) => {
             notes.value = notes.value.filter((n) => n.id !== noteId);
             currentUser.value!.stats.notes--;
-        });
-
-        // Urls
-        socket.on('create:url', (data) => {
-            urls.value = [
-                {
-                    ...data,
-                    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-                    createdAt: new Date(data.createdAt),
-                },
-                ...urls.value,
-            ];
-
-            currentUser.value!.stats.urls++;
-        });
-
-        socket.on('update:url', (data) => {
-            const index = urls.value.findIndex((u) => u.id === data.id);
-
-            if (index > -1) {
-                urls.value[index] = {
-                    ...data,
-                    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-                    createdAt: new Date(data.createdAt),
-                };
-            }
-        });
-
-        socket.on('delete:url', (urlId) => {
-            urls.value = urls.value.filter((u) => u.id !== urlId);
-            currentUser.value!.stats.urls--;
         });
 
         // Codes
@@ -325,11 +293,6 @@ export const initSocket = () => {
                 thumbnailUrl: file.thumbnailUrl?.length
                     ? buildPublicUrl(`/u/${file.id}/thumbnail`)
                     : file.thumbnailUrl,
-            }));
-
-            urls.value = urls.value.map((url) => ({
-                ...url,
-                url: buildPublicUrl(`/link/${url.vanity}`),
             }));
 
             codes.value = codes.value.map((code) => ({

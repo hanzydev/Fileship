@@ -105,11 +105,6 @@
                         resolve: ({ _count }) => Intl.NumberFormat().format(_count?.codes ?? 0),
                     },
                     {
-                        key: 'urls',
-                        width: '5%',
-                        resolve: ({ _count }) => Intl.NumberFormat().format(_count?.urls ?? 0),
-                    },
-                    {
                         key: 'createdAt',
                         width: '15%',
                         resolve: ({ createdAt }) => dayjs(createdAt).fromNow(),

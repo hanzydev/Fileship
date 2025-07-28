@@ -70,14 +70,6 @@ const sidebarItems = computed(() => {
         });
     }
 
-    if (canShortenUrls(currentUser)) {
-        filtered.push({
-            name: 'URLs',
-            icon: 'heroicons:link-16-solid',
-            href: '/dashboard/urls',
-        });
-    }
-
     return filtered;
 });
 

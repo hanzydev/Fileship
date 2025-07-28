@@ -5,7 +5,6 @@ export type UserBasicStats = {
     folders: number;
     notes: number;
     codes: number;
-    urls: number;
 };
 
 export type UserData = Omit<

@@ -26,7 +26,6 @@ export interface FileshipInfoPayload {
     codes: number;
     folders: number;
     notes: number;
-    urls: number;
     users: number;
     nodeVersion?: string;
 }

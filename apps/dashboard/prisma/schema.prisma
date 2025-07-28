@@ -13,7 +13,6 @@ enum UserPermission {
   UploadFiles
   TakeNotes
   ShareCodes
-  ShortenUrls
 }
 
 enum BackupRestoreState {
@@ -31,7 +30,6 @@ model User {
   files              File[]
   notes              Note[]
   codes              Code[]
-  urls               Url[]
   folders            Folder[]
   sessions           Session[]
   logs               Log[]
@@ -99,19 +97,6 @@ model Code {
   views     View[]
 }
 
-model Url {
-  id             String    @id @unique @default(uuid())
-  vanity         String    @unique
-  destinationUrl String
-  maxViews       Int       @default(0)
-  expiresAt      DateTime?
-  password       String?
-  createdAt      DateTime  @default(now())
-  author         User      @relation(fields: [authorId], references: [id])
-  authorId       String
-  views          View[]
-}
-
 model Folder {
   id        String   @id @unique @default(uuid())
   name      String
@@ -141,8 +126,6 @@ model View {
   fileId    String?
   code      Code?    @relation(fields: [codeId], references: [id])
   codeId    String?
-  url       Url?     @relation(fields: [urlId], references: [id])
-  urlId     String?
 }
 
 model Session {

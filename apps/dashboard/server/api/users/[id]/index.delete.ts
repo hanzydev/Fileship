@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
 
     await verifySession(event, body.data?.verificationData);
 
-    const [userFiles, userFolders, userNotes, userCodes, userUrls] = await prisma.$transaction([
+    const [userFiles, userFolders, userNotes, userCodes] = await prisma.$transaction([
         prisma.file.findMany({
             where: {
                 authorId: userId,
@@ -90,14 +90,6 @@ export default defineEventHandler(async (event) => {
                 id: true,
             },
         }),
-        prisma.url.findMany({
-            where: {
-                authorId: userId,
-            },
-            select: {
-                id: true,
-            },
-        }),
     ]);
 
     const uploadsPath = join(dataDirectory, 'uploads');
@@ -120,11 +112,6 @@ export default defineEventHandler(async (event) => {
                             authorId: userId,
                         },
                     },
-                    {
-                        url: {
-                            authorId: userId,
-                        },
-                    },
                 ],
             },
         }),
@@ -139,11 +126,6 @@ export default defineEventHandler(async (event) => {
             },
         }),
         prisma.code.deleteMany({
-            where: {
-                authorId: userId,
-            },
-        }),
-        prisma.url.deleteMany({
             where: {
                 authorId: userId,
             },
@@ -185,11 +167,6 @@ export default defineEventHandler(async (event) => {
     await removeMultiple(
         codeSearchDb,
         userCodes.map((c) => c.id),
-    );
-
-    await removeMultiple(
-        urlSearchDb,
-        userUrls.map((u) => u.id),
     );
 
     await createLog(event, {

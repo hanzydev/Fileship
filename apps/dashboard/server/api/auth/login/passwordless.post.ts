@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
             where: { id: Buffer.from(userHandle, 'base64url').toString() },
             include: {
                 _count: {
-                    select: { files: true, folders: true, notes: true, codes: true, urls: true },
+                    select: { files: true, folders: true, notes: true, codes: true },
                 },
             },
         });

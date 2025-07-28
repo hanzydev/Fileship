@@ -93,26 +93,6 @@
             <h2>Settings</h2>
 
             <div space-y-1>
-                <UiLabel :for="shareXConfigTypeId">Config Type</UiLabel>
-
-                <UiTabs
-                    :id="shareXConfigTypeId"
-                    v-model="shareXConfigModal.settings.configType"
-                    :items="[
-                        {
-                            label: 'File Uploader',
-                            icon: 'heroicons-solid:document',
-                        },
-                        {
-                            label: 'URL Shortener',
-                            icon: 'heroicons:link-16-solid',
-                        },
-                    ]"
-                    width-full
-                />
-            </div>
-
-            <div v-if="shareXConfigModal.settings.configType === 'File Uploader'" space-y-1>
                 <UiLabel :for="shareXFileNameTypeId">File Name Type</UiLabel>
 
                 <UiTabs
@@ -160,7 +140,6 @@
                 />
             </ExpirationPicker>
             <CompressionPicker
-                v-if="shareXConfigModal.settings.configType === 'File Uploader'"
                 v-model="shareXConfigModal.settings.compression"
             >
                 <UiInput
@@ -589,7 +568,6 @@ const contentRef = useTemplateRef<HTMLDivElement>('content');
 const shareXConfigModal = reactive<{
     open: boolean;
     settings: {
-        configType: 'File Uploader' | 'URL Shortener';
         fileNameType: 'Random' | 'UUID' | 'Original';
         maxViews: number;
         password: string | null;
@@ -605,7 +583,6 @@ const shareXConfigModal = reactive<{
 }>({
     open: false,
     settings: {
-        configType: 'File Uploader',
         fileNameType: 'Random',
         maxViews: 0,
         password: null,
@@ -620,7 +597,6 @@ const shareXConfigModal = reactive<{
     },
 });
 
-const shareXConfigTypeId = useId();
 const shareXFileNameTypeId = useId();
 
 const userEditData = useCloned({
@@ -879,7 +855,7 @@ const handleRegisterPasskey = async (verificationData?: any) => {
     registeringPasskey.value = false;
 };
 
-const handleGenShareXUploaderConfig = () => {
+const handleGenShareXConfig = () => {
     const config = {
         Version: '16.1.0',
         Name: `${appConfig.site.name} - File Uploader`,
@@ -916,51 +892,6 @@ const handleGenShareXUploaderConfig = () => {
         vnode.el!.click();
         vnode.el!.remove();
     });
-};
-
-const handleGenShareXShortenerConfig = () => {
-    const config = {
-        Version: '16.1.0',
-        Name: `${appConfig.site.name} - URL Shortener`,
-        DestinationType: 'URLShortener',
-        RequestMethod: 'POST',
-        RequestURL: `${useRequestURL().origin}/api/urls`,
-        Headers: {
-            Authorization: useCookie('sessionId').value,
-        },
-        URL: '{json:url}',
-        ErrorMessage: '{json:error}',
-        Body: 'JSON',
-        Data: JSON.stringify({
-            maxViews: shareXConfigModal.settings.maxViews,
-            password: shareXConfigModal.settings.password,
-            expiration: shareXConfigModal.settings.expiration.value,
-            destinationUrl: '{input}',
-        }),
-    };
-
-    const vnode = h('a', {
-        href: URL.createObjectURL(
-            new Blob([JSON.stringify(config)], {
-                type: 'application/json',
-            }),
-        ),
-        download: 'UrlShortener.sxcu',
-    });
-
-    render(vnode, document.body);
-    nextTick(() => {
-        vnode.el!.click();
-        vnode.el!.remove();
-    });
-};
-
-const handleGenShareXConfig = () => {
-    if (shareXConfigModal.settings.configType === 'File Uploader') {
-        handleGenShareXUploaderConfig();
-    } else {
-        handleGenShareXShortenerConfig();
-    }
 };
 
 onMounted(() => {

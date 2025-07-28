@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
 
     await updateState(BackupRestoreState.DeletingPreviousData);
 
-    const [userFiles, userFolders, userNotes, userCodes, userUrls] = await prisma.$transaction([
+    const [userFiles, userFolders, userNotes, userCodes] = await prisma.$transaction([
         prisma.file.findMany({
             where: {
                 authorId: currentUser.id,
@@ -85,14 +85,6 @@ export default defineEventHandler(async (event) => {
             },
         }),
         prisma.code.findMany({
-            where: {
-                authorId: currentUser.id,
-            },
-            select: {
-                id: true,
-            },
-        }),
-        prisma.url.findMany({
             where: {
                 authorId: currentUser.id,
             },
@@ -137,25 +129,18 @@ export default defineEventHandler(async (event) => {
         userCodes.map((c) => c.id),
     );
 
-    await removeMultiple(
-        urlSearchDb,
-        userUrls.map((u) => u.id),
-    );
-
     await prisma.$transaction([
         prisma.view.deleteMany({
             where: {
                 OR: [
                     { file: { authorId: currentUser.id } },
                     { code: { authorId: currentUser.id } },
-                    { url: { authorId: currentUser.id } },
                 ],
             },
         }),
         prisma.folder.deleteMany({ where: { authorId: currentUser.id } }),
         prisma.note.deleteMany({ where: { authorId: currentUser.id } }),
         prisma.code.deleteMany({ where: { authorId: currentUser.id } }),
-        prisma.url.deleteMany({ where: { authorId: currentUser.id } }),
         prisma.file.deleteMany({ where: { authorId: currentUser.id } }),
     ]);
 
@@ -168,7 +153,7 @@ export default defineEventHandler(async (event) => {
     await extract({ file: backupPath, cwd: tempPath });
     await updateState(BackupRestoreState.RestoringData);
 
-    const databases = ['folder', 'note', 'code', 'url', 'file', 'user', 'view'];
+    const databases = ['folder', 'note', 'code', 'file', 'user', 'view'];
     const backupUploadsPath = join(tempPath, 'uploads');
     const backupUploads = await fsp.readdir(backupUploadsPath);
 
@@ -227,24 +212,18 @@ export default defineEventHandler(async (event) => {
                             case 'view': {
                                 const fileId = remappedKeys.get(value.fileId);
                                 const codeId = remappedKeys.get(value.codeId);
-                                const urlId = remappedKeys.get(value.urlId);
 
-                                if (fileId) value.file = { connect: { id: fileId } };
-                                else if (codeId) value.code = { connect: { id: codeId } };
-                                else if (urlId) value.url = { connect: { id: urlId } };
+                                if (fileId) {
+                                    value.file = { connect: { id: fileId } };
+                                } else if (codeId) {
+                                    value.code = { connect: { id: codeId } };
+                                }
 
                                 value.fileId = undefined;
                                 value.codeId = undefined;
-                                value.urlId = undefined;
 
                                 break;
                             }
-                            case 'url':
-                                if (
-                                    await prisma.url.findUnique({ where: { vanity: value.vanity } })
-                                )
-                                    value.vanity = nanoid(8);
-                                break;
                         }
 
                         try {
@@ -354,19 +333,6 @@ export default defineEventHandler(async (event) => {
                                         name: created.name,
                                     });
                                     break;
-                                case 'url':
-                                    created.url = buildPublicUrl(
-                                        event,
-                                        currentUser.domains,
-                                        `/link/${created.vanity}`,
-                                    );
-
-                                    await insert(urlSearchDb, {
-                                        id: created.id,
-                                        vanity: created.vanity,
-                                        destinationUrl: created.destinationUrl,
-                                    });
-                                    break;
                                 case 'note':
                                     await insert(noteSearchDb, {
                                         id: created.id,
@@ -375,7 +341,7 @@ export default defineEventHandler(async (event) => {
                                     break;
                             }
 
-                            if (['file', 'code', 'url'].includes(database)) {
+                            if (['file', 'code'].includes(database)) {
                                 created.views = { today: 0, total: 0 };
                             }
 

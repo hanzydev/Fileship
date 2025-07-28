@@ -1,10 +1,10 @@
 export default defineTask({
     meta: {
         name: 'db:deleteExpired',
-        description: 'Deletes expired files, codes and urls',
+        description: 'Deletes expired files and codes',
     },
     async run() {
-        const keys = ['File', 'Code', 'URL'];
+        const keys = ['File', 'Code'];
 
         for (const key of keys) {
             const model = prisma[key.toLowerCase() as never] as any;

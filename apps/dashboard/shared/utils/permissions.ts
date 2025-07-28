@@ -31,13 +31,9 @@ export const canTakeNotes = (user: UserOrEvent) => hasPermission(user, UserPermi
 
 export const canShareCodes = (user: UserOrEvent) => hasPermission(user, UserPermission.ShareCodes);
 
-export const canShortenUrls = (user: UserOrEvent) =>
-    hasPermission(user, UserPermission.ShortenUrls);
-
 export enum PermissionIcon {
     Admin = 'heroicons-solid:shield-check',
     UploadFiles = 'heroicons-solid:upload',
     TakeNotes = 'heroicons:pencil-16-solid',
     ShareCodes = 'heroicons-solid:code',
-    ShortenUrls = 'heroicons:link-16-solid',
 }

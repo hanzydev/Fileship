@@ -27,13 +27,6 @@ export const noteSearchDb = create({
     },
 });
 
-export const urlSearchDb = create({
-    schema: {
-        vanity: 'string',
-        destinationUrl: 'string',
-    },
-});
-
 export const userSearchDb = create({
     schema: {
         username: 'string',
