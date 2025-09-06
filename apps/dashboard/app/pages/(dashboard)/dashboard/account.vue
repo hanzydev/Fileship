@@ -140,9 +140,7 @@
                     cursor-pointer="!"
                 />
             </ExpirationPicker>
-            <CompressionPicker
-                v-model="shareXConfigModal.settings.compression"
-            >
+            <CompressionPicker v-model="shareXConfigModal.settings.compression">
                 <UiInput
                     v-model="shareXConfigModal.settings.compression.label"
                     label="Compression"

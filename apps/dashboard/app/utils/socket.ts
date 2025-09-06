@@ -75,7 +75,9 @@ export const initSocket = () => {
             clearStates(true, true);
 
             useCookie('sessionId', { path: '/', sameSite: true }).value = null;
-            nextTick(() => navigateTo(`/login?redirectTo=${route.path}`));
+            nextTick(() => {
+                navigateTo(`/login?redirectTo=${route.path}`);
+            });
         });
 
         socket.on('delete:all', clearStates);
