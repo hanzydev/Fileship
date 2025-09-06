@@ -18,7 +18,8 @@
     "pnpm": {
         "overrides": {
             "unconfig": "^7.3.2",
-            "sharp": "0.33.4"
+            "sharp": "0.33.4",
+            "vite": "npm:rolldown-vite@latest"
         },
         "patchedDependencies": {
             "@prisma/client": "patches/@prisma__client.patch",
