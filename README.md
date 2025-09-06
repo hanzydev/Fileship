@@ -40,7 +40,6 @@
 - OpenGraph Embeds
 - Folders
 - Notes
-- Codes
 - Backups
 - Image Compression
 - Custom Domains
@@ -132,7 +131,7 @@ Fileship collects **telemetry data** about general usage to help us accurately g
 
 The telemetry module collects the following types of data:
 
-- **Fileship Instance Information**: General statistics about your Fileship setup (e.g., app version, counts of files, users, folders, codes, notes, URLs) and the Node.js version it's running on. This helps us understand the scale and usage patterns of Fileship instances.
+- **Fileship Instance Information**: General statistics about your Fileship setup (e.g., app version, counts of files, users, folders and notes) and the Node.js version it's running on. This helps us understand the scale and usage patterns of Fileship instances.
 - **System Information**: Non-identifying details about the host system (e.g., OS platform, release, architecture, CPU count/model, memory, disk usage, and whether it's running in Docker). This helps us optimize performance across different environments.
 - **AI Search Usage**: Usage statistics for the AI search feature, including the number of results and search duration. **Important: This includes the actual search query text entered by the user.** This data is collected to improve the relevance and performance of the AI search feature.
 

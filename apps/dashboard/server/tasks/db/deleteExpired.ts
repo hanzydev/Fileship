@@ -1,41 +1,44 @@
+import { nextTick } from 'node:process';
+
 export default defineTask({
     meta: {
         name: 'db:deleteExpired',
-        description: 'Deletes expired files and codes',
+        description: 'Deletes expired files',
     },
     async run() {
-        const keys = ['File', 'Code'];
+        const expired = await prisma.file.findMany({
+            where: {
+                expiresAt: {
+                    lte: new Date(),
+                },
+            },
+        });
 
-        for (const key of keys) {
-            const model = prisma[key.toLowerCase() as never] as any;
-
-            const expired = (await model.findMany({
+        if (expired.length) {
+            await prisma.file.deleteMany({
                 where: {
-                    expiresAt: {
-                        lte: new Date(),
+                    id: {
+                        in: expired.map((e) => e.id),
                     },
                 },
-            })) as any[];
+            });
 
-            if (expired.length) {
-                await model.deleteMany({
-                    where: {
-                        id: {
-                            in: expired.map((e) => e.id),
-                        },
-                    },
+            expired.forEach((e) => {
+                createLog(null, {
+                    action: 'Delete File',
+                    message: `Deleted file ${e.fileName} due to expiration`,
+                    system: true,
                 });
 
-                expired.forEach((e) => {
-                    createLog(null, {
-                        action: `Delete ${key}`,
-                        message: `Deleted ${key.toLowerCase()} ${e.vanity || e.title || e.fileName} due to expiration`,
-                        system: true,
+                if (e.folderId) {
+                    sendToUser(e.authorId, 'folder:file:remove', {
+                        folderId: e.folderId,
+                        fileId: e.id,
                     });
+                }
 
-                    sendToUser(e.authorId, `delete:${key.toLowerCase()}`, e.id);
-                });
-            }
+                nextTick(() => sendToUser(e.authorId, `delete:file`, e.id));
+            });
         }
 
         return { result: 'success' };

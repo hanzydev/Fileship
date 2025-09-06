@@ -98,6 +98,7 @@
                 <UiTabs
                     :id="shareXFileNameTypeId"
                     v-model="shareXConfigModal.settings.fileNameType"
+                    variant="secondary"
                     :items="[
                         {
                             label: 'Random',

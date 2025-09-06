@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const [files, folders, notes, codes, views] = await prisma.$transaction([
+    const [files, folders, notes, views] = await prisma.$transaction([
         prisma.file.findMany({
             where: { authorId: currentUser.id },
             orderBy: { createdAt: 'desc' },
@@ -42,16 +42,9 @@ export default defineEventHandler(async (event) => {
             where: { authorId: currentUser.id },
             orderBy: { createdAt: 'desc' },
         }),
-        prisma.code.findMany({
-            where: { authorId: currentUser.id },
-            orderBy: { createdAt: 'desc' },
-        }),
         prisma.view.findMany({
             where: {
-                OR: [
-                    { file: { authorId: currentUser.id } },
-                    { code: { authorId: currentUser.id } },
-                ],
+                file: { authorId: currentUser.id },
             },
         }),
     ]);
@@ -68,7 +61,6 @@ export default defineEventHandler(async (event) => {
         { key: 'file', data: files },
         { key: 'folder', data: folders },
         { key: 'note', data: notes },
-        { key: 'code', data: codes },
         { key: 'view', data: views },
         {
             key: 'user',

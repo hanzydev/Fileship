@@ -14,11 +14,6 @@ export const superAdminOnly = (event: H3Event) => {
     if (!event.context.user!.superAdmin) throw forbiddenError;
 };
 
-export const codeSharerOnly = (event: H3Event) => {
-    userOnly(event);
-    if (!canShareCodes(event.context.user)) throw forbiddenError;
-};
-
 export const fileUploaderOnly = (event: H3Event) => {
     userOnly(event);
     if (!canUploadFiles(event.context.user)) throw forbiddenError;

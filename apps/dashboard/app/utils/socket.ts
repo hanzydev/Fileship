@@ -15,7 +15,6 @@ export const getSocket = () => socket;
 export const initSocket = () => {
     const logs = useLogs();
     const notes = useNotes();
-    const codes = useCodes();
     const files = useFiles();
     const users = useUsers();
     const embed = useEmbed();
@@ -126,37 +125,6 @@ export const initSocket = () => {
         socket.on('delete:note', (noteId) => {
             notes.value = notes.value.filter((n) => n.id !== noteId);
             currentUser.value!.stats.notes--;
-        });
-
-        // Codes
-        socket.on('create:code', (data) => {
-            codes.value = [
-                {
-                    ...data,
-                    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-                    createdAt: new Date(data.createdAt),
-                },
-                ...codes.value,
-            ];
-
-            currentUser.value!.stats.codes++;
-        });
-
-        socket.on('update:code', (data) => {
-            const index = codes.value.findIndex((c) => c.id === data.id);
-
-            if (index > -1) {
-                codes.value[index] = {
-                    ...data,
-                    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-                    createdAt: new Date(data.createdAt),
-                };
-            }
-        });
-
-        socket.on('delete:code', (codeId) => {
-            codes.value = codes.value.filter((c) => c.id !== codeId);
-            currentUser.value!.stats.codes--;
         });
 
         // Files
@@ -293,11 +261,6 @@ export const initSocket = () => {
                 thumbnailUrl: file.thumbnailUrl?.length
                     ? buildPublicUrl(`/u/${file.id}/thumbnail`)
                     : file.thumbnailUrl,
-            }));
-
-            codes.value = codes.value.map((code) => ({
-                ...code,
-                url: buildPublicUrl(`/code/${code.id}`),
             }));
 
             folders.value = folders.value.map((folder) => ({

@@ -31,7 +31,6 @@ export default defineNuxtConfig({
         '@unocss/reset/tailwind.css',
         '~/styles/apexcharts.css',
         '~/styles/sonner.css',
-        'highlight.js/styles/tokyo-night-dark.css',
     ],
 
     fonts: {

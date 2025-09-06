@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
             createdAt: true,
             domains: true,
             _count: {
-                select: { files: true, folders: true, notes: true, codes: true },
+                select: { files: true, folders: true, notes: true },
             },
         },
     });

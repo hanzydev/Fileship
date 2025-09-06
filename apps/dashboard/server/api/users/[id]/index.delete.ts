@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
 
     await verifySession(event, body.data?.verificationData);
 
-    const [userFiles, userFolders, userNotes, userCodes] = await prisma.$transaction([
+    const [userFiles, userFolders, userNotes] = await prisma.$transaction([
         prisma.file.findMany({
             where: {
                 authorId: userId,
@@ -82,14 +82,6 @@ export default defineEventHandler(async (event) => {
                 id: true,
             },
         }),
-        prisma.code.findMany({
-            where: {
-                authorId: userId,
-            },
-            select: {
-                id: true,
-            },
-        }),
     ]);
 
     const uploadsPath = join(dataDirectory, 'uploads');
@@ -101,18 +93,9 @@ export default defineEventHandler(async (event) => {
     await prisma.$transaction([
         prisma.view.deleteMany({
             where: {
-                OR: [
-                    {
-                        file: {
-                            authorId: userId,
-                        },
-                    },
-                    {
-                        code: {
-                            authorId: userId,
-                        },
-                    },
-                ],
+                file: {
+                    authorId: userId,
+                },
             },
         }),
         prisma.folder.deleteMany({
@@ -121,11 +104,6 @@ export default defineEventHandler(async (event) => {
             },
         }),
         prisma.note.deleteMany({
-            where: {
-                authorId: userId,
-            },
-        }),
-        prisma.code.deleteMany({
             where: {
                 authorId: userId,
             },
@@ -162,11 +140,6 @@ export default defineEventHandler(async (event) => {
     await removeMultiple(
         noteSearchDb,
         userNotes.map((n) => n.id),
-    );
-
-    await removeMultiple(
-        codeSearchDb,
-        userCodes.map((c) => c.id),
     );
 
     await createLog(event, {

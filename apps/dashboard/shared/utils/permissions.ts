@@ -29,11 +29,8 @@ export const canUploadFiles = (user: UserOrEvent) =>
 
 export const canTakeNotes = (user: UserOrEvent) => hasPermission(user, UserPermission.TakeNotes);
 
-export const canShareCodes = (user: UserOrEvent) => hasPermission(user, UserPermission.ShareCodes);
-
 export enum PermissionIcon {
     Admin = 'heroicons-solid:shield-check',
     UploadFiles = 'heroicons-solid:upload',
     TakeNotes = 'heroicons:pencil-16-solid',
-    ShareCodes = 'heroicons-solid:code',
 }

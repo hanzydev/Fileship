@@ -1,12 +1,11 @@
 <template>
-    <UiDropdown v-model="isOpen" placement="top" pb0.5="!">
+    <UiDropdown v-model="isOpen" placement="bottom" pt1.5="!">
         <slot />
         <template #content>
             <div
                 relative
-                top-6
-                h64
-                w64
+                h72
+                w72
                 overflow-y-auto
                 rounded-xl
                 bg-fs-overlay-2
@@ -16,7 +15,7 @@
             >
                 <UiSearchBar
                     v-model="searchQuery"
-                    placeholder="Search languages..."
+                    placeholder="Search file types..."
                     h10="!"
                     rounded-lg="!"
                     input-class="!bg-fs-overlay-3 !rounded-lg"
@@ -26,16 +25,16 @@
                         v-for="(lang, index) in searched"
                         :key="index"
                         :icon="
-                            lang.label === language.label
+                            lang.label === fileType.label
                                 ? 'heroicons-solid:check'
                                 : 'heroicons-solid:code'
                         "
-                        :variant="lang.label === language.label ? 'accent' : 'onOverlay'"
+                        :variant="lang.label === fileType.label ? 'accent' : 'onOverlay'"
                         icon-size="20"
                         wfull
                         gap2
                         @click="
-                            language = lang;
+                            fileType = lang;
                             isOpen = false;
                         "
                     >
@@ -50,7 +49,7 @@
 <script setup lang="ts">
 const isOpen = ref(false);
 
-const language = defineModel<{
+const fileType = defineModel<{
     label: string;
     hljs: string;
 }>({
@@ -60,6 +59,6 @@ const language = defineModel<{
 const searchQuery = ref('');
 
 const searched = computed(() =>
-    languages.filter((lang) => lang.label.toLowerCase().includes(searchQuery.value.toLowerCase())),
+    fileTypes.filter((t) => t.label.toLowerCase().includes(searchQuery.value.toLowerCase())),
 );
 </script>

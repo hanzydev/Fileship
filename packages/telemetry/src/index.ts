@@ -23,7 +23,6 @@ export interface TelemetryEvent {
 export interface FileshipInfoPayload {
     version: string;
     files: number;
-    codes: number;
     folders: number;
     notes: number;
     users: number;

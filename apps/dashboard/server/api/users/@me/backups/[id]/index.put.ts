@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
 
     await updateState(BackupRestoreState.DeletingPreviousData);
 
-    const [userFiles, userFolders, userNotes, userCodes] = await prisma.$transaction([
+    const [userFiles, userFolders, userNotes] = await prisma.$transaction([
         prisma.file.findMany({
             where: {
                 authorId: currentUser.id,
@@ -77,14 +77,6 @@ export default defineEventHandler(async (event) => {
             },
         }),
         prisma.note.findMany({
-            where: {
-                authorId: currentUser.id,
-            },
-            select: {
-                id: true,
-            },
-        }),
-        prisma.code.findMany({
             where: {
                 authorId: currentUser.id,
             },
@@ -124,23 +116,14 @@ export default defineEventHandler(async (event) => {
         userNotes.map((n) => n.id),
     );
 
-    await removeMultiple(
-        codeSearchDb,
-        userCodes.map((c) => c.id),
-    );
-
     await prisma.$transaction([
         prisma.view.deleteMany({
             where: {
-                OR: [
-                    { file: { authorId: currentUser.id } },
-                    { code: { authorId: currentUser.id } },
-                ],
+                file: { authorId: currentUser.id },
             },
         }),
         prisma.folder.deleteMany({ where: { authorId: currentUser.id } }),
         prisma.note.deleteMany({ where: { authorId: currentUser.id } }),
-        prisma.code.deleteMany({ where: { authorId: currentUser.id } }),
         prisma.file.deleteMany({ where: { authorId: currentUser.id } }),
     ]);
 
@@ -153,7 +136,7 @@ export default defineEventHandler(async (event) => {
     await extract({ file: backupPath, cwd: tempPath });
     await updateState(BackupRestoreState.RestoringData);
 
-    const databases = ['folder', 'note', 'code', 'file', 'user', 'view'];
+    const databases = ['folder', 'note', 'file', 'user', 'view'];
     const backupUploadsPath = join(tempPath, 'uploads');
     const backupUploads = await fsp.readdir(backupUploadsPath);
 
@@ -305,19 +288,6 @@ export default defineEventHandler(async (event) => {
                                         });
                                     }
                                     break;
-                                case 'code':
-                                    created.url = buildPublicUrl(
-                                        event,
-                                        currentUser.domains,
-                                        `/code/${created.id}`,
-                                    );
-
-                                    await insert(codeSearchDb, {
-                                        id: created.id,
-                                        title: created.title,
-                                        language: created.language,
-                                    });
-                                    break;
                                 case 'folder':
                                     created.publicUrl = created.public
                                         ? buildPublicUrl(
@@ -341,7 +311,7 @@ export default defineEventHandler(async (event) => {
                                     break;
                             }
 
-                            if (['file', 'code'].includes(database)) {
+                            if (database === 'file') {
                                 created.views = { today: 0, total: 0 };
                             }
 

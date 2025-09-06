@@ -62,14 +62,6 @@ const sidebarItems = computed(() => {
         });
     }
 
-    if (canShareCodes(currentUser)) {
-        filtered.push({
-            name: 'Codes',
-            icon: 'heroicons-solid:code',
-            href: '/dashboard/codes',
-        });
-    }
-
     return filtered;
 });
 

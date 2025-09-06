@@ -28,14 +28,6 @@ export default defineTask({
             },
         });
 
-        const codes = await prisma.code.findMany({
-            select: {
-                id: true,
-                title: true,
-                language: true,
-            },
-        });
-
         const folders = await prisma.folder.findMany({
             select: {
                 id: true,
@@ -67,7 +59,6 @@ export default defineTask({
         });
 
         await insertMultiple(fileSearchDb, files as never[]);
-        await insertMultiple(codeSearchDb, codes);
         await insertMultiple(folderSearchDb, folders);
         await insertMultiple(noteSearchDb, notes);
         await insertMultiple(userSearchDb, users);

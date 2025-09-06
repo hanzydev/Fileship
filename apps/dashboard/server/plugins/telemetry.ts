@@ -4,9 +4,8 @@ export default defineNitroPlugin(async () => {
     await telemetry.collectSystemInfo();
 
     const collectFileshipInfo = async () => {
-        const [files, codes, folders, notes, users] = await prisma.$transaction([
+        const [files, folders, notes, users] = await prisma.$transaction([
             prisma.file.count(),
-            prisma.code.count(),
             prisma.folder.count(),
             prisma.note.count(),
             prisma.user.count(),
@@ -15,7 +14,6 @@ export default defineNitroPlugin(async () => {
         await telemetry.collectFileshipInfo({
             version: pkg.version,
             files,
-            codes,
             folders,
             notes,
             users,

@@ -12,7 +12,6 @@ enum UserPermission {
   Admin
   UploadFiles
   TakeNotes
-  ShareCodes
 }
 
 enum BackupRestoreState {
@@ -29,7 +28,6 @@ model User {
   permissions        UserPermission[]
   files              File[]
   notes              Note[]
-  codes              Code[]
   folders            Folder[]
   sessions           Session[]
   logs               Log[]
@@ -83,20 +81,6 @@ model Note {
   authorId  String
 }
 
-model Code {
-  id        String    @id @unique @default(uuid())
-  title     String
-  code      String
-  language  String
-  maxViews  Int       @default(0)
-  expiresAt DateTime?
-  password  String?
-  createdAt DateTime  @default(now())
-  author    User      @relation(fields: [authorId], references: [id])
-  authorId  String
-  views     View[]
-}
-
 model Folder {
   id        String   @id @unique @default(uuid())
   name      String
@@ -124,8 +108,6 @@ model View {
   createdAt DateTime @default(now())
   file      File?    @relation(fields: [fileId], references: [id])
   fileId    String?
-  code      Code?    @relation(fields: [codeId], references: [id])
-  codeId    String?
 }
 
 model Session {

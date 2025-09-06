@@ -7,12 +7,13 @@
         <UiModal v-model="settingsModalOpen" p8 space-y-4>
             <h2>Settings</h2>
 
-            <div space-y-1>
+            <div v-if="currentTab === 'Media Upload'" space-y-1>
                 <UiLabel :for="id">File Name Type</UiLabel>
 
                 <UiTabs
                     :id
                     v-model="settings.fileNameType"
+                    variant="secondary"
                     :items="[
                         {
                             label: 'Random',
@@ -30,6 +31,7 @@
                     width-full
                 />
             </div>
+
             <UiInput
                 v-model="settings.password!"
                 wfull
@@ -57,7 +59,7 @@
                     cursor-pointer="!"
                 />
             </ExpirationPicker>
-            <CompressionPicker v-model="settings.compression">
+            <CompressionPicker v-if="currentTab === 'Media Upload'" v-model="settings.compression">
                 <UiInput
                     v-model="settings.compression.label"
                     label="Compression"
@@ -97,32 +99,106 @@
                 />
             </div>
 
-            <DropZone v-model="uploadingFiles" :disabled="uploading" />
+            <UiTabs
+                v-model="currentTab"
+                :items="[
+                    {
+                        label: 'Media Upload',
+                        icon: 'heroicons:photo-solid',
+                    },
+                    {
+                        label: 'Text Upload',
+                        icon: 'heroicons:document-text-solid',
+                    },
+                ]"
+                width-full
+                rounded-xl="!"
+                button-class="rounded-lg!"
+                :disabled="uploading"
+            />
 
-            <div flex="~ gap2 items-center">
-                <UiButton
-                    wfull
-                    gap2
-                    alignment="center"
-                    variant="accent"
-                    icon="heroicons-solid:upload"
-                    icon-size="20"
-                    :disabled="uploading || !uploadingFiles.length"
-                    :loading="uploading"
-                    @click="handleUpload"
-                >
-                    Upload File(s)
-                </UiButton>
-                <UiButton
-                    h10
-                    w10
-                    p0="!"
-                    alignment="center"
-                    icon="heroicons-solid:cog"
-                    icon-size="20"
-                    :disabled="uploading || !uploadingFiles.length"
-                    @click="settingsModalOpen = true"
+            <div wfull rounded-xl bg-fs-overlay-2 p6 space-y-6 border="~ fs-overlay-4">
+                <h3>
+                    <template v-if="currentTab === 'Media Upload'">Upload Media Files</template>
+                    <template v-else>Create Text File</template>
+                </h3>
+
+                <DropZone
+                    v-if="currentTab === 'Media Upload'"
+                    v-model="uploadingFiles"
+                    :disabled="uploading"
                 />
+
+                <div v-else space-y-4>
+                    <div flex="~ items-center gap4" wfull>
+                        <UiInput
+                            v-model="textFileData.fileName"
+                            label="File Name"
+                            type="text"
+                            required
+                            wfull
+                            flex-1
+                            wrapper-class="wfull"
+                            :disabled="uploading"
+                        />
+                        <FileTypePicker v-model="textFileData.fileType">
+                            <UiInput
+                                v-model="textFileData.fileType.label"
+                                label="File Type"
+                                type="string"
+                                :disabled="uploading"
+                                cursor-pointer="!"
+                                readonly
+                                required
+                                w72
+                            />
+                        </FileTypePicker>
+                    </div>
+
+                    <UiTextArea
+                        v-model="textFileData.content"
+                        :disabled="uploading"
+                        label="Text"
+                        required
+                        wfull
+                    />
+                </div>
+
+                <div flex="~ gap2 items-center">
+                    <UiButton
+                        wfull
+                        gap2
+                        alignment="center"
+                        variant="accent"
+                        icon="heroicons-solid:upload"
+                        icon-size="20"
+                        :disabled="
+                            uploading ||
+                            (!uploadingFiles.length &&
+                                (!textFileData.content || !textFileData.fileName))
+                        "
+                        :loading="uploading"
+                        @click="handleUpload"
+                    >
+                        <template v-if="currentTab === 'Media Upload'">Upload File(s)</template>
+                        <template v-else>Create Text</template>
+                    </UiButton>
+                    <UiButton
+                        h10
+                        w10
+                        p0="!"
+                        alignment="center"
+                        icon="heroicons-solid:cog"
+                        icon-size="20"
+                        variant="secondary"
+                        :disabled="
+                            uploading ||
+                            (!uploadingFiles.length &&
+                                (!textFileData.content || !textFileData.fileName))
+                        "
+                        @click="settingsModalOpen = true"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -144,6 +220,13 @@ const uploading = useIsUploading();
 const uploadingFiles = useUploadingFiles();
 
 const settingsModalOpen = ref(false);
+const currentTab = ref('Media Upload');
+
+const textFileData = reactive({
+    fileName: '',
+    fileType: fileTypes[0]!,
+    content: '',
+});
 
 const settings = reactive<{
     fileNameType: 'Random' | 'UUID' | 'Original';
@@ -189,6 +272,20 @@ fileChunkSize = (+fileChunkSize || 25) * 1024 * 1024;
 
 const handleUpload = async () => {
     uploading.value = true;
+
+    if (currentTab.value === 'Text Upload') {
+        settings.fileNameType = 'Original';
+
+        uploadingFiles.value.push(
+            new File(
+                [textFileData.content],
+                `${textFileData.fileName}.${textFileData.fileType.extension}`,
+                {
+                    type: textFileData.fileType.mime,
+                },
+            ),
+        );
+    }
 
     const uploadFile = async (file: File) => {
         const chunks = Math.ceil(file.size / fileChunkSize);
@@ -301,6 +398,10 @@ const handleUpload = async () => {
 
     if (!uploadingFiles.value.length) {
         $toast.success('All files uploaded successfully');
+
+        textFileData.fileName = '';
+        textFileData.content = '';
+        textFileData.fileType = fileTypes[0]!;
     } else {
         $toast.error('Some files could not be uploaded');
     }
@@ -310,6 +411,14 @@ router.beforeEach((_, __, next) => {
     if (!uploading.value) uploadingFiles.value = [];
 
     next();
+});
+
+watch(currentTab, () => {
+    uploadingFiles.value = [];
+
+    textFileData.fileName = '';
+    textFileData.content = '';
+    textFileData.fileType = fileTypes[0]!;
 });
 
 definePageMeta({

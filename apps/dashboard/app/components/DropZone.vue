@@ -1,11 +1,12 @@
 <template>
     <div flex="~ col gap4" wfull>
         <div
-            border="~ 2 dashed rounded-xl fs-accent"
+            border="~ 2 dashed fs-accent"
             relative
             h48
             wfull
             overflow-hidden
+            rounded-lg
             active:scale-95
             motion-safe:transition-transform
             :class="inputDisabled && 'op50'"
@@ -25,7 +26,7 @@
                 :disabled="inputDisabled"
                 @change.stop.prevent="handleUpload"
             />
-            <div flex="~ justify-center" absolute top-0 hfull wfull bg-fs-overlay-2>
+            <div flex="~ justify-center" absolute top-0 hfull wfull bg-fs-overlay-3>
                 <div flex="~ items-center justify-center col gap4">
                     <Icon name="heroicons-solid:cloud-upload" size="40" />
                     <h5>Drag and drop {{ placeholder }} here</h5>

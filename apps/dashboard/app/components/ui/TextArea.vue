@@ -16,7 +16,7 @@
             placeholder-fs-muted-2
             ring="1 fs-overlay-4"
             :class="[disabled || $props.readonly ? 'cursor-not-allowed' : 'focus:ring-fs-accent']"
-            :rows="lines > 2 ? lines : 2"
+            :rows="lines > 10 ? lines : 10"
             :required
             :disabled
             :readonly

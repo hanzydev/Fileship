@@ -8,13 +8,6 @@ export const fileSearchDb = create({
     },
 });
 
-export const codeSearchDb = create({
-    schema: {
-        title: 'string',
-        language: 'string',
-    },
-});
-
 export const folderSearchDb = create({
     schema: {
         name: 'string',

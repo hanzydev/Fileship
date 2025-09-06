@@ -1,5 +1,5 @@
 <template>
-    <div space-y-1>
+    <div :class="wrapperClass" space-y-1>
         <UiLabel v-if="label" :for="id" :required :error>
             {{ label }}
         </UiLabel>
@@ -91,6 +91,7 @@ const { min = 0, max = Infinity } = defineProps<{
     min?: number;
     max?: number;
     caption?: string;
+    wrapperClass?: unknown;
 }>();
 
 defineOptions({

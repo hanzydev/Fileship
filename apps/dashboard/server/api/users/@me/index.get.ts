@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
         },
         select: {
             _count: {
-                select: { files: true, folders: true, notes: true, codes: true },
+                select: { files: true, folders: true, notes: true },
             },
         },
     });
