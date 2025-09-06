@@ -1,5 +1,43 @@
 # Changelog
 
+## v4.1.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v4.0.2...v4.1.0)
+
+### 🚀 Enhancements
+
+- ⚠️  Remove shortened urls feature ([0a29383](https://github.com/hanzydev/Fileship/commit/0a29383))
+- ⚠️  Remove codes feature and add text file creating ([b46b6d0](https://github.com/hanzydev/Fileship/commit/b46b6d0))
+
+### 🩹 Fixes
+
+- Handle undefined embedding in file update response ([7aae530](https://github.com/hanzydev/Fileship/commit/7aae530))
+- **login:** Fix layout spacing ([667ba04](https://github.com/hanzydev/Fileship/commit/667ba04))
+- **readme:** Nuxt icon ([13b054a](https://github.com/hanzydev/Fileship/commit/13b054a))
+
+### 💅 Refactors
+
+- Update TOTP input styles for improved accessibility and focus handling ([c7c83b8](https://github.com/hanzydev/Fileship/commit/c7c83b8))
+- **login:** Add button to handle passkey login ([732e20a](https://github.com/hanzydev/Fileship/commit/732e20a))
+- ⚠️  Use rolldown-vite instead of vite ([9881eb5](https://github.com/hanzydev/Fileship/commit/9881eb5))
+- Better backup endpoints ([b23dfc8](https://github.com/hanzydev/Fileship/commit/b23dfc8))
+
+### 🏡 Chore
+
+- Upgrade deps ([a275aeb](https://github.com/hanzydev/Fileship/commit/a275aeb))
+- Lint fix ([a1adb61](https://github.com/hanzydev/Fileship/commit/a1adb61))
+- Update Node.js version in Dockerfile and README ([728d408](https://github.com/hanzydev/Fileship/commit/728d408))
+
+#### ⚠️ Breaking Changes
+
+- ⚠️  Remove shortened urls feature ([0a29383](https://github.com/hanzydev/Fileship/commit/0a29383))
+- ⚠️  Remove codes feature and add text file creating ([b46b6d0](https://github.com/hanzydev/Fileship/commit/b46b6d0))
+- ⚠️  Use rolldown-vite instead of vite ([9881eb5](https://github.com/hanzydev/Fileship/commit/9881eb5))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v4.0.2
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v4.0.1...v4.0.2)
@@ -61,7 +99,6 @@
 ### ❤️ Contributors
 
 - Hanzydev <contact@hanzy.dev>
-- Emirhan ([@hanzydev](https://github.com/hanzydev))
 
 ## v4.0.0
 
