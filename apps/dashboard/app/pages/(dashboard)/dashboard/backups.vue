@@ -126,8 +126,8 @@ const handleLoad = async (event: Event) => {
         formData.append('totalChunks', chunks.toString());
 
         try {
-            await $fetch('/api/users/@me/backups', {
-                method: 'PUT',
+            await $fetch('/api/users/@me/backups/upload', {
+                method: 'POST',
                 body: formData,
                 retry: 3,
             });

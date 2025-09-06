@@ -111,8 +111,8 @@ const handleLoad = async (verificationData?: any) => {
     verificationError.value = undefined;
 
     try {
-        await $fetch(`/api/users/@me/backups/${data.id}`, {
-            method: 'PUT',
+        await $fetch(`/api/users/@me/backups/${data.id}/load`, {
+            method: 'POST',
             body: { verificationData },
         });
 
