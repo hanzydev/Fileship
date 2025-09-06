@@ -64,7 +64,7 @@ Fileship is designed to run on a variety of systems, but the following minimum r
 - **RAM**: 4 GB
 - **Disk Space**: 4 GB (plus space for uploaded files)
 - **Database**: PostgreSQL 16.x or higher
-- **Node.js**: 20.x or higher
+- **Node.js**: 22.x or higher
 
 ### Installing
 

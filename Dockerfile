@@ -1,4 +1,4 @@
-FROM node:22.12.0-slim AS builder
+FROM node:24-slim AS builder
 
 WORKDIR /fileship
 
@@ -12,7 +12,7 @@ RUN corepack enable
 RUN pnpm install
 RUN pnpm build
 
-FROM node:22.12.0-slim AS runner
+FROM node:24-slim AS runner
 
 WORKDIR /fileship
 
