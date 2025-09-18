@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
     const filtered = searched.hits.filter((hit) => userFiles.some((file) => file.id === hit.id));
 
     if (body.data.mode === 'vector') {
-        await telemetry.collectAISearchUsage({
+        telemetry.collectAISearchUsage({
             query: body.data.query,
             results: filtered.length,
             duration: Date.now() - start,
