@@ -1,5 +1,26 @@
 # Changelog
 
+## v4.1.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v4.1.0...v4.1.1)
+
+### 🚀 Enhancements
+
+- Use rust free prisma orm ([e1ccc17](https://github.com/hanzydev/Fileship/commit/e1ccc17))
+
+### 🔥 Performance
+
+- **ai search:** Remove await from telemetry.collectAISearchUsage for better performance ([3af77c2](https://github.com/hanzydev/Fileship/commit/3af77c2))
+
+### 🩹 Fixes
+
+- Ensure .env file exists ([9cc4e72](https://github.com/hanzydev/Fileship/commit/9cc4e72))
+- Import UserPermission in createDefaultUser task ([8aa8c2e](https://github.com/hanzydev/Fileship/commit/8aa8c2e))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v4.1.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v4.0.2...v4.1.0)
