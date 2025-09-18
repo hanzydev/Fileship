@@ -3,7 +3,9 @@ import defu from 'defu';
 import { z } from 'zod';
 
 import { insert } from '@orama/orama';
-import { UserPermission } from '@prisma/client';
+
+import { UserPermission } from '#shared/prisma/enums';
+
 
 const validationSchema = z.object({
     username: z

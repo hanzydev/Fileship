@@ -1,4 +1,4 @@
-import type { User } from '@prisma/client';
+import type { UserModel } from '#shared/prisma/models';
 
 export type UserBasicStats = {
     files: number;
@@ -7,7 +7,7 @@ export type UserBasicStats = {
 };
 
 export type UserData = Omit<
-    User,
+    UserModel,
     'password' | 'totpSecret' | 'embed' | 'backupRestoreState' | 'theme'
 > & {
     limits: IUserLimits;

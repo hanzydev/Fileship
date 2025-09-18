@@ -1,5 +1,4 @@
-import type { User } from '@prisma/client';
-
+import type { UserModel } from '#shared/prisma/models';
 import { getIO } from '~~/server/plugins/socketIO';
 
 export const sendToSession = async (
@@ -20,7 +19,7 @@ export const sendToUser = (userId: string, event: string, data: any) =>
 export const sendToAll = (event: string, data: any) => getIO().emit(event, data);
 
 export const sendByFilter = async (
-    filter: (user: User & { currentSessionId: string }) => boolean,
+    filter: (user: UserModel & { currentSessionId: string }) => boolean,
     event: string,
     data: any,
 ) => {

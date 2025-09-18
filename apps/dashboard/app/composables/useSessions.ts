@@ -1,6 +1,6 @@
-import type { Session } from '@prisma/client';
+import type { SessionModel } from '#shared/prisma/models';
 
-export type SessionData = Omit<Session, 'privateId' | 'userId' | 'lastVerify'>;
+export type SessionData = Omit<SessionModel, 'privateId' | 'userId' | 'lastVerify'>;
 
 export const useSessions = () => {
     return useState<SessionData[]>('sessions', () => []);

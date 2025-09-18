@@ -4,8 +4,8 @@ import sharp from 'sharp';
 import { z } from 'zod';
 
 import { update } from '@orama/orama';
-import { UserPermission } from '@prisma/client';
 
+import { UserPermission } from '#shared/prisma/enums';
 import themes from '~~/app/styles/themes.json';
 
 const validationSchema = z

@@ -1,7 +1,4 @@
-import fsp from 'node:fs/promises';
 import { createRequire } from 'node:module';
-
-import { join } from 'pathe';
 
 import pkg from '../../package.json';
 
@@ -70,37 +67,6 @@ export default defineNuxtConfig({
             version: pkg.version,
         },
         hooks: {
-            compiled: async () => {
-                if (process.env.NODE_ENV !== 'production') return;
-
-                const prismaEngineDirectory = join(
-                    '..',
-                    '..',
-                    'node_modules',
-                    '@prisma',
-                    'engines',
-                );
-                const prismaEngineFiles = (await fsp.readdir(prismaEngineDirectory)).filter((f) =>
-                    f.includes('engine'),
-                );
-
-                const compiledPrismaEngineDirectory = join(
-                    '.output',
-                    'server',
-                    'node_modules',
-                    '@prisma',
-                    'engines',
-                );
-
-                await Promise.all(
-                    prismaEngineFiles.map((file) =>
-                        fsp.copyFile(
-                            join(prismaEngineDirectory, file),
-                            join(compiledPrismaEngineDirectory, file),
-                        ),
-                    ),
-                );
-            },
             'dev:reload': () => require('onnxruntime-node'),
         },
     },

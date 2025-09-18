@@ -1,13 +1,13 @@
 import type { H3Event } from 'h3';
 
-import { UserPermission } from '@prisma/client';
+import { UserPermission } from '#shared/prisma/enums';
 
-export type User = {
+export type PartialUser = {
     permissions: UserPermission[];
     superAdmin: boolean;
 } | null;
 
-type UserOrEvent = MaybeRef<User> | H3Event;
+type UserOrEvent = MaybeRef<PartialUser> | H3Event;
 
 const hasPermission = (user: UserOrEvent, permission: UserPermission) => {
     if (!user) return false;

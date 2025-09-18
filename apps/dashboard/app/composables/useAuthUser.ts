@@ -1,6 +1,6 @@
-import type { User } from '@prisma/client';
+import type { UserModel } from '#shared/prisma/models';
 
-export type AuthUserData = Omit<User, 'password' | 'totpSecret' | 'embed' | 'domains'> & {
+export type AuthUserData = Omit<UserModel, 'password' | 'totpSecret' | 'embed' | 'domains'> & {
     currentSessionId: string;
     stats: UserBasicStats;
 };

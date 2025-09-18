@@ -1,5 +1,4 @@
 export default defineNitroPlugin(async () => {
-    await runTask('db:migrate');
     await runTask('db:createDefaultUser');
     await runTask('db:resetBackupRestoreState');
 

@@ -13,7 +13,8 @@ import { z } from 'zod';
 
 import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import { insert, removeMultiple } from '@orama/orama';
-import { BackupRestoreState } from '@prisma/client';
+
+import { BackupRestoreState } from '#shared/prisma/enums';
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 

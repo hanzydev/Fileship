@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import type { BackupRestoreState } from '@prisma/client';
+import type { BackupRestoreState } from '#shared/prisma/enums';
 
 const { open, state: _state } = defineProps<{
     open: boolean;

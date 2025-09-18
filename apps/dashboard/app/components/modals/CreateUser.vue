@@ -161,7 +161,7 @@
 <script setup lang="ts">
 import { titleCase } from 'scule';
 
-import { UserPermission } from '@prisma/client';
+import { UserPermission } from '#shared/prisma/enums';
 
 const isOpen = defineModel<boolean>({ required: true });
 

@@ -20,8 +20,6 @@ ignoredBuiltDependencies:
 
 onlyBuiltDependencies:
     - '@parcel/watcher'
-    - '@prisma/client'
-    - '@prisma/engines'
     - argon2
     - esbuild
     - prisma

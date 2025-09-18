@@ -1,6 +1,6 @@
-import type { Log } from '@prisma/client';
+import type { LogModel } from '#shared/prisma/models';
 
-export type LogData = Log;
+export type LogData = LogModel;
 
 export type LogUser = {
     id: string;

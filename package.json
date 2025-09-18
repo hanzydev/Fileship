@@ -22,7 +22,6 @@
             "vite": "npm:rolldown-vite@latest"
         },
         "patchedDependencies": {
-            "@prisma/client": "patches/@prisma__client.patch",
             "vue-sonner": "patches/vue-sonner.patch"
         }
     },

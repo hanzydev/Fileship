@@ -1,6 +1,6 @@
-import type { Folder } from '@prisma/client';
+import type { FolderModel } from '#shared/prisma/models';
 
-export type FolderData = Folder & {
+export type FolderData = FolderModel & {
     files: string[];
     publicUrl?: string;
 };
