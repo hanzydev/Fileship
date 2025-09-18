@@ -2,6 +2,7 @@ import { hash } from 'argon2';
 import consola from 'consola';
 import dayjs from 'dayjs';
 
+import { UserPermission } from '~~/shared/prisma/enums';
 import { defaultUserLimits } from '~~/shared/utils/constants';
 
 export default defineTask({
