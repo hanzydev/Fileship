@@ -195,17 +195,12 @@ export default defineEventHandler(async (event) => {
                                 break;
                             case 'view': {
                                 const fileId = remappedKeys.get(value.fileId);
-                                const codeId = remappedKeys.get(value.codeId);
 
                                 if (fileId) {
                                     value.file = { connect: { id: fileId } };
-                                } else if (codeId) {
-                                    value.code = { connect: { id: codeId } };
                                 }
 
                                 value.fileId = undefined;
-                                value.codeId = undefined;
-
                                 break;
                             }
                         }
