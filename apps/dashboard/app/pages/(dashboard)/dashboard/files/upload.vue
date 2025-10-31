@@ -191,6 +191,7 @@
                         icon="heroicons-solid:cog"
                         icon-size="20"
                         variant="secondary"
+                        flex-shrink-0
                         :disabled="
                             uploading ||
                             (!uploadingFiles.length &&
