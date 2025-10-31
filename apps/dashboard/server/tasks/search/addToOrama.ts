@@ -3,8 +3,6 @@ import dayjs from 'dayjs';
 
 import { insertMultiple } from '@orama/orama';
 
-import { AnyNull } from '~~/generated/prisma/internal/prismaNamespace';
-
 export default defineTask({
     meta: {
         name: 'search:addToOrama',
@@ -16,11 +14,6 @@ export default defineTask({
         );
 
         const files = await prisma.file.findMany({
-            where: {
-                embedding: {
-                    not: AnyNull,
-                },
-            },
             select: {
                 id: true,
                 fileName: true,
@@ -59,7 +52,13 @@ export default defineTask({
             },
         });
 
-        await insertMultiple(fileSearchDb, files as never[]);
+        await insertMultiple(
+            fileSearchDb,
+            files.map((file) => ({
+                ...file,
+                embedding: (file.embedding as number[]) || undefined,
+            })),
+        );
         await insertMultiple(folderSearchDb, folders);
         await insertMultiple(noteSearchDb, notes);
         await insertMultiple(userSearchDb, users);
