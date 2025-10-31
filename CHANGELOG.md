@@ -1,5 +1,34 @@
 # Changelog
 
+## v4.2.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v4.1.1...v4.2.0)
+
+### 🚀 Enhancements
+
+- Enhance file type filtering and add support for additional file types ([33ba217](https://github.com/hanzydev/Fileship/commit/33ba217))
+
+### 🩹 Fixes
+
+- Correct overlay color values for Fileship theme ([b777d7f](https://github.com/hanzydev/Fileship/commit/b777d7f))
+
+### 💅 Refactors
+
+- Remove old code ([16c5480](https://github.com/hanzydev/Fileship/commit/16c5480))
+- Clean up whitespace in file type checks ([e8a6037](https://github.com/hanzydev/Fileship/commit/e8a6037))
+- Update search handling and improve file filtering logic ([d20d437](https://github.com/hanzydev/Fileship/commit/d20d437))
+
+### 🎨 Styles
+
+- Update toast component styling for improved appearance ([c632189](https://github.com/hanzydev/Fileship/commit/c632189))
+- Add flex-shrink-0 class to settings button for better layout ([1b87bfe](https://github.com/hanzydev/Fileship/commit/1b87bfe))
+- Add lt-sm:wfull class to ShareX config button for responsive design ([e2b4ec8](https://github.com/hanzydev/Fileship/commit/e2b4ec8))
+- Enhance layout responsiveness in FileTypePicker and upload components ([5fbade7](https://github.com/hanzydev/Fileship/commit/5fbade7))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v4.1.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v4.1.0...v4.1.1)
