@@ -67,38 +67,36 @@ const currentPage = ref(1);
 const filterType = ref([]);
 const searchQuery = ref('');
 const aiEnabled = ref(false);
-const searched = ref<string[]>([]);
+const searched = ref<string[] | null>(null);
 
 const filtered = computed(() =>
-    files.value
-        .filter((f) =>
-            !isSearching.value && searchQuery.value.length ? searched.value.includes(f.id) : true,
-        )
-        .filter((f) => !f.folderId)
-        .filter((f) => {
-            if (filterType.value.length) {
-                const checks = {
-                    image: f.mimeType.startsWith('image/'),
-                    video: f.mimeType.startsWith('video/'),
-                    audio: f.mimeType.startsWith('audio/'),
-                    document: DOCUMENT_FILE_MIME_TYPES.includes(f.mimeType),
-                    archive: ARCHIVE_FILE_MIME_TYPES.includes(f.mimeType),
-                    code: CODE_FILE_EXTENSIONS.includes(getExtname(f.fileName)),
-                };
+    files.value.filter((f) => {
+        if (f.folderId) return false;
 
-                if (f.fileName === 'jaK6fTJ_.cs') {
-                    console.log('Checking file:', f.fileName, getExtname(f.fileName), checks);
+        const isSearchMatch = searched.value === null ? true : searched.value.includes(f.id);
+
+        const checks = {
+            image: f.mimeType.startsWith('image/'),
+            video: f.mimeType.startsWith('video/'),
+            audio: f.mimeType.startsWith('audio/'),
+            document: DOCUMENT_FILE_MIME_TYPES.includes(f.mimeType),
+            archive: ARCHIVE_FILE_MIME_TYPES.includes(f.mimeType),
+            code: CODE_FILE_EXTENSIONS.includes(getExtname(f.fileName)),
+        };
+
+        let isTypeMatch = true;
+        if (filterType.value.length) {
+            isTypeMatch = false;
+            for (const type of filterType.value) {
+                if (checks[type as never]) {
+                    isTypeMatch = true;
+                    break;
                 }
-
-                for (const type of filterType.value) {
-                    if (checks[type as never]) return true;
-                }
-
-                return false;
             }
+        }
 
-            return true;
-        }),
+        return isTypeMatch && isSearchMatch;
+    }),
 );
 
 const calculatedFiles = computed(() => {
@@ -147,34 +145,42 @@ watch(currentPage, () => {
     });
 });
 
+const handleSearch = async (query: string) => {
+    isAnimating.value = true;
+
+    try {
+        searched.value = await $fetch<string[]>('/api/files/search', {
+            method: 'POST',
+            body: { query, mode: aiEnabled.value ? 'vector' : 'fulltext' },
+        });
+    } catch {
+        searched.value = [];
+    }
+
+    isSearching.value = false;
+
+    nextTick(() => {
+        all('files', '.fileCard', () => {
+            isAnimating.value = false;
+        });
+    });
+};
+
 watch(searchQuery, (query) => {
     clearTimeout(searchTimeout);
 
     if (query.length) {
         isSearching.value = true;
-
-        searchTimeout = setTimeout(async () => {
-            isAnimating.value = true;
-
-            try {
-                searched.value = await $fetch<string[]>('/api/files/search', {
-                    method: 'POST',
-                    body: { query, mode: aiEnabled.value ? 'vector' : 'fulltext' },
-                });
-            } catch {
-                searched.value = [];
-            }
-
-            isSearching.value = false;
-
-            nextTick(() => {
-                all('files', '.fileCard', () => {
-                    isAnimating.value = false;
-                });
-            });
-        }, 750);
+        searchTimeout = setTimeout(() => handleSearch(query), 750);
     } else {
-        searched.value = [];
+        searched.value = null;
+    }
+});
+
+watch(aiEnabled, () => {
+    if (searchQuery.value.length) {
+        isSearching.value = true;
+        searchTimeout = setTimeout(() => handleSearch(searchQuery.value), 100);
     }
 });
 
