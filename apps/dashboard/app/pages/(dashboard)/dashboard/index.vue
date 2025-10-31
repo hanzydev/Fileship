@@ -141,11 +141,9 @@
                                 width: '20%',
                                 render: (row) => {
                                     const isImage = row.mimeType.startsWith('image/');
-
                                     const isVideo = row.mimeType.startsWith('video/');
-
                                     const isAudio = row.mimeType.startsWith('audio/');
-
+                                    
                                     const canBeViewed = isImage || isVideo || isAudio;
 
                                     return h('div', { class: 'flex items-center gap4' }, [
