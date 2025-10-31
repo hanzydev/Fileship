@@ -75,11 +75,30 @@ const filtered = computed(() =>
             !isSearching.value && searchQuery.value.length ? searched.value.includes(f.id) : true,
         )
         .filter((f) => !f.folderId)
-        .filter(
-            (f) =>
-                !filterType.value.length ||
-                filterType.value.some((t) => f.mimeType.startsWith(`${t}/`)),
-        ),
+        .filter((f) => {
+            if (filterType.value.length) {
+                const checks = {
+                    image: f.mimeType.startsWith('image/'),
+                    video: f.mimeType.startsWith('video/'),
+                    audio: f.mimeType.startsWith('audio/'),
+                    document: DOCUMENT_FILE_MIME_TYPES.includes(f.mimeType),
+                    archive: ARCHIVE_FILE_MIME_TYPES.includes(f.mimeType),
+                    code: CODE_FILE_EXTENSIONS.includes(getExtname(f.fileName)),
+                };
+
+                if (f.fileName === 'jaK6fTJ_.cs') {
+                    console.log('Checking file:', f.fileName, getExtname(f.fileName), checks);
+                }
+
+                for (const type of filterType.value) {
+                    if (checks[type as never]) return true;
+                }
+
+                return false;
+            }
+
+            return true;
+        }),
 );
 
 const calculatedFiles = computed(() => {

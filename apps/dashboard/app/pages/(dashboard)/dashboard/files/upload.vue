@@ -224,7 +224,7 @@ const currentTab = ref('Media Upload');
 
 const textFileData = reactive({
     fileName: '',
-    fileType: fileTypes[0]!,
+    fileType: TEXT_FILE_TYPES[0]!,
     content: '',
 });
 
@@ -401,7 +401,7 @@ const handleUpload = async () => {
 
         textFileData.fileName = '';
         textFileData.content = '';
-        textFileData.fileType = fileTypes[0]!;
+        textFileData.fileType = TEXT_FILE_TYPES[0]!;
     } else {
         $toast.error('Some files could not be uploaded');
     }
@@ -418,7 +418,7 @@ watch(currentTab, () => {
 
     textFileData.fileName = '';
     textFileData.content = '';
-    textFileData.fileType = fileTypes[0]!;
+    textFileData.fileType = TEXT_FILE_TYPES[0]!;
 });
 
 definePageMeta({

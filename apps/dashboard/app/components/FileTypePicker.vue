@@ -51,7 +51,6 @@ const isOpen = ref(false);
 
 const fileType = defineModel<{
     label: string;
-    hljs: string;
 }>({
     required: true,
 });
@@ -59,6 +58,8 @@ const fileType = defineModel<{
 const searchQuery = ref('');
 
 const searched = computed(() =>
-    fileTypes.filter((t) => t.label.toLowerCase().includes(searchQuery.value.toLowerCase())),
+    TEXT_FILE_TYPES.filter((t) =>
+        t.label.toLowerCase().includes(searchQuery.value.toLowerCase()),
+    ),
 );
 </script>
