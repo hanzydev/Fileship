@@ -1,6 +1,6 @@
 {
     "Fileship": {
-        "overlays": ["#1a1a1e", "#202024", "#242428", "#2a2a2e"],
+        "overlays": ["#1a1a1e", "#202024", "#25252a", "#2a2a30"],
         "muted": ["#e5e5e5", "#d4d4d4", "#a3a3a3"],
         "background": "#121214",
         "accent": "#5865f2"
