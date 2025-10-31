@@ -531,6 +531,7 @@
                         variant="accent"
                         icon="heroicons-solid:download"
                         icon-size="20"
+                        lt-sm:wfull
                         @click="shareXConfigModal.open = true"
                     >
                         Generate ShareX Config
