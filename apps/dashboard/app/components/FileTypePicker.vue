@@ -1,16 +1,23 @@
 <template>
-    <UiDropdown v-model="isOpen" placement="bottom" pt1.5="!">
+    <UiDropdown
+        v-model="isOpen"
+        placement="bottom"
+        pt1.5="!"
+        wrapper-class="lt-sm:wfull"
+        lt-sm:wfull
+    >
         <slot />
         <template #content>
             <div
+                ring="1 fs-overlay-4"
                 relative
                 h72
-                w72
+                wfull
                 overflow-y-auto
                 rounded-xl
                 bg-fs-overlay-2
                 p1.5
-                ring="1 fs-overlay-4"
+                sm:w72
                 space-y-2
             >
                 <UiSearchBar
@@ -58,8 +65,6 @@ const fileType = defineModel<{
 const searchQuery = ref('');
 
 const searched = computed(() =>
-    TEXT_FILE_TYPES.filter((t) =>
-        t.label.toLowerCase().includes(searchQuery.value.toLowerCase()),
-    ),
+    TEXT_FILE_TYPES.filter((t) => t.label.toLowerCase().includes(searchQuery.value.toLowerCase())),
 );
 </script>

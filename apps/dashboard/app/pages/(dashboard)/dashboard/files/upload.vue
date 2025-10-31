@@ -130,7 +130,7 @@
                 />
 
                 <div v-else space-y-4>
-                    <div flex="~ items-center gap4" wfull>
+                    <div flex="~ items-center gap4 <sm:col" wfull>
                         <UiInput
                             v-model="textFileData.fileName"
                             label="File Name"
@@ -150,7 +150,8 @@
                                 cursor-pointer="!"
                                 readonly
                                 required
-                                w72
+                                wfull
+                                wrapper-class="wfull sm:w72"
                             />
                         </FileTypePicker>
                     </div>
