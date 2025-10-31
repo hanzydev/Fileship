@@ -162,7 +162,6 @@ export const DOCUMENT_FILE_MIME_TYPES = [
     'text/rtf',
     'text/markdown',
     'application/xml',
-    'application/json',
     'application/vnd.api+json',
     'application/x-yaml',
     'application/epub+zip',
