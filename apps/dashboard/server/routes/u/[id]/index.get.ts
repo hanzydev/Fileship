@@ -104,7 +104,6 @@ export default defineEventHandler(async (event) => {
 
     setResponseHeaders(event, {
         'Content-Type': findFileById.mimeType,
-        'Content-Length': findFileById.size.toString(),
         'Accept-Ranges': 'bytes',
     });
 
@@ -115,6 +114,24 @@ export default defineEventHandler(async (event) => {
             `attachment; filename="${findFileById.fileName}"`,
         );
     }
+
+    const range = getRequestHeader(event, 'range');
+    const fileSize = Number(findFileById.size);
+
+    if (range) {
+        const parts = range.replace(/bytes=/, '').split('-');
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+        const chunksize = end - start + 1;
+
+        setResponseStatus(event, 206);
+        setResponseHeader(event, 'Content-Range', `bytes ${start}-${end}/${fileSize}`);
+        setResponseHeader(event, 'Content-Length', chunksize);
+
+        return sendStream(event, createReadStream(filePath, { start, end }));
+    }
+
+    setResponseHeader(event, 'Content-Length', fileSize);
 
     return sendStream(event, createReadStream(filePath));
 });
