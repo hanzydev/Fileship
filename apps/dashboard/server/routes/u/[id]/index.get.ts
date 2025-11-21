@@ -135,14 +135,35 @@ export default defineEventHandler(async (event) => {
     const fileSize = Number(findFileById.size);
 
     if (rangeHeader) {
-        const parts = rangeHeader.replace(/bytes=/, '').split('-');
-        const start = parseInt(parts[0], 10);
-        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-        const chunksize = end - start + 1;
+        let start = 0;
+        let end = fileSize - 1;
+
+        const rangeString = rangeHeader.trim().slice(6);
+
+        if (rangeString.startsWith('-')) {
+            const suffixLength = +rangeString.slice(1);
+            start = fileSize - suffixLength;
+
+            if (start < 0) start = 0;
+        } else {
+            const [_start, _end] = rangeString.split('-');
+            start = +_start;
+
+            if (_end) end = +_end;
+        }
+
+        if (isNaN(start) || isNaN(end) || start >= fileSize || start > end) {
+            setResponseHeader(event, 'Content-Length', fileSize);
+            return sendStream(event, createReadStream(filePath));
+        }
+
+        if (end >= fileSize) end = fileSize - 1;
+
+        const chunkSize = end - start + 1;
 
         setResponseStatus(event, 206);
         setResponseHeader(event, 'Content-Range', `bytes ${start}-${end}/${fileSize}`);
-        setResponseHeader(event, 'Content-Length', chunksize);
+        setResponseHeader(event, 'Content-Length', chunkSize);
 
         return sendStream(event, createReadStream(filePath, { start, end }));
     }
