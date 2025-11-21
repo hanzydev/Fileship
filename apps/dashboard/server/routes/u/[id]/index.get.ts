@@ -2,11 +2,15 @@ import { createReadStream, promises as fsp } from 'node:fs';
 
 import { join } from 'pathe';
 
+const VIEW_WINDOW = 10 * 60 * 1_000;
+
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
 
     const fileNameOrId = decodeURIComponent(getRouterParam(event, 'id')!);
     const query = getQuery(event);
+    const rangeHeader = getRequestHeader(event, 'range');
+    const storage = useStorage('cache');
 
     const findFileById = await prisma.file.findFirst({
         where: {
@@ -65,40 +69,53 @@ export default defineEventHandler(async (event) => {
     const filePath = join(dataDirectory, 'uploads', findFileById.fileName);
 
     if (findFileById.authorId !== currentUser?.id) {
-        await prisma.view.create({
-            data: {
-                fileId: findFileById.id,
-                ip: getRequestIP(event, { xForwardedFor: true })!,
-            },
-        });
+        const ip = getRequestIP(event, { xForwardedFor: true }) || 'Unknown';
+        const userAgent = getRequestHeader(event, 'user-agent') || 'Unknown';
+        const key = `${ip}-${userAgent}-${findFileById.id}`;
+        const now = Date.now();
+        const lastView = (await storage.getItem<number>(key)) || 0;
 
-        await createLog(event, {
-            action: 'View File',
-            message: `Viewed ${findFileById.fileName}`,
-            system: true,
-        });
+        const isStartOfFile = !rangeHeader || rangeHeader.startsWith('bytes=0-');
+        const shouldCountView = isStartOfFile && now - lastView > VIEW_WINDOW;
 
-        if (findFileById.maxViews && findFileById._count.views >= findFileById.maxViews) {
-            await fsp.rm(filePath, { force: true });
-
-            await prisma.file.delete({
-                where: {
-                    id: findFileById.id,
+        if (shouldCountView) {
+            await prisma.view.create({
+                data: {
+                    fileId: findFileById.id,
+                    ip: getRequestIP(event, { xForwardedFor: true })!,
                 },
             });
 
             await createLog(event, {
-                action: 'Delete File',
-                message: `Deleted file ${findFileById.fileName} due to max views reached`,
+                action: 'View File',
+                message: `Viewed ${findFileById.fileName}`,
                 system: true,
             });
 
-            sendToUser(findFileById.authorId, 'delete:file', findFileById.id);
+            const currentViews = findFileById._count.views + 1;
 
-            throw createError({
-                statusCode: 404,
-                message: 'File not found',
-            });
+            if (findFileById.maxViews && currentViews >= findFileById.maxViews) {
+                await fsp.rm(filePath, { force: true });
+
+                await prisma.file.delete({
+                    where: {
+                        id: findFileById.id,
+                    },
+                });
+
+                await createLog(event, {
+                    action: 'Delete File',
+                    message: `Deleted file ${findFileById.fileName} due to max views reached`,
+                    system: true,
+                });
+
+                sendToUser(findFileById.authorId, 'delete:file', findFileById.id);
+
+                throw createError({
+                    statusCode: 404,
+                    message: 'File not found',
+                });
+            }
         }
     }
 
@@ -115,11 +132,10 @@ export default defineEventHandler(async (event) => {
         );
     }
 
-    const range = getRequestHeader(event, 'range');
     const fileSize = Number(findFileById.size);
 
-    if (range) {
-        const parts = range.replace(/bytes=/, '').split('-');
+    if (rangeHeader) {
+        const parts = rangeHeader.replace(/bytes=/, '').split('-');
         const start = parseInt(parts[0], 10);
         const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
         const chunksize = end - start + 1;
