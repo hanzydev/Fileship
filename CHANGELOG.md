@@ -1,5 +1,34 @@
 # Changelog
 
+## v4.2.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v4.2.0...v4.2.1)
+
+### 🚀 Enhancements
+
+- Add mcp config ([9ab8a52](https://github.com/hanzydev/Fileship/commit/9ab8a52))
+
+### 🩹 Fixes
+
+- Resolve choppy video playback ([ecc3f35](https://github.com/hanzydev/Fileship/commit/ecc3f35))
+- Telemetry package exports ([be521f1](https://github.com/hanzydev/Fileship/commit/be521f1))
+- Improve file view tracking and handling of max views ([3652ebc](https://github.com/hanzydev/Fileship/commit/3652ebc))
+- Enhance range header handling for file streaming ([801c57b](https://github.com/hanzydev/Fileship/commit/801c57b))
+
+### 💅 Refactors
+
+- Remove application/json from DOCUMENT_FILE_MIME_TYPES ([af687ef](https://github.com/hanzydev/Fileship/commit/af687ef))
+
+### 🏡 Chore
+
+- Upgrade prisma to v7 ([3d113cb](https://github.com/hanzydev/Fileship/commit/3d113cb))
+- Upgrade deps ([f21636e](https://github.com/hanzydev/Fileship/commit/f21636e))
+- Remove vue-sonner patch and add override @nuxt/vite-builder ([a920676](https://github.com/hanzydev/Fileship/commit/a920676))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v4.2.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v4.1.1...v4.2.0)
