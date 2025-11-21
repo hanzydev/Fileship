@@ -19,10 +19,8 @@
         "overrides": {
             "unconfig": "^7.3.2",
             "sharp": "0.33.4",
-            "vite": "npm:rolldown-vite@latest"
-        },
-        "patchedDependencies": {
-            "vue-sonner": "patches/vue-sonner.patch"
+            "vite": "npm:rolldown-vite@latest",
+            "@nuxt/vite-builder": "https://pkg.pr.new/@nuxt/vite-builder@33682"
         }
     },
     "packageManager": "pnpm@10.23.0"
