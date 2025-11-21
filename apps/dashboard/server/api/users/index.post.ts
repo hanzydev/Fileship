@@ -6,7 +6,6 @@ import { insert } from '@orama/orama';
 
 import { UserPermission } from '#shared/prisma/enums';
 
-
 const validationSchema = z.object({
     username: z
         .string()

@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+const { readonly = false } = defineProps<{
     error?: string;
     label?: string;
     required?: boolean;

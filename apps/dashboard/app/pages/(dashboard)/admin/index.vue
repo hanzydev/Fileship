@@ -61,9 +61,6 @@
                                 theme: {
                                     mode: 'dark',
                                 },
-                                dropShadow: {
-                                    enabled: false,
-                                },
                                 chart: {
                                     background: 'transparent',
                                     fontFamily: 'Quicksand, sans-serif',
@@ -110,7 +107,6 @@
                                 fill: {
                                     colors: ['var(--fs-accent)'],
                                     gradient: {
-                                        enabled: true,
                                         opacityFrom: 0.6,
                                         opacityTo: 0,
                                     },
@@ -282,7 +278,7 @@
                                     },
                                     tooltip: {
                                         y: {
-                                            formatter: filesize,
+                                            formatter: filesize as never,
                                         },
                                     },
                                 }"
@@ -364,7 +360,7 @@ const isLoading = ref(true);
 const basePieOptions = {
     colors: ['var(--fs-overlay-1)'],
     theme: {
-        mode: 'dark',
+        mode: 'dark' as const,
     },
     dropShadow: {
         enabled: false,

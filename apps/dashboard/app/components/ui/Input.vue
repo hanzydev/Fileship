@@ -82,7 +82,11 @@
 </template>
 
 <script setup lang="ts">
-const { min = 0, max = Infinity } = defineProps<{
+const {
+    min = 0,
+    max = Infinity,
+    readonly = false,
+} = defineProps<{
     error?: string;
     label?: string;
     required?: boolean;

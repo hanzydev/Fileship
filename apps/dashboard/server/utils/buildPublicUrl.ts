@@ -15,4 +15,3 @@ export const buildPublicUrl = (event: H3Event, domains: string[], route: `/${str
 
     return `${protocol}://${domain}${route}`;
 };
-
