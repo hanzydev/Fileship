@@ -119,17 +119,9 @@ export default defineEventHandler(async (event) => {
     const fileSize = Number(findFileById.size);
 
     if (range) {
-        const CHUNK_SIZE = 5 * 1024 * 1024;
-
         const parts = range.replace(/bytes=/, '').split('-');
         const start = parseInt(parts[0], 10);
-
-        let end = parts[1]
-            ? parseInt(parts[1], 10)
-            : Math.min(start + CHUNK_SIZE - 1, fileSize - 1);
-
-        if (end >= fileSize) end = fileSize - 1;
-
+        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
         const chunksize = end - start + 1;
 
         setResponseStatus(event, 206);
