@@ -11,7 +11,7 @@
                 z20
                 backdrop-blur-sm
                 lg:ml64
-                bg="black/20"
+                bg="black/60"
                 :style="{
                     height: `calc(100vh - 70px${adminSessionId ? ' - 3rem' : ''})`,
                     marginTop: `calc(70px${adminSessionId ? ' + 48px' : ''})`,
