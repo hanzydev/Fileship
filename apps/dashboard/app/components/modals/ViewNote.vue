@@ -18,7 +18,7 @@
                 aria-label="Previous"
                 top="1/2"
                 translate-y-="1/2"
-                data-controller
+                data-ignore-modal-outer-click
                 absolute
                 sm="left-6"
                 left-3
@@ -44,7 +44,7 @@
                 aria-label="Previous"
                 top="1/2"
                 translate-y-="1/2"
-                data-controller
+                data-ignore-modal-outer-click
                 absolute
                 sm="right-6"
                 right-3

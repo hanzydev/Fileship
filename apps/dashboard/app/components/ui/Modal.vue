@@ -74,7 +74,7 @@ onClickOutside(
         emit('outerClick');
     },
     {
-        ignore: ['[data-controller]'],
+        ignore: ['[data-ignore-modal-outer-click]'],
     },
 );
 
