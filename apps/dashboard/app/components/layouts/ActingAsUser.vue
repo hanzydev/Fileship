@@ -15,7 +15,7 @@
             h8
             w8
             rounded-md="!"
-            hover:bg-white="/20"
+            hover:bg="white/20"
             motion-safe:transition-colors
             alignment="center"
             icon="heroicons-solid:chevron-left"
@@ -35,7 +35,7 @@
             h8
             w8
             rounded-md="!"
-            hover:bg-white="/20"
+            hover:bg="white/20"
             motion-safe:transition-colors
             alignment="center"
             icon="heroicons-solid:x"
