@@ -341,6 +341,7 @@ const handleAmbientMode = () => {
     let step: number | undefined;
 
     const draw = () => {
+        if (!canvas.value?.width || !canvas.value?.height) return;
         ctx.drawImage(video.value!, 0, 0, canvas.value!.width, canvas.value!.height);
     };
 
