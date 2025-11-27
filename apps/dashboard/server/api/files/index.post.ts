@@ -159,10 +159,7 @@ export default defineEventHandler(async (event) => {
                     await fsp.rename(temp2Path, tempPath);
                 }
             } catch {
-                throw createError({
-                    statusCode: 400,
-                    message: 'Failed to compress image',
-                });
+                //
             }
         }
 
