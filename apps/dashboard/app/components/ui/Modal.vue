@@ -8,7 +8,7 @@
             <div
                 v-if="isOpen"
                 text-left="!"
-                bg="black/40"
+                bg="black/20"
                 fixed
                 inset-0
                 z40
