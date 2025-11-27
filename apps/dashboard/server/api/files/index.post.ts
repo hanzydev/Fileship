@@ -230,6 +230,7 @@ export default defineEventHandler(async (event) => {
             },
             directUrl: buildPublicUrl(event, currentUser.domains, `/u/${_upload.fileName}`),
             embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${_upload.fileName}`),
+            thumbnailUrl: undefined as string | null | undefined,
         };
 
         if (file.type.startsWith('video/')) {
@@ -245,6 +246,10 @@ export default defineEventHandler(async (event) => {
                     .on('error', () => resolve())
                     .run();
             });
+
+            upload.thumbnailUrl = existsSync(thumbnailPath)
+                ? buildPublicUrl(event, currentUser.domains, `/u/${_upload.fileName}/thumbnail`)
+                : null;
         }
 
         let embedding: number[] | undefined = undefined;
