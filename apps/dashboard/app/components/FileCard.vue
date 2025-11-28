@@ -341,7 +341,9 @@ const handleMoveFile = async (folderId: string | null) => {
 
     updating.value = false;
 
-    $toast.success('File moved successfully');
+    $toast.success(
+        folderId === null ? 'File removed from folder successfully' : 'File moved successfully',
+    );
 };
 
 const handleCreateFolderWithFile = async () => {
