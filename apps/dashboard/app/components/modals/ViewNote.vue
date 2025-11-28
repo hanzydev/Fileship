@@ -159,10 +159,15 @@ const editModalOpen = ref(false);
 
 const handleDelete = async () => {
     deleting.value = true;
-    await $fetch(`/api/notes/${data.value.id}`, { method: 'DELETE' });
-    deleting.value = false;
 
-    $toast.success('Note deleted successfully');
+    try {
+        await $fetch(`/api/notes/${data.value.id}`, { method: 'DELETE' });
+        $toast.success('Note deleted successfully');
+    } catch (error: any) {
+        $toast.error(error.data.message);
+    }
+
+    deleting.value = false;
 };
 
 const handleCopy = () => {

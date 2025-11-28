@@ -316,10 +316,15 @@ const updating = ref(false);
 
 const handleDelete = async () => {
     deleting.value = true;
-    await $fetch(`/api/files/${data.id}`, { method: 'DELETE' });
-    deleting.value = false;
 
-    $toast.success('File deleted successfully');
+    try {
+        await $fetch(`/api/files/${data.id}`, { method: 'DELETE' });
+        $toast.success('File deleted successfully');
+    } catch (error: any) {
+        $toast.error(error.data.message);
+    }
+
+    deleting.value = false;
 };
 
 const handleCopy = () => {
@@ -332,18 +337,21 @@ const handleCopy = () => {
 const handleMoveFile = async (folderId: string | null) => {
     updating.value = true;
 
-    await $fetch(`/api/files/${data.id}`, {
-        method: 'PATCH',
-        body: {
-            folderId,
-        },
-    });
+    try {
+        await $fetch(`/api/files/${data.id}`, {
+            method: 'PATCH',
+            body: {
+                folderId,
+            },
+        });
+        $toast.success(
+            folderId === null ? 'File removed from folder successfully' : 'File moved successfully',
+        );
+    } catch (error: any) {
+        $toast.error(error.data.message);
+    }
 
     updating.value = false;
-
-    $toast.success(
-        folderId === null ? 'File removed from folder successfully' : 'File moved successfully',
-    );
 };
 
 const handleCreateFolderWithFile = async () => {

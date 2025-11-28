@@ -100,10 +100,15 @@ const verificationMethods = ref([]);
 
 const handleDelete = async () => {
     deleting.value = true;
-    await $fetch(`/api/users/@me/backups/${data.id}`, { method: 'DELETE' });
-    deleting.value = false;
 
-    $toast.success('Backup deleted successfully');
+    try {
+        await $fetch(`/api/users/@me/backups/${data.id}`, { method: 'DELETE' });
+        $toast.success('Backup deleted successfully');
+    } catch (error: any) {
+        $toast.error(error.data.message);
+    }
+
+    deleting.value = false;
 };
 
 const handleLoad = async (verificationData?: any) => {

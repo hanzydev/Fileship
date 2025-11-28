@@ -122,10 +122,15 @@ const deleting = ref(false);
 
 const handleDelete = async () => {
     deleting.value = true;
-    await $fetch(`/api/folders/${data.id}`, { method: 'DELETE' });
-    deleting.value = false;
 
-    $toast.success('Folder deleted successfully');
+    try {
+        await $fetch(`/api/folders/${data.id}`, { method: 'DELETE' });
+        $toast.success('Folder deleted successfully');
+    } catch (error: any) {
+        $toast.error(error.data.message);
+    }
+
+    deleting.value = false;
 };
 
 const handleCopy = () => {
