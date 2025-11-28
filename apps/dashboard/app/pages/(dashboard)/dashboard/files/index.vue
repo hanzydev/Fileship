@@ -4,6 +4,12 @@
             <Title>Files</Title>
         </Head>
 
+        <ModalsViewFile
+            v-if="viewFileModal.fileId"
+            v-model="viewFileModal.open"
+            :file-id="viewFileModal.fileId"
+        />
+
         <div space-y-6>
             <h2>Files</h2>
             <div flex="~ gap4 1 items-center <sm:col" wfull>
@@ -44,7 +50,15 @@
                     @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
                 >
                     <div v-for="file in calculatedFiles" :key="file.id" op0 class="fileCard">
-                        <FileCard :data="file" />
+                        <FileCard
+                            :data="file"
+                            @view-file="
+                                (file) => {
+                                    viewFileModal.fileId = file.id;
+                                    nextTick(() => (viewFileModal.open = true));
+                                }
+                            "
+                        />
                     </div>
                 </TransitionGroup>
             </div>
@@ -68,6 +82,8 @@ const filterType = ref([]);
 const searchQuery = ref('');
 const aiEnabled = ref(false);
 const searched = ref<string[] | null>(null);
+
+const viewFileModal = reactive({ open: false, fileId: null as string | null });
 
 const filtered = computed(() =>
     files.value.filter((f) => {

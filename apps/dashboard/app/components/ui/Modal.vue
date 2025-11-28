@@ -14,6 +14,7 @@
                 z40
                 backdrop-blur-sm
                 :class="backgroundClass"
+                v-bind="backgroundProps"
             ></div>
         </Transition>
         <Transition
@@ -49,6 +50,7 @@ const { closeOnOuterClick = true, closable = true } = defineProps<{
     closeOnOuterClick?: boolean;
     closable?: boolean;
     backgroundClass?: unknown;
+    backgroundProps?: { [key: string]: unknown };
 }>();
 
 defineOptions({

@@ -6,6 +6,7 @@ export type FileData = Omit<FileModel, 'size' | 'embedding'> & {
     directUrl: string;
     embedUrl: string;
     thumbnailUrl?: string | null;
+    embed?: IEmbed;
 };
 
 export const useFiles = () => {

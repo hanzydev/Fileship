@@ -1,94 +1,112 @@
 <template>
-    <UiModal
-        v-model="isOpen"
-        max-hscreen
-        max-wfull
-        min-hscreen
-        wscreen="!"
-        rounded-none
-        p8
-        space-y-6
-        ring-0="!"
-        background-class="hidden!"
-        :close-on-outer-click="false"
-    >
-        <div flex="~ items-center justify-between">
-            <h2>
-                {{ editable ? 'Select Files' : 'Files' }}
-            </h2>
-            <UiButton
-                icon="heroicons-solid:x"
-                absolute
-                right-8
-                top-8
-                h10
-                w10
-                p0="!"
-                icon-size="20"
-                alignment="center"
-                :disabled
-                @click="isOpen = false"
-            />
-        </div>
-
-        <div flex="~ gap4 1 items-center <sm:col" wfull>
-            <UiSearchBar
-                v-model="searchQuery"
-                v-model:ai-enabled="aiEnabled"
-                v-model:loading="isSearching"
-                placeholder="Search files..."
-                ai-available
-                wfull
-            />
-            <FileTypeFilter v-model="filterType" />
-        </div>
-
-        <div v-show="filtered.length" grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
-            <TransitionGroup
-                :css="false"
-                @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
-                @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
-            >
-                <div v-for="file in calculatedFiles" :key="file.id" op0 class="folderFileCard">
-                    <FileCard
-                        :selected="editable && selectedFiles.includes(file.id)"
-                        :data="file"
-                        :selectable="editable"
-                        @update:selected="
-                            (value) => {
-                                if (value) {
-                                    selectedFiles.push(file.id);
-                                } else {
-                                    selectedFiles.splice(selectedFiles.indexOf(file.id), 1);
-                                }
-                            }
-                        "
-                    />
-                </div>
-            </TransitionGroup>
-        </div>
-        <NothingHere
-            v-if="!filtered.length"
-            message="There are no files to display."
-            icon="heroicons-solid:document-duplicate"
+    <div>
+        <ModalsViewFile
+            v-if="viewFileModal.fileId"
+            v-model="viewFileModal.open"
+            :file-id="viewFileModal.fileId"
         />
-        <UiPagination v-model="currentPage" :item-count="filtered.length" :items-per-page="20" />
-
-        <UiButton
-            v-if="editable"
-            wfull
-            gap2
-            alignment="center"
-            variant="accent"
-            icon="heroicons:pencil-16-solid"
-            icon-size="20"
-            :loading="disabled"
-            :disabled
-            @click="handleChange"
+        <UiModal
+            v-model="isOpen"
+            max-hscreen
+            max-wfull
+            min-hscreen
+            wscreen="!"
+            rounded-none
+            p8
+            space-y-6
+            ring-0="!"
+            z30="!"
+            background-class="hidden!"
+            :close-on-outer-click="false"
         >
-            Save
-        </UiButton>
-    </UiModal>
+            <div flex="~ items-center justify-between">
+                <h2>
+                    {{ editable ? 'Select Files' : 'Files' }}
+                </h2>
+                <UiButton
+                    icon="heroicons-solid:x"
+                    absolute
+                    right-8
+                    top-8
+                    h10
+                    w10
+                    p0="!"
+                    icon-size="20"
+                    alignment="center"
+                    :disabled
+                    @click="isOpen = false"
+                />
+            </div>
+
+            <div flex="~ gap4 1 items-center <sm:col" wfull>
+                <UiSearchBar
+                    v-model="searchQuery"
+                    v-model:ai-enabled="aiEnabled"
+                    v-model:loading="isSearching"
+                    placeholder="Search files..."
+                    ai-available
+                    wfull
+                />
+                <FileTypeFilter v-model="filterType" />
+            </div>
+
+            <div v-show="filtered.length" grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
+                <TransitionGroup
+                    :css="false"
+                    @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
+                    @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
+                >
+                    <div v-for="file in calculatedFiles" :key="file.id" op0 class="folderFileCard">
+                        <FileCard
+                            :selected="editable && selectedFiles.includes(file.id)"
+                            :data="file"
+                            :selectable="editable"
+                            @update:selected="
+                                (value) => {
+                                    if (value) {
+                                        selectedFiles.push(file.id);
+                                    } else {
+                                        selectedFiles.splice(selectedFiles.indexOf(file.id), 1);
+                                    }
+                                }
+                            "
+                            @view-file="
+                                (file) => {
+                                    viewFileModal.fileId = file.id;
+                                    nextTick(() => (viewFileModal.open = true));
+                                }
+                            "
+                        />
+                    </div>
+                </TransitionGroup>
+            </div>
+            <NothingHere
+                v-if="!filtered.length"
+                message="There are no files to display."
+                icon="heroicons-solid:document-duplicate"
+            />
+            <UiPagination
+                v-model="currentPage"
+                :item-count="filtered.length"
+                :items-per-page="20"
+            />
+
+            <UiButton
+                v-if="editable"
+                wfull
+                gap2
+                alignment="center"
+                variant="accent"
+                icon="heroicons:pencil-16-solid"
+                icon-size="20"
+                :loading="disabled"
+                :disabled
+                @click="handleChange"
+            >
+                Save
+            </UiButton>
+        </UiModal>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -110,6 +128,7 @@ const searched = ref<string[] | null>(null);
 const disabled = ref(false);
 
 const selectedFiles = ref(data.files);
+const viewFileModal = reactive({ open: false, fileId: null as string | null });
 
 const filtered = computed(() =>
     files.value.filter((f) => {

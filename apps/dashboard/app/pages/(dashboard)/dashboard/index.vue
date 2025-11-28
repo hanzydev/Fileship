@@ -4,7 +4,11 @@
             <Title>Dashboard</Title>
         </Head>
 
-        <ModalsViewFile v-if="viewModal.file" v-model="viewModal.open" :data="viewModal.file!" />
+        <ModalsViewFile
+            v-if="viewModal.fileId"
+            v-model="viewModal.open"
+            :file-id="viewModal.fileId"
+        />
 
         <ModalsEditFile
             v-if="editModal.file"
@@ -100,7 +104,15 @@
                             op0
                             class="fileCard"
                         >
-                            <FileCard :data="file" />
+                            <FileCard
+                                :data="file"
+                                @view-file="
+                                    (file) => {
+                                        viewModal.fileId = file.id;
+                                        nextTick(() => (viewModal.open = true));
+                                    }
+                                "
+                            />
                         </div>
                     </TransitionGroup>
                 </div>
@@ -161,7 +173,7 @@
                                             ...(canBeViewed
                                                 ? {
                                                       onClick: () => {
-                                                          viewModal.file = row;
+                                                          viewModal.fileId = row.id;
                                                           nextTick(() => (viewModal.open = true));
                                                       },
                                                   }
@@ -260,7 +272,7 @@ const isLoading = ref(files.value.length !== currentUser.value!.stats.files || !
 
 const viewModal = reactive({
     open: false,
-    file: null as FileData | null,
+    fileId: null as string | null,
 });
 const editModal = reactive({
     open: false,

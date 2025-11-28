@@ -1,6 +1,4 @@
 <template>
-    <ModalsViewFile v-if="isImage || isVideo || isAudio" v-model="viewModalOpen" :data />
-
     <UiDropdown v-model="ctxOpen" as-ctx-menu placement="bottom" trigger-class="hfull">
         <div
             v-if="isImage || isVideo"
@@ -10,10 +8,9 @@
             motion-safe:transition-shadow
             ring="1 fs-overlay-4"
             :class="ctxOpen ? 'cursor-default' : 'cursor-pointer hover:(ring-1 ring-fs-accent)'"
-            @click="viewModalOpen = true"
+            @click="emit('viewFile', data)"
         >
             <div
-                v-if="isImage || isVideo"
                 relative
                 h52
                 overflow-hidden
@@ -138,6 +135,10 @@ import dayjs from 'dayjs';
 
 const { data } = defineProps<{
     data: Partial<FileData> & { embed: IEmbed };
+}>();
+
+const emit = defineEmits<{
+    viewFile: [Partial<FileData> & { embed: IEmbed }];
 }>();
 
 const { $toast } = useNuxtApp();

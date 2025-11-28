@@ -1,5 +1,4 @@
 <template>
-    <ModalsViewFile v-if="canBeViewed" v-model="viewModalOpen" :data />
     <ModalsEditFile v-if="currentUser?.id === data.authorId" v-model="editModalOpen" :data />
 
     <UiDropdown v-model="ctxOpen" as-ctx-menu placement="bottom" trigger-class="hfull">
@@ -14,7 +13,7 @@
                     ? 'cursor-default'
                     : 'cursor-pointer hover:(ring-1 ring-fs-accent)',
             ]"
-            @click="selectable ? (selected = !selected) : canBeViewed && (viewModalOpen = true)"
+            @click="selectable ? (selected = !selected) : canBeViewed && emit('viewFile', data)"
         >
             <Transition
                 enter-active-class="motion-safe:(animate-in fade-in)"
@@ -121,7 +120,7 @@
                     @click="
                         if (selectable) {
                             ctxOpen = false;
-                            viewModalOpen = true;
+                            emit('viewFile', data);
                         }
                     "
                 >
@@ -284,6 +283,10 @@ const selected = defineModel<boolean>('selected', {
     default: false,
 });
 
+const emit = defineEmits<{
+    viewFile: [FileData];
+}>();
+
 const currentUser = useAuthUser();
 const folders = useFolders();
 const embed = useEmbed();
@@ -307,7 +310,6 @@ const isAudio = computed(() => data.mimeType.startsWith('audio/'));
 
 const canBeViewed = computed(() => isImage.value || isVideo.value || isAudio.value);
 
-const viewModalOpen = ref(false);
 const editModalOpen = ref(false);
 
 const ctxOpen = ref(false);

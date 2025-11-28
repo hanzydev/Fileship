@@ -6,9 +6,10 @@ import {
     transformerVariantGroup,
 } from 'unocss';
 import presetAnimations from 'unocss-preset-animations';
+import { presetScrollbar } from 'unocss-preset-scrollbar';
 
 export default defineConfig({
-    presets: [presetAttributify(), presetWind3(), presetAnimations() as never],
+    presets: [presetAttributify(), presetWind3(), presetAnimations(), presetScrollbar()],
     transformers: [transformerDirectives(), transformerVariantGroup()],
     theme: {
         colors: {
