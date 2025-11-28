@@ -147,7 +147,7 @@ export default defineEventHandler(async (event) => {
             if (start < 0) start = 0;
         } else {
             const [_start, _end] = rangeString.split('-');
-            start = +_start;
+            start = +_start!;
 
             if (_end) end = +_end;
         }

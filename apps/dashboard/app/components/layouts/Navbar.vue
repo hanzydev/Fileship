@@ -2,9 +2,9 @@
     <nav flex="~ items-center justify-between" z30 h70px wfull bg-fs-overlay-2 pl3 pr5 lg:px5>
         <svg
             :class="sidebarOpen && 'rotate-180'"
-            cursor-pointer
-            lg:hidden
-            motion-safe:transition-transform
+            
+            
+             cursor-pointer motion-safe:transition-transform lg:hidden 
             viewBox="0 0 100 100"
             width="42"
             aria-label="Toggle sidebar"
