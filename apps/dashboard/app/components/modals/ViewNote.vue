@@ -175,20 +175,20 @@ const handleCopy = () => {
     $toast.success('Note copied to clipboard');
 };
 
-const handlePrev = async () => {
-    if (!prev.value || !isOpen.value) return;
-
+const changeNote = async (newNote: NoteData) => {
     await tl.value?.play();
-    data.value = prev.value!;
+    data.value = newNote;
     await tl.value?.reverse();
 };
 
-const handleNext = async () => {
-    if (!next.value || !isOpen.value) return;
+const handlePrev = () => {
+    if (!prev.value || !isOpen.value) return;
+    changeNote(prev.value);
+};
 
-    await tl.value?.play();
-    data.value = next.value!;
-    await tl.value?.reverse();
+const handleNext = () => {
+    if (!next.value || !isOpen.value) return;
+    changeNote(next.value);
 };
 
 onKeyStroke('ArrowLeft', handlePrev, { eventName: 'keydown' });
