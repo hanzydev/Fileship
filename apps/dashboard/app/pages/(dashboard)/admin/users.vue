@@ -92,12 +92,12 @@
                     {
                         key: 'files',
                         width: '5%',
-                        resolve: ({ _count }) => Intl.NumberFormat().format(_count?.files ?? 0),
+                        resolve: ({ stats }) => Intl.NumberFormat().format(stats.files),
                     },
                     {
                         key: 'notes',
                         width: '5%',
-                        resolve: ({ _count }) => Intl.NumberFormat().format(_count?.notes ?? 0),
+                        resolve: ({ stats }) => Intl.NumberFormat().format(stats.notes),
                     },
                     {
                         key: 'createdAt',
