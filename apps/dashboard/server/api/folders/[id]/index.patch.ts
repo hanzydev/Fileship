@@ -126,19 +126,5 @@ export default defineEventHandler(async (event) => {
 
     sendToUser(currentUser.id, 'update:folder', updatedFolder);
 
-    connect.forEach((file) => {
-        sendToUser(currentUser.id, 'folder:file:add', {
-            folderId,
-            fileId: file.id,
-        });
-    });
-
-    disconnect.forEach((file) => {
-        sendToUser(currentUser.id, 'folder:file:remove', {
-            folderId,
-            fileId: file.id,
-        });
-    });
-
     return updatedFolder;
 });

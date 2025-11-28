@@ -1,5 +1,3 @@
-import { nextTick } from 'node:process';
-
 export default defineTask({
     meta: {
         name: 'db:deleteExpired',
@@ -30,14 +28,7 @@ export default defineTask({
                     system: true,
                 });
 
-                if (e.folderId) {
-                    sendToUser(e.authorId, 'folder:file:remove', {
-                        folderId: e.folderId,
-                        fileId: e.id,
-                    });
-                }
-
-                nextTick(() => sendToUser(e.authorId, `delete:file`, e.id));
+                sendToUser(e.authorId, `delete:file`, e.id);
             });
         }
 
