@@ -144,7 +144,7 @@
                     @click="handlePrev"
                 />
 
-                <div :id="modalId" flex="~ items-center justify-center" relative>
+                <div :id="modalId" flex="~ items-center justify-center" relative mxa>
                     <template v-if="isImage">
                         <img
                             v-if="reducedMotion === 'no-preference'"
