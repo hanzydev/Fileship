@@ -488,7 +488,7 @@ const virtualItems = computed(() => {
     return items;
 });
 
-const scrollToActiveThumbnail = () => {
+const scrollToActiveThumbnail = (smooth = true) => {
     if (!isScrollable.value || !scrollContainer.value) return;
 
     const index = mediaFiles.value.findIndex((f) => f.id === data.value.id);
@@ -498,7 +498,7 @@ const scrollToActiveThumbnail = () => {
 
     scrollContainer.value.scrollTo({
         left: targetScroll,
-        behavior: 'smooth',
+        behavior: smooth ? 'smooth' : 'auto',
     });
 };
 
@@ -729,10 +729,10 @@ watch([isOpen, editModalOpen], ([open, editModalOpen]) => {
 
     if (open) {
         updateData();
-        nextTick(scrollToActiveThumbnail);
+        nextTick(() => scrollToActiveThumbnail(false));
     }
 });
 
 watch([isOpen, data], handleAmbientMode, { flush: 'post' });
-watch(data, scrollToActiveThumbnail, { flush: 'post' });
+watch(data, () => scrollToActiveThumbnail(true), { flush: 'post' });
 </script>
