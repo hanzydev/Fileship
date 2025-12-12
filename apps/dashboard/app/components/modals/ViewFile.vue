@@ -420,13 +420,13 @@ const { $toast } = useNuxtApp();
 const allFiles = useFiles();
 
 const fileId = ref(_fileId);
-const data = ref(allFiles.value.find((file) => file.id === fileId.value)!);
+const data = shallowRef(allFiles.value.find((file) => file.id === fileId.value)!);
 
 const isImage = computed(() => data.value.mimeType!.startsWith('image/'));
 const isVideo = computed(() => data.value.mimeType!.startsWith('video/'));
 const isAudio = computed(() => data.value.mimeType!.startsWith('audio/'));
 
-const files = ref<FileData[]>([]);
+const files = shallowRef<FileData[]>([]);
 
 const galleryWrapper = useTemplateRef('galleryWrapper');
 const scrollContainer = useTemplateRef('scrollContainer');
@@ -726,20 +726,24 @@ watch([isOpen, editModalOpen], ([open, editModalOpen]) => {
         fileId.value = _fileId;
         zoom.zoomedIn = false;
     }
+});
 
-    if (open) {
-        updateData();
+watch(isOpen, (value) => {
+    if (value) {
+        requestAnimationFrame(() => {
+            updateData();
 
-        const unwatch = watch(
-            [containerWidth, scrollContainer],
-            ([width, el]) => {
-                if (width > 0 && el) {
-                    scrollToActiveThumbnail(false);
-                    unwatch();
-                }
-            },
-            { immediate: true, flush: 'post' },
-        );
+            const unwatch = watch(
+                [containerWidth, scrollContainer],
+                ([width, el]) => {
+                    if (width > 0 && el) {
+                        scrollToActiveThumbnail(false);
+                        unwatch();
+                    }
+                },
+                { immediate: true, flush: 'post' },
+            );
+        });
     }
 });
 
