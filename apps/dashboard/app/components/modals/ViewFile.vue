@@ -19,6 +19,7 @@
             overflow-hidden
             rounded-none
             p8
+            @click.self="isOpen = false"
         >
             <div
                 flex="~ gap-4 md:(justify-between items-center) <md:col"
@@ -122,113 +123,107 @@
                 </div>
             </div>
             <div
-                flex="~ justify-around items-center"
+                flex="~ justify-between items-center"
                 relative
                 :class="mediaFiles.length <= 1 && 'mya'"
+                @click.self="isOpen = false"
             >
-                <div
-                    flex="~ items-center justify-between"
-                    absolute
-                    wfull
-                    motion-safe="transition-opacity"
-                    :class="zoom.zoomedIn && 'opacity-0'"
-                >
-                    <UiButton
-                        v-if="files.length > 1"
-                        variant="secondary"
-                        alignment="center"
-                        icon="heroicons-solid:arrow-narrow-left"
-                        icon-size="24"
-                        aria-label="Previous"
-                        data-ignore-modal-outer-click
-                        class="z20 size-11 shrink-0 text-fs-muted-2 !p0 hover:text-white"
-                        :disabled="isFirst || !prev"
-                        @click="handlePrev"
-                    />
-                    <UiButton
-                        v-if="files.length > 1"
-                        variant="secondary"
-                        alignment="center"
-                        icon="heroicons-solid:arrow-narrow-right"
-                        icon-size="24"
-                        aria-label="Next"
-                        data-ignore-modal-outer-click
-                        class="z20 size-11 shrink-0 text-fs-muted-2 !p0 hover:text-white"
-                        :disabled="isLast || !next"
-                        @click="handleNext"
-                    />
-                </div>
+                <UiButton
+                    v-if="files.length > 1"
+                    variant="secondary"
+                    alignment="center"
+                    icon="heroicons-solid:arrow-narrow-left"
+                    icon-size="24"
+                    aria-label="Previous"
+                    data-ignore-modal-outer-click
+                    :class="[
+                        'z20 size-11 shrink-0 text-fs-muted-2 !p0 hover:text-white motion-safe:transition-opacity',
+                        zoom.zoomedIn && 'opacity-0',
+                    ]"
+                    :disabled="isFirst || !prev"
+                    @click="handlePrev"
+                />
 
-                <div class="absolute left-1/2 top-1/2 wfull -translate-x-1/2 -translate-y-1/2">
-                    <div :id="modalId" flex="~ items-center justify-center" relative wfull>
-                        <template v-if="isImage">
-                            <img
-                                v-if="reducedMotion === 'no-preference'"
-                                flex="~ items-center justify-center'"
-                                absolute
-                                z10
-                                select-none
-                                blur-3xl
-                                motion-safe="transition-transform duration-300"
-                                lt-lg="max-w-[calc((100%-44px*2)-16px)]"
-                                md="max-h-75vh"
-                                :class="
-                                    zoom.zoomedIn ? 'cursor-zoom-out scale-250' : 'cursor-zoom-in'
-                                "
-                                :style="{
-                                    transformOrigin: `${zoom.originX} ${zoom.originY}`,
-                                }"
-                                :src="data.directUrl"
-                            />
-
-                            <img
-                                z11
-                                select-none
-                                motion-safe="transition-transform duration-300"
-                                lt-lg="max-w-[calc((100%-44px*2)-16px)]"
-                                md="max-h-75vh"
-                                :class="
-                                    zoom.zoomedIn ? 'cursor-zoom-out scale-250' : 'cursor-zoom-in'
-                                "
-                                :style="{
-                                    transformOrigin: `${zoom.originX} ${zoom.originY}`,
-                                }"
-                                :src="data.directUrl"
-                                :alt="data.fileName"
-                                @click="handleZoom"
-                            />
-                        </template>
-                        <template v-else-if="isVideo">
-                            <canvas
-                                ref="canvasRef"
-                                absolute
-                                z10
-                                max-w="[calc((100%-44px*2)-16px)]"
-                                max-h="[calc(75vh-16px)]"
-                                blur-3xl
-                            />
-                            <video
-                                ref="videoRef"
-                                :src="data.directUrl"
-                                :poster="data.thumbnailUrl !== null ? data.thumbnailUrl : undefined"
-                                controls
-                                relative
-                                z11
-                                wauto
-                                max-w="[calc((100%-44px*2)-16px)]"
-                                max-h="[calc(75vh-16px)]"
-                                rounded-lg
-                            />
-                        </template>
-                        <audio
-                            v-else
+                <div :id="modalId" flex="~ items-center justify-center" relative>
+                    <template v-if="isImage">
+                        <img
+                            v-if="reducedMotion === 'no-preference'"
+                            flex="~ items-center justify-center'"
+                            absolute
+                            z10
+                            select-none
+                            blur-3xl
+                            motion-safe="transition-transform duration-300"
+                            lt-lg="max-w-[calc((100%-44px*2)-16px)]"
+                            md="max-h-75vh"
+                            :class="zoom.zoomedIn ? 'cursor-zoom-out scale-250' : 'cursor-zoom-in'"
+                            :style="{
+                                transformOrigin: `${zoom.originX} ${zoom.originY}`,
+                            }"
                             :src="data.directUrl"
-                            controls
-                            w="[calc((100%-44px*2)-16px)]"
-                            lg="w-200"
                         />
-                    </div>
+
+                        <img
+                            z11
+                            select-none
+                            motion-safe="transition-transform duration-300"
+                            lt-lg="max-w-[calc((100%-44px*2)-16px)]"
+                            md="max-h-75vh"
+                            :class="zoom.zoomedIn ? 'cursor-zoom-out scale-250' : 'cursor-zoom-in'"
+                            :style="{
+                                transformOrigin: `${zoom.originX} ${zoom.originY}`,
+                            }"
+                            :src="data.directUrl"
+                            :alt="data.fileName"
+                            @click="handleZoom"
+                        />
+                    </template>
+                    <template v-else-if="isVideo">
+                        <canvas
+                            ref="canvasRef"
+                            absolute
+                            z10
+                            max-w="[calc((100%-44px*2)-16px)]"
+                            max-h="[calc(75vh-16px)]"
+                            blur-3xl
+                        />
+                        <video
+                            ref="videoRef"
+                            :src="data.directUrl"
+                            :poster="data.thumbnailUrl !== null ? data.thumbnailUrl : undefined"
+                            controls
+                            relative
+                            z11
+                            wauto
+                            max-w="[calc((100%-44px*2)-16px)]"
+                            max-h="[calc(75vh-16px)]"
+                            rounded-lg
+                        />
+                    </template>
+                    <audio
+                        v-else
+                        :src="data.directUrl"
+                        controls
+                        w="[calc((100%-44px*2)-16px)]"
+                        lg="w-200"
+                    />
                 </div>
+
+                <UiButton
+                    v-if="files.length > 1"
+                    variant="secondary"
+                    alignment="center"
+                    icon="heroicons-solid:arrow-narrow-right"
+                    icon-size="24"
+                    aria-label="Next"
+                    data-ignore-modal-outer-click
+                    :class="[
+                        'z20 size-11 shrink-0 text-fs-muted-2 !p0 hover:text-white motion-safe:transition-opacity',
+                        zoom.zoomedIn && 'opacity-0',
+                    ]"
+                    :disabled="isLast || !next"
+                    @click="handleNext"
+                />
             </div>
 
             <div
