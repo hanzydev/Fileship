@@ -729,7 +729,17 @@ watch([isOpen, editModalOpen], ([open, editModalOpen]) => {
 
     if (open) {
         updateData();
-        nextTick(() => scrollToActiveThumbnail(false));
+
+        const unwatch = watch(
+            [containerWidth, scrollContainer],
+            ([width, el]) => {
+                if (width > 0 && el) {
+                    scrollToActiveThumbnail(false);
+                    unwatch();
+                }
+            },
+            { immediate: true, flush: 'post' },
+        );
     }
 });
 
