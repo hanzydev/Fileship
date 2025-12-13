@@ -77,6 +77,7 @@
                 h8
                 w8
                 :loading
+                :class="aiToggleClass"
                 :disabled="loading"
                 @click="aiEnabled = !aiEnabled"
             />
@@ -96,10 +97,11 @@
 import gsap from 'gsap';
 import SplitText from 'gsap/SplitText';
 
-const { aiAvailable } = defineProps<{
+const { aiAvailable, aiToggleClass } = defineProps<{
     placeholder: string;
     inputClass?: unknown;
     aiAvailable?: boolean;
+    aiToggleClass?: unknown;
 }>();
 
 const searchQuery = defineModel<string>({ required: true });

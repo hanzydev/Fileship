@@ -31,6 +31,7 @@
                     h10
                     w10
                     p0="!"
+                    rounded-2xl="!"
                     icon-size="20"
                     alignment="center"
                     :disabled
@@ -46,8 +47,16 @@
                     placeholder="Search files..."
                     ai-available
                     wfull
+                    rounded-2xl="!"
+                    :input-class="aiEnabled ? 'rounded-14px!' : 'rounded-2xl!'"
+                    ai-toggle-class="rounded-xl!"
                 />
-                <FileTypeFilter v-model="filterType" />
+                <FileTypeFilter
+                    v-model="filterType"
+                    dropdown-class="rounded-2xl!"
+                    rounded-2xl="!"
+                    button-class="rounded-xl!"
+                />
             </div>
 
             <div v-show="filtered.length" grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
@@ -61,6 +70,7 @@
                             :selected="editable && selectedFiles.includes(file.id)"
                             :data="file"
                             :selectable="editable"
+                            rounded="2xl"
                             @update:selected="
                                 (value) => {
                                     if (value) {
@@ -84,11 +94,14 @@
                 v-if="!filtered.length"
                 message="There are no files to display."
                 icon="solar:documents-bold"
+                rounded-2xl="!"
             />
             <UiPagination
                 v-model="currentPage"
                 :item-count="filtered.length"
                 :items-per-page="20"
+                rounded-2xl="!"
+                button-class="rounded-xl!"
             />
 
             <UiButton
@@ -99,6 +112,7 @@
                 variant="accent"
                 icon="solar:pen-2-bold"
                 icon-size="20"
+                rounded-2xl="!"
                 :loading="disabled"
                 :disabled
                 @click="handleChange"

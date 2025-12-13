@@ -26,6 +26,7 @@
                             wfull
                             rounded-2xl="!"
                             :input-class="aiEnabled ? 'rounded-14px!' : 'rounded-2xl!'"
+                            ai-toggle-class="rounded-xl!"
                         />
                         <FileTypeFilter
                             v-model="filterType"

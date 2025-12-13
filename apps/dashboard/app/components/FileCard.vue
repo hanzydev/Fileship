@@ -4,7 +4,6 @@
     <UiDropdown v-model="ctxOpen" as-ctx-menu placement="bottom" trigger-class="hfull">
         <div
             relative
-            rounded-xl
             motion-safe:transition-shadow
             ring="1 fs-overlay-4"
             :class="[
@@ -12,6 +11,7 @@
                 !selectable && (ctxOpen || !canBeViewed)
                     ? 'cursor-default'
                     : 'cursor-pointer hover:(ring-1 ring-fs-accent)',
+                rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl',
             ]"
             @click="selectable ? (selected = !selected) : canBeViewed && emit('viewFile', data)"
         >
@@ -27,7 +27,7 @@
                     hfull
                     wfull
                     cursor-pointer
-                    rounded-xl
+                    :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
                     backdrop-blur-sm
                     bg="[color-mix(in_srgb,_var(--fs-accent),_transparent_90%)]"
                 >
@@ -53,7 +53,7 @@
                 wfull
                 flex="~ col items-center justify-center gap2"
                 overflow-hidden
-                rounded-xl
+                :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
                 bg-fs-overlay-2
                 p4
                 text-center
@@ -82,7 +82,15 @@
                     motion-safe:transition-transform
                 />
             </div>
-            <div v-else h208px wfull rounded-xl bg-fs-overlay-2 p8 space-y-8>
+            <div
+                v-else
+                h208px
+                wfull
+                bg-fs-overlay-2
+                p8
+                space-y-8
+                :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
+            >
                 <h5 line-clamp-1 break-words text-fs-muted-3>
                     {{ data.fileName }}
                 </h5>
@@ -108,7 +116,14 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
+            <div
+                w48
+                bg-fs-overlay-2
+                p1.5
+                space-y-1
+                ring="1 fs-overlay-4"
+                :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
+            >
                 <UiButton
                     v-if="!selectable || canBeViewed"
                     variant="onOverlay"
@@ -117,6 +132,7 @@
                     wfull
                     gap2
                     :href="selectable ? undefined : data.embedUrl"
+                    :class="rounded === '2xl' && 'rounded-xl!'"
                     @click="
                         if (selectable) {
                             ctxOpen = false;
@@ -132,6 +148,7 @@
                     icon-size="20"
                     wfull
                     gap2
+                    :class="rounded === '2xl' && 'rounded-xl!'"
                     @click="handleCopy"
                 >
                     Copy Link
@@ -142,6 +159,7 @@
                     icon-size="20"
                     wfull
                     gap2
+                    :class="rounded === '2xl' && 'rounded-xl!'"
                     :href="`${data.directUrl}?download`"
                     target="_blank"
                 >
@@ -154,6 +172,7 @@
                     icon-size="20"
                     wfull
                     gap2
+                    :class="rounded === '2xl' && 'rounded-xl!'"
                     @click="
                         ctxOpen = false;
                         editModalOpen = true;
@@ -169,6 +188,7 @@
                     wfull
                     gap2
                     :disabled="updating"
+                    :class="rounded === '2xl' && 'rounded-xl!'"
                     @click="handleMoveFile(null)"
                 >
                     Take Out
@@ -184,6 +204,7 @@
                         wfull
                         gap2
                         variant="onOverlay"
+                        :class="rounded === '2xl' && 'rounded-xl!'"
                         :disabled="updating"
                     >
                         Add to Folder
@@ -193,19 +214,22 @@
                             h64
                             w64
                             overflow-y-auto
-                            rounded-xl
                             bg-fs-overlay-2
                             p1.5
                             ring="1 fs-overlay-4"
                             space-y-2
+                            :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
                         >
                             <UiSearchBar
                                 v-model="addToFolderSearchQuery"
                                 v-model:loading="isSearchingFolders"
                                 placeholder="Search folders..."
                                 h10="!"
-                                rounded-lg="!"
-                                input-class="!bg-fs-overlay-3 !rounded-lg"
+                                :class="rounded === '2xl' ? 'rounded-xl!' : 'rounded-lg!'"
+                                :input-class="[
+                                    '!bg-fs-overlay-3',
+                                    rounded === '2xl' ? 'rounded-xl!' : 'rounded-lg!',
+                                ]"
                             />
 
                             <p
@@ -229,6 +253,7 @@
                                     :disabled="updating"
                                     wfull
                                     break-all
+                                    :class="rounded === '2xl' && 'rounded-xl!'"
                                     @click="handleCreateFolderWithFile"
                                 >
                                     Create folder "{{ addToFolderSearchQuery }}"
@@ -244,6 +269,7 @@
                                     break-all
                                     icon="solar:folder-bold"
                                     icon-size="20"
+                                    :class="rounded === '2xl' && 'rounded-xl!'"
                                     @click="handleMoveFile(folder.id)"
                                 >
                                     {{ folder.name }}
@@ -260,6 +286,7 @@
                     wfull
                     gap2
                     text-red-500
+                    :class="rounded === '2xl' && 'rounded-xl!'"
                     :disabled="deleting"
                     @click="handleDelete"
                 >
@@ -273,9 +300,10 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
-const { data } = defineProps<{
+const { data, rounded } = defineProps<{
     data: FileData;
     selectable?: boolean;
+    rounded?: '2xl' | 'xl';
 }>();
 
 const selected = defineModel<boolean>('selected', {
