@@ -18,7 +18,7 @@
             hover:bg="white/20"
             motion-safe:transition-colors
             alignment="center"
-            icon="heroicons-solid:arrow-left"
+            icon="solar:arrow-left-linear"
             icon-size="20"
             variant="accent"
             :aria-label="`Stop acting as ${titleCase(currentUser!.username)}`"
@@ -37,7 +37,7 @@
             hover:bg="white/20"
             motion-safe:transition-colors
             alignment="center"
-            icon="heroicons-solid:x"
+            icon="lucide:x"
             icon-size="20"
             variant="accent"
             :aria-label="`Always act as ${titleCase(currentUser!.username)}`"

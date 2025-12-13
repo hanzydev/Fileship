@@ -36,8 +36,8 @@
                 <Icon
                     :name="
                         growth! > 0
-                            ? 'heroicons:arrow-up-right-16-solid'
-                            : 'heroicons:arrow-down-right-16-solid'
+                            ? 'solar:arrow-right-up-linear'
+                            : 'solar:arrow-right-down-linear'
                     "
                     size="20"
                 />

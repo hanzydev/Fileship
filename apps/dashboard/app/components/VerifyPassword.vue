@@ -8,7 +8,7 @@
         @submit.prevent="$emit('password', password)"
     >
         <div flex="~ gap4 items-center">
-            <Icon name="heroicons-solid:hand" size="48" />
+            <Icon name="heroicons:hand-raised-20-solid" size="48" />
             <h3>Verify password</h3>
         </div>
 
@@ -25,13 +25,13 @@
         </div>
 
         <div grid="~ gap2 sm:cols-2 sm:gap4" wfull>
-            <UiButton alignment="center" icon="heroicons-solid:x" icon-size="24" gap2 href="/login">
+            <UiButton alignment="center" icon="lucide:x" icon-size="24" gap2 href="/login">
                 Cancel
             </UiButton>
             <UiButton
                 alignment="center"
                 variant="accent"
-                icon="heroicons-solid:check"
+                icon="lucide:check"
                 icon-size="24"
                 gap2
                 type="submit"

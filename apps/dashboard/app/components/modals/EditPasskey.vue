@@ -25,7 +25,7 @@
                 <div grid="~ cols-2 gap4">
                     <UiButton
                         alignment="center"
-                        icon="heroicons-solid:x"
+                        icon="lucide:x"
                         icon-size="24"
                         wfull
                         gap2
@@ -39,7 +39,7 @@
                         alignment="center"
                         variant="accent"
                         type="submit"
-                        icon="heroicons:pencil-16-solid"
+                        icon="solar:pen-bold"
                         icon-size="20"
                         :loading="updating"
                         :disabled="updating"

@@ -19,7 +19,7 @@
                     currentUser?.superAdmin &&
                     logs.logs.filter((l) => l.action !== 'Flush Logs').length
                 "
-                icon="heroicons-solid:trash"
+                icon="solar:trash-bin-minimalistic-bold"
                 icon-size="20"
                 alignment="center"
                 variant="dangerFill"
@@ -89,7 +89,7 @@
             ]"
             :rows="calculatedLogs"
             nothing-here-message="There are no logs to display."
-            nothing-here-icon="heroicons-solid:document-search"
+            nothing-here-icon="solar:calendar-search-bold"
         />
         <UiPagination v-model="currentPage" :item-count="filtered.length" :items-per-page="20" />
     </DashboardContent>

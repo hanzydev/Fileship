@@ -28,7 +28,7 @@
             />
             <div flex="~ justify-center" absolute top-0 hfull wfull bg-fs-overlay-3>
                 <div flex="~ items-center justify-center col gap4">
-                    <Icon name="heroicons-solid:cloud-upload" size="40" />
+                    <Icon name="solar:cloud-upload-bold" size="40" />
                     <h5>Drag and drop {{ placeholder }} here</h5>
                 </div>
             </div>

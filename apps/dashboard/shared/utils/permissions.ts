@@ -30,7 +30,7 @@ export const canUploadFiles = (user: UserOrEvent) =>
 export const canTakeNotes = (user: UserOrEvent) => hasPermission(user, UserPermission.TakeNotes);
 
 export enum PermissionIcon {
-    Admin = 'heroicons-solid:shield-check',
-    UploadFiles = 'heroicons-solid:upload',
-    TakeNotes = 'heroicons:pencil-16-solid',
+    Admin = 'solar:shield-check-bold',
+    UploadFiles = 'solar:upload-minimalistic-linear',
+    TakeNotes = 'solar:pen-bold',
 }

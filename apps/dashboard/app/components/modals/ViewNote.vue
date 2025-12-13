@@ -10,7 +10,7 @@
                 v-if="isOpen && notes.length > 1"
                 variant="secondary"
                 alignment="center"
-                icon="heroicons-solid:arrow-narrow-left"
+                icon="solar:arrow-left-linear"
                 icon-class="text-2xl! sm:text-3xl!"
                 rounded-full="!"
                 p0="!"
@@ -36,7 +36,7 @@
                 v-if="isOpen && notes.length > 1"
                 variant="secondary"
                 alignment="center"
-                icon="heroicons-solid:arrow-narrow-right"
+                icon="solar:arrow-right-linear"
                 icon-class="text-2xl! sm:text-3xl!"
                 rounded-full="!"
                 p0="!"
@@ -65,7 +65,7 @@
                     v-if="currentUser?.id === data.authorId"
                     alignment="center"
                     class="h10 w10 !p0 hover:text-white"
-                    icon="heroicons:pencil-16-solid"
+                    icon="solar:pen-bold"
                     icon-size="24"
                     ring="1 fs-overlay-4"
                     @click="
@@ -78,7 +78,7 @@
                     variant="accent"
                     alignment="center"
                     class="h10 w10 !p0 hover:text-white"
-                    icon="heroicons-solid:x"
+                    icon="lucide:x"
                     icon-size="24"
                     @click="isOpen = false"
                 />
@@ -90,9 +90,9 @@
         <div flex="~ gap4 <md:col">
             <UiButton
                 :icon="
-                    copied ? 'heroicons-solid:clipboard-check' : 'heroicons-solid:clipboard-copy'
+                    copied ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold'
                 "
-                :icon-class="copied && 'text-green500'"
+                :icon-class="copied && 'text-green500!'"
                 icon-size="24"
                 wfull
                 gap2
@@ -105,7 +105,7 @@
             <UiButton
                 v-if="currentUser?.id === data.authorId"
                 variant="dangerFill"
-                icon="heroicons-solid:trash"
+                icon="solar:trash-bin-minimalistic-bold"
                 icon-size="20"
                 wfull
                 gap2

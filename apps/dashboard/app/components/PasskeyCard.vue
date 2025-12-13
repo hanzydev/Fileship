@@ -17,7 +17,7 @@
             <UiDropdown placement="right" pl1.5="!">
                 <UiButton
                     variant="tertiary"
-                    icon="heroicons-solid:cog"
+                    icon="solar:settings-minimalistic-bold"
                     icon-size="20"
                     p0="!"
                     h8
@@ -30,7 +30,7 @@
                     <div w36 rounded-xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
                         <UiButton
                             variant="onOverlay"
-                            icon="heroicons:pencil-16-solid"
+                            icon="solar:pen-bold"
                             icon-size="20"
                             wfull
                             gap2
@@ -40,7 +40,7 @@
                         </UiButton>
                         <UiButton
                             variant="onOverlay"
-                            icon="heroicons-solid:trash"
+                            icon="solar:trash-bin-minimalistic-bold"
                             icon-size="20"
                             wfull
                             gap2

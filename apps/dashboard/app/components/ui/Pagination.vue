@@ -9,7 +9,8 @@
     >
         <div grid="~ cols-2 gap2">
             <UiButton
-                icon="heroicons-solid:chevron-double-left"
+                icon="solar:double-alt-arrow-left-linear"
+                icon-size="20"
                 h8
                 w8
                 p0="!"
@@ -19,7 +20,8 @@
                 @click="currentPage = 1"
             />
             <UiButton
-                icon="heroicons-solid:chevron-left"
+                icon="solar:alt-arrow-left-linear"
+                icon-size="20"
                 h8
                 w8
                 p0="!"
@@ -49,7 +51,8 @@
         </div>
         <div grid="~ cols-2 gap2">
             <UiButton
-                icon="heroicons-solid:chevron-right"
+                icon="solar:alt-arrow-right-linear"
+                icon-size="20"
                 h8
                 w8
                 p0="!"
@@ -59,7 +62,8 @@
                 @click="next"
             />
             <UiButton
-                icon="heroicons-solid:chevron-double-right"
+                icon="solar:double-alt-arrow-right-linear"
+                icon-size="20"
                 h8
                 w8
                 p0="!"

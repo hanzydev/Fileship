@@ -38,14 +38,14 @@
                             >
                                 <Icon
                                     v-if="randomNumber(0, 1) === 0"
-                                    name="heroicons:play-solid"
+                                    name="solar:play-bold"
                                     size="64"
                                     animate-pulse
                                     op75
                                 />
                                 <Icon
                                     v-else
-                                    name="heroicons:photo-16-solid"
+                                    name="solar:gallery-bold"
                                     size="64"
                                     animate-pulse
                                     op75
@@ -83,7 +83,7 @@
                     <NothingHere
                         v-if="!filtered.length"
                         message="There are no files to display."
-                        icon="heroicons-solid:document-duplicate"
+                        icon="solar:documents-bold"
                     />
 
                     <UiPagination

@@ -31,12 +31,12 @@
                     backdrop-blur-sm
                     bg="[color-mix(in_srgb,_var(--fs-accent),_transparent_90%)]"
                 >
-                    <Icon name="heroicons-solid:check" size="56" />
+                    <Icon name="lucide:check" size="56" />
                 </div>
             </Transition>
             <Icon
                 v-if="isVideo && !selected"
-                name="heroicons:play-solid"
+                name="solar:play-bold"
                 size="64"
                 absolute
                 z10
@@ -89,17 +89,17 @@
 
                 <div flex="~ col justify-between gap2" text-fs-muted-2 font-medium>
                     <div flex="~ gap2 items-center">
-                        <Icon name="heroicons-solid:eye" size="20" />
+                        <Icon name="solar:eye-bold" size="20" />
                         <span>{{ data.views.today }} today</span>
                     </div>
 
                     <div flex="~ gap2 items-center">
-                        <Icon name="mdi:sd-storage" size="20" />
+                        <Icon name="solar:diskette-bold" size="20" />
                         <span>{{ data.size.formatted }}</span>
                     </div>
 
                     <div flex="~ gap2 items-center">
-                        <Icon name="heroicons-solid:calendar" size="20" />
+                        <Icon name="solar:calendar-bold" size="20" />
                         <span>
                             {{ dayjs(data.createdAt).format('MMM D, YYYY h:mm A') }}
                         </span>
@@ -112,7 +112,7 @@
                 <UiButton
                     v-if="!selectable || canBeViewed"
                     variant="onOverlay"
-                    icon="heroicons:eye-16-solid"
+                    icon="solar:eye-bold"
                     icon-size="20"
                     wfull
                     gap2
@@ -128,7 +128,7 @@
                 </UiButton>
                 <UiButton
                     variant="onOverlay"
-                    icon="heroicons-solid:clipboard-copy"
+                    icon="solar:clipboard-bold"
                     icon-size="20"
                     wfull
                     gap2
@@ -138,7 +138,7 @@
                 </UiButton>
                 <UiButton
                     variant="onOverlay"
-                    icon="heroicons-solid:download"
+                    icon="solar:download-minimalistic-bold"
                     icon-size="20"
                     wfull
                     gap2
@@ -150,7 +150,7 @@
                 <UiButton
                     v-if="currentUser?.id === data.authorId"
                     variant="onOverlay"
-                    icon="heroicons:pencil-16-solid"
+                    icon="solar:pen-bold"
                     icon-size="20"
                     wfull
                     gap2
@@ -164,7 +164,7 @@
                 <UiButton
                     v-if="currentUser?.id === data.authorId && data.folderId && !selectable"
                     variant="onOverlay"
-                    icon="heroicons-solid:folder-remove"
+                    icon="solar:remove-folder-bold"
                     icon-size="20"
                     wfull
                     gap2
@@ -179,7 +179,7 @@
                     hover
                 >
                     <UiButton
-                        icon="heroicons-solid:folder-add"
+                        icon="solar:add-folder-bold"
                         icon-size="20"
                         wfull
                         gap2
@@ -242,7 +242,7 @@
                                     wfull
                                     gap2
                                     break-all
-                                    icon="heroicons-solid:folder"
+                                    icon="solar:folder-bold"
                                     icon-size="20"
                                     @click="handleMoveFile(folder.id)"
                                 >
@@ -255,7 +255,7 @@
                 <UiButton
                     v-if="currentUser?.id === data.authorId"
                     variant="onOverlay"
-                    icon="heroicons-solid:trash"
+                    icon="solar:trash-bin-minimalistic-bold"
                     icon-size="20"
                     wfull
                     gap2

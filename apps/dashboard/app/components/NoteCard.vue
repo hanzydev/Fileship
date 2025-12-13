@@ -25,7 +25,7 @@
 
             <div text-fs-muted-2 space-y-2 font-medium="!">
                 <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:calendar" size="20" />
+                    <Icon name="solar:calendar-bold" size="20" />
                     <span>
                         {{ dayjs(data.createdAt).format('MMM D, YYYY h:mm A') }}
                     </span>
@@ -36,7 +36,7 @@
             <div w48 rounded-xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
                 <UiButton
                     variant="onOverlay"
-                    icon="heroicons-solid:clipboard-copy"
+                    icon="solar:clipboard-bold"
                     icon-size="20"
                     wfull
                     gap2
@@ -46,7 +46,7 @@
                 </UiButton>
                 <UiButton
                     variant="onOverlay"
-                    icon="heroicons:pencil-16-solid"
+                    icon="solar:pen-bold"
                     icon-size="20"
                     wfull
                     gap2
@@ -59,7 +59,7 @@
                 </UiButton>
                 <UiButton
                     variant="onOverlay"
-                    icon="heroicons-solid:trash"
+                    icon="solar:trash-bin-minimalistic-bold"
                     icon-size="20"
                     wfull
                     gap2

@@ -23,7 +23,7 @@
                 <StatCard
                     title="Files"
                     description="uploaded files"
-                    icon="heroicons-solid:document"
+                    icon="solar:documents-bold"
                     :data="stats?.files?.count"
                     :growth="stats?.files?.growth"
                     :loading="isLoading"
@@ -31,7 +31,7 @@
                 <StatCard
                     title="Views"
                     description="total file views"
-                    icon="heroicons-solid:eye"
+                    icon="solar:eye-bold"
                     :data="stats?.views?.count"
                     :growth="stats?.views?.growth"
                     :loading="isLoading"
@@ -39,7 +39,7 @@
                 <StatCard
                     title="Storage"
                     description="used storage"
-                    icon="mdi:sd-storage"
+                    icon="solar:diskette-bold"
                     :data="stats?.storageUsed?.size"
                     :growth="stats?.storageUsed?.growth"
                     :loading="isLoading"
@@ -47,7 +47,7 @@
                 <StatCard
                     title="Users"
                     description="total users"
-                    icon="iconamoon:profile-fill"
+                    icon="solar:users-group-rounded-bold"
                     :data="stats?.users?.count"
                     :growth="stats?.users?.growth"
                     :loading="isLoading"
@@ -70,12 +70,12 @@
                     >
                         <Icon
                             v-if="randomNumber(0, 1) === 0"
-                            name="heroicons:play-solid"
+                            name="solar:play-bold"
                             size="64"
                             animate-pulse
                             op75
                         />
-                        <Icon v-else name="heroicons:photo-16-solid" size="64" animate-pulse op75 />
+                        <Icon v-else name="solar:gallery-bold" size="64" animate-pulse op75 />
                     </UiSkeletonCard>
                 </template>
                 <TransitionGroup
@@ -109,7 +109,7 @@
             <NothingHere
                 v-if="!filteredFiles.length && !isLoading"
                 message="There are no files to display."
-                icon="heroicons-solid:document-duplicate"
+                icon="solar:documents-bold"
             />
         </div>
 
@@ -154,8 +154,8 @@
                                         alignment: 'center',
                                         class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
                                         icon: canBeViewed
-                                            ? 'heroicons:eye-16-solid'
-                                            : 'heroicons-solid:external-link',
+                                            ? 'solar:eye-bold'
+                                            : 'lucide:external-link',
                                         iconSize: '20',
                                         'aria-label': canBeViewed
                                             ? 'View file'
@@ -178,12 +178,12 @@
                                         class: [
                                             'h8 w8 !p0 hover:text-white',
                                             copiedFiles.has(row.fileName)
-                                                ? 'text-green500'
+                                                ? 'text-green500!'
                                                 : 'text-fs-muted-2',
                                         ],
                                         icon: copiedFiles.has(row.fileName)
-                                            ? 'heroicons-solid:clipboard-check'
-                                            : 'heroicons-solid:clipboard-copy',
+                                            ? 'solar:clipboard-check-bold'
+                                            : 'solar:clipboard-bold',
                                         iconSize: '20',
                                         'aria-label': 'Copy link to clipboard',
                                         onClick: () => handleCopy(row),
@@ -194,7 +194,7 @@
                                         class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
                                         href: `${row.directUrl}?download`,
                                         target: '_blank',
-                                        icon: 'heroicons-solid:download',
+                                        icon: 'solar:download-minimalistic-bold',
                                         iconSize: '20',
                                         'aria-label': 'Download file',
                                     }),
@@ -202,7 +202,7 @@
                                         variant: 'outline',
                                         alignment: 'center',
                                         class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
-                                        icon: 'heroicons:pencil-16-solid',
+                                        icon: 'solar:pen-bold',
                                         iconSize: '20',
                                         'aria-label': 'Edit file',
                                         onClick: () => {
@@ -214,7 +214,7 @@
                                         variant: 'outline',
                                         alignment: 'center',
                                         class: 'h8 w8 !p0 ring-red-500 text-fs-muted-2 hover:text-white hover:!bg-red-500',
-                                        icon: 'heroicons-solid:trash',
+                                        icon: 'solar:trash-bin-minimalistic-bold',
                                         iconSize: '20',
                                         disabled: willBeDeleted.has(row.id),
                                         loading: willBeDeleted.has(row.id),
@@ -227,7 +227,7 @@
                     ]"
                     :rows="calculatedFiles"
                     nothing-here-message="There are no files to display."
-                    nothing-here-icon="heroicons-solid:document-duplicate"
+                    nothing-here-icon="solar:documents-bold"
                 />
                 <UiPagination
                     v-model="currentPage"

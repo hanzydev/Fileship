@@ -18,7 +18,7 @@
             >
                 <div v-if="hubMode" flex="~ col items-center justify-center gap8" absolute wfull p8>
                     <div flex="~ lt-sm:col items-center gap4">
-                        <Icon name="heroicons-solid:hand" size="96" />
+                        <Icon name="heroicons:hand-raised-20-solid" size="96" />
                         <div sm:text-left lt-sm:space-y-2>
                             <h3 sm:text-left>Multi-Factor Authentication</h3>
                             <p text-fs-muted-1>This extra step shows that it's really you.</p>
@@ -28,7 +28,7 @@
                         <UiButton
                             v-if="passkeyAvailable"
                             alignment="right"
-                            icon="heroicons-solid:chevron-right"
+                            icon="lucide:chevron-right"
                             icon-size="20"
                             icon-class="mla"
                             wfull
@@ -44,7 +44,7 @@
                         <UiButton
                             v-if="totpAvailable"
                             alignment="right"
-                            icon="heroicons-solid:chevron-right"
+                            icon="lucide:chevron-right"
                             icon-size="20"
                             icon-class="mla"
                             wfull
@@ -60,7 +60,7 @@
                         <UiButton
                             v-if="passwordAvailable"
                             alignment="right"
-                            icon="heroicons-solid:chevron-right"
+                            icon="lucide:chevron-right"
                             icon-size="20"
                             icon-class="mla"
                             wfull
@@ -78,7 +78,7 @@
                     <UiButton
                         alignment="center"
                         variant="accent"
-                        icon="heroicons-solid:x"
+                        icon="lucide:x"
                         icon-size="24"
                         wfull
                         gap2
@@ -90,7 +90,7 @@
                 </div>
                 <div v-else flex="~ col items-center justify-center gap8" absolute wfull p8>
                     <div flex="~ lt-sm:col items-center gap4">
-                        <Icon name="heroicons-solid:hand" size="96" />
+                        <Icon name="heroicons:hand-raised-20-solid" size="96" />
                         <div sm:text-left lt-sm:space-y-2>
                             <h3 sm:text-left>Multi-Factor Authentication</h3>
                             <p text-fs-muted-1>
@@ -108,7 +108,7 @@
                     <div v-if="selectedMethod === 'passkey'">
                         <UiButton
                             variant="accent"
-                            icon="heroicons-solid:finger-print"
+                            icon="lucide:fingerprint-pattern"
                             icon-size="20"
                             gap2
                             @click="handlePasskey"
@@ -158,7 +158,7 @@
                         <div flex="~ gap2" mla lt-md:wfull>
                             <UiButton
                                 alignment="center"
-                                icon="heroicons-solid:x"
+                                icon="lucide:x"
                                 icon-size="24"
                                 wfull
                                 gap2
@@ -175,7 +175,7 @@
                                 v-if="selectedMethod !== 'passkey'"
                                 alignment="center"
                                 variant="accent"
-                                icon="heroicons-solid:check"
+                                icon="lucide:check"
                                 icon-size="24"
                                 wfull
                                 gap2

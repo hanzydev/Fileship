@@ -25,7 +25,7 @@
 
             <div text-fs-muted-2 space-y-2 font-medium="!">
                 <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:document" size="20" />
+                    <Icon name="solar:documents-bold" size="20" />
                     <span>{{ data.files.length }} files</span>
                 </div>
 
@@ -33,8 +33,8 @@
                     <Icon
                         :name="
                             data.public
-                                ? 'heroicons-solid:lock-open'
-                                : 'heroicons-solid:lock-closed'
+                                ? 'solar:lock-keyhole-minimalistic-unlocked-bold'
+                                : 'solar:lock-keyhole-minimalistic-bold'
                         "
                         size="20"
                     />
@@ -42,7 +42,7 @@
                 </div>
 
                 <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:calendar" size="20" />
+                    <Icon name="solar:calendar-bold" size="20" />
                     <span>
                         {{ dayjs(data.createdAt).format('MMM D, YYYY h:mm A') }}
                     </span>
@@ -54,7 +54,7 @@
                 <UiButton
                     v-if="data.public"
                     variant="onOverlay"
-                    icon="heroicons-solid:clipboard-copy"
+                    icon="solar:clipboard-bold"
                     icon-size="20"
                     wfull
                     gap2
@@ -64,7 +64,7 @@
                 </UiButton>
                 <UiButton
                     variant="onOverlay"
-                    icon="heroicons:pencil-16-solid"
+                    icon="solar:pen-bold"
                     icon-size="20"
                     wfull
                     gap2
@@ -77,7 +77,7 @@
                 </UiButton>
                 <UiButton
                     variant="onOverlay"
-                    icon="heroicons-solid:pencil-alt"
+                    icon="solar:gallery-edit-bold"
                     icon-size="20"
                     wfull
                     gap2
@@ -91,7 +91,7 @@
                 </UiButton>
                 <UiButton
                     variant="onOverlay"
-                    icon="heroicons-solid:trash"
+                    icon="solar:trash-bin-minimalistic-bold"
                     icon-size="20"
                     wfull
                     gap2

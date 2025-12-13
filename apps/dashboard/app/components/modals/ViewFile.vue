@@ -32,15 +32,15 @@
                     <h3 line-clamp-2 break-all>{{ data.fileName }}</h3>
                     <div flex="~ gap2 wrap">
                         <div v-if="data.views" flex="~ items-center gap2">
-                            <Icon name="heroicons-solid:eye" size="24" />
+                            <Icon name="solar:eye-bold" size="24" />
                             <span font-medium="!">{{ data.views.today }} today</span>
                         </div>
                         <div flex="~ items-center gap2">
-                            <Icon name="mdi:sd-storage" size="24" />
+                            <Icon name="solar:diskette-bold" size="24" />
                             <span font-medium="!">{{ data.size!.formatted }}</span>
                         </div>
                         <div flex="~ items-center gap2">
-                            <Icon name="heroicons-solid:calendar" size="24" />
+                            <Icon name="solar:calendar-bold" size="24" />
                             <span font-medium="!">
                                 {{ dayjs(data.createdAt).fromNow() }}
                             </span>
@@ -59,7 +59,7 @@
                             alignment="center"
                             variant="onOverlay"
                             class="size-9 shrink-0 text-fs-muted-2 !rounded !p0 hover:text-white"
-                            icon="heroicons-solid:download"
+                            icon="solar:download-minimalistic-bold"
                             icon-size="24"
                             :href="`${data.directUrl}?download`"
                             target="_blank"
@@ -71,10 +71,10 @@
                             class="size-9 shrink-0 text-fs-muted-2 !rounded !p0 hover:text-white"
                             :icon="
                                 copied
-                                    ? 'heroicons-solid:clipboard-check'
-                                    : 'heroicons-solid:clipboard-copy'
+                                    ? 'solar:clipboard-check-bold'
+                                    : 'solar:clipboard-bold'
                             "
-                            :icon-class="copied && 'text-green500'"
+                            :icon-class="copied && 'text-green500!'"
                             icon-size="20"
                             @click="handleCopy"
                         />
@@ -85,7 +85,7 @@
                                 alignment="center"
                                 variant="onOverlay"
                                 class="size-9 shrink-0 text-fs-muted-2 !rounded !p0 hover:text-white"
-                                icon="heroicons-solid:folder-remove"
+                                icon="solar:remove-folder-bold"
                                 icon-size="24"
                                 :disabled="takingOut"
                                 :loading="takingOut"
@@ -95,7 +95,7 @@
                                 alignment="center"
                                 variant="onOverlay"
                                 class="size-9 shrink-0 text-fs-muted-2 !rounded !p0 hover:text-white"
-                                icon="heroicons:pencil-16-solid"
+                                icon="solar:pen-bold"
                                 icon-size="24"
                                 @click="editModalOpen = true"
                             />
@@ -103,7 +103,7 @@
                                 alignment="center"
                                 class="size-9 shrink-0 text-fs-muted-2 !rounded !p0 !hover:(bg-red-600 text-white)"
                                 variant="onOverlay"
-                                icon="heroicons-solid:trash"
+                                icon="solar:trash-bin-minimalistic-bold"
                                 icon-size="20"
                                 :disabled="deleting"
                                 :loading="deleting"
@@ -116,7 +116,7 @@
                         variant="accent"
                         alignment="center"
                         class="size-11 shrink-0 text-fs-muted-2 !p0 hover:text-white"
-                        icon="heroicons-solid:x"
+                        icon="lucide:x"
                         icon-size="24"
                         @click="isOpen = false"
                     />
@@ -132,7 +132,7 @@
                     v-if="files.length > 1"
                     variant="secondary"
                     alignment="center"
-                    icon="heroicons-solid:arrow-narrow-left"
+                    icon="solar:arrow-left-linear"
                     icon-size="24"
                     aria-label="Previous"
                     data-ignore-modal-outer-click
@@ -213,7 +213,7 @@
                     v-if="files.length > 1"
                     variant="secondary"
                     alignment="center"
-                    icon="heroicons-solid:arrow-narrow-right"
+                    icon="solar:arrow-right-linear"
                     icon-size="24"
                     aria-label="Next"
                     data-ignore-modal-outer-click
@@ -283,8 +283,8 @@
                             <Icon
                                 :name="
                                     file.mimeType!.startsWith('audio/')
-                                        ? 'heroicons-solid:musical-note'
-                                        : 'heroicons-solid:video-camera'
+                                        ? 'solar:music-note-bold'
+                                        : 'solar:videocamera-bold'
                                 "
                                 size="24"
                                 absolute
@@ -368,8 +368,8 @@
                                 <Icon
                                     :name="
                                         item.file.mimeType!.startsWith('audio/')
-                                            ? 'heroicons-solid:musical-note'
-                                            : 'heroicons-solid:video-camera'
+                                            ? 'solar:music-note-bold'
+                                            : 'solar:videocamera-bold'
                                     "
                                     size="24"
                                     absolute

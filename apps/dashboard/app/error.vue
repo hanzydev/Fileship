@@ -31,7 +31,8 @@
                     flex-row-reverse
                     gap2
                     px6
-                    icon="heroicons-solid:arrow-right"
+                    icon="solar:arrow-right-linear"
+                    icon-size="20"
                     @click="canHistoryComeBack ? router.back() : router.push('/dashboard')"
                 >
                     Go back

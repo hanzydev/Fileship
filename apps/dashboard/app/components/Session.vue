@@ -68,7 +68,7 @@
                     :class="disabled && 'cursor-not-allowed op50'"
                     @click="handleRemoveSession()"
                 >
-                    <Icon name="heroicons-solid:x" size="24" />
+                    <Icon name="lucide:x" size="24" />
                 </button>
             </div>
             <UiDivider v-if="data.id !== currentUser!.currentSessionId" />

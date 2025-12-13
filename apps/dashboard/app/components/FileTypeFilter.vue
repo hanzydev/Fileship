@@ -1,7 +1,7 @@
 <template>
     <UiDropdown placement="bottom" wrapper-class="wfull sm:w56" pt1.5="!" wfull sm:w56>
         <UiButton
-            icon="heroicons-solid:filter"
+            icon="solar:filter-bold"
             icon-size="20"
             h12
             wfull
@@ -30,8 +30,8 @@
                     :key="_type"
                     :icon="
                         filterType.includes(_type as never)
-                            ? 'heroicons-solid:check'
-                            : 'heroicons-solid:filter'
+                            ? 'lucide:check'
+                            : 'solar:filter-bold'
                     "
                     :variant="filterType.includes(_type as never) ? 'accent' : 'onOverlay'"
                     icon-size="20"

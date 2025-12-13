@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-const { icon = 'heroicons-solid:plus' } = defineProps<{
+const { icon = 'solar:add-square-bold' } = defineProps<{
     icon?: string;
     disabled?: boolean;
 }>();

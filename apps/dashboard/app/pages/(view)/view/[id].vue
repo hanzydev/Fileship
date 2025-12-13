@@ -98,7 +98,7 @@
                         gap2
                         variant="accent"
                         alignment="center"
-                        icon="heroicons-solid:download"
+                        icon="solar:download-minimalistic-bold"
                         icon-size="20"
                         :href="`${fileUrl}${data.password ? '&' : '?'}download`"
                     >

@@ -8,8 +8,8 @@
                 <UiButton
                     :icon="
                         isErrored
-                            ? 'heroicons-solid:exclamation-circle'
-                            : 'heroicons-solid:information-circle'
+                            ? 'heroicons:exclamation-circle-solid'
+                            : 'heroicons:information-circle-solid'
                     "
                     py3="!"
                     :class="isErrored ? '!ring-red-500' : 'ring-fs-overlay-4'"
@@ -48,7 +48,7 @@
                     >
                         <div space-y-2>
                             <div flex="~ items-center gap2">
-                                <Icon name="heroicons-solid:document-duplicate" size="24" />
+                                <Icon name="solar:documents-bold" size="24" />
                                 <h3>{{ uploadingFiles.length }} file(s)</h3>
                             </div>
                             <UiDivider />
@@ -84,7 +84,7 @@
                                     >
                                         <template v-if="file.status?.error">
                                             <Icon
-                                                name="heroicons-solid:exclamation-circle"
+                                                name="heroicons:exclamation-circle-solid"
                                                 size="16"
                                                 flex-shrink-0
                                                 text-red-500
@@ -95,7 +95,7 @@
                                             v-else-if="file.status?.progress?.percent === 100"
                                         >
                                             <Icon
-                                                name="heroicons-solid:check-circle"
+                                                name="solar:check-circle-bold"
                                                 size="16"
                                                 flex-shrink-0
                                                 text-fs-accent
@@ -104,7 +104,7 @@
                                         </template>
                                         <template v-else-if="!file.status?.started">
                                             <Icon
-                                                name="heroicons-solid:clock"
+                                                name="solar:alarm-bold"
                                                 size="16"
                                                 flex-shrink-0
                                                 text-yellow-500
@@ -114,7 +114,7 @@
 
                                         <template v-else-if="file.status?.progress?.percent">
                                             <Icon
-                                                name="heroicons-solid:upload"
+                                                name="solar:upload-minimalistic-linear"
                                                 size="16"
                                                 flex-shrink-0
                                             />
@@ -122,7 +122,7 @@
                                         </template>
                                         <template v-else-if="file.status?.started">
                                             <Icon
-                                                name="heroicons:rocket-launch-20-solid"
+                                                name="solar:rocket-2-bold"
                                                 size="16"
                                                 flex-shrink-0
                                                 text-green-500
@@ -171,7 +171,7 @@
                                             gap2
                                             text-red-500
                                             py1="!"
-                                            icon="heroicons-solid:x"
+                                            icon="lucide:x"
                                             icon-size="20"
                                             :disabled="!file.status?.error && file.status?.started"
                                             @click="

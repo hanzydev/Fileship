@@ -24,7 +24,7 @@
                     {{ editable ? 'Select Files' : 'Files' }}
                 </h2>
                 <UiButton
-                    icon="heroicons-solid:x"
+                    icon="lucide:x"
                     absolute
                     right-8
                     top-8
@@ -83,7 +83,7 @@
             <NothingHere
                 v-if="!filtered.length"
                 message="There are no files to display."
-                icon="heroicons-solid:document-duplicate"
+                icon="solar:documents-bold"
             />
             <UiPagination
                 v-model="currentPage"
@@ -97,7 +97,7 @@
                 gap2
                 alignment="center"
                 variant="accent"
-                icon="heroicons:pencil-16-solid"
+                icon="solar:pen-bold"
                 icon-size="20"
                 :loading="disabled"
                 :disabled

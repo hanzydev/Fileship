@@ -18,8 +18,8 @@
                     :key="index"
                     :icon="
                         option.value === compression.value
-                            ? 'heroicons-solid:check'
-                            : 'heroicons-solid:archive'
+                            ? 'lucide:check'
+                            : 'solar:archive-bold'
                     "
                     :variant="option.value === compression.value ? 'accent' : 'onOverlay'"
                     icon-size="20"

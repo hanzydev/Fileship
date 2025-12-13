@@ -15,7 +15,7 @@
                 <StatCard
                     title="Files"
                     description="uploaded files"
-                    icon="heroicons-solid:document"
+                    icon="solar:documents-bold"
                     :data="stats?.files?.count"
                     :growth="stats?.files?.growth"
                     :loading="isLoading"
@@ -23,7 +23,7 @@
                 <StatCard
                     title="Views"
                     description="total file views"
-                    icon="heroicons-solid:eye"
+                    icon="solar:eye-bold"
                     :data="stats?.views?.count"
                     :growth="stats?.views?.growth"
                     :loading="isLoading"
@@ -31,7 +31,7 @@
                 <StatCard
                     title="Storage"
                     description="used storage"
-                    icon="mdi:sd-storage"
+                    icon="solar:diskette-bold"
                     :data="stats?.storageUsed?.size"
                     :growth="stats?.storageUsed?.growth"
                     :loading="isLoading"
@@ -171,7 +171,7 @@
                         },
                     ]"
                     :rows="stats?.topUploaders"
-                    nothing-here-icon="heroicons-solid:document"
+                    nothing-here-icon="solar:document-bold"
                     nothing-here-message="There is no data to display."
                 />
                 <div
@@ -250,7 +250,7 @@
                         },
                     ]"
                     :rows="stats?.storageUsed?.byUser"
-                    nothing-here-icon="heroicons-solid:document"
+                    nothing-here-icon="solar:document-bold"
                     nothing-here-message="There is no data to display."
                 />
                 <div
@@ -305,7 +305,7 @@
                         },
                     ]"
                     :rows="stats?.topTypes"
-                    nothing-here-icon="heroicons-solid:document"
+                    nothing-here-icon="solar:document-bold"
                     nothing-here-message="There is no data to display."
                 />
                 <div

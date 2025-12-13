@@ -33,8 +33,8 @@
                         :key="index"
                         :icon="
                             lang.label === fileType.label
-                                ? 'heroicons-solid:check'
-                                : 'heroicons-solid:code'
+                                ? 'lucide:check'
+                                : 'solar:code-bold'
                         "
                         :variant="lang.label === fileType.label ? 'accent' : 'onOverlay'"
                         icon-size="20"

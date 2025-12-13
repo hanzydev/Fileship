@@ -18,7 +18,7 @@
                 bg-fs-overlay-3
                 hover="!ring-none !bg-fs-overlay-4"
                 alignment="center"
-                icon="heroicons-solid:chevron-down"
+                icon="lucide:chevron-down"
                 icon-size="20"
                 :icon-class="['motion-safe:transition-transform', isOpen && 'rotate-x-180']"
             />

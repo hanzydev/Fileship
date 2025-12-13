@@ -35,7 +35,7 @@
                 motion-safe:transition-all
                 p1="!"
                 :class="!readonly && !(value as any)?.length && 'invisible op0'"
-                :icon="passwordVisible ? 'heroicons-solid:eye' : 'heroicons-solid:eye-off'"
+                :icon="passwordVisible ? 'solar:eye-bold' : 'solar:eye-bold-off'"
                 icon-size="20"
                 variant="secondary"
                 hover="!ring-none"
@@ -58,7 +58,7 @@
                     rounded="none tr-lg"
                     bg-transparent
                     p1="!"
-                    icon="heroicons-solid:chevron-up"
+                    icon="lucide:chevron-up"
                     aria-label="Increment value"
                     :disabled="disabled || readonly || (value as number) >= max!"
                     @click="(value as number)++"
@@ -67,7 +67,7 @@
                     rounded="none br-lg"
                     bg-transparent
                     p1="!"
-                    icon="heroicons-solid:chevron-down"
+                    icon="lucide:chevron-down"
                     aria-label="Decrement value"
                     :disabled="disabled || readonly || (value as number) <= min!"
                     @click="(value as number)--"

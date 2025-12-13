@@ -19,8 +19,8 @@
                     :key="index"
                     :icon="
                         option.value === expiration.value
-                            ? 'heroicons-solid:check'
-                            : 'heroicons-solid:clock'
+                            ? 'lucide:check'
+                            : 'solar:alarm-bold'
                     "
                     :variant="option.value === expiration.value ? 'accent' : 'onOverlay'"
                     icon-size="20"

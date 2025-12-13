@@ -72,7 +72,7 @@
                                 gap2
                                 variant="accent"
                                 type="submit"
-                                icon="heroicons-solid:lock-closed"
+                                icon="solar:lock-keyhole-minimalistic-bold"
                                 icon-size="20"
                                 :loading="loggingIn"
                                 :disabled="passkeyLoggingIn || loggingIn"
@@ -86,7 +86,7 @@
                                     size-10
                                     gap2
                                     variant="secondary"
-                                    icon="heroicons-solid:finger-print"
+                                    icon="lucide:fingerprint-pattern"
                                     icon-size="24"
                                     p0="!"
                                     :loading="passkeyLoggingIn"
@@ -133,7 +133,7 @@
                                 wfull
                                 gap2
                                 variant="secondary"
-                                icon="heroicons-solid:arrow-left"
+                                icon="solar:arrow-left-linear"
                                 icon-size="20"
                                 :disabled="loggingIn"
                                 @click="section = 'login'"
@@ -146,7 +146,7 @@
                                 gap2
                                 variant="accent"
                                 type="submit"
-                                icon="heroicons-solid:lock-closed"
+                                icon="solar:lock-keyhole-minimalistic-bold"
                                 icon-size="20"
                                 :loading="loggingIn"
                                 :disabled="loggingIn"

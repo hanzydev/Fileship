@@ -49,8 +49,8 @@
                         :key="index"
                         :icon="
                             option.id === folder.value
-                                ? 'heroicons-solid:check'
-                                : 'heroicons-solid:folder'
+                                ? 'lucide:check'
+                                : 'solar:folder-bold'
                         "
                         :variant="option.id === folder.value ? 'accent' : 'onOverlay'"
                         icon-size="20"

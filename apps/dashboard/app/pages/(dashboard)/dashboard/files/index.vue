@@ -36,12 +36,12 @@
                 >
                     <Icon
                         v-if="randomNumber(0, 1) === 0"
-                        name="heroicons:play-solid"
+                        name="solar:play-bold"
                         size="64"
                         animate-pulse
                         op75
                     />
-                    <Icon v-else name="heroicons:photo-16-solid" size="64" animate-pulse op75 />
+                    <Icon v-else name="solar:gallery-bold" size="64" animate-pulse op75 />
                 </UiSkeletonCard>
             </template>
             <TransitionGroup

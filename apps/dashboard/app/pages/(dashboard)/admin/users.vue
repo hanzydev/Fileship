@@ -31,7 +31,7 @@
         <template #header>
             <h2>Users</h2>
             <UiButton
-                icon="heroicons-solid:user-add"
+                icon="solar:user-plus-bold"
                 icon-size="20"
                 alignment="center"
                 variant="accent"
@@ -80,7 +80,7 @@
                     width: '10%',
                     render: ({ superAdmin }) =>
                         h(Icon, {
-                            name: superAdmin ? 'heroicons-solid:check' : 'heroicons-solid:x',
+                            name: superAdmin ? 'lucide:check' : 'lucide:x',
                             size: '20',
                         }),
                 },
@@ -113,7 +113,7 @@
                                 variant: 'outline',
                                 alignment: 'center',
                                 class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
-                                icon: 'heroicons-solid:switch-horizontal',
+                                icon: 'lucide:arrow-right-left',
                                 iconSize: '20',
                                 disabled:
                                     (row.superAdmin && !currentUser!.superAdmin) ||
@@ -127,7 +127,7 @@
                                 variant: 'outline',
                                 alignment: 'center',
                                 class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
-                                icon: 'heroicons:pencil-16-solid',
+                                icon: 'solar:pen-bold',
                                 iconSize: '20',
                                 disabled: row.superAdmin && !currentUser!.superAdmin,
                                 'aria-label': 'Edit user',
@@ -143,7 +143,7 @@
                                 variant: 'outline',
                                 alignment: 'center',
                                 class: 'h8 w8 !p0 ring-red-500 text-fs-muted-2 hover:text-white hover:!bg-red-500',
-                                icon: 'heroicons-solid:trash',
+                                icon: 'solar:trash-bin-minimalistic-bold',
                                 iconSize: '20',
                                 disabled:
                                     (row.superAdmin && !currentUser!.superAdmin) ||

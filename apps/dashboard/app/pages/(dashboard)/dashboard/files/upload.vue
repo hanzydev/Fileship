@@ -16,15 +16,15 @@
                 :items="[
                     {
                         label: 'Random',
-                        icon: 'heroicons-solid:cube',
+                        icon: 'solar:box-bold',
                     },
                     {
                         label: 'UUID',
-                        icon: 'heroicons-solid:key',
+                        icon: 'solar:key-bold',
                     },
                     {
                         label: 'Original',
-                        icon: 'heroicons-solid:document',
+                        icon: 'solar:document-bold',
                     },
                 ]"
                 width-full
@@ -85,7 +85,7 @@
     <DashboardContent>
         <template #header>
             <UiButton
-                icon="heroicons-solid:arrow-left"
+                icon="solar:arrow-left-linear"
                 icon-size="20"
                 alignment="center"
                 size-10
@@ -100,11 +100,11 @@
             :items="[
                 {
                     label: 'Media Upload',
-                    icon: 'heroicons:photo-solid',
+                    icon: 'solar:gallery-bold',
                 },
                 {
                     label: 'Text Upload',
-                    icon: 'heroicons:document-text-solid',
+                    icon: 'solar:document-text-bold',
                 },
             ]"
             width-full
@@ -167,7 +167,7 @@
                     gap2
                     alignment="center"
                     variant="accent"
-                    icon="heroicons-solid:upload"
+                    icon="solar:upload-minimalistic-linear"
                     icon-size="20"
                     :disabled="
                         uploading ||
@@ -185,7 +185,7 @@
                     w10
                     p0="!"
                     alignment="center"
-                    icon="heroicons-solid:cog"
+                    icon="solar:settings-minimalistic-bold"
                     icon-size="20"
                     variant="secondary"
                     flex-shrink-0

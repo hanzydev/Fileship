@@ -21,7 +21,7 @@
             motion-safe:transition-colors
         >
             <Icon
-                name="heroicons:magnifying-glass-16-solid"
+                name="solar:magnifer-linear"
                 absolute
                 left-3
                 z-10

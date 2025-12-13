@@ -36,14 +36,14 @@
 
             <div text-fs-muted-2 font-medium space-y-2>
                 <div flex="~ gap2 items-center">
-                    <Icon name="mdi:sd-storage" size="20" />
+                    <Icon name="solar:diskette-bold" size="20" />
                     <span>
                         {{ data.size.formatted }}
                     </span>
                 </div>
 
                 <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:calendar" size="20" />
+                    <Icon name="solar:calendar-bold" size="20" />
                     <span>
                         {{ dayjs(data.createdAt).format('MMM D, YYYY h:mm A') }}
                     </span>
@@ -54,7 +54,7 @@
             <div w48 rounded-xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
                 <UiButton
                     variant="onOverlay"
-                    icon="heroicons-solid:download"
+                    icon="solar:download-minimalistic-bold"
                     icon-size="20"
                     wfull
                     gap2
@@ -65,7 +65,7 @@
                 </UiButton>
                 <UiButton
                     variant="onOverlay"
-                    icon="heroicons-solid:trash"
+                    icon="solar:trash-bin-minimalistic-bold"
                     icon-size="20"
                     wfull
                     gap2

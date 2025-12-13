@@ -76,7 +76,7 @@
         <UiButton
             alignment="center"
             variant="accent"
-            icon="heroicons-solid:x"
+            icon="lucide:x"
             icon-size="24"
             wfull
             gap2
@@ -99,15 +99,15 @@
                 :items="[
                     {
                         label: 'Random',
-                        icon: 'heroicons-solid:cube',
+                        icon: 'solar:box-bold',
                     },
                     {
                         label: 'UUID',
-                        icon: 'heroicons-solid:key',
+                        icon: 'solar:key-bold',
                     },
                     {
                         label: 'Original',
-                        icon: 'heroicons-solid:document',
+                        icon: 'solar:document-bold',
                     },
                 ]"
                 width-full
@@ -151,7 +151,7 @@
         <div grid="~ cols-2 gap4">
             <UiButton
                 alignment="center"
-                icon="heroicons-solid:x"
+                icon="lucide:x"
                 icon-size="24"
                 wfull
                 gap2
@@ -165,7 +165,7 @@
                 alignment="center"
                 variant="accent"
                 type="submit"
-                icon="heroicons-solid:download"
+                icon="solar:download-minimalistic-bold"
                 icon-size="20"
                 @click="handleGenShareXConfig"
             >
@@ -182,7 +182,7 @@
         <div ref="content" space-y-6>
             <UiExpander op0>
                 <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:identification" size="24" />
+                    <Icon name="solar:user-id-bold" size="24" />
                     <h5>My Account</h5>
                 </div>
                 <template #content>
@@ -216,7 +216,7 @@
                             alignment="center"
                             variant="accent"
                             type="submit"
-                            icon="heroicons:pencil-16-solid"
+                            icon="solar:pen-bold"
                             icon-size="20"
                             :loading="userUpdating"
                             :disabled="userUpdating"
@@ -229,7 +229,7 @@
 
             <UiExpander op0>
                 <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:photograph" size="24" />
+                    <Icon name="solar:gallery-bold" size="24" />
                     <h5>Avatar</h5>
                 </div>
                 <template #content>
@@ -285,7 +285,7 @@
                                 alignment="center"
                                 variant="dangerFill"
                                 type="submit"
-                                icon="heroicons-solid:trash"
+                                icon="solar:trash-bin-minimalistic-bold"
                                 icon-size="20"
                                 :loading="avatarResetting"
                                 :disabled="
@@ -301,7 +301,7 @@
                                 alignment="center"
                                 variant="accent"
                                 type="submit"
-                                icon="heroicons:pencil-16-solid"
+                                icon="solar:pen-bold"
                                 icon-size="20"
                                 :loading="avatarUpdating"
                                 :disabled="
@@ -319,7 +319,7 @@
 
             <UiExpander op0>
                 <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:globe-alt" size="24" />
+                    <Icon name="solar:global-bold" size="24" />
                     <h5>Domains</h5>
                 </div>
 
@@ -350,7 +350,7 @@
                             alignment="center"
                             variant="accent"
                             type="submit"
-                            icon="heroicons:pencil-16-solid"
+                            icon="solar:pen-bold"
                             icon-size="20"
                             :loading="domainsUpdating"
                             :disabled="domainsUpdating"
@@ -363,7 +363,7 @@
 
             <UiExpander op0>
                 <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:shield-check" size="24" />
+                    <Icon name="solar:shield-check-bold" size="24" />
                     <h5>Multi-Factor Authentication</h5>
                 </div>
 
@@ -411,14 +411,14 @@
                                 text-red-600
                                 font-medium
                             >
-                                <Icon name="heroicons-solid:exclamation" size="20" />
+                                <Icon name="heroicons:exclamation-triangle-solid" size="20" />
                                 <p>Your browser does not support passkeys.</p>
                             </div>
                             <UiButton
                                 v-else
                                 variant="accent"
                                 gap2
-                                icon="heroicons:key-20-solid"
+                                icon="solar:key-bold"
                                 icon-size="20"
                                 :disabled="registeringPasskey"
                                 :loading="registeringPasskey"
@@ -433,7 +433,7 @@
 
             <UiExpander op0>
                 <div flex="~ gap2 items-center">
-                    <Icon name="heroicons-solid:lock-closed" size="24" />
+                    <Icon name="solar:sun-2-bold" size="24" />
                     <h5>Embed Configuration</h5>
                 </div>
                 <template #content>
@@ -511,7 +511,7 @@
                             alignment="center"
                             variant="accent"
                             type="submit"
-                            icon="heroicons:pencil-16-solid"
+                            icon="solar:pen-bold"
                             icon-size="20"
                             :loading="userUpdating"
                             :disabled="embedUpdating"
@@ -526,7 +526,7 @@
                 <UiButton
                     gap2
                     variant="accent"
-                    icon="heroicons-solid:download"
+                    icon="solar:download-minimalistic-bold"
                     icon-size="20"
                     lt-sm:wfull
                     @click="shareXConfigModal.open = true"
