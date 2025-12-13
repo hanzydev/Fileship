@@ -64,7 +64,7 @@
                             },
                             chart: {
                                 background: 'transparent',
-                                fontFamily: 'Quicksand, sans-serif',
+                                fontFamily: 'Nunito Sans, sans-serif',
                                 foreColor: theme.colors.slate[200],
                                 toolbar: {
                                     show: false,
@@ -365,7 +365,7 @@ const basePieOptions = {
     },
     chart: {
         background: 'transparent',
-        fontFamily: 'Quicksand, sans-serif',
+        fontFamily: 'Nunito Sans, sans-serif',
         foreColor: theme.colors.slate[200],
         toolbar: {
             show: false,
