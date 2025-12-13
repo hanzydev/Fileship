@@ -1,5 +1,5 @@
 [data-sonner-toast] {
-    @apply !border-none !bg-fs-overlay-3 !ring-1 !ring-fs-overlay-4 !rounded-2xl !font-[Nunito_Sans,sans-serif] !p4.5;
+    @apply !border-none !bg-fs-overlay-2 !ring-1 !ring-fs-overlay-3 !rounded-2xl !font-[Nunito_Sans,sans-serif] !p4.5;
 }
 
 [data-sonner-toast] [data-title] {
