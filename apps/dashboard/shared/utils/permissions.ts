@@ -32,5 +32,5 @@ export const canTakeNotes = (user: UserOrEvent) => hasPermission(user, UserPermi
 export enum PermissionIcon {
     Admin = 'solar:shield-check-bold',
     UploadFiles = 'solar:upload-minimalistic-linear',
-    TakeNotes = 'solar:pen-bold',
+    TakeNotes = 'solar:pen-2-bold',
 }

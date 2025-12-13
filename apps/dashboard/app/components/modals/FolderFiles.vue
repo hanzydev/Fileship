@@ -97,7 +97,7 @@
                 gap2
                 alignment="center"
                 variant="accent"
-                icon="solar:pen-bold"
+                icon="solar:pen-2-bold"
                 icon-size="20"
                 :loading="disabled"
                 :disabled

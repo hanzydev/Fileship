@@ -134,7 +134,7 @@
                     alignment="center"
                     variant="accent"
                     type="submit"
-                    icon="solar:pen-bold"
+                    icon="solar:pen-2-bold"
                     icon-size="20"
                     :loading="updating"
                     :disabled="updating"

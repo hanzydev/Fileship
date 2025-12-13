@@ -91,7 +91,7 @@
                                 alignment="center"
                                 variant="onOverlay"
                                 class="size-9 shrink-0 text-fs-muted-2 !rounded !p0 hover:text-white"
-                                icon="solar:pen-bold"
+                                icon="solar:pen-2-bold"
                                 icon-size="24"
                                 @click="editModalOpen = true"
                             />

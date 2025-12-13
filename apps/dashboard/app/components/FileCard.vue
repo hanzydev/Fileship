@@ -150,7 +150,7 @@
                 <UiButton
                     v-if="currentUser?.id === data.authorId"
                     variant="onOverlay"
-                    icon="solar:pen-bold"
+                    icon="solar:pen-2-bold"
                     icon-size="20"
                     wfull
                     gap2

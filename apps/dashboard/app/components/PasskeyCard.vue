@@ -30,7 +30,7 @@
                     <div w36 rounded-xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
                         <UiButton
                             variant="onOverlay"
-                            icon="solar:pen-bold"
+                            icon="solar:pen-2-bold"
                             icon-size="20"
                             wfull
                             gap2

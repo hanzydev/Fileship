@@ -127,7 +127,7 @@
                                 variant: 'outline',
                                 alignment: 'center',
                                 class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
-                                icon: 'solar:pen-bold',
+                                icon: 'solar:pen-2-bold',
                                 iconSize: '20',
                                 disabled: row.superAdmin && !currentUser!.superAdmin,
                                 'aria-label': 'Edit user',

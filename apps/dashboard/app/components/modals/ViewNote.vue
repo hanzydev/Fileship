@@ -65,7 +65,7 @@
                     v-if="currentUser?.id === data.authorId"
                     alignment="center"
                     class="h10 w10 !p0 hover:text-white"
-                    icon="solar:pen-bold"
+                    icon="solar:pen-2-bold"
                     icon-size="24"
                     ring="1 fs-overlay-4"
                     @click="
