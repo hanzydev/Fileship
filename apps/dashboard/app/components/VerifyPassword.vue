@@ -1,10 +1,11 @@
 <template>
     <form
-        rounded-xl
+        rounded-2xl
         bg-fs-overlay-1
         p8
         sm:w35rem
         space-y-10
+        border="~ fs-overlay-3"
         @submit.prevent="$emit('password', password)"
     >
         <div flex="~ gap4 items-center">
@@ -19,13 +20,21 @@
                 label="Password"
                 required
                 wfull
+                rounded-xl="!"
                 :error
                 :disabled
             />
         </div>
 
         <div grid="~ gap2 sm:cols-2 sm:gap4" wfull>
-            <UiButton alignment="center" icon="lucide:x" icon-size="24" gap2 href="/login">
+            <UiButton
+                alignment="center"
+                icon="lucide:x"
+                icon-size="24"
+                gap2
+                href="/login"
+                rounded-xl="!"
+            >
                 Cancel
             </UiButton>
             <UiButton
@@ -35,6 +44,7 @@
                 icon-size="24"
                 gap2
                 type="submit"
+                rounded-xl="!"
                 :loading="disabled"
                 :disabled
             >

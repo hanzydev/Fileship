@@ -3,7 +3,7 @@
         <div
             v-if="isImage || isVideo"
             wfull
-            rounded-xl
+            rounded-2xl
             bg-fs-overlay-2
             motion-safe:transition-shadow
             ring="1 fs-overlay-4"
@@ -14,7 +14,7 @@
                 relative
                 h52
                 overflow-hidden
-                rounded-xl
+                rounded-2xl
                 p4
                 text-center
                 flex="~ col items-center justify-center gap2"
@@ -62,11 +62,12 @@
             v-else
             h52
             wfull
-            rounded-xl
+            rounded-2xl
             bg-fs-overlay-2
             p8
             space-y-8
             motion-safe:transition-shadow
+            ring="1 fs-overlay-4"
             :class="{
                 'hover:(ring-1 ring-fs-accent)': isAudio && !ctxOpen,
                 'cursor-default': ctxOpen,
@@ -93,7 +94,7 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
+            <div w48 rounded-2xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
                 <UiButton
                     variant="onOverlay"
                     icon="solar:eye-bold"

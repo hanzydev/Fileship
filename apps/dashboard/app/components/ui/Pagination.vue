@@ -17,6 +17,7 @@
                 alignment="center"
                 aria-label="First page"
                 :disabled="isFirstPage"
+                :class="buttonClass"
                 @click="currentPage = 1"
             />
             <UiButton
@@ -28,6 +29,7 @@
                 alignment="center"
                 aria-label="Previous page"
                 :disabled="isFirstPage"
+                :class="buttonClass"
                 @click="prev"
             />
         </div>
@@ -43,6 +45,7 @@
                     px3="!"
                     py0="!"
                     :variant="currentPage === page ? 'accent' : 'primary'"
+                    :class="buttonClass"
                     @click="currentPage = page"
                 >
                     {{ page }}
@@ -59,6 +62,7 @@
                 alignment="center"
                 aria-label="Next page"
                 :disabled="isLastPage"
+                :class="buttonClass"
                 @click="next"
             />
             <UiButton
@@ -69,6 +73,7 @@
                 p0="!"
                 alignment="center"
                 aria-label="Last page"
+                :class="buttonClass"
                 :disabled="isLastPage"
                 @click="currentPage = pageCount"
             />
@@ -77,9 +82,10 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
+const { buttonClass, ...props } = defineProps<{
     itemCount: number;
     itemsPerPage: number;
+    buttonClass?: unknown;
 }>();
 
 const { itemCount, itemsPerPage } = toRefs(props);

@@ -8,12 +8,13 @@
                 relative
                 w20rem
                 overflow-hidden
-                rounded-xl
+                rounded-2xl
                 bg-fs-overlay-1
                 text-start
                 transition-height
                 duration-250
                 sm:w35rem
+                border="~ fs-overlay-3"
                 :style="{ height: `${height}px` }"
             >
                 <Transition
@@ -41,6 +42,7 @@
                                 :error="formErrors?.username?._errors?.[0]"
                                 required
                                 wfull
+                                rounded-xl="!"
                                 :disabled="loggingIn"
                             />
                             <UiInput
@@ -50,6 +52,7 @@
                                 :error="formErrors?.password?._errors?.[0]"
                                 required
                                 wfull
+                                rounded-xl="!"
                                 :disabled="loggingIn"
                             />
                         </div>
@@ -74,6 +77,7 @@
                                 type="submit"
                                 icon="solar:lock-keyhole-minimalistic-bold"
                                 icon-size="20"
+                                rounded-xl="!"
                                 :loading="loggingIn"
                                 :disabled="passkeyLoggingIn || loggingIn"
                             >
@@ -88,6 +92,7 @@
                                     variant="secondary"
                                     icon="lucide:fingerprint-pattern"
                                     icon-size="24"
+                                    rounded-xl="!"
                                     p0="!"
                                     :loading="passkeyLoggingIn"
                                     :disabled="loggingIn || passkeyLoggingIn"
@@ -105,7 +110,7 @@
                     >
                         <div space-y-2>
                             <h2>Multi-Factor Authentication</h2>
-                            <p text-fs-muted-1>Enter the code from your authenticator app.</p>
+                            <p text-fs-muted-2>Enter the code from your authenticator app.</p>
                         </div>
 
                         <UiTotpInput
@@ -113,7 +118,7 @@
                             :error
                             required
                             :disabled="loggingIn"
-                            input-class="!wfull"
+                            input-class="!wfull !rounded-xl"
                             @got="handleSubmit"
                         />
 
@@ -135,6 +140,7 @@
                                 variant="secondary"
                                 icon="solar:arrow-left-linear"
                                 icon-size="20"
+                                rounded-xl="!"
                                 :disabled="loggingIn"
                                 @click="section = 'login'"
                             >
@@ -148,6 +154,7 @@
                                 type="submit"
                                 icon="solar:lock-keyhole-minimalistic-bold"
                                 icon-size="20"
+                                rounded-xl="!"
                                 :loading="loggingIn"
                                 :disabled="loggingIn"
                             >

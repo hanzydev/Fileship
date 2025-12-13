@@ -88,9 +88,17 @@
                     "
                 />
                 <audio v-else-if="isAudio" controls :src="fileUrl" />
-                <div v-else rounded-xl bg-fs-overlay-1 p8 sm:max-w35rem space-y-10>
+                <div
+                    v-else
+                    rounded-2xl
+                    bg-fs-overlay-1
+                    p8
+                    sm:max-w35rem
+                    space-y-10
+                    border="~ fs-overlay-3"
+                >
                     <h2 line-clamp-2 break-all>{{ data.fileName }}</h2>
-                    <p text-fs-muted-2 font-medium="!">
+                    <p text-fs-muted-2>
                         Sorry, we cannot preview this file. But you can download it.
                     </p>
                     <UiButton
@@ -100,6 +108,7 @@
                         alignment="center"
                         icon="solar:download-minimalistic-bold"
                         icon-size="20"
+                        rounded-xl="!"
                         :href="`${fileUrl}${data.password ? '&' : '?'}download`"
                     >
                         Download

@@ -24,8 +24,15 @@
                             placeholder="Search files..."
                             ai-available
                             wfull
+                            rounded-2xl="!"
+                            :input-class="aiEnabled ? 'rounded-14px!' : 'rounded-2xl!'"
                         />
-                        <FileTypeFilter v-model="filterType" />
+                        <FileTypeFilter
+                            v-model="filterType"
+                            dropdown-class="rounded-2xl!"
+                            rounded-2xl="!"
+                            button-class="rounded-xl!"
+                        />
                     </div>
 
                     <div v-show="filtered.length" grid="~ gap6 md:cols-2 lg:cols-3 xl:cols-4">
@@ -35,6 +42,7 @@
                                 :key="i"
                                 flex="~ col items-center justify-center gap2"
                                 h208px
+                                rounded-2xl="!"
                             >
                                 <Icon
                                     v-if="randomNumber(0, 1) === 0"
@@ -84,12 +92,15 @@
                         v-if="!filtered.length"
                         message="There are no files to display."
                         icon="solar:documents-bold"
+                        rounded-2xl="!"
                     />
 
                     <UiPagination
                         v-model="currentPage"
                         :item-count="filtered.length"
                         :items-per-page="20"
+                        rounded-2xl="!"
+                        button-class="rounded-xl!"
                     />
                 </div>
             </div>

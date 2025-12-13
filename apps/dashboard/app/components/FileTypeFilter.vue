@@ -6,11 +6,12 @@
             h12
             wfull
             gap2
+            rounded-xl
             text-fs-muted-2
             sm:w56
-            rounded-xl="!"
             ring-none="!"
             border="1 dashed fs-overlay-4 hover:(fs-accent solid)"
+            v-bind="$attrs"
         >
             Filter type
         </UiButton>
@@ -24,6 +25,7 @@
                 sm:w56
                 space-y-1
                 ring="1 fs-overlay-4"
+                :class="dropdownClass"
             >
                 <UiButton
                     v-for="_type in ['image', 'video', 'audio', 'document', 'archive', 'code']"
@@ -35,6 +37,7 @@
                     icon-size="20"
                     wfull
                     gap2
+                    :class="buttonClass"
                     @click="
                         () => {
                             const findIndex = filterType.indexOf(_type as never);
@@ -57,4 +60,9 @@
 import { titleCase } from 'scule';
 
 const filterType = defineModel<string[]>({ required: true });
+
+const { dropdownClass, buttonClass } = defineProps<{
+    dropdownClass?: unknown;
+    buttonClass?: unknown;
+}>();
 </script>
