@@ -2,6 +2,20 @@
     <ModalsFolderFiles v-model="filesModal.open" :data :editable="filesModal.editMode" />
     <ModalsEditFolder v-model="editModalOpen" :data />
 
+    <ModalsAreYouSure
+        v-model="areYouSureModalOpen"
+        title="Delete Folder"
+        description="Are you sure you want to delete this folder?"
+        @confirm="handleDelete"
+    >
+        <template #extra>
+            <div flex="~ gap2 items-center">
+                <UiSwitch v-model="deleteFilesToo" :disabled="deleting" />
+                <span text-fs-muted-1 font-medium="!">Delete files too</span>
+            </div>
+        </template>
+    </ModalsAreYouSure>
+
     <UiDropdown v-model="ctxOpen" as-ctx-menu placement="bottom">
         <div
             h164px
@@ -97,7 +111,10 @@
                     gap2
                     text-red-500
                     :disabled="deleting"
-                    @click="handleDelete"
+                    @click="
+                        ctxOpen = false;
+                        areYouSureModalOpen = true;
+                    "
                 >
                     Delete
                 </UiButton>
@@ -119,13 +136,25 @@ const filesModal = reactive({ open: false, editMode: false });
 const editModalOpen = ref(false);
 const ctxOpen = ref(false);
 const deleting = ref(false);
+const areYouSureModalOpen = ref(false);
+const deleteFilesToo = ref(true);
 
 const handleDelete = async () => {
     deleting.value = true;
 
     try {
-        await $fetch(`/api/folders/${data.id}`, { method: 'DELETE' });
-        $toast.success('Folder deleted successfully');
+        await $fetch(`/api/folders/${data.id}`, {
+            method: 'DELETE',
+            body: { deleteFilesToo: deleteFilesToo.value },
+        });
+
+        $toast.success(
+            deleteFilesToo.value
+                ? 'Folder and its files deleted successfully'
+                : 'Folder deleted successfully',
+        );
+
+        areYouSureModalOpen.value = false;
     } catch (error: any) {
         $toast.error(error.data.message);
     }
