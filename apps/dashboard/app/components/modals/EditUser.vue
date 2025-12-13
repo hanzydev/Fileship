@@ -29,6 +29,7 @@
                 type="password"
                 :error="formErrors?.password?._errors?.[0]"
                 :disabled="updating"
+                caption="Leave blank to keep current password"
             />
 
             <UiDropdown v-if="!editData.cloned.value!.superAdmin" placement="top" pb0.5="!">
