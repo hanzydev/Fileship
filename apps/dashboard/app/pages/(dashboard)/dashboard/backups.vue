@@ -1,71 +1,72 @@
 <template>
-    <div>
-        <Head>
-            <Title>Backups</Title>
-        </Head>
+    <Head>
+        <Title>Backups</Title>
+    </Head>
 
-        <div space-y-6>
+    <DashboardContent>
+        <template #header>
             <h2>Backups</h2>
-            <div grid="~ 2xl:cols-5 lg:cols-3 md:cols-2 xl:cols-4 gap6">
-                <New h132px :disabled="creating" @action="handleCreate" />
-                <div relative overflow-hidden active:scale-95 motion-safe:transition-transform>
-                    <New h132px icon="heroicons-solid:upload" :disabled="uploading" />
-                    <input
-                        :key="uploading.toString()"
-                        absolute
-                        inset-0
-                        z10
-                        hfull
-                        wfull
-                        op0
-                        :class="uploading ? 'cursor-not-allowed' : 'cursor-pointer'"
-                        type="file"
-                        accept=".tgz"
-                        :disabled="uploading"
-                        @change.stop.prevent="handleLoad"
-                    />
-                    <Transition
-                        enter-active-class="motion-safe:(animate-in fade-in slide-in-left animate-duration-250)"
-                        leave-active-class="motion-safe:(animate-out fade-out slide-out-right animate-duration-250)"
-                    >
-                        <div
-                            v-if="uploadProgress > 0"
-                            absolute
-                            bottom-0
-                            left-0
-                            h-2
-                            bg-fs-accent
-                            motion-safe:transition-width
-                            :style="{
-                                width: `${uploadProgress}%`,
-                            }"
-                            :class="uploadProgress < 100 ? 'rounded-bl-lg' : 'rounded-b-lg'"
-                        ></div>
-                    </Transition>
-                </div>
+        </template>
 
-                <template v-if="isLoading">
-                    <UiSkeletonCard
-                        v-for="i in randomNumber(3, 7)"
-                        :key="i"
-                        h132px
-                        flex="~ col gap4 justify-between"
-                    >
-                        <UiSkeletonLine h5 wfull />
-                        <div text-fs-muted-2 space-y-2>
-                            <UiSkeletonLine h4 w16 />
-                            <UiSkeletonLine h4 w40 />
-                        </div>
-                    </UiSkeletonCard>
-                </template>
-                <TransitionGroup v-else :css="false" @enter="enter" @leave="leave">
-                    <div v-for="backup in backups" :key="backup.id" op0 class="backupCard">
-                        <BackupCard :data="backup" />
-                    </div>
-                </TransitionGroup>
+        <div grid="~ 2xl:cols-5 lg:cols-3 md:cols-2 xl:cols-4 gap6">
+            <New h132px :disabled="creating" @action="handleCreate" />
+            <div relative overflow-hidden active:scale-95 motion-safe:transition-transform>
+                <New h132px icon="heroicons-solid:upload" :disabled="uploading" />
+                <input
+                    :key="uploading.toString()"
+                    absolute
+                    inset-0
+                    z10
+                    hfull
+                    wfull
+                    op0
+                    :class="uploading ? 'cursor-not-allowed' : 'cursor-pointer'"
+                    type="file"
+                    accept=".tgz"
+                    :disabled="uploading"
+                    @change.stop.prevent="handleLoad"
+                />
+                <Transition
+                    enter-active-class="motion-safe:(animate-in fade-in slide-in-left animate-duration-250)"
+                    leave-active-class="motion-safe:(animate-out fade-out slide-out-right animate-duration-250)"
+                >
+                    <div
+                        v-if="uploadProgress > 0"
+                        absolute
+                        bottom-0
+                        left-0
+                        h-2
+                        bg-fs-accent
+                        motion-safe:transition-width
+                        :style="{
+                            width: `${uploadProgress}%`,
+                        }"
+                        :class="uploadProgress < 100 ? 'rounded-bl-lg' : 'rounded-b-lg'"
+                    ></div>
+                </Transition>
             </div>
+
+            <template v-if="isLoading">
+                <UiSkeletonCard
+                    v-for="i in randomNumber(3, 7)"
+                    :key="i"
+                    h132px
+                    flex="~ col gap4 justify-between"
+                >
+                    <UiSkeletonLine h5 wfull />
+                    <div text-fs-muted-2 space-y-2>
+                        <UiSkeletonLine h4 w16 />
+                        <UiSkeletonLine h4 w40 />
+                    </div>
+                </UiSkeletonCard>
+            </template>
+            <TransitionGroup v-else :css="false" @enter="enter" @leave="leave">
+                <div v-for="backup in backups" :key="backup.id" op0 class="backupCard">
+                    <BackupCard :data="backup" />
+                </div>
+            </TransitionGroup>
         </div>
-    </div>
+    </DashboardContent>
 </template>
 
 <script setup lang="ts">

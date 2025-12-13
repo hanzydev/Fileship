@@ -3,7 +3,7 @@
         enter-active-class="motion-safe:(animate-in fade-in zoom-in-95 slide-in-bottom-2)"
         leave-active-class="motion-safe:(animate-out fade-out zoom-out-95 slide-out-bottom-2)"
     >
-        <div v-if="isOpen" fixed bottom-6 z30 wfull rounded-xl md="right-6 w45rem" lt-md:px4>
+        <div v-if="isOpen" fixed bottom-6 z30 wfull rounded-xl md="right-6 w45rem" lt-md:px6>
             <UiDropdown placement="top" wfull md:w45rem>
                 <UiButton
                     :icon="
@@ -17,7 +17,7 @@
                     icon-size="20"
                     wfull
                     gap2
-                    rounded-xl="!"
+                    rounded-2xl="!"
                     ring-1
                 >
                     <template v-if="isErrored">Some file(s) have errors</template>
@@ -37,7 +37,7 @@
                         max-h45rem
                         wfull
                         overflow-y-auto
-                        rounded-xl
+                        rounded-2xl
                         bg-fs-overlay-2
                         p4
                         ring-1
@@ -54,7 +54,7 @@
                             <UiDivider />
                         </div>
 
-                        <div flex="~ items-center" wfull rounded-md bg-fs-overlay-3 px3 py2>
+                        <div flex="~ items-center" wfull rounded-xl bg-fs-overlay-3 px3 py2>
                             <h6 w="2/4">File</h6>
                             <h6 w="1/4">Size</h6>
                             <h6 w="2/4">Status</h6>

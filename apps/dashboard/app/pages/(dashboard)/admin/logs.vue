@@ -1,102 +1,98 @@
 <template>
-    <div>
-        <Head>
-            <Title>Logs | Admin Panel</Title>
-        </Head>
+    <Head>
+        <Title>Logs | Admin Panel</Title>
+    </Head>
 
-        <ModalsAreYouSure
-            v-model="areYouSureModalOpen"
-            title="Are you really sure you want to flush all logs?"
-            description="All logs will be deleted and cannot be undone."
-            :disabled="isFlushingLogs"
-            @confirm="handleFlushLogs"
+    <ModalsAreYouSure
+        v-model="areYouSureModalOpen"
+        title="Are you really sure you want to flush all logs?"
+        description="All logs will be deleted and cannot be undone."
+        :disabled="isFlushingLogs"
+        @confirm="handleFlushLogs"
+    />
+
+    <DashboardContent>
+        <template #header>
+            <h2>Logs</h2>
+            <UiButton
+                v-if="
+                    currentUser?.superAdmin &&
+                    logs.logs.filter((l) => l.action !== 'Flush Logs').length
+                "
+                icon="heroicons-solid:trash"
+                icon-size="20"
+                alignment="center"
+                variant="dangerFill"
+                gap-2
+                :disabled="isFlushingLogs"
+                :loading="isFlushingLogs"
+                @click="areYouSureModalOpen = true"
+            >
+                Flush All Logs
+            </UiButton>
+        </template>
+        <UiSearchBar
+            v-model="searchQuery"
+            v-model:loading="isSearching"
+            placeholder="Search logs..."
         />
-
-        <div space-y-6>
-            <div flex="~ items-center justify-between">
-                <h2>Logs</h2>
-                <UiButton
-                    v-if="currentUser?.superAdmin"
-                    icon="heroicons-solid:trash"
-                    icon-size="20"
-                    alignment="center"
-                    variant="dangerFill"
-                    class="h8 w8 !p0"
-                    aria-label="Flush logs"
-                    :disabled="
-                        isFlushingLogs || !logs.logs.filter((l) => l.action !== 'Flush Logs').length
-                    "
-                    :loading="isFlushingLogs"
-                    @click="areYouSureModalOpen = true"
-                />
-            </div>
-            <UiSearchBar
-                v-model="searchQuery"
-                v-model:loading="isSearching"
-                placeholder="Search logs..."
-            />
-            <UiTable
-                ring="1 fs-overlay-4"
-                :loading="isLoading"
-                :columns="[
-                    {
-                        key: 'ip',
-                        width: '10%',
-                    },
-                    {
-                        key: 'action',
-                        width: '10%',
-                    },
-                    {
-                        key: 'user',
-                        width: '15%',
-                        render: ({ user, system }) =>
-                            h(
-                                'div',
-                                {
-                                    class: 'flex items-center gap2',
-                                },
-                                [
-                                    h(UiAvatar, {
-                                        size: 'xs',
-                                        src: user?.avatar,
-                                        alt: system
-                                            ? 'System'
-                                            : upperFirst(user?.username || 'Deleted User'),
-                                    }),
-                                    h(
-                                        'p',
-                                        {
-                                            class: 'text-fs-muted-1',
-                                        },
-                                        system
-                                            ? 'System'
-                                            : upperFirst(user?.username || 'Deleted User'),
-                                    ),
-                                ],
-                            ),
-                    },
-                    {
-                        key: 'message',
-                        width: '35%',
-                    },
-                    {
-                        key: 'createdAt',
-                        width: '20%',
-                        resolve: ({ createdAt }) => dayjs(createdAt).fromNow(),
-                    },
-                ]"
-                :rows="calculatedLogs"
-                nothing-here-message="There are no logs to display."
-                nothing-here-icon="heroicons-solid:document-search"
-            />
-            <UiPagination
-                v-model="currentPage"
-                :item-count="filtered.length"
-                :items-per-page="20"
-            />
-        </div>
-    </div>
+        <UiTable
+            ring="1 fs-overlay-4"
+            :loading="isLoading"
+            :columns="[
+                {
+                    key: 'ip',
+                    width: '10%',
+                },
+                {
+                    key: 'action',
+                    width: '10%',
+                },
+                {
+                    key: 'user',
+                    width: '15%',
+                    render: ({ user, system }) =>
+                        h(
+                            'div',
+                            {
+                                class: 'flex items-center gap2',
+                            },
+                            [
+                                h(UiAvatar, {
+                                    size: 'xs',
+                                    src: user?.avatar,
+                                    alt: system
+                                        ? 'System'
+                                        : upperFirst(user?.username || 'Deleted User'),
+                                }),
+                                h(
+                                    'p',
+                                    {
+                                        class: 'text-fs-muted-1',
+                                    },
+                                    system
+                                        ? 'System'
+                                        : upperFirst(user?.username || 'Deleted User'),
+                                ),
+                            ],
+                        ),
+                },
+                {
+                    key: 'message',
+                    width: '35%',
+                },
+                {
+                    key: 'createdAt',
+                    width: '20%',
+                    resolve: ({ createdAt }) => dayjs(createdAt).fromNow(),
+                },
+            ]"
+            :rows="calculatedLogs"
+            nothing-here-message="There are no logs to display."
+            nothing-here-icon="heroicons-solid:document-search"
+        />
+        <UiPagination v-model="currentPage" :item-count="filtered.length" :items-per-page="20" />
+    </DashboardContent>
 </template>
 
 <script setup lang="ts">
@@ -190,7 +186,7 @@ watch(searchQuery, (query) => {
 });
 
 definePageMeta({
-    layout: 'admin',
+    layout: 'dashboard',
     middleware: 'admin-only',
 });
 </script>

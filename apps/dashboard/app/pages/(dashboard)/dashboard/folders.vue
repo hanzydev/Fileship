@@ -1,64 +1,56 @@
 <template>
-    <div>
-        <Head>
-            <Title>Folders</Title>
-        </Head>
+    <Head>
+        <Title>Folders</Title>
+    </Head>
 
-        <ModalsCreateFolder v-model="createFolderModalOpen" />
+    <ModalsCreateFolder v-model="createFolderModalOpen" />
 
-        <div space-y-6>
+    <DashboardContent>
+        <template #header>
             <h2>Folders</h2>
-            <UiSearchBar
-                v-model="searchQuery"
-                v-model:loading="isSearching"
-                placeholder="Search folders..."
-            />
-            <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
-                <New h164px @action="createFolderModalOpen = true" />
+        </template>
 
-                <template v-if="isLoading">
-                    <UiSkeletonCard
-                        v-for="i in randomNumber(3, 7)"
-                        :key="i"
-                        h164px
-                        flex="~ col gap4 justify-between"
-                    >
-                        <UiSkeletonLine
-                            h5
-                            :style="{
-                                width: `${randomNumber(30, 70)}%`,
-                            }"
-                        />
-                        <div text-fs-muted-2 space-y-2>
-                            <UiSkeletonLine h4 w16 />
-                            <UiSkeletonLine h4 w14 />
-                            <UiSkeletonLine h4 w40 />
-                        </div>
-                    </UiSkeletonCard>
-                </template>
-                <TransitionGroup
-                    v-else
-                    :css="false"
-                    @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
-                    @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
+        <UiSearchBar
+            v-model="searchQuery"
+            v-model:loading="isSearching"
+            placeholder="Search folders..."
+        />
+        <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
+            <New h164px @action="createFolderModalOpen = true" />
+
+            <template v-if="isLoading">
+                <UiSkeletonCard
+                    v-for="i in randomNumber(3, 7)"
+                    :key="i"
+                    h164px
+                    flex="~ col gap4 justify-between"
                 >
-                    <div
-                        v-for="folder in calculatedFolders"
-                        :key="folder.id"
-                        op0
-                        class="folderCard"
-                    >
-                        <FolderCard :data="folder" />
+                    <UiSkeletonLine
+                        h5
+                        :style="{
+                            width: `${randomNumber(30, 70)}%`,
+                        }"
+                    />
+                    <div text-fs-muted-2 space-y-2>
+                        <UiSkeletonLine h4 w16 />
+                        <UiSkeletonLine h4 w14 />
+                        <UiSkeletonLine h4 w40 />
                     </div>
-                </TransitionGroup>
-            </div>
-            <UiPagination
-                v-model="currentPage"
-                :item-count="filtered.length"
-                :items-per-page="19"
-            />
+                </UiSkeletonCard>
+            </template>
+            <TransitionGroup
+                v-else
+                :css="false"
+                @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
+                @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
+            >
+                <div v-for="folder in calculatedFolders" :key="folder.id" op0 class="folderCard">
+                    <FolderCard :data="folder" />
+                </div>
+            </TransitionGroup>
         </div>
-    </div>
+        <UiPagination v-model="currentPage" :item-count="filtered.length" :items-per-page="19" />
+    </DashboardContent>
 </template>
 
 <script setup lang="ts">

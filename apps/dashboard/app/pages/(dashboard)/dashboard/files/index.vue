@@ -1,74 +1,70 @@
 <template>
-    <div>
-        <Head>
-            <Title>Files</Title>
-        </Head>
+    <Head>
+        <Title>Files</Title>
+    </Head>
 
-        <ModalsViewFile
-            v-if="viewFileModal.fileId"
-            v-model="viewFileModal.open"
-            :file-id="viewFileModal.fileId"
-        />
+    <ModalsViewFile
+        v-if="viewFileModal.fileId"
+        v-model="viewFileModal.open"
+        :file-id="viewFileModal.fileId"
+    />
 
-        <div space-y-6>
+    <DashboardContent>
+        <template #header>
             <h2>Files</h2>
-            <div flex="~ gap4 1 items-center <sm:col" wfull>
-                <UiSearchBar
-                    v-model="searchQuery"
-                    v-model:ai-enabled="aiEnabled"
-                    v-model:loading="isSearching"
-                    placeholder="Search files..."
-                    ai-available
-                    wfull
-                />
-                <FileTypeFilter v-model="filterType" />
-            </div>
-            <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
-                <New h208px @action="router.push('/dashboard/files/upload')" />
-
-                <template v-if="isLoading">
-                    <UiSkeletonCard
-                        v-for="i in randomNumber(3, 7)"
-                        :key="i"
-                        flex="~ col items-center justify-center gap2"
-                        h208px
-                    >
-                        <Icon
-                            v-if="randomNumber(0, 1) === 0"
-                            name="heroicons:play-solid"
-                            size="64"
-                            animate-pulse
-                            op75
-                        />
-                        <Icon v-else name="heroicons:photo-16-solid" size="64" animate-pulse op75 />
-                    </UiSkeletonCard>
-                </template>
-                <TransitionGroup
-                    v-else
-                    :css="false"
-                    @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
-                    @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
-                >
-                    <div v-for="file in calculatedFiles" :key="file.id" op0 class="fileCard">
-                        <FileCard
-                            :data="file"
-                            @view-file="
-                                (file) => {
-                                    viewFileModal.fileId = file.id;
-                                    nextTick(() => (viewFileModal.open = true));
-                                }
-                            "
-                        />
-                    </div>
-                </TransitionGroup>
-            </div>
-            <UiPagination
-                v-model="currentPage"
-                :item-count="filtered.length"
-                :items-per-page="19"
+        </template>
+        <div flex="~ gap4 1 items-center <sm:col" wfull>
+            <UiSearchBar
+                v-model="searchQuery"
+                v-model:ai-enabled="aiEnabled"
+                v-model:loading="isSearching"
+                placeholder="Search files..."
+                ai-available
+                wfull
             />
+            <FileTypeFilter v-model="filterType" />
         </div>
-    </div>
+        <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
+            <New h208px @action="router.push('/dashboard/files/upload')" />
+
+            <template v-if="isLoading">
+                <UiSkeletonCard
+                    v-for="i in randomNumber(3, 7)"
+                    :key="i"
+                    flex="~ col items-center justify-center gap2"
+                    h208px
+                >
+                    <Icon
+                        v-if="randomNumber(0, 1) === 0"
+                        name="heroicons:play-solid"
+                        size="64"
+                        animate-pulse
+                        op75
+                    />
+                    <Icon v-else name="heroicons:photo-16-solid" size="64" animate-pulse op75 />
+                </UiSkeletonCard>
+            </template>
+            <TransitionGroup
+                v-else
+                :css="false"
+                @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
+                @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
+            >
+                <div v-for="file in calculatedFiles" :key="file.id" op0 class="fileCard">
+                    <FileCard
+                        :data="file"
+                        @view-file="
+                            (file) => {
+                                viewFileModal.fileId = file.id;
+                                nextTick(() => (viewFileModal.open = true));
+                            }
+                        "
+                    />
+                </div>
+            </TransitionGroup>
+        </div>
+        <UiPagination v-model="currentPage" :item-count="filtered.length" :items-per-page="19" />
+    </DashboardContent>
 </template>
 
 <script setup lang="ts">

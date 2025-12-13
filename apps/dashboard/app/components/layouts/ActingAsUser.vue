@@ -1,25 +1,25 @@
 <template>
     <div
         v-if="adminSessionId"
-        h-12
         flex="~ items-center justify-center"
+        m-6
+        mb-0
+        h-12
+        rounded-2xl
         bg-fs-accent
-        pl3
-        pr5
+        px2
         text-center
-        lg:px5
         border="b b-fs-background"
     >
         <UiButton
             p0="!"
-            h8
-            w8
-            rounded-md="!"
+            size-8
+            rounded-xl="!"
             hover:bg="white/20"
             motion-safe:transition-colors
             alignment="center"
-            icon="heroicons-solid:chevron-left"
-            icon-size="24"
+            icon="heroicons-solid:arrow-left"
+            icon-size="20"
             variant="accent"
             :aria-label="`Stop acting as ${titleCase(currentUser!.username)}`"
             :loading="isReturningBack"
@@ -32,14 +32,13 @@
         </p>
         <UiButton
             p0="!"
-            h8
-            w8
-            rounded-md="!"
+            size-8
+            rounded-xl="!"
             hover:bg="white/20"
             motion-safe:transition-colors
             alignment="center"
             icon="heroicons-solid:x"
-            icon-size="24"
+            icon-size="20"
             variant="accent"
             :aria-label="`Always act as ${titleCase(currentUser!.username)}`"
             :disabled="isReturningBack"

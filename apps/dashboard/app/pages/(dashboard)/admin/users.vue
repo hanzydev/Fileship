@@ -1,177 +1,172 @@
 <template>
-    <div>
-        <Head>
-            <Title>Users</Title>
-        </Head>
+    <Head>
+        <Title>Users</Title>
+    </Head>
 
-        <ModalsCreateUser v-model="createUserModalOpen" />
-        <ModalsEditUser
-            v-if="editModal.user"
-            :key="editModal.user.id"
-            v-model="editModal.open"
-            :data="editModal.user!"
+    <ModalsCreateUser v-model="createUserModalOpen" />
+    <ModalsEditUser
+        v-if="editModal.user"
+        :key="editModal.user.id"
+        v-model="editModal.open"
+        :data="editModal.user!"
+    />
+
+    <ModalsVerifyMFA
+        v-model="verifyDeleteModal.open"
+        :error="verifyDeleteModal.error"
+        :disabled="willBeDeleted.has(verifyDeleteModal.userId)"
+        :methods="verifyDeleteModal.methods"
+        @got="(data) => handleDelete(verifyDeleteModal.userId, data)"
+    />
+
+    <ModalsVerifyMFA
+        v-model="verifyActingModal.open"
+        :error="verifyActingModal.error"
+        :disabled="!!willBeActed"
+        :methods="verifyActingModal.methods"
+        @got="(data) => handleActAsUser(verifyActingModal.username, data)"
+    />
+
+    <LazyDashboardContent>
+        <template #header>
+            <h2>Users</h2>
+            <UiButton
+                icon="heroicons-solid:user-add"
+                icon-size="20"
+                alignment="center"
+                variant="accent"
+                gap-2
+                @click="createUserModalOpen = true"
+            >
+                Create User
+            </UiButton>
+        </template>
+        <UiSearchBar
+            v-model="searchQuery"
+            v-model:loading="isSearching"
+            placeholder="Search users..."
         />
-
-        <ModalsVerifyMFA
-            v-model="verifyDeleteModal.open"
-            :error="verifyDeleteModal.error"
-            :disabled="willBeDeleted.has(verifyDeleteModal.userId)"
-            :methods="verifyDeleteModal.methods"
-            @got="(data) => handleDelete(verifyDeleteModal.userId, data)"
-        />
-
-        <ModalsVerifyMFA
-            v-model="verifyActingModal.open"
-            :error="verifyActingModal.error"
-            :disabled="!!willBeActed"
-            :methods="verifyActingModal.methods"
-            @got="(data) => handleActAsUser(verifyActingModal.username, data)"
-        />
-
-        <div space-y-6>
-            <div flex="~ items-center justify-between">
-                <h2>Users</h2>
-                <UiButton
-                    icon="heroicons-solid:user-add"
-                    icon-size="20"
-                    alignment="center"
-                    variant="accent"
-                    class="h8 w8 !p0"
-                    aria-label="Create user"
-                    @click="createUserModalOpen = true"
-                />
-            </div>
-            <UiSearchBar
-                v-model="searchQuery"
-                v-model:loading="isSearching"
-                placeholder="Search users..."
-            />
-            <UiTable
-                ring="1 fs-overlay-4"
-                :loading="isLoading"
-                :columns="[
-                    {
-                        key: 'user',
-                        width: '15%',
-                        render: ({ user }) =>
-                            h(
-                                'div',
-                                {
-                                    class: 'flex items-center gap2',
-                                },
-                                [
-                                    h(UiAvatar, {
-                                        size: 'xs',
-                                        src: user.avatar,
-                                        alt: user.username,
-                                    }),
-                                    h(
-                                        'p',
-                                        {
-                                            class: 'text-fs-muted-1',
-                                        },
-                                        user.username,
-                                    ),
-                                ],
-                            ),
-                    },
-                    {
-                        key: 'superAdmin',
-                        width: '10%',
-                        render: ({ superAdmin }) =>
-                            h(Icon, {
-                                name: superAdmin ? 'heroicons-solid:check' : 'heroicons-solid:x',
-                                size: '20',
-                            }),
-                    },
-                    {
-                        key: 'permissions',
-                        width: '25%',
-                        resolve: ({ permissions }) => permissions.join(', '),
-                    },
-                    {
-                        key: 'files',
-                        width: '5%',
-                        resolve: ({ stats }) => Intl.NumberFormat().format(stats.files),
-                    },
-                    {
-                        key: 'notes',
-                        width: '5%',
-                        resolve: ({ stats }) => Intl.NumberFormat().format(stats.notes),
-                    },
-                    {
-                        key: 'createdAt',
-                        width: '15%',
-                        resolve: ({ createdAt }) => dayjs(createdAt).fromNow(),
-                    },
-                    {
-                        key: 'Quick Actions',
-                        width: '20%',
-                        render: (row) => {
-                            return h('div', { class: 'flex items-center gap4' }, [
-                                h(UiButton, {
-                                    variant: 'outline',
-                                    alignment: 'center',
-                                    class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
-                                    icon: 'heroicons-solid:switch-horizontal',
-                                    iconSize: '20',
-                                    disabled:
-                                        (row.superAdmin && !currentUser!.superAdmin) ||
-                                        row.user.username === currentUser!.username ||
-                                        willBeActed,
-                                    loading: willBeActed === row.user.username,
-                                    'aria-label': 'Act as user',
-                                    onClick: () => handleActAsUser(row.user.username),
+        <UiTable
+            ring="1 fs-overlay-4"
+            :loading="isLoading"
+            :columns="[
+                {
+                    key: 'user',
+                    width: '15%',
+                    render: ({ user }) =>
+                        h(
+                            'div',
+                            {
+                                class: 'flex items-center gap2',
+                            },
+                            [
+                                h(UiAvatar, {
+                                    size: 'xs',
+                                    src: user.avatar,
+                                    alt: user.username,
                                 }),
-                                h(UiButton, {
-                                    variant: 'outline',
-                                    alignment: 'center',
-                                    class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
-                                    icon: 'heroicons:pencil-16-solid',
-                                    iconSize: '20',
-                                    disabled: row.superAdmin && !currentUser!.superAdmin,
-                                    'aria-label': 'Edit user',
-                                    onClick: () => {
-                                        editModal.user = {
-                                            ...row.user,
-                                            ...row,
-                                        };
-                                        nextTick(() => (editModal.open = true));
+                                h(
+                                    'p',
+                                    {
+                                        class: 'text-fs-muted-1',
                                     },
-                                }),
-                                h(UiButton, {
-                                    variant: 'outline',
-                                    alignment: 'center',
-                                    class: 'h8 w8 !p0 ring-red-500 text-fs-muted-2 hover:text-white hover:!bg-red-500',
-                                    icon: 'heroicons-solid:trash',
-                                    iconSize: '20',
-                                    disabled:
-                                        (row.superAdmin && !currentUser!.superAdmin) ||
-                                        row.user.username === currentUser!.username ||
-                                        willBeDeleted.has(row.user.id) ||
-                                        willBeActed === row.user.username,
-                                    loading: willBeDeleted.has(row.user.id),
-                                    'aria-label': 'Delete user',
-                                    onClick: () => handleDelete(row.user.id),
-                                }),
-                            ]);
-                        },
+                                    user.username,
+                                ),
+                            ],
+                        ),
+                },
+                {
+                    key: 'superAdmin',
+                    width: '10%',
+                    render: ({ superAdmin }) =>
+                        h(Icon, {
+                            name: superAdmin ? 'heroicons-solid:check' : 'heroicons-solid:x',
+                            size: '20',
+                        }),
+                },
+                {
+                    key: 'permissions',
+                    width: '25%',
+                    resolve: ({ permissions }) => permissions.join(', '),
+                },
+                {
+                    key: 'files',
+                    width: '5%',
+                    resolve: ({ stats }) => Intl.NumberFormat().format(stats.files),
+                },
+                {
+                    key: 'notes',
+                    width: '5%',
+                    resolve: ({ stats }) => Intl.NumberFormat().format(stats.notes),
+                },
+                {
+                    key: 'createdAt',
+                    width: '15%',
+                    resolve: ({ createdAt }) => dayjs(createdAt).fromNow(),
+                },
+                {
+                    key: 'Quick Actions',
+                    width: '20%',
+                    render: (row) => {
+                        return h('div', { class: 'flex items-center gap4' }, [
+                            h(UiButton, {
+                                variant: 'outline',
+                                alignment: 'center',
+                                class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
+                                icon: 'heroicons-solid:switch-horizontal',
+                                iconSize: '20',
+                                disabled:
+                                    (row.superAdmin && !currentUser!.superAdmin) ||
+                                    row.user.username === currentUser!.username ||
+                                    willBeActed,
+                                loading: willBeActed === row.user.username,
+                                'aria-label': 'Act as user',
+                                onClick: () => handleActAsUser(row.user.username),
+                            }),
+                            h(UiButton, {
+                                variant: 'outline',
+                                alignment: 'center',
+                                class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
+                                icon: 'heroicons:pencil-16-solid',
+                                iconSize: '20',
+                                disabled: row.superAdmin && !currentUser!.superAdmin,
+                                'aria-label': 'Edit user',
+                                onClick: () => {
+                                    editModal.user = {
+                                        ...row.user,
+                                        ...row,
+                                    };
+                                    nextTick(() => (editModal.open = true));
+                                },
+                            }),
+                            h(UiButton, {
+                                variant: 'outline',
+                                alignment: 'center',
+                                class: 'h8 w8 !p0 ring-red-500 text-fs-muted-2 hover:text-white hover:!bg-red-500',
+                                icon: 'heroicons-solid:trash',
+                                iconSize: '20',
+                                disabled:
+                                    (row.superAdmin && !currentUser!.superAdmin) ||
+                                    row.user.username === currentUser!.username ||
+                                    willBeDeleted.has(row.user.id) ||
+                                    willBeActed === row.user.username,
+                                loading: willBeDeleted.has(row.user.id),
+                                'aria-label': 'Delete user',
+                                onClick: () => handleDelete(row.user.id),
+                            }),
+                        ]);
                     },
-                ]"
-                :rows="
-                    calculatedUsers.map(({ id, username, avatar, ...u }) => ({
-                        ...u,
-                        user: { id, username, avatar },
-                    }))
-                "
-            />
-            <UiPagination
-                v-model="currentPage"
-                :item-count="filtered.length"
-                :items-per-page="20"
-            />
-        </div>
-    </div>
+                },
+            ]"
+            :rows="
+                calculatedUsers.map(({ id, username, avatar, ...u }) => ({
+                    ...u,
+                    user: { id, username, avatar },
+                }))
+            "
+        />
+        <UiPagination v-model="currentPage" :item-count="filtered.length" :items-per-page="20" />
+    </LazyDashboardContent>
 </template>
 
 <script setup lang="ts">
@@ -345,7 +340,7 @@ watch(searchQuery, (query) => {
 });
 
 definePageMeta({
-    layout: 'admin',
+    layout: 'dashboard',
     middleware: 'admin-only',
 });
 </script>

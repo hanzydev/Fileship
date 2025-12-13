@@ -1,55 +1,52 @@
 <template>
-    <div>
-        <Head>
-            <Title>Notes</Title>
-        </Head>
+    <Head>
+        <Title>Notes</Title>
+    </Head>
 
-        <ModalsTakeNotes v-model="takeNotesModalOpen" />
+    <ModalsTakeNotes v-model="takeNotesModalOpen" />
 
-        <div space-y-6>
+    <DashboardContent>
+        <template #header>
             <h2>Notes</h2>
-            <UiSearchBar
-                v-model="searchQuery"
-                v-model:loading="isSearching"
-                placeholder="Search notes..."
-            />
-            <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
-                <New h100px @action="takeNotesModalOpen = true" />
+        </template>
 
-                <template v-if="isLoading">
-                    <UiSkeletonCard
-                        v-for="i in randomNumber(3, 7)"
-                        :key="i"
-                        h100px
-                        flex="~ col gap4 justify-between"
-                    >
-                        <UiSkeletonLine
-                            h5
-                            :style="{
-                                width: `${randomNumber(30, 70)}%`,
-                            }"
-                        />
-                        <UiSkeletonLine h4 w40 text-fs-muted-2 />
-                    </UiSkeletonCard>
-                </template>
-                <TransitionGroup
-                    v-else
-                    :css="false"
-                    @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
-                    @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
+        <UiSearchBar
+            v-model="searchQuery"
+            v-model:loading="isSearching"
+            placeholder="Search notes..."
+        />
+        <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
+            <New h100px @action="takeNotesModalOpen = true" />
+
+            <template v-if="isLoading">
+                <UiSkeletonCard
+                    v-for="i in randomNumber(3, 7)"
+                    :key="i"
+                    h100px
+                    flex="~ col gap4 justify-between"
                 >
-                    <div v-for="note in calculatedNotes" :key="note.id" op0 class="noteCard">
-                        <NoteCard :data="note" />
-                    </div>
-                </TransitionGroup>
-            </div>
-            <UiPagination
-                v-model="currentPage"
-                :item-count="filtered.length"
-                :items-per-page="19"
-            />
+                    <UiSkeletonLine
+                        h5
+                        :style="{
+                            width: `${randomNumber(30, 70)}%`,
+                        }"
+                    />
+                    <UiSkeletonLine h4 w40 text-fs-muted-2 />
+                </UiSkeletonCard>
+            </template>
+            <TransitionGroup
+                v-else
+                :css="false"
+                @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
+                @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
+            >
+                <div v-for="note in calculatedNotes" :key="note.id" op0 class="noteCard">
+                    <NoteCard :data="note" />
+                </div>
+            </TransitionGroup>
         </div>
-    </div>
+        <UiPagination v-model="currentPage" :item-count="filtered.length" :items-per-page="19" />
+    </DashboardContent>
 </template>
 
 <script setup lang="ts">
