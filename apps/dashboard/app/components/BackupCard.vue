@@ -1,7 +1,7 @@
 <template>
     <ModalsAreYouSure
         v-model="areYouSureModalOpen"
-        title="Are you really sure you want to load this backup?"
+        title="Load Backup"
         description="Your current data will be lost and replaced with the backup data."
         @confirm="handleLoad"
     />

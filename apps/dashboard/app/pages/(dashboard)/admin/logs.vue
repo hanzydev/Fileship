@@ -5,8 +5,8 @@
 
     <ModalsAreYouSure
         v-model="areYouSureModalOpen"
-        title="Are you really sure you want to flush all logs?"
-        description="All logs will be deleted and cannot be undone."
+        title="Flush All Logs"
+        description="Are you sure you want to flush all logs?"
         :disabled="isFlushingLogs"
         @confirm="handleFlushLogs"
     />
