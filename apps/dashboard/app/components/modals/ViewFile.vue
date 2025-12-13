@@ -51,14 +51,14 @@
                     <div
                         flex="~ items-center justify-center gap-1"
                         ring="1 fs-overlay-4"
-                        rounded-lg
+                        rounded-2xl
                         bg-fs-overlay-2
                         px1
                     >
                         <UiButton
                             alignment="center"
                             variant="onOverlay"
-                            class="size-9 shrink-0 text-fs-muted-2 !rounded !p0 hover:text-white"
+                            class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
                             icon="solar:download-minimalistic-bold"
                             icon-size="24"
                             :href="`${data.directUrl}?download`"
@@ -68,7 +68,7 @@
                         <UiButton
                             alignment="center"
                             variant="onOverlay"
-                            class="size-9 shrink-0 text-fs-muted-2 !rounded !p0 hover:text-white"
+                            class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
                             :icon="copied ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold'"
                             :icon-class="copied && 'text-green500!'"
                             icon-size="20"
@@ -80,7 +80,7 @@
                                 v-if="data.folderId"
                                 alignment="center"
                                 variant="onOverlay"
-                                class="size-9 shrink-0 text-fs-muted-2 !rounded !p0 hover:text-white"
+                                class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
                                 icon="solar:remove-folder-bold"
                                 icon-size="24"
                                 :disabled="takingOut"
@@ -90,14 +90,14 @@
                             <UiButton
                                 alignment="center"
                                 variant="onOverlay"
-                                class="size-9 shrink-0 text-fs-muted-2 !rounded !p0 hover:text-white"
+                                class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
                                 icon="solar:pen-2-bold"
                                 icon-size="24"
                                 @click="editModalOpen = true"
                             />
                             <UiButton
                                 alignment="center"
-                                class="size-9 shrink-0 text-fs-muted-2 !rounded !p0 !hover:(bg-red-600 text-white)"
+                                class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 !hover:(bg-red-600 text-white)"
                                 variant="onOverlay"
                                 icon="solar:trash-bin-minimalistic-bold"
                                 icon-size="20"
@@ -111,7 +111,7 @@
                     <UiButton
                         variant="accent"
                         alignment="center"
-                        class="size-11 shrink-0 text-fs-muted-2 !p0 hover:text-white"
+                        class="size-11 shrink-0 text-fs-muted-2 !rounded-2xl !p0 hover:text-white"
                         icon="lucide:x"
                         icon-size="24"
                         @click="isOpen = false"
@@ -132,6 +132,7 @@
                     icon-size="24"
                     aria-label="Previous"
                     data-ignore-modal-outer-click
+                    rounded-2xl="!"
                     :class="[
                         'z20 size-11 shrink-0 text-fs-muted-2 !p0 hover:text-white motion-safe:transition-opacity',
                         zoom.zoomedIn && 'opacity-0',
@@ -193,7 +194,7 @@
                             wauto
                             max-w="[calc((100%-44px*2)-16px)]"
                             max-h="[calc(75vh-16px)]"
-                            rounded-lg
+                            rounded-2xl
                         />
                     </template>
                     <audio
@@ -213,6 +214,7 @@
                     icon-size="24"
                     aria-label="Next"
                     data-ignore-modal-outer-click
+                    rounded-2xl="!"
                     :class="[
                         'z20 size-11 shrink-0 text-fs-muted-2 !p0 hover:text-white motion-safe:transition-opacity',
                         zoom.zoomedIn && 'opacity-0',
@@ -258,8 +260,8 @@
                             loading="lazy"
                             :class="
                                 fIndex === mediaFiles.indexOf(mediaFiles[0]!)
-                                    ? 'rounded-l-lg'
-                                    : fIndex === mediaFiles.length - 1 && 'rounded-r-lg'
+                                    ? 'rounded-l-2xl'
+                                    : fIndex === mediaFiles.length - 1 && 'rounded-r-2xl'
                             "
                         />
                         <div
@@ -272,8 +274,8 @@
                             rounded-sm
                             :class="
                                 fIndex === mediaFiles.indexOf(mediaFiles[0]!)
-                                    ? 'rounded-l-lg'
-                                    : fIndex === mediaFiles.length - 1 && 'rounded-r-lg'
+                                    ? 'rounded-l-2xl'
+                                    : fIndex === mediaFiles.length - 1 && 'rounded-r-2xl'
                             "
                         >
                             <Icon
@@ -298,8 +300,8 @@
                                 loading="lazy"
                                 :class="
                                     fIndex === mediaFiles.indexOf(mediaFiles[0]!)
-                                        ? 'rounded-l-lg'
-                                        : fIndex === mediaFiles.length - 1 && 'rounded-r-lg'
+                                        ? 'rounded-l-2xl'
+                                        : fIndex === mediaFiles.length - 1 && 'rounded-r-2xl'
                                 "
                             />
                         </div>
@@ -341,9 +343,9 @@
                                 loading="lazy"
                                 :class="
                                     item.file.id === mediaFiles[0]!.id
-                                        ? 'rounded-l-lg'
+                                        ? 'rounded-l-2xl'
                                         : item.file.id === mediaFiles[mediaFiles.length - 1]!.id &&
-                                          'rounded-r-lg'
+                                          'rounded-r-2xl'
                                 "
                             />
                             <div
@@ -356,9 +358,9 @@
                                 rounded-sm
                                 :class="
                                     item.file.id === mediaFiles[0]!.id
-                                        ? 'rounded-l-lg'
+                                        ? 'rounded-l-2xl'
                                         : item.file.id === mediaFiles[mediaFiles.length - 1]!.id &&
-                                          'rounded-r-lg'
+                                          'rounded-r-2xl'
                                 "
                             >
                                 <Icon
@@ -383,10 +385,10 @@
                                     loading="lazy"
                                     :class="
                                         item.file.id === mediaFiles[0]!.id
-                                            ? 'rounded-l-lg'
+                                            ? 'rounded-l-2xl'
                                             : item.file.id ===
                                                   mediaFiles[mediaFiles.length - 1]!.id &&
-                                              'rounded-r-lg'
+                                              'rounded-r-2xl'
                                     "
                                 />
                             </div>

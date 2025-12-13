@@ -11,19 +11,17 @@
                 variant="secondary"
                 alignment="center"
                 icon="solar:arrow-left-linear"
-                icon-class="text-2xl! sm:text-3xl!"
-                rounded-full="!"
+                icon-size="24"
+                rounded-2xl="!"
                 p0="!"
-                shadow="xl fs-overlay-1"
                 aria-label="Previous"
                 top="1/2"
                 translate-y-="1/2"
                 data-ignore-modal-outer-click
                 absolute
-                sm="left-6"
-                left-3
+                left-8
                 z60
-                size="10 sm:14"
+                size-11
                 :disabled="isFirst || !prev"
                 @click="handlePrev"
             />
@@ -37,19 +35,17 @@
                 variant="secondary"
                 alignment="center"
                 icon="solar:arrow-right-linear"
-                icon-class="text-2xl! sm:text-3xl!"
-                rounded-full="!"
+                icon-size="24"
+                rounded-2xl="!"
                 p0="!"
-                shadow="xl fs-overlay-1"
                 aria-label="Previous"
                 top="1/2"
                 translate-y-="1/2"
                 data-ignore-modal-outer-click
                 absolute
-                sm="right-6"
-                right-3
+                right-8
                 z60
-                size="10 sm:14"
+                size-11
                 :disabled="isLast || !next"
                 @click="handleNext"
             />
