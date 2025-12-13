@@ -84,6 +84,13 @@ export default defineEventHandler(async (event) => {
         throw forbiddenError;
     }
 
+    if ('superAdmin' in body.data && body.data.superAdmin && !currentUser.superAdmin) {
+        throw createError({
+            statusCode: 403,
+            message: 'You cannot grant super admin rights',
+        });
+    }
+
     const superAdmins = await prisma.user.count({
         where: {
             superAdmin: true,
