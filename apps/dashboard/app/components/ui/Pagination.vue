@@ -82,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-const { buttonClass, ...props } = defineProps<{
+const props = defineProps<{
     itemCount: number;
     itemsPerPage: number;
     buttonClass?: unknown;
