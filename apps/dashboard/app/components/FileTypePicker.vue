@@ -31,11 +31,7 @@
                     <UiButton
                         v-for="(lang, index) in searched"
                         :key="index"
-                        :icon="
-                            lang.label === fileType.label
-                                ? 'lucide:check'
-                                : 'solar:code-bold'
-                        "
+                        :icon="lang.label === fileType.label ? 'lucide:check' : 'solar:code-bold'"
                         :variant="lang.label === fileType.label ? 'accent' : 'onOverlay'"
                         icon-size="20"
                         wfull

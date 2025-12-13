@@ -29,9 +29,7 @@
                     v-for="_type in ['image', 'video', 'audio', 'document', 'archive', 'code']"
                     :key="_type"
                     :icon="
-                        filterType.includes(_type as never)
-                            ? 'lucide:check'
-                            : 'solar:filter-bold'
+                        filterType.includes(_type as never) ? 'lucide:check' : 'solar:filter-bold'
                     "
                     :variant="filterType.includes(_type as never) ? 'accent' : 'onOverlay'"
                     icon-size="20"

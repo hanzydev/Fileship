@@ -17,9 +17,7 @@
                     v-for="(option, index) in compressions"
                     :key="index"
                     :icon="
-                        option.value === compression.value
-                            ? 'lucide:check'
-                            : 'solar:archive-bold'
+                        option.value === compression.value ? 'lucide:check' : 'solar:archive-bold'
                     "
                     :variant="option.value === compression.value ? 'accent' : 'onOverlay'"
                     icon-size="20"

@@ -47,11 +47,7 @@
                     <UiButton
                         v-for="(option, index) in filtered"
                         :key="index"
-                        :icon="
-                            option.id === folder.value
-                                ? 'lucide:check'
-                                : 'solar:folder-bold'
-                        "
+                        :icon="option.id === folder.value ? 'lucide:check' : 'solar:folder-bold'"
                         :variant="option.id === folder.value ? 'accent' : 'onOverlay'"
                         icon-size="20"
                         wfull

@@ -89,9 +89,7 @@
 
         <div flex="~ gap4 <md:col">
             <UiButton
-                :icon="
-                    copied ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold'
-                "
+                :icon="copied ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold'"
                 :icon-class="copied && 'text-green500!'"
                 icon-size="24"
                 wfull

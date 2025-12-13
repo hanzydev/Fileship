@@ -69,11 +69,7 @@
                             alignment="center"
                             variant="onOverlay"
                             class="size-9 shrink-0 text-fs-muted-2 !rounded !p0 hover:text-white"
-                            :icon="
-                                copied
-                                    ? 'solar:clipboard-check-bold'
-                                    : 'solar:clipboard-bold'
-                            "
+                            :icon="copied ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold'"
                             :icon-class="copied && 'text-green500!'"
                             icon-size="20"
                             @click="handleCopy"

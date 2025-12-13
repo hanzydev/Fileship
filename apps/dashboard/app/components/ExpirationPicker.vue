@@ -17,11 +17,7 @@
                 <UiButton
                     v-for="(option, index) in expirations"
                     :key="index"
-                    :icon="
-                        option.value === expiration.value
-                            ? 'lucide:check'
-                            : 'solar:alarm-bold'
-                    "
+                    :icon="option.value === expiration.value ? 'lucide:check' : 'solar:alarm-bold'"
                     :variant="option.value === expiration.value ? 'accent' : 'onOverlay'"
                     icon-size="20"
                     wfull
