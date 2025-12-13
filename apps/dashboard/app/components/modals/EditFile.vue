@@ -1,11 +1,5 @@
 <template>
-    <UiModal
-        v-model="isOpen"
-        z70="!"
-        background-class="z60!"
-        :background-props="{ 'data-ignore-modal-outer-click': true }"
-        data-ignore-modal-outer-click
-    >
+    <UiModal v-model="isOpen" z70="!" background-class="z60!">
         <form p8 space-y-4 @submit.prevent="handleEdit">
             <h2>Edit File</h2>
 

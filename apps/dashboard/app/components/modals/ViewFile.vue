@@ -4,6 +4,8 @@
             v-if="currentUser?.id === data.authorId && !partial"
             v-model="editModalOpen"
             :data
+            :background-props="{ 'data-ignore-modal-outer-click': true }"
+            data-ignore-modal-outer-click
         />
 
         <UiModal
