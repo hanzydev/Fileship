@@ -7,7 +7,7 @@
             >
                 <div v-if="!currentUser.backupRestoreState">
                     <LayoutsActingAsUser />
-                    <div flex="~ gap-6">
+                    <div flex="~">
                         <LayoutsSidebar />
 
                         <slot />
