@@ -91,25 +91,6 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const superAdmins = await prisma.user.count({
-        where: {
-            superAdmin: true,
-        },
-    });
-
-    if (
-        findUserById.id === currentUser.id &&
-        findUserById.superAdmin &&
-        'superAdmin' in body.data &&
-        !body.data.superAdmin &&
-        superAdmins === 1
-    ) {
-        throw createError({
-            statusCode: 403,
-            message: 'You cannot remove super admin from yourself if you are the only super admin',
-        });
-    }
-
     if (body.data.permissions && !body.data.permissions.length && !body.data.superAdmin) {
         throw createError({
             statusCode: 400,
@@ -203,22 +184,40 @@ export default defineEventHandler(async (event) => {
 
     delete body.data.verificationData;
 
-    const updatedUser = await prisma.user.update({
-        where: {
-            id: userId,
-        },
-        data: body.data,
-        select: {
-            id: true,
-            username: true,
-            avatar: true,
-            permissions: true,
-            totpEnabled: true,
-            createdAt: true,
-            limits: true,
-            superAdmin: true,
-            theme: true,
-        },
+    const updatedUser = await prisma.$transaction(async (tx) => {
+        const superAdminsCount = await tx.user.count({
+            where: { superAdmin: true },
+        });
+
+        if (
+            findUserById.id === currentUser.id &&
+            findUserById.superAdmin &&
+            'superAdmin' in body.data &&
+            !body.data.superAdmin &&
+            superAdminsCount <= 1
+        ) {
+            throw createError({
+                statusCode: 403,
+                message:
+                    'You cannot remove super admin from yourself if you are the only super admin',
+            });
+        }
+
+        return await tx.user.update({
+            where: { id: userId },
+            data: body.data,
+            select: {
+                id: true,
+                username: true,
+                avatar: true,
+                permissions: true,
+                totpEnabled: true,
+                createdAt: true,
+                limits: true,
+                superAdmin: true,
+                theme: true,
+            },
+        });
     });
 
     await update(userSearchDb, updatedUser.id, {
