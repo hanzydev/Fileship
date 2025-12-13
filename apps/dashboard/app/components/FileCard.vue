@@ -119,7 +119,7 @@
             <div
                 w48
                 bg-fs-overlay-2
-                p1.5
+                p1
                 space-y-1
                 ring="1 fs-overlay-4"
                 :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
@@ -215,7 +215,7 @@
                             w64
                             overflow-y-auto
                             bg-fs-overlay-2
-                            p1.5
+                            p1
                             ring="1 fs-overlay-4"
                             space-y-2
                             :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"

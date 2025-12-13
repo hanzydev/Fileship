@@ -9,7 +9,7 @@
                 overflow-y-auto
                 rounded-xl
                 bg-fs-overlay-2
-                p1.5
+                p1
                 space-y-1
                 ring="1 fs-overlay-4"
             >

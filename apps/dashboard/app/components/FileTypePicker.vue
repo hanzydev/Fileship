@@ -16,7 +16,7 @@
                 overflow-y-auto
                 rounded-xl
                 bg-fs-overlay-2
-                p1.5
+                p1
                 sm:w72
                 space-y-2
             >

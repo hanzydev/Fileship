@@ -33,7 +33,7 @@
             </div>
         </div>
         <template #content>
-            <div w48 rounded-xl bg-fs-overlay-2 p1.5 space-y-1 ring="1 fs-overlay-4">
+            <div w48 rounded-xl bg-fs-overlay-2 p1 space-y-1 ring="1 fs-overlay-4">
                 <UiButton
                     variant="onOverlay"
                     icon="solar:clipboard-bold"

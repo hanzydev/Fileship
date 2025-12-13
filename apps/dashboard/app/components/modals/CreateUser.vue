@@ -65,7 +65,7 @@
                         w52
                         rounded-xl
                         bg-fs-overlay-2
-                        p1.5
+                        p1
                         ring="1 fs-overlay-4"
                         space-y-1
                     >
