@@ -73,7 +73,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const user = await prisma.user.create({
+    const _createdUser = await prisma.user.create({
         data: {
             username: body.data.username,
             password: await hash(body.data.password),
@@ -90,23 +90,30 @@ export default defineEventHandler(async (event) => {
             createdAt: true,
             limits: true,
             superAdmin: true,
+            _count: {
+                select: { files: true, folders: true, notes: true },
+            },
         },
     });
 
+    const createdUser = {
+        ..._createdUser,
+        _count: undefined,
+        stats: _createdUser._count,
+        limits: defu(_createdUser.limits, defaultUserLimits) as IUserLimits,
+    };
+
     await insert(userSearchDb, {
-        id: user.id,
-        username: user.username,
+        id: createdUser.id,
+        username: createdUser.username,
     });
 
     await createLog(event, {
         action: 'Create User',
-        message: `Created user ${user.username} with permissions ${user.permissions.join(', ')}`,
+        message: `Created user ${createdUser.username} with permissions ${createdUser.permissions.join(', ')}`,
     });
 
-    await sendByFilter(isAdmin, 'create:user', user);
+    await sendByFilter(isAdmin, 'create:user', createdUser);
 
-    return {
-        ...user,
-        limits: user.limits as unknown as IUserLimits,
-    };
+    return createdUser;
 });

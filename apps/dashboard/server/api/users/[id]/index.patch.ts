@@ -184,7 +184,7 @@ export default defineEventHandler(async (event) => {
 
     delete body.data.verificationData;
 
-    const updatedUser = await prisma.$transaction(async (tx) => {
+    const _updatedUser = await prisma.$transaction(async (tx) => {
         const superAdminsCount = await tx.user.count({
             where: { superAdmin: true },
         });
@@ -216,9 +216,19 @@ export default defineEventHandler(async (event) => {
                 limits: true,
                 superAdmin: true,
                 theme: true,
+                _count: {
+                    select: { files: true, folders: true, notes: true },
+                },
             },
         });
     });
+
+    const updatedUser = {
+        ..._updatedUser,
+        _count: undefined,
+        stats: _updatedUser._count,
+        limits: defu(_updatedUser.limits, defaultUserLimits) as IUserLimits,
+    };
 
     await update(userSearchDb, updatedUser.id, {
         id: updatedUser.id,
@@ -234,8 +244,5 @@ export default defineEventHandler(async (event) => {
 
     sendToUser(updatedUser.id, 'update:currentUser', updatedUser);
 
-    return {
-        ...updatedUser,
-        limits: defu(updatedUser.limits, defaultUserLimits) as IUserLimits,
-    };
+    return updatedUser;
 });
