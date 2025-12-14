@@ -50,11 +50,12 @@ export const initSocket = () => {
 
         // User
         socket.on('update:currentUser', (data) => {
+            const adminRoutes = ['/users', '/logs', '/stats'];
             if (
                 data.permissions?.length &&
                 !isAdmin(data) &&
                 isAdmin(currentUser.value) &&
-                route.path.startsWith('/admin')
+                adminRoutes.some((r) => route.path.startsWith(r))
             ) {
                 navigateTo('/dashboard');
             }

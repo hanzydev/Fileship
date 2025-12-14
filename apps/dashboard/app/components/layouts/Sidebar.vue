@@ -258,17 +258,17 @@ const categories = computed(() => {
                 {
                     name: 'Statistics',
                     icon: 'solar:chart-square-bold',
-                    href: '/admin',
+                    href: '/dashboard/stats',
                 },
                 {
                     name: 'Users',
                     icon: 'solar:users-group-rounded-bold',
-                    href: '/admin/users',
+                    href: '/dashboard/users',
                 },
                 {
                     name: 'Logs',
                     icon: 'solar:clipboard-list-bold',
-                    href: '/admin/logs',
+                    href: '/dashboard/logs',
                 },
             ],
         });
