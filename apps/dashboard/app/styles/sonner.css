@@ -1,3 +1,7 @@
+[data-sonner-toaster] {
+    --offset-top: 36px !important;
+}
+
 [data-sonner-toast] {
     @apply !border-none !bg-fs-overlay-2 !ring-1 !ring-fs-overlay-3 !rounded-2xl !font-[Nunito_Sans,sans-serif] !p4.5;
 }
