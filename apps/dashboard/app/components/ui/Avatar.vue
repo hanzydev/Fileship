@@ -5,7 +5,7 @@
             v-bind="$attrs"
             :src
             :alt
-            :class="[size === 'xs' && 'h8 w8', size === 'sm' && 'h9 w9']"
+            :class="[size === 'xs' && 'size-8', size === 'sm' && 'size-11']"
             select-none
             rounded-full
             bg-fs-overlay-3
@@ -22,7 +22,7 @@
             bg-fs-overlay-3
             ring="1 fs-overlay-4"
             font-medium
-            :class="[size === 'xs' && 'h8 w8', size === 'sm' && 'h9 w9']"
+            :class="[size === 'xs' && 'size-8', size === 'sm' && 'size-11']"
         >
             {{
                 alt

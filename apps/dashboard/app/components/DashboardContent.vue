@@ -9,19 +9,34 @@
             px-6
         >
             <slot name="header" />
-            <UiButton
-                alignment="center"
-                icon="solar:hamburger-menu-linear"
-                icon-size="24"
-                p0="!"
-                relative
-                mla
-                size-10
-                flex-shrink-0
-                gap-2
-                md="hidden"
-                @click="sidebarOpen = true"
-            />
+
+            <div>
+                <UiButton
+                    alignment="center"
+                    icon="solar:hamburger-menu-linear"
+                    icon-size="24"
+                    p0="!"
+                    relative
+                    mla
+                    size-10
+                    flex-shrink-0
+                    gap-2
+                    md="hidden"
+                    rounded-xl="!"
+                    @click="sidebarOpen = true"
+                />
+                <UiAvatar
+                    :src="currentUser!.avatar || undefined"
+                    :alt="currentUser!.username"
+                    size="sm"
+                    lt-md="hidden"
+                    cursor-pointer
+                    active:scale-95
+                    hover:ring-fs-accent
+                    motion-safe:transition-all
+                    @click="$router.push('/dashboard/account')"
+                />
+            </div>
         </section>
         <section
             border="~ fs-overlay-3"
@@ -44,4 +59,5 @@
 <script setup lang="ts">
 const adminSessionId = useCookie('adminSessionId');
 const sidebarOpen = useSidebar();
+const currentUser = useAuthUser();
 </script>
