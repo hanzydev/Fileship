@@ -19,7 +19,7 @@
         <div space-y-2>
             <h3>Your Statistics</h3>
 
-            <div grid="~ gap6 md:cols-3 sm:cols-2 xl:cols-4">
+            <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
                 <StatCard
                     title="Files"
                     description="uploaded files"

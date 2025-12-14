@@ -1,5 +1,5 @@
 <template>
-    <div w="[calc(100%-48px)] lg:[calc(100%-256px-48px-24px)]" m="t6 l6" space-y-6>
+    <div w="[calc(100%-48px)] md:[calc(100%-256px-48px-24px)]" m="t6 l6" space-y-6>
         <section
             flex="~ items-center justify-between gap-4"
             border="~ fs-overlay-3"
@@ -9,16 +9,29 @@
             px-6
         >
             <slot name="header" />
+            <UiButton
+                alignment="center"
+                icon="solar:hamburger-menu-linear"
+                icon-size="24"
+                p0="!"
+                relative
+                mla
+                size-10
+                flex-shrink-0
+                gap-2
+                md="hidden"
+                @click="sidebarOpen = true"
+            />
         </section>
         <section
             border="~ fs-overlay-3"
+            motion-safe="transition-max-height"
             wfull
+            overflow-x-hidden
             rounded-2xl
             bg-fs-overlay-1
             p6
             space-y-6
-            motion-safe="transition-max-height"
-            :class="overflow ? 'overflow-x-hidden' : 'overflow-hidden'"
             :style="{
                 maxHeight: `calc(100vh - 3rem - 5rem - 24px${adminSessionId ? ' - 72px' : ''})`,
             }"
@@ -29,6 +42,6 @@
 </template>
 
 <script setup lang="ts">
-const overflow = useOverflow();
 const adminSessionId = useCookie('adminSessionId');
+const sidebarOpen = useSidebar();
 </script>

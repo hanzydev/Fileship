@@ -65,7 +65,6 @@ const emit = defineEmits<{
 const isOpen = defineModel<boolean>({ required: true });
 
 const router = useRouter();
-const overflow = useOverflow();
 
 const contentRef = useTemplateRef<HTMLDivElement>('content');
 
@@ -87,10 +86,6 @@ onKeyStroke(
     },
     { eventName: 'keydown' },
 );
-
-onUnmounted(() => (overflow.value = true));
-
-watch(isOpen, (value) => (overflow.value = !value));
 
 router.beforeEach((_, __, next) => {
     if (isOpen.value) isOpen.value = false;

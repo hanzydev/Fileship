@@ -11,7 +11,7 @@
             partial
         />
 
-        <Body :class="overflow ? 'overflow-x-hidden' : 'overflow-hidden'">
+        <Body :class="viewFileModal.open ? 'overflow-hidden' : 'overflow-x-hidden'">
             <div hfull min-hscreen bg-fs-overlay-1 p8="!">
                 <div space-y-6>
                     <h2>{{ data!.name }}</h2>
@@ -111,7 +111,6 @@
 
 <script setup lang="ts">
 const route = useRoute();
-const overflow = useOverflow();
 
 const { data, error } = await useFetch<FolderData & { files: FileData[]; embed: IEmbed }>(
     `/api/folders/${route.params.id}`,

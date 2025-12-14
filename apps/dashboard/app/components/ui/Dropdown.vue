@@ -85,7 +85,6 @@ const menuPosition = reactive({ x: 0, y: 0 });
 
 const id = useId();
 const isIos = useIsIos();
-const overflow = useOverflow();
 const activeCtxMenu = useActiveCtxMenu();
 
 let ctxMenuTimeout: NodeJS.Timeout;
@@ -200,7 +199,6 @@ watch(isOpen, async (value) => {
     if (calculatingMenuPosition) return;
 
     if (asCtxMenu) activeCtxMenu.value = value ? id! : '';
-    overflow.value = !activeCtxMenu.value;
 
     if (value && !asCtxMenu) nextTick(preventOverflow);
 });

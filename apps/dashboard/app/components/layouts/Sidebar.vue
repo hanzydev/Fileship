@@ -1,31 +1,12 @@
 <template>
     <div>
         <Transition
-            enter-active-class="motion-safe:(animate-in fade-in)"
-            leave-active-class="motion-safe:(animate-out fade-out)"
-        >
-            <div
-                v-if="isOpen && width > 640 && width < 1024"
-                absolute
-                inset-0
-                z20
-                backdrop-blur-sm
-                lg:ml64
-                bg="black/60"
-                :style="{
-                    height: `calc(100vh - 70px${adminSessionId ? ' - 3rem' : ''})`,
-                    marginTop: `calc(70px${adminSessionId ? ' + 48px' : ''})`,
-                }"
-                @click="isOpen = false"
-            />
-        </Transition>
-        <Transition
-            enter-active-class="motion-safe:(animate-in fade-in slide-in-left-full)"
-            leave-active-class="motion-safe:(animate-out fade-out slide-out-left-full)"
+            enter-active-class="motion-safe:(animate-in fade-in slide-in-left-full animate-duration-300)"
+            leave-active-class="motion-safe:(animate-out fade-out slide-out-left-full animate-duration-300)"
         >
             <aside
-                v-if="width < 1024 ? isOpen : true"
-                :class="width === Infinity && 'lt-lg:hidden'"
+                v-if="width < 768 ? isOpen : true"
+                :class="width === Infinity && 'lt-md:hidden'"
                 :style="{
                     height: `calc(100vh - 3rem${adminSessionId ? ' - 72px' : ''})`,
                 }"
@@ -38,10 +19,11 @@
                 rounded-2xl
                 bg-fs-overlay-1
                 py6
-                sm:w64
                 space-y-6
+                md="w64"
+                lt-md="absolute w-[calc(100%-48px)]!"
             >
-                <div flex="~ items-start gap-4" mx5 px2.5 lg:mx3>
+                <div flex="~ items-start gap-4" mx3 px2.5>
                     <img
                         src="/fileship-512x512.png"
                         alt="fileship logo"
@@ -76,9 +58,22 @@
                             </UiButton>
                         </Transition>
                     </div>
+                    <UiButton
+                        alignment="center"
+                        icon="lucide:x"
+                        icon-size="24"
+                        p0="!"
+                        relative
+                        mla
+                        size-10
+                        flex-shrink-0
+                        gap-2
+                        md="hidden"
+                        @click="isOpen = false"
+                    />
                 </div>
                 <div v-for="category in categories" :key="category.name" space-y-2>
-                    <span mx5 px2.5 text-sm text-fs-muted-3 font-bold lg:mx3>
+                    <span mx3 px2.5 text-sm text-fs-muted-3 font-bold>
                         {{ category.name }}
                     </span>
                     <div space-y-1.5>
@@ -92,10 +87,9 @@
                             icon-size="20"
                             alignment="left"
                             rounded-xl="!"
-                            mx5
+                            mx3
                             gap2.5
                             px2.5
-                            lg:mx3
                         >
                             {{ item.name }}
                         </UiButton>
@@ -108,11 +102,10 @@
                                     variant="ghost"
                                     hover="bg-fs-overlay-2"
                                     rounded-xl="!"
-                                    mx5
+                                    mx3
                                     gap2.5
                                     px2.5
-                                    lg:mx3
-                                    w="[calc(100%-0.625rem-1.25rem)] lg:[calc(100%-0.625rem-0.75rem)]"
+                                    w="[calc(100%-0.625rem-1.25rem)] md:[calc(100%-0.625rem-0.75rem)]"
                                 >
                                     Themes
                                 </UiButton>
@@ -168,11 +161,10 @@
                                 icon-size="20"
                                 alignment="left"
                                 rounded-xl="!"
-                                mx5
+                                mx3
                                 gap2.5
                                 px2.5
-                                lg:mx3
-                                w="[calc(100%-0.625rem-1.25rem)] lg:[calc(100%-0.625rem-0.75rem)]"
+                                w="[calc(100%-0.625rem-1.25rem)] md:[calc(100%-0.625rem-0.75rem)]"
                                 hover="bg-red-500"
                                 icon="solar:logout-2-bold"
                                 :disabled="isLoggingOut"
@@ -197,7 +189,6 @@ import themes from '~/styles/themes.json';
 const isOpen = useSidebar();
 const router = useRouter();
 const route = useRoute();
-const overflow = useOverflow();
 const currentTheme = useTheme();
 const currentUser = useAuthUser();
 const { width } = useWindowSize();
@@ -328,12 +319,6 @@ onKeyStroke(
     },
     { eventName: 'keydown' },
 );
-
-onUnmounted(() => (overflow.value = true));
-
-watch(isOpen, (value) => (overflow.value = !value));
-
-watch(width, (value) => (overflow.value = value >= 1024 ? true : !isOpen.value));
 
 router.beforeEach((_, __, next) => {
     if (isOpen.value) isOpen.value = false;
