@@ -19,7 +19,7 @@
         <p text-fs-muted-2 font-medium>
             You cannot perform any actions on this user until this process is completed.
         </p>
-        <UiButton ring-none="!" cursor-default bg-fs-overlay-1="!">
+        <UiButton ring-none="!" cursor-default bg-fs-overlay-1="!" rounded-2xl="!">
             {{ state }}
         </UiButton>
         <UiProgressBar max-w-2xl />

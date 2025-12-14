@@ -34,6 +34,7 @@
                 :error="formErrors?.username?._errors?.[0]"
                 required
                 wfull
+                rounded-xl="!"
                 :disabled
             />
             <UiInput
@@ -44,6 +45,7 @@
                 type="password"
                 :error="formErrors?.password?._errors?.[0]"
                 :disabled
+                rounded-xl="!"
             />
             <UiDropdown v-if="!user.superAdmin" placement="top" pb0.5="!">
                 <UiInput
@@ -56,6 +58,7 @@
                     :error="formErrors?.permissions?._errors?.[0]"
                     :disabled
                     cursor-pointer="!"
+                    rounded-xl="!"
                 />
 
                 <template #content>
@@ -111,6 +114,7 @@
                     type="number"
                     :min="-1"
                     :disabled
+                    rounded-xl="!"
                 />
                 <UiInput
                     v-model="user.limits.usableSpace"
@@ -121,6 +125,7 @@
                     type="number"
                     :min="-1"
                     :disabled
+                    rounded-xl="!"
                 />
             </div>
 
@@ -136,6 +141,7 @@
                     icon-size="24"
                     wfull
                     gap2
+                    rounded-xl="!"
                     @click="isOpen = false"
                 >
                     Cancel
@@ -148,6 +154,7 @@
                     type="submit"
                     icon="solar:pen-2-bold"
                     icon-size="20"
+                    rounded-xl="!"
                     :loading="disabled"
                     :disabled
                 >

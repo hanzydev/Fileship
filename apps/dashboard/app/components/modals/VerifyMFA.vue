@@ -34,6 +34,7 @@
                             wfull
                             flex-row-reverse
                             p="!y-3 !x-5"
+                            rounded-xl="!"
                             @click="
                                 selectedMethod = 'passkey';
                                 hubMode = false;
@@ -49,6 +50,7 @@
                             icon-class="mla"
                             wfull
                             flex-row-reverse
+                            rounded-xl="!"
                             p="!y-3 !x-5"
                             @click="
                                 selectedMethod = 'totp';
@@ -65,6 +67,7 @@
                             icon-class="mla"
                             wfull
                             flex-row-reverse
+                            rounded-xl="!"
                             p="!y-3 !x-5"
                             @click="
                                 selectedMethod = 'password';
@@ -83,6 +86,7 @@
                         wfull
                         gap2
                         :disabled
+                        rounded-xl="!"
                         @click="isOpen = false"
                     >
                         Cancel
@@ -111,6 +115,7 @@
                             icon="lucide:fingerprint-pattern"
                             icon-size="20"
                             gap2
+                            rounded-xl="!"
                             @click="handlePasskey"
                         >
                             Authenticate with passkey
@@ -122,6 +127,7 @@
                             required
                             :error
                             :disabled
+                            input-class="rounded-xl!"
                             @got="(totp) => emit('got', { type: 'totp', data: totp })"
                         />
                     </div>
@@ -138,6 +144,7 @@
                             wfull
                             :error
                             :disabled
+                            rounded-xl="!"
                         />
 
                         <button type="submit" hidden></button>
@@ -164,6 +171,7 @@
                                 gap2
                                 md:w10rem
                                 :disabled
+                                rounded-xl="!"
                                 @click="
                                     isOpen = false;
                                     emit('cancel');
@@ -182,6 +190,7 @@
                                 md:w10rem
                                 :loading="disabled"
                                 :disabled
+                                rounded-xl="!"
                                 @click="
                                     emit('got', {
                                         type: selectedMethod,

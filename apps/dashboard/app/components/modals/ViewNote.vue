@@ -64,6 +64,7 @@
                     icon="solar:pen-2-bold"
                     icon-size="24"
                     ring="1 fs-overlay-4"
+                    rounded-xl="!"
                     @click="
                         isOpen = false;
                         editModalOpen = true;
@@ -76,12 +77,20 @@
                     class="h10 w10 !p0 hover:text-white"
                     icon="lucide:x"
                     icon-size="24"
+                    rounded-xl="!"
                     @click="isOpen = false"
                 />
             </div>
         </div>
 
-        <UiTextArea v-model="data!.content" label="Content" readonly wfull cursor-text="!" />
+        <UiTextArea
+            v-model="data!.content"
+            label="Content"
+            readonly
+            wfull
+            cursor-text="!"
+            rounded-xl="!"
+        />
 
         <div flex="~ gap4 <md:col">
             <UiButton
@@ -91,6 +100,7 @@
                 wfull
                 gap2
                 target="_blank"
+                rounded-xl="!"
                 @click="handleCopy"
             >
                 Copy
@@ -103,6 +113,7 @@
                 icon-size="20"
                 wfull
                 gap2
+                rounded-xl="!"
                 :disabled="deleting"
                 :loading="deleting"
                 @click="handleDelete"

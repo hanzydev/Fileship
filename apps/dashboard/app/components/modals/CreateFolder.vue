@@ -25,6 +25,7 @@
                 :error="formErrors?.name?._errors?.[0]"
                 required
                 wfull
+                rounded-xl="!"
                 :disabled
             />
             <div flex="~ gap2 items-center">
@@ -39,6 +40,7 @@
                     icon-size="24"
                     wfull
                     gap2
+                    rounded-xl="!"
                     @click="createModalOpen = false"
                 >
                     Cancel
@@ -51,6 +53,7 @@
                     type="submit"
                     icon="solar:pen-2-bold"
                     icon-size="20"
+                    rounded-xl="!"
                     :loading="disabled"
                     :disabled
                 >

@@ -11,6 +11,7 @@
                 required
                 wfull
                 :disabled="updating"
+                rounded-xl="!"
             />
             <div flex="~ gap2 items-center">
                 <UiSwitch v-model="editData.cloned.value!.public" :disabled="updating" />
@@ -24,6 +25,7 @@
                     icon-size="24"
                     wfull
                     gap2
+                    rounded-xl="!"
                     @click="isOpen = false"
                 >
                     Cancel
@@ -38,6 +40,7 @@
                     icon-size="20"
                     :loading="updating"
                     :disabled="updating"
+                    rounded-xl="!"
                 >
                     Save
                 </UiButton>

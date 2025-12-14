@@ -4,7 +4,7 @@
     </Head>
 
     <UiModal v-model="settingsModalOpen" p8 space-y-4>
-        <h2>Settings</h2>
+        <h2>Upload Settings</h2>
 
         <div v-if="currentTab === 'Media Upload'" space-y-1>
             <UiLabel :for="id">File Name Type</UiLabel>
@@ -27,6 +27,8 @@
                         icon: 'solar:document-bold',
                     },
                 ]"
+                rounded-xl="!"
+                button-class="rounded-lg!"
                 width-full
             />
         </div>

@@ -21,6 +21,7 @@
                 required
                 wfull
                 :disabled="updating"
+                rounded-xl="!"
             />
             <UiInput
                 v-model="editData.cloned.value!.password!"
@@ -30,6 +31,7 @@
                 :error="formErrors?.password?._errors?.[0]"
                 :disabled="updating"
                 caption="Leave blank to keep current password"
+                rounded-xl="!"
             />
 
             <UiDropdown v-if="!editData.cloned.value!.superAdmin" placement="top" pb0.5="!">
@@ -43,6 +45,7 @@
                     :error="formErrors?.permissions?._errors?.[0]"
                     :disabled="updating"
                     cursor-pointer="!"
+                    rounded-xl="!"
                 />
 
                 <template #content>
@@ -100,6 +103,7 @@
                     type="number"
                     :min="-1"
                     :disabled="updating"
+                    rounded-xl="!"
                 />
                 <UiInput
                     v-model="editData.cloned.value!.limits.usableSpace"
@@ -110,6 +114,7 @@
                     type="number"
                     :min="-1"
                     :disabled="updating"
+                    rounded-xl="!"
                 />
             </div>
 
@@ -125,6 +130,7 @@
                     icon-size="24"
                     wfull
                     gap2
+                    rounded-xl="!"
                     @click="isOpen = false"
                 >
                     Cancel
@@ -139,6 +145,7 @@
                     icon-size="20"
                     :loading="updating"
                     :disabled="updating"
+                    rounded-xl="!"
                 >
                     Save
                 </UiButton>

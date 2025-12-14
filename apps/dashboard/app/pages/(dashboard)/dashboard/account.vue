@@ -57,11 +57,11 @@
         <p text-fs-muted-1 font-medium="!">Scan the QR code below with your authenticator app.</p>
 
         <div relative p8>
-            <div absolute left-0 top-0 h20 w20 b="l-5 t-5 fs-accent" rounded="tl-lg"></div>
-            <div absolute right-0 top-0 h20 w20 b="r-5 t-5 fs-accent" rounded="tr-lg"></div>
-            <img :src="authAppQrCode" h48 w48 rounded-md draggable="false" />
-            <div absolute bottom-0 left-0 h20 w20 b="l-5 b-5 fs-accent" rounded="bl-lg"></div>
-            <div absolute bottom-0 right-0 h20 w20 b="r-5 b-5 fs-accent" rounded="br-lg"></div>
+            <div absolute left-0 top-0 h20 w20 b="l-5 t-5 fs-accent" rounded="tl-xl"></div>
+            <div absolute right-0 top-0 h20 w20 b="r-5 t-5 fs-accent" rounded="tr-xl"></div>
+            <img :src="authAppQrCode" h48 w48 rounded-lg draggable="false" />
+            <div absolute bottom-0 left-0 h20 w20 b="l-5 b-5 fs-accent" rounded="bl-xl"></div>
+            <div absolute bottom-0 right-0 h20 w20 b="r-5 b-5 fs-accent" rounded="br-xl"></div>
         </div>
 
         <div wfit>
@@ -69,6 +69,7 @@
                 flex="~ col items-center justify-center text-center"
                 :error="enableMfaError"
                 :disabled="mfaUpdating"
+                input-class="rounded-xl!"
                 @got="handleEnableAuthApp"
             />
         </div>
@@ -80,6 +81,7 @@
             icon-size="24"
             wfull
             gap2
+            rounded-xl="!"
             @click="enableAuthAppModalOpen = false"
         >
             Cancel
@@ -87,7 +89,7 @@
     </UiModal>
 
     <UiModal v-model="shareXConfigModal.open" p8 space-y-4>
-        <h2>Settings</h2>
+        <h2>Generate ShareX Configuration</h2>
 
         <div space-y-1>
             <UiLabel :for="shareXFileNameTypeId">File Name Type</UiLabel>
@@ -110,6 +112,8 @@
                         icon: 'solar:document-bold',
                     },
                 ]"
+                rounded-xl="!"
+                button-class="rounded-lg!"
                 width-full
             />
         </div>
@@ -118,6 +122,7 @@
             wfull
             label="Password"
             type="password"
+            rounded-xl="!"
         />
         <UiInput
             v-model="shareXConfigModal.settings.maxViews"
@@ -126,6 +131,7 @@
             caption="Set to 0 for unlimited views."
             type="number"
             :min="0"
+            rounded-xl="!"
         />
         <ExpirationPicker v-model="shareXConfigModal.settings.expiration">
             <UiInput
@@ -135,6 +141,7 @@
                 readonly
                 wfull
                 cursor-pointer="!"
+                rounded-xl="!"
             />
         </ExpirationPicker>
         <CompressionPicker v-model="shareXConfigModal.settings.compression">
@@ -145,6 +152,7 @@
                 readonly
                 wfull
                 cursor-pointer="!"
+                rounded-xl="!"
             />
         </CompressionPicker>
 
@@ -155,6 +163,7 @@
                 icon-size="24"
                 wfull
                 gap2
+                rounded-xl="!"
                 @click="shareXConfigModal.open = false"
             >
                 Cancel
@@ -167,6 +176,7 @@
                 type="submit"
                 icon="solar:download-minimalistic-bold"
                 icon-size="20"
+                rounded-xl="!"
                 @click="handleGenShareXConfig"
             >
                 Generate

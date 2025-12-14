@@ -10,6 +10,7 @@
                 :error="formErrors?.fileName?._errors?.[0]"
                 required
                 wfull
+                rounded-xl="!"
                 :disabled="updating"
             />
             <UiInput
@@ -19,6 +20,7 @@
                 type="password"
                 :error="formErrors?.password?._errors?.[0]"
                 :disabled="updating"
+                rounded-xl="!"
             />
             <UiInput
                 v-model="editData.cloned.value!.maxViews!"
@@ -29,6 +31,7 @@
                 :min="0"
                 :error="formErrors?.maxViews?._errors?.[0]"
                 :disabled="updating"
+                rounded-xl="!"
             />
             <ExpirationPicker ref="expirationPickerRef" v-model="editData.cloned.value!.expiration">
                 <UiInput
@@ -40,6 +43,7 @@
                     readonly
                     wfull
                     cursor-pointer="!"
+                    rounded-xl="!"
                 />
             </ExpirationPicker>
 
@@ -50,6 +54,7 @@
                     icon-size="24"
                     wfull
                     gap2
+                    rounded-xl="!"
                     @click="isOpen = false"
                 >
                     Cancel
@@ -64,6 +69,7 @@
                     icon-size="20"
                     :loading="updating"
                     :disabled="updating"
+                    rounded-xl="!"
                 >
                     Save
                 </UiButton>

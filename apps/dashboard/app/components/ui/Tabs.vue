@@ -16,7 +16,7 @@
             :variant="selected === item.label ? 'accent' : 'ghost'"
             :icon="item.icon"
             gap2
-            rounded-md="!"
+            rounded-md
             icon-size="20"
             :alignment="width > 640 ? 'center' : 'left'"
             :disabled

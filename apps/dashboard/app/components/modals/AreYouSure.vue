@@ -18,6 +18,7 @@
                     icon="lucide:x"
                     icon-size="24"
                     gap2
+                    rounded-xl="!"
                     @click="isOpen = false"
                 >
                     Cancel
@@ -27,6 +28,7 @@
                     icon="lucide:check"
                     icon-size="24"
                     gap2
+                    rounded-xl="!"
                     @click="
                         $emit('confirm');
                         isOpen = false;

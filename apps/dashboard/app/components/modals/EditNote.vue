@@ -11,6 +11,7 @@
                 :disabled="updating"
                 required
                 wfull
+                rounded-xl="!"
             />
             <UiTextArea
                 v-model="editData.cloned.value!.content"
@@ -19,6 +20,7 @@
                 :disabled="updating"
                 required
                 wfull
+                rounded-xl="!"
             />
 
             <div grid="~ cols-2 gap4">
@@ -28,6 +30,7 @@
                     icon-size="24"
                     wfull
                     gap2
+                    rounded-xl="!"
                     @click="isOpen = false"
                 >
                     Cancel
@@ -42,6 +45,7 @@
                     icon-size="20"
                     :loading="updating"
                     :disabled="updating"
+                    rounded-xl="!"
                 >
                     Save
                 </UiButton>
