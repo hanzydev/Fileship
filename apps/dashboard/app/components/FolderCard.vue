@@ -153,8 +153,6 @@ const handleDelete = async () => {
                 ? 'Folder and its files deleted successfully'
                 : 'Folder deleted successfully',
         );
-
-        areYouSureModalOpen.value = false;
     } catch (error: any) {
         $toast.error(error.data.message);
     }
