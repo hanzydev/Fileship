@@ -32,16 +32,16 @@
             >
                 <div space-y-2>
                     <h3 line-clamp-2 break-all>{{ data.fileName }}</h3>
-                    <div flex="~ gap2 wrap">
-                        <div v-if="data.views" flex="~ items-center gap2">
+                    <div flex="~ gap3 wrap">
+                        <div v-if="data.views" flex="~ items-center gap1.5">
                             <Icon name="solar:eye-bold" size="24" />
                             <span font-medium="!">{{ data.views.today }} today</span>
                         </div>
-                        <div flex="~ items-center gap2">
+                        <div flex="~ items-center gap1.5">
                             <Icon name="solar:diskette-bold" size="24" />
                             <span font-medium="!">{{ data.size!.formatted }}</span>
                         </div>
-                        <div flex="~ items-center gap2">
+                        <div flex="~ items-center gap1.5">
                             <Icon name="solar:calendar-bold" size="24" />
                             <span font-medium="!">
                                 {{ dayjs(data.createdAt).fromNow() }}
