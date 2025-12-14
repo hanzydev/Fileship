@@ -27,6 +27,13 @@
         @got="(data) => handleActAsUser(verifyActingModal.username, data)"
     />
 
+    <ModalsAreYouSure
+        v-model="areYouSureDelete.open"
+        title="Delete User"
+        description="Are you sure you want to delete this user?"
+        @confirm="handleDelete(areYouSureDelete.userId)"
+    />
+
     <LazyDashboardContent>
         <template #header>
             <h2>Users</h2>
@@ -152,7 +159,10 @@
                                     willBeActed === row.user.username,
                                 loading: willBeDeleted.has(row.user.id),
                                 'aria-label': 'Delete user',
-                                onClick: () => handleDelete(row.user.id),
+                                onClick: () => {
+                                    areYouSureDelete.userId = row.user.id;
+                                    areYouSureDelete.open = true;
+                                },
                             }),
                         ]);
                     },
@@ -208,6 +218,11 @@ const verifyActingModal = reactive({
     open: false,
     error: undefined as string | undefined,
     methods: [],
+});
+
+const areYouSureDelete = reactive({
+    open: false,
+    userId: '',
 });
 
 const handleActAsUser = async (username: string, verificationData?: any) => {
