@@ -1,5 +1,5 @@
 <template>
-    <div w="[calc(100%-256px-48px-24px)]" m="t6 l6" space-y-6>
+    <div w="[calc(100%-48px)] lg:[calc(100%-256px-48px-24px)]" m="t6 l6" space-y-6>
         <section
             flex="~ items-center justify-between gap-4"
             border="~ fs-overlay-3"

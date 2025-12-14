@@ -186,7 +186,7 @@
 
     <DashboardContent>
         <template #header>
-            <h2>Account</h2>
+            <h2 lt-md="text-2xl!">Account</h2>
         </template>
 
         <div ref="content" space-y-6>

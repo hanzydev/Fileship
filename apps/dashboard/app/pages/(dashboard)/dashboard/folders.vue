@@ -7,7 +7,7 @@
 
     <DashboardContent>
         <template #header>
-            <h2>Folders</h2>
+            <h2 lt-md="text-2xl!">Folders</h2>
         </template>
 
         <UiSearchBar

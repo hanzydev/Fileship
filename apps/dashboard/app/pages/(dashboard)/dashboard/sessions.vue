@@ -13,7 +13,7 @@
 
     <DashboardContent>
         <template #header>
-            <h2>Sessions</h2>
+            <h2 lt-md="text-2xl!">Sessions</h2>
         </template>
 
         <div text-fs-muted-2 space-y-2>

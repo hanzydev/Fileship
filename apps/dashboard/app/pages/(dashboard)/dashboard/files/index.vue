@@ -11,7 +11,7 @@
 
     <DashboardContent>
         <template #header>
-            <h2>Files</h2>
+            <h2 lt-md="text-2xl!">Files</h2>
         </template>
         <div flex="~ gap4 1 items-center <sm:col" wfull>
             <UiSearchBar

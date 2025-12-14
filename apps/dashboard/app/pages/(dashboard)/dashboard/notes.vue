@@ -7,7 +7,7 @@
 
     <DashboardContent>
         <template #header>
-            <h2>Notes</h2>
+            <h2 lt-md="text-2xl!">Notes</h2>
         </template>
 
         <UiSearchBar

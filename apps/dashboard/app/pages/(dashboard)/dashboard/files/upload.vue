@@ -94,7 +94,7 @@
                 gap-2
                 href="/dashboard/files"
             />
-            <h2 mra>Upload Files</h2>
+            <h2 lt-md="text-2xl!" mra>Upload Files</h2>
         </template>
 
         <UiTabs

@@ -13,7 +13,7 @@
 
     <DashboardContent>
         <template #header>
-            <h2>Logs</h2>
+            <h2 lt-md="text-2xl!">Logs</h2>
             <UiButton
                 v-if="
                     currentUser?.superAdmin &&

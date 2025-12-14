@@ -5,7 +5,7 @@
 
     <DashboardContent>
         <template #header>
-            <h2>Backups</h2>
+            <h2 lt-md="text-2xl!">Backups</h2>
         </template>
 
         <div grid="~ 2xl:cols-5 lg:cols-3 md:cols-2 xl:cols-4 gap6">

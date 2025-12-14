@@ -5,7 +5,7 @@
 
     <DashboardContent>
         <template #header>
-            <h2>Statistics</h2>
+            <h2 lt-md="text-2xl!">Statistics</h2>
         </template>
 
         <div space-y-2>
