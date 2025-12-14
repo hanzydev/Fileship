@@ -50,12 +50,12 @@
                 right-0
                 top-0
                 hfull
-                rounded-r-md
+                rounded-r-xl
                 bg-fs-overlay-4
                 flex="~ col items-center justify-center"
             >
                 <UiButton
-                    rounded="none tr-lg"
+                    rounded="none tr-xl"
                     bg-transparent
                     p1="!"
                     icon="lucide:chevron-up"
@@ -64,7 +64,7 @@
                     @click="(value as number)++"
                 />
                 <UiButton
-                    rounded="none br-lg"
+                    rounded="none br-xl"
                     bg-transparent
                     p1="!"
                     icon="lucide:chevron-down"
