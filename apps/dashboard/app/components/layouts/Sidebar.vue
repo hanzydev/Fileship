@@ -43,7 +43,7 @@
             >
                 <div flex="~ items-start gap-4" mx5 px2.5 lg:mx3>
                     <img
-                        src="/fileship-192x192.png"
+                        src="/fileship-512x512.png"
                         alt="fileship logo"
                         size-16
                         select-none
