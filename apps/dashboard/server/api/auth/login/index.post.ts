@@ -52,12 +52,12 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (
-        !(currentUser
-            ? isAdmin(currentUser) &&
-              (findUserByUsername.superAdmin && !currentUser.superAdmin ? false : true)
-            : false)
-    ) {
+    const isImpersonating =
+        currentUser &&
+        isAdmin(currentUser) &&
+        (!findUserByUsername?.superAdmin || currentUser.superAdmin);
+
+    if (!isImpersonating) {
         const runtimeConfig = useRuntimeConfig();
         if (runtimeConfig.turnstile.secretKey) {
             const turnstileResult = await verifyTurnstileToken(body.data.turnstile!, event);
