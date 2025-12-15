@@ -7,8 +7,15 @@
         v-model="areYouSureModalOpen"
         title="Flush All Logs"
         description="Are you sure you want to flush all logs?"
-        :disabled="isFlushingLogs"
         @confirm="handleFlushLogs"
+    />
+
+    <ModalsVerifyMFA
+        v-model="verifyModalOpen"
+        :error="verificationError"
+        :disabled="isFlushingLogs"
+        :methods="verificationMethods"
+        @got="handleFlushLogs"
     />
 
     <DashboardContent>
@@ -116,6 +123,10 @@ const isSearching = ref(false);
 const isLoading = ref(!logs.value.logs.length);
 const isFlushingLogs = ref(false);
 
+const verifyModalOpen = ref(false);
+const verificationError = ref<string>();
+const verificationMethods = ref([]);
+
 const filtered = computed(() =>
     logs.value.logs.filter((l) =>
         !isSearching.value && searchQuery.value.length ? searched.value.includes(l.id) : true,
@@ -133,16 +144,28 @@ const calculatedLogs = computed<(LogData & { user: LogUser | null })[]>(() => {
         .slice(start, end);
 });
 
-const handleFlushLogs = async () => {
+const handleFlushLogs = async (verificationData?: any) => {
     isFlushingLogs.value = true;
 
-    await $fetch('/api/logs', {
-        method: 'DELETE',
-    });
+    try {
+        await $fetch('/api/logs', {
+            method: 'DELETE',
+            body: { verificationData },
+        });
+
+        verifyModalOpen.value = false;
+
+        $toast.success('All logs flushed successfully');
+    } catch (error: any) {
+        if (verifyModalOpen.value) {
+            verificationError.value = error.data.message;
+        } else {
+            verifyModalOpen.value = true;
+            verificationMethods.value = error.data.data.mfa.methods;
+        }
+    }
 
     isFlushingLogs.value = false;
-
-    $toast.success('All logs flushed successfully');
 };
 
 onMounted(async () => {
