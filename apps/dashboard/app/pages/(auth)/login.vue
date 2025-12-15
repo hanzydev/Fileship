@@ -18,14 +18,14 @@
                 :style="{ height: `${height}px` }"
             >
                 <Transition
-                    enter-active-class="motion-safe:(animate-in fade-in data-[hubmode=true]:slide-in-from-left data-[hubmode=false]:slide-in-from-right animate-duration-250)"
-                    leave-active-class="motion-safe:(animate-out fade-out data-[hubmode=true]:slide-out-to-left data-[hubmode=false]:slide-out-to-right animate-duration-250)"
-                    :data-hubmode="section === 'login'"
+                    enter-active-class="motion-safe:(animate-in fade-in data-[view=main]:slide-in-from-left data-[view=totp]:slide-in-from-right animate-duration-250)"
+                    leave-active-class="motion-safe:(animate-out fade-out data-[view=main]:slide-out-to-left data-[view=totp]:slide-out-to-right animate-duration-250)"
                     @enter="calculateHeight"
                     @after-enter="$event.querySelector('input')?.focus()"
                 >
                     <form
-                        v-if="section === 'login'"
+                        v-if="currentView === 'main'"
+                        data-view="main"
                         absolute
                         wfull
                         p8
@@ -102,7 +102,8 @@
                         </div>
                     </form>
                     <div
-                        v-else-if="section === 'totp'"
+                        v-else-if="currentView === 'totp'"
+                        data-view="totp"
                         absolute
                         wfull
                         p8
@@ -142,7 +143,7 @@
                                 icon-size="20"
                                 rounded-xl="!"
                                 :disabled="loggingIn"
-                                @click="section = 'login'"
+                                @click="currentView = 'main'"
                             >
                                 Back
                             </UiButton>
@@ -190,7 +191,7 @@ const auth = reactive({
     turnstile: '',
 });
 
-const section = ref<'login' | 'totp'>('login');
+const currentView = ref<'main' | 'totp'>('main');
 
 const route = useRoute();
 const currentUser = useAuthUser();
@@ -223,7 +224,7 @@ const handleSubmit = async (totp?: string) => {
         $toast.success('Logged in successfully');
     } catch (_error: any) {
         if (_error.data.message === 'Missing TOTP') {
-            section.value = 'totp';
+            currentView.value = 'totp';
         } else {
             if (!_error.data.data) $toast.error(_error.data.message);
             formErrors.value = _error.data.data?.formErrors;
