@@ -23,6 +23,7 @@
                 icon-size="20"
                 alignment="center"
                 variant="dangerFill"
+                mla
                 gap-2
                 :disabled="isFlushingLogs"
                 :loading="isFlushingLogs"

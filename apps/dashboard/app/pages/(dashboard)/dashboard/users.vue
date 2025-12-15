@@ -42,6 +42,7 @@
                 icon-size="20"
                 alignment="center"
                 variant="accent"
+                mla
                 gap-2
                 @click="createUserModalOpen = true"
             >
