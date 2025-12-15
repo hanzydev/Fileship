@@ -161,6 +161,7 @@ export const initSocket = () => {
                 };
             }
         });
+
         socket.on('note:delete', (noteId) => {
             notes.value = notes.value.filter((n) => n.id !== noteId);
         });
@@ -213,6 +214,15 @@ export const initSocket = () => {
             }
 
             files.value = files.value.filter((f) => f.id !== fileId);
+        });
+
+        socket.on('file:bulkDelete', (fileIds: string[]) => {
+            files.value = files.value.filter((f) => !fileIds.includes(f.id));
+
+            folders.value = folders.value.map((folder) => ({
+                ...folder,
+                files: folder.files.filter((f) => !fileIds.includes(f)),
+            }));
         });
 
         // Folders

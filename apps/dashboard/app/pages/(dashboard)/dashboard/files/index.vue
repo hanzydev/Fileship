@@ -9,9 +9,83 @@
         :file-id="viewFileModal.fileId"
     />
 
+    <ModalsAreYouSure
+        v-model="areYouSureModalOpen"
+        :title="`Delete Selected Files (${selectedFiles.length})`"
+        description="Are you sure you want to delete the selected files?"
+        @confirm="handleBulkDelete"
+    />
+
     <DashboardContent>
         <template #header>
             <h2 lt-md="text-2xl!">Files</h2>
+            <div flex="~ items-center gap-2" mla lt-md="hidden">
+                <Transition
+                    enter-active-class="motion-safe:(animate-in fade-in zoom-in-95)"
+                    leave-active-class="motion-safe:(animate-out fade-out zoom-out-95)"
+                >
+                    <UiButton
+                        v-if="selectionMode && selectedFiles.length && files.length"
+                        icon="solar:trash-bin-minimalistic-bold"
+                        icon-size="20"
+                        alignment="center"
+                        variant="dangerFill"
+                        gap-2
+                        rounded-xl="!"
+                        :disabled="bulkDeleting"
+                        :loading="bulkDeleting"
+                        @click="areYouSureModalOpen = true"
+                    >
+                        Delete Selected ({{ selectedFiles.length }})
+                    </UiButton>
+                </Transition>
+                <Transition
+                    enter-active-class="motion-safe:(animate-in fade-in zoom-in-95)"
+                    leave-active-class="motion-safe:(animate-out fade-out zoom-out-95)"
+                >
+                    <UiButton
+                        v-if="selectionMode && files.length"
+                        :icon="
+                            selectedFiles.length === files.length
+                                ? 'solar:list-cross-minimalistic-bold'
+                                : 'solar:list-check-minimalistic-bold'
+                        "
+                        icon-size="20"
+                        alignment="center"
+                        variant="primary"
+                        gap-2
+                        rounded-xl="!"
+                        :disabled="bulkDeleting"
+                        @click="
+                            selectedFiles.length === files.length
+                                ? (selectedFiles = [])
+                                : (selectedFiles = files.map((f) => f.id))
+                        "
+                    >
+                        {{ selectedFiles.length === files.length ? 'Deselect All' : 'Select All' }}
+                    </UiButton>
+                </Transition>
+                <Transition
+                    enter-active-class="motion-safe:(animate-in fade-in zoom-in-95)"
+                    leave-active-class="motion-safe:(animate-out fade-out zoom-out-95)"
+                >
+                    <UiButton
+                        v-if="files.length"
+                        :icon="
+                            selectionMode ? 'solar:close-square-bold' : 'solar:check-square-bold'
+                        "
+                        icon-size="20"
+                        alignment="center"
+                        variant="accent"
+                        gap-2
+                        rounded-xl="!"
+                        :disabled="bulkDeleting"
+                        @click="selectionMode = !selectionMode"
+                    >
+                        {{ selectionMode ? 'Exit Selection Mode' : 'Enter Selection Mode' }}
+                    </UiButton>
+                </Transition>
+            </div>
         </template>
         <div flex="~ gap4 1 items-center <sm:col" wfull>
             <UiSearchBar
@@ -53,10 +127,21 @@
                 <div v-for="file in calculatedFiles" :key="file.id" op0 class="fileCard">
                     <FileCard
                         :data="file"
+                        :selectable="selectionMode && files.length > 0"
+                        :selected="selectionMode && selectedFiles.includes(file.id)"
                         @view-file="
                             (file) => {
                                 viewFileModal.fileId = file.id;
                                 nextTick(() => (viewFileModal.open = true));
+                            }
+                        "
+                        @update:selected="
+                            (value) => {
+                                if (value) {
+                                    selectedFiles.push(file.id);
+                                } else {
+                                    selectedFiles.splice(selectedFiles.indexOf(file.id), 1);
+                                }
                             }
                         "
                     />
@@ -72,12 +157,18 @@ const files = useFiles();
 const folders = useFolders();
 const router = useRouter();
 const currentUser = useAuthUser();
+const { $toast } = useNuxtApp();
 
 const currentPage = ref(1);
 const filterType = ref([]);
 const searchQuery = ref('');
 const aiEnabled = ref(false);
 const searched = ref<string[] | null>(null);
+
+const selectionMode = ref(false);
+const bulkDeleting = ref(false);
+const areYouSureModalOpen = ref(false);
+const selectedFiles = ref<string[]>([]);
 
 const viewFileModal = reactive({ open: false, fileId: null as string | null });
 
@@ -122,6 +213,26 @@ const isSearching = ref(false);
 const isLoading = ref(files.value.length !== currentUser.value!.stats.files);
 
 const { all, enter, leave } = animateCards();
+
+const handleBulkDelete = async () => {
+    bulkDeleting.value = true;
+
+    try {
+        await $fetch('/api/files/bulk-delete', {
+            method: 'POST',
+            body: { files: selectedFiles.value },
+        });
+
+        $toast.success(`${selectedFiles.value.length} files deleted successfully`);
+
+        selectedFiles.value = [];
+        selectionMode.value = false;
+    } catch (error: any) {
+        $toast.error(error.data.message);
+    }
+
+    bulkDeleting.value = false;
+};
 
 onMounted(async () => {
     if (isLoading.value) {
