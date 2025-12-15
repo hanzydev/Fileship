@@ -7,7 +7,7 @@
             motion-safe:transition-shadow
             ring="1 fs-overlay-4"
             :class="[
-                selected && '!ring-2 !ring-fs-accent',
+                selected && selectable && '!ring-2 !ring-fs-accent',
                 !selectable && (ctxOpen || !canBeViewed)
                     ? 'cursor-default'
                     : 'cursor-pointer hover:(ring-1 ring-fs-accent)',
@@ -20,7 +20,7 @@
                 leave-active-class="motion-safe:(animate-out fade-out)"
             >
                 <div
-                    v-if="selected"
+                    v-if="selected && selectable"
                     flex="~ items-center justify-center"
                     absolute
                     z10
