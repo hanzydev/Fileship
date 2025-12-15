@@ -124,7 +124,7 @@ export default defineEventHandler(async (event) => {
         message: `Updated folder ${findFolderById.name}`,
     });
 
-    sendToUser(currentUser.id, 'update:folder', updatedFolder);
+    sendToUser(currentUser.id, 'folder:update', updatedFolder);
 
     return updatedFolder;
 });

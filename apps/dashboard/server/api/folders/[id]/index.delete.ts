@@ -90,7 +90,7 @@ export default defineEventHandler(async (event) => {
                 message: `Deleted file ${file.fileName}`,
             });
 
-            sendToUser(currentUser.id, 'delete:file', file.id);
+            sendToUser(currentUser.id, 'file:delete', file.id);
         });
 
         await Promise.allSettled(deletionPromises);
@@ -103,5 +103,5 @@ export default defineEventHandler(async (event) => {
         message: `Deleted folder ${findFolderById.name}`,
     });
 
-    sendToUser(currentUser.id, 'delete:folder', folderId);
+    sendToUser(currentUser.id, 'folder:delete', folderId);
 });

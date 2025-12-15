@@ -67,5 +67,5 @@ export const createLog = async (
         ip: log.ip,
     });
 
-    await sendByFilter(isAdmin, 'create:log', log);
+    await sendByFilter(isAdmin, 'log:create', log);
 };

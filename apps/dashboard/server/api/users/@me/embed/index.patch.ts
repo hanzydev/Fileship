@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    sendToUser(currentUser.id, 'update:embed', embed);
+    sendToUser(currentUser.id, 'currentUser:embedUpdate', embed);
 
     return embed as IEmbed;
 });

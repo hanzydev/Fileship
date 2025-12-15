@@ -55,5 +55,5 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    sendToUser(currentUser.id, 'update:passkey', updatedCredential);
+    sendToUser(currentUser.id, 'passkey:update', updatedCredential);
 });

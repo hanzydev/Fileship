@@ -132,7 +132,7 @@ export default defineEventHandler(async (event) => {
                 sameSite: 'lax',
             });
 
-            sendToUser(findUserByUsername.id, 'create:session', session);
+            sendToUser(findUserByUsername.id, 'session:create', session);
 
             return {
                 verified: true,

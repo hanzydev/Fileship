@@ -150,7 +150,7 @@ export default defineEventHandler(async (event) => {
         message: `Updated file ${updatedFile.fileName}`,
     });
 
-    sendToUser(currentUser.id, 'update:file', updatedFile);
+    sendToUser(currentUser.id, 'file:update', updatedFile);
 
     return updatedFile;
 });

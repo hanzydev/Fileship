@@ -44,5 +44,5 @@ export default defineEventHandler(async (event) => {
     });
 
     await sendToSession(currentUser.id, sessionId!, 'logout', null);
-    sendToUser(currentUser.id, 'delete:session', sessionId);
+    sendToUser(currentUser.id, 'session:delete', sessionId);
 });

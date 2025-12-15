@@ -280,7 +280,7 @@ export default defineEventHandler(async (event) => {
             message: `Uploaded file ${fileName}`,
         });
 
-        sendToUser(currentUser.id, 'create:file', upload);
+        sendToUser(currentUser.id, 'file:create', upload);
 
         if (body.data.folderId) {
             sendToUser(currentUser.id, 'folder:file:add', {

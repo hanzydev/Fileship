@@ -30,7 +30,7 @@ export default defineNitroPlugin((nitroApp) => {
 
         socket.on('disconnect', () => socket.leave(user.id));
         socket.on('client:ready', () =>
-            socket.emit('update:currentUser', { backupRestoreState: user.backupRestoreState }),
+            socket.emit('currentUser:update', { backupRestoreState: user.backupRestoreState }),
         );
     });
 

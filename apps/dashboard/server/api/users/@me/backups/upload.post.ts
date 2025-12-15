@@ -90,7 +90,7 @@ export default defineEventHandler(async (event) => {
             message: `Uploaded backup ${id}`,
         });
 
-        sendToUser(currentUser.id, 'create:backup', backupObject);
+        sendToUser(currentUser.id, 'backup:create', backupObject);
 
         return backupObject;
     } else if (body.data.currentChunk === 1) {

@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
         message: `Updated note ${findNoteById.title}`,
     });
 
-    sendToUser(currentUser.id, 'update:note', updatedNote);
+    sendToUser(currentUser.id, 'note:update', updatedNote);
 
     return updatedNote;
 });

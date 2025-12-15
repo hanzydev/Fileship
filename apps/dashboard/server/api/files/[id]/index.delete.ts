@@ -53,5 +53,5 @@ export default defineEventHandler(async (event) => {
         message: `Deleted file ${findFileById.fileName}`,
     });
 
-    sendToUser(currentUser.id, 'delete:file', fileId);
+    sendToUser(currentUser.id, 'file:delete', fileId);
 });

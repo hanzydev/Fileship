@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
             where: { id: currentUser.id },
             data: { backupRestoreState: state },
         });
-        sendToUser(currentUser.id, 'update:currentUser', { backupRestoreState: state });
+        sendToUser(currentUser.id, 'currentUser:update', { backupRestoreState: state });
     };
 
     await updateState(BackupRestoreState.DeletingPreviousData);
@@ -128,7 +128,7 @@ export default defineEventHandler(async (event) => {
         prisma.file.deleteMany({ where: { authorId: currentUser.id } }),
     ]);
 
-    sendToUser(currentUser.id, 'delete:all', null);
+    sendToUser(currentUser.id, 'deleteAll', null);
 
     const tempPath = join(dataDirectory, 'temp', backupId!);
     await fsp.mkdir(tempPath);
@@ -163,15 +163,15 @@ export default defineEventHandler(async (event) => {
                 const userData = JSON.parse(await fsp.readFile(databasePath, 'utf-8'));
                 await prisma.user.update({ where: { id: currentUser.id }, data: userData });
 
-                sendToUser(currentUser.id, 'update:domains', userData.domains);
-                sendToUser(currentUser.id, 'update:embed', userData.embed);
+                sendToUser(currentUser.id, 'currentUser:domainsUpdate', userData.domains);
+                sendToUser(currentUser.id, 'currentUser:embedUpdate', userData.embed);
 
-                await sendByFilter(isAdmin, 'update:user', {
+                await sendByFilter(isAdmin, 'user:update', {
                     id: currentUser.id,
                     avatar: userData.avatar,
                 });
 
-                sendToUser(currentUser.id, 'update:currentUser', { avatar: userData.avatar });
+                sendToUser(currentUser.id, 'currentUser:update', { avatar: userData.avatar });
             } catch {
                 //
             }

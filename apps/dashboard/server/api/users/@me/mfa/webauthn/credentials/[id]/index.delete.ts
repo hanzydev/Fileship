@@ -43,5 +43,5 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    sendToUser(currentUser.id, 'delete:passkey', credentialId);
+    sendToUser(currentUser.id, 'passkey:delete', credentialId);
 });

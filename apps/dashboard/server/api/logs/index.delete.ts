@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
         logs.map((l) => l.id),
     );
 
-    await sendByFilter(isAdmin, 'delete:log:all', null);
+    await sendByFilter(isAdmin, 'log:deleteAll', null);
 
     await createLog(event, {
         action: 'Flush Logs',

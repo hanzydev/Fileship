@@ -179,7 +179,7 @@ export default defineEventHandler(async (event) => {
             null,
         );
 
-        sendToUser(userId!, 'delete:session:all', null);
+        sendToUser(userId!, 'session:deleteAll', null);
     } else delete body.data.password;
 
     delete body.data.verificationData;
@@ -240,9 +240,9 @@ export default defineEventHandler(async (event) => {
         message: `Updated user ${updatedUser.username}`,
     });
 
-    await sendByFilter(isAdmin, 'update:user', updatedUser);
+    await sendByFilter(isAdmin, 'user:update', updatedUser);
 
-    sendToUser(updatedUser.id, 'update:currentUser', updatedUser);
+    sendToUser(updatedUser.id, 'currentUser:update', updatedUser);
 
     return updatedUser;
 });

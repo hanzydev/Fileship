@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
                 },
             });
 
-            sendToUser(currentUser.id, 'create:passkey', passkey);
+            sendToUser(currentUser.id, 'passkey:create', passkey);
         }
 
         return { verified: response.verified };

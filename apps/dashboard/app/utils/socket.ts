@@ -49,7 +49,7 @@ export const initSocket = () => {
         });
 
         // User
-        socket.on('update:currentUser', (data) => {
+        socket.on('currentUser:update', (data) => {
             const adminRoutes = ['/users', '/logs', '/stats'];
             if (
                 data.permissions?.length &&
@@ -68,191 +68,15 @@ export const initSocket = () => {
             };
         });
 
-        socket.on('update:currentUser:totp', (data) => {
+        socket.on('currentUser:updateTotp', (data) => {
             currentUser.value!.totpEnabled = data;
         });
 
-        socket.on('logout', () => {
-            clearStates(true, true);
-
-            useCookie('sessionId', { path: '/', sameSite: true }).value = null;
-            nextTick(() => {
-                navigateTo(`/login?redirectTo=${route.path}`);
-            });
-        });
-
-        socket.on('delete:all', clearStates);
-
-        // Sessions
-        socket.on('create:session', (data) => {
-            sessions.value = [
-                {
-                    ...data,
-                    lastSeen: new Date(data.lastSeen),
-                },
-                ...sessions.value,
-            ];
-        });
-        socket.on('delete:session', (sessionId) => {
-            sessions.value = sessions.value.filter((s) => s.id !== sessionId);
-        });
-        socket.on('delete:session:all', () => {
-            sessions.value = sessions.value.filter(
-                (s) => s.id === currentUser.value?.currentSessionId,
-            );
-        });
-
-        // Notes
-        socket.on('create:note', (data) => {
-            notes.value = [
-                {
-                    ...data,
-                    createdAt: new Date(data.createdAt),
-                },
-                ...notes.value,
-            ];
-        });
-
-        socket.on('update:note', (data) => {
-            const index = notes.value.findIndex((n) => n.id === data.id);
-
-            if (index > -1) {
-                notes.value[index] = {
-                    ...data,
-                    createdAt: new Date(data.createdAt),
-                };
-            }
-        });
-        socket.on('delete:note', (noteId) => {
-            notes.value = notes.value.filter((n) => n.id !== noteId);
-        });
-
-        // Files
-        socket.on('create:file', (data) => {
-            files.value = [
-                {
-                    ...data,
-                    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-                    createdAt: new Date(data.createdAt),
-                },
-                ...files.value,
-            ];
-        });
-
-        socket.on('update:file', (data) => {
-            const index = files.value.findIndex((f) => f.id === data.id);
-
-            if (index > -1) {
-                const file = files.value[index]!;
-
-                files.value[index] = {
-                    ...data,
-                    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-                    createdAt: new Date(data.createdAt),
-                };
-
-                if (file.folderId !== data.folderId) {
-                    if (file.folderId) {
-                        const folder = folders.value.find((f) => f.id === file.folderId);
-                        if (folder) folder.files = folder.files.filter((f) => f !== file.id);
-                    }
-
-                    if (data.folderId) {
-                        const newFolder = folders.value.find((f) => f.id === data.folderId);
-                        if (newFolder) newFolder.files.push(data.id);
-                    }
-                }
-            }
-        });
-
-        socket.on('delete:file', (fileId) => {
-            const file = files.value.find((f) => f.id === fileId);
-            if (!file) return;
-
-            if (file?.folderId) {
-                const folder = folders.value.find((f) => f.id === file.folderId);
-                if (folder) folder.files = folder.files.filter((f) => f !== fileId);
-            }
-
-            files.value = files.value.filter((f) => f.id !== fileId);
-        });
-
-        // Folders
-        socket.on('create:folder', (data) => {
-            folders.value = [
-                {
-                    ...data,
-                    createdAt: new Date(data.createdAt),
-                },
-                ...folders.value,
-            ];
-        });
-
-        socket.on('update:folder', (data) => {
-            const index = folders.value.findIndex((f) => f.id === data.id);
-
-            if (index > -1) {
-                folders.value[index] = {
-                    ...data,
-                    createdAt: new Date(data.createdAt),
-                };
-
-                files.value = files.value.map((file) => {
-                    if (data.files.includes(file.id)) {
-                        return {
-                            ...file,
-                            folderId: data.id,
-                        };
-                    }
-
-                    if (file.folderId === data.id) {
-                        return {
-                            ...file,
-                            folderId: null,
-                        };
-                    }
-
-                    return file;
-                });
-            }
-        });
-
-        socket.on('delete:folder', (folderId) => {
-            folders.value = folders.value.filter((f) => f.id !== folderId);
-
-            files.value = files.value.map((file) => {
-                if (file.folderId === folderId) {
-                    return {
-                        ...file,
-                        folderId: null,
-                    };
-                }
-                return file;
-            });
-        });
-
-        // Backups
-        socket.on('create:backup', (data) => {
-            backups.value = [
-                {
-                    ...data,
-                    createdAt: new Date(data.createdAt),
-                },
-                ...backups.value,
-            ];
-        });
-
-        socket.on('delete:backup', (backupId) => {
-            backups.value = backups.value.filter((b) => b.id !== backupId);
-        });
-
-        // Embed
-        socket.on('update:embed', (data) => {
+        socket.on('currentUser:embedUpdate', (data) => {
             embed.value = data;
         });
 
-        // Domains
-        socket.on('update:domains', (data) => {
+        socket.on('currentUser:domainsUpdate', (data) => {
             domains.value = data;
 
             const buildPublicUrl = (route: `/${string}`) => {
@@ -286,16 +110,190 @@ export const initSocket = () => {
             }));
         });
 
+        socket.on('logout', () => {
+            clearStates(true, true);
+
+            useCookie('sessionId', { path: '/', sameSite: true }).value = null;
+            nextTick(() => {
+                navigateTo(`/login?redirectTo=${route.path}`);
+            });
+        });
+
+        socket.on('deleteAll', clearStates);
+
+        // Sessions
+        socket.on('session:create', (data) => {
+            sessions.value = [
+                {
+                    ...data,
+                    lastSeen: new Date(data.lastSeen),
+                },
+                ...sessions.value,
+            ];
+        });
+        socket.on('session:delete', (sessionId) => {
+            sessions.value = sessions.value.filter((s) => s.id !== sessionId);
+        });
+        socket.on('session:deleteAll', () => {
+            sessions.value = sessions.value.filter(
+                (s) => s.id === currentUser.value?.currentSessionId,
+            );
+        });
+
+        // Notes
+        socket.on('note:create', (data) => {
+            notes.value = [
+                {
+                    ...data,
+                    createdAt: new Date(data.createdAt),
+                },
+                ...notes.value,
+            ];
+        });
+
+        socket.on('note:update', (data) => {
+            const index = notes.value.findIndex((n) => n.id === data.id);
+
+            if (index > -1) {
+                notes.value[index] = {
+                    ...data,
+                    createdAt: new Date(data.createdAt),
+                };
+            }
+        });
+        socket.on('note:delete', (noteId) => {
+            notes.value = notes.value.filter((n) => n.id !== noteId);
+        });
+
+        // Files
+        socket.on('file:create', (data) => {
+            files.value = [
+                {
+                    ...data,
+                    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+                    createdAt: new Date(data.createdAt),
+                },
+                ...files.value,
+            ];
+        });
+
+        socket.on('file:update', (data) => {
+            const index = files.value.findIndex((f) => f.id === data.id);
+
+            if (index > -1) {
+                const file = files.value[index]!;
+
+                files.value[index] = {
+                    ...data,
+                    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+                    createdAt: new Date(data.createdAt),
+                };
+
+                if (file.folderId !== data.folderId) {
+                    if (file.folderId) {
+                        const folder = folders.value.find((f) => f.id === file.folderId);
+                        if (folder) folder.files = folder.files.filter((f) => f !== file.id);
+                    }
+
+                    if (data.folderId) {
+                        const newFolder = folders.value.find((f) => f.id === data.folderId);
+                        if (newFolder) newFolder.files.push(data.id);
+                    }
+                }
+            }
+        });
+
+        socket.on('file:delete', (fileId) => {
+            const file = files.value.find((f) => f.id === fileId);
+            if (!file) return;
+
+            if (file?.folderId) {
+                const folder = folders.value.find((f) => f.id === file.folderId);
+                if (folder) folder.files = folder.files.filter((f) => f !== fileId);
+            }
+
+            files.value = files.value.filter((f) => f.id !== fileId);
+        });
+
+        // Folders
+        socket.on('folder:create', (data) => {
+            folders.value = [
+                {
+                    ...data,
+                    createdAt: new Date(data.createdAt),
+                },
+                ...folders.value,
+            ];
+        });
+
+        socket.on('folder:update', (data) => {
+            const index = folders.value.findIndex((f) => f.id === data.id);
+
+            if (index > -1) {
+                folders.value[index] = {
+                    ...data,
+                    createdAt: new Date(data.createdAt),
+                };
+
+                files.value = files.value.map((file) => {
+                    if (data.files.includes(file.id)) {
+                        return {
+                            ...file,
+                            folderId: data.id,
+                        };
+                    }
+
+                    if (file.folderId === data.id) {
+                        return {
+                            ...file,
+                            folderId: null,
+                        };
+                    }
+
+                    return file;
+                });
+            }
+        });
+
+        socket.on('folder:delete', (folderId) => {
+            folders.value = folders.value.filter((f) => f.id !== folderId);
+
+            files.value = files.value.map((file) => {
+                if (file.folderId === folderId) {
+                    return {
+                        ...file,
+                        folderId: null,
+                    };
+                }
+                return file;
+            });
+        });
+
+        // Backups
+        socket.on('backup:create', (data) => {
+            backups.value = [
+                {
+                    ...data,
+                    createdAt: new Date(data.createdAt),
+                },
+                ...backups.value,
+            ];
+        });
+
+        socket.on('backup:delete', (backupId) => {
+            backups.value = backups.value.filter((b) => b.id !== backupId);
+        });
+
         // Passkeys
-        socket.on('create:passkey', (data) => {
+        socket.on('passkey:create', (data) => {
             passkeys.value = [...passkeys.value, { ...data, createdAt: new Date(data.createdAt) }];
         });
 
-        socket.on('delete:passkey', (passkeyId) => {
+        socket.on('passkey:delete', (passkeyId) => {
             passkeys.value = passkeys.value.filter((p) => p.id !== passkeyId);
         });
 
-        socket.on('update:passkey', (data) => {
+        socket.on('passkey:update', (data) => {
             const index = passkeys.value.findIndex((p) => p.id === data.id);
             if (index > -1) {
                 passkeys.value[index] = { ...passkeys.value[index], ...data };
@@ -303,7 +301,7 @@ export const initSocket = () => {
         });
 
         // Admin
-        socket.on('create:log', (data) => {
+        socket.on('log:create', (data) => {
             logs.value = {
                 logs: [
                     {
@@ -320,14 +318,14 @@ export const initSocket = () => {
             };
         });
 
-        socket.on('delete:log:all', () => {
+        socket.on('log:deleteAll', () => {
             logs.value = {
                 users: [],
                 logs: [],
             };
         });
 
-        socket.on('create:user', (data) => {
+        socket.on('user:create', (data) => {
             users.value = [
                 {
                     ...data,
@@ -337,11 +335,11 @@ export const initSocket = () => {
             ];
         });
 
-        socket.on('delete:user', (userId) => {
+        socket.on('user:delete', (userId) => {
             users.value = users.value.filter((u) => u.id !== userId);
         });
 
-        socket.on('update:user', (data) => {
+        socket.on('user:update', (data) => {
             const index = users.value.findIndex((u) => u.id === data.id);
 
             if (data.createdAt) data.createdAt = new Date(data.createdAt);
@@ -353,7 +351,7 @@ export const initSocket = () => {
             }
         });
 
-        socket.on('update:user:totp', (data) => {
+        socket.on('user:updateTotp', (data) => {
             const index = users.value.findIndex((u) => u.id === data.id);
             if (index > -1) {
                 users.value[index]!.totpEnabled = data.totpEnabled;

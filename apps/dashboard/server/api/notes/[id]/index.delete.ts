@@ -33,5 +33,5 @@ export default defineEventHandler(async (event) => {
         message: `Deleted note ${findNoteById.title}`,
     });
 
-    sendToUser(currentUser.id, 'delete:note', noteId);
+    sendToUser(currentUser.id, 'note:delete', noteId);
 });

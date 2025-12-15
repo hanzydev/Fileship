@@ -105,7 +105,7 @@ export default defineEventHandler(async (event) => {
             message: `Created backup ${backupId}`,
         });
 
-        sendToUser(currentUser.id, 'create:backup', {
+        sendToUser(currentUser.id, 'backup:create', {
             id: backupId,
             createdAt: backupStat.birthtime,
             size: {

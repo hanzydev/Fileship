@@ -23,5 +23,5 @@ export default defineEventHandler(async (event) => {
         message: `Deleted backup ${backupId}`,
     });
 
-    sendToUser(currentUser.id, 'delete:backup', backupId);
+    sendToUser(currentUser.id, 'backup:delete', backupId);
 });

@@ -28,7 +28,7 @@ export default defineTask({
                     system: true,
                 });
 
-                sendToUser(e.authorId, `delete:file`, e.id);
+                sendToUser(e.authorId, `file:delete`, e.id);
             });
         }
 

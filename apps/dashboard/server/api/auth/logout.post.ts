@@ -11,5 +11,5 @@ export default defineEventHandler(async (event) => {
 
     await sendToSession(currentUser.id, currentUser.currentSessionId, 'logout', null);
 
-    sendToUser(currentUser.id, 'delete:session', currentUser.currentSessionId);
+    sendToUser(currentUser.id, 'session:delete', currentUser.currentSessionId);
 });

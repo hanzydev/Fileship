@@ -109,7 +109,7 @@ export default defineEventHandler(async (event) => {
                     system: true,
                 });
 
-                sendToUser(findFileById.authorId, 'delete:file', findFileById.id);
+                sendToUser(findFileById.authorId, 'file:delete', findFileById.id);
 
                 throw createError({
                     statusCode: 404,

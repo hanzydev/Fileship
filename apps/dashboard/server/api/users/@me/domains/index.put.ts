@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    sendToUser(currentUser.id, 'update:domains', body.data);
+    sendToUser(currentUser.id, 'currentUser:domainsUpdate', body.data);
 
     return body.data;
 });

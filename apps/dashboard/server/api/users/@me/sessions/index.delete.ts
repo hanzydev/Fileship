@@ -37,5 +37,5 @@ export default defineEventHandler(async (event) => {
         'logout',
         null,
     );
-    sendToUser(currentUser.id, 'delete:session:all', null);
+    sendToUser(currentUser.id, 'session:deleteAll', null);
 });
