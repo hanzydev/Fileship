@@ -32,6 +32,7 @@
                 variant="dangerFill"
                 mla
                 gap-2
+                rounded-xl="!"
                 :disabled="isFlushingLogs"
                 :loading="isFlushingLogs"
                 @click="areYouSureModalOpen = true"

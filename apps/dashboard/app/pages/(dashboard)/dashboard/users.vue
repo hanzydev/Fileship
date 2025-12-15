@@ -44,6 +44,7 @@
                 variant="accent"
                 mla
                 gap-2
+                rounded-xl="!"
                 @click="createUserModalOpen = true"
             >
                 Create User
