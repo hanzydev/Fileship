@@ -23,14 +23,14 @@
     "screenshots": [
         {
             "src": "/previews/fileship-desktop.png",
-            "sizes": "1920x919",
+            "sizes": "1920x911",
             "type": "image/png",
             "form_factor": "wide",
             "label": "Fileship"
         },
         {
             "src": "/previews/fileship-mobile.png",
-            "sizes": "348x755",
+            "sizes": "437x911",
             "type": "image/png",
             "label": "Fileship"
         }
