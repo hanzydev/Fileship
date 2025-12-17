@@ -239,6 +239,20 @@ export const initSocket = () => {
                 },
                 ...folders.value,
             ];
+
+            for (const fileId of data.files) {
+                const file = files.value.find((f) => f.id === fileId);
+                if (file) {
+                    if (file.folderId) {
+                        const oldFolder = folders.value.find((f) => f.id === file.folderId);
+                        if (oldFolder) {
+                            oldFolder.files = oldFolder.files.filter((f) => f !== file.id);
+                        }
+                    }
+
+                    file.folderId = data.id;
+                }
+            }
         });
 
         socket.on('folder:update', (data) => {
