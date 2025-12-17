@@ -31,46 +31,23 @@
                     <div
                         v-if="currentView === 'main'"
                         data-view="main"
+                        flex="~ col"
                         absolute
                         inset-0
                         hfull
                         wfull
-                        overflow-y-auto
                         pb2.5
                         pt5
-                        space-y-6
                     >
-                        <div flex="~ items-center gap-2" mx2.5 px2.5>
+                        <div flex="~ items-center gap-2" mx-5 mb-6 flex-shrink-0>
                             <img
                                 src="/fileship.png"
                                 alt="fileship"
                                 class="size-10"
                                 draggable="false"
                             />
-                            <h3>Fileship</h3>
-                            <Transition
-                                enter-active-class="motion-safe:(animate-in fade-in zoom-in-95 slide-in-left-2)"
-                            >
-                                <UiButton
-                                    v-if="version"
-                                    variant="outline"
-                                    alignment="center"
-                                    p="y-0! x-1.5!"
-                                    rounded-xl="!"
-                                    wfit
-                                    bg-fs-overlay-2
-                                    ring-1
-                                    :class="[
-                                        version.latest
-                                            ? 'ring-fs-accent'
-                                            : 'ring-red-500 hover:!bg-red-500',
-                                    ]"
-                                    :href="version.url"
-                                    target="_blank"
-                                >
-                                    v{{ version.number }}
-                                </UiButton>
-                            </Transition>
+                            <h3 text-lg font-bold>Fileship</h3>
+
                             <UiButton
                                 alignment="center"
                                 icon="lucide:x"
@@ -86,63 +63,109 @@
                                 @click="isOpen = false"
                             />
                         </div>
-                        <div v-for="category in categories" :key="category.name" space-y-2>
-                            <span mx2.5 px2.5 text-sm text-fs-muted-3 font-bold>
-                                {{ category.name }}
-                            </span>
-                            <div space-y-1.5>
-                                <UiButton
-                                    v-for="item in category.items"
-                                    :key="item.name"
-                                    :href="item.href"
-                                    :variant="item.href === route.path ? 'accent' : 'ghost'"
-                                    :class="item.href !== route.path && 'hover:bg-fs-overlay-2'"
-                                    :icon="item.icon"
-                                    icon-size="20"
-                                    alignment="left"
-                                    rounded-xl="!"
-                                    mx2.5
-                                    gap2.5
-                                    px2.5
-                                >
-                                    {{ item.name }}
-                                </UiButton>
-                                <template v-if="category.name === 'ACCOUNT SETTINGS'">
+
+                        <div flex-1 overflow-y-auto space-y-6>
+                            <div v-for="category in categories" :key="category.name" space-y-2>
+                                <span mx2.5 px2.5 text-sm text-fs-muted-3 font-bold>
+                                    {{ category.name }}
+                                </span>
+                                <div space-y-1.5>
                                     <UiButton
+                                        v-for="item in category.items"
+                                        :key="item.name"
+                                        :href="item.href"
+                                        :variant="item.href === route.path ? 'accent' : 'ghost'"
+                                        :class="item.href !== route.path && 'hover:bg-fs-overlay-2'"
+                                        :icon="item.icon"
                                         icon-size="20"
                                         alignment="left"
-                                        icon="solar:palette-bold"
-                                        variant="ghost"
-                                        hover="bg-fs-overlay-2"
                                         rounded-xl="!"
                                         mx2.5
                                         gap2.5
                                         px2.5
-                                        w="[calc(100%-1.25rem)]"
-                                        @click="currentView = 'themes'"
                                     >
-                                        Themes
+                                        {{ item.name }}
                                     </UiButton>
 
-                                    <UiButton
-                                        variant="ghost"
-                                        icon-size="20"
-                                        alignment="left"
-                                        rounded-xl="!"
-                                        mx2.5
-                                        gap2.5
-                                        px2.5
-                                        w="[calc(100%-1.25rem)]"
-                                        hover="bg-red-500"
-                                        icon="solar:logout-2-bold"
-                                        :disabled="isLoggingOut"
-                                        :loading="isLoggingOut"
-                                        @click="handleLogout"
-                                    >
-                                        Logout
-                                    </UiButton>
-                                </template>
+                                    <template v-if="category.name === 'ACCOUNT SETTINGS'">
+                                        <UiButton
+                                            icon-size="20"
+                                            alignment="left"
+                                            icon="solar:palette-bold"
+                                            variant="ghost"
+                                            hover="bg-fs-overlay-2"
+                                            rounded-xl="!"
+                                            mx2.5
+                                            gap2.5
+                                            px2.5
+                                            w="[calc(100%-1.25rem)]"
+                                            @click="currentView = 'themes'"
+                                        >
+                                            Themes
+                                        </UiButton>
+
+                                        <UiButton
+                                            variant="ghost"
+                                            icon-size="20"
+                                            alignment="left"
+                                            rounded-xl="!"
+                                            mx2.5
+                                            gap2.5
+                                            px2.5
+                                            w="[calc(100%-1.25rem)]"
+                                            hover="bg-red-500"
+                                            icon="solar:logout-2-bold"
+                                            :disabled="isLoggingOut"
+                                            :loading="isLoggingOut"
+                                            @click="handleLogout"
+                                        >
+                                            Logout
+                                        </UiButton>
+                                    </template>
+                                </div>
                             </div>
+                        </div>
+
+                        <div v-if="version" mt-auto px2.5 pt2>
+                            <a
+                                :href="version.url"
+                                target="_blank"
+                                flex="~ items-center justify-between"
+                                w-full
+                                rounded-xl
+                                p-2.5
+                                active="scale-95"
+                                motion-safe="transition-all"
+                                :class="
+                                    version.latest
+                                        ? 'bg-fs-overlay-2 hover:bg-fs-overlay-3 text-fs-muted-2'
+                                        : 'bg-red-500/10 text-red-500'
+                                "
+                            >
+                                <div flex="~ col gap-0.5">
+                                    <span text-xs font-medium>Current Version</span>
+                                    <span text-sm font-bold leading-none>
+                                        v{{ version.number }}
+                                    </span>
+                                </div>
+
+                                <div
+                                    flex="~ items-center justify-center"
+                                    size-8
+                                    rounded-lg
+                                    text-white
+                                    :class="version.latest ? 'bg-fs-accent/10' : 'bg-red-500'"
+                                >
+                                    <Icon
+                                        :name="
+                                            version.latest
+                                                ? 'solar:verified-check-bold'
+                                                : 'solar:download-square-bold'
+                                        "
+                                        size="20"
+                                    />
+                                </div>
+                            </a>
                         </div>
                     </div>
                     <div
