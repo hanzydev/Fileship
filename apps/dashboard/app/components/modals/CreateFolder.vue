@@ -1,5 +1,5 @@
 <template>
-    <ModalsFolderFiles
+    <ModalsViewFolder
         v-if="createdFolder"
         v-model="selectFilesModalOpen"
         :data="createdFolder!"
