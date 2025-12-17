@@ -13,7 +13,7 @@ const cachedIsLatest = defineCachedFunction(
             return false;
         }
     },
-    { maxAge: 1_800 },
+    { maxAge: 1_800, getKey: () => `version-${pkg.version}` },
 );
 
 export default defineEventHandler(async () => {
