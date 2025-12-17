@@ -14,7 +14,9 @@
 
     <DashboardContent>
         <template #header>
-            <h2 lt-md="text-2xl!">{{ greetingMessage }}, {{ upperFirst(currentUser!.username) }} 👋</h2>
+            <h2 lt-md="text-2xl!">
+                {{ greetingMessage }}, {{ upperFirst(currentUser!.username) }} 👋
+            </h2>
         </template>
         <div space-y-2>
             <h3>Your Statistics</h3>
