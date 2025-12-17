@@ -41,6 +41,12 @@
                         space-y-6
                     >
                         <div flex="~ items-center gap-2" mx2.5 px2.5>
+                            <img
+                                src="/fileship.png"
+                                alt="fileship"
+                                class="size-10"
+                                draggable="false"
+                            />
                             <h3>Fileship</h3>
                             <Transition
                                 enter-active-class="motion-safe:(animate-in fade-in zoom-in-95 slide-in-left-2)"
