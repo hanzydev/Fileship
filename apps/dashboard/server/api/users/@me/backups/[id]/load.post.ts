@@ -1,5 +1,4 @@
 import { createReadStream, existsSync, promises as fsp } from 'node:fs';
-import { nextTick } from 'node:process';
 
 import { filesize } from 'filesize';
 import fluentFfmpeg from 'fluent-ffmpeg';
