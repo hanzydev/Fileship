@@ -11,7 +11,7 @@
         <div grid="~ 2xl:cols-5 lg:cols-3 md:cols-2 xl:cols-4 gap6">
             <New h132px :disabled="creating" @action="handleCreate" />
             <div relative overflow-hidden active:scale-95 motion-safe:transition-transform>
-                <New h132px icon="solar:upload-minimalistic-linear" :disabled="uploading" />
+                <New h132px icon="solar:upload-bold" :disabled="uploading" />
                 <input
                     :key="uploading.toString()"
                     absolute
