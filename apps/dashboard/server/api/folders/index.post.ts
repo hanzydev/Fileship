@@ -83,12 +83,5 @@ export default defineEventHandler(async (event) => {
 
     sendToUser(currentUser.id, 'folder:create', folder);
 
-    folder.files.forEach((file) => {
-        sendToUser(currentUser.id, 'folder:file:add', {
-            folderId: folder.id,
-            fileId: file,
-        });
-    });
-
     return folder;
 });

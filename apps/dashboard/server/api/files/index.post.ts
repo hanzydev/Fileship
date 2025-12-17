@@ -282,13 +282,6 @@ export default defineEventHandler(async (event) => {
 
         sendToUser(currentUser.id, 'file:create', upload);
 
-        if (body.data.folderId) {
-            sendToUser(currentUser.id, 'folder:file:add', {
-                folderId: body.data.folderId,
-                fileId: upload.id,
-            });
-        }
-
         return {
             ...upload,
             url: buildPublicUrl(

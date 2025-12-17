@@ -311,16 +311,7 @@ export default defineEventHandler(async (event) => {
                                 created.views = { today: 0, total: 0 };
                             }
 
-                            sendToUser(currentUser.id, `create:${database}`, created);
-
-                            if (created.folderId) {
-                                nextTick(() =>
-                                    sendToUser(currentUser.id, 'folder:file:add', {
-                                        folderId: created.folderId,
-                                        fileId: created.id,
-                                    }),
-                                );
-                            }
+                            sendToUser(currentUser.id, `${database}:create`, created);
                         } catch {
                             //
                         }
