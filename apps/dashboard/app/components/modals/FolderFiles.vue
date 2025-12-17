@@ -5,6 +5,23 @@
             v-model="viewFileModal.open"
             :file-id="viewFileModal.fileId"
         />
+
+        <ModalsEditFolder v-model="editModalOpen" :data />
+
+        <ModalsAreYouSure
+            v-model="areYouSureModalOpen"
+            title="Delete Folder"
+            description="Are you sure you want to delete this folder?"
+            @confirm="handleDelete"
+        >
+            <template #extra>
+                <div flex="~ gap2 items-center">
+                    <UiSwitch v-model="deleteFilesToo" :disabled="deleting" />
+                    <span text-fs-muted-1 font-medium="!">Delete files too</span>
+                </div>
+            </template>
+        </ModalsAreYouSure>
+
         <UiModal
             v-model="isOpen"
             max-hscreen
@@ -21,22 +38,66 @@
         >
             <div flex="~ items-center justify-between">
                 <h2>
-                    {{ editable ? 'Select Files' : 'Files' }}
+                    {{ newFolder ? 'Select Files' : editMode ? 'Edit Folder Files' : data.name }}
                 </h2>
-                <UiButton
-                    icon="lucide:x"
-                    absolute
-                    right-8
-                    top-8
-                    h10
-                    w10
-                    p0="!"
-                    rounded-2xl="!"
-                    icon-size="20"
-                    alignment="center"
-                    :disabled
-                    @click="isOpen = false"
-                />
+                <div flex="~ gap2.5" hfit>
+                    <div
+                        flex="~ items-center justify-center gap-1"
+                        ring="1 fs-overlay-4"
+                        rounded-2xl
+                        bg-fs-overlay-2
+                        px1
+                    >
+                        <UiButton
+                            v-if="data.public"
+                            alignment="center"
+                            variant="onOverlay"
+                            class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
+                            :icon="copied ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold'"
+                            :icon-class="copied && 'text-green500!'"
+                            icon-size="20"
+                            @click="handleCopy"
+                        />
+
+                        <UiButton
+                            alignment="center"
+                            variant="onOverlay"
+                            class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
+                            icon="solar:pen-2-bold"
+                            icon-size="24"
+                            @click="editModalOpen = true"
+                        />
+                        <UiButton
+                            v-if="!newFolder"
+                            alignment="center"
+                            variant="onOverlay"
+                            class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
+                            :icon="
+                                editMode ? 'solar:gallery-remove-bold' : 'solar:gallery-edit-bold'
+                            "
+                            icon-size="24"
+                            @click="editMode = !editMode"
+                        />
+                        <UiButton
+                            alignment="center"
+                            class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 !hover:(bg-red-600 text-white)"
+                            variant="onOverlay"
+                            icon="solar:trash-bin-minimalistic-bold"
+                            icon-size="20"
+                            :disabled="deleting"
+                            @click="areYouSureModalOpen = true"
+                        />
+                    </div>
+
+                    <UiButton
+                        variant="accent"
+                        alignment="center"
+                        class="size-11 shrink-0 text-fs-muted-2 !rounded-2xl !p0 hover:text-white"
+                        icon="lucide:x"
+                        icon-size="24"
+                        @click="isOpen = false"
+                    />
+                </div>
             </div>
 
             <div flex="~ gap4 1 items-center <sm:col" wfull>
@@ -67,9 +128,9 @@
                 >
                     <div v-for="file in calculatedFiles" :key="file.id" op0 class="folderFileCard">
                         <FileCard
-                            :selected="editable && selectedFiles.includes(file.id)"
+                            :selected="editMode && selectedFiles.includes(file.id)"
                             :data="file"
-                            :selectable="editable"
+                            :selectable="editMode"
                             rounded="2xl"
                             @update:selected="
                                 (value) => {
@@ -105,7 +166,7 @@
             />
 
             <UiButton
-                v-if="editable"
+                v-if="editMode"
                 wfull
                 gap2
                 alignment="center"
@@ -124,15 +185,19 @@
 </template>
 
 <script setup lang="ts">
-const isOpen = defineModel<boolean>({ required: true });
-
-const { data, editable } = defineProps<{
+const { data, newFolder } = defineProps<{
     data: FolderData;
-    editable?: boolean;
+    newFolder?: boolean;
 }>();
+
+const isOpen = defineModel<boolean>({ required: true });
+const editMode = defineModel<boolean>('editMode', { default: false, required: false });
+
+editMode.value = !!newFolder;
 
 const files = useFiles();
 const { $toast } = useNuxtApp();
+const { copied, copy } = useClipboard({ legacy: true });
 
 const currentPage = ref(1);
 const filterType = ref([]);
@@ -143,6 +208,11 @@ const disabled = ref(false);
 
 const selectedFiles = ref(data.files);
 const viewFileModal = reactive({ open: false, fileId: null as string | null });
+
+const editModalOpen = ref(false);
+const deleting = ref(false);
+const areYouSureModalOpen = ref(false);
+const deleteFilesToo = ref(true);
 
 const filtered = computed(() =>
     files.value.filter((f) => {
@@ -170,7 +240,7 @@ const filtered = computed(() =>
             }
         }
 
-        const isFolderOrSelectionMatch = editable ? isInFolderOrNot : isSelected;
+        const isFolderOrSelectionMatch = editMode.value ? isInFolderOrNot : isSelected;
         return isFolderOrSelectionMatch && isTypeMatch && isSearchMatch;
     }),
 );
@@ -180,6 +250,32 @@ const calculatedFiles = computed(() => {
     const end = start + 20;
     return filtered.value.slice(start, end);
 });
+
+const handleDelete = async () => {
+    deleting.value = true;
+
+    try {
+        await $fetch(`/api/folders/${data.id}`, {
+            method: 'DELETE',
+            body: { deleteFilesToo: deleteFilesToo.value },
+        });
+
+        $toast.success(
+            deleteFilesToo.value
+                ? 'Folder and its files deleted successfully'
+                : 'Folder deleted successfully',
+        );
+    } catch (error: any) {
+        $toast.error(error.data.message);
+    }
+
+    deleting.value = false;
+};
+
+const handleCopy = () => {
+    copy(data.publicUrl!);
+    $toast.success('Link copied to clipboard');
+};
 
 const handleChange = async () => {
     disabled.value = true;
@@ -192,7 +288,9 @@ const handleChange = async () => {
     });
 
     disabled.value = false;
-    isOpen.value = false;
+    editMode.value = false;
+
+    if (newFolder) isOpen.value = false;
 
     $toast.success('Files saved successfully');
 };

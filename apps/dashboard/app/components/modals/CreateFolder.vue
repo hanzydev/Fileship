@@ -3,7 +3,7 @@
         v-if="createdFolder"
         v-model="selectFilesModalOpen"
         :data="createdFolder!"
-        editable
+        new-folder
     />
 
     <UiModal

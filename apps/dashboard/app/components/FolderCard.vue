@@ -1,5 +1,5 @@
 <template>
-    <ModalsFolderFiles v-model="filesModal.open" :data :editable="filesModal.editMode" />
+    <ModalsFolderFiles v-model="filesModal.open" v-model:edit-mode="filesModal.editMode" :data />
     <ModalsEditFolder v-model="editModalOpen" :data />
 
     <ModalsAreYouSure
