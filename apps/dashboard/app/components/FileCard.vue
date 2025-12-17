@@ -194,7 +194,7 @@
                     Take Out
                 </UiButton>
                 <UiDropdown
-                    v-if="currentUser?.id === data.authorId && !selectable && !data.folderId"
+                    v-if="currentUser?.id === data.authorId && !selectable"
                     placement="right"
                     hover
                 >
@@ -207,7 +207,7 @@
                         :class="rounded === '2xl' && 'rounded-xl!'"
                         :disabled="updating"
                     >
-                        Add to Folder
+                        {{ data.folderId ? 'Move' : 'Add to Folder' }}
                     </UiButton>
                     <template #content>
                         <div
@@ -321,15 +321,17 @@ const embed = useEmbed();
 const { $toast } = useNuxtApp();
 
 const addToFolderSearchQuery = ref('');
-const searchedFolders = ref<string[]>([]);
+const searchedFolders = ref<string[] | null>(null);
 const isSearchingFolders = ref(false);
 
 const filteredFolders = computed(() =>
-    folders.value.filter((f) =>
-        !isSearchingFolders.value && addToFolderSearchQuery.value.length
-            ? searchedFolders.value.includes(f.id)
-            : true,
-    ),
+    folders.value.filter((f) => {
+        const isSearchMatch =
+            searchedFolders.value === null ? true : searchedFolders.value.includes(f.id);
+        const isNotCurrentFolder = data.folderId ? f.id !== data.folderId : true;
+
+        return isSearchMatch && isNotCurrentFolder;
+    }),
 );
 
 const isImage = computed(() => data.mimeType.startsWith('image/'));
@@ -426,7 +428,7 @@ watch(addToFolderSearchQuery, (query) => {
             isSearchingFolders.value = false;
         }, 750);
     } else {
-        searchedFolders.value = [];
+        searchedFolders.value = null;
     }
 });
 </script>
