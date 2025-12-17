@@ -39,7 +39,7 @@
                         pb2.5
                         pt5
                     >
-                        <div flex="~ items-center gap-2" mx-5 mb-6 flex-shrink-0>
+                        <div flex="~ items-center gap-3" mx-5 mb-6 flex-shrink-0>
                             <img
                                 src="/fileship.png"
                                 alt="fileship"
