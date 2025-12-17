@@ -126,47 +126,51 @@
                             </div>
                         </div>
 
-                        <div v-if="version" mt-auto px2.5 pt2>
-                            <a
-                                :href="version.url"
-                                target="_blank"
-                                flex="~ items-center justify-between"
-                                w-full
-                                rounded-xl
-                                p-2.5
-                                active="scale-95"
-                                motion-safe="transition-all"
-                                :class="
-                                    version.latest
-                                        ? 'bg-fs-overlay-2 hover:bg-fs-overlay-3 text-fs-muted-2'
-                                        : 'bg-red-500/10 text-red-500'
-                                "
-                            >
-                                <div flex="~ col gap-0.5">
-                                    <span text-xs font-medium>Current Version</span>
-                                    <span text-sm font-bold leading-none>
-                                        v{{ version.number }}
-                                    </span>
-                                </div>
-
-                                <div
-                                    flex="~ items-center justify-center"
-                                    size-8
-                                    rounded-lg
-                                    text-white
-                                    :class="version.latest ? 'bg-fs-accent/10' : 'bg-red-500'"
+                        <Transition
+                            enter-active-class="motion-safe:(animate-in fade-in zoom-in-95)"
+                        >
+                            <div v-if="version" mt-auto px2.5 pt2>
+                                <a
+                                    :href="version.url"
+                                    target="_blank"
+                                    flex="~ items-center justify-between"
+                                    w-full
+                                    rounded-xl
+                                    p-2.5
+                                    active="scale-95"
+                                    motion-safe="transition-all"
+                                    :class="
+                                        version.latest
+                                            ? 'bg-fs-overlay-2 hover:bg-fs-overlay-3 text-fs-muted-2'
+                                            : 'bg-red-500/10 text-red-500'
+                                    "
                                 >
-                                    <Icon
-                                        :name="
-                                            version.latest
-                                                ? 'solar:verified-check-bold'
-                                                : 'solar:download-square-bold'
-                                        "
-                                        size="20"
-                                    />
-                                </div>
-                            </a>
-                        </div>
+                                    <div flex="~ col gap-0.5">
+                                        <span text-xs font-medium>Current Version</span>
+                                        <span text-sm font-bold leading-none>
+                                            v{{ version.number }}
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        flex="~ items-center justify-center"
+                                        size-8
+                                        rounded-lg
+                                        text-white
+                                        :class="version.latest ? 'bg-fs-accent/10' : 'bg-red-500'"
+                                    >
+                                        <Icon
+                                            :name="
+                                                version.latest
+                                                    ? 'solar:verified-check-bold'
+                                                    : 'solar:download-square-bold'
+                                            "
+                                            size="20"
+                                        />
+                                    </div>
+                                </a>
+                            </div>
+                        </Transition>
                     </div>
                     <div
                         v-else-if="currentView === 'themes'"
