@@ -1,5 +1,110 @@
 # Changelog
 
+## v5.0.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v4.2.1...v5.0.0)
+
+### 🚀 Enhancements
+
+- New file viewer ui ([77e4fad](https://github.com/hanzydev/Fileship/commit/77e4fad))
+- **folders:** Add ability to delete its files when deleting a folder ([3cc07fc](https://github.com/hanzydev/Fileship/commit/3cc07fc))
+- **EditUser:** Add caption to password input for clarity on leaving it blank ([1a77c26](https://github.com/hanzydev/Fileship/commit/1a77c26))
+- Add confirmation modal for user deletion ([ab500e0](https://github.com/hanzydev/Fileship/commit/ab500e0))
+- Add MFA verification for log flushing functionality ([b48ea6a](https://github.com/hanzydev/Fileship/commit/b48ea6a))
+- Add ability to bulk delete files ([a372e9a](https://github.com/hanzydev/Fileship/commit/a372e9a))
+- Add ability to move file to another folder if it already in a folder ([7a35a7f](https://github.com/hanzydev/Fileship/commit/7a35a7f))
+- Enhance folder management ([524f7ff](https://github.com/hanzydev/Fileship/commit/524f7ff))
+- Add logo to sidebar ([b5429a9](https://github.com/hanzydev/Fileship/commit/b5429a9))
+- Update icons for improved visuals ([a990738](https://github.com/hanzydev/Fileship/commit/a990738))
+
+### 🔥 Performance
+
+- **ViewFile:** Optimize data handling with shallowRef for performance improvements ([ccf2f33](https://github.com/hanzydev/Fileship/commit/ccf2f33))
+
+### 🩹 Fixes
+
+- Add dependency for dev task in turbo.json ([7f98ff0](https://github.com/hanzydev/Fileship/commit/7f98ff0))
+- Prevent drawing on canvas if dimensions are not set ([af628ce](https://github.com/hanzydev/Fileship/commit/af628ce))
+- Update background color syntax for consistency across components ([fa2c8cf](https://github.com/hanzydev/Fileship/commit/fa2c8cf))
+- Remove error handling for image compression failure ([812b200](https://github.com/hanzydev/Fileship/commit/812b200))
+- Add thumbnail URL handling for video uploads ([8c5e6af](https://github.com/hanzydev/Fileship/commit/8c5e6af))
+- Improve error handling for delete operations across BackupCard, FileCard, FolderCard, NoteCard, and ViewNote components ([f56cc68](https://github.com/hanzydev/Fileship/commit/f56cc68))
+- **users:** Update file and note count resolution to use stats object ([4de23c7](https://github.com/hanzydev/Fileship/commit/4de23c7))
+- **prisma:** Conditionally set datasource based on DATABASE_URL presence ([50603b0](https://github.com/hanzydev/Fileship/commit/50603b0))
+- **ViewFile:** Close modal on background click and improve layout for media controls ([9ceda57](https://github.com/hanzydev/Fileship/commit/9ceda57))
+- **ViewFile:** Allow smooth scrolling to active thumbnail based on parameter ([ed85e54](https://github.com/hanzydev/Fileship/commit/ed85e54))
+- **ViewFile:** Ensure active thumbnail scrolls after container width is set ([2e7c515](https://github.com/hanzydev/Fileship/commit/2e7c515))
+- **ViewFile:** Add margin auto to modal for better centering ([101938d](https://github.com/hanzydev/Fileship/commit/101938d))
+- **user:** Prevent unauthorized super admin promotion ([a66630d](https://github.com/hanzydev/Fileship/commit/a66630d))
+- **user:** Prevent race condition in super admin demotion ([b4f5ce3](https://github.com/hanzydev/Fileship/commit/b4f5ce3))
+- Add missing props to user creation and update endpoints ([667d24e](https://github.com/hanzydev/Fileship/commit/667d24e))
+- Login view animation ([b04d076](https://github.com/hanzydev/Fileship/commit/b04d076))
+- Ensure selection ring only appears for selectable items ([5b72063](https://github.com/hanzydev/Fileship/commit/5b72063))
+- Update socket handling to associate files with their respective folders ([28c1b8d](https://github.com/hanzydev/Fileship/commit/28c1b8d))
+- Update folder assignment logic for files on folder update ([238b1c6](https://github.com/hanzydev/Fileship/commit/238b1c6))
+
+### 💅 Refactors
+
+- Rename modal click outside handler's ignore property ([4f79367](https://github.com/hanzydev/Fileship/commit/4f79367))
+- Update background color opacity for Sidebar and Modal components ([d5ad5b9](https://github.com/hanzydev/Fileship/commit/d5ad5b9))
+- Update background color opacity for Sidebar and Modal components" ([f2b6dbf](https://github.com/hanzydev/Fileship/commit/f2b6dbf))
+- Update background color opacity for Sidebar and Modal components ([e6e16c3](https://github.com/hanzydev/Fileship/commit/e6e16c3))
+- Update success message for file move and take out actions ([0779f32](https://github.com/hanzydev/Fileship/commit/0779f32))
+- **socket:** Remove folder:file:add and folder:file:remove events ([005c9c6](https://github.com/hanzydev/Fileship/commit/005c9c6))
+- **ViewNote:** Streamline note navigation by consolidating changeNote logic ([ebbd098](https://github.com/hanzydev/Fileship/commit/ebbd098))
+- Remove unused buttonClass prop from Pagination component for clarity ([fedbe66](https://github.com/hanzydev/Fileship/commit/fedbe66))
+- **auth:** Simplify admin impersonation permission logic ([c7d584a](https://github.com/hanzydev/Fileship/commit/c7d584a))
+- Update admin paths ([c3a2e70](https://github.com/hanzydev/Fileship/commit/c3a2e70))
+- Remove unnecessary code from folder deletion logic ([92a15f6](https://github.com/hanzydev/Fileship/commit/92a15f6))
+- Update socket event names for consistency and clarity ([e03265d](https://github.com/hanzydev/Fileship/commit/e03265d))
+- Remove old socket events ([6ebf737](https://github.com/hanzydev/Fileship/commit/6ebf737))
+- Remove unused import of nextTick from process ([26b4d50](https://github.com/hanzydev/Fileship/commit/26b4d50))
+- Hide 'delete files too' option for empty folders ([095f162](https://github.com/hanzydev/Fileship/commit/095f162))
+- Rename folder modal ([534ac10](https://github.com/hanzydev/Fileship/commit/534ac10))
+- **backups:** Update upload icon for better visibility ([2c038f6](https://github.com/hanzydev/Fileship/commit/2c038f6))
+
+### 🏡 Chore
+
+- Lint fix ([d97c048](https://github.com/hanzydev/Fileship/commit/d97c048))
+- Lint fix ([f9a5fb1](https://github.com/hanzydev/Fileship/commit/f9a5fb1))
+- Update turbo version ([eaa42fe](https://github.com/hanzydev/Fileship/commit/eaa42fe))
+- Lint fix ([bb141f9](https://github.com/hanzydev/Fileship/commit/bb141f9))
+
+### 🎨 Styles
+
+- Revamp dashboard design ([d6682e9](https://github.com/hanzydev/Fileship/commit/d6682e9))
+- Use solar icons ([0f026b0](https://github.com/hanzydev/Fileship/commit/0f026b0))
+- Replace 'Quicksand' with 'Nunito Sans' for consistent typography ([ec7e2ff](https://github.com/hanzydev/Fileship/commit/ec7e2ff))
+- Update icon from 'solar:pen-bold' to 'solar:pen-2-bold' for consistency across components ([9037ec6](https://github.com/hanzydev/Fileship/commit/9037ec6))
+- Adjust margin for consistency in DashboardContent and simplify layout in dashboard ([2f7353a](https://github.com/hanzydev/Fileship/commit/2f7353a))
+- Update button and container rounding for consistency across components ([e43036d](https://github.com/hanzydev/Fileship/commit/e43036d))
+- Update rounded classes for consistency across FileCard, FolderFiles, SearchBar, and folder view components ([63f2610](https://github.com/hanzydev/Fileship/commit/63f2610))
+- Update button rounding and sizes for consistency in ViewFile and ViewNote components ([ff3bf97](https://github.com/hanzydev/Fileship/commit/ff3bf97))
+- Standardize padding across various components for consistency ([ecba428](https://github.com/hanzydev/Fileship/commit/ecba428))
+- Simplify UiModal properties in EditFile and ViewFile components for consistency ([6a6d959](https://github.com/hanzydev/Fileship/commit/6a6d959))
+- Update background color for sonner toast component for improved visibility ([0df6dd9](https://github.com/hanzydev/Fileship/commit/0df6dd9))
+- Improve layout and spacing in AreYouSure modal for better readability ([41bc415](https://github.com/hanzydev/Fileship/commit/41bc415))
+- Update titles and descriptions in confirmation modals for clarity ([aa72f82](https://github.com/hanzydev/Fileship/commit/aa72f82))
+- **ViewFile:** Adjust spacing and layout for file info display ([831421c](https://github.com/hanzydev/Fileship/commit/831421c))
+- Enhance button and input component styles with rounded corners ([c6c3c57](https://github.com/hanzydev/Fileship/commit/c6c3c57))
+- Add toaster offset for improved notification positioning ([c58dca9](https://github.com/hanzydev/Fileship/commit/c58dca9))
+- Update button border radius for improved UI consistency ([ce962d1](https://github.com/hanzydev/Fileship/commit/ce962d1))
+- Update header font size for improved responsiveness across dashboard pages ([9d4405d](https://github.com/hanzydev/Fileship/commit/9d4405d))
+- Update logo image source for improved resolution ([a38a521](https://github.com/hanzydev/Fileship/commit/a38a521))
+- Update responsive design for dashboard components and sidebar ([c99d162](https://github.com/hanzydev/Fileship/commit/c99d162))
+- Update button styling and add user avatar to dashboard header ([5ed629f](https://github.com/hanzydev/Fileship/commit/5ed629f))
+- Enhance sidebar transitions and improve layout for themes view ([d47d171](https://github.com/hanzydev/Fileship/commit/d47d171))
+- Adjust action buttons position ([6700feb](https://github.com/hanzydev/Fileship/commit/6700feb))
+- Add rounded corners to action buttons in logs and users pages ([4218634](https://github.com/hanzydev/Fileship/commit/4218634))
+- **sidebar:** Improve layout and enhance version display ([507a254](https://github.com/hanzydev/Fileship/commit/507a254))
+- **sidebar:** Adjust gap in sidebar layout for improved spacing ([6281962](https://github.com/hanzydev/Fileship/commit/6281962))
+- **readme:** Update banner image ([bdb2d18](https://github.com/hanzydev/Fileship/commit/bdb2d18))
+- **readme:** Update banner image again ([0b56c5a](https://github.com/hanzydev/Fileship/commit/0b56c5a))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v4.2.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v4.2.0...v4.2.1)
