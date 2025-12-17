@@ -176,6 +176,11 @@ export const initSocket = () => {
                 },
                 ...files.value,
             ];
+
+            if (data.folderId) {
+                const folder = folders.value.find((f) => f.id === data.folderId);
+                if (folder) folder.files.push(data.id);
+            }
         });
 
         socket.on('file:update', (data) => {
