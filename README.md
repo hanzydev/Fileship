@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/hanzydev/Fileship">
-    <img src="banner.png" alt="Fileship" width="550" height="110">
+    <img src="banner.png" alt="Fileship" width="520" height="200">
   </a>
 
   <p align="center">
