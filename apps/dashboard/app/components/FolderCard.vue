@@ -9,7 +9,7 @@
         @confirm="handleDelete"
     >
         <template #extra>
-            <div flex="~ gap2 items-center">
+            <div v-if="data.files.length" flex="~ gap2 items-center">
                 <UiSwitch v-model="deleteFilesToo" :disabled="deleting" />
                 <span text-fs-muted-1 font-medium="!">Delete files too</span>
             </div>
