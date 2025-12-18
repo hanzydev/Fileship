@@ -41,7 +41,7 @@
                         :style="{
                             width: `${uploadProgress}%`,
                         }"
-                        :class="uploadProgress < 100 ? 'rounded-bl-lg' : 'rounded-b-lg'"
+                        :class="uploadProgress < 100 ? 'rounded-bl-xl' : 'rounded-b-xl'"
                     ></div>
                 </Transition>
             </div>
