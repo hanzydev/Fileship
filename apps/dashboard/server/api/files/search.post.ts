@@ -51,11 +51,13 @@ export default defineEventHandler(async (event) => {
     const filtered = searched.hits.filter((hit) => userFiles.some((file) => file.id === hit.id));
 
     if (body.data.mode === 'vector') {
-        telemetry.collectAISearchUsage({
-            query: body.data.query,
-            results: filtered.length,
-            duration: Date.now() - start,
-        });
+        event.waitUntil(
+            telemetry.collectAISearchUsage({
+                query: body.data.query,
+                results: filtered.length,
+                duration: Date.now() - start,
+            }),
+        );
     }
 
     return filtered.map((hit) => hit.id);
