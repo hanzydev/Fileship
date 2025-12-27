@@ -68,276 +68,318 @@ export default defineEventHandler(async (event) => {
         sendToUser(currentUser.id, 'currentUser:update', { backupRestoreState: state });
     };
 
-    await updateState(BackupRestoreState.DeletingPreviousData);
-
-    const [userFiles, userFolders, userNotes] = await prisma.$transaction([
-        prisma.file.findMany({
-            where: {
-                authorId: currentUser.id,
-            },
-            select: {
-                id: true,
-                fileName: true,
-            },
-        }),
-        prisma.folder.findMany({
-            where: {
-                authorId: currentUser.id,
-            },
-            select: {
-                id: true,
-            },
-        }),
-        prisma.note.findMany({
-            where: {
-                authorId: currentUser.id,
-            },
-            select: {
-                id: true,
-            },
-        }),
-    ]);
-
-    const uploadsPath = join(dataDirectory, 'uploads');
-    const thumbnailsPath = join(dataDirectory, 'thumbnails');
-
-    await Promise.all(
-        userFiles.map(({ fileName }) =>
-            fsp.rm(join(uploadsPath, fileName), { force: true }).catch(() => null),
-        ),
-    );
-
-    await Promise.all(
-        userFiles.map(({ id }) =>
-            fsp.rm(join(thumbnailsPath, `${id}.jpeg`), { force: true }).catch(() => null),
-        ),
-    );
-
-    await removeMultiple(
-        fileSearchDb,
-        userFiles.map((f) => f.id),
-    );
-
-    await removeMultiple(
-        folderSearchDb,
-        userFolders.map((f) => f.id),
-    );
-
-    await removeMultiple(
-        noteSearchDb,
-        userNotes.map((n) => n.id),
-    );
-
-    await prisma.$transaction([
-        prisma.view.deleteMany({
-            where: {
-                file: { authorId: currentUser.id },
-            },
-        }),
-        prisma.folder.deleteMany({ where: { authorId: currentUser.id } }),
-        prisma.note.deleteMany({ where: { authorId: currentUser.id } }),
-        prisma.file.deleteMany({ where: { authorId: currentUser.id } }),
-    ]);
-
-    sendToUser(currentUser.id, 'deleteAll', null);
-
-    const tempPath = join(dataDirectory, 'temp', backupId!);
-    await fsp.mkdir(tempPath);
-
-    await updateState(BackupRestoreState.Extracting);
-    await extract({ file: backupPath, cwd: tempPath });
-    await updateState(BackupRestoreState.RestoringData);
-
-    const databases = ['folder', 'note', 'file', 'user', 'view'];
-    const backupUploadsPath = join(tempPath, 'uploads');
-    const backupUploads = await fsp.readdir(backupUploadsPath);
-
-    const remappedKeys = new Map<string, string>();
-
-    for (const backupUpload of backupUploads) {
-        const remappedName = existsSync(join(uploadsPath, backupUpload))
-            ? `${nanoid(8)}${extname(backupUpload)}`
-            : backupUpload;
-
-        remappedKeys.set(backupUpload, remappedName);
-
-        await fsp
-            .rename(join(backupUploadsPath, backupUpload), join(uploadsPath, remappedName))
-            .catch(() => null);
-    }
-
-    for (const database of databases) {
-        const databasePath = join(tempPath, 'database', `${database}.json`);
-
-        if (database === 'user') {
+    event.waitUntil(
+        (async () => {
             try {
-                const userData = JSON.parse(await fsp.readFile(databasePath, 'utf-8'));
-                await prisma.user.update({ where: { id: currentUser.id }, data: userData });
+                await updateState(BackupRestoreState.DeletingPreviousData);
 
-                sendToUser(currentUser.id, 'currentUser:domainsUpdate', userData.domains);
-                sendToUser(currentUser.id, 'currentUser:embedUpdate', userData.embed);
+                const [userFiles, userFolders, userNotes] = await prisma.$transaction([
+                    prisma.file.findMany({
+                        where: {
+                            authorId: currentUser.id,
+                        },
+                        select: {
+                            id: true,
+                            fileName: true,
+                        },
+                    }),
+                    prisma.folder.findMany({
+                        where: {
+                            authorId: currentUser.id,
+                        },
+                        select: {
+                            id: true,
+                        },
+                    }),
+                    prisma.note.findMany({
+                        where: {
+                            authorId: currentUser.id,
+                        },
+                        select: {
+                            id: true,
+                        },
+                    }),
+                ]);
 
-                await sendByFilter(isAdmin, 'user:update', {
-                    id: currentUser.id,
-                    avatar: userData.avatar,
-                });
+                const uploadsPath = join(dataDirectory, 'uploads');
+                const thumbnailsPath = join(dataDirectory, 'thumbnails');
 
-                sendToUser(currentUser.id, 'currentUser:update', { avatar: userData.avatar });
-            } catch {
-                //
-            }
-        } else {
-            await new Promise<void>((resolve) => {
-                const chain = Chain([createReadStream(databasePath), parser(), new StreamArray()]);
+                await Promise.all(
+                    userFiles.map(({ fileName }) =>
+                        fsp.rm(join(uploadsPath, fileName), { force: true }).catch(() => null),
+                    ),
+                );
 
-                let processing = Promise.resolve();
+                await Promise.all(
+                    userFiles.map(({ id }) =>
+                        fsp
+                            .rm(join(thumbnailsPath, `${id}.jpeg`), { force: true })
+                            .catch(() => null),
+                    ),
+                );
 
-                chain.on('data', async ({ value }) => {
-                    processing = processing.then(async () => {
-                        if (value.authorId) value.authorId = currentUser.id;
+                await removeMultiple(
+                    fileSearchDb,
+                    userFiles.map((f) => f.id),
+                );
 
-                        switch (database) {
-                            case 'file':
-                                value.fileName = remappedKeys.get(value.fileName);
+                await removeMultiple(
+                    folderSearchDb,
+                    userFolders.map((f) => f.id),
+                );
 
-                                if (value.folderId) {
-                                    value.folderId = remappedKeys.get(value.folderId);
-                                }
-                                break;
-                            case 'view': {
-                                const fileId = remappedKeys.get(value.fileId);
+                await removeMultiple(
+                    noteSearchDb,
+                    userNotes.map((n) => n.id),
+                );
 
-                                if (fileId) {
-                                    value.file = { connect: { id: fileId } };
-                                }
+                await prisma.$transaction([
+                    prisma.view.deleteMany({
+                        where: {
+                            file: { authorId: currentUser.id },
+                        },
+                    }),
+                    prisma.folder.deleteMany({ where: { authorId: currentUser.id } }),
+                    prisma.note.deleteMany({ where: { authorId: currentUser.id } }),
+                    prisma.file.deleteMany({ where: { authorId: currentUser.id } }),
+                ]);
 
-                                value.fileId = undefined;
-                                break;
-                            }
-                        }
+                sendToUser(currentUser.id, 'deleteAll', null);
 
+                const tempPath = join(dataDirectory, 'temp', backupId!);
+                await fsp.mkdir(tempPath);
+
+                await updateState(BackupRestoreState.Extracting);
+                await extract({ file: backupPath, cwd: tempPath });
+                await updateState(BackupRestoreState.RestoringData);
+
+                const databases = ['folder', 'note', 'file', 'user', 'view'];
+                const backupUploadsPath = join(tempPath, 'uploads');
+                const backupUploads = await fsp.readdir(backupUploadsPath);
+
+                const remappedKeys = new Map<string, string>();
+
+                for (const backupUpload of backupUploads) {
+                    const remappedName = existsSync(join(uploadsPath, backupUpload))
+                        ? `${nanoid(8)}${extname(backupUpload)}`
+                        : backupUpload;
+
+                    remappedKeys.set(backupUpload, remappedName);
+
+                    await fsp
+                        .rename(
+                            join(backupUploadsPath, backupUpload),
+                            join(uploadsPath, remappedName),
+                        )
+                        .catch(() => null);
+                }
+
+                for (const database of databases) {
+                    const databasePath = join(tempPath, 'database', `${database}.json`);
+
+                    if (database === 'user') {
                         try {
-                            const created = await (prisma as any)[database].create({
-                                data: { ...value, id: undefined },
+                            const userData = JSON.parse(await fsp.readFile(databasePath, 'utf-8'));
+                            await prisma.user.update({
+                                where: { id: currentUser.id },
+                                data: userData,
                             });
-                            remappedKeys.set(value.id, created.id);
 
-                            switch (database) {
-                                case 'file':
-                                    {
-                                        created.directUrl = buildPublicUrl(
-                                            event,
-                                            currentUser.domains,
-                                            `/u/${created.fileName}`,
-                                        );
-                                        created.embedUrl = buildPublicUrl(
-                                            event,
-                                            currentUser.domains,
-                                            `/view/${created.fileName}`,
-                                        );
-                                        created.size = {
-                                            raw: created.size.toString(),
-                                            formatted: filesize(created.size.toString()),
-                                        };
+                            sendToUser(
+                                currentUser.id,
+                                'currentUser:domainsUpdate',
+                                userData.domains,
+                            );
+                            sendToUser(currentUser.id, 'currentUser:embedUpdate', userData.embed);
 
-                                        const filePath = join(uploadsPath, created.fileName);
+                            await sendByFilter(isAdmin, 'user:update', {
+                                id: currentUser.id,
+                                avatar: userData.avatar,
+                            });
 
-                                        if (created.mimeType.startsWith('video/')) {
-                                            const thumbnailPath = join(
-                                                thumbnailsPath,
-                                                `${created.id}.jpeg`,
-                                            );
-
-                                            await new Promise<void>((resolve) => {
-                                                fluentFfmpeg(filePath)
-                                                    .videoFilters('thumbnail')
-                                                    .frames(1)
-                                                    .format('mjpeg')
-                                                    .output(thumbnailPath)
-                                                    .on('end', () => {
-                                                        created.thumbnailUrl = buildPublicUrl(
-                                                            event,
-                                                            currentUser.domains,
-                                                            `/u/${created.fileName}/thumbnail`,
-                                                        );
-                                                        resolve();
-                                                    })
-                                                    .on('error', () => resolve())
-                                                    .run();
-                                            });
-                                        }
-
-                                        let embedding: number[] | undefined = undefined;
-
-                                        if (
-                                            IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
-                                                extname(created.fileName),
-                                            )
-                                        ) {
-                                            const clip = await getClipInstance();
-                                            embedding = await clip.createImageEmbedding(filePath);
-
-                                            await prisma.file.update({
-                                                where: {
-                                                    id: created.id,
-                                                },
-                                                data: {
-                                                    embedding,
-                                                },
-                                            });
-                                        }
-
-                                        await insert(fileSearchDb, {
-                                            id: created.id,
-                                            fileName: created.fileName,
-                                            mimeType: created.mimeType,
-                                            embedding,
-                                        });
-                                    }
-                                    break;
-                                case 'folder':
-                                    created.publicUrl = created.public
-                                        ? buildPublicUrl(
-                                              event,
-                                              currentUser.domains,
-                                              `/folder/${created.id}`,
-                                          )
-                                        : undefined;
-                                    created.files = [];
-
-                                    await insert(folderSearchDb, {
-                                        id: created.id,
-                                        name: created.name,
-                                    });
-                                    break;
-                                case 'note':
-                                    await insert(noteSearchDb, {
-                                        id: created.id,
-                                        title: created.title,
-                                    });
-                                    break;
-                            }
-
-                            if (database === 'file') {
-                                created.views = { today: 0, total: 0 };
-                            }
-
-                            sendToUser(currentUser.id, `${database}:create`, created);
+                            sendToUser(currentUser.id, 'currentUser:update', {
+                                avatar: userData.avatar,
+                            });
                         } catch {
                             //
                         }
-                    });
-                });
+                    } else {
+                        await new Promise<void>((resolve) => {
+                            const chain = Chain([
+                                createReadStream(databasePath),
+                                parser(),
+                                new StreamArray(),
+                            ]);
 
-                chain.on('end', async () => {
-                    await processing;
-                    resolve();
-                });
-            });
-        }
-    }
+                            let processing = Promise.resolve();
 
-    await fsp.rm(tempPath, { recursive: true });
-    await createLog(event, { action: 'Load Backup', message: `Loaded backup ${backupId}` });
-    await updateState(null);
+                            chain.on('data', async ({ value }) => {
+                                processing = processing.then(async () => {
+                                    if (value.authorId) value.authorId = currentUser.id;
+
+                                    switch (database) {
+                                        case 'file':
+                                            value.fileName = remappedKeys.get(value.fileName);
+
+                                            if (value.folderId) {
+                                                value.folderId = remappedKeys.get(value.folderId);
+                                            }
+                                            break;
+                                        case 'view': {
+                                            const fileId = remappedKeys.get(value.fileId);
+
+                                            if (fileId) {
+                                                value.file = { connect: { id: fileId } };
+                                            }
+
+                                            value.fileId = undefined;
+                                            break;
+                                        }
+                                    }
+
+                                    try {
+                                        const created = await (prisma as any)[database].create({
+                                            data: { ...value, id: undefined },
+                                        });
+                                        remappedKeys.set(value.id, created.id);
+
+                                        switch (database) {
+                                            case 'file':
+                                                {
+                                                    created.directUrl = buildPublicUrl(
+                                                        event,
+                                                        currentUser.domains,
+                                                        `/u/${created.fileName}`,
+                                                    );
+                                                    created.embedUrl = buildPublicUrl(
+                                                        event,
+                                                        currentUser.domains,
+                                                        `/view/${created.fileName}`,
+                                                    );
+                                                    created.size = {
+                                                        raw: created.size.toString(),
+                                                        formatted: filesize(
+                                                            created.size.toString(),
+                                                        ),
+                                                    };
+
+                                                    const filePath = join(
+                                                        uploadsPath,
+                                                        created.fileName,
+                                                    );
+
+                                                    if (created.mimeType.startsWith('video/')) {
+                                                        const thumbnailPath = join(
+                                                            thumbnailsPath,
+                                                            `${created.id}.jpeg`,
+                                                        );
+
+                                                        await new Promise<void>((resolve) => {
+                                                            fluentFfmpeg(filePath)
+                                                                .videoFilters('thumbnail')
+                                                                .frames(1)
+                                                                .format('mjpeg')
+                                                                .output(thumbnailPath)
+                                                                .on('end', () => {
+                                                                    created.thumbnailUrl =
+                                                                        buildPublicUrl(
+                                                                            event,
+                                                                            currentUser.domains,
+                                                                            `/u/${created.fileName}/thumbnail`,
+                                                                        );
+                                                                    resolve();
+                                                                })
+                                                                .on('error', () => resolve())
+                                                                .run();
+                                                        });
+                                                    }
+
+                                                    let embedding: number[] | undefined = undefined;
+
+                                                    if (
+                                                        IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
+                                                            extname(created.fileName),
+                                                        )
+                                                    ) {
+                                                        const clip = await getClipInstance();
+                                                        embedding =
+                                                            await clip.createImageEmbedding(
+                                                                filePath,
+                                                            );
+
+                                                        await prisma.file.update({
+                                                            where: {
+                                                                id: created.id,
+                                                            },
+                                                            data: {
+                                                                embedding,
+                                                            },
+                                                        });
+                                                    }
+
+                                                    await insert(fileSearchDb, {
+                                                        id: created.id,
+                                                        fileName: created.fileName,
+                                                        mimeType: created.mimeType,
+                                                        embedding,
+                                                    });
+                                                }
+                                                break;
+                                            case 'folder':
+                                                created.publicUrl = created.public
+                                                    ? buildPublicUrl(
+                                                          event,
+                                                          currentUser.domains,
+                                                          `/folder/${created.id}`,
+                                                      )
+                                                    : undefined;
+                                                created.files = [];
+
+                                                await insert(folderSearchDb, {
+                                                    id: created.id,
+                                                    name: created.name,
+                                                });
+                                                break;
+                                            case 'note':
+                                                await insert(noteSearchDb, {
+                                                    id: created.id,
+                                                    title: created.title,
+                                                });
+                                                break;
+                                        }
+
+                                        if (database === 'file') {
+                                            created.views = { today: 0, total: 0 };
+                                        }
+
+                                        sendToUser(currentUser.id, `${database}:create`, created);
+                                    } catch {
+                                        //
+                                    }
+                                });
+                            });
+
+                            chain.on('end', async () => {
+                                await processing;
+                                resolve();
+                            });
+                        });
+                    }
+                }
+
+                await fsp.rm(tempPath, { recursive: true });
+                await createLog(event, {
+                    action: 'Load Backup',
+                    message: `Loaded backup ${backupId}`,
+                });
+                await updateState(null);
+            } catch {
+                await createLog(event, {
+                    action: 'Load Backup Failed',
+                    message: `Failed to load backup ${backupId}`,
+                });
+                await updateState(null);
+            }
+        })(),
+    );
 });
