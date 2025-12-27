@@ -48,6 +48,18 @@ export default defineEventHandler(async (event) => {
 
     await verifySession(event, body.data?.verificationData);
 
+    const user = await prisma.user.findUnique({
+        where: { id: currentUser.id },
+        select: { backupRestoreState: true },
+    });
+
+    if (user?.backupRestoreState) {
+        throw createError({
+            statusCode: 400,
+            message: 'A backup restoration is already in progress',
+        });
+    }
+
     const updateState = async (state: BackupRestoreState | null) => {
         await prisma.user.update({
             where: { id: currentUser.id },
