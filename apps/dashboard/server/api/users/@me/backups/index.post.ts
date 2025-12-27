@@ -91,27 +91,29 @@ export default defineEventHandler(async (event) => {
 
     const backupCompressedPath = join(tempPath, 'backup.tgz');
 
-    create({ file: backupCompressedPath, cwd: tempPath, gzip: { level: 5 } }, [
-        'uploads',
-        'database',
-    ]).then(async () => {
-        const backupStat = await fsp.stat(backupCompressedPath);
-        const backupId = nanoid();
-        await fsp.rename(backupCompressedPath, join(userBackupsPath, `${backupId}.tgz`));
-        await fsp.rm(tempPath, { recursive: true });
+    event.waitUntil(
+        create({ file: backupCompressedPath, cwd: tempPath, gzip: { level: 5 } }, [
+            'uploads',
+            'database',
+        ]).then(async () => {
+            const backupStat = await fsp.stat(backupCompressedPath);
+            const backupId = nanoid();
+            await fsp.rename(backupCompressedPath, join(userBackupsPath, `${backupId}.tgz`));
+            await fsp.rm(tempPath, { recursive: true });
 
-        await createLog(event, {
-            action: 'Create Backup',
-            message: `Created backup ${backupId}`,
-        });
+            await createLog(event, {
+                action: 'Create Backup',
+                message: `Created backup ${backupId}`,
+            });
 
-        sendToUser(currentUser.id, 'backup:create', {
-            id: backupId,
-            createdAt: backupStat.birthtime,
-            size: {
-                raw: backupStat.size,
-                formatted: filesize(backupStat.size),
-            },
-        });
-    });
+            sendToUser(currentUser.id, 'backup:create', {
+                id: backupId,
+                createdAt: backupStat.birthtime,
+                size: {
+                    raw: backupStat.size,
+                    formatted: filesize(backupStat.size),
+                },
+            });
+        }),
+    );
 });
