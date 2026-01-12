@@ -318,6 +318,11 @@ export default defineEventHandler(async (event) => {
                                                                         fileId: created.id,
                                                                         type: AIJobType.GenerateImageCaption,
                                                                     }),
+                                                                    enqueueAIJob({
+                                                                        userId: currentUser.id,
+                                                                        fileId: created.id,
+                                                                        type: AIJobType.DetectPII,
+                                                                    }),
                                                                 ]),
                                                             );
                                                         }
@@ -348,11 +353,18 @@ export default defineEventHandler(async (event) => {
                                                             currentUser.aiSettings?.enabled ?? true;
                                                         if (aiEnabled) {
                                                             event.waitUntil(
-                                                                enqueueAIJob({
-                                                                    userId: currentUser.id,
-                                                                    fileId: created.id,
-                                                                    type: AIJobType.GenerateTextEmbedding,
-                                                                }),
+                                                                Promise.all([
+                                                                    enqueueAIJob({
+                                                                        userId: currentUser.id,
+                                                                        fileId: created.id,
+                                                                        type: AIJobType.GenerateTextEmbedding,
+                                                                    }),
+                                                                    enqueueAIJob({
+                                                                        userId: currentUser.id,
+                                                                        fileId: created.id,
+                                                                        type: AIJobType.DetectPII,
+                                                                    }),
+                                                                ]),
                                                             );
                                                         }
                                                     }

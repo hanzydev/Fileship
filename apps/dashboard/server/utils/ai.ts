@@ -266,15 +266,17 @@ class AIService {
         return caption.replace(/\s+/g, ' ').trim();
     }
 
-    public async detectPII(filePath: string) {
-        let text = '';
+    public async detectPII(filePath: string, existingText?: string | null) {
+        let text = existingText || '';
         const reasons: string[] = [];
 
         const isImage = ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(filePath));
         const isText = ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(filePath));
 
         if (isImage) {
-            text = (await this.performOcrOnImage(filePath)) ?? '';
+            if (!text) {
+                text = (await this.performOcrOnImage(filePath)) ?? '';
+            }
 
             try {
                 const odResults = await this.performObjectDetection(filePath);

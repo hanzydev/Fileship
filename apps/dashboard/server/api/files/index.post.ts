@@ -276,6 +276,11 @@ export default defineEventHandler(async (event) => {
                             fileId: upload.id,
                             type: AIJobType.GenerateImageCaption,
                         }),
+                        enqueueAIJob({
+                            userId: currentUser.id,
+                            fileId: upload.id,
+                            type: AIJobType.DetectPII,
+                        }),
                     ]),
                 );
             }
@@ -296,11 +301,18 @@ export default defineEventHandler(async (event) => {
             const aiEnabled = currentUser.aiSettings?.enabled ?? true;
             if (aiEnabled) {
                 event.waitUntil(
-                    enqueueAIJob({
-                        userId: currentUser.id,
-                        fileId: upload.id,
-                        type: AIJobType.GenerateTextEmbedding,
-                    }),
+                    Promise.all([
+                        enqueueAIJob({
+                            userId: currentUser.id,
+                            fileId: upload.id,
+                            type: AIJobType.GenerateTextEmbedding,
+                        }),
+                        enqueueAIJob({
+                            userId: currentUser.id,
+                            fileId: upload.id,
+                            type: AIJobType.DetectPII,
+                        }),
+                    ]),
                 );
             }
         }

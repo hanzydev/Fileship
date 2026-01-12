@@ -62,6 +62,8 @@ export default defineTask({
                             mimeType: true,
                             authorId: true,
                             textEmbedding: true,
+                            ocrText: true,
+                            caption: true,
                         },
                     });
 
@@ -87,6 +89,8 @@ export default defineTask({
                         mimeType: file.mimeType,
                         embedding,
                         textEmbedding: (file.textEmbedding as number[]) || undefined,
+                        ocrText: file.ocrText || undefined,
+                        caption: file.caption || undefined,
                     });
 
                     sendToUser(file.authorId, 'file:update', { id: file.id, embedding });
@@ -103,6 +107,8 @@ export default defineTask({
                             mimeType: true,
                             authorId: true,
                             textEmbedding: true,
+                            ocrText: true,
+                            caption: true,
                         },
                     });
 
@@ -130,6 +136,8 @@ export default defineTask({
                         mimeType: file.mimeType,
                         embedding,
                         textEmbedding: (file.textEmbedding as number[]) || undefined,
+                        ocrText: file.ocrText || undefined,
+                        caption: file.caption || undefined,
                     });
 
                     sendToUser(file.authorId, 'file:update', { id: file.id, embedding });
@@ -145,7 +153,9 @@ export default defineTask({
                             fileName: true,
                             mimeType: true,
                             ocrText: true,
+                            embedding: true,
                             textEmbedding: true,
+                            caption: true,
                         },
                     });
 
@@ -157,6 +167,22 @@ export default defineTask({
                     await prisma.file.update({
                         where: { id: file.id },
                         data: { ocrText: text },
+                    });
+
+                    try {
+                        await remove(fileSearchDb, file.id);
+                    } catch {
+                        //
+                    }
+
+                    await insert(fileSearchDb, {
+                        id: file.id,
+                        fileName: file.fileName,
+                        mimeType: file.mimeType,
+                        embedding: (file.embedding as number[]) || undefined,
+                        textEmbedding: (file.textEmbedding as number[]) || undefined,
+                        ocrText: text || undefined,
+                        caption: file.caption || undefined,
                     });
 
                     if (text && !file.textEmbedding) {
@@ -180,6 +206,7 @@ export default defineTask({
                             ocrText: true,
                             embedding: true,
                             textEmbedding: true,
+                            caption: true,
                             authorId: true,
                         },
                     });
@@ -190,12 +217,6 @@ export default defineTask({
                         await completeAIJob(job.id);
                         return { id: job.id, result: 'skip' };
                     }
-
-                    await enqueueAIJob({
-                        userId: job.userId,
-                        fileId: file.id,
-                        type: AIJobType.DetectPII,
-                    });
 
                     const filePath = join(dataDirectory, 'uploads', file.fileName);
                     const baseText =
@@ -232,6 +253,8 @@ export default defineTask({
                         mimeType: file.mimeType,
                         embedding: (file.embedding as number[]) || undefined,
                         textEmbedding: embedding,
+                        ocrText: file.ocrText || undefined,
+                        caption: file.caption || undefined,
                     });
 
                     sendToUser(file.authorId, 'file:update', {
@@ -248,9 +271,11 @@ export default defineTask({
                         select: {
                             id: true,
                             fileName: true,
+                            mimeType: true,
                             authorId: true,
                             embedding: true,
                             textEmbedding: true,
+                            ocrText: true,
                         },
                     });
 
@@ -273,8 +298,10 @@ export default defineTask({
                     await insert(fileSearchDb, {
                         id: file.id,
                         fileName: file.fileName,
+                        mimeType: file.mimeType,
                         embedding: (file.embedding as number[]) || undefined,
                         textEmbedding: (file.textEmbedding as number[]) || undefined,
+                        ocrText: file.ocrText || undefined,
                         caption,
                     });
 
@@ -296,20 +323,18 @@ export default defineTask({
                     if (!file) throw new Error('File not found');
 
                     const filePath = join(dataDirectory, 'uploads', file.fileName);
-                    const { piiDetected, reasons } = await ai.detectPII(filePath);
+                    const { piiDetected, reasons } = await ai.detectPII(filePath, file.ocrText);
 
-                    if (piiDetected) {
-                        await prisma.file.update({
-                            where: { id: file.id },
-                            data: { piiDetected, piiReasons: reasons },
-                        });
+                    await prisma.file.update({
+                        where: { id: file.id },
+                        data: { piiDetected, piiReasons: reasons },
+                    });
 
-                        sendToUser(file.authorId, 'file:update', {
-                            id: file.id,
-                            piiDetected,
-                            piiReasons: reasons,
-                        });
-                    }
+                    sendToUser(file.authorId, 'file:update', {
+                        id: file.id,
+                        piiDetected,
+                        piiReasons: reasons,
+                    });
                 }
 
                 await completeAIJob(job.id);

@@ -70,6 +70,24 @@ export default defineTask({
             await processBatch(validVideos, AIJobType.GenerateVideoEmbedding);
         }
 
+        const imagesForCaption = await prisma.file.findMany({
+            where: {
+                caption: null,
+                mimeType: { startsWith: 'image/' },
+                aiJobs: activeJobFilter(AIJobType.GenerateImageCaption),
+            },
+            select: { id: true, fileName: true, authorId: true },
+        });
+
+        const validCaptions = imagesForCaption.filter((f) =>
+            ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(f.fileName)),
+        );
+
+        if (validCaptions.length) {
+            consola.info(`Enqueuing ${validCaptions.length} images for Caption...`);
+            await processBatch(validCaptions, AIJobType.GenerateImageCaption);
+        }
+
         const imagesForOcr = await prisma.file.findMany({
             where: {
                 ocrText: null,
@@ -115,6 +133,40 @@ export default defineTask({
         if (canEmbed.length) {
             consola.info(`Enqueuing ${canEmbed.length} files for Text Embedding...`);
             await processBatch(canEmbed, AIJobType.GenerateTextEmbedding);
+        }
+
+        const filesForPii = await prisma.file.findMany({
+            where: {
+                aiJobs: {
+                    none: {
+                        type: AIJobType.DetectPII,
+                    },
+                },
+                OR: [
+                    { ocrText: { not: null }, AND: { ocrText: { not: '' } } },
+                    { mimeType: { startsWith: 'text/' } },
+                    { mimeType: { startsWith: 'image/' } },
+                ],
+            },
+            select: {
+                id: true,
+                fileName: true,
+                authorId: true,
+                ocrText: true,
+                mimeType: true,
+            },
+        });
+
+        const canPii = filesForPii.filter((f) => {
+            const hasOcr = f.ocrText && f.ocrText.length > 0;
+            const isText = ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(f.fileName));
+            const isImage = ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(f.fileName));
+            return hasOcr || isText || isImage;
+        });
+
+        if (canPii.length) {
+            consola.info(`Enqueuing ${canPii.length} files for PII detection...`);
+            await processBatch(canPii, AIJobType.DetectPII);
         }
 
         consola.success(`Job creation complete. Enqueued ${enqueuedCount} new jobs.`);
