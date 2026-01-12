@@ -35,7 +35,7 @@
                 motion-safe:transition-all
                 p1="!"
                 :class="!readonly && !(value as any)?.length && 'invisible op0'"
-                :icon="passwordVisible ? 'solar:eye-bold' : 'solar:eye-bold-off'"
+                :icon="passwordVisible ? 'solar:eye-bold' : 'solar:eye-closed-bold'"
                 icon-size="20"
                 variant="secondary"
                 hover="!ring-none"
