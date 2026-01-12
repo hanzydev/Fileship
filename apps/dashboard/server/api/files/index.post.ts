@@ -11,6 +11,8 @@ import { z } from 'zod';
 import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import { insert } from '@orama/orama';
 
+import { AIJobType } from '~~/generated/prisma/enums';
+
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 
 const validationSchema = z.object({
@@ -187,7 +189,7 @@ export default defineEventHandler(async (event) => {
 
         const filePath = join(dataDirectory, 'uploads', fileName);
 
-        await fsp.rename(tempPath, filePath);
+        await moveFileRobust(tempPath, filePath);
 
         const _upload = await prisma.file.create({
             data: {
@@ -207,6 +209,8 @@ export default defineEventHandler(async (event) => {
             },
             omit: {
                 embedding: true,
+                textEmbedding: true,
+                ocrText: true,
             },
         });
 
@@ -252,27 +256,59 @@ export default defineEventHandler(async (event) => {
                 : null;
         }
 
-        let embedding: number[] | undefined = undefined;
-
-        if (IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
-            const clip = await getClipInstance();
-            embedding = await clip.createImageEmbedding(filePath);
-
-            await prisma.file.update({
-                where: {
-                    id: upload.id,
-                },
-                data: {
-                    embedding,
-                },
-            });
+        if (ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
+            const aiEnabled = currentUser.aiSettings?.enabled ?? true;
+            if (aiEnabled) {
+                event.waitUntil(
+                    Promise.all([
+                        enqueueAIJob({
+                            userId: currentUser.id,
+                            fileId: upload.id,
+                            type: AIJobType.GenerateClipEmbedding,
+                        }),
+                        enqueueAIJob({
+                            userId: currentUser.id,
+                            fileId: upload.id,
+                            type: AIJobType.GenerateOcrText,
+                        }),
+                        enqueueAIJob({
+                            userId: currentUser.id,
+                            fileId: upload.id,
+                            type: AIJobType.GenerateImageCaption,
+                        }),
+                    ]),
+                );
+            }
+        } else if (ai.VIDEO_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
+            const aiEnabled = currentUser.aiSettings?.enabled ?? true;
+            if (aiEnabled) {
+                event.waitUntil(
+                    Promise.all([
+                        enqueueAIJob({
+                            userId: currentUser.id,
+                            fileId: upload.id,
+                            type: AIJobType.GenerateVideoEmbedding,
+                        }),
+                    ]),
+                );
+            }
+        } else if (ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
+            const aiEnabled = currentUser.aiSettings?.enabled ?? true;
+            if (aiEnabled) {
+                event.waitUntil(
+                    enqueueAIJob({
+                        userId: currentUser.id,
+                        fileId: upload.id,
+                        type: AIJobType.GenerateTextEmbedding,
+                    }),
+                );
+            }
         }
 
         await insert(fileSearchDb, {
             id: upload.id,
             fileName: upload.fileName,
             mimeType: upload.mimeType,
-            embedding,
         });
 
         await createLog(event, {

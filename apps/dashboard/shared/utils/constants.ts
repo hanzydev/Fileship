@@ -1,4 +1,4 @@
-import type { IEmbed, IUserLimits } from './types';
+import type { IEmbed, IUserAiSettings, IUserLimits } from './types';
 
 export const defaultEmbed: IEmbed = {
     title: '{fileName}',
@@ -11,4 +11,9 @@ export const defaultEmbed: IEmbed = {
 export const defaultUserLimits: IUserLimits = {
     backupLimit: -1,
     usableSpace: -1,
+};
+
+export const defaultUserAiSettings: IUserAiSettings = {
+    enabled: true,
+    suppressPii: true,
 };

@@ -5,6 +5,7 @@ export default defineNitroPlugin(async () => {
     await runTask('dir:clearTemp');
     await runTask('dir:createDirectories');
 
-    await runTask('search:generateEmbeddings');
     await runTask('search:addToOrama');
+
+    await runTask('ai:syncJobs');
 });

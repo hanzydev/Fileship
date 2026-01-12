@@ -532,6 +532,34 @@
                 </template>
             </UiExpander>
 
+            <UiExpander op0>
+                <div flex="~ gap2 items-center">
+                    <Icon name="heroicons:sparkles-solid" size="24" />
+                    <h5>AI</h5>
+                </div>
+                <template #content>
+                    <div space-y-4>
+                        <p text-fs-muted-1>Enable or disable AI features for your account.</p>
+
+                        <div flex="~ gap2 items-center">
+                            <UiSwitch
+                                v-model="aiEditData.cloned.value.enabled"
+                                :disabled="aiUpdating"
+                            />
+                            <span font-medium="!">Enable AI</span>
+                        </div>
+
+                        <div flex="~ gap2 items-center">
+                            <UiSwitch
+                                v-model="aiEditData.cloned.value.suppressPii"
+                                :disabled="aiUpdating"
+                            />
+                            <span font-medium="!">Suppress Sensitive Content</span>
+                        </div>
+                    </div>
+                </template>
+            </UiExpander>
+
             <div op0>
                 <UiButton
                     gap2
@@ -613,6 +641,15 @@ const userEditData = useCloned({
 
 const embedEditData = useCloned(embed);
 const domainsEditData = useCloned(domains);
+
+const aiEditData = useCloned(
+    ref({
+        enabled: currentUser.value?.aiSettings?.enabled ?? true,
+        suppressPii: currentUser.value?.aiSettings?.suppressPii ?? false,
+    }),
+);
+
+const aiUpdating = ref(false);
 
 const userUpdating = ref(false);
 const userFormErrors = ref();
@@ -737,6 +774,19 @@ const handleDomainsEdit = async () => {
     domainsUpdating.value = false;
 
     $toast.success('Domains updated successfully');
+};
+
+const handleAiSettingsEdit = async () => {
+    aiUpdating.value = true;
+
+    await $fetch('/api/users/@me/ai', {
+        method: 'PATCH',
+        body: aiEditData.cloned.value,
+    });
+
+    $toast.success('AI settings updated successfully');
+
+    aiUpdating.value = false;
 };
 
 const handleEnableAuthApp = async (totp: string) => {
@@ -934,6 +984,8 @@ watch(authAppEnabled, (enabled) => {
     if (enabled) handleGenAuthAppQrCode();
     else handleDisableAuthApp();
 });
+
+watch(aiEditData.cloned, handleAiSettingsEdit, { deep: true });
 
 definePageMeta({
     layout: 'dashboard',

@@ -151,6 +151,10 @@ export default defineEventHandler(async (event) => {
             totpEnabled: findUserByUsername.totpEnabled,
             superAdmin: findUserByUsername.superAdmin,
             limits: defu(findUserByUsername.limits, defaultUserLimits) as IUserLimits,
+            aiSettings: defu(
+                findUserByUsername.aiSettings,
+                defaultUserAiSettings,
+            ) as IUserAiSettings,
             backupRestoreState: findUserByUsername.backupRestoreState,
             theme: findUserByUsername.theme,
             stats: findUserByUsername._count,

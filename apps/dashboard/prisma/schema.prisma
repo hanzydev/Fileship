@@ -20,6 +20,22 @@ enum BackupRestoreState {
   RestoringData
 }
 
+enum AIJobType {
+  GenerateClipEmbedding
+  GenerateVideoEmbedding
+  GenerateOcrText
+  GenerateTextEmbedding
+  GenerateImageCaption
+  DetectPII
+}
+
+enum AIJobStatus {
+  Pending
+  Processing
+  Completed
+  Failed
+}
+
 model User {
   id                 String              @id @unique @default(uuid())
   username           String              @unique
@@ -36,11 +52,13 @@ model User {
   superAdmin         Boolean             @default(false)
   limits             Json                @default("{}")
   embed              Json                @default("{}")
+  aiSettings         Json                @default("{}")
   createdAt          DateTime            @default(now())
   domains            String[]
   backupRestoreState BackupRestoreState?
   theme              String              @default("Fileship")
   credentials        Credential[]
+  aiJobs             AIJob[]
 }
 
 model Credential {
@@ -56,20 +74,50 @@ model Credential {
 }
 
 model File {
-  id        String    @id @unique @default(uuid())
-  fileName  String    @unique
-  mimeType  String
-  size      BigInt
-  maxViews  Int       @default(0)
-  expiresAt DateTime?
-  password  String?
+  id            String    @id @unique @default(uuid())
+  fileName      String    @unique
+  mimeType      String
+  size          BigInt
+  maxViews      Int       @default(0)
+  expiresAt     DateTime?
+  password      String?
+  createdAt     DateTime  @default(now())
+  author        User      @relation(fields: [authorId], references: [id])
+  authorId      String
+  folder        Folder?   @relation(fields: [folderId], references: [id])
+  folderId      String?
+  views         View[]
+  embedding     Json?
+  textEmbedding Json?
+  ocrText       String?
+  caption       String?
+  piiDetected   Boolean   @default(false)
+  piiReasons    String[]
+
+  aiJobs AIJob[]
+}
+
+model AIJob {
+  id       String      @id @unique @default(uuid())
+  type     AIJobType
+  status   AIJobStatus @default(Pending)
+  attempts Int         @default(0)
+  error    String?
+
+  fileId String?
+  file   File?   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  lockedAt  DateTime?
+  lockedBy  String?
   createdAt DateTime  @default(now())
-  author    User      @relation(fields: [authorId], references: [id])
-  authorId  String
-  folder    Folder?   @relation(fields: [folderId], references: [id])
-  folderId  String?
-  views     View[]
-  embedding Json?
+  updatedAt DateTime  @updatedAt
+
+  @@index([status, createdAt])
+  @@index([userId, status, createdAt])
+  @@index([fileId])
 }
 
 model Note {

@@ -14,6 +14,7 @@ import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import { insert, removeMultiple } from '@orama/orama';
 
 import { BackupRestoreState } from '#shared/prisma/enums';
+import { AIJobType } from '~~/generated/prisma/enums';
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 
@@ -166,12 +167,10 @@ export default defineEventHandler(async (event) => {
 
                     remappedKeys.set(backupUpload, remappedName);
 
-                    await fsp
-                        .rename(
-                            join(backupUploadsPath, backupUpload),
-                            join(uploadsPath, remappedName),
-                        )
-                        .catch(() => null);
+                    await moveFileRobust(
+                        join(backupUploadsPath, backupUpload),
+                        join(uploadsPath, remappedName),
+                    ).catch(() => null);
                 }
 
                 for (const database of databases) {
@@ -294,34 +293,74 @@ export default defineEventHandler(async (event) => {
                                                         });
                                                     }
 
-                                                    let embedding: number[] | undefined = undefined;
-
                                                     if (
-                                                        IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
+                                                        ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
                                                             extname(created.fileName),
                                                         )
                                                     ) {
-                                                        const clip = await getClipInstance();
-                                                        embedding =
-                                                            await clip.createImageEmbedding(
-                                                                filePath,
+                                                        const aiEnabled =
+                                                            currentUser.aiSettings?.enabled ?? true;
+                                                        if (aiEnabled) {
+                                                            event.waitUntil(
+                                                                Promise.all([
+                                                                    enqueueAIJob({
+                                                                        userId: currentUser.id,
+                                                                        fileId: created.id,
+                                                                        type: AIJobType.GenerateClipEmbedding,
+                                                                    }),
+                                                                    enqueueAIJob({
+                                                                        userId: currentUser.id,
+                                                                        fileId: created.id,
+                                                                        type: AIJobType.GenerateOcrText,
+                                                                    }),
+                                                                    enqueueAIJob({
+                                                                        userId: currentUser.id,
+                                                                        fileId: created.id,
+                                                                        type: AIJobType.GenerateImageCaption,
+                                                                    }),
+                                                                ]),
                                                             );
-
-                                                        await prisma.file.update({
-                                                            where: {
-                                                                id: created.id,
-                                                            },
-                                                            data: {
-                                                                embedding,
-                                                            },
-                                                        });
+                                                        }
+                                                    } else if (
+                                                        ai.VIDEO_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
+                                                            extname(created.fileName),
+                                                        )
+                                                    ) {
+                                                        const aiEnabled =
+                                                            currentUser.aiSettings?.enabled ?? true;
+                                                        if (aiEnabled) {
+                                                            event.waitUntil(
+                                                                Promise.all([
+                                                                    enqueueAIJob({
+                                                                        userId: currentUser.id,
+                                                                        fileId: created.id,
+                                                                        type: AIJobType.GenerateVideoEmbedding,
+                                                                    }),
+                                                                ]),
+                                                            );
+                                                        }
+                                                    } else if (
+                                                        ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
+                                                            extname(created.fileName),
+                                                        )
+                                                    ) {
+                                                        const aiEnabled =
+                                                            currentUser.aiSettings?.enabled ?? true;
+                                                        if (aiEnabled) {
+                                                            event.waitUntil(
+                                                                enqueueAIJob({
+                                                                    userId: currentUser.id,
+                                                                    fileId: created.id,
+                                                                    type: AIJobType.GenerateTextEmbedding,
+                                                                }),
+                                                            );
+                                                        }
                                                     }
 
                                                     await insert(fileSearchDb, {
                                                         id: created.id,
                                                         fileName: created.fileName,
                                                         mimeType: created.mimeType,
-                                                        embedding,
                                                     });
                                                 }
                                                 break;

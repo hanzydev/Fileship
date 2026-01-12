@@ -8,6 +8,14 @@
             data-ignore-modal-outer-click
         />
 
+        <ModalsAiInsights
+            v-if="data.caption || data.piiDetected"
+            v-model="aiModalOpen"
+            :caption="data.caption"
+            :pii-detected="data.piiDetected"
+            :pii-reasons="data.piiReasons"
+        />
+
         <UiModal
             v-if="isImage || isVideo || isAudio"
             v-model="isOpen"
@@ -57,6 +65,37 @@
                         bg-fs-overlay-2
                         px1
                     >
+                        <div
+                            v-if="data.caption || data.piiDetected"
+                            flex="~ items-center justify-center"
+                            relative
+                            mx-0.5
+                            class="group"
+                        >
+                            <div
+                                absolute
+                                inset-0
+                                animate-pulse
+                                rounded-xl
+                                from-cyan-500
+                                via-blue-500
+                                to-purple-500
+                                bg-gradient-to-tr
+                                opacity-50
+                                blur-md
+                                transition
+                                duration-500
+                                group-hover:opacity-80
+                            ></div>
+                            <UiButton
+                                alignment="center"
+                                variant="onOverlay"
+                                class="relative z-10 size-9 shrink-0 border border-transparent !rounded-xl !p0 !text-white !hover:(border-white/10 bg-white/5)"
+                                icon="heroicons:sparkles-solid"
+                                icon-size="24"
+                                @click="aiModalOpen = true"
+                            />
+                        </div>
                         <UiButton
                             alignment="center"
                             variant="onOverlay"
@@ -557,6 +596,7 @@ const tl = computed(() =>
 
 const deleting = ref(false);
 const editModalOpen = ref(false);
+const aiModalOpen = ref(false);
 const takingOut = ref(false);
 
 const handleDelete = async () => {

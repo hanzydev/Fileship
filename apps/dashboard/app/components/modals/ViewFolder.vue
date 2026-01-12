@@ -106,7 +106,7 @@
                     v-model:ai-enabled="aiEnabled"
                     v-model:loading="isSearching"
                     placeholder="Search files..."
-                    ai-available
+                    :ai-available="currentUser?.aiSettings?.enabled"
                     wfull
                     rounded-2xl="!"
                     :input-class="aiEnabled ? 'rounded-14px!' : 'rounded-2xl!'"
@@ -197,6 +197,7 @@ editMode.value = !!newFolder;
 
 const files = useFiles();
 const { $toast } = useNuxtApp();
+const currentUser = useAuthUser();
 const { copied, copy } = useClipboard({ legacy: true });
 
 const currentPage = ref(1);

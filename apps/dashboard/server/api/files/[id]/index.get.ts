@@ -37,6 +37,8 @@ export default defineEventHandler(async (event) => {
         },
         omit: {
             embedding: true,
+            textEmbedding: true,
+            ocrText: true,
         },
     });
 

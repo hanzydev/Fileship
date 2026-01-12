@@ -55,22 +55,83 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const clip = await getClipInstance();
+    const mergeRanked = (lists: { ids: string[]; weight: number }[]) => {
+        const scores = new Map<string, number>();
 
-    const options = { mode: body.data.mode } as any;
+        for (const { ids, weight } of lists) {
+            for (let i = 0; i < ids.length; i++) {
+                const id = ids[i];
+                if (!id) continue;
+                const rankScore = 1 / (i + 1);
+                scores.set(id, (scores.get(id) ?? 0) + weight * rankScore);
+            }
+        }
 
-    if (body.data.mode === 'vector') {
-        options.similarity = 0.2;
-        options.vector = {
-            value: await clip.createTextEmbedding(body.data.query),
-            property: 'embedding',
-        };
+        return [...scores.entries()].sort((a, b) => b[1] - a[1]).map(([id]) => id);
+    };
+
+    const runFulltext = async () => {
+        const searched = await search(fileSearchDb, {
+            mode: 'fulltext',
+            term: body.data.query,
+            tolerance: 0,
+            threshold: 0,
+            boost: {
+                fileName: 4,
+                caption: 2,
+                ocrText: 1,
+            },
+        });
+
+        return searched.hits.filter((h) => h.score > 3).map((h) => h.id);
+    };
+
+    const runClipVector = async () => {
+        const searched = await search(fileSearchDb, {
+            mode: 'vector',
+            similarity: 0.2,
+            vector: {
+                value: await ai.createTextEmbedding(body.data.query),
+                property: 'embedding',
+            },
+        });
+
+        return searched.hits.map((h) => h.id);
+    };
+
+    const runSemanticVector = async () => {
+        const searched = await search(fileSearchDb, {
+            mode: 'vector',
+            similarity: 0.5,
+            vector: {
+                value:
+                    (await ai.createSemanticTextEmbedding(body.data.query)) ??
+                    new Array(ai.SEMANTIC_TEXT_EMBEDDING_DIM).fill(0),
+                property: 'textEmbedding',
+            },
+        });
+
+        return searched.hits.map((h) => h.id);
+    };
+
+    let ids: string[] = [];
+
+    if (body.data.mode === 'fulltext') {
+        ids = await runFulltext();
     } else {
-        options.term = body.data.query;
+        const [clipIds, semanticIds, exactTextIds] = await Promise.all([
+            runClipVector(),
+            runSemanticVector(),
+            runFulltext(),
+        ]);
+
+        ids = mergeRanked([
+            { ids: semanticIds, weight: 0.4 },
+            { ids: clipIds, weight: 0.3 },
+            { ids: exactTextIds, weight: 0.3 },
+        ]);
     }
 
-    const searched = await search(fileSearchDb, options);
-    return searched.hits
-        .filter((hit) => findFolderById.files.some((file) => file.id === hit.id))
-        .map((hit) => hit.id);
+    const allowedIds = new Set(findFolderById.files.map((f) => f.id));
+    return ids.filter((id) => allowedIds.has(id));
 });

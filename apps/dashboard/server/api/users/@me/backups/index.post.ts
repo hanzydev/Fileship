@@ -32,6 +32,8 @@ export default defineEventHandler(async (event) => {
             orderBy: { createdAt: 'desc' },
             omit: {
                 embedding: true,
+                textEmbedding: true,
+                ocrText: true,
             },
         }),
         prisma.folder.findMany({

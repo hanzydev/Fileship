@@ -1,8 +1,4 @@
-import { createRequire } from 'node:module';
-
 import pkg from '../../package.json';
-
-const require = createRequire(import.meta.url);
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -65,9 +61,6 @@ export default defineNuxtConfig({
         framework: {
             name: pkg.name,
             version: pkg.version,
-        },
-        hooks: {
-            'dev:reload': () => require('onnxruntime-node'),
         },
     },
 

@@ -21,9 +21,10 @@
     "dependencies": {
         "@ffmpeg-installer/ffmpeg": "^1.1.0",
         "@fileship/telemetry": "workspace:*",
-        "@orama/orama": "^3.1.16",
+        "@huggingface/transformers": "^3.8.1",
+        "@orama/orama": "^3.1.18",
+        "@orama/stopwords": "^3.1.18",
         "@simplewebauthn/server": "^13.2.2",
-        "@xenova/transformers": "^2.17.2",
         "argon2": "^0.44.0",
         "color": "^5.0.3",
         "consola": "^3.4.2",

@@ -1,4 +1,4 @@
-import { existsSync, promises as fsp } from 'node:fs';
+import { existsSync } from 'node:fs';
 
 import { filesize } from 'filesize';
 import { join } from 'pathe';
@@ -88,7 +88,7 @@ export default defineEventHandler(async (event) => {
             });
         }
 
-        await fsp.rename(
+        await moveFileRobust(
             join(dataDirectory, 'uploads', findFileById.fileName),
             join(dataDirectory, 'uploads', body.data.fileName),
         );
@@ -104,6 +104,8 @@ export default defineEventHandler(async (event) => {
         data: body.data,
         omit: {
             embedding: true,
+            textEmbedding: true,
+            ocrText: true,
         },
     });
 
@@ -143,6 +145,7 @@ export default defineEventHandler(async (event) => {
         fileName: updatedFile.fileName,
         mimeType: updatedFile.mimeType,
         embedding: (findFileById.embedding as never[]) || undefined,
+        textEmbedding: (findFileById.textEmbedding as never[]) || undefined,
     });
 
     await createLog(event, {

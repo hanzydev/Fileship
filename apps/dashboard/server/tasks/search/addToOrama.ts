@@ -19,6 +19,9 @@ export default defineTask({
                 fileName: true,
                 mimeType: true,
                 embedding: true,
+                textEmbedding: true,
+                caption: true,
+                ocrText: true,
             },
         });
 
@@ -57,6 +60,9 @@ export default defineTask({
             files.map((file) => ({
                 ...file,
                 embedding: (file.embedding as number[]) || undefined,
+                textEmbedding: (file.textEmbedding as number[]) || undefined,
+                caption: file.caption || undefined,
+                ocrText: file.ocrText || undefined,
             })),
         );
         await insertMultiple(folderSearchDb, folders);

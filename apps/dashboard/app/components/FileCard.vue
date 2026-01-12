@@ -7,6 +7,7 @@
             motion-safe:transition-shadow
             ring="1 fs-overlay-4"
             :class="[
+                'group',
                 selected && selectable && '!ring-2 !ring-fs-accent',
                 !selectable && (ctxOpen || !canBeViewed)
                     ? 'cursor-default'
@@ -32,6 +33,37 @@
                     bg="[color-mix(in_srgb,_var(--fs-accent),_transparent_90%)]"
                 >
                     <Icon name="lucide:check" size="56" />
+                </div>
+            </Transition>
+            <Transition
+                enter-active-class="motion-safe:(animate-in fade-in)"
+                leave-active-class="motion-safe:(animate-out fade-out)"
+            >
+                <div
+                    v-if="
+                        data.piiDetected &&
+                        !selected &&
+                        !ctxOpen &&
+                        isImage &&
+                        currentUser?.aiSettings?.suppressPii
+                    "
+                    flex="~ items-center justify-center col gap-2"
+                    absolute
+                    z10
+                    hfull
+                    wfull
+                    :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
+                    backdrop-blur-3xl
+                    transition-all
+                    group-hover="op0 pointer-events-none scale-95"
+                    bg="[color-mix(in_srgb,_var(--fs-accent),_transparent_90%)]"
+                >
+                    <div flex="~ items-center justify-center" size-14 rounded-full bg-fs-overlay-1>
+                        <Icon name="solar:shield-warning-bold" size="36" text-red-500 />
+                    </div>
+
+                    <h5>Sensitive Content Detected</h5>
+                    <p text-sm text-fs-muted-1>Hover to reveal original preview.</p>
                 </div>
             </Transition>
             <Icon
@@ -91,9 +123,17 @@
                 space-y-8
                 :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
             >
-                <h5 line-clamp-1 break-words text-fs-muted-3>
-                    {{ data.fileName }}
-                </h5>
+                <div flex="~ items-center justify-between gap-2">
+                    <h5 line-clamp-1 break-words text-fs-muted-3>
+                        {{ data.fileName }}
+                    </h5>
+                    <Icon
+                        v-if="data.piiDetected && currentUser?.aiSettings?.suppressPii"
+                        name="solar:shield-warning-bold"
+                        size="24"
+                        text-red-500
+                    />
+                </div>
 
                 <div flex="~ col justify-between gap2" text-fs-muted-2 font-medium>
                     <div flex="~ gap2 items-center">

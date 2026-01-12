@@ -37,6 +37,7 @@ export default defineEventHandler(async (event) => {
         limits: defu(currentUser.limits, defaultUserLimits) as IUserLimits,
         backupRestoreState: currentUser.backupRestoreState,
         theme: currentUser.theme,
+        aiSettings: defu(currentUser.aiSettings, defaultUserAiSettings) as IUserAiSettings,
         stats: stats!._count,
     };
 });

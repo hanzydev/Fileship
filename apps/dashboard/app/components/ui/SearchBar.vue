@@ -1,13 +1,17 @@
 <template>
     <div
         relative
+        isolate
         h12
         wfull
         rounded-xl
+        transition-all
+        duration-200
+        ease-out
         :class="[
-            aiEnabled
-                ? 'p-0.4 border-transparent animate-[gradient-shift_0.5s_forwards] bg-[linear-gradient(-45deg,#520aeb_0%,#e81d72_8%,#f9c43c_17%,#00a7ff_25%,white_34%,var(--fs-muted-1)_40%,var(--fs-overlay-4)_45%,var(--fs-accent)_100%)] bg-[size:400%_200%]'
-                : 'border border-dashed border-fs-overlay-4 focus-within:(border-fs-accent border-solid) motion-safe:transition-all',
+            'searchBarContainer',
+            aiEnabled && 'ai bg-fs-overlay-2 border-transparent outline-2 outline-white/30',
+            'border border-dashed border-fs-overlay-4 focus-within:(border-fs-accent border-solid)',
         ]"
     >
         <div
@@ -77,7 +81,13 @@
                 h8
                 w8
                 :loading
-                :class="aiToggleClass"
+                class="aiButton"
+                motion-safe="transition-all ease-out duration-200"
+                :class="[
+                    aiToggleClass,
+                    aiEnabled &&
+                        '!text-white !bg-[linear-gradient(96.58deg,color-mix(in_srgb,var(--fs-accent)_80%,white)_-100%,var(--fs-accent)_100%)]',
+                ]"
                 :disabled="loading"
                 @click="aiEnabled = !aiEnabled"
             />
@@ -176,13 +186,26 @@ onMounted(() => {
 });
 </script>
 
-<style>
-@keyframes gradient-shift {
-    0% {
-        background-position: 0% 0%;
-    }
-    100% {
-        background-position: 100% 100%;
-    }
+<style scoped>
+.searchBarContainer::after {
+    background: linear-gradient(
+        -45deg,
+        #520aeb 0%,
+        #e81d72 8%,
+        #f9c43c 17%,
+        #00a7ff 25%,
+        #fff 34%,
+        var(--fs-muted-1) 40%,
+        var(--fs-overlay-4) 45%,
+        var(--fs-accent) 100%
+    );
+    transition:
+        background-position 0.5s ease-in-out,
+        opacity 0.1s ease-in-out;
+    @apply content-empty absolute pointer-events-none -inset-2px -z-1 opacity-0 rounded-inherit bg-[size:400%_200%] bg-[position:0%_0%] [animation-fill-mode:backwards];
+}
+
+.searchBarContainer.ai::after {
+    @apply bg-[position:100%_100%] op100;
 }
 </style>

@@ -5,6 +5,7 @@ declare module 'h3' {
                   currentSessionId: string;
                   limits: IUserLimits;
                   embed: IEmbed;
+                  aiSettings: IUserAiSettings;
               })
             | null;
         sessionPrivateId: string | null;

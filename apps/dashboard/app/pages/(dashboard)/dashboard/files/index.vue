@@ -93,7 +93,7 @@
                 v-model:ai-enabled="aiEnabled"
                 v-model:loading="isSearching"
                 placeholder="Search files..."
-                ai-available
+                :ai-available="currentUser?.aiSettings?.enabled"
                 wfull
             />
             <FileTypeFilter v-model="filterType" />

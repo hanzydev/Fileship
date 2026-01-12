@@ -10,3 +10,8 @@ export interface IUserLimits {
     usableSpace: number;
     backupLimit: number;
 }
+
+export interface IUserAiSettings {
+    enabled: boolean;
+    suppressPii: boolean;
+}

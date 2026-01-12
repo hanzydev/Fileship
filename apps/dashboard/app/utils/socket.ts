@@ -189,13 +189,18 @@ export const initSocket = () => {
             if (index > -1) {
                 const file = files.value[index]!;
 
+                if ('expiresAt' in data) {
+                    data.expiresAt = data.expiresAt ? new Date(data.expiresAt) : null;
+                }
+
+                if (data.createdAt) data.createdAt = new Date(data.createdAt);
+
                 files.value[index] = {
+                    ...files.value[index],
                     ...data,
-                    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-                    createdAt: new Date(data.createdAt),
                 };
 
-                if (file.folderId !== data.folderId) {
+                if ('folderId' in data && file.folderId !== data.folderId) {
                     if (file.folderId) {
                         const folder = folders.value.find((f) => f.id === file.folderId);
                         if (folder) folder.files = folder.files.filter((f) => f !== file.id);

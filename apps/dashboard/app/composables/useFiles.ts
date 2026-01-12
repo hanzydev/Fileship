@@ -1,6 +1,6 @@
 import type { FileModel } from '#shared/prisma/models';
 
-export type FileData = Omit<FileModel, 'size' | 'embedding'> & {
+export type FileData = Omit<FileModel, 'size' | 'embedding' | 'textEmbedding' | 'ocrText'> & {
     views: { total: number; today: number };
     size: { raw: string; formatted: string };
     directUrl: string;

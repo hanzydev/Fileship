@@ -8,7 +8,7 @@ export type UserBasicStats = {
 
 export type UserData = Omit<
     UserModel,
-    'password' | 'totpSecret' | 'embed' | 'backupRestoreState' | 'theme'
+    'password' | 'totpSecret' | 'embed' | 'backupRestoreState' | 'theme' | 'aiSettings'
 > & {
     limits: IUserLimits;
     stats: UserBasicStats;
