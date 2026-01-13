@@ -110,7 +110,7 @@ export default defineEventHandler(async (event) => {
 
             sendToUser(currentUser.id, 'backup:create', {
                 id: backupId,
-                createdAt: backupStat.birthtime,
+                createdAt: backupStat.mtime,
                 size: {
                     raw: backupStat.size,
                     formatted: filesize(backupStat.size),
