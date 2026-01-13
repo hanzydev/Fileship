@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
             return {
                 id: basename(backup, extname(backup)),
-                createdAt: backupStat.birthtime,
+                createdAt: backupStat.mtime,
                 size: {
                     raw: backupStat.size,
                     formatted: filesize(backupStat.size),
