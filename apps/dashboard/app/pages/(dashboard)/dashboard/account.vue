@@ -57,11 +57,22 @@
         <p text-fs-muted-1 font-medium="!">Scan the QR code below with your authenticator app.</p>
 
         <div relative p8>
-            <div absolute left-0 top-0 h20 w20 b="l-5 t-5 fs-accent" rounded="tl-xl"></div>
-            <div absolute right-0 top-0 h20 w20 b="r-5 t-5 fs-accent" rounded="tr-xl"></div>
-            <img :src="authAppQrCode" h48 w48 rounded-lg draggable="false" />
-            <div absolute bottom-0 left-0 h20 w20 b="l-5 b-5 fs-accent" rounded="bl-xl"></div>
-            <div absolute bottom-0 right-0 h20 w20 b="r-5 b-5 fs-accent" rounded="br-xl"></div>
+            <div absolute left-0 top-0 size-20 b="l-5 t-5 fs-accent" rounded="tl-xl"></div>
+            <div absolute right-0 top-0 size-20 b="r-5 t-5 fs-accent" rounded="tr-xl"></div>
+
+            <img
+                v-if="authAppQrCode"
+                :src="authAppQrCode"
+                size-48
+                rounded-lg
+                draggable="false"
+                alt="QR Code"
+            />
+            <div v-else flex="~ items-center justify-center" size-48>
+                <UiSpinner :size="64" />
+            </div>
+            <div absolute bottom-0 left-0 size-20 b="l-5 b-5 fs-accent" rounded="bl-xl"></div>
+            <div absolute bottom-0 right-0 size-20 b="r-5 b-5 fs-accent" rounded="br-xl"></div>
         </div>
 
         <div wfit>
@@ -850,9 +861,11 @@ const handleGenAuthAppQrCode = async (verificationData?: any) => {
             body: { verificationData },
         });
 
-        authAppQrCode.value = base64;
         verifyMfaModalOpen.value = false;
         enableAuthAppModalOpen.value = true;
+
+        await new Promise((resolve) => setTimeout(resolve, 400));
+        authAppQrCode.value = base64;
     } catch (error: any) {
         if (verifyMfaModalOpen.value) {
             verifyMfaError.value = error.data.message;
