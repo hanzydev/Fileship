@@ -1,4 +1,4 @@
-import { authenticator } from 'otplib';
+import { generateSecret, generateURI } from 'otplib';
 import { renderSVG } from 'uqr';
 import { z } from 'zod';
 
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
     await verifySession(event, body.data?.verificationData);
 
-    const totpSecret = authenticator.generateSecret(64);
+    const totpSecret = generateSecret({ length: 64 });
 
     await prisma.user.update({
         where: {
@@ -46,7 +46,13 @@ export default defineEventHandler(async (event) => {
 
     return {
         base64: `data:image/svg+xml;base64,${Buffer.from(
-            renderSVG(authenticator.keyuri(currentUser.username, appConfig.site.name, totpSecret)),
+            renderSVG(
+                generateURI({
+                    secret: totpSecret,
+                    label: currentUser.username,
+                    issuer: appConfig.site.name,
+                }),
+            ),
         ).toString('base64')}`,
     };
 });

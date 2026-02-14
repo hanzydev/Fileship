@@ -19,6 +19,8 @@ export default withNuxt([
             'vue/no-v-html': 'off',
             'vue/require-valid-default-prop': 'off',
             'vue/no-multiple-template-root': 'off',
+
+            'no-shadow-restricted-names': 'off',
         },
     },
     {

@@ -1,4 +1,4 @@
-import { authenticator } from 'otplib';
+import { verify as verifyTotp } from 'otplib';
 import { z } from 'zod';
 
 const validationSchema = z.object({
@@ -36,7 +36,10 @@ export default defineEventHandler(async (event) => {
         await verifySession(event, body.data.verificationData);
     }
 
-    if (body.data.enabled && !authenticator.check(body.data.totp!, currentUser.totpSecret!)) {
+    if (
+        body.data.enabled &&
+        !(await verifyTotp({ secret: currentUser.totpSecret!, token: body.data.totp! })).valid
+    ) {
         throw createError({
             statusCode: 400,
             message: 'Invalid TOTP',

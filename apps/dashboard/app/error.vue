@@ -1,6 +1,6 @@
 <template>
     <Head>
-        <Title>{{ error.statusMessage }} | {{ error.statusCode }}</Title>
+        <Title>{{ error?.message }} | {{ error?.status }}</Title>
     </Head>
 
     <Body hfull wfull bg-fs-background text-white antialiased>
@@ -8,7 +8,7 @@
             <div space-y-4>
                 <div space-y-2>
                     <h1 select-none font-medium="!" md:text-5xl="!">
-                        {{ error.statusCode }}
+                        {{ error?.status }}
                     </h1>
                     <h1 md:text-5xl="!">
                         {{ title }}
@@ -18,11 +18,11 @@
                 <div h1 rounded-full bg-fs-accent></div>
                 <p text-fs-muted-1 font-medium>
                     {{
-                        error.statusCode === 403
+                        error?.status === 403
                             ? "Houston you... you aren't houston!"
                             : 'Houston, we have a problem.'
                     }}
-                    {{ error.message }}.
+                    {{ error?.message }}.
                 </p>
 
                 <UiButton
@@ -44,12 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import type { NuxtError } from '#app';
-
-const { error } = defineProps<{
-    error: NuxtError;
-}>();
-
+const error = useError();
 const router = useRouter();
 
 const title = computed(
@@ -59,7 +54,7 @@ const title = computed(
             403: 'Access denied',
             404: 'Lost in space',
             500: 'Internal server error',
-        })[error.statusCode] || 'Error',
+        })[error.value!.status!] || 'Error',
 );
 
 const canHistoryComeBack = computed(() => window?.history?.state?.back);

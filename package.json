@@ -12,16 +12,16 @@
         "release": "changelogen --release"
     },
     "devDependencies": {
-        "prettier": "^3.6.2",
-        "turbo": "^2.6.3"
+        "prettier": "^3.8.1",
+        "turbo": "^2.8.8"
     },
     "pnpm": {
         "overrides": {
-            "unconfig": "^7.3.2",
+            "unconfig": "^7.5.0",
             "sharp": "0.33.4",
             "vite": "npm:rolldown-vite@latest",
-            "@nuxt/vite-builder": "https://pkg.pr.new/@nuxt/vite-builder@33682"
+            "@nuxt/vite-builder": "^4.3.1"
         }
     },
-    "packageManager": "pnpm@10.23.0"
+    "packageManager": "pnpm@10.29.3"
 }

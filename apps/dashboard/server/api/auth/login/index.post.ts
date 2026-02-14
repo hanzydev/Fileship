@@ -1,7 +1,7 @@
 import { verify } from 'argon2';
 import { defu } from 'defu';
 import { nanoid } from 'nanoid';
-import { authenticator } from 'otplib';
+import { verify as verifyTotp } from 'otplib';
 import { z } from 'zod';
 
 const validationSchema = z.object({
@@ -86,7 +86,12 @@ export default defineEventHandler(async (event) => {
                 });
             }
 
-            if (!authenticator.check(body.data.totp, findUserByUsername.totpSecret!)) {
+            const totpValid = await verifyTotp({
+                secret: findUserByUsername.totpSecret!,
+                token: body.data.totp,
+            });
+
+            if (!totpValid.valid) {
                 throw createError({
                     statusCode: 401,
                     message: 'Invalid TOTP',
