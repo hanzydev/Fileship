@@ -40,7 +40,6 @@ const SEMANTIC_TEXT_MODEL_ID = 'Xenova/all-MiniLM-L6-v2';
 const NER_MODEL_ID = 'Xenova/bert-base-multilingual-cased-ner-hrl';
 
 const SENSITIVE_VISUAL_LABELS = [
-    'person',
     'face',
     'credit card',
     'debit card',
@@ -48,20 +47,7 @@ const SENSITIVE_VISUAL_LABELS = [
     'passport',
     'identity card',
     'signature',
-    'mobile phone',
 ];
-
-const PII_PATTERNS = {
-    EMAIL: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
-    PHONE: /(?:\+|00)[1-9]\d{1,3}\s?\(?\d{2,3}\)?[\s.-]?\d{3}[\s.-]?\d{4,5}/g,
-    CREDIT_CARD: /\b(?:\d[ -]*?){13,19}\b/g,
-    IP_ADDRESS:
-        /\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))/gi,
-    IBAN: /[A-Z]{2}\d{2}[A-Z0-9]{11,30}/g,
-    GENERIC_ACCOUNT_ID: /\b\d{6,12}\b/g,
-    ADDRESS:
-        /\b\d{1,5}\s+(?:[A-Z0-9._%+-]+\s+){1,5}(?:STREET|ST|AVE|AVENUE|ROAD|RD|BOULEVARD|BLVD|DRIVE|DR|LANE|LN|COURT|CT|PLAZA|PL|WAY|PARKWAY|PKWY|PO BOX)\b|(?:[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2})|(?:\b\d{5}(?:-\d{4})?\b)/gi,
-};
 
 type ClipBundle = {
     tokenizer: CLIPTokenizer;
@@ -304,19 +290,6 @@ class AIService {
         if (!text && !reasons.length) return { piiDetected: false, reasons: [] };
 
         if (text) {
-            for (const [type, pattern] of Object.entries(PII_PATTERNS)) {
-                const regex = new RegExp(pattern.source, pattern.flags);
-                let match;
-
-                while ((match = regex.exec(text)) !== null) {
-                    const value = match[0].trim();
-
-                    if (type === 'CREDIT_CARD' && !this.isValidLuhn(value)) continue;
-
-                    reasons.push(type);
-                }
-            }
-
             try {
                 const ner = await this.getNerPipeline();
                 const entities = await ner(text, { aggregation_strategy: 'simple' });
