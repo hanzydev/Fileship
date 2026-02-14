@@ -1,6 +1,5 @@
-import { promises as fsp } from 'node:fs';
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+import fsp from 'node:fs/promises';
+import { setTimeout as sleep } from 'node:timers/promises';
 
 const isRetryableRenameError = (error: any) => {
     const code = error?.code ?? '';
