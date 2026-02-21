@@ -1,5 +1,49 @@
 # Changelog
 
+## v5.1.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v5.0.0...v5.1.0)
+
+### 🚀 Enhancements
+
+- New user AI settings and new AIs ([bd2d4b3](https://github.com/hanzydev/Fileship/commit/bd2d4b3))
+- Add ability to disable all ai features globally ([ac4577c](https://github.com/hanzydev/Fileship/commit/ac4577c))
+
+### 🩹 Fixes
+
+- **version:** Add caching key for version check ([9065019](https://github.com/hanzydev/Fileship/commit/9065019))
+- **backups:** Check for ongoing backup restoration before proceeding ([bed3a20](https://github.com/hanzydev/Fileship/commit/bed3a20))
+- **input:** Update password visibility icon ([9b32e8d](https://github.com/hanzydev/Fileship/commit/9b32e8d))
+- **synb jobs:** Pii detection and caption generation aren't synchronized ([08bbe4c](https://github.com/hanzydev/Fileship/commit/08bbe4c))
+- Use mtime instead of birthtime for backups (docker compatibility) ([495994b](https://github.com/hanzydev/Fileship/commit/495994b))
+
+### 💅 Refactors
+
+- **search:** Wrap telemetry call in event.waitUntil for proper execution ([f8eb469](https://github.com/hanzydev/Fileship/commit/f8eb469))
+- **backups:** Wrap backup creation in event.waitUntil for proper execution ([599f056](https://github.com/hanzydev/Fileship/commit/599f056))
+- **backups:** Restructure backup loading process for improved clarity and error handling ([e28e24b](https://github.com/hanzydev/Fileship/commit/e28e24b))
+- Use node:timers/promises instead of promise for sleep utility ([7a919e7](https://github.com/hanzydev/Fileship/commit/7a919e7))
+- Add fake loader to MFA dialog for password manager compatibility ([e24e63d](https://github.com/hanzydev/Fileship/commit/e24e63d))
+- Remove AI search usage telemetry ([8d820fe](https://github.com/hanzydev/Fileship/commit/8d820fe))
+
+### 🏡 Chore
+
+- Upgrade deps ([6a14b24](https://github.com/hanzydev/Fileship/commit/6a14b24))
+- Remove deprecated PII types from database migration ([708eab9](https://github.com/hanzydev/Fileship/commit/708eab9))
+- Upgrade deps ([e37f619](https://github.com/hanzydev/Fileship/commit/e37f619))
+- Update Node.js version requirement to 24.x or higher ([e1569ee](https://github.com/hanzydev/Fileship/commit/e1569ee))
+- Add docs for AI features and how to disable them ([97d7941](https://github.com/hanzydev/Fileship/commit/97d7941))
+
+### 🎨 Styles
+
+- **sidebar:** Enhance version display with transition effects ([169124d](https://github.com/hanzydev/Fileship/commit/169124d))
+- **backups:** Update progress bar corner radius for better aesthetics ([3026b51](https://github.com/hanzydev/Fileship/commit/3026b51))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+- Dark Of Lord <mustafaxxxerdem@gmail.com>
+
 ## v5.0.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v4.2.1...v5.0.0)
