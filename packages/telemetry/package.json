@@ -26,13 +26,13 @@
     "license": "MIT",
     "homepage": "https://github.com/hanzydev/Fileship#readme",
     "devDependencies": {
-        "@types/node": "^24.10.1",
+        "@types/node": "^25.3.0",
         "eslint-config-prettier": "^10.1.8",
-        "eslint-plugin-prettier": "^5.5.4",
+        "eslint-plugin-prettier": "^5.5.5",
         "eslint-plugin-simple-import-sort": "^12.1.1",
-        "globals": "^16.5.0",
-        "tsdown": "^0.16.6",
-        "typescript-eslint": "^8.47.0"
+        "globals": "^17.3.0",
+        "tsdown": "^0.20.3",
+        "typescript-eslint": "^8.56.0"
     },
     "publishConfig": {
         "access": "public"
