@@ -121,6 +121,28 @@ git pull
 docker compose up --build -d
 ```
 
+## 🤖 AI Features
+
+Fileship includes built-in AI features such as image search, image captioning, OCR, and PII detection. These features are **enabled by default**.
+
+### Disabling AI Features
+
+To disable all AI features globally, set the `NUXT_PUBLIC_AI_ENABLED` environment variable to `false` in your `docker-compose.yml`:
+
+```yaml
+services:
+    fileship:
+        environment:
+            NUXT_PUBLIC_AI_ENABLED: 'false'
+```
+
+When AI is disabled:
+
+- AI queue runner will not start
+- AI jobs will not be enqueued or processed
+- Vector search will automatically fall back to fulltext search
+- AI-related UI elements will be hidden
+
 ## 📊 Telemetry
 
 Fileship collects **telemetry data** about general usage to help us accurately gauge feature usage and customization. This data is essential for guiding future development, prioritizing features, and improving the overall user experience.
@@ -139,7 +161,20 @@ The telemetry module collects the following types of data:
 
 ### How to Opt-Out
 
-To disable all telemetry data collection, you need to set the `TELEMETRY_ENABLED` environment variable to `false`.
+To disable all telemetry data collection, set the `TELEMETRY_ENABLED` environment variable to `false` in your `docker-compose.yml`:
+
+```yaml
+services:
+    fileship:
+        environment:
+            TELEMETRY_ENABLED: 'false'
+```
+
+When telemetry is disabled:
+
+- No data will be sent to the telemetry server
+- No instance, system, or AI search usage information will be collected
+- There is no performance impact from disabling telemetry
 
 By default, telemetry is enabled to help us improve Fileship.
 
