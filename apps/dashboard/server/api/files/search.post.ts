@@ -24,8 +24,6 @@ export default defineEventHandler(async (event) => {
 
     if (!AI_ENABLED && body.data.mode !== 'fulltext') body.data.mode = 'fulltext';
 
-    const start = Date.now();
-
     const mergeRanked = (lists: { ids: string[]; weight: number }[]) => {
         const scores = new Map<string, number>();
 
@@ -110,16 +108,6 @@ export default defineEventHandler(async (event) => {
         },
         select: { id: true },
     });
-
-    if (body.data.mode !== 'fulltext') {
-        event.waitUntil(
-            telemetry.collectAISearchUsage({
-                query: body.data.query,
-                results: files.length,
-                duration: Date.now() - start,
-            }),
-        );
-    }
 
     const allowedIds = new Set(files.map((f) => f.id));
     return ids.filter((id) => allowedIds.has(id));

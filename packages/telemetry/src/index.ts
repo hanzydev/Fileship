@@ -7,7 +7,6 @@ import { ofetch } from 'ofetch';
 export enum TelemetryEventType {
     SystemInformation = 1,
     FileshipInformation = 2,
-    AISearchUsage = 3,
 }
 
 export interface TelemetryServiceOptions {
@@ -17,7 +16,7 @@ export interface TelemetryServiceOptions {
 
 export interface TelemetryEvent {
     event: TelemetryEventType;
-    payload: FileshipInfoPayload | SystemInfoPayload | AISearchUsagePayload;
+    payload: FileshipInfoPayload | SystemInfoPayload;
 }
 
 export interface FileshipInfoPayload {
@@ -50,12 +49,6 @@ export interface SystemInfoPayload {
         arch: string;
     };
     isDocker: boolean;
-}
-
-export interface AISearchUsagePayload {
-    query: string;
-    results: number;
-    duration: number;
 }
 
 export class Telemetry {
@@ -129,13 +122,6 @@ export class Telemetry {
                 },
                 isDocker: isDocker(),
             },
-        });
-    }
-
-    public collectAISearchUsage(payload: AISearchUsagePayload) {
-        return this.invokeEvent({
-            event: TelemetryEventType.AISearchUsage,
-            payload,
         });
     }
 }

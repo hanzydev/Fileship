@@ -155,9 +155,8 @@ The telemetry module collects the following types of data:
 
 - **Fileship Instance Information**: General statistics about your Fileship setup (e.g., app version, counts of files, users, folders and notes) and the Node.js version it's running on. This helps us understand the scale and usage patterns of Fileship instances.
 - **System Information**: Non-identifying details about the host system (e.g., OS platform, release, architecture, CPU count/model, memory, disk usage, and whether it's running in Docker). This helps us optimize performance across different environments.
-- **AI Search Usage**: Usage statistics for the AI search feature, including the number of results and search duration. **Important: This includes the actual search query text entered by the user.** This data is collected to improve the relevance and performance of the AI search feature.
 
-**No personally identifiable information (PII) beyond the search query is collected.** All other collected data is anonymous and used in aggregate for statistical analysis.
+**No personally identifiable information (PII) is collected.** All collected data is anonymous and used in aggregate for statistical analysis.
 
 ### How to Opt-Out
 
@@ -173,7 +172,7 @@ services:
 When telemetry is disabled:
 
 - No data will be sent to the telemetry server
-- No instance, system, or AI search usage information will be collected
+- No instance or system information will be collected
 - There is no performance impact from disabling telemetry
 
 By default, telemetry is enabled to help us improve Fileship.

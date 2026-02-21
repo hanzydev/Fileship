@@ -36,15 +36,7 @@ The telemetry module collects the following data points:
 - `isDocker`: Boolean indicating if Fileship is running inside a Docker container.
 - `createdAt`: Timestamp when this specific telemetry record was created.
 
-### 🔍 AI Search Usage
-
-- `projectId`: A unique, anonymous identifier for the Fileship instance.
-- `query`: **The actual search query string** entered by the user. This data is collected to improve the relevance and performance of the AI search feature.
-- `results`: Number of results returned for the query.
-- `duration`: Time taken for the search query to complete (in milliseconds/seconds).
-- `createdAt`: Timestamp when this specific telemetry record was created.
-
-**Important Note:** While `projectId` is an anonymous identifier for your Fileship instance and cannot be traced back to individual users, please be aware that the `query` field in `AI Search Usage` contains the actual search query text. Fileship aims to collect minimal data necessary for product improvement. No other personally identifiable information (PII) is collected.
+**Important Note:** `projectId` is an anonymous identifier for your Fileship instance and cannot be traced back to individual users. Fileship aims to collect minimal data necessary for product improvement.
 
 ## 🔔 Opting-out
 
