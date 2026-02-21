@@ -76,6 +76,7 @@ export default defineNuxtConfig({
             turnstile: {
                 siteKey: '',
             },
+            aiEnabled: true,
         },
         turnstile: {
             secretKey: '',

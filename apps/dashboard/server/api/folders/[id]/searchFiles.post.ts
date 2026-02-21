@@ -55,6 +55,8 @@ export default defineEventHandler(async (event) => {
         });
     }
 
+    if (!AI_ENABLED && body.data.mode !== 'fulltext') body.data.mode = 'fulltext';
+
     const mergeRanked = (lists: { ids: string[]; weight: number }[]) => {
         const scores = new Map<string, number>();
 

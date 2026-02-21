@@ -3,13 +3,21 @@ import { AIJobStatus, type AIJobType } from '~~/generated/prisma/enums';
 const AI_JOB_LEASE_MS = Math.max(60_000, +(process.env.AI_JOB_LEASE_MS ?? 15 * 60_000));
 const AI_JOB_DEQUEUE_RETRIES = Math.max(1, +(process.env.AI_JOB_DEQUEUE_RETRIES ?? 5));
 
+export const AI_ENABLED = (process.env.NUXT_PUBLIC_AI_ENABLED || 'true') === 'true';
+
 export interface EnqueueAIJobOptions {
     userId: string;
     fileId?: string | null;
     type: AIJobType;
 }
 
+export interface DequeueAIJobOptions {
+    workerId: string;
+}
+
 export const enqueueAIJob = async (options: EnqueueAIJobOptions) => {
+    if (!AI_ENABLED) return;
+
     if (options.fileId) {
         const existing = await prisma.aIJob.findFirst({
             where: {
@@ -34,11 +42,9 @@ export const enqueueAIJob = async (options: EnqueueAIJobOptions) => {
     });
 };
 
-export interface DequeueAIJobOptions {
-    workerId: string;
-}
-
 export const dequeueAIJob = async ({ workerId }: DequeueAIJobOptions) => {
+    if (!AI_ENABLED) return;
+
     for (let i = 0; i < AI_JOB_DEQUEUE_RETRIES; i++) {
         const claimed = await prisma.$transaction(async (tx) => {
             const now = new Date();
@@ -100,6 +106,8 @@ export const dequeueAIJob = async ({ workerId }: DequeueAIJobOptions) => {
 };
 
 export const completeAIJob = async (jobId: string) => {
+    if (!AI_ENABLED) return;
+
     return prisma.aIJob.update({
         where: { id: jobId },
         data: { status: AIJobStatus.Completed, lockedAt: null, lockedBy: null, error: null },
@@ -107,6 +115,8 @@ export const completeAIJob = async (jobId: string) => {
 };
 
 export const failAIJob = async (jobId: string, error: string) => {
+    if (!AI_ENABLED) return;
+
     return prisma.aIJob.update({
         where: { id: jobId },
         data: { status: AIJobStatus.Failed, lockedAt: null, lockedBy: null, error },

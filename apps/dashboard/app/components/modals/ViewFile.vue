@@ -9,7 +9,7 @@
         />
 
         <ModalsAiInsights
-            v-if="data.caption || data.piiDetected"
+            v-if="(data.caption || data.piiDetected) && runtimeConfig.public.aiEnabled"
             v-model="aiModalOpen"
             :caption="data.caption"
             :pii-detected="data.piiDetected"
@@ -66,7 +66,9 @@
                         px1
                     >
                         <div
-                            v-if="data.caption || data.piiDetected"
+                            v-if="
+                                (data.caption || data.piiDetected) && runtimeConfig.public.aiEnabled
+                            "
                             flex="~ items-center justify-center"
                             relative
                             mx-0.5
@@ -454,9 +456,10 @@ const isOpen = defineModel<boolean>({ required: true });
 
 const currentUser = useAuthUser();
 const embed = useEmbed();
+const allFiles = useFiles();
+const runtimeConfig = useRuntimeConfig();
 const { copied, copy } = useClipboard({ legacy: true });
 const { $toast } = useNuxtApp();
-const allFiles = useFiles();
 
 const fileId = ref(_fileId);
 const data = shallowRef(allFiles.value.find((file) => file.id === fileId.value)!);

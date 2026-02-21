@@ -543,7 +543,7 @@
                 </template>
             </UiExpander>
 
-            <UiExpander op0>
+            <UiExpander v-if="runtimeConfig.public.aiEnabled" op0>
                 <div flex="~ gap2 items-center">
                     <Icon name="heroicons:sparkles-solid" size="24" />
                     <h5>AI</h5>
@@ -599,6 +599,7 @@ const domains = useDomains();
 const appConfig = useAppConfig();
 const currentUser = useAuthUser();
 const passkeys = usePasskeys();
+const runtimeConfig = useRuntimeConfig();
 const { $toast } = useNuxtApp();
 
 const { data: passkeysData } = await useFetch('/api/users/@me/mfa/webauthn/credentials');

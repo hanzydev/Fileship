@@ -107,7 +107,7 @@
 import gsap from 'gsap';
 import SplitText from 'gsap/SplitText';
 
-const { aiAvailable, aiToggleClass } = defineProps<{
+const { aiAvailable: _aiAvailable, aiToggleClass } = defineProps<{
     placeholder: string;
     inputClass?: unknown;
     aiAvailable?: boolean;
@@ -127,6 +127,10 @@ const loading = defineModel<boolean>('loading', {
 });
 
 const aiSuggestion = useTemplateRef('aiSuggestion');
+
+const runtimeConfig = useRuntimeConfig();
+
+const aiAvailable = computed(() => _aiAvailable && runtimeConfig.public.aiEnabled);
 
 const aiSuggestions = [
     'A bright red sports car',
@@ -182,7 +186,7 @@ watch(aiEnabled, (value) => {
 onMounted(() => {
     gsap.registerPlugin(SplitText);
 
-    if (aiAvailable) aiEnabled.value = true;
+    if (aiAvailable.value) aiEnabled.value = true;
 });
 </script>
 

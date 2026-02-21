@@ -1,6 +1,13 @@
 import consola from 'consola';
 
 export default defineNitroPlugin(async () => {
+    if (!AI_ENABLED) {
+        consola.warn(
+            'AI is disabled, queue runner will not start. Set NUXT_PUBLIC_AI_ENABLED=true to enable it.',
+        );
+        return;
+    }
+
     const intervalMs = 1_000;
 
     const tick = async () => {

@@ -45,7 +45,8 @@
                         !selected &&
                         !ctxOpen &&
                         isImage &&
-                        currentUser?.aiSettings?.suppressPii
+                        currentUser?.aiSettings?.suppressPii &&
+                        runtimeConfig.public.aiEnabled
                     "
                     flex="~ items-center justify-center col gap-2"
                     absolute
@@ -358,6 +359,7 @@ const emit = defineEmits<{
 const currentUser = useAuthUser();
 const folders = useFolders();
 const embed = useEmbed();
+const runtimeConfig = useRuntimeConfig();
 const { $toast } = useNuxtApp();
 
 const addToFolderSearchQuery = ref('');

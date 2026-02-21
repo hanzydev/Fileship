@@ -22,6 +22,8 @@ export default defineEventHandler(async (event) => {
         });
     }
 
+    if (!AI_ENABLED && body.data.mode !== 'fulltext') body.data.mode = 'fulltext';
+
     const start = Date.now();
 
     const mergeRanked = (lists: { ids: string[]; weight: number }[]) => {
