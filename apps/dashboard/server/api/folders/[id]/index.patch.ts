@@ -60,6 +60,7 @@ export default defineEventHandler(async (event) => {
                 id: {
                     in: body.data.files,
                 },
+                authorId: currentUser.id,
             },
             select: {
                 id: true,

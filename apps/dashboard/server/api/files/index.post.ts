@@ -104,6 +104,7 @@ export default defineEventHandler(async (event) => {
         const findFolderById = await prisma.folder.findUnique({
             where: {
                 id: body.data.folderId,
+                authorId: currentUser.id,
             },
         });
 
