@@ -123,6 +123,13 @@ export const verifySession = async (
                 },
             }))!;
 
+            if (!findCredentialById) {
+                throw createError({
+                    statusCode: 401,
+                    message: 'Credential not found',
+                });
+            }
+
             const response = await verifyAuthenticationResponse({
                 response: (verificationData.data as PasskeyVerificationData).authenticationResponse,
                 expectedChallenge: (verificationData.data as PasskeyVerificationData)
