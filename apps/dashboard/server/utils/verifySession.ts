@@ -77,26 +77,33 @@ export const verifySession = async (
             });
         }
 
-        if (currentUser.totpEnabled) {
-            if (verificationData?.type === 'totp') {
-                const totpValid = await verifyTotp({
-                    secret: currentUser.totpSecret!,
-                    token: verificationData.data as string,
+        if (verificationData?.type === 'totp') {
+            if (!currentUser.totpEnabled) {
+                throw createError({
+                    statusCode: 400,
+                    message: 'TOTP verification is not enabled for this user',
                 });
+            }
 
-                if (!totpValid.valid) {
-                    throw createError({
-                        statusCode: 401,
-                        message: 'Invalid TOTP',
-                    });
-                }
-            } else if (verificationData?.type === 'password') {
+            const totpValid = await verifyTotp({
+                secret: currentUser.totpSecret!,
+                token: verificationData.data as string,
+            });
+
+            if (!totpValid.valid) {
+                throw createError({
+                    statusCode: 401,
+                    message: 'Invalid TOTP',
+                });
+            }
+        } else if (verificationData?.type === 'password') {
+            if (currentUser.totpEnabled) {
                 throw createError({
                     statusCode: 400,
                     message: 'Password verification is not allowed because TOTP is enabled',
                 });
             }
-        } else if (verificationData?.type === 'password') {
+
             const passwordMatch = await verify(
                 currentUser.password,
                 verificationData.data as string,
