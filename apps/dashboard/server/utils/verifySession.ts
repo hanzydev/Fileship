@@ -27,15 +27,21 @@ export const verifySession = async (
     const currentUser = event.context.user!;
     const reqUrl = getRequestURL(event);
 
-    const findCurrentSessionById = await prisma.session.findUnique({
+    const currentSession = await prisma.session.findUnique({
         where: {
             id: currentUser.currentSessionId,
         },
     });
+    if (!currentSession) {
+        throw createError({
+            statusCode: 401,
+            message: 'Session not found',
+        });
+    }
 
     if (
-        !findCurrentSessionById!.lastVerify ||
-        Date.now() - findCurrentSessionById!.lastVerify.getTime() > 5 * 60 * 1000 /** 5 minutes */
+        !currentSession.lastVerify ||
+        Date.now() - currentSession.lastVerify.getTime() > 5 * 60 * 1000 /** 5 minutes */
     ) {
         if (!verificationData) {
             const allowCredentials = (await prisma.credential.findMany({
