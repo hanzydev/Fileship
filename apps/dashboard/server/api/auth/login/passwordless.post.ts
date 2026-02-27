@@ -9,11 +9,16 @@ import {
 } from '@simplewebauthn/server';
 import type { AuthenticatorTransportFuture } from '@simplewebauthn/types';
 
-const validationSchema = z.object({
-    verify: z.boolean(),
-    expectedChallenge: z.string().optional(),
-    authenticationResponse: z.any().optional(),
-});
+const validationSchema = z.union([
+    z.object({
+        verify: z.literal(true),
+        ticket: z.string().length(32),
+        authenticationResponse: z.any(),
+    }),
+    z.object({
+        verify: z.literal(false),
+    }),
+]);
 
 export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
@@ -26,6 +31,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const reqUrl = getRequestURL(event);
+    const storage = useStorage('cache');
 
     if (body.data.verify) {
         const userHandle = body.data.authenticationResponse?.response?.userHandle;
@@ -53,7 +59,7 @@ export default defineEventHandler(async (event) => {
         }
 
         const findCredentialById = (await prisma.credential.findUnique({
-            where: { id: body.data.authenticationResponse!.id, userId: findUserByUsername.id },
+            where: { id: body.data.authenticationResponse?.id, userId: findUserByUsername.id },
         }))!;
 
         if (!findCredentialById) {
@@ -63,9 +69,23 @@ export default defineEventHandler(async (event) => {
             });
         }
 
+        const webauthnTicket = await storage.getItem<{
+            expectedChallenge: string;
+            expiresAt: number;
+        }>(`webauthnTicket:${body.data.ticket}`);
+        if (!webauthnTicket || webauthnTicket.expiresAt < Date.now()) {
+            throw createError({
+                statusCode: 400,
+                message: 'Invalid or expired ticket',
+            });
+        }
+
+        const expectedChallenge = webauthnTicket.expectedChallenge;
+        await storage.removeItem(`webauthnTicket:${body.data.ticket}`);
+
         const response = await verifyAuthenticationResponse({
-            response: body.data.authenticationResponse!,
-            expectedChallenge: body.data.expectedChallenge!,
+            response: body.data.authenticationResponse,
+            expectedChallenge,
             expectedOrigin: reqUrl.origin,
             expectedRPID: reqUrl.hostname,
             requireUserVerification: true,
@@ -159,8 +179,19 @@ export default defineEventHandler(async (event) => {
         return { verified: false };
     }
 
-    return generateAuthenticationOptions({
+    const ticket = nanoid(32);
+    const authenticationOptions = await generateAuthenticationOptions({
         rpID: reqUrl.hostname,
         userVerification: 'required',
     });
+
+    await storage.setItem(`webauthnTicket:${ticket}`, {
+        expectedChallenge: authenticationOptions.challenge,
+        expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
+    });
+
+    return {
+        ticket,
+        authenticationOptions,
+    };
 });

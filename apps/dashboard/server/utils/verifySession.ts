@@ -1,5 +1,6 @@
 import { verify } from 'argon2';
 import type { H3Event } from 'h3';
+import { nanoid } from 'nanoid';
 import { verify as verifyTotp } from 'otplib';
 
 import { base64URLStringToBuffer } from '@simplewebauthn/browser';
@@ -10,10 +11,11 @@ import {
 import type {
     AuthenticationResponseJSON,
     AuthenticatorTransportFuture,
+    PublicKeyCredentialRequestOptionsJSON,
 } from '@simplewebauthn/types';
 
 interface PasskeyVerificationData {
-    expectedChallenge: string;
+    ticket: string;
     authenticationResponse: AuthenticationResponseJSON;
 }
 
@@ -25,7 +27,9 @@ export const verifySession = async (
     },
 ) => {
     const currentUser = event.context.user!;
+
     const reqUrl = getRequestURL(event);
+    const storage = useStorage('cache');
 
     const currentSession = await prisma.session.findUnique({
         where: {
@@ -54,19 +58,38 @@ export const verifySession = async (
                 },
             })) as { id: string; transports: AuthenticatorTransportFuture[] }[];
 
+            let passkeyMethod: {
+                ticket: string;
+                authenticationOptions: PublicKeyCredentialRequestOptionsJSON;
+            } | null = null;
+            if (allowCredentials.length) {
+                const ticket = nanoid(32);
+                const authenticationOptions = await generateAuthenticationOptions({
+                    rpID: reqUrl.hostname,
+                    allowCredentials,
+                    userVerification: 'required',
+                });
+
+                passkeyMethod = {
+                    ticket,
+                    authenticationOptions,
+                };
+
+                await storage.setItem(`webauthnTicket:${ticket}`, {
+                    expectedChallenge: authenticationOptions.challenge,
+                    expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
+                });
+            }
+
             throw createError({
                 statusCode: 400,
                 message: 'Verification is required',
                 data: {
                     mfa: {
                         methods: [
-                            allowCredentials.length && {
+                            passkeyMethod && {
                                 type: 'passkey',
-                                challange: await generateAuthenticationOptions({
-                                    rpID: reqUrl.hostname,
-                                    allowCredentials,
-                                    userVerification: 'required',
-                                }),
+                                ...passkeyMethod,
                             },
                             {
                                 type: currentUser.totpEnabled ? 'totp' : 'password',
@@ -116,12 +139,15 @@ export const verifySession = async (
                 });
             }
         } else if (verificationData?.type === 'passkey') {
-            const findCredentialById = (await prisma.credential.findUnique({
+            const { ticket, authenticationResponse } =
+                verificationData.data as PasskeyVerificationData;
+
+            const findCredentialById = await prisma.credential.findUnique({
                 where: {
-                    id: (verificationData.data as PasskeyVerificationData).authenticationResponse
-                        .id,
+                    id: authenticationResponse.id,
+                    userId: currentUser.id,
                 },
-            }))!;
+            });
 
             if (!findCredentialById) {
                 throw createError({
@@ -130,10 +156,23 @@ export const verifySession = async (
                 });
             }
 
+            const webauthnTicket = await storage.getItem<{
+                expectedChallenge: string;
+                expiresAt: number;
+            }>(`webauthnTicket:${ticket}`);
+            if (!webauthnTicket || webauthnTicket.expiresAt < Date.now()) {
+                throw createError({
+                    statusCode: 400,
+                    message: 'Invalid or expired ticket',
+                });
+            }
+
+            const expectedChallenge = webauthnTicket.expectedChallenge;
+            await storage.removeItem(`webauthnTicket:${ticket}`);
+
             const response = await verifyAuthenticationResponse({
-                response: (verificationData.data as PasskeyVerificationData).authenticationResponse,
-                expectedChallenge: (verificationData.data as PasskeyVerificationData)
-                    .expectedChallenge,
+                response: authenticationResponse,
+                expectedChallenge,
                 expectedOrigin: reqUrl.origin,
                 expectedRPID: reqUrl.hostname,
                 credential: {

@@ -239,17 +239,17 @@ const handleSubmit = async (totp?: string) => {
 const handlePasskeyLogin = async () => {
     passkeyLoggingIn.value = true;
 
-    const optionsJSON = await $fetch<PublicKeyCredentialRequestOptionsJSON>(
-        '/api/auth/login/passwordless',
-        {
-            method: 'POST',
-            body: { verify: false },
-            credentials: 'include',
-        },
-    );
+    const { ticket, authenticationOptions } = await $fetch<{
+        ticket: string;
+        authenticationOptions: PublicKeyCredentialRequestOptionsJSON;
+    }>('/api/auth/login/passwordless', {
+        method: 'POST',
+        body: { verify: false },
+        credentials: 'include',
+    });
 
     const authenticationResponse = await startAuthentication({
-        optionsJSON,
+        optionsJSON: authenticationOptions,
     }).catch(() => null);
 
     if (authenticationResponse) {
@@ -257,9 +257,9 @@ const handlePasskeyLogin = async () => {
             const { user, session } = await $fetch<any>('/api/auth/login/passwordless', {
                 method: 'POST',
                 body: {
-                    authenticationResponse,
-                    expectedChallenge: optionsJSON.challenge,
                     verify: true,
+                    ticket,
+                    authenticationResponse,
                 },
             });
 

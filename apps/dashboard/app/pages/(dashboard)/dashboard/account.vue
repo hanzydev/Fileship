@@ -884,25 +884,26 @@ const handleRegisterPasskey = async (verificationData?: any) => {
     passkeyVerificationError.value = undefined;
 
     try {
-        const optionsJSON = await $fetch<PublicKeyCredentialCreationOptionsJSON>(
-            '/api/users/@me/mfa/webauthn/credentials',
-            {
-                method: 'POST',
-                body: { verify: false, verificationData },
-            },
-        );
+        const { ticket, registrationOptions } = await $fetch<{
+            ticket: string;
+            registrationOptions: PublicKeyCredentialCreationOptionsJSON;
+        }>('/api/users/@me/mfa/webauthn/credentials', {
+            method: 'POST',
+            body: { verify: false, verificationData },
+        });
 
         const registrationResponse = await startRegistration({
-            optionsJSON,
+            optionsJSON: registrationOptions,
         });
 
         try {
             await $fetch('/api/users/@me/mfa/webauthn/credentials', {
                 method: 'POST',
                 body: {
-                    registrationResponse,
-                    expectedChallenge: optionsJSON.challenge,
                     verify: true,
+                    ticket,
+                    registrationResponse,
+                    verificationData,
                 },
             });
 

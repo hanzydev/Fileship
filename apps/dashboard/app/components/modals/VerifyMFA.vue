@@ -219,25 +219,23 @@ const isOpen = defineModel<boolean>({ required: false, default: true });
 
 type MethodType = 'passkey' | 'totp' | 'password';
 
+interface PasskeyMethod {
+    type: 'passkey';
+    ticket: string;
+    authenticationOptions: PublicKeyCredentialRequestOptionsJSON;
+}
+
 const { methods } = defineProps<{
     error?: string;
     disabled?: boolean;
-    methods: {
-        type: MethodType;
-        challange?: PublicKeyCredentialRequestOptionsJSON;
-    }[];
+    methods: ({ type: Omit<MethodType, 'passkey'> } | PasskeyMethod)[];
 }>();
 
 const emit = defineEmits<{
     got: [
         {
             type: MethodType;
-            data:
-                | string
-                | {
-                      expectedChallenge: string;
-                      authenticationResponse: AuthenticationResponseJSON;
-                  };
+            data: string | { ticket: string; authenticationResponse: AuthenticationResponseJSON };
         },
     ];
     cancel: [];
@@ -263,19 +261,18 @@ const hubMode = ref(false);
 const height = ref(320 /** initial */);
 
 const handlePasskey = async () => {
-    const optionsJSON = methods.find((m) => m.type === 'passkey')!.challange!;
+    const { authenticationOptions, ticket } = methods.find(
+        (m): m is PasskeyMethod => m.type === 'passkey',
+    )!;
 
     try {
         const authenticationResponse = await startAuthentication({
-            optionsJSON,
+            optionsJSON: authenticationOptions,
         });
 
         emit('got', {
             type: 'passkey',
-            data: {
-                expectedChallenge: optionsJSON.challenge,
-                authenticationResponse,
-            },
+            data: { ticket, authenticationResponse },
         });
     } catch {
         $toast.error('Failed to verify passkey');
