@@ -139,6 +139,15 @@ export const verifySession = async (
                     message: 'Invalid passkey',
                 });
             }
+
+            await prisma.credential.update({
+                where: {
+                    id: findCredentialById.id,
+                },
+                data: {
+                    counter: response.authenticationInfo.newCounter,
+                },
+            });
         } else {
             throw createError({
                 statusCode: 400,
