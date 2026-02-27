@@ -178,26 +178,25 @@ export default defineEventHandler(async (event) => {
 
                     if (database === 'user') {
                         try {
-                            const userData = JSON.parse(await fsp.readFile(databasePath, 'utf-8'));
+                            const { avatar, domains, embed } = JSON.parse(
+                                await fsp.readFile(databasePath, 'utf-8'),
+                            );
+
                             await prisma.user.update({
                                 where: { id: currentUser.id },
-                                data: userData,
+                                data: { avatar, domains, embed },
                             });
 
-                            sendToUser(
-                                currentUser.id,
-                                'currentUser:domainsUpdate',
-                                userData.domains,
-                            );
-                            sendToUser(currentUser.id, 'currentUser:embedUpdate', userData.embed);
+                            sendToUser(currentUser.id, 'currentUser:domainsUpdate', domains);
+                            sendToUser(currentUser.id, 'currentUser:embedUpdate', embed);
 
                             await sendByFilter(isAdmin, 'user:update', {
                                 id: currentUser.id,
-                                avatar: userData.avatar,
+                                avatar,
                             });
 
                             sendToUser(currentUser.id, 'currentUser:update', {
-                                avatar: userData.avatar,
+                                avatar,
                             });
                         } catch {
                             //
