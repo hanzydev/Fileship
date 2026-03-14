@@ -1,5 +1,48 @@
 # Changelog
 
+## v5.1.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v5.1.0...v5.1.1)
+
+### 🩹 Fixes
+
+- **files:** Enforce ownership validation in queries ([b70280c](https://github.com/hanzydev/Fileship/commit/b70280c))
+- **users:** Add allowlist to backup restoration to prevent field injection ([300c12d](https://github.com/hanzydev/Fileship/commit/300c12d))
+- **session:** Improve session retrieval and error handling for missing sessions ([671456a](https://github.com/hanzydev/Fileship/commit/671456a))
+- **session:** Update credential counter after successful passkey verification ([c77abce](https://github.com/hanzydev/Fileship/commit/c77abce))
+- **session:** Prevent verification bypass ([a2425a7](https://github.com/hanzydev/Fileship/commit/a2425a7))
+- **session:** Add error handling for missing credentials during session verification ([da0ee58](https://github.com/hanzydev/Fileship/commit/da0ee58))
+- Secure WebAuthn flow with server-side challenge verification ([115620e](https://github.com/hanzydev/Fileship/commit/115620e))
+- Import missing MaybeRef type ([467f2a9](https://github.com/hanzydev/Fileship/commit/467f2a9))
+- Update class binding syntax for conditional rendering in SearchBar component ([b9f34cf](https://github.com/hanzydev/Fileship/commit/b9f34cf))
+- Hide user limits from api ([c40264d](https://github.com/hanzydev/Fileship/commit/c40264d))
+
+### 💅 Refactors
+
+- Simplify clearStates function by using clearNuxtState composable ([82356d3](https://github.com/hanzydev/Fileship/commit/82356d3))
+- Update old tsconfig.json ([9b5e9e8](https://github.com/hanzydev/Fileship/commit/9b5e9e8))
+- Update default cron schedule for deleting expired files to every 5 minutes ([4697214](https://github.com/hanzydev/Fileship/commit/4697214))
+- Rewrite telemetry collection logic ([45ffaed](https://github.com/hanzydev/Fileship/commit/45ffaed))
+- Rename permissionErrors utility to permissions ([dbf04cb](https://github.com/hanzydev/Fileship/commit/dbf04cb))
+- Rename runTasks plugin to setup ([7787765](https://github.com/hanzydev/Fileship/commit/7787765))
+- Replace unknown class types with ClassValue in component props ([ce1b0a6](https://github.com/hanzydev/Fileship/commit/ce1b0a6))
+- Migrate appConfig to runtimeConfig for Nuxt 5 readiness ([1c14b03](https://github.com/hanzydev/Fileship/commit/1c14b03))
+- Update import statement for defu to named import ([7c7503a](https://github.com/hanzydev/Fileship/commit/7c7503a))
+- Update ai settings api endpoint ([bf8eec4](https://github.com/hanzydev/Fileship/commit/bf8eec4))
+- Add missing AI settings data into user update payload ([1b65a5d](https://github.com/hanzydev/Fileship/commit/1b65a5d))
+
+### 📦 Build
+
+- **config:** Enable nuxt v5 compatibility version ([f2c2f27](https://github.com/hanzydev/Fileship/commit/f2c2f27))
+
+### 🏡 Chore
+
+- Upgrade nuxt and other deps ([c6d7e7b](https://github.com/hanzydev/Fileship/commit/c6d7e7b))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v5.1.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v5.0.0...v5.1.0)
