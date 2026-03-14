@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { type ClassValue,Teleport } from 'vue';
+import { type ClassValue, Teleport } from 'vue';
 
 const {
     placement: _placement = 'top',

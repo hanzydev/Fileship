@@ -19,8 +19,8 @@
         <div text-fs-muted-2 space-y-2>
             <p>
                 Here are all the devices that are currently logged in with your
-                {{ runtimeConfig.public.site.name }} account. You can log out of each one individually or all
-                other devices.
+                {{ runtimeConfig.public.site.name }} account. You can log out of each one
+                individually or all other devices.
             </p>
             <p>
                 If you see an entry you don't recognize, log out of that device and change your
