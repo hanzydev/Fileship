@@ -6,9 +6,9 @@ import { z } from 'zod';
 import { update } from '@orama/orama';
 
 import { UserPermission } from '#shared/prisma/enums';
-import { defaultUserLimits } from '#shared/utils/constants';
+import { defaultUserAiSettings, defaultUserLimits } from '#shared/utils/constants';
 import { isAdmin } from '#shared/utils/permissions';
-import type { IUserLimits } from '#shared/utils/types';
+import type { IUserAiSettings, IUserLimits } from '#shared/utils/types';
 import themes from '~~/app/styles/themes.json';
 
 const validationSchema = z
@@ -219,6 +219,7 @@ export default defineEventHandler(async (event) => {
                 limits: true,
                 superAdmin: true,
                 theme: true,
+                aiSettings: true,
                 _count: {
                     select: { files: true, folders: true, notes: true },
                 },
@@ -231,6 +232,7 @@ export default defineEventHandler(async (event) => {
         _count: undefined,
         stats: _updatedUser._count,
         limits: defu(_updatedUser.limits, defaultUserLimits) as IUserLimits | undefined,
+        aiSettings: defu(_updatedUser.aiSettings, defaultUserAiSettings) as IUserAiSettings,
     };
 
     await update(userSearchDb, updatedUser.id, {
@@ -243,7 +245,7 @@ export default defineEventHandler(async (event) => {
         message: `Updated user ${updatedUser.username}`,
     });
 
-    await sendByFilter(isAdmin, 'user:update', updatedUser);
+    await sendByFilter(isAdmin, 'user:update', { ...updatedUser, aiSettings: undefined });
 
     updatedUser.limits = undefined;
 
