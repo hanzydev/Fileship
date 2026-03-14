@@ -1,4 +1,4 @@
-import defu from 'defu';
+import { defu } from 'defu';
 
 import { defaultUserAiSettings } from '#shared/utils/constants';
 import type { IUserAiSettings } from '#shared/utils/types';

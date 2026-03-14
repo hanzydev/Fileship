@@ -1,4 +1,4 @@
-import defu from 'defu';
+import { defu } from 'defu';
 import { z } from 'zod';
 
 import { defaultEmbed } from '#shared/utils/constants';

@@ -1,5 +1,5 @@
 import { hash } from 'argon2';
-import defu from 'defu';
+import { defu } from 'defu';
 import { z } from 'zod';
 
 import { insert } from '@orama/orama';
