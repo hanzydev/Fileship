@@ -61,7 +61,7 @@
                 select-none
                 text-fs-muted-2
                 op0
-                :class="searchQuery.length && '!op0'"
+                :class="[searchQuery.length && '!op0']"
             >
                 {{ aiSuggestions[currentSuggestionIndex] }}
             </div>
