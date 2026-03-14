@@ -1,4 +1,5 @@
 import type { H3Event } from 'h3';
+import type { MaybeRef } from 'vue';
 
 import { UserPermission } from '#shared/prisma/enums';
 
