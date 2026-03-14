@@ -79,6 +79,11 @@ export default defineNuxtConfig({
                 siteKey: '',
             },
             aiEnabled: true,
+            site: {
+                name: 'Fileship',
+                description:
+                    'Fileship is an open-source and self-hosted image uploading service with cool features.',
+            },
         },
         turnstile: {
             secretKey: '',

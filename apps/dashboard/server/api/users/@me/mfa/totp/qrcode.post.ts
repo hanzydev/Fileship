@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const appConfig = useAppConfig();
+    const runtimeConfig = useRuntimeConfig();
 
     return {
         base64: `data:image/svg+xml;base64,${Buffer.from(
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
                 generateURI({
                     secret: totpSecret,
                     label: currentUser.username,
-                    issuer: appConfig.site.name,
+                    issuer: runtimeConfig.public.site.name,
                 }),
             ),
         ).toString('base64')}`,

@@ -10,7 +10,7 @@
     <Toaster position="top-center" theme="dark" />
 
     <Head>
-        <Title>{{ appConfig.site.name }}</Title>
+        <Title>{{ runtimeConfig.public.site.name }}</Title>
     </Head>
     <Body hfull wfull bg-fs-background text-white antialiased>
         <NuxtLayout>
@@ -27,7 +27,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
-const appConfig = useAppConfig();
+const runtimeConfig = useRuntimeConfig();
 const currentTheme = useTheme();
 const currentUser = useAuthUser();
 
@@ -51,9 +51,9 @@ watch(currentTheme, (value) => {
 useHead({
     titleTemplate: (title) =>
         title
-            ? title === appConfig.site?.name || title.match(/\.|:/)
+            ? title === runtimeConfig.public.site.name || title.match(/\.|:/)
                 ? title
-                : `${title} · ${appConfig.site?.name}`
-            : appConfig.site?.name,
+                : `${title} · ${runtimeConfig.public.site.name}`
+            : runtimeConfig.public.site.name,
 });
 </script>

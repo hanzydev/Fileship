@@ -397,8 +397,8 @@
                             <p text-fs-muted-1>
                                 Configuring an authenticator app is a good way to add an extra layer
                                 of security to your
-                                {{ appConfig.site.name }} account to make sure that only you have
-                                the ability to log in.
+                                {{ runtimeConfig.public.site.name }} account to make sure that only
+                                you have the ability to log in.
                             </p>
                         </div>
 
@@ -596,7 +596,6 @@ import type { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/typ
 
 const embed = useEmbed();
 const domains = useDomains();
-const appConfig = useAppConfig();
 const currentUser = useAuthUser();
 const passkeys = usePasskeys();
 const runtimeConfig = useRuntimeConfig();
@@ -929,7 +928,7 @@ const handleRegisterPasskey = async (verificationData?: any) => {
 const handleGenShareXConfig = () => {
     const config = {
         Version: '16.1.0',
-        Name: `${appConfig.site.name} - File Uploader`,
+        Name: `${runtimeConfig.public.site.name} - File Uploader`,
         DestinationType: 'ImageUploader, TextUploader, FileUploader',
         RequestMethod: 'POST',
         RequestURL: `${useRequestURL().origin}/api/files`,
