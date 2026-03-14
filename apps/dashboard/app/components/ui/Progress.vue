@@ -19,5 +19,7 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ value: number; textClass?: unknown }>();
+import type { ClassValue } from 'vue';
+
+defineProps<{ value: number; textClass?: ClassValue }>();
 </script>

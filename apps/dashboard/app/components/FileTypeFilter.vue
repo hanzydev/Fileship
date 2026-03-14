@@ -58,11 +58,12 @@
 
 <script setup lang="ts">
 import { titleCase } from 'scule';
+import type { ClassValue } from 'vue';
 
 const filterType = defineModel<string[]>({ required: true });
 
 const { dropdownClass, buttonClass } = defineProps<{
-    dropdownClass?: unknown;
-    buttonClass?: unknown;
+    dropdownClass?: ClassValue;
+    buttonClass?: ClassValue;
 }>();
 </script>

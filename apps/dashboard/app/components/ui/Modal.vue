@@ -46,10 +46,12 @@
 </template>
 
 <script setup lang="ts">
+import type { ClassValue } from 'vue';
+
 const { closeOnOuterClick = true, closable = true } = defineProps<{
     closeOnOuterClick?: boolean;
     closable?: boolean;
-    backgroundClass?: unknown;
+    backgroundClass?: ClassValue;
     backgroundProps?: { [key: string]: unknown };
 }>();
 

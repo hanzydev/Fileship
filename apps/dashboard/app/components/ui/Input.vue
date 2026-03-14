@@ -82,6 +82,8 @@
 </template>
 
 <script setup lang="ts">
+import type { ClassValue } from 'vue';
+
 const {
     min = 0,
     max = Infinity,
@@ -95,7 +97,7 @@ const {
     min?: number;
     max?: number;
     caption?: string;
-    wrapperClass?: unknown;
+    wrapperClass?: ClassValue;
 }>();
 
 defineOptions({

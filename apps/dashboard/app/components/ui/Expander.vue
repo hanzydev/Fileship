@@ -42,10 +42,12 @@
 </template>
 
 <script setup lang="ts">
+import type { ClassValue } from 'vue';
+
 const isOpen = defineModel<boolean>({ required: false, default: false });
 
 defineProps<{
-    contentClass?: unknown;
+    contentClass?: ClassValue;
 }>();
 
 const contentRef = useTemplateRef<HTMLDivElement>('content');

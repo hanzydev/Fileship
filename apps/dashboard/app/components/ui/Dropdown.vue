@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { Teleport } from 'vue';
+import { type ClassValue,Teleport } from 'vue';
 
 const {
     placement: _placement = 'top',
@@ -64,8 +64,8 @@ const {
     placement?: 'left' | 'right' | 'top' | 'bottom';
     asCtxMenu?: boolean;
     hover?: boolean;
-    triggerClass?: unknown;
-    wrapperClass?: unknown;
+    triggerClass?: ClassValue;
+    wrapperClass?: ClassValue;
 }>();
 
 defineOptions({
