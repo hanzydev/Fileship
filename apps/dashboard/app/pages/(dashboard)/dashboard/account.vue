@@ -790,7 +790,7 @@ const handleDomainsEdit = async () => {
 const handleAiSettingsEdit = async () => {
     aiUpdating.value = true;
 
-    await $fetch('/api/users/@me/ai', {
+    await $fetch('/api/users/@me/ai-settings', {
         method: 'PATCH',
         body: aiEditData.cloned.value,
     });
