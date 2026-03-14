@@ -55,7 +55,7 @@ export default defineNuxtConfig({
             },
         },
         scheduledTasks: {
-            [process.env.DELETE_EXPIRED_CRON || '* * * * *']: 'db:deleteExpired',
+            [process.env.DELETE_EXPIRED_CRON || '*/5 * * * *']: 'db:deleteExpired',
             [process.env.GENERATE_STATS_CRON || '*/30 * * * *']: 'db:generateStats',
         },
         framework: {
