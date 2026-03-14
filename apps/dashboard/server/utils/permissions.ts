@@ -6,7 +6,7 @@ export const userOnly = (event: H3Event) => {
 
 export const adminOnly = (event: H3Event) => {
     userOnly(event);
-    if (!isAdmin(event.context.user)) throw forbiddenError;
+    if (!isAdmin(event)) throw forbiddenError;
 };
 
 export const superAdminOnly = (event: H3Event) => {
@@ -16,10 +16,10 @@ export const superAdminOnly = (event: H3Event) => {
 
 export const fileUploaderOnly = (event: H3Event) => {
     userOnly(event);
-    if (!canUploadFiles(event.context.user)) throw forbiddenError;
+    if (!canUploadFiles(event)) throw forbiddenError;
 };
 
 export const noteTakerOnly = (event: H3Event) => {
     userOnly(event);
-    if (!canTakeNotes(event.context.user)) throw forbiddenError;
+    if (!canTakeNotes(event)) throw forbiddenError;
 };
