@@ -13,8 +13,8 @@ import { z } from 'zod';
 import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import { insert, removeMultiple } from '@orama/orama';
 
-import { BackupRestoreState } from '#shared/prisma/enums';
-import { AIJobType } from '~~/generated/prisma/enums';
+import { AIJobType, BackupRestoreState } from '#shared/prisma/enums';
+import { isAdmin } from '#shared/utils/permissions';
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 

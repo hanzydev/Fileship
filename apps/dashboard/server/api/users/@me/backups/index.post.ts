@@ -5,6 +5,8 @@ import { nanoid } from 'nanoid';
 import { join } from 'pathe';
 import { create } from 'tar';
 
+import { isAdmin } from '#shared/utils/permissions';
+
 export default defineEventHandler(async (event) => {
     userOnly(event);
     const currentUser = event.context.user!;

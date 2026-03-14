@@ -1,6 +1,8 @@
 import { verify as verifyTotp } from 'otplib';
 import { z } from 'zod';
 
+import { isAdmin } from '#shared/utils/permissions';
+
 const validationSchema = z.object({
     enabled: z.boolean(),
     totp: z

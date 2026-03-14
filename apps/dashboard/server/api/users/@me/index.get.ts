@@ -1,5 +1,8 @@
 import defu from 'defu';
 
+import { defaultUserAiSettings, defaultUserLimits } from '#shared/utils/constants';
+import type { IUserAiSettings, IUserLimits } from '#shared/utils/types';
+
 export default defineEventHandler(async (event) => {
     userOnly(event);
 

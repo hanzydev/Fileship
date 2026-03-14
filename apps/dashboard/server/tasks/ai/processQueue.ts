@@ -8,7 +8,7 @@ import { extname, join } from 'pathe';
 import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import { insert, remove } from '@orama/orama';
 
-import { AIJobStatus, AIJobType } from '~~/generated/prisma/enums';
+import { AIJobStatus, AIJobType } from '#shared/prisma/enums';
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 

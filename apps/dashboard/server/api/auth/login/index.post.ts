@@ -4,6 +4,10 @@ import { nanoid } from 'nanoid';
 import { verify as verifyTotp } from 'otplib';
 import { z } from 'zod';
 
+import { defaultUserAiSettings, defaultUserLimits } from '#shared/utils/constants';
+import { isAdmin } from '#shared/utils/permissions';
+import type { IUserAiSettings, IUserLimits } from '#shared/utils/types';
+
 const validationSchema = z.object({
     username: z
         .string()

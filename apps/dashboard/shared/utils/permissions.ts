@@ -1,5 +1,5 @@
-import type { H3Event } from 'h3';
-import type { MaybeRef } from 'vue';
+import { H3Event } from 'h3';
+import { type MaybeRef, unref } from 'vue';
 
 import { UserPermission } from '#shared/prisma/enums';
 
@@ -13,7 +13,7 @@ type UserOrEvent = MaybeRef<PartialUser> | H3Event;
 const hasPermission = (user: UserOrEvent, permission: UserPermission) => {
     if (!user) return false;
 
-    const _user = 'context' in user ? user.context.user : 'value' in user ? user.value : user;
+    const _user = user instanceof H3Event ? user.context.user : unref(user);
     if (!_user) return false;
 
     return (

@@ -9,6 +9,10 @@ const corsHeaders = {
 };
 
 export default defineNuxtConfig({
+    future: {
+        compatibilityVersion: 5,
+    },
+
     modules: [
         '@nuxtjs/turnstile',
         '@nuxt/eslint',

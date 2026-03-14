@@ -1,6 +1,9 @@
 import defu from 'defu';
 import { z } from 'zod';
 
+import { defaultEmbed } from '#shared/utils/constants';
+import type { IEmbed } from '#shared/utils/types';
+
 const validationSchema = z
     .object({
         title: z.string().optional(),

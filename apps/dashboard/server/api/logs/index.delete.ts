@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 import { removeMultiple } from '@orama/orama';
 
+import { isAdmin } from '#shared/utils/permissions';
+
 const validationSchema = z
     .object({
         verificationData: z.any().optional(),

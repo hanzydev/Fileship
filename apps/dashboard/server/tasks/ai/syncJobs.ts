@@ -1,7 +1,7 @@
 import consola from 'consola';
 import { extname } from 'pathe';
 
-import { AIJobStatus, AIJobType } from '~~/generated/prisma/enums';
+import { AIJobStatus, AIJobType } from '#shared/prisma/enums';
 import { AnyNull } from '~~/generated/prisma/internal/prismaNamespace';
 
 export default defineTask({

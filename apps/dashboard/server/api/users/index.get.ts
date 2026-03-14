@@ -1,5 +1,8 @@
 import { defu } from 'defu';
 
+import { defaultUserLimits } from '#shared/utils/constants';
+import type { IUserLimits } from '#shared/utils/types';
+
 export default defineEventHandler(async (event) => {
     adminOnly(event);
 

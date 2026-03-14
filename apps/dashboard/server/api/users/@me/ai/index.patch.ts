@@ -1,6 +1,9 @@
 import { defu } from 'defu';
 import { z } from 'zod';
 
+import { defaultUserAiSettings } from '#shared/utils/constants';
+import type { IUserAiSettings } from '#shared/utils/types';
+
 const validationSchema = z
     .object({
         enabled: z.boolean().optional(),
@@ -31,5 +34,5 @@ export default defineEventHandler(async (event) => {
 
     sendToUser(currentUser.id, 'currentUser:update', { aiSettings });
 
-    return aiSettings;
+    return aiSettings as IUserAiSettings;
 });
