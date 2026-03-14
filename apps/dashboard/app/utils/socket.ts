@@ -82,11 +82,14 @@ export const initSocket = () => {
             const buildPublicUrl = (route: `/${string}`) => {
                 const reqUrl = useRequestURL();
 
-                const protocol = runtimeConfig.public.returnHttps
-                    ? runtimeConfig.public.returnHttps === 'true'
-                        ? 'https'
-                        : 'http'
-                    : reqUrl.protocol.slice(0, -1);
+                const returnHttps = runtimeConfig.public.returnHttps;
+
+                const protocol =
+                    returnHttps === 'auto'
+                        ? reqUrl.protocol.slice(0, -1)
+                        : returnHttps
+                          ? 'https'
+                          : 'http';
 
                 const domain = data.length
                     ? data[Math.floor(Math.random() * data.length)]
