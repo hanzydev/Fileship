@@ -4,9 +4,9 @@ import { nanoid } from 'nanoid';
 import { verify as verifyTotp } from 'otplib';
 import { z } from 'zod';
 
-import { defaultUserAiSettings, defaultUserLimits } from '#shared/utils/constants';
+import { defaultUserAiSettings } from '#shared/utils/constants';
 import { isAdmin } from '#shared/utils/permissions';
-import type { IUserAiSettings, IUserLimits } from '#shared/utils/types';
+import type { IUserAiSettings } from '#shared/utils/types';
 
 const validationSchema = z.object({
     username: z
@@ -159,7 +159,6 @@ export default defineEventHandler(async (event) => {
             createdAt: findUserByUsername.createdAt,
             totpEnabled: findUserByUsername.totpEnabled,
             superAdmin: findUserByUsername.superAdmin,
-            limits: defu(findUserByUsername.limits, defaultUserLimits) as IUserLimits,
             aiSettings: defu(
                 findUserByUsername.aiSettings,
                 defaultUserAiSettings,

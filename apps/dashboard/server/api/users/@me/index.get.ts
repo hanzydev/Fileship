@@ -1,7 +1,7 @@
 import defu from 'defu';
 
-import { defaultUserAiSettings, defaultUserLimits } from '#shared/utils/constants';
-import type { IUserAiSettings, IUserLimits } from '#shared/utils/types';
+import { defaultUserAiSettings } from '#shared/utils/constants';
+import type { IUserAiSettings } from '#shared/utils/types';
 
 export default defineEventHandler(async (event) => {
     userOnly(event);
@@ -37,7 +37,6 @@ export default defineEventHandler(async (event) => {
         totpEnabled: currentUser.totpEnabled,
         currentSessionId: currentUser.currentSessionId,
         superAdmin: currentUser.superAdmin,
-        limits: defu(currentUser.limits, defaultUserLimits) as IUserLimits,
         backupRestoreState: currentUser.backupRestoreState,
         theme: currentUser.theme,
         aiSettings: defu(currentUser.aiSettings, defaultUserAiSettings) as IUserAiSettings,

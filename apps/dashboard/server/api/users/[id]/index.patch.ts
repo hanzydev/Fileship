@@ -230,7 +230,7 @@ export default defineEventHandler(async (event) => {
         ..._updatedUser,
         _count: undefined,
         stats: _updatedUser._count,
-        limits: defu(_updatedUser.limits, defaultUserLimits) as IUserLimits,
+        limits: defu(_updatedUser.limits, defaultUserLimits) as IUserLimits | undefined,
     };
 
     await update(userSearchDb, updatedUser.id, {
@@ -244,6 +244,8 @@ export default defineEventHandler(async (event) => {
     });
 
     await sendByFilter(isAdmin, 'user:update', updatedUser);
+
+    updatedUser.limits = undefined;
 
     sendToUser(updatedUser.id, 'currentUser:update', updatedUser);
 

@@ -9,8 +9,8 @@ import {
 } from '@simplewebauthn/server';
 import type { AuthenticatorTransportFuture } from '@simplewebauthn/types';
 
-import { defaultUserAiSettings, defaultUserLimits } from '#shared/utils/constants';
-import type { IUserAiSettings, IUserLimits } from '#shared/utils/types';
+import { defaultUserAiSettings } from '#shared/utils/constants';
+import type { IUserAiSettings } from '#shared/utils/types';
 
 const validationSchema = z.union([
     z.object({
@@ -167,7 +167,6 @@ export default defineEventHandler(async (event) => {
                     createdAt: findUserByUsername.createdAt,
                     totpEnabled: findUserByUsername.totpEnabled,
                     superAdmin: findUserByUsername.superAdmin,
-                    limits: defu(findUserByUsername.limits, defaultUserLimits) as IUserLimits,
                     aiSettings: defu(
                         findUserByUsername.aiSettings,
                         defaultUserAiSettings,
