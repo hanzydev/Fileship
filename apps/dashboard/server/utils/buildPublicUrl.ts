@@ -1,7 +1,7 @@
 import type { H3Event } from 'h3';
 
 export const buildPublicUrl = (event: H3Event, domains: string[], route: `/${string}`) => {
-    const reqUrl = getRequestURL(event);
+    const reqUrl = getRequestURL(event, { xForwardedHost: true, xForwardedProto: true });
     const runtimeConfig = useRuntimeConfig();
 
     const returnHttps = runtimeConfig.public.returnHttps;

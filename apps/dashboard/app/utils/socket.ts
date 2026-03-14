@@ -80,7 +80,7 @@ export const initSocket = () => {
             domains.value = data;
 
             const buildPublicUrl = (route: `/${string}`) => {
-                const reqUrl = useRequestURL();
+                const reqUrl = useRequestURL({ xForwardedHost: true, xForwardedProto: true });
 
                 const returnHttps = runtimeConfig.public.returnHttps;
 
