@@ -66,7 +66,7 @@
                     leave-active-class="motion-safe:(animate-out fade-out zoom-out-95)"
                 >
                     <div
-                        v-if="selectionMode && selectedFiles.length && files.length"
+                        v-if="selectionMode && selectedFiles.length && filtered.length"
                         flex="~ items-center gap-2"
                     >
                         <UiButton
@@ -103,9 +103,9 @@
                     leave-active-class="motion-safe:(animate-out fade-out zoom-out-95)"
                 >
                     <UiButton
-                        v-if="selectionMode && files.length"
+                        v-if="selectionMode && filtered.length"
                         :icon="
-                            selectedFiles.length === files.length
+                            selectedFiles.length === filtered.length
                                 ? 'solar:list-cross-minimalistic-bold'
                                 : 'solar:list-check-minimalistic-bold'
                         "
@@ -116,12 +116,14 @@
                         rounded-xl="!"
                         :disabled="bulkDeleting"
                         @click="
-                            selectedFiles.length === files.length
+                            selectedFiles.length === filtered.length
                                 ? (selectedFiles = [])
-                                : (selectedFiles = files.map((f) => f.id))
+                                : (selectedFiles = filtered.map((f) => f.id))
                         "
                     >
-                        {{ selectedFiles.length === files.length ? 'Deselect All' : 'Select All' }}
+                        {{
+                            selectedFiles.length === filtered.length ? 'Deselect All' : 'Select All'
+                        }}
                     </UiButton>
                 </Transition>
                 <Transition
@@ -129,7 +131,7 @@
                     leave-active-class="motion-safe:(animate-out fade-out zoom-out-95)"
                 >
                     <UiButton
-                        v-if="files.length"
+                        v-if="filtered.length"
                         :icon="
                             selectionMode ? 'solar:close-square-bold' : 'solar:check-square-bold'
                         "
@@ -186,7 +188,7 @@
                 <div v-for="file in calculatedFiles" :key="file.id" op0 class="fileCard">
                     <FileCard
                         :data="file"
-                        :selectable="selectionMode && files.length > 0"
+                        :selectable="selectionMode && filtered.length > 0"
                         :selected="selectionMode && selectedFiles.includes(file.id)"
                         @view-file="
                             (file) => {
