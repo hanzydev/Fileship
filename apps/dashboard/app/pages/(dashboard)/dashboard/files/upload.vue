@@ -263,12 +263,6 @@ const settings = reactive<{
 
 const id = useId();
 
-let {
-    public: { fileChunkSize },
-} = useRuntimeConfig();
-
-fileChunkSize = (+fileChunkSize || 25) * 1024 * 1024;
-
 const handleUpload = async () => {
     uploading.value = true;
 
@@ -286,109 +280,24 @@ const handleUpload = async () => {
         );
     }
 
-    const uploadFile = async (file: File) => {
-        const chunks = Math.ceil(file.size / fileChunkSize);
-        const uploadingFile = uploadingFiles.value.find((f) => f.name === file.name);
-
-        if (!uploadingFile) return;
-
-        if (!uploadingFile.status) {
-            uploadingFile.status = reactive({
-                started: false,
-                progress: {
-                    speed: 0,
-                    percent: 0,
-                    eta: 0,
-                },
-                error: null,
-            });
-        }
-
-        uploadingFile.status!.started = true;
-
-        const startedAt = Date.now();
-        let totalLoaded = 0;
-
-        for (let i = 0; i < chunks; i++) {
-            const start = i * fileChunkSize;
-            const end = Math.min(file.size, start + fileChunkSize);
-            const chunk = file.slice(start, end);
-
-            const formData = new FormData();
-
-            formData.append('file', new Blob([chunk], { type: file.type }), file.name);
-            formData.append('currentChunk', (i + 1).toString());
-            formData.append('totalChunks', chunks.toString());
-            formData.append('fileNameType', settings.fileNameType);
-            formData.append('maxViews', settings.maxViews.toString());
-            formData.append('compression', settings.compression.value.toString());
-
-            if (settings.password) {
-                formData.append('password', settings.password);
-            }
-
-            if (settings.expiration.value) {
-                formData.append('expiration', settings.expiration.value.toString());
-            }
-
-            if (settings.folder.value) {
-                formData.append('folderId', settings.folder.value);
-            }
-
-            const res = await new Promise<boolean>((resolve) => {
-                const req = new XMLHttpRequest();
-
-                let lastLoaded = 0;
-
-                req.upload.addEventListener('progress', (e) => {
-                    if (e.lengthComputable) {
-                        const sent = e.loaded - lastLoaded;
-                        lastLoaded = e.loaded;
-                        totalLoaded += sent;
-
-                        const speed = totalLoaded / ((Date.now() - startedAt) / 1000);
-                        const percent = Math.round((totalLoaded / file.size) * 100);
-                        const eta = Math.round((file.size - totalLoaded) / speed);
-
-                        uploadingFile.status!.progress = {
-                            speed,
-                            percent,
-                            eta,
-                        };
-                    }
-                });
-
-                req.addEventListener('load', () => {
-                    if (req.responseText.length) {
-                        const res = JSON.parse(req.responseText);
-                        if (res.error) {
-                            uploadingFile.status!.error = res.message;
-                            resolve(false);
-                            return;
-                        }
-                    }
-
-                    uploadingFile.status!.error = null;
-                    resolve(true);
-                });
-
-                req.open('POST', '/api/files');
-                req.send(formData);
-            });
-
-            if (!res) return false;
-        }
-
-        return true;
-    };
-
     const results: boolean[] = [];
     const parallelUploads = 3;
     const files = [...uploadingFiles.value];
 
     while (files.length > 0) {
         const chunk = files.splice(0, parallelUploads);
-        const chunkResults = await Promise.all(chunk.map(uploadFile));
+        const chunkResults = await Promise.all(
+            chunk.map((c) =>
+                uploadFile(c, {
+                    fileNameType: settings.fileNameType,
+                    maxViews: settings.maxViews,
+                    password: settings.password,
+                    expiration: settings.expiration.value,
+                    compression: settings.compression.value,
+                    folder: settings.folder.value,
+                }),
+            ),
+        );
         results.push(...chunkResults.filter((r) => r !== undefined));
     }
 
