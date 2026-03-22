@@ -46,6 +46,7 @@ export default defineNuxtConfig({
 
     experimental: {
         clientNodeCompat: true,
+        nitroAutoImports: true,
     },
 
     nitro: {
