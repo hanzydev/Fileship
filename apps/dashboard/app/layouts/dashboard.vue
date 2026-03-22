@@ -54,6 +54,7 @@ const domains = useDomains();
 const currentUser = useAuthUser();
 const uploading = useIsUploading();
 const uploadingFiles = useUploadingFiles();
+const route = useRoute();
 const { $toast } = useNuxtApp();
 
 const dashboardRef = useTemplateRef('dashboard');
@@ -92,11 +93,14 @@ const handleUpload = async (files: File[] | null, source: 'drag-drop' | 'paste')
     }
 };
 
-const { isOverDropZone } = useDropZone(dashboardRef, {
-    onDrop: (files: File[]) => handleUpload(files, 'drag-drop'),
-    multiple: true,
-    preventDefaultForUnhandled: false,
-});
+const { isOverDropZone } = useDropZone(
+    computed(() => (route.path === '/dashboard/files/upload' ? null : dashboardRef.value)),
+    {
+        onDrop: (files: File[]) => handleUpload(files, 'drag-drop'),
+        multiple: true,
+        preventDefaultForUnhandled: false,
+    },
+);
 
 useEventListener(window, 'paste', (event: ClipboardEvent) => {
     const items = event.clipboardData?.items;
