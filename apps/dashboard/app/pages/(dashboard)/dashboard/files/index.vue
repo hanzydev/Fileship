@@ -16,6 +16,47 @@
         @confirm="handleBulkDelete"
     />
 
+    <UiModal v-model="addToFolderModalOpen" max-w="2xl">
+        <div p8 space-y-4>
+            <h2>Add to Folder</h2>
+            <p text-fs-muted-2>Select a folder to add the selected files to:</p>
+
+            <div flex="~ gap4 wrap" max-h-300px wfull overflow-auto p-px>
+                <div
+                    v-for="folder in folders"
+                    :key="folder.id"
+                    flex="[1_0_calc(25%-1rem)]"
+                    max-w-full
+                >
+                    <UiButton
+                        alignment="center"
+                        icon="solar:folder-bold"
+                        icon-size="20"
+                        w-full
+                        gap2
+                        rounded-xl="!"
+                        @click="handleAddToFolder(folder.id)"
+                    >
+                        {{ folder.name }}
+                    </UiButton>
+                </div>
+            </div>
+
+            <UiButton
+                alignment="center"
+                variant="accent"
+                icon="lucide:x"
+                icon-size="24"
+                wfull
+                gap2
+                rounded-xl="!"
+                @click="addToFolderModalOpen = false"
+            >
+                Cancel
+            </UiButton>
+        </div>
+    </UiModal>
+
     <DashboardContent>
         <template #header>
             <h2 lt-md="text-2xl!">Files</h2>
@@ -24,20 +65,38 @@
                     enter-active-class="motion-safe:(animate-in fade-in zoom-in-95)"
                     leave-active-class="motion-safe:(animate-out fade-out zoom-out-95)"
                 >
-                    <UiButton
+                    <div
                         v-if="selectionMode && selectedFiles.length && files.length"
-                        icon="solar:trash-bin-minimalistic-bold"
-                        icon-size="20"
-                        alignment="center"
-                        variant="dangerFill"
-                        gap-2
-                        rounded-xl="!"
-                        :disabled="bulkDeleting"
-                        :loading="bulkDeleting"
-                        @click="areYouSureModalOpen = true"
+                        flex="~ items-center gap-2"
                     >
-                        Delete Selected ({{ selectedFiles.length }})
-                    </UiButton>
+                        <UiButton
+                            icon="solar:trash-bin-minimalistic-bold"
+                            icon-size="20"
+                            alignment="center"
+                            variant="dangerFill"
+                            gap-2
+                            rounded-xl="!"
+                            :disabled="bulkDeleting"
+                            :loading="bulkDeleting"
+                            @click="areYouSureModalOpen = true"
+                        >
+                            Delete Selected ({{ selectedFiles.length }})
+                        </UiButton>
+                        <UiButton
+                            v-if="folders.length"
+                            icon="solar:add-folder-bold"
+                            icon-size="20"
+                            alignment="center"
+                            variant="primary"
+                            gap-2
+                            rounded-xl="!"
+                            :disabled="addingToFolder"
+                            :loading="addingToFolder"
+                            @click="addToFolderModalOpen = true"
+                        >
+                            Add to Folder ({{ selectedFiles.length }})
+                        </UiButton>
+                    </div>
                 </Transition>
                 <Transition
                     enter-active-class="motion-safe:(animate-in fade-in zoom-in-95)"
@@ -167,7 +226,9 @@ const searched = ref<string[] | null>(null);
 
 const selectionMode = ref(false);
 const bulkDeleting = ref(false);
+const addingToFolder = ref(false);
 const areYouSureModalOpen = ref(false);
+const addToFolderModalOpen = ref(false);
 const selectedFiles = ref<string[]>([]);
 
 const viewFileModal = reactive({ open: false, fileId: null as string | null });
@@ -223,7 +284,9 @@ const handleBulkDelete = async () => {
             body: { files: selectedFiles.value },
         });
 
-        $toast.success(`${selectedFiles.value.length} files deleted successfully`);
+        const selectedCount = selectedFiles.value.length;
+
+        $toast.success(`${selectedCount} file${selectedCount > 1 ? 's' : ''} deleted successfully`);
 
         selectedFiles.value = [];
         selectionMode.value = false;
@@ -232,6 +295,32 @@ const handleBulkDelete = async () => {
     }
 
     bulkDeleting.value = false;
+};
+
+const handleAddToFolder = async (folderId: string) => {
+    const findFolder = folders.value.find((f) => f.id === folderId);
+    if (!findFolder) return;
+
+    addingToFolder.value = true;
+
+    try {
+        await $fetch(`/api/folders/${folderId}`, {
+            method: 'PATCH',
+            body: { files: findFolder.files.concat(selectedFiles.value) },
+        });
+
+        const selectedCount = selectedFiles.value.length;
+
+        $toast.success(`${selectedCount} file${selectedCount > 1 ? 's' : ''} moved successfully`);
+
+        selectedFiles.value = [];
+        selectionMode.value = false;
+        addToFolderModalOpen.value = false;
+    } catch (error: any) {
+        $toast.error(error.data.message);
+    }
+
+    addingToFolder.value = false;
 };
 
 onMounted(async () => {
