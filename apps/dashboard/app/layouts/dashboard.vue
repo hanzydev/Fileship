@@ -115,7 +115,13 @@ useEventListener(window, 'paste', (event: ClipboardEvent) => {
         }
     }
 
-    if (files.length > 0) handleUpload(files, 'paste');
+    if (files.length > 0) {
+        if (route.path !== '/dashboard/files/upload') handleUpload(files, 'paste');
+        else {
+            const filesCopy = [...files];
+            uploadingFiles.value = [...uploadingFiles.value, ...filesCopy];
+        }
+    }
 });
 
 onMounted(async () => {
