@@ -13,8 +13,8 @@
                 enter-active-class="motion-safe:(animate-in fade-in data-[hubmode=true]:slide-in-from-left data-[hubmode=false]:slide-in-from-right animate-duration-250)"
                 leave-active-class="motion-safe:(animate-out fade-out data-[hubmode=true]:slide-out-to-left data-[hubmode=false]:slide-out-to-right animate-duration-250)"
                 :data-hubmode="hubMode"
-                @enter="height = $event.clientHeight"
-                @after-enter="$event.querySelector('input')?.focus()"
+                @enter="({ clientHeight }) => (height = clientHeight)"
+                @after-enter="(event) => event.querySelector('input')?.focus()"
             >
                 <div v-if="hubMode" flex="~ col items-center justify-center gap8" absolute wfull p8>
                     <div flex="~ lt-sm:col items-center gap4">

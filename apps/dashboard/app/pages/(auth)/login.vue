@@ -21,7 +21,7 @@
                     enter-active-class="motion-safe:(animate-in fade-in data-[view=main]:slide-in-from-left data-[view=totp]:slide-in-from-right animate-duration-250)"
                     leave-active-class="motion-safe:(animate-out fade-out data-[view=main]:slide-out-to-left data-[view=totp]:slide-out-to-right animate-duration-250)"
                     @enter="calculateHeight"
-                    @after-enter="$event.querySelector('input')?.focus()"
+                    @after-enter="(event) => event.querySelector('input')?.focus()"
                 >
                     <form
                         v-if="currentView === 'main'"
