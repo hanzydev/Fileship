@@ -52,6 +52,7 @@
 
             <div
                 v-if="aiEnabled"
+                :key="currentSuggestionIndex"
                 ref="aiSuggestion"
                 translate-y-="1/2"
                 top="1/2"
