@@ -17,10 +17,8 @@
     },
     "pnpm": {
         "overrides": {
-            "@nuxt/vite-builder": "^4.4.2",
             "sharp": "0.33.4",
-            "unconfig": "^7.5.0",
-            "vite": "npm:rolldown-vite@latest"
+            "unconfig": "^7.5.0"
         }
     },
     "packageManager": "pnpm@10.32.1"
