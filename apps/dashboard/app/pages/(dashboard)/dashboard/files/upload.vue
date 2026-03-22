@@ -3,87 +3,6 @@
         <Title>Upload Files</Title>
     </Head>
 
-    <UiModal v-model="settingsModalOpen" p8 space-y-4>
-        <h2>Upload Settings</h2>
-
-        <div v-if="currentTab === 'Media Upload'" space-y-1>
-            <UiLabel :for="id">File Name Type</UiLabel>
-
-            <UiTabs
-                :id
-                v-model="settings.fileNameType"
-                variant="secondary"
-                :items="[
-                    {
-                        label: 'Random',
-                        icon: 'solar:box-bold',
-                    },
-                    {
-                        label: 'UUID',
-                        icon: 'solar:key-bold',
-                    },
-                    {
-                        label: 'Original',
-                        icon: 'solar:document-bold',
-                    },
-                ]"
-                rounded-xl="!"
-                button-class="rounded-lg!"
-                width-full
-            />
-        </div>
-
-        <UiInput
-            v-model="settings.password!"
-            wfull
-            label="Password"
-            type="password"
-            :disabled="uploading"
-        />
-        <UiInput
-            v-model="settings.maxViews"
-            wfull
-            label="Max Views"
-            caption="Set to 0 for unlimited views."
-            type="number"
-            :min="0"
-            :disabled="uploading"
-        />
-        <ExpirationPicker v-model="settings.expiration">
-            <UiInput
-                v-model="settings.expiration.label"
-                label="Expiration"
-                type="string"
-                :disabled="uploading"
-                readonly
-                wfull
-                cursor-pointer="!"
-            />
-        </ExpirationPicker>
-        <CompressionPicker v-if="currentTab === 'Media Upload'" v-model="settings.compression">
-            <UiInput
-                v-model="settings.compression.label"
-                label="Compression"
-                type="string"
-                :disabled="uploading"
-                readonly
-                wfull
-                cursor-pointer="!"
-            />
-        </CompressionPicker>
-        <FolderPicker v-model="settings.folder">
-            <UiInput
-                v-model="settings.folder.label"
-                label="Folder"
-                type="string"
-                :disabled="uploading"
-                readonly
-                wfull
-                cursor-pointer="!"
-            />
-        </FolderPicker>
-    </UiModal>
-
     <DashboardContent>
         <template #header>
             <UiButton
@@ -115,89 +34,31 @@
             :disabled="uploading"
         />
 
-        <div wfull rounded-xl bg-fs-overlay-2 p6 space-y-6 border="~ fs-overlay-4">
-            <h3>
-                <template v-if="currentTab === 'Media Upload'">Upload Media Files</template>
-                <template v-else>Create Text File</template>
-            </h3>
-
-            <DropZone
-                v-if="currentTab === 'Media Upload'"
-                v-model="uploadingFiles"
-                :disabled="uploading"
-            />
-
-            <div v-else space-y-4>
-                <div flex="~ items-center gap4 <sm:col" wfull>
-                    <UiInput
-                        v-model="textFileData.fileName"
-                        label="File Name"
-                        type="text"
-                        required
-                        wfull
-                        flex-1
-                        wrapper-class="wfull"
-                        :disabled="uploading"
-                    />
-                    <FileTypePicker v-model="textFileData.fileType">
-                        <UiInput
-                            v-model="textFileData.fileType.label"
-                            label="File Type"
-                            type="string"
-                            :disabled="uploading"
-                            cursor-pointer="!"
-                            readonly
-                            required
-                            wfull
-                            wrapper-class="wfull sm:w72"
-                        />
-                    </FileTypePicker>
-                </div>
-
-                <UiTextArea
-                    v-model="textFileData.content"
+        <div grid="~ cols-1 lg:cols-3 gap6" wfull>
+            <div lg:col-span-2>
+                <UploadZoneSection
+                    ref="uploadZoneSectionRef"
+                    :active-tab="currentTab"
                     :disabled="uploading"
-                    label="Text"
-                    required
-                    wfull
+                    @upload="handleUpload"
                 />
             </div>
 
-            <div flex="~ gap2 items-center">
-                <UiButton
-                    wfull
-                    gap2
-                    alignment="center"
-                    variant="accent"
-                    icon="solar:upload-minimalistic-linear"
-                    icon-size="20"
-                    :disabled="
-                        uploading ||
-                        (!uploadingFiles.length &&
-                            (!textFileData.content || !textFileData.fileName))
-                    "
-                    :loading="uploading"
-                    @click="handleUpload"
-                >
-                    <template v-if="currentTab === 'Media Upload'">Upload File(s)</template>
-                    <template v-else>Create Text</template>
-                </UiButton>
-                <UiButton
-                    h10
-                    w10
-                    p0="!"
-                    alignment="center"
-                    icon="solar:settings-minimalistic-bold"
-                    icon-size="20"
-                    variant="secondary"
-                    flex-shrink-0
-                    :disabled="
-                        uploading ||
-                        (!uploadingFiles.length &&
-                            (!textFileData.content || !textFileData.fileName))
-                    "
-                    @click="settingsModalOpen = true"
-                />
+            <div lg:col-span-1>
+                <div border="~ fs-overlay-4" sticky top-6 wfull rounded-xl bg-fs-overlay-2 p6>
+                    <UploadSettings
+                        :settings="settings"
+                        :disabled="uploading"
+                        :show-file-name-type="currentTab === 'Media Upload'"
+                        :show-compression="currentTab === 'Media Upload'"
+                        @update:file-name-type="(val) => (settings.fileNameType = val)"
+                        @update:password="(val) => (settings.password = val)"
+                        @update:max-views="(val) => (settings.maxViews = val)"
+                        @update:expiration="(val) => (settings.expiration = val)"
+                        @update:folder="(val) => (settings.folder = val)"
+                        @update:compression="(val) => (settings.compression = val)"
+                    />
+                </div>
             </div>
         </div>
     </DashboardContent>
@@ -218,14 +79,9 @@ folders.value = foldersData.value!.map((f) => ({
 const uploading = useIsUploading();
 const uploadingFiles = useUploadingFiles();
 
-const settingsModalOpen = ref(false);
-const currentTab = ref('Media Upload');
+const currentTab = ref<'Media Upload' | 'Text Upload'>('Media Upload');
 
-const textFileData = reactive({
-    fileName: '',
-    fileType: TEXT_FILE_TYPES[0]!,
-    content: '',
-});
+const uploadZoneSectionRef = ref<any>(null);
 
 const settings = reactive<{
     fileNameType: 'Random' | 'UUID' | 'Original';
@@ -261,12 +117,12 @@ const settings = reactive<{
     },
 });
 
-const id = useId();
-
 const handleUpload = async () => {
     uploading.value = true;
 
-    if (currentTab.value === 'Text Upload') {
+    const textFileData = uploadZoneSectionRef.value?.textFileData;
+
+    if (currentTab.value === 'Text Upload' && textFileData) {
         settings.fileNameType = 'Original';
 
         uploadingFiles.value.push(
@@ -307,9 +163,11 @@ const handleUpload = async () => {
     if (!uploadingFiles.value.length) {
         $toast.success('All files uploaded successfully');
 
-        textFileData.fileName = '';
-        textFileData.content = '';
-        textFileData.fileType = TEXT_FILE_TYPES[0]!;
+        if (textFileData) {
+            textFileData.fileName = '';
+            textFileData.content = '';
+            textFileData.fileType = TEXT_FILE_TYPES[0]!;
+        }
     } else {
         $toast.error('Some files could not be uploaded');
     }
@@ -324,9 +182,12 @@ router.beforeEach((_, __, next) => {
 watch(currentTab, () => {
     uploadingFiles.value = [];
 
-    textFileData.fileName = '';
-    textFileData.content = '';
-    textFileData.fileType = TEXT_FILE_TYPES[0]!;
+    const textFileData = uploadZoneSectionRef.value?.textFileData;
+    if (textFileData) {
+        textFileData.fileName = '';
+        textFileData.content = '';
+        textFileData.fileType = TEXT_FILE_TYPES[0]!;
+    }
 });
 
 definePageMeta({
