@@ -16,7 +16,7 @@
             placeholder-fs-muted-2
             ring="1 fs-overlay-4"
             :class="[disabled || $props.readonly ? 'cursor-not-allowed' : 'focus:ring-fs-accent']"
-            :rows="lines > 10 ? lines : 10"
+            :rows
             :required
             :disabled
             :readonly
@@ -41,5 +41,8 @@ const value = defineModel<string>({ required: true });
 
 const id = useId();
 
-const lines = computed(() => value.value.split('\n').length);
+const rows = computed(() => {
+    const lines = value.value.split('\n').length;
+    return clamp(lines, 10, 20);
+});
 </script>
