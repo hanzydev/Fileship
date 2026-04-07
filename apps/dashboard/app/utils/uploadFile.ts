@@ -77,7 +77,7 @@ export const uploadFile = async (
                     totalLoaded += sent;
 
                     const speed = totalLoaded / ((Date.now() - startedAt) / 1000);
-                    const percent = Math.round((totalLoaded / file.size) * 100);
+                    const percent = clamp(Math.round((totalLoaded / file.size) * 100), 0, 100);
                     const eta = Math.round((file.size - totalLoaded) / speed);
 
                     uploadingFile.status!.progress = {
