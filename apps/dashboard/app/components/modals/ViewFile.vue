@@ -36,7 +36,7 @@
                 z20
                 wfull
                 motion-safe="transition-opacity"
-                :class="zoom.zoomedIn && 'opacity-0'"
+                :class="zoom.zoomedIn && 'op0'"
             >
                 <div space-y-2>
                     <h3 line-clamp-2 break-all>{{ data.fileName }}</h3>
@@ -178,7 +178,7 @@
                     rounded-2xl="!"
                     :class="[
                         'z20 size-11 shrink-0 text-fs-muted-2 !p0 hover:text-white motion-safe:transition-opacity',
-                        zoom.zoomedIn && 'opacity-0',
+                        zoom.zoomedIn && 'op0!',
                     ]"
                     :disabled="isFirst || !prev"
                     @click="handlePrev"
@@ -260,7 +260,7 @@
                     rounded-2xl="!"
                     :class="[
                         'z20 size-11 shrink-0 text-fs-muted-2 !p0 hover:text-white motion-safe:transition-opacity',
-                        zoom.zoomedIn && 'opacity-0',
+                        zoom.zoomedIn && 'op0!',
                     ]"
                     :disabled="isLast || !next"
                     @click="handleNext"
@@ -274,7 +274,7 @@
                 w-full
                 flex="~ justify-center"
                 motion-safe="transition-opacity"
-                :class="zoom.zoomedIn && 'opacity-0'"
+                :class="zoom.zoomedIn && 'op0'"
             >
                 <div
                     v-if="!isScrollable"
