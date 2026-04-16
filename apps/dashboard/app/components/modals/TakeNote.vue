@@ -1,14 +1,21 @@
 <template>
-    <UiModal v-model="isOpen">
-        <form p8 space-y-4 @submit.prevent="handleEdit">
-            <h2>Edit Note</h2>
+    <UiModal
+        v-model="isOpen"
+        @closed="
+            note.title = '';
+            note.content = '';
+            formErrors = {};
+        "
+    >
+        <form p8 space-y-4 @submit.prevent="handleSubmit">
+            <h2>Take a Note</h2>
 
             <UiInput
-                v-model="editData.cloned.value!.title"
+                v-model="note.title"
                 label="Title"
                 type="text"
                 :error="formErrors?.title?._errors?.[0]"
-                :disabled="updating"
+                :disabled
                 required
                 wfull
                 rounded-xl="!"
@@ -30,15 +37,15 @@
                         px2.5!
                         py0.75!
                         text-sm!
-                        :disabled="updating"
+                        :disabled
                         @click="previewMode = !previewMode"
                     >
                         {{ previewMode ? 'Edit' : 'Preview' }}
                     </UiButton>
                     <UiTextArea
                         v-if="!previewMode"
-                        v-model="editData.cloned.value!.content"
-                        :disabled="updating"
+                        v-model="note.content"
+                        :disabled
                         required
                         wfull
                         rounded-xl="!"
@@ -54,15 +61,16 @@
                     >
                         <MarkdownRenderer
                             variant="secondary"
-                            :content="editData.cloned.value!.content"
+                            :content="note.content"
                             px3.5!
                             py2.5!
                         />
                     </div>
                 </div>
             </div>
+
             <div flex="~ gap2 items-center">
-                <UiSwitch v-model="editData.cloned.value!.public" :disabled="updating" />
+                <UiSwitch v-model="note.public" :disabled />
                 <span text-fs-muted-1 font-medium="!">Public</span>
             </div>
 
@@ -86,8 +94,8 @@
                     type="submit"
                     icon="solar:pen-2-bold"
                     icon-size="20"
-                    :loading="updating"
-                    :disabled="updating"
+                    :loading="disabled"
+                    :disabled
                     rounded-xl="!"
                 >
                     Save
@@ -98,47 +106,37 @@
 </template>
 
 <script setup lang="ts">
-const { data } = defineProps<{
-    data: NoteData;
-}>();
-
 const isOpen = defineModel<boolean>({ required: true });
 
 const { $toast } = useNuxtApp();
 
 const formErrors = ref();
-const updating = ref(false);
+const disabled = ref(false);
 const previewMode = ref(false);
 
-const editData = useCloned(data);
+const note = reactive({
+    title: '',
+    content: '',
+    public: false,
+});
 
-const handleEdit = async () => {
-    updating.value = true;
+const handleSubmit = async () => {
+    disabled.value = true;
     formErrors.value = {};
 
     try {
-        await $fetch(`/api/notes/${data!.id}`, {
-            method: 'PATCH',
-            body: {
-                title: editData.cloned.value!.title,
-                content: editData.cloned.value!.content,
-                public: editData.cloned.value!.public,
-            },
+        await $fetch('/api/notes', {
+            method: 'POST',
+            body: note,
         });
 
         isOpen.value = false;
 
-        $toast.success('Note updated successfully');
+        $toast.success('Note taken successfully');
     } catch (error: any) {
-        if (!error.data.data?.formErrors) $toast.error(error.data.message);
         formErrors.value = error.data.data?.formErrors;
     }
 
-    updating.value = false;
+    disabled.value = false;
 };
-
-watch(
-    () => data,
-    (value) => (editData.cloned.value = JSON.parse(JSON.stringify(value))),
-);
 </script>

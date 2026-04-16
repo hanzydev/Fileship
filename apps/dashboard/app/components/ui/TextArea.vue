@@ -1,5 +1,5 @@
 <template>
-    <div space-y-1>
+    <div :class="wrapperClass" space-y-1>
         <UiLabel v-if="label" :for="id" :required :error>
             {{ label }}
         </UiLabel>
@@ -25,12 +25,15 @@
 </template>
 
 <script setup lang="ts">
+import type { ClassValue } from 'vue';
+
 const { readonly = false } = defineProps<{
     error?: string;
     label?: string;
     required?: boolean;
     disabled?: boolean;
     readonly?: boolean;
+    wrapperClass?: ClassValue;
 }>();
 
 defineOptions({

@@ -1,7 +1,7 @@
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
     userOnly(event);
 
-    return prisma.note.findMany({
+    const notes = await prisma.note.findMany({
         where: {
             authorId: event.context.user!.id,
         },
@@ -9,4 +9,11 @@ export default defineEventHandler((event) => {
             createdAt: 'desc',
         },
     });
+
+    return notes.map((note) => ({
+        ...note,
+        publicUrl: note.public
+            ? buildPublicUrl(event, event.context.user!.domains, `/note/${note.id}`)
+            : undefined,
+    }));
 });

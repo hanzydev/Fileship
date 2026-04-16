@@ -17,6 +17,7 @@
                 'bg-transparent ring-1 ring-red-500': variant === 'danger',
                 'bg-red-500': variant === 'dangerFill',
                 'bg-transparent ring-1 ring-fs-accent': variant === 'outline',
+                'bg-white/5 backdrop-blur-md': variant === 'glass',
 
                 // alignments
                 'justify-start text-left': alignment === 'left',
@@ -36,6 +37,7 @@
                       'hover:(bg-red-600 ring-1 ring-white)': variant === 'dangerFill',
                       'hover:bg-fs-accent': variant === 'outline',
                       'hover:bg-fs-overlay-3': variant === 'onOverlay',
+                      'hover:bg-white/7.5': variant === 'glass',
                   },
         ]"
         :target="href ? (href?.startsWith('http') ? '_blank' : '_self') : undefined"
@@ -72,6 +74,7 @@ const {
         | 'dangerFill'
         | 'outline'
         | 'onOverlay'
+        | 'glass'
         | 'ghost';
     alignment?: 'left' | 'center' | 'right';
     loading?: boolean;

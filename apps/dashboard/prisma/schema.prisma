@@ -127,6 +127,7 @@ model Note {
   createdAt DateTime @default(now())
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
+  public    Boolean  @default(false)
 }
 
 model Folder {

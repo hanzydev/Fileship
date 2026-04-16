@@ -83,14 +83,49 @@
             </div>
         </div>
 
-        <UiTextArea
-            v-model="data!.content"
-            label="Content"
-            readonly
-            wfull
-            cursor-text="!"
-            rounded-xl="!"
-        />
+        <div space-y-1>
+            <UiLabel required>Content</UiLabel>
+            <div relative>
+                <UiButton
+                    alignment="center"
+                    variant="glass"
+                    :icon="previewMode ? 'solar:text-bold' : 'solar:eye-bold'"
+                    icon-size="16"
+                    aria-label="previewMode ? 'Preview' : 'Raw'"
+                    absolute
+                    right-3.5
+                    top-3.5
+                    z-10
+                    gap-1.5
+                    px2.5!
+                    py0.75!
+                    text-sm!
+                    @click="previewMode = !previewMode"
+                >
+                    {{ previewMode ? 'Raw' : 'Preview' }}
+                </UiButton>
+                <UiTextArea
+                    v-if="!previewMode"
+                    v-model="data!.content"
+                    readonly
+                    cursor-text="!"
+                    required
+                    wfull
+                    rounded-xl="!"
+                />
+                <div
+                    v-else
+                    border="~ fs-overlay-4"
+                    max-h-500px
+                    min-h-250px
+                    overflow-auto
+                    rounded-xl
+                    bg-fs-overlay-3
+                >
+                    <MarkdownRenderer variant="secondary" :content="data!.content" px3.5! py2.5! />
+                </div>
+            </div>
+        </div>
 
         <div flex="~ gap4 <md:col">
             <UiButton
@@ -134,6 +169,7 @@ const { data: _data } = defineProps<{
 const isOpen = defineModel<boolean>({ required: true });
 
 const data = ref(_data);
+const previewMode = ref(true);
 
 const notes = useNotes();
 const currentUser = useAuthUser();

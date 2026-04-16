@@ -3,7 +3,7 @@
         <Title>Notes</Title>
     </Head>
 
-    <ModalsTakeNotes v-model="takeNotesModalOpen" />
+    <ModalsTakeNote v-model="takeNotesModalOpen" />
 
     <DashboardContent>
         <template #header>

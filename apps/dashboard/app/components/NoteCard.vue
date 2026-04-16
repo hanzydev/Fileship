@@ -35,6 +35,7 @@
         <template #content>
             <div w48 rounded-xl bg-fs-overlay-2 p1 space-y-1 ring="1 fs-overlay-4">
                 <UiButton
+                    v-if="data.public"
                     variant="onOverlay"
                     icon="solar:clipboard-bold"
                     icon-size="20"
@@ -42,7 +43,7 @@
                     gap2
                     @click="handleCopy"
                 >
-                    Copy
+                    Copy Link
                 </UiButton>
                 <UiButton
                     variant="onOverlay"
@@ -104,9 +105,9 @@ const handleDelete = async () => {
 };
 
 const handleCopy = () => {
-    copy(data.content);
+    copy(data.publicUrl!);
     ctxOpen.value = false;
 
-    $toast.success('Note copied to clipboard');
+    $toast.success('Note link copied to clipboard');
 };
 </script>

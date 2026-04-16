@@ -15,6 +15,7 @@ const validationSchema = z
             .min(1, 'Content must be at least 1 character')
             .max(50_000, 'Content must be at most 50000 characters')
             .optional(),
+        public: z.boolean().optional(),
     })
     .strict();
 
@@ -48,12 +49,19 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const updatedNote = await prisma.note.update({
+    const _updatedNote = await prisma.note.update({
         where: {
             id: noteId,
         },
         data: body.data,
     });
+
+    const updatedNote = {
+        ..._updatedNote,
+        publicUrl: _updatedNote.public
+            ? buildPublicUrl(event, currentUser.domains, `/note/${_updatedNote.id}`)
+            : undefined,
+    };
 
     await update(noteSearchDb, updatedNote.id, {
         id: updatedNote.id,

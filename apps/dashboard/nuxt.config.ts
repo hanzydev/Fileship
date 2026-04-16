@@ -28,6 +28,8 @@ export default defineNuxtConfig({
         '@unocss/reset/tailwind.css',
         '~/styles/apexcharts.css',
         '~/styles/sonner.css',
+        'katex/dist/katex.min.css',
+        'highlight.js/styles/tokyo-night-dark.css',
     ],
 
     fonts: {
