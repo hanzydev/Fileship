@@ -129,16 +129,30 @@
 
         <div flex="~ gap4 <md:col">
             <UiButton
-                :icon="copied ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold'"
-                :icon-class="copied && 'text-green500!'"
+                :icon="contentCopied ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold'"
+                :icon-class="contentCopied && 'text-green500!'"
                 icon-size="24"
                 wfull
                 gap2
                 target="_blank"
                 rounded-xl="!"
-                @click="handleCopy"
+                @click="handleCopyContent"
             >
-                Copy
+                Copy Content
+            </UiButton>
+
+            <UiButton
+                v-if="data.public"
+                :icon="linkCopied ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold'"
+                :icon-class="linkCopied && 'text-green500!'"
+                icon-size="24"
+                wfull
+                gap2
+                target="_blank"
+                rounded-xl="!"
+                @click="handleCopyLink"
+            >
+                Copy Link
             </UiButton>
 
             <UiButton
@@ -173,7 +187,8 @@ const previewMode = ref(true);
 
 const notes = useNotes();
 const currentUser = useAuthUser();
-const { copied, copy } = useClipboard({ legacy: true });
+const { copied: contentCopied, copy: copyContent } = useClipboard({ legacy: true });
+const { copied: linkCopied, copy: copyLink } = useClipboard({ legacy: true });
 const reducedMotion = usePreferredReducedMotion();
 const { $toast } = useNuxtApp();
 const modalId = useId();
@@ -211,9 +226,14 @@ const handleDelete = async () => {
     deleting.value = false;
 };
 
-const handleCopy = () => {
-    copy(data.value.content);
-    $toast.success('Note copied to clipboard');
+const handleCopyContent = () => {
+    copyContent(data.value.content);
+    $toast.success('Note content copied to clipboard');
+};
+
+const handleCopyLink = () => {
+    copyLink(data.value.publicUrl!);
+    $toast.success('Note link copied to clipboard');
 };
 
 const changeNote = async (newNote: NoteData) => {
