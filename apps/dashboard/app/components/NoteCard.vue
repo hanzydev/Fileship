@@ -6,14 +6,13 @@
         <div
             h100px
             wfull
-            cursor-pointer
             rounded-xl
             bg-fs-overlay-2
             p4
             space-y-4
             motion-safe:transition-shadow
             ring="1 fs-overlay-4"
-            :class="ctxOpen ? 'cursor-default' : 'hover:(ring-1 ring-fs-accent)'"
+            :class="ctxOpen ? 'cursor-default' : 'cursor-pointer hover:(ring-1 ring-fs-accent)'"
             @click="
                 ctxOpen = false;
                 viewModalOpen = true;
@@ -41,9 +40,19 @@
                     icon-size="20"
                     wfull
                     gap2
-                    @click="handleCopy"
+                    @click="handleCopyLink"
                 >
                     Copy Link
+                </UiButton>
+                <UiButton
+                    variant="onOverlay"
+                    icon="solar:clipboard-bold"
+                    icon-size="20"
+                    wfull
+                    gap2
+                    @click="handleCopyContent"
+                >
+                    Copy Content
                 </UiButton>
                 <UiButton
                     variant="onOverlay"
@@ -104,7 +113,14 @@ const handleDelete = async () => {
     deleting.value = false;
 };
 
-const handleCopy = () => {
+const handleCopyContent = () => {
+    copy(data.content);
+    ctxOpen.value = false;
+
+    $toast.success('Note content copied to clipboard');
+};
+
+const handleCopyLink = () => {
     copy(data.publicUrl!);
     ctxOpen.value = false;
 
