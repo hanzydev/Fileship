@@ -9,12 +9,18 @@
             :class="[
                 'group',
                 selected && selectable && '!ring-2 !ring-fs-accent',
-                !selectable && (ctxOpen || !canBeViewed)
+                !selectable && (ctxOpen || (!canBeViewed && !isText))
                     ? 'cursor-default'
                     : 'cursor-pointer hover:(ring-1 ring-fs-accent)',
                 rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl',
             ]"
-            @click="selectable ? (selected = !selected) : canBeViewed && emit('viewFile', data)"
+            @click="
+                selectable
+                    ? (selected = !selected)
+                    : isText
+                      ? handleViewTextFile()
+                      : canBeViewed && emit('viewFile', data)
+            "
         >
             <Transition
                 enter-active-class="motion-safe:(animate-in fade-in)"
@@ -166,13 +172,14 @@
                 :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
             >
                 <UiButton
-                    v-if="!selectable || canBeViewed"
+                    v-if="!selectable"
                     variant="onOverlay"
                     icon="solar:eye-bold"
                     icon-size="20"
                     wfull
                     gap2
                     :href="selectable ? undefined : data.embedUrl"
+                    :target="selectable ? undefined : '_blank'"
                     :class="rounded === '2xl' && 'rounded-xl!'"
                     @click="
                         if (selectable) {
@@ -379,6 +386,9 @@ const filteredFolders = computed(() =>
 const isImage = computed(() => data.mimeType.startsWith('image/'));
 const isVideo = computed(() => data.mimeType.startsWith('video/'));
 const isAudio = computed(() => data.mimeType.startsWith('audio/'));
+const isText = computed(() =>
+    TEXT_FILE_TYPES.some((type) => type.extension === getExtname(data.fileName ?? '').slice(1)),
+);
 
 const canBeViewed = computed(() => isImage.value || isVideo.value || isAudio.value);
 
@@ -387,6 +397,8 @@ const editModalOpen = ref(false);
 const ctxOpen = ref(false);
 const deleting = ref(false);
 const updating = ref(false);
+
+const handleViewTextFile = () => window.open(`/view/${data.fileName}`, '_blank');
 
 const handleDelete = async () => {
     deleting.value = true;

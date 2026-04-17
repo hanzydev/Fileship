@@ -18,9 +18,14 @@ import { render } from 'vue';
 
 import { Icon, UiButton, UiTable } from '#components';
 
-const { content, variant = 'primary' } = defineProps<{
+const {
+    content,
+    variant = 'primary',
+    injectCopyButton = true,
+} = defineProps<{
     content: string;
     variant?: 'primary' | 'secondary';
+    injectCopyButton?: boolean;
 }>();
 
 const { $toast, vueApp } = useNuxtApp();
@@ -30,7 +35,7 @@ const markdownContentRef = useTemplateRef('markdownContent');
 const marked = new Marked(
     markedHighlight({
         emptyLangClass: 'hljs',
-        langPrefix: 'rounded-xl hljs language-',
+        langPrefix: `${variant === 'primary' ? 'rounded-2xl' : 'rounded-xl'} hljs language-`,
         highlight(code, lang) {
             const language = hljs.getLanguage(lang) ? lang : 'plaintext';
             return hljs.highlight(code, { language }).value;
@@ -85,40 +90,43 @@ const renderMarkdown = () => {
         gfm: true,
     });
 
-    nextTick(() => {
-        const codeBlocks = markdownContentRef.value!.getElementsByClassName('hljs');
-        for (const codeBlock of codeBlocks) {
-            const pre = codeBlock.parentElement!;
+    if (injectCopyButton) {
+        nextTick(() => {
+            const codeBlocks = markdownContentRef.value!.getElementsByClassName('hljs');
+            for (const codeBlock of codeBlocks) {
+                const pre = codeBlock.parentElement!;
 
-            pre.classList.add('relative');
+                pre.classList.add('relative');
 
-            const { copy, copied } = useClipboard({ legacy: true });
+                const { copy, copied } = useClipboard({ legacy: true });
 
-            const doRender = () => {
-                const copyButtonVNode = h(UiButton, {
-                    alignment: 'center',
-                    variant: 'glass',
-                    class: [
-                        'absolute top-4 right-4 size-10 !p0 !rounded-lg',
-                        copied.value ? 'text-green500!' : 'text-fs-muted-2',
-                    ],
-                    icon: copied.value ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold',
-                    iconSize: '24',
-                    'aria-label': 'Copy code to clipboard',
-                    onClick: () => {
-                        copy(codeBlock.textContent!);
-                        $toast.success('Code copied to clipboard');
-                    },
-                });
+                const doRender = () => {
+                    const copyButtonVNode = h(UiButton, {
+                        alignment: 'center',
+                        variant: 'glass',
+                        class: [
+                            'absolute top-4 right-4 size-10 !p0',
+                            copied.value ? 'text-green500!' : 'text-fs-muted-2',
+                            variant === 'primary' && 'rounded-xl!',
+                        ],
+                        icon: copied.value ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold',
+                        iconSize: '24',
+                        'aria-label': 'Copy code to clipboard',
+                        onClick: () => {
+                            copy(codeBlock.textContent!);
+                            $toast.success('Code copied to clipboard');
+                        },
+                    });
 
-                copyButtonVNode.appContext = vueApp._context;
-                render(copyButtonVNode, pre);
-            };
+                    copyButtonVNode.appContext = vueApp._context;
+                    render(copyButtonVNode, pre);
+                };
 
-            doRender();
-            watch(copied, doRender);
-        }
-    });
+                doRender();
+                watch(copied, doRender);
+            }
+        });
+    }
 
     return html;
 };
@@ -130,7 +138,7 @@ const renderMarkdown = () => {
 }
 
 .markdownContent :deep(p code) {
-    @apply rounded-xl px-2 py-1.5 font-mono text-sm;
+    @apply px-2 py-1.5 font-mono text-sm;
 }
 
 .markdownContent :deep(p:has(code)) {
@@ -164,26 +172,34 @@ const renderMarkdown = () => {
 }
 
 .markdownContent :deep(blockquote) {
-    @apply border-l-4 border-fs-accent pl-3 my-3 py-1 rounded-r-xl;
+    @apply border-l-4 border-fs-accent pl-2.5 my-3 py-1.5 pr-1.5;
+}
+
+.markdownContent :deep(blockquote p) {
+    @apply break-all;
 }
 
 .markdownContent[data-variant='primary'] :deep(p code) {
-    @apply bg-fs-overlay-3;
+    @apply bg-fs-overlay-3 rounded-2xl;
 }
 .markdownContent[data-variant='primary'] :deep(hr) {
     @apply bg-fs-overlay-3;
 }
 .markdownContent[data-variant='primary'] :deep(blockquote) {
-    @apply bg-fs-overlay-3;
+    @apply bg-fs-overlay-3 rounded-r-2xl;
+}
+
+.markdownContent[data-variant='primary'] :deep(> *:nth-child(-n + 2)) {
+    @apply max-w-[calc(100%-140px)] break-all;
 }
 
 .markdownContent[data-variant='secondary'] :deep(p code) {
-    @apply bg-fs-overlay-4;
+    @apply bg-fs-overlay-4 rounded-xl;
 }
 .markdownContent[data-variant='secondary'] :deep(hr) {
     @apply bg-fs-overlay-4;
 }
 .markdownContent[data-variant='secondary'] :deep(blockquote) {
-    @apply bg-fs-overlay-4;
+    @apply bg-fs-overlay-4 rounded-r-xl;
 }
 </style>

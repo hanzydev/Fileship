@@ -8,7 +8,7 @@
             motion-safe:transition-shadow
             ring="1 fs-overlay-4"
             :class="ctxOpen ? 'cursor-default' : 'cursor-pointer hover:(ring-1 ring-fs-accent)'"
-            @click="emit('viewFile', data)"
+            @click="isText ? handleViewTextFile() : emit('viewFile', data)"
         >
             <div
                 relative
@@ -147,9 +147,14 @@ const { $toast } = useNuxtApp();
 const isImage = computed(() => data.mimeType!.startsWith('image/'));
 const isVideo = computed(() => data.mimeType!.startsWith('video/'));
 const isAudio = computed(() => data.mimeType!.startsWith('audio/'));
+const isText = computed(() =>
+    TEXT_FILE_TYPES.some((type) => type.extension === getExtname(data.fileName!).slice(1)),
+);
 
 const viewModalOpen = ref(false);
 const ctxOpen = ref(false);
+
+const handleViewTextFile = () => window.open(`/view/${data.fileName}`, '_blank');
 
 const handleCopy = () => {
     useClipboard({ legacy: true }).copy(data.embed.enabled ? data.embedUrl! : data.directUrl!);

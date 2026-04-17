@@ -66,7 +66,74 @@
             <Meta v-else property="og:url" :content="fileUrl" />
         </Head>
 
-        <UiCentered h-screen="!" :class="(isVideo || isImage || isAudio) && '!p0'">
+        <div v-if="isText && data.id" flex="~ col" relative h-screen>
+            <template v-if="fileContent">
+                <MarkdownRenderer
+                    v-if="previewMode"
+                    :content="
+                        codeExtension
+                            ? `# ${data.fileName}\n---\n\`\`\`${codeExtension}\n${fileContent}\n\`\`\``
+                            : fileContent
+                    "
+                    :inject-copy-button="false"
+                />
+                <div v-else p8>
+                    <pre max-w-full break-all text-wrap w="[calc(100%-140px)]">{{
+                        fileContent
+                    }}</pre>
+                </div>
+
+                <div
+                    flex="~ items-center justify-center gap-1"
+                    ring="1 fs-overlay-4"
+                    absolute
+                    right-8
+                    top-8
+                    rounded-2xl
+                    bg-fs-overlay-2
+                    p1
+                >
+                    <UiButton
+                        alignment="center"
+                        variant="onOverlay"
+                        class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
+                        :icon="previewMode ? 'solar:text-bold' : 'solar:eye-bold'"
+                        icon-size="20"
+                        aria-label="previewMode ? 'Preview' : 'Raw'"
+                        @click="previewMode = !previewMode"
+                    />
+                    <UiButton
+                        alignment="center"
+                        variant="onOverlay"
+                        class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
+                        :icon="copied ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold'"
+                        :icon-class="copied && 'text-green500!'"
+                        icon-size="20"
+                        @click="handleCopy"
+                    />
+                    <UiButton
+                        alignment="center"
+                        variant="onOverlay"
+                        class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
+                        icon="solar:download-minimalistic-bold"
+                        icon-size="20"
+                        :href="`${data.directUrl}?download${data.password ? `&password=${data.password}` : ''}`"
+                        target="_blank"
+                    />
+                </div>
+            </template>
+            <UiSpinner
+                v-else
+                :size="64"
+                absolute
+                top="1/2"
+                left="1/2"
+                translate-x-="1/2"
+                translate-y-="1/2"
+            />
+        </div>
+
+        <UiCentered v-else h-screen="!" :class="(isVideo || isImage || isAudio) && '!p0'">
             <VerifyPassword
                 v-if="!data.id"
                 :disabled="passwordDisabled"
@@ -131,6 +198,9 @@ const { data: _data, error } = await useFetch<FileData & { embed: IEmbed }>(
     },
 );
 
+const { $toast } = useNuxtApp();
+const { copied, copy } = useClipboard({ legacy: true });
+
 const data = ref({
     ..._data.value,
     password: route.query.password || null,
@@ -139,6 +209,20 @@ const data = ref({
 const isImage = computed(() => data.value?.mimeType?.startsWith('image/'));
 const isVideo = computed(() => data.value?.mimeType?.startsWith('video/'));
 const isAudio = computed(() => data.value?.mimeType?.startsWith('audio/'));
+const isText = computed(() =>
+    TEXT_FILE_TYPES.some(
+        (type) => type.extension === getExtname(data.value?.fileName ?? '').slice(1),
+    ),
+);
+const codeExtension = computed(
+    () =>
+        TEXT_FILE_TYPES.slice(2).find(
+            (type) => type.extension === getExtname(data.value?.fileName ?? '').slice(1),
+        )?.extension,
+);
+
+const fileContent = ref<string>();
+const previewMode = ref(true);
 
 const fileUrl = computed(
     () =>
@@ -197,4 +281,26 @@ const handlePassword = async (password: string) => {
         passwordDisabled.value = false;
     }
 };
+
+const handleCopy = () => {
+    copy(fileContent.value ?? '');
+    $toast.success('File content copied to clipboard');
+};
+
+watch(
+    () => data.value?.id,
+    async () => {
+        if (isText.value && data.value?.id) {
+            let file = await $fetch<Blob | string>(`/u/${route.params.id}`, {
+                query: {
+                    password: data.value?.password,
+                },
+            });
+
+            if (file instanceof Blob) file = await file.text();
+            fileContent.value = file;
+        }
+    },
+    { immediate: true },
+);
 </script>
