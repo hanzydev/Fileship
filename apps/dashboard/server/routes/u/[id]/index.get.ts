@@ -82,7 +82,7 @@ export default defineEventHandler(async (event) => {
             await prisma.view.create({
                 data: {
                     fileId: findFileById.id,
-                    ip: getRequestIP(event, { xForwardedFor: true })!,
+                    ip: getRequestIP(event, { xForwardedFor: true }) ?? 'Unknown',
                 },
             });
 
