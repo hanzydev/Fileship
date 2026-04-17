@@ -114,7 +114,7 @@
                             class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
                             :icon="copied ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold'"
                             :icon-class="copied && 'text-green500!'"
-                            icon-size="20"
+                            icon-size="24"
                             @click="handleCopy"
                         />
 
@@ -143,7 +143,7 @@
                                 class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 !hover:(bg-red-600 text-white)"
                                 variant="onOverlay"
                                 icon="solar:trash-bin-minimalistic-bold"
-                                icon-size="20"
+                                icon-size="24"
                                 :disabled="deleting"
                                 :loading="deleting"
                                 @click="handleDelete"
