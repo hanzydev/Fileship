@@ -146,11 +146,11 @@ const renderMarkdown = () => {
 }
 
 .markdownContent :deep(ul) {
-    @apply ml-3.5 list-outside list-disc;
+    @apply ml-4 list-outside list-disc;
 }
 
 .markdownContent :deep(ul ul) {
-    @apply ml-3.5 list-circle;
+    @apply ml-4 list-circle;
 }
 
 .markdownContent :deep(ol) {
