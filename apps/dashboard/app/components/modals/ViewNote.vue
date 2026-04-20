@@ -228,12 +228,12 @@ const handleDelete = async () => {
 
 const handleCopyContent = () => {
     copyContent(data.value.content);
-    $toast.success('Note content copied to clipboard');
+    $toast.success('Content copied to clipboard');
 };
 
 const handleCopyLink = () => {
     copyLink(data.value.publicUrl!);
-    $toast.success('Note link copied to clipboard');
+    $toast.success('Link copied to clipboard');
 };
 
 const changeNote = async (newNote: NoteData) => {

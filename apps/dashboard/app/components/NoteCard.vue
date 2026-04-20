@@ -117,13 +117,13 @@ const handleCopyContent = () => {
     copy(data.content);
     ctxOpen.value = false;
 
-    $toast.success('Note content copied to clipboard');
+    $toast.success('Content copied to clipboard');
 };
 
 const handleCopyLink = () => {
     copy(data.publicUrl!);
     ctxOpen.value = false;
 
-    $toast.success('Note link copied to clipboard');
+    $toast.success('Link copied to clipboard');
 };
 </script>

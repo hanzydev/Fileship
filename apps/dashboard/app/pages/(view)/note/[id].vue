@@ -71,6 +71,6 @@ if (error.value?.statusCode === 404) {
 
 const handleCopy = () => {
     copy(data.value!.content);
-    $toast.success('Note content copied to clipboard');
+    $toast.success('Note copied to clipboard');
 };
 </script>
