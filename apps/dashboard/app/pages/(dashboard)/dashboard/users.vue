@@ -20,11 +20,11 @@
     />
 
     <ModalsVerifyMFA
-        v-model="verifyActingModal.open"
-        :error="verifyActingModal.error"
-        :disabled="!!willBeActed"
-        :methods="verifyActingModal.methods"
-        @got="(data) => handleActAsUser(verifyActingModal.username, data)"
+        v-model="verifyImpersonationModal.open"
+        :error="verifyImpersonationModal.error"
+        :disabled="!!willBeImpersonated"
+        :methods="verifyImpersonationModal.methods"
+        @got="(data) => handleImpersonate(verifyImpersonationModal.username, data)"
     />
 
     <ModalsAreYouSure
@@ -127,10 +127,10 @@
                                 disabled:
                                     (row.superAdmin && !currentUser!.superAdmin) ||
                                     row.user.username === currentUser!.username ||
-                                    willBeActed,
-                                loading: willBeActed === row.user.username,
+                                    willBeImpersonated,
+                                loading: willBeImpersonated === row.user.username,
                                 'aria-label': 'Act as user',
-                                onClick: () => handleActAsUser(row.user.username),
+                                onClick: () => handleImpersonate(row.user.username),
                             }),
                             h(UiButton, {
                                 variant: 'outline',
@@ -158,7 +158,7 @@
                                     (row.superAdmin && !currentUser!.superAdmin) ||
                                     row.user.username === currentUser!.username ||
                                     willBeDeleted.has(row.user.id) ||
-                                    willBeActed === row.user.username,
+                                    willBeImpersonated === row.user.username,
                                 loading: willBeDeleted.has(row.user.id),
                                 'aria-label': 'Delete user',
                                 onClick: () => {
@@ -199,7 +199,7 @@ const isSearching = ref(false);
 const isLoading = ref(!users.value.length);
 
 const willBeDeleted = ref(new Set<string>());
-const willBeActed = ref<string | null>(null);
+const willBeImpersonated = ref<string | null>(null);
 
 const createUserModalOpen = ref(false);
 
@@ -215,7 +215,7 @@ const verifyDeleteModal = reactive({
     methods: [],
 });
 
-const verifyActingModal = reactive({
+const verifyImpersonationModal = reactive({
     username: '',
     open: false,
     error: undefined as string | undefined,
@@ -227,10 +227,10 @@ const areYouSureDelete = reactive({
     userId: '',
 });
 
-const handleActAsUser = async (username: string, verificationData?: any) => {
+const handleImpersonate = async (username: string, verificationData?: any) => {
     try {
-        willBeActed.value = username;
-        verifyActingModal.error = undefined;
+        willBeImpersonated.value = username;
+        verifyImpersonationModal.error = undefined;
 
         useCookie('adminSessionId', {
             expires: new Date(Date.now() + 1000 * 60 * 60 * 6),
@@ -263,18 +263,18 @@ const handleActAsUser = async (username: string, verificationData?: any) => {
 
         initSocket();
     } catch (error: any) {
-        if (verifyActingModal.open) {
-            verifyActingModal.error = error.data.message;
+        if (verifyImpersonationModal.open) {
+            verifyImpersonationModal.error = error.data.message;
         } else {
-            verifyActingModal.open = true;
-            verifyActingModal.username = username;
-            verifyActingModal.methods = error.data.data.mfa.methods;
+            verifyImpersonationModal.open = true;
+            verifyImpersonationModal.username = username;
+            verifyImpersonationModal.methods = error.data.data.mfa.methods;
         }
 
         useCookie('adminSessionId').value = null;
     }
 
-    willBeActed.value = null;
+    willBeImpersonated.value = null;
 };
 
 const handleDelete = async (id: string, verificationData?: any) => {

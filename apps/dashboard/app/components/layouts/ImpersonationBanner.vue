@@ -21,15 +21,12 @@
             icon="solar:arrow-left-linear"
             icon-size="20"
             variant="accent"
-            :aria-label="`Stop acting as ${titleCase(currentUser!.username)}`"
+            :aria-label="`Stop impersonating ${titleCase(currentUser!.username)}`"
             :loading="isReturningBack"
             :disabled="isReturningBack"
             @click="goBackAdminSession"
         />
-        <p mx-auto font-medium>
-            You're currently acting as
-            {{ titleCase(currentUser!.username) }}.
-        </p>
+        <p mx-auto font-medium>Impersonating {{ titleCase(currentUser!.username) }}.</p>
         <UiButton
             p0="!"
             size-8
@@ -40,7 +37,7 @@
             icon="lucide:x"
             icon-size="20"
             variant="accent"
-            :aria-label="`Always act as ${titleCase(currentUser!.username)}`"
+            :aria-label="`Stay as ${titleCase(currentUser!.username)}`"
             :disabled="isReturningBack"
             @click="adminSessionId = null"
         />

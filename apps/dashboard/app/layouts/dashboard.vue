@@ -29,7 +29,7 @@
                         </div>
                     </Transition>
 
-                    <LayoutsActingAsUser />
+                    <LayoutsImpersonationBanner />
 
                     <div flex="~">
                         <LayoutsSidebar />
