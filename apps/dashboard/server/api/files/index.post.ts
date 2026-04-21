@@ -12,7 +12,6 @@ import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import { insert } from '@orama/orama';
 
 import { AIJobType } from '#shared/prisma/enums';
-import { isAdmin } from '#shared/utils/permissions';
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 

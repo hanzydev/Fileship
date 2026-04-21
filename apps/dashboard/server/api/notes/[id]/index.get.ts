@@ -1,7 +1,6 @@
 import defu from 'defu';
 
-import { defaultEmbed } from '#shared/utils/constants';
-import type { IEmbed } from '#shared/utils/types';
+
 
 export default defineEventHandler(async (event) => {
     const noteId = getRouterParam(event, 'id');

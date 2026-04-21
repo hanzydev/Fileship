@@ -14,7 +14,6 @@ import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import { insert, removeMultiple } from '@orama/orama';
 
 import { AIJobType, BackupRestoreState } from '#shared/prisma/enums';
-import { isAdmin } from '#shared/utils/permissions';
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 

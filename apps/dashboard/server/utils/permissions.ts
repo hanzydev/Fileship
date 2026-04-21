@@ -1,6 +1,5 @@
 import type { H3Event } from 'h3';
 
-import { canTakeNotes, canUploadFiles, isAdmin } from '#shared/utils/permissions';
 
 export const userOnly = (event: H3Event) => {
     if (!event.context.user) throw unauthorizedError;

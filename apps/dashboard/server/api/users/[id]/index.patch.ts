@@ -6,9 +6,6 @@ import { z } from 'zod';
 import { update } from '@orama/orama';
 
 import { UserPermission } from '#shared/prisma/enums';
-import { defaultUserAiSettings, defaultUserLimits } from '#shared/utils/constants';
-import { isAdmin } from '#shared/utils/permissions';
-import type { IUserAiSettings, IUserLimits } from '#shared/utils/types';
 import themes from '~~/app/styles/themes.json';
 
 const validationSchema = z

@@ -1,8 +1,6 @@
 import { defu } from 'defu';
 import { z } from 'zod';
 
-import { defaultUserAiSettings } from '#shared/utils/constants';
-import type { IUserAiSettings } from '#shared/utils/types';
 
 const validationSchema = z
     .object({

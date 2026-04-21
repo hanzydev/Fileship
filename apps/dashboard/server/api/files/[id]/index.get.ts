@@ -4,8 +4,7 @@ import { defu } from 'defu';
 import { filesize } from 'filesize';
 import { join } from 'pathe';
 
-import { defaultEmbed } from '#shared/utils/constants';
-import type { IEmbed } from '#shared/utils/types';
+
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
