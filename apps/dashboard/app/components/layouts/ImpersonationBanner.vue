@@ -26,7 +26,10 @@
             :disabled="isReturningBack"
             @click="goBackAdminSession"
         />
-        <p mx-auto font-medium>Impersonating {{ titleCase(currentUser!.username) }}.</p>
+        <p mx-auto font-medium>
+            You are impersonating
+            <strong>{{ titleCase(currentUser!.username) }}.</strong>
+        </p>
         <UiButton
             p0="!"
             size-8
