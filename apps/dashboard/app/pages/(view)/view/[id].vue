@@ -117,8 +117,11 @@
                         class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
                         icon="solar:download-minimalistic-bold"
                         icon-size="20"
-                        :href="`${data.directUrl}?download${data.password ? `&password=${data.password}` : ''}`"
-                        target="_blank"
+                        @click="
+                            downloadFile(
+                                `${data.directUrl}?download${data.password ? `&password=${data.password}` : ''}`,
+                            )
+                        "
                     />
                 </div>
             </template>

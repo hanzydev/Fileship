@@ -208,8 +208,7 @@
                     wfull
                     gap2
                     :class="rounded === '2xl' && 'rounded-xl!'"
-                    :href="`${data.directUrl}?download`"
-                    target="_blank"
+                    @click="downloadFile(`${data.directUrl}?download`)"
                 >
                     Download
                 </UiButton>

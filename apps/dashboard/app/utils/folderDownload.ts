@@ -10,7 +10,7 @@ export const downloadFolder = async (folder: FolderData) => {
         $toast.info('Preparing archive... Will download when ready.');
 
         const handleDownload = () => {
-            window.open(`/api/folders/${folder.id}/archive/jobs/${jobId}/download`, '_blank');
+            downloadFile(`/api/folders/${folder.id}/archive/jobs/${jobId}/download`);
         };
 
         if (currentUser.value?.id && currentUser.value.id === folder.authorId) {

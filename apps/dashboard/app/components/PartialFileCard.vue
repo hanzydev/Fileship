@@ -121,8 +121,7 @@
                     icon-size="20"
                     wfull
                     gap2
-                    :href="`${data.directUrl}?download`"
-                    target="_blank"
+                    @click="downloadFile(`${data.directUrl}?download`)"
                 >
                     Download
                 </UiButton>

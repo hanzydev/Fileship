@@ -194,11 +194,10 @@
                                         variant: 'outline',
                                         alignment: 'center',
                                         class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
-                                        href: `${row.directUrl}?download`,
-                                        target: '_blank',
                                         icon: 'solar:download-minimalistic-bold',
                                         iconSize: '20',
                                         'aria-label': 'Download file',
+                                        onClick: () => downloadFile(`${row.directUrl}?download`),
                                     }),
                                     h(UiButton, {
                                         variant: 'outline',

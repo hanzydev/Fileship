@@ -104,8 +104,7 @@
                             class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
                             icon="solar:download-minimalistic-bold"
                             icon-size="24"
-                            :href="`${data.directUrl}?download`"
-                            target="_blank"
+                            @click="downloadFile(`${data.directUrl}?download`)"
                         />
 
                         <UiButton

@@ -589,7 +589,6 @@
 
 <script setup lang="ts">
 import { Cubic, gsap } from 'gsap';
-import { render } from 'vue';
 
 import { browserSupportsWebAuthn, startRegistration } from '@simplewebauthn/browser';
 import type { PublicKeyCredentialCreationOptionsJSON } from '@simplewebauthn/types';
@@ -948,20 +947,16 @@ const handleGenShareXConfig = () => {
         },
     };
 
-    const vnode = h('a', {
-        href: URL.createObjectURL(
+    downloadFile(
+        URL.createObjectURL(
             new Blob([JSON.stringify(config)], {
                 type: 'application/json',
             }),
         ),
-        download: 'FileUploader.sxcu',
-    });
+        'FileUploader.sxcu',
+    );
 
-    render(vnode, document.body);
-    nextTick(() => {
-        vnode.el!.click();
-        vnode.el!.remove();
-    });
+    shareXConfigModal.open = false;
 };
 
 onMounted(() => {

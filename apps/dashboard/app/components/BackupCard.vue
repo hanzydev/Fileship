@@ -58,8 +58,7 @@
                     icon-size="20"
                     wfull
                     gap2
-                    :href="`/api/users/@me/backups/${data.id}`"
-                    target="_blank"
+                    @click="downloadFile(`/api/users/@me/backups/${data.id}`)"
                 >
                     Download
                 </UiButton>
