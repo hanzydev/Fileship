@@ -4,8 +4,6 @@ import { defu } from 'defu';
 import { filesize } from 'filesize';
 import { join } from 'pathe';
 
-
-
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
     const folderId = getRouterParam(event, 'id');

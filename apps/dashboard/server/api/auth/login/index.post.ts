@@ -4,7 +4,6 @@ import { nanoid } from 'nanoid';
 import { verify as verifyTotp } from 'otplib';
 import { z } from 'zod';
 
-
 const validationSchema = z.object({
     username: z
         .string()

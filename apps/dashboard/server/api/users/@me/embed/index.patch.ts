@@ -1,8 +1,6 @@
 import { defu } from 'defu';
 import { z } from 'zod';
 
-
-
 const validationSchema = z
     .object({
         title: z.string().optional(),

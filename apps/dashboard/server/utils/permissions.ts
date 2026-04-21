@@ -1,6 +1,5 @@
 import type { H3Event } from 'h3';
 
-
 export const userOnly = (event: H3Event) => {
     if (!event.context.user) throw unauthorizedError;
 };

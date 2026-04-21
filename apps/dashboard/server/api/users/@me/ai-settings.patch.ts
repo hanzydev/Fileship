@@ -1,7 +1,6 @@
 import { defu } from 'defu';
 import { z } from 'zod';
 
-
 const validationSchema = z
     .object({
         enabled: z.boolean().optional(),

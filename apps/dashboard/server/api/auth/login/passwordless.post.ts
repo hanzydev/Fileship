@@ -9,7 +9,6 @@ import {
 } from '@simplewebauthn/server';
 import type { AuthenticatorTransportFuture } from '@simplewebauthn/types';
 
-
 const validationSchema = z.union([
     z.object({
         verify: z.literal(true),

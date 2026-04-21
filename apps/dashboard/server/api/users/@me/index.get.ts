@@ -1,6 +1,5 @@
 import { defu } from 'defu';
 
-
 export default defineEventHandler(async (event) => {
     userOnly(event);
 

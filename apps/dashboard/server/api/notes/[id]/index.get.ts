@@ -1,7 +1,5 @@
 import defu from 'defu';
 
-
-
 export default defineEventHandler(async (event) => {
     const noteId = getRouterParam(event, 'id');
     const user = event.context.user;

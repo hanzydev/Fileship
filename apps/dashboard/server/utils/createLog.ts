@@ -5,7 +5,6 @@ import { lowerFirst, titleCase } from 'scule';
 
 import { insert } from '@orama/orama';
 
-
 type CreateLogData = {
     action: string;
     message: string;

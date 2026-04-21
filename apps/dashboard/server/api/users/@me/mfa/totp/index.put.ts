@@ -1,7 +1,6 @@
 import { verify as verifyTotp } from 'otplib';
 import { z } from 'zod';
 
-
 const validationSchema = z.object({
     enabled: z.boolean(),
     totp: z

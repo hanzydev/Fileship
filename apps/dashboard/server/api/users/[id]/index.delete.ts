@@ -5,7 +5,6 @@ import { z } from 'zod';
 
 import { remove, removeMultiple } from '@orama/orama';
 
-
 const validationSchema = z
     .object({
         verificationData: z.any().optional(),

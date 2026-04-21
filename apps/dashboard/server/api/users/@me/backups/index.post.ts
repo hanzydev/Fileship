@@ -5,7 +5,6 @@ import { nanoid } from 'nanoid';
 import { join } from 'pathe';
 import { create } from 'tar';
 
-
 export default defineEventHandler(async (event) => {
     userOnly(event);
     const currentUser = event.context.user!;
