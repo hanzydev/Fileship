@@ -57,6 +57,12 @@ export default defineEventHandler(async (event) => {
 
     const jobId = nanoid();
 
+    await storage.setItem(`folderArchiveStatus:${folderId}:${jobId}`, {
+        isPrivate,
+        isDone: false,
+        authorId: findFolderById.authorId,
+    });
+
     const tempPath = join(dataDirectory, 'temp', jobId);
     const archiveUploadsPath = join(tempPath, 'uploads');
     const uploadsPath = join(dataDirectory, 'uploads');
@@ -73,12 +79,6 @@ export default defineEventHandler(async (event) => {
     );
 
     const archiveCompressedPath = join(tempPath, 'archive.tgz');
-
-    await storage.setItem(`folderArchiveStatus:${folderId}:${jobId}`, {
-        isPrivate,
-        isDone: false,
-        authorId: findFolderById.authorId,
-    });
 
     await createLog(event, {
         action: 'Archive Folder',
