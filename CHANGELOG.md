@@ -1,5 +1,66 @@
 # Changelog
 
+## v5.2.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v5.1.1...v5.2.0)
+
+### 🚀 Enhancements
+
+- Add dashboard-wide drag-and-drop and clipboard paste upload functionality ([b0f06d3](https://github.com/hanzydev/Fileship/commit/b0f06d3))
+- Add functionality to move selected files to a folder on files page ([b92d979](https://github.com/hanzydev/Fileship/commit/b92d979))
+- **upload:** Revamp file upload page UX ([86498c1](https://github.com/hanzydev/Fileship/commit/86498c1))
+- **notes:** Add sharing capability and markdown rendering ([b268129](https://github.com/hanzydev/Fileship/commit/b268129))
+- **files:** Add text file preview support ([26f7170](https://github.com/hanzydev/Fileship/commit/26f7170))
+- **note card:** Add ability to copy note content ([303f496](https://github.com/hanzydev/Fileship/commit/303f496))
+- **notes:** Add preview toggle, and copy functionality to public page ([e826530](https://github.com/hanzydev/Fileship/commit/e826530))
+- **files:** Enhance link copying logic for text files ([cb2596c](https://github.com/hanzydev/Fileship/commit/cb2596c))
+- **folders:** Add ability to directly download entire folder ([4d688f2](https://github.com/hanzydev/Fileship/commit/4d688f2))
+
+### 🩹 Fixes
+
+- Public url protocol handling returns http ([74a0d51](https://github.com/hanzydev/Fileship/commit/74a0d51))
+- Add key binding to aiSuggestion for improved rendering ([57c5070](https://github.com/hanzydev/Fileship/commit/57c5070))
+- Disable global drag-and-drop and clipboard upload on the upload page ([d86087e](https://github.com/hanzydev/Fileship/commit/d86087e))
+- Prevent upload handling on the upload page for pasted files ([fa55f73](https://github.com/hanzydev/Fileship/commit/fa55f73))
+- Enable nitroAutoImports in nuxt configuration ([26473d8](https://github.com/hanzydev/Fileship/commit/26473d8))
+- Simplify onDrop handler in dashboard upload functionality ([a704d26](https://github.com/hanzydev/Fileship/commit/a704d26))
+- Update selection logic to use filtered files instead of all files ([b4e20ff](https://github.com/hanzydev/Fileship/commit/b4e20ff))
+- Clamp upload progress percentage to ensure valid range ([f6c1661](https://github.com/hanzydev/Fileship/commit/f6c1661))
+- **FileViewer:** Update opacity class for zoomed-in state to improve visual consistency ([3577928](https://github.com/hanzydev/Fileship/commit/3577928))
+- **files:** Handle missing ip in view counter ([28887b5](https://github.com/hanzydev/Fileship/commit/28887b5))
+- Ensure async execution in backup restore state reset task ([36fa3c3](https://github.com/hanzydev/Fileship/commit/36fa3c3))
+- Reduce gzip level to prevent system freeze ([ec5caae](https://github.com/hanzydev/Fileship/commit/ec5caae))
+- Reactivity loss in parallel file uploads ([a9f66f4](https://github.com/hanzydev/Fileship/commit/a9f66f4))
+
+### 💅 Refactors
+
+- **readme:** Update proxy headers for improved request handling ([2608a00](https://github.com/hanzydev/Fileship/commit/2608a00))
+- Enhance request URL handling with xForwarded headers ([e37c4c9](https://github.com/hanzydev/Fileship/commit/e37c4c9))
+- Remove unnecessary module overrides and set shamefully-hoist to true ([16b7151](https://github.com/hanzydev/Fileship/commit/16b7151))
+- Stop using $event for improved readability in VerifyMFA component and login page ([a74a236](https://github.com/hanzydev/Fileship/commit/a74a236))
+- Update textarea rows computation to clamp line count between 10 and 20 ([a38609f](https://github.com/hanzydev/Fileship/commit/a38609f))
+- Rename acting as to impersonation for better terminology ([625c65b](https://github.com/hanzydev/Fileship/commit/625c65b))
+- **notes:** Update toast messages ([7e78344](https://github.com/hanzydev/Fileship/commit/7e78344))
+- Remove unused imports across various files ([5da9d6f](https://github.com/hanzydev/Fileship/commit/5da9d6f))
+- Centralize download logic to prevent pop-up blocking ([fa06c5f](https://github.com/hanzydev/Fileship/commit/fa06c5f))
+- Remove sql from text file types ([9f1112e](https://github.com/hanzydev/Fileship/commit/9f1112e))
+- Add logging for archived folder action ([be361dd](https://github.com/hanzydev/Fileship/commit/be361dd))
+
+### 🏡 Chore
+
+- Lint fix ([e871a3d](https://github.com/hanzydev/Fileship/commit/e871a3d))
+- Lint fix ([c394ce7](https://github.com/hanzydev/Fileship/commit/c394ce7))
+
+### 🎨 Styles
+
+- **file viewer:** Ensure consistent icon sizes ([c725f99](https://github.com/hanzydev/Fileship/commit/c725f99))
+- **folder viewer:** Ensure consistent icon sizes ([598e158](https://github.com/hanzydev/Fileship/commit/598e158))
+- **markdown renderer:** Adjust list indentation for better alignment ([6a94b3c](https://github.com/hanzydev/Fileship/commit/6a94b3c))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v5.1.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v5.1.0...v5.1.1)
