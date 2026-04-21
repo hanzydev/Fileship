@@ -83,6 +83,7 @@
                     wfull
                     gap2
                     :loading="isDownloading"
+                    :disabled="isDownloading"
                     @click="handleDownload"
                 >
                     Download

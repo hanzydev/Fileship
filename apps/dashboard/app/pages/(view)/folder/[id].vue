@@ -24,6 +24,7 @@
                             icon="solar:download-bold"
                             icon-size="20"
                             :loading="isDownloading"
+                            :disabled="isDownloading"
                             @click="handleDownload"
                         />
                     </div>

@@ -66,6 +66,7 @@
                             icon="solar:download-bold"
                             icon-size="24"
                             :loading="isDownloading"
+                            :disabled="isDownloading"
                             @click="handleDownload"
                         />
                         <UiButton
