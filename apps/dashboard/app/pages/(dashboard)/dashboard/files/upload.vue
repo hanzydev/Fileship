@@ -136,6 +136,16 @@ const handleUpload = async () => {
         );
     }
 
+    uploadingFiles.value.forEach((file) => {
+        if (!file.status) {
+            file.status = reactive({
+                started: false,
+                progress: { speed: 0, percent: 0, eta: 0 },
+                error: null,
+            });
+        }
+    });
+
     const results: boolean[] = [];
     const parallelUploads = 3;
     const files = [...uploadingFiles.value];
