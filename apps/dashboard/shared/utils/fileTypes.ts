@@ -125,11 +125,6 @@ export const TEXT_FILE_TYPES = [
         extension: 'r',
     },
     {
-        label: 'SQL',
-        mime: 'text/x-sql',
-        extension: 'sql',
-    },
-    {
         label: 'XML',
         mime: 'application/xml',
         extension: 'xml',
