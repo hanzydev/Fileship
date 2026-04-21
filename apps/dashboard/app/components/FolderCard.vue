@@ -78,6 +78,17 @@
                 </UiButton>
                 <UiButton
                     variant="onOverlay"
+                    icon="solar:download-bold"
+                    icon-size="20"
+                    wfull
+                    gap2
+                    :loading="isDownloading"
+                    @click="handleDownload"
+                >
+                    Download
+                </UiButton>
+                <UiButton
+                    variant="onOverlay"
                     icon="solar:pen-2-bold"
                     icon-size="20"
                     wfull
@@ -138,6 +149,7 @@ const ctxOpen = ref(false);
 const deleting = ref(false);
 const areYouSureModalOpen = ref(false);
 const deleteFilesToo = ref(true);
+const isDownloading = ref(false);
 
 const handleDelete = async () => {
     deleting.value = true;
@@ -165,5 +177,12 @@ const handleCopy = () => {
     ctxOpen.value = false;
 
     $toast.success('Link copied to clipboard');
+};
+
+const handleDownload = async () => {
+    isDownloading.value = true;
+    await downloadFolder(data);
+    isDownloading.value = false;
+    ctxOpen.value = false;
 };
 </script>

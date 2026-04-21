@@ -14,7 +14,19 @@
         <Body :class="viewFileModal.open ? 'overflow-hidden' : 'overflow-x-hidden'">
             <div hfull min-hscreen bg-fs-overlay-1 p8="!">
                 <div space-y-6>
-                    <h2>{{ data!.name }}</h2>
+                    <div flex="~ items-center justify-between">
+                        <h2 line-clamp-1 break-words>{{ data!.name }}</h2>
+
+                        <UiButton
+                            alignment="center"
+                            variant="secondary"
+                            class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
+                            icon="solar:download-bold"
+                            icon-size="20"
+                            :loading="isDownloading"
+                            @click="handleDownload"
+                        />
+                    </div>
 
                     <div flex="~ gap4 1 items-center <sm:col" wfull>
                         <UiSearchBar
@@ -227,4 +239,12 @@ watch(aiEnabled, () => {
         searchTimeout = setTimeout(() => handleSearch(searchQuery.value), 100);
     }
 });
+
+const isDownloading = ref(false);
+
+const handleDownload = async () => {
+    isDownloading.value = true;
+    await downloadFolder(data.value!);
+    isDownloading.value = false;
+};
 </script>

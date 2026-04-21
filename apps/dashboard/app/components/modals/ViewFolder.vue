@@ -63,6 +63,15 @@
                             alignment="center"
                             variant="onOverlay"
                             class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
+                            icon="solar:download-bold"
+                            icon-size="24"
+                            :loading="isDownloading"
+                            @click="handleDownload"
+                        />
+                        <UiButton
+                            alignment="center"
+                            variant="onOverlay"
+                            class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 hover:text-white"
                             icon="solar:pen-2-bold"
                             icon-size="24"
                             @click="editModalOpen = true"
@@ -214,6 +223,7 @@ const editModalOpen = ref(false);
 const deleting = ref(false);
 const areYouSureModalOpen = ref(false);
 const deleteFilesToo = ref(true);
+const isDownloading = ref(false);
 
 const filtered = computed(() =>
     files.value.filter((f) => {
@@ -276,6 +286,12 @@ const handleDelete = async () => {
 const handleCopy = () => {
     copy(data.publicUrl!);
     $toast.success('Link copied to clipboard');
+};
+
+const handleDownload = async () => {
+    isDownloading.value = true;
+    await downloadFolder(data);
+    isDownloading.value = false;
 };
 
 const handleChange = async () => {
