@@ -94,7 +94,7 @@ export default defineEventHandler(async (event) => {
     const backupCompressedPath = join(tempPath, 'backup.tgz');
 
     event.waitUntil(
-        create({ file: backupCompressedPath, cwd: tempPath, gzip: { level: 5 } }, [
+        create({ file: backupCompressedPath, cwd: tempPath, gzip: { level: 3 } }, [
             'uploads',
             'database',
         ]).then(async () => {

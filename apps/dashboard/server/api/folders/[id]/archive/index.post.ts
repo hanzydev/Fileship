@@ -82,7 +82,7 @@ export default defineEventHandler(async (event) => {
 
     event.waitUntil(
         create(
-            { file: archiveCompressedPath, cwd: archiveUploadsPath, gzip: { level: 5 } },
+            { file: archiveCompressedPath, cwd: archiveUploadsPath, gzip: { level: 3 } },
             userUploads,
         )
             .then(async () => {
