@@ -80,6 +80,11 @@ export default defineEventHandler(async (event) => {
         authorId: findFolderById.authorId,
     });
 
+    await createLog(event, {
+        action: 'Archive Folder',
+        message: `Archived folder ${findFolderById.name}`,
+    });
+
     event.waitUntil(
         create(
             { file: archiveCompressedPath, cwd: archiveUploadsPath, gzip: { level: 3 } },
