@@ -295,7 +295,11 @@ const calculatedFiles = computed(() => {
 const handleCopy = async (file: FileData) => {
     const { copy, copied } = useClipboard({ legacy: true });
 
-    copy(embed.value.enabled ? file.embedUrl : file.directUrl);
+    const isText = TEXT_FILE_TYPES.some(
+        (type) => type.extension === getExtname(file.fileName!).slice(1),
+    );
+
+    copy(embed.value.enabled || isText ? file.embedUrl : file.directUrl);
 
     $toast.success('Link copied to clipboard');
 

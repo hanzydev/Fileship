@@ -332,12 +332,16 @@ export default defineEventHandler(async (event) => {
 
         sendToUser(currentUser.id, 'file:create', upload);
 
+        const isText = TEXT_FILE_TYPES.some(
+            (type) => type.extension === extname(upload.fileName).slice(1),
+        );
+
         return {
             ...upload,
             url: buildPublicUrl(
                 event,
                 currentUser.domains,
-                `/${currentUser.embed.enabled ? 'view' : 'u'}/${_upload.fileName}`,
+                `/${currentUser.embed.enabled || isText ? 'view' : 'u'}/${_upload.fileName}`,
             ),
         };
     } else if (body.data.currentChunk === 1) {

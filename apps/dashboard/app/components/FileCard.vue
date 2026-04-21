@@ -414,7 +414,9 @@ const handleDelete = async () => {
 };
 
 const handleCopy = () => {
-    useClipboard({ legacy: true }).copy(embed.value.enabled ? data.embedUrl : data.directUrl);
+    useClipboard({ legacy: true }).copy(
+        embed.value.enabled || isText.value ? data.embedUrl : data.directUrl,
+    );
     ctxOpen.value = false;
 
     $toast.success('Link copied to clipboard');

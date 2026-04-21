@@ -157,7 +157,9 @@ const ctxOpen = ref(false);
 const handleViewTextFile = () => window.open(`/view/${data.fileName}`, '_blank');
 
 const handleCopy = () => {
-    useClipboard({ legacy: true }).copy(data.embed.enabled ? data.embedUrl! : data.directUrl!);
+    useClipboard({ legacy: true }).copy(
+        data.embed.enabled || isText.value ? data.embedUrl! : data.directUrl!,
+    );
     ctxOpen.value = false;
 
     $toast.success('Link copied to clipboard');
