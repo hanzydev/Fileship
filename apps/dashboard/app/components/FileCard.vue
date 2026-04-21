@@ -60,6 +60,7 @@
                     hfull
                     wfull
                     :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
+                    text-center
                     backdrop-blur-3xl
                     transition-all
                     group-hover="op0 pointer-events-none scale-95"
