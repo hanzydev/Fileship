@@ -3,8 +3,8 @@ export default defineTask({
         name: 'db:resetBackupRestoreState',
         description: "Resets users' backup restore state",
     },
-    run() {
-        prisma.user.updateMany({
+    async run() {
+        await prisma.user.updateMany({
             data: {
                 backupRestoreState: null,
             },
