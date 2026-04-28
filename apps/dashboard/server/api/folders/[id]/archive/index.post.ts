@@ -55,6 +55,13 @@ export default defineEventHandler(async (event) => {
         });
     }
 
+    if (!findFolderById.files) {
+        throw createError({
+            statusCode: 400,
+            message: 'No files to archive in this folder',
+        });
+    }
+
     const jobId = nanoid();
 
     await storage.setItem(`folderArchiveStatus:${folderId}:${jobId}`, {
