@@ -59,6 +59,80 @@ const { $toast } = useNuxtApp();
 
 const dashboardRef = useTemplateRef('dashboard');
 
+const writeToClipboard = async (text: string): Promise<boolean> => {
+    if (!import.meta.client) return false;
+
+    try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.top = '0';
+        ta.style.left = '-9999px';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+
+        const previouslyFocused = document.activeElement as HTMLElement | null;
+        ta.focus();
+        ta.select();
+        ta.setSelectionRange(0, text.length);
+
+        const ok = document.execCommand('copy');
+
+        ta.remove();
+        previouslyFocused?.focus?.();
+
+        if (ok) return true;
+    } catch {}
+
+    try {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+    } catch {}
+
+    return false;
+};
+
+const writeToClipboardWhenFocused = (text: string, timeoutMs = 120_000): Promise<boolean> => {
+    if (!import.meta.client) return Promise.resolve(false);
+
+    return new Promise((resolve) => {
+        let settled = false;
+
+        const finish = (ok: boolean) => {
+            if (settled) return;
+            settled = true;
+            window.removeEventListener('focus', tryCopy);
+            document.removeEventListener('visibilitychange', tryCopy);
+            window.removeEventListener('pointerdown', tryCopy);
+            window.removeEventListener('keydown', tryCopy);
+            clearTimeout(timer);
+            resolve(ok);
+        };
+
+        const tryCopy = async () => {
+            if (settled) return;
+            if (!document.hasFocus()) return;
+            const ok = await writeToClipboard(text);
+            if (ok) finish(true);
+        };
+
+        const timer = setTimeout(() => finish(false), timeoutMs);
+
+        if (document.hasFocus()) {
+            void tryCopy();
+            if (settled) return;
+        }
+
+        window.addEventListener('focus', tryCopy);
+        document.addEventListener('visibilitychange', tryCopy);
+        window.addEventListener('pointerdown', tryCopy);
+        window.addEventListener('keydown', tryCopy);
+    });
+};
+
 const handleUpload = async (files: File[] | null, source: 'drag-drop' | 'paste') => {
     if (!files?.length) return;
 
@@ -78,13 +152,18 @@ const handleUpload = async (files: File[] | null, source: 'drag-drop' | 'paste')
         }
     });
 
-    const results: boolean[] = [];
+    const results: (boolean | { url: string })[] = [];
+    const uploadedUrls: string[] = [];
     const parallelUploads = 3;
 
     while (filesCopy.length > 0) {
         const chunk = filesCopy.splice(0, parallelUploads);
         const chunkResults = await Promise.all(chunk.map((c) => uploadFile(c)));
-        results.push(...chunkResults.filter((r) => r !== undefined));
+        for (const r of chunkResults) {
+            if (r === undefined) continue;
+            results.push(r);
+            if (r && typeof r === 'object' && r.url) uploadedUrls.push(r.url);
+        }
     }
 
     uploadingFiles.value = uploadingFiles.value.filter((_, index) => !results[index]);
@@ -98,6 +177,18 @@ const handleUpload = async (files: File[] | null, source: 'drag-drop' | 'paste')
                 ? `${filesCount} file${filesCount > 1 ? 's' : ''} dropped and uploaded successfully`
                 : 'Pasted content uploaded successfully',
         );
+
+        if (uploadedUrls.length) {
+            writeToClipboardWhenFocused(uploadedUrls.join('\n')).then((copied) => {
+                if (copied) {
+                    $toast.success(
+                        uploadedUrls.length > 1
+                            ? `${uploadedUrls.length} links copied to clipboard`
+                            : 'Link copied to clipboard',
+                    );
+                }
+            });
+        }
     } else {
         $toast.error('Some files could not be uploaded');
     }
