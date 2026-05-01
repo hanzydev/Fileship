@@ -141,10 +141,10 @@ const handleUpload = async (files: File[] | null, source: 'drag-drop' | 'paste')
                 }
             };
 
-            cleanupEvents.push(useEventListener(window, 'focus', executeTryCopy));
-            cleanupEvents.push(useEventListener(window, 'pointerdown', executeTryCopy));
+            cleanupEvents.push(useEventListener(window, 'click', executeTryCopy));
+            cleanupEvents.push(useEventListener(window, 'mousedown', executeTryCopy));
+            cleanupEvents.push(useEventListener(window, 'touchend', executeTryCopy));
             cleanupEvents.push(useEventListener(window, 'keydown', executeTryCopy));
-            cleanupEvents.push(useEventListener(document, 'visibilitychange', executeTryCopy));
         }
     } else {
         $toast.error('Some files could not be uploaded');
