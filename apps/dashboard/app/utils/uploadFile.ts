@@ -46,6 +46,7 @@ export const uploadFile = async (
 
     const startedAt = Date.now();
     let totalLoaded = 0;
+    let uploadedFileUrl = '';
 
     for (let i = 0; i < chunks; i++) {
         const start = i * fileChunkSize;
@@ -96,6 +97,8 @@ export const uploadFile = async (
                         resolve(false);
                         return;
                     }
+
+                    if (res.url) uploadedFileUrl = res.url;
                 }
 
                 uploadingFile.status!.error = null;
@@ -109,5 +112,5 @@ export const uploadFile = async (
         if (!res) return false;
     }
 
-    return true;
+    return uploadedFileUrl;
 };

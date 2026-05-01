@@ -56,6 +56,7 @@ const uploading = useIsUploading();
 const uploadingFiles = useUploadingFiles();
 const route = useRoute();
 const { $toast } = useNuxtApp();
+const { copy } = useClipboard({ legacy: true });
 
 const dashboardRef = useTemplateRef('dashboard');
 
@@ -79,12 +80,23 @@ const handleUpload = async (files: File[] | null, source: 'drag-drop' | 'paste')
     });
 
     const results: boolean[] = [];
+    const uploadedUrls: string[] = [];
     const parallelUploads = 3;
 
     while (filesCopy.length > 0) {
         const chunk = filesCopy.splice(0, parallelUploads);
         const chunkResults = await Promise.all(chunk.map((c) => uploadFile(c)));
-        results.push(...chunkResults.filter((r) => r !== undefined));
+
+        for (const r of chunkResults) {
+            if (r === undefined) continue;
+
+            if (typeof r === 'string') {
+                results.push(true);
+                uploadedUrls.push(r);
+            } else {
+                results.push(false);
+            }
+        }
     }
 
     uploadingFiles.value = uploadingFiles.value.filter((_, index) => !results[index]);
@@ -93,11 +105,43 @@ const handleUpload = async (files: File[] | null, source: 'drag-drop' | 'paste')
     if (!uploadingFiles.value.length) {
         const filesCount = files.length;
 
-        $toast.success(
-            source === 'drag-drop'
-                ? `${filesCount} file${filesCount > 1 ? 's' : ''} dropped and uploaded successfully`
-                : 'Pasted content uploaded successfully',
-        );
+        const copyAll = () => copy(uploadedUrls.join('\n'));
+
+        const isDragDrop = source === 'drag-drop';
+        const filesText = filesCount > 1 ? `${filesCount} files` : 'File';
+        const urlText = filesCount > 1 ? 'URLs' : 'URL';
+
+        if (document.hasFocus()) {
+            await copyAll();
+
+            $toast.success(
+                isDragDrop
+                    ? `${filesText} dropped and uploaded successfully.  ${urlText} copied to clipboard!`
+                    : `Pasted content uploaded successfully. ${urlText} copied to clipboard!`,
+            );
+        } else {
+            $toast.success(
+                isDragDrop
+                    ? `${filesText} dropped and uploaded successfully. ${urlText} will copy when you return.`
+                    : `Pasted content uploaded successfully. ${urlText} will copy when you return.`,
+            );
+
+            let settled = false;
+            const cleanupEvents: (() => void)[] = [];
+
+            const executeTryCopy = async () => {
+                if (settled || !document.hasFocus()) return;
+
+                settled = true;
+                cleanupEvents.forEach((cleanup) => cleanup());
+
+                await copyAll();
+                $toast.success(`${urlText} copied to clipboard!`);
+            };
+
+            cleanupEvents.push(useEventListener(window, 'pointerdown', executeTryCopy));
+            cleanupEvents.push(useEventListener(window, 'keydown', executeTryCopy));
+        }
     } else {
         $toast.error('Some files could not be uploaded');
     }
