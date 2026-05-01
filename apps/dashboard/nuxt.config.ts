@@ -137,6 +137,19 @@ export default defineNuxtConfig({
                 },
             },
         },
+        optimizeDeps: {
+            include: [
+                '@vue/devtools-core',
+                '@vue/devtools-kit',
+                'dayjs', // CJS
+                'dayjs/plugin/duration', // CJS
+                'dayjs/plugin/relativeTime', // CJS
+                'socket.io-client',
+                'gsap',
+                'gsap/SplitText',
+                'filesize',
+            ],
+        },
     },
 
     compatibilityDate: '2024-09-04',
