@@ -105,14 +105,12 @@ const handleUpload = async (files: File[] | null, source: 'drag-drop' | 'paste')
     if (!uploadingFiles.value.length) {
         const filesCount = files.length;
 
-        const copyAll = () => copy(uploadedUrls.join('\n'));
-
         const isDragDrop = source === 'drag-drop';
         const filesText = filesCount > 1 ? `${filesCount} files` : 'File';
         const urlText = filesCount > 1 ? 'URLs' : 'URL';
 
         if (document.hasFocus()) {
-            await copyAll();
+            await copy(uploadedUrls.join('\n'));
 
             $toast.success(
                 isDragDrop
@@ -132,15 +130,21 @@ const handleUpload = async (files: File[] | null, source: 'drag-drop' | 'paste')
             const executeTryCopy = async () => {
                 if (settled || !document.hasFocus()) return;
 
-                settled = true;
-                cleanupEvents.forEach((cleanup) => cleanup());
+                try {
+                    await copy(uploadedUrls.join('\n'), true);
 
-                await copyAll();
-                $toast.success(`${urlText} copied to clipboard!`);
+                    settled = true;
+                    cleanupEvents.forEach((cleanup) => cleanup());
+                    $toast.success(`${urlText} copied to clipboard!`);
+                } catch {
+                    //
+                }
             };
 
+            cleanupEvents.push(useEventListener(window, 'focus', executeTryCopy));
             cleanupEvents.push(useEventListener(window, 'pointerdown', executeTryCopy));
             cleanupEvents.push(useEventListener(window, 'keydown', executeTryCopy));
+            cleanupEvents.push(useEventListener(document, 'visibilitychange', executeTryCopy));
         }
     } else {
         $toast.error('Some files could not be uploaded');

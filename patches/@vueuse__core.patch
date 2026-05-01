@@ -1,0 +1,51 @@
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+index 6963a7c6a9ee986d9725d88f4d122137bb323f3e..77a00ca98f2457d9090fd17e631044af12240b82 100644
+--- a/dist/index.d.ts
++++ b/dist/index.d.ts
+@@ -971,7 +971,7 @@ interface UseClipboardOptions<Source> extends ConfigurableNavigator {
+ interface UseClipboardReturn<Optional> extends Supportable {
+   text: Readonly<ShallowRef<string>>;
+   copied: Readonly<ShallowRef<boolean>>;
+-  copy: Optional extends true ? (text?: string) => Promise<void> : (text: string) => Promise<void>;
++  copy: Optional extends true ? (text?: string, throwOnError?: boolean) => Promise<void> : (text: string, throwOnError?: boolean) => Promise<void>;
+ }
+ /**
+  * Reactive Clipboard API.
+diff --git a/dist/index.js b/dist/index.js
+index 9e392aafa8c6932e33da69de4d203b02ba382033..94de204d36c730f21654022ff6e0b10e268eb62f 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1728,15 +1728,19 @@ function useClipboard(options = {}) {
+ 		if (useLegacy) text.value = legacyRead();
+ 	}
+ 	if (isSupported.value && read) useEventListener(["copy", "cut"], updateText, { passive: true });
+-	async function copy(value = toValue(source)) {
++	async function copy(value = toValue(source), throwOnError = false) {
+ 		if (isSupported.value && value != null) {
+ 			let useLegacy = !(isClipboardApiSupported.value && isAllowed(permissionWrite.value));
+ 			if (!useLegacy) try {
+ 				await navigator$1.clipboard.writeText(value);
+-			} catch (_unused2) {
++			} catch (err) {
++				if (throwOnError && !legacy) throw err;
+ 				useLegacy = true;
+ 			}
+-			if (useLegacy) legacyCopy(value);
++			if (useLegacy) {
++				const success = legacyCopy(value);
++				if (!success && throwOnError) throw new Error("Clipboard copy failed");
++			}
+ 			text.value = value;
+ 			copied.value = true;
+ 			timeout.start();
+@@ -1750,8 +1754,9 @@ function useClipboard(options = {}) {
+ 		ta.setAttribute("readonly", "");
+ 		document.body.appendChild(ta);
+ 		ta.select();
+-		document.execCommand("copy");
++		const success = document.execCommand("copy");
+ 		ta.remove();
++		return success;
+ 	}
+ 	function legacyRead() {
+ 		var _document$getSelectio, _document, _document$getSelectio2;

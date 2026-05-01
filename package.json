@@ -19,6 +19,9 @@
         "overrides": {
             "sharp": "0.33.4",
             "unconfig": "^7.5.0"
+        },
+        "patchedDependencies": {
+            "@vueuse/core": "patches/@vueuse__core.patch"
         }
     },
     "packageManager": "pnpm@10.32.1"
