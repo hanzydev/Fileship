@@ -212,8 +212,7 @@ watch(
     (value) => (placement.value = value),
 );
 
-router.beforeEach((_, __, next) => {
+router.beforeEach(() => {
     if (isOpen.value) isOpen.value = false;
-    next();
 });
 </script>

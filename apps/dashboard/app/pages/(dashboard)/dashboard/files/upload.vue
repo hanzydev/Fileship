@@ -183,10 +183,8 @@ const handleUpload = async () => {
     }
 };
 
-router.beforeEach((_, __, next) => {
+router.beforeEach(() => {
     if (!uploading.value) uploadingFiles.value = [];
-
-    next();
 });
 
 watch(currentTab, () => {
