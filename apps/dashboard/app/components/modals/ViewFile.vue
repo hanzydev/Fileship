@@ -601,6 +601,26 @@ const editModalOpen = ref(false);
 const aiModalOpen = ref(false);
 const takingOut = ref(false);
 
+const { pause, resume } = useRafFn(
+    () => {
+        if (!canvas.value || !video.value || !isOpen.value) return;
+
+        const ctx = canvas.value.getContext('2d', { alpha: false });
+        if (!ctx) return;
+
+        if (
+            canvas.value.width !== video.value.videoWidth ||
+            canvas.value.height !== video.value.videoHeight
+        ) {
+            canvas.value.width = video.value.videoWidth;
+            canvas.value.height = video.value.videoHeight;
+        }
+
+        ctx.drawImage(video.value, 0, 0, canvas.value.width, canvas.value.height);
+    },
+    { immediate: false },
+);
+
 const handleDelete = async () => {
     deleting.value = true;
 
@@ -652,60 +672,24 @@ const handleNext = () => {
     changeFile(next.value);
 };
 
-const handleAmbientMode = () => {
-    if (!video.value || !canvas.value || reducedMotion.value !== 'no-preference' || !isOpen.value)
-        return;
+const setupAmbientEvents = () => {
+    if (!video.value) return;
 
-    const ctx = canvas.value!.getContext('2d', { alpha: false })!;
-    let step: number | undefined;
+    useEventListener(video, 'play', resume);
+    useEventListener(video, 'pause', pause);
+    useEventListener(video, 'ended', pause);
 
-    const setDimensions = () => {
-        if (!video.value || !canvas.value) return;
+    useEventListener(video, 'seeked', () => {
+        if (!canvas.value || !video.value) return;
+        const ctx = canvas.value.getContext('2d', { alpha: false });
+        ctx?.drawImage(video.value, 0, 0, canvas.value.width, canvas.value.height);
+    });
 
-        if (
-            canvas.value.width !== video.value.videoWidth ||
-            canvas.value.height !== video.value.videoHeight
-        ) {
-            canvas.value.width = video.value.videoWidth;
-            canvas.value.height = video.value.videoHeight;
-        }
-    };
-
-    const draw = () => {
-        if (!canvas.value?.width || !canvas.value?.height) return;
-        ctx.drawImage(video.value!, 0, 0, canvas.value!.width, canvas.value!.height);
-    };
-
-    const drawLoop = () => {
-        draw();
-        step = window.requestAnimationFrame(drawLoop);
-    };
-
-    const drawPause = () => {
-        if (step) {
-            window.cancelAnimationFrame(step);
-            step = undefined;
-        }
-    };
-
-    video.value.addEventListener('loadedmetadata', setDimensions, false);
-    video.value.addEventListener(
-        'loadeddata',
-        () => {
-            setDimensions();
-            draw();
-        },
-        false,
-    );
-    video.value.addEventListener('seeked', draw, false);
-    video.value.addEventListener('play', drawLoop, false);
-    video.value.addEventListener('pause', drawPause, false);
-    video.value.addEventListener('ended', drawPause, false);
-
-    if (video.value.readyState >= 1) {
-        setDimensions();
-        draw();
-    }
+    useEventListener(video, 'loadedmetadata', () => {
+        if (!canvas.value || !video.value) return;
+        canvas.value.width = video.value.videoWidth;
+        canvas.value.height = video.value.videoHeight;
+    });
 };
 
 const handleZoom = (event: MouseEvent) => {
@@ -789,6 +773,18 @@ watch(isOpen, (value) => {
     }
 });
 
-watch([isOpen, data], handleAmbientMode, { flush: 'post' });
+watch(
+    [isOpen, video],
+    ([open, vid]) => {
+        if (open && vid && reducedMotion.value === 'no-preference') {
+            setupAmbientEvents();
+            if (!vid.paused) resume();
+        } else {
+            pause();
+        }
+    },
+    { flush: 'post' },
+);
+
 watch(data, () => scrollToActiveThumbnail(true), { flush: 'post' });
 </script>
