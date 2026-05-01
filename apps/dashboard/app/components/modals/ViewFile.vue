@@ -556,32 +556,18 @@ const zoom = reactive({
 });
 
 const index = computed(() => files.value.findIndex((file) => file.id === data.value.id));
+
+const isMediaFile = (file: FileData) =>
+    ['image/', 'video/', 'audio/'].some((type) => file.mimeType?.startsWith(type));
+
 const next = computed(() => {
-    const file = files.value[index.value + 1];
-    if (!file) return null;
-
-    const allowedMimeTypes = ['image/', 'video/', 'audio/'];
-    if (allowedMimeTypes.some((type) => file.mimeType!.startsWith(type))) return file;
-
-    return files.value.find(
-        (file, fIndex) =>
-            allowedMimeTypes.some((type) => file.mimeType!.startsWith(type)) &&
-            fIndex > index.value,
-    );
+    return files.value.slice(index.value + 1).find(isMediaFile) || null;
 });
+
 const prev = computed(() => {
-    const file = files.value[index.value - 1];
-    if (!file) return null;
-
-    const allowedMimeTypes = ['image/', 'video/', 'audio/'];
-    if (allowedMimeTypes.some((type) => file.mimeType!.startsWith(type))) return file;
-
-    return files.value.find(
-        (file, fIndex) =>
-            allowedMimeTypes.some((type) => file.mimeType!.startsWith(type)) &&
-            fIndex < index.value,
-    );
+    return [...files.value].slice(0, index.value).reverse().find(isMediaFile) || null;
 });
+
 const isFirst = computed(() => index.value === 0);
 const isLast = computed(() => index.value === files.value.length - 1);
 const tl = computed(() =>
