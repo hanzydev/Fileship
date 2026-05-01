@@ -202,7 +202,7 @@ const { data: _data, error } = await useFetch<FileData & { embed: IEmbed }>(
 );
 
 const { $toast } = useNuxtApp();
-const { copied, copy } = useClipboard({ legacy: true });
+const { copied, copy } = useClipboard();
 
 const data = ref({
     ..._data.value,

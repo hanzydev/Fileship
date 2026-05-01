@@ -98,7 +98,7 @@ const renderMarkdown = () => {
 
                 pre.classList.add('relative');
 
-                const { copy, copied } = useClipboard({ legacy: true });
+                const { copy, copied } = useClipboard();
 
                 const doRender = () => {
                     const copyButtonVNode = h(UiButton, {

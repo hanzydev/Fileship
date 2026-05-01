@@ -156,7 +156,7 @@ const ctxOpen = ref(false);
 const handleViewTextFile = () => window.open(`/view/${data.fileName}`, '_blank');
 
 const handleCopy = () => {
-    useClipboard({ legacy: true }).copy(
+    useClipboard().copy(
         data.embed.enabled || isText.value ? data.embedUrl! : data.directUrl!,
     );
     ctxOpen.value = false;

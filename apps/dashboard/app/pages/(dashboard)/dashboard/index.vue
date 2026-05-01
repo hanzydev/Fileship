@@ -292,7 +292,7 @@ const calculatedFiles = computed(() => {
 });
 
 const handleCopy = async (file: FileData) => {
-    const { copy, copied } = useClipboard({ legacy: true });
+    const { copy, copied } = useClipboard();
 
     const isText = TEXT_FILE_TYPES.some(
         (type) => type.extension === getExtname(file.fileName!).slice(1),

@@ -457,7 +457,7 @@ const currentUser = useAuthUser();
 const embed = useEmbed();
 const allFiles = useFiles();
 const runtimeConfig = useRuntimeConfig();
-const { copied, copy } = useClipboard({ legacy: true });
+const { copied, copy } = useClipboard();
 const { $toast } = useNuxtApp();
 
 const fileId = ref(_fileId);
