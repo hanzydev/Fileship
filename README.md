@@ -54,6 +54,18 @@
 - Auto-Delete after expiration
 - Ambient Mode
 
+## 🍎 Internet Explorer 12 (Safari)
+
+We built Fileship using cutting-edge tech, AI search, and real-time infrastructure. Then we had to stop everything to perform emergency CPR on Safari because it still thinks it's a 2010 tech demo.
+
+If you're still using Safari by choice, please seek professional help or at least download a real browser. **If basic features actually work on your Mac**, it's not because of Apple—it's because we had to manually bypass their prehistoric logic.
+
+**Using Safari isn't a "preference," it's a cry for help. Stop it. It's embarrassing.**
+
+> **#FuckSafari**
+> **#ModernIE**
+> **#UseARealBrowser**
+
 ## 🚀 Getting Started
 
 ### Minimum system requirements
