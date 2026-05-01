@@ -91,7 +91,7 @@ const { data } = defineProps<{
     data: NoteData;
 }>();
 
-const { copy } = useClipboard();
+const { copy } = useClipboard({ legacy: true });
 const { $toast } = useNuxtApp();
 
 const viewModalOpen = ref(false);

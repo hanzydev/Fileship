@@ -187,8 +187,8 @@ const previewMode = ref(true);
 
 const notes = useNotes();
 const currentUser = useAuthUser();
-const { copied: contentCopied, copy: copyContent } = useClipboard();
-const { copied: linkCopied, copy: copyLink } = useClipboard();
+const { copied: contentCopied, copy: copyContent } = useClipboard({ legacy: true });
+const { copied: linkCopied, copy: copyLink } = useClipboard({ legacy: true });
 const reducedMotion = usePreferredReducedMotion();
 const { $toast } = useNuxtApp();
 const modalId = useId();

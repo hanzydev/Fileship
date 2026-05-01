@@ -208,7 +208,7 @@ editMode.value = !!newFolder;
 const files = useFiles();
 const { $toast } = useNuxtApp();
 const currentUser = useAuthUser();
-const { copied, copy } = useClipboard();
+const { copied, copy } = useClipboard({ legacy: true });
 
 const currentPage = ref(1);
 const filterType = ref([]);

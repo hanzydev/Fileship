@@ -174,7 +174,7 @@ const handleDelete = async () => {
 };
 
 const handleCopy = () => {
-    useClipboard().copy(data.publicUrl!);
+    useClipboard({ legacy: true }).copy(data.publicUrl!);
     ctxOpen.value = false;
 
     $toast.success('Link copied to clipboard');

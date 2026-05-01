@@ -55,7 +55,7 @@ const { data, error } = await useFetch<NoteData & { embed: Pick<IEmbed, 'enabled
 
 const previewMode = ref(true);
 const { $toast } = useNuxtApp();
-const { copied, copy } = useClipboard();
+const { copied, copy } = useClipboard({ legacy: true });
 
 if (error.value?.statusCode === 404) {
     throw createError({

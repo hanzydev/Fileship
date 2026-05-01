@@ -414,7 +414,7 @@ const handleDelete = async () => {
 };
 
 const handleCopy = () => {
-    useClipboard().copy(
+    useClipboard({ legacy: true }).copy(
         embed.value.enabled || isText.value ? data.embedUrl : data.directUrl,
     );
     ctxOpen.value = false;
