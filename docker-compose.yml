@@ -15,7 +15,7 @@ services:
             retries: 5
 
     fileship:
-        build: .
+        image: ghcr.io/hanzydev/fileship:latest
         ports:
             - '3000:3000'
         restart: unless-stopped
@@ -26,7 +26,8 @@ services:
         volumes:
             - ./data:/fileship/data
         depends_on:
-            - postgres
+            postgres:
+                condition: service_healthy
 
 volumes:
     pg_data:
