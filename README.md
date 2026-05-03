@@ -78,7 +78,9 @@ Fileship is designed to run on a variety of systems, but the following minimum r
 - **Database**: PostgreSQL 16.x or higher
 - **Node.js**: 24.x or higher
 
-### Installing
+### ⚡ Installing (Using Pre-built Image) - Recommended
+
+**This is the fastest and easiest way to get Fileship up and running.** We highly recommend using the official pre-built image unless you plan to modify the code.
 
 This section requires [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) to be installed on your machine.
 
@@ -89,6 +91,16 @@ docker compose up -d
 ```
 
 Open your browser and go to `http://localhost:3000`
+
+### 🏗️ Building from Source (Alternative)
+
+If you prefer to build the image locally instead of pulling it from the registry, use the development compose file:
+
+```sh
+git clone https://github.com/hanzydev/Fileship.git
+cd Fileship
+docker compose -f docker-compose.dev.yml up -d --build
+```
 
 ### Default credentials
 
@@ -137,8 +149,11 @@ To update Fileship, follow these steps:
 ```sh
 cd Fileship
 git pull
-docker compose up --build -d
+docker compose pull
+docker compose up -d
 ```
+
+> **Note:** If you are building from source using the alternative method, update your instance by running: `git pull` and then `docker compose -f docker-compose.dev.yml up -d --build`
 
 ## 🤖 AI Features
 
