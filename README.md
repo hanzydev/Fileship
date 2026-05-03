@@ -78,7 +78,7 @@ Fileship is designed to run on a variety of systems, but the following minimum r
 - **Database**: PostgreSQL 16.x or higher
 - **Node.js**: 24.x or higher
 
-### ⚡ Installing (Using Pre-built Image) - Recommended
+### Installing (Using Pre-built Image) ⚡ - Recommended
 
 **This is the fastest and easiest way to get Fileship up and running.** We highly recommend using the official pre-built image unless you plan to modify the code.
 
@@ -92,7 +92,7 @@ docker compose up -d
 
 Open your browser and go to `http://localhost:3000`
 
-### 🏗️ Building from Source (Alternative)
+### Building from Source (Alternative) 🏗️
 
 If you prefer to build the image locally instead of pulling it from the registry, use the development compose file:
 
