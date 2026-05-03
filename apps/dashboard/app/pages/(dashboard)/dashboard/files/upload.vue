@@ -164,7 +164,10 @@ const handleUpload = async () => {
                 }),
             ),
         );
-        results.push(...chunkResults.filter((r) => r !== undefined));
+
+        results.push(
+            ...chunkResults.filter((r) => r !== undefined).map((r) => typeof r === 'string'),
+        );
     }
 
     uploadingFiles.value = uploadingFiles.value.filter((_, index) => !results[index]);
