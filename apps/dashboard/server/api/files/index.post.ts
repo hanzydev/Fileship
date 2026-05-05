@@ -89,7 +89,7 @@ export default defineEventHandler(async (event) => {
 
     const findFileByFileName = await prisma.file.findUnique({
         where: {
-            fileName: fileName,
+            fileName,
         },
     });
 
@@ -257,9 +257,9 @@ export default defineEventHandler(async (event) => {
                 : null;
         }
 
-        if (ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
-            const aiEnabled = currentUser.aiSettings?.enabled ?? true;
-            if (aiEnabled) {
+        const aiEnabled = currentUser.aiSettings?.enabled ?? true;
+        if (aiEnabled) {
+            if (ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
                 event.waitUntil(
                     Promise.all([
                         enqueueAIJob({
@@ -284,10 +284,7 @@ export default defineEventHandler(async (event) => {
                         }),
                     ]),
                 );
-            }
-        } else if (ai.VIDEO_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
-            const aiEnabled = currentUser.aiSettings?.enabled ?? true;
-            if (aiEnabled) {
+            } else if (ai.VIDEO_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
                 event.waitUntil(
                     Promise.all([
                         enqueueAIJob({
@@ -297,10 +294,7 @@ export default defineEventHandler(async (event) => {
                         }),
                     ]),
                 );
-            }
-        } else if (ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
-            const aiEnabled = currentUser.aiSettings?.enabled ?? true;
-            if (aiEnabled) {
+            } else if (ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
                 event.waitUntil(
                     Promise.all([
                         enqueueAIJob({
