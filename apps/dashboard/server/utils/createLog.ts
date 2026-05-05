@@ -25,7 +25,7 @@ export const createLog = async (
     const currentUser = event?.context?.user;
     const ip = event ? getRequestIP(event, { xForwardedFor: true }) || 'Unknown' : '::1';
 
-    if (system) {
+    if (system || !currentUser) {
         consola.info(
             `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - ${message}${ip !== '::1' ? ` from ${ip}` : ''}`,
         );
@@ -38,7 +38,7 @@ export const createLog = async (
     const log = await prisma.log.create({
         data: {
             action,
-            userId: system ? null : currentUser!.id,
+            userId: system ? null : currentUser?.id,
             message,
             system,
             ip,

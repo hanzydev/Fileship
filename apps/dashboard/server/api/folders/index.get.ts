@@ -20,16 +20,21 @@ export default defineEventHandler(async (event) => {
                     createdAt: 'desc',
                 },
             },
+            inbox: true,
         },
     });
 
-    return folders.map((folder) => ({
-        ...folder,
-        files: folder.files
-            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-            .map((file) => file.id),
-        publicUrl: folder.public
-            ? buildPublicUrl(event, currentUser.domains, `/folder/${folder.id}`)
-            : undefined,
-    }));
+    return folders
+        .map((folder) => ({
+            ...folder,
+            inbox: undefined,
+            files: folder.files
+                .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+                .map((file) => file.id),
+            publicUrl: folder.public
+                ? buildPublicUrl(event, currentUser.domains, `/folder/${folder.id}`)
+                : undefined,
+            isInbox: !!folder.inbox,
+        }))
+        .sort((a, b) => +b.isInbox - +a.isInbox);
 });

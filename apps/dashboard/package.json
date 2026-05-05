@@ -16,7 +16,8 @@
         "db:migrate": "prisma migrate dev --create-only",
         "db:studio": "prisma studio",
         "db:generate": "prisma generate --no-hints",
-        "db:deploy": "prisma migrate deploy"
+        "db:deploy": "prisma migrate deploy",
+        "db:reset": "prisma migrate reset"
     },
     "dependencies": {
         "@ffmpeg-installer/ffmpeg": "^1.1.0",

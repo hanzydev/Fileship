@@ -89,6 +89,7 @@
                             @click="editMode = !editMode"
                         />
                         <UiButton
+                            v-if="!newFolder && !data.isInbox"
                             alignment="center"
                             class="size-9 shrink-0 text-fs-muted-2 !rounded-xl !p0 !hover:(bg-red-600 text-white)"
                             variant="onOverlay"

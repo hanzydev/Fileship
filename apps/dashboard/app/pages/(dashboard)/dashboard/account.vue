@@ -543,6 +543,100 @@
                 </template>
             </UiExpander>
 
+            <UiExpander op0>
+                <div flex="~ gap2 items-center">
+                    <Icon name="solar:inbox-in-bold" size="24" />
+                    <h5>Inbox</h5>
+                </div>
+                <template #content>
+                    <div space-y-4>
+                        <p text-fs-muted-1>Your personal drop zone for incoming files.</p>
+
+                        <div flex="~ gap2 items-center">
+                            <UiSwitch
+                                v-model="inboxEditData.cloned.value.enabled"
+                                :disabled="inboxToggling || inboxPasswordUpdating"
+                            />
+                            <span font-medium="!">Enable Inbox</span>
+                        </div>
+
+                        <template v-if="inboxData!.enabled">
+                            <form flex="~ items-end gap-2" @submit.prevent="handleUpdateInboxSlug">
+                                <UiInput
+                                    v-model="inboxEditData.cloned.value.slug"
+                                    label="Inbox URL"
+                                    type="text"
+                                    w-md
+                                    maxlength="48"
+                                    :disabled="inboxSlugUpdating"
+                                    :error="inboxSlugError"
+                                />
+
+                                <UiButton
+                                    p0="!"
+                                    alignment="center"
+                                    variant="accent"
+                                    type="submit"
+                                    icon="solar:pen-2-bold"
+                                    icon-size="24"
+                                    size-11
+                                    :loading="inboxSlugUpdating"
+                                    :disabled="
+                                        inboxSlugUpdating ||
+                                        inboxData!.slug ===
+                                            (inboxEditData.cloned.value.slug || null) ||
+                                        inboxData!.id === inboxEditData.cloned.value.slug
+                                    "
+                                />
+                            </form>
+
+                            <form
+                                flex="~ items-center gap-2"
+                                @submit.prevent="handleUpdateInboxPassword"
+                            >
+                                <UiInput
+                                    v-model="inboxEditData.cloned.value.password"
+                                    label="Inbox Password"
+                                    caption="Leave empty to disable password"
+                                    type="password"
+                                    w-md
+                                    maxlength="48"
+                                    :disabled="inboxPasswordUpdating"
+                                />
+
+                                <UiButton
+                                    p0="!"
+                                    alignment="center"
+                                    variant="accent"
+                                    type="submit"
+                                    icon="solar:pen-2-bold"
+                                    icon-size="24"
+                                    mt1
+                                    size-11
+                                    :loading="inboxPasswordUpdating"
+                                    :disabled="
+                                        inboxPasswordUpdating ||
+                                        inboxData!.password ===
+                                            (inboxEditData.cloned.value.password || null)
+                                    "
+                                />
+                            </form>
+
+                            <UiButton
+                                gap2
+                                alignment="center"
+                                variant="accent"
+                                icon-size="20"
+                                icon="solar:copy-bold"
+                                @click="handleCopyInboxUrl"
+                            >
+                                Copy Inbox URL
+                            </UiButton>
+                        </template>
+                    </div>
+                </template>
+            </UiExpander>
+
             <UiExpander v-if="runtimeConfig.public.aiEnabled" op0>
                 <div flex="~ gap2 items-center">
                     <Icon name="heroicons:sparkles-solid" size="24" />
@@ -601,6 +695,7 @@ const runtimeConfig = useRuntimeConfig();
 const { $toast } = useNuxtApp();
 
 const { data: passkeysData } = await useFetch('/api/users/@me/mfa/webauthn/credentials');
+const { data: inboxData, refresh: refreshInboxData } = await useFetch('/api/users/@me/inbox');
 
 passkeys.value = passkeysData.value!.map((p) => ({
     ...p,
@@ -659,7 +754,19 @@ const aiEditData = useCloned(
     }),
 );
 
+const inboxEditData = useCloned(
+    ref({
+        enabled: inboxData.value!.enabled,
+        password: inboxData.value!.password || '',
+        slug: inboxData.value!.slug || inboxData.value!.id,
+    }),
+);
+
 const aiUpdating = ref(false);
+const inboxToggling = ref(false);
+const inboxPasswordUpdating = ref(false);
+const inboxSlugUpdating = ref(false);
+const inboxSlugError = ref<string>();
 
 const userUpdating = ref(false);
 const userFormErrors = ref();
@@ -797,6 +904,78 @@ const handleAiSettingsEdit = async () => {
     $toast.success('AI settings updated successfully');
 
     aiUpdating.value = false;
+};
+
+const handleToggleInbox = async () => {
+    inboxToggling.value = true;
+
+    const enabled = inboxEditData.cloned.value.enabled;
+
+    await $fetch('/api/users/@me/inbox', {
+        method: 'PATCH',
+        body: {
+            enabled,
+        },
+    });
+
+    await refreshInboxData();
+
+    $toast.success(`Inbox ${enabled ? 'enabled' : 'disabled'} successfully`);
+
+    inboxToggling.value = false;
+};
+
+const handleUpdateInboxSlug = async () => {
+    inboxSlugUpdating.value = true;
+    inboxSlugError.value = undefined;
+
+    const slug = inboxEditData.cloned.value.slug || null;
+
+    try {
+        await $fetch('/api/users/@me/inbox', {
+            method: 'PATCH',
+            body: {
+                slug,
+            },
+        });
+
+        await refreshInboxData();
+
+        inboxEditData.cloned.value.slug = inboxData.value!.slug || inboxData.value!.id;
+
+        $toast.success('Inbox URL updated successfully');
+    } catch (error: any) {
+        inboxSlugError.value = error.data.message;
+    }
+
+    inboxSlugUpdating.value = false;
+};
+
+const handleUpdateInboxPassword = async () => {
+    inboxPasswordUpdating.value = true;
+
+    const password = inboxEditData.cloned.value.password || null;
+
+    await $fetch('/api/users/@me/inbox', {
+        method: 'PATCH',
+        body: {
+            password,
+        },
+    });
+
+    await refreshInboxData();
+
+    $toast.success('Inbox password updated successfully');
+
+    inboxPasswordUpdating.value = false;
+};
+
+const handleCopyInboxUrl = async () => {
+    const url = buildPublicUrl(`/inbox/${inboxData.value!.slug || inboxData.value!.id}`);
+
+    await useClipboard({ legacy: true }).copy(url);
+
+    $toast.success('Inbox URL copied to clipboard');
 };
 
 const handleEnableAuthApp = async (totp: string) => {
@@ -995,6 +1174,7 @@ watch(authAppEnabled, (enabled) => {
 });
 
 watch(aiEditData.cloned, handleAiSettingsEdit, { deep: true });
+watch(() => inboxEditData.cloned.value.enabled, handleToggleInbox);
 
 definePageMeta({
     layout: 'dashboard',

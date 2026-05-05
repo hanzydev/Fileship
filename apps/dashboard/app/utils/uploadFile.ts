@@ -1,10 +1,11 @@
 interface FileSettings {
-    fileNameType: 'Random' | 'UUID' | 'Original';
-    maxViews: number;
-    password: string | null;
-    expiration: number | null;
-    compression: number;
-    folder: string | null;
+    fileNameType?: 'Random' | 'UUID' | 'Original';
+    maxViews?: number;
+    password?: string | null;
+    expiration?: number | null;
+    compression?: number;
+    folder?: string | null;
+    inboxPassword?: string;
 }
 
 export const uploadFile = async (
@@ -17,6 +18,7 @@ export const uploadFile = async (
         compression: 0,
         folder: null,
     },
+    uploadEndpoint = '/api/files',
 ) => {
     let {
         public: { fileChunkSize },
@@ -58,13 +60,14 @@ export const uploadFile = async (
         formData.append('file', new Blob([chunk], { type: file.type }), file.name);
         formData.append('currentChunk', (i + 1).toString());
         formData.append('totalChunks', chunks.toString());
-        formData.append('fileNameType', settings.fileNameType);
-        formData.append('maxViews', settings.maxViews.toString());
-        formData.append('compression', settings.compression.toString());
 
+        if ('maxViews' in settings) formData.append('maxViews', settings.maxViews!.toString());
+        if (settings.fileNameType) formData.append('fileNameType', settings.fileNameType);
+        if (settings.compression) formData.append('compression', settings.compression.toString());
         if (settings.password) formData.append('password', settings.password);
         if (settings.expiration) formData.append('expiration', settings.expiration.toString());
         if (settings.folder) formData.append('folderId', settings.folder);
+        if (settings.inboxPassword) formData.append('inboxPassword', settings.inboxPassword);
 
         const res = await new Promise<boolean>((resolve) => {
             const req = new XMLHttpRequest();
@@ -105,7 +108,7 @@ export const uploadFile = async (
                 resolve(true);
             });
 
-            req.open('POST', '/api/files');
+            req.open('POST', uploadEndpoint);
             req.send(formData);
         });
 

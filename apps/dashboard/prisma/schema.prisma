@@ -59,6 +59,7 @@ model User {
   theme              String              @default("Fileship")
   credentials        Credential[]
   aiJobs             AIJob[]
+  inbox              Inbox?
 }
 
 model Credential {
@@ -138,6 +139,7 @@ model Folder {
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
   files     File[]
+  inbox     Inbox?
 }
 
 model Log {
@@ -183,4 +185,15 @@ model Stat {
   filesByUser       Json
   types             Json
   createdAt         DateTime @default(now())
+}
+
+model Inbox {
+  id       String  @id @unique @default(uuid())
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String  @unique
+  folder   Folder  @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  folderId String  @unique
+  slug     String?  @unique
+  enabled  Boolean @default(false)
+  password String?
 }

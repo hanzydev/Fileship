@@ -70,6 +70,7 @@ export default defineEventHandler(async (event) => {
         publicUrl: _folder.public
             ? buildPublicUrl(event, currentUser.domains, `/folder/${_folder.id}`)
             : undefined,
+        isInbox: false,
     };
 
     await insert(folderSearchDb, {

@@ -136,7 +136,7 @@
             />
         </div>
 
-        <UiCentered v-else h-screen="!" :class="(isVideo || isImage || isAudio) && '!p0'">
+        <UiCentered v-else hfull :class="(isVideo || isImage || isAudio) && '!p0'">
             <VerifyPassword
                 v-if="!data.id"
                 :disabled="passwordDisabled"
@@ -245,7 +245,7 @@ if (error.value?.statusCode === 404) {
 }
 
 const passwordError = ref<string>();
-const passwordDisabled = ref<boolean>(false);
+const passwordDisabled = ref(false);
 
 const replaceString = (str: string) => {
     const dateFormat = 'MMMM D, YYYY [at] h:mm A';

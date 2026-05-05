@@ -13,13 +13,26 @@ export default defineTask({
     async run() {
         const findUser = await prisma.user.findFirst();
         if (!findUser) {
-            await prisma.user.create({
+            const createdUser = await prisma.user.create({
                 data: {
                     username: 'admin',
                     password: await hash('password'),
                     superAdmin: true,
                     permissions: [UserPermission.Admin],
                     limits: defaultUserLimits as never,
+                },
+            });
+
+            await prisma.folder.create({
+                data: {
+                    name: 'Inbox',
+                    public: false,
+                    authorId: createdUser.id,
+                    inbox: {
+                        create: {
+                            userId: createdUser.id,
+                        },
+                    },
                 },
             });
 

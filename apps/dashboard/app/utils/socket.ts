@@ -25,7 +25,6 @@ export const initSocket = () => {
     const passkeys = usePasskeys();
     const currentUser = useAuthUser();
     const currentTheme = useTheme();
-    const runtimeConfig = useRuntimeConfig();
 
     const route = useRoute();
     const sessionId = useCookie('sessionId');
@@ -78,25 +77,6 @@ export const initSocket = () => {
 
         socket.on('currentUser:domainsUpdate', (data) => {
             domains.value = data;
-
-            const buildPublicUrl = (route: `/${string}`) => {
-                const reqUrl = useRequestURL({ xForwardedHost: true, xForwardedProto: true });
-
-                const returnHttps = runtimeConfig.public.returnHttps;
-
-                const protocol =
-                    returnHttps === 'auto'
-                        ? reqUrl.protocol.slice(0, -1)
-                        : returnHttps
-                          ? 'https'
-                          : 'http';
-
-                const domain = data.length
-                    ? data[Math.floor(Math.random() * data.length)]
-                    : reqUrl.host;
-
-                return `${protocol}://${domain}${route}`;
-            };
 
             files.value = files.value.map((file) => ({
                 ...file,
@@ -246,7 +226,7 @@ export const initSocket = () => {
                     createdAt: new Date(data.createdAt),
                 },
                 ...folders.value,
-            ];
+            ].sort((a, b) => +b.isInbox - +a.isInbox);
 
             for (const fileId of data.files) {
                 const file = files.value.find((f) => f.id === fileId);

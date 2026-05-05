@@ -94,6 +94,7 @@ export default defineEventHandler(async (event) => {
                     createdAt: true,
                 },
             },
+            inbox: true,
         },
         data: {
             name: body.data.name,
@@ -113,6 +114,7 @@ export default defineEventHandler(async (event) => {
         publicUrl: _updatedFolder.public
             ? buildPublicUrl(event, currentUser.domains, `/folder/${_updatedFolder.id}`)
             : undefined,
+        isInbox: !!_updatedFolder.inbox,
     };
 
     await update(folderSearchDb, _updatedFolder.id, {

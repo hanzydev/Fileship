@@ -8,8 +8,14 @@
             overflow-hidden
             rounded-lg
             active:scale-95
-            motion-safe:transition-transform
-            :class="inputDisabled && 'op50'"
+            motion-safe:transition-all
+            :class="[
+                inputDisabled && 'op50',
+                {
+                    'bg-fs-overlay-3 hover:bg-fs-overlay-4': variant === 'primary',
+                    'bg-fs-overlay-2 hover:bg-fs-overlay-3': variant === 'secondary',
+                },
+            ]"
         >
             <input
                 :key="files.length"
@@ -26,7 +32,7 @@
                 :disabled="inputDisabled"
                 @change.stop.prevent="handleUpload"
             />
-            <div flex="~ justify-center" absolute top-0 hfull wfull bg-fs-overlay-3>
+            <div flex="~ justify-center" absolute top-0 hfull wfull>
                 <div flex="~ items-center justify-center col gap4">
                     <Icon name="solar:cloud-upload-bold" size="40" />
                     <h5>Drag and drop {{ placeholder }} here</h5>
@@ -43,12 +49,14 @@ const {
     multiple = true,
     placeholder = 'file(s)',
     disabled: _disabled = false,
+    variant = 'primary',
 } = defineProps<{
     accept?: string[];
     max?: number;
     multiple?: boolean;
     placeholder?: string;
     disabled?: boolean;
+    variant?: 'primary' | 'secondary';
 }>();
 
 const files = defineModel<File[]>({ required: true });

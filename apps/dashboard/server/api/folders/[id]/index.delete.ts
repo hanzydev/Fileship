@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
         },
         include: {
             files: true,
+            inbox: true,
         },
     });
 
@@ -38,6 +39,13 @@ export default defineEventHandler(async (event) => {
         throw createError({
             statusCode: 404,
             message: 'Folder not found',
+        });
+    }
+
+    if (findFolderById.inbox) {
+        throw createError({
+            statusCode: 400,
+            message: 'Cannot delete inbox folder',
         });
     }
 

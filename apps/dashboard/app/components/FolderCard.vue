@@ -33,9 +33,12 @@
                 filesModal.editMode = false;
             "
         >
-            <h5 line-clamp-1 break-words text-fs-muted-3>
-                {{ data.name }}
-            </h5>
+            <div flex="~ items-center justify-between" text-fs-muted-3>
+                <h5 line-clamp-1 break-words>
+                    {{ data.name }}
+                </h5>
+                <Icon v-if="data.isInbox" name="solar:pin-bold" size="16" />
+            </div>
 
             <div text-fs-muted-2 space-y-2 font-medium="!">
                 <div flex="~ gap2 items-center">
@@ -116,6 +119,7 @@
                     Edit Files
                 </UiButton>
                 <UiButton
+                    v-if="!data.isInbox"
                     variant="onOverlay"
                     icon="solar:trash-bin-minimalistic-bold"
                     icon-size="20"
