@@ -68,7 +68,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
-
     if (!body.success) {
         throw createError({
             statusCode: 400,
@@ -96,6 +95,29 @@ export default defineEventHandler(async (event) => {
             statusCode: 400,
             message: 'Permissions must be provided if user is not a super admin',
         });
+    }
+
+    if (body.data.username) {
+        const findUserByUsername = await prisma.user.findFirst({
+            where: {
+                username: body.data.username,
+                id: { not: userId },
+            },
+        });
+
+        if (findUserByUsername) {
+            throw createError({
+                statusCode: 409,
+                message: 'Username already taken',
+                data: {
+                    formErrors: {
+                        username: {
+                            _errors: ['Username already taken'],
+                        },
+                    },
+                },
+            });
+        }
     }
 
     if (body.data.superAdmin) body.data.permissions = [UserPermission.Admin];
