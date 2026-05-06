@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (!findFolderById.files) {
+    if (!findFolderById.files.length) {
         throw createError({
             statusCode: 400,
             message: 'No files to archive in this folder',
