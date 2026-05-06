@@ -34,11 +34,15 @@ export default defineEventHandler(async (event) => {
                 embedding: true,
                 textEmbedding: true,
                 ocrText: true,
+                piiDetected: true,
+                piReasons: true,
+                caption: true,
             },
         }),
         prisma.folder.findMany({
             where: { authorId: currentUser.id },
             orderBy: { createdAt: 'desc' },
+            include: { inbox: true },
         }),
         prisma.note.findMany({
             where: { authorId: currentUser.id },
@@ -61,7 +65,14 @@ export default defineEventHandler(async (event) => {
 
     const jsonWriteTasks = [
         { key: 'file', data: files },
-        { key: 'folder', data: folders },
+        {
+            key: 'folder',
+            data: folders.map((folder) => ({
+                ...folder,
+                isInbox: !!folder.inbox,
+                inbox: undefined,
+            })),
+        },
         { key: 'note', data: notes },
         { key: 'view', data: views },
         {

@@ -86,6 +86,7 @@ export default defineEventHandler(async (event) => {
                     prisma.folder.findMany({
                         where: {
                             authorId: currentUser.id,
+                            inbox: null,
                         },
                         select: {
                             id: true,
@@ -139,7 +140,9 @@ export default defineEventHandler(async (event) => {
                             file: { authorId: currentUser.id },
                         },
                     }),
-                    prisma.folder.deleteMany({ where: { authorId: currentUser.id } }),
+                    prisma.folder.deleteMany({
+                        where: { authorId: currentUser.id, inbox: null },
+                    }),
                     prisma.note.deleteMany({ where: { authorId: currentUser.id } }),
                     prisma.file.deleteMany({ where: { authorId: currentUser.id } }),
                 ]);
@@ -235,9 +238,18 @@ export default defineEventHandler(async (event) => {
                                     }
 
                                     try {
-                                        const created = await (prisma as any)[database].create({
-                                            data: { ...value, id: undefined },
-                                        });
+                                        const created =
+                                            database === 'folder' && value.isInbox
+                                                ? await prisma.folder.findFirst({
+                                                      where: { inbox: { userId: currentUser.id } },
+                                                  })
+                                                : await (prisma as any)[database].create({
+                                                      data: {
+                                                          ...value,
+                                                          id: undefined,
+                                                          isInbox: undefined,
+                                                      },
+                                                  });
                                         remappedKeys.set(value.id, created.id);
 
                                         switch (database) {
@@ -291,14 +303,15 @@ export default defineEventHandler(async (event) => {
                                                         });
                                                     }
 
-                                                    if (
-                                                        ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
-                                                            extname(created.fileName),
-                                                        )
-                                                    ) {
-                                                        const aiEnabled =
-                                                            currentUser.aiSettings?.enabled ?? true;
-                                                        if (aiEnabled) {
+                                                    const aiEnabled =
+                                                        currentUser.aiSettings?.enabled ?? true;
+
+                                                    if (aiEnabled) {
+                                                        if (
+                                                            ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
+                                                                extname(created.fileName),
+                                                            )
+                                                        ) {
                                                             event.waitUntil(
                                                                 Promise.all([
                                                                     enqueueAIJob({
@@ -323,15 +336,11 @@ export default defineEventHandler(async (event) => {
                                                                     }),
                                                                 ]),
                                                             );
-                                                        }
-                                                    } else if (
-                                                        ai.VIDEO_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
-                                                            extname(created.fileName),
-                                                        )
-                                                    ) {
-                                                        const aiEnabled =
-                                                            currentUser.aiSettings?.enabled ?? true;
-                                                        if (aiEnabled) {
+                                                        } else if (
+                                                            ai.VIDEO_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
+                                                                extname(created.fileName),
+                                                            )
+                                                        ) {
                                                             event.waitUntil(
                                                                 Promise.all([
                                                                     enqueueAIJob({
@@ -341,15 +350,11 @@ export default defineEventHandler(async (event) => {
                                                                     }),
                                                                 ]),
                                                             );
-                                                        }
-                                                    } else if (
-                                                        ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
-                                                            extname(created.fileName),
-                                                        )
-                                                    ) {
-                                                        const aiEnabled =
-                                                            currentUser.aiSettings?.enabled ?? true;
-                                                        if (aiEnabled) {
+                                                        } else if (
+                                                            ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
+                                                                extname(created.fileName),
+                                                            )
+                                                        ) {
                                                             event.waitUntil(
                                                                 Promise.all([
                                                                     enqueueAIJob({
