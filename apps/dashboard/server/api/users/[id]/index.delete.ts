@@ -118,6 +118,11 @@ export default defineEventHandler(async (event) => {
                 userId,
             },
         }),
+        prisma.credential.deleteMany({
+            where: {
+                userId,
+            },
+        }),
         prisma.user.delete({
             where: {
                 id: userId,
