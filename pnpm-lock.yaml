@@ -12,6 +12,9 @@ importers:
 
   .:
     devDependencies:
+      changelogen:
+        specifier: ^0.6.2
+        version: 0.6.2(magicast@0.5.3)
       prettier:
         specifier: ^3.8.4
         version: 3.8.4
@@ -175,9 +178,6 @@ importers:
       bufferutil:
         specifier: ^4.1.0
         version: 4.1.0
-      changelogen:
-        specifier: ^0.6.2
-        version: 0.6.2(magicast@0.5.3)
       dayjs:
         specifier: ^1.11.21
         version: 1.11.21
