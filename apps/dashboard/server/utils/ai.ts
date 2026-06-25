@@ -183,7 +183,7 @@ class AIService {
         const textInputs = tokenizer(text, {
             padding: true,
             truncation: true,
-            return_tensors: 'pt',
+            return_tensor: true,
         });
         const { text_embeds } = await textModel(textInputs);
         const normalizedEmbeds = text_embeds.normalize(2, -1);

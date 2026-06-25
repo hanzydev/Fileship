@@ -42,6 +42,8 @@ export default defineNuxtConfig({
         ],
     },
 
+    imports: { autoImport: true },
+
     devtools: {
         enabled: true,
     },
@@ -70,6 +72,9 @@ export default defineNuxtConfig({
         framework: {
             name: pkg.name,
             version: pkg.version,
+        },
+        imports: {
+            autoImport: true,
         },
     },
 

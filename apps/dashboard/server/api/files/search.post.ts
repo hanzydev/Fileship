@@ -83,7 +83,7 @@ export default defineEventHandler(async (event) => {
         return searched.hits.map((h) => h.id);
     };
 
-    let ids: string[] = [];
+    let ids: string[];
 
     if (body.data.mode === 'fulltext') {
         ids = await runFulltext();

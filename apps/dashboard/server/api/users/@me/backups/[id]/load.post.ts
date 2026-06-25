@@ -4,9 +4,9 @@ import { filesize } from 'filesize';
 import fluentFfmpeg from 'fluent-ffmpeg';
 import { nanoid } from 'nanoid';
 import { extname, join } from 'pathe';
-import Chain from 'stream-chain';
-import parser from 'stream-json';
-import StreamArray from 'stream-json/streamers/StreamArray.js';
+import chain from 'stream-chain';
+import { parser } from 'stream-json';
+import { streamArray } from 'stream-json/streamers/stream-array.js';
 import { extract } from 'tar';
 import { z } from 'zod';
 
@@ -205,15 +205,15 @@ export default defineEventHandler(async (event) => {
                         }
                     } else {
                         await new Promise<void>((resolve) => {
-                            const chain = Chain([
+                            const pipeline = chain([
                                 createReadStream(databasePath),
                                 parser(),
-                                new StreamArray(),
+                                streamArray(),
                             ]);
 
                             let processing = Promise.resolve();
 
-                            chain.on('data', async ({ value }) => {
+                            pipeline.on('data', async ({ value }: any) => {
                                 processing = processing.then(async () => {
                                     if (value.authorId) value.authorId = currentUser.id;
 
@@ -413,7 +413,7 @@ export default defineEventHandler(async (event) => {
                                 });
                             });
 
-                            chain.on('end', async () => {
+                            pipeline.on('end', async () => {
                                 await processing;
                                 resolve();
                             });

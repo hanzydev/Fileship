@@ -135,7 +135,7 @@ export default defineEventHandler(async (event) => {
     const fileSize = Number(findFileById.size);
 
     if (rangeHeader) {
-        let start = 0;
+        let start;
         let end = fileSize - 1;
 
         const rangeString = rangeHeader.trim().slice(6);

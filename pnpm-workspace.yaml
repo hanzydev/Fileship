@@ -7,23 +7,43 @@ supportedArchitectures:
         - win32
         - linux
         - darwin
+        - wasi
     cpu:
         - x64
         - arm64
+        - wasm32
 
-ignoredBuiltDependencies:
-    - '@ffmpeg-installer/darwin-arm64'
-    - '@ffmpeg-installer/darwin-x64'
-    - '@ffmpeg-installer/linux-arm64'
-    - '@ffmpeg-installer/linux-x64'
-    - '@ffmpeg-installer/win32-x64'
+overrides:
+    sharp: 0.33.4
+    unconfig: ^7.5.0
 
-onlyBuiltDependencies:
-    - '@parcel/watcher'
-    - argon2
-    - esbuild
-    - prisma
-    - sharp
-    - bufferutil
-    - utf-8-validate
-    - protobufjs
+minimumReleaseAgeExclude:
+    - '@nuxt/icon@2.2.4'
+    - '@vue/compiler-core@3.5.39'
+    - '@vue/compiler-dom@3.5.39'
+    - '@vue/compiler-sfc@3.5.39'
+    - '@vue/compiler-ssr@3.5.39'
+    - '@vue/reactivity@3.5.39'
+    - '@vue/runtime-core@3.5.39'
+    - '@vue/runtime-dom@3.5.39'
+    - '@vue/server-renderer@3.5.39'
+    - '@vue/shared@3.5.39'
+    - tar@7.5.17
+    - vue@3.5.39
+
+allowBuilds:
+    '@ffmpeg-installer/darwin-arm64': true
+    '@ffmpeg-installer/darwin-x64': true
+    '@ffmpeg-installer/linux-arm64': true
+    '@ffmpeg-installer/linux-x64': true
+    '@parcel/watcher': true
+    '@prisma/engines': true
+    argon2: true
+    bufferutil: true
+    esbuild: true
+    onnxruntime-node: true
+    prisma: true
+    protobufjs: true
+    sharp: true
+    unrs-resolver: true
+    utf-8-validate: true
