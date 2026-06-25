@@ -1,5 +1,72 @@
 # Changelog
 
+## v5.3.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v5.2.0...v5.3.0)
+
+### 🚀 Enhancements
+
+- Implement dashboard-wide auto-copy for drag-and-drop and paste uploads ([890fbf4](https://github.com/hanzydev/Fileship/commit/890fbf4))
+- Add inbox feature ([00e73bf](https://github.com/hanzydev/Fileship/commit/00e73bf))
+- **backups:** Add inbox support ([9c20d4a](https://github.com/hanzydev/Fileship/commit/9c20d4a))
+
+### 🩹 Fixes
+
+- **folders:** Disable download button while downloading folder ([844a964](https://github.com/hanzydev/Fileship/commit/844a964))
+- **archive:** Move storage setItem call to correct position in archive process ([64e9dd9](https://github.com/hanzydev/Fileship/commit/64e9dd9))
+- Center the pii detected text ([c47fb1c](https://github.com/hanzydev/Fileship/commit/c47fb1c))
+- Handle case with no files to archive in folder ([fdf0c3b](https://github.com/hanzydev/Fileship/commit/fdf0c3b))
+- **docker:** Resolve ARM64 build failures by adding missing dependencies ([f28209a](https://github.com/hanzydev/Fileship/commit/f28209a))
+- Add username uniqueness validation in user update ([2836203](https://github.com/hanzydev/Fileship/commit/2836203))
+- Handle case when there are no files to archive in the folder ([b726284](https://github.com/hanzydev/Fileship/commit/b726284))
+- **users:** Delete issue when user added a passkey ([302b990](https://github.com/hanzydev/Fileship/commit/302b990))
+- Correct typo in omitted fields for file query ([df2e31a](https://github.com/hanzydev/Fileship/commit/df2e31a))
+
+### 💅 Refactors
+
+- **users:** Enhance impersonation message for clarity ([9973a24](https://github.com/hanzydev/Fileship/commit/9973a24))
+- Remove legacy option from useClipboard ([4070b66](https://github.com/hanzydev/Fileship/commit/4070b66))
+- **router:** Replace deprecated next() callback with return values ([b0c11d6](https://github.com/hanzydev/Fileship/commit/b0c11d6))
+- Remove legacy option from useClipboard" ([d279918](https://github.com/hanzydev/Fileship/commit/d279918))
+- **file viewer:** Modernize ambient mode with VueUse composables ([bf8be70](https://github.com/hanzydev/Fileship/commit/bf8be70))
+- **file viewer:** Simplify next and prev file navigation logic ([2e6936a](https://github.com/hanzydev/Fileship/commit/2e6936a))
+- **socket:** Simplify connection and disconnection log messages ([5784727](https://github.com/hanzydev/Fileship/commit/5784727))
+- Bulletproof auto-copy for drag-drop/paste uploads ([ca4fb67](https://github.com/hanzydev/Fileship/commit/ca4fb67))
+- **dashboard:** Ensure cross-browser auto-copy for file uploads ([d93c8a1](https://github.com/hanzydev/Fileship/commit/d93c8a1))
+- **docker:** Update fileship service to use image instead of build context ([4c390ae](https://github.com/hanzydev/Fileship/commit/4c390ae))
+- Simplify conditionals for AI embedding checks ([98ba98e](https://github.com/hanzydev/Fileship/commit/98ba98e))
+
+### 📖 Documentation
+
+- Update README with installation instructions and add docker-compose.dev.yml for local development ([8c289d2](https://github.com/hanzydev/Fileship/commit/8c289d2))
+- Update section headers for clarity in installation instructions ([987c448](https://github.com/hanzydev/Fileship/commit/987c448))
+- Add 'Inbox' feature to README ([852e974](https://github.com/hanzydev/Fileship/commit/852e974))
+
+### 🏡 Chore
+
+- **deps-dev:** Bump marked from 18.0.0 to 18.0.2 ([eca869d](https://github.com/hanzydev/Fileship/commit/eca869d))
+- Add optimizeDeps configuration for improved dependency handling ([a859d4f](https://github.com/hanzydev/Fileship/commit/a859d4f))
+- Special thanks to Safari for being the new IE 🍎 ([1cb94d6](https://github.com/hanzydev/Fileship/commit/1cb94d6))
+- Lint fix ([53dcb80](https://github.com/hanzydev/Fileship/commit/53dcb80))
+- **deps-dev:** Bump turbo from 2.8.20 to 2.9.14 ([477d174](https://github.com/hanzydev/Fileship/commit/477d174))
+- **deps-dev:** Bump nuxt from 4.4.2 to 4.4.7 ([a24e3e9](https://github.com/hanzydev/Fileship/commit/a24e3e9))
+- Upgrade deps & lint fix ([c570372](https://github.com/hanzydev/Fileship/commit/c570372))
+- Move changelogen to workspace root ([e1afd50](https://github.com/hanzydev/Fileship/commit/e1afd50))
+
+### 🎨 Styles
+
+- **PartialFileCard:** Adjust context menu button border-radius to match design ([a617918](https://github.com/hanzydev/Fileship/commit/a617918))
+- **apexcharts:** Adjust charts to match design ([1983471](https://github.com/hanzydev/Fileship/commit/1983471))
+
+### 🤖 CI
+
+- Update GitHub Actions to use latest versions ([14da067](https://github.com/hanzydev/Fileship/commit/14da067))
+- Add GitHub Actions workflow for multi-arch GHCR publishing ([232e2f6](https://github.com/hanzydev/Fileship/commit/232e2f6))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v5.2.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v5.1.1...v5.2.0)
