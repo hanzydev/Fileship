@@ -53,6 +53,7 @@
 - Auto-Delete after Views
 - Auto-Delete after expiration
 - Ambient Mode
+- Inbox
 
 ## 🍎 Internet Explorer 12 (Safari)
 
