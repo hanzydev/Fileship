@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
                 textEmbedding: true,
                 ocrText: true,
                 piiDetected: true,
-                piReasons: true,
+                piiReasons: true,
                 caption: true,
             },
         }),
