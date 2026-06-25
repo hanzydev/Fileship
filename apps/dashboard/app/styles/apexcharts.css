@@ -1,12 +1,20 @@
 .apexcharts-tooltip {
-    @apply !bg-fs-overlay-2 !shadow-none !ring-1 !ring-fs-overlay-4 !rounded-xl;
+    @apply !bg-fs-overlay-2 !shadow-none !border-none !ring-1 !ring-fs-overlay-4 !rounded-xl !p0;
 }
 
 .apexcharts-tooltip-title {
-    @apply !border-fs-overlay-4 !bg-fs-overlay-2;
+    @apply !border-fs-overlay-4 !bg-fs-overlay-2 !rounded-t-xl !text-fs-muted-2 !pt3 !pb0 !px3;
+}
+
+.apexcharts-tooltip-series-group {
+    @apply !rounded-b-xl !gap0;
 }
 
 .apexcharts-tooltip-text-y-label,
 .apexcharts-tooltip-text-y-value {
     @apply !text-sm;
+}
+
+.apexcharts-tooltip-arrow {
+    @apply !bg-fs-overlay-4;
 }

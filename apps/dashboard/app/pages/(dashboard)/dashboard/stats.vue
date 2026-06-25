@@ -65,7 +65,7 @@
                             chart: {
                                 background: 'transparent',
                                 fontFamily: 'Nunito Sans, sans-serif',
-                                foreColor: theme.colors.slate[200],
+                                foreColor: 'var(--fs-muted-2)',
                                 toolbar: {
                                     show: false,
                                 },
@@ -93,7 +93,7 @@
                                     show: false,
                                 },
                                 axisTicks: {
-                                    color: theme.colors.slate[200],
+                                    color: 'var(--fs-muted-2)',
                                 },
                             },
                             tooltip: {
@@ -343,8 +343,6 @@
 import { filesize } from 'filesize';
 import { titleCase } from 'scule';
 
-import { theme } from '@unocss/preset-mini';
-
 import { UiAvatar } from '#components';
 
 const stats = ref();
@@ -366,7 +364,7 @@ const basePieOptions = {
     chart: {
         background: 'transparent',
         fontFamily: 'Nunito Sans, sans-serif',
-        foreColor: theme.colors.slate[200],
+        foreColor: 'var(--fs-muted-2)',
         toolbar: {
             show: false,
         },
