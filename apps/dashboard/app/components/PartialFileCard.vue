@@ -101,6 +101,7 @@
                     icon-size="20"
                     wfull
                     gap2
+                    rounded-xl="!"
                     :href="data.embedUrl"
                 >
                     Open
@@ -111,6 +112,7 @@
                     icon-size="20"
                     wfull
                     gap2
+                    rounded-xl="!"
                     @click="handleCopy"
                 >
                     Copy Link
@@ -121,6 +123,7 @@
                     icon-size="20"
                     wfull
                     gap2
+                    rounded-xl="!"
                     @click="downloadFile(`${data.directUrl}?download`)"
                 >
                     Download
