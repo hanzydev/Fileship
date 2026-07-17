@@ -29,7 +29,16 @@ env.allowLocalModels = true;
 env.backends.onnx.logLevel = 'error';
 
 if (env.backends.onnx.wasm) {
-    env.backends.onnx.wasm.numThreads = Math.max(1, Math.floor(cpus().length / 2));
+    const configuredThreads = +(process.env.AI_INFERENCE_THREADS ?? 0);
+    env.backends.onnx.wasm.numThreads = Math.max(
+        1,
+        Math.min(
+            cpus().length,
+            Number.isFinite(configuredThreads) && configuredThreads > 0
+                ? Math.floor(configuredThreads)
+                : 2,
+        ),
+    );
 }
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
@@ -323,11 +332,34 @@ class AIService {
 
     public async createVideoEmbedding(options: { filePath: string }): Promise<number[]> {
         const workDir = await mkdtemp(join(tmpdir(), 'fileship-video-'));
+        const configuredMaxFrames = +(process.env.AI_VIDEO_MAX_FRAMES ?? 0);
+        const maxFrames = Math.max(
+            1,
+            Math.min(
+                120,
+                Number.isFinite(configuredMaxFrames) && configuredMaxFrames > 0
+                    ? Math.floor(configuredMaxFrames)
+                    : 24,
+            ),
+        );
+        const configuredSampleInterval = +(process.env.AI_VIDEO_SAMPLE_INTERVAL_SECONDS ?? 0);
+        const sampleIntervalSeconds = Math.max(
+            1,
+            Math.min(
+                3_600,
+                Number.isFinite(configuredSampleInterval) && configuredSampleInterval > 0
+                    ? configuredSampleInterval
+                    : 10,
+            ),
+        );
 
         try {
             await new Promise<void>((resolve, reject) => {
                 fluentFfmpeg(options.filePath)
-                    .videoFilters(['fps=0.5', 'scale=640:-2'])
+                    .inputOptions('-threads 1')
+                    .videoFilters([`fps=1/${sampleIntervalSeconds}`, 'scale=336:-2'])
+                    .frames(maxFrames)
+                    .outputOptions('-threads 1')
                     .output(join(workDir, 'frame-%03d.jpg'))
                     .on('end', () => resolve())
                     .on('error', (err) => reject(err))
@@ -341,7 +373,11 @@ class AIService {
             const embeddings: number[][] = [];
             for (const f of files) {
                 const framePath = join(workDir, f);
-                embeddings.push(await this.createImageEmbedding(framePath));
+                try {
+                    embeddings.push(await this.createImageEmbedding(framePath));
+                } finally {
+                    await fsp.unlink(framePath).catch(() => null);
+                }
             }
 
             if (!embeddings.length) {

@@ -2,22 +2,19 @@ import { randomUUID } from 'node:crypto';
 import { existsSync, promises as fsp } from 'node:fs';
 
 import { filesize } from 'filesize';
-import fluentFfmpeg from 'fluent-ffmpeg';
 import { nanoid } from 'nanoid';
 import { basename, extname, join } from 'pathe';
 import sharp from 'sharp';
 import { z } from 'zod';
 
-import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import { insert } from '@orama/orama';
 
 import { AIJobType } from '#shared/prisma/enums';
 
-fluentFfmpeg.setFfmpegPath(ffmpeg.path);
-
 const validationSchema = z.object({
     totalChunks: z.number().min(1, 'Total chunks must be at least 1').optional(),
     currentChunk: z.number().min(1, 'Current chunk must be at least 1').optional(),
+    chunkOffset: z.number().int().min(0, 'Chunk offset must be at least 0').optional(),
     fileNameType: z
         .union([z.literal('Random'), z.literal('UUID'), z.literal('Original')])
         .nullish(),
@@ -53,10 +50,12 @@ export default defineEventHandler(async (event) => {
         });
     }
 
+    const chunkOffset = formData.get('chunkOffset');
     const body = validationSchema.safeParse({
         fileNameType: formData.get('fileNameType'),
         currentChunk: +formData.get('currentChunk')! || 1,
         totalChunks: +formData.get('totalChunks')! || 1,
+        chunkOffset: chunkOffset === null ? undefined : +chunkOffset,
         maxViews: +formData.get('maxViews')!,
         password: formData.get('password') as string,
         expiration: +formData.get('expiration')!,
@@ -123,21 +122,21 @@ export default defineEventHandler(async (event) => {
         file.name.replace(/[^a-zA-Z0-9-_.]/g, ''),
     );
 
-    if (!existsSync(join(dataDirectory, 'temp', currentUser.id))) {
-        await fsp.mkdir(join(dataDirectory, 'temp', currentUser.id));
-    }
+    await fsp.mkdir(join(dataDirectory, 'temp', currentUser.id), { recursive: true });
 
     const buffer = new Uint8Array(await file.arrayBuffer());
 
     const removeExifData = (process.env.REMOVE_EXIF_DATA || 'true') === 'true';
 
-    if (body.data.currentChunk === body.data.totalChunks) {
-        if (existsSync(tempPath)) {
-            await fsp.appendFile(tempPath, buffer);
-        } else {
-            await fsp.writeFile(tempPath, buffer);
-        }
+    const isLastChunk = body.data.currentChunk === body.data.totalChunks;
+    if (body.data.chunkOffset === undefined) {
+        if (body.data.currentChunk === 1) await fsp.writeFile(tempPath, buffer);
+        else await fsp.appendFile(tempPath, buffer);
+    } else {
+        await writeUploadChunk(tempPath, buffer, body.data.chunkOffset, isLastChunk);
+    }
 
+    if (isLastChunk) {
         if (file.type.startsWith('image/') && file.type !== 'image/gif') {
             try {
                 const temp2Path = join(
@@ -241,16 +240,7 @@ export default defineEventHandler(async (event) => {
         if (file.type.startsWith('video/')) {
             const thumbnailPath = join(dataDirectory, 'thumbnails', `${upload.id}.jpeg`);
 
-            await new Promise<void>((resolve) => {
-                fluentFfmpeg(filePath)
-                    .videoFilters('thumbnail')
-                    .frames(1)
-                    .format('mjpeg')
-                    .output(thumbnailPath)
-                    .on('end', () => resolve())
-                    .on('error', () => resolve())
-                    .run();
-            });
+            await createVideoThumbnail(filePath, thumbnailPath);
 
             upload.thumbnailUrl = existsSync(thumbnailPath)
                 ? buildPublicUrl(event, currentUser.domains, `/u/${_upload.fileName}/thumbnail`)
@@ -337,9 +327,5 @@ export default defineEventHandler(async (event) => {
                 `/${currentUser.embed.enabled || isText ? 'view' : 'u'}/${_upload.fileName}`,
             ),
         };
-    } else if (body.data.currentChunk === 1) {
-        await fsp.writeFile(tempPath, buffer);
-    } else {
-        await fsp.appendFile(tempPath, buffer);
     }
 });

@@ -71,9 +71,7 @@
                                                 />
                                                 {{ file.status?.error }}
                                             </template>
-                                            <template
-                                                v-else-if="file.status?.progress?.percent === 100"
-                                            >
+                                            <template v-else-if="file.status?.completed">
                                                 <Icon
                                                     name="solar:check-circle-bold"
                                                     size="16"
@@ -271,34 +269,29 @@ const handleUpload = async () => {
         if (!file.status) {
             file.status = reactive({
                 started: false,
+                completed: false,
                 progress: { speed: 0, percent: 0, eta: 0 },
                 error: null,
             });
         }
     });
 
-    const results: boolean[] = [];
     const parallelUploads = 3;
     const files = [...uploadingFiles.value];
 
-    while (files.length > 0) {
-        const chunk = files.splice(0, parallelUploads);
-        const chunkResults = await Promise.all(
-            chunk.map((c) =>
-                uploadFile(
-                    c,
-                    {
-                        inboxPassword: data.value.password as string,
-                    },
-                    `/api/inbox/${data.value.id}/upload`,
-                ),
+    const uploadResults = await uploadFilesWithConcurrency(
+        files,
+        (file) =>
+            uploadFile(
+                file,
+                {
+                    inboxPassword: data.value.password as string,
+                },
+                `/api/inbox/${data.value.id}/upload`,
             ),
-        );
-
-        results.push(
-            ...chunkResults.filter((r) => r !== undefined).map((r) => typeof r === 'string'),
-        );
-    }
+        parallelUploads,
+    );
+    const results = uploadResults.map((result) => typeof result === 'string');
 
     uploadingFiles.value = uploadingFiles.value.filter((_, index) => !results[index]);
     uploading.value = false;

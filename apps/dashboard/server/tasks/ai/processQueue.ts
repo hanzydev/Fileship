@@ -1,16 +1,10 @@
-import os from 'node:os';
-
 import consola from 'consola';
 import dayjs from 'dayjs';
-import fluentFfmpeg from 'fluent-ffmpeg';
 import { extname, join } from 'pathe';
 
-import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import { insert, remove } from '@orama/orama';
 
 import { AIJobStatus, AIJobType } from '#shared/prisma/enums';
-
-fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 
 export default defineTask({
     meta: {
@@ -21,10 +15,9 @@ export default defineTask({
         const workerId = `FILESHIP-AI-RUNNER-${process.pid}`;
 
         const envConcurrency = +(process.env.AI_QUEUE_CONCURRENCY ?? 0);
-        const defaultConcurrency = Math.max(1, os.cpus().length - 1);
         const concurrency = Math.max(
             1,
-            Math.min(8, envConcurrency > 0 ? envConcurrency : defaultConcurrency),
+            Math.min(8, envConcurrency > 0 ? Math.floor(envConcurrency) : 1),
         );
 
         const jobs = [] as NonNullable<Awaited<ReturnType<typeof dequeueAIJob>>>[];

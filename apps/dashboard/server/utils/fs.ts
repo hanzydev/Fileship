@@ -62,3 +62,28 @@ export const readUtf8Snippet = async (filePath: string, maxBytes: number) => {
         await handle.close();
     }
 };
+
+export const writeUploadChunk = async (
+    filePath: string,
+    buffer: Uint8Array,
+    offset: number,
+    isLastChunk: boolean,
+) => {
+    if (offset === 0) {
+        await fsp.writeFile(filePath, buffer);
+        return;
+    }
+
+    const stats = await fsp.stat(filePath).catch(() => null);
+    if (!stats || stats.size < offset) {
+        throw new Error('A previous upload chunk is missing');
+    }
+
+    const handle = await fsp.open(filePath, 'r+');
+    try {
+        await handle.write(buffer, 0, buffer.byteLength, offset);
+        if (isLastChunk) await handle.truncate(offset + buffer.byteLength);
+    } finally {
+        await handle.close();
+    }
+};

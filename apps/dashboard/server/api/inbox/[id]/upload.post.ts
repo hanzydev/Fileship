@@ -1,22 +1,19 @@
 import { existsSync, promises as fsp } from 'node:fs';
 
 import { filesize } from 'filesize';
-import fluentFfmpeg from 'fluent-ffmpeg';
 import { nanoid } from 'nanoid';
 import { basename, extname, join } from 'pathe';
 import sharp from 'sharp';
 import { z } from 'zod';
 
-import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import { insert } from '@orama/orama';
 
 import { AIJobType } from '#shared/prisma/enums';
 
-fluentFfmpeg.setFfmpegPath(ffmpeg.path);
-
 const validationSchema = z.object({
     totalChunks: z.number().min(1, 'Total chunks must be at least 1').optional(),
     currentChunk: z.number().min(1, 'Current chunk must be at least 1').optional(),
+    chunkOffset: z.number().int().min(0, 'Chunk offset must be at least 0').optional(),
     inboxPassword: z.string().max(48, 'Inbox password must be at most 48 characters').nullish(),
 });
 
@@ -39,9 +36,11 @@ export default defineEventHandler(async (event) => {
         });
     }
 
+    const chunkOffset = formData.get('chunkOffset');
     const body = validationSchema.safeParse({
         currentChunk: +formData.get('currentChunk')! || 1,
         totalChunks: +formData.get('totalChunks')! || 1,
+        chunkOffset: chunkOffset === null ? undefined : +chunkOffset,
         inboxPassword: formData.get('inboxPassword') as string,
     });
 
@@ -104,21 +103,21 @@ export default defineEventHandler(async (event) => {
         file.name.replace(/[^a-zA-Z0-9-_.]/g, ''),
     );
 
-    if (!existsSync(join(dataDirectory, 'temp', findInboxById.user.id))) {
-        await fsp.mkdir(join(dataDirectory, 'temp', findInboxById.user.id));
-    }
+    await fsp.mkdir(join(dataDirectory, 'temp', findInboxById.user.id), { recursive: true });
 
     const buffer = new Uint8Array(await file.arrayBuffer());
 
     const removeExifData = (process.env.REMOVE_EXIF_DATA || 'true') === 'true';
 
-    if (body.data.currentChunk === body.data.totalChunks) {
-        if (existsSync(tempPath)) {
-            await fsp.appendFile(tempPath, buffer);
-        } else {
-            await fsp.writeFile(tempPath, buffer);
-        }
+    const isLastChunk = body.data.currentChunk === body.data.totalChunks;
+    if (body.data.chunkOffset === undefined) {
+        if (body.data.currentChunk === 1) await fsp.writeFile(tempPath, buffer);
+        else await fsp.appendFile(tempPath, buffer);
+    } else {
+        await writeUploadChunk(tempPath, buffer, body.data.chunkOffset, isLastChunk);
+    }
 
+    if (isLastChunk) {
         if (file.type.startsWith('image/') && file.type !== 'image/gif') {
             try {
                 const temp2Path = join(
@@ -213,16 +212,7 @@ export default defineEventHandler(async (event) => {
         if (file.type.startsWith('video/')) {
             const thumbnailPath = join(dataDirectory, 'thumbnails', `${upload.id}.jpeg`);
 
-            await new Promise<void>((resolve) => {
-                fluentFfmpeg(filePath)
-                    .videoFilters('thumbnail')
-                    .frames(1)
-                    .format('mjpeg')
-                    .output(thumbnailPath)
-                    .on('end', () => resolve())
-                    .on('error', () => resolve())
-                    .run();
-            });
+            await createVideoThumbnail(filePath, thumbnailPath);
 
             upload.thumbnailUrl = existsSync(thumbnailPath)
                 ? buildPublicUrl(
@@ -300,9 +290,5 @@ export default defineEventHandler(async (event) => {
         });
 
         sendToUser(findInboxById.user.id, 'file:create', upload);
-    } else if (body.data.currentChunk === 1) {
-        await fsp.writeFile(tempPath, buffer);
-    } else {
-        await fsp.appendFile(tempPath, buffer);
     }
 });

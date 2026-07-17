@@ -73,31 +73,25 @@ const handleUpload = async (files: File[] | null, source: 'drag-drop' | 'paste')
         if (!file.status) {
             file.status = reactive({
                 started: false,
+                completed: false,
                 progress: { speed: 0, percent: 0, eta: 0 },
                 error: null,
             });
         }
     });
 
-    const results: boolean[] = [];
     const uploadedUrls: string[] = [];
     const parallelUploads = 3;
 
-    while (filesCopy.length > 0) {
-        const chunk = filesCopy.splice(0, parallelUploads);
-        const chunkResults = await Promise.all(chunk.map((c) => uploadFile(c)));
-
-        for (const r of chunkResults) {
-            if (r === undefined) continue;
-
-            if (typeof r === 'string') {
-                results.push(true);
-                uploadedUrls.push(r);
-            } else {
-                results.push(false);
-            }
-        }
-    }
+    const uploadResults = await uploadFilesWithConcurrency(
+        filesCopy,
+        (file) => uploadFile(file),
+        parallelUploads,
+    );
+    const results = uploadResults.map((result) => typeof result === 'string');
+    uploadedUrls.push(
+        ...uploadResults.filter((result): result is string => typeof result === 'string'),
+    );
 
     uploadingFiles.value = uploadingFiles.value.filter((_, index) => !results[index]);
     uploading.value = false;

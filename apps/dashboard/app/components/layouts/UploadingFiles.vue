@@ -91,9 +91,7 @@
                                             />
                                             {{ file.status?.error }}
                                         </template>
-                                        <template
-                                            v-else-if="file.status?.progress?.percent === 100"
-                                        >
+                                        <template v-else-if="file.status?.completed">
                                             <Icon
                                                 name="solar:check-circle-bold"
                                                 size="16"
@@ -220,7 +218,7 @@ const progress = computed(() =>
 );
 
 const unfinishedFiles = computed(() =>
-    uploadingFiles.value.filter((file) => file.status?.progress?.percent !== 100),
+    uploadingFiles.value.filter((file) => !file.status?.completed),
 );
 
 const { list, containerProps, wrapperProps } = useVirtualList(uploadingFiles, {
