@@ -2,6 +2,8 @@ FROM node:24-alpine AS builder
 
 WORKDIR /fileship
 
+RUN apk add --no-cache python3 make g++
+
 COPY . .
 
 RUN npm i -g corepack@latest
