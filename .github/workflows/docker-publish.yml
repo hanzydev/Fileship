@@ -16,7 +16,7 @@ jobs:
             matrix:
                 include:
                     - image_name: fileship
-                      dockerfile: Dockerfile
+                      dockerfile: apps/dashboard/Dockerfile
                     - image_name: fileship-updater-agent
                       dockerfile: apps/updater-agent/Dockerfile
 
