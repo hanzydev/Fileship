@@ -14,7 +14,6 @@ supportedArchitectures:
         - wasm32
 
 overrides:
-    sharp: 0.33.4
     unconfig: ^7.5.0
 
 minimumReleaseAgeExclude:
