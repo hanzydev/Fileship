@@ -16,9 +16,7 @@
         :closable="false"
     >
         <h2 max-w-2xl>Fileship is updating...</h2>
-        <p text-fs-muted-2 font-medium>
-            Please wait while system updates to the latest version.
-        </p>
+        <p text-fs-muted-2 font-medium>Please wait while system updates to the latest version.</p>
         <UiButton ring-none="!" cursor-default bg-fs-overlay-1="!" rounded-2xl="!">
             {{ formattedState }}
         </UiButton>
