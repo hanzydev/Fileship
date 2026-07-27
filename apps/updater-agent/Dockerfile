@@ -1,8 +1,9 @@
-FROM node:24-alpine AS builder
+FROM node:24-slim AS builder
 
 WORKDIR /fileship
 
-RUN apk add --no-cache python3 make g++
+RUN apt-get update -y && apt-get install -y python3 make g++ \
+    && ln -sf /usr/bin/python3 /usr/bin/python
 
 COPY . .
 
@@ -12,11 +13,13 @@ RUN corepack enable
 RUN pnpm install
 RUN pnpm --filter updater-agent... build
 
-FROM node:24-alpine AS runner
+FROM node:24-slim AS runner
 
 WORKDIR /fileship
 
-RUN apk add --no-cache docker-cli docker-cli-compose
+RUN apt-get update -y && apt-get install -y docker.io docker-compose-v2 \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN npm i -g corepack@latest
 RUN corepack enable
 
