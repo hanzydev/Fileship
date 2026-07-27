@@ -1,5 +1,37 @@
 # Changelog
 
+## v5.4.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v5.3.0...v5.4.0)
+
+### 🚀 Enhancements
+
+- Add automatic and one-click update support ([12d85c3](https://github.com/hanzydev/Fileship/commit/12d85c3))
+
+### 🩹 Fixes
+
+- Prevent upload queue state corruption during concurrent paste operations ([292e93e](https://github.com/hanzydev/Fileship/commit/292e93e))
+- **sse parser:** Process trailing buffer data on sse stream end ([4a3c837](https://github.com/hanzydev/Fileship/commit/4a3c837))
+
+### 📖 Documentation
+
+- **readme:** Replace aggressive safari rant with modern browser recommendations ([8ec84e0](https://github.com/hanzydev/Fileship/commit/8ec84e0))
+
+### 🏡 Chore
+
+- Generate lock file ([98babaa](https://github.com/hanzydev/Fileship/commit/98babaa))
+- Move eslint config to a standalone package ([f18218f](https://github.com/hanzydev/Fileship/commit/f18218f))
+- Lint fix ([fa9b7d1](https://github.com/hanzydev/Fileship/commit/fa9b7d1))
+- Update sharp to latest version and remove pnpm override ([3019c7d](https://github.com/hanzydev/Fileship/commit/3019c7d))
+
+### 🎨 Styles
+
+- **ui:** Adjust spacing for AreYouSure modal component ([cbee224](https://github.com/hanzydev/Fileship/commit/cbee224))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v5.3.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v5.2.0...v5.3.0)
