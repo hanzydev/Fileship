@@ -40,9 +40,9 @@ allowBuilds:
     argon2: true
     bufferutil: true
     esbuild: true
-    onnxruntime-node: true
+    onnxruntime-node: false
     prisma: true
-    protobufjs: true
+    protobufjs: false
     sharp: true
     unrs-resolver: true
     utf-8-validate: true
