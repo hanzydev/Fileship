@@ -81,23 +81,32 @@ const handleUpload = async (files: File[] | null, source: 'drag-drop' | 'paste')
     });
 
     const uploadedUrls: string[] = [];
+    const successfulFiles = new Set<File>();
     const parallelUploads = 3;
 
-    const uploadResults = await uploadFilesWithConcurrency(
+    await uploadFilesWithConcurrency(
         filesCopy,
-        (file) => uploadFile(file),
+        async (file) => {
+            const res = await uploadFile(file);
+
+            if (typeof res === 'string') {
+                successfulFiles.add(file);
+                uploadedUrls.push(res);
+            }
+
+            return res;
+        },
         parallelUploads,
     );
-    const results = uploadResults.map((result) => typeof result === 'string');
-    uploadedUrls.push(
-        ...uploadResults.filter((result): result is string => typeof result === 'string'),
-    );
 
-    uploadingFiles.value = uploadingFiles.value.filter((_, index) => !results[index]);
-    uploading.value = false;
+    uploadingFiles.value = uploadingFiles.value.filter((f) => !successfulFiles.has(f));
 
     if (!uploadingFiles.value.length) {
-        const filesCount = files.length;
+        uploading.value = false;
+    }
+
+    if (successfulFiles.size === filesCopy.length) {
+        const filesCount = filesCopy.length;
 
         const isDragDrop = source === 'drag-drop';
         const filesText = filesCount > 1 ? `${filesCount} files` : 'File';
@@ -125,7 +134,7 @@ const handleUpload = async (files: File[] | null, source: 'drag-drop' | 'paste')
                 if (settled || !document.hasFocus()) return;
 
                 try {
-                    await copy(uploadedUrls.join('\n'), true);
+                    await copy(uploadedUrls.join('\n'));
 
                     settled = true;
                     cleanupEvents.forEach((cleanup) => cleanup());

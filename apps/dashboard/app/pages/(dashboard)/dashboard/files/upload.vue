@@ -149,26 +149,34 @@ const handleUpload = async () => {
 
     const parallelUploads = 3;
     const files = [...uploadingFiles.value];
+    const successfulFiles = new Set<File>();
 
-    const uploadResults = await uploadFilesWithConcurrency(
+    await uploadFilesWithConcurrency(
         files,
-        (file) =>
-            uploadFile(file, {
+        async (file) => {
+            const res = await uploadFile(file, {
                 fileNameType: settings.fileNameType,
                 maxViews: settings.maxViews,
                 password: settings.password,
                 expiration: settings.expiration.value,
                 compression: settings.compression.value,
                 folder: settings.folder.value,
-            }),
+            });
+
+            if (typeof res === 'string') successfulFiles.add(file);
+
+            return res;
+        },
         parallelUploads,
     );
-    const results = uploadResults.map((result) => typeof result === 'string');
 
-    uploadingFiles.value = uploadingFiles.value.filter((_, index) => !results[index]);
-    uploading.value = false;
+    uploadingFiles.value = uploadingFiles.value.filter((f) => !successfulFiles.has(f));
 
     if (!uploadingFiles.value.length) {
+        uploading.value = false;
+    }
+
+    if (successfulFiles.size === files.length) {
         $toast.success('All files uploaded successfully');
 
         if (textFileData) {
