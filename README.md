@@ -25,9 +25,9 @@
 ![Prisma](https://img.shields.io/static/v1?style=for-the-badge&message=Prisma&color=2D3748&logo=Prisma&logoColor=FFFFFF&label=)
 ![TypeScript](https://img.shields.io/static/v1?style=for-the-badge&message=TypeScript&color=3178C6&logo=TypeScript&logoColor=FFFFFF&label=)
 ![Socket.io](https://img.shields.io/static/v1?style=for-the-badge&message=Socket.io&color=010101&logo=Socket.io&logoColor=FFFFFF&label=)
+![Docker](https://img.shields.io/static/v1?style=for-the-badge&message=Docker&color=2496ED&logo=Docker&logoColor=FFFFFF&label=)
 ![ESLint](https://img.shields.io/static/v1?style=for-the-badge&message=ESLint&color=4B32C3&logo=ESLint&logoColor=FFFFFF&label=)
 ![Prettier](https://img.shields.io/static/v1?style=for-the-badge&message=Prettier&color=222222&logo=Prettier&logoColor=F7B93E&label=)
-![Vite](https://img.shields.io/static/v1?style=for-the-badge&message=Vite&color=646CFF&logo=Vite&logoColor=FFFFFF&label=)
 ![Node.js](https://img.shields.io/static/v1?style=for-the-badge&message=Node.js&color=339933&logo=Node.js&logoColor=FFFFFF&label=)
 
 ## 📦 Features
@@ -54,6 +54,7 @@
 - Auto-Delete after expiration
 - Ambient Mode
 - Inbox
+- One-Click & Automatic Background Updates
 
 ## 🌐 Browser Compatibility
 
@@ -69,38 +70,86 @@ Fileship is designed to run on a variety of systems, but the following minimum r
 - **RAM**: 4 GB
 - **Disk Space**: 4 GB (plus space for uploaded files)
 - **Database**: PostgreSQL 16.x or higher
-- **Node.js**: 24.x or higher
 
-### Installing (Using Pre-built Image) ⚡ - Recommended
-
-**This is the fastest and easiest way to get Fileship up and running.** We highly recommend using the official pre-built image unless you plan to modify the code.
+### Installing ⚡
 
 This section requires [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) to be installed on your machine.
 
+**1. Clone the repository:**
+
 ```sh
 git clone https://github.com/hanzydev/Fileship.git
 cd Fileship
+```
+
+**2. Generate environment secrets:**
+Fileship uses an isolated `updater-agent` microservice to handle background updates seamlessly. Generate a secure secret key for communication between the app and the updater agent:
+
+```sh
+echo "SECRET_TOKEN=$(openssl rand -hex 32)" > .env
+```
+
+**3. Start Fileship:**
+
+```sh
 docker compose up -d
 ```
 
-Open your browser and go to `http://localhost:3000`
-
-### Building from Source (Alternative) 🏗️
-
-If you prefer to build the image locally instead of pulling it from the registry, use the development compose file:
-
-```sh
-git clone https://github.com/hanzydev/Fileship.git
-cd Fileship
-docker compose -f docker-compose.dev.yml up -d --build
-```
+Open your browser and navigate to `http://localhost:3000`
 
 ### Default credentials
 
 - Username: `admin`
 - Password: `password`
 
-### Web server configuration (optional)
+## 🔄 Updating Fileship
+
+Fileship includes a zero-downtime **Updater Agent** that handles updates seamlessly without manually touching your server CLI.
+
+### Option 1: One-Click Update (Admin Dashboard) 🖱️
+
+Navigate to **Admin Settings -> System** in your Fileship dashboard. When a new release is available, simply click **Update Now**. The Updater Agent will automatically pull the new image and recreate the container in the background with real-time status updates.
+
+### Option 2: Automatic Scheduled Updates (Cron) ⏰
+
+Automatic updates are **enabled by default** and scheduled to run every day at 3:00 AM.
+
+You can customize or disable this feature in your `docker-compose.yml` under the `updater-agent` service environment variables:
+
+```yaml
+updater-agent:
+    environment:
+        AUTOUPDATER_ENABLED: true # Set to 'false' to disable background updates
+        AUTOUPDATER_CRON: '0 3 * * *' # Standard cron expression (Default: 3:00 AM daily)
+```
+
+### ⚠️ Upgrading from an Older Version? (Migration Steps)
+
+If you installed Fileship prior to the introduction of the Updater Agent, follow these steps to upgrade your setup:
+
+1. **Pull the latest project files:**
+
+```sh
+cd Fileship
+git pull
+```
+
+2. **Create your `.env` file for Updater Agent security:**
+
+```sh
+echo "SECRET_TOKEN=$(openssl rand -hex 32)" > .env
+```
+
+3. **Update containers:**
+
+```sh
+docker compose pull
+docker compose up -d
+```
+
+_(Your `docker-compose.yml` will automatically include the new `updater-agent` service)._
+
+## 🌐 Web server configuration (optional)
 
 This section requires [Nginx](https://nginx.org/) to be installed on your machine.
 
@@ -134,19 +183,6 @@ server {
     }
 }
 ```
-
-## 🔄 Updating
-
-To update Fileship, follow these steps:
-
-```sh
-cd Fileship
-git pull
-docker compose pull
-docker compose up -d
-```
-
-> **Note:** If you are building from source using the alternative method, update your instance by running: `git pull` and then `docker compose -f docker-compose.dev.yml up -d --build`
 
 ## 🤖 AI Features
 

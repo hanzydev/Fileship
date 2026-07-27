@@ -1,4 +1,4 @@
-name: Publish Docker Image to GHCR
+name: Publish Docker Images to GHCR
 
 on:
     release:
@@ -11,6 +11,14 @@ jobs:
         permissions:
             packages: write
             contents: read
+
+        strategy:
+            matrix:
+                include:
+                    - image_name: fileship
+                      dockerfile: Dockerfile
+                    - image_name: fileship-updater-agent
+                      dockerfile: apps/updater-agent/Dockerfile
 
         steps:
             - name: Checkout
@@ -33,7 +41,7 @@ jobs:
               id: meta
               uses: docker/metadata-action@v6
               with:
-                  images: ghcr.io/${{ github.repository }}
+                  images: ghcr.io/${{ github.repository_owner }}/${{ matrix.image_name }}
                   tags: |
                       type=semver,pattern={{version}}
                       type=raw,value=latest
@@ -42,9 +50,10 @@ jobs:
               uses: docker/build-push-action@v7
               with:
                   context: .
+                  file: ${{ matrix.dockerfile }}
                   platforms: linux/amd64,linux/arm64
                   push: true
                   tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
-                  cache-from: type=gha
-                  cache-to: type=gha,mode=max
+                  cache-from: type=gha,scope=${{ matrix.image_name }}
+                  cache-to: type=gha,mode=max,scope=${{ matrix.image_name }}

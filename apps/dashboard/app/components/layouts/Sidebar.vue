@@ -129,46 +129,97 @@
                         <Transition
                             enter-active-class="motion-safe:(animate-in fade-in zoom-in-95)"
                         >
-                            <div v-if="version" mt-auto px2.5 pt2>
-                                <a
-                                    :href="version.url"
-                                    target="_blank"
-                                    flex="~ items-center justify-between"
+                            <div v-if="isAdmin(currentUser) && updaterStatus" mt-auto px2.5 pt2>
+                                <div
+                                    v-if="updaterStatus.hasUpdate"
+                                    flex="~ col gap-3"
                                     w-full
                                     rounded-xl
-                                    p-2.5
-                                    active="scale-95"
-                                    motion-safe="transition-all"
-                                    :class="
-                                        version.latest
-                                            ? 'bg-fs-overlay-2 hover:bg-fs-overlay-3 text-fs-muted-2'
-                                            : 'bg-red-500/10 text-red-500'
-                                    "
+                                    p-3.5
+                                    bg="red-500/10"
                                 >
-                                    <div flex="~ col gap-0.5">
-                                        <span text-xs font-medium>Current Version</span>
-                                        <span text-sm font-bold leading-none>
-                                            v{{ version.number }}
+                                    <div flex="~ items-center justify-between gap-2">
+                                        <span text-xs text-red-400 font-semibold>
+                                            Update Available
                                         </span>
+                                        <div
+                                            flex="~ items-center gap-1"
+                                            whitespace-nowrap
+                                            text-fs-muted-3
+                                            font-medium
+                                        >
+                                            <span text-xs="!">v{{ updaterStatus.version }}</span>
+
+                                            <Icon name="solar:arrow-right-bold" size="14" />
+
+                                            <span text-xs="!">
+                                                v{{ updaterStatus.latestVersion }}
+                                            </span>
+                                        </div>
                                     </div>
 
+                                    <div flex="~ col gap-0.5">
+                                        <h5 text-fs-muted-1>
+                                            Fileship v{{ updaterStatus.latestVersion }} is ready
+                                        </h5>
+                                        <p text="xs fs-muted-2">
+                                            New features and improvements are available for
+                                            installation.
+                                        </p>
+                                    </div>
+
+                                    <div flex="~ col gap-2">
+                                        <UiButton
+                                            v-if="updaterStatus.updaterAvailable"
+                                            variant="dangerFill"
+                                            icon="solar:rocket-bold"
+                                            w-full
+                                            gap2
+                                            text-sm!
+                                            @click="handleUpdateClick"
+                                        >
+                                            Update to v{{ updaterStatus.latestVersion }}
+                                        </UiButton>
+
+                                        <UiButton
+                                            variant="glass"
+                                            icon="solar:document-text-bold"
+                                            :href="updaterStatus.url"
+                                            w-full
+                                            gap2
+                                        >
+                                            <span text-sm="!">View Changelog</span>
+                                        </UiButton>
+                                    </div>
+                                </div>
+
+                                <UiButton
+                                    v-else
+                                    variant="primary"
+                                    :href="updaterStatus.url"
+                                    w-full
+                                    justify-between
+                                    rounded-xl!
+                                    p-2.5!
+                                >
+                                    <div flex="~ col gap-0.5">
+                                        <span text-xs text-fs-muted-3 font-medium>
+                                            Current Version
+                                        </span>
+                                        <span text-sm text-fs-muted-1 font-bold>
+                                            v{{ updaterStatus.version }}
+                                        </span>
+                                    </div>
                                     <div
                                         flex="~ items-center justify-center"
                                         size-8
                                         rounded-lg
-                                        text-white
-                                        :class="version.latest ? 'bg-fs-accent/10' : 'bg-red-500'"
+                                        bg="emerald-500/10"
+                                        text-emerald-500
                                     >
-                                        <Icon
-                                            :name="
-                                                version.latest
-                                                    ? 'solar:verified-check-bold'
-                                                    : 'solar:download-square-bold'
-                                            "
-                                            size="20"
-                                        />
+                                        <Icon name="solar:verified-check-bold" size="16" />
                                     </div>
-                                </a>
+                                </UiButton>
                             </div>
                         </Transition>
                     </div>
@@ -228,6 +279,15 @@
                 </Transition>
             </aside>
         </Transition>
+
+        <ModalsAreYouSure
+            v-model="isConfirmOpen"
+            title="Update Fileship?"
+            :description="`Are you sure you want to update Fileship to v${updaterStatus?.latestVersion}? System will restart during update.`"
+            @confirm="handleConfirmUpdate"
+        />
+
+        <LayoutsUpdating :open="isUpdating" :state="updateState" />
     </div>
 </template>
 
@@ -250,11 +310,65 @@ const isLoggingOut = ref(false);
 const currentView = ref<'main' | 'themes'>('main');
 const toBeSyncedTheme = ref<keyof typeof themes | null>(null);
 
-const version = ref<{
-    number: string;
+const isConfirmOpen = ref(false);
+const isUpdating = ref(false);
+const updateState = ref<string>('Pulling');
+
+const updaterStatus = ref<{
+    version: string;
     url: string;
-    latest: boolean;
+    hasUpdate: boolean;
+    latestVersion: string;
+    updaterAvailable: boolean;
 } | null>(null);
+
+const handleUpdateClick = () => {
+    if (!updaterStatus.value) return;
+    if (updaterStatus.value.updaterAvailable && updaterStatus.value.hasUpdate) {
+        isConfirmOpen.value = true;
+    } else if (updaterStatus.value.url) {
+        window.open(updaterStatus.value.url, '_blank');
+    }
+};
+
+const handleConfirmUpdate = async () => {
+    isConfirmOpen.value = false;
+
+    try {
+        const response = await $fetch('/api/updater/update', {
+            method: 'POST',
+            responseType: 'stream',
+        });
+
+        isUpdating.value = true;
+        updateState.value = 'Pulling';
+
+        await parseSseStream<{ status?: string }>(response, (data) => {
+            if (data.status) {
+                updateState.value = data.status;
+
+                switch (data.status) {
+                    case 'Success': {
+                        $toast.success('Fileship updated successfully!');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2_000);
+                        break;
+                    }
+                    case 'Error': {
+                        $toast.error('An unknown error occurred while updating Fileship');
+                        setTimeout(() => {
+                            isUpdating.value = false;
+                        }, 2_000);
+                        break;
+                    }
+                }
+            }
+        });
+    } catch (error: any) {
+        $toast.error(error?.statusMessage || 'An unknown error occurred while updating Fileship');
+    }
+};
 
 const categories = computed(() => {
     const base = [
@@ -376,10 +490,12 @@ router.beforeEach(() => {
 });
 
 onMounted(async () => {
-    try {
-        version.value = await $fetch<never>('/api/version');
-    } catch {
-        //
+    if (isAdmin(currentUser.value)) {
+        try {
+            updaterStatus.value = await $fetch<never>('/api/updater/status');
+        } catch {
+            //
+        }
     }
 });
 </script>

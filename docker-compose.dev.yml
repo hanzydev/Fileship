@@ -15,7 +15,10 @@ services:
             retries: 5
 
     fileship:
-        build: .
+        build:
+            context: .
+            dockerfile: apps/dashboard/Dockerfile
+        image: ghcr.io/hanzydev/fileship:latest
         ports:
             - '3000:3000'
         restart: unless-stopped
@@ -23,11 +26,29 @@ services:
             HOST: 0.0.0.0
             PORT: 3000
             DATABASE_URL: postgres://postgres:postgres@postgres/postgres
+            UPDATER_URL: http://updater-agent:3001
+            UPDATER_SECRET: ${SECRET_TOKEN:-dev-secret-token}
         volumes:
             - ./data:/fileship/data
         depends_on:
             postgres:
                 condition: service_healthy
+
+    updater-agent:
+        build:
+            context: .
+            dockerfile: apps/updater-agent/Dockerfile
+        restart: unless-stopped
+        ports:
+            - '3001:3001'
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./docker-compose.dev.yml:/fileship/docker-compose.dev.yml
+        environment:
+            DEV_MODE: true
+            AUTOUPDATER_ENABLED: false
+            SECRET_TOKEN: ${SECRET_TOKEN:-dev-secret-token}
+            COMPOSE_FILE: docker-compose.dev.yml
 
 volumes:
     pg_data:

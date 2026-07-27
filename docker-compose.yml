@@ -23,11 +23,25 @@ services:
             HOST: 0.0.0.0
             PORT: 3000
             DATABASE_URL: postgres://postgres:postgres@postgres/postgres
+            UPDATER_URL: http://updater-agent:3001
+            UPDATER_SECRET: ${SECRET_TOKEN}
         volumes:
             - ./data:/fileship/data
         depends_on:
             postgres:
                 condition: service_healthy
+
+    updater-agent:
+        image: ghcr.io/hanzydev/fileship-updater-agent:latest
+        restart: unless-stopped
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./docker-compose.yml:/fileship/docker-compose.yml
+        environment:
+            DEV_MODE: false
+            AUTOUPDATER_ENABLED: true
+            SECRET_TOKEN: ${SECRET_TOKEN}
+            COMPOSE_FILE: docker-compose.yml
 
 volumes:
     pg_data:

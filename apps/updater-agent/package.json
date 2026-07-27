@@ -1,0 +1,27 @@
+{
+    "name": "updater-agent",
+    "version": "1.0.0",
+    "type": "module",
+    "main": "./dist/index.mjs",
+    "scripts": {
+        "build": "tsdown",
+        "lint": "eslint --fix .",
+        "start": "node --env-file-if-exists=.env ."
+    },
+    "devDependencies": {
+        "@fileship/eslint-config": "workspace:*",
+        "@types/node": "^26.0.0",
+        "@types/semver": "^7.7.1",
+        "eslint": "^10.7.0",
+        "tsdown": "^0.22.3"
+    },
+    "dependencies": {
+        "consola": "^3.4.2",
+        "execa": "^10.0.0",
+        "h3": "1.15.11",
+        "node-cron": "^4.6.0",
+        "ofetch": "^1.5.1",
+        "pathe": "^2.0.3",
+        "semver": "^7.8.5"
+    }
+}
