@@ -3,7 +3,7 @@
         <div flex="~ col justify-center gap8" wfull p8>
             <div flex="~ lt-sm:(col justify-center) items-center gap4" lt-sm="text-center">
                 <Icon name="heroicons:exclamation-triangle-solid" size="96" />
-                <div lt-sm:space-y-2>
+                <div space-y-1 lt-sm:space-y-2>
                     <h3>{{ title }}</h3>
                     <p text-fs-muted-1>
                         {{ description }}
