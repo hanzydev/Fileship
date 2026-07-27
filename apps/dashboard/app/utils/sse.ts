@@ -24,4 +24,12 @@ export const parseSseStream = async <T = unknown>(
             }
         }
     }
+
+    if (buffer.startsWith('data:')) {
+        try {
+            onMessage(JSON.parse(buffer.slice(5).trim()));
+        } catch {
+            //
+        }
+    }
 };
