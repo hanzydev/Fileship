@@ -17,8 +17,10 @@ FROM node:24-slim AS runner
 
 WORKDIR /fileship
 
-RUN apt-get update -y && apt-get install -y docker.io docker-compose-v2 \
-    && rm -rf /var/lib/apt/lists/*
+COPY --from=docker:cli /usr/local/bin/docker /usr/local/bin/docker
+COPY --from=docker/compose-bin:latest /docker-compose /usr/local/libexec/docker/cli-plugins/docker-compose
+
+RUN ln -s /usr/local/libexec/docker/cli-plugins/docker-compose /usr/local/bin/docker-compose
 
 RUN npm i -g corepack@latest
 RUN corepack enable
