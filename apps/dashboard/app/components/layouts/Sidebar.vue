@@ -176,7 +176,7 @@
                                             w-full
                                             gap2
                                             text-sm!
-                                            @click="handleUpdateClick"
+                                            @click="isConfirmOpen = true"
                                         >
                                             Update to v{{ updaterStatus.latestVersion }}
                                         </UiButton>
@@ -322,17 +322,40 @@ const updaterStatus = ref<{
     updaterAvailable: boolean;
 } | null>(null);
 
-const handleUpdateClick = () => {
-    if (!updaterStatus.value) return;
-    if (updaterStatus.value.updaterAvailable && updaterStatus.value.hasUpdate) {
-        isConfirmOpen.value = true;
-    } else if (updaterStatus.value.url) {
-        window.open(updaterStatus.value.url, '_blank');
+const pollHealthCheck = async (maxAttempts = 60, intervalMs = 2_000) => {
+    await new Promise((resolve) => setTimeout(resolve, 3_000));
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        try {
+            const data = await $fetch<{ status: 'ok' }>('/api/healthz', { cache: 'no-store' });
+
+            if (data.status === 'ok') {
+                updateState.value = 'Success';
+                $toast.success('Fileship updated successfully!');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2_000);
+                return;
+            }
+        } catch {
+            //
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
     }
+
+    updateState.value = 'Error';
+    $toast.error('An unknown error occurred while updating Fileship');
+    setTimeout(() => {
+        isUpdating.value = false;
+    }, 2_000);
 };
 
 const handleConfirmUpdate = async () => {
     isConfirmOpen.value = false;
+    isUpdating.value = true;
+    updateState.value = 'Pulling';
+    let isPolling = false;
 
     try {
         const response = await $fetch('/api/updater/update', {
@@ -340,33 +363,36 @@ const handleConfirmUpdate = async () => {
             responseType: 'stream',
         });
 
-        isUpdating.value = true;
-        updateState.value = 'Pulling';
-
         await parseSseStream<{ status?: string }>(response, (data) => {
             if (data.status) {
                 updateState.value = data.status;
 
-                switch (data.status) {
-                    case 'Success': {
-                        $toast.success('Fileship updated successfully!');
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2_000);
-                        break;
-                    }
-                    case 'Error': {
-                        $toast.error('An unknown error occurred while updating Fileship');
-                        setTimeout(() => {
-                            isUpdating.value = false;
-                        }, 2_000);
-                        break;
-                    }
+                if (data.status === 'Recreating' && !isPolling) {
+                    isPolling = true;
+                    pollHealthCheck();
+                } else if (data.status === 'Success') {
+                    $toast.success('Fileship updated successfully!');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2_000);
+                } else if (data.status === 'Error') {
+                    $toast.error('An unknown error occurred while updating Fileship');
+                    setTimeout(() => {
+                        isUpdating.value = false;
+                    }, 2_000);
                 }
             }
         });
     } catch (error: any) {
-        $toast.error(error?.statusMessage || 'An unknown error occurred while updating Fileship');
+        if (updateState.value === 'Recreating' && !isPolling) {
+            isPolling = true;
+            pollHealthCheck();
+        } else if (!isPolling) {
+            $toast.error(
+                error?.statusMessage || 'An unknown error occurred while updating Fileship',
+            );
+            isUpdating.value = false;
+        }
     }
 };
 

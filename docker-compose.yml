@@ -30,6 +30,12 @@ services:
         depends_on:
             postgres:
                 condition: service_healthy
+        healthcheck:
+            test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/healthz').then(r => process.exitCode = r.ok ? 0 : 1).catch(() => process.exitCode = 1)"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 15s
 
     updater-agent:
         image: ghcr.io/hanzydev/fileship-updater-agent:latest
