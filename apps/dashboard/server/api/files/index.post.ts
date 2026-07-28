@@ -71,10 +71,11 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const compressible =
-        file.type.startsWith('image/') && file.type !== 'image/gif' && body.data.compression;
+    const isProcessableImage =
+        file.type.startsWith('image/') && !['image/gif', 'image/svg+xml'].includes(file.type);
 
-    const extensionName = compressible ? '.jpeg' : extname(file.name);
+    const isCompressible = isProcessableImage && !!body.data.compression;
+    const extensionName = isCompressible ? '.jpeg' : extname(file.name);
 
     let fileName = `${basename(file.name.replace(/[^a-zA-Z0-9-_.]/g, ''), extname(file.name))}${
         extensionName
@@ -115,20 +116,20 @@ export default defineEventHandler(async (event) => {
         }
     }
 
+    const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9-_.]/g, '');
     const tempPath = join(
         dataDirectory,
         'temp',
         currentUser.id,
-        file.name.replace(/[^a-zA-Z0-9-_.]/g, ''),
+        `${nanoid(8)}_${sanitizedOriginalName}`,
     );
 
     await fsp.mkdir(join(dataDirectory, 'temp', currentUser.id), { recursive: true });
 
     const buffer = new Uint8Array(await file.arrayBuffer());
-
     const removeExifData = (process.env.REMOVE_EXIF_DATA || 'true') === 'true';
-
     const isLastChunk = body.data.currentChunk === body.data.totalChunks;
+
     if (body.data.chunkOffset === undefined) {
         if (body.data.currentChunk === 1) await fsp.writeFile(tempPath, buffer);
         else await fsp.appendFile(tempPath, buffer);
@@ -137,29 +138,27 @@ export default defineEventHandler(async (event) => {
     }
 
     if (isLastChunk) {
-        if (file.type.startsWith('image/') && file.type !== 'image/gif') {
+        if (isProcessableImage) {
             try {
                 const temp2Path = join(
                     dataDirectory,
                     'temp',
                     currentUser.id,
-                    `${nanoid(8)}${extname(file.name)}`,
+                    `${nanoid(8)}${extensionName}`,
                 );
 
-                const image = sharp(tempPath);
-                const metadata = await image.metadata();
+                let imagePipeline = sharp(tempPath).rotate();
 
-                if (metadata.width && metadata.height && body.data.compression) {
-                    await image
-                        .jpeg({
-                            quality: Math.min(100, Math.max(1, 100 - body.data.compression)),
-                        })
-                        .toFile(temp2Path);
-                    await fsp.rename(temp2Path, tempPath);
-                } else if (removeExifData) {
-                    await image.rotate().toFile(temp2Path);
-                    await fsp.rename(temp2Path, tempPath);
+                if (body.data.compression) {
+                    imagePipeline = imagePipeline.jpeg({
+                        quality: Math.min(100, Math.max(1, 100 - body.data.compression)),
+                    });
                 }
+
+                if (!removeExifData) imagePipeline = imagePipeline.keepExif();
+
+                await imagePipeline.toFile(temp2Path);
+                await fsp.rename(temp2Path, tempPath);
             } catch {
                 //
             }
@@ -181,6 +180,7 @@ export default defineEventHandler(async (event) => {
             (totalSize._sum.size ?? 0n) + BigInt(fileSize) >
                 BigInt(currentUser.limits.usableSpace * 1024 * 1024)
         ) {
+            await fsp.rm(tempPath).catch(() => {});
             throw createError({
                 statusCode: 400,
                 message: 'Storage limit reached',
@@ -194,7 +194,7 @@ export default defineEventHandler(async (event) => {
         const _upload = await prisma.file.create({
             data: {
                 fileName,
-                mimeType: compressible ? 'image/jpeg' : file.type,
+                mimeType: isCompressible ? 'image/jpeg' : file.type,
                 size: fileSize,
                 password: body.data.password || null,
                 maxViews: body.data.maxViews || 0,

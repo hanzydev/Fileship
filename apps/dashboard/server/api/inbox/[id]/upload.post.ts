@@ -78,6 +78,9 @@ export default defineEventHandler(async (event) => {
         throw forbiddenError;
     }
 
+    const isProcessableImage =
+        file.type.startsWith('image/') && !['image/gif', 'image/svg+xml'].includes(file.type);
+
     const extensionName = extname(file.name);
     const fileName = `${basename(file.name.replace(/[^a-zA-Z0-9-_.]/g, ''), extname(file.name))}-${nanoid(6)}${
         extensionName
@@ -96,20 +99,20 @@ export default defineEventHandler(async (event) => {
         });
     }
 
+    const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9-_.]/g, '');
     const tempPath = join(
         dataDirectory,
         'temp',
         findInboxById.user.id,
-        file.name.replace(/[^a-zA-Z0-9-_.]/g, ''),
+        `${nanoid(8)}_${sanitizedOriginalName}`,
     );
 
     await fsp.mkdir(join(dataDirectory, 'temp', findInboxById.user.id), { recursive: true });
 
     const buffer = new Uint8Array(await file.arrayBuffer());
-
     const removeExifData = (process.env.REMOVE_EXIF_DATA || 'true') === 'true';
-
     const isLastChunk = body.data.currentChunk === body.data.totalChunks;
+
     if (body.data.chunkOffset === undefined) {
         if (body.data.currentChunk === 1) await fsp.writeFile(tempPath, buffer);
         else await fsp.appendFile(tempPath, buffer);
@@ -118,7 +121,7 @@ export default defineEventHandler(async (event) => {
     }
 
     if (isLastChunk) {
-        if (file.type.startsWith('image/') && file.type !== 'image/gif') {
+        if (isProcessableImage) {
             try {
                 const temp2Path = join(
                     dataDirectory,
@@ -127,12 +130,11 @@ export default defineEventHandler(async (event) => {
                     `${nanoid(8)}${extname(file.name)}`,
                 );
 
-                const image = sharp(tempPath);
+                let imagePipeline = sharp(tempPath).rotate();
+                if (!removeExifData) imagePipeline = imagePipeline.keepExif();
 
-                if (removeExifData) {
-                    await image.rotate().toFile(temp2Path);
-                    await fsp.rename(temp2Path, tempPath);
-                }
+                await imagePipeline.toFile(temp2Path);
+                await fsp.rename(temp2Path, tempPath);
             } catch {
                 //
             }
@@ -154,6 +156,7 @@ export default defineEventHandler(async (event) => {
             (totalSize._sum.size ?? 0n) + BigInt(fileSize) >
                 BigInt((findInboxById.user.limits as any).usableSpace * 1024 * 1024)
         ) {
+            await fsp.rm(tempPath).catch(() => {});
             throw createError({
                 statusCode: 400,
                 message: 'Storage limit reached',

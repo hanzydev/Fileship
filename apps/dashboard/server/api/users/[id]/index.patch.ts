@@ -134,15 +134,16 @@ export default defineEventHandler(async (event) => {
             });
         }
 
+        let image: sharp.Sharp;
+        let metadata: sharp.Metadata;
+
         try {
-            // eslint-disable-next-line no-var
-            var image = sharp(buffer);
-            // eslint-disable-next-line no-var
-            var metadata = await image.metadata();
+            image = sharp(buffer);
+            metadata = await image.metadata();
         } catch {
             throw createError({
                 statusCode: 400,
-                message: 'Invalid avatar',
+                message: 'Invalid avatar image',
             });
         }
 
