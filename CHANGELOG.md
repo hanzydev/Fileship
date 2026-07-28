@@ -1,5 +1,17 @@
 # Changelog
 
+## v5.4.3
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v5.4.2...v5.4.3)
+
+### 🚀 Enhancements
+
+- **updater-agent:** Refactor update flow with dynamic version check and healthz ([00005fb](https://github.com/hanzydev/Fileship/commit/00005fb))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v5.4.2
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v5.4.1...v5.4.2)
