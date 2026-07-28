@@ -1,5 +1,17 @@
 # Changelog
 
+## v5.4.2
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v5.4.1...v5.4.2)
+
+### 🩹 Fixes
+
+- Resolve infinite recreating state and add healthcheck ([29c60d0](https://github.com/hanzydev/Fileship/commit/29c60d0))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v5.4.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v5.4.0...v5.4.1)
