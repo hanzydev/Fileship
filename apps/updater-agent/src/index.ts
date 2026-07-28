@@ -26,6 +26,7 @@ const AUTOUPDATER_CRON = process.env.AUTOUPDATER_CRON || '0 3 * * *';
 const PORT = +process.env.PORT! || 3001;
 const SECRET_TOKEN = process.env.SECRET_TOKEN || 'dev-secret-token';
 const COMPOSE_FILE = process.env.COMPOSE_FILE || 'docker-compose.yml';
+const FILESHIP_URL = process.env.FILESHIP_URL || 'http://fileship:3000';
 
 let isUpdating = false;
 
@@ -34,6 +35,10 @@ const ghFetch = ofetch.create({
     headers: {
         'User-Agent': 'Fileship-Updater-Agent',
     },
+});
+
+const fsFetch = ofetch.create({
+    baseURL: `${FILESHIP_URL}/api`,
 });
 
 const ghcrFetch = ofetch.create({
@@ -68,9 +73,18 @@ const isImageAvailableOnGHCR = async (version: string) => {
     }
 };
 
+const getClientVersion = async (): Promise<string> => {
+    try {
+        const { version } = await fsFetch<{ version: string }>('/healthz');
+        return version;
+    } catch {
+        const rootPkgPath = join(rootDir, 'package.json');
+        return JSON.parse(await readFile(rootPkgPath, 'utf-8')).version;
+    }
+};
+
 const isUpdateAvailable = async () => {
-    const rootPkgPath = join(rootDir, 'package.json');
-    const currentVersion = JSON.parse(await readFile(rootPkgPath, 'utf-8')).version;
+    const currentVersion = await getClientVersion();
 
     const latestRelease = await ghFetch('/repos/hanzydev/Fileship/releases/latest', {
         ignoreResponseError: true,

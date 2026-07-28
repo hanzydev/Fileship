@@ -47,7 +47,7 @@ const cachedCheckVersion = defineCachedFunction(
     },
     {
         maxAge: 1_800,
-        getKey: () => `updater-status-${pkg.version}`,
+        getKey: () => `ua-status-${pkg.version}`,
     },
 );
 

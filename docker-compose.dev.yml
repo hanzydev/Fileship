@@ -49,6 +49,7 @@ services:
             AUTOUPDATER_ENABLED: false
             SECRET_TOKEN: ${SECRET_TOKEN:-dev-secret-token}
             COMPOSE_FILE: docker-compose.dev.yml
+            FILESHIP_URL: http://fileship:3000
 
 volumes:
     pg_data:

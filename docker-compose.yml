@@ -48,6 +48,7 @@ services:
             AUTOUPDATER_ENABLED: true
             SECRET_TOKEN: ${SECRET_TOKEN}
             COMPOSE_FILE: docker-compose.yml
+            FILESHIP_URL: http://fileship:3000
 
 volumes:
     pg_data:
