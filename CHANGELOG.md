@@ -1,5 +1,29 @@
 # Changelog
 
+## v5.4.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v5.4.0...v5.4.1)
+
+### 🩹 Fixes
+
+- **docker:** Add native build dependencies for arm64 updater-agent ([f16df0f](https://github.com/hanzydev/Fileship/commit/f16df0f))
+- Fix sharp pipeline bugs, EXIF retention, and file collision risks ([4da7fa5](https://github.com/hanzydev/Fileship/commit/4da7fa5))
+- Upgrade sharp to patch known vulnerabilities ([ad88473](https://github.com/hanzydev/Fileship/commit/ad88473))
+
+### 📦 Build
+
+- **docker:** Switch updater-agent base image from alpine to node 24 slim ([257fccb](https://github.com/hanzydev/Fileship/commit/257fccb))
+- **docker:** Use docker/compose-bin for updater-agent runner ([7e263ba](https://github.com/hanzydev/Fileship/commit/7e263ba))
+
+### 🏡 Chore
+
+- Disable onnxruntime-node and protobufjs in pnpm-workspace hoisting configuration ([b9b7d7e](https://github.com/hanzydev/Fileship/commit/b9b7d7e))
+- Regenerate lockfile ([0a92452](https://github.com/hanzydev/Fileship/commit/0a92452))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v5.4.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v5.3.0...v5.4.0)
