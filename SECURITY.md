@@ -1,19 +1,22 @@
 # Security Policy
 
-<!--
 ## Supported Versions
-
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
--->
+| 5.4.x   | :white_check_mark: |
+| < 5.4   | :x:                |
 
 ## Reporting a Vulnerability
 
-Report a Vulnerability by issuing a bug report, with exact details with how the vulnerability happened, what "exploits" can happen, and possible fixes (optional). Vulnerability reports are treated with high priority and will be resolved most of the time quickly.
+Please **do not** report security vulnerabilities through public GitHub issues.
+
+To report a vulnerability, submit a report privately via [GitHub Security Advisories](https://github.com/hanzydev/Fileship/security/advisories) under **"Report a vulnerability"**.
+
+When reporting, please include:
+
+- A description of the vulnerability and its potential impact
+- Clear steps or a proof-of-concept to reproduce the issue
+- Any suggested fixes or mitigations (optional)
+
+Vulnerability reports are handled with high priority.
