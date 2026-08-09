@@ -17,20 +17,6 @@ overrides:
     unconfig: ^7.5.0
     sharp: ^0.35.3
 
-minimumReleaseAgeExclude:
-    - '@nuxt/icon@2.2.4'
-    - '@vue/compiler-core@3.5.39'
-    - '@vue/compiler-dom@3.5.39'
-    - '@vue/compiler-sfc@3.5.39'
-    - '@vue/compiler-ssr@3.5.39'
-    - '@vue/reactivity@3.5.39'
-    - '@vue/runtime-core@3.5.39'
-    - '@vue/runtime-dom@3.5.39'
-    - '@vue/server-renderer@3.5.39'
-    - '@vue/shared@3.5.39'
-    - tar@7.5.17
-    - vue@3.5.39
-
 allowBuilds:
     '@ffmpeg-installer/darwin-arm64': true
     '@ffmpeg-installer/darwin-x64': true
