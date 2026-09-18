@@ -12,6 +12,7 @@ import { insert } from '@orama/orama';
 import { AIJobType } from '#shared/prisma/enums';
 
 const validationSchema = z.object({
+    uploadId: z.string().optional(),
     totalChunks: z.number().min(1, 'Total chunks must be at least 1').optional(),
     currentChunk: z.number().min(1, 'Current chunk must be at least 1').optional(),
     chunkOffset: z.number().int().min(0, 'Chunk offset must be at least 0').optional(),
@@ -51,7 +52,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const chunkOffset = formData.get('chunkOffset');
+    const uploadId = formData.get('uploadId');
+
     const body = validationSchema.safeParse({
+        uploadId: typeof uploadId === 'string' ? uploadId : undefined,
         fileNameType: formData.get('fileNameType'),
         currentChunk: +formData.get('currentChunk')! || 1,
         totalChunks: +formData.get('totalChunks')! || 1,
@@ -117,11 +121,13 @@ export default defineEventHandler(async (event) => {
     }
 
     const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9-_.]/g, '');
+    const uploadSessionId = body.data.uploadId ?? nanoid(8);
+  
     const tempPath = join(
         dataDirectory,
         'temp',
         currentUser.id,
-        `${nanoid(8)}_${sanitizedOriginalName}`,
+        `${uploadSessionId}_${sanitizedOriginalName}`,
     );
 
     await fsp.mkdir(join(dataDirectory, 'temp', currentUser.id), { recursive: true });
@@ -130,11 +136,10 @@ export default defineEventHandler(async (event) => {
     const removeExifData = (process.env.REMOVE_EXIF_DATA || 'true') === 'true';
     const isLastChunk = body.data.currentChunk === body.data.totalChunks;
 
-    if (body.data.chunkOffset === undefined) {
-        if (body.data.currentChunk === 1) await fsp.writeFile(tempPath, buffer);
-        else await fsp.appendFile(tempPath, buffer);
-    } else {
+    if (body.data.chunkOffset !== undefined) {
         await writeUploadChunk(tempPath, buffer, body.data.chunkOffset, isLastChunk);
+    } else {
+        await fsp.writeFile(tempPath, buffer);
     }
 
     if (isLastChunk) {

@@ -1,3 +1,5 @@
+import { nanoid } from 'nanoid';
+
 interface FileSettings {
     fileNameType?: 'Random' | 'UUID' | 'Original';
     maxViews?: number;
@@ -80,6 +82,8 @@ export const uploadFile = async (
     uploadingFile.status!.error = null;
 
     const startedAt = Date.now();
+    const uploadId = nanoid();
+    
     let uploadedFileUrl = '';
 
     for (let i = 0; i < chunks; i++) {
@@ -90,6 +94,7 @@ export const uploadFile = async (
         const formData = new FormData();
 
         formData.append('file', new Blob([chunk], { type: file.type }), file.name);
+        formData.append('uploadId', uploadId);
         formData.append('currentChunk', (i + 1).toString());
         formData.append('totalChunks', chunks.toString());
         formData.append('chunkOffset', start.toString());
