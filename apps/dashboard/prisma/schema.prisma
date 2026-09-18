@@ -93,7 +93,7 @@ model File {
   ocrText       String?
   caption       String?
   piiDetected   Boolean   @default(false)
-  piiReasons    String[]
+  piiReasons    String[]  @default([])
 
   aiJobs AIJob[]
 }
