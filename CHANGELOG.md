@@ -1,5 +1,28 @@
 # Changelog
 
+## v5.4.4
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v5.4.3...v5.4.4)
+
+### 🩹 Fixes
+
+- **prisma:** Set default empty array for file piiReasons ([d20ee38](https://github.com/hanzydev/Fileship/commit/d20ee38))
+- **upload:** Track chunks with uploadId to prevent missing chunk error ([e7bfe81](https://github.com/hanzydev/Fileship/commit/e7bfe81))
+
+### 📖 Documentation
+
+- Update security policy ([ae2fce9](https://github.com/hanzydev/Fileship/commit/ae2fce9))
+
+### 🏡 Chore
+
+- **deps-dev:** Bump nuxt from 4.5.0 to 4.5.1 ([09c751e](https://github.com/hanzydev/Fileship/commit/09c751e))
+- Regenerate lockfile & lint fix ([6c2ae7d](https://github.com/hanzydev/Fileship/commit/6c2ae7d))
+- Remove old mcps ([1123edb](https://github.com/hanzydev/Fileship/commit/1123edb))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v5.4.3
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v5.4.2...v5.4.3)
