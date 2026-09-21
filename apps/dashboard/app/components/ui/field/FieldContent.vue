@@ -1,0 +1,16 @@
+<script setup lang="ts">
+import type { HTMLAttributes } from 'vue';
+
+const props = defineProps<{
+    class?: HTMLAttributes['class'];
+}>();
+</script>
+
+<template>
+    <div
+        data-slot="field-content"
+        :class="cn('gap-1 group/field-content flex flex-1 flex-col leading-snug', props.class)"
+    >
+        <slot />
+    </div>
+</template>

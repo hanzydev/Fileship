@@ -2,8 +2,8 @@
     <NuxtLoadingIndicator
         color="linear-gradient(
             to right,
-            color-mix(in srgb, var(--fs-accent) 80%, white),
-            var(--fs-accent)
+            color-mix(in srgb, var(--color-primary) 80%, white),
+            var(--color-primary)
         )"
         :throttle="0"
     />
@@ -12,11 +12,9 @@
     <Head>
         <Title>{{ runtimeConfig.public.site.name }}</Title>
     </Head>
-    <Body hfull wfull bg-fs-background text-white antialiased>
-        <NuxtLayout>
-            <NuxtPage />
-        </NuxtLayout>
-    </Body>
+    <NuxtLayout>
+        <NuxtPage />
+    </NuxtLayout>
 </template>
 
 <script setup lang="ts">
@@ -28,13 +26,9 @@ dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
 const runtimeConfig = useRuntimeConfig();
-const currentTheme = useTheme();
 const currentUser = useAuthUser();
 
-onMounted(() => {
-    window!.theme = currentTheme.value;
-    initSocket();
-});
+onMounted(initSocket);
 
 watch(currentUser, (value) => {
     const adminSessionId = useCookie('adminSessionId');
@@ -42,10 +36,6 @@ watch(currentUser, (value) => {
         if (!value) closeSocket();
         else if (!getSocket()) initSocket();
     }
-});
-
-watch(currentTheme, (value) => {
-    if (window) window!.theme = value;
 });
 
 useHead({

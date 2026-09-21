@@ -3,44 +3,37 @@
         <Title>{{ error?.message }} | {{ error?.status }}</Title>
     </Head>
 
-    <Body hfull wfull bg-fs-background text-white antialiased>
-        <UiCentered text-left>
-            <div space-y-4>
-                <div space-y-2>
-                    <h1 select-none font-medium="!" md:text-5xl="!">
-                        {{ error?.status }}
-                    </h1>
-                    <h1 md:text-5xl="!">
-                        {{ title }}
-                    </h1>
-                </div>
-
-                <div h1 rounded-full bg-fs-accent></div>
-                <p text-fs-muted-1 font-medium>
-                    {{
-                        error?.status === 403
-                            ? "Houston you... you aren't houston!"
-                            : 'Houston, we have a problem.'
-                    }}
-                    {{ error?.message }}.
-                </p>
-
-                <UiButton
-                    variant="accent"
-                    wfit
-                    flex-row-reverse
-                    gap2
-                    px6
-                    rounded-2xl="!"
-                    icon="solar:arrow-right-linear"
-                    icon-size="20"
-                    @click="canHistoryComeBack ? router.back() : router.push('/dashboard')"
-                >
-                    Go back
-                </UiButton>
+    <Centered class="text-left">
+        <div class="space-y-4">
+            <div class="space-y-2">
+                <TextBlock variant="h1">
+                    {{ error?.status }}
+                </TextBlock>
+                <TextBlock variant="h1">
+                    {{ title }}
+                </TextBlock>
             </div>
-        </UiCentered>
-    </Body>
+
+            <UiSeparator />
+
+            <TextBlock variant="muted">
+                {{
+                    error?.status === 403
+                        ? "Houston you... you aren't houston!"
+                        : 'Houston, we have a problem.'
+                }}
+                {{ error?.message }}.
+            </TextBlock>
+
+            <UiButton
+                size="lg"
+                @click="canHistoryComeBack ? router.back() : router.push('/dashboard')"
+            >
+                {{ canHistoryComeBack ? 'Go back' : 'Go to dashboard' }}
+                <IArrowRight :size="20" />
+            </UiButton>
+        </div>
+    </Centered>
 </template>
 
 <script setup lang="ts">

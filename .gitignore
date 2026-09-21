@@ -28,5 +28,10 @@ node_modules
 # Fileship
 data/
 
+# Legacy dashboard code kept for local reference
+/apps/dashboard/app/old-pages/
+/apps/dashboard/app/old-layouts/
+/apps/dashboard/app/components/OLD/
+
 # Prisma
 apps/dashboard/generated/prisma

@@ -152,7 +152,7 @@ export const verifySession = async (
             if (!findCredentialById) {
                 throw createError({
                     statusCode: 401,
-                    message: 'Credential not found',
+                    message: 'Passkey not found',
                 });
             }
 

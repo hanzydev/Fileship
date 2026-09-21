@@ -1,35 +1,36 @@
 packages:
-    - 'apps/*'
-    - 'packages/*'
+  - 'apps/*'
+  - 'packages/*'
 
 supportedArchitectures:
-    os:
-        - win32
-        - linux
-        - darwin
-        - wasi
-    cpu:
-        - x64
-        - arm64
-        - wasm32
+  os:
+    - win32
+    - linux
+    - darwin
+    - wasi
+  cpu:
+    - x64
+    - arm64
+    - wasm32
 
 overrides:
-    unconfig: ^7.5.0
-    sharp: ^0.35.3
+  unconfig: ^7.5.0
+  sharp: ^0.35.3
 
 allowBuilds:
-    '@ffmpeg-installer/darwin-arm64': true
-    '@ffmpeg-installer/darwin-x64': true
-    '@ffmpeg-installer/linux-arm64': true
-    '@ffmpeg-installer/linux-x64': true
-    '@parcel/watcher': true
-    '@prisma/engines': true
-    argon2: true
-    bufferutil: true
-    esbuild: true
-    onnxruntime-node: false
-    prisma: true
-    protobufjs: false
-    sharp: true
-    unrs-resolver: true
-    utf-8-validate: true
+  '@ffmpeg-installer/darwin-arm64': true
+  '@ffmpeg-installer/darwin-x64': true
+  '@ffmpeg-installer/linux-arm64': true
+  '@ffmpeg-installer/linux-x64': true
+  '@parcel/watcher': true
+  '@prisma/engines': true
+  argon2: true
+  bufferutil: true
+  esbuild: true
+  onnxruntime-node: false
+  prisma: true
+  protobufjs: false
+  sharp: true
+  unrs-resolver: true
+  utf-8-validate: true
+  vue-demi: true

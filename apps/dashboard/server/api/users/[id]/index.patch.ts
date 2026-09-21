@@ -1,12 +1,11 @@
 import { hash } from 'argon2';
 import { defu } from 'defu';
-import sharp from 'sharp';
+import sharp, { type Metadata, type Sharp } from 'sharp';
 import { z } from 'zod';
 
 import { update } from '@orama/orama';
 
 import { UserPermission } from '#shared/prisma/enums';
-import themes from '~~/app/styles/themes.json';
 
 const validationSchema = z
     .object({
@@ -30,10 +29,6 @@ const validationSchema = z
             .optional(),
         superAdmin: z.boolean().optional(),
         verificationData: z.any().nullish(),
-        theme: z
-            .string()
-            .refine((theme) => theme in themes, 'Invalid theme')
-            .optional(),
     })
     .strict();
 
@@ -134,8 +129,8 @@ export default defineEventHandler(async (event) => {
             });
         }
 
-        let image: sharp.Sharp;
-        let metadata: sharp.Metadata;
+        let image: Sharp;
+        let metadata: Metadata;
 
         try {
             image = sharp(buffer);

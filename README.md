@@ -4,7 +4,7 @@
   </a>
 
   <p align="center">
-    Fileship is an open-source and self-hosted image uploading service with cool features.
+    An open-source, self-hosted file and media management platform.
     <br />
     <br />
     <a href="https://github.com/hanzydev/Fileship/issues">Report Bug</a>
@@ -35,7 +35,6 @@
 - Fast & Secure
 - Self-hosted
 - Easy to Use
-- Vibrant Themes
 - Statistics
 - OpenGraph Embeds
 - Folders

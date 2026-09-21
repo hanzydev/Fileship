@@ -1,3 +1,5 @@
+import tailwindcss from '@tailwindcss/vite';
+
 import pkg from '../../package.json';
 
 const corsHeaders = {
@@ -18,16 +20,13 @@ export default defineNuxtConfig({
         '@nuxt/eslint',
         '@nuxt/fonts',
         '@vueuse/nuxt',
-        '@unocss/nuxt',
         '@nuxt/icon',
         'vue-sonner/nuxt',
+        'nuxt-lucide-icons',
     ].concat((process.env.ENABLE_PWA || 'true') === 'true' ? ['@vite-pwa/nuxt'] : []),
 
     css: [
-        '~/styles/main.css',
-        '@unocss/reset/tailwind.css',
-        '~/styles/apexcharts.css',
-        '~/styles/sonner.css',
+        '~/styles/tailwind.css',
         'katex/dist/katex.min.css',
         'highlight.js/styles/tokyo-night-dark.css',
     ],
@@ -42,7 +41,13 @@ export default defineNuxtConfig({
         ],
     },
 
-    imports: { autoImport: true },
+    lucide: {
+        namePrefix: 'I',
+    },
+
+    imports: {
+        autoImport: true,
+    },
 
     devtools: {
         enabled: true,
@@ -93,8 +98,7 @@ export default defineNuxtConfig({
             aiEnabled: true,
             site: {
                 name: 'Fileship',
-                description:
-                    'Fileship is an open-source and self-hosted image uploading service with cool features.',
+                description: 'An open-source, self-hosted file and media management platform.',
             },
         },
         turnstile: {
@@ -130,6 +134,7 @@ export default defineNuxtConfig({
     },
 
     vite: {
+        plugins: [tailwindcss()],
         build: {
             rollupOptions: {
                 output: {
@@ -144,8 +149,6 @@ export default defineNuxtConfig({
         },
         optimizeDeps: {
             include: [
-                '@vue/devtools-core',
-                '@vue/devtools-kit',
                 'dayjs', // CJS
                 'dayjs/plugin/duration', // CJS
                 'dayjs/plugin/relativeTime', // CJS
