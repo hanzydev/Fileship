@@ -44,16 +44,21 @@ const defaultTags = {
     muted: 'p',
 } as const;
 
-const { variant = 'p', class: customClass } = defineProps<{
+const {
+    variant = 'p',
+    class: customClass,
+    customTag,
+} = defineProps<{
     variant?: NonNullable<TextBlockVariants['variant']>;
     class?: ClassValue;
+    customTag?: string;
 }>();
 
 const elementRef = useTemplateRef<HTMLElement>('elementRef');
 
 defineExpose({ element: elementRef });
 
-const targetTag = computed(() => defaultTags[variant]);
+const targetTag = computed(() => customTag || defaultTags[variant]);
 </script>
 
 <template>

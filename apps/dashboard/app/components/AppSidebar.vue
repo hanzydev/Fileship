@@ -7,7 +7,9 @@
                         as-child
                         class="group-data-[collapsible=icon]:justify-center"
                         size="lg"
-                        :tooltip="`Fileship - v${updaterStatus?.version}`"
+                        :tooltip="
+                            updaterStatus ? `Fileship - v${updaterStatus?.version}` : 'Fileship'
+                        "
                     >
                         <a
                             target="_blank"
@@ -21,7 +23,14 @@
                             />
                             <div class="flex flex-col group-data-[collapsible=icon]:hidden">
                                 <TextBlock variant="large">Fileship</TextBlock>
-                                <TextBlock variant="muted">v{{ updaterStatus?.version }}</TextBlock>
+                                <Transition
+                                    enter-active-class="animate-in fade-in slide-in-from-top-2 zoom-in-95 duration-200"
+                                    leave-active-class="animate-out fade-out slide-out-to-top-2 zoom-out-95 duration-200"
+                                >
+                                    <TextBlock v-if="updaterStatus" variant="muted">
+                                        v{{ updaterStatus?.version }}
+                                    </TextBlock>
+                                </Transition>
                             </div>
                         </a>
                     </UiSidebarMenuButton>
