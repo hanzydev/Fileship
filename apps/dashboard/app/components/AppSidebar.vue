@@ -7,22 +7,22 @@
                         as-child
                         class="group-data-[collapsible=icon]:justify-center"
                         size="lg"
-                        tooltip="Fileship"
+                        :tooltip="`Fileship - v${updaterStatus?.version}`"
                     >
                         <a
                             target="_blank"
                             type="button"
                             href="https://github.com/hanzydev/Fileship"
+                            class="flex items-center gap-4"
                         >
-                            <TextBlock variant="h4" class="group-data-[collapsible=icon]:hidden">
-                                Fileship
-                            </TextBlock>
-                            <TextBlock
-                                variant="h4"
-                                class="hidden group-data-[collapsible=icon]:block"
-                            >
-                                F
-                            </TextBlock>
+                            <img
+                                src="/fileship.png"
+                                class="size-10 group-data-[collapsible=icon]:size-4"
+                            />
+                            <div class="flex flex-col group-data-[collapsible=icon]:hidden">
+                                <TextBlock variant="large">Fileship</TextBlock>
+                                <TextBlock variant="muted">v{{ updaterStatus?.version }}</TextBlock>
+                            </div>
                         </a>
                     </UiSidebarMenuButton>
                 </UiSidebarMenuItem>
@@ -148,6 +148,14 @@ const isLoggingOut = ref(false);
 
 const userInitials = computed(() => authUser.value!.username.slice(0, 2).toUpperCase());
 
+const updaterStatus = ref<{
+    version: string;
+    url: string;
+    hasUpdate: boolean;
+    latestVersion: string;
+    updaterAvailable: boolean;
+} | null>(null);
+
 const isActive = (url: string) => route.path === url || route.path.startsWith(`${url}/`);
 
 const items = computed(() => {
@@ -194,4 +202,14 @@ const handleLogout = async () => {
         isLoggingOut.value = false;
     }
 };
+
+onMounted(async () => {
+    if (isAdmin(authUser.value)) {
+        try {
+            updaterStatus.value = await $fetch<never>('/api/updater/status');
+        } catch {
+            //
+        }
+    }
+});
 </script>
