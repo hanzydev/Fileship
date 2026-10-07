@@ -85,8 +85,8 @@ importers:
         specifier: ^4.2.5
         version: 4.2.5
       stream-json:
-        specifier: ^3.4.0
-        version: 3.5.0
+        specifier: ^3.6.0
+        version: 3.6.0
       tar:
         specifier: ^7.5.17
         version: 7.5.22
@@ -7087,9 +7087,8 @@ packages:
     resolution: {integrity: sha512-Wtyq3bNE3ggLR0v2vftqvuhltym3WbZAkZpfIrkr5F/6vpeUmWmwTgXa16zD87gpahwJ/Qulq3zVfUlgIc0J2A==}
     engines: {node: '>=22'}
 
-  stream-json@3.5.0:
-    resolution: {integrity: sha512-dobB7zipGW8o11PvdRljQSWuyMxifADLvoHeA4elwNWOTbZo6+BlNa+P6aCq7Y9jRiWTy2Ucu2xSv0Y2/T+/kQ==}
-    engines: {node: '>=22'}
+  stream-json@3.6.0:
+    resolution: {integrity: sha512-NiJdqxKyau579z/E8vfqcjWfSDWxW/AT99javFXdPXF147Z5za85LRXSHEmSX9TKOakB7gaIccfD0fOIctb7KQ==}
 
   streamx@2.28.0:
     resolution: {integrity: sha512-1Yowhzjf0ivGMrTIkY9hav5TxobO9qIVqUE41fiCGMGgc3CLlf4MY+9AHmZqBWgDTue0fY9zWjYFVyf6Diuobw==}
@@ -15730,7 +15729,7 @@ snapshots:
 
   stream-chain@4.2.5: {}
 
-  stream-json@3.5.0:
+  stream-json@3.6.0:
     dependencies:
       stream-chain: 4.2.5
 
