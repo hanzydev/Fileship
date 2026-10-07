@@ -77,7 +77,7 @@
         "eslint-plugin-simple-import-sort": "^13.0.0",
         "gsap": "^3.15.0",
         "highlight.js": "^11.11.1",
-        "katex": "^0.17.0",
+        "katex": "^0.18.2",
         "marked": "^18.0.5",
         "marked-highlight": "^2.2.4",
         "marked-katex-extension": "^5.1.10",
