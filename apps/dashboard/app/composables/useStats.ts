@@ -14,7 +14,9 @@ export type StatData = {
     views: {
         count: number;
         growth: number;
+        daily?: { labels: string[]; data: number[] };
     };
+    storageByType?: { type: string; size: string; formatted: string }[];
 };
 
 export const useStats = () => {

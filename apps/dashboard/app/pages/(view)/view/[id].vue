@@ -77,6 +77,7 @@
             <ViewHeader
                 :title="data.fileName!"
                 :subtitle="`${data.size!.formatted} · ${dayjs(data.createdAt).format('MMM D, YYYY')}`"
+                content-class="max-w-5xl"
             >
                 <UiTabs
                     v-if="isText"
@@ -92,14 +93,10 @@
                         </UiTabsTrigger>
                     </UiTabsList>
                 </UiTabs>
-                <UiTooltip>
-                    <UiTooltipTrigger as-child>
-                        <UiButton variant="ghost" size="icon-sm" @click="handleCopy">
-                            <ICopy />
-                        </UiButton>
-                    </UiTooltipTrigger>
-                    <UiTooltipContent>{{ isText ? 'Copy content' : 'Copy link' }}</UiTooltipContent>
-                </UiTooltip>
+                <UiButton variant="outline" size="sm" @click="handleCopy">
+                    <ICopy />
+                    <span class="hidden sm:inline">Copy</span>
+                </UiButton>
                 <UiButton size="sm" as-child>
                     <a :href="downloadUrl" download>
                         <IDownload />
@@ -108,7 +105,9 @@
                 </UiButton>
             </ViewHeader>
 
-            <main class="flex flex-1 items-center justify-center p-4">
+            <main
+                class="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center p-4"
+            >
                 <img
                     v-if="isImage"
                     :src="fileUrl"
@@ -132,7 +131,7 @@
                         <audio controls :src="fileUrl" class="w-full" />
                     </UiCardContent>
                 </UiCard>
-                <UiCard v-else-if="isText" class="w-full max-w-4xl self-start">
+                <UiCard v-else-if="isText" class="w-full flex-1">
                     <UiCardContent>
                         <div v-if="fileContent === undefined" class="flex justify-center py-12">
                             <UiSpinner class="size-6" />

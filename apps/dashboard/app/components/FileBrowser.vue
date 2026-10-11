@@ -12,20 +12,34 @@
             />
 
             <div class="flex flex-wrap items-center gap-2">
-                <UiSelect v-if="!folderId" v-model="folderFilter">
-                    <UiSelectTrigger class="w-44">
-                        <IFolder />
-                        <UiSelectValue />
-                    </UiSelectTrigger>
-                    <UiSelectContent>
-                        <UiSelectItem value="all">All files</UiSelectItem>
-                        <UiSelectItem value="none">Not in a folder</UiSelectItem>
-                        <UiSelectSeparator v-if="folders.length" />
-                        <UiSelectItem v-for="folder in folders" :key="folder.id" :value="folder.id">
-                            {{ folder.name }}
-                        </UiSelectItem>
-                    </UiSelectContent>
-                </UiSelect>
+                <UiDropdownMenu v-if="!folderId">
+                    <UiDropdownMenuTrigger as-child>
+                        <UiButton variant="outline" class="max-w-52">
+                            <IFolder />
+                            <span class="truncate">{{ folderLabel }}</span>
+                            <IChevronDown class="opacity-50" />
+                        </UiButton>
+                    </UiDropdownMenuTrigger>
+                    <UiDropdownMenuContent align="start" class="w-56">
+                        <UiDropdownMenuLabel>Folder</UiDropdownMenuLabel>
+                        <UiDropdownMenuRadioGroup v-model="folderFilter">
+                            <UiDropdownMenuRadioItem value="all">All files</UiDropdownMenuRadioItem>
+                            <UiDropdownMenuRadioItem value="none">
+                                Not in a folder
+                            </UiDropdownMenuRadioItem>
+                            <template v-if="folders.length">
+                                <UiDropdownMenuSeparator />
+                                <UiDropdownMenuRadioItem
+                                    v-for="folder in folders"
+                                    :key="folder.id"
+                                    :value="folder.id"
+                                >
+                                    <span class="truncate">{{ folder.name }}</span>
+                                </UiDropdownMenuRadioItem>
+                            </template>
+                        </UiDropdownMenuRadioGroup>
+                    </UiDropdownMenuContent>
+                </UiDropdownMenu>
 
                 <UiDropdownMenu>
                     <UiDropdownMenuTrigger as-child>
@@ -35,9 +49,11 @@
                             <UiBadge v-if="typeFilter.length" variant="secondary">
                                 {{ typeFilter.length }}
                             </UiBadge>
+                            <IChevronDown class="opacity-50" />
                         </UiButton>
                     </UiDropdownMenuTrigger>
-                    <UiDropdownMenuContent align="end" class="w-48">
+                    <UiDropdownMenuContent align="start" class="w-52">
+                        <UiDropdownMenuLabel>File type</UiDropdownMenuLabel>
                         <UiDropdownMenuCheckboxItem
                             v-for="(category, key) in FILE_CATEGORIES"
                             :key="key"
@@ -47,49 +63,56 @@
                         >
                             <component :is="category.icon" />
                             {{ category.label }}
-                            <span class="ml-auto text-muted-foreground">
+                            <UiDropdownMenuShortcut>
                                 {{ summary?.categories[key] }}
-                            </span>
+                            </UiDropdownMenuShortcut>
                         </UiDropdownMenuCheckboxItem>
                         <template v-if="typeFilter.length">
                             <UiDropdownMenuSeparator />
                             <UiDropdownMenuItem @select="typeFilter = []">
+                                <IX />
                                 Clear filter
                             </UiDropdownMenuItem>
                         </template>
                     </UiDropdownMenuContent>
                 </UiDropdownMenu>
 
-                <UiSelect v-model="sortValue">
-                    <UiSelectTrigger class="w-40">
-                        <IArrowDownUp />
-                        <UiSelectValue />
-                    </UiSelectTrigger>
-                    <UiSelectContent>
-                        <UiSelectItem
-                            v-for="option in sortOptions"
-                            :key="option.value"
-                            :value="option.value"
-                        >
-                            {{ option.label }}
-                        </UiSelectItem>
-                    </UiSelectContent>
-                </UiSelect>
+                <UiDropdownMenu>
+                    <UiDropdownMenuTrigger as-child>
+                        <UiButton variant="outline">
+                            <IArrowDownUp />
+                            {{ sortOptions.find((option) => option.value === sortValue)?.label }}
+                            <IChevronDown class="opacity-50" />
+                        </UiButton>
+                    </UiDropdownMenuTrigger>
+                    <UiDropdownMenuContent align="start" class="w-44">
+                        <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
+                        <UiDropdownMenuRadioGroup v-model="sortValue">
+                            <UiDropdownMenuRadioItem
+                                v-for="option in sortOptions"
+                                :key="option.value"
+                                :value="option.value"
+                            >
+                                {{ option.label }}
+                            </UiDropdownMenuRadioItem>
+                        </UiDropdownMenuRadioGroup>
+                    </UiDropdownMenuContent>
+                </UiDropdownMenu>
 
-                <UiTabs
+                <UiToggleGroup
+                    type="single"
+                    variant="outline"
                     class="ml-auto"
                     :model-value="view"
                     @update:model-value="$event && (view = $event as never)"
                 >
-                    <UiTabsList>
-                        <UiTabsTrigger value="grid" aria-label="Grid view">
-                            <ILayoutGrid />
-                        </UiTabsTrigger>
-                        <UiTabsTrigger value="list" aria-label="List view">
-                            <IList />
-                        </UiTabsTrigger>
-                    </UiTabsList>
-                </UiTabs>
+                    <UiToggleGroupItem value="grid" aria-label="Grid view">
+                        <ILayoutGrid />
+                    </UiToggleGroupItem>
+                    <UiToggleGroupItem value="list" aria-label="List view">
+                        <IList />
+                    </UiToggleGroupItem>
+                </UiToggleGroup>
             </div>
         </div>
 
@@ -322,6 +345,14 @@ const typeFilter = computed<FileCategory[]>({
     get: () => (typeQuery.value ? (typeQuery.value.split(',') as FileCategory[]) : []),
     set: (value) => (typeQuery.value = value.join(',')),
 });
+
+const folderLabel = computed(() =>
+    folderFilter.value === 'all'
+        ? 'All files'
+        : folderFilter.value === 'none'
+          ? 'Not in a folder'
+          : folders.value.find((folder) => folder.id === folderFilter.value)?.name || 'Folder',
+);
 
 const sortValue = computed({
     get: () => sort.value || (query.value ? 'relevance' : 'createdAt:desc'),

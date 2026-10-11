@@ -30,23 +30,34 @@
                     :loading="!!search && isLoading"
                     ai-available
                 />
-                <UiSelect v-model="typeFilter">
-                    <UiSelectTrigger class="w-40">
-                        <IListFilter />
-                        <UiSelectValue />
-                    </UiSelectTrigger>
-                    <UiSelectContent>
-                        <UiSelectItem value="all">All types</UiSelectItem>
-                        <UiSelectSeparator />
-                        <UiSelectItem
-                            v-for="(category, key) in FILE_CATEGORIES"
-                            :key="key"
-                            :value="key"
-                        >
-                            {{ category.label }}
-                        </UiSelectItem>
-                    </UiSelectContent>
-                </UiSelect>
+                <UiDropdownMenu>
+                    <UiDropdownMenuTrigger as-child>
+                        <UiButton variant="outline">
+                            <IListFilter />
+                            {{
+                                typeFilter === 'all'
+                                    ? 'All types'
+                                    : FILE_CATEGORIES[typeFilter as FileCategory].label
+                            }}
+                            <IChevronDown class="opacity-50" />
+                        </UiButton>
+                    </UiDropdownMenuTrigger>
+                    <UiDropdownMenuContent align="end" class="w-48">
+                        <UiDropdownMenuLabel>File type</UiDropdownMenuLabel>
+                        <UiDropdownMenuRadioGroup v-model="typeFilter">
+                            <UiDropdownMenuRadioItem value="all">All types</UiDropdownMenuRadioItem>
+                            <UiDropdownMenuSeparator />
+                            <UiDropdownMenuRadioItem
+                                v-for="(category, key) in FILE_CATEGORIES"
+                                :key="key"
+                                :value="key"
+                            >
+                                <component :is="category.icon" />
+                                {{ category.label }}
+                            </UiDropdownMenuRadioItem>
+                        </UiDropdownMenuRadioGroup>
+                    </UiDropdownMenuContent>
+                </UiDropdownMenu>
             </div>
 
             <div

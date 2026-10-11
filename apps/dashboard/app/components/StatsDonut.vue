@@ -4,46 +4,48 @@
             <UiCardTitle>{{ title }}</UiCardTitle>
             <UiCardDescription>{{ description }}</UiCardDescription>
         </UiCardHeader>
-        <UiCardContent class="flex flex-col gap-6">
-            <UiSkeleton
-                v-if="isLoading"
-                class="mx-auto aspect-square w-full max-w-52 rounded-full"
-            />
-            <EmptyState v-else-if="!items.length" :icon="IChartPie" title="No data yet" />
-            <template v-else>
-                <UiChartContainer :config="config" class="mx-auto aspect-square max-h-52">
+        <UiCardContent :class="cn('flex flex-col gap-6', fill && 'flex-1')">
+            <EmptyState v-if="!isLoading && !items.length" :icon="IChartPie" title="No data yet" />
+            <div v-else :class="cn('relative', fill ? 'min-h-32 flex-1' : 'h-52')">
+                <UiSkeleton
+                    v-if="isLoading"
+                    class="absolute inset-y-0 left-1/2 aspect-square -translate-x-1/2 rounded-full"
+                />
+                <UiChartContainer
+                    v-else
+                    :config="config"
+                    class="absolute inset-y-0 left-1/2 aspect-square w-auto -translate-x-1/2"
+                >
                     <VisSingleContainer :data="data">
                         <VisDonut
                             :value="(d: Datum) => d.value"
                             :color="(d: Datum) => d.fill"
                             :arc-width="28"
-                            :pad-angle="0.02"
-                            :corner-radius="4"
                         />
-                        <VisTooltip :triggers="{ [Donut.selectors.segment]: tooltipTemplate! }" />
+                        <VisTooltip :triggers="{ [Donut.selectors.segment]: tooltip }" />
                     </VisSingleContainer>
                 </UiChartContainer>
-                <div class="flex flex-col gap-2">
-                    <div
-                        v-for="item in data.slice(0, 6)"
-                        :key="item.label"
-                        class="flex items-center gap-2 text-sm"
-                    >
-                        <span
-                            class="size-2.5 shrink-0 rounded-full"
-                            :style="{ background: item.fill }"
-                        />
-                        <UiAvatar v-if="item.avatar !== undefined" class="size-5">
-                            <UiAvatarImage v-if="item.avatar" :src="item.avatar" />
-                            <UiAvatarFallback>{{ item.label[0]!.toUpperCase() }}</UiAvatarFallback>
-                        </UiAvatar>
-                        <span class="flex-1 truncate">{{ item.label }}</span>
-                        <span class="text-muted-foreground">
-                            {{ item.formatted ?? item.value }}
-                        </span>
-                    </div>
+            </div>
+            <div v-if="!isLoading && items.length" class="flex flex-col gap-2">
+                <div
+                    v-for="item in data.slice(0, 6)"
+                    :key="item.label"
+                    class="flex items-center gap-2 text-sm"
+                >
+                    <span
+                        class="size-2.5 shrink-0 rounded-full"
+                        :style="{ background: item.fill }"
+                    />
+                    <UiAvatar v-if="item.avatar !== undefined" class="size-5">
+                        <UiAvatarImage v-if="item.avatar" :src="item.avatar" />
+                        <UiAvatarFallback>{{ item.label[0]!.toUpperCase() }}</UiAvatarFallback>
+                    </UiAvatar>
+                    <span class="flex-1 truncate">{{ item.label }}</span>
+                    <span class="text-muted-foreground">
+                        {{ item.formatted ?? item.value }}
+                    </span>
                 </div>
-            </template>
+            </div>
         </UiCardContent>
     </UiCard>
 </template>
@@ -70,6 +72,7 @@ const { items, valueLabel } = defineProps<{
     items: DonutItem[];
     valueLabel: string;
     isLoading?: boolean;
+    fill?: boolean;
 }>();
 
 const data = computed<Datum[]>(() =>
@@ -80,5 +83,8 @@ const data = computed<Datum[]>(() =>
 
 const config = { value: { label: valueLabel } };
 
-const tooltipTemplate = componentToString(config, UiChartTooltipContent, { labelKey: 'label' });
+const tooltipTemplate = componentToString(config, UiChartTooltipContent, { labelKey: 'label' })!;
+
+const tooltip = (d: { data: Datum }, x: number) =>
+    tooltipTemplate({ ...d, data: { ...d.data, value: d.data.formatted ?? d.data.value } }, x);
 </script>

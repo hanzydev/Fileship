@@ -7,20 +7,24 @@
         <PageHeader title="Settings" description="Manage your account and preferences." />
 
         <div class="flex flex-col gap-6 lg:flex-row">
-            <nav class="-ml-[13px] hidden w-56 shrink-0 flex-col gap-1 lg:flex">
-                <UiButton
-                    v-for="section in sections"
-                    :key="section.path"
-                    :variant="route.path === section.path ? 'secondary' : 'ghost'"
-                    class="justify-start"
-                    as-child
-                >
-                    <NuxtLink :to="section.path">
-                        <component :is="section.icon" />
-                        {{ section.label }}
-                    </NuxtLink>
-                </UiButton>
-            </nav>
+            <UiCard size="sm" class="hidden w-56 shrink-0 self-start lg:flex">
+                <UiCardContent>
+                    <nav class="flex flex-col gap-1">
+                        <UiButton
+                            v-for="section in sections"
+                            :key="section.path"
+                            :variant="route.path === section.path ? 'secondary' : 'ghost'"
+                            class="justify-start"
+                            as-child
+                        >
+                            <NuxtLink :to="section.path">
+                                <component :is="section.icon" />
+                                {{ section.label }}
+                            </NuxtLink>
+                        </UiButton>
+                    </nav>
+                </UiCardContent>
+            </UiCard>
 
             <UiSelect :model-value="route.path" @update:model-value="navigateTo($event as string)">
                 <UiSelectTrigger class="w-full lg:hidden">

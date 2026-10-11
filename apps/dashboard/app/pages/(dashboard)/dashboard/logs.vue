@@ -22,19 +22,31 @@
                 </UiInputGroupAddon>
                 <UiInputGroupInput v-model="search" placeholder="Search logs..." />
             </UiInputGroup>
-            <UiSelect v-model="actionFilter" @update:open="$event && refreshActions()">
-                <UiSelectTrigger class="w-48">
-                    <IListFilter />
-                    <UiSelectValue />
-                </UiSelectTrigger>
-                <UiSelectContent>
-                    <UiSelectItem value="all">All actions</UiSelectItem>
-                    <UiSelectSeparator />
-                    <UiSelectItem v-for="action in actions" :key="action" :value="action">
-                        {{ action }}
-                    </UiSelectItem>
-                </UiSelectContent>
-            </UiSelect>
+            <UiDropdownMenu @update:open="$event && refreshActions()">
+                <UiDropdownMenuTrigger as-child>
+                    <UiButton variant="outline" class="max-w-56">
+                        <IListFilter />
+                        <span class="truncate">
+                            {{ actionFilter === 'all' ? 'All actions' : actionFilter }}
+                        </span>
+                        <IChevronDown class="opacity-50" />
+                    </UiButton>
+                </UiDropdownMenuTrigger>
+                <UiDropdownMenuContent align="start" class="w-56">
+                    <UiDropdownMenuLabel>Action</UiDropdownMenuLabel>
+                    <UiDropdownMenuRadioGroup v-model="actionFilter">
+                        <UiDropdownMenuRadioItem value="all">All actions</UiDropdownMenuRadioItem>
+                        <UiDropdownMenuSeparator />
+                        <UiDropdownMenuRadioItem
+                            v-for="action in actions"
+                            :key="action"
+                            :value="action"
+                        >
+                            {{ action }}
+                        </UiDropdownMenuRadioItem>
+                    </UiDropdownMenuRadioGroup>
+                </UiDropdownMenuContent>
+            </UiDropdownMenu>
         </div>
 
         <EmptyState

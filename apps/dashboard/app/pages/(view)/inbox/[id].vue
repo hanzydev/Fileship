@@ -13,118 +13,129 @@
             @submit="handlePassword"
         />
 
-        <Centered v-else>
-            <UiCard class="w-full max-w-lg text-left">
-                <UiCardHeader>
-                    <div class="flex items-center gap-3">
-                        <UiAvatar>
-                            <UiAvatarImage v-if="data.user!.avatar" :src="data.user!.avatar" />
-                            <UiAvatarFallback>
-                                {{ data.user!.username.slice(0, 2).toUpperCase() }}
-                            </UiAvatarFallback>
-                        </UiAvatar>
-                        <div class="flex flex-col">
-                            <UiCardTitle>{{ upperFirst(data.user!.username) }}'s Inbox</UiCardTitle>
-                            <UiCardDescription>
-                                Send files directly to their account.
-                            </UiCardDescription>
-                        </div>
-                    </div>
-                </UiCardHeader>
-                <UiCardContent class="flex flex-col gap-4">
-                    <label
-                        ref="dropArea"
-                        :class="
-                            cn(
-                                'flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-10 text-center transition-colors',
-                                isOverDropArea
-                                    ? 'border-primary bg-primary/5'
-                                    : 'hover:bg-muted/50',
-                                uploading && 'pointer-events-none opacity-50',
-                            )
-                        "
-                    >
-                        <IUpload class="size-6 text-muted-foreground" />
-                        <TextBlock variant="small">Drop files here or click to browse</TextBlock>
-                        <input
-                            type="file"
-                            multiple
-                            class="sr-only"
-                            :disabled="uploading"
-                            @change="handleInput"
-                        />
-                    </label>
+        <template v-else>
+            <ViewHeader
+                :title="`${upperFirst(data.user!.username)}'s Inbox`"
+                subtitle="Send files directly to their account"
+                content-class="max-w-3xl"
+            />
 
-                    <div
-                        v-if="uploadingFiles.length"
-                        class="flex max-h-72 flex-col gap-3 overflow-y-auto"
-                    >
-                        <div
-                            v-for="(file, index) in uploadingFiles"
-                            :key="`${file.name}-${index}`"
-                            class="flex flex-col gap-1.5"
-                        >
-                            <div class="flex items-center gap-2">
-                                <TextBlock variant="small" class="flex-1 truncate">
-                                    {{ file.name }}
-                                </TextBlock>
-                                <TextBlock variant="muted" class="shrink-0 text-xs">
-                                    {{ filesize(file.size) }}
-                                </TextBlock>
-                                <UiButton
-                                    v-if="!file.status?.started"
-                                    variant="ghost"
-                                    size="icon-xs"
-                                    @click="uploadingFiles.splice(index, 1)"
-                                >
-                                    <IX />
-                                </UiButton>
-                                <ICheck
-                                    v-else-if="file.status.completed"
-                                    class="size-4 text-primary"
-                                />
+            <main class="mx-auto flex w-full max-w-3xl flex-1 flex-col p-4">
+                <UiCard>
+                    <UiCardHeader>
+                        <div class="flex items-center gap-3">
+                            <UiAvatar>
+                                <UiAvatarImage v-if="data.user!.avatar" :src="data.user!.avatar" />
+                                <UiAvatarFallback>
+                                    {{ data.user!.username.slice(0, 2).toUpperCase() }}
+                                </UiAvatarFallback>
+                            </UiAvatar>
+                            <div class="flex flex-col">
+                                <UiCardTitle>Send files</UiCardTitle>
+                                <UiCardDescription>
+                                    Files you upload go straight to
+                                    {{ upperFirst(data.user!.username) }}'s inbox.
+                                </UiCardDescription>
                             </div>
-                            <UiProgress
-                                v-if="file.status?.started"
-                                :model-value="file.status.progress.percent"
-                            />
-                            <TextBlock
-                                v-if="file.status?.error"
-                                variant="muted"
-                                class="text-xs text-destructive"
-                            >
-                                {{ file.status.error }}
-                            </TextBlock>
                         </div>
-                    </div>
+                    </UiCardHeader>
+                    <UiCardContent class="flex flex-col gap-4">
+                        <label
+                            ref="dropArea"
+                            :class="
+                                cn(
+                                    'flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-10 text-center transition-colors',
+                                    isOverDropArea
+                                        ? 'border-primary bg-primary/5'
+                                        : 'hover:bg-muted/50',
+                                    uploading && 'pointer-events-none opacity-50',
+                                )
+                            "
+                        >
+                            <IUpload class="size-6 text-muted-foreground" />
+                            <TextBlock variant="small">
+                                Drop files here or click to browse
+                            </TextBlock>
+                            <input
+                                type="file"
+                                multiple
+                                class="sr-only"
+                                :disabled="uploading"
+                                @change="handleInput"
+                            />
+                        </label>
 
-                    <UiAlert v-if="isDone">
-                        <ICircleCheck />
-                        <UiAlertTitle>Files sent</UiAlertTitle>
-                        <UiAlertDescription>
-                            {{ upperFirst(data.user!.username) }} has received your files.
-                        </UiAlertDescription>
-                    </UiAlert>
-                </UiCardContent>
-                <UiCardFooter>
-                    <UiButton
-                        class="w-full"
-                        :disabled="!uploadingFiles.length || uploading"
-                        @click="handleUpload"
-                    >
-                        <UiSpinner v-if="uploading" />
-                        <ISend v-else />
-                        {{
-                            uploading
-                                ? `Uploading (${progress}%)`
-                                : uploadingFiles.length
-                                  ? `Send ${pluralize(uploadingFiles.length, 'file')}`
-                                  : 'Send files'
-                        }}
-                    </UiButton>
-                </UiCardFooter>
-            </UiCard>
-        </Centered>
+                        <div
+                            v-if="uploadingFiles.length"
+                            class="flex max-h-72 flex-col gap-3 overflow-y-auto"
+                        >
+                            <div
+                                v-for="(file, index) in uploadingFiles"
+                                :key="`${file.name}-${index}`"
+                                class="flex flex-col gap-1.5"
+                            >
+                                <div class="flex items-center gap-2">
+                                    <TextBlock variant="small" class="flex-1 truncate">
+                                        {{ file.name }}
+                                    </TextBlock>
+                                    <TextBlock variant="muted" class="shrink-0 text-xs">
+                                        {{ filesize(file.size) }}
+                                    </TextBlock>
+                                    <UiButton
+                                        v-if="!file.status?.started"
+                                        variant="ghost"
+                                        size="icon-xs"
+                                        @click="uploadingFiles.splice(index, 1)"
+                                    >
+                                        <IX />
+                                    </UiButton>
+                                    <ICheck
+                                        v-else-if="file.status.completed"
+                                        class="size-4 text-primary"
+                                    />
+                                </div>
+                                <UiProgress
+                                    v-if="file.status?.started"
+                                    :model-value="file.status.progress.percent"
+                                />
+                                <TextBlock
+                                    v-if="file.status?.error"
+                                    variant="muted"
+                                    class="text-xs text-destructive"
+                                >
+                                    {{ file.status.error }}
+                                </TextBlock>
+                            </div>
+                        </div>
+
+                        <UiAlert v-if="isDone">
+                            <ICircleCheck />
+                            <UiAlertTitle>Files sent</UiAlertTitle>
+                            <UiAlertDescription>
+                                {{ upperFirst(data.user!.username) }} has received your files.
+                            </UiAlertDescription>
+                        </UiAlert>
+                    </UiCardContent>
+                    <UiCardFooter>
+                        <UiButton
+                            class="w-full"
+                            :disabled="!uploadingFiles.length || uploading"
+                            @click="handleUpload"
+                        >
+                            <UiSpinner v-if="uploading" />
+                            <ISend v-else />
+                            {{
+                                uploading
+                                    ? `Uploading (${progress}%)`
+                                    : uploadingFiles.length
+                                      ? `Send ${pluralize(uploadingFiles.length, 'file')}`
+                                      : 'Send files'
+                            }}
+                        </UiButton>
+                    </UiCardFooter>
+                </UiCard>
+            </main>
+        </template>
     </div>
 </template>
 
