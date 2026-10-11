@@ -8,10 +8,6 @@
             :title="`${greeting}, ${upperFirst(currentUser!.username)}`"
             :description="today"
         >
-            <UiButton v-if="canUpload" @click="uploadSheetOpen = true">
-                <IUpload />
-                Upload
-            </UiButton>
             <UiButton v-if="canUpload" variant="outline" as-child>
                 <NuxtLink to="/dashboard/folders?new=1">
                     <IFolderPlus />
@@ -46,9 +42,9 @@
             <UiCardContent>
                 <div
                     v-if="isFilesLoading"
-                    class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4"
+                    class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
                 >
-                    <UiSkeleton v-for="i in 4" :key="i" class="aspect-4/5 rounded-4xl" />
+                    <UiSkeleton v-for="i in 6" :key="i" class="aspect-4/5 rounded-4xl" />
                 </div>
                 <EmptyState
                     v-else-if="!recentFiles.length"
@@ -56,7 +52,7 @@
                     title="No files yet"
                     description="Drop files anywhere, paste an image or use the upload button."
                 />
-                <div v-else class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+                <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                     <FileCard
                         v-for="file in recentFiles"
                         :key="file.id"
@@ -71,107 +67,6 @@
             </UiCardContent>
         </UiCard>
 
-        <div class="grid gap-4 lg:grid-cols-3">
-            <UiCard v-if="canUpload">
-                <UiCardHeader>
-                    <UiCardTitle>Storage</UiCardTitle>
-                    <UiCardDescription>
-                        {{ filesize(totalSize) }} across {{ pluralize(files.length, 'file') }}
-                    </UiCardDescription>
-                </UiCardHeader>
-                <UiCardContent class="flex flex-col gap-4">
-                    <div class="flex h-3 w-full overflow-hidden rounded-full bg-muted">
-                        <div
-                            v-for="(item, index) in storageBreakdown"
-                            :key="item.key"
-                            class="h-full"
-                            :style="{
-                                width: `${(item.size / totalSize) * 100}%`,
-                                background: `var(--chart-${(index % 5) + 1})`,
-                            }"
-                        />
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <div
-                            v-for="(item, index) in storageBreakdown"
-                            :key="item.key"
-                            class="flex items-center gap-2 text-sm"
-                        >
-                            <span
-                                class="size-2.5 rounded-full"
-                                :style="{ background: `var(--chart-${(index % 5) + 1})` }"
-                            />
-                            <span class="flex-1">{{ item.label }}</span>
-                            <span class="text-muted-foreground">{{ item.count }}</span>
-                            <span class="w-20 text-right">{{ filesize(item.size) }}</span>
-                        </div>
-                        <TextBlock v-if="!storageBreakdown.length" variant="muted">
-                            Nothing stored yet.
-                        </TextBlock>
-                    </div>
-                </UiCardContent>
-            </UiCard>
-
-            <UiCard v-if="canUpload">
-                <UiCardHeader>
-                    <UiCardTitle>Folders</UiCardTitle>
-                    <UiCardAction>
-                        <UiButton variant="ghost" size="sm" as-child>
-                            <NuxtLink to="/dashboard/folders">
-                                View all
-                                <IArrowRight />
-                            </NuxtLink>
-                        </UiButton>
-                    </UiCardAction>
-                </UiCardHeader>
-                <UiCardContent class="flex flex-col gap-1">
-                    <NuxtLink
-                        v-for="folder in recentFolders"
-                        :key="folder.id"
-                        :to="`/dashboard/folders/${folder.id}`"
-                        class="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-muted"
-                    >
-                        <IInbox v-if="folder.isInbox" class="size-4 text-muted-foreground" />
-                        <IFolder v-else class="size-4 text-muted-foreground" />
-                        <span class="flex-1 truncate text-sm">{{ folder.name }}</span>
-                        <span class="text-sm text-muted-foreground">{{ folder.files.length }}</span>
-                    </NuxtLink>
-                    <TextBlock v-if="!recentFolders.length" variant="muted">
-                        No folders yet.
-                    </TextBlock>
-                </UiCardContent>
-            </UiCard>
-
-            <UiCard v-if="canNote">
-                <UiCardHeader>
-                    <UiCardTitle>Notes</UiCardTitle>
-                    <UiCardAction>
-                        <UiButton variant="ghost" size="sm" as-child>
-                            <NuxtLink to="/dashboard/notes">
-                                View all
-                                <IArrowRight />
-                            </NuxtLink>
-                        </UiButton>
-                    </UiCardAction>
-                </UiCardHeader>
-                <UiCardContent class="flex flex-col gap-1">
-                    <NuxtLink
-                        v-for="note in recentNotes"
-                        :key="note.id"
-                        :to="`/dashboard/notes/${note.id}`"
-                        class="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-muted"
-                    >
-                        <IBookmark class="size-4 text-muted-foreground" />
-                        <span class="flex-1 truncate text-sm">{{ note.title }}</span>
-                        <span class="text-sm text-muted-foreground">
-                            {{ dayjs(note.createdAt).fromNow() }}
-                        </span>
-                    </NuxtLink>
-                    <TextBlock v-if="!recentNotes.length" variant="muted">No notes yet.</TextBlock>
-                </UiCardContent>
-            </UiCard>
-        </div>
-
         <FileSheet
             v-if="canUpload"
             v-model:file-id="sheetFileId"
@@ -183,17 +78,13 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { filesize } from 'filesize';
 import { upperFirst } from 'scule';
 
 import { IBookmark, IBox, IEye, IFiles, IFolder, IUsers } from '#components';
 
 const stats = useStats();
 const files = useFiles();
-const notes = useNotes();
-const folders = useFolders();
 const currentUser = useAuthUser();
-const uploadSheetOpen = useUploadSheet();
 
 const greeting = ref('Welcome back');
 const today = ref('');
@@ -207,33 +98,9 @@ const filesStatus = canUpload.value
     ? useLazyAsyncData('files', fetchFiles, { server: false }).status
     : ref('success');
 
-if (canUpload.value) useLazyAsyncData('folders', fetchFolders, { server: false });
-if (canNote.value) useLazyAsyncData('notes', fetchNotes, { server: false });
-
 const isFilesLoading = computed(() => filesStatus.value !== 'success' && !files.value.length);
 
-const recentFiles = computed(() => files.value.slice(0, 8));
-const recentFolders = computed(() => folders.value.slice(0, 5));
-const recentNotes = computed(() => notes.value.slice(0, 5));
-
-const totalSize = computed(() => files.value.reduce((total, f) => total + +f.size.raw, 0));
-
-const storageBreakdown = computed(() => {
-    const groups = new Map<FileCategory, { count: number; size: number }>();
-
-    files.value.forEach((file) => {
-        const category = getFileCategory(file);
-        const group = groups.get(category) || { count: 0, size: 0 };
-
-        group.count++;
-        group.size += +file.size.raw;
-        groups.set(category, group);
-    });
-
-    return [...groups.entries()]
-        .map(([key, group]) => ({ key, label: FILE_CATEGORIES[key].label, ...group }))
-        .sort((a, b) => b.size - a.size);
-});
+const recentFiles = computed(() => files.value.slice(0, 6));
 
 const statCards = computed(() => [
     {

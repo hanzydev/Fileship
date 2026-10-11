@@ -67,24 +67,26 @@
                     </div>
 
                     <template v-if="files.length > 1">
-                        <UiButton
-                            variant="secondary"
-                            size="icon-sm"
-                            class="absolute top-1/2 left-2 -translate-y-1/2"
-                            :disabled="!prev"
-                            @click="fileId = prev!.id"
-                        >
-                            <IChevronLeft />
-                        </UiButton>
-                        <UiButton
-                            variant="secondary"
-                            size="icon-sm"
-                            class="absolute top-1/2 right-2 -translate-y-1/2"
-                            :disabled="!next"
-                            @click="fileId = next!.id"
-                        >
-                            <IChevronRight />
-                        </UiButton>
+                        <div class="absolute top-1/2 left-2 -translate-y-1/2">
+                            <UiButton
+                                variant="secondary"
+                                size="icon-sm"
+                                :disabled="!prev"
+                                @click="fileId = prev!.id"
+                            >
+                                <IChevronLeft />
+                            </UiButton>
+                        </div>
+                        <div class="absolute top-1/2 right-2 -translate-y-1/2">
+                            <UiButton
+                                variant="secondary"
+                                size="icon-sm"
+                                :disabled="!next"
+                                @click="fileId = next!.id"
+                            >
+                                <IChevronRight />
+                            </UiButton>
+                        </div>
                     </template>
                 </div>
 
@@ -137,7 +139,7 @@
                                             <UiSelectTrigger class="w-full">
                                                 <UiSelectValue />
                                             </UiSelectTrigger>
-                                            <UiSelectContent>
+                                            <UiSelectContent position="popper">
                                                 <UiSelectItem
                                                     v-for="option in EXPIRATIONS"
                                                     :key="option.label"

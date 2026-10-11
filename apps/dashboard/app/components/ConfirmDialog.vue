@@ -1,27 +1,27 @@
 <template>
-    <UiAlertDialog :open="!!confirmState" @update:open="handleOpenChange">
-        <UiAlertDialogContent v-if="confirmState" size="sm">
-            <UiAlertDialogHeader>
-                <UiAlertDialogTitle>{{ confirmState.title }}</UiAlertDialogTitle>
-                <UiAlertDialogDescription v-if="confirmState.description">
+    <UiDialog :open="!!confirmState" @update:open="handleOpenChange">
+        <UiDialogContent v-if="confirmState" class="sm:max-w-sm" :show-close-button="false">
+            <UiDialogHeader>
+                <UiDialogTitle>{{ confirmState.title }}</UiDialogTitle>
+                <UiDialogDescription v-if="confirmState.description">
                     {{ confirmState.description }}
-                </UiAlertDialogDescription>
-            </UiAlertDialogHeader>
+                </UiDialogDescription>
+            </UiDialogHeader>
             <UiField v-if="confirmState.option" orientation="horizontal">
                 <UiCheckbox id="confirm-option" v-model="confirmState.option.value" />
                 <UiFieldLabel for="confirm-option">{{ confirmState.option.label }}</UiFieldLabel>
             </UiField>
-            <UiAlertDialogFooter>
-                <UiAlertDialogCancel @click="handleClose(false)">Cancel</UiAlertDialogCancel>
-                <UiAlertDialogAction
+            <UiDialogFooter>
+                <UiButton variant="outline" @click="handleClose(false)">Cancel</UiButton>
+                <UiButton
                     :variant="confirmState.destructive ? 'destructive' : 'default'"
                     @click="handleClose(true)"
                 >
                     {{ confirmState.confirmText || 'Continue' }}
-                </UiAlertDialogAction>
-            </UiAlertDialogFooter>
-        </UiAlertDialogContent>
-    </UiAlertDialog>
+                </UiButton>
+            </UiDialogFooter>
+        </UiDialogContent>
+    </UiDialog>
 </template>
 
 <script setup lang="ts">
@@ -33,6 +33,6 @@ const handleClose = (value: boolean) => {
 };
 
 const handleOpenChange = (open: boolean) => {
-    if (!open) setTimeout(() => handleClose(false));
+    if (!open) handleClose(false);
 };
 </script>

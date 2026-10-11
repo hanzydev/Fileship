@@ -120,10 +120,12 @@
                     </UiDialogDescription>
                 </UiDialogHeader>
                 <img
+                    v-if="totpDialog.qrCode"
                     :src="totpDialog.qrCode"
                     alt="Authenticator QR code"
                     class="mx-auto size-48 rounded-2xl bg-white p-2"
                 />
+                <UiSkeleton v-else class="mx-auto size-48 rounded-2xl" />
                 <UiField :data-invalid="!!totpDialog.error">
                     <OtpInput v-model="totpDialog.code" @complete="handleEnableTotp" />
                     <UiFieldError v-if="totpDialog.error" :errors="[totpDialog.error]" />
@@ -186,6 +188,11 @@ const renameValue = ref('');
 const password = reactive({ value: '', confirm: '' });
 const totpDialog = reactive({ open: false, qrCode: '', code: '', error: '' });
 
+watch(
+    () => totpDialog.open,
+    (value) => !value && (totpDialog.qrCode = ''),
+);
+
 const handlePasswordChange = async () => {
     passwordError.value = undefined;
 
@@ -227,8 +234,10 @@ const handleStartTotp = async () => {
             }),
         );
 
-        if (result)
-            Object.assign(totpDialog, { open: true, qrCode: result.base64, code: '', error: '' });
+        if (result) {
+            Object.assign(totpDialog, { open: true, qrCode: '', code: '', error: '' });
+            setTimeout(() => (totpDialog.qrCode = result.base64), 400);
+        }
     } catch (error: any) {
         $toast.error(error.data.message);
     }
@@ -252,6 +261,7 @@ const handleEnableTotp = async () => {
         $toast.success('Authenticator app enabled');
     } catch (error: any) {
         totpDialog.error = error.data.message;
+        totpDialog.code = '';
     }
 
     isUpdatingTotp.value = false;

@@ -17,10 +17,6 @@
 
         <template v-else-if="folder">
             <PageHeader :title="folder.name" :description="description">
-                <UiButton @click="uploadSheetOpen = true">
-                    <IUpload />
-                    Upload here
-                </UiButton>
                 <UiButton variant="outline" @click="addFilesOpen = true">
                     <IFilePlus />
                     Add files
@@ -127,7 +123,6 @@ import { IFolderX } from '#components';
 const route = useRoute();
 const files = useFiles();
 const folders = useFolders();
-const uploadSheetOpen = useUploadSheet();
 const { $toast } = useNuxtApp();
 const { copyLink } = useFolderActions();
 

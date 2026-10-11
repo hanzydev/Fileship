@@ -9,48 +9,60 @@
             <slot name="card" :item="item" />
         </template>
     </VirtualList>
-    <div v-else ref="container">
-        <UiTable>
-            <UiTableHeader>
-                <UiTableRow>
-                    <UiTableHead v-for="column in columns" :key="column.key" :class="column.class">
-                        <UiButton
-                            v-if="column.sortable"
-                            variant="ghost"
-                            size="sm"
-                            class="-ml-2"
-                            @click="handleSort(column.key)"
+    <UiCard v-else class="gap-0 py-0">
+        <div ref="container">
+            <UiTable
+                class="[&_td:first-child]:pl-4 [&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4"
+            >
+                <UiTableHeader class="bg-muted/50">
+                    <UiTableRow>
+                        <UiTableHead
+                            v-for="column in columns"
+                            :key="column.key"
+                            :class="column.class"
                         >
-                            {{ column.label }}
-                            <IArrowUp v-if="sort?.key === column.key && !sort.desc" />
-                            <IArrowDown v-else-if="sort?.key === column.key" />
-                            <IArrowUpDown v-else class="opacity-50" />
-                        </UiButton>
-                        <template v-else>{{ column.label }}</template>
-                    </UiTableHead>
-                </UiTableRow>
-            </UiTableHeader>
-            <UiTableBody>
-                <tr v-if="paddingTop" :style="{ height: `${paddingTop}px` }" />
-                <UiTableRow
-                    v-for="row in virtualizer.getVirtualItems()"
-                    :key="itemKey(items[row.index]!)"
-                    :ref="(el) => virtualizer.measureElement((el as any)?.$el ?? null)"
-                    :data-index="row.index"
-                    :data-state="selected?.includes(itemKey(items[row.index]!)) && 'selected'"
-                    :class="clickable && 'cursor-pointer'"
-                    @click="emit('rowClick', items[row.index]!, $event)"
-                >
-                    <UiTableCell v-for="column in columns" :key="column.key" :class="column.class">
-                        <slot :name="`cell-${column.key}`" :item="items[row.index]!">
-                            {{ (items[row.index] as any)[column.key] }}
-                        </slot>
-                    </UiTableCell>
-                </UiTableRow>
-                <tr v-if="paddingBottom" :style="{ height: `${paddingBottom}px` }" />
-            </UiTableBody>
-        </UiTable>
-    </div>
+                            <UiButton
+                                v-if="column.sortable"
+                                variant="ghost"
+                                size="sm"
+                                class="-ml-2"
+                                @click="handleSort(column.key)"
+                            >
+                                {{ column.label }}
+                                <IArrowUp v-if="sort?.key === column.key && !sort.desc" />
+                                <IArrowDown v-else-if="sort?.key === column.key" />
+                                <IArrowUpDown v-else class="opacity-50" />
+                            </UiButton>
+                            <template v-else>{{ column.label }}</template>
+                        </UiTableHead>
+                    </UiTableRow>
+                </UiTableHeader>
+                <UiTableBody>
+                    <tr v-if="paddingTop" :style="{ height: `${paddingTop}px` }" />
+                    <UiTableRow
+                        v-for="row in virtualizer.getVirtualItems()"
+                        :key="itemKey(items[row.index]!)"
+                        :ref="(el) => virtualizer.measureElement((el as any)?.$el ?? null)"
+                        :data-index="row.index"
+                        :data-state="selected?.includes(itemKey(items[row.index]!)) && 'selected'"
+                        :class="clickable && 'cursor-pointer'"
+                        @click="emit('rowClick', items[row.index]!, $event)"
+                    >
+                        <UiTableCell
+                            v-for="column in columns"
+                            :key="column.key"
+                            :class="column.class"
+                        >
+                            <slot :name="`cell-${column.key}`" :item="items[row.index]!">
+                                {{ (items[row.index] as any)[column.key] }}
+                            </slot>
+                        </UiTableCell>
+                    </UiTableRow>
+                    <tr v-if="paddingBottom" :style="{ height: `${paddingBottom}px` }" />
+                </UiTableBody>
+            </UiTable>
+        </div>
+    </UiCard>
 </template>
 
 <script setup lang="ts" generic="T">

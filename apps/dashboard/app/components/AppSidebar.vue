@@ -120,6 +120,7 @@
                                     v-for="mode in colorModes"
                                     :key="mode.value"
                                     :value="mode.value"
+                                    @select.prevent
                                 >
                                     <component :is="mode.icon" :size="16" />
                                     <TextBlock variant="small">{{ mode.label }}</TextBlock>
@@ -177,12 +178,14 @@ import {
     ISun,
     IUsers,
 } from '#components';
+import { useSidebar } from '~/components/ui/sidebar';
 
 const authUser = useAuthUser();
 const currentTheme = useTheme();
 const colorMode = useColorMode();
 const route = useRoute();
 const { $toast } = useNuxtApp();
+const { setOpenMobile } = useSidebar();
 const isLoggingOut = ref(false);
 
 const userInitials = computed(() => authUser.value!.username.slice(0, 2).toUpperCase());
@@ -200,6 +203,11 @@ const colorModes = [
     { label: 'Dark', value: 'dark', icon: IMoon },
     { label: 'System', value: 'system', icon: IMonitor },
 ];
+
+watch(
+    () => route.fullPath,
+    () => setOpenMobile(false),
+);
 
 const isActive = (url: string) =>
     route.path === url || (url !== '/dashboard' && route.path.startsWith(`${url}/`));

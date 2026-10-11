@@ -71,13 +71,13 @@
                             </UiButton>
                             <UiButton
                                 variant="outline"
-                                class="hidden sm:flex"
+                                class="hidden w-56 justify-start sm:flex"
                                 @click="commandPaletteOpen = true"
                             >
-                                <ISearch />
-                                <span class="text-muted-foreground">Search...</span>
-                                <UiKbdGroup class="ml-4">
-                                    <UiKbd>Ctrl</UiKbd>
+                                <ISearch class="text-muted-foreground" />
+                                <span class="font-normal text-muted-foreground">Search...</span>
+                                <UiKbdGroup class="ml-auto">
+                                    <UiKbd>{{ isMac ? '⌘' : 'Ctrl' }}</UiKbd>
                                     <UiKbd>K</UiKbd>
                                 </UiKbdGroup>
                             </UiButton>
@@ -114,21 +114,36 @@
             <UploadQueue />
 
             <Transition
-                enter-active-class="animate-in fade-in duration-150"
+                enter-active-class="animate-in fade-in duration-200"
                 leave-active-class="animate-out fade-out duration-150"
             >
                 <div
                     v-if="isOverDropZone && canUpload && !uploadSheetOpen"
-                    class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-6 backdrop-blur-sm"
+                    class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background/60 p-6 backdrop-blur-md"
                 >
                     <div
-                        class="flex size-full flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-primary"
+                        class="flex w-full max-w-md animate-in flex-col items-center gap-4 rounded-4xl border-2 border-dashed border-primary/60 bg-card p-10 text-center shadow-2xl duration-300 zoom-in-95"
                     >
-                        <IUpload class="size-10 text-primary" />
-                        <TextBlock variant="h4" custom-tag="p">Drop to upload</TextBlock>
-                        <TextBlock variant="muted">
-                            Files are uploaded instantly and links are copied to your clipboard.
-                        </TextBlock>
+                        <div class="relative flex size-16 items-center justify-center">
+                            <span
+                                class="absolute inset-0 animate-ping rounded-full bg-primary/20"
+                            />
+                            <span
+                                class="relative flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary"
+                            >
+                                <IUpload class="size-7" />
+                            </span>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <TextBlock variant="large">Drop files to upload</TextBlock>
+                            <TextBlock variant="muted">
+                                {{
+                                    currentFolderName
+                                        ? `They will be added to ${currentFolderName}.`
+                                        : 'Links are copied to your clipboard when done.'
+                                }}
+                            </TextBlock>
+                        </div>
                     </div>
                 </div>
             </Transition>
@@ -152,6 +167,7 @@ const { quickUpload } = useUploader();
 
 const uploadSheet = useTemplateRef('uploadSheet');
 const commandPaletteOpen = ref(false);
+const isMac = ref(false);
 const isReturning = ref(false);
 const { adminSessionId, stopImpersonating } = useImpersonation();
 
@@ -193,6 +209,10 @@ const breadcrumbItems = computed(() => {
 
 const canUpload = computed(() => canUploadFiles(currentUser.value));
 
+const currentFolderName = computed(() =>
+    route.path.startsWith('/dashboard/folders/') ? breadcrumbItems.value.at(-1)!.label : null,
+);
+
 const handleStopImpersonating = async () => {
     isReturning.value = true;
     await stopImpersonating();
@@ -211,6 +231,7 @@ const handleFiles = (files: File[] | null, source: 'drag-drop' | 'paste') => {
 
 const { isOverDropZone } = useDropZone(import.meta.client ? document.body : null, {
     onDrop: (files) => handleFiles(files, 'drag-drop'),
+    checkValidity: (items) => [...items].some((item) => item.kind === 'file'),
     multiple: true,
     preventDefaultForUnhandled: false,
 });
@@ -250,6 +271,8 @@ watch(
 );
 
 onMounted(async () => {
+    isMac.value = /Mac|iPhone|iPad/.test(navigator.userAgent);
+
     embed.value = await $fetch<IEmbed>('/api/users/@me/embed');
     domains.value = await $fetch<string[]>('/api/users/@me/domains');
 });

@@ -7,7 +7,7 @@
         <UiCommandList>
             <UiCommandEmpty>No results found.</UiCommandEmpty>
 
-            <UiCommandGroup v-if="matchedFiles.length" heading="Files">
+            <UiCommandGroup v-if="matchedFiles.length" :class="groupClass" heading="Files">
                 <UiCommandItem
                     v-for="file in matchedFiles"
                     :key="file.id"
@@ -20,7 +20,7 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup v-if="matchedFolders.length" heading="Folders">
+            <UiCommandGroup v-if="matchedFolders.length" :class="groupClass" heading="Folders">
                 <UiCommandItem
                     v-for="folder in matchedFolders"
                     :key="folder.id"
@@ -32,7 +32,7 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup v-if="matchedNotes.length" heading="Notes">
+            <UiCommandGroup v-if="matchedNotes.length" :class="groupClass" heading="Notes">
                 <UiCommandItem
                     v-for="note in matchedNotes"
                     :key="note.id"
@@ -44,7 +44,7 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup v-if="matchedUsers.length" heading="Users">
+            <UiCommandGroup v-if="matchedUsers.length" :class="groupClass" heading="Users">
                 <UiCommandItem
                     v-for="user in matchedUsers"
                     :key="user.id"
@@ -56,7 +56,7 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup heading="Actions">
+            <UiCommandGroup :class="groupClass" heading="Actions">
                 <UiCommandItem
                     v-for="action in actions"
                     :key="action.label"
@@ -73,7 +73,7 @@
 
             <UiCommandSeparator />
 
-            <UiCommandGroup heading="Go to">
+            <UiCommandGroup :class="groupClass" heading="Go to">
                 <UiCommandItem
                     v-for="page in pages"
                     :key="page.url"
@@ -106,6 +106,9 @@ import {
 } from '#components';
 
 const open = defineModel<boolean>('open', { required: true });
+
+const groupClass =
+    '**:data-[slot=command-group-heading]:px-3 **:data-[slot=command-group-heading]:py-2 **:data-[slot=command-group-heading]:text-xs **:data-[slot=command-group-heading]:font-medium **:data-[slot=command-group-heading]:text-muted-foreground';
 
 const files = useFiles();
 const notes = useNotes();

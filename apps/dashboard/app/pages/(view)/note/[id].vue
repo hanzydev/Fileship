@@ -9,22 +9,24 @@
             </template>
         </Head>
 
-        <ViewHeader :title="data!.title" :subtitle="dayjs(data!.createdAt).format('MMM D, YYYY')">
-            <UiToggleGroup
+        <ViewHeader
+            :title="data!.title"
+            :subtitle="dayjs(data!.createdAt).format('MMM D, YYYY')"
+            content-class="max-w-3xl"
+        >
+            <UiTabs
                 :model-value="previewMode ? 'preview' : 'raw'"
-                type="single"
-                variant="outline"
-                size="sm"
-                class="mr-1"
                 @update:model-value="$event && (previewMode = $event === 'preview')"
             >
-                <UiToggleGroupItem value="preview" aria-label="Preview">
-                    <IEye />
-                </UiToggleGroupItem>
-                <UiToggleGroupItem value="raw" aria-label="Raw">
-                    <ICode />
-                </UiToggleGroupItem>
-            </UiToggleGroup>
+                <UiTabsList>
+                    <UiTabsTrigger value="preview" aria-label="Preview">
+                        <IEye />
+                    </UiTabsTrigger>
+                    <UiTabsTrigger value="raw" aria-label="Raw">
+                        <ICode />
+                    </UiTabsTrigger>
+                </UiTabsList>
+            </UiTabs>
             <UiButton size="sm" @click="handleCopy">
                 <ICopy />
                 <span class="hidden sm:inline">Copy</span>

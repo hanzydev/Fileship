@@ -1,109 +1,94 @@
 <template>
     <div class="flex flex-col gap-4">
-        <div class="flex flex-wrap items-center gap-2">
-            <UiInputGroup class="min-w-56 flex-1">
-                <UiInputGroupAddon>
-                    <UiSpinner v-if="isSearching" />
-                    <ISearch v-else />
-                </UiInputGroupAddon>
-                <UiInputGroupInput
-                    ref="searchInput"
-                    v-model="searchInputValue"
-                    :placeholder="
-                        aiSearch ? 'Describe what you are looking for...' : 'Search files...'
-                    "
-                />
-                <UiInputGroupAddon v-if="canUseAi" align="inline-end">
-                    <UiTooltip>
-                        <UiTooltipTrigger as-child>
-                            <UiInputGroupButton
-                                size="icon-xs"
-                                :variant="aiSearch ? 'default' : 'ghost'"
-                                @click="aiSearch = !aiSearch"
-                            >
-                                <ISparkles />
-                            </UiInputGroupButton>
-                        </UiTooltipTrigger>
-                        <UiTooltipContent>Smart search</UiTooltipContent>
-                    </UiTooltip>
-                </UiInputGroupAddon>
-            </UiInputGroup>
+        <div class="flex flex-col gap-2 xl:flex-row xl:items-center">
+            <SmartSearchInput
+                ref="searchInput"
+                v-model="searchInputValue"
+                v-model:ai="aiSearch"
+                class="xl:flex-1"
+                placeholder="Search files..."
+                :loading="isSearching"
+                :ai-available="canUseAi"
+            />
 
-            <UiSelect v-if="showFolderFilter" v-model="folderFilter">
-                <UiSelectTrigger class="w-44">
-                    <IFolder />
-                    <UiSelectValue />
-                </UiSelectTrigger>
-                <UiSelectContent>
-                    <UiSelectItem value="all">All files</UiSelectItem>
-                    <UiSelectItem value="none">Not in a folder</UiSelectItem>
-                    <UiSelectSeparator v-if="folders.length" />
-                    <UiSelectItem v-for="folder in folders" :key="folder.id" :value="folder.id">
-                        {{ folder.name }}
-                    </UiSelectItem>
-                </UiSelectContent>
-            </UiSelect>
+            <div class="flex flex-wrap items-center gap-2">
+                <UiSelect v-if="showFolderFilter" v-model="folderFilter">
+                    <UiSelectTrigger class="w-44">
+                        <IFolder />
+                        <UiSelectValue />
+                    </UiSelectTrigger>
+                    <UiSelectContent position="popper">
+                        <UiSelectItem value="all">All files</UiSelectItem>
+                        <UiSelectItem value="none">Not in a folder</UiSelectItem>
+                        <UiSelectSeparator v-if="folders.length" />
+                        <UiSelectItem v-for="folder in folders" :key="folder.id" :value="folder.id">
+                            {{ folder.name }}
+                        </UiSelectItem>
+                    </UiSelectContent>
+                </UiSelect>
 
-            <UiDropdownMenu>
-                <UiDropdownMenuTrigger as-child>
-                    <UiButton variant="outline">
-                        <IListFilter />
-                        Type
-                        <UiBadge v-if="typeFilter.length" variant="secondary">
-                            {{ typeFilter.length }}
-                        </UiBadge>
-                    </UiButton>
-                </UiDropdownMenuTrigger>
-                <UiDropdownMenuContent align="end" class="w-48">
-                    <UiDropdownMenuCheckboxItem
-                        v-for="(category, key) in FILE_CATEGORIES"
-                        :key="key"
-                        :model-value="typeFilter.includes(key)"
-                        @update:model-value="toggleType(key)"
-                        @select.prevent
-                    >
-                        <component :is="category.icon" />
-                        {{ category.label }}
-                        <span class="ml-auto text-muted-foreground">{{ typeCounts[key] }}</span>
-                    </UiDropdownMenuCheckboxItem>
-                    <template v-if="typeFilter.length">
-                        <UiDropdownMenuSeparator />
-                        <UiDropdownMenuItem @select="typeFilter = []">
-                            Clear filter
-                        </UiDropdownMenuItem>
-                    </template>
-                </UiDropdownMenuContent>
-            </UiDropdownMenu>
+                <UiDropdownMenu>
+                    <UiDropdownMenuTrigger as-child>
+                        <UiButton variant="outline">
+                            <IListFilter />
+                            Type
+                            <UiBadge v-if="typeFilter.length" variant="secondary">
+                                {{ typeFilter.length }}
+                            </UiBadge>
+                        </UiButton>
+                    </UiDropdownMenuTrigger>
+                    <UiDropdownMenuContent align="end" class="w-48">
+                        <UiDropdownMenuCheckboxItem
+                            v-for="(category, key) in FILE_CATEGORIES"
+                            :key="key"
+                            :model-value="typeFilter.includes(key)"
+                            @update:model-value="toggleType(key)"
+                            @select.prevent
+                        >
+                            <component :is="category.icon" />
+                            {{ category.label }}
+                            <span class="ml-auto text-muted-foreground">{{ typeCounts[key] }}</span>
+                        </UiDropdownMenuCheckboxItem>
+                        <template v-if="typeFilter.length">
+                            <UiDropdownMenuSeparator />
+                            <UiDropdownMenuItem @select="typeFilter = []">
+                                Clear filter
+                            </UiDropdownMenuItem>
+                        </template>
+                    </UiDropdownMenuContent>
+                </UiDropdownMenu>
 
-            <UiSelect v-model="sort">
-                <UiSelectTrigger class="w-40">
-                    <IArrowDownUp />
-                    <UiSelectValue />
-                </UiSelectTrigger>
-                <UiSelectContent>
-                    <UiSelectItem
-                        v-for="option in sortOptions"
-                        :key="option.value"
-                        :value="option.value"
-                    >
-                        {{ option.label }}
-                    </UiSelectItem>
-                </UiSelectContent>
-            </UiSelect>
+                <UiSelect v-model="sort">
+                    <UiSelectTrigger class="w-40">
+                        <IArrowDownUp />
+                        <UiSelectValue />
+                    </UiSelectTrigger>
+                    <UiSelectContent position="popper">
+                        <UiSelectItem
+                            v-for="option in sortOptions"
+                            :key="option.value"
+                            :value="option.value"
+                        >
+                            {{ option.label }}
+                        </UiSelectItem>
+                    </UiSelectContent>
+                </UiSelect>
 
-            <UiToggleGroup
-                :model-value="view"
-                type="single"
-                variant="outline"
-                @update:model-value="$event && (view = $event as never)"
-            >
-                <UiToggleGroupItem value="grid" aria-label="Grid view">
-                    <ILayoutGrid />
-                </UiToggleGroupItem>
-                <UiToggleGroupItem value="list" aria-label="List view">
-                    <IList />
-                </UiToggleGroupItem>
-            </UiToggleGroup>
+                <UiTabs
+                    class="ml-auto"
+                    :model-value="view"
+                    @update:model-value="$event && (view = $event as never)"
+                >
+                    <UiTabsList>
+                        <UiTabsTrigger value="grid" aria-label="Grid view">
+                            <ILayoutGrid />
+                        </UiTabsTrigger>
+                        <UiTabsTrigger value="list" aria-label="List view">
+                            <IList />
+                        </UiTabsTrigger>
+                    </UiTabsList>
+                </UiTabs>
+            </div>
         </div>
 
         <div v-if="isLoading" class="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4">
@@ -272,9 +257,9 @@
                     variant="ghost"
                     size="sm"
                     class="hidden sm:flex"
-                    @click="selected = filtered.map((f) => f.id)"
+                    @click="selected = isAllSelected ? [] : filtered.map((f) => f.id)"
                 >
-                    Select all
+                    {{ isAllSelected ? 'Deselect all' : 'Select all' }}
                 </UiButton>
                 <UiButton variant="ghost" size="sm" @click="moveTargets = selectedFiles">
                     <IFolderInput />
@@ -439,6 +424,8 @@ const filtered = computed(() => {
         });
 });
 
+const isAllSelected = computed(() => selected.value.length === filtered.value.length);
+
 const selectedFiles = computed(() => files.filter((f) => selected.value.includes(f.id)));
 
 const toggleType = (type: FileCategory) => {
@@ -534,7 +521,7 @@ onKeyStroke('/', (event) => {
     if (document.activeElement?.closest('input, textarea, [contenteditable="true"]')) return;
 
     event.preventDefault();
-    (searchInput.value as any)?.$el.focus();
+    searchInput.value!.focus();
 });
 
 onKeyStroke('Escape', () => {

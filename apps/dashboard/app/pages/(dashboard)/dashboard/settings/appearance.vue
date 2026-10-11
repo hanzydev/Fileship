@@ -5,25 +5,22 @@
             <UiCardDescription>Light, dark or follow your system.</UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
-            <UiToggleGroup
-                v-model="colorMode.preference"
-                type="single"
-                variant="outline"
-                class="w-full"
-            >
-                <UiToggleGroupItem value="light" class="flex-1">
-                    <ISun />
-                    Light
-                </UiToggleGroupItem>
-                <UiToggleGroupItem value="dark" class="flex-1">
-                    <IMoon />
-                    Dark
-                </UiToggleGroupItem>
-                <UiToggleGroupItem value="system" class="flex-1">
-                    <IMonitor />
-                    System
-                </UiToggleGroupItem>
-            </UiToggleGroup>
+            <UiTabs v-model="colorMode.preference">
+                <UiTabsList class="w-full">
+                    <UiTabsTrigger value="light" class="flex-1">
+                        <ISun />
+                        Light
+                    </UiTabsTrigger>
+                    <UiTabsTrigger value="dark" class="flex-1">
+                        <IMoon />
+                        Dark
+                    </UiTabsTrigger>
+                    <UiTabsTrigger value="system" class="flex-1">
+                        <IMonitor />
+                        System
+                    </UiTabsTrigger>
+                </UiTabsList>
+            </UiTabs>
         </UiCardContent>
     </UiCard>
 

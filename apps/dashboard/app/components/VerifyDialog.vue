@@ -106,6 +106,11 @@ const handlePasskey = async () => {
     }
 };
 
+watch(
+    () => verification.value?.error,
+    (value) => value && (totp.value = ''),
+);
+
 watch(methods, (value) => {
     if (!value.length) return;
 

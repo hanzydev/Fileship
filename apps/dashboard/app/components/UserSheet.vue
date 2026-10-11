@@ -160,7 +160,7 @@ const handleSubmit = async () => {
 
     const body = {
         ...form,
-        password: form.password || undefined,
+        password: user && !form.password ? undefined : form.password,
         permissions: form.superAdmin ? [] : form.permissions,
     };
 

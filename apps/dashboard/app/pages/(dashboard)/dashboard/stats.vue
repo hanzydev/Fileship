@@ -21,8 +21,8 @@
                 </UiCardDescription>
             </UiCardHeader>
             <UiCardContent>
-                <UiSkeleton v-if="!stats" class="aspect-[3/1] w-full rounded-2xl" />
-                <UiChartContainer v-else :config="viewsConfig" class="aspect-[3/1] min-h-48" cursor>
+                <UiSkeleton v-if="!stats" class="h-64 w-full rounded-2xl" />
+                <UiChartContainer v-else :config="viewsConfig" class="aspect-auto h-64" cursor>
                     <VisXYContainer
                         :data="viewsData"
                         :margin="{ left: -12 }"

@@ -4,7 +4,11 @@
             <Title>{{ data!.name }}</Title>
         </Head>
 
-        <ViewHeader :title="data!.name" :subtitle="pluralize(files.length, 'file')">
+        <ViewHeader
+            :title="data!.name"
+            :subtitle="pluralize(files.length, 'file')"
+            content-class="max-w-7xl"
+        >
             <UiButton size="sm" :disabled="!files.length || isDownloading" @click="handleDownload">
                 <UiSpinner v-if="isDownloading" />
                 <IDownload v-else />
@@ -14,29 +18,20 @@
 
         <main class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 p-4">
             <div class="flex flex-wrap gap-2">
-                <UiInputGroup class="min-w-56 flex-1">
-                    <UiInputGroupAddon>
-                        <UiSpinner v-if="isSearching" />
-                        <ISearch v-else />
-                    </UiInputGroupAddon>
-                    <UiInputGroupInput v-model="search" placeholder="Search files..." />
-                    <UiInputGroupAddon align="inline-end">
-                        <UiInputGroupButton
-                            size="icon-xs"
-                            :variant="aiSearch ? 'default' : 'ghost'"
-                            aria-label="Smart search"
-                            @click="aiSearch = !aiSearch"
-                        >
-                            <ISparkles />
-                        </UiInputGroupButton>
-                    </UiInputGroupAddon>
-                </UiInputGroup>
+                <SmartSearchInput
+                    v-model="search"
+                    v-model:ai="aiSearch"
+                    class="min-w-56 flex-1"
+                    placeholder="Search files..."
+                    :loading="isSearching"
+                    ai-available
+                />
                 <UiSelect v-model="typeFilter">
                     <UiSelectTrigger class="w-40">
                         <IListFilter />
                         <UiSelectValue />
                     </UiSelectTrigger>
-                    <UiSelectContent>
+                    <UiSelectContent position="popper">
                         <UiSelectItem value="all">All types</UiSelectItem>
                         <UiSelectSeparator />
                         <UiSelectItem
@@ -131,24 +126,26 @@
                     />
                     <audio v-else :key="current.id" :src="current.directUrl" controls autoplay />
 
-                    <UiButton
-                        variant="secondary"
-                        size="icon"
-                        class="absolute top-1/2 left-0 -translate-y-1/2"
-                        :disabled="!prev"
-                        @click="current = prev!"
-                    >
-                        <IChevronLeft />
-                    </UiButton>
-                    <UiButton
-                        variant="secondary"
-                        size="icon"
-                        class="absolute top-1/2 right-0 -translate-y-1/2"
-                        :disabled="!next"
-                        @click="current = next!"
-                    >
-                        <IChevronRight />
-                    </UiButton>
+                    <div class="absolute top-1/2 left-0 -translate-y-1/2">
+                        <UiButton
+                            variant="secondary"
+                            size="icon"
+                            :disabled="!prev"
+                            @click="current = prev!"
+                        >
+                            <IChevronLeft />
+                        </UiButton>
+                    </div>
+                    <div class="absolute top-1/2 right-0 -translate-y-1/2">
+                        <UiButton
+                            variant="secondary"
+                            size="icon"
+                            :disabled="!next"
+                            @click="current = next!"
+                        >
+                            <IChevronRight />
+                        </UiButton>
+                    </div>
                 </div>
                 <UiDialogFooter>
                     <UiButton variant="outline" as-child>

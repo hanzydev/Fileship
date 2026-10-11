@@ -7,7 +7,7 @@
         <PageHeader title="Settings" description="Manage your account and preferences." />
 
         <div class="flex flex-col gap-6 lg:flex-row">
-            <nav class="hidden w-56 shrink-0 flex-col gap-1 lg:flex">
+            <nav class="-ml-[13px] hidden w-56 shrink-0 flex-col gap-1 lg:flex">
                 <UiButton
                     v-for="section in sections"
                     :key="section.path"
@@ -26,7 +26,7 @@
                 <UiSelectTrigger class="w-full lg:hidden">
                     <UiSelectValue />
                 </UiSelectTrigger>
-                <UiSelectContent>
+                <UiSelectContent position="popper">
                     <UiSelectItem
                         v-for="section in sections"
                         :key="section.path"

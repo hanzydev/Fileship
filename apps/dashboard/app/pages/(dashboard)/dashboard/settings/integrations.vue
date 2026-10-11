@@ -11,21 +11,18 @@
                 <UiFieldGroup>
                     <UiField>
                         <UiFieldLabel>File name</UiFieldLabel>
-                        <UiToggleGroup
-                            v-model="settings.fileNameType"
-                            type="single"
-                            variant="outline"
-                            class="w-full"
-                        >
-                            <UiToggleGroupItem
-                                v-for="type in ['Random', 'UUID', 'Original']"
-                                :key="type"
-                                :value="type"
-                                class="flex-1"
-                            >
-                                {{ type }}
-                            </UiToggleGroupItem>
-                        </UiToggleGroup>
+                        <UiTabs v-model="settings.fileNameType">
+                            <UiTabsList class="w-full">
+                                <UiTabsTrigger
+                                    v-for="type in ['Random', 'UUID', 'Original']"
+                                    :key="type"
+                                    :value="type"
+                                    class="flex-1"
+                                >
+                                    {{ type }}
+                                </UiTabsTrigger>
+                            </UiTabsList>
+                        </UiTabs>
                     </UiField>
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <UiField>
@@ -34,7 +31,7 @@
                                 <UiSelectTrigger class="w-full">
                                     <UiSelectValue />
                                 </UiSelectTrigger>
-                                <UiSelectContent>
+                                <UiSelectContent position="popper">
                                     <UiSelectItem
                                         v-for="option in EXPIRATIONS"
                                         :key="option.label"
@@ -51,7 +48,7 @@
                                 <UiSelectTrigger class="w-full">
                                     <UiSelectValue />
                                 </UiSelectTrigger>
-                                <UiSelectContent>
+                                <UiSelectContent position="popper">
                                     <UiSelectItem
                                         v-for="option in COMPRESSIONS"
                                         :key="option.value"

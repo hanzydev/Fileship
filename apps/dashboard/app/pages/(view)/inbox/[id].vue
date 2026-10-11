@@ -188,6 +188,7 @@ const handleInput = (event: Event) => {
 
 const { isOverDropZone: isOverDropArea } = useDropZone(dropArea, {
     onDrop: addFiles,
+    checkValidity: (items) => [...items].some((item) => item.kind === 'file'),
     multiple: true,
 });
 

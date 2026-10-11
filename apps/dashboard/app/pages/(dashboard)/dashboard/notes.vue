@@ -47,26 +47,36 @@
                     :gap="4"
                 >
                     <template #default="{ item }">
-                        <NuxtLink
-                            :to="`/dashboard/notes/${item.id}`"
-                            :class="
-                                cn(
-                                    'flex flex-col gap-0.5 rounded-2xl px-3 py-2.5 transition-colors hover:bg-muted',
-                                    activeId === item.id && 'bg-muted',
-                                )
-                            "
-                        >
-                            <div class="flex items-center gap-2">
-                                <TextBlock variant="small" class="flex-1 truncate">
-                                    {{ item.title }}
-                                </TextBlock>
-                                <IGlobe v-if="item.public" class="size-3.5 text-muted-foreground" />
-                            </div>
-                            <TextBlock variant="muted" class="truncate text-xs">
-                                {{ dayjs(item.createdAt).fromNow() }} ·
-                                {{ item.content.replace(/[#*_`>\-\n]+/g, ' ').trim() }}
-                            </TextBlock>
-                        </NuxtLink>
+                        <UiContextMenu>
+                            <UiContextMenuTrigger as-child>
+                                <NuxtLink
+                                    :to="`/dashboard/notes/${item.id}`"
+                                    :class="
+                                        cn(
+                                            'flex flex-col gap-0.5 rounded-2xl px-3 py-2.5 transition-colors hover:bg-muted',
+                                            activeId === item.id && 'bg-muted',
+                                        )
+                                    "
+                                >
+                                    <div class="flex items-center gap-2">
+                                        <TextBlock variant="small" class="flex-1 truncate">
+                                            {{ item.title }}
+                                        </TextBlock>
+                                        <IGlobe
+                                            v-if="item.public"
+                                            class="size-3.5 text-muted-foreground"
+                                        />
+                                    </div>
+                                    <TextBlock variant="muted" class="truncate text-xs">
+                                        {{ dayjs(item.createdAt).fromNow() }} ·
+                                        {{ item.content.replace(/[#*_`>\-\n]+/g, ' ').trim() }}
+                                    </TextBlock>
+                                </NuxtLink>
+                            </UiContextMenuTrigger>
+                            <UiContextMenuContent class="w-52">
+                                <NoteMenuItems :note="item" type="context" />
+                            </UiContextMenuContent>
+                        </UiContextMenu>
                     </template>
                 </VirtualList>
             </UiCardContent>

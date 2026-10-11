@@ -29,7 +29,7 @@
                     <IListFilter />
                     <UiSelectValue />
                 </UiSelectTrigger>
-                <UiSelectContent>
+                <UiSelectContent position="popper">
                     <UiSelectItem value="all">All actions</UiSelectItem>
                     <UiSelectSeparator />
                     <UiSelectItem v-for="action in actions" :key="action" :value="action">
