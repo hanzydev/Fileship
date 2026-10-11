@@ -33,40 +33,48 @@ export default defineEventHandler(async (event) => {
     const storage = useStorage('cache');
 
     if (body.data.verify) {
+        const credentialId = body.data.authenticationResponse?.id;
         const userHandle = body.data.authenticationResponse?.response?.userHandle;
-        if (!userHandle) {
+
+        if (typeof credentialId !== 'string') {
             throw createError({
                 status: 400,
                 message: 'Invalid authentication response',
             });
         }
 
-        const findUserByUsername = await prisma.user.findUnique({
-            where: { id: Buffer.from(userHandle, 'base64url').toString() },
+        const findCredentialById = await prisma.credential.findUnique({
+            where: { id: credentialId },
             include: {
-                _count: {
-                    select: { files: true, folders: true, notes: true },
+                user: {
+                    include: {
+                        _count: {
+                            select: { files: true, folders: true, notes: true },
+                        },
+                    },
                 },
             },
         });
 
-        if (!findUserByUsername) {
-            throw createError({
-                status: 404,
-                message: 'User not found',
-            });
-        }
-
-        const findCredentialById = (await prisma.credential.findUnique({
-            where: { id: body.data.authenticationResponse?.id, userId: findUserByUsername.id },
-        }))!;
-
         if (!findCredentialById) {
             throw createError({
                 status: 404,
-                message: 'Credential not found',
+                message: "This passkey isn't registered here",
+                data: { unknownCredential: true },
             });
         }
+
+        if (
+            userHandle &&
+            Buffer.from(userHandle, 'base64url').toString() !== findCredentialById.userId
+        ) {
+            throw createError({
+                status: 400,
+                message: 'Invalid authentication response',
+            });
+        }
+
+        const findUserById = findCredentialById.user;
 
         const webauthnTicket = await storage.getItem<{
             expectedChallenge: string;
@@ -113,7 +121,7 @@ export default defineEventHandler(async (event) => {
 
             const user = await prisma.user.update({
                 where: {
-                    id: findUserByUsername.id,
+                    id: findUserById.id,
                 },
                 data: {
                     sessions: {
@@ -137,7 +145,7 @@ export default defineEventHandler(async (event) => {
 
             await createLog(
                 Object.assign({}, event, {
-                    context: { user: findUserByUsername },
+                    context: { user: findUserById },
                 }),
                 {
                     action: 'Login',
@@ -151,25 +159,25 @@ export default defineEventHandler(async (event) => {
                 sameSite: 'lax',
             });
 
-            sendToUser(findUserByUsername.id, 'session:create', session);
+            sendToUser(findUserById.id, 'session:create', session);
 
             return {
                 verified: true,
                 user: {
-                    id: findUserByUsername.id,
-                    username: findUserByUsername.username,
-                    avatar: findUserByUsername.avatar,
-                    permissions: findUserByUsername.permissions,
-                    createdAt: findUserByUsername.createdAt,
-                    totpEnabled: findUserByUsername.totpEnabled,
-                    superAdmin: findUserByUsername.superAdmin,
+                    id: findUserById.id,
+                    username: findUserById.username,
+                    avatar: findUserById.avatar,
+                    permissions: findUserById.permissions,
+                    createdAt: findUserById.createdAt,
+                    totpEnabled: findUserById.totpEnabled,
+                    superAdmin: findUserById.superAdmin,
                     aiSettings: defu(
-                        findUserByUsername.aiSettings,
+                        findUserById.aiSettings,
                         defaultUserAiSettings,
                     ) as IUserAiSettings,
-                    backupRestoreState: findUserByUsername.backupRestoreState,
-                    theme: findUserByUsername.theme,
-                    stats: findUserByUsername._count,
+                    backupRestoreState: findUserById.backupRestoreState,
+                    theme: findUserById.theme,
+                    stats: findUserById._count,
                 },
                 session: {
                     id: session.id,

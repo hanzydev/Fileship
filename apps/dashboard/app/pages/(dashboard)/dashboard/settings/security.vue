@@ -199,6 +199,7 @@ import dayjs from 'dayjs';
 
 import {
     browserSupportsWebAuthn,
+    bufferToBase64URLString,
     type PublicKeyCredentialCreationOptionsJSON,
     startRegistration,
 } from '@simplewebauthn/browser';
@@ -407,8 +408,18 @@ const handleDeletePasskey = async (passkey: PasskeyData) => {
 onMounted(async () => {
     supportsPasskeys.value = browserSupportsWebAuthn();
 
-    const data = await $fetch('/api/users/@me/mfa/webauthn/credentials').catch(() => []);
-    passkeys.value = data.map((p) => ({ ...p, createdAt: new Date(p.createdAt) }));
+    const data = await $fetch('/api/users/@me/mfa/webauthn/credentials').catch(() => null);
+    passkeys.value = (data || []).map((p) => ({ ...p, createdAt: new Date(p.createdAt) }));
     isLoadingPasskeys.value = false;
+
+    if (data) {
+        await (PublicKeyCredential as any)
+            ?.signalAllAcceptedCredentials?.({
+                rpId: location.hostname,
+                userId: bufferToBase64URLString(new TextEncoder().encode(currentUser.value!.id)),
+                allAcceptedCredentialIds: data.map((p) => p.id),
+            })
+            .catch(() => null);
+    }
 });
 </script>

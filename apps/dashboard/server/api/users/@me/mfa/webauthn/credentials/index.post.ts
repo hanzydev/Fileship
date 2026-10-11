@@ -104,6 +104,7 @@ export default defineEventHandler(async (event) => {
         userDisplayName: currentUser.username,
         attestationType: 'none',
         authenticatorSelection: {
+            residentKey: 'required',
             userVerification: 'required',
         },
     });
