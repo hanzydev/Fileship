@@ -143,9 +143,9 @@ export default defineNuxtConfig({
     },
 
     app: {
-        buildAssetsDir: '/_fileship/',
+        buildAssetsDir: '/_hanzy_was_here/',
         rootAttrs: {
-            id: '__FileshipRoot',
+            id: '__fileship',
         },
         head: {
             title: 'Fileship',
