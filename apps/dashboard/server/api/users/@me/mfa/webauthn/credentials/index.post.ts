@@ -73,7 +73,8 @@ export default defineEventHandler(async (event) => {
                     name:
                         body.data.name ||
                         body.data.registrationResponse?.clientExtensionResults?.credProps
-                            ?.authenticatorDisplayName,
+                            ?.authenticatorDisplayName ||
+                        getPasskeyProviderName(registrationInfo.aaguid),
                     publicKey: bufferToBase64URLString(
                         registrationInfo.credential.publicKey as never,
                     ),

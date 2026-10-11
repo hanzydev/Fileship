@@ -416,7 +416,9 @@ onMounted(async () => {
         await (PublicKeyCredential as any)
             ?.signalAllAcceptedCredentials?.({
                 rpId: location.hostname,
-                userId: bufferToBase64URLString(new TextEncoder().encode(currentUser.value!.id)),
+                userId: bufferToBase64URLString(
+                    new TextEncoder().encode(currentUser.value!.id).buffer,
+                ),
                 allAcceptedCredentialIds: data.map((p) => p.id),
             })
             .catch(() => null);
