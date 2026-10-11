@@ -110,6 +110,7 @@ export default defineNuxtConfig({
                 siteKey: '',
             },
             aiEnabled: true,
+            registrationEnabled: false,
             site: {
                 name: 'Fileship',
                 description: 'An open-source, self-hosted file and media management platform.',
@@ -117,6 +118,10 @@ export default defineNuxtConfig({
         },
         turnstile: {
             secretKey: '',
+        },
+        registration: {
+            permissions: 'UploadFiles,TakeNotes',
+            usableSpace: -1,
         },
     },
 

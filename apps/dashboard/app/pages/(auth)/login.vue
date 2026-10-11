@@ -67,6 +67,13 @@
                                             Login with passkey
                                         </UiButton>
                                     </ClientOnly>
+                                    <UiFieldDescription
+                                        v-if="runtimeConfig.public.registrationEnabled"
+                                        class="text-center"
+                                    >
+                                        Don't have an account?
+                                        <NuxtLink to="/register">Sign up</NuxtLink>
+                                    </UiFieldDescription>
                                 </UiField>
                             </UiFieldGroup>
                         </form>
