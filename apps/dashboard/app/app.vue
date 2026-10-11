@@ -1,11 +1,5 @@
 <template>
-    <NuxtLoadingIndicator
-        color="linear-gradient(
-            to right,
-            color-mix(in srgb, var(--color-primary) 80%, white),
-            var(--color-primary)
-        )"
-    />
+    <NuxtLoadingIndicator color="var(--primary)" :height="2" />
     <UiSonner position="top-center" :theme="colorMode.value as never" />
 
     <Head>
