@@ -1,9 +1,11 @@
 import { AIJobStatus, type AIJobType } from '#shared/prisma/enums';
 
-const AI_JOB_LEASE_MS = Math.max(60_000, +(process.env.AI_JOB_LEASE_MS ?? 15 * 60_000));
-const AI_JOB_DEQUEUE_RETRIES = Math.max(1, +(process.env.AI_JOB_DEQUEUE_RETRIES ?? 5));
+const runtimeConfig = useRuntimeConfig();
 
-export const AI_ENABLED = (process.env.NUXT_PUBLIC_AI_ENABLED || 'true') === 'true';
+const AI_JOB_LEASE_MS = Math.max(60_000, +runtimeConfig.ai.jobLeaseMs || 15 * 60_000);
+const AI_JOB_DEQUEUE_RETRIES = Math.max(1, +runtimeConfig.ai.jobDequeueRetries || 5);
+
+export const AI_ENABLED = !!runtimeConfig.public.aiEnabled;
 
 export interface EnqueueAIJobOptions {
     userId: string;

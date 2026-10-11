@@ -29,7 +29,7 @@ env.allowLocalModels = true;
 env.backends.onnx.logLevel = 'error';
 
 if (env.backends.onnx.wasm) {
-    const configuredThreads = +(process.env.AI_INFERENCE_THREADS ?? 0);
+    const configuredThreads = +useRuntimeConfig().ai.inferenceThreads;
     env.backends.onnx.wasm.numThreads = Math.max(
         1,
         Math.min(
@@ -332,7 +332,7 @@ class AIService {
 
     public async createVideoEmbedding(options: { filePath: string }): Promise<number[]> {
         const workDir = await mkdtemp(join(tmpdir(), 'fileship-video-'));
-        const configuredMaxFrames = +(process.env.AI_VIDEO_MAX_FRAMES ?? 0);
+        const configuredMaxFrames = +useRuntimeConfig().ai.videoMaxFrames;
         const maxFrames = Math.max(
             1,
             Math.min(
@@ -342,7 +342,7 @@ class AIService {
                     : 24,
             ),
         );
-        const configuredSampleInterval = +(process.env.AI_VIDEO_SAMPLE_INTERVAL_SECONDS ?? 0);
+        const configuredSampleInterval = +useRuntimeConfig().ai.videoSampleIntervalSeconds;
         const sampleIntervalSeconds = Math.max(
             1,
             Math.min(

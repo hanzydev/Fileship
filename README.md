@@ -244,13 +244,13 @@ The telemetry module collects the following types of data:
 
 ### How to Opt-Out
 
-To disable all telemetry data collection, set the `TELEMETRY_ENABLED` environment variable to `false` in your `docker-compose.yml`:
+To disable all telemetry data collection, set the `NUXT_TELEMETRY_ENABLED` environment variable to `false` in your `docker-compose.yml`:
 
 ```yaml
 services:
     fileship:
         environment:
-            TELEMETRY_ENABLED: 'false'
+            NUXT_TELEMETRY_ENABLED: 'false'
 ```
 
 When telemetry is disabled:

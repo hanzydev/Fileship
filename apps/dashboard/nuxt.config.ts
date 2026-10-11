@@ -123,6 +123,23 @@ export default defineNuxtConfig({
             permissions: 'UploadFiles,TakeNotes',
             usableSpace: -1,
         },
+        dataDirectory: 'data',
+        removeExifData: true,
+        avatarMaxSize: 4,
+        logLevel: 2,
+        telemetryEnabled: true,
+        updater: {
+            url: 'http://updater-agent:3001',
+            secret: 'dev-secret-token',
+        },
+        ai: {
+            queueConcurrency: 1,
+            inferenceThreads: 2,
+            videoMaxFrames: 24,
+            videoSampleIntervalSeconds: 10,
+            jobLeaseMs: 15 * 60_000,
+            jobDequeueRetries: 5,
+        },
     },
 
     app: {

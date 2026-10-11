@@ -17,7 +17,7 @@ export const createLog = async (
     event: H3Event | null,
     { action, message, system }: CreateLogData,
 ) => {
-    const logLevel = +(process.env.LOG_LEVEL ?? 2);
+    const logLevel = +useRuntimeConfig().logLevel;
     if (logLevel === 0 || (!AllowedActions.includes(action) && logLevel !== 2)) {
         return;
     }

@@ -7,8 +7,8 @@ x-fileship: &fileship
         HOST: 0.0.0.0
         PORT: 3000
         DATABASE_URL: postgres://postgres:postgres@postgres/postgres
-        UPDATER_URL: http://updater-agent:3001
-        UPDATER_SECRET: ${SECRET_TOKEN}
+        NUXT_UPDATER_URL: http://updater-agent:3001
+        NUXT_UPDATER_SECRET: ${SECRET_TOKEN}
         NITRO_SHUTDOWN_TIMEOUT: 25000
     volumes:
         - ./data:/fileship/data

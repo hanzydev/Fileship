@@ -40,7 +40,7 @@ The telemetry module collects the following data points:
 
 ## 🔔 Opting-out
 
-Users can opt-out of telemetry data collection by setting the `TELEMETRY_ENABLED` environment variable to `false`. This will disable all telemetry data collection.
+Users can opt-out of telemetry data collection by setting the `NUXT_TELEMETRY_ENABLED` environment variable to `false`. This will disable all telemetry data collection.
 
 ## ⚖️ License
 

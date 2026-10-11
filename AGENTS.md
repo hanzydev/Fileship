@@ -35,10 +35,11 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 
 ## Environment
 
-- `apps/dashboard/.env.example` lists every dashboard variable. Only `DATABASE_URL` is required. Optional groups: storage (`DATA_DIRECTORY`), crons (`DELETE_EXPIRED_CRON`, `GENERATE_STATS_CRON`), uploads (`NUXT_PUBLIC_FILE_CHUNK_SIZE`, `REMOVE_EXIF_DATA`, `AVATAR_MAX_SIZE`), Turnstile, PWA (`ENABLE_PWA`), telemetry and the `AI_*` / `NUXT_PUBLIC_AI_ENABLED` group.
+- `apps/dashboard/.env.example` lists every dashboard variable. Only `DATABASE_URL` is required. Optional groups: storage (`NUXT_DATA_DIRECTORY`), crons (`DELETE_EXPIRED_CRON`, `GENERATE_STATS_CRON`), uploads (`NUXT_PUBLIC_FILE_CHUNK_SIZE`, `NUXT_REMOVE_EXIF_DATA`, `NUXT_AVATAR_MAX_SIZE`), Turnstile, PWA (`ENABLE_PWA`), telemetry and the `NUXT_AI_*` / `NUXT_PUBLIC_AI_ENABLED` group.
 - Self-registration is off by default. `NUXT_PUBLIC_REGISTRATION_ENABLED=true` enables `/register` and `POST /api/auth/register`; `NUXT_REGISTRATION_PERMISSIONS` (only `UploadFiles` and `TakeNotes` are honoured) and `NUXT_REGISTRATION_USABLE_SPACE` (MB, `-1` unlimited) set what new accounts get.
-- `UPDATER_URL` and `UPDATER_SECRET` point the dashboard at the updater-agent. `docker-compose.yml` sets both.
+- `NUXT_UPDATER_URL` and `NUXT_UPDATER_SECRET` point the dashboard at the updater-agent. `docker-compose.yml` sets both.
 - The updater-agent reads `PORT`, `SECRET_TOKEN`, `DEV_MODE`, `AUTOUPDATER_ENABLED`, `AUTOUPDATER_CRON`, `COMPOSE_FILE` and `FILESHIP_URL`.
+- Server code reads configuration through `useRuntimeConfig()`, never `process.env`. Runtime overrides therefore use the `NUXT_` prefix. The exceptions are `DATABASE_URL` (shared with the Prisma CLI) and the build-time options in `nuxt.config.ts` (`ENABLE_PWA`, `DELETE_EXPIRED_CRON`, `GENERATE_STATS_CRON`), which only take effect when the app is built.
 - Never commit `.env` files, `data/` or anything under `.claude/` or `.impeccable/`.
 
 ## Deployment model
