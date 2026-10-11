@@ -1,5 +1,5 @@
 <template>
-    <div :class="cn('smart-search relative rounded-4xl p-0.5', ai && 'is-active')">
+    <div :class="cn('smart-search relative rounded-4xl', ai && 'is-active')">
         <div class="relative z-10 rounded-4xl bg-background">
             <UiInputGroup>
                 <UiInputGroupAddon>
@@ -60,7 +60,7 @@ defineExpose({ focus: () => (input.value as any).$el.focus() });
 .smart-search::after {
     content: '';
     position: absolute;
-    inset: 0;
+    inset: -2px;
     z-index: 0;
     border-radius: inherit;
     opacity: 0;

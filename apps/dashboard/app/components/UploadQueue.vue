@@ -5,24 +5,32 @@
     >
         <UiCard
             v-if="uploadingFiles.length"
-            class="fixed right-4 bottom-4 z-40 w-[calc(100%-2rem)] gap-0 py-0 sm:w-96"
+            size="sm"
+            class="fixed right-4 bottom-4 z-40 w-[calc(100%-2rem)] sm:w-96"
         >
-            <UiCollapsible v-model:open="isExpanded">
-                <div class="flex items-center gap-3 px-4 py-3">
-                    <UiSpinner v-if="activeCount" />
-                    <ICircleAlert v-else class="size-4 text-destructive" />
-                    <TextBlock variant="small" class="flex-1">{{ title }}</TextBlock>
-                    <UiCollapsibleTrigger as-child>
-                        <UiButton variant="ghost" size="icon-sm">
-                            <IChevronDown
-                                :class="cn('transition-transform', !isExpanded && 'rotate-180')"
-                            />
-                        </UiButton>
-                    </UiCollapsibleTrigger>
-                </div>
+            <UiCollapsible v-model:open="isExpanded" class="flex flex-col gap-4">
+                <UiCardHeader>
+                    <UiCardTitle class="flex items-center gap-2">
+                        <UiSpinner v-if="activeCount" />
+                        <ICircleAlert v-else class="size-4 text-destructive" />
+                        {{ title }}
+                    </UiCardTitle>
+                    <UiCardAction>
+                        <UiCollapsibleTrigger as-child>
+                            <UiButton
+                                variant="ghost"
+                                size="icon-sm"
+                                :aria-label="isExpanded ? 'Collapse' : 'Expand'"
+                            >
+                                <IChevronDown
+                                    :class="cn('transition-transform', !isExpanded && 'rotate-180')"
+                                />
+                            </UiButton>
+                        </UiCollapsibleTrigger>
+                    </UiCardAction>
+                </UiCardHeader>
                 <UiCollapsibleContent>
-                    <UiSeparator />
-                    <div class="flex max-h-72 flex-col gap-3 overflow-y-auto p-4">
+                    <UiCardContent class="flex max-h-72 flex-col gap-3 overflow-y-auto">
                         <div
                             v-for="(file, index) in uploadingFiles"
                             :key="`${file.name}-${index}`"
@@ -52,11 +60,12 @@
                                 v-if="!file.status!.error"
                                 :model-value="file.status!.progress.percent"
                             />
-                            <TextBlock variant="muted" class="truncate">
-                                <span v-if="file.status!.error" class="text-destructive">
-                                    {{ file.status!.error }}
-                                </span>
-                                <template v-else-if="!file.status!.started">Waiting...</template>
+                            <UiFieldError
+                                v-if="file.status!.error"
+                                :errors="[file.status!.error]"
+                            />
+                            <TextBlock v-else variant="muted" class="truncate text-xs">
+                                <template v-if="!file.status!.started">Waiting...</template>
                                 <template v-else-if="!file.status!.completed">
                                     {{ filesize(file.status!.progress.speed) }}/s ·
                                     {{ formatEta(file.status!.progress.eta) }} left
@@ -64,7 +73,7 @@
                                 <template v-else>Uploaded</template>
                             </TextBlock>
                         </div>
-                    </div>
+                    </UiCardContent>
                 </UiCollapsibleContent>
             </UiCollapsible>
         </UiCard>

@@ -174,7 +174,7 @@
                                         :errors="formErrors.password._errors"
                                     />
                                 </UiField>
-                                <UiButton type="submit" :disabled="isSaving">
+                                <UiButton type="submit" class="self-end" :disabled="isSaving">
                                     <UiSpinner v-if="isSaving" />
                                     Save changes
                                 </UiButton>
@@ -209,23 +209,19 @@
                     <ILink />
                     Copy link
                 </UiButton>
-                <UiButton variant="outline" size="icon" @click="openFile(file)">
-                    <IExternalLink />
-                </UiButton>
-                <UiButton variant="outline" size="icon" @click="download([file])">
-                    <IDownload />
-                </UiButton>
-                <UiButton
-                    v-if="file.folderId"
-                    variant="outline"
-                    size="icon"
-                    @click="move([file], null)"
-                >
-                    <IFolderMinus />
-                </UiButton>
-                <UiButton variant="destructive" size="icon" @click="remove([file])">
-                    <ITrash2 />
-                </UiButton>
+                <UiTooltip v-for="action in footerActions" :key="action.label">
+                    <UiTooltipTrigger as-child>
+                        <UiButton
+                            :variant="action.destructive ? 'destructive' : 'outline'"
+                            size="icon"
+                            :aria-label="action.label"
+                            @click="action.run"
+                        >
+                            <component :is="action.icon" />
+                        </UiButton>
+                    </UiTooltipTrigger>
+                    <UiTooltipContent>{{ action.label }}</UiTooltipContent>
+                </UiTooltip>
             </UiSheetFooter>
         </UiSheetContent>
     </UiSheet>
@@ -233,6 +229,8 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
+
+import { IDownload, IExternalLink, IFolderMinus, ITrash2 } from '#components';
 
 const { files, hasMore, loadMore } = defineProps<{
     files: FileData[];
@@ -272,6 +270,30 @@ const goNext = async () => {
     const target = files[index.value + 1];
     if (target) fileId.value = target.id;
 };
+
+const footerActions = computed(() =>
+    file.value
+        ? [
+              { label: 'Open', icon: IExternalLink, run: () => openFile(file.value!) },
+              { label: 'Download', icon: IDownload, run: () => download([file.value!]) },
+              ...(file.value.folderId
+                  ? [
+                        {
+                            label: 'Remove from folder',
+                            icon: IFolderMinus,
+                            run: () => move([file.value!], null),
+                        },
+                    ]
+                  : []),
+              {
+                  label: 'Delete',
+                  icon: ITrash2,
+                  destructive: true,
+                  run: () => remove([file.value!]),
+              },
+          ]
+        : [],
+);
 
 const isImage = computed(() => file.value!.mimeType.startsWith('image/'));
 const isVideo = computed(() => file.value!.mimeType.startsWith('video/'));

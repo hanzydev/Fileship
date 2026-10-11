@@ -21,70 +21,115 @@
         </ViewHeader>
 
         <main class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 p-4">
-            <div class="flex flex-wrap gap-2">
+            <div class="flex flex-col gap-2 lg:flex-row lg:items-center">
                 <SmartSearchInput
                     v-model="search"
                     v-model:ai="aiSearch"
-                    class="min-w-56 flex-1"
+                    class="lg:flex-1"
                     placeholder="Search files..."
                     :loading="!!search && isLoading"
                     ai-available
                 />
-                <UiDropdownMenu>
-                    <UiDropdownMenuTrigger as-child>
-                        <UiButton variant="outline">
-                            <IListFilter />
-                            {{
-                                typeFilter === 'all'
-                                    ? 'All types'
-                                    : FILE_CATEGORIES[typeFilter as FileCategory].label
-                            }}
-                            <IChevronDown class="opacity-50" />
-                        </UiButton>
-                    </UiDropdownMenuTrigger>
-                    <UiDropdownMenuContent align="end" class="w-56">
-                        <UiDropdownMenuLabel>File type</UiDropdownMenuLabel>
-                        <UiDropdownMenuRadioGroup v-model="typeFilter">
-                            <UiDropdownMenuRadioItem value="all">All types</UiDropdownMenuRadioItem>
-                            <UiDropdownMenuSeparator />
-                            <UiDropdownMenuRadioItem
+                <div class="flex flex-wrap items-center gap-2">
+                    <UiDropdownMenu>
+                        <UiDropdownMenuTrigger as-child>
+                            <UiButton variant="outline">
+                                <IListFilter />
+                                Type
+                                <UiBadge v-if="typeFilter.length" variant="secondary">
+                                    {{ typeFilter.length }}
+                                </UiBadge>
+                                <IChevronDown class="opacity-50" />
+                            </UiButton>
+                        </UiDropdownMenuTrigger>
+                        <UiDropdownMenuContent align="start" class="w-56">
+                            <UiDropdownMenuLabel>File type</UiDropdownMenuLabel>
+                            <UiDropdownMenuCheckboxItem
                                 v-for="(category, key) in FILE_CATEGORIES"
                                 :key="key"
-                                :value="key"
+                                :model-value="typeFilter.includes(key)"
+                                @update:model-value="toggleType(key)"
+                                @select.prevent
                             >
                                 <component :is="category.icon" />
                                 {{ category.label }}
-                            </UiDropdownMenuRadioItem>
-                        </UiDropdownMenuRadioGroup>
-                    </UiDropdownMenuContent>
-                </UiDropdownMenu>
+                            </UiDropdownMenuCheckboxItem>
+                            <template v-if="typeFilter.length">
+                                <UiDropdownMenuSeparator />
+                                <UiDropdownMenuItem @select="typeFilter = []">
+                                    <IX />
+                                    Clear filter
+                                </UiDropdownMenuItem>
+                            </template>
+                        </UiDropdownMenuContent>
+                    </UiDropdownMenu>
+
+                    <UiDropdownMenu>
+                        <UiDropdownMenuTrigger as-child>
+                            <UiButton variant="outline">
+                                <IArrowDownUp />
+                                {{
+                                    sortOptions.find((option) => option.value === sortValue)?.label
+                                }}
+                                <IChevronDown class="opacity-50" />
+                            </UiButton>
+                        </UiDropdownMenuTrigger>
+                        <UiDropdownMenuContent align="start" class="w-56">
+                            <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
+                            <UiDropdownMenuRadioGroup v-model="sortValue">
+                                <UiDropdownMenuRadioItem
+                                    v-for="option in sortOptions"
+                                    :key="option.value"
+                                    :value="option.value"
+                                >
+                                    {{ option.label }}
+                                </UiDropdownMenuRadioItem>
+                            </UiDropdownMenuRadioGroup>
+                        </UiDropdownMenuContent>
+                    </UiDropdownMenu>
+                </div>
             </div>
 
             <div
                 v-if="isLoading"
-                class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3"
+                class="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4"
             >
                 <FileCardSkeleton v-for="i in 8" :key="i" />
             </div>
 
             <EmptyState
-                v-else-if="!files.length"
-                :icon="data!.fileCount ? ISearchX : IFolderOpen"
-                :title="data!.fileCount ? 'No matching files' : 'This folder is empty'"
+                v-else-if="!files.length && !isFiltered"
+                :icon="IFolderOpen"
+                title="This folder is empty"
             />
+
+            <EmptyState
+                v-else-if="!files.length"
+                :icon="ISearchX"
+                title="No matching files"
+                description="Try a different search or clear your filters."
+            >
+                <UiButton variant="outline" @click="handleClearFilters">Clear filters</UiButton>
+            </EmptyState>
 
             <VirtualList
                 v-else
                 :items="files"
                 :item-key="(f) => f.id"
-                :min-item-width="200"
-                :estimate-size="240"
-                :gap="12"
+                :min-item-width="220"
+                :estimate-size="260"
+                :gap="16"
                 :loading="isLoadingMore"
                 @reach-end="loadMore"
             >
                 <template #default="{ item }">
-                    <UiCard size="sm" class="group" @click="handleOpen(item)">
+                    <UiCard
+                        size="sm"
+                        class="group"
+                        tabindex="0"
+                        @click="handleOpen(item)"
+                        @keydown.enter.self="handleOpen(item)"
+                    >
                         <UiCardContent>
                             <div class="relative aspect-4/3 overflow-hidden rounded-2xl bg-muted">
                                 <img
@@ -206,9 +251,27 @@ if (error.value) {
 
 const search = ref('');
 const aiSearch = ref(false);
-const typeFilter = ref('all');
+const typeFilter = ref<FileCategory[]>([]);
+const sort = ref('');
 const isDownloading = ref(false);
 const current = ref<FileData | null>(null);
+
+const sortOptions = computed(() => [
+    ...(search.value.trim() ? [{ label: 'Relevance', value: 'relevance' }] : []),
+    { label: 'Newest', value: 'createdAt:desc' },
+    { label: 'Oldest', value: 'createdAt:asc' },
+    { label: 'Name A–Z', value: 'fileName:asc' },
+    { label: 'Name Z–A', value: 'fileName:desc' },
+    { label: 'Largest', value: 'size:desc' },
+    { label: 'Smallest', value: 'size:asc' },
+]);
+
+const sortValue = computed({
+    get: () =>
+        (sort.value === 'relevance' && !search.value.trim() ? '' : sort.value) ||
+        (search.value.trim() ? 'relevance' : 'createdAt:desc'),
+    set: (value) => (sort.value = value),
+});
 
 const {
     items: files,
@@ -218,8 +281,22 @@ const {
 } = usePaginatedList<FileData>('files', `/api/folders/${data.value!.id}/files`, () => ({
     q: search.value.trim(),
     mode: search.value.trim() && aiSearch.value ? 'vector' : undefined,
-    type: typeFilter.value === 'all' ? undefined : typeFilter.value,
+    sort: sortValue.value === 'relevance' ? undefined : sortValue.value,
+    type: typeFilter.value,
 }));
+
+const isFiltered = computed(() => !!search.value.trim() || !!typeFilter.value.length);
+
+const toggleType = (type: FileCategory) => {
+    typeFilter.value = typeFilter.value.includes(type)
+        ? typeFilter.value.filter((t) => t !== type)
+        : [...typeFilter.value, type];
+};
+
+const handleClearFilters = () => {
+    search.value = '';
+    typeFilter.value = [];
+};
 
 const media = computed(() =>
     files.value.filter((f) => ['image/', 'video/', 'audio/'].some((t) => f.mimeType.startsWith(t))),

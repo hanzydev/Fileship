@@ -1,7 +1,13 @@
 <template>
     <UiContextMenu>
         <UiContextMenuTrigger as-child>
-            <UiCard size="sm" class="group" @click="emit('click', $event)">
+            <UiCard
+                size="sm"
+                class="group"
+                tabindex="0"
+                @click="emit('click', $event)"
+                @keydown.enter.self="emit('click', $event)"
+            >
                 <UiCardContent>
                     <div
                         :class="
@@ -121,7 +127,7 @@ const { file } = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    click: [event: MouseEvent];
+    click: [event: MouseEvent | KeyboardEvent];
     toggle: [event: MouseEvent];
     view: [];
     edit: [];

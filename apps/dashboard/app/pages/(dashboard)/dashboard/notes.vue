@@ -3,7 +3,7 @@
         <Title>Notes</Title>
     </Head>
 
-    <div class="flex flex-1 gap-4 p-4 pt-0">
+    <div class="flex flex-1 gap-6 p-4 pt-0">
         <UiCard
             :class="cn('w-full shrink-0 gap-4 md:flex md:w-80', isEditorOpen ? 'hidden' : 'flex')"
         >
@@ -67,6 +67,24 @@
                                                     v-if="item.public"
                                                     class="size-3.5 text-muted-foreground"
                                                 />
+                                                <UiDropdownMenu>
+                                                    <UiDropdownMenuTrigger as-child>
+                                                        <UiButton
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                            class="-my-1.5"
+                                                            @click.prevent.stop
+                                                        >
+                                                            <IEllipsis />
+                                                        </UiButton>
+                                                    </UiDropdownMenuTrigger>
+                                                    <UiDropdownMenuContent align="end" class="w-56">
+                                                        <NoteMenuItems
+                                                            :note="item"
+                                                            type="dropdown"
+                                                        />
+                                                    </UiDropdownMenuContent>
+                                                </UiDropdownMenu>
                                             </div>
                                             <TextBlock variant="muted" class="truncate text-xs">
                                                 {{ dayjs(item.createdAt).fromNow() }} ·

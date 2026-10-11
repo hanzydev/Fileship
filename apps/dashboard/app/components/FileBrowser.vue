@@ -250,7 +250,12 @@
                 <ListCardSkeleton media="size-12 rounded-xl" />
             </template>
             <template #card="{ item }">
-                <UiCard size="sm" @click="handleClick(item, $event)">
+                <UiCard
+                    size="sm"
+                    tabindex="0"
+                    @click="handleClick(item, $event)"
+                    @keydown.enter.self="handleClick(item, $event)"
+                >
                     <UiCardContent class="flex items-center gap-3">
                         <div
                             class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted"
@@ -440,7 +445,7 @@ const openSheet = (file: FileData, tab = 'details') => {
     sheetFileId.value = file.id;
 };
 
-const handleToggle = (file: FileData, event: MouseEvent) => {
+const handleToggle = (file: FileData, event: MouseEvent | KeyboardEvent) => {
     const ids = files.value.map((f) => f.id);
     const anchor = lastSelected.value ? ids.indexOf(lastSelected.value) : -1;
 
@@ -457,7 +462,7 @@ const handleToggle = (file: FileData, event: MouseEvent) => {
     lastSelected.value = file.id;
 };
 
-const handleClick = (file: FileData, event: MouseEvent) => {
+const handleClick = (file: FileData, event: MouseEvent | KeyboardEvent) => {
     if (selected.value.length || event.shiftKey || event.ctrlKey || event.metaKey) {
         handleToggle(file, event);
     } else {

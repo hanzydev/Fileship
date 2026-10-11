@@ -15,7 +15,7 @@
                                 loading="lazy"
                                 :class="
                                     cn(
-                                        'size-full object-cover',
+                                        'size-full object-cover transition-transform duration-300 group-hover:scale-105',
                                         covers.length === 1 && 'col-span-2 row-span-2',
                                         covers.length === 2 && 'row-span-2',
                                         covers.length === 3 && index === 0 && 'row-span-2',

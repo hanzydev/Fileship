@@ -17,17 +17,9 @@
                     </UiTabsList>
                 </UiTabs>
 
-                <UiButton
-                    v-if="method === 'passkey'"
-                    type="button"
-                    variant="outline"
-                    :disabled="verification.isSubmitting"
-                    @click="handlePasskey"
-                >
-                    <UiSpinner v-if="verification.isSubmitting" />
-                    <IFingerprint v-else />
-                    Use a passkey
-                </UiButton>
+                <TextBlock v-if="method === 'passkey'" variant="muted">
+                    Confirm with your fingerprint, face or security key.
+                </TextBlock>
 
                 <UiField v-else-if="method === 'totp'">
                     <UiFieldLabel>Authenticator code</UiFieldLabel>
@@ -49,11 +41,25 @@
                     <UiAlertTitle>{{ verification.error }}</UiAlertTitle>
                 </UiAlert>
 
-                <UiDialogFooter v-if="method !== 'passkey'">
+                <UiDialogFooter>
                     <UiButton type="button" variant="outline" @click="verification.cancel()">
                         Cancel
                     </UiButton>
-                    <UiButton type="submit" :disabled="verification.isSubmitting || !canSubmit">
+                    <UiButton
+                        v-if="method === 'passkey'"
+                        type="button"
+                        :disabled="verification.isSubmitting"
+                        @click="handlePasskey"
+                    >
+                        <UiSpinner v-if="verification.isSubmitting" />
+                        <IFingerprint v-else />
+                        Use a passkey
+                    </UiButton>
+                    <UiButton
+                        v-else
+                        type="submit"
+                        :disabled="verification.isSubmitting || !canSubmit"
+                    >
                         <UiSpinner v-if="verification.isSubmitting" />
                         Verify
                     </UiButton>

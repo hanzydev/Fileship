@@ -3,38 +3,57 @@
         enter-active-class="animate-in fade-in slide-in-from-bottom-4 duration-200"
         leave-active-class="animate-out fade-out slide-out-to-bottom-4 duration-200"
     >
-        <div
+        <UiCard
             v-if="selected.length"
-            class="fixed bottom-4 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1 rounded-full border bg-popover p-1.5 pl-4 shadow-lg"
+            size="sm"
+            :class="
+                cn(
+                    'fixed bottom-4 left-1/2 z-30 -translate-x-1/2 flex-row items-center gap-3 py-2 pr-2 pl-4 shadow-lg',
+                    uploadingFiles.length && 'bottom-24 sm:bottom-4',
+                )
+            "
         >
-            <TextBlock variant="small" class="mr-2 whitespace-nowrap">
+            <TextBlock variant="small" class="whitespace-nowrap">
                 {{ selected.length }} selected
             </TextBlock>
+            <UiButtonGroup>
+                <UiButton
+                    variant="outline"
+                    size="sm"
+                    class="hidden sm:flex"
+                    :disabled="isBusy"
+                    @click="handleSelectAll"
+                >
+                    {{ isAllSelected ? 'Deselect all' : 'Select all' }}
+                </UiButton>
+                <UiButton variant="outline" size="sm" aria-label="Move" @click="handleMove">
+                    <IFolderInput />
+                    <span class="hidden sm:inline">Move</span>
+                </UiButton>
+                <UiButton
+                    variant="outline"
+                    size="sm"
+                    aria-label="Download"
+                    :disabled="isBusy"
+                    @click="handleDownload"
+                >
+                    <IDownload />
+                    <span class="hidden sm:inline">Download</span>
+                </UiButton>
+                <UiButton variant="outline" size="sm" aria-label="Delete" @click="handleDelete">
+                    <ITrash2 />
+                    <span class="hidden sm:inline">Delete</span>
+                </UiButton>
+            </UiButtonGroup>
             <UiButton
                 variant="ghost"
-                size="sm"
-                class="hidden sm:flex"
-                :disabled="isBusy"
-                @click="handleSelectAll"
+                size="icon-sm"
+                aria-label="Clear selection"
+                @click="selected = []"
             >
-                {{ isAllSelected ? 'Deselect all' : 'Select all' }}
-            </UiButton>
-            <UiButton variant="ghost" size="sm" @click="handleMove">
-                <IFolderInput />
-                <span class="hidden sm:inline">Move</span>
-            </UiButton>
-            <UiButton variant="ghost" size="sm" :disabled="isBusy" @click="handleDownload">
-                <IDownload />
-                <span class="hidden sm:inline">Download</span>
-            </UiButton>
-            <UiButton variant="ghost" size="sm" @click="handleDelete">
-                <ITrash2 />
-                <span class="hidden sm:inline">Delete</span>
-            </UiButton>
-            <UiButton variant="ghost" size="icon-sm" @click="selected = []">
                 <IX />
             </UiButton>
-        </div>
+        </UiCard>
     </Transition>
 
     <FileMoveDialog v-model="moveTargets" @moved="selected = []" />
@@ -48,6 +67,8 @@ const { items, total, query } = defineProps<{
 }>();
 
 const selected = defineModel<string[]>({ required: true });
+
+const uploadingFiles = useUploadingFiles();
 
 const { $toast } = useNuxtApp();
 const { download, remove } = useFileActions();

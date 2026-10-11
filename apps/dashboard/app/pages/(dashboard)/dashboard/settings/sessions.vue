@@ -39,7 +39,10 @@
                                     <TextBlock variant="small" class="truncate">
                                         {{ item.os }} · {{ item.platform }}
                                     </TextBlock>
-                                    <UiBadge v-if="item.id === currentUser!.currentSessionId">
+                                    <UiBadge
+                                        v-if="item.id === currentUser!.currentSessionId"
+                                        variant="secondary"
+                                    >
                                         This device
                                     </UiBadge>
                                 </div>

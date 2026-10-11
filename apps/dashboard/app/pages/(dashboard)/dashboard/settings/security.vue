@@ -146,7 +146,7 @@
                     alt="Authenticator QR code"
                     class="mx-auto size-48 rounded-2xl bg-white p-2"
                 />
-                <UiSkeleton v-else class="mx-auto size-48 rounded-2xl" />
+                <UiSkeleton v-else class="mx-auto size-48" />
                 <UiField :data-invalid="!!totpDialog.error">
                     <OtpInput v-model="totpDialog.code" @complete="handleEnableTotp" />
                     <UiFieldError v-if="totpDialog.error" :errors="[totpDialog.error]" />

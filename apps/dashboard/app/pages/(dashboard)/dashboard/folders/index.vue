@@ -14,12 +14,37 @@
             </UiButton>
         </PageHeader>
 
-        <UiInputGroup class="max-w-sm">
-            <UiInputGroupAddon>
-                <ISearch />
-            </UiInputGroupAddon>
-            <UiInputGroupInput v-model="search" placeholder="Search folders..." />
-        </UiInputGroup>
+        <div class="flex flex-wrap items-center gap-2">
+            <UiInputGroup class="max-w-sm flex-1">
+                <UiInputGroupAddon>
+                    <UiSpinner v-if="!!search && isLoading" />
+                    <ISearch v-else />
+                </UiInputGroupAddon>
+                <UiInputGroupInput v-model="search" placeholder="Search folders..." />
+            </UiInputGroup>
+
+            <UiDropdownMenu>
+                <UiDropdownMenuTrigger as-child>
+                    <UiButton variant="outline">
+                        <IArrowDownUp />
+                        {{ sortOptions.find((option) => option.value === sort)?.label }}
+                        <IChevronDown class="opacity-50" />
+                    </UiButton>
+                </UiDropdownMenuTrigger>
+                <UiDropdownMenuContent align="end" class="w-56">
+                    <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
+                    <UiDropdownMenuRadioGroup v-model="sort">
+                        <UiDropdownMenuRadioItem
+                            v-for="option in sortOptions"
+                            :key="option.value"
+                            :value="option.value"
+                        >
+                            {{ option.label }}
+                        </UiDropdownMenuRadioItem>
+                    </UiDropdownMenuRadioGroup>
+                </UiDropdownMenuContent>
+            </UiDropdownMenu>
+        </div>
 
         <div v-if="isLoading" class="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
             <UiCard v-for="i in 6" :key="i" size="sm">
@@ -82,6 +107,15 @@ const route = useRoute();
 const router = useRouter();
 
 const search = ref('');
+const sort = useQueryState('sort', 'createdAt:desc');
+
+const sortOptions = [
+    { label: 'Newest', value: 'createdAt:desc' },
+    { label: 'Oldest', value: 'createdAt:asc' },
+    { label: 'Name A–Z', value: 'name:asc' },
+    { label: 'Name Z–A', value: 'name:desc' },
+    { label: 'Most files', value: 'files:desc' },
+];
 const formOpen = ref(false);
 const editingFolder = ref<FolderData | null>(null);
 
@@ -91,7 +125,10 @@ const {
     isLoading,
     isLoadingMore,
     loadMore,
-} = usePaginatedList<FolderData>('folders', '/api/folders', () => ({ q: search.value.trim() }));
+} = usePaginatedList<FolderData>('folders', '/api/folders', () => ({
+    q: search.value.trim(),
+    sort: sort.value,
+}));
 
 const openForm = (folder: FolderData | null) => {
     editingFolder.value = folder;

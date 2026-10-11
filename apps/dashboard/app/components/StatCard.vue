@@ -1,30 +1,23 @@
 <template>
     <UiCard>
-        <UiCardHeader class="flex justify-between">
-            <UiCardTitle class="text-muted-foreground">{{ title }}</UiCardTitle>
-            <component :is="icon" class="size-6 text-primary" />
+        <UiCardHeader>
+            <UiCardDescription>{{ title }}</UiCardDescription>
+            <UiCardTitle class="text-3xl font-semibold tabular-nums">
+                <UiSkeleton v-if="isLoading" class="h-lh w-24 rounded-full" />
+                <template v-else>{{ data }}</template>
+            </UiCardTitle>
+            <UiCardAction>
+                <UiBadge v-if="!isLoading && growth" variant="outline">
+                    <ITrendingUp v-if="growth! > 0" />
+                    <ITrendingDown v-else />
+                    {{ growth! > 0 ? '+' : '' }}{{ growth }}%
+                </UiBadge>
+                <component :is="icon" v-else class="size-5 text-muted-foreground" />
+            </UiCardAction>
         </UiCardHeader>
-        <UiCardContent class="flex flex-col gap-6 justify-between h-full">
-            <div v-if="!isLoading" class="flex items-end gap-2">
-                <TextBlock variant="h1" custom-tag="span" class="border-none">{{ data }}</TextBlock>
-                <div
-                    v-if="growth !== 0 && !isLoading"
-                    :class="[
-                        'flex items-center gap-0.5',
-                        growth! > 0 ? 'text-green-500' : 'text-red-500',
-                    ]"
-                >
-                    <span>{{ growth }}%</span>
-                    <IArrowUpRight v-if="growth! > 0" />
-                    <IArrowDownRight v-if="growth! < 0" />
-                </div>
-            </div>
-            <UiSkeleton v-else class="h-14 w-1/2 rounded-full" />
-
-            <UiCardDescription class="mt-auto">
-                {{ legend }}
-            </UiCardDescription>
-        </UiCardContent>
+        <UiCardFooter>
+            <TextBlock variant="muted">{{ legend }}</TextBlock>
+        </UiCardFooter>
     </UiCard>
 </template>
 

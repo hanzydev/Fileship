@@ -22,26 +22,10 @@
                     </UiTabsList>
 
                     <UiTabsContent value="files" class="flex flex-col gap-3">
-                        <label
-                            ref="dropArea"
-                            :class="
-                                cn(
-                                    'flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-8 text-center transition-colors',
-                                    isOverDropArea
-                                        ? 'border-primary bg-primary/5'
-                                        : 'hover:bg-muted/50',
-                                )
-                            "
-                        >
-                            <IUpload class="size-6 text-muted-foreground" />
-                            <TextBlock variant="small">
-                                Drop files here or click to browse
-                            </TextBlock>
-                            <TextBlock variant="muted">
-                                You can also paste images anywhere.
-                            </TextBlock>
-                            <input type="file" multiple class="sr-only" @change="handleInput" />
-                        </label>
+                        <DropZone
+                            description="You can also paste images anywhere."
+                            @files="addFiles"
+                        />
 
                         <div v-if="files.length" class="flex flex-col gap-2">
                             <UiCard
@@ -210,6 +194,9 @@
                     <IUpload />
                     {{ uploadLabel }}
                 </UiButton>
+                <UiSheetClose as-child>
+                    <UiButton variant="outline">Cancel</UiButton>
+                </UiSheetClose>
             </UiSheetFooter>
         </UiSheetContent>
     </UiSheet>
@@ -221,8 +208,6 @@ import { filesize } from 'filesize';
 const open = useUploadSheet();
 const { currentFolder, upload, copyUrls } = useUploader();
 const { $toast } = useNuxtApp();
-
-const dropArea = useTemplateRef('dropArea');
 
 const tab = ref<'files' | 'text'>('files');
 const optionsOpen = ref(false);
@@ -266,18 +251,6 @@ const addFiles = (newFiles: File[] | null) => {
         ...newFiles.filter((f) => !files.value.some((file) => file.name === f.name)),
     ];
 };
-
-const handleInput = (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    addFiles(Array.from(input.files!));
-    input.value = '';
-};
-
-const { isOverDropZone: isOverDropArea } = useDropZone(dropArea, {
-    onDrop: addFiles,
-    checkValidity: (items) => [...items].some((item) => item.kind === 'file'),
-    multiple: true,
-});
 
 const handleUpload = async () => {
     const isText = tab.value === 'text';

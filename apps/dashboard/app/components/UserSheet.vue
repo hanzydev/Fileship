@@ -114,6 +114,9 @@
                         <UiSpinner v-if="isSaving" />
                         {{ user ? 'Save changes' : 'Create user' }}
                     </UiButton>
+                    <UiSheetClose as-child>
+                        <UiButton type="button" variant="outline">Cancel</UiButton>
+                    </UiSheetClose>
                 </UiSheetFooter>
             </form>
         </UiSheetContent>
