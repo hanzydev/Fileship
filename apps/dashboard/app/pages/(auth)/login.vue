@@ -44,9 +44,10 @@
                                     />
                                 </UiField>
                                 <NuxtTurnstile
-                                    v-if="runtimeConfig.public.turnstile.siteKey"
+                                    v-if="publicSettings.turnstileSiteKey"
                                     ref="turnstileRef"
                                     v-model="auth.turnstile"
+                                    :site-key="publicSettings.turnstileSiteKey"
                                     :options="{ theme: colorMode.value as never, size: 'flexible' }"
                                 />
                                 <UiField>
@@ -68,7 +69,7 @@
                                         </UiButton>
                                     </ClientOnly>
                                     <UiFieldDescription
-                                        v-if="runtimeConfig.public.registrationEnabled"
+                                        v-if="publicSettings.registrationEnabled"
                                         class="text-center"
                                     >
                                         Don't have an account?
@@ -99,9 +100,10 @@
                                     />
                                 </UiField>
                                 <NuxtTurnstile
-                                    v-if="runtimeConfig.public.turnstile.siteKey"
+                                    v-if="publicSettings.turnstileSiteKey"
                                     ref="turnstileRef"
                                     v-model="auth.turnstile"
+                                    :site-key="publicSettings.turnstileSiteKey"
                                     :options="{ theme: colorMode.value as never, size: 'flexible' }"
                                 />
                                 <UiField>
@@ -142,7 +144,7 @@ const turnstileRef = ref();
 const loggingIn = ref(false);
 const passkeyLoggingIn = ref(false);
 
-const runtimeConfig = useRuntimeConfig();
+const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
 
 const auth = reactive({

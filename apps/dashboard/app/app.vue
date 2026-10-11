@@ -3,7 +3,7 @@
     <UiSonner position="top-center" :theme="colorMode.value as never" />
 
     <Head>
-        <Title>{{ runtimeConfig.public.site.name }}</Title>
+        <Title>{{ publicSettings.siteName }}</Title>
     </Head>
     <NuxtLayout>
         <NuxtPage />
@@ -18,7 +18,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
-const runtimeConfig = useRuntimeConfig();
+const publicSettings = usePublicSettings();
 const currentUser = useAuthUser();
 const currentTheme = useTheme();
 const colorMode = useColorMode();
@@ -39,9 +39,9 @@ useHead({
     },
     titleTemplate: (title) =>
         title
-            ? title === runtimeConfig.public.site.name || title.match(/\.|:/)
+            ? title === publicSettings.value.siteName || title.match(/\.|:/)
                 ? title
-                : `${title} · ${runtimeConfig.public.site.name}`
-            : runtimeConfig.public.site.name,
+                : `${title} · ${publicSettings.value.siteName}`
+            : publicSettings.value.siteName,
 });
 </script>

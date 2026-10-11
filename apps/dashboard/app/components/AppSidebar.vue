@@ -181,6 +181,7 @@ import {
     IHome,
     IMonitor,
     IMoon,
+    IServer,
     ISun,
     IUsers,
 } from '#components';
@@ -248,6 +249,9 @@ const items = computed(() => {
                 { title: 'Statistics', url: '/dashboard/stats', icon: IChartNoAxesColumn },
                 { title: 'Users', url: '/dashboard/users', icon: IUsers },
                 { title: 'Logs', url: '/dashboard/logs', icon: IClipboardList },
+                ...(authUser.value!.superAdmin
+                    ? [{ title: 'Instance', url: '/dashboard/instance', icon: IServer }]
+                    : []),
             ],
         });
     }

@@ -316,7 +316,7 @@ const { folderId, emptyTitle = 'No files yet' } = defineProps<{
 const summary = defineModel<FileSummary>('summary');
 
 const currentUser = useAuthUser();
-const runtimeConfig = useRuntimeConfig();
+const publicSettings = usePublicSettings();
 const uploadSheetOpen = useUploadSheet();
 
 const query = useQueryState('q', '');
@@ -337,7 +337,7 @@ const sheetTab = ref('details');
 const moveTargets = ref<Pick<FileData, 'id' | 'folderId'>[]>([]);
 
 const canUseAi = computed(
-    () => runtimeConfig.public.aiEnabled && currentUser.value!.aiSettings.enabled,
+    () => publicSettings.value.aiEnabled && currentUser.value!.aiSettings.enabled,
 );
 
 const sortOptions = computed(() => [

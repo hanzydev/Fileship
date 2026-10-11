@@ -241,7 +241,7 @@ const fileId = defineModel<string | null>('fileId', { required: true });
 const tab = defineModel<string>('tab', { default: 'details' });
 
 const currentUser = useAuthUser();
-const runtimeConfig = useRuntimeConfig();
+const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
 const { openFile, copyLink, download, move, remove } = useFileActions();
 
@@ -304,11 +304,11 @@ const isSensitive = computed(
         isImage.value &&
         file.value!.piiDetected &&
         currentUser.value!.aiSettings.suppressPii &&
-        runtimeConfig.public.aiEnabled,
+        publicSettings.value.aiEnabled,
 );
 
 const hasInsights = computed(
-    () => runtimeConfig.public.aiEnabled && (!!file.value!.caption || file.value!.piiDetected),
+    () => publicSettings.value.aiEnabled && (!!file.value!.caption || file.value!.piiDetected),
 );
 
 const details = computed(() => {

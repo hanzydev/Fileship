@@ -52,12 +52,9 @@ export const uploadFile = async (
     },
     uploadEndpoint = '/api/files',
 ) => {
-    let {
-        public: { fileChunkSize },
-    } = useRuntimeConfig();
     const uploadingFiles = useUploadingFiles();
 
-    fileChunkSize = (+fileChunkSize || 25) * 1024 * 1024;
+    const fileChunkSize = usePublicSettings().value.fileChunkSize * 1024 * 1024;
 
     const chunks = Math.ceil(file.size / fileChunkSize);
     const uploadingFile = uploadingFiles.value.find((f) => toRaw(f) === toRaw(file));

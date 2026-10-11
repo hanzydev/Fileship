@@ -63,7 +63,7 @@ import {
 } from '#components';
 
 const route = useRoute();
-const runtimeConfig = useRuntimeConfig();
+const publicSettings = usePublicSettings();
 
 const sections = computed(() => [
     { label: 'Profile', path: '/dashboard/settings/profile', icon: IUser },
@@ -73,7 +73,7 @@ const sections = computed(() => [
     { label: 'Sharing', path: '/dashboard/settings/sharing', icon: IShare2 },
     { label: 'Inbox', path: '/dashboard/settings/inbox', icon: IInbox },
     { label: 'Integrations', path: '/dashboard/settings/integrations', icon: IPlug },
-    ...(runtimeConfig.public.aiEnabled
+    ...(publicSettings.value.aiEnabled
         ? [{ label: 'AI', path: '/dashboard/settings/ai', icon: IBrain }]
         : []),
     { label: 'Appearance', path: '/dashboard/settings/appearance', icon: IPalette },

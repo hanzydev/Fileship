@@ -110,7 +110,7 @@ import dayjs from 'dayjs';
 
 import { IArchive } from '#components';
 
-const runtimeConfig = useRuntimeConfig();
+const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
 
 const backupInput = useTemplateRef('backupInput');
@@ -148,7 +148,7 @@ const handleUpload = async (event: Event) => {
         return;
     }
 
-    const chunkSize = (+runtimeConfig.public.fileChunkSize || 25) * 1024 * 1024;
+    const chunkSize = publicSettings.value.fileChunkSize * 1024 * 1024;
     const chunks = Math.ceil(file.size / chunkSize);
 
     uploadProgress.value = 0;

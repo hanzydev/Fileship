@@ -1,12 +1,15 @@
 export const getPublicUrl = (route: `/${string}`) => {
-    const runtimeConfig = useRuntimeConfig();
     const domains = useDomains();
     const reqUrl = useRequestURL({ xForwardedHost: true, xForwardedProto: true });
 
-    const returnHttps = runtimeConfig.public.returnHttps;
+    const { returnHttps } = usePublicSettings().value;
 
     const protocol =
-        returnHttps === 'auto' ? reqUrl.protocol.slice(0, -1) : returnHttps ? 'https' : 'http';
+        returnHttps === 'auto'
+            ? reqUrl.protocol.slice(0, -1)
+            : returnHttps === 'true'
+              ? 'https'
+              : 'http';
 
     const domain = domains.value.length
         ? domains.value[Math.floor(Math.random() * domains.value.length)]

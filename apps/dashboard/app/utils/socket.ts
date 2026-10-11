@@ -16,6 +16,7 @@ export const initSocket = () => {
     const embed = useEmbed();
     const domains = useDomains();
     const passkeys = usePasskeys();
+    const publicSettings = usePublicSettings();
     const currentUser = useAuthUser();
     const currentTheme = useTheme();
 
@@ -154,6 +155,10 @@ export const initSocket = () => {
         });
 
         // Passkeys
+        socket.on('settings:update', (data) => {
+            publicSettings.value = data;
+        });
+
         socket.on('passkey:create', (data) => {
             passkeys.value = [...passkeys.value, { ...data, createdAt: new Date(data.createdAt) }];
         });

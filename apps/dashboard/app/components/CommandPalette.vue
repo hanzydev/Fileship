@@ -102,6 +102,7 @@ import {
     IFolderPlus,
     IHome,
     IMoon,
+    IServer,
     ISettings,
     ISquarePen,
     ISun,
@@ -162,6 +163,9 @@ const pages = computed(() => [
               { label: 'Statistics', url: '/dashboard/stats', icon: IChartNoAxesColumn },
               { label: 'Users', url: '/dashboard/users', icon: IUsers },
               { label: 'Logs', url: '/dashboard/logs', icon: IClipboardList },
+              ...(authUser.value?.superAdmin
+                  ? [{ label: 'Instance', url: '/dashboard/instance', icon: IServer }]
+                  : []),
           ]
         : []),
     { label: 'Settings', url: '/dashboard/settings/profile', icon: ISettings },

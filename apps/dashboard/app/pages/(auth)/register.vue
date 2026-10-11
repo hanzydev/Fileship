@@ -57,9 +57,10 @@
                                 />
                             </UiField>
                             <NuxtTurnstile
-                                v-if="runtimeConfig.public.turnstile.siteKey"
+                                v-if="publicSettings.turnstileSiteKey"
                                 ref="turnstileRef"
                                 v-model="form.turnstile"
+                                :site-key="publicSettings.turnstileSiteKey"
                                 :options="{ theme: colorMode.value as never, size: 'flexible' }"
                             />
                             <UiField>
@@ -85,14 +86,14 @@ const formErrors = ref();
 const turnstileRef = ref();
 const isRegistering = ref(false);
 
-const runtimeConfig = useRuntimeConfig();
+const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
 
 const currentUser = useAuthUser();
 const currentTheme = useTheme();
 const colorMode = useColorMode();
 
-if (!runtimeConfig.public.registrationEnabled) {
+if (!publicSettings.value.registrationEnabled) {
     await navigateTo('/login', { replace: true });
 }
 

@@ -95,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-const runtimeConfig = useRuntimeConfig();
+const publicSettings = usePublicSettings();
 const requestUrl = useRequestURL();
 const sessionId = useCookie('sessionId');
 
@@ -110,7 +110,7 @@ const settings = reactive({
 const handleDownload = () => {
     const config = {
         Version: '16.1.0',
-        Name: `${runtimeConfig.public.site.name} - File Uploader`,
+        Name: `${publicSettings.value.siteName} - File Uploader`,
         DestinationType: 'ImageUploader, TextUploader, FileUploader',
         RequestMethod: 'POST',
         RequestURL: `${requestUrl.origin}/api/files`,

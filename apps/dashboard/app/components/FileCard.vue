@@ -149,7 +149,7 @@ const emit = defineEmits<{
 }>();
 
 const currentUser = useAuthUser();
-const runtimeConfig = useRuntimeConfig();
+const publicSettings = usePublicSettings();
 
 const isImage = computed(() => file.mimeType.startsWith('image/'));
 const isVideo = computed(() => file.mimeType.startsWith('video/'));
@@ -159,7 +159,7 @@ const isSensitive = computed(
         isImage.value &&
         file.piiDetected &&
         currentUser.value!.aiSettings.suppressPii &&
-        runtimeConfig.public.aiEnabled,
+        publicSettings.value.aiEnabled,
 );
 
 const fileIcon = computed(() => getFileIcon(file));
