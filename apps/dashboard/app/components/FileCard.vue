@@ -59,6 +59,7 @@
                             :class="
                                 cn(
                                     'absolute top-2 left-2 transition-opacity',
+                                    chipClass,
                                     !selected &&
                                         !selectionMode &&
                                         'opacity-0 group-hover:opacity-100',
@@ -70,11 +71,21 @@
                         </div>
 
                         <div
-                            class="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
+                            :class="
+                                cn(
+                                    'absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100',
+                                    chipClass,
+                                )
+                            "
                         >
                             <UiDropdownMenu>
                                 <UiDropdownMenuTrigger as-child>
-                                    <UiButton variant="secondary" size="icon-sm" @click.stop>
+                                    <UiButton
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        aria-label="More"
+                                        @click.stop
+                                    >
                                         <IEllipsis />
                                     </UiButton>
                                 </UiDropdownMenuTrigger>
@@ -125,6 +136,9 @@ const { file } = defineProps<{
     selected?: boolean;
     selectionMode?: boolean;
 }>();
+
+const chipClass =
+    'flex size-8 items-center justify-center rounded-full bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_20%)]/90 backdrop-blur-md';
 
 const emit = defineEmits<{
     click: [event: MouseEvent | KeyboardEvent];
