@@ -27,58 +27,47 @@
         </div>
 
         <div v-if="canUpload" class="grid flex-1 gap-4 xl:grid-cols-3">
-            <div class="flex min-w-0 flex-col gap-4 xl:col-span-2">
-                <UiCard class="flex-1">
-                    <UiCardHeader>
-                        <UiCardTitle>Views</UiCardTitle>
-                        <UiCardDescription>
-                            Views of your files over the last 30 days
-                        </UiCardDescription>
-                    </UiCardHeader>
-                    <UiCardContent class="relative min-h-32 flex-1">
-                        <UiSkeleton
-                            v-if="!stats?.views.daily"
-                            class="absolute inset-x-6 inset-y-0"
-                        />
-                        <ViewsChart
-                            v-else
-                            :data="dailyViews"
-                            :num-ticks="6"
-                            class="absolute inset-x-6 inset-y-0 w-auto"
-                        />
-                    </UiCardContent>
-                </UiCard>
-
-                <UiCard>
-                    <UiCardHeader>
-                        <UiCardTitle>Recent files</UiCardTitle>
-                        <UiCardDescription>Your latest uploads</UiCardDescription>
-                        <UiCardAction>
-                            <UiButton variant="ghost" size="sm" as-child>
-                                <NuxtLink to="/dashboard/files">
-                                    View all
-                                    <IArrowRight />
-                                </NuxtLink>
-                            </UiButton>
-                        </UiCardAction>
-                    </UiCardHeader>
-                    <UiCardContent>
+            <UiCard class="min-w-0 xl:col-span-2">
+                <UiCardHeader>
+                    <UiCardTitle>Recent files</UiCardTitle>
+                    <UiCardDescription>Your latest uploads</UiCardDescription>
+                    <UiCardAction>
+                        <UiButton variant="ghost" size="sm" as-child>
+                            <NuxtLink to="/dashboard/files">
+                                View all
+                                <IArrowRight />
+                            </NuxtLink>
+                        </UiButton>
+                    </UiCardAction>
+                </UiCardHeader>
+                <UiCardContent class="@container">
+                    <EmptyState
+                        v-if="!isFilesLoading && !recentFiles.length"
+                        :icon="IFiles"
+                        title="No files yet"
+                        description="Drop files anywhere, paste an image or use the upload button."
+                    >
+                        <UiButton @click="uploadSheetOpen = true">
+                            <IUpload />
+                            Upload files
+                        </UiButton>
+                    </EmptyState>
+                    <div
+                        v-else
+                        class="grid grid-cols-2 gap-3 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5 @6xl:grid-cols-6"
+                    >
+                        <template v-if="isFilesLoading">
+                            <div v-for="i in 12" :key="i" :class="recentItemClass(i - 1)">
+                                <FileCardSkeleton />
+                            </div>
+                        </template>
                         <div
-                            v-if="isFilesLoading"
-                            class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
+                            v-for="(file, index) in recentFiles"
+                            v-else
+                            :key="file.id"
+                            :class="recentItemClass(index)"
                         >
-                            <FileCardSkeleton v-for="i in 6" :key="i" />
-                        </div>
-                        <EmptyState
-                            v-else-if="!recentFiles.length"
-                            :icon="IFiles"
-                            title="No files yet"
-                            description="Drop files anywhere, paste an image or use the upload button."
-                        />
-                        <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                             <FileCard
-                                v-for="file in recentFiles"
-                                :key="file.id"
                                 :file="file"
                                 :selected="selected.includes(file.id)"
                                 :selection-mode="!!selected.length"
@@ -89,18 +78,28 @@
                                 @move="moveTargets = [file]"
                             />
                         </div>
-                    </UiCardContent>
-                </UiCard>
-            </div>
+                    </div>
+                </UiCardContent>
+            </UiCard>
 
-            <StatsDonut
-                title="Storage"
-                description="Storage used by file type"
-                value-label="Size"
-                :is-loading="!stats?.storageByType"
-                :items="storageByType"
-                fill
-            />
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+                <StatsDonut
+                    title="File types"
+                    description="Files by type"
+                    value-label="Files"
+                    :is-loading="!stats"
+                    :items="filesByType"
+                    compact
+                />
+                <StatsDonut
+                    title="Storage"
+                    description="Storage used by file type"
+                    value-label="Size"
+                    :is-loading="!stats"
+                    :items="storageByType"
+                    compact
+                />
+            </div>
         </div>
 
         <template v-if="canUpload">
@@ -119,6 +118,7 @@ import { IBookmark, IBox, IEye, IFiles, IFolder, IUsers } from '#components';
 
 const stats = useStats();
 const currentUser = useAuthUser();
+const uploadSheetOpen = useUploadSheet();
 
 const greeting = ref('Welcome back');
 const today = ref('');
@@ -134,18 +134,27 @@ const { items: recentFiles, isLoading: isFilesLoading } = usePaginatedList<FileD
     'files',
     '/api/files',
     {},
-    { limit: 6, enabled: canUpload },
+    { limit: 12, enabled: canUpload },
 );
 
-const dailyViews = computed(() =>
-    stats.value!.views.daily!.labels.map((label, index) => ({
-        label,
-        views: stats.value!.views.daily!.data[index]!,
+const recentItemClass = (index: number) =>
+    cn(
+        index >= 4 && 'hidden',
+        index >= 4 && index < 6 && '@lg:block',
+        index >= 6 && index < 8 && '@2xl:block',
+        index >= 8 && index < 10 && '@4xl:block',
+        index >= 10 && '@6xl:block',
+    );
+
+const filesByType = computed(() =>
+    (stats.value?.byType ?? []).map((category) => ({
+        label: FILE_CATEGORIES[category.type as FileCategory].label,
+        value: category.count,
     })),
 );
 
 const storageByType = computed(() =>
-    (stats.value?.storageByType ?? []).map((category) => ({
+    (stats.value?.byType ?? []).map((category) => ({
         label: FILE_CATEGORIES[category.type as FileCategory].label,
         value: +category.size,
         formatted: category.formatted,
@@ -186,9 +195,7 @@ const statCards = computed(() => [
               title: canNote.value ? 'Notes' : 'Folders',
               legend: canNote.value ? 'saved notes' : 'created folders',
               icon: canNote.value ? IBookmark : IFolder,
-              data: stats.value
-                  ? currentUser.value!.stats[canNote.value ? 'notes' : 'folders']
-                  : undefined,
+              data: stats.value?.[canNote.value ? 'notes' : 'folders'].count,
               growth: stats.value ? 0 : undefined,
           },
 ]);

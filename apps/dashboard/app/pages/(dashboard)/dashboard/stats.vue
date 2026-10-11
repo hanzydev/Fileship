@@ -19,14 +19,39 @@
                 <UiCardDescription>File views over the last 12 months</UiCardDescription>
             </UiCardHeader>
             <UiCardContent>
-                <UiSkeleton v-if="!stats" class="h-64 w-full rounded-2xl" />
-                <ViewsChart
-                    v-else
-                    :data="viewsData"
-                    :num-ticks="12"
-                    :tick-format="(label) => label.slice(0, 3)"
-                    class="h-64"
-                />
+                <UiSkeleton v-if="!stats" class="h-64 w-full" />
+                <UiChartContainer v-else :config="viewsConfig" class="aspect-auto h-64" cursor>
+                    <VisXYContainer
+                        :data="viewsData"
+                        :margin="{ left: -12 }"
+                        :y-domain="[0, undefined]"
+                    >
+                        <VisArea
+                            :x="(d: ViewsDatum) => d.index"
+                            :y="(d: ViewsDatum) => d.views"
+                            color="var(--chart-2)"
+                            :opacity="0.3"
+                        />
+                        <VisLine
+                            :x="(d: ViewsDatum) => d.index"
+                            :y="(d: ViewsDatum) => d.views"
+                            color="var(--chart-2)"
+                            :line-width="2"
+                        />
+                        <VisAxis
+                            type="x"
+                            :x="(d: ViewsDatum) => d.index"
+                            :tick-line="false"
+                            :domain-line="false"
+                            :grid-line="false"
+                            :num-ticks="12"
+                            :tick-format="(i: number) => viewsData[i]?.month.slice(0, 3)"
+                        />
+                        <VisAxis type="y" :num-ticks="4" :tick-line="false" :domain-line="false" />
+                        <VisTooltip />
+                        <VisCrosshair :template="viewsTooltip" color="var(--chart-2)" />
+                    </VisXYContainer>
+                </UiChartContainer>
             </UiCardContent>
         </UiCard>
 
@@ -57,15 +82,27 @@
 </template>
 
 <script setup lang="ts">
-import { IBox, IEye, IFiles, IUsers } from '#components';
+import { VisArea, VisAxis, VisCrosshair, VisLine, VisTooltip, VisXYContainer } from '@unovis/vue';
+
+import { IBox, IEye, IFiles, IUsers, UiChartTooltipContent } from '#components';
+import { componentToString } from '~/components/ui/chart';
+
+type ViewsDatum = { index: number; month: string; views: number };
 
 const stats = ref<any>(null);
 
+const viewsConfig = { views: { label: 'Views', color: 'var(--chart-2)' } };
+
+const viewsTooltip = componentToString(viewsConfig, UiChartTooltipContent, {
+    labelKey: 'month',
+});
+
 const findUser = (userId: string) => stats.value.users.all.find((u: any) => u.id === userId);
 
-const viewsData = computed(() =>
-    stats.value.views.byMonth.labels.map((label: string, index: number) => ({
-        label,
+const viewsData = computed<ViewsDatum[]>(() =>
+    stats.value.views.byMonth.labels.map((month: string, index: number) => ({
+        index,
+        month,
         views: stats.value.views.byMonth.data[index],
     })),
 );

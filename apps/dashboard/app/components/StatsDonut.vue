@@ -4,48 +4,65 @@
             <UiCardTitle>{{ title }}</UiCardTitle>
             <UiCardDescription>{{ description }}</UiCardDescription>
         </UiCardHeader>
-        <UiCardContent :class="cn('flex flex-col gap-6', fill && 'flex-1')">
-            <EmptyState v-if="!isLoading && !items.length" :icon="IChartPie" title="No data yet" />
-            <div v-else :class="cn('relative', fill ? 'min-h-32 flex-1' : 'h-52')">
-                <UiSkeleton
-                    v-if="isLoading"
-                    class="absolute inset-y-0 left-1/2 aspect-square -translate-x-1/2 rounded-full"
-                />
-                <UiChartContainer
-                    v-else
-                    :config="config"
-                    class="absolute inset-y-0 left-1/2 aspect-square w-auto -translate-x-1/2"
-                >
-                    <VisSingleContainer :data="data">
-                        <VisDonut
-                            :value="(d: Datum) => d.value"
-                            :color="(d: Datum) => d.fill"
-                            :arc-width="28"
-                        />
-                        <VisTooltip :triggers="{ [Donut.selectors.segment]: tooltip }" />
-                    </VisSingleContainer>
-                </UiChartContainer>
-            </div>
-            <div v-if="!isLoading && items.length" class="flex flex-col gap-2">
-                <div
-                    v-for="item in data.slice(0, 6)"
-                    :key="item.label"
-                    class="flex items-center gap-2 text-sm"
-                >
-                    <span
-                        class="size-2.5 shrink-0 rounded-full"
-                        :style="{ background: item.fill }"
+        <UiCardContent
+            :class="cn('flex', compact ? 'flex-1 items-center gap-6' : 'flex-col gap-6')"
+        >
+            <EmptyState
+                v-if="!isLoading && !items.length"
+                :icon="IChartPie"
+                title="No data yet"
+                class="py-0"
+            />
+            <template v-else>
+                <div :class="cn('relative shrink-0', compact ? 'size-36' : 'h-52')">
+                    <UiSkeleton
+                        v-if="isLoading"
+                        class="absolute inset-y-0 left-1/2 aspect-square -translate-x-1/2 rounded-full"
                     />
-                    <UiAvatar v-if="item.avatar !== undefined" class="size-5">
-                        <UiAvatarImage v-if="item.avatar" :src="item.avatar" />
-                        <UiAvatarFallback>{{ item.label[0]!.toUpperCase() }}</UiAvatarFallback>
-                    </UiAvatar>
-                    <span class="flex-1 truncate">{{ item.label }}</span>
-                    <span class="text-muted-foreground">
-                        {{ item.formatted ?? item.value }}
-                    </span>
+                    <UiChartContainer
+                        v-else
+                        :config="config"
+                        class="absolute inset-y-0 left-1/2 aspect-square w-auto -translate-x-1/2"
+                    >
+                        <VisSingleContainer :data="data">
+                            <VisDonut
+                                :value="(d: Datum) => d.value"
+                                :color="(d: Datum) => d.fill"
+                                :arc-width="compact ? 20 : 28"
+                            />
+                            <VisTooltip :triggers="{ [Donut.selectors.segment]: tooltip }" />
+                        </VisSingleContainer>
+                    </UiChartContainer>
                 </div>
-            </div>
+                <div class="flex min-w-0 flex-1 flex-col gap-2">
+                    <template v-if="isLoading">
+                        <TextBlock v-for="i in 4" :key="i" variant="muted" class="w-full">
+                            <UiSkeleton class="h-lh w-full rounded-full" />
+                        </TextBlock>
+                    </template>
+                    <div
+                        v-for="item in data.slice(0, 6)"
+                        v-else
+                        :key="item.label"
+                        class="flex items-center gap-2 text-sm"
+                    >
+                        <span
+                            class="size-2.5 shrink-0 rounded-full"
+                            :style="{ background: item.fill }"
+                        />
+                        <UiAvatar v-if="item.avatar !== undefined" class="size-5">
+                            <UiAvatarImage v-if="item.avatar" :src="item.avatar" />
+                            <UiAvatarFallback>
+                                {{ item.label.slice(0, 2).toUpperCase() }}
+                            </UiAvatarFallback>
+                        </UiAvatar>
+                        <span class="flex-1 truncate">{{ item.label }}</span>
+                        <span class="text-muted-foreground">
+                            {{ item.formatted ?? item.value }}
+                        </span>
+                    </div>
+                </div>
+            </template>
         </UiCardContent>
     </UiCard>
 </template>
@@ -72,7 +89,7 @@ const { items, valueLabel } = defineProps<{
     items: DonutItem[];
     valueLabel: string;
     isLoading?: boolean;
-    fill?: boolean;
+    compact?: boolean;
 }>();
 
 const data = computed<Datum[]>(() =>
