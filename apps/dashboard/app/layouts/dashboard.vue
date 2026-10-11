@@ -125,33 +125,30 @@
             <UploadSheet v-if="canUpload" ref="uploadSheet" />
             <UploadQueue />
 
-            <Transition
-                enter-active-class="animate-in fade-in duration-200"
-                leave-active-class="animate-out fade-out duration-150"
+            <div
+                v-if="isOverDropZone && canUpload && !uploadSheetOpen"
+                class="pointer-events-none fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/30 p-4 duration-100 fade-in-0 supports-backdrop-filter:backdrop-blur-sm"
             >
-                <div
-                    v-if="isOverDropZone && canUpload && !uploadSheetOpen"
-                    class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background/60 p-6 backdrop-blur-md"
-                >
-                    <UiEmpty
-                        class="w-full max-w-md animate-in border border-dashed border-primary/60 bg-card shadow-2xl duration-300 zoom-in-95"
-                    >
-                        <UiEmptyHeader>
-                            <UiEmptyMedia variant="icon">
-                                <IUpload />
-                            </UiEmptyMedia>
-                            <UiEmptyTitle>Drop files to upload</UiEmptyTitle>
-                            <UiEmptyDescription>
-                                {{
-                                    currentFolderName
-                                        ? `They will be added to ${currentFolderName}.`
-                                        : 'Links are copied to your clipboard when done.'
-                                }}
-                            </UiEmptyDescription>
-                        </UiEmptyHeader>
-                    </UiEmpty>
-                </div>
-            </Transition>
+                <UiCard class="w-full max-w-sm animate-in duration-100 fade-in-0 zoom-in-95">
+                    <UiCardContent>
+                        <UiEmpty class="border border-dashed">
+                            <UiEmptyHeader>
+                                <UiEmptyMedia variant="icon">
+                                    <IUpload />
+                                </UiEmptyMedia>
+                                <UiEmptyTitle>Drop files to upload</UiEmptyTitle>
+                                <UiEmptyDescription>
+                                    {{
+                                        currentFolderName
+                                            ? `They will be added to ${currentFolderName}.`
+                                            : 'Links are copied to your clipboard when done.'
+                                    }}
+                                </UiEmptyDescription>
+                            </UiEmptyHeader>
+                        </UiEmpty>
+                    </UiCardContent>
+                </UiCard>
+            </div>
         </div>
     </main>
 </template>

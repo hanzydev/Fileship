@@ -1,23 +1,26 @@
 <template>
-    <label ref="root" :class="cn('block', disabled && 'pointer-events-none opacity-50')">
-        <UiEmpty
-            :class="
-                cn(
-                    'border border-dashed transition-colors',
-                    isOver ? 'border-primary bg-primary/5' : 'hover:bg-muted/50',
-                )
-            "
-        >
-            <UiEmptyHeader>
-                <UiEmptyMedia variant="icon">
-                    <IUpload />
-                </UiEmptyMedia>
-                <UiEmptyTitle>Drop files here or click to browse</UiEmptyTitle>
-                <UiEmptyDescription v-if="description">{{ description }}</UiEmptyDescription>
-            </UiEmptyHeader>
-        </UiEmpty>
-        <input type="file" multiple class="sr-only" :disabled="disabled" @change="handleInput" />
-    </label>
+    <UiEmpty ref="root" :class="cn('border border-dashed', isOver && !disabled && 'bg-muted/50')">
+        <UiEmptyHeader>
+            <UiEmptyMedia variant="icon">
+                <IUpload />
+            </UiEmptyMedia>
+            <UiEmptyTitle>Drag and drop files</UiEmptyTitle>
+            <UiEmptyDescription v-if="description">{{ description }}</UiEmptyDescription>
+        </UiEmptyHeader>
+        <UiEmptyContent>
+            <UiButton variant="outline" size="sm" :disabled @click="input?.click()">
+                Browse files
+            </UiButton>
+        </UiEmptyContent>
+        <input
+            ref="input"
+            type="file"
+            multiple
+            class="hidden"
+            :disabled="disabled"
+            @change="handleInput"
+        />
+    </UiEmpty>
 </template>
 
 <script setup lang="ts">
@@ -30,17 +33,21 @@ const emit = defineEmits<{
     files: [files: File[]];
 }>();
 
-const root = useTemplateRef('root');
+const root = useTemplateRef<any>('root');
+const input = useTemplateRef('input');
 
-const { isOverDropZone: isOver } = useDropZone(root, {
-    onDrop: (files) => files?.length && emit('files', files),
-    checkValidity: (items) => [...items].some((item) => item.kind === 'file'),
-    multiple: true,
-});
+const { isOverDropZone: isOver } = useDropZone(
+    computed(() => root.value?.$el),
+    {
+        onDrop: (files) => !disabled && files?.length && emit('files', files),
+        checkValidity: (items) => [...items].some((item) => item.kind === 'file'),
+        multiple: true,
+    },
+);
 
 const handleInput = (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    if (input.files?.length) emit('files', [...input.files]);
-    input.value = '';
+    const target = event.target as HTMLInputElement;
+    if (target.files?.length) emit('files', [...target.files]);
+    target.value = '';
 };
 </script>
