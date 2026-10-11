@@ -1,4 +1,6 @@
 export default defineNitroPlugin(async () => {
+    await getSettings();
+
     await runTask('db:createDefaultUser');
     await runTask('db:resetBackupRestoreState');
 

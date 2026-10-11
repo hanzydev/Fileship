@@ -44,7 +44,7 @@ export const searchFileIds = async (
         return searched.hits.filter((h) => h.score > 3).map((h) => h.id);
     };
 
-    if (!AI_ENABLED || mode === 'fulltext') return runFulltext();
+    if (mode === 'fulltext' || !(await isAiEnabled())) return runFulltext();
 
     const runClipVector = async () => {
         const searched = await search(fileSearchDb, {

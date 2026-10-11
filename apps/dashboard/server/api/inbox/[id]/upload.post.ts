@@ -119,7 +119,7 @@ export default defineEventHandler(async (event) => {
     await fsp.mkdir(join(dataDirectory, 'temp', findInboxById.user.id), { recursive: true });
 
     const buffer = new Uint8Array(await file.arrayBuffer());
-    const removeExifData = !!useRuntimeConfig().removeExifData;
+    const { removeExifData } = await getSettings();
     const isLastChunk = body.data.currentChunk === body.data.totalChunks;
 
     const usableSpace = (findInboxById.user.limits as any).usableSpace as number;

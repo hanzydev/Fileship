@@ -1,12 +1,5 @@
 import { AIJobStatus, type AIJobType } from '#shared/prisma/enums';
 
-const runtimeConfig = useRuntimeConfig();
-
-const AI_JOB_LEASE_MS = Math.max(60_000, +runtimeConfig.ai.jobLeaseMs || 15 * 60_000);
-const AI_JOB_DEQUEUE_RETRIES = Math.max(1, +runtimeConfig.ai.jobDequeueRetries || 5);
-
-export const AI_ENABLED = !!runtimeConfig.public.aiEnabled;
-
 export interface EnqueueAIJobOptions {
     userId: string;
     fileId?: string | null;
@@ -18,7 +11,7 @@ export interface DequeueAIJobOptions {
 }
 
 export const enqueueAIJob = async (options: EnqueueAIJobOptions) => {
-    if (!AI_ENABLED) return;
+    if (!(await isAiEnabled())) return;
 
     if (options.fileId) {
         const existing = await prisma.aIJob.findFirst({
@@ -45,9 +38,12 @@ export const enqueueAIJob = async (options: EnqueueAIJobOptions) => {
 };
 
 export const dequeueAIJob = async ({ workerId }: DequeueAIJobOptions) => {
-    if (!AI_ENABLED) return;
+    const settings = await getSettings();
+    if (!settings.aiEnabled) return;
 
-    for (let i = 0; i < AI_JOB_DEQUEUE_RETRIES; i++) {
+    const AI_JOB_LEASE_MS = settings.aiJobLeaseMs;
+
+    for (let i = 0; i < settings.aiJobDequeueRetries; i++) {
         const claimed = await prisma.$transaction(async (tx) => {
             const now = new Date();
             const leaseCutoff = new Date(now.getTime() - AI_JOB_LEASE_MS);
@@ -111,8 +107,6 @@ export const dequeueAIJob = async ({ workerId }: DequeueAIJobOptions) => {
 };
 
 export const completeAIJob = async (jobId: string) => {
-    if (!AI_ENABLED) return;
-
     return prisma.aIJob.update({
         where: { id: jobId },
         data: { status: AIJobStatus.Completed, lockedAt: null, lockedBy: null, error: null },
@@ -120,8 +114,6 @@ export const completeAIJob = async (jobId: string) => {
 };
 
 export const failAIJob = async (jobId: string, error: string) => {
-    if (!AI_ENABLED) return;
-
     return prisma.aIJob.update({
         where: { id: jobId },
         data: { status: AIJobStatus.Failed, lockedAt: null, lockedBy: null, error },

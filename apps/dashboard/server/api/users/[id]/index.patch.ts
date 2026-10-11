@@ -121,7 +121,7 @@ export default defineEventHandler(async (event) => {
     if (body.data.avatar) {
         const buffer = Buffer.from(body.data.avatar, 'base64');
 
-        const avatarMaxSize = +useRuntimeConfig().avatarMaxSize || 4;
+        const { avatarMaxSize } = await getSettings();
 
         if (buffer.length > avatarMaxSize * 1024 * 1024) {
             throw createError({

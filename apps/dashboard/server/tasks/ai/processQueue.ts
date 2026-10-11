@@ -18,7 +18,7 @@ export default defineTask({
     async run() {
         const workerId = `FILESHIP-AI-RUNNER-${WORKER_ID}`;
 
-        const envConcurrency = +useRuntimeConfig().ai.queueConcurrency;
+        const envConcurrency = (await getSettings()).aiQueueConcurrency;
         const concurrency = Math.max(
             1,
             Math.min(8, envConcurrency > 0 ? Math.floor(envConcurrency) : 1),

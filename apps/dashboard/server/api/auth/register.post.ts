@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-import { UserPermission } from '#shared/prisma/enums';
-
 const validationSchema = z.object({
     username: z
         .string()
@@ -15,15 +13,10 @@ const validationSchema = z.object({
     turnstile: z.string().optional(),
 });
 
-const registrablePermissions: UserPermission[] = [
-    UserPermission.UploadFiles,
-    UserPermission.TakeNotes,
-];
-
 export default defineEventHandler(async (event) => {
-    const runtimeConfig = useRuntimeConfig();
+    const settings = await getSettings();
 
-    if (!runtimeConfig.public.registrationEnabled) {
+    if (!settings.registrationEnabled) {
         throw createError({
             status: 403,
             message: 'Registration is disabled',
@@ -46,14 +39,11 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (runtimeConfig.turnstile.secretKey) {
-        const turnstileResult = await verifyTurnstileToken(body.data.turnstile!, event);
-        if (!turnstileResult.success) {
-            throw createError({
-                status: 400,
-                message: 'Invalid turnstile',
-            });
-        }
+    if (!(await verifyTurnstile(body.data.turnstile))) {
+        throw createError({
+            status: 400,
+            message: 'Invalid turnstile',
+        });
     }
 
     const findUserByUsername = await prisma.user.findUnique({
@@ -72,20 +62,11 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const permissions = String(runtimeConfig.registration.permissions)
-        .split(',')
-        .map((permission) => permission.trim())
-        .filter((permission): permission is UserPermission =>
-            registrablePermissions.includes(permission as UserPermission),
-        );
-
-    const usableSpace = Number(runtimeConfig.registration.usableSpace);
-
     const createdUser = await createUser({
         username: body.data.username,
         password: body.data.password,
-        permissions: [...new Set(permissions)],
-        limits: { usableSpace: Number.isFinite(usableSpace) ? Math.max(usableSpace, -1) : -1 },
+        permissions: settings.registrationPermissions,
+        limits: { usableSpace: settings.registrationUsableSpace },
     });
 
     const findCreatedUser = await prisma.user.findUniqueOrThrow({

@@ -17,7 +17,7 @@ export default defineTask({
         if (!existsSync(projectIdFilePath)) writeFileSync(projectIdFilePath, randomUUID());
 
         const telemetry = new Telemetry({
-            enabled: !!useRuntimeConfig().telemetryEnabled && !import.meta.dev,
+            enabled: (await getSettings()).telemetryEnabled && !import.meta.dev,
             projectId: readFileSync(projectIdFilePath, 'utf-8'),
         });
 

@@ -1,11 +1,12 @@
 import consola from 'consola';
 
 export default defineNitroPlugin(async () => {
-    if (!AI_ENABLED) {
-        consola.warn(
-            'AI is disabled, queue runner will not start. Set NUXT_PUBLIC_AI_ENABLED=true to enable it.',
-        );
-        return;
+    const settings = await getSettings();
+
+    setInferenceThreads(settings.aiInferenceThreads);
+
+    if (!settings.aiEnabled) {
+        consola.warn('AI is disabled, the queue runner is idle until it is enabled.');
     }
 
     const intervalMs = 1_000;
@@ -16,6 +17,8 @@ export default defineNitroPlugin(async () => {
         running = true;
 
         try {
+            if (!(await isAiEnabled())) return;
+
             await runTask('ai:processQueue');
         } catch (error: any) {
             consola.error(`AI queue runner failed: ${error?.message ?? error}`);

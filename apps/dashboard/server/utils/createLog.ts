@@ -11,13 +11,13 @@ type CreateLogData = {
     system?: boolean;
 };
 
-const AllowedActions = ['Login', 'Create User', 'Update User', 'Delete User'];
+const AllowedActions = ['Login', 'Create User', 'Update User', 'Delete User', 'Update Settings'];
 
 export const createLog = async (
     event: H3Event | null,
     { action, message, system }: CreateLogData,
 ) => {
-    const logLevel = +useRuntimeConfig().logLevel;
+    const { logLevel } = await getSettings();
     if (logLevel === 0 || (!AllowedActions.includes(action) && logLevel !== 2)) {
         return;
     }

@@ -10,9 +10,9 @@ export default defineTask({
         description: 'Synchronizes missing AI jobs for files',
     },
     async run() {
-        if (!AI_ENABLED) {
+        if (!(await isAiEnabled())) {
             consola.warn(
-                'AI is disabled, job synchronization for missing AI file jobs will not run. Set NUXT_PUBLIC_AI_ENABLED=true to enable it.',
+                'AI is disabled, job synchronization for missing AI file jobs will not run.',
             );
             return { result: 'skipped' };
         }

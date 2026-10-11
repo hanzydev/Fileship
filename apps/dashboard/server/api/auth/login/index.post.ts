@@ -56,15 +56,11 @@ export default defineEventHandler(async (event) => {
         (!findUserByUsername?.superAdmin || currentUser.superAdmin);
 
     if (!isImpersonating) {
-        const runtimeConfig = useRuntimeConfig();
-        if (runtimeConfig.turnstile.secretKey) {
-            const turnstileResult = await verifyTurnstileToken(body.data.turnstile!, event);
-            if (!turnstileResult.success) {
-                throw createError({
-                    status: 400,
-                    message: 'Invalid turnstile',
-                });
-            }
+        if (!(await verifyTurnstile(body.data.turnstile))) {
+            throw createError({
+                status: 400,
+                message: 'Invalid turnstile',
+            });
         }
 
         const passwordMatch = await verify(findUserByUsername.password, body.data.password);

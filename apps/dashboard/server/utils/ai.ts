@@ -28,18 +28,11 @@ type ODResult = {
 env.allowLocalModels = true;
 env.backends.onnx.logLevel = 'error';
 
-if (env.backends.onnx.wasm) {
-    const configuredThreads = +useRuntimeConfig().ai.inferenceThreads;
-    env.backends.onnx.wasm.numThreads = Math.max(
-        1,
-        Math.min(
-            cpus().length,
-            Number.isFinite(configuredThreads) && configuredThreads > 0
-                ? Math.floor(configuredThreads)
-                : 2,
-        ),
-    );
-}
+export const setInferenceThreads = (threads: number) => {
+    if (!env.backends.onnx.wasm) return;
+
+    env.backends.onnx.wasm.numThreads = Math.max(1, Math.min(cpus().length, Math.floor(threads)));
+};
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 
@@ -332,7 +325,8 @@ class AIService {
 
     public async createVideoEmbedding(options: { filePath: string }): Promise<number[]> {
         const workDir = await mkdtemp(join(tmpdir(), 'fileship-video-'));
-        const configuredMaxFrames = +useRuntimeConfig().ai.videoMaxFrames;
+        const settings = await getSettings();
+        const configuredMaxFrames = settings.aiVideoMaxFrames;
         const maxFrames = Math.max(
             1,
             Math.min(
@@ -342,7 +336,7 @@ class AIService {
                     : 24,
             ),
         );
-        const configuredSampleInterval = +useRuntimeConfig().ai.videoSampleIntervalSeconds;
+        const configuredSampleInterval = settings.aiVideoSampleIntervalSeconds;
         const sampleIntervalSeconds = Math.max(
             1,
             Math.min(
