@@ -1,10 +1,21 @@
 <template>
     <main>
         <div v-if="currentUser">
-            <!-- TODO: backup restoring layout -->
             <!-- TODO: impersonation banner -->
 
-            <UiSidebarProvider storage-key="sidebar">
+            <Centered v-if="currentUser.backupRestoreState">
+                <UiCard class="w-full max-w-sm">
+                    <UiCardHeader class="items-center text-center">
+                        <UiSpinner class="mx-auto size-8" />
+                        <UiCardTitle>Restoring your backup</UiCardTitle>
+                        <UiCardDescription>
+                            {{ restoreStates[currentUser.backupRestoreState] }}
+                        </UiCardDescription>
+                    </UiCardHeader>
+                </UiCard>
+            </Centered>
+
+            <UiSidebarProvider v-else storage-key="sidebar">
                 <AppSidebar />
                 <UiSidebarInset>
                     <header
@@ -81,6 +92,7 @@
 
             <CommandPalette v-model:open="commandPaletteOpen" />
             <ConfirmDialog />
+            <VerifyDialog />
             <UploadSheet v-if="canUpload" ref="uploadSheet" />
             <UploadQueue />
 
@@ -123,6 +135,12 @@ const { quickUpload } = useUploader();
 
 const uploadSheet = useTemplateRef('uploadSheet');
 const commandPaletteOpen = ref(false);
+
+const restoreStates = {
+    Extracting: 'Extracting the archive, this may take a while...',
+    DeletingPreviousData: 'Deleting previous data...',
+    RestoringData: 'Restoring data...',
+};
 
 const breadcrumbLabels = {
     dashboard: 'Home',
