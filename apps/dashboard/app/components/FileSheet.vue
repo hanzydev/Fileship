@@ -163,10 +163,9 @@
                                 </div>
                                 <UiField :data-invalid="!!formErrors?.password">
                                     <UiFieldLabel for="edit-file-password">Password</UiFieldLabel>
-                                    <UiInput
+                                    <PasswordInput
                                         id="edit-file-password"
                                         v-model="editData.password"
-                                        type="password"
                                         placeholder="No password"
                                     />
                                     <UiFieldError

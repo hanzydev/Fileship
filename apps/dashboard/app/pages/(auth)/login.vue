@@ -32,10 +32,9 @@
                                 </UiField>
                                 <UiField>
                                     <UiFieldLabel for="password">Password</UiFieldLabel>
-                                    <UiInput
+                                    <PasswordInput
                                         id="password"
                                         v-model="auth.password"
-                                        type="password"
                                         placeholder="••••••••"
                                         autocomplete="current-password"
                                     />

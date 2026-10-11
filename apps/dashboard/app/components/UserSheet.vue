@@ -29,10 +29,9 @@
                         </UiField>
                         <UiField :data-invalid="!!formErrors?.password">
                             <UiFieldLabel for="user-password">Password</UiFieldLabel>
-                            <UiInput
+                            <PasswordInput
                                 id="user-password"
                                 v-model="form.password"
-                                type="password"
                                 autocomplete="new-password"
                                 :placeholder="user ? 'Leave empty to keep the current one' : ''"
                             />

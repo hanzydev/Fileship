@@ -180,10 +180,9 @@
 
                                 <UiField :class="tab === 'text' && 'sm:col-span-2'">
                                     <UiFieldLabel for="upload-password">Password</UiFieldLabel>
-                                    <UiInput
+                                    <PasswordInput
                                         id="upload-password"
                                         v-model="settings.password"
-                                        type="password"
                                         placeholder="Optional"
                                     />
                                 </UiField>

@@ -28,10 +28,9 @@
 
                 <UiField v-else>
                     <UiFieldLabel for="verify-password">Password</UiFieldLabel>
-                    <UiInput
+                    <PasswordInput
                         id="verify-password"
                         v-model="password"
-                        type="password"
                         autocomplete="current-password"
                     />
                 </UiField>

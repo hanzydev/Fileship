@@ -11,19 +11,17 @@
                 <UiFieldGroup>
                     <UiField :data-invalid="!!passwordError">
                         <UiFieldLabel for="new-password">New password</UiFieldLabel>
-                        <UiInput
+                        <PasswordInput
                             id="new-password"
                             v-model="password.value"
-                            type="password"
                             autocomplete="new-password"
                         />
                     </UiField>
                     <UiField :data-invalid="!!passwordError">
                         <UiFieldLabel for="confirm-password">Confirm password</UiFieldLabel>
-                        <UiInput
+                        <PasswordInput
                             id="confirm-password"
                             v-model="password.confirm"
-                            type="password"
                             autocomplete="new-password"
                         />
                         <UiFieldError v-if="passwordError" :errors="[passwordError]" />

@@ -12,10 +12,9 @@
                 <UiCardContent>
                     <UiField :data-invalid="!!error">
                         <UiFieldLabel for="gate-password">Password</UiFieldLabel>
-                        <UiInput
+                        <PasswordInput
                             id="gate-password"
                             v-model="password"
-                            type="password"
                             autofocus
                             autocomplete="off"
                         />

@@ -70,10 +70,9 @@
                         </UiField>
                         <UiField>
                             <UiFieldLabel for="sharex-password">Password</UiFieldLabel>
-                            <UiInput
+                            <PasswordInput
                                 id="sharex-password"
                                 v-model="settings.password"
-                                type="password"
                                 placeholder="Optional"
                             />
                         </UiField>
