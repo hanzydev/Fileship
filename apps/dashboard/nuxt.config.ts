@@ -188,8 +188,11 @@ export default defineNuxtConfig({
                 'dayjs', // CJS
                 'dayjs/plugin/duration', // CJS
                 'dayjs/plugin/relativeTime', // CJS
-                'socket.io-client',
                 'filesize',
+                'highlight.js',
+                'marked',
+                'marked-katex-extension',
+                'socket.io-client',
             ],
         },
     },
