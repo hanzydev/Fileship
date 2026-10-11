@@ -1,5 +1,5 @@
 <template>
-    <UiAlertDialog :open="!!confirmState" @update:open="!$event && handleClose(false)">
+    <UiAlertDialog :open="!!confirmState" @update:open="handleOpenChange">
         <UiAlertDialogContent v-if="confirmState" size="sm">
             <UiAlertDialogHeader>
                 <UiAlertDialogTitle>{{ confirmState.title }}</UiAlertDialogTitle>
@@ -7,6 +7,10 @@
                     {{ confirmState.description }}
                 </UiAlertDialogDescription>
             </UiAlertDialogHeader>
+            <UiField v-if="confirmState.option" orientation="horizontal">
+                <UiCheckbox id="confirm-option" v-model="confirmState.option.value" />
+                <UiFieldLabel for="confirm-option">{{ confirmState.option.label }}</UiFieldLabel>
+            </UiField>
             <UiAlertDialogFooter>
                 <UiAlertDialogCancel @click="handleClose(false)">Cancel</UiAlertDialogCancel>
                 <UiAlertDialogAction
@@ -26,5 +30,9 @@ const confirmState = useConfirm();
 const handleClose = (value: boolean) => {
     confirmState.value?.resolve(value);
     confirmState.value = null;
+};
+
+const handleOpenChange = (open: boolean) => {
+    if (!open) setTimeout(() => handleClose(false));
 };
 </script>

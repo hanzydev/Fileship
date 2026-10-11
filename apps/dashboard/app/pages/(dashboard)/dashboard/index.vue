@@ -76,9 +76,7 @@
                 <UiCardHeader>
                     <UiCardTitle>Storage</UiCardTitle>
                     <UiCardDescription>
-                        {{ filesize(totalSize) }} across {{ files.length }} file{{
-                            files.length === 1 ? '' : 's'
-                        }}
+                        {{ filesize(totalSize) }} across {{ pluralize(files.length, 'file') }}
                     </UiCardDescription>
                 </UiCardHeader>
                 <UiCardContent class="flex flex-col gap-4">

@@ -212,7 +212,7 @@
                             <IEllipsis />
                         </UiButton>
                     </UiDropdownMenuTrigger>
-                    <UiDropdownMenuContent align="end">
+                    <UiDropdownMenuContent align="end" class="w-56">
                         <FileMenuItems
                             :file="item"
                             type="dropdown"

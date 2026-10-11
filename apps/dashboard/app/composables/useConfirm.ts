@@ -3,6 +3,7 @@ export type ConfirmOptions = {
     description?: string;
     confirmText?: string;
     destructive?: boolean;
+    option?: { label: string; value: boolean };
 };
 
 const confirmState = ref<(ConfirmOptions & { resolve: (value: boolean) => void }) | null>(null);

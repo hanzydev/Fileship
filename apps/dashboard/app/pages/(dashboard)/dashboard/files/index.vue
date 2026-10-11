@@ -26,7 +26,7 @@ const isLoading = computed(() => status.value !== 'success' && !files.value.leng
 
 const description = computed(() => {
     const totalSize = files.value.reduce((total, file) => total + +file.size.raw, 0);
-    return `${files.value.length} file${files.value.length === 1 ? '' : 's'} · ${filesize(totalSize)}`;
+    return `${pluralize(files.value.length, 'file')} · ${filesize(totalSize)}`;
 });
 
 definePageMeta({
