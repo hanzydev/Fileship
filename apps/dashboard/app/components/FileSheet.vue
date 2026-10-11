@@ -1,5 +1,5 @@
 <template>
-    <UiSheet :open="!!file" @update:open="!$event && (fileId = null)">
+    <UiSheet :open="!!currentFile" @update:open="!$event && (fileId = null)">
         <UiSheetContent v-if="file" class="data-[side=right]:w-full data-[side=right]:sm:max-w-2xl">
             <UiSheetHeader>
                 <UiSheetTitle class="truncate pr-10">{{ file.fileName }}</UiSheetTitle>
@@ -254,11 +254,12 @@ const formErrors = ref();
 
 const fallbackFile = ref<FileData>();
 
-const file = computed(
+const currentFile = computed(
     () =>
         files.find((f) => f.id === fileId.value) ||
         (fallbackFile.value?.id === fileId.value ? fallbackFile.value : undefined),
 );
+const file = ref<FileData>();
 const index = computed(() => files.findIndex((f) => f.id === fileId.value));
 const prev = computed(() => files[index.value - 1]);
 const next = computed(() => files[index.value + 1]);
@@ -348,7 +349,7 @@ const predictExpiration = (date: Date | null) => {
 };
 
 const resetEditData = () => {
-    const f = file.value!;
+    const f = currentFile.value!;
 
     Object.assign(editData, {
         fileName: getBasename(f.fileName),
@@ -409,9 +410,9 @@ watch(
         isZoomed.value = false;
         isRevealed.value = false;
 
-        if (value && file.value) resetEditData();
+        if (value && currentFile.value) resetEditData();
 
-        if (value && !file.value) {
+        if (value && !currentFile.value) {
             const result = await $fetch('/api/files', { query: { ids: value, limit: 1 } }).catch(
                 () => null,
             );
@@ -425,18 +426,24 @@ watch(
     { immediate: true },
 );
 
-watch(file, (value, oldValue) => {
-    if (fileId.value && oldValue && !value) fileId.value = null;
-});
+watch(
+    currentFile,
+    (value, oldValue) => {
+        if (value) file.value = value;
+        else if (fileId.value && oldValue) fileId.value = null;
+    },
+    { immediate: true },
+);
 
 watch(
-    () => file.value && tab.value === 'edit',
+    () => currentFile.value && tab.value === 'edit',
     (value) => value && resetEditData(),
     { immediate: true },
 );
 
 onKeyStroke(['ArrowLeft', 'ArrowRight'], (event) => {
-    if (!file.value || document.activeElement?.closest('input, textarea, video, audio')) return;
+    if (!currentFile.value || document.activeElement?.closest('input, textarea, video, audio'))
+        return;
 
     if (event.key === 'ArrowRight') return goNext();
     if (prev.value) fileId.value = prev.value.id;
