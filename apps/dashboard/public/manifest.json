@@ -1,12 +1,12 @@
 {
     "name": "Fileship",
     "short_name": "Fileship",
-    "description": "Fileship is an open-source and self-hosted image uploading service with cool features.",
+    "description": "An open-source, self-hosted file and media management platform.",
     "start_url": "/",
     "scope": "/",
     "display": "standalone",
-    "background_color": "#121214",
-    "theme_color": "#5865f2",
+    "background_color": "#0a0a0a",
+    "theme_color": "#432dd7",
     "orientation": "portrait-primary",
     "icons": [
         {
@@ -32,6 +32,7 @@
             "src": "/previews/fileship-mobile.png",
             "sizes": "437x911",
             "type": "image/png",
+            "form_factor": "narrow",
             "label": "Fileship"
         }
     ]

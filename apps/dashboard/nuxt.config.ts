@@ -20,7 +20,6 @@ export default defineNuxtConfig({
         '@nuxt/eslint',
         '@nuxt/fonts',
         '@vueuse/nuxt',
-        '@nuxt/icon',
         '@nuxtjs/color-mode',
         'vue-sonner/nuxt',
         'nuxt-lucide-icons',
@@ -69,7 +68,6 @@ export default defineNuxtConfig({
     },
 
     experimental: {
-        clientNodeCompat: true,
         nitroAutoImports: true,
     },
 
@@ -169,8 +167,6 @@ export default defineNuxtConfig({
                 'dayjs/plugin/duration', // CJS
                 'dayjs/plugin/relativeTime', // CJS
                 'socket.io-client',
-                'gsap',
-                'gsap/SplitText',
                 'filesize',
             ],
         },
