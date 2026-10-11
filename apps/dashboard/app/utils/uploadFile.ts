@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 
-interface FileSettings {
+export interface FileSettings {
     fileNameType?: 'Random' | 'UUID' | 'Original';
     maxViews?: number;
     password?: string | null;
@@ -83,7 +83,7 @@ export const uploadFile = async (
 
     const startedAt = Date.now();
     const uploadId = nanoid();
-    
+
     let uploadedFileUrl = '';
 
     for (let i = 0; i < chunks; i++) {

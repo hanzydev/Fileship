@@ -3,8 +3,6 @@
         <div v-if="currentUser">
             <!-- TODO: backup restoring layout -->
             <!-- TODO: impersonation banner -->
-            <!-- TODO: drop zone -->
-            <!-- TODO: uploading files right bottom -->
 
             <UiSidebarProvider storage-key="sidebar">
                 <AppSidebar />
@@ -39,6 +37,10 @@
                         </div>
 
                         <div class="ml-auto flex items-center gap-2 px-4">
+                            <UiButton v-if="canUpload" @click="uploadSheetOpen = true">
+                                <IUpload />
+                                <span class="hidden sm:inline">Upload</span>
+                            </UiButton>
                             <UiButton
                                 variant="outline"
                                 class="hidden sm:flex"
@@ -79,6 +81,28 @@
 
             <CommandPalette v-model:open="commandPaletteOpen" />
             <ConfirmDialog />
+            <UploadSheet v-if="canUpload" ref="uploadSheet" />
+            <UploadQueue />
+
+            <Transition
+                enter-active-class="animate-in fade-in duration-150"
+                leave-active-class="animate-out fade-out duration-150"
+            >
+                <div
+                    v-if="isOverDropZone && canUpload && !uploadSheetOpen"
+                    class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-6 backdrop-blur-sm"
+                >
+                    <div
+                        class="flex size-full flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-primary"
+                    >
+                        <IUpload class="size-10 text-primary" />
+                        <TextBlock variant="h4" custom-tag="p">Drop to upload</TextBlock>
+                        <TextBlock variant="muted">
+                            Files are uploaded instantly and links are copied to your clipboard.
+                        </TextBlock>
+                    </div>
+                </div>
+            </Transition>
         </div>
     </main>
 </template>
@@ -89,17 +113,15 @@ import { upperFirst } from 'scule';
 const embed = useEmbed();
 const domains = useDomains();
 const currentUser = useAuthUser();
-const uploading = useIsUploading();
-const uploadingFiles = useUploadingFiles();
 const notes = useNotes();
 const folders = useFolders();
 const route = useRoute();
+const router = useRouter();
 const colorMode = useColorMode();
-const { $toast } = useNuxtApp();
-const { copy } = useClipboard({ legacy: true });
+const uploadSheetOpen = useUploadSheet();
+const { quickUpload } = useUploader();
 
-// TODO: drop zone ui
-
+const uploadSheet = useTemplateRef('uploadSheet');
 const commandPaletteOpen = ref(false);
 
 const breadcrumbLabels = {
@@ -132,110 +154,23 @@ const breadcrumbItems = computed(() => {
     });
 });
 
-// const dashboardRef = useTemplateRef('dashboard');
+const canUpload = computed(() => canUploadFiles(currentUser.value));
 
-const handleUpload = async (files: File[] | null, source: 'drag-drop' | 'paste') => {
-    if (!files?.length) return;
+const isTyping = () =>
+    !!document.activeElement?.closest('input, textarea, select, [contenteditable="true"]');
 
-    uploading.value = true;
+const handleFiles = (files: File[] | null, source: 'drag-drop' | 'paste') => {
+    if (!files?.length || !canUpload.value) return;
 
-    const filesCopy = [...files];
-
-    uploadingFiles.value = [...uploadingFiles.value, ...filesCopy];
-
-    uploadingFiles.value.forEach((file) => {
-        if (!file.status) {
-            file.status = reactive({
-                started: false,
-                completed: false,
-                progress: { speed: 0, percent: 0, eta: 0 },
-                error: null,
-            });
-        }
-    });
-
-    const uploadedUrls: string[] = [];
-    const successfulFiles = new Set<File>();
-    const parallelUploads = 3;
-
-    await uploadFilesWithConcurrency(
-        filesCopy,
-        async (file) => {
-            const res = await uploadFile(file);
-
-            if (typeof res === 'string') {
-                successfulFiles.add(file);
-                uploadedUrls.push(res);
-            }
-
-            return res;
-        },
-        parallelUploads,
-    );
-
-    uploadingFiles.value = uploadingFiles.value.filter((f) => !successfulFiles.has(f));
-
-    if (!uploadingFiles.value.length) {
-        uploading.value = false;
-    }
-
-    if (successfulFiles.size === filesCopy.length) {
-        const filesCount = filesCopy.length;
-
-        const isDragDrop = source === 'drag-drop';
-        const filesText = filesCount > 1 ? `${filesCount} files` : 'File';
-        const urlText = filesCount > 1 ? 'URLs' : 'URL';
-
-        if (document.hasFocus()) {
-            await copy(uploadedUrls.join('\n'));
-
-            $toast.success(
-                isDragDrop
-                    ? `${filesText} dropped and uploaded successfully.  ${urlText} copied to clipboard!`
-                    : `Pasted content uploaded successfully. ${urlText} copied to clipboard!`,
-            );
-        } else {
-            $toast.success(
-                isDragDrop
-                    ? `${filesText} dropped and uploaded successfully. ${urlText} will copy when you return.`
-                    : `Pasted content uploaded successfully. ${urlText} will copy when you return.`,
-            );
-
-            let settled = false;
-            const cleanupEvents: (() => void)[] = [];
-
-            const executeTryCopy = async () => {
-                if (settled || !document.hasFocus()) return;
-
-                try {
-                    await copy(uploadedUrls.join('\n'));
-
-                    settled = true;
-                    cleanupEvents.forEach((cleanup) => cleanup());
-                    $toast.success(`${urlText} copied to clipboard!`);
-                } catch {
-                    //
-                }
-            };
-
-            cleanupEvents.push(useEventListener(window, 'click', executeTryCopy));
-            cleanupEvents.push(useEventListener(window, 'mousedown', executeTryCopy));
-            cleanupEvents.push(useEventListener(window, 'touchend', executeTryCopy));
-            cleanupEvents.push(useEventListener(window, 'keydown', executeTryCopy));
-        }
-    } else {
-        $toast.error('Some files could not be uploaded');
-    }
+    if (uploadSheetOpen.value) uploadSheet.value!.addFiles(files);
+    else quickUpload(files, source);
 };
 
-/*const { isOverDropZone } = useDropZone(
-    computed(() => (route.path === '/dashboard/files/upload' ? null : dashboardRef.value)),
-    {
-        onDrop: (files) => handleUpload(files, 'drag-drop'),
-        multiple: true,
-        preventDefaultForUnhandled: false,
-    },
-);*/
+const { isOverDropZone } = useDropZone(import.meta.client ? document.body : null, {
+    onDrop: (files) => handleFiles(files, 'drag-drop'),
+    multiple: true,
+    preventDefaultForUnhandled: false,
+});
 
 useEventListener(window, 'paste', (event: ClipboardEvent) => {
     const items = event.clipboardData?.items;
@@ -250,14 +185,26 @@ useEventListener(window, 'paste', (event: ClipboardEvent) => {
         }
     }
 
-    if (files.length > 0) {
-        if (route.path !== '/dashboard/files/upload') handleUpload(files, 'paste');
-        else {
-            const filesCopy = [...files];
-            uploadingFiles.value = [...uploadingFiles.value, ...filesCopy];
-        }
-    }
+    handleFiles(files, 'paste');
 });
+
+onKeyStroke(['u', 'U'], (event) => {
+    if (event.ctrlKey || event.metaKey || event.altKey || isTyping() || !canUpload.value) return;
+
+    event.preventDefault();
+    uploadSheetOpen.value = true;
+});
+
+watch(
+    () => route.query.upload,
+    (value) => {
+        if (value !== '1') return;
+
+        uploadSheetOpen.value = true;
+        router.replace({ query: { ...route.query, upload: undefined } });
+    },
+    { immediate: true },
+);
 
 onMounted(async () => {
     embed.value = await $fetch<IEmbed>('/api/users/@me/embed');

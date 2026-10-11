@@ -1,0 +1,104 @@
+<template>
+    <UiPopover v-model:open="isOpen">
+        <UiPopoverTrigger as-child>
+            <UiButton variant="outline" class="w-full justify-between" :disabled="disabled">
+                <span class="flex items-center gap-2 truncate">
+                    <IFolder />
+                    {{ selectedFolder?.name || 'No folder' }}
+                </span>
+                <IChevronsUpDown class="opacity-50" />
+            </UiButton>
+        </UiPopoverTrigger>
+        <UiPopoverContent class="w-(--reka-popover-trigger-width) p-0" align="start">
+            <UiCommand>
+                <UiCommandInput
+                    placeholder="Search or create a folder..."
+                    @update:model-value="query = $event"
+                />
+                <UiCommandList>
+                    <UiCommandGroup>
+                        <UiCommandItem value="none" @select="handleSelect(null)">
+                            <IFolderX />
+                            No folder
+                            <ICheck v-if="!folder" class="ml-auto" />
+                        </UiCommandItem>
+                        <UiCommandItem
+                            v-for="f in folders"
+                            :key="f.id"
+                            :value="f.id"
+                            @select="handleSelect(f.id)"
+                        >
+                            <IFolder />
+                            <span class="truncate">{{ f.name }}</span>
+                            <ICheck v-if="folder === f.id" class="ml-auto" />
+                        </UiCommandItem>
+                    </UiCommandGroup>
+                    <UiCommandGroup v-if="canCreate">
+                        <UiCommandItem
+                            :value="`create:${query}`"
+                            :disabled="isCreating"
+                            @select="handleCreate"
+                        >
+                            <UiSpinner v-if="isCreating" />
+                            <IFolderPlus v-else />
+                            Create "{{ query.trim() }}"
+                        </UiCommandItem>
+                    </UiCommandGroup>
+                </UiCommandList>
+            </UiCommand>
+        </UiPopoverContent>
+    </UiPopover>
+</template>
+
+<script setup lang="ts">
+const { disabled } = defineProps<{
+    disabled?: boolean;
+}>();
+
+const folder = defineModel<string | null>({ required: true });
+
+const folders = useFolders();
+const { $toast } = useNuxtApp();
+
+const query = ref('');
+const isOpen = ref(false);
+const isCreating = ref(false);
+
+const selectedFolder = computed(() => folders.value.find((f) => f.id === folder.value));
+
+const canCreate = computed(
+    () =>
+        !!query.value.trim() &&
+        !folders.value.some((f) => f.name.toLowerCase() === query.value.trim().toLowerCase()),
+);
+
+const handleSelect = (id: string | null) => {
+    folder.value = id;
+    isOpen.value = false;
+};
+
+const handleCreate = async () => {
+    isCreating.value = true;
+
+    try {
+        const created = await $fetch('/api/folders', {
+            method: 'POST',
+            body: { name: query.value.trim() },
+        });
+
+        handleSelect(created.id);
+        $toast.success('Folder created and selected');
+    } catch (error: any) {
+        $toast.error(error.data.data?.name?._errors[0] || error.data.message);
+    }
+
+    isCreating.value = false;
+};
+
+watch(isOpen, (value) => {
+    if (value) {
+        query.value = '';
+        if (!folders.value.length) fetchFolders();
+    }
+});
+</script>

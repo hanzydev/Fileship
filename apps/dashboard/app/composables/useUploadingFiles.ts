@@ -7,6 +7,7 @@ export type UploadingFileData = File & {
         progress: { speed: number; percent: number; eta: number };
         error: string | null;
     }>;
+    settings?: FileSettings;
 };
 
 export const useUploadingFiles = () => {
