@@ -56,7 +56,7 @@
                                 <NuxtLink :to="`/dashboard/notes/${item.id}`" class="block">
                                     <UiCard
                                         size="sm"
-                                        :class="activeId === item.id && 'ring-2 ring-primary'"
+                                        :class="activeId === item.id && 'ring-2 ring-primary!'"
                                     >
                                         <UiCardContent class="flex flex-col gap-0.5">
                                             <div class="flex items-center gap-2">
