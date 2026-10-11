@@ -23,7 +23,10 @@
                         />
                         <UiFieldError v-if="formErrors?.name" :errors="formErrors.name._errors" />
                     </UiField>
-                    <UiField orientation="horizontal">
+                    <UiField
+                        orientation="horizontal"
+                        class="has-[>[data-slot=field-content]]:items-center"
+                    >
                         <UiFieldContent>
                             <UiFieldLabel for="folder-public">Public</UiFieldLabel>
                             <UiFieldDescription>
