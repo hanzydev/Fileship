@@ -11,187 +11,201 @@
 
         <div class="grid items-start gap-6 lg:grid-cols-2">
             <template v-if="!data">
-                <UiCard v-for="i in 4" :key="i">
-                    <UiCardHeader>
-                        <UiSkeleton class="h-5 w-32" />
-                        <UiSkeleton class="h-4 w-64" />
-                    </UiCardHeader>
-                    <UiCardContent class="flex flex-col gap-4">
-                        <UiSkeleton v-for="j in 2" :key="j" class="h-9 w-full" />
-                    </UiCardContent>
-                </UiCard>
+                <div v-for="i in 2" :key="i" class="flex flex-col gap-6">
+                    <UiCard v-for="j in 3" :key="j">
+                        <UiCardHeader>
+                            <UiSkeleton class="h-5 w-32" />
+                            <UiSkeleton class="h-4 w-64" />
+                        </UiCardHeader>
+                        <UiCardContent class="flex flex-col gap-4">
+                            <UiSkeleton v-for="k in 2" :key="k" class="h-9 w-full" />
+                        </UiCardContent>
+                    </UiCard>
+                </div>
             </template>
 
             <template v-else>
-                <UiCard v-for="section in sections" :key="section.title">
-                    <form class="contents" @submit.prevent="handleSave(section)">
-                        <UiCardHeader>
-                            <UiCardTitle>{{ section.title }}</UiCardTitle>
-                            <UiCardDescription>{{ section.description }}</UiCardDescription>
-                        </UiCardHeader>
-                        <UiCardContent>
-                            <UiFieldGroup>
-                                <template v-for="(field, index) in section.fields" :key="field.key">
-                                    <UiFieldSeparator v-if="index && field.type === 'switch'" />
-
-                                    <UiField
-                                        v-if="field.type === 'switch'"
-                                        orientation="horizontal"
-                                        class="has-[>[data-slot=field-content]]:items-center"
+                <div
+                    v-for="(column, columnIndex) in columns"
+                    :key="columnIndex"
+                    class="flex flex-col gap-6"
+                >
+                    <UiCard v-for="section in column" :key="section.title">
+                        <form class="contents" @submit.prevent="handleSave(section)">
+                            <UiCardHeader>
+                                <UiCardTitle>{{ section.title }}</UiCardTitle>
+                                <UiCardDescription>{{ section.description }}</UiCardDescription>
+                            </UiCardHeader>
+                            <UiCardContent>
+                                <UiFieldGroup class="grid gap-x-4 sm:grid-cols-2">
+                                    <template
+                                        v-for="(field, index) in section.fields"
+                                        :key="field.key"
                                     >
-                                        <UiFieldContent>
-                                            <UiFieldLabel :for="field.key">
-                                                {{ field.label }}
-                                            </UiFieldLabel>
-                                            <UiFieldDescription>
+                                        <UiFieldSeparator
+                                            v-if="index && field.type === 'switch'"
+                                            class="sm:col-span-2"
+                                        />
+
+                                        <UiField
+                                            v-if="field.type === 'switch'"
+                                            orientation="horizontal"
+                                            class="has-[>[data-slot=field-content]]:items-center sm:col-span-2"
+                                        >
+                                            <UiFieldContent>
+                                                <UiFieldLabel :for="field.key">
+                                                    {{ field.label }}
+                                                </UiFieldLabel>
+                                                <UiFieldDescription>
+                                                    {{ field.description }}
+                                                </UiFieldDescription>
+                                                <UiFieldDescription v-if="isOverridden(field.key)">
+                                                    Default: {{ formatDefault(field) }}
+                                                </UiFieldDescription>
+                                            </UiFieldContent>
+                                            <UiButton
+                                                v-if="isOverridden(field.key)"
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                aria-label="Reset to default"
+                                                @click="handleReset(field.key)"
+                                            >
+                                                <IRotateCcw />
+                                            </UiButton>
+                                            <UiSwitch
+                                                :id="field.key"
+                                                v-model="form[field.key] as boolean"
+                                            />
+                                        </UiField>
+
+                                        <UiField v-else :class="!field.half && 'sm:col-span-2'">
+                                            <div class="flex items-center justify-between gap-2">
+                                                <UiFieldLabel :for="field.key">
+                                                    {{ field.label }}
+                                                </UiFieldLabel>
+                                                <UiTooltip v-if="isOverridden(field.key)">
+                                                    <UiTooltipTrigger as-child>
+                                                        <UiButton
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon-xs"
+                                                            aria-label="Reset to default"
+                                                            @click="handleReset(field.key)"
+                                                        >
+                                                            <IRotateCcw />
+                                                        </UiButton>
+                                                    </UiTooltipTrigger>
+                                                    <UiTooltipContent>
+                                                        Reset to {{ formatDefault(field) }}
+                                                    </UiTooltipContent>
+                                                </UiTooltip>
+                                            </div>
+
+                                            <UiInput
+                                                v-if="field.type === 'text'"
+                                                :id="field.key"
+                                                v-model="form[field.key] as string"
+                                            />
+
+                                            <PasswordInput
+                                                v-else-if="field.type === 'secret'"
+                                                :id="field.key"
+                                                v-model="secret"
+                                                autocomplete="off"
+                                                :placeholder="
+                                                    data.turnstileSecretKeySet
+                                                        ? 'Leave empty to keep'
+                                                        : ''
+                                                "
+                                            />
+
+                                            <UiNumberField
+                                                v-else-if="field.type === 'number'"
+                                                :id="field.key"
+                                                v-model="form[field.key] as number"
+                                                :min="field.min"
+                                                :max="field.max"
+                                            >
+                                                <UiNumberFieldContent>
+                                                    <UiNumberFieldDecrement />
+                                                    <UiNumberFieldInput />
+                                                    <UiNumberFieldIncrement />
+                                                </UiNumberFieldContent>
+                                            </UiNumberField>
+
+                                            <UiSelect
+                                                v-else-if="field.type === 'select'"
+                                                :model-value="String(form[field.key])"
+                                                @update:model-value="
+                                                    handleSelect(field.key, $event as string)
+                                                "
+                                            >
+                                                <UiSelectTrigger :id="field.key" class="w-full">
+                                                    <UiSelectValue />
+                                                </UiSelectTrigger>
+                                                <UiSelectContent>
+                                                    <UiSelectItem
+                                                        v-for="option in field.options"
+                                                        :key="option.value"
+                                                        :value="option.value"
+                                                    >
+                                                        {{ option.label }}
+                                                    </UiSelectItem>
+                                                </UiSelectContent>
+                                            </UiSelect>
+
+                                            <div
+                                                v-else-if="field.type === 'permissions'"
+                                                class="flex flex-col gap-3"
+                                            >
+                                                <UiField
+                                                    v-for="permission in registrablePermissions"
+                                                    :key="permission.value"
+                                                    orientation="horizontal"
+                                                >
+                                                    <UiCheckbox
+                                                        :id="`permission-${permission.value}`"
+                                                        :model-value="
+                                                            form.registrationPermissions.includes(
+                                                                permission.value,
+                                                            )
+                                                        "
+                                                        @update:model-value="
+                                                            handleTogglePermission(permission.value)
+                                                        "
+                                                    />
+                                                    <UiFieldLabel
+                                                        :for="`permission-${permission.value}`"
+                                                    >
+                                                        {{ permission.label }}
+                                                    </UiFieldLabel>
+                                                </UiField>
+                                            </div>
+
+                                            <UiFieldDescription v-if="field.description">
                                                 {{ field.description }}
                                             </UiFieldDescription>
-                                            <UiFieldDescription v-if="isOverridden(field.key)">
-                                                Default: {{ formatDefault(field) }}
-                                            </UiFieldDescription>
-                                        </UiFieldContent>
-                                        <UiButton
-                                            v-if="isOverridden(field.key)"
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon-sm"
-                                            aria-label="Reset to default"
-                                            @click="handleReset(field.key)"
-                                        >
-                                            <IRotateCcw />
-                                        </UiButton>
-                                        <UiSwitch
-                                            :id="field.key"
-                                            v-model="form[field.key] as boolean"
-                                        />
-                                    </UiField>
-
-                                    <UiField v-else>
-                                        <div class="flex items-center justify-between gap-2">
-                                            <UiFieldLabel :for="field.key">
-                                                {{ field.label }}
-                                            </UiFieldLabel>
-                                            <UiTooltip v-if="isOverridden(field.key)">
-                                                <UiTooltipTrigger as-child>
-                                                    <UiButton
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="icon-xs"
-                                                        aria-label="Reset to default"
-                                                        @click="handleReset(field.key)"
-                                                    >
-                                                        <IRotateCcw />
-                                                    </UiButton>
-                                                </UiTooltipTrigger>
-                                                <UiTooltipContent>
-                                                    Reset to {{ formatDefault(field) }}
-                                                </UiTooltipContent>
-                                            </UiTooltip>
-                                        </div>
-
-                                        <UiInput
-                                            v-if="field.type === 'text'"
-                                            :id="field.key"
-                                            v-model="form[field.key] as string"
-                                        />
-
-                                        <PasswordInput
-                                            v-else-if="field.type === 'secret'"
-                                            :id="field.key"
-                                            v-model="secret"
-                                            autocomplete="off"
-                                            :placeholder="
-                                                data.turnstileSecretKeySet
-                                                    ? 'Leave empty to keep'
-                                                    : ''
-                                            "
-                                        />
-
-                                        <UiNumberField
-                                            v-else-if="field.type === 'number'"
-                                            :id="field.key"
-                                            v-model="form[field.key] as number"
-                                            :min="field.min"
-                                            :max="field.max"
-                                        >
-                                            <UiNumberFieldContent>
-                                                <UiNumberFieldDecrement />
-                                                <UiNumberFieldInput />
-                                                <UiNumberFieldIncrement />
-                                            </UiNumberFieldContent>
-                                        </UiNumberField>
-
-                                        <UiSelect
-                                            v-else-if="field.type === 'select'"
-                                            :model-value="String(form[field.key])"
-                                            @update:model-value="
-                                                handleSelect(field.key, $event as string)
-                                            "
-                                        >
-                                            <UiSelectTrigger :id="field.key" class="w-full">
-                                                <UiSelectValue />
-                                            </UiSelectTrigger>
-                                            <UiSelectContent>
-                                                <UiSelectItem
-                                                    v-for="option in field.options"
-                                                    :key="option.value"
-                                                    :value="option.value"
-                                                >
-                                                    {{ option.label }}
-                                                </UiSelectItem>
-                                            </UiSelectContent>
-                                        </UiSelect>
-
-                                        <div
-                                            v-else-if="field.type === 'permissions'"
-                                            class="flex flex-col gap-3"
-                                        >
-                                            <UiField
-                                                v-for="permission in registrablePermissions"
-                                                :key="permission.value"
-                                                orientation="horizontal"
-                                            >
-                                                <UiCheckbox
-                                                    :id="`permission-${permission.value}`"
-                                                    :model-value="
-                                                        form.registrationPermissions.includes(
-                                                            permission.value,
-                                                        )
-                                                    "
-                                                    @update:model-value="
-                                                        handleTogglePermission(permission.value)
-                                                    "
-                                                />
-                                                <UiFieldLabel
-                                                    :for="`permission-${permission.value}`"
-                                                >
-                                                    {{ permission.label }}
-                                                </UiFieldLabel>
-                                            </UiField>
-                                        </div>
-
-                                        <UiFieldDescription v-if="field.description">
-                                            {{ field.description }}
-                                        </UiFieldDescription>
-                                        <UiFieldError
-                                            v-if="formErrors?.[field.key]?._errors?.length"
-                                            :errors="formErrors[field.key]._errors"
-                                        />
-                                    </UiField>
-                                </template>
-                            </UiFieldGroup>
-                        </UiCardContent>
-                        <UiCardFooter class="justify-end">
-                            <UiButton
-                                type="submit"
-                                :disabled="!isDirty(section) || savingSection === section.title"
-                            >
-                                <UiSpinner v-if="savingSection === section.title" />
-                                Save
-                            </UiButton>
-                        </UiCardFooter>
-                    </form>
-                </UiCard>
+                                            <UiFieldError
+                                                v-if="formErrors?.[field.key]?._errors?.length"
+                                                :errors="formErrors[field.key]._errors"
+                                            />
+                                        </UiField>
+                                    </template>
+                                </UiFieldGroup>
+                            </UiCardContent>
+                            <UiCardFooter class="justify-end">
+                                <UiButton
+                                    type="submit"
+                                    :disabled="!isDirty(section) || savingSection === section.title"
+                                >
+                                    <UiSpinner v-if="savingSection === section.title" />
+                                    Save
+                                </UiButton>
+                            </UiCardFooter>
+                        </form>
+                    </UiCard>
+                </div>
             </template>
         </div>
     </div>
@@ -208,6 +222,7 @@ type SettingField = {
     min?: number;
     max?: number;
     options?: { value: string; label: string }[];
+    half?: boolean;
 };
 
 type SettingSection = {
@@ -270,6 +285,7 @@ const sections: SettingSection[] = [
                 min: 1,
                 max: 100,
                 description: 'Large files are uploaded in pieces of this size.',
+                half: true,
             },
             {
                 key: 'avatarMaxSize',
@@ -277,6 +293,7 @@ const sections: SettingSection[] = [
                 type: 'number',
                 min: 1,
                 max: 100,
+                half: true,
             },
             {
                 key: 'removeExifData',
@@ -330,7 +347,14 @@ const sections: SettingSection[] = [
                 type: 'switch',
                 description: 'Process uploads with the local AI models.',
             },
-            { key: 'aiQueueConcurrency', label: 'Parallel jobs', type: 'number', min: 1, max: 8 },
+            {
+                key: 'aiQueueConcurrency',
+                label: 'Parallel jobs',
+                type: 'number',
+                min: 1,
+                max: 8,
+                half: true,
+            },
             {
                 key: 'aiInferenceThreads',
                 label: 'Inference threads',
@@ -338,14 +362,23 @@ const sections: SettingSection[] = [
                 min: 1,
                 max: 64,
                 description: 'Applies after a restart.',
+                half: true,
             },
-            { key: 'aiVideoMaxFrames', label: 'Video frames', type: 'number', min: 1, max: 120 },
+            {
+                key: 'aiVideoMaxFrames',
+                label: 'Video frames',
+                type: 'number',
+                min: 1,
+                max: 120,
+                half: true,
+            },
             {
                 key: 'aiVideoSampleIntervalSeconds',
-                label: 'Video sample interval (seconds)',
+                label: 'Frame interval (seconds)',
                 type: 'number',
                 min: 1,
                 max: 3600,
+                half: true,
             },
             {
                 key: 'aiJobLeaseMs',
@@ -353,8 +386,16 @@ const sections: SettingSection[] = [
                 type: 'number',
                 min: 60_000,
                 description: 'A job running longer than this is retried.',
+                half: true,
             },
-            { key: 'aiJobDequeueRetries', label: 'Queue retries', type: 'number', min: 1, max: 50 },
+            {
+                key: 'aiJobDequeueRetries',
+                label: 'Queue retries',
+                type: 'number',
+                min: 1,
+                max: 50,
+                half: true,
+            },
         ],
     },
     {
@@ -379,6 +420,11 @@ const sections: SettingSection[] = [
             },
         ],
     },
+];
+
+const columns = [
+    [sections[0]!, sections[1]!, sections[2]!],
+    [sections[4]!, sections[3]!, sections[5]!],
 ];
 
 const isOverridden = (key: InstanceSettingKey) => !!data.value?.overridden.includes(key);
