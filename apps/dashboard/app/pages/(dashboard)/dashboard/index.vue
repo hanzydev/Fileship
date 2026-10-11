@@ -44,7 +44,7 @@
                     v-if="isFilesLoading"
                     class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
                 >
-                    <UiSkeleton v-for="i in 6" :key="i" class="aspect-4/5 rounded-4xl" />
+                    <FileCardSkeleton v-for="i in 6" :key="i" />
                 </div>
                 <EmptyState
                     v-else-if="!recentFiles.length"

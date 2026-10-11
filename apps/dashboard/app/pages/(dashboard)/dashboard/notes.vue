@@ -31,7 +31,7 @@
                 </UiInputGroup>
 
                 <div v-if="isLoading" class="flex flex-col gap-2">
-                    <UiSkeleton v-for="i in 5" :key="i" class="h-16 rounded-2xl" />
+                    <ListCardSkeleton v-for="i in 5" :key="i" />
                 </div>
 
                 <EmptyState
@@ -45,36 +45,39 @@
                     v-else
                     :items="notes"
                     :item-key="(n) => n.id"
-                    :estimate-size="64"
-                    :gap="4"
+                    :estimate-size="66"
+                    :gap="8"
                     :loading="isLoadingMore"
                     @reach-end="loadMore"
                 >
                     <template #default="{ item }">
                         <UiContextMenu>
                             <UiContextMenuTrigger as-child>
-                                <NuxtLink
-                                    :to="`/dashboard/notes/${item.id}`"
-                                    :class="
-                                        cn(
-                                            'flex flex-col gap-0.5 rounded-2xl px-3 py-2.5 transition-colors hover:bg-muted',
-                                            activeId === item.id && 'bg-muted',
-                                        )
-                                    "
-                                >
-                                    <div class="flex items-center gap-2">
-                                        <TextBlock variant="small" class="flex-1 truncate">
-                                            {{ item.title }}
-                                        </TextBlock>
-                                        <IGlobe
-                                            v-if="item.public"
-                                            class="size-3.5 text-muted-foreground"
-                                        />
-                                    </div>
-                                    <TextBlock variant="muted" class="truncate text-xs">
-                                        {{ dayjs(item.createdAt).fromNow() }} ·
-                                        {{ item.content.replace(/[#*_`>\-\n]+/g, ' ').trim() }}
-                                    </TextBlock>
+                                <NuxtLink :to="`/dashboard/notes/${item.id}`" class="block">
+                                    <UiCard
+                                        size="sm"
+                                        :class="activeId === item.id && 'ring-2 ring-primary'"
+                                    >
+                                        <UiCardContent class="flex flex-col gap-0.5">
+                                            <div class="flex items-center gap-2">
+                                                <TextBlock variant="small" class="flex-1 truncate">
+                                                    {{ item.title }}
+                                                </TextBlock>
+                                                <IGlobe
+                                                    v-if="item.public"
+                                                    class="size-3.5 text-muted-foreground"
+                                                />
+                                            </div>
+                                            <TextBlock variant="muted" class="truncate text-xs">
+                                                {{ dayjs(item.createdAt).fromNow() }} ·
+                                                {{
+                                                    item.content
+                                                        .replace(/[#*_`>\-\n]+/g, ' ')
+                                                        .trim()
+                                                }}
+                                            </TextBlock>
+                                        </UiCardContent>
+                                    </UiCard>
                                 </NuxtLink>
                             </UiContextMenuTrigger>
                             <UiContextMenuContent class="w-52">

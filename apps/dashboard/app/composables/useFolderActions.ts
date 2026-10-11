@@ -23,29 +23,28 @@ export const useFolderActions = () => {
     const remove = async (folder: FolderData) => {
         const option = reactive({ label: 'Also delete the files inside', value: true });
 
-        const confirmed = await askConfirmation({
+        return askConfirmation({
             title: `Delete ${folder.name}?`,
             description: 'This action cannot be undone.',
             confirmText: 'Delete',
             destructive: true,
             option,
+            action: async () => {
+                try {
+                    await $fetch(`/api/folders/${folder.id}`, {
+                        method: 'DELETE',
+                        body: { deleteFilesToo: option.value },
+                    });
+
+                    $toast.success(
+                        option.value ? 'Folder and its files deleted' : 'Folder deleted',
+                    );
+                } catch (error: any) {
+                    $toast.error(error.data.message);
+                    return false;
+                }
+            },
         });
-
-        if (!confirmed) return false;
-
-        try {
-            await $fetch(`/api/folders/${folder.id}`, {
-                method: 'DELETE',
-                body: { deleteFilesToo: option.value },
-            });
-
-            $toast.success(option.value ? 'Folder and its files deleted' : 'Folder deleted');
-
-            return true;
-        } catch (error: any) {
-            $toast.error(error.data.message);
-            return false;
-        }
     };
 
     return { copyLink, togglePublic, download: downloadFolder, remove };

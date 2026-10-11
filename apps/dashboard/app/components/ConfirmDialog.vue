@@ -8,15 +8,23 @@
                 </UiDialogDescription>
             </UiDialogHeader>
             <UiField v-if="confirmState.option" orientation="horizontal">
-                <UiCheckbox id="confirm-option" v-model="confirmState.option.value" />
+                <UiCheckbox
+                    id="confirm-option"
+                    v-model="confirmState.option.value"
+                    :disabled="isRunning"
+                />
                 <UiFieldLabel for="confirm-option">{{ confirmState.option.label }}</UiFieldLabel>
             </UiField>
             <UiDialogFooter>
-                <UiButton variant="outline" @click="handleClose(false)">Cancel</UiButton>
+                <UiButton variant="outline" :disabled="isRunning" @click="handleClose(false)">
+                    Cancel
+                </UiButton>
                 <UiButton
                     :variant="confirmState.destructive ? 'destructive' : 'default'"
-                    @click="handleClose(true)"
+                    :disabled="isRunning"
+                    @click="handleConfirm"
                 >
+                    <UiSpinner v-if="isRunning" />
                     {{ confirmState.confirmText || 'Continue' }}
                 </UiButton>
             </UiDialogFooter>
@@ -27,12 +35,26 @@
 <script setup lang="ts">
 const confirmState = useConfirm();
 
+const isRunning = ref(false);
+
 const handleClose = (value: boolean) => {
     confirmState.value?.resolve(value);
     confirmState.value = null;
 };
 
+const handleConfirm = async () => {
+    const { action } = confirmState.value!;
+    if (!action) return handleClose(true);
+
+    isRunning.value = true;
+
+    const result = await action().catch(() => false);
+
+    isRunning.value = false;
+    handleClose(result !== false);
+};
+
 const handleOpenChange = (open: boolean) => {
-    if (!open) handleClose(false);
+    if (!open && !isRunning.value) handleClose(false);
 };
 </script>

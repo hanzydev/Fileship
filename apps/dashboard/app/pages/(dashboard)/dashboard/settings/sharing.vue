@@ -100,21 +100,19 @@
                     Add
                 </UiButton>
             </form>
-            <div
-                v-for="domain in domainsForm"
-                :key="domain"
-                class="flex items-center gap-3 rounded-2xl border px-4 py-2"
-            >
-                <IGlobe class="size-4 text-muted-foreground" />
-                <span class="flex-1 truncate text-sm">{{ domain }}</span>
-                <UiButton
-                    variant="ghost"
-                    size="icon-sm"
-                    @click="domainsForm = domainsForm.filter((d) => d !== domain)"
-                >
-                    <IX />
-                </UiButton>
-            </div>
+            <UiCard v-for="domain in domainsForm" :key="domain" size="sm">
+                <UiCardContent class="flex items-center gap-3">
+                    <IGlobe class="size-4 text-muted-foreground" />
+                    <span class="flex-1 truncate text-sm">{{ domain }}</span>
+                    <UiButton
+                        variant="ghost"
+                        size="icon-sm"
+                        @click="domainsForm = domainsForm.filter((d) => d !== domain)"
+                    >
+                        <IX />
+                    </UiButton>
+                </UiCardContent>
+            </UiCard>
             <TextBlock v-if="!domainsForm.length" variant="muted">
                 No custom domains. Links use the current domain.
             </TextBlock>

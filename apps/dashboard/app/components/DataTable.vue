@@ -1,15 +1,7 @@
 <template>
     <template v-if="isMobile && $slots.card">
         <div v-if="loading" class="flex flex-col gap-2">
-            <UiCard v-for="i in 6" :key="i" size="sm">
-                <UiCardContent class="flex items-center gap-3">
-                    <UiSkeleton class="size-9 rounded-full" />
-                    <div class="flex flex-1 flex-col gap-2">
-                        <UiSkeleton class="h-4 w-1/2" />
-                        <UiSkeleton class="h-3 w-1/3" />
-                    </div>
-                </UiCardContent>
-            </UiCard>
+            <ListCardSkeleton v-for="i in 6" :key="i" media="size-8" />
         </div>
         <VirtualList
             v-else

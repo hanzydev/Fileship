@@ -30,16 +30,18 @@
                 @change="handleUpload"
             />
 
-            <div v-if="uploadProgress !== null" class="flex flex-col gap-2 rounded-2xl border p-4">
-                <div class="flex items-center justify-between">
-                    <TextBlock variant="small">Uploading backup...</TextBlock>
-                    <TextBlock variant="muted">{{ uploadProgress }}%</TextBlock>
-                </div>
-                <UiProgress :model-value="uploadProgress" />
-            </div>
+            <UiCard v-if="uploadProgress !== null" size="sm">
+                <UiCardContent class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <TextBlock variant="small">Uploading backup...</TextBlock>
+                        <TextBlock variant="muted">{{ uploadProgress }}%</TextBlock>
+                    </div>
+                    <UiProgress :model-value="uploadProgress" />
+                </UiCardContent>
+            </UiCard>
 
             <div v-if="isLoading" class="flex flex-col gap-2">
-                <UiSkeleton v-for="i in 3" :key="i" class="h-16 rounded-2xl" />
+                <ListCardSkeleton v-for="i in 3" :key="i" media="size-5" />
             </div>
 
             <EmptyState
@@ -58,43 +60,45 @@
                 @reach-end="loadMore"
             >
                 <template #default="{ item }">
-                    <div class="flex items-center gap-3 rounded-2xl border px-4 py-3">
-                        <IArchive class="size-5 shrink-0 text-muted-foreground" />
-                        <div class="flex min-w-0 flex-1 flex-col">
-                            <TextBlock variant="small">
-                                {{ dayjs(item.createdAt).format('MMM D, YYYY HH:mm') }}
-                            </TextBlock>
-                            <TextBlock variant="muted" class="text-xs">
-                                {{ item.size.formatted }}
-                            </TextBlock>
-                        </div>
-                        <UiButton variant="outline" size="sm" @click="handleRestore(item)">
-                            <IHistory />
-                            Restore
-                        </UiButton>
-                        <UiDropdownMenu>
-                            <UiDropdownMenuTrigger as-child>
-                                <UiButton variant="ghost" size="icon-sm">
-                                    <IEllipsis />
-                                </UiButton>
-                            </UiDropdownMenuTrigger>
-                            <UiDropdownMenuContent align="end">
-                                <UiDropdownMenuItem
-                                    @select="downloadFile(`/api/users/@me/backups/${item.id}`)"
-                                >
-                                    <IDownload />
-                                    Download
-                                </UiDropdownMenuItem>
-                                <UiDropdownMenuItem
-                                    variant="destructive"
-                                    @select="handleDelete(item)"
-                                >
-                                    <ITrash2 />
-                                    Delete
-                                </UiDropdownMenuItem>
-                            </UiDropdownMenuContent>
-                        </UiDropdownMenu>
-                    </div>
+                    <UiCard size="sm">
+                        <UiCardContent class="flex min-h-8 items-center gap-3">
+                            <IArchive class="size-5 shrink-0 text-muted-foreground" />
+                            <div class="flex min-w-0 flex-1 flex-col">
+                                <TextBlock variant="small">
+                                    {{ dayjs(item.createdAt).format('MMM D, YYYY HH:mm') }}
+                                </TextBlock>
+                                <TextBlock variant="muted" class="text-xs">
+                                    {{ item.size.formatted }}
+                                </TextBlock>
+                            </div>
+                            <UiButton variant="outline" size="sm" @click="handleRestore(item)">
+                                <IHistory />
+                                Restore
+                            </UiButton>
+                            <UiDropdownMenu>
+                                <UiDropdownMenuTrigger as-child>
+                                    <UiButton variant="ghost" size="icon-sm">
+                                        <IEllipsis />
+                                    </UiButton>
+                                </UiDropdownMenuTrigger>
+                                <UiDropdownMenuContent align="end">
+                                    <UiDropdownMenuItem
+                                        @select="downloadFile(`/api/users/@me/backups/${item.id}`)"
+                                    >
+                                        <IDownload />
+                                        Download
+                                    </UiDropdownMenuItem>
+                                    <UiDropdownMenuItem
+                                        variant="destructive"
+                                        @select="handleDelete(item)"
+                                    >
+                                        <ITrash2 />
+                                        Delete
+                                    </UiDropdownMenuItem>
+                                </UiDropdownMenuContent>
+                            </UiDropdownMenu>
+                        </UiCardContent>
+                    </UiCard>
                 </template>
             </VirtualList>
         </UiCardContent>
@@ -181,44 +185,42 @@ const handleUpload = async (event: Event) => {
 };
 
 const handleRestore = async (backup: BackupData) => {
-    const confirmed = await askConfirmation({
+    await askConfirmation({
         title: 'Restore this backup?',
         description: 'Your current data will be deleted and replaced with the backup data.',
         confirmText: 'Restore',
         destructive: true,
+        action: async () => {
+            try {
+                const result = await withVerification((verificationData) =>
+                    $fetch(`/api/users/@me/backups/${backup.id}/load`, {
+                        method: 'POST',
+                        body: { verificationData },
+                    }),
+                );
+
+                if (result) $toast.success('Backup is being restored, this may take a while');
+            } catch (error: any) {
+                $toast.error(error.data.message);
+            }
+        },
     });
-
-    if (!confirmed) return;
-
-    try {
-        const result = await withVerification((verificationData) =>
-            $fetch(`/api/users/@me/backups/${backup.id}/load`, {
-                method: 'POST',
-                body: { verificationData },
-            }),
-        );
-
-        if (result) $toast.success('Backup is being restored, this may take a while');
-    } catch (error: any) {
-        $toast.error(error.data.message);
-    }
 };
 
 const handleDelete = async (backup: BackupData) => {
-    const confirmed = await askConfirmation({
+    await askConfirmation({
         title: 'Delete this backup?',
         description: 'This action cannot be undone.',
         confirmText: 'Delete',
         destructive: true,
+        action: async () => {
+            try {
+                await $fetch(`/api/users/@me/backups/${backup.id}`, { method: 'DELETE' });
+                $toast.success('Backup deleted');
+            } catch (error: any) {
+                $toast.error(error.data.message);
+            }
+        },
     });
-
-    if (!confirmed) return;
-
-    try {
-        await $fetch(`/api/users/@me/backups/${backup.id}`, { method: 'DELETE' });
-        $toast.success('Backup deleted');
-    } catch (error: any) {
-        $toast.error(error.data.message);
-    }
 };
 </script>

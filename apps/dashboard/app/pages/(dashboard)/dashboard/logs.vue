@@ -8,9 +8,8 @@
             title="Logs"
             :description="isLoading ? 'Loading...' : pluralize(total, 'entry', 'entries')"
         >
-            <UiButton variant="outline" :disabled="!logs.length || isClearing" @click="handleClear">
-                <UiSpinner v-if="isClearing" />
-                <ITrash2 v-else />
+            <UiButton variant="outline" :disabled="!logs.length" @click="handleClear">
+                <ITrash2 />
                 Clear logs
             </UiButton>
         </PageHeader>
@@ -126,7 +125,6 @@ const { $toast } = useNuxtApp();
 
 const search = ref('');
 const actionFilter = ref('all');
-const isClearing = ref(false);
 const sort = ref({ key: 'createdAt', desc: true });
 
 const columns = [
@@ -158,28 +156,23 @@ const { data: actions, refresh: refreshActions } = useLazyAsyncData(
 );
 
 const handleClear = async () => {
-    const confirmed = await askConfirmation({
+    await askConfirmation({
         title: 'Clear all logs?',
         description: 'Every log entry will be permanently deleted.',
         confirmText: 'Clear',
         destructive: true,
+        action: async () => {
+            try {
+                const result = await withVerification((verificationData) =>
+                    $fetch('/api/logs', { method: 'DELETE', body: { verificationData } }),
+                );
+
+                if (result) $toast.success('Logs cleared');
+            } catch (error: any) {
+                $toast.error(error.data.message);
+            }
+        },
     });
-
-    if (!confirmed) return;
-
-    isClearing.value = true;
-
-    try {
-        const result = await withVerification((verificationData) =>
-            $fetch('/api/logs', { method: 'DELETE', body: { verificationData } }),
-        );
-
-        if (result) $toast.success('Logs cleared');
-    } catch (error: any) {
-        $toast.error(error.data.message);
-    }
-
-    isClearing.value = false;
 };
 
 definePageMeta({

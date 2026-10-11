@@ -27,23 +27,22 @@ export const useNoteActions = () => {
     };
 
     const remove = async (note: NoteData) => {
-        const confirmed = await askConfirmation({
+        await askConfirmation({
             title: `Delete ${note.title}?`,
             description: 'This action cannot be undone.',
             confirmText: 'Delete',
             destructive: true,
+            action: async () => {
+                try {
+                    await $fetch(`/api/notes/${note.id}`, { method: 'DELETE' });
+                    $toast.success('Note deleted');
+
+                    if ((route.params as any).id === note.id) navigateTo('/dashboard/notes');
+                } catch (error: any) {
+                    $toast.error(error.data.message);
+                }
+            },
         });
-
-        if (!confirmed) return;
-
-        try {
-            await $fetch(`/api/notes/${note.id}`, { method: 'DELETE' });
-            $toast.success('Note deleted');
-
-            if ((route.params as any).id === note.id) navigateTo('/dashboard/notes');
-        } catch (error: any) {
-            $toast.error(error.data.message);
-        }
     };
 
     return { copyLink, copyContent, togglePublic, remove };

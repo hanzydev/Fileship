@@ -43,32 +43,31 @@ export const useFileActions = () => {
     const remove = async (files: Pick<FileData, 'id' | 'fileName'>[]) => {
         const filesText = files.length > 1 ? `${files.length} files` : files[0]!.fileName;
 
-        const confirmed = await askConfirmation({
+        return askConfirmation({
             title: `Delete ${filesText}?`,
             description: 'This action cannot be undone.',
             confirmText: 'Delete',
             destructive: true,
+            action: async () => {
+                try {
+                    if (files.length > 1) {
+                        await $fetch('/api/files/bulk-delete', {
+                            method: 'POST',
+                            body: { files: files.map((f) => f.id) },
+                        });
+                    } else {
+                        await $fetch(`/api/files/${files[0]!.id}`, { method: 'DELETE' });
+                    }
+
+                    $toast.success(
+                        `${files.length > 1 ? `${files.length} files` : 'File'} deleted`,
+                    );
+                } catch (error: any) {
+                    $toast.error(error.data.message);
+                    return false;
+                }
+            },
         });
-
-        if (!confirmed) return false;
-
-        try {
-            if (files.length > 1) {
-                await $fetch('/api/files/bulk-delete', {
-                    method: 'POST',
-                    body: { files: files.map((f) => f.id) },
-                });
-            } else {
-                await $fetch(`/api/files/${files[0]!.id}`, { method: 'DELETE' });
-            }
-
-            $toast.success(`${files.length > 1 ? `${files.length} files` : 'File'} deleted`);
-
-            return true;
-        } catch (error: any) {
-            $toast.error(error.data.message);
-            return false;
-        }
     };
 
     return { isTextFile, copyLink, openFile, download, move, remove };

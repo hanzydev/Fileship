@@ -85,25 +85,23 @@
                 <IInfo />
                 <UiAlertTitle>Your browser does not support passkeys.</UiAlertTitle>
             </UiAlert>
-            <div
-                v-for="passkey in passkeys"
-                :key="passkey.id"
-                class="flex items-center gap-3 rounded-2xl border px-4 py-3"
-            >
-                <IKeyRound class="size-4 shrink-0 text-muted-foreground" />
-                <div class="flex min-w-0 flex-1 flex-col">
-                    <TextBlock variant="small" class="truncate">{{ passkey.name }}</TextBlock>
-                    <TextBlock variant="muted" class="text-xs">
-                        Added {{ dayjs(passkey.createdAt).fromNow() }}
-                    </TextBlock>
-                </div>
-                <UiButton variant="ghost" size="icon-sm" @click="openRename(passkey)">
-                    <IPencil />
-                </UiButton>
-                <UiButton variant="ghost" size="icon-sm" @click="handleDeletePasskey(passkey)">
-                    <ITrash2 />
-                </UiButton>
-            </div>
+            <UiCard v-for="passkey in passkeys" :key="passkey.id" size="sm">
+                <UiCardContent class="flex items-center gap-3">
+                    <IKeyRound class="size-4 shrink-0 text-muted-foreground" />
+                    <div class="flex min-w-0 flex-1 flex-col">
+                        <TextBlock variant="small" class="truncate">{{ passkey.name }}</TextBlock>
+                        <TextBlock variant="muted" class="text-xs">
+                            Added {{ dayjs(passkey.createdAt).fromNow() }}
+                        </TextBlock>
+                    </div>
+                    <UiButton variant="ghost" size="icon-sm" @click="openRename(passkey)">
+                        <IPencil />
+                    </UiButton>
+                    <UiButton variant="ghost" size="icon-sm" @click="handleDeletePasskey(passkey)">
+                        <ITrash2 />
+                    </UiButton>
+                </UiCardContent>
+            </UiCard>
             <TextBlock v-if="!passkeys.length && supportsPasskeys" variant="muted">
                 No passkeys yet.
             </TextBlock>
@@ -343,27 +341,26 @@ const handleRenamePasskey = async () => {
 };
 
 const handleDeletePasskey = async (passkey: PasskeyData) => {
-    const confirmed = await askConfirmation({
+    await askConfirmation({
         title: `Delete ${passkey.name}?`,
         description: 'You will no longer be able to sign in with this passkey.',
         confirmText: 'Delete',
         destructive: true,
+        action: async () => {
+            try {
+                const result = await withVerification((verificationData) =>
+                    $fetch(`/api/users/@me/mfa/webauthn/credentials/${passkey.id}`, {
+                        method: 'DELETE',
+                        body: { verificationData },
+                    }),
+                );
+
+                if (result) $toast.success('Passkey deleted');
+            } catch (error: any) {
+                $toast.error(error.data.message);
+            }
+        },
     });
-
-    if (!confirmed) return;
-
-    try {
-        const result = await withVerification((verificationData) =>
-            $fetch(`/api/users/@me/mfa/webauthn/credentials/${passkey.id}`, {
-                method: 'DELETE',
-                body: { verificationData },
-            }),
-        );
-
-        if (result) $toast.success('Passkey deleted');
-    } catch (error: any) {
-        $toast.error(error.data.message);
-    }
 };
 
 onMounted(async () => {

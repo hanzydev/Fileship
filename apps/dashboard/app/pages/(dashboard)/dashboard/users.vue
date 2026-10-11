@@ -175,24 +175,26 @@ const handleImpersonate = async (user: UserData) => {
 };
 
 const handleDelete = async (user: UserData) => {
-    const confirmed = await askConfirmation({
+    await askConfirmation({
         title: `Delete ${user.username}?`,
         description: 'Their files, folders and notes will be deleted too. This cannot be undone.',
         confirmText: 'Delete',
         destructive: true,
+        action: async () => {
+            try {
+                const result = await withVerification((verificationData) =>
+                    $fetch(`/api/users/${user.id}`, {
+                        method: 'DELETE',
+                        body: { verificationData },
+                    }),
+                );
+
+                if (result) $toast.success('User deleted');
+            } catch (error: any) {
+                $toast.error(error.data.message);
+            }
+        },
     });
-
-    if (!confirmed) return;
-
-    try {
-        const result = await withVerification((verificationData) =>
-            $fetch(`/api/users/${user.id}`, { method: 'DELETE', body: { verificationData } }),
-        );
-
-        if (result) $toast.success('User deleted');
-    } catch (error: any) {
-        $toast.error(error.data.message);
-    }
 };
 
 watch(

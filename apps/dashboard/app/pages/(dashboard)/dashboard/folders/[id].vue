@@ -74,27 +74,30 @@
                         <UiInputGroupInput v-model="addSearch" placeholder="Search files..." />
                     </UiInputGroup>
                     <div
-                        class="-mx-2 flex max-h-80 flex-col gap-0.5 overflow-y-auto px-2"
+                        class="-mx-1 flex max-h-80 flex-col gap-2 overflow-y-auto px-1 py-1"
                         @scroll="handleScroll"
                     >
-                        <label
+                        <UiFieldLabel
                             v-for="file in addCandidates"
                             :key="file.id"
-                            class="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-muted"
+                            :for="`add-file-${file.id}`"
                         >
-                            <UiCheckbox
-                                :model-value="addSelection.includes(file.id)"
-                                @update:model-value="toggleAdd(file.id)"
-                            />
-                            <component
-                                :is="getFileIcon(file)"
-                                class="size-4 text-muted-foreground"
-                            />
-                            <span class="flex-1 truncate text-sm">{{ file.fileName }}</span>
-                            <span class="text-sm text-muted-foreground">
-                                {{ file.size.formatted }}
-                            </span>
-                        </label>
+                            <UiField orientation="horizontal">
+                                <UiCheckbox
+                                    :id="`add-file-${file.id}`"
+                                    :model-value="addSelection.includes(file.id)"
+                                    @update:model-value="toggleAdd(file.id)"
+                                />
+                                <UiFieldContent class="min-w-0">
+                                    <UiFieldTitle class="w-full truncate">
+                                        {{ file.fileName }}
+                                    </UiFieldTitle>
+                                    <UiFieldDescription>
+                                        {{ file.size.formatted }}
+                                    </UiFieldDescription>
+                                </UiFieldContent>
+                            </UiField>
+                        </UiFieldLabel>
                         <div v-if="isCandidatesLoading" class="flex justify-center py-6">
                             <UiSpinner class="text-muted-foreground" />
                         </div>

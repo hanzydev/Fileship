@@ -53,7 +53,7 @@
                 v-if="isLoading"
                 class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3"
             >
-                <UiSkeleton v-for="i in 8" :key="i" class="aspect-4/3 rounded-3xl" />
+                <FileCardSkeleton v-for="i in 8" :key="i" />
             </div>
 
             <EmptyState
@@ -73,41 +73,39 @@
                 @reach-end="loadMore"
             >
                 <template #default="{ item }">
-                    <button
-                        type="button"
-                        class="group flex flex-col gap-2 rounded-3xl p-2 text-left transition-colors hover:bg-muted"
-                        @click="handleOpen(item)"
-                    >
-                        <div class="relative aspect-4/3 overflow-hidden rounded-2xl bg-muted">
-                            <img
-                                v-if="item.mimeType.startsWith('image/') || item.thumbnailUrl"
-                                :src="item.thumbnailUrl || item.directUrl"
-                                :alt="item.fileName"
-                                loading="lazy"
-                                class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            />
-                            <div v-else class="flex size-full items-center justify-center">
-                                <component
-                                    :is="getFileIcon(item)"
-                                    class="size-10 text-muted-foreground"
+                    <UiCard size="sm" class="group" @click="handleOpen(item)">
+                        <UiCardContent>
+                            <div class="relative aspect-4/3 overflow-hidden rounded-2xl bg-muted">
+                                <img
+                                    v-if="item.mimeType.startsWith('image/') || item.thumbnailUrl"
+                                    :src="item.thumbnailUrl || item.directUrl"
+                                    :alt="item.fileName"
+                                    loading="lazy"
+                                    class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                                 />
+                                <div v-else class="flex size-full items-center justify-center">
+                                    <component
+                                        :is="getFileIcon(item)"
+                                        class="size-10 text-muted-foreground"
+                                    />
+                                </div>
+                                <div
+                                    v-if="item.mimeType.startsWith('video/')"
+                                    class="absolute inset-0 flex items-center justify-center"
+                                >
+                                    <IPlay class="size-8 fill-white text-white drop-shadow" />
+                                </div>
                             </div>
-                            <div
-                                v-if="item.mimeType.startsWith('video/')"
-                                class="absolute inset-0 flex items-center justify-center"
-                            >
-                                <IPlay class="size-8 fill-white text-white drop-shadow" />
-                            </div>
-                        </div>
-                        <div class="flex flex-col px-1">
-                            <TextBlock variant="small" class="truncate">
+                        </UiCardContent>
+                        <UiCardFooter class="flex-col items-start gap-0.5">
+                            <TextBlock variant="small" class="w-full truncate">
                                 {{ item.fileName }}
                             </TextBlock>
-                            <TextBlock variant="muted" class="text-xs">
+                            <TextBlock variant="muted" class="truncate text-xs">
                                 {{ item.size.formatted }}
                             </TextBlock>
-                        </div>
-                    </button>
+                        </UiCardFooter>
+                    </UiCard>
                 </template>
             </VirtualList>
         </main>

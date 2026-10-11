@@ -43,27 +43,29 @@
                             <input type="file" multiple class="sr-only" @change="handleInput" />
                         </label>
 
-                        <div v-if="files.length" class="flex flex-col gap-1">
-                            <div
+                        <div v-if="files.length" class="flex flex-col gap-2">
+                            <UiCard
                                 v-for="(file, index) in files"
                                 :key="`${file.name}-${index}`"
-                                class="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-muted/50"
+                                size="sm"
                             >
-                                <IFile class="size-4 shrink-0 text-muted-foreground" />
-                                <TextBlock variant="small" class="flex-1 truncate">
-                                    {{ file.name }}
-                                </TextBlock>
-                                <TextBlock variant="muted" class="shrink-0">
-                                    {{ filesize(file.size) }}
-                                </TextBlock>
-                                <UiButton
-                                    variant="ghost"
-                                    size="icon-sm"
-                                    @click="files.splice(index, 1)"
-                                >
-                                    <IX />
-                                </UiButton>
-                            </div>
+                                <UiCardContent class="flex items-center gap-3">
+                                    <IFile class="size-4 shrink-0 text-muted-foreground" />
+                                    <TextBlock variant="small" class="flex-1 truncate">
+                                        {{ file.name }}
+                                    </TextBlock>
+                                    <TextBlock variant="muted" class="shrink-0">
+                                        {{ filesize(file.size) }}
+                                    </TextBlock>
+                                    <UiButton
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        @click="files.splice(index, 1)"
+                                    >
+                                        <IX />
+                                    </UiButton>
+                                </UiCardContent>
+                            </UiCard>
                         </div>
                     </UiTabsContent>
 
