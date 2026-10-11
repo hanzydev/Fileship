@@ -185,6 +185,9 @@ export default defineNuxtConfig({
         },
         optimizeDeps: {
             include: [
+                '@lucide/vue',
+                'class-variance-authority',
+                'clsx',
                 'dayjs', // CJS
                 'dayjs/plugin/duration', // CJS
                 'dayjs/plugin/relativeTime', // CJS
@@ -192,7 +195,9 @@ export default defineNuxtConfig({
                 'highlight.js',
                 'marked',
                 'marked-katex-extension',
+                'reka-ui',
                 'socket.io-client',
+                'tailwind-merge',
             ],
         },
     },
