@@ -1,4 +1,4 @@
-export const useQueryState = <T extends string>(key: string, defaultValue: T) => {
+export const useQueryState = <T extends string = string>(key: string, defaultValue: NoInfer<T>) => {
     const route = useRoute();
     const router = useRouter();
 
@@ -6,7 +6,10 @@ export const useQueryState = <T extends string>(key: string, defaultValue: T) =>
         get: () => (route.query[key] as T) || defaultValue,
         set: (value) =>
             router.replace({
-                query: { ...route.query, [key]: value === defaultValue ? undefined : value },
+                query: {
+                    ...route.query,
+                    [key]: value && value !== defaultValue ? value : undefined,
+                },
             }),
     });
 };

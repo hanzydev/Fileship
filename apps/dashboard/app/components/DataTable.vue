@@ -39,7 +39,7 @@
                     :data-index="row.index"
                     :data-state="selected?.includes(itemKey(items[row.index]!)) && 'selected'"
                     :class="clickable && 'cursor-pointer'"
-                    @click="emit('rowClick', items[row.index]!)"
+                    @click="emit('rowClick', items[row.index]!, $event)"
                 >
                     <UiTableCell v-for="column in columns" :key="column.key" :class="column.class">
                         <slot :name="`cell-${column.key}`" :item="items[row.index]!">
@@ -87,7 +87,7 @@ const {
 }>();
 
 const emit = defineEmits<{
-    rowClick: [item: T];
+    rowClick: [item: T, event: MouseEvent];
 }>();
 
 const sort = defineModel<DataTableSort>('sort');
