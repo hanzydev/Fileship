@@ -338,15 +338,19 @@ const handleRegisterPasskey = async () => {
                 optionsJSON: registrationOptions,
             });
 
-            await $fetch('/api/users/@me/mfa/webauthn/credentials', {
-                method: 'POST',
-                body: { verify: true, ticket, registrationResponse, verificationData },
-            });
+            const { verified } = await $fetch<{ verified: boolean }>(
+                '/api/users/@me/mfa/webauthn/credentials',
+                {
+                    method: 'POST',
+                    body: { verify: true, ticket, registrationResponse, verificationData },
+                },
+            );
 
-            return true;
+            return verified;
         });
 
         if (result) $toast.success('Passkey added');
+        else if (result === false) $toast.error('Passkey could not be verified');
     } catch (error: any) {
         $toast.error(error.data?.message || 'Failed to register passkey');
     }
