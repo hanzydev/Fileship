@@ -126,6 +126,7 @@
 import {
     browserSupportsWebAuthn,
     type PublicKeyCredentialRequestOptionsJSON,
+    sendSignal,
     startAuthentication,
 } from '@simplewebauthn/browser';
 
@@ -226,12 +227,11 @@ const handlePasskeyLogin = async () => {
                 await handleLoggedIn(user, session, 'Logged in successfully with passkey');
             } catch (error: any) {
                 if (error.data?.data?.unknownCredential) {
-                    await (PublicKeyCredential as any)
-                        .signalUnknownCredential?.({
-                            rpId: location.hostname,
-                            credentialId: authenticationResponse.id,
-                        })
-                        .catch(() => null);
+                    await sendSignal({
+                        signalName: 'unknownCredential',
+                        rpID: location.hostname,
+                        credentialID: authenticationResponse.id,
+                    }).catch(() => null);
                 }
 
                 $toast.error(getErrorMessage(error));

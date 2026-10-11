@@ -201,6 +201,7 @@ import {
     browserSupportsWebAuthn,
     bufferToBase64URLString,
     type PublicKeyCredentialCreationOptionsJSON,
+    sendSignal,
     startRegistration,
 } from '@simplewebauthn/browser';
 
@@ -417,15 +418,12 @@ onMounted(async () => {
     isLoadingPasskeys.value = false;
 
     if (data) {
-        await (PublicKeyCredential as any)
-            ?.signalAllAcceptedCredentials?.({
-                rpId: location.hostname,
-                userId: bufferToBase64URLString(
-                    new TextEncoder().encode(currentUser.value!.id).buffer,
-                ),
-                allAcceptedCredentialIds: data.map((p) => p.id),
-            })
-            .catch(() => null);
+        await sendSignal({
+            signalName: 'allAcceptedCredentials',
+            rpID: location.hostname,
+            userID: bufferToBase64URLString(new TextEncoder().encode(currentUser.value!.id).buffer),
+            allAcceptedCredentialIDs: data.map((p) => p.id),
+        }).catch(() => null);
     }
 });
 </script>
