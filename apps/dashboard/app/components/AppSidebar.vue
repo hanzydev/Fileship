@@ -57,12 +57,11 @@
                             </UiSidebarMenuButton>
                         </UiSidebarMenuItem>
                     </UiSidebarMenu>
-
-                    <!-- TODO: UPDATER UI -->
                 </UiSidebarGroupContent>
             </UiSidebarGroup>
         </UiSidebarContent>
         <UiSidebarFooter>
+            <UpdaterCard v-if="updaterStatus?.hasUpdate" :status="updaterStatus" />
             <UiDropdownMenu>
                 <UiDropdownMenuTrigger as-child>
                     <UiSidebarMenuButton
