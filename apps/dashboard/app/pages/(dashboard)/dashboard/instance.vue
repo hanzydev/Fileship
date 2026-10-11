@@ -9,9 +9,9 @@
             description="Settings for everyone on this Fileship instance. Values set here override the environment."
         />
 
-        <div class="flex max-w-3xl flex-col gap-6">
+        <div class="grid items-start gap-6 lg:grid-cols-2">
             <template v-if="!data">
-                <UiCard v-for="i in 3" :key="i">
+                <UiCard v-for="i in 4" :key="i">
                     <UiCardHeader>
                         <UiSkeleton class="h-5 w-32" />
                         <UiSkeleton class="h-4 w-64" />
