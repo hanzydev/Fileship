@@ -1,5 +1,7 @@
 <template>
-    <div>
-        <slot />
-    </div>
+    <UiTooltipProvider>
+        <div>
+            <slot />
+        </div>
+    </UiTooltipProvider>
 </template>
