@@ -186,6 +186,8 @@ export default defineNuxtConfig({
         optimizeDeps: {
             include: [
                 '@lucide/vue',
+                '@unovis/ts',
+                '@unovis/vue',
                 'class-variance-authority',
                 'clsx',
                 'dayjs', // CJS
