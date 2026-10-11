@@ -28,6 +28,8 @@
         "@simplewebauthn/server": "^14.0.3",
         "@tanstack/vue-table": "^9.2.8",
         "@tanstack/vue-virtual": "^3.13.40",
+        "@unovis/ts": "^1.7.1",
+        "@unovis/vue": "^1.7.1",
         "argon2": "^0.45.1",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",

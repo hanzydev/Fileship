@@ -1,8 +1,6 @@
 <template>
     <main>
         <div v-if="currentUser">
-            <!-- TODO: impersonation banner -->
-
             <Centered v-if="currentUser.backupRestoreState">
                 <UiCard class="w-full max-w-sm">
                     <UiCardHeader class="items-center text-center">
@@ -18,6 +16,25 @@
             <UiSidebarProvider v-else storage-key="sidebar">
                 <AppSidebar />
                 <UiSidebarInset>
+                    <div
+                        v-if="adminSessionId"
+                        class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 bg-primary px-4 py-2 text-sm text-primary-foreground"
+                    >
+                        <span class="flex items-center gap-2">
+                            <IVenetianMask class="size-4" />
+                            You are signed in as
+                            <strong>{{ currentUser.username }}</strong>
+                        </span>
+                        <UiButton
+                            size="xs"
+                            variant="secondary"
+                            :disabled="isReturning"
+                            @click="handleStopImpersonating"
+                        >
+                            <UiSpinner v-if="isReturning" />
+                            Return to my account
+                        </UiButton>
+                    </div>
                     <header
                         class="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
                     >
@@ -135,6 +152,8 @@ const { quickUpload } = useUploader();
 
 const uploadSheet = useTemplateRef('uploadSheet');
 const commandPaletteOpen = ref(false);
+const isReturning = ref(false);
+const { adminSessionId, stopImpersonating } = useImpersonation();
 
 const restoreStates = {
     Extracting: 'Extracting the archive, this may take a while...',
@@ -173,6 +192,12 @@ const breadcrumbItems = computed(() => {
 });
 
 const canUpload = computed(() => canUploadFiles(currentUser.value));
+
+const handleStopImpersonating = async () => {
+    isReturning.value = true;
+    await stopImpersonating();
+    isReturning.value = false;
+};
 
 const isTyping = () =>
     !!document.activeElement?.closest('input, textarea, select, [contenteditable="true"]');
