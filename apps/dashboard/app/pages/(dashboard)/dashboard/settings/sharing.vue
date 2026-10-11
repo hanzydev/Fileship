@@ -113,9 +113,12 @@
                     </UiButton>
                 </UiCardContent>
             </UiCard>
-            <TextBlock v-if="!domainsForm.length" variant="muted">
-                No custom domains. Links use the current domain.
-            </TextBlock>
+            <EmptyState
+                v-if="!domainsForm.length"
+                :icon="IGlobe"
+                title="No custom domains"
+                description="Links use the current domain."
+            />
         </UiCardContent>
         <UiCardFooter class="justify-end">
             <UiButton :disabled="isSavingDomains || !isDomainsDirty" @click="handleSaveDomains">
@@ -128,6 +131,8 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
+
+import { IGlobe } from '#components';
 
 const embed = useEmbed();
 const domains = useDomains();

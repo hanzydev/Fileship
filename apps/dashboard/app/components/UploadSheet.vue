@@ -134,7 +134,6 @@
                                             v-for="type in fileNameTypes"
                                             :key="type"
                                             :value="type"
-                                            class="flex-1"
                                         >
                                             {{ type }}
                                         </UiTabsTrigger>

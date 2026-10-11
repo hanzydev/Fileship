@@ -17,7 +17,6 @@
                                     v-for="type in ['Random', 'UUID', 'Original']"
                                     :key="type"
                                     :value="type"
-                                    class="flex-1"
                                 >
                                     {{ type }}
                                 </UiTabsTrigger>
@@ -81,7 +80,9 @@
                     </div>
                 </UiFieldGroup>
             </UiCardContent>
-            <UiCardFooter class="justify-between gap-4">
+            <UiCardFooter
+                class="flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center"
+            >
                 <TextBlock variant="muted" class="text-xs">
                     The config contains your session token. Do not share it.
                 </TextBlock>

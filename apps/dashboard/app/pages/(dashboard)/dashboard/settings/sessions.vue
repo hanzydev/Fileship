@@ -6,7 +6,7 @@
             <UiCardAction>
                 <UiButton variant="outline" :disabled="total < 2" @click="handleRevokeAll">
                     <ILogOut />
-                    Sign out others
+                    <span class="hidden sm:inline">Sign out others</span>
                 </UiButton>
             </UiCardAction>
         </UiCardHeader>
@@ -50,10 +50,11 @@
                             </div>
                             <UiButton
                                 v-if="item.id !== currentUser!.currentSessionId"
-                                variant="ghost"
+                                variant="outline"
                                 size="sm"
                                 @click="handleRevoke(item)"
                             >
+                                <ILogOut />
                                 Sign out
                             </UiButton>
                         </UiCardContent>

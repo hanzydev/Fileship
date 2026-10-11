@@ -12,12 +12,12 @@
                     @click="backupInput!.click()"
                 >
                     <IUpload />
-                    Upload
+                    <span class="hidden sm:inline">Upload</span>
                 </UiButton>
                 <UiButton :disabled="isCreating" @click="handleCreate">
                     <UiSpinner v-if="isCreating" />
                     <IPlus v-else />
-                    Create
+                    <span class="hidden sm:inline">Create</span>
                 </UiButton>
             </UiCardAction>
         </UiCardHeader>

@@ -25,6 +25,7 @@
                     :disabled="isUpdatingAvatar"
                     @click="updateAvatar(null)"
                 >
+                    <ITrash2 />
                     Remove
                 </UiButton>
             </div>

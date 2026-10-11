@@ -7,15 +7,15 @@
         <UiCardContent>
             <UiTabs v-model="colorMode.preference">
                 <UiTabsList class="w-full">
-                    <UiTabsTrigger value="light" class="flex-1">
+                    <UiTabsTrigger value="light">
                         <ISun />
                         Light
                     </UiTabsTrigger>
-                    <UiTabsTrigger value="dark" class="flex-1">
+                    <UiTabsTrigger value="dark">
                         <IMoon />
                         Dark
                     </UiTabsTrigger>
-                    <UiTabsTrigger value="system" class="flex-1">
+                    <UiTabsTrigger value="system">
                         <IMonitor />
                         System
                     </UiTabsTrigger>
@@ -29,18 +29,24 @@
             <UiCardTitle>Accent color</UiCardTitle>
             <UiCardDescription>Synced across all your devices.</UiCardDescription>
         </UiCardHeader>
-        <UiCardContent class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <UiButton
-                v-for="(color, accent) in accents"
-                :key="accent"
-                :variant="selectedAccent === accent ? 'secondary' : 'outline'"
-                class="justify-start"
-                @click="updateTheme(accent)"
+        <UiCardContent>
+            <UiRadioGroup
+                :model-value="selectedAccent"
+                class="grid grid-cols-2 gap-2 sm:grid-cols-4"
+                @update:model-value="updateTheme($event as Accent)"
             >
-                <span class="size-4 rounded-full" :style="{ background: color }" />
-                {{ accent }}
-                <ICheck v-if="selectedAccent === accent" class="ml-auto" />
-            </UiButton>
+                <UiFieldLabel
+                    v-for="(color, accent) in accents"
+                    :key="accent"
+                    :for="`accent-${accent}`"
+                >
+                    <UiField orientation="horizontal">
+                        <span class="size-4 shrink-0 rounded-full" :style="{ background: color }" />
+                        <UiFieldTitle>{{ accent }}</UiFieldTitle>
+                        <UiRadioGroupItem :id="`accent-${accent}`" :value="accent" />
+                    </UiField>
+                </UiFieldLabel>
+            </UiRadioGroup>
         </UiCardContent>
     </UiCard>
 </template>

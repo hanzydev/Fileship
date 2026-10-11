@@ -33,7 +33,6 @@
                 </UiField>
                 <UiButton
                     type="submit"
-                    variant="outline"
                     class="self-end"
                     :disabled="isSavingSlug || slug === (inbox.slug || inbox.id)"
                 >
@@ -56,7 +55,6 @@
                 </UiField>
                 <UiButton
                     type="submit"
-                    variant="outline"
                     class="self-end"
                     :disabled="isSavingPassword || password === (inbox.password || '')"
                 >
@@ -65,8 +63,12 @@
                 </UiButton>
             </form>
         </UiCardContent>
-        <UiCardContent v-else>
-            <UiSkeleton class="h-32 rounded-2xl" />
+        <UiCardContent v-else class="flex flex-col gap-6">
+            <div v-for="i in 2" :key="i" class="flex flex-col gap-3">
+                <UiSkeleton class="h-4 w-24 rounded-full" />
+                <UiSkeleton class="h-9 w-full rounded-full" />
+                <UiSkeleton class="ml-auto h-9 w-28 rounded-full" />
+            </div>
         </UiCardContent>
         <UiCardFooter v-if="inbox">
             <UiButton variant="ghost" as-child>

@@ -57,6 +57,8 @@
                     @click="currentUser!.totpEnabled ? handleDisableTotp() : handleStartTotp()"
                 >
                     <UiSpinner v-if="isUpdatingTotp" />
+                    <IShieldOff v-else-if="currentUser!.totpEnabled" />
+                    <IShieldCheck v-else />
                     {{ currentUser!.totpEnabled ? 'Disable' : 'Enable' }}
                 </UiButton>
             </UiCardAction>
@@ -85,8 +87,17 @@
                 <IInfo />
                 <UiAlertTitle>Your browser does not support passkeys.</UiAlertTitle>
             </UiAlert>
-            <UiCard v-for="passkey in passkeys" :key="passkey.id" size="sm">
-                <UiCardContent class="flex items-center gap-3">
+            <template v-if="isLoadingPasskeys">
+                <ListCardSkeleton v-for="i in 2" :key="i" media="size-4" />
+            </template>
+            <EmptyState
+                v-else-if="!passkeys.length && supportsPasskeys"
+                :icon="IKeyRound"
+                title="No passkeys yet"
+                description="Add one to sign in without a password."
+            />
+            <UiCard v-for="passkey in passkeys" v-else :key="passkey.id" size="sm">
+                <UiCardContent class="flex min-h-8 items-center gap-3">
                     <IKeyRound class="size-4 shrink-0 text-muted-foreground" />
                     <div class="flex min-w-0 flex-1 flex-col">
                         <TextBlock variant="small" class="truncate">{{ passkey.name }}</TextBlock>
@@ -94,17 +105,29 @@
                             Added {{ dayjs(passkey.createdAt).fromNow() }}
                         </TextBlock>
                     </div>
-                    <UiButton variant="ghost" size="icon-sm" @click="openRename(passkey)">
-                        <IPencil />
-                    </UiButton>
-                    <UiButton variant="ghost" size="icon-sm" @click="handleDeletePasskey(passkey)">
-                        <ITrash2 />
-                    </UiButton>
+                    <UiDropdownMenu>
+                        <UiDropdownMenuTrigger as-child>
+                            <UiButton variant="ghost" size="icon-sm">
+                                <IEllipsis />
+                            </UiButton>
+                        </UiDropdownMenuTrigger>
+                        <UiDropdownMenuContent align="end" class="w-56">
+                            <UiDropdownMenuItem @select="openRename(passkey)">
+                                <IPencil />
+                                Rename
+                            </UiDropdownMenuItem>
+                            <UiDropdownMenuSeparator />
+                            <UiDropdownMenuItem
+                                variant="destructive"
+                                @select="handleDeletePasskey(passkey)"
+                            >
+                                <ITrash2 />
+                                Delete
+                            </UiDropdownMenuItem>
+                        </UiDropdownMenuContent>
+                    </UiDropdownMenu>
                 </UiCardContent>
             </UiCard>
-            <TextBlock v-if="!passkeys.length && supportsPasskeys" variant="muted">
-                No passkeys yet.
-            </TextBlock>
         </UiCardContent>
     </UiCard>
 
@@ -149,13 +172,22 @@
             <form class="flex flex-col gap-6" @submit.prevent="handleRenamePasskey">
                 <UiDialogHeader>
                     <UiDialogTitle>Rename passkey</UiDialogTitle>
+                    <UiDialogDescription>
+                        Pick a name that tells you which device it belongs to.
+                    </UiDialogDescription>
                 </UiDialogHeader>
-                <UiInput v-model="renameValue" />
+                <UiField>
+                    <UiFieldLabel for="passkey-name">Name</UiFieldLabel>
+                    <UiInput id="passkey-name" v-model="renameValue" maxlength="32" />
+                </UiField>
                 <UiDialogFooter>
                     <UiButton type="button" variant="outline" @click="renaming = null">
                         Cancel
                     </UiButton>
-                    <UiButton type="submit" :disabled="!renameValue.trim()">Save</UiButton>
+                    <UiButton type="submit" :disabled="!renameValue.trim() || isRenaming">
+                        <UiSpinner v-if="isRenaming" />
+                        Save
+                    </UiButton>
                 </UiDialogFooter>
             </form>
         </UiDialogContent>
@@ -171,7 +203,11 @@ import {
     startRegistration,
 } from '@simplewebauthn/browser';
 
+import { IKeyRound } from '#components';
+
 const passkeys = usePasskeys();
+const isLoadingPasskeys = ref(!passkeys.value.length);
+const isRenaming = ref(false);
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
 
@@ -324,7 +360,7 @@ const openRename = (passkey: PasskeyData) => {
 
 const handleRenamePasskey = async () => {
     const passkey = renaming.value!;
-    renaming.value = null;
+    isRenaming.value = true;
 
     try {
         const result = await withVerification((verificationData) =>
@@ -334,10 +370,15 @@ const handleRenamePasskey = async () => {
             }),
         );
 
-        if (result) $toast.success('Passkey renamed');
+        if (result) {
+            renaming.value = null;
+            $toast.success('Passkey renamed');
+        }
     } catch (error: any) {
         $toast.error(error.data?.data?.formErrors?.name?._errors[0] || getErrorMessage(error));
     }
+
+    isRenaming.value = false;
 };
 
 const handleDeletePasskey = async (passkey: PasskeyData) => {
@@ -366,7 +407,8 @@ const handleDeletePasskey = async (passkey: PasskeyData) => {
 onMounted(async () => {
     supportsPasskeys.value = browserSupportsWebAuthn();
 
-    const data = await $fetch('/api/users/@me/mfa/webauthn/credentials');
+    const data = await $fetch('/api/users/@me/mfa/webauthn/credentials').catch(() => []);
     passkeys.value = data.map((p) => ({ ...p, createdAt: new Date(p.createdAt) }));
+    isLoadingPasskeys.value = false;
 });
 </script>
