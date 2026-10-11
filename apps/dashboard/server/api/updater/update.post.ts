@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
     if (isRestoring) {
         throw createError({
-            statusCode: 409,
+            status: 409,
             message: 'A backup is being restored, try again when it finishes',
         });
     }

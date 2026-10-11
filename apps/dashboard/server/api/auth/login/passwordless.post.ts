@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
     if (!body.success) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
         const userHandle = body.data.authenticationResponse?.response?.userHandle;
         if (!userHandle) {
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: 'Invalid authentication response',
             });
         }
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
 
         if (!findUserByUsername) {
             throw createError({
-                statusCode: 404,
+                status: 404,
                 message: 'User not found',
             });
         }
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
 
         if (!findCredentialById) {
             throw createError({
-                statusCode: 404,
+                status: 404,
                 message: 'Credential not found',
             });
         }
@@ -74,7 +74,7 @@ export default defineEventHandler(async (event) => {
         }>(`webauthnTicket:${body.data.ticket}`);
         if (!webauthnTicket || webauthnTicket.expiresAt < Date.now()) {
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: 'Invalid or expired ticket',
             });
         }

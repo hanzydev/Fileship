@@ -58,11 +58,11 @@ const { data, error } = await useFetch<NoteData & { embed: Pick<IEmbed, 'enabled
     `/api/notes/${(route.params as any).id}`,
 );
 
-if (error.value?.statusCode === 404) {
-    throw createError({ statusCode: 404, message: 'Note not found' });
-} else if (error.value?.statusCode === 403) {
+if (error.value?.status === 404) {
+    throw createError({ status: 404, message: 'Note not found' });
+} else if (error.value?.status === 403) {
     throw createError({
-        statusCode: 403,
+        status: 403,
         message: 'You do not have permission to access this page',
     });
 }

@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
 
     if (!findFolderById) {
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'Folder not found',
         });
     }
@@ -50,14 +50,14 @@ export default defineEventHandler(async (event) => {
     const isAnyJobRunning = items.some((item) => item.value && !item.value.isDone);
     if (isAnyJobRunning) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'An archive job is already running for this folder',
         });
     }
 
     if (!findFolderById.files.length) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'No files to archive in this folder',
         });
     }

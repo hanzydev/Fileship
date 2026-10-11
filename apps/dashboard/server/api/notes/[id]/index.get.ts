@@ -20,14 +20,14 @@ export default defineEventHandler(async (event) => {
 
     if (!findNoteById) {
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'Note not found',
         });
     }
 
     if (!findNoteById.public && findNoteById.authorId !== user?.id) {
         throw createError({
-            statusCode: 403,
+            status: 403,
             message: 'You do not have permission to access this page',
         });
     }

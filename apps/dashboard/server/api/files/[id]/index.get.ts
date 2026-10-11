@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
 
     if (!findFileById) {
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'File not found',
         });
     }
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
     if (findFileById.authorId !== currentUser?.id) {
         if (findFileById.folder?.public === false) {
             throw createError({
-                statusCode: 403,
+                status: 403,
                 message: 'You do not have permission to access this page',
             });
         }
@@ -60,14 +60,14 @@ export default defineEventHandler(async (event) => {
         if (findFileById.password) {
             if (!query.password) {
                 throw createError({
-                    statusCode: 400,
+                    status: 400,
                     message: 'Verification is required',
                 });
             }
 
             if (query.password !== findFileById.password) {
                 throw createError({
-                    statusCode: 401,
+                    status: 401,
                     message: 'Invalid password',
                 });
             }

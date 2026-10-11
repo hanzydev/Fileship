@@ -20,7 +20,7 @@ export const readListQuery = async <T extends z.ZodRawShape>(event: H3Event, sha
 
     if (!result.success) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid query',
             data: { formErrors: result.error.format() },
         });

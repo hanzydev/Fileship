@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
     if (!existsSync(backupPath)) {
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'Backup not found',
         });
     }

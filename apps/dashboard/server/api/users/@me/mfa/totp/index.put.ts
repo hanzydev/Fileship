@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
     if (!body.success) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
 
     if (currentUser.totpEnabled === body.data.enabled) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: `Authenticator App is already ${body.data.enabled ? 'enabled' : 'disabled'}`,
         });
     }
@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
         !(await verifyTotp({ secret: currentUser.totpSecret!, token: body.data.totp! })).valid
     ) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid TOTP',
         });
     }

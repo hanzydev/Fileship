@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
 
     if (!body.success) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
 
         if (findInboxBySlug) {
             throw createError({
-                statusCode: 409,
+                status: 409,
                 message: 'Slug already taken',
             });
         }

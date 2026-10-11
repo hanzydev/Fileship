@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
     if (!findFileById) {
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'File not found',
         });
     }

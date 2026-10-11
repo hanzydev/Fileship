@@ -129,8 +129,8 @@ const { data: _data, error } = await useFetch(
     `/api/inbox/${id}${route.query.password ? `?password=${encodeURIComponent(String(route.query.password))}` : ''}`,
 );
 
-if (error.value?.statusCode === 404) {
-    throw createError({ statusCode: 404, message: 'Inbox not found' });
+if (error.value?.status === 404) {
+    throw createError({ status: 404, message: 'Inbox not found' });
 }
 
 const data = ref<any>({

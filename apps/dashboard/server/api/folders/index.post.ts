@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
     if (!body.success) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
 
         if (files.length !== body.data.files.length) {
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: 'Invalid files',
             });
         }

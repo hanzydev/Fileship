@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
     if (!body.success) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
 
     if (!findCredentialById) {
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'Credential not found',
         });
     }

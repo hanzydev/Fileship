@@ -42,7 +42,7 @@ export const withVerification = async <T>(action: (verificationData?: unknown) =
                         verificationState.value = null;
                         resolve((result ?? true) as NonNullable<T>);
                     } catch (error: any) {
-                        if (error.statusCode !== 401 && !error.data?.data?.mfa) {
+                        if (error.status !== 401 && !error.data?.data?.mfa) {
                             verificationState.value = null;
                             reject(error);
                             return;

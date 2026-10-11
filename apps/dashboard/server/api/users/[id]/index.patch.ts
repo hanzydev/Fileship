@@ -51,14 +51,14 @@ export default defineEventHandler(async (event) => {
 
     if (!findUserById) {
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'User not found',
         });
     }
 
     if (findUserById.superAdmin && !currentUser.superAdmin) {
         throw createError({
-            statusCode: 403,
+            status: 403,
             message: 'You cannot update a super admin',
         });
     }
@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
     if (!body.success) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -81,14 +81,14 @@ export default defineEventHandler(async (event) => {
 
     if ('superAdmin' in body.data && body.data.superAdmin && !currentUser.superAdmin) {
         throw createError({
-            statusCode: 403,
+            status: 403,
             message: 'You cannot grant super admin rights',
         });
     }
 
     if (body.data.permissions && !body.data.permissions.length && !body.data.superAdmin) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Permissions must be provided if user is not a super admin',
         });
     }
@@ -103,7 +103,7 @@ export default defineEventHandler(async (event) => {
 
         if (findUserByUsername) {
             throw createError({
-                statusCode: 409,
+                status: 409,
                 message: 'Username already taken',
                 data: {
                     formErrors: {
@@ -125,7 +125,7 @@ export default defineEventHandler(async (event) => {
 
         if (buffer.length > avatarMaxSize * 1024 * 1024) {
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: `Avatar must be less than ${avatarMaxSize}MB`,
             });
         }
@@ -138,21 +138,21 @@ export default defineEventHandler(async (event) => {
             metadata = await image.metadata();
         } catch {
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: 'Invalid avatar image',
             });
         }
 
         if (!metadata.width || !metadata.height) {
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: 'Invalid avatar',
             });
         }
 
         if (metadata.width < 64 || metadata.height < 64) {
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: 'Avatar must be at least 64x64',
             });
         }
@@ -167,7 +167,7 @@ export default defineEventHandler(async (event) => {
             body.data.avatar = `data:image/png;base64,${resizedAvatar.toString('base64')}`;
         } catch {
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: 'Failed to process avatar',
             });
         }
@@ -213,7 +213,7 @@ export default defineEventHandler(async (event) => {
             superAdminsCount <= 1
         ) {
             throw createError({
-                statusCode: 403,
+                status: 403,
                 message:
                     'You cannot remove super admin from yourself if you are the only super admin',
             });

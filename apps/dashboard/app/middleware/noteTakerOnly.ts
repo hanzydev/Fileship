@@ -4,7 +4,7 @@ export default defineNuxtRouteMiddleware(() => {
 
     if (!canTakeNotes(user)) {
         return abortNavigation({
-            statusCode: 403,
+            status: 403,
             message: 'You do not have permission to access this page',
         });
     }

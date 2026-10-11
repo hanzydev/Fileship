@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
 
     if (!body.success) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
 
     if (!/^[\w-]+$/.test(backupId)) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid backup id',
         });
     }
@@ -73,7 +73,7 @@ export default defineEventHandler(async (event) => {
 
     if (!existsSync(backupPath)) {
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'Backup not found',
         });
     }
@@ -87,7 +87,7 @@ export default defineEventHandler(async (event) => {
 
     if (user?.backupRestoreState) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'A backup restoration is already in progress',
         });
     }

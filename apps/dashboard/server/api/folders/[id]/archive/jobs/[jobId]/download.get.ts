@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 
     if (!archiveStatus) {
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'Job not found',
         });
     }
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
 
     if (!archiveStatus.isDone) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Job is not done yet',
         });
     }
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     if (!existsSync(archivePath)) {
         await storage.removeItem(`folderArchiveStatus:${folderId}:${jobId}`);
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'Archive not found',
         });
     }

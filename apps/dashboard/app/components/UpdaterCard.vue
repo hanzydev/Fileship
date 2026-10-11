@@ -108,7 +108,7 @@ const handleUpdate = async () => {
 
         $toast.error(
             error?.data?.message ||
-                error?.statusMessage ||
+                error?.statusText ||
                 'An unknown error occurred while updating Fileship',
         );
         isUpdating.value = false;

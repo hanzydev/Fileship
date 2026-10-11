@@ -35,7 +35,7 @@ export const verifySession = async (
     });
     if (!currentSession) {
         throw createError({
-            statusCode: 401,
+            status: 401,
             message: 'Session not found',
         });
     }
@@ -79,7 +79,7 @@ export const verifySession = async (
             }
 
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: 'Verification is required',
                 data: {
                     mfa: {
@@ -100,7 +100,7 @@ export const verifySession = async (
         if (verificationData?.type === 'totp') {
             if (!currentUser.totpEnabled) {
                 throw createError({
-                    statusCode: 400,
+                    status: 400,
                     message: 'TOTP verification is not enabled for this user',
                 });
             }
@@ -112,14 +112,14 @@ export const verifySession = async (
 
             if (!totpValid.valid) {
                 throw createError({
-                    statusCode: 401,
+                    status: 401,
                     message: 'Invalid TOTP',
                 });
             }
         } else if (verificationData?.type === 'password') {
             if (currentUser.totpEnabled) {
                 throw createError({
-                    statusCode: 400,
+                    status: 400,
                     message: 'Password verification is not allowed because TOTP is enabled',
                 });
             }
@@ -131,7 +131,7 @@ export const verifySession = async (
 
             if (!passwordMatch) {
                 throw createError({
-                    statusCode: 401,
+                    status: 401,
                     message: 'Invalid password',
                 });
             }
@@ -148,7 +148,7 @@ export const verifySession = async (
 
             if (!findCredentialById) {
                 throw createError({
-                    statusCode: 401,
+                    status: 401,
                     message: 'Passkey not found',
                 });
             }
@@ -159,7 +159,7 @@ export const verifySession = async (
             }>(`webauthnTicket:${ticket}`);
             if (!webauthnTicket || webauthnTicket.expiresAt < Date.now()) {
                 throw createError({
-                    statusCode: 400,
+                    status: 400,
                     message: 'Invalid or expired ticket',
                 });
             }
@@ -185,7 +185,7 @@ export const verifySession = async (
 
             if (!response.verified) {
                 throw createError({
-                    statusCode: 401,
+                    status: 401,
                     message: 'Invalid passkey',
                 });
             }
@@ -200,7 +200,7 @@ export const verifySession = async (
             });
         } else {
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: 'Invalid verification type',
             });
         }

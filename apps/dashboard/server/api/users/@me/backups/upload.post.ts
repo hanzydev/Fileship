@@ -18,14 +18,14 @@ export default defineEventHandler(async (event) => {
     const backup = formData.get('backup');
     if (!backup) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Missing backup file',
         });
     }
 
     if (typeof backup === 'string') {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid backup file',
         });
     }
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
 
     if (!body.success) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
 
     if (!/^[\w-]+\.tgz$/.test(backupName)) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Backups must be .tgz files',
         });
     }
@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
 
     if (userBackups.includes(backupName)) {
         throw createError({
-            statusCode: 409,
+            status: 409,
             message: 'A backup with that name already exists',
         });
     }
@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
         userBackups.length >= currentUser.limits.backupLimit
     ) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Backup limit reached',
         });
     }

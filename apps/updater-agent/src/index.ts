@@ -283,7 +283,7 @@ router.use(
     defineEventHandler((event) => {
         const authHeader = getRequestHeader(event, 'Authorization');
         if (authHeader !== SECRET_TOKEN) {
-            throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });
+            throw createError({ status: 401, statusText: 'Unauthorized' });
         }
     }),
 );
@@ -293,8 +293,8 @@ router.post(
     defineEventHandler((event) => {
         if (isUpdating) {
             throw createError({
-                statusCode: 409,
-                statusMessage: 'An update is already in progress',
+                status: 409,
+                statusText: 'An update is already in progress',
             });
         }
 

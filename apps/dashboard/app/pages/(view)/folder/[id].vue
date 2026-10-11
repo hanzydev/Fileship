@@ -246,7 +246,7 @@ const { data, error } = await useFetch<FolderData & { embed: IEmbed }>(
 );
 
 if (error.value) {
-    throw createError({ statusCode: 404, message: 'Folder not found' });
+    throw createError({ status: 404, message: 'Folder not found' });
 }
 
 const search = ref('');

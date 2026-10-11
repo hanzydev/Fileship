@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
 
     if (!findInboxById?.enabled) {
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'Inbox not found',
         });
     }
@@ -36,14 +36,14 @@ export default defineEventHandler(async (event) => {
     if (findInboxById.userId !== currentUser?.id && findInboxById.password) {
         if (!query.password) {
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: 'Verification is required',
             });
         }
 
         if (query.password !== findInboxById.password) {
             throw createError({
-                statusCode: 401,
+                status: 401,
                 message: 'Invalid password',
             });
         }

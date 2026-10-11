@@ -186,11 +186,11 @@ const { data: _data, error } = await useFetch<FileData & { embed: IEmbed }>(
     },
 );
 
-if (error.value?.statusCode === 404) {
-    throw createError({ statusCode: 404, message: 'File not found' });
-} else if (error.value?.statusCode === 403) {
+if (error.value?.status === 404) {
+    throw createError({ status: 404, message: 'File not found' });
+} else if (error.value?.status === 403) {
     throw createError({
-        statusCode: 403,
+        status: 403,
         message: 'You do not have permission to access this page',
     });
 }

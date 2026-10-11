@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
     if (!body.success) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
 
     if (!findUserByUsername) {
         throw createError({
-            statusCode: 401,
+            status: 401,
             message: 'Invalid username or password',
         });
     }
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
             const turnstileResult = await verifyTurnstileToken(body.data.turnstile!, event);
             if (!turnstileResult.success) {
                 throw createError({
-                    statusCode: 400,
+                    status: 400,
                     message: 'Invalid turnstile',
                 });
             }
@@ -73,7 +73,7 @@ export default defineEventHandler(async (event) => {
 
         if (!passwordMatch) {
             throw createError({
-                statusCode: 401,
+                status: 401,
                 message: 'Invalid username or password',
             });
         }
@@ -81,7 +81,7 @@ export default defineEventHandler(async (event) => {
         if (findUserByUsername.totpEnabled) {
             if (!body.data.totp) {
                 throw createError({
-                    statusCode: 400,
+                    status: 400,
                     message: 'Missing TOTP',
                 });
             }
@@ -93,7 +93,7 @@ export default defineEventHandler(async (event) => {
 
             if (!totpValid.valid) {
                 throw createError({
-                    statusCode: 401,
+                    status: 401,
                     message: 'Invalid TOTP',
                 });
             }

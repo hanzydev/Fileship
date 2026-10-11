@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
 
     if (!body.success) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -42,14 +42,14 @@ export default defineEventHandler(async (event) => {
 
     if (body.data.superAdmin && !currentUser.superAdmin) {
         throw createError({
-            statusCode: 403,
+            status: 403,
             message: 'You do not have permission to create a super admin',
         });
     }
 
     if (!body.data.superAdmin && !body.data.permissions?.length) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Permissions must be provided if user is not a super admin',
         });
     }
@@ -68,7 +68,7 @@ export default defineEventHandler(async (event) => {
 
     if (findUserByUsername) {
         throw createError({
-            statusCode: 409,
+            status: 409,
             message: 'A user with that username already exists',
         });
     }

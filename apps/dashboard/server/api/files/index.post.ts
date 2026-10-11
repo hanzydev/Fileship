@@ -42,14 +42,14 @@ export default defineEventHandler(async (event) => {
     const file = formData.get('file');
     if (!file) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Missing file',
         });
     }
 
     if (typeof file === 'string') {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid file',
         });
     }
@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
 
     if (!body.success) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
@@ -96,7 +96,7 @@ export default defineEventHandler(async (event) => {
 
     if (!fileName.replaceAll('.', '') || fileName.startsWith('.')) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid file name',
         });
     }
@@ -109,7 +109,7 @@ export default defineEventHandler(async (event) => {
 
     if (findFileByFileName) {
         throw createError({
-            statusCode: 409,
+            status: 409,
             message: 'A file with that name already exists',
         });
     }
@@ -124,7 +124,7 @@ export default defineEventHandler(async (event) => {
 
         if (!findFolderById) {
             throw createError({
-                statusCode: 404,
+                status: 404,
                 message: 'Folder not found',
             });
         }
@@ -197,7 +197,7 @@ export default defineEventHandler(async (event) => {
         ) {
             await fsp.rm(tempPath).catch(() => {});
             throw createError({
-                statusCode: 400,
+                status: 400,
                 message: 'Storage limit reached',
             });
         }

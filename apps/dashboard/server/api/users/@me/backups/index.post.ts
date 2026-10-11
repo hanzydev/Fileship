@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
         userBackups.length >= currentUser.limits.backupLimit
     ) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Backup limit reached',
         });
     }

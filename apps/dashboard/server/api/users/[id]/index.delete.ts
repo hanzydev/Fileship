@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
     if (userId === currentUser.id) {
         throw createError({
-            statusCode: 403,
+            status: 403,
             message: 'You cannot delete yourself',
         });
     }
@@ -32,14 +32,14 @@ export default defineEventHandler(async (event) => {
 
     if (!findUserById) {
         throw createError({
-            statusCode: 404,
+            status: 404,
             message: 'User not found',
         });
     }
 
     if (findUserById.superAdmin && !currentUser.superAdmin) {
         throw createError({
-            statusCode: 403,
+            status: 403,
             message: 'You cannot delete a super admin',
         });
     }
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
 
     if (!body.success) {
         throw createError({
-            statusCode: 400,
+            status: 400,
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
         });
