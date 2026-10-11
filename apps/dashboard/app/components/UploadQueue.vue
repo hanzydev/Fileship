@@ -30,21 +30,51 @@
                     </UiCardAction>
                 </UiCardHeader>
                 <UiCollapsibleContent>
-                    <UiCardContent class="flex max-h-72 flex-col gap-3 overflow-y-auto">
-                        <div
+                    <UiCardContent class="flex max-h-72 flex-col gap-2 overflow-y-auto">
+                        <UiItem
                             v-for="(file, index) in uploadingFiles"
                             :key="`${file.name}-${index}`"
-                            class="flex flex-col gap-1.5"
+                            variant="muted"
+                            size="sm"
                         >
-                            <div class="flex items-center gap-2">
-                                <TextBlock variant="small" class="flex-1 truncate">
-                                    {{ file.name }}
-                                </TextBlock>
+                            <UiItemContent class="min-w-0">
+                                <UiItemTitle class="max-w-full">
+                                    <span class="truncate">{{ file.name }}</span>
+                                </UiItemTitle>
+                                <UiItemDescription
+                                    :class="
+                                        cn('truncate', file.status!.error && 'text-destructive')
+                                    "
+                                >
+                                    <template v-if="file.status!.error">
+                                        {{ file.status!.error }}
+                                    </template>
+                                    <template v-else-if="!file.status!.started">
+                                        Waiting...
+                                    </template>
+                                    <template v-else-if="!file.status!.completed">
+                                        {{ filesize(file.status!.progress.speed) }}/s ·
+                                        {{ formatEta(file.status!.progress.eta) }} left
+                                    </template>
+                                    <template v-else>Uploaded</template>
+                                </UiItemDescription>
+                            </UiItemContent>
+                            <UiItemActions>
                                 <template v-if="file.status!.error">
-                                    <UiButton variant="ghost" size="icon-xs" @click="retry(file)">
+                                    <UiButton
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        aria-label="Retry"
+                                        @click="retry(file)"
+                                    >
                                         <IRotateCw />
                                     </UiButton>
-                                    <UiButton variant="ghost" size="icon-xs" @click="dismiss(file)">
+                                    <UiButton
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        aria-label="Dismiss"
+                                        @click="dismiss(file)"
+                                    >
                                         <IX />
                                     </UiButton>
                                 </template>
@@ -52,27 +82,17 @@
                                     v-else-if="file.status!.completed"
                                     class="size-4 text-primary"
                                 />
-                                <TextBlock v-else variant="muted">
+                                <UiItemDescription v-else>
                                     {{ file.status!.progress.percent }}%
-                                </TextBlock>
-                            </div>
-                            <UiProgress
-                                v-if="!file.status!.error"
-                                :model-value="file.status!.progress.percent"
-                            />
-                            <UiFieldError
-                                v-if="file.status!.error"
-                                :errors="[file.status!.error]"
-                            />
-                            <TextBlock v-else variant="muted" class="truncate text-xs">
-                                <template v-if="!file.status!.started">Waiting...</template>
-                                <template v-else-if="!file.status!.completed">
-                                    {{ filesize(file.status!.progress.speed) }}/s ·
-                                    {{ formatEta(file.status!.progress.eta) }} left
-                                </template>
-                                <template v-else>Uploaded</template>
-                            </TextBlock>
-                        </div>
+                                </UiItemDescription>
+                            </UiItemActions>
+                            <UiItemFooter v-if="!file.status!.error && !file.status!.completed">
+                                <UiProgress
+                                    class="flex-1"
+                                    :model-value="file.status!.progress.percent"
+                                />
+                            </UiItemFooter>
+                        </UiItem>
                     </UiCardContent>
                 </UiCollapsibleContent>
             </UiCollapsible>

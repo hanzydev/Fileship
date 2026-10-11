@@ -28,28 +28,32 @@
                         />
 
                         <div v-if="files.length" class="flex flex-col gap-2">
-                            <UiCard
+                            <UiItem
                                 v-for="(file, index) in files"
                                 :key="`${file.name}-${index}`"
+                                variant="muted"
                                 size="sm"
                             >
-                                <UiCardContent class="flex items-center gap-3">
-                                    <IFile class="size-4 shrink-0 text-muted-foreground" />
-                                    <TextBlock variant="small" class="flex-1 truncate">
-                                        {{ file.name }}
-                                    </TextBlock>
-                                    <TextBlock variant="muted" class="shrink-0">
-                                        {{ filesize(file.size) }}
-                                    </TextBlock>
+                                <UiItemMedia variant="icon">
+                                    <IFile />
+                                </UiItemMedia>
+                                <UiItemContent class="min-w-0">
+                                    <UiItemTitle class="max-w-full">
+                                        <span class="truncate">{{ file.name }}</span>
+                                    </UiItemTitle>
+                                    <UiItemDescription>{{ filesize(file.size) }}</UiItemDescription>
+                                </UiItemContent>
+                                <UiItemActions>
                                     <UiButton
                                         variant="ghost"
                                         size="icon-sm"
+                                        aria-label="Remove"
                                         @click="files.splice(index, 1)"
                                     >
                                         <IX />
                                     </UiButton>
-                                </UiCardContent>
-                            </UiCard>
+                                </UiItemActions>
+                            </UiItem>
                         </div>
                     </UiTabsContent>
 

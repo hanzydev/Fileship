@@ -17,11 +17,11 @@
             <ViewHeader
                 :title="`${upperFirst(data.user!.username)}'s Inbox`"
                 subtitle="Send files directly to their account"
-                content-class="max-w-3xl"
+                content-class="max-w-lg"
             />
 
-            <main class="mx-auto flex w-full max-w-3xl flex-1 flex-col p-4">
-                <UiCard>
+            <main class="flex flex-1 items-center justify-center p-4">
+                <UiCard class="w-full max-w-lg">
                     <UiCardHeader>
                         <div class="flex items-center gap-3">
                             <UiAvatar>
@@ -46,42 +46,56 @@
                             v-if="uploadingFiles.length"
                             class="flex max-h-72 flex-col gap-2 overflow-y-auto"
                         >
-                            <UiCard
+                            <UiItem
                                 v-for="(file, index) in uploadingFiles"
                                 :key="`${file.name}-${index}`"
+                                variant="muted"
                                 size="sm"
                             >
-                                <UiCardContent class="flex flex-col gap-1.5">
-                                    <div class="flex items-center gap-2">
-                                        <TextBlock variant="small" class="flex-1 truncate">
-                                            {{ file.name }}
-                                        </TextBlock>
-                                        <TextBlock variant="muted" class="shrink-0 text-xs">
-                                            {{ filesize(file.size) }}
-                                        </TextBlock>
-                                        <UiButton
-                                            v-if="!file.status?.started"
-                                            variant="ghost"
-                                            size="icon-xs"
-                                            @click="uploadingFiles.splice(index, 1)"
-                                        >
-                                            <IX />
-                                        </UiButton>
-                                        <ICheck
-                                            v-else-if="file.status.completed"
-                                            class="size-4 text-primary"
-                                        />
-                                    </div>
+                                <UiItemMedia variant="icon">
+                                    <IFile />
+                                </UiItemMedia>
+                                <UiItemContent class="min-w-0">
+                                    <UiItemTitle class="max-w-full">
+                                        <span class="truncate">{{ file.name }}</span>
+                                    </UiItemTitle>
+                                    <UiItemDescription
+                                        :class="file.status?.error && 'text-destructive'"
+                                    >
+                                        {{ file.status?.error || filesize(file.size) }}
+                                    </UiItemDescription>
+                                </UiItemContent>
+                                <UiItemActions>
+                                    <UiButton
+                                        v-if="!file.status?.started"
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        aria-label="Remove"
+                                        @click="uploadingFiles.splice(index, 1)"
+                                    >
+                                        <IX />
+                                    </UiButton>
+                                    <ICheck
+                                        v-else-if="file.status.completed"
+                                        class="size-4 text-primary"
+                                    />
+                                    <UiItemDescription v-else-if="!file.status.error">
+                                        {{ file.status.progress.percent }}%
+                                    </UiItemDescription>
+                                </UiItemActions>
+                                <UiItemFooter
+                                    v-if="
+                                        file.status?.started &&
+                                        !file.status.completed &&
+                                        !file.status.error
+                                    "
+                                >
                                     <UiProgress
-                                        v-if="file.status?.started"
+                                        class="flex-1"
                                         :model-value="file.status.progress.percent"
                                     />
-                                    <UiFieldError
-                                        v-if="file.status?.error"
-                                        :errors="[file.status.error]"
-                                    />
-                                </UiCardContent>
-                            </UiCard>
+                                </UiItemFooter>
+                            </UiItem>
                         </div>
 
                         <UiAlert v-if="isDone">
