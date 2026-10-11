@@ -7,9 +7,14 @@ const validationSchema = z
     .object({
         fileName: z
             .string()
-            .min(3, 'File name must be at least 3 characters')
-            .max(255, 'File name must be at most 255 characters')
             .transform((value) => value.replace(/[^a-zA-Z0-9-_.]/g, '').trim())
+            .pipe(
+                z
+                    .string()
+                    .min(3, 'File name must be at least 3 characters')
+                    .max(255, 'File name must be at most 255 characters')
+                    .regex(/^[^.]/, 'File name cannot start with a dot'),
+            )
             .optional(),
         password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
         maxViews: z.number().min(0, 'Max views must be at least 0').optional(),
@@ -118,10 +123,13 @@ export default defineEventHandler(async (event) => {
 
     await update(fileSearchDb, updatedFile.id, {
         id: updatedFile.id,
+        authorId: updatedFile.authorId,
         fileName: updatedFile.fileName,
         mimeType: updatedFile.mimeType,
         embedding: (findFileById.embedding as never[]) || undefined,
         textEmbedding: (findFileById.textEmbedding as never[]) || undefined,
+        caption: findFileById.caption || undefined,
+        ocrText: findFileById.ocrText || undefined,
     });
 
     await createLog(event, {
@@ -129,7 +137,13 @@ export default defineEventHandler(async (event) => {
         message: `Updated file ${updatedFile.fileName}`,
     });
 
-    sendToUser(currentUser.id, 'file:update', updatedFile);
+    sendToUser(
+        currentUser.id,
+        'file:update',
+        updatedFile.folderId === findFileById.folderId
+            ? { ...updatedFile, folderId: undefined, folder: undefined }
+            : updatedFile,
+    );
 
     return updatedFile;
 });

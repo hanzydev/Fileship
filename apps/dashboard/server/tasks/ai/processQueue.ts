@@ -78,6 +78,7 @@ export default defineTask({
 
                     await insert(fileSearchDb, {
                         id: file.id,
+                        authorId: file.authorId,
                         fileName: file.fileName,
                         mimeType: file.mimeType,
                         embedding,
@@ -125,6 +126,7 @@ export default defineTask({
 
                     await insert(fileSearchDb, {
                         id: file.id,
+                        authorId: file.authorId,
                         fileName: file.fileName,
                         mimeType: file.mimeType,
                         embedding,
@@ -143,6 +145,7 @@ export default defineTask({
                         where: { id: job.fileId },
                         select: {
                             id: true,
+                            authorId: true,
                             fileName: true,
                             mimeType: true,
                             ocrText: true,
@@ -170,6 +173,7 @@ export default defineTask({
 
                     await insert(fileSearchDb, {
                         id: file.id,
+                        authorId: file.authorId,
                         fileName: file.fileName,
                         mimeType: file.mimeType,
                         embedding: (file.embedding as number[]) || undefined,
@@ -242,6 +246,7 @@ export default defineTask({
 
                     await insert(fileSearchDb, {
                         id: file.id,
+                        authorId: file.authorId,
                         fileName: file.fileName,
                         mimeType: file.mimeType,
                         embedding: (file.embedding as number[]) || undefined,
@@ -290,6 +295,7 @@ export default defineTask({
 
                     await insert(fileSearchDb, {
                         id: file.id,
+                        authorId: file.authorId,
                         fileName: file.fileName,
                         mimeType: file.mimeType,
                         embedding: (file.embedding as number[]) || undefined,

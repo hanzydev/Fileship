@@ -47,6 +47,7 @@ export default defineEventHandler(async (event) => {
 
     await insert(noteSearchDb, {
         id: note.id,
+        authorId: note.authorId,
         title: note.title,
     });
 

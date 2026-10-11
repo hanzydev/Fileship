@@ -170,7 +170,7 @@ export const buildFileWhere = async (
             : {}),
     };
 
-    const searchIds = query.q ? await searchFileIds(query.q, query.mode) : undefined;
+    const searchIds = query.q ? await searchFileIds(query.q, authorId, query.mode) : undefined;
 
     const where: Prisma.FileWhereInput = {
         ...base,

@@ -31,13 +31,17 @@ export default defineEventHandler(async (event) => {
     if (!isOwner && !findFolderById.public) throw forbiddenError;
 
     const fileCount = await prisma.file.count({
-        where: { folderId: findFolderById.id, ...(isOwner ? {} : { password: null }) },
+        where: {
+            folderId: findFolderById.id,
+            ...(isOwner ? {} : { password: null, piiDetected: false }),
+        },
     });
 
     return {
         ...findFolderById,
         inbox: undefined,
         author: undefined,
+        authorId: isOwner ? findFolderById.authorId : undefined,
         fileCount,
         isInbox: !!findFolderById.inbox,
         embed: defu(findFolderById.author.embed, defaultEmbed) as IEmbed,

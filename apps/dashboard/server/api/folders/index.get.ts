@@ -5,7 +5,9 @@ export default defineEventHandler(async (event) => {
 
     const currentUser = event.context.user!;
     const query = await readListQuery(event);
-    const searchIds = query.q ? await searchDbIds(folderSearchDb, query.q) : undefined;
+    const searchIds = query.q
+        ? await searchDbIds(folderSearchDb, query.q, currentUser.id)
+        : undefined;
 
     const where: Prisma.FolderWhereInput = {
         authorId: currentUser.id,

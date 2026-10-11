@@ -23,6 +23,31 @@ const validationSchema = z
     })
     .optional();
 
+const BACKUP_FIELDS = {
+    folder: ['name', 'public', 'createdAt'],
+    note: ['title', 'content', 'public', 'createdAt'],
+    file: [
+        'mimeType',
+        'maxViews',
+        'expiresAt',
+        'password',
+        'createdAt',
+        'caption',
+        'piiDetected',
+        'piiReasons',
+        'ocrText',
+        'embedding',
+        'textEmbedding',
+    ],
+    view: ['ip', 'createdAt'],
+    user: [],
+};
+
+const pickBackupFields = (database: keyof typeof BACKUP_FIELDS, value: Record<string, any>) =>
+    Object.fromEntries(
+        BACKUP_FIELDS[database].filter((key) => key in value).map((key) => [key, value[key]]),
+    ) as Record<string, any>;
+
 export default defineEventHandler(async (event) => {
     userOnly(event);
     const currentUser = event.context.user!;
@@ -36,7 +61,14 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const backupId = getRouterParam(event, 'id');
+    const backupId = getRouterParam(event, 'id')!;
+
+    if (!/^[\w-]+$/.test(backupId)) {
+        throw createError({
+            statusCode: 400,
+            message: 'Invalid backup id',
+        });
+    }
     const backupPath = join(dataDirectory, 'backups', currentUser.id, `${backupId}.tgz`);
 
     if (!existsSync(backupPath)) {
@@ -68,9 +100,38 @@ export default defineEventHandler(async (event) => {
         sendToUser(currentUser.id, 'currentUser:update', { backupRestoreState: state });
     };
 
+    const tempPath = join(dataDirectory, 'temp', `restore-${backupId}`);
+
     event.waitUntil(
         (async () => {
             try {
+                await fsp.mkdir(tempPath, { recursive: true });
+
+                await updateState(BackupRestoreState.Extracting);
+                await extract({
+                    file: backupPath,
+                    cwd: tempPath,
+                    filter: (_, entry) =>
+                        'type' in entry && ['File', 'Directory'].includes(entry.type),
+                });
+
+                const backupUploadsPath = join(tempPath, 'uploads');
+                const backupUploads: { name: string; size: number }[] = [];
+
+                for (const name of await fsp.readdir(backupUploadsPath).catch(() => [])) {
+                    const stat = await fsp.lstat(join(backupUploadsPath, name));
+                    if (stat.isFile()) backupUploads.push({ name, size: stat.size });
+                }
+
+                const backupSize = backupUploads.reduce((total, upload) => total + upload.size, 0);
+
+                if (
+                    currentUser.limits.usableSpace > -1 &&
+                    backupSize > currentUser.limits.usableSpace * 1024 * 1024
+                ) {
+                    throw new Error('Backup exceeds the storage limit');
+                }
+
                 await updateState(BackupRestoreState.DeletingPreviousData);
 
                 const [userFiles, userFolders, userNotes] = await prisma.$transaction([
@@ -152,30 +213,28 @@ export default defineEventHandler(async (event) => {
 
                 sendToUser(currentUser.id, 'deleteAll', null);
 
-                const tempPath = join(dataDirectory, 'temp', backupId!);
-                await fsp.mkdir(tempPath);
-
-                await updateState(BackupRestoreState.Extracting);
-                await extract({ file: backupPath, cwd: tempPath });
                 await updateState(BackupRestoreState.RestoringData);
 
-                const databases = ['folder', 'note', 'file', 'user', 'view'];
-                const backupUploadsPath = join(tempPath, 'uploads');
-                const backupUploads = await fsp.readdir(backupUploadsPath);
-
+                const databases = ['folder', 'note', 'file', 'user', 'view'] as const;
                 const remappedKeys = new Map<string, string>();
+                const uploadSizes = new Map<string, number>();
 
-                for (const backupUpload of backupUploads) {
-                    const remappedName = existsSync(join(uploadsPath, backupUpload))
-                        ? `${nanoid(8)}${extname(backupUpload)}`
-                        : backupUpload;
+                for (const { name, size } of backupUploads) {
+                    const remappedName = existsSync(join(uploadsPath, name))
+                        ? `${nanoid(8)}${extname(name)}`
+                        : name;
 
-                    remappedKeys.set(backupUpload, remappedName);
-
-                    await moveFileRobust(
-                        join(backupUploadsPath, backupUpload),
+                    const moved = await moveFileRobust(
+                        join(backupUploadsPath, name),
                         join(uploadsPath, remappedName),
-                    ).catch(() => null);
+                    )
+                        .then(() => true)
+                        .catch(() => false);
+
+                    if (moved) {
+                        remappedKeys.set(name, remappedName);
+                        uploadSizes.set(remappedName, size);
+                    }
                 }
 
                 for (const database of databases) {
@@ -218,28 +277,26 @@ export default defineEventHandler(async (event) => {
 
                             pipeline.on('data', async ({ value }: any) => {
                                 processing = processing.then(async () => {
-                                    if (value.authorId) value.authorId = currentUser.id;
+                                    const data = pickBackupFields(database, value);
 
                                     switch (database) {
-                                        case 'file':
-                                            value.fileName = remappedKeys.get(value.fileName);
+                                        case 'file': {
+                                            const fileName = remappedKeys.get(value.fileName);
+                                            if (!fileName) return;
 
-                                            if (value.folderId) {
-                                                value.folderId = remappedKeys.get(value.folderId);
-                                            }
-                                            break;
-                                        case 'view': {
-                                            const fileId = remappedKeys.get(value.fileId);
-
-                                            if (fileId) {
-                                                value.file = { connect: { id: fileId } };
-                                            }
-
-                                            value.fileId = undefined;
-                                            value.ownerId = undefined;
-                                            value.owner = { connect: { id: currentUser.id } };
+                                            data.fileName = fileName;
+                                            data.size = BigInt(uploadSizes.get(fileName)!);
+                                            data.folderId =
+                                                remappedKeys.get(value.folderId) ?? null;
+                                            data.authorId = currentUser.id;
                                             break;
                                         }
+                                        case 'view':
+                                            data.fileId = remappedKeys.get(value.fileId) ?? null;
+                                            data.ownerId = currentUser.id;
+                                            break;
+                                        default:
+                                            data.authorId = currentUser.id;
                                     }
 
                                     try {
@@ -248,13 +305,7 @@ export default defineEventHandler(async (event) => {
                                                 ? await prisma.folder.findFirst({
                                                       where: { inbox: { userId: currentUser.id } },
                                                   })
-                                                : await (prisma as any)[database].create({
-                                                      data: {
-                                                          ...value,
-                                                          id: undefined,
-                                                          isInbox: undefined,
-                                                      },
-                                                  });
+                                                : await (prisma as any)[database].create({ data });
                                         remappedKeys.set(value.id, created.id);
 
                                         switch (database) {
@@ -379,6 +430,7 @@ export default defineEventHandler(async (event) => {
 
                                                     await insert(fileSearchDb, {
                                                         id: created.id,
+                                                        authorId: created.authorId,
                                                         fileName: created.fileName,
                                                         mimeType: created.mimeType,
                                                     });
@@ -396,12 +448,14 @@ export default defineEventHandler(async (event) => {
 
                                                 await insert(folderSearchDb, {
                                                     id: created.id,
+                                                    authorId: created.authorId,
                                                     name: created.name,
                                                 });
                                                 break;
                                             case 'note':
                                                 await insert(noteSearchDb, {
                                                     id: created.id,
+                                                    authorId: created.authorId,
                                                     title: created.title,
                                                 });
                                                 break;
@@ -426,13 +480,14 @@ export default defineEventHandler(async (event) => {
                     }
                 }
 
-                await fsp.rm(tempPath, { recursive: true });
+                await fsp.rm(tempPath, { recursive: true, force: true });
                 await createLog(event, {
                     action: 'Load Backup',
                     message: `Loaded backup ${backupId}`,
                 });
                 await updateState(null);
             } catch {
+                await fsp.rm(tempPath, { recursive: true, force: true }).catch(() => null);
                 await createLog(event, {
                     action: 'Load Backup Failed',
                     message: `Failed to load backup ${backupId}`,

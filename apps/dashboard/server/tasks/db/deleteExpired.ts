@@ -1,3 +1,9 @@
+import { promises as fsp } from 'node:fs';
+
+import { join } from 'pathe';
+
+import { remove } from '@orama/orama';
+
 export default defineTask({
     meta: {
         name: 'db:deleteExpired',
@@ -10,26 +16,33 @@ export default defineTask({
                     lte: new Date(),
                 },
             },
+            select: {
+                id: true,
+                fileName: true,
+                authorId: true,
+            },
         });
 
-        if (expired.length) {
-            await prisma.file.deleteMany({
-                where: {
-                    id: {
-                        in: expired.map((e) => e.id),
-                    },
-                },
+        for (const file of expired) {
+            const { count } = await prisma.file.deleteMany({
+                where: { id: file.id, expiresAt: { lte: new Date() } },
             });
 
-            expired.forEach((e) => {
-                createLog(null, {
-                    action: 'Delete File',
-                    message: `Deleted file ${e.fileName} due to expiration`,
-                    system: true,
-                });
+            if (!count) continue;
 
-                sendToUser(e.authorId, `file:delete`, e.id);
+            await Promise.allSettled([
+                fsp.rm(join(dataDirectory, 'uploads', file.fileName), { force: true }),
+                fsp.rm(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`), { force: true }),
+                remove(fileSearchDb, file.id),
+            ]);
+
+            await createLog(null, {
+                action: 'Delete File',
+                message: `Deleted file ${file.fileName} due to expiration`,
+                system: true,
             });
+
+            sendToUser(file.authorId, 'file:delete', file.id);
         }
 
         return { result: 'success' };

@@ -59,6 +59,7 @@ export default defineEventHandler(async (event) => {
 
     await insert(folderSearchDb, {
         id: folder.id,
+        authorId: folder.authorId,
         name: folder.name,
     });
 

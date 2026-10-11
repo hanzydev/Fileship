@@ -46,15 +46,34 @@ export default defineEventHandler(async (event) => {
     const userBackupsPath = join(dataDirectory, 'backups', currentUser.id);
     if (!existsSync(userBackupsPath)) await fsp.mkdir(userBackupsPath);
 
+    const backupName = backup.name.replace(/[^a-zA-Z0-9-_.]/g, '');
+
+    if (!/^[\w-]+\.tgz$/.test(backupName)) {
+        throw createError({
+            statusCode: 400,
+            message: 'Backups must be .tgz files',
+        });
+    }
+
     const userBackups = await fsp.readdir(userBackupsPath);
-    if (userBackups.includes(backup.name)) {
+
+    if (userBackups.includes(backupName)) {
         throw createError({
             statusCode: 409,
             message: 'A backup with that name already exists',
         });
     }
 
-    const backupName = backup.name.replace(/[^a-zA-Z0-9-_.]/g, '');
+    if (
+        !isAdmin(currentUser) &&
+        currentUser.limits.backupLimit > -1 &&
+        userBackups.length >= currentUser.limits.backupLimit
+    ) {
+        throw createError({
+            statusCode: 400,
+            message: 'Backup limit reached',
+        });
+    }
 
     const tempPath = join(dataDirectory, 'temp', currentUser.id, backupName);
     if (!existsSync(join(dataDirectory, 'temp', currentUser.id)))

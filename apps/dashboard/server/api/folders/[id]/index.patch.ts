@@ -102,6 +102,7 @@ export default defineEventHandler(async (event) => {
 
     await update(folderSearchDb, _updatedFolder.id, {
         id: updatedFolder.id,
+        authorId: updatedFolder.authorId,
         name: updatedFolder.name,
     });
 

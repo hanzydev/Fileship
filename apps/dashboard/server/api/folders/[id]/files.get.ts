@@ -32,11 +32,13 @@ export default defineEventHandler(async (event) => {
         mode: fileListShape.mode,
         type: fileListShape.type,
     });
-    const searchIds = query.q ? await searchFileIds(query.q, query.mode) : undefined;
+    const searchIds = query.q
+        ? await searchFileIds(query.q, findFolderById.authorId, isOwner ? query.mode : 'fulltext')
+        : undefined;
 
     const where: Prisma.FileWhereInput = {
         folderId: findFolderById.id,
-        ...(isOwner ? {} : { password: null }),
+        ...(isOwner ? {} : { password: null, piiDetected: false }),
         AND: [
             query.type.length ? { OR: query.type.map(fileCategoryWhere) } : {},
             searchIds ? { id: { in: searchIds } } : {},
@@ -52,6 +54,7 @@ export default defineEventHandler(async (event) => {
             maxViews: true,
             expiresAt: true,
             folderId: true,
+            ...(isOwner ? {} : { caption: true, piiReasons: true, authorId: true }),
         },
         include: {
             _count: { select: { views: true } },
@@ -81,8 +84,12 @@ export default defineEventHandler(async (event) => {
               prisma.file.count({ where }),
           ]);
 
+    const todayViews = isOwner ? await getTodayViews(items.map((file) => file.id)) : new Map();
+
     return {
-        items: items.map((file) => serializeFile(event, file, findFolderById.author.domains)),
+        items: items.map((file) =>
+            serializeFile(event, file, findFolderById.author.domains, todayViews.get(file.id)),
+        ),
         total,
     };
 });

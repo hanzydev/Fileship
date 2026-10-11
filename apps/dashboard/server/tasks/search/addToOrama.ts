@@ -16,6 +16,7 @@ export default defineTask({
         const files = await prisma.file.findMany({
             select: {
                 id: true,
+                authorId: true,
                 fileName: true,
                 mimeType: true,
                 embedding: true,
@@ -28,6 +29,7 @@ export default defineTask({
         const folders = await prisma.folder.findMany({
             select: {
                 id: true,
+                authorId: true,
                 name: true,
             },
         });
@@ -35,6 +37,7 @@ export default defineTask({
         const notes = await prisma.note.findMany({
             select: {
                 id: true,
+                authorId: true,
                 title: true,
             },
         });

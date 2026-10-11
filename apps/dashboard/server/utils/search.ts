@@ -12,12 +12,20 @@ const mergeRanked = (lists: { ids: string[]; weight: number }[]) => {
     return [...scores.entries()].sort((a, b) => b[1] - a[1]).map(([id]) => id);
 };
 
-export const searchDbIds = async (db: AnyOrama, term: string) => {
-    const searched = await search(db, { term, limit: SEARCH_LIMIT });
+export const searchDbIds = async (db: AnyOrama, term: string, authorId?: string) => {
+    const searched = await search(db, {
+        term,
+        limit: SEARCH_LIMIT,
+        ...(authorId ? { where: { authorId: { eq: authorId } } } : {}),
+    });
     return searched.hits.map((hit) => hit.id);
 };
 
-export const searchFileIds = async (query: string, mode: 'vector' | 'fulltext' = 'fulltext') => {
+export const searchFileIds = async (
+    query: string,
+    authorId: string,
+    mode: 'vector' | 'fulltext' = 'fulltext',
+) => {
     const runFulltext = async () => {
         const searched = await search(fileSearchDb, {
             mode: 'fulltext',
@@ -25,6 +33,7 @@ export const searchFileIds = async (query: string, mode: 'vector' | 'fulltext' =
             tolerance: 0,
             threshold: 0,
             limit: SEARCH_LIMIT,
+            where: { authorId: { eq: authorId } },
             boost: {
                 fileName: 4,
                 caption: 2,
@@ -42,6 +51,7 @@ export const searchFileIds = async (query: string, mode: 'vector' | 'fulltext' =
             mode: 'vector',
             similarity: 0.2,
             limit: SEARCH_LIMIT,
+            where: { authorId: { eq: authorId } },
             vector: {
                 value: await ai.createTextEmbedding(query),
                 property: 'embedding',
@@ -56,6 +66,7 @@ export const searchFileIds = async (query: string, mode: 'vector' | 'fulltext' =
             mode: 'vector',
             similarity: 0.5,
             limit: SEARCH_LIMIT,
+            where: { authorId: { eq: authorId } },
             vector: {
                 value:
                     (await ai.createSemanticTextEmbedding(query)) ??

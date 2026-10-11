@@ -24,6 +24,7 @@ const baseOramaOptions = {
 
 export const fileSearchDb = create({
     schema: {
+        authorId: 'enum',
         fileName: 'string',
         mimeType: 'string',
         embedding: 'vector[768]',
@@ -36,6 +37,7 @@ export const fileSearchDb = create({
 
 export const folderSearchDb = create({
     schema: {
+        authorId: 'enum',
         name: 'string',
     },
     ...baseOramaOptions,
@@ -43,6 +45,7 @@ export const folderSearchDb = create({
 
 export const noteSearchDb = create({
     schema: {
+        authorId: 'enum',
         title: 'string',
     },
     ...baseOramaOptions,

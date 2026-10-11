@@ -12,7 +12,10 @@ import { insert } from '@orama/orama';
 import { AIJobType } from '#shared/prisma/enums';
 
 const validationSchema = z.object({
-    uploadId: z.string().optional(),
+    uploadId: z
+        .string()
+        .regex(/^[\w-]{1,64}$/, 'Invalid upload id')
+        .optional(),
     totalChunks: z.number().min(1, 'Total chunks must be at least 1').optional(),
     currentChunk: z.number().min(1, 'Current chunk must be at least 1').optional(),
     chunkOffset: z.number().int().min(0, 'Chunk offset must be at least 0').optional(),
@@ -91,6 +94,13 @@ export default defineEventHandler(async (event) => {
         fileName = `${randomUUID()}${extensionName}`;
     }
 
+    if (!fileName.replaceAll('.', '') || fileName.startsWith('.')) {
+        throw createError({
+            statusCode: 400,
+            message: 'Invalid file name',
+        });
+    }
+
     const findFileByFileName = await prisma.file.findUnique({
         where: {
             fileName,
@@ -122,7 +132,7 @@ export default defineEventHandler(async (event) => {
 
     const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9-_.]/g, '');
     const uploadSessionId = body.data.uploadId ?? nanoid(8);
-  
+
     const tempPath = join(
         dataDirectory,
         'temp',
@@ -309,6 +319,7 @@ export default defineEventHandler(async (event) => {
 
         await insert(fileSearchDb, {
             id: upload.id,
+            authorId: upload.authorId,
             fileName: upload.fileName,
             mimeType: upload.mimeType,
         });

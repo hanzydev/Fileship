@@ -13,18 +13,20 @@ export default defineEventHandler(async (event) => {
     if (!existsSync(userBackupsPath)) return { items: [], total: 0 };
 
     const userBackups = await Promise.all(
-        (await fsp.readdir(userBackupsPath)).map(async (backup) => {
-            const backupStat = await fsp.stat(join(userBackupsPath, backup));
+        (await fsp.readdir(userBackupsPath))
+            .filter((backup) => backup.endsWith('.tgz'))
+            .map(async (backup) => {
+                const backupStat = await fsp.stat(join(userBackupsPath, backup));
 
-            return {
-                id: basename(backup, extname(backup)),
-                createdAt: backupStat.mtime,
-                size: {
-                    raw: backupStat.size,
-                    formatted: filesize(backupStat.size),
-                },
-            };
-        }),
+                return {
+                    id: basename(backup, extname(backup)),
+                    createdAt: backupStat.mtime,
+                    size: {
+                        raw: backupStat.size,
+                        formatted: filesize(backupStat.size),
+                    },
+                };
+            }),
     );
 
     return {

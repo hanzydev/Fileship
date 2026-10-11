@@ -2,7 +2,11 @@ import { createReadStream, promises as fsp } from 'node:fs';
 
 import { join } from 'pathe';
 
+import { remove } from '@orama/orama';
+
 const VIEW_WINDOW = 10 * 60 * 1_000;
+
+const ACTIVE_CONTENT_TYPES = ['html', 'svg', 'xml', 'javascript'];
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -97,6 +101,12 @@ export default defineEventHandler(async (event) => {
 
             if (findFileById.maxViews && currentViews >= findFileById.maxViews) {
                 await fsp.rm(filePath, { force: true });
+                await fsp
+                    .rm(join(dataDirectory, 'thumbnails', `${findFileById.id}.jpeg`), {
+                        force: true,
+                    })
+                    .catch(() => null);
+                await Promise.allSettled([remove(fileSearchDb, findFileById.id)]);
 
                 await prisma.file.delete({
                     where: {
@@ -123,9 +133,14 @@ export default defineEventHandler(async (event) => {
     setResponseHeaders(event, {
         'Content-Type': findFileById.mimeType,
         'Accept-Ranges': 'bytes',
+        'X-Content-Type-Options': 'nosniff',
+        'Content-Security-Policy': 'sandbox',
     });
 
-    if ('download' in query) {
+    if (
+        'download' in query ||
+        ACTIVE_CONTENT_TYPES.some((type) => findFileById.mimeType.includes(type))
+    ) {
         setResponseHeader(
             event,
             'Content-Disposition',

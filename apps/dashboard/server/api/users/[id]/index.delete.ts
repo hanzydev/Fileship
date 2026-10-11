@@ -86,8 +86,17 @@ export default defineEventHandler(async (event) => {
 
     const uploadsPath = join(dataDirectory, 'uploads');
 
-    for (const { fileName } of userFiles) {
+    for (const { id, fileName } of userFiles) {
         await rm(join(uploadsPath, fileName), { force: true }).catch(() => null);
+        await rm(join(dataDirectory, 'thumbnails', `${id}.jpeg`), { force: true }).catch(
+            () => null,
+        );
+    }
+
+    for (const directory of ['backups', 'temp']) {
+        await rm(join(dataDirectory, directory, userId!), { recursive: true, force: true }).catch(
+            () => null,
+        );
     }
 
     await prisma.$transaction([

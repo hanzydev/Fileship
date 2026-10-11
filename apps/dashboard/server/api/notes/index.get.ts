@@ -5,7 +5,9 @@ export default defineEventHandler(async (event) => {
 
     const currentUser = event.context.user!;
     const query = await readListQuery(event);
-    const searchIds = query.q ? await searchDbIds(noteSearchDb, query.q) : undefined;
+    const searchIds = query.q
+        ? await searchDbIds(noteSearchDb, query.q, currentUser.id)
+        : undefined;
 
     const where: Prisma.NoteWhereInput = {
         authorId: currentUser.id,

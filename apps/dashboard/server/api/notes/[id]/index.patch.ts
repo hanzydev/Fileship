@@ -65,6 +65,7 @@ export default defineEventHandler(async (event) => {
 
     await update(noteSearchDb, updatedNote.id, {
         id: updatedNote.id,
+        authorId: updatedNote.authorId,
         title: updatedNote.title,
     });
 
