@@ -69,7 +69,7 @@
                             <UiCardFooter class="flex flex-col gap-2">
                                 <UiButtonGroup class="w-full">
                                     <UiButton class="flex-1" type="submit" :disabled="loggingIn">
-                                        <UiSpinner v-if="loggingIn" class="size-4.5" />
+                                        <UiSpinner v-if="loggingIn" />
                                         <template v-else>Login</template>
                                     </UiButton>
                                     <ClientOnly>
@@ -80,8 +80,8 @@
                                             :disabled="loggingIn || passkeyLoggingIn"
                                             @click="handlePasskeyLogin"
                                         >
-                                            <UiSpinner v-if="passkeyLoggingIn" class="size-4.5" />
-                                            <IFingerprintPattern v-else :size="18" />
+                                            <UiSpinner v-if="passkeyLoggingIn" />
+                                            <IFingerprintPattern v-else />
                                         </UiButton>
                                     </ClientOnly>
                                 </UiButtonGroup>
@@ -93,7 +93,7 @@
                             class="py-6 flex flex-col gap-6 absolute w-full"
                         >
                             <UiCardHeader>
-                                <UiCardTitle>Multi-Factor Authentication</UiCardTitle>
+                                <UiCardTitle>Two-factor authentication</UiCardTitle>
                                 <UiCardDescription>
                                     Enter the 6-digit code from your authenticator app to continue.
                                 </UiCardDescription>
@@ -101,27 +101,8 @@
                             <UiCardContent>
                                 <div class="flex flex-col gap-4">
                                     <UiField>
-                                        <UiFieldLabel for="totp">TOTP Code</UiFieldLabel>
-                                        <UiInputOTP
-                                            id="totp"
-                                            v-model="auth.totp"
-                                            class="w-full"
-                                            :maxlength="6"
-                                        >
-                                            <UiInputOTPGroup class="flex-1">
-                                                <UiInputOTPSlot :index="0" class="flex-1 w-full" />
-                                                <UiInputOTPSlot :index="1" class="flex-1 w-full" />
-                                                <UiInputOTPSlot :index="2" class="flex-1 w-full" />
-                                            </UiInputOTPGroup>
-
-                                            <UiInputOTPSeparator />
-
-                                            <UiInputOTPGroup class="flex-1">
-                                                <UiInputOTPSlot :index="3" class="flex-1 w-full" />
-                                                <UiInputOTPSlot :index="4" class="flex-1 w-full" />
-                                                <UiInputOTPSlot :index="5" class="flex-1 w-full" />
-                                            </UiInputOTPGroup>
-                                        </UiInputOTP>
+                                        <UiFieldLabel for="totp">Authenticator code</UiFieldLabel>
+                                        <OtpInput id="totp" v-model="auth.totp" />
                                         <UiFieldError
                                             v-if="formErrors?.totp?._errors?.length"
                                             :errors="formErrors?.totp?._errors"
@@ -146,15 +127,15 @@
                                         type="button"
                                         :disabled="loggingIn"
                                         @click="
-                                            auth.totp = undefined;
+                                            auth.totp = '';
                                             formErrors = {};
                                             currentView = 'main';
                                         "
                                     >
-                                        <IArrowLeft :size="18" />
+                                        <IArrowLeft />
                                     </UiButton>
                                     <UiButton class="flex-1" type="submit" :disabled="loggingIn">
-                                        <UiSpinner v-if="loggingIn" class="size-4.5" />
+                                        <UiSpinner v-if="loggingIn" />
                                         <template v-else>Login</template>
                                     </UiButton>
                                 </UiButtonGroup>
@@ -190,7 +171,7 @@ const auth = reactive({
     username: '',
     password: '',
     turnstile: '',
-    totp: undefined as string | undefined,
+    totp: '',
 });
 
 const currentView = ref<'main' | 'totp'>('main');
@@ -210,7 +191,7 @@ const handleSubmit = async () => {
     try {
         const { user, session } = await $fetch('/api/auth/login', {
             method: 'POST',
-            body: auth,
+            body: { ...auth, totp: auth.totp || undefined },
         });
 
         currentUser.value = {
@@ -220,6 +201,7 @@ const handleSubmit = async () => {
         };
 
         currentTheme.value = user.theme;
+        useCookie('adminSessionId', { path: '/', sameSite: 'lax' }).value = null;
 
         await navigateTo((route.query.redirectTo as string) || '/dashboard');
 

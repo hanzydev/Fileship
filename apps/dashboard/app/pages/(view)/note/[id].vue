@@ -14,30 +14,35 @@
             :subtitle="dayjs(data!.createdAt).format('MMM D, YYYY')"
             content-class="max-w-3xl"
         >
-            <UiTabs
+            <UiToggleGroup
+                type="single"
+                variant="outline"
+                size="sm"
                 :model-value="previewMode ? 'preview' : 'raw'"
                 @update:model-value="$event && (previewMode = $event === 'preview')"
             >
-                <UiTabsList>
-                    <UiTabsTrigger value="preview" aria-label="Preview">
-                        <IEye />
-                    </UiTabsTrigger>
-                    <UiTabsTrigger value="raw" aria-label="Raw">
-                        <ICode />
-                    </UiTabsTrigger>
-                </UiTabsList>
-            </UiTabs>
+                <UiToggleGroupItem value="preview" aria-label="Preview">
+                    <IEye />
+                </UiToggleGroupItem>
+                <UiToggleGroupItem value="raw" aria-label="Raw">
+                    <ICode />
+                </UiToggleGroupItem>
+            </UiToggleGroup>
             <UiButton size="sm" @click="handleCopy">
                 <ICopy />
                 <span class="hidden sm:inline">Copy</span>
             </UiButton>
         </ViewHeader>
 
-        <main class="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
-            <MarkdownRenderer v-if="previewMode" :content="data!.content" />
-            <pre v-else class="font-mono text-sm break-all whitespace-pre-wrap">{{
-                data!.content
-            }}</pre>
+        <main class="mx-auto flex w-full max-w-3xl flex-1 flex-col p-4">
+            <UiCard>
+                <UiCardContent>
+                    <MarkdownRenderer v-if="previewMode" :content="data!.content" />
+                    <pre v-else class="font-mono text-sm break-all whitespace-pre-wrap">{{
+                        data!.content
+                    }}</pre>
+                </UiCardContent>
+            </UiCard>
         </main>
     </div>
 </template>

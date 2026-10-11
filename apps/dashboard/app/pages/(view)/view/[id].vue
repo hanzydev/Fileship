@@ -79,20 +79,21 @@
                 :subtitle="`${data.size!.formatted} · ${dayjs(data.createdAt).format('MMM D, YYYY')}`"
                 content-class="max-w-5xl"
             >
-                <UiTabs
+                <UiToggleGroup
                     v-if="isText"
+                    type="single"
+                    variant="outline"
+                    size="sm"
                     :model-value="previewMode ? 'preview' : 'raw'"
                     @update:model-value="$event && (previewMode = $event === 'preview')"
                 >
-                    <UiTabsList>
-                        <UiTabsTrigger value="preview" aria-label="Preview">
-                            <IEye />
-                        </UiTabsTrigger>
-                        <UiTabsTrigger value="raw" aria-label="Raw">
-                            <ICode />
-                        </UiTabsTrigger>
-                    </UiTabsList>
-                </UiTabs>
+                    <UiToggleGroupItem value="preview" aria-label="Preview">
+                        <IEye />
+                    </UiToggleGroupItem>
+                    <UiToggleGroupItem value="raw" aria-label="Raw">
+                        <ICode />
+                    </UiToggleGroupItem>
+                </UiToggleGroup>
                 <UiButton variant="outline" size="sm" @click="handleCopy">
                     <ICopy />
                     <span class="hidden sm:inline">Copy</span>
@@ -133,8 +134,13 @@
                 </UiCard>
                 <UiCard v-else-if="isText" class="w-full flex-1">
                     <UiCardContent>
-                        <div v-if="fileContent === undefined" class="flex justify-center py-12">
-                            <UiSpinner class="size-6" />
+                        <div v-if="fileContent === undefined" class="flex flex-col gap-3">
+                            <TextBlock v-for="i in 6" :key="i" variant="muted" class="w-full">
+                                <UiSkeleton
+                                    class="h-lh rounded-full"
+                                    :style="{ width: `${90 - ((i * 13) % 40)}%` }"
+                                />
+                            </TextBlock>
                         </div>
                         <MarkdownRenderer v-else-if="previewMode" :content="renderedContent" />
                         <pre

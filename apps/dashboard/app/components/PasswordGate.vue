@@ -1,5 +1,7 @@
 <template>
-    <Centered>
+    <ViewHeader title="Fileship" />
+
+    <main class="flex flex-1 items-center justify-center p-4">
         <UiCard class="w-full max-w-sm">
             <form class="contents" @submit.prevent="emit('submit', password)">
                 <UiCardHeader>
@@ -30,7 +32,7 @@
                 </UiCardFooter>
             </form>
         </UiCard>
-    </Centered>
+    </main>
 </template>
 
 <script setup lang="ts">
