@@ -1,6 +1,4 @@
 import { verify } from 'argon2';
-import { defu } from 'defu';
-import { nanoid } from 'nanoid';
 import { verify as verifyTotp } from 'otplib';
 import { z } from 'zod';
 
@@ -104,68 +102,8 @@ export default defineEventHandler(async (event) => {
         await verifySession(event, body.data?.verificationData);
     }
 
-    const headers = getHeaders(event);
-    const ip = getRequestIP(event, { xForwardedFor: true }) || 'Unknown';
-
-    const { os, platform, location } = await getDevice(headers as never, ip);
-
-    const sessionPrivateId = nanoid(128);
-
-    const user = await prisma.user.update({
-        where: {
-            id: findUserByUsername.id,
-        },
-        data: {
-            sessions: {
-                create: {
-                    privateId: sessionPrivateId,
-                    ip,
-                    os,
-                    platform,
-                    location,
-                },
-            },
-        },
-        select: {
-            sessions: true,
-        },
-    });
-
-    const session = user.sessions.find((session) => session.privateId === sessionPrivateId)!;
-
-    await createLog(Object.assign({}, event, { context: { user: findUserByUsername } }), {
+    return startSession(event, findUserByUsername, {
         action: 'Login',
-        message: `Logged in using ${os} on ${platform}`,
+        message: 'Logged in',
     });
-
-    setCookie(event, 'sessionId', sessionPrivateId, {
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
-        path: '/',
-        sameSite: 'lax',
-    });
-
-    sendToUser(findUserByUsername.id, 'session:create', session);
-
-    return {
-        user: {
-            id: findUserByUsername.id,
-            username: findUserByUsername.username,
-            avatar: findUserByUsername.avatar,
-            permissions: findUserByUsername.permissions,
-            createdAt: findUserByUsername.createdAt,
-            totpEnabled: findUserByUsername.totpEnabled,
-            superAdmin: findUserByUsername.superAdmin,
-            aiSettings: defu(
-                findUserByUsername.aiSettings,
-                defaultUserAiSettings,
-            ) as IUserAiSettings,
-            backupRestoreState: findUserByUsername.backupRestoreState,
-            theme: findUserByUsername.theme,
-            stats: findUserByUsername._count,
-        },
-        session: {
-            id: session.id,
-            privateId: session.privateId,
-        },
-    };
 });

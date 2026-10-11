@@ -1,4 +1,3 @@
-import { defu } from 'defu';
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
 
@@ -112,77 +111,12 @@ export default defineEventHandler(async (event) => {
                 },
             });
 
-            const headers = getHeaders(event);
-            const ip = getRequestIP(event, { xForwardedFor: true }) || 'Unknown';
-
-            const { os, platform, location } = await getDevice(headers as never, ip);
-
-            const sessionPrivateId = nanoid(128);
-
-            const user = await prisma.user.update({
-                where: {
-                    id: findUserById.id,
-                },
-                data: {
-                    sessions: {
-                        create: {
-                            privateId: sessionPrivateId,
-                            ip,
-                            os,
-                            platform,
-                            location,
-                        },
-                    },
-                },
-                select: {
-                    sessions: true,
-                },
-            });
-
-            const session = user.sessions.find(
-                (session) => session.privateId === sessionPrivateId,
-            )!;
-
-            await createLog(
-                Object.assign({}, event, {
-                    context: { user: findUserById },
-                }),
-                {
-                    action: 'Login',
-                    message: `Logged in with passkey using ${os} on ${platform}`,
-                },
-            );
-
-            setCookie(event, 'sessionId', sessionPrivateId, {
-                expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
-                path: '/',
-                sameSite: 'lax',
-            });
-
-            sendToUser(findUserById.id, 'session:create', session);
-
             return {
                 verified: true,
-                user: {
-                    id: findUserById.id,
-                    username: findUserById.username,
-                    avatar: findUserById.avatar,
-                    permissions: findUserById.permissions,
-                    createdAt: findUserById.createdAt,
-                    totpEnabled: findUserById.totpEnabled,
-                    superAdmin: findUserById.superAdmin,
-                    aiSettings: defu(
-                        findUserById.aiSettings,
-                        defaultUserAiSettings,
-                    ) as IUserAiSettings,
-                    backupRestoreState: findUserById.backupRestoreState,
-                    theme: findUserById.theme,
-                    stats: findUserById._count,
-                },
-                session: {
-                    id: session.id,
-                    privateId: session.privateId,
-                },
+                ...(await startSession(event, findUserById, {
+                    action: 'Login',
+                    message: 'Logged in with passkey',
+                })),
             };
         }
 
