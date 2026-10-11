@@ -5,7 +5,7 @@
                 <UiCard size="sm" class="group">
                     <UiCardContent>
                         <div
-                            class="grid aspect-video grid-cols-2 grid-rows-2 gap-1 overflow-hidden rounded-2xl bg-muted"
+                            class="relative grid aspect-video grid-cols-2 grid-rows-2 gap-1 overflow-hidden rounded-2xl bg-muted"
                         >
                             <img
                                 v-for="(file, index) in covers"
@@ -15,13 +15,26 @@
                                 loading="lazy"
                                 :class="
                                     cn(
-                                        'size-full object-cover transition-transform duration-300 group-hover:scale-105',
+                                        'size-full object-cover transition-transform duration-300',
+                                        folder.public
+                                            ? 'group-hover:scale-105'
+                                            : 'scale-125 blur-2xl',
                                         covers.length === 1 && 'col-span-2 row-span-2',
                                         covers.length === 2 && 'row-span-2',
                                         covers.length === 3 && index === 0 && 'row-span-2',
                                     )
                                 "
                             />
+                            <div
+                                v-if="covers.length && !folder.public"
+                                class="absolute inset-0 flex items-center justify-center"
+                            >
+                                <div
+                                    class="flex size-10 items-center justify-center rounded-full bg-background/60 backdrop-blur-md"
+                                >
+                                    <ILock class="size-4" />
+                                </div>
+                            </div>
                             <div
                                 v-if="!covers.length"
                                 class="col-span-2 row-span-2 flex items-center justify-center"
