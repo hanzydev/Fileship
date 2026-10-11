@@ -15,8 +15,8 @@
                     placeholder="Search or create a folder..."
                     @update:model-value="query = $event"
                 />
-                <UiCommandList @scroll="handleScroll">
-                    <UiCommandGroup class="pb-1">
+                <UiCommandList class="mb-1" @scroll="handleScroll">
+                    <UiCommandGroup class="pb-0">
                         <UiCommandItem
                             value="none"
                             :data-checked="!folder"
@@ -36,8 +36,9 @@
                             <span class="truncate">{{ f.name }}</span>
                         </UiCommandItem>
                     </UiCommandGroup>
-                    <UiCommandGroup v-if="canCreate" class="pb-1">
+                    <UiCommandGroup v-if="canCreate" class="pb-0">
                         <UiCommandItem
+                            :key="query"
                             :value="`create:${query}`"
                             :disabled="isCreating"
                             @select="handleCreate"

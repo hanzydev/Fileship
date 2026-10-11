@@ -150,8 +150,8 @@
 
                     <div class="absolute top-1/2 left-0 -translate-y-1/2">
                         <UiButton
-                            variant="secondary"
-                            size="icon"
+                            variant="outline"
+                            size="icon-sm"
                             :disabled="!prev"
                             @click="current = prev!"
                         >
@@ -160,8 +160,8 @@
                     </div>
                     <div class="absolute top-1/2 right-0 -translate-y-1/2">
                         <UiButton
-                            variant="secondary"
-                            size="icon"
+                            variant="outline"
+                            size="icon-sm"
                             :disabled="!next"
                             @click="current = next!"
                         >

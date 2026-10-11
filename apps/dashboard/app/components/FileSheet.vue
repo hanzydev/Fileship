@@ -69,7 +69,7 @@
                     <template v-if="files.length > 1">
                         <div class="absolute top-1/2 left-2 -translate-y-1/2">
                             <UiButton
-                                variant="secondary"
+                                variant="outline"
                                 size="icon-sm"
                                 :disabled="!prev"
                                 @click="fileId = prev!.id"
@@ -79,7 +79,7 @@
                         </div>
                         <div class="absolute top-1/2 right-2 -translate-y-1/2">
                             <UiButton
-                                variant="secondary"
+                                variant="outline"
                                 size="icon-sm"
                                 :disabled="!next"
                                 @click="fileId = next!.id"
