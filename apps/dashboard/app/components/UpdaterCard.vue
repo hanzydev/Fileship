@@ -49,9 +49,10 @@ const state = ref('Pulling');
 
 const states: Record<string, string> = {
     Pulling: 'Downloading the new version...',
-    Recreating: 'Recreating containers, the dashboard will be back shortly...',
+    Starting: 'Starting the new version next to the current one...',
+    Switching: 'Moving traffic to the new version...',
     Success: 'Update completed, reloading...',
-    Error: 'Update failed.',
+    Error: 'Update failed, the current version keeps running.',
 };
 
 const finish = (success: boolean) => {
@@ -66,16 +67,10 @@ const finish = (success: boolean) => {
     }
 };
 
-const pollHealthCheck = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 3_000));
-
-    for (let attempt = 0; attempt < 60; attempt++) {
-        try {
-            const data = await $fetch<{ status: 'ok' }>('/api/healthz', { cache: 'no-store' });
-            if (data.status === 'ok') return finish(true);
-        } catch {
-            //
-        }
+const waitForNewVersion = async () => {
+    for (let attempt = 0; attempt < 90; attempt++) {
+        const data = await $fetch('/api/healthz', { cache: 'no-store' }).catch(() => null);
+        if (data?.version === status.latestVersion) return finish(true);
 
         await new Promise((resolve) => setTimeout(resolve, 2_000));
     }
@@ -86,7 +81,7 @@ const pollHealthCheck = async () => {
 const handleUpdate = async () => {
     const confirmed = await askConfirmation({
         title: `Update to v${status.latestVersion}?`,
-        description: 'Fileship will restart during the update.',
+        description: 'The new version starts next to the current one, so Fileship stays online.',
         confirmText: 'Update',
     });
 
@@ -94,8 +89,6 @@ const handleUpdate = async () => {
 
     isUpdating.value = true;
     state.value = 'Pulling';
-
-    let isPolling = false;
 
     try {
         const response = await $fetch('/api/updater/update', {
@@ -106,24 +99,19 @@ const handleUpdate = async () => {
         await parseSseStream<{ status?: string }>(response, (data) => {
             if (!data.status) return;
 
-            state.value = data.status;
-
-            if (data.status === 'Recreating' && !isPolling) {
-                isPolling = true;
-                pollHealthCheck();
-            } else if (data.status === 'Success') finish(true);
+            if (data.status === 'Success') waitForNewVersion();
             else if (data.status === 'Error') finish(false);
+            else state.value = data.status;
         });
     } catch (error: any) {
-        if (state.value === 'Recreating' && !isPolling) {
-            isPolling = true;
-            pollHealthCheck();
-        } else if (!isPolling) {
-            $toast.error(
-                error?.statusMessage || 'An unknown error occurred while updating Fileship',
-            );
-            isUpdating.value = false;
-        }
+        if (state.value === 'Switching') return waitForNewVersion();
+
+        $toast.error(
+            error?.data?.message ||
+                error?.statusMessage ||
+                'An unknown error occurred while updating Fileship',
+        );
+        isUpdating.value = false;
     }
 };
 </script>

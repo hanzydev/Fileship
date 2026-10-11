@@ -29,6 +29,7 @@ Here are a few things you can do that will increase the likelihood of your pull 
 - Follow the [style guide][style] which is using standard. Any linting errors should be shown when running `pnpm check`.
 - Keep your changes as focused as possible. If there are multiple changes you would like to make that are not dependent upon each other, consider submitting them as separate pull requests.
 - Use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) for your commit messages.
+- Keep database migrations backward compatible. During an update the old and new versions run against the same database for a short time, so add columns and tables first and remove or rename them in a later release.
 
 Work in Progress pull requests are also welcome to get feedback early on, or if there is something blocked you.
 

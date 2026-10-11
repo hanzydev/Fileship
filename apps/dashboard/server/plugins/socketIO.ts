@@ -59,5 +59,7 @@ export default defineNitroPlugin((nitroApp) => {
         }),
     );
 
+    nitroApp.hooks.hook('close', () => io.close());
+
     consola.success(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Socket server ready.`);
 });

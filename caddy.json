@@ -1,0 +1,70 @@
+{
+    "admin": {
+        "disabled": true
+    },
+    "logging": {
+        "logs": {
+            "default": {
+                "exclude": ["http.handlers.reverse_proxy.health_checker.active"]
+            }
+        }
+    },
+    "apps": {
+        "http": {
+            "servers": {
+                "fileship": {
+                    "listen": [":3000"],
+                    "automatic_https": {
+                        "disable": true
+                    },
+                    "trusted_proxies": {
+                        "source": "static",
+                        "ranges": [
+                            "10.0.0.0/8",
+                            "172.16.0.0/12",
+                            "192.168.0.0/16",
+                            "127.0.0.1/8",
+                            "fd00::/8",
+                            "::1"
+                        ]
+                    },
+                    "routes": [
+                        {
+                            "handle": [
+                                {
+                                    "handler": "reverse_proxy",
+                                    "upstreams": [
+                                        {
+                                            "dial": "fileship-blue:3000"
+                                        },
+                                        {
+                                            "dial": "fileship-green:3000"
+                                        }
+                                    ],
+                                    "flush_interval": -1,
+                                    "load_balancing": {
+                                        "selection_policy": {
+                                            "policy": "first"
+                                        },
+                                        "try_duration": "15s",
+                                        "try_interval": "250ms"
+                                    },
+                                    "health_checks": {
+                                        "active": {
+                                            "uri": "/api/healthz",
+                                            "interval": "2s",
+                                            "timeout": "2s"
+                                        },
+                                        "passive": {
+                                            "fail_duration": "5s"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

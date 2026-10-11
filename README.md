@@ -105,9 +105,11 @@ Open your browser and navigate to `http://localhost:3000`
 
 Fileship includes a zero-downtime **Updater Agent** that handles updates seamlessly without manually touching your server CLI.
 
+Fileship runs behind a small built-in proxy ([Caddy](https://caddyserver.com/)) on port `3000`. During an update, the agent starts the new version in a second container (`fileship-blue` / `fileship-green`), waits until it is healthy, and only then gracefully stops the old one. The proxy always sends requests to a healthy container, so the dashboard stays online. If the new version fails to start, it is stopped and the current version keeps running.
+
 ### Option 1: One-Click Update (Admin Dashboard) 🖱️
 
-Navigate to **Admin Settings -> System** in your Fileship dashboard. When a new release is available, simply click **Update Now**. The Updater Agent will automatically pull the new image and recreate the container in the background with real-time status updates.
+When a new release is available, admins see an update card in the dashboard sidebar. Simply click **Update**. The Updater Agent will pull the new image, start it next to the running one and switch over once it is ready, with real-time status updates.
 
 ### Option 2: Automatic Scheduled Updates (Cron) ⏰
 
@@ -148,6 +150,24 @@ docker compose up -d
 
 _(Your `docker-compose.yml` will automatically include the new `updater-agent` service)._
 
+### ⚠️ Upgrading to Zero-Downtime Updates (Migration Steps)
+
+If your `docker-compose.yml` still has a single `fileship` service, switch to the new layout once. This step restarts Fileship one last time; later updates will not.
+
+1. **Pull the latest project files** (this brings the new `docker-compose.yml` and `caddy.json`):
+
+```sh
+cd Fileship
+git pull
+```
+
+2. **Recreate the stack and remove the old `fileship` container:**
+
+```sh
+docker compose pull
+docker compose up -d --remove-orphans
+```
+
 ## 🌐 Web server configuration (optional)
 
 This section requires [Nginx](https://nginx.org/) to be installed on your machine.
@@ -182,6 +202,8 @@ server {
     }
 }
 ```
+
+Nginx keeps pointing to `127.0.0.1:3000`, which is the built-in proxy. Running both is fine: WebSocket upgrades and the `X-Forwarded-*` headers pass through, so Fileship still sees the real client IP, and the built-in proxy has no upload size limit of its own (`client_max_body_size` stays the only one).
 
 ## 🤖 AI Features
 

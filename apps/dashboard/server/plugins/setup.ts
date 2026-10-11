@@ -8,4 +8,6 @@ export default defineNitroPlugin(async () => {
     await runTask('search:addToOrama');
 
     await runTask('ai:syncJobs');
+
+    appState.ready = true;
 });

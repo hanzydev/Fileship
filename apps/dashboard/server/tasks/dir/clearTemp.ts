@@ -4,6 +4,8 @@ import consola from 'consola';
 import dayjs from 'dayjs';
 import { join } from 'pathe';
 
+const TEMP_MAX_AGE = 6 * 60 * 60 * 1000;
+
 export default defineTask({
     meta: {
         name: 'dir:clearTemp',
@@ -17,13 +19,16 @@ export default defineTask({
 
             for (const file of files) {
                 try {
+                    const { mtimeMs } = await fsp.stat(join(tempPath, file));
+                    if (Date.now() - mtimeMs < TEMP_MAX_AGE) continue;
+
                     await fsp.rm(join(tempPath, file), { recursive: true, force: true });
                 } catch {
                     //
                 }
             }
 
-            consola.success(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Temp folder cleared.`);
+            consola.success(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Old temp files cleared.`);
         }
 
         return { result: 'success' };

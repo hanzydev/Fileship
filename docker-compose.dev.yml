@@ -1,3 +1,24 @@
+x-fileship: &fileship
+    build:
+        context: .
+        dockerfile: apps/dashboard/Dockerfile
+    image: ghcr.io/hanzydev/fileship:latest
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
+    environment:
+        HOST: 0.0.0.0
+        PORT: 3000
+        DATABASE_URL: postgres://postgres:postgres@postgres/postgres
+        UPDATER_URL: http://updater-agent:3001
+        UPDATER_SECRET: ${SECRET_TOKEN:-dev-secret-token}
+        NITRO_SHUTDOWN_TIMEOUT: 25000
+    volumes:
+        - ./data:/fileship/data
+    depends_on:
+        postgres:
+            condition: service_healthy
+
 services:
     postgres:
         image: postgres:16.9
@@ -14,25 +35,21 @@ services:
             timeout: 5s
             retries: 5
 
-    fileship:
-        build:
-            context: .
-            dockerfile: apps/dashboard/Dockerfile
-        image: ghcr.io/hanzydev/fileship:latest
+    proxy:
+        image: caddy:2-alpine
+        restart: unless-stopped
+        command: caddy run --config /etc/caddy/caddy.json
         ports:
             - '3000:3000'
-        restart: unless-stopped
-        environment:
-            HOST: 0.0.0.0
-            PORT: 3000
-            DATABASE_URL: postgres://postgres:postgres@postgres/postgres
-            UPDATER_URL: http://updater-agent:3001
-            UPDATER_SECRET: ${SECRET_TOKEN:-dev-secret-token}
         volumes:
-            - ./data:/fileship/data
-        depends_on:
-            postgres:
-                condition: service_healthy
+            - ./caddy.json:/etc/caddy/caddy.json:ro
+
+    fileship-blue:
+        <<: *fileship
+
+    fileship-green:
+        <<: *fileship
+        profiles: [green]
 
     updater-agent:
         build:
@@ -49,7 +66,7 @@ services:
             AUTOUPDATER_ENABLED: false
             SECRET_TOKEN: ${SECRET_TOKEN:-dev-secret-token}
             COMPOSE_FILE: docker-compose.dev.yml
-            FILESHIP_URL: http://fileship:3000
+            FILESHIP_URL: http://proxy:3000
 
 volumes:
     pg_data:

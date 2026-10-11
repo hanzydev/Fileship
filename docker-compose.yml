@@ -1,3 +1,33 @@
+x-fileship: &fileship
+    image: ghcr.io/hanzydev/fileship:latest
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
+    environment:
+        HOST: 0.0.0.0
+        PORT: 3000
+        DATABASE_URL: postgres://postgres:postgres@postgres/postgres
+        UPDATER_URL: http://updater-agent:3001
+        UPDATER_SECRET: ${SECRET_TOKEN}
+        NITRO_SHUTDOWN_TIMEOUT: 25000
+    volumes:
+        - ./data:/fileship/data
+    depends_on:
+        postgres:
+            condition: service_healthy
+    healthcheck:
+        test:
+            [
+                'CMD',
+                'node',
+                '-e',
+                "fetch('http://localhost:3000/api/healthz').then(r => process.exitCode = r.ok ? 0 : 1).catch(() => process.exitCode = 1)",
+            ]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+        start_period: 30s
+
 services:
     postgres:
         image: postgres:16.9
@@ -14,34 +44,21 @@ services:
             timeout: 5s
             retries: 5
 
-    fileship:
-        image: ghcr.io/hanzydev/fileship:latest
+    proxy:
+        image: caddy:2-alpine
+        restart: unless-stopped
+        command: caddy run --config /etc/caddy/caddy.json
         ports:
             - '3000:3000'
-        restart: unless-stopped
-        environment:
-            HOST: 0.0.0.0
-            PORT: 3000
-            DATABASE_URL: postgres://postgres:postgres@postgres/postgres
-            UPDATER_URL: http://updater-agent:3001
-            UPDATER_SECRET: ${SECRET_TOKEN}
         volumes:
-            - ./data:/fileship/data
-        depends_on:
-            postgres:
-                condition: service_healthy
-        healthcheck:
-            test:
-                [
-                    'CMD',
-                    'node',
-                    '-e',
-                    "fetch('http://localhost:3000/api/healthz').then(r => process.exitCode = r.ok ? 0 : 1).catch(() => process.exitCode = 1)",
-                ]
-            interval: 10s
-            timeout: 5s
-            retries: 3
-            start_period: 15s
+            - ./caddy.json:/etc/caddy/caddy.json:ro
+
+    fileship-blue:
+        <<: *fileship
+
+    fileship-green:
+        <<: *fileship
+        profiles: [green]
 
     updater-agent:
         image: ghcr.io/hanzydev/fileship-updater-agent:latest
@@ -54,7 +71,7 @@ services:
             AUTOUPDATER_ENABLED: true
             SECRET_TOKEN: ${SECRET_TOKEN}
             COMPOSE_FILE: docker-compose.yml
-            FILESHIP_URL: http://fileship:3000
+            FILESHIP_URL: http://proxy:3000
 
 volumes:
     pg_data:

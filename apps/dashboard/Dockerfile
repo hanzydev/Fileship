@@ -29,4 +29,6 @@ COPY --from=builder /fileship/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
 EXPOSE 3000
 
-CMD ["pnpm", "--filter", "dashboard", "preview"]
+WORKDIR /fileship/apps/dashboard
+
+CMD ["sh", "-c", "pnpm db:deploy && exec node -r ./scripts/fixPrisma.js .output/server/index.mjs"]
