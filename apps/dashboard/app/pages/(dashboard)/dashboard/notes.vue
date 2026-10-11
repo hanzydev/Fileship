@@ -3,7 +3,7 @@
         <Title>Notes</Title>
     </Head>
 
-    <div class="flex flex-1 gap-6 p-4 pt-0">
+    <div class="flex flex-1 gap-4 p-4 pt-0">
         <UiCard
             :class="cn('w-full shrink-0 gap-4 md:flex md:w-80', isEditorOpen ? 'hidden' : 'flex')"
         >
