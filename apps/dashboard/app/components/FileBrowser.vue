@@ -212,7 +212,9 @@
                     {{ FILE_CATEGORIES[getFileCategory(item)].label }}
                 </UiBadge>
             </template>
-            <template #cell-size="{ item }">{{ item.size.formatted }}</template>
+            <template #cell-size="{ item }">
+                <span class="block truncate">{{ item.size.formatted }}</span>
+            </template>
             <template #cell-views="{ item }">{{ item.views.total }}</template>
             <template #cell-folder="{ item }">
                 <span class="block truncate text-muted-foreground">
@@ -220,25 +222,32 @@
                 </span>
             </template>
             <template #cell-createdAt="{ item }">
-                <span class="text-muted-foreground">{{ dayjs(item.createdAt).fromNow() }}</span>
+                <span class="block truncate text-muted-foreground">
+                    {{ dayjs(item.createdAt).fromNow() }}
+                </span>
             </template>
             <template #cell-actions="{ item }">
-                <UiDropdownMenu>
-                    <UiDropdownMenuTrigger as-child>
-                        <UiButton variant="ghost" size="icon-sm" @click.stop>
-                            <IEllipsis />
-                        </UiButton>
-                    </UiDropdownMenuTrigger>
-                    <UiDropdownMenuContent align="end" class="w-56">
-                        <FileMenuItems
-                            :file="item"
-                            type="dropdown"
-                            @view="openSheet(item)"
-                            @edit="openSheet(item, 'edit')"
-                            @move="moveTargets = [item]"
-                        />
-                    </UiDropdownMenuContent>
-                </UiDropdownMenu>
+                <div class="flex justify-end">
+                    <UiDropdownMenu>
+                        <UiDropdownMenuTrigger as-child>
+                            <UiButton variant="ghost" size="icon-sm" @click.stop>
+                                <IEllipsis />
+                            </UiButton>
+                        </UiDropdownMenuTrigger>
+                        <UiDropdownMenuContent align="end" class="w-56">
+                            <FileMenuItems
+                                :file="item"
+                                type="dropdown"
+                                @view="openSheet(item)"
+                                @edit="openSheet(item, 'edit')"
+                                @move="moveTargets = [item]"
+                            />
+                        </UiDropdownMenuContent>
+                    </UiDropdownMenu>
+                </div>
+            </template>
+            <template #card-skeleton>
+                <ListCardSkeleton media="size-12 rounded-xl" />
             </template>
             <template #card="{ item }">
                 <UiCard size="sm" @click="handleClick(item, $event)">
@@ -324,21 +333,35 @@ const sortOptions = computed(() => [
     ...(query.value ? [{ label: 'Relevance', value: 'relevance' }] : []),
     { label: 'Newest', value: 'createdAt:desc' },
     { label: 'Oldest', value: 'createdAt:asc' },
-    { label: 'Name', value: 'fileName:asc' },
+    { label: 'Name A–Z', value: 'fileName:asc' },
+    { label: 'Name Z–A', value: 'fileName:desc' },
     { label: 'Largest', value: 'size:desc' },
     { label: 'Smallest', value: 'size:asc' },
     { label: 'Most viewed', value: 'views:desc' },
+    { label: 'Least viewed', value: 'views:asc' },
 ]);
 
 const columns = [
     { key: 'select', label: '', class: 'w-10' },
     { key: 'fileName', label: 'Name', sortable: true },
     { key: 'type', label: 'Type', class: 'hidden w-32 lg:table-cell' },
-    { key: 'size', label: 'Size', sortable: true, class: 'w-28' },
-    { key: 'views', label: 'Views', sortable: true, class: 'hidden w-24 md:table-cell' },
+    { key: 'size', label: 'Size', sortable: true, descFirst: true, class: 'w-28' },
+    {
+        key: 'views',
+        label: 'Views',
+        sortable: true,
+        descFirst: true,
+        class: 'hidden w-24 lg:table-cell',
+    },
     { key: 'folder', label: 'Folder', class: 'hidden w-44 xl:table-cell' },
-    { key: 'createdAt', label: 'Uploaded', sortable: true, class: 'hidden w-36 md:table-cell' },
-    { key: 'actions', label: '', class: 'w-12' },
+    {
+        key: 'createdAt',
+        label: 'Uploaded',
+        sortable: true,
+        descFirst: true,
+        class: 'hidden w-36 lg:table-cell',
+    },
+    { key: 'actions', label: '', class: 'w-16' },
 ];
 
 const typeFilter = computed<FileCategory[]>({

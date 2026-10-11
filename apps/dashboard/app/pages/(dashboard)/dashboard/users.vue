@@ -14,20 +14,46 @@
             </UiButton>
         </PageHeader>
 
-        <UiInputGroup class="max-w-sm">
-            <UiInputGroupAddon>
-                <UiSpinner v-if="!!search && isLoading" />
-                <ISearch v-else />
-            </UiInputGroupAddon>
-            <UiInputGroupInput v-model="search" placeholder="Search users..." />
-        </UiInputGroup>
+        <div class="flex flex-wrap items-center gap-2">
+            <UiInputGroup class="max-w-sm flex-1">
+                <UiInputGroupAddon>
+                    <UiSpinner v-if="!!search && isLoading" />
+                    <ISearch v-else />
+                </UiInputGroupAddon>
+                <UiInputGroupInput v-model="search" placeholder="Search users..." />
+            </UiInputGroup>
+
+            <UiDropdownMenu>
+                <UiDropdownMenuTrigger as-child>
+                    <UiButton variant="outline" class="md:hidden">
+                        <IArrowDownUp />
+                        {{ sortOptions.find((option) => option.value === sortValue)?.label }}
+                        <IChevronDown class="opacity-50" />
+                    </UiButton>
+                </UiDropdownMenuTrigger>
+                <UiDropdownMenuContent align="end" class="w-56">
+                    <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
+                    <UiDropdownMenuRadioGroup v-model="sortValue">
+                        <UiDropdownMenuRadioItem
+                            v-for="option in sortOptions"
+                            :key="option.value"
+                            :value="option.value"
+                        >
+                            {{ option.label }}
+                        </UiDropdownMenuRadioItem>
+                    </UiDropdownMenuRadioGroup>
+                </UiDropdownMenuContent>
+            </UiDropdownMenu>
+        </div>
 
         <EmptyState
             v-if="!isLoading && !users.length"
             :icon="ISearchX"
             title="No matching users"
             description="Try a different username."
-        />
+        >
+            <UiButton variant="outline" @click="search = ''">Clear search</UiButton>
+        </EmptyState>
 
         <DataTable
             v-else
@@ -62,7 +88,7 @@
             <template #cell-files="{ item }">{{ item.stats.files }}</template>
             <template #cell-notes="{ item }">{{ item.stats.notes }}</template>
             <template #cell-storage="{ item }">
-                <span class="text-muted-foreground">
+                <span class="block truncate text-muted-foreground">
                     {{
                         item.limits.usableSpace === -1
                             ? 'Unlimited'
@@ -71,17 +97,19 @@
                 </span>
             </template>
             <template #cell-createdAt="{ item }">
-                <span class="text-muted-foreground">
+                <span class="block truncate text-muted-foreground">
                     {{ dayjs(item.createdAt).format('MMM D, YYYY') }}
                 </span>
             </template>
             <template #cell-actions="{ item }">
-                <UserMenu
-                    :user="item"
-                    @edit="openSheet(item)"
-                    @impersonate="handleImpersonate(item)"
-                    @delete="handleDelete(item)"
-                />
+                <div class="flex justify-end">
+                    <UserMenu
+                        :user="item"
+                        @edit="openSheet(item)"
+                        @impersonate="handleImpersonate(item)"
+                        @delete="handleDelete(item)"
+                    />
+                </div>
             </template>
             <template #card="{ item }">
                 <UiCard size="sm">
@@ -130,7 +158,7 @@ const { impersonate } = useImpersonation();
 const search = ref('');
 const sheetOpen = ref(false);
 const editingUser = ref<UserData | null>(null);
-const sort = ref({ key: 'createdAt', desc: false });
+const sort = ref({ key: 'createdAt', desc: true });
 const userQuery = useQueryState('user', '');
 
 const {
@@ -146,13 +174,42 @@ const {
 
 const columns = [
     { key: 'username', label: 'User', sortable: true },
-    { key: 'role', label: 'Role', class: 'hidden w-44 md:table-cell' },
-    { key: 'files', label: 'Files', sortable: true, class: 'hidden w-24 lg:table-cell' },
-    { key: 'notes', label: 'Notes', sortable: true, class: 'hidden w-24 lg:table-cell' },
+    { key: 'role', label: 'Role', class: 'hidden w-44 lg:table-cell' },
+    {
+        key: 'files',
+        label: 'Files',
+        sortable: true,
+        descFirst: true,
+        class: 'hidden w-24 lg:table-cell',
+    },
+    {
+        key: 'notes',
+        label: 'Notes',
+        sortable: true,
+        descFirst: true,
+        class: 'hidden w-24 xl:table-cell',
+    },
     { key: 'storage', label: 'Storage limit', class: 'hidden w-36 xl:table-cell' },
-    { key: 'createdAt', label: 'Joined', sortable: true, class: 'hidden w-36 md:table-cell' },
-    { key: 'actions', label: '', class: 'w-12' },
+    { key: 'createdAt', label: 'Joined', sortable: true, descFirst: true, class: 'w-32' },
+    { key: 'actions', label: '', class: 'w-16' },
 ];
+
+const sortOptions = [
+    { label: 'Newest', value: 'createdAt:desc' },
+    { label: 'Oldest', value: 'createdAt:asc' },
+    { label: 'Name A–Z', value: 'username:asc' },
+    { label: 'Name Z–A', value: 'username:desc' },
+    { label: 'Most files', value: 'files:desc' },
+    { label: 'Most notes', value: 'notes:desc' },
+];
+
+const sortValue = computed({
+    get: () => `${sort.value.key}:${sort.value.desc ? 'desc' : 'asc'}`,
+    set: (value) => {
+        const [key, dir] = value.split(':');
+        sort.value = { key: key!, desc: dir === 'desc' };
+    },
+});
 
 const getRoles = (user: UserData) =>
     user.superAdmin

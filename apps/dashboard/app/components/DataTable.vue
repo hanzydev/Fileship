@@ -1,10 +1,47 @@
 <template>
-    <template v-if="isMobile && $slots.card">
-        <div v-if="loading" class="flex flex-col gap-2">
-            <ListCardSkeleton v-for="i in 6" :key="i" media="size-8" />
-        </div>
+    <div ref="root" class="min-w-0">
+        <template v-if="loading">
+            <div v-if="$slots.card" class="flex flex-col gap-2 md:hidden">
+                <template v-for="i in 6" :key="i">
+                    <slot name="card-skeleton">
+                        <ListCardSkeleton media="size-8" />
+                    </slot>
+                </template>
+            </div>
+            <UiCard :class="cn('gap-0 py-0', $slots.card && 'hidden md:flex')">
+                <UiTable :class="tableClass">
+                    <UiTableHeader>
+                        <UiTableRow>
+                            <UiTableHead
+                                v-for="column in columns"
+                                :key="column.key"
+                                :class="column.class"
+                            >
+                                {{ column.label }}
+                            </UiTableHead>
+                        </UiTableRow>
+                    </UiTableHeader>
+                    <UiTableBody>
+                        <UiTableRow v-for="i in 8" :key="i" class="hover:bg-transparent">
+                            <UiTableCell
+                                v-for="column in columns"
+                                :key="column.key"
+                                :class="column.class"
+                            >
+                                <div class="flex h-9 items-center">
+                                    <UiSkeleton
+                                        v-if="column.label"
+                                        class="h-lh w-full max-w-32 rounded-full"
+                                    />
+                                </div>
+                            </UiTableCell>
+                        </UiTableRow>
+                    </UiTableBody>
+                </UiTable>
+            </UiCard>
+        </template>
         <VirtualList
-            v-else
+            v-else-if="isCards"
             :items="items"
             :item-key="itemKey"
             :estimate-size="cardEstimateSize"
@@ -15,80 +52,69 @@
                 <slot name="card" :item="item" />
             </template>
         </VirtualList>
-    </template>
-    <UiCard v-else class="gap-0 py-0">
-        <div ref="container">
-            <UiTable
-                class="table-fixed [&_td:first-child]:pl-4 [&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4"
-            >
-                <UiTableHeader>
-                    <UiTableRow>
-                        <UiTableHead
-                            v-for="column in columns"
-                            :key="column.key"
-                            :class="column.class"
-                        >
-                            <UiButton
-                                v-if="column.sortable"
-                                variant="ghost"
-                                size="sm"
-                                class="-ml-2"
-                                @click="handleSort(column.key)"
+        <UiCard v-else class="gap-0 py-0">
+            <div ref="container">
+                <UiTable :class="tableClass">
+                    <UiTableHeader>
+                        <UiTableRow>
+                            <UiTableHead
+                                v-for="column in columns"
+                                :key="column.key"
+                                :class="column.class"
                             >
-                                {{ column.label }}
-                                <IArrowUp v-if="sort?.key === column.key && !sort.desc" />
-                                <IArrowDown v-else-if="sort?.key === column.key" />
-                                <IArrowUpDown v-else class="opacity-50" />
-                            </UiButton>
-                            <template v-else>{{ column.label }}</template>
-                        </UiTableHead>
-                    </UiTableRow>
-                </UiTableHeader>
-                <UiTableBody v-if="loading">
-                    <UiTableRow v-for="i in 8" :key="i" class="hover:bg-transparent">
-                        <UiTableCell
-                            v-for="column in columns"
-                            :key="column.key"
-                            :class="column.class"
+                                <UiButton
+                                    v-if="column.sortable"
+                                    variant="ghost"
+                                    size="sm"
+                                    class="-ml-2"
+                                    @click="handleSort(column)"
+                                >
+                                    {{ column.label }}
+                                    <IArrowUp v-if="sort?.key === column.key && !sort.desc" />
+                                    <IArrowDown v-else-if="sort?.key === column.key" />
+                                    <IArrowUpDown v-else class="opacity-50" />
+                                </UiButton>
+                                <template v-else>{{ column.label }}</template>
+                            </UiTableHead>
+                        </UiTableRow>
+                    </UiTableHeader>
+                    <UiTableBody>
+                        <tr v-if="paddingTop" :style="{ height: `${paddingTop}px` }" />
+                        <UiTableRow
+                            v-for="row in virtualizer.getVirtualItems()"
+                            :key="itemKey(items[row.index]!)"
+                            :ref="(el) => virtualizer.measureElement((el as any)?.$el ?? null)"
+                            :data-index="row.index"
+                            :data-state="
+                                selected?.includes(itemKey(items[row.index]!)) && 'selected'
+                            "
+                            @click="emit('rowClick', items[row.index]!, $event)"
                         >
-                            <div class="flex h-9 items-center">
-                                <UiSkeleton v-if="column.label" class="h-4 w-full max-w-32" />
-                            </div>
-                        </UiTableCell>
-                    </UiTableRow>
-                </UiTableBody>
-                <UiTableBody v-else>
-                    <tr v-if="paddingTop" :style="{ height: `${paddingTop}px` }" />
-                    <UiTableRow
-                        v-for="row in virtualizer.getVirtualItems()"
-                        :key="itemKey(items[row.index]!)"
-                        :ref="(el) => virtualizer.measureElement((el as any)?.$el ?? null)"
-                        :data-index="row.index"
-                        :data-state="selected?.includes(itemKey(items[row.index]!)) && 'selected'"
-                        @click="emit('rowClick', items[row.index]!, $event)"
-                    >
-                        <UiTableCell
-                            v-for="column in columns"
-                            :key="column.key"
-                            :class="column.class"
-                        >
-                            <slot :name="`cell-${column.key}`" :item="items[row.index]!">
-                                {{ (items[row.index] as any)[column.key] }}
-                            </slot>
-                        </UiTableCell>
-                    </UiTableRow>
-                    <tr v-if="paddingBottom" :style="{ height: `${paddingBottom}px` }" />
-                    <UiTableRow v-if="loadingMore" class="hover:bg-transparent">
-                        <UiTableCell :colspan="columns.length">
-                            <div class="flex justify-center py-2">
-                                <UiSpinner class="text-muted-foreground" />
-                            </div>
-                        </UiTableCell>
-                    </UiTableRow>
-                </UiTableBody>
-            </UiTable>
-        </div>
-    </UiCard>
+                            <UiTableCell
+                                v-for="column in columns"
+                                :key="column.key"
+                                :class="column.class"
+                            >
+                                <slot :name="`cell-${column.key}`" :item="items[row.index]!">
+                                    <span class="block truncate">
+                                        {{ (items[row.index] as any)[column.key] }}
+                                    </span>
+                                </slot>
+                            </UiTableCell>
+                        </UiTableRow>
+                        <tr v-if="paddingBottom" :style="{ height: `${paddingBottom}px` }" />
+                        <UiTableRow v-if="loadingMore" class="hover:bg-transparent">
+                            <UiTableCell :colspan="columns.length">
+                                <div class="flex justify-center py-2">
+                                    <UiSpinner class="text-muted-foreground" />
+                                </div>
+                            </UiTableCell>
+                        </UiTableRow>
+                    </UiTableBody>
+                </UiTable>
+            </div>
+        </UiCard>
+    </div>
 </template>
 
 <script setup lang="ts" generic="T">
@@ -99,6 +125,7 @@ export type DataTableColumn = {
     label: string;
     class?: string;
     sortable?: boolean;
+    descFirst?: boolean;
 };
 
 export type DataTableSort = {
@@ -133,9 +160,19 @@ const emit = defineEmits<{
 
 const sort = defineModel<DataTableSort>('sort');
 
-const isMobile = useMediaQuery('(max-width: 767px)');
+const slots = useSlots();
+const isViewportMobile = useMediaQuery('(max-width: 767px)');
+const root = useTemplateRef('root');
 const container = useTemplateRef('container');
+const { width } = useElementSize(root);
 const scrollMargin = ref(0);
+
+const tableClass =
+    'table-fixed [&_td:first-child]:pl-4 [&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4';
+
+const isCards = computed(
+    () => !!slots.card && (width.value ? width.value < 640 : isViewportMobile.value),
+);
 
 const virtualizer = useWindowVirtualizer(
     computed(() => ({
@@ -158,11 +195,14 @@ const paddingBottom = computed(() => {
 
 watchEffect(() => {
     const last = virtualizer.value.getVirtualItems().at(-1);
-    if (!isMobile.value && last && last.index >= items.length - 10) emit('reachEnd');
+    if (!isCards.value && last && last.index >= items.length - 10) emit('reachEnd');
 });
 
-const handleSort = (key: string) => {
-    sort.value = sort.value?.key === key ? { key, desc: !sort.value.desc } : { key, desc: false };
+const handleSort = (column: DataTableColumn) => {
+    sort.value =
+        sort.value?.key === column.key
+            ? { key: column.key, desc: !sort.value.desc }
+            : { key: column.key, desc: !!column.descFirst };
 };
 
 useResizeObserver(import.meta.client ? document.body : undefined, () => {

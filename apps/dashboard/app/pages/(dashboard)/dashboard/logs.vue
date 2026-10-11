@@ -15,7 +15,7 @@
         </PageHeader>
 
         <div class="flex flex-wrap gap-2">
-            <UiInputGroup class="max-w-sm min-w-56 flex-1">
+            <UiInputGroup class="max-w-sm flex-1">
                 <UiInputGroupAddon>
                     <UiSpinner v-if="!!search && isLoading" />
                     <ISearch v-else />
@@ -24,7 +24,7 @@
             </UiInputGroup>
             <UiDropdownMenu @update:open="$event && refreshActions()">
                 <UiDropdownMenuTrigger as-child>
-                    <UiButton variant="outline" class="max-w-56">
+                    <UiButton variant="outline" class="max-w-52">
                         <IListFilter />
                         <span class="truncate">
                             {{ actionFilter === 'all' ? 'All actions' : actionFilter }}
@@ -47,6 +47,27 @@
                     </UiDropdownMenuRadioGroup>
                 </UiDropdownMenuContent>
             </UiDropdownMenu>
+            <UiDropdownMenu>
+                <UiDropdownMenuTrigger as-child>
+                    <UiButton variant="outline" class="md:hidden">
+                        <IArrowDownUp />
+                        {{ sortOptions.find((option) => option.value === sortValue)?.label }}
+                        <IChevronDown class="opacity-50" />
+                    </UiButton>
+                </UiDropdownMenuTrigger>
+                <UiDropdownMenuContent align="end" class="w-56">
+                    <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
+                    <UiDropdownMenuRadioGroup v-model="sortValue">
+                        <UiDropdownMenuRadioItem
+                            v-for="option in sortOptions"
+                            :key="option.value"
+                            :value="option.value"
+                        >
+                            {{ option.label }}
+                        </UiDropdownMenuRadioItem>
+                    </UiDropdownMenuRadioGroup>
+                </UiDropdownMenuContent>
+            </UiDropdownMenu>
         </div>
 
         <EmptyState
@@ -56,7 +77,11 @@
             :description="
                 isFiltered ? 'Try a different search or filter.' : 'Activity will show up here.'
             "
-        />
+        >
+            <UiButton v-if="isFiltered" variant="outline" @click="handleClearFilters">
+                Clear filters
+            </UiButton>
+        </EmptyState>
 
         <DataTable
             v-else
@@ -75,7 +100,7 @@
                         <UiAvatar class="size-6">
                             <UiAvatarImage v-if="item.user!.avatar" :src="item.user!.avatar!" />
                             <UiAvatarFallback>
-                                {{ item.user!.username[0]!.toUpperCase() }}
+                                {{ item.user!.username.slice(0, 2).toUpperCase() }}
                             </UiAvatarFallback>
                         </UiAvatar>
                         <span class="truncate">{{ item.user!.username }}</span>
@@ -86,18 +111,20 @@
                 </div>
             </template>
             <template #cell-action="{ item }">
-                <UiBadge variant="outline">{{ item.action }}</UiBadge>
+                <UiBadge variant="outline" class="max-w-full">
+                    <span class="truncate">{{ item.action }}</span>
+                </UiBadge>
             </template>
             <template #cell-message="{ item }">
                 <span class="block truncate" :title="item.message">{{ item.message }}</span>
             </template>
             <template #cell-ip="{ item }">
-                <span class="font-mono text-muted-foreground">{{ item.ip }}</span>
+                <span class="block truncate font-mono text-muted-foreground">{{ item.ip }}</span>
             </template>
             <template #cell-createdAt="{ item }">
                 <UiTooltip>
                     <UiTooltipTrigger as-child>
-                        <span class="whitespace-nowrap text-muted-foreground">
+                        <span class="block truncate text-muted-foreground">
                             {{ dayjs(item.createdAt).fromNow() }}
                         </span>
                     </UiTooltipTrigger>
@@ -105,6 +132,24 @@
                         {{ dayjs(item.createdAt).format('MMM D, YYYY HH:mm:ss') }}
                     </UiTooltipContent>
                 </UiTooltip>
+            </template>
+            <template #card-skeleton>
+                <UiCard size="sm">
+                    <UiCardContent class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <UiSkeleton class="h-5 w-28 rounded-full" />
+                            <TextBlock variant="muted" class="ml-auto w-16 text-xs">
+                                <UiSkeleton class="h-lh w-full rounded-full" />
+                            </TextBlock>
+                        </div>
+                        <TextBlock variant="small" class="w-full">
+                            <UiSkeleton class="h-lh w-3/4 rounded-full" />
+                        </TextBlock>
+                        <TextBlock variant="muted" class="w-full text-xs">
+                            <UiSkeleton class="h-lh w-1/3 rounded-full" />
+                        </TextBlock>
+                    </UiCardContent>
+                </UiCard>
             </template>
             <template #card="{ item }">
                 <UiCard size="sm">
@@ -140,12 +185,32 @@ const actionFilter = ref('all');
 const sort = ref({ key: 'createdAt', desc: true });
 
 const columns = [
-    { key: 'user', label: 'User', sortable: true, class: 'w-44' },
-    { key: 'action', label: 'Action', sortable: true, class: 'w-48' },
+    { key: 'user', label: 'User', sortable: true, class: 'w-40' },
+    { key: 'action', label: 'Action', sortable: true, class: 'hidden w-48 lg:table-cell' },
     { key: 'message', label: 'Message' },
     { key: 'ip', label: 'IP', class: 'hidden w-40 xl:table-cell' },
-    { key: 'createdAt', label: 'When', sortable: true, class: 'w-36' },
+    { key: 'createdAt', label: 'When', sortable: true, descFirst: true, class: 'w-32' },
 ];
+
+const sortOptions = [
+    { label: 'Newest', value: 'createdAt:desc' },
+    { label: 'Oldest', value: 'createdAt:asc' },
+    { label: 'Action A–Z', value: 'action:asc' },
+    { label: 'User A–Z', value: 'user:asc' },
+];
+
+const sortValue = computed({
+    get: () => `${sort.value.key}:${sort.value.desc ? 'desc' : 'asc'}`,
+    set: (value) => {
+        const [key, dir] = value.split(':');
+        sort.value = { key: key!, desc: dir === 'desc' };
+    },
+});
+
+const handleClearFilters = () => {
+    search.value = '';
+    actionFilter.value = 'all';
+};
 
 const isFiltered = computed(() => !!search.value.trim() || actionFilter.value !== 'all');
 
