@@ -31,6 +31,7 @@ const FILESHIP_URL = process.env.FILESHIP_URL || 'http://proxy:3000';
 
 const COLORS = ['blue', 'green'] as const;
 const HEALTH_TIMEOUT = 3 * 60 * 1000;
+const RESTORE_WAIT_TIMEOUT = 10 * 60 * 1000;
 
 type Color = (typeof COLORS)[number];
 type UpdateStatus = 'Pulling' | 'Starting' | 'Switching' | 'Success' | 'Error';
@@ -216,6 +217,13 @@ const handleUpdate = async (onStatus?: (status: UpdateStatus) => Promise<void>) 
         isSwitched = true;
 
         await onStatus?.('Success');
+
+        const waitStartedAt = Date.now();
+
+        while ((await isFileshipBusy()) && Date.now() - waitStartedAt < RESTORE_WAIT_TIMEOUT) {
+            consola.info('A backup is being restored, waiting before stopping the old version...');
+            await new Promise((resolve) => setTimeout(resolve, 5_000));
+        }
 
         for (const color of previous) {
             await compose('stop', `fileship-${color}`);
