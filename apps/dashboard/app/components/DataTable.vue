@@ -1,22 +1,35 @@
 <template>
-    <VirtualList
-        v-if="isMobile && $slots.card"
-        :items="items"
-        :item-key="itemKey"
-        :estimate-size="cardEstimateSize"
-        :loading="loading"
-        @reach-end="emit('reachEnd')"
-    >
-        <template #default="{ item }">
-            <slot name="card" :item="item" />
-        </template>
-    </VirtualList>
+    <template v-if="isMobile && $slots.card">
+        <div v-if="loading" class="flex flex-col gap-2">
+            <UiCard v-for="i in 6" :key="i" size="sm">
+                <UiCardContent class="flex items-center gap-3">
+                    <UiSkeleton class="size-9 rounded-full" />
+                    <div class="flex flex-1 flex-col gap-2">
+                        <UiSkeleton class="h-4 w-1/2" />
+                        <UiSkeleton class="h-3 w-1/3" />
+                    </div>
+                </UiCardContent>
+            </UiCard>
+        </div>
+        <VirtualList
+            v-else
+            :items="items"
+            :item-key="itemKey"
+            :estimate-size="cardEstimateSize"
+            :loading="loadingMore"
+            @reach-end="emit('reachEnd')"
+        >
+            <template #default="{ item }">
+                <slot name="card" :item="item" />
+            </template>
+        </VirtualList>
+    </template>
     <UiCard v-else class="gap-0 py-0">
         <div ref="container">
             <UiTable
-                class="[&_td:first-child]:pl-4 [&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4"
+                class="table-fixed [&_td:first-child]:pl-4 [&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4"
             >
-                <UiTableHeader class="bg-muted/50">
+                <UiTableHeader>
                     <UiTableRow>
                         <UiTableHead
                             v-for="column in columns"
@@ -39,7 +52,20 @@
                         </UiTableHead>
                     </UiTableRow>
                 </UiTableHeader>
-                <UiTableBody>
+                <UiTableBody v-if="loading">
+                    <UiTableRow v-for="i in 8" :key="i" class="hover:bg-transparent">
+                        <UiTableCell
+                            v-for="column in columns"
+                            :key="column.key"
+                            :class="column.class"
+                        >
+                            <div class="flex h-9 items-center">
+                                <UiSkeleton v-if="column.label" class="h-4 w-full max-w-32" />
+                            </div>
+                        </UiTableCell>
+                    </UiTableRow>
+                </UiTableBody>
+                <UiTableBody v-else>
                     <tr v-if="paddingTop" :style="{ height: `${paddingTop}px` }" />
                     <UiTableRow
                         v-for="row in virtualizer.getVirtualItems()"
@@ -60,7 +86,7 @@
                         </UiTableCell>
                     </UiTableRow>
                     <tr v-if="paddingBottom" :style="{ height: `${paddingBottom}px` }" />
-                    <UiTableRow v-if="loading" class="hover:bg-transparent">
+                    <UiTableRow v-if="loadingMore" class="hover:bg-transparent">
                         <UiTableCell :colspan="columns.length">
                             <div class="flex justify-center py-2">
                                 <UiSpinner class="text-muted-foreground" />
@@ -94,6 +120,7 @@ const {
     columns,
     selected,
     loading,
+    loadingMore,
     estimateSize = 53,
     cardEstimateSize = 96,
 } = defineProps<{
@@ -102,6 +129,7 @@ const {
     columns: DataTableColumn[];
     selected?: string[];
     loading?: boolean;
+    loadingMore?: boolean;
     estimateSize?: number;
     cardEstimateSize?: number;
 }>();

@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
         prisma.log.findMany({ where, select: { id: true } }),
     );
 
-    const { field, dir } = parseSort(query.sort, ['createdAt', 'action'], 'createdAt:desc');
+    const { field, dir } = parseSort(query.sort, ['createdAt', 'action', 'user'], 'createdAt:desc');
 
     const [items, total] = relevance
         ? [
@@ -48,7 +48,10 @@ export default defineEventHandler(async (event) => {
               prisma.log.findMany({
                   where,
                   select,
-                  orderBy: [{ [field]: dir }, { id: 'asc' }],
+                  orderBy: [
+                      field === 'user' ? { user: { username: dir } } : { [field]: dir },
+                      { id: 'asc' },
+                  ],
                   skip: query.offset,
                   take: query.limit,
               }),

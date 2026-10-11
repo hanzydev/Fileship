@@ -38,12 +38,8 @@
             </UiSelect>
         </div>
 
-        <div v-if="isLoading" class="flex flex-col gap-2">
-            <UiSkeleton v-for="i in 8" :key="i" class="h-12 rounded-2xl" />
-        </div>
-
         <EmptyState
-            v-else-if="!logs.length"
+            v-if="!isLoading && !logs.length"
             :icon="IClipboardList"
             :title="isFiltered ? 'No matching entries' : 'No logs yet'"
             :description="
@@ -58,7 +54,8 @@
             :item-key="(l) => l.id"
             :columns="columns"
             :card-estimate-size="88"
-            :loading="isLoadingMore"
+            :loading="isLoading"
+            :loading-more="isLoadingMore"
             @reach-end="loadMore"
         >
             <template #cell-user="{ item }">
@@ -99,18 +96,22 @@
                 </UiTooltip>
             </template>
             <template #card="{ item }">
-                <div class="flex flex-col gap-1 rounded-2xl border p-3">
-                    <div class="flex items-center gap-2">
-                        <UiBadge variant="outline">{{ item.action }}</UiBadge>
-                        <TextBlock variant="muted" class="ml-auto text-xs">
-                            {{ dayjs(item.createdAt).fromNow() }}
+                <UiCard size="sm">
+                    <UiCardContent class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <UiBadge variant="outline">{{ item.action }}</UiBadge>
+                            <TextBlock variant="muted" class="ml-auto text-xs">
+                                {{ dayjs(item.createdAt).fromNow() }}
+                            </TextBlock>
+                        </div>
+                        <TextBlock variant="small" class="line-clamp-2">
+                            {{ item.message }}
                         </TextBlock>
-                    </div>
-                    <TextBlock variant="small" class="line-clamp-2">{{ item.message }}</TextBlock>
-                    <TextBlock variant="muted" class="text-xs">
-                        {{ item.user?.username || 'System' }} · {{ item.ip }}
-                    </TextBlock>
-                </div>
+                        <TextBlock variant="muted" class="text-xs">
+                            {{ item.user?.username || 'System' }} · {{ item.ip }}
+                        </TextBlock>
+                    </UiCardContent>
+                </UiCard>
             </template>
         </DataTable>
     </div>
@@ -129,11 +130,11 @@ const isClearing = ref(false);
 const sort = ref({ key: 'createdAt', desc: true });
 
 const columns = [
-    { key: 'user', label: 'User', class: 'w-40' },
-    { key: 'action', label: 'Action', sortable: true },
-    { key: 'message', label: 'Message', class: 'max-w-0 w-full' },
-    { key: 'ip', label: 'IP', class: 'hidden xl:table-cell' },
-    { key: 'createdAt', label: 'When', sortable: true },
+    { key: 'user', label: 'User', sortable: true, class: 'w-44' },
+    { key: 'action', label: 'Action', sortable: true, class: 'w-48' },
+    { key: 'message', label: 'Message' },
+    { key: 'ip', label: 'IP', class: 'hidden w-40 xl:table-cell' },
+    { key: 'createdAt', label: 'When', sortable: true, class: 'w-36' },
 ];
 
 const isFiltered = computed(() => !!search.value.trim() || actionFilter.value !== 'all');

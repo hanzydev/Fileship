@@ -22,12 +22,8 @@
             <UiInputGroupInput v-model="search" placeholder="Search users..." />
         </UiInputGroup>
 
-        <div v-if="isLoading" class="flex flex-col gap-2">
-            <UiSkeleton v-for="i in 5" :key="i" class="h-12 rounded-2xl" />
-        </div>
-
         <EmptyState
-            v-else-if="!users.length"
+            v-if="!isLoading && !users.length"
             :icon="ISearchX"
             title="No matching users"
             description="Try a different username."
@@ -40,7 +36,8 @@
             :item-key="(u) => u.id"
             :columns="columns"
             :card-estimate-size="72"
-            :loading="isLoadingMore"
+            :loading="isLoading"
+            :loading-more="isLoadingMore"
             @reach-end="loadMore"
         >
             <template #cell-username="{ item }">
@@ -87,27 +84,31 @@
                 />
             </template>
             <template #card="{ item }">
-                <div class="flex items-center gap-3 rounded-2xl border p-3">
-                    <UiAvatar>
-                        <UiAvatarImage v-if="item.avatar" :src="item.avatar" />
-                        <UiAvatarFallback>
-                            {{ item.username.slice(0, 2).toUpperCase() }}
-                        </UiAvatarFallback>
-                    </UiAvatar>
-                    <div class="flex min-w-0 flex-1 flex-col">
-                        <TextBlock variant="small" class="truncate">{{ item.username }}</TextBlock>
-                        <TextBlock variant="muted" class="truncate text-xs">
-                            {{ getRoles(item).join(', ') }} ·
-                            {{ pluralize(item.stats.files, 'file') }}
-                        </TextBlock>
-                    </div>
-                    <UserMenu
-                        :user="item"
-                        @edit="openSheet(item)"
-                        @impersonate="handleImpersonate(item)"
-                        @delete="handleDelete(item)"
-                    />
-                </div>
+                <UiCard size="sm">
+                    <UiCardContent class="flex items-center gap-3">
+                        <UiAvatar>
+                            <UiAvatarImage v-if="item.avatar" :src="item.avatar" />
+                            <UiAvatarFallback>
+                                {{ item.username.slice(0, 2).toUpperCase() }}
+                            </UiAvatarFallback>
+                        </UiAvatar>
+                        <div class="flex min-w-0 flex-1 flex-col">
+                            <TextBlock variant="small" class="truncate">
+                                {{ item.username }}
+                            </TextBlock>
+                            <TextBlock variant="muted" class="truncate text-xs">
+                                {{ getRoles(item).join(', ') }} ·
+                                {{ pluralize(item.stats.files, 'file') }}
+                            </TextBlock>
+                        </div>
+                        <UserMenu
+                            :user="item"
+                            @edit="openSheet(item)"
+                            @impersonate="handleImpersonate(item)"
+                            @delete="handleDelete(item)"
+                        />
+                    </UiCardContent>
+                </UiCard>
             </template>
         </DataTable>
 
@@ -144,12 +145,12 @@ const {
 }));
 
 const columns = [
-    { key: 'username', label: 'User', sortable: true, class: 'max-w-0 w-full' },
-    { key: 'role', label: 'Role', class: 'hidden md:table-cell' },
-    { key: 'files', label: 'Files', sortable: true, class: 'hidden lg:table-cell' },
-    { key: 'notes', label: 'Notes', sortable: true, class: 'hidden lg:table-cell' },
-    { key: 'storage', label: 'Storage limit', class: 'hidden xl:table-cell' },
-    { key: 'createdAt', label: 'Joined', sortable: true, class: 'hidden md:table-cell' },
+    { key: 'username', label: 'User', sortable: true },
+    { key: 'role', label: 'Role', class: 'hidden w-44 md:table-cell' },
+    { key: 'files', label: 'Files', sortable: true, class: 'hidden w-24 lg:table-cell' },
+    { key: 'notes', label: 'Notes', sortable: true, class: 'hidden w-24 lg:table-cell' },
+    { key: 'storage', label: 'Storage limit', class: 'hidden w-36 xl:table-cell' },
+    { key: 'createdAt', label: 'Joined', sortable: true, class: 'hidden w-36 md:table-cell' },
     { key: 'actions', label: '', class: 'w-12' },
 ];
 

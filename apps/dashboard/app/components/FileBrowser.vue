@@ -93,12 +93,15 @@
             </div>
         </div>
 
-        <div v-if="isLoading" class="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4">
-            <UiSkeleton v-for="i in 8" :key="i" class="aspect-4/5 rounded-4xl" />
+        <div
+            v-if="isLoading && view === 'grid'"
+            class="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4"
+        >
+            <FileCardSkeleton v-for="i in 8" :key="i" />
         </div>
 
         <EmptyState
-            v-else-if="!files.length && !isFiltered"
+            v-else-if="!isLoading && !files.length && !isFiltered"
             :icon="IFiles"
             :title="emptyTitle"
             description="Upload files with the button above, drop them anywhere or paste an image."
@@ -110,7 +113,7 @@
         </EmptyState>
 
         <EmptyState
-            v-else-if="!files.length"
+            v-else-if="!isLoading && !files.length"
             :icon="ISearchX"
             title="No matching files"
             description="Try a different search or clear your filters."
@@ -149,7 +152,8 @@
             :item-key="(f) => f.id"
             :columns="columns"
             :selected="selected"
-            :loading="isLoadingMore"
+            :loading="isLoading"
+            :loading-more="isLoadingMore"
             @row-click="handleClick"
             @reach-end="loadMore"
         >
@@ -188,7 +192,7 @@
             <template #cell-size="{ item }">{{ item.size.formatted }}</template>
             <template #cell-views="{ item }">{{ item.views.total }}</template>
             <template #cell-folder="{ item }">
-                <span class="text-muted-foreground">
+                <span class="block truncate text-muted-foreground">
                     {{ item.folder?.name || '—' }}
                 </span>
             </template>
@@ -214,36 +218,37 @@
                 </UiDropdownMenu>
             </template>
             <template #card="{ item }">
-                <div
-                    class="flex items-center gap-3 rounded-2xl p-2 hover:bg-muted/50"
-                    @click="handleClick(item, $event)"
-                >
-                    <div
-                        class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted"
-                    >
-                        <img
-                            v-if="item.mimeType.startsWith('image/')"
-                            :src="item.directUrl"
-                            loading="lazy"
-                            class="size-full object-cover"
+                <UiCard size="sm" @click="handleClick(item, $event)">
+                    <UiCardContent class="flex items-center gap-3">
+                        <div
+                            class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted"
+                        >
+                            <img
+                                v-if="item.mimeType.startsWith('image/')"
+                                :src="item.directUrl"
+                                loading="lazy"
+                                class="size-full object-cover"
+                            />
+                            <component
+                                :is="getFileIcon(item)"
+                                v-else
+                                class="size-5 text-muted-foreground"
+                            />
+                        </div>
+                        <div class="flex min-w-0 flex-1 flex-col">
+                            <TextBlock variant="small" class="truncate">
+                                {{ item.fileName }}
+                            </TextBlock>
+                            <TextBlock variant="muted" class="truncate text-xs">
+                                {{ item.size.formatted }} · {{ dayjs(item.createdAt).fromNow() }}
+                            </TextBlock>
+                        </div>
+                        <UiCheckbox
+                            :model-value="selected.includes(item.id)"
+                            @click.stop="handleToggle(item, $event)"
                         />
-                        <component
-                            :is="getFileIcon(item)"
-                            v-else
-                            class="size-5 text-muted-foreground"
-                        />
-                    </div>
-                    <div class="flex min-w-0 flex-1 flex-col">
-                        <TextBlock variant="small" class="truncate">{{ item.fileName }}</TextBlock>
-                        <TextBlock variant="muted" class="truncate text-xs">
-                            {{ item.size.formatted }} · {{ dayjs(item.createdAt).fromNow() }}
-                        </TextBlock>
-                    </div>
-                    <UiCheckbox
-                        :model-value="selected.includes(item.id)"
-                        @click.stop="handleToggle(item, $event)"
-                    />
-                </div>
+                    </UiCardContent>
+                </UiCard>
             </template>
         </DataTable>
 
@@ -304,12 +309,12 @@ const sortOptions = computed(() => [
 
 const columns = [
     { key: 'select', label: '', class: 'w-10' },
-    { key: 'fileName', label: 'Name', sortable: true, class: 'max-w-0 w-full' },
-    { key: 'type', label: 'Type', class: 'hidden lg:table-cell' },
-    { key: 'size', label: 'Size', sortable: true },
-    { key: 'views', label: 'Views', sortable: true, class: 'hidden md:table-cell' },
-    { key: 'folder', label: 'Folder', class: 'hidden xl:table-cell' },
-    { key: 'createdAt', label: 'Uploaded', sortable: true, class: 'hidden md:table-cell' },
+    { key: 'fileName', label: 'Name', sortable: true },
+    { key: 'type', label: 'Type', class: 'hidden w-32 lg:table-cell' },
+    { key: 'size', label: 'Size', sortable: true, class: 'w-28' },
+    { key: 'views', label: 'Views', sortable: true, class: 'hidden w-24 md:table-cell' },
+    { key: 'folder', label: 'Folder', class: 'hidden w-44 xl:table-cell' },
+    { key: 'createdAt', label: 'Uploaded', sortable: true, class: 'hidden w-36 md:table-cell' },
     { key: 'actions', label: '', class: 'w-12' },
 ];
 
