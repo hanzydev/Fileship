@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-import { search } from '@orama/orama';
-
 const validationSchema = z.object({
     query: z
         .string()
@@ -30,8 +28,6 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const searched = await search(noteSearchDb, { term: body.data.query });
-    return searched.hits
-        .filter((hit) => userNotes.some((note) => note.id === hit.id))
-        .map((hit) => hit.id);
+    const ids = await searchDbIds(noteSearchDb, body.data.query);
+    return ids.filter((id) => userNotes.some((note) => note.id === id));
 });

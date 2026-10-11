@@ -1,54 +1,71 @@
-import { existsSync } from 'node:fs';
+import type { Prisma } from '~~/generated/prisma/client';
 
-import { filesize } from 'filesize';
-import { join } from 'pathe';
+const getSummary = async (where: Prisma.FileWhereInput) => {
+    const [aggregate, ...counts] = await Promise.all([
+        prisma.file.aggregate({ where, _count: true, _sum: { size: true } }),
+        ...FILE_CATEGORY_NAMES.map((category) =>
+            prisma.file.count({ where: { AND: [where, fileCategoryWhere(category)] } }),
+        ),
+    ]);
+
+    return {
+        count: aggregate._count,
+        size: (aggregate._sum.size ?? 0n).toString(),
+        categories: Object.fromEntries(
+            FILE_CATEGORY_NAMES.map((category, index) => [category, counts[index]!]),
+        ),
+    };
+};
 
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
     const currentUser = event.context.user!;
+    const query = await readFileListQuery(event);
+    const { base, where, searchIds } = await buildFileWhere(currentUser.id, query);
 
-    const files = await prisma.file.findMany({
-        where: {
-            authorId: currentUser.id,
-        },
-        orderBy: {
-            createdAt: 'desc',
-        },
+    const args = {
         include: {
-            views: true,
+            folder: { select: { id: true, name: true } },
+            _count: { select: { views: true } },
         },
         omit: {
             embedding: true,
             textEmbedding: true,
             ocrText: true,
         },
-    });
+    } satisfies Prisma.FileFindManyArgs;
 
-    return files.map((file) => ({
-        ...file,
-        size: {
-            raw: file.size.toString(),
-            formatted: filesize(file.size),
-        },
-        views: {
-            total: file.views.length,
-            today: file.views.filter((view) => {
-                const now = new Date();
+    const relevance = await findRelevancePage(query, searchIds, () =>
+        prisma.file.findMany({ where, select: { id: true } }),
+    );
 
-                return (
-                    view.createdAt.getDate() === now.getDate() &&
-                    view.createdAt.getMonth() === now.getMonth() &&
-                    view.createdAt.getFullYear() === now.getFullYear()
-                );
-            }).length,
-        },
-        directUrl: buildPublicUrl(event, currentUser.domains, `/u/${file.fileName}`),
-        embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${file.fileName}`),
-        thumbnailUrl: file.mimeType.startsWith('video/')
-            ? existsSync(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`))
-                ? buildPublicUrl(event, currentUser.domains, `/u/${file.fileName}/thumbnail`)
-                : null
-            : undefined,
-    }));
+    const [items, total] = relevance
+        ? [
+              sortByIds(
+                  await prisma.file.findMany({ ...args, where: { id: { in: relevance.ids } } }),
+                  relevance.ids,
+              ),
+              relevance.total,
+          ]
+        : await Promise.all([
+              prisma.file.findMany({
+                  ...args,
+                  where,
+                  orderBy: fileOrderBy(query.sort),
+                  skip: query.offset,
+                  take: query.limit,
+              }),
+              prisma.file.count({ where }),
+          ]);
+
+    const todayViews = await getTodayViews(items.map((file) => file.id));
+
+    return {
+        items: items.map((file) =>
+            serializeFile(event, file, currentUser.domains, todayViews.get(file.id)),
+        ),
+        total,
+        summary: query.summary && !query.offset ? await getSummary(base) : undefined,
+    };
 });

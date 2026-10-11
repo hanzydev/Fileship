@@ -87,15 +87,7 @@ export default defineEventHandler(async (event) => {
         where: {
             id: folderId,
         },
-        include: {
-            files: {
-                select: {
-                    id: true,
-                    createdAt: true,
-                },
-            },
-            inbox: true,
-        },
+        include: folderInclude,
         data: {
             name: body.data.name,
             public: body.data.public,
@@ -106,16 +98,7 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const updatedFolder = {
-        ..._updatedFolder,
-        files: _updatedFolder.files
-            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-            .map((file) => file.id),
-        publicUrl: _updatedFolder.public
-            ? buildPublicUrl(event, currentUser.domains, `/folder/${_updatedFolder.id}`)
-            : undefined,
-        isInbox: !!_updatedFolder.inbox,
-    };
+    const updatedFolder = serializeFolder(event, _updatedFolder);
 
     await update(folderSearchDb, _updatedFolder.id, {
         id: updatedFolder.id,

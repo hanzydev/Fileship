@@ -1,8 +1,4 @@
-import { existsSync } from 'node:fs';
-
 import { defu } from 'defu';
-import { filesize } from 'filesize';
-import { join } from 'pathe';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -13,16 +9,7 @@ export default defineEventHandler(async (event) => {
             id: folderId,
         },
         include: {
-            files: {
-                orderBy: {
-                    createdAt: 'desc',
-                },
-                omit: {
-                    embedding: true,
-                    textEmbedding: true,
-                    ocrText: true,
-                },
-            },
+            inbox: { select: { id: true } },
             author: {
                 select: {
                     domains: true,
@@ -39,43 +26,20 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    if (findFolderById.authorId !== currentUser?.id) {
-        if (!findFolderById.public) {
-            throw forbiddenError;
-        } else {
-            findFolderById.files = findFolderById.files.filter((f) => !f.password);
-        }
-    }
+    const isOwner = findFolderById.authorId === currentUser?.id;
+
+    if (!isOwner && !findFolderById.public) throw forbiddenError;
+
+    const fileCount = await prisma.file.count({
+        where: { folderId: findFolderById.id, ...(isOwner ? {} : { password: null }) },
+    });
 
     return {
         ...findFolderById,
+        inbox: undefined,
         author: undefined,
-        files: findFolderById.files.map((file) => ({
-            ...file,
-            password: undefined,
-            maxViews: undefined,
-            expiresAt: undefined,
-            folderId: undefined,
-            size: {
-                raw: file.size.toString(),
-                formatted: filesize(file.size),
-            },
-            directUrl: buildPublicUrl(event, findFolderById.author.domains, `/u/${file.fileName}`),
-            embedUrl: buildPublicUrl(
-                event,
-                findFolderById.author.domains,
-                `/view/${file.fileName}`,
-            ),
-            thumbnailUrl: file.mimeType.startsWith('video/')
-                ? existsSync(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`))
-                    ? buildPublicUrl(
-                          event,
-                          findFolderById.author.domains,
-                          `/u/${file.fileName}/thumbnail`,
-                      )
-                    : null
-                : undefined,
-        })),
+        fileCount,
+        isInbox: !!findFolderById.inbox,
         embed: defu(findFolderById.author.embed, defaultEmbed) as IEmbed,
         publicUrl: findFolderById.public
             ? buildPublicUrl(event, findFolderById.author.domains, `/folder/${findFolderById.id}`)

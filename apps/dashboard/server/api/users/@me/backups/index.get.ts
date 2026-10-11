@@ -7,14 +7,13 @@ export default defineEventHandler(async (event) => {
     userOnly(event);
 
     const currentUser = event.context.user!;
+    const query = await readListQuery(event);
     const userBackupsPath = join(dataDirectory, 'backups', currentUser.id);
 
-    if (!existsSync(userBackupsPath)) return [];
+    if (!existsSync(userBackupsPath)) return { items: [], total: 0 };
 
-    const userBackups = await fsp.readdir(userBackupsPath);
-
-    return Promise.all(
-        userBackups.map(async (backup) => {
+    const userBackups = await Promise.all(
+        (await fsp.readdir(userBackupsPath)).map(async (backup) => {
             const backupStat = await fsp.stat(join(userBackupsPath, backup));
 
             return {
@@ -27,4 +26,11 @@ export default defineEventHandler(async (event) => {
             };
         }),
     );
+
+    return {
+        items: userBackups
+            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+            .slice(query.offset, query.offset + query.limit),
+        total: userBackups.length,
+    };
 });

@@ -52,26 +52,10 @@ export default defineEventHandler(async (event) => {
             },
             authorId: currentUser.id,
         },
-        include: {
-            files: {
-                select: {
-                    id: true,
-                    createdAt: true,
-                },
-            },
-        },
+        include: folderInclude,
     });
 
-    const folder = {
-        ..._folder,
-        files: _folder.files
-            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-            .map((file) => file.id),
-        publicUrl: _folder.public
-            ? buildPublicUrl(event, currentUser.domains, `/folder/${_folder.id}`)
-            : undefined,
-        isInbox: false,
-    };
+    const folder = serializeFolder(event, _folder);
 
     await insert(folderSearchDb, {
         id: folder.id,

@@ -1,38 +1,49 @@
-import { defu } from 'defu';
+import type { Prisma } from '~~/generated/prisma/client';
 
 export default defineEventHandler(async (event) => {
     adminOnly(event);
 
-    const users = await prisma.user.findMany({
-        orderBy: {
-            createdAt: 'desc',
-        },
-        select: {
-            id: true,
-            username: true,
-            avatar: true,
-            permissions: true,
-            totpEnabled: true,
-            superAdmin: true,
-            limits: true,
-            createdAt: true,
-            domains: true,
-            _count: {
-                select: { files: true, folders: true, notes: true },
-            },
-        },
-    });
+    const query = await readListQuery(event);
+    const searchIds = query.q ? await searchDbIds(userSearchDb, query.q) : undefined;
 
-    return users.map((user) => ({
-        id: user.id,
-        username: user.username,
-        avatar: user.avatar,
-        permissions: user.permissions,
-        totpEnabled: user.totpEnabled,
-        superAdmin: user.superAdmin,
-        limits: defu(user.limits, defaultUserLimits) as IUserLimits,
-        createdAt: user.createdAt,
-        domains: user.domains,
-        stats: user._count,
-    }));
+    const where: Prisma.UserWhereInput = searchIds ? { id: { in: searchIds } } : {};
+
+    const relevance = await findRelevancePage(query, searchIds, () =>
+        prisma.user.findMany({ where, select: { id: true } }),
+    );
+
+    const { field, dir } = parseSort(
+        query.sort,
+        ['createdAt', 'username', 'files', 'notes'],
+        'createdAt:desc',
+    );
+
+    const [users, total] = relevance
+        ? [
+              sortByIds(
+                  await prisma.user.findMany({
+                      where: { id: { in: relevance.ids } },
+                      select: userListSelect,
+                  }),
+                  relevance.ids,
+              ),
+              relevance.total,
+          ]
+        : await Promise.all([
+              prisma.user.findMany({
+                  where,
+                  select: userListSelect,
+                  orderBy: [
+                      field === 'files' || field === 'notes'
+                          ? { [field]: { _count: dir } }
+                          : { [field]: dir },
+                      { id: 'asc' },
+                  ],
+                  skip: query.offset,
+                  take: query.limit,
+              }),
+              prisma.user.count({ where }),
+          ]);
+
+    return { items: users.map(serializeListUser), total };
 });

@@ -1,6 +1,3 @@
-import { existsSync } from 'node:fs';
-
-import { filesize } from 'filesize';
 import { join } from 'pathe';
 import { z } from 'zod';
 
@@ -100,7 +97,8 @@ export default defineEventHandler(async (event) => {
             id: fileId,
         },
         include: {
-            views: true,
+            folder: { select: { id: true, name: true } },
+            _count: { select: { views: true } },
         },
         data: body.data,
         omit: {
@@ -110,36 +108,13 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const updatedFile = {
-        ..._updatedFile,
-        size: {
-            raw: _updatedFile.size.toString(),
-            formatted: filesize(_updatedFile.size),
-        },
-        views: {
-            total: _updatedFile.views.length,
-            today: _updatedFile.views.filter((view) => {
-                const now = new Date();
-
-                return (
-                    view.createdAt.getDate() === now.getDate() &&
-                    view.createdAt.getMonth() === now.getMonth() &&
-                    view.createdAt.getFullYear() === now.getFullYear()
-                );
-            }).length,
-        },
-        directUrl: buildPublicUrl(event, currentUser.domains, `/u/${_updatedFile.fileName}`),
-        embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${_updatedFile.fileName}`),
-        thumbnailUrl: _updatedFile.mimeType.startsWith('video/')
-            ? existsSync(join(dataDirectory, 'thumbnails', `${_updatedFile.id}.jpeg`))
-                ? buildPublicUrl(
-                      event,
-                      currentUser.domains,
-                      `/u/${_updatedFile.fileName}/thumbnail`,
-                  )
-                : null
-            : undefined,
-    };
+    const todayViews = await getTodayViews([_updatedFile.id]);
+    const updatedFile = serializeFile(
+        event,
+        _updatedFile,
+        currentUser.domains,
+        todayViews.get(_updatedFile.id),
+    );
 
     await update(fileSearchDb, updatedFile.id, {
         id: updatedFile.id,

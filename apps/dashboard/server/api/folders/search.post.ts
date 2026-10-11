@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-import { search } from '@orama/orama';
-
 const validationSchema = z.object({
     query: z
         .string()
@@ -30,8 +28,6 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const searched = await search(folderSearchDb, { term: body.data.query });
-    return searched.hits
-        .filter((hit) => userFolders.some((folder) => folder.id === hit.id))
-        .map((hit) => hit.id);
+    const ids = await searchDbIds(folderSearchDb, body.data.query);
+    return ids.filter((id) => userFolders.some((folder) => folder.id === id));
 });

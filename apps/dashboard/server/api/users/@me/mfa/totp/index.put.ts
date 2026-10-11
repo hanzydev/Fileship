@@ -69,7 +69,10 @@ export default defineEventHandler(async (event) => {
         message: `${body.data.enabled ? 'Enabled' : 'Disabled'} Authenticator App`,
     });
 
-    await sendByFilter(isAdmin, 'user:updateTotp', body.data.enabled);
+    await sendByFilter(isAdmin, 'user:updateTotp', {
+        id: currentUser.id,
+        totpEnabled: body.data.enabled,
+    });
 
     sendToUser(currentUser.id, 'currentUser:updateTotp', body.data.enabled);
 });
