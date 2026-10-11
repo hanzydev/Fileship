@@ -95,7 +95,7 @@ const isToggling = ref(false);
 const isSavingSlug = ref(false);
 const isSavingPassword = ref(false);
 
-const inboxBaseUrl = computed(() => buildPublicUrl('/inbox/'));
+const inboxBaseUrl = computed(() => getPublicUrl('/inbox/'));
 
 const update = async (body: Record<string, unknown>) => {
     await $fetch('/api/users/@me/inbox', { method: 'PATCH', body });
@@ -143,7 +143,7 @@ const handleSavePassword = async () => {
 };
 
 const handleCopy = () => {
-    copy(buildPublicUrl(`/inbox/${inbox.value!.slug || inbox.value!.id}`));
+    copy(getPublicUrl(`/inbox/${inbox.value!.slug || inbox.value!.id}`));
     $toast.success('Inbox link copied to clipboard');
 };
 

@@ -1,4 +1,4 @@
-export const buildPublicUrl = (route: `/${string}`) => {
+export const getPublicUrl = (route: `/${string}`) => {
     const runtimeConfig = useRuntimeConfig();
     const domains = useDomains();
     const reqUrl = useRequestURL({ xForwardedHost: true, xForwardedProto: true });
