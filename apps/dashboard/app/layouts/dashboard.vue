@@ -67,8 +67,8 @@
                                         colorMode.value === 'dark' ? 'light' : 'dark'
                                 "
                             >
-                                <ISun v-if="colorMode.value === 'dark'" />
-                                <IMoon v-else />
+                                <ISun class="hidden dark:block" />
+                                <IMoon class="dark:hidden" />
                             </UiButton>
                         </div>
                     </header>
