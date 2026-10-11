@@ -16,7 +16,7 @@
                     @update:model-value="query = $event"
                 />
                 <UiCommandList class="mb-1" @scroll="handleScroll">
-                    <UiCommandGroup class="pb-0">
+                    <UiCommandGroup class="px-1 pb-0">
                         <UiCommandItem
                             value="none"
                             :data-checked="!folder"
@@ -36,7 +36,7 @@
                             <span class="truncate">{{ f.name }}</span>
                         </UiCommandItem>
                     </UiCommandGroup>
-                    <UiCommandGroup v-if="canCreate" class="pb-0">
+                    <UiCommandGroup v-if="canCreate" class="px-1 pb-0">
                         <UiCommandItem
                             :key="query"
                             :value="`create:${query}`"

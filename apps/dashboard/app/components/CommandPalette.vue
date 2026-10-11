@@ -7,7 +7,7 @@
         <UiCommandList class="mb-1">
             <UiCommandEmpty>No results found.</UiCommandEmpty>
 
-            <UiCommandGroup v-if="term && matchedFiles.length" class="pb-0" heading="Files">
+            <UiCommandGroup v-if="term && matchedFiles.length" class="px-1 pb-0" heading="Files">
                 <UiCommandItem
                     v-for="file in matchedFiles"
                     :key="`${file.id}:${term}`"
@@ -20,7 +20,11 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup v-if="term && matchedFolders.length" class="pb-0" heading="Folders">
+            <UiCommandGroup
+                v-if="term && matchedFolders.length"
+                class="px-1 pb-0"
+                heading="Folders"
+            >
                 <UiCommandItem
                     v-for="folder in matchedFolders"
                     :key="`${folder.id}:${term}`"
@@ -32,7 +36,7 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup v-if="term && matchedNotes.length" class="pb-0" heading="Notes">
+            <UiCommandGroup v-if="term && matchedNotes.length" class="px-1 pb-0" heading="Notes">
                 <UiCommandItem
                     v-for="note in matchedNotes"
                     :key="`${note.id}:${term}`"
@@ -44,7 +48,7 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup v-if="term && matchedUsers.length" class="pb-0" heading="Users">
+            <UiCommandGroup v-if="term && matchedUsers.length" class="px-1 pb-0" heading="Users">
                 <UiCommandItem
                     v-for="user in matchedUsers"
                     :key="`${user.id}:${term}`"
@@ -56,7 +60,7 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup class="pb-0" heading="Actions">
+            <UiCommandGroup class="px-1 pb-0" heading="Actions">
                 <UiCommandItem
                     v-for="action in actions"
                     :key="action.label"
@@ -73,7 +77,7 @@
 
             <UiCommandSeparator />
 
-            <UiCommandGroup class="pb-0" heading="Go to">
+            <UiCommandGroup class="px-1 pb-0" heading="Go to">
                 <UiCommandItem
                     v-for="page in pages"
                     :key="page.url"
