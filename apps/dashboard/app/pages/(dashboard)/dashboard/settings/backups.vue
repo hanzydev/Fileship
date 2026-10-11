@@ -81,7 +81,7 @@
                                         <IEllipsis />
                                     </UiButton>
                                 </UiDropdownMenuTrigger>
-                                <UiDropdownMenuContent align="end">
+                                <UiDropdownMenuContent align="end" class="w-56">
                                     <UiDropdownMenuItem
                                         @select="downloadFile(`/api/users/@me/backups/${item.id}`)"
                                     >

@@ -52,7 +52,7 @@
                             <IChevronDown class="opacity-50" />
                         </UiButton>
                     </UiDropdownMenuTrigger>
-                    <UiDropdownMenuContent align="start" class="w-52">
+                    <UiDropdownMenuContent align="start" class="w-56">
                         <UiDropdownMenuLabel>File type</UiDropdownMenuLabel>
                         <UiDropdownMenuCheckboxItem
                             v-for="(category, key) in FILE_CATEGORIES"
@@ -85,7 +85,7 @@
                             <IChevronDown class="opacity-50" />
                         </UiButton>
                     </UiDropdownMenuTrigger>
-                    <UiDropdownMenuContent align="start" class="w-44">
+                    <UiDropdownMenuContent align="start" class="w-56">
                         <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
                         <UiDropdownMenuRadioGroup v-model="sortValue">
                             <UiDropdownMenuRadioItem

@@ -1,6 +1,6 @@
 <template>
     <Centered>
-        <UiCard class="w-full max-w-sm text-left">
+        <UiCard class="w-full max-w-sm">
             <form class="contents" @submit.prevent="emit('submit', password)">
                 <UiCardHeader>
                     <UiCardTitle class="flex items-center gap-2">

@@ -74,7 +74,7 @@
                         <IEllipsis />
                     </UiButton>
                 </UiDropdownMenuTrigger>
-                <UiDropdownMenuContent v-if="note" align="end" class="w-52">
+                <UiDropdownMenuContent v-if="note" align="end" class="w-56">
                     <NoteMenuItems :note="note" type="dropdown" in-note />
                 </UiDropdownMenuContent>
             </UiDropdownMenu>

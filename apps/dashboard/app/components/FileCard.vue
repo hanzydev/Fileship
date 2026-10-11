@@ -99,7 +99,7 @@
                 </UiCardFooter>
             </UiCard>
         </UiContextMenuTrigger>
-        <UiContextMenuContent>
+        <UiContextMenuContent class="w-56">
             <FileMenuItems
                 :file="file"
                 type="context"

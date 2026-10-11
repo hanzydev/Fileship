@@ -38,24 +38,36 @@
                     <header
                         class="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
                     >
-                        <div class="flex items-center gap-2 px-4">
+                        <div class="flex min-w-0 flex-1 items-center gap-2 px-4">
                             <UiSidebarTrigger class="-ml-1" />
 
-                            <UiBreadcrumb>
-                                <UiBreadcrumbList>
+                            <UiBreadcrumb class="min-w-0">
+                                <UiBreadcrumbList class="flex-nowrap">
                                     <template
                                         v-for="(item, index) in breadcrumbItems"
                                         :key="item.to"
                                     >
-                                        <UiBreadcrumbSeparator v-if="index > 0" />
-                                        <UiBreadcrumbItem>
+                                        <UiBreadcrumbSeparator
+                                            v-if="index > 0"
+                                            :class="isMiddleCrumb(index) && 'hidden sm:block'"
+                                        />
+                                        <UiBreadcrumbItem
+                                            :class="
+                                                cn(
+                                                    'min-w-0',
+                                                    isMiddleCrumb(index) && 'hidden sm:inline-flex',
+                                                )
+                                            "
+                                        >
                                             <UiBreadcrumbLink
                                                 v-if="index < breadcrumbItems.length - 1"
                                                 as-child
                                             >
-                                                <NuxtLink :to="item.to">{{ item.label }}</NuxtLink>
+                                                <NuxtLink :to="item.to" class="truncate">
+                                                    {{ item.label }}
+                                                </NuxtLink>
                                             </UiBreadcrumbLink>
-                                            <UiBreadcrumbPage v-else>
+                                            <UiBreadcrumbPage v-else class="truncate">
                                                 {{ item.label }}
                                             </UiBreadcrumbPage>
                                         </UiBreadcrumbItem>
@@ -64,7 +76,7 @@
                             </UiBreadcrumb>
                         </div>
 
-                        <div class="ml-auto flex items-center gap-2 px-4">
+                        <div class="flex shrink-0 items-center gap-2 px-4">
                             <UiButton v-if="canUpload" @click="uploadSheetOpen = true">
                                 <IUpload />
                                 <span class="hidden sm:inline">Upload</span>
@@ -121,30 +133,23 @@
                     v-if="isOverDropZone && canUpload && !uploadSheetOpen"
                     class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background/60 p-6 backdrop-blur-md"
                 >
-                    <div
-                        class="flex w-full max-w-md animate-in flex-col items-center gap-4 rounded-4xl border-2 border-dashed border-primary/60 bg-card p-10 text-center shadow-2xl duration-300 zoom-in-95"
+                    <UiEmpty
+                        class="w-full max-w-md animate-in border border-dashed border-primary/60 bg-card shadow-2xl duration-300 zoom-in-95"
                     >
-                        <div class="relative flex size-16 items-center justify-center">
-                            <span
-                                class="absolute inset-0 animate-ping rounded-full bg-primary/20"
-                            />
-                            <span
-                                class="relative flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary"
-                            >
-                                <IUpload class="size-7" />
-                            </span>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <TextBlock variant="large">Drop files to upload</TextBlock>
-                            <TextBlock variant="muted">
+                        <UiEmptyHeader>
+                            <UiEmptyMedia variant="icon">
+                                <IUpload />
+                            </UiEmptyMedia>
+                            <UiEmptyTitle>Drop files to upload</UiEmptyTitle>
+                            <UiEmptyDescription>
                                 {{
                                     currentFolderName
                                         ? `They will be added to ${currentFolderName}.`
                                         : 'Links are copied to your clipboard when done.'
                                 }}
-                            </TextBlock>
-                        </div>
-                    </div>
+                            </UiEmptyDescription>
+                        </UiEmptyHeader>
+                    </UiEmpty>
                 </div>
             </Transition>
         </div>
@@ -206,6 +211,8 @@ const breadcrumbItems = computed(() => {
 });
 
 const canUpload = computed(() => canUploadFiles(currentUser.value));
+
+const isMiddleCrumb = (index: number) => index > 0 && index < breadcrumbItems.value.length - 1;
 
 const currentFolderName = computed(() =>
     route.path.startsWith('/dashboard/folders/') ? breadcrumbItems.value.at(-1)!.label : null,

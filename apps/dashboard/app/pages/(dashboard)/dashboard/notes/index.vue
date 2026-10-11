@@ -1,7 +1,7 @@
 <template>
     <UiCard class="flex-1 justify-center">
         <EmptyState
-            :icon="INotebookPen"
+            :icon="IBookmark"
             title="Select a note"
             description="Pick a note from the list or start a new one."
         >
@@ -16,5 +16,5 @@
 </template>
 
 <script setup lang="ts">
-import { INotebookPen } from '#components';
+import { IBookmark } from '#components';
 </script>

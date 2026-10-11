@@ -13,7 +13,7 @@
                     >
                         <a
                             target="_blank"
-                            type="button"
+                            rel="noopener noreferrer"
                             href="https://github.com/hanzydev/Fileship"
                             class="flex items-center gap-4"
                         >
@@ -39,9 +39,7 @@
         </UiSidebarHeader>
         <UiSidebarContent>
             <UiSidebarGroup v-for="category in items" :key="category.title">
-                <UiSidebarGroupLabel>
-                    <TextBlock variant="small">{{ category.title }}</TextBlock>
-                </UiSidebarGroupLabel>
+                <UiSidebarGroupLabel>{{ category.title }}</UiSidebarGroupLabel>
                 <UiSidebarGroupContent>
                     <UiSidebarMenu>
                         <UiSidebarMenuItem v-for="child in category.children" :key="child.title">
@@ -51,8 +49,8 @@
                                 :tooltip="child.title"
                             >
                                 <NuxtLink :to="child.url">
-                                    <component :is="child.icon" :size="16" />
-                                    <TextBlock variant="small">{{ child.title }}</TextBlock>
+                                    <component :is="child.icon" />
+                                    <span>{{ child.title }}</span>
                                 </NuxtLink>
                             </UiSidebarMenuButton>
                         </UiSidebarMenuItem>
@@ -69,49 +67,57 @@
                         :is-active="isActive('/dashboard/settings')"
                         tooltip="Account"
                     >
-                        <UiAvatar>
+                        <UiAvatar class="size-8">
                             <UiAvatarImage
                                 v-if="authUser?.avatar"
                                 :src="authUser.avatar"
                                 :alt="authUser.username"
                             />
-                            <UiAvatarFallback>
-                                <TextBlock variant="small">{{ userInitials }}</TextBlock>
-                            </UiAvatarFallback>
+                            <UiAvatarFallback>{{ userInitials }}</UiAvatarFallback>
                         </UiAvatar>
-                        <TextBlock variant="small" class="text-muted-foreground">
-                            {{ upperFirst(authUser!.username) }}
-                        </TextBlock>
-                        <IChevronsUpDown class="ml-auto" :size="16" />
+                        <div class="grid flex-1 text-left text-sm leading-tight">
+                            <span class="truncate font-medium">
+                                {{ upperFirst(authUser!.username) }}
+                            </span>
+                            <span class="truncate text-xs text-muted-foreground">
+                                {{ roleLabel }}
+                            </span>
+                        </div>
+                        <IChevronsUpDown class="ml-auto" />
                     </UiSidebarMenuButton>
                 </UiDropdownMenuTrigger>
-                <UiDropdownMenuContent side="top">
-                    <div class="flex items-center gap-2 px-3 py-2">
-                        <UiAvatar>
+                <UiDropdownMenuContent
+                    side="top"
+                    align="start"
+                    class="w-(--reka-dropdown-menu-trigger-width) min-w-56"
+                >
+                    <UiDropdownMenuLabel class="flex items-center gap-2 font-normal">
+                        <UiAvatar class="size-8">
                             <UiAvatarImage
                                 v-if="authUser?.avatar"
                                 :src="authUser.avatar"
                                 :alt="authUser.username"
                             />
-                            <UiAvatarFallback>
-                                <TextBlock variant="small">{{ userInitials }}</TextBlock>
-                            </UiAvatarFallback>
+                            <UiAvatarFallback>{{ userInitials }}</UiAvatarFallback>
                         </UiAvatar>
-                        <TextBlock variant="small">
-                            {{ upperFirst(authUser!.username) }}
-                        </TextBlock>
-                    </div>
+                        <div class="grid flex-1 text-left text-sm leading-tight">
+                            <span class="truncate font-medium text-foreground">
+                                {{ upperFirst(authUser!.username) }}
+                            </span>
+                            <span class="truncate text-xs">{{ roleLabel }}</span>
+                        </div>
+                    </UiDropdownMenuLabel>
                     <UiDropdownMenuSeparator />
                     <UiDropdownMenuItem as-child>
                         <NuxtLink to="/dashboard/settings/profile">
-                            <ISettings :size="16" />
-                            <TextBlock variant="small">Settings</TextBlock>
+                            <ISettings />
+                            Settings
                         </NuxtLink>
                     </UiDropdownMenuItem>
                     <UiDropdownMenuSub>
                         <UiDropdownMenuSubTrigger>
-                            <IPalette :size="16" />
-                            <TextBlock variant="small">Appearance</TextBlock>
+                            <IPalette />
+                            Appearance
                         </UiDropdownMenuSubTrigger>
                         <UiDropdownMenuSubContent>
                             <UiDropdownMenuLabel>Mode</UiDropdownMenuLabel>
@@ -122,8 +128,8 @@
                                     :value="mode.value"
                                     @select.prevent
                                 >
-                                    <component :is="mode.icon" :size="16" />
-                                    <TextBlock variant="small">{{ mode.label }}</TextBlock>
+                                    <component :is="mode.icon" />
+                                    {{ mode.label }}
                                 </UiDropdownMenuRadioItem>
                             </UiDropdownMenuRadioGroup>
                             <UiDropdownMenuSeparator />
@@ -142,7 +148,7 @@
                                         class="size-3 rounded-full"
                                         :style="{ background: color }"
                                     />
-                                    <TextBlock variant="small">{{ accent }}</TextBlock>
+                                    {{ accent }}
                                 </UiDropdownMenuRadioItem>
                             </UiDropdownMenuRadioGroup>
                         </UiDropdownMenuSubContent>
@@ -151,11 +157,11 @@
                     <UiDropdownMenuItem
                         variant="destructive"
                         :disabled="isLoggingOut"
-                        @click="handleLogout"
+                        @select="handleLogout"
                     >
                         <UiSpinner v-if="isLoggingOut" />
-                        <ILogOut v-else :size="16" />
-                        <TextBlock variant="small">Logout</TextBlock>
+                        <ILogOut v-else />
+                        Logout
                     </UiDropdownMenuItem>
                 </UiDropdownMenuContent>
             </UiDropdownMenu>
@@ -170,7 +176,7 @@ import {
     IBookmark,
     IChartNoAxesColumn,
     IClipboardList,
-    IFileText,
+    IFiles,
     IFolder,
     IHome,
     IMonitor,
@@ -189,6 +195,10 @@ const { setOpenMobile } = useSidebar();
 const isLoggingOut = ref(false);
 
 const userInitials = computed(() => authUser.value!.username.slice(0, 2).toUpperCase());
+
+const roleLabel = computed(() =>
+    authUser.value!.superAdmin ? 'Super admin' : isAdmin(authUser.value) ? 'Admin' : 'Member',
+);
 
 const updaterStatus = ref<{
     version: string;
@@ -222,7 +232,7 @@ const items = computed(() => {
 
     if (canUploadFiles(authUser.value)) {
         categories[0]!.children.push(
-            { title: 'Files', url: '/dashboard/files', icon: IFileText },
+            { title: 'Files', url: '/dashboard/files', icon: IFiles },
             { title: 'Folders', url: '/dashboard/folders', icon: IFolder },
         );
     }

@@ -66,7 +66,7 @@
                 </UiCard>
             </NuxtLink>
         </UiContextMenuTrigger>
-        <UiContextMenuContent>
+        <UiContextMenuContent class="w-56">
             <FolderMenuItems :folder="folder" type="context" @edit="emit('edit')" />
         </UiContextMenuContent>
     </UiContextMenu>

@@ -18,7 +18,7 @@
                         <div
                             v-if="currentView === 'main'"
                             data-view="main"
-                            class="text-left py-6 flex flex-col gap-6 absolute w-full"
+                            class="py-6 flex flex-col gap-6 absolute w-full"
                         >
                             <UiCardHeader>
                                 <UiCardTitle>Login to your account</UiCardTitle>
@@ -90,7 +90,7 @@
                         <div
                             v-else-if="currentView === 'totp'"
                             data-view="totp"
-                            class="text-left py-6 flex flex-col gap-6 absolute w-full"
+                            class="py-6 flex flex-col gap-6 absolute w-full"
                         >
                             <UiCardHeader>
                                 <UiCardTitle>Multi-Factor Authentication</UiCardTitle>

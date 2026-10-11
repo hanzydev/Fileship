@@ -93,7 +93,7 @@ import {
     IBookmark,
     IChartNoAxesColumn,
     IClipboardList,
-    IFileText,
+    IFiles,
     IFolder,
     IFolderPlus,
     IHome,
@@ -146,7 +146,7 @@ const pages = computed(() => [
     { label: 'Home', url: '/dashboard', icon: IHome },
     ...(canUploadFiles(authUser.value)
         ? [
-              { label: 'Files', url: '/dashboard/files', icon: IFileText },
+              { label: 'Files', url: '/dashboard/files', icon: IFiles },
               { label: 'Folders', url: '/dashboard/folders', icon: IFolder },
           ]
         : []),

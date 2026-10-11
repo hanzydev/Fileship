@@ -80,7 +80,7 @@
                                     </UiCard>
                                 </NuxtLink>
                             </UiContextMenuTrigger>
-                            <UiContextMenuContent class="w-52">
+                            <UiContextMenuContent class="w-56">
                                 <NoteMenuItems :note="item" type="context" />
                             </UiContextMenuContent>
                         </UiContextMenu>

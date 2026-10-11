@@ -42,7 +42,7 @@
                             <IChevronDown class="opacity-50" />
                         </UiButton>
                     </UiDropdownMenuTrigger>
-                    <UiDropdownMenuContent align="end" class="w-48">
+                    <UiDropdownMenuContent align="end" class="w-56">
                         <UiDropdownMenuLabel>File type</UiDropdownMenuLabel>
                         <UiDropdownMenuRadioGroup v-model="typeFilter">
                             <UiDropdownMenuRadioItem value="all">All types</UiDropdownMenuRadioItem>
