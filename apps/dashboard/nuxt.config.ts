@@ -21,6 +21,7 @@ export default defineNuxtConfig({
         '@nuxt/fonts',
         '@vueuse/nuxt',
         '@nuxt/icon',
+        '@nuxtjs/color-mode',
         'vue-sonner/nuxt',
         'nuxt-lucide-icons',
     ].concat((process.env.ENABLE_PWA || 'true') === 'true' ? ['@vite-pwa/nuxt'] : []),
@@ -41,11 +42,18 @@ export default defineNuxtConfig({
     fonts: {
         families: [
             {
-                name: 'Nunito Sans',
+                name: 'Geist',
                 provider: 'google',
-                weights: [300, 400, 500, 600, 700],
+                weights: [400, 500, 600, 700, 800],
             },
         ],
+    },
+
+    colorMode: {
+        classSuffix: '',
+        preference: 'system',
+        fallback: 'dark',
+        storage: 'cookie',
     },
 
     lucide: {

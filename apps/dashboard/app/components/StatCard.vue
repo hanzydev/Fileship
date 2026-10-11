@@ -19,13 +19,7 @@
                     <IArrowDownRight v-if="growth! < 0" />
                 </div>
             </div>
-            <UiSkeleton
-                v-else
-                class="h-14 rounded-full"
-                :style="{
-                    width: `${randomNumber(25, 75)}%`,
-                }"
-            />
+            <UiSkeleton v-else class="h-14 w-1/2 rounded-full" />
 
             <UiCardDescription class="mt-auto">
                 {{ legend }}

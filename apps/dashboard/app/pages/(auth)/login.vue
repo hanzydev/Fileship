@@ -61,7 +61,7 @@
                                     ref="turnstileRef"
                                     v-model="auth.turnstile"
                                     :options="{
-                                        theme: 'dark',
+                                        theme: colorMode.value as never,
                                         size: 'flexible',
                                     }"
                                 />
@@ -133,7 +133,7 @@
                                         ref="turnstileRef"
                                         v-model="auth.turnstile"
                                         :options="{
-                                            theme: 'dark',
+                                            theme: colorMode.value as never,
                                             size: 'flexible',
                                         }"
                                     />
@@ -198,6 +198,7 @@ const currentView = ref<'main' | 'totp'>('main');
 const route = useRoute();
 const currentUser = useAuthUser();
 const currentTheme = useTheme();
+const colorMode = useColorMode();
 
 const handleSubmit = async () => {
     loggingIn.value = true;
@@ -218,7 +219,7 @@ const handleSubmit = async () => {
             createdAt: new Date(user.createdAt),
         };
 
-        currentTheme.value = user.theme as never;
+        currentTheme.value = user.theme;
 
         await navigateTo((route.query.redirectTo as string) || '/dashboard');
 
@@ -272,7 +273,7 @@ const handlePasskeyLogin = async () => {
                 createdAt: new Date(user.createdAt),
             };
 
-            currentTheme.value = user.theme as never;
+            currentTheme.value = user.theme;
 
             await navigateTo((route.query.redirectTo as string) || '/dashboard');
 

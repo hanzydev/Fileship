@@ -16,3 +16,7 @@ export const useUploadingFiles = () => {
 export const useIsUploading = () => {
     return useState<boolean>('isUploading', () => false);
 };
+
+export const useUploadSheet = () => {
+    return useState<boolean>('uploadSheetOpen', () => false);
+};

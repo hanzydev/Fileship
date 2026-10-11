@@ -67,7 +67,7 @@
                 <UiDropdownMenuTrigger as-child>
                     <UiSidebarMenuButton
                         size="lg"
-                        :is-active="isActive('/dashboard/account')"
+                        :is-active="isActive('/dashboard/settings')"
                         tooltip="Account"
                     >
                         <UiAvatar>
@@ -104,23 +104,49 @@
                     </div>
                     <UiDropdownMenuSeparator />
                     <UiDropdownMenuItem as-child>
-                        <NuxtLink to="/dashboard/account">
-                            <IUser :size="16" />
-                            <TextBlock variant="small">My Account</TextBlock>
+                        <NuxtLink to="/dashboard/settings/profile">
+                            <ISettings :size="16" />
+                            <TextBlock variant="small">Settings</TextBlock>
                         </NuxtLink>
                     </UiDropdownMenuItem>
-                    <UiDropdownMenuItem as-child>
-                        <NuxtLink to="/dashboard/sessions">
-                            <IMonitor :size="16" />
-                            <TextBlock variant="small">Sessions</TextBlock>
-                        </NuxtLink>
-                    </UiDropdownMenuItem>
-                    <UiDropdownMenuItem as-child>
-                        <NuxtLink to="/dashboard/backups">
-                            <IArchive :size="16" />
-                            <TextBlock variant="small">Backups</TextBlock>
-                        </NuxtLink>
-                    </UiDropdownMenuItem>
+                    <UiDropdownMenuSub>
+                        <UiDropdownMenuSubTrigger>
+                            <IPalette :size="16" />
+                            <TextBlock variant="small">Appearance</TextBlock>
+                        </UiDropdownMenuSubTrigger>
+                        <UiDropdownMenuSubContent>
+                            <UiDropdownMenuLabel>Mode</UiDropdownMenuLabel>
+                            <UiDropdownMenuRadioGroup v-model="colorMode.preference">
+                                <UiDropdownMenuRadioItem
+                                    v-for="mode in colorModes"
+                                    :key="mode.value"
+                                    :value="mode.value"
+                                >
+                                    <component :is="mode.icon" :size="16" />
+                                    <TextBlock variant="small">{{ mode.label }}</TextBlock>
+                                </UiDropdownMenuRadioItem>
+                            </UiDropdownMenuRadioGroup>
+                            <UiDropdownMenuSeparator />
+                            <UiDropdownMenuLabel>Accent</UiDropdownMenuLabel>
+                            <UiDropdownMenuRadioGroup
+                                :model-value="currentTheme in accents ? currentTheme : 'Fileship'"
+                                @update:model-value="updateTheme($event as Accent)"
+                            >
+                                <UiDropdownMenuRadioItem
+                                    v-for="(color, accent) in accents"
+                                    :key="accent"
+                                    :value="accent"
+                                    @select.prevent
+                                >
+                                    <span
+                                        class="size-3 rounded-full"
+                                        :style="{ background: color }"
+                                    />
+                                    <TextBlock variant="small">{{ accent }}</TextBlock>
+                                </UiDropdownMenuRadioItem>
+                            </UiDropdownMenuRadioGroup>
+                        </UiDropdownMenuSubContent>
+                    </UiDropdownMenuSub>
                     <UiDropdownMenuSeparator />
                     <UiDropdownMenuItem
                         variant="destructive"
@@ -147,10 +173,15 @@ import {
     IFileText,
     IFolder,
     IHome,
+    IMonitor,
+    IMoon,
+    ISun,
     IUsers,
 } from '#components';
 
 const authUser = useAuthUser();
+const currentTheme = useTheme();
+const colorMode = useColorMode();
 const route = useRoute();
 const { $toast } = useNuxtApp();
 const isLoggingOut = ref(false);
@@ -165,7 +196,14 @@ const updaterStatus = ref<{
     updaterAvailable: boolean;
 } | null>(null);
 
-const isActive = (url: string) => route.path === url || route.path.startsWith(`${url}/`);
+const colorModes = [
+    { label: 'Light', value: 'light', icon: ISun },
+    { label: 'Dark', value: 'dark', icon: IMoon },
+    { label: 'System', value: 'system', icon: IMonitor },
+];
+
+const isActive = (url: string) =>
+    route.path === url || (url !== '/dashboard' && route.path.startsWith(`${url}/`));
 
 const items = computed(() => {
     const categories = [

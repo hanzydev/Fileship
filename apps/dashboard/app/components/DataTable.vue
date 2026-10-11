@@ -1,0 +1,128 @@
+<template>
+    <VirtualList
+        v-if="isMobile && $slots.card"
+        :items="items"
+        :item-key="itemKey"
+        :estimate-size="cardEstimateSize"
+    >
+        <template #default="{ item }">
+            <slot name="card" :item="item" />
+        </template>
+    </VirtualList>
+    <div v-else ref="container">
+        <UiTable>
+            <UiTableHeader>
+                <UiTableRow>
+                    <UiTableHead v-for="column in columns" :key="column.key" :class="column.class">
+                        <UiButton
+                            v-if="column.sortable"
+                            variant="ghost"
+                            size="sm"
+                            class="-ml-2"
+                            @click="handleSort(column.key)"
+                        >
+                            {{ column.label }}
+                            <IArrowUp v-if="sort?.key === column.key && !sort.desc" />
+                            <IArrowDown v-else-if="sort?.key === column.key" />
+                            <IArrowUpDown v-else class="opacity-50" />
+                        </UiButton>
+                        <template v-else>{{ column.label }}</template>
+                    </UiTableHead>
+                </UiTableRow>
+            </UiTableHeader>
+            <UiTableBody>
+                <tr v-if="paddingTop" :style="{ height: `${paddingTop}px` }" />
+                <UiTableRow
+                    v-for="row in virtualizer.getVirtualItems()"
+                    :key="itemKey(items[row.index]!)"
+                    :ref="(el) => virtualizer.measureElement((el as any)?.$el ?? null)"
+                    :data-index="row.index"
+                    :data-state="selected?.includes(itemKey(items[row.index]!)) && 'selected'"
+                    :class="clickable && 'cursor-pointer'"
+                    @click="emit('rowClick', items[row.index]!)"
+                >
+                    <UiTableCell v-for="column in columns" :key="column.key" :class="column.class">
+                        <slot :name="`cell-${column.key}`" :item="items[row.index]!">
+                            {{ (items[row.index] as any)[column.key] }}
+                        </slot>
+                    </UiTableCell>
+                </UiTableRow>
+                <tr v-if="paddingBottom" :style="{ height: `${paddingBottom}px` }" />
+            </UiTableBody>
+        </UiTable>
+    </div>
+</template>
+
+<script setup lang="ts" generic="T">
+import { useWindowVirtualizer } from '@tanstack/vue-virtual';
+
+export type DataTableColumn = {
+    key: string;
+    label: string;
+    class?: string;
+    sortable?: boolean;
+};
+
+export type DataTableSort = {
+    key: string;
+    desc: boolean;
+};
+
+const {
+    items,
+    itemKey,
+    columns,
+    selected,
+    clickable,
+    estimateSize = 53,
+    cardEstimateSize = 96,
+} = defineProps<{
+    items: T[];
+    itemKey: (item: T) => string;
+    columns: DataTableColumn[];
+    selected?: string[];
+    clickable?: boolean;
+    estimateSize?: number;
+    cardEstimateSize?: number;
+}>();
+
+const emit = defineEmits<{
+    rowClick: [item: T];
+}>();
+
+const sort = defineModel<DataTableSort>('sort');
+
+const isMobile = useMediaQuery('(max-width: 767px)');
+const container = useTemplateRef('container');
+const scrollMargin = ref(0);
+
+const virtualizer = useWindowVirtualizer(
+    computed(() => ({
+        count: items.length,
+        estimateSize: () => estimateSize,
+        overscan: 8,
+        scrollMargin: scrollMargin.value,
+    })),
+);
+
+const paddingTop = computed(() => {
+    const first = virtualizer.value.getVirtualItems()[0];
+    return first ? first.start - scrollMargin.value : 0;
+});
+
+const paddingBottom = computed(() => {
+    const last = virtualizer.value.getVirtualItems().at(-1);
+    return last ? virtualizer.value.getTotalSize() - (last.end - scrollMargin.value) : 0;
+});
+
+const handleSort = (key: string) => {
+    sort.value = sort.value?.key === key ? { key, desc: !sort.value.desc } : { key, desc: false };
+};
+
+useResizeObserver(import.meta.client ? document.body : undefined, () => {
+    if (container.value) {
+        scrollMargin.value =
+            container.value.querySelector('tbody')!.getBoundingClientRect().top + window.scrollY;
+    }
+});
+</script>

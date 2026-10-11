@@ -37,11 +37,48 @@
                                 </UiBreadcrumbList>
                             </UiBreadcrumb>
                         </div>
+
+                        <div class="ml-auto flex items-center gap-2 px-4">
+                            <UiButton
+                                variant="outline"
+                                class="hidden sm:flex"
+                                @click="commandPaletteOpen = true"
+                            >
+                                <ISearch />
+                                <span class="text-muted-foreground">Search...</span>
+                                <UiKbdGroup class="ml-4">
+                                    <UiKbd>Ctrl</UiKbd>
+                                    <UiKbd>K</UiKbd>
+                                </UiKbdGroup>
+                            </UiButton>
+                            <UiButton
+                                variant="ghost"
+                                size="icon"
+                                class="sm:hidden"
+                                @click="commandPaletteOpen = true"
+                            >
+                                <ISearch />
+                            </UiButton>
+                            <UiButton
+                                variant="ghost"
+                                size="icon"
+                                @click="
+                                    colorMode.preference =
+                                        colorMode.value === 'dark' ? 'light' : 'dark'
+                                "
+                            >
+                                <ISun v-if="colorMode.value === 'dark'" />
+                                <IMoon v-else />
+                            </UiButton>
+                        </div>
                     </header>
 
                     <slot />
                 </UiSidebarInset>
             </UiSidebarProvider>
+
+            <CommandPalette v-model:open="commandPaletteOpen" />
+            <ConfirmDialog />
         </div>
     </main>
 </template>
@@ -54,23 +91,26 @@ const domains = useDomains();
 const currentUser = useAuthUser();
 const uploading = useIsUploading();
 const uploadingFiles = useUploadingFiles();
+const notes = useNotes();
+const folders = useFolders();
 const route = useRoute();
+const colorMode = useColorMode();
 const { $toast } = useNuxtApp();
 const { copy } = useClipboard({ legacy: true });
 
 // TODO: drop zone ui
 
+const commandPaletteOpen = ref(false);
+
 const breadcrumbLabels = {
     dashboard: 'Home',
-    account: 'Account',
-    backups: 'Backups',
+    ai: 'AI',
     files: 'Files',
     folders: 'Folders',
     logs: 'Logs',
     notes: 'Notes',
-    sessions: 'Sessions',
+    settings: 'Settings',
     stats: 'Statistics',
-    upload: 'Upload',
     users: 'Users',
 };
 
@@ -78,13 +118,17 @@ const breadcrumbItems = computed(() => {
     const segments = route.path.split('/').filter(Boolean);
     let path = '';
 
-    return segments.map((segment) => {
+    return segments.map((segment, index) => {
         path += `/${segment}`;
 
-        return {
-            to: path,
-            label: breadcrumbLabels[segment as never] || upperFirst(segment.replace(/[-_]/g, ' ')),
-        };
+        const parent = segments[index - 1];
+        const label =
+            (parent === 'folders' && folders.value.find((f) => f.id === segment)?.name) ||
+            (parent === 'notes' && notes.value.find((n) => n.id === segment)?.title) ||
+            breadcrumbLabels[segment as never] ||
+            upperFirst(segment.replace(/[-_]/g, ' '));
+
+        return { to: path, label };
     });
 });
 

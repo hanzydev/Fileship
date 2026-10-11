@@ -7,7 +7,7 @@
         )"
         :throttle="0"
     />
-    <Toaster position="top-center" theme="dark" />
+    <UiSonner position="top-center" :theme="colorMode.value as never" />
 
     <Head>
         <Title>{{ runtimeConfig.public.site.name }}</Title>
@@ -27,6 +27,8 @@ dayjs.extend(relativeTime);
 
 const runtimeConfig = useRuntimeConfig();
 const currentUser = useAuthUser();
+const currentTheme = useTheme();
+const colorMode = useColorMode();
 
 onMounted(initSocket);
 
@@ -39,6 +41,9 @@ watch(currentUser, (value) => {
 });
 
 useHead({
+    htmlAttrs: {
+        'data-accent': currentTheme,
+    },
     titleTemplate: (title) =>
         title
             ? title === runtimeConfig.public.site.name || title.match(/\.|:/)
