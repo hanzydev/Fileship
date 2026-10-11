@@ -13,7 +13,3 @@ export type UserData = Omit<
     limits: IUserLimits;
     stats: UserBasicStats;
 };
-
-export const useUsers = () => {
-    return useState<UserData[]>('users', () => []);
-};

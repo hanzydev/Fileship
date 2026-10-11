@@ -54,9 +54,8 @@
             </UiAlert>
 
             <FileBrowser
-                :files="folderFiles"
-                :search-endpoint="`/api/folders/${folder.id}/searchFiles`"
-                :is-loading="isLoading"
+                v-model:summary="summary"
+                :folder-id="folder.id"
                 empty-title="This folder is empty"
             />
 
@@ -74,7 +73,10 @@
                         </UiInputGroupAddon>
                         <UiInputGroupInput v-model="addSearch" placeholder="Search files..." />
                     </UiInputGroup>
-                    <div class="-mx-2 flex max-h-80 flex-col gap-0.5 overflow-y-auto px-2">
+                    <div
+                        class="-mx-2 flex max-h-80 flex-col gap-0.5 overflow-y-auto px-2"
+                        @scroll="handleScroll"
+                    >
                         <label
                             v-for="file in addCandidates"
                             :key="file.id"
@@ -93,8 +95,11 @@
                                 {{ file.size.formatted }}
                             </span>
                         </label>
+                        <div v-if="isCandidatesLoading" class="flex justify-center py-6">
+                            <UiSpinner class="text-muted-foreground" />
+                        </div>
                         <TextBlock
-                            v-if="!addCandidates.length"
+                            v-else-if="!addCandidates.length"
                             variant="muted"
                             class="py-6 text-center"
                         >
@@ -121,43 +126,45 @@
 import { IFolderX } from '#components';
 
 const route = useRoute();
-const files = useFiles();
-const folders = useFolders();
+const labels = useBreadcrumbLabels();
 const { $toast } = useNuxtApp();
 const { copyLink } = useFolderActions();
-
-const { status: foldersStatus } = useLazyAsyncData('folders', fetchFolders, { server: false });
-const { status: filesStatus } = useLazyAsyncData('files', fetchFiles, { server: false });
 
 const formOpen = ref(false);
 const addFilesOpen = ref(false);
 const addSearch = ref('');
 const addSelection = ref<string[]>([]);
 const isAdding = ref(false);
+const summary = ref<FileSummary>();
 
 const folderId = computed(() => (route.params as any).id as string);
-const folder = computed(() => folders.value.find((f) => f.id === folderId.value));
-const folderFiles = computed(() => files.value.filter((f) => f.folderId === folderId.value));
 
-const isLoading = computed(
-    () =>
-        (foldersStatus.value !== 'success' && !folders.value.length) ||
-        (filesStatus.value !== 'success' && !files.value.length),
+const {
+    data: folder,
+    status,
+    refresh,
+} = useLazyAsyncData(
+    () => `folder:${folderId.value}`,
+    () => $fetch<FolderData>(`/api/folders/${folderId.value}`),
+    { server: false },
+);
+
+const isLoading = computed(() => status.value === 'pending' || status.value === 'idle');
+
+const {
+    items: addCandidates,
+    isLoading: isCandidatesLoading,
+    loadMore,
+} = usePaginatedList<FileData>(
+    'files',
+    '/api/files',
+    () => ({ q: addSearch.value.trim(), excludeFolder: folderId.value }),
+    { limit: 30, enabled: addFilesOpen },
 );
 
 const description = computed(
     () =>
-        `${pluralize(folderFiles.value.length, 'file')} · ${folder.value!.public ? 'Public' : 'Private'}`,
-);
-
-const addCandidates = computed(() =>
-    files.value
-        .filter(
-            (f) =>
-                f.folderId !== folderId.value &&
-                f.fileName.toLowerCase().includes(addSearch.value.trim().toLowerCase()),
-        )
-        .slice(0, 100),
+        `${pluralize(summary.value?.count ?? folder.value!.fileCount, 'file')} · ${folder.value!.public ? 'Public' : 'Private'}`,
 );
 
 const toggleAdd = (id: string) => {
@@ -166,13 +173,18 @@ const toggleAdd = (id: string) => {
         : [...addSelection.value, id];
 };
 
+const handleScroll = (event: Event) => {
+    const target = event.target as HTMLElement;
+    if (target.scrollHeight - target.scrollTop - target.clientHeight < 80) loadMore();
+};
+
 const handleAddFiles = async () => {
     isAdding.value = true;
 
     try {
-        await $fetch(`/api/folders/${folderId.value}`, {
-            method: 'PATCH',
-            body: { files: [...new Set([...folder.value!.files, ...addSelection.value])] },
+        await $fetch('/api/files/bulk-move', {
+            method: 'POST',
+            body: { files: addSelection.value, folderId: folderId.value },
         });
 
         $toast.success(`${pluralize(addSelection.value.length, 'file')} added`);
@@ -184,9 +196,14 @@ const handleAddFiles = async () => {
     isAdding.value = false;
 };
 
-watch(folder, (value, oldValue) => {
-    if (oldValue && !value) navigateTo('/dashboard/folders');
+useListHandle({
+    resource: 'folders',
+    refresh,
+    map: (fn) => folder.value && (folder.value = fn(folder.value)),
+    remove: (ids) => ids.includes(folderId.value) && navigateTo('/dashboard/folders'),
 });
+
+watch(folder, (value) => value && (labels.value = { ...labels.value, [value.id]: value.name }));
 
 watch(addFilesOpen, (value) => {
     if (value) {

@@ -1,25 +1,30 @@
 <template>
-    <div
-        ref="container"
-        class="relative w-full"
-        :style="{ height: `${virtualizer.getTotalSize()}px` }"
-    >
+    <div class="w-full">
         <div
-            v-for="row in virtualizer.getVirtualItems()"
-            :key="row.key as never"
-            :ref="(el) => virtualizer.measureElement(el as Element)"
-            :data-index="row.index"
-            class="absolute top-0 left-0 grid w-full"
-            :style="{
-                transform: `translateY(${row.start - virtualizer.options.scrollMargin}px)`,
-                gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-                gap: `${gap}px`,
-                paddingBottom: `${gap}px`,
-            }"
+            ref="container"
+            class="relative w-full"
+            :style="{ height: `${virtualizer.getTotalSize()}px` }"
         >
-            <template v-for="item in rows[row.index]" :key="itemKey(item)">
-                <slot :item="item" />
-            </template>
+            <div
+                v-for="row in virtualizer.getVirtualItems()"
+                :key="row.key as never"
+                :ref="(el) => virtualizer.measureElement(el as Element)"
+                :data-index="row.index"
+                class="absolute top-0 left-0 grid w-full"
+                :style="{
+                    transform: `translateY(${row.start - virtualizer.options.scrollMargin}px)`,
+                    gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+                    gap: `${gap}px`,
+                    paddingBottom: `${gap}px`,
+                }"
+            >
+                <template v-for="item in rows[row.index]" :key="itemKey(item)">
+                    <slot :item="item" />
+                </template>
+            </div>
+        </div>
+        <div v-if="loading" class="flex justify-center py-4">
+            <UiSpinner class="text-muted-foreground" />
         </div>
     </div>
 </template>
@@ -33,12 +38,18 @@ const {
     estimateSize = 64,
     minItemWidth,
     gap = 8,
+    loading,
 } = defineProps<{
     items: T[];
     itemKey: (item: T) => string;
     estimateSize?: number;
     minItemWidth?: number;
     gap?: number;
+    loading?: boolean;
+}>();
+
+const emit = defineEmits<{
+    reachEnd: [];
 }>();
 
 const container = useTemplateRef('container');
@@ -67,6 +78,11 @@ const virtualizer = useWindowVirtualizer(
 );
 
 watch(columns, () => virtualizer.value.measure());
+
+watchEffect(() => {
+    const last = virtualizer.value.getVirtualItems().at(-1);
+    if (last && last.index >= rows.value.length - 3) emit('reachEnd');
+});
 
 useResizeObserver(import.meta.client ? document.body : undefined, () => {
     scrollMargin.value = container.value!.getBoundingClientRect().top + window.scrollY;

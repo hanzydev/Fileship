@@ -157,8 +157,7 @@ import { upperFirst } from 'scule';
 const embed = useEmbed();
 const domains = useDomains();
 const currentUser = useAuthUser();
-const notes = useNotes();
-const folders = useFolders();
+const labels = useBreadcrumbLabels();
 const route = useRoute();
 const router = useRouter();
 const colorMode = useColorMode();
@@ -193,13 +192,11 @@ const breadcrumbItems = computed(() => {
     const segments = route.path.split('/').filter(Boolean);
     let path = '';
 
-    return segments.map((segment, index) => {
+    return segments.map((segment) => {
         path += `/${segment}`;
 
-        const parent = segments[index - 1];
         const label =
-            (parent === 'folders' && folders.value.find((f) => f.id === segment)?.name) ||
-            (parent === 'notes' && notes.value.find((n) => n.id === segment)?.title) ||
+            labels.value[segment] ||
             breadcrumbLabels[segment as never] ||
             upperFirst(segment.replace(/[-_]/g, ' '));
 

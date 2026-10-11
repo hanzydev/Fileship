@@ -13,15 +13,8 @@ export const closeSocket = () => {
 export const getSocket = () => socket;
 
 export const initSocket = () => {
-    const logs = useLogs();
-    const notes = useNotes();
-    const files = useFiles();
-    const users = useUsers();
     const embed = useEmbed();
     const domains = useDomains();
-    const folders = useFolders();
-    const backups = useBackups();
-    const sessions = useSessions();
     const passkeys = usePasskeys();
     const currentUser = useAuthUser();
     const currentTheme = useTheme();
@@ -77,20 +70,7 @@ export const initSocket = () => {
 
         socket.on('currentUser:domainsUpdate', (data) => {
             domains.value = data;
-
-            files.value = files.value.map((file) => ({
-                ...file,
-                directUrl: buildPublicUrl(`/u/${file.fileName}`),
-                embedUrl: buildPublicUrl(`/view/${file.fileName}`),
-                thumbnailUrl: file.thumbnailUrl?.length
-                    ? buildPublicUrl(`/u/${file.id}/thumbnail`)
-                    : file.thumbnailUrl,
-            }));
-
-            folders.value = folders.value.map((folder) => ({
-                ...folder,
-                publicUrl: folder.public ? buildPublicUrl(`/folder/${folder.id}`) : undefined,
-            }));
+            refreshLists('files', 'folders', 'notes');
         });
 
         socket.on('logout', () => {
@@ -102,203 +82,74 @@ export const initSocket = () => {
             });
         });
 
-        socket.on('deleteAll', clearStates);
+        socket.on('deleteAll', () => {
+            clearStates();
+            refreshLists('files', 'folders', 'notes', 'backups');
+        });
 
         // Sessions
-        socket.on('session:create', (data) => {
-            sessions.value = [
-                {
-                    ...data,
-                    lastSeen: new Date(data.lastSeen),
-                },
-                ...sessions.value,
-            ];
-        });
+        socket.on('session:create', () => refreshLists('sessions'));
         socket.on('session:delete', (sessionId) => {
-            sessions.value = sessions.value.filter((s) => s.id !== sessionId);
+            removeListItems('sessions', [sessionId]);
+            refreshLists('sessions');
         });
-        socket.on('session:deleteAll', () => {
-            sessions.value = sessions.value.filter(
-                (s) => s.id === currentUser.value?.currentSessionId,
-            );
-        });
+        socket.on('session:deleteAll', () => refreshLists('sessions'));
 
         // Notes
-        socket.on('note:create', (data) => {
-            notes.value = [
-                {
-                    ...data,
-                    createdAt: new Date(data.createdAt),
-                },
-                ...notes.value,
-            ];
-        });
-
-        socket.on('note:update', (data) => {
-            const index = notes.value.findIndex((n) => n.id === data.id);
-
-            if (index > -1) {
-                notes.value[index] = {
-                    ...data,
-                    createdAt: new Date(data.createdAt),
-                };
-            }
-        });
-
+        socket.on('note:create', () => refreshLists('notes'));
+        socket.on('note:update', (data) => patchListItem('notes', data));
         socket.on('note:delete', (noteId) => {
-            notes.value = notes.value.filter((n) => n.id !== noteId);
+            removeListItems('notes', [noteId]);
+            refreshLists('notes');
         });
 
         // Files
-        socket.on('file:create', (data) => {
-            files.value = [
-                {
-                    ...data,
-                    expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-                    createdAt: new Date(data.createdAt),
-                },
-                ...files.value,
-            ];
-
-            if (data.folderId) {
-                const folder = folders.value.find((f) => f.id === data.folderId);
-                if (folder) folder.files.push(data.id);
-            }
-        });
+        socket.on('file:create', () => refreshLists('files', 'folders'));
 
         socket.on('file:update', (data) => {
-            const index = files.value.findIndex((f) => f.id === data.id);
-
-            if (index > -1) {
-                const file = files.value[index]!;
-
-                if ('expiresAt' in data) {
-                    data.expiresAt = data.expiresAt ? new Date(data.expiresAt) : null;
-                }
-
-                if (data.createdAt) data.createdAt = new Date(data.createdAt);
-
-                files.value[index] = {
-                    ...files.value[index],
-                    ...data,
-                };
-
-                if ('folderId' in data && file.folderId !== data.folderId) {
-                    if (file.folderId) {
-                        const folder = folders.value.find((f) => f.id === file.folderId);
-                        if (folder) folder.files = folder.files.filter((f) => f !== file.id);
-                    }
-
-                    if (data.folderId) {
-                        const newFolder = folders.value.find((f) => f.id === data.folderId);
-                        if (newFolder) newFolder.files.push(data.id);
-                    }
-                }
-            }
+            patchListItem('files', data);
+            if ('folderId' in data) refreshLists('files', 'folders');
         });
 
         socket.on('file:delete', (fileId) => {
-            const file = files.value.find((f) => f.id === fileId);
-            if (!file) return;
-
-            if (file?.folderId) {
-                const folder = folders.value.find((f) => f.id === file.folderId);
-                if (folder) folder.files = folder.files.filter((f) => f !== fileId);
-            }
-
-            files.value = files.value.filter((f) => f.id !== fileId);
+            removeListItems('files', [fileId]);
+            refreshLists('files', 'folders');
         });
 
         socket.on('file:bulkDelete', (fileIds: string[]) => {
-            files.value = files.value.filter((f) => !fileIds.includes(f.id));
+            removeListItems('files', fileIds);
+            refreshLists('files', 'folders');
+        });
 
-            folders.value = folders.value.map((folder) => ({
-                ...folder,
-                files: folder.files.filter((f) => !fileIds.includes(f)),
-            }));
+        socket.on('file:bulkMove', ({ files, folder }) => {
+            mapListItems('files', (item) =>
+                files.includes(item.id) ? { ...item, folderId: folder?.id ?? null, folder } : item,
+            );
+            refreshLists('files', 'folders');
         });
 
         // Folders
-        socket.on('folder:create', (data) => {
-            folders.value = [
-                {
-                    ...data,
-                    createdAt: new Date(data.createdAt),
-                },
-                ...folders.value,
-            ].sort((a, b) => +b.isInbox - +a.isInbox);
-
-            for (const fileId of data.files) {
-                const file = files.value.find((f) => f.id === fileId);
-                if (file) {
-                    if (file.folderId) {
-                        const oldFolder = folders.value.find((f) => f.id === file.folderId);
-                        if (oldFolder) {
-                            oldFolder.files = oldFolder.files.filter((f) => f !== file.id);
-                        }
-                    }
-
-                    file.folderId = data.id;
-                }
-            }
-        });
+        socket.on('folder:create', () => refreshLists('folders', 'files'));
 
         socket.on('folder:update', (data) => {
-            const index = folders.value.findIndex((f) => f.id === data.id);
-
-            if (index > -1) {
-                folders.value[index] = {
-                    ...data,
-                    createdAt: new Date(data.createdAt),
-                };
-
-                files.value = files.value.map((file) => {
-                    if (data.files.includes(file.id)) {
-                        return {
-                            ...file,
-                            folderId: data.id,
-                        };
-                    }
-
-                    if (file.folderId === data.id) {
-                        return {
-                            ...file,
-                            folderId: null,
-                        };
-                    }
-
-                    return file;
-                });
-            }
+            patchListItem('folders', data);
+            mapListItems('files', (item) =>
+                item.folder?.id === data.id
+                    ? { ...item, folder: { id: data.id, name: data.name } }
+                    : item,
+            );
         });
 
         socket.on('folder:delete', (folderId) => {
-            folders.value = folders.value.filter((f) => f.id !== folderId);
-
-            files.value = files.value.map((file) => {
-                if (file.folderId === folderId) {
-                    return {
-                        ...file,
-                        folderId: null,
-                    };
-                }
-                return file;
-            });
+            removeListItems('folders', [folderId]);
+            refreshLists('folders', 'files');
         });
 
         // Backups
-        socket.on('backup:create', (data) => {
-            backups.value = [
-                {
-                    ...data,
-                    createdAt: new Date(data.createdAt),
-                },
-                ...backups.value,
-            ];
-        });
-
+        socket.on('backup:create', () => refreshLists('backups'));
         socket.on('backup:delete', (backupId) => {
-            backups.value = backups.value.filter((b) => b.id !== backupId);
+            removeListItems('backups', [backupId]);
+            refreshLists('backups');
         });
 
         // Passkeys
@@ -318,61 +169,15 @@ export const initSocket = () => {
         });
 
         // Admin
-        socket.on('log:create', (data) => {
-            logs.value = {
-                logs: [
-                    {
-                        ...data,
-                        user: undefined,
-                        userId: data.user?.id,
-                        createdAt: new Date(data.createdAt),
-                    },
-                    ...logs.value.logs,
-                ],
-                users: [...logs.value.users, data.user].filter(
-                    (u, i, self) => u && self.findIndex((t) => t?.id === u?.id) === i,
-                ),
-            };
-        });
+        socket.on('log:create', () => refreshLists('logs'));
+        socket.on('log:deleteAll', () => refreshLists('logs'));
 
-        socket.on('log:deleteAll', () => {
-            logs.value = {
-                users: [],
-                logs: [],
-            };
-        });
-
-        socket.on('user:create', (data) => {
-            users.value = [
-                {
-                    ...data,
-                    createdAt: new Date(data.createdAt),
-                },
-                ...users.value,
-            ];
-        });
-
+        socket.on('user:create', () => refreshLists('users'));
+        socket.on('user:update', (data) => patchListItem('users', data));
+        socket.on('user:updateTotp', (data) => patchListItem('users', data));
         socket.on('user:delete', (userId) => {
-            users.value = users.value.filter((u) => u.id !== userId);
-        });
-
-        socket.on('user:update', (data) => {
-            const index = users.value.findIndex((u) => u.id === data.id);
-
-            if (data.createdAt) data.createdAt = new Date(data.createdAt);
-            if (index > -1) {
-                users.value[index] = {
-                    ...users.value[index],
-                    ...data,
-                };
-            }
-        });
-
-        socket.on('user:updateTotp', (data) => {
-            const index = users.value.findIndex((u) => u.id === data.id);
-            if (index > -1) {
-                users.value[index]!.totpEnabled = data.totpEnabled;
-            }
+            removeListItems('users', [userId]);
+            refreshLists('users');
         });
     }
 };

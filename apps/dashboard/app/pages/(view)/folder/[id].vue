@@ -6,10 +6,14 @@
 
         <ViewHeader
             :title="data!.name"
-            :subtitle="pluralize(files.length, 'file')"
+            :subtitle="pluralize(data!.fileCount, 'file')"
             content-class="max-w-7xl"
         >
-            <UiButton size="sm" :disabled="!files.length || isDownloading" @click="handleDownload">
+            <UiButton
+                size="sm"
+                :disabled="!data!.fileCount || isDownloading"
+                @click="handleDownload"
+            >
                 <UiSpinner v-if="isDownloading" />
                 <IDownload v-else />
                 <span class="hidden sm:inline">Download all</span>
@@ -23,7 +27,7 @@
                     v-model:ai="aiSearch"
                     class="min-w-56 flex-1"
                     placeholder="Search files..."
-                    :loading="isSearching"
+                    :loading="!!search && isLoading"
                     ai-available
                 />
                 <UiSelect v-model="typeFilter">
@@ -45,19 +49,28 @@
                 </UiSelect>
             </div>
 
+            <div
+                v-if="isLoading"
+                class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3"
+            >
+                <UiSkeleton v-for="i in 8" :key="i" class="aspect-4/3 rounded-3xl" />
+            </div>
+
             <EmptyState
-                v-if="!filtered.length"
-                :icon="files.length ? ISearchX : IFolderOpen"
-                :title="files.length ? 'No matching files' : 'This folder is empty'"
+                v-else-if="!files.length"
+                :icon="data!.fileCount ? ISearchX : IFolderOpen"
+                :title="data!.fileCount ? 'No matching files' : 'This folder is empty'"
             />
 
             <VirtualList
                 v-else
-                :items="filtered"
+                :items="files"
                 :item-key="(f) => f.id"
                 :min-item-width="200"
                 :estimate-size="240"
                 :gap="12"
+                :loading="isLoadingMore"
+                @reach-end="loadMore"
             >
                 <template #default="{ item }">
                     <button
@@ -171,11 +184,12 @@ import { IFolderOpen, ISearchX } from '#components';
 
 const route = useRoute();
 
-const { data, error } = await useFetch<
-    Omit<FolderData, 'files'> & { files: FileData[]; embed: IEmbed }
->(`/api/folders/${(route.params as any).id}`, {
-    headers: useRequestHeaders(['host']),
-});
+const { data, error } = await useFetch<FolderData & { embed: IEmbed }>(
+    `/api/folders/${(route.params as any).id}`,
+    {
+        headers: useRequestHeaders(['host']),
+    },
+);
 
 if (error.value) {
     throw createError({ statusCode: 404, message: 'Folder not found' });
@@ -184,25 +198,22 @@ if (error.value) {
 const search = ref('');
 const aiSearch = ref(false);
 const typeFilter = ref('all');
-const isSearching = ref(false);
 const isDownloading = ref(false);
-const searchResults = ref<string[] | null>(null);
 const current = ref<FileData | null>(null);
 
-const files = computed(() => data.value!.files);
-
-const filtered = computed(() =>
-    files.value.filter(
-        (f) =>
-            (typeFilter.value === 'all' || getFileCategory(f) === typeFilter.value) &&
-            (!searchResults.value || searchResults.value.includes(f.id)),
-    ),
-);
+const {
+    items: files,
+    isLoading,
+    isLoadingMore,
+    loadMore,
+} = usePaginatedList<FileData>('files', `/api/folders/${data.value!.id}/files`, () => ({
+    q: search.value.trim(),
+    mode: search.value.trim() && aiSearch.value ? 'vector' : undefined,
+    type: typeFilter.value === 'all' ? undefined : typeFilter.value,
+}));
 
 const media = computed(() =>
-    filtered.value.filter((f) =>
-        ['image/', 'video/', 'audio/'].some((t) => f.mimeType.startsWith(t)),
-    ),
+    files.value.filter((f) => ['image/', 'video/', 'audio/'].some((t) => f.mimeType.startsWith(t))),
 );
 
 const index = computed(() => media.value.findIndex((f) => f.id === current.value?.id));
@@ -220,29 +231,6 @@ const handleDownload = async () => {
     await downloadFolder(data.value as never);
     isDownloading.value = false;
 };
-
-const handleSearch = async () => {
-    if (!search.value.trim()) {
-        searchResults.value = null;
-        return;
-    }
-
-    isSearching.value = true;
-
-    try {
-        searchResults.value = await $fetch<string[]>(`/api/folders/${data.value!.id}/searchFiles`, {
-            method: 'POST',
-            body: { query: search.value.trim(), mode: aiSearch.value ? 'vector' : 'fulltext' },
-        });
-    } catch {
-        searchResults.value = [];
-    }
-
-    isSearching.value = false;
-};
-
-watchDebounced(search, handleSearch, { debounce: 400 });
-watch(aiSearch, handleSearch);
 
 onKeyStroke(['ArrowLeft', 'ArrowRight'], (event) => {
     if (!current.value) return;

@@ -4,12 +4,11 @@
     </Head>
 
     <div class="flex flex-1 flex-col gap-6 p-4 pt-0">
-        <PageHeader title="Logs" :description="pluralize(logs.logs.length, 'entry', 'entries')">
-            <UiButton
-                variant="outline"
-                :disabled="!logs.logs.length || isClearing"
-                @click="handleClear"
-            >
+        <PageHeader
+            title="Logs"
+            :description="isLoading ? 'Loading...' : pluralize(total, 'entry', 'entries')"
+        >
+            <UiButton variant="outline" :disabled="!logs.length || isClearing" @click="handleClear">
                 <UiSpinner v-if="isClearing" />
                 <ITrash2 v-else />
                 Clear logs
@@ -19,12 +18,12 @@
         <div class="flex flex-wrap gap-2">
             <UiInputGroup class="max-w-sm min-w-56 flex-1">
                 <UiInputGroupAddon>
-                    <UiSpinner v-if="isSearching" />
+                    <UiSpinner v-if="!!search && isLoading" />
                     <ISearch v-else />
                 </UiInputGroupAddon>
                 <UiInputGroupInput v-model="search" placeholder="Search logs..." />
             </UiInputGroup>
-            <UiSelect v-model="actionFilter">
+            <UiSelect v-model="actionFilter" @update:open="$event && refreshActions()">
                 <UiSelectTrigger class="w-48">
                     <IListFilter />
                     <UiSelectValue />
@@ -44,37 +43,34 @@
         </div>
 
         <EmptyState
-            v-else-if="!filtered.length"
+            v-else-if="!logs.length"
             :icon="IClipboardList"
-            :title="logs.logs.length ? 'No matching entries' : 'No logs yet'"
+            :title="isFiltered ? 'No matching entries' : 'No logs yet'"
             :description="
-                logs.logs.length
-                    ? 'Try a different search or filter.'
-                    : 'Activity will show up here.'
+                isFiltered ? 'Try a different search or filter.' : 'Activity will show up here.'
             "
         />
 
         <DataTable
             v-else
             v-model:sort="sort"
-            :items="sorted"
+            :items="logs"
             :item-key="(l) => l.id"
             :columns="columns"
             :card-estimate-size="88"
+            :loading="isLoadingMore"
+            @reach-end="loadMore"
         >
             <template #cell-user="{ item }">
                 <div class="flex min-w-0 items-center gap-2">
-                    <template v-if="getUser(item)">
+                    <template v-if="item.user">
                         <UiAvatar class="size-6">
-                            <UiAvatarImage
-                                v-if="getUser(item)!.avatar"
-                                :src="getUser(item)!.avatar!"
-                            />
+                            <UiAvatarImage v-if="item.user!.avatar" :src="item.user!.avatar!" />
                             <UiAvatarFallback>
-                                {{ getUser(item)!.username[0]!.toUpperCase() }}
+                                {{ item.user!.username[0]!.toUpperCase() }}
                             </UiAvatarFallback>
                         </UiAvatar>
-                        <span class="truncate">{{ getUser(item)!.username }}</span>
+                        <span class="truncate">{{ item.user!.username }}</span>
                     </template>
                     <UiBadge v-else variant="secondary">
                         {{ item.system ? 'System' : 'Unknown' }}
@@ -112,7 +108,7 @@
                     </div>
                     <TextBlock variant="small" class="line-clamp-2">{{ item.message }}</TextBlock>
                     <TextBlock variant="muted" class="text-xs">
-                        {{ getUser(item)?.username || 'System' }} · {{ item.ip }}
+                        {{ item.user?.username || 'System' }} · {{ item.ip }}
                     </TextBlock>
                 </div>
             </template>
@@ -125,19 +121,12 @@ import dayjs from 'dayjs';
 
 import { IClipboardList } from '#components';
 
-const logs = useLogs();
 const { $toast } = useNuxtApp();
-
-const { status } = useLazyAsyncData('logs', fetchLogs, { server: false });
 
 const search = ref('');
 const actionFilter = ref('all');
-const isSearching = ref(false);
 const isClearing = ref(false);
-const searchResults = ref<string[] | null>(null);
 const sort = ref({ key: 'createdAt', desc: true });
-
-const isLoading = computed(() => status.value !== 'success' && !logs.value.logs.length);
 
 const columns = [
     { key: 'user', label: 'User', class: 'w-40' },
@@ -147,28 +136,25 @@ const columns = [
     { key: 'createdAt', label: 'When', sortable: true },
 ];
 
-const actions = computed(() => [...new Set(logs.value.logs.map((l) => l.action))].sort());
+const isFiltered = computed(() => !!search.value.trim() || actionFilter.value !== 'all');
 
-const filtered = computed(() =>
-    logs.value.logs.filter(
-        (l) =>
-            (actionFilter.value === 'all' || l.action === actionFilter.value) &&
-            (!searchResults.value || searchResults.value.includes(l.id)),
-    ),
+const {
+    items: logs,
+    total,
+    isLoading,
+    isLoadingMore,
+    loadMore,
+} = usePaginatedList<LogData>('logs', '/api/logs', () => ({
+    q: search.value.trim(),
+    action: actionFilter.value === 'all' ? undefined : actionFilter.value,
+    sort: `${sort.value.key}:${sort.value.desc ? 'desc' : 'asc'}`,
+}));
+
+const { data: actions, refresh: refreshActions } = useLazyAsyncData(
+    'log-actions',
+    () => $fetch('/api/logs/actions'),
+    { server: false, default: () => [] },
 );
-
-const sorted = computed(() =>
-    [...filtered.value].sort((a, b) => {
-        const result =
-            sort.value.key === 'action'
-                ? a.action.localeCompare(b.action)
-                : +a.createdAt - +b.createdAt;
-
-        return sort.value.desc ? -result : result;
-    }),
-);
-
-const getUser = (log: LogData) => logs.value.users.find((u) => u.id === log.userId);
 
 const handleClear = async () => {
     const confirmed = await askConfirmation({
@@ -194,30 +180,6 @@ const handleClear = async () => {
 
     isClearing.value = false;
 };
-
-watchDebounced(
-    search,
-    async (value) => {
-        if (!value.trim()) {
-            searchResults.value = null;
-            return;
-        }
-
-        isSearching.value = true;
-
-        try {
-            searchResults.value = await $fetch<string[]>('/api/logs/search', {
-                method: 'POST',
-                body: { query: value.trim() },
-            });
-        } catch {
-            searchResults.value = [];
-        }
-
-        isSearching.value = false;
-    },
-    { debounce: 400 },
-);
 
 definePageMeta({
     layout: 'dashboard',

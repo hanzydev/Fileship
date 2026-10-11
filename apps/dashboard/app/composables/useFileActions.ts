@@ -1,6 +1,5 @@
 export const useFileActions = () => {
     const embed = useEmbed();
-    const folders = useFolders();
     const { $toast } = useNuxtApp();
     const { copy } = useClipboard({ legacy: true });
 
@@ -17,21 +16,18 @@ export const useFileActions = () => {
     const download = (files: FileData[]) =>
         files.forEach((file) => downloadFile(`${file.directUrl}?download`));
 
-    const move = async (files: FileData[], folderId: string | null) => {
+    const move = async (files: Pick<FileData, 'id'>[], folderId: string | null) => {
         try {
-            if (folderId && files.length > 1) {
-                const folder = folders.value.find((f) => f.id === folderId)!;
-
-                await $fetch(`/api/folders/${folderId}`, {
-                    method: 'PATCH',
-                    body: { files: [...new Set([...folder.files, ...files.map((f) => f.id)])] },
+            if (files.length > 1) {
+                await $fetch('/api/files/bulk-move', {
+                    method: 'POST',
+                    body: { files: files.map((f) => f.id), folderId },
                 });
             } else {
-                await Promise.all(
-                    files.map((file) =>
-                        $fetch(`/api/files/${file.id}`, { method: 'PATCH', body: { folderId } }),
-                    ),
-                );
+                await $fetch(`/api/files/${files[0]!.id}`, {
+                    method: 'PATCH',
+                    body: { folderId },
+                });
             }
 
             const filesText = files.length > 1 ? `${files.length} files` : 'File';
@@ -44,7 +40,7 @@ export const useFileActions = () => {
         }
     };
 
-    const remove = async (files: FileData[]) => {
+    const remove = async (files: Pick<FileData, 'id' | 'fileName'>[]) => {
         const filesText = files.length > 1 ? `${files.length} files` : files[0]!.fileName;
 
         const confirmed = await askConfirmation({

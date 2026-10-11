@@ -241,8 +241,6 @@ const { files } = defineProps<{
 const fileId = defineModel<string | null>('fileId', { required: true });
 const tab = defineModel<string>('tab', { default: 'details' });
 
-const allFiles = useFiles();
-const folders = useFolders();
 const currentUser = useAuthUser();
 const runtimeConfig = useRuntimeConfig();
 const { $toast } = useNuxtApp();
@@ -254,7 +252,13 @@ const isSaving = ref(false);
 const zoomOrigin = ref('center');
 const formErrors = ref();
 
-const file = computed(() => allFiles.value.find((f) => f.id === fileId.value));
+const fallbackFile = ref<FileData>();
+
+const file = computed(
+    () =>
+        files.find((f) => f.id === fileId.value) ||
+        (fallbackFile.value?.id === fileId.value ? fallbackFile.value : undefined),
+);
 const index = computed(() => files.findIndex((f) => f.id === fileId.value));
 const prev = computed(() => files[index.value - 1]);
 const next = computed(() => files[index.value + 1]);
@@ -281,7 +285,7 @@ const details = computed(() => {
     return [
         { label: 'Type', value: f.mimeType },
         { label: 'Size', value: f.size.formatted },
-        { label: 'Folder', value: folders.value.find((x) => x.id === f.folderId)?.name || 'None' },
+        { label: 'Folder', value: f.folder?.name || 'None' },
         { label: 'Views', value: `${f.views.total} total · ${f.views.today} today` },
         { label: 'Max views', value: f.maxViews || 'Unlimited' },
         { label: 'Password', value: f.password ? 'Protected' : 'None' },
@@ -367,14 +371,26 @@ const handleZoom = (event: MouseEvent) => {
     isZoomed.value = !isZoomed.value;
 };
 
-watch(fileId, (value) => {
-    isZoomed.value = false;
-    isRevealed.value = false;
-    if (value && file.value) resetEditData();
-});
+watch(
+    fileId,
+    async (value) => {
+        isZoomed.value = false;
+        isRevealed.value = false;
 
-watch(file, (value) => {
-    if (fileId.value && !value) fileId.value = null;
+        if (value && file.value) resetEditData();
+
+        if (value && !file.value) {
+            const { items } = await $fetch('/api/files', { query: { ids: value, limit: 1 } });
+
+            if (items[0]) fallbackFile.value = reviveDates(items[0]);
+            else fileId.value = null;
+        }
+    },
+    { immediate: true },
+);
+
+watch(file, (value, oldValue) => {
+    if (fileId.value && oldValue && !value) fileId.value = null;
 });
 
 watch(

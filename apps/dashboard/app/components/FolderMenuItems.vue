@@ -14,7 +14,7 @@
         <IGlobeLock v-else />
         {{ folder.public ? 'Make private' : 'Make public' }}
     </component>
-    <component :is="Item" :disabled="!folder.files.length" @select="download(folder)">
+    <component :is="Item" :disabled="!folder.fileCount" @select="download(folder)">
         <IDownload />
         Download as archive
     </component>

@@ -7,12 +7,12 @@
                 v-model:ai="aiSearch"
                 class="xl:flex-1"
                 placeholder="Search files..."
-                :loading="isSearching"
+                :loading="!!query && isLoading"
                 :ai-available="canUseAi"
             />
 
             <div class="flex flex-wrap items-center gap-2">
-                <UiSelect v-if="showFolderFilter" v-model="folderFilter">
+                <UiSelect v-if="!folderId" v-model="folderFilter">
                     <UiSelectTrigger class="w-44">
                         <IFolder />
                         <UiSelectValue />
@@ -47,7 +47,9 @@
                         >
                             <component :is="category.icon" />
                             {{ category.label }}
-                            <span class="ml-auto text-muted-foreground">{{ typeCounts[key] }}</span>
+                            <span class="ml-auto text-muted-foreground">
+                                {{ summary?.categories[key] }}
+                            </span>
                         </UiDropdownMenuCheckboxItem>
                         <template v-if="typeFilter.length">
                             <UiDropdownMenuSeparator />
@@ -58,7 +60,7 @@
                     </UiDropdownMenuContent>
                 </UiDropdownMenu>
 
-                <UiSelect v-model="sort">
+                <UiSelect v-model="sortValue">
                     <UiSelectTrigger class="w-40">
                         <IArrowDownUp />
                         <UiSelectValue />
@@ -96,7 +98,7 @@
         </div>
 
         <EmptyState
-            v-else-if="!files.length"
+            v-else-if="!files.length && !isFiltered"
             :icon="IFiles"
             :title="emptyTitle"
             description="Upload files with the button above, drop them anywhere or paste an image."
@@ -108,7 +110,7 @@
         </EmptyState>
 
         <EmptyState
-            v-else-if="!filtered.length"
+            v-else-if="!files.length"
             :icon="ISearchX"
             title="No matching files"
             description="Try a different search or clear your filters."
@@ -118,11 +120,13 @@
 
         <VirtualList
             v-else-if="view === 'grid'"
-            :items="filtered"
+            :items="files"
             :item-key="(f) => f.id"
             :min-item-width="220"
             :estimate-size="270"
             :gap="16"
+            :loading="isLoadingMore"
+            @reach-end="loadMore"
         >
             <template #default="{ item }">
                 <FileCard
@@ -141,12 +145,14 @@
         <DataTable
             v-else
             v-model:sort="tableSort"
-            :items="filtered"
+            :items="files"
             :item-key="(f) => f.id"
             :columns="columns"
             :selected="selected"
+            :loading="isLoadingMore"
             clickable
             @row-click="handleClick"
+            @reach-end="loadMore"
         >
             <template #cell-select="{ item }">
                 <UiCheckbox
@@ -184,7 +190,7 @@
             <template #cell-views="{ item }">{{ item.views.total }}</template>
             <template #cell-folder="{ item }">
                 <span class="text-muted-foreground">
-                    {{ folders.find((f) => f.id === item.folderId)?.name || '—' }}
+                    {{ item.folder?.name || '—' }}
                 </span>
             </template>
             <template #cell-createdAt="{ item }">
@@ -242,63 +248,11 @@
             </template>
         </DataTable>
 
-        <Transition
-            enter-active-class="animate-in fade-in slide-in-from-bottom-4 duration-200"
-            leave-active-class="animate-out fade-out slide-out-to-bottom-4 duration-200"
-        >
-            <div
-                v-if="selected.length"
-                class="fixed bottom-4 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1 rounded-full border bg-popover p-1.5 pl-4 shadow-lg"
-            >
-                <TextBlock variant="small" class="mr-2 whitespace-nowrap">
-                    {{ selected.length }} selected
-                </TextBlock>
-                <UiButton
-                    variant="ghost"
-                    size="sm"
-                    class="hidden sm:flex"
-                    @click="selected = isAllSelected ? [] : filtered.map((f) => f.id)"
-                >
-                    {{ isAllSelected ? 'Deselect all' : 'Select all' }}
-                </UiButton>
-                <UiButton variant="ghost" size="sm" @click="moveTargets = selectedFiles">
-                    <IFolderInput />
-                    <span class="hidden sm:inline">Move</span>
-                </UiButton>
-                <UiButton variant="ghost" size="sm" @click="download(selectedFiles)">
-                    <IDownload />
-                    <span class="hidden sm:inline">Download</span>
-                </UiButton>
-                <UiButton variant="ghost" size="sm" @click="handleBulkDelete">
-                    <ITrash2 />
-                    <span class="hidden sm:inline">Delete</span>
-                </UiButton>
-                <UiButton variant="ghost" size="icon-sm" @click="selected = []">
-                    <IX />
-                </UiButton>
-            </div>
-        </Transition>
+        <FileBulkBar v-model="selected" :items="files" :total="total" :query="listQuery" />
 
-        <UiDialog :open="!!moveTargets.length" @update:open="!$event && (moveTargets = [])">
-            <UiDialogContent class="sm:max-w-md">
-                <UiDialogHeader>
-                    <UiDialogTitle>
-                        Move {{ moveTargets.length > 1 ? `${moveTargets.length} files` : 'file' }}
-                    </UiDialogTitle>
-                    <UiDialogDescription>Choose a folder or create a new one.</UiDialogDescription>
-                </UiDialogHeader>
-                <FolderPicker v-model="moveFolderId" />
-                <UiDialogFooter>
-                    <UiButton variant="outline" @click="moveTargets = []">Cancel</UiButton>
-                    <UiButton :disabled="isMoving" @click="handleMove">
-                        <UiSpinner v-if="isMoving" />
-                        Move
-                    </UiButton>
-                </UiDialogFooter>
-            </UiDialogContent>
-        </UiDialog>
+        <FileMoveDialog v-model="moveTargets" />
 
-        <FileSheet v-model:file-id="sheetFileId" v-model:tab="sheetTab" :files="filtered" />
+        <FileSheet v-model:file-id="sheetFileId" v-model:tab="sheetTab" :files="files" />
     </div>
 </template>
 
@@ -307,29 +261,20 @@ import dayjs from 'dayjs';
 
 import { IFiles, ISearchX } from '#components';
 
-const {
-    files,
-    searchEndpoint,
-    showFolderFilter,
-    isLoading,
-    emptyTitle = 'No files yet',
-} = defineProps<{
-    files: FileData[];
-    searchEndpoint: string;
-    showFolderFilter?: boolean;
-    isLoading?: boolean;
+const { folderId, emptyTitle = 'No files yet' } = defineProps<{
+    folderId?: string;
     emptyTitle?: string;
 }>();
 
-const folders = useFolders();
+const summary = defineModel<FileSummary>('summary');
+
 const currentUser = useAuthUser();
 const runtimeConfig = useRuntimeConfig();
 const uploadSheetOpen = useUploadSheet();
-const { download, move, remove } = useFileActions();
 
 const query = useQueryState('q', '');
 const typeQuery = useQueryState('type', '');
-const sort = useQueryState('sort', 'createdAt:desc');
+const sort = useQueryState('sort', '');
 const view = useQueryState<'grid' | 'list'>('view', 'grid');
 const folderFilter = useQueryState('folder', 'all');
 const sheetFileId = useQueryState('file', '');
@@ -337,29 +282,26 @@ const sheetFileId = useQueryState('file', '');
 const searchInput = useTemplateRef('searchInput');
 const searchInputValue = ref(query.value);
 const aiSearch = ref(false);
-const isSearching = ref(false);
-const searchResults = ref<string[] | null>(null);
 
 const selected = ref<string[]>([]);
 const lastSelected = ref<string | null>(null);
 
 const sheetTab = ref('details');
-const moveTargets = ref<FileData[]>([]);
-const moveFolderId = ref<string | null>(null);
-const isMoving = ref(false);
+const moveTargets = ref<Pick<FileData, 'id' | 'folderId'>[]>([]);
 
 const canUseAi = computed(
     () => runtimeConfig.public.aiEnabled && currentUser.value!.aiSettings.enabled,
 );
 
-const sortOptions = [
+const sortOptions = computed(() => [
+    ...(query.value ? [{ label: 'Relevance', value: 'relevance' }] : []),
     { label: 'Newest', value: 'createdAt:desc' },
     { label: 'Oldest', value: 'createdAt:asc' },
     { label: 'Name', value: 'fileName:asc' },
     { label: 'Largest', value: 'size:desc' },
     { label: 'Smallest', value: 'size:asc' },
     { label: 'Most viewed', value: 'views:desc' },
-];
+]);
 
 const columns = [
     { key: 'select', label: '', class: 'w-10' },
@@ -377,56 +319,43 @@ const typeFilter = computed<FileCategory[]>({
     set: (value) => (typeQuery.value = value.join(',')),
 });
 
+const sortValue = computed({
+    get: () => sort.value || (query.value ? 'relevance' : 'createdAt:desc'),
+    set: (value) => (sort.value = value),
+});
+
 const tableSort = computed({
     get: () => {
-        const [key, dir] = sort.value.split(':');
+        const [key, dir] = sortValue.value.split(':');
         return { key: key!, desc: dir === 'desc' };
     },
     set: (value) => (sort.value = `${value!.key}:${value!.desc ? 'desc' : 'asc'}`),
 });
 
-const scoped = computed(() =>
-    files.filter((f) => {
-        if (folderFilter.value === 'all') return true;
-        if (folderFilter.value === 'none') return !f.folderId;
-        return f.folderId === folderFilter.value;
-    }),
+const isFiltered = computed(
+    () => !!query.value || !!typeFilter.value.length || (!folderId && folderFilter.value !== 'all'),
 );
 
-const typeCounts = computed(() => {
-    const counts = Object.fromEntries(Object.keys(FILE_CATEGORIES).map((key) => [key, 0]));
-    scoped.value.forEach((f) => counts[getFileCategory(f)]!++);
-    return counts as Record<FileCategory, number>;
-});
+const {
+    items: files,
+    total,
+    summary: listSummary,
+    query: listQuery,
+    isLoading,
+    isLoadingMore,
+    loadMore,
+} = usePaginatedList<FileData, FileSummary>('files', '/api/files', () => ({
+    q: query.value,
+    mode: query.value && aiSearch.value ? 'vector' : undefined,
+    sort: sortValue.value === 'relevance' ? undefined : sortValue.value,
+    folder: folderId ?? folderFilter.value,
+    type: typeFilter.value,
+    summary: true,
+}));
 
-const filtered = computed(() => {
-    const [key, dir] = sort.value.split(':') as [string, 'asc' | 'desc'];
-    const results = searchResults.value && new Set(searchResults.value);
-
-    const values = {
-        createdAt: (f: FileData) => +f.createdAt,
-        fileName: (f: FileData) => f.fileName.toLowerCase(),
-        size: (f: FileData) => +f.size.raw,
-        views: (f: FileData) => f.views.total,
-    };
-
-    const getValue = values[key as keyof typeof values] || values.createdAt;
-
-    return scoped.value
-        .filter(
-            (f) =>
-                (!typeFilter.value.length || typeFilter.value.includes(getFileCategory(f))) &&
-                (!results || results.has(f.id)),
-        )
-        .sort((a, b) => {
-            const result = getValue(a) > getValue(b) ? 1 : getValue(a) < getValue(b) ? -1 : 0;
-            return dir === 'desc' ? -result : result;
-        });
-});
-
-const isAllSelected = computed(() => selected.value.length === filtered.value.length);
-
-const selectedFiles = computed(() => files.filter((f) => selected.value.includes(f.id)));
+const folders = folderId
+    ? ref<FolderData[]>([])
+    : usePaginatedList<FolderData>('folders', '/api/folders', {}, { limit: 100 }).items;
 
 const toggleType = (type: FileCategory) => {
     typeFilter.value = typeFilter.value.includes(type)
@@ -441,7 +370,7 @@ const openSheet = (file: FileData, tab = 'details') => {
 
 const handleToggle = (file: FileData, event: MouseEvent) => {
     if (event.shiftKey && lastSelected.value) {
-        const ids = filtered.value.map((f) => f.id);
+        const ids = files.value.map((f) => f.id);
         const [start, end] = [ids.indexOf(lastSelected.value), ids.indexOf(file.id)].sort(
             (a, b) => a - b,
         );
@@ -470,51 +399,13 @@ const handleClearFilters = () => {
     folderFilter.value = 'all';
 };
 
-const handleMove = async () => {
-    isMoving.value = true;
-
-    if (await move(moveTargets.value, moveFolderId.value)) {
-        moveTargets.value = [];
-        selected.value = [];
-    }
-
-    isMoving.value = false;
-};
-
-const handleBulkDelete = async () => {
-    if (await remove(selectedFiles.value)) selected.value = [];
-};
-
-const handleSearch = async () => {
-    if (!query.value) {
-        searchResults.value = null;
-        return;
-    }
-
-    isSearching.value = true;
-
-    try {
-        searchResults.value = await $fetch<string[]>(searchEndpoint, {
-            method: 'POST',
-            body: { query: query.value, mode: aiSearch.value ? 'vector' : 'fulltext' },
-        });
-    } catch {
-        searchResults.value = [];
-    }
-
-    isSearching.value = false;
-};
-
 watchDebounced(searchInputValue, (value) => (query.value = value.trim()), { debounce: 400 });
-watch([query, aiSearch], handleSearch, { immediate: true });
 
-watch(moveTargets, (value) => {
-    if (value.length) moveFolderId.value = value.length === 1 ? value[0]!.folderId : null;
-});
+watch(listSummary, (value) => (summary.value = value));
 
 watch(
-    () => files.length,
-    () => (selected.value = selected.value.filter((id) => files.some((f) => f.id === id))),
+    () => JSON.stringify(listQuery.value),
+    () => (selected.value = []),
 );
 
 onKeyStroke('/', (event) => {

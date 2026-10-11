@@ -57,22 +57,23 @@
                         v-for="file in recentFiles"
                         :key="file.id"
                         :file="file"
-                        @click="sheetFileId = file.id"
-                        @toggle="sheetFileId = file.id"
+                        :selected="selected.includes(file.id)"
+                        :selection-mode="!!selected.length"
+                        @click="handleClick(file)"
+                        @toggle="handleToggle(file)"
                         @view="sheetFileId = file.id"
                         @edit="openEdit(file)"
-                        @move="openEdit(file)"
+                        @move="moveTargets = [file]"
                     />
                 </div>
             </UiCardContent>
         </UiCard>
 
-        <FileSheet
-            v-if="canUpload"
-            v-model:file-id="sheetFileId"
-            v-model:tab="sheetTab"
-            :files="recentFiles"
-        />
+        <template v-if="canUpload">
+            <FileSheet v-model:file-id="sheetFileId" v-model:tab="sheetTab" :files="recentFiles" />
+            <FileBulkBar v-model="selected" :items="recentFiles" :total="recentFiles.length" />
+            <FileMoveDialog v-model="moveTargets" />
+        </template>
     </div>
 </template>
 
@@ -83,24 +84,24 @@ import { upperFirst } from 'scule';
 import { IBookmark, IBox, IEye, IFiles, IFolder, IUsers } from '#components';
 
 const stats = useStats();
-const files = useFiles();
 const currentUser = useAuthUser();
 
 const greeting = ref('Welcome back');
 const today = ref('');
 const sheetFileId = useQueryState('file', '');
 const sheetTab = ref('details');
+const selected = ref<string[]>([]);
+const moveTargets = ref<Pick<FileData, 'id' | 'folderId'>[]>([]);
 
 const canUpload = computed(() => canUploadFiles(currentUser.value));
 const canNote = computed(() => canTakeNotes(currentUser.value));
 
-const filesStatus = canUpload.value
-    ? useLazyAsyncData('files', fetchFiles, { server: false }).status
-    : ref('success');
-
-const isFilesLoading = computed(() => filesStatus.value !== 'success' && !files.value.length);
-
-const recentFiles = computed(() => files.value.slice(0, 6));
+const { items: recentFiles, isLoading: isFilesLoading } = usePaginatedList<FileData>(
+    'files',
+    '/api/files',
+    {},
+    { limit: 6, enabled: canUpload },
+);
 
 const statCards = computed(() => [
     {
@@ -142,6 +143,17 @@ const statCards = computed(() => [
               growth: stats.value ? 0 : undefined,
           },
 ]);
+
+const handleToggle = (file: FileData) => {
+    selected.value = selected.value.includes(file.id)
+        ? selected.value.filter((id) => id !== file.id)
+        : [...selected.value, file.id];
+};
+
+const handleClick = (file: FileData) => {
+    if (selected.value.length) handleToggle(file);
+    else sheetFileId.value = file.id;
+};
 
 const openEdit = (file: FileData) => {
     sheetTab.value = 'edit';

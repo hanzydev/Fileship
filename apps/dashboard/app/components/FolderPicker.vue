@@ -4,7 +4,7 @@
             <UiButton variant="outline" class="w-full justify-between" :disabled="disabled">
                 <span class="flex items-center gap-2 truncate">
                     <IFolder />
-                    {{ selectedFolder?.name || 'No folder' }}
+                    {{ (folder && selectedName) || 'No folder' }}
                 </span>
                 <IChevronsUpDown class="opacity-50" />
             </UiButton>
@@ -15,7 +15,7 @@
                     placeholder="Search or create a folder..."
                     @update:model-value="query = $event"
                 />
-                <UiCommandList>
+                <UiCommandList @scroll="handleScroll">
                     <UiCommandGroup>
                         <UiCommandItem value="none" @select="handleSelect(null)">
                             <IFolderX />
@@ -26,7 +26,7 @@
                             v-for="f in folders"
                             :key="f.id"
                             :value="f.id"
-                            @select="handleSelect(f.id)"
+                            @select="handleSelect(f)"
                         >
                             <IFolder />
                             <span class="truncate">{{ f.name }}</span>
@@ -57,14 +57,19 @@ const { disabled } = defineProps<{
 
 const folder = defineModel<string | null>({ required: true });
 
-const folders = useFolders();
 const { $toast } = useNuxtApp();
 
 const query = ref('');
 const isOpen = ref(false);
 const isCreating = ref(false);
+const selectedName = ref<string>();
 
-const selectedFolder = computed(() => folders.value.find((f) => f.id === folder.value));
+const { items: folders, loadMore } = usePaginatedList<FolderData>(
+    'folders',
+    '/api/folders',
+    () => ({ q: query.value.trim() }),
+    { limit: 30, enabled: isOpen },
+);
 
 const canCreate = computed(
     () =>
@@ -72,9 +77,15 @@ const canCreate = computed(
         !folders.value.some((f) => f.name.toLowerCase() === query.value.trim().toLowerCase()),
 );
 
-const handleSelect = (id: string | null) => {
-    folder.value = id;
+const handleSelect = (selected: { id: string; name: string } | null) => {
+    selectedName.value = selected?.name;
+    folder.value = selected?.id ?? null;
     isOpen.value = false;
+};
+
+const handleScroll = (event: Event) => {
+    const target = event.target as HTMLElement;
+    if (target.scrollHeight - target.scrollTop - target.clientHeight < 80) loadMore();
 };
 
 const handleCreate = async () => {
@@ -86,7 +97,7 @@ const handleCreate = async () => {
             body: { name: query.value.trim() },
         });
 
-        handleSelect(created.id);
+        handleSelect(created);
         $toast.success('Folder created and selected');
     } catch (error: any) {
         $toast.error(error.data.data?.name?._errors[0] || error.data.message);
@@ -95,10 +106,17 @@ const handleCreate = async () => {
     isCreating.value = false;
 };
 
-watch(isOpen, (value) => {
-    if (value) {
-        query.value = '';
-        if (!folders.value.length) fetchFolders();
-    }
-});
+watch(
+    folder,
+    async (value) => {
+        if (!value) return;
+
+        selectedName.value =
+            folders.value.find((f) => f.id === value)?.name ??
+            (await $fetch(`/api/folders/${value}`).catch(() => null))?.name;
+    },
+    { immediate: true },
+);
+
+watch(isOpen, (value) => value && (query.value = ''));
 </script>

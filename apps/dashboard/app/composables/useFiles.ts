@@ -6,9 +6,12 @@ export type FileData = Omit<FileModel, 'size' | 'embedding' | 'textEmbedding' | 
     directUrl: string;
     embedUrl: string;
     thumbnailUrl?: string | null;
+    folder?: { id: string; name: string } | null;
     embed?: IEmbed;
 };
 
-export const useFiles = () => {
-    return useState<FileData[]>('files', () => []);
+export type FileSummary = {
+    count: number;
+    size: string;
+    categories: Record<FileCategory, number>;
 };

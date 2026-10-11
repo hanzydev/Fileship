@@ -6,7 +6,3 @@ export type BackupData = {
         formatted: string;
     };
 };
-
-export const useBackups = () => {
-    return useState<BackupData[]>('backups', () => []);
-};

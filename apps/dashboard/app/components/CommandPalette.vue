@@ -7,7 +7,7 @@
         <UiCommandList>
             <UiCommandEmpty>No results found.</UiCommandEmpty>
 
-            <UiCommandGroup v-if="matchedFiles.length" :class="groupClass" heading="Files">
+            <UiCommandGroup v-if="term && matchedFiles.length" :class="groupClass" heading="Files">
                 <UiCommandItem
                     v-for="file in matchedFiles"
                     :key="file.id"
@@ -20,7 +20,11 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup v-if="matchedFolders.length" :class="groupClass" heading="Folders">
+            <UiCommandGroup
+                v-if="term && matchedFolders.length"
+                :class="groupClass"
+                heading="Folders"
+            >
                 <UiCommandItem
                     v-for="folder in matchedFolders"
                     :key="folder.id"
@@ -32,7 +36,7 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup v-if="matchedNotes.length" :class="groupClass" heading="Notes">
+            <UiCommandGroup v-if="term && matchedNotes.length" :class="groupClass" heading="Notes">
                 <UiCommandItem
                     v-for="note in matchedNotes"
                     :key="note.id"
@@ -44,7 +48,7 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup v-if="matchedUsers.length" :class="groupClass" heading="Users">
+            <UiCommandGroup v-if="term && matchedUsers.length" :class="groupClass" heading="Users">
                 <UiCommandItem
                     v-for="user in matchedUsers"
                     :key="user.id"
@@ -110,27 +114,37 @@ const open = defineModel<boolean>('open', { required: true });
 const groupClass =
     '**:data-[slot=command-group-heading]:px-3 **:data-[slot=command-group-heading]:py-2 **:data-[slot=command-group-heading]:text-xs **:data-[slot=command-group-heading]:font-medium **:data-[slot=command-group-heading]:text-muted-foreground';
 
-const files = useFiles();
-const notes = useNotes();
-const users = useUsers();
-const folders = useFolders();
 const authUser = useAuthUser();
 const colorMode = useColorMode();
 const uploadSheetOpen = useUploadSheet();
 
 const query = ref('');
 
-const search = <T,>(items: T[], getText: (item: T) => string) => {
-    const value = query.value.trim().toLowerCase();
-    if (!value) return [];
+const term = computed(() => query.value.trim());
 
-    return items.filter((item) => getText(item).toLowerCase().includes(value)).slice(0, 6);
-};
+const useMatches = <T extends { id: string }>(
+    resource: ListResource,
+    endpoint: string,
+    isAllowed: () => boolean,
+) =>
+    usePaginatedList<T>(resource, endpoint, () => ({ q: term.value }), {
+        limit: 5,
+        enabled: () => open.value && !!term.value && isAllowed(),
+    }).items;
 
-const matchedFiles = computed(() => search(files.value, (file) => file.fileName));
-const matchedFolders = computed(() => search(folders.value, (folder) => folder.name));
-const matchedNotes = computed(() => search(notes.value, (note) => note.title));
-const matchedUsers = computed(() => search(users.value, (user) => user.username));
+const matchedFiles = useMatches<FileData>('files', '/api/files', () =>
+    canUploadFiles(authUser.value),
+);
+
+const matchedFolders = useMatches<FolderData>('folders', '/api/folders', () =>
+    canUploadFiles(authUser.value),
+);
+
+const matchedNotes = useMatches<NoteData>('notes', '/api/notes', () =>
+    canTakeNotes(authUser.value),
+);
+
+const matchedUsers = useMatches<UserData>('users', '/api/users', () => isAdmin(authUser.value));
 
 const pages = computed(() => [
     { label: 'Home', url: '/dashboard', icon: IHome },
@@ -189,19 +203,7 @@ const handleAction = (run: () => unknown) => {
     run();
 };
 
-watch(open, (value) => {
-    if (!value) return;
-
-    query.value = '';
-
-    if (canUploadFiles(authUser.value)) {
-        if (!files.value.length) fetchFiles();
-        if (!folders.value.length) fetchFolders();
-    }
-
-    if (canTakeNotes(authUser.value) && !notes.value.length) fetchNotes();
-    if (isAdmin(authUser.value) && !users.value.length) fetchUsers();
-});
+watch(open, (value) => value && (query.value = ''));
 
 onKeyStroke(['k', 'K'], (event) => {
     if (event.ctrlKey || event.metaKey) {

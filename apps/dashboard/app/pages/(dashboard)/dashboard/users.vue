@@ -4,7 +4,10 @@
     </Head>
 
     <div class="flex flex-1 flex-col gap-6 p-4 pt-0">
-        <PageHeader title="Users" :description="pluralize(users.length, 'user')">
+        <PageHeader
+            title="Users"
+            :description="isLoading ? 'Loading...' : pluralize(total, 'user')"
+        >
             <UiButton @click="openSheet(null)">
                 <IUserPlus />
                 New user
@@ -13,7 +16,7 @@
 
         <UiInputGroup class="max-w-sm">
             <UiInputGroupAddon>
-                <UiSpinner v-if="isSearching" />
+                <UiSpinner v-if="!!search && isLoading" />
                 <ISearch v-else />
             </UiInputGroupAddon>
             <UiInputGroupInput v-model="search" placeholder="Search users..." />
@@ -24,7 +27,7 @@
         </div>
 
         <EmptyState
-            v-else-if="!filtered.length"
+            v-else-if="!users.length"
             :icon="ISearchX"
             title="No matching users"
             description="Try a different username."
@@ -33,10 +36,12 @@
         <DataTable
             v-else
             v-model:sort="sort"
-            :items="sorted"
+            :items="users"
             :item-key="(u) => u.id"
             :columns="columns"
             :card-estimate-size="72"
+            :loading="isLoadingMore"
+            @reach-end="loadMore"
         >
             <template #cell-username="{ item }">
                 <div class="flex min-w-0 items-center gap-3">
@@ -117,22 +122,26 @@ import { titleCase } from 'scule';
 import { ISearchX } from '#components';
 import { UserPermission } from '#shared/prisma/enums';
 
-const users = useUsers();
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
 const { impersonate } = useImpersonation();
 
-const { status } = useLazyAsyncData('users', fetchUsers, { server: false });
-
 const search = ref('');
-const isSearching = ref(false);
-const searchResults = ref<string[] | null>(null);
 const sheetOpen = ref(false);
 const editingUser = ref<UserData | null>(null);
 const sort = ref({ key: 'createdAt', desc: false });
 const userQuery = useQueryState('user', '');
 
-const isLoading = computed(() => status.value !== 'success' && !users.value.length);
+const {
+    items: users,
+    total,
+    isLoading,
+    isLoadingMore,
+    loadMore,
+} = usePaginatedList<UserData>('users', '/api/users', () => ({
+    q: search.value.trim(),
+    sort: `${sort.value.key}:${sort.value.desc ? 'desc' : 'asc'}`,
+}));
 
 const columns = [
     { key: 'username', label: 'User', sortable: true, class: 'max-w-0 w-full' },
@@ -143,28 +152,6 @@ const columns = [
     { key: 'createdAt', label: 'Joined', sortable: true, class: 'hidden md:table-cell' },
     { key: 'actions', label: '', class: 'w-12' },
 ];
-
-const filtered = computed(() =>
-    searchResults.value
-        ? users.value.filter((u) => searchResults.value!.includes(u.id))
-        : users.value,
-);
-
-const sorted = computed(() => {
-    const values = {
-        username: (u: UserData) => u.username.toLowerCase(),
-        files: (u: UserData) => u.stats.files,
-        notes: (u: UserData) => u.stats.notes,
-        createdAt: (u: UserData) => +u.createdAt,
-    };
-
-    const getValue = values[sort.value.key as keyof typeof values];
-
-    return [...filtered.value].sort((a, b) => {
-        const result = getValue(a) > getValue(b) ? 1 : getValue(a) < getValue(b) ? -1 : 0;
-        return sort.value.desc ? -result : result;
-    });
-});
 
 const getRoles = (user: UserData) =>
     user.superAdmin
@@ -207,37 +194,14 @@ const handleDelete = async (user: UserData) => {
     }
 };
 
-watchDebounced(
-    search,
-    async (value) => {
-        if (!value.trim()) {
-            searchResults.value = null;
-            return;
-        }
-
-        isSearching.value = true;
-
-        try {
-            searchResults.value = await $fetch<string[]>('/api/users/search', {
-                method: 'POST',
-                body: { query: value.trim() },
-            });
-        } catch {
-            searchResults.value = [];
-        }
-
-        isSearching.value = false;
-    },
-    { debounce: 400 },
-);
-
 watch(
-    [userQuery, () => users.value.length],
-    ([id]) => {
-        const user = users.value.find((u) => u.id === id);
-        if (!user) return;
+    userQuery,
+    async (id) => {
+        if (!id) return;
 
-        openSheet(user);
+        const user = await $fetch(`/api/users/${id}`).catch(() => null);
+        if (user) openSheet(reviveDates(user));
+
         userQuery.value = '';
     },
     { immediate: true },

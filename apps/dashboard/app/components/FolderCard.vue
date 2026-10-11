@@ -10,7 +10,7 @@
                             <img
                                 v-for="(file, index) in covers"
                                 :key="file.id"
-                                :src="file.thumbnailUrl || file.directUrl"
+                                :src="file.url"
                                 :alt="file.fileName"
                                 loading="lazy"
                                 :class="
@@ -40,7 +40,7 @@
                                 {{ folder.name }}
                             </TextBlock>
                             <TextBlock variant="muted" class="text-xs">
-                                {{ pluralize(folder.files.length, 'file') }}
+                                {{ pluralize(folder.fileCount, 'file') }}
                             </TextBlock>
                         </div>
                         <UiBadge v-if="folder.isInbox" variant="secondary">Inbox</UiBadge>
@@ -81,17 +81,5 @@ const emit = defineEmits<{
     edit: [];
 }>();
 
-const files = useFiles();
-
-const covers = computed(() =>
-    files.value
-        .filter(
-            (f) =>
-                f.folderId === folder.id &&
-                (f.mimeType.startsWith('image/') ||
-                    (f.mimeType.startsWith('video/') && f.thumbnailUrl)) &&
-                !f.piiDetected,
-        )
-        .slice(0, 4),
-);
+const covers = computed(() => folder.covers ?? []);
 </script>

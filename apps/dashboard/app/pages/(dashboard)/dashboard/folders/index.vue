@@ -4,7 +4,10 @@
     </Head>
 
     <div class="flex flex-1 flex-col gap-6 p-4 pt-0">
-        <PageHeader title="Folders" :description="pluralize(folders.length, 'folder')">
+        <PageHeader
+            title="Folders"
+            :description="isLoading ? 'Loading...' : pluralize(total, 'folder')"
+        >
             <UiButton @click="openForm(null)">
                 <IFolderPlus />
                 New folder
@@ -23,7 +26,7 @@
         </div>
 
         <EmptyState
-            v-else-if="!filtered.length"
+            v-else-if="!folders.length"
             :icon="search ? ISearchX : IFolder"
             :title="search ? 'No matching folders' : 'No folders yet'"
             :description="
@@ -40,11 +43,13 @@
 
         <VirtualList
             v-else
-            :items="filtered"
+            :items="folders"
             :item-key="(f) => f.id"
             :min-item-width="240"
             :estimate-size="230"
             :gap="16"
+            :loading="isLoadingMore"
+            @reach-end="loadMore"
         >
             <template #default="{ item }">
                 <FolderCard :folder="item" @edit="openForm(item)" />
@@ -60,20 +65,18 @@ import { IFolder, ISearchX } from '#components';
 
 const route = useRoute();
 const router = useRouter();
-const folders = useFolders();
-
-const { status } = useLazyAsyncData('folders', fetchFolders, { server: false });
-useLazyAsyncData('files', fetchFiles, { server: false });
 
 const search = ref('');
 const formOpen = ref(false);
 const editingFolder = ref<FolderData | null>(null);
 
-const isLoading = computed(() => status.value !== 'success' && !folders.value.length);
-
-const filtered = computed(() =>
-    folders.value.filter((f) => f.name.toLowerCase().includes(search.value.trim().toLowerCase())),
-);
+const {
+    items: folders,
+    total,
+    isLoading,
+    isLoadingMore,
+    loadMore,
+} = usePaginatedList<FolderData>('folders', '/api/folders', () => ({ q: search.value.trim() }));
 
 const openForm = (folder: FolderData | null) => {
     editingFolder.value = folder;

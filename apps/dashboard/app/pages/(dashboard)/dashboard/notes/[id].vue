@@ -92,9 +92,8 @@
 import { IFileX } from '#components';
 
 const route = useRoute();
-const notes = useNotes();
+const labels = useBreadcrumbLabels();
 const { $toast } = useNuxtApp();
-const { status } = useLazyAsyncData('notes', fetchNotes, { server: false });
 
 const mode = ref<'edit' | 'split' | 'preview'>('edit');
 const saveState = ref<'idle' | 'saving' | 'error'>('idle');
@@ -105,8 +104,21 @@ const draft = reactive({ title: '', content: '' });
 
 const id = computed(() => (route.params as any).id as string);
 const isNew = computed(() => id.value === 'new');
-const note = computed(() => notes.value.find((n) => n.id === id.value));
-const isLoading = computed(() => status.value !== 'success' && !notes.value.length);
+
+const {
+    data: note,
+    status,
+    refresh,
+} = useLazyAsyncData(
+    () => `note:${id.value}`,
+    () =>
+        isNew.value
+            ? Promise.resolve(null)
+            : $fetch(`/api/notes/${id.value}`).then((data) => reviveDates<NoteData>(data)),
+    { server: false },
+);
+
+const isLoading = computed(() => status.value === 'pending' || status.value === 'idle');
 
 const isValid = computed(() => draft.title.trim().length >= 3 && !!draft.content);
 const isDirty = computed(() => JSON.stringify(draft) !== snapshot.value);
@@ -166,6 +178,14 @@ watch(
 
 watch(note, (value, oldValue) => {
     if (oldValue && !value) snapshot.value = JSON.stringify(draft);
+    if (value) labels.value = { ...labels.value, [value.id]: value.title };
+});
+
+useListHandle({
+    resource: 'notes',
+    refresh,
+    map: (fn) => note.value && (note.value = fn(note.value)),
+    remove: (ids) => note.value && ids.includes(note.value.id) && (note.value = null),
 });
 
 watchDebounced(draft, save, { debounce: 800, deep: true });

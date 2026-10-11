@@ -9,7 +9,9 @@
         >
             <UiCardHeader>
                 <UiCardTitle>Notes</UiCardTitle>
-                <UiCardDescription>{{ pluralize(notes.length, 'note') }}</UiCardDescription>
+                <UiCardDescription>
+                    {{ isLoading ? 'Loading...' : pluralize(total, 'note') }}
+                </UiCardDescription>
                 <UiCardAction>
                     <UiButton size="sm" as-child>
                         <NuxtLink to="/dashboard/notes/new">
@@ -22,7 +24,7 @@
             <UiCardContent class="flex flex-1 flex-col gap-3">
                 <UiInputGroup>
                     <UiInputGroupAddon>
-                        <UiSpinner v-if="isSearching" />
+                        <UiSpinner v-if="!!search && isLoading" />
                         <ISearch v-else />
                     </UiInputGroupAddon>
                     <UiInputGroupInput v-model="search" placeholder="Search notes..." />
@@ -33,7 +35,7 @@
                 </div>
 
                 <EmptyState
-                    v-else-if="!filtered.length"
+                    v-else-if="!notes.length"
                     :icon="search ? ISearchX : IBookmark"
                     :title="search ? 'No matching notes' : 'No notes yet'"
                     :description="search ? 'Try a different search.' : 'Write your first note.'"
@@ -41,10 +43,12 @@
 
                 <VirtualList
                     v-else
-                    :items="filtered"
+                    :items="notes"
                     :item-key="(n) => n.id"
                     :estimate-size="64"
                     :gap="4"
+                    :loading="isLoadingMore"
+                    @reach-end="loadMore"
                 >
                     <template #default="{ item }">
                         <UiContextMenu>
@@ -94,47 +98,19 @@ import dayjs from 'dayjs';
 import { IBookmark, ISearchX } from '#components';
 
 const route = useRoute();
-const notes = useNotes();
-
-const { status } = useLazyAsyncData('notes', fetchNotes, { server: false });
 
 const search = ref('');
-const isSearching = ref(false);
-const searchResults = ref<string[] | null>(null);
+
+const {
+    items: notes,
+    total,
+    isLoading,
+    isLoadingMore,
+    loadMore,
+} = usePaginatedList<NoteData>('notes', '/api/notes', () => ({ q: search.value.trim() }));
 
 const activeId = computed(() => (route.params as any).id as string | undefined);
 const isEditorOpen = computed(() => !!activeId.value);
-const isLoading = computed(() => status.value !== 'success' && !notes.value.length);
-
-const filtered = computed(() =>
-    searchResults.value
-        ? notes.value.filter((n) => searchResults.value!.includes(n.id))
-        : notes.value,
-);
-
-watchDebounced(
-    search,
-    async (value) => {
-        if (!value.trim()) {
-            searchResults.value = null;
-            return;
-        }
-
-        isSearching.value = true;
-
-        try {
-            searchResults.value = await $fetch<string[]>('/api/notes/search', {
-                method: 'POST',
-                body: { query: value.trim() },
-            });
-        } catch {
-            searchResults.value = [];
-        }
-
-        isSearching.value = false;
-    },
-    { debounce: 400 },
-);
 
 definePageMeta({
     layout: 'dashboard',

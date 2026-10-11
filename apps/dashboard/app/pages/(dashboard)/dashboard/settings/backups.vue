@@ -49,7 +49,14 @@
                 description="Create one to export all of your files, folders and notes."
             />
 
-            <VirtualList v-else :items="backups" :item-key="(b) => b.id" :estimate-size="66">
+            <VirtualList
+                v-else
+                :items="backups"
+                :item-key="(b) => b.id"
+                :estimate-size="66"
+                :loading="isLoadingMore"
+                @reach-end="loadMore"
+            >
                 <template #default="{ item }">
                     <div class="flex items-center gap-3 rounded-2xl border px-4 py-3">
                         <IArchive class="size-5 shrink-0 text-muted-foreground" />
@@ -99,13 +106,18 @@ import dayjs from 'dayjs';
 
 import { IArchive } from '#components';
 
-const backups = useBackups();
 const runtimeConfig = useRuntimeConfig();
 const { $toast } = useNuxtApp();
 
 const backupInput = useTemplateRef('backupInput');
 
-const isLoading = ref(!backups.value.length);
+const {
+    items: backups,
+    isLoading,
+    isLoadingMore,
+    loadMore,
+} = usePaginatedList<BackupData>('backups', '/api/users/@me/backups');
+
 const isCreating = ref(false);
 const uploadProgress = ref<number | null>(null);
 
@@ -209,10 +221,4 @@ const handleDelete = async (backup: BackupData) => {
         $toast.error(error.data.message);
     }
 };
-
-onMounted(async () => {
-    const data = await $fetch('/api/users/@me/backups');
-    backups.value = data.map((b) => ({ ...b, createdAt: new Date(b.createdAt) }));
-    isLoading.value = false;
-});
 </script>

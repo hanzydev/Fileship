@@ -4,6 +4,8 @@
         :items="items"
         :item-key="itemKey"
         :estimate-size="cardEstimateSize"
+        :loading="loading"
+        @reach-end="emit('reachEnd')"
     >
         <template #default="{ item }">
             <slot name="card" :item="item" />
@@ -59,6 +61,13 @@
                         </UiTableCell>
                     </UiTableRow>
                     <tr v-if="paddingBottom" :style="{ height: `${paddingBottom}px` }" />
+                    <UiTableRow v-if="loading" class="hover:bg-transparent">
+                        <UiTableCell :colspan="columns.length">
+                            <div class="flex justify-center py-2">
+                                <UiSpinner class="text-muted-foreground" />
+                            </div>
+                        </UiTableCell>
+                    </UiTableRow>
                 </UiTableBody>
             </UiTable>
         </div>
@@ -86,6 +95,7 @@ const {
     columns,
     selected,
     clickable,
+    loading,
     estimateSize = 53,
     cardEstimateSize = 96,
 } = defineProps<{
@@ -94,12 +104,14 @@ const {
     columns: DataTableColumn[];
     selected?: string[];
     clickable?: boolean;
+    loading?: boolean;
     estimateSize?: number;
     cardEstimateSize?: number;
 }>();
 
 const emit = defineEmits<{
     rowClick: [item: T, event: MouseEvent];
+    reachEnd: [];
 }>();
 
 const sort = defineModel<DataTableSort>('sort');
@@ -125,6 +137,11 @@ const paddingTop = computed(() => {
 const paddingBottom = computed(() => {
     const last = virtualizer.value.getVirtualItems().at(-1);
     return last ? virtualizer.value.getTotalSize() - (last.end - scrollMargin.value) : 0;
+});
+
+watchEffect(() => {
+    const last = virtualizer.value.getVirtualItems().at(-1);
+    if (!isMobile.value && last && last.index >= items.length - 10) emit('reachEnd');
 });
 
 const handleSort = (key: string) => {

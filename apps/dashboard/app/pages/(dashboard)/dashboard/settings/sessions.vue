@@ -6,7 +6,7 @@
             <UiCardAction>
                 <UiButton
                     variant="outline"
-                    :disabled="sessions.length < 2 || isRevokingAll"
+                    :disabled="total < 2 || isRevokingAll"
                     @click="handleRevokeAll"
                 >
                     <UiSpinner v-if="isRevokingAll" />
@@ -19,7 +19,14 @@
             <div v-if="isLoading" class="flex flex-col gap-2">
                 <UiSkeleton v-for="i in 3" :key="i" class="h-16 rounded-2xl" />
             </div>
-            <VirtualList v-else :items="sortedSessions" :item-key="(s) => s.id" :estimate-size="66">
+            <VirtualList
+                v-else
+                :items="sortedSessions"
+                :item-key="(s) => s.id"
+                :estimate-size="66"
+                :loading="isLoadingMore"
+                @reach-end="loadMore"
+            >
                 <template #default="{ item }">
                     <div class="flex items-center gap-3 rounded-2xl border px-4 py-3">
                         <ISmartphone
@@ -61,11 +68,17 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
-const sessions = useSessions();
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
 
-const isLoading = ref(!sessions.value.length);
+const {
+    items: sessions,
+    total,
+    isLoading,
+    isLoadingMore,
+    loadMore,
+} = usePaginatedList<SessionData>('sessions', '/api/users/@me/sessions');
+
 const isRevokingAll = ref(false);
 
 const sortedSessions = computed(() =>
@@ -118,10 +131,4 @@ const handleRevokeAll = async () => {
 
     isRevokingAll.value = false;
 };
-
-onMounted(async () => {
-    const data = await $fetch('/api/users/@me/sessions');
-    sessions.value = data.map((s) => ({ ...s, lastSeen: new Date(s.lastSeen) }));
-    isLoading.value = false;
-});
 </script>
