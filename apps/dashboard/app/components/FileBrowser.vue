@@ -17,7 +17,7 @@
                         <IFolder />
                         <UiSelectValue />
                     </UiSelectTrigger>
-                    <UiSelectContent position="popper">
+                    <UiSelectContent>
                         <UiSelectItem value="all">All files</UiSelectItem>
                         <UiSelectItem value="none">Not in a folder</UiSelectItem>
                         <UiSelectSeparator v-if="folders.length" />
@@ -65,7 +65,7 @@
                         <IArrowDownUp />
                         <UiSelectValue />
                     </UiSelectTrigger>
-                    <UiSelectContent position="popper">
+                    <UiSelectContent>
                         <UiSelectItem
                             v-for="option in sortOptions"
                             :key="option.value"
@@ -150,7 +150,6 @@
             :columns="columns"
             :selected="selected"
             :loading="isLoadingMore"
-            clickable
             @row-click="handleClick"
             @reach-end="loadMore"
         >

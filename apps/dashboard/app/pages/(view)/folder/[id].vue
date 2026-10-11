@@ -35,7 +35,7 @@
                         <IListFilter />
                         <UiSelectValue />
                     </UiSelectTrigger>
-                    <UiSelectContent position="popper">
+                    <UiSelectContent>
                         <UiSelectItem value="all">All types</UiSelectItem>
                         <UiSelectSeparator />
                         <UiSelectItem

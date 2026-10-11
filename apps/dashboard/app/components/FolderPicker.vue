@@ -16,24 +16,27 @@
                     @update:model-value="query = $event"
                 />
                 <UiCommandList @scroll="handleScroll">
-                    <UiCommandGroup>
-                        <UiCommandItem value="none" @select="handleSelect(null)">
+                    <UiCommandGroup class="pb-1">
+                        <UiCommandItem
+                            value="none"
+                            :data-checked="!folder"
+                            @select="handleSelect(null)"
+                        >
                             <IFolderX />
                             No folder
-                            <ICheck v-if="!folder" class="ml-auto" />
                         </UiCommandItem>
                         <UiCommandItem
                             v-for="f in folders"
                             :key="f.id"
                             :value="f.id"
+                            :data-checked="folder === f.id"
                             @select="handleSelect(f)"
                         >
                             <IFolder />
                             <span class="truncate">{{ f.name }}</span>
-                            <ICheck v-if="folder === f.id" class="ml-auto" />
                         </UiCommandItem>
                     </UiCommandGroup>
-                    <UiCommandGroup v-if="canCreate">
+                    <UiCommandGroup v-if="canCreate" class="pb-1">
                         <UiCommandItem
                             :value="`create:${query}`"
                             :disabled="isCreating"

@@ -36,7 +36,7 @@
                         ref="dropArea"
                         :class="
                             cn(
-                                'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-10 text-center transition-colors',
+                                'flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-10 text-center transition-colors',
                                 isOverDropArea
                                     ? 'border-primary bg-primary/5'
                                     : 'hover:bg-muted/50',

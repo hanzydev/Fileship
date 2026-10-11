@@ -1,7 +1,7 @@
 <template>
     <UiContextMenu>
         <UiContextMenuTrigger as-child>
-            <UiCard size="sm" class="group cursor-pointer" @click="emit('click', $event)">
+            <UiCard size="sm" class="group" @click="emit('click', $event)">
                 <UiCardContent>
                     <div
                         :class="

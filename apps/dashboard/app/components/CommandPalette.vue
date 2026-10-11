@@ -7,7 +7,7 @@
         <UiCommandList>
             <UiCommandEmpty>No results found.</UiCommandEmpty>
 
-            <UiCommandGroup v-if="term && matchedFiles.length" :class="groupClass" heading="Files">
+            <UiCommandGroup v-if="term && matchedFiles.length" class="pb-1" heading="Files">
                 <UiCommandItem
                     v-for="file in matchedFiles"
                     :key="file.id"
@@ -20,11 +20,7 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup
-                v-if="term && matchedFolders.length"
-                :class="groupClass"
-                heading="Folders"
-            >
+            <UiCommandGroup v-if="term && matchedFolders.length" class="pb-1" heading="Folders">
                 <UiCommandItem
                     v-for="folder in matchedFolders"
                     :key="folder.id"
@@ -36,7 +32,7 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup v-if="term && matchedNotes.length" :class="groupClass" heading="Notes">
+            <UiCommandGroup v-if="term && matchedNotes.length" class="pb-1" heading="Notes">
                 <UiCommandItem
                     v-for="note in matchedNotes"
                     :key="note.id"
@@ -48,7 +44,7 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup v-if="term && matchedUsers.length" :class="groupClass" heading="Users">
+            <UiCommandGroup v-if="term && matchedUsers.length" class="pb-1" heading="Users">
                 <UiCommandItem
                     v-for="user in matchedUsers"
                     :key="user.id"
@@ -60,7 +56,7 @@
                 </UiCommandItem>
             </UiCommandGroup>
 
-            <UiCommandGroup :class="groupClass" heading="Actions">
+            <UiCommandGroup class="pb-1" heading="Actions">
                 <UiCommandItem
                     v-for="action in actions"
                     :key="action.label"
@@ -77,7 +73,7 @@
 
             <UiCommandSeparator />
 
-            <UiCommandGroup :class="groupClass" heading="Go to">
+            <UiCommandGroup class="pb-1" heading="Go to">
                 <UiCommandItem
                     v-for="page in pages"
                     :key="page.url"
@@ -110,9 +106,6 @@ import {
 } from '#components';
 
 const open = defineModel<boolean>('open', { required: true });
-
-const groupClass =
-    '**:data-[slot=command-group-heading]:px-3 **:data-[slot=command-group-heading]:py-2 **:data-[slot=command-group-heading]:text-xs **:data-[slot=command-group-heading]:font-medium **:data-[slot=command-group-heading]:text-muted-foreground';
 
 const authUser = useAuthUser();
 const colorMode = useColorMode();

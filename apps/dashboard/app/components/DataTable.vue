@@ -47,7 +47,6 @@
                         :ref="(el) => virtualizer.measureElement((el as any)?.$el ?? null)"
                         :data-index="row.index"
                         :data-state="selected?.includes(itemKey(items[row.index]!)) && 'selected'"
-                        :class="clickable && 'cursor-pointer'"
                         @click="emit('rowClick', items[row.index]!, $event)"
                     >
                         <UiTableCell
@@ -94,7 +93,6 @@ const {
     itemKey,
     columns,
     selected,
-    clickable,
     loading,
     estimateSize = 53,
     cardEstimateSize = 96,
@@ -103,7 +101,6 @@ const {
     itemKey: (item: T) => string;
     columns: DataTableColumn[];
     selected?: string[];
-    clickable?: boolean;
     loading?: boolean;
     estimateSize?: number;
     cardEstimateSize?: number;

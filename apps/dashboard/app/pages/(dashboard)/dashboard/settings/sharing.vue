@@ -32,7 +32,7 @@
                                     v-model="embedForm.color"
                                     type="color"
                                     aria-label="Pick a color"
-                                    class="size-5 cursor-pointer rounded-full border-0 bg-transparent p-0"
+                                    class="size-5 rounded-full border-0 bg-transparent p-0"
                                 />
                             </UiInputGroupAddon>
                             <UiInputGroupInput id="embed-color" v-model="embedForm.color" />

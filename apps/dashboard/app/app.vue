@@ -5,7 +5,6 @@
             color-mix(in srgb, var(--color-primary) 80%, white),
             var(--color-primary)
         )"
-        :throttle="0"
     />
     <UiSonner position="top-center" :theme="colorMode.value as never" />
 

@@ -26,7 +26,7 @@
                             ref="dropArea"
                             :class="
                                 cn(
-                                    'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-8 text-center transition-colors',
+                                    'flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-8 text-center transition-colors',
                                     isOverDropArea
                                         ? 'border-primary bg-primary/5'
                                         : 'hover:bg-muted/50',
@@ -84,7 +84,7 @@
                                         <UiSelectTrigger class="w-full">
                                             <UiSelectValue />
                                         </UiSelectTrigger>
-                                        <UiSelectContent position="popper">
+                                        <UiSelectContent>
                                             <UiSelectItem
                                                 v-for="type in TEXT_FILE_TYPES"
                                                 :key="type.extension"
@@ -147,7 +147,7 @@
                                         <UiSelectTrigger class="w-full">
                                             <UiSelectValue />
                                         </UiSelectTrigger>
-                                        <UiSelectContent position="popper">
+                                        <UiSelectContent>
                                             <UiSelectItem
                                                 v-for="option in EXPIRATIONS"
                                                 :key="option.label"
@@ -165,7 +165,7 @@
                                         <UiSelectTrigger class="w-full">
                                             <UiSelectValue />
                                         </UiSelectTrigger>
-                                        <UiSelectContent position="popper">
+                                        <UiSelectContent>
                                             <UiSelectItem
                                                 v-for="option in COMPRESSIONS"
                                                 :key="option.value"

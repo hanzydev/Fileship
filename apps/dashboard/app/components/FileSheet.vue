@@ -139,7 +139,7 @@
                                             <UiSelectTrigger class="w-full">
                                                 <UiSelectValue />
                                             </UiSelectTrigger>
-                                            <UiSelectContent position="popper">
+                                            <UiSelectContent>
                                                 <UiSelectItem
                                                     v-for="option in EXPIRATIONS"
                                                     :key="option.label"

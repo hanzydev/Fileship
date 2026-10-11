@@ -252,4 +252,11 @@
         @apply bg-background text-foreground;
         @apply font-sans;
     }
+    a,
+    button,
+    label,
+    summary,
+    [role='button'] {
+        cursor: default;
+    }
 }

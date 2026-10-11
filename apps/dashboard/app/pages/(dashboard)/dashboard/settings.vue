@@ -26,7 +26,7 @@
                 <UiSelectTrigger class="w-full lg:hidden">
                     <UiSelectValue />
                 </UiSelectTrigger>
-                <UiSelectContent position="popper">
+                <UiSelectContent>
                     <UiSelectItem
                         v-for="section in sections"
                         :key="section.path"

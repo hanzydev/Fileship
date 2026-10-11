@@ -80,7 +80,7 @@
                         <label
                             v-for="file in addCandidates"
                             :key="file.id"
-                            class="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-muted"
+                            class="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-muted"
                         >
                             <UiCheckbox
                                 :model-value="addSelection.includes(file.id)"
