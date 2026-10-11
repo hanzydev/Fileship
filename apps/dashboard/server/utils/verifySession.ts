@@ -5,14 +5,11 @@ import { verify as verifyTotp } from 'otplib';
 
 import { base64URLStringToBuffer } from '@simplewebauthn/browser';
 import {
+    type AuthenticationResponseJSON,
     generateAuthenticationOptions,
+    type PublicKeyCredentialRequestOptionsJSON,
     verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
-import type {
-    AuthenticationResponseJSON,
-    AuthenticatorTransportFuture,
-    PublicKeyCredentialRequestOptionsJSON,
-} from '@simplewebauthn/types';
 
 interface PasskeyVerificationData {
     ticket: string;
@@ -56,7 +53,7 @@ export const verifySession = async (
                     id: true,
                     transports: true,
                 },
-            })) as { id: string; transports: AuthenticatorTransportFuture[] }[];
+            })) as { id: string; transports: string[] }[];
 
             let passkeyMethod: {
                 ticket: string;
@@ -181,7 +178,7 @@ export const verifySession = async (
                         base64URLStringToBuffer(findCredentialById.publicKey),
                     ),
                     counter: findCredentialById.counter,
-                    transports: findCredentialById.transports as AuthenticatorTransportFuture[],
+                    transports: findCredentialById.transports,
                 },
                 requireUserVerification: true,
             });

@@ -168,8 +168,11 @@
 </template>
 
 <script setup lang="ts">
-import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser';
-import type { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types';
+import {
+    browserSupportsWebAuthn,
+    type PublicKeyCredentialRequestOptionsJSON,
+    startAuthentication,
+} from '@simplewebauthn/browser';
 
 const formErrors = ref();
 const turnstileRef = ref();
@@ -254,14 +257,14 @@ const handlePasskeyLogin = async () => {
 
     if (authenticationResponse) {
         try {
-            const { user, session } = await $fetch<any>('/api/auth/login/passwordless', {
+            const { user, session } = (await $fetch('/api/auth/login/passwordless', {
                 method: 'POST',
                 body: {
                     verify: true,
                     ticket,
                     authenticationResponse,
                 },
-            });
+            })) as any;
 
             currentUser.value = {
                 ...user,

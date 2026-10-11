@@ -1,6 +1,6 @@
 import tailwindcss from '@tailwindcss/vite';
 
-import pkg from '../../package.json';
+import pkg from '../../package.json' with { type: 'json' };
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -24,6 +24,13 @@ export default defineNuxtConfig({
         'vue-sonner/nuxt',
         'nuxt-lucide-icons',
     ].concat((process.env.ENABLE_PWA || 'true') === 'true' ? ['@vite-pwa/nuxt'] : []),
+
+    components: [
+        {
+            path: '~/components',
+            extensions: ['.vue'],
+        },
+    ],
 
     css: [
         '~/styles/tailwind.css',

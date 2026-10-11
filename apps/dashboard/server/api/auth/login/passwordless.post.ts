@@ -7,7 +7,6 @@ import {
     generateAuthenticationOptions,
     verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
-import type { AuthenticatorTransportFuture } from '@simplewebauthn/types';
 
 const validationSchema = z.union([
     z.object({
@@ -93,7 +92,7 @@ export default defineEventHandler(async (event) => {
                 id: findCredentialById.id,
                 publicKey: new Uint8Array(base64URLStringToBuffer(findCredentialById.publicKey)),
                 counter: findCredentialById.counter,
-                transports: findCredentialById.transports as AuthenticatorTransportFuture[],
+                transports: findCredentialById.transports,
             },
         });
 
