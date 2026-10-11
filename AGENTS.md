@@ -55,13 +55,13 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 
 ## Dashboard layout (`apps/dashboard`)
 
-- `app/pages`: route groups `(auth)` (login), `(dashboard)/dashboard/*` (home, files, folders, notes, logs, stats, users, settings/\*) and `(view)` (public `view/[id]`, `folder/[id]`, `note/[id]`, `inbox/[id]`).
+- `app/pages`: route groups `(auth)` (login, register), `(dashboard)/dashboard/*` (home, files, folders, notes, logs, stats, users, instance, settings/\*) and `(view)` (public `view/[id]`, `folder/[id]`, `note/[id]`, `inbox/[id]`).
 - `app/layouts`: `default.vue` (public pages) and `dashboard.vue` (sidebar shell, command palette, upload sheet and queue, global drop zone, paste upload).
-- `app/middleware`: `userOnly`, `guestOnly`, `adminOnly`, `fileUploaderOnly`, `noteTakerOnly`.
+- `app/middleware`: `userOnly`, `guestOnly`, `adminOnly`, `superAdminOnly`, `fileUploaderOnly`, `noteTakerOnly`.
 - `app/components/ui`: shadcn-vue components (style `reka-luma`, see `components.json`). App components sit flat in `app/components`.
 - `app/composables`: `useState` stores plus action composables (`useFileActions`, `useFolderActions`, `useNoteActions`).
 - `app/utils`: client helpers (`socket.ts`, `uploadFile.ts`, `getErrorMessage.ts`, ...).
-- `server/api`: REST endpoints (`auth`, `files`, `folders`, `inbox`, `logs`, `notes`, `updater`, `users`, `stats`, `healthz`).
+- `server/api`: REST endpoints (`auth`, `files`, `folders`, `inbox`, `logs`, `notes`, `settings`, `updater`, `users`, `stats`, `healthz`).
 - `server/routes/u/[id]`: raw file serving.
 - `server/middleware`: `auth.ts` (session cookie) and `cors.ts`.
 - `server/plugins`: `setup.ts`, `socketIO.ts`, `aiQueueRunner.ts`.

@@ -1,46 +1,50 @@
-# Fileship Telemetry Module
+# @fileship/telemetry
 
-Fileship collects telemetry data about general usage. This helps us to accurately gauge Fileship feature usage and customization across all our users.
+Anonymous usage telemetry for Fileship. The dashboard uses this internal package to send periodic usage statistics, which help guide development and prioritize features.
 
-This program is optional. You can always [opt-out](#opting-out) if you do not want to share any information.
+Telemetry is optional and can be [turned off](#opting-out) at any time.
 
-## ⚙️ Data Collected
+## ⚙️ Data collected
 
-The telemetry module collects the following data points:
+Telemetry is only sent from production builds. It contains no personal information, file contents, file names or user names.
 
-### ℹ️ Fileship Information
+### ℹ️ Instance information
 
-- `projectId`: A unique, anonymous identifier for the Fileship instance.
-- `version`: The version of the Fileship application.
-- `files`: The total count of files uploaded.
-- `folders`: The total count of folders created.
-- `notes`: The total count of notes stored.
-- `users`: The total count of registered users.
-- `nodeVersion`: The Node.js version running Fileship.
-- `createdAt`: Timestamp when this specific telemetry record was created.
+| Field         | Description                             |
+| ------------- | --------------------------------------- |
+| `projectId`   | A random, anonymous ID for the instance |
+| `version`     | The Fileship version                    |
+| `files`       | Total number of files                   |
+| `folders`     | Total number of folders                 |
+| `notes`       | Total number of notes                   |
+| `users`       | Total number of users                   |
+| `nodeVersion` | The Node.js version running Fileship    |
+| `createdAt`   | When the record was created             |
 
-### 💻 System Information
+### 💻 System information
 
-- `projectId`: A unique, anonymous identifier for the Fileship instance.
-- `cpuCount`: Number of CPU cores.
-- `cpuModel`: Model name of the CPU.
-- `memoryTotal`: Total system memory (RAM) in bytes.
-- `memoryFree`: Free system memory (RAM) in bytes.
-- `memoryUsed`: Used system memory (RAM) in bytes.
-- `diskTotal`: Total disk space in bytes.
-- `diskFree`: Free disk space in bytes.
-- `diskUsed`: Used disk space in bytes.
-- `osPlatform`: Operating system platform (e.g., 'linux', 'darwin').
-- `osRelease`: Operating system release version.
-- `osArch`: Operating system architecture (e.g., 'x64').
-- `isDocker`: Boolean indicating if Fileship is running inside a Docker container.
-- `createdAt`: Timestamp when this specific telemetry record was created.
+| Field         | Description                                     |
+| ------------- | ----------------------------------------------- |
+| `projectId`   | A random, anonymous ID for the instance         |
+| `cpuCount`    | Number of CPU cores                             |
+| `cpuModel`    | CPU model name                                  |
+| `memoryTotal` | Total memory, in bytes                          |
+| `memoryFree`  | Free memory, in bytes                           |
+| `memoryUsed`  | Used memory, in bytes                           |
+| `diskTotal`   | Total disk space, in bytes                      |
+| `diskFree`    | Free disk space, in bytes                       |
+| `diskUsed`    | Used disk space, in bytes                       |
+| `osPlatform`  | Operating system platform (for example `linux`) |
+| `osRelease`   | Operating system release                        |
+| `osArch`      | CPU architecture (for example `x64`)            |
+| `isDocker`    | Whether Fileship runs inside a Docker container |
+| `createdAt`   | When the record was created                     |
 
-**Important Note:** `projectId` is an anonymous identifier for your Fileship instance and cannot be traced back to individual users. Fileship aims to collect minimal data necessary for product improvement.
+The `projectId` is generated randomly on first start and stored in the data directory. It cannot be traced back to a person or a server.
 
-## 🔔 Opting-out
+## 🔔 Opting out
 
-Users can opt-out of telemetry data collection by setting the `NUXT_TELEMETRY_ENABLED` environment variable to `false`. This will disable all telemetry data collection.
+Super admins can turn off **Anonymous telemetry** in **Administration → Instance**. Alternatively, set the `NUXT_TELEMETRY_ENABLED` environment variable to `false`.
 
 ## ⚖️ License
 

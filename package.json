@@ -1,6 +1,6 @@
 {
     "name": "fileship",
-    "description": "Fileship is an open-source and self-hosted image uploading service with cool features.",
+    "description": "An open-source, self-hosted file and media management platform.",
     "version": "5.4.4",
     "type": "module",
     "scripts": {
