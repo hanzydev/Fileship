@@ -17,7 +17,12 @@ const delegatedProps = reactiveOmit(props, 'class')
 const { allGroups, filterState } = useCommand()
 const id = useId()
 
-const isRender = computed(() => !filterState.search ? true : filterState.filtered.groups.has(id))
+const isRender = computed(() => {
+  if (!filterState.search || filterState.filtered.groups.has(id))
+    return true
+
+  return [...(allGroups.value.get(id) ?? [])].some(itemId => filterState.filtered.items.get(itemId) !== 0)
+})
 
 provideCommandGroupContext({ id })
 onMounted(() => {
@@ -37,7 +42,7 @@ onUnmounted(() => {
     :class="cn('text-foreground **:[[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1.5 **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:py-2 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium', props.class)"
     :hidden="isRender ? undefined : true"
   >
-    <ListboxGroupLabel v-if="heading" data-slot="command-group-heading" class="">
+    <ListboxGroupLabel v-if="heading" data-slot="command-group-heading" cmdk-group-heading class="">
       {{ heading }}
     </ListboxGroupLabel>
     <slot />
