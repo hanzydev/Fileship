@@ -4,145 +4,119 @@
             <Title>Login</Title>
         </Head>
         <Centered>
-            <UiCard
-                class="p-0! relative overflow-hidden duration-250 transition-[height] w-full max-w-sm"
-                :style="{ height: `${height}px` }"
-            >
-                <form @submit.prevent="handleSubmit">
-                    <Transition
-                        enter-active-class="animate-in fade-in data-[view=main]:slide-in-from-left data-[view=totp]:slide-in-from-right duration-250"
-                        leave-active-class="animate-out fade-out data-[view=main]:slide-out-to-left data-[view=totp]:slide-out-to-right duration-250"
-                        @enter="calculateHeight"
-                        @after-enter="(event) => event.querySelector('input')?.focus()"
-                    >
-                        <div
-                            v-if="currentView === 'main'"
-                            data-view="main"
-                            class="py-6 flex flex-col gap-6 absolute w-full"
-                        >
-                            <UiCardHeader>
-                                <UiCardTitle>Login to your account</UiCardTitle>
-                                <UiCardDescription>
-                                    Enter your username below to login to your account.
-                                </UiCardDescription>
-                            </UiCardHeader>
-                            <UiCardContent>
-                                <div class="flex flex-col gap-4">
-                                    <UiField>
-                                        <UiFieldLabel for="username">Username</UiFieldLabel>
-                                        <UiInput
-                                            id="username"
-                                            v-model="auth.username"
-                                            type="text"
-                                            placeholder="hanzydev"
-                                        />
-                                        <UiFieldError
-                                            v-if="formErrors?.username?._errors?.length"
-                                            :errors="formErrors?.username?._errors"
-                                        />
-                                    </UiField>
-                                    <UiField>
-                                        <UiFieldLabel for="password">Password</UiFieldLabel>
-                                        <UiInput
-                                            id="password"
-                                            v-model="auth.password"
-                                            type="password"
-                                            placeholder="••••••••"
-                                        />
-                                        <UiFieldError
-                                            v-if="formErrors?.password?._errors?.length"
-                                            :errors="formErrors?.password?._errors"
-                                        />
-                                    </UiField>
-                                </div>
-
+            <UiCard class="w-full max-w-sm">
+                <template v-if="currentView === 'main'">
+                    <UiCardHeader>
+                        <UiCardTitle>Login to your account</UiCardTitle>
+                        <UiCardDescription>
+                            Enter your username below to login to your account.
+                        </UiCardDescription>
+                    </UiCardHeader>
+                    <UiCardContent>
+                        <form @submit.prevent="handleSubmit">
+                            <UiFieldGroup>
+                                <UiField>
+                                    <UiFieldLabel for="username">Username</UiFieldLabel>
+                                    <UiInput
+                                        id="username"
+                                        v-model="auth.username"
+                                        type="text"
+                                        placeholder="username"
+                                        autocomplete="username webauthn"
+                                        autofocus
+                                    />
+                                    <UiFieldError
+                                        v-if="formErrors?.username?._errors?.length"
+                                        :errors="formErrors.username._errors"
+                                    />
+                                </UiField>
+                                <UiField>
+                                    <UiFieldLabel for="password">Password</UiFieldLabel>
+                                    <UiInput
+                                        id="password"
+                                        v-model="auth.password"
+                                        type="password"
+                                        placeholder="••••••••"
+                                        autocomplete="current-password"
+                                    />
+                                    <UiFieldError
+                                        v-if="formErrors?.password?._errors?.length"
+                                        :errors="formErrors.password._errors"
+                                    />
+                                </UiField>
                                 <NuxtTurnstile
                                     v-if="runtimeConfig.public.turnstile.siteKey"
                                     ref="turnstileRef"
                                     v-model="auth.turnstile"
-                                    :options="{
-                                        theme: colorMode.value as never,
-                                        size: 'flexible',
-                                    }"
+                                    :options="{ theme: colorMode.value as never, size: 'flexible' }"
                                 />
-                            </UiCardContent>
-                            <UiCardFooter class="flex flex-col gap-2">
-                                <UiButtonGroup class="w-full">
-                                    <UiButton class="flex-1" type="submit" :disabled="loggingIn">
+                                <UiField>
+                                    <UiButton type="submit" :disabled="loggingIn">
                                         <UiSpinner v-if="loggingIn" />
-                                        <template v-else>Login</template>
+                                        Login
                                     </UiButton>
                                     <ClientOnly>
                                         <UiButton
                                             v-if="browserSupportsWebAuthn()"
-                                            variant="secondary"
+                                            variant="outline"
                                             type="button"
                                             :disabled="loggingIn || passkeyLoggingIn"
                                             @click="handlePasskeyLogin"
                                         >
                                             <UiSpinner v-if="passkeyLoggingIn" />
                                             <IFingerprintPattern v-else />
+                                            Login with passkey
                                         </UiButton>
                                     </ClientOnly>
-                                </UiButtonGroup>
-                            </UiCardFooter>
-                        </div>
-                        <div
-                            v-else-if="currentView === 'totp'"
-                            data-view="totp"
-                            class="py-6 flex flex-col gap-6 absolute w-full"
-                        >
-                            <UiCardHeader>
-                                <UiCardTitle>Two-factor authentication</UiCardTitle>
-                                <UiCardDescription>
-                                    Enter the 6-digit code from your authenticator app to continue.
-                                </UiCardDescription>
-                            </UiCardHeader>
-                            <UiCardContent>
-                                <div class="flex flex-col gap-4">
-                                    <UiField>
-                                        <UiFieldLabel for="totp">Authenticator code</UiFieldLabel>
-                                        <OtpInput id="totp" v-model="auth.totp" />
-                                        <UiFieldError
-                                            v-if="formErrors?.totp?._errors?.length"
-                                            :errors="formErrors?.totp?._errors"
-                                        />
-                                    </UiField>
+                                </UiField>
+                            </UiFieldGroup>
+                        </form>
+                    </UiCardContent>
+                </template>
 
-                                    <NuxtTurnstile
-                                        v-if="runtimeConfig.public.turnstile.siteKey"
-                                        ref="turnstileRef"
-                                        v-model="auth.turnstile"
-                                        :options="{
-                                            theme: colorMode.value as never,
-                                            size: 'flexible',
-                                        }"
+                <template v-else>
+                    <UiCardHeader>
+                        <UiCardTitle>Two-factor authentication</UiCardTitle>
+                        <UiCardDescription>
+                            Enter the 6-digit code from your authenticator app to continue.
+                        </UiCardDescription>
+                    </UiCardHeader>
+                    <UiCardContent>
+                        <form @submit.prevent="handleSubmit">
+                            <UiFieldGroup>
+                                <UiField>
+                                    <UiFieldLabel for="totp">Authenticator code</UiFieldLabel>
+                                    <OtpInput id="totp" v-model="auth.totp" />
+                                    <UiFieldError
+                                        v-if="formErrors?.totp?._errors?.length"
+                                        :errors="formErrors.totp._errors"
                                     />
-                                </div>
-                            </UiCardContent>
-                            <UiCardFooter class="flex flex-col gap-2">
-                                <UiButtonGroup class="w-full">
+                                </UiField>
+                                <NuxtTurnstile
+                                    v-if="runtimeConfig.public.turnstile.siteKey"
+                                    ref="turnstileRef"
+                                    v-model="auth.turnstile"
+                                    :options="{ theme: colorMode.value as never, size: 'flexible' }"
+                                />
+                                <UiField>
+                                    <UiButton type="submit" :disabled="loggingIn">
+                                        <UiSpinner v-if="loggingIn" />
+                                        Verify
+                                    </UiButton>
                                     <UiButton
-                                        variant="secondary"
+                                        variant="outline"
                                         type="button"
                                         :disabled="loggingIn"
-                                        @click="
-                                            auth.totp = '';
-                                            formErrors = {};
-                                            currentView = 'main';
-                                        "
+                                        @click="handleBack"
                                     >
                                         <IArrowLeft />
+                                        Back
                                     </UiButton>
-                                    <UiButton class="flex-1" type="submit" :disabled="loggingIn">
-                                        <UiSpinner v-if="loggingIn" />
-                                        <template v-else>Login</template>
-                                    </UiButton>
-                                </UiButtonGroup>
-                            </UiCardFooter>
-                        </div>
-                    </Transition>
-                </form>
+                                </UiField>
+                            </UiFieldGroup>
+                        </form>
+                    </UiCardContent>
+                </template>
             </UiCard>
         </Centered>
     </div>
@@ -158,11 +132,8 @@ import {
 const formErrors = ref();
 const turnstileRef = ref();
 
-const error = ref<string>();
 const loggingIn = ref(false);
 const passkeyLoggingIn = ref(false);
-
-const height = ref(333 /** initial */);
 
 const runtimeConfig = useRuntimeConfig();
 const { $toast } = useNuxtApp();
@@ -181,12 +152,24 @@ const currentUser = useAuthUser();
 const currentTheme = useTheme();
 const colorMode = useColorMode();
 
+const handleLoggedIn = async (user: any, session: any, message: string) => {
+    currentUser.value = {
+        ...user,
+        currentSessionId: session.id,
+        createdAt: new Date(user.createdAt),
+    };
+
+    currentTheme.value = user.theme;
+    useCookie('adminSessionId', { path: '/', sameSite: 'lax' }).value = null;
+
+    await navigateTo((route.query.redirectTo as string) || '/dashboard');
+
+    $toast.success(message);
+};
+
 const handleSubmit = async () => {
     loggingIn.value = true;
     formErrors.value = {};
-    error.value = undefined;
-    await nextTick();
-    calculateHeight();
 
     try {
         const { user, session } = await $fetch('/api/auth/login', {
@@ -194,26 +177,15 @@ const handleSubmit = async () => {
             body: { ...auth, totp: auth.totp || undefined },
         });
 
-        currentUser.value = {
-            ...user,
-            currentSessionId: session.id,
-            createdAt: new Date(user.createdAt),
-        };
-
-        currentTheme.value = user.theme;
-        useCookie('adminSessionId', { path: '/', sameSite: 'lax' }).value = null;
-
-        await navigateTo((route.query.redirectTo as string) || '/dashboard');
-
-        $toast.success('Logged in successfully');
-    } catch (_error: any) {
-        if (getErrorMessage(_error) === 'Missing TOTP') {
+        await handleLoggedIn(user, session, 'Logged in successfully');
+    } catch (error: any) {
+        if (getErrorMessage(error) === 'Missing TOTP') {
             currentView.value = 'totp';
-        } else {
-            if (!_error.data?.data) $toast.error(getErrorMessage(_error));
-            formErrors.value = _error.data?.data?.formErrors;
             await nextTick();
-            calculateHeight();
+            document.querySelector<HTMLInputElement>('#totp input, input#totp')?.focus();
+        } else {
+            if (!error.data?.data) $toast.error(getErrorMessage(error));
+            formErrors.value = error.data?.data?.formErrors;
         }
 
         turnstileRef.value?.reset();
@@ -222,75 +194,55 @@ const handleSubmit = async () => {
     loggingIn.value = false;
 };
 
+const handleBack = () => {
+    auth.totp = '';
+    formErrors.value = {};
+    currentView.value = 'main';
+};
+
 const handlePasskeyLogin = async () => {
     passkeyLoggingIn.value = true;
 
-    const { ticket, authenticationOptions } = await $fetch<{
-        ticket: string;
-        authenticationOptions: PublicKeyCredentialRequestOptionsJSON;
-    }>('/api/auth/login/passwordless', {
-        method: 'POST',
-        body: { verify: false },
-        credentials: 'include',
-    });
+    try {
+        const { ticket, authenticationOptions } = await $fetch<{
+            ticket: string;
+            authenticationOptions: PublicKeyCredentialRequestOptionsJSON;
+        }>('/api/auth/login/passwordless', {
+            method: 'POST',
+            body: { verify: false },
+        });
 
-    const authenticationResponse = await startAuthentication({
-        optionsJSON: authenticationOptions,
-    }).catch(() => null);
+        const authenticationResponse = await startAuthentication({
+            optionsJSON: authenticationOptions,
+        }).catch(() => null);
 
-    if (authenticationResponse) {
-        try {
-            const { user, session } = (await $fetch('/api/auth/login/passwordless', {
-                method: 'POST',
-                body: {
-                    verify: true,
-                    ticket,
-                    authenticationResponse,
-                },
-            })) as any;
+        if (authenticationResponse) {
+            try {
+                const { user, session } = (await $fetch('/api/auth/login/passwordless', {
+                    method: 'POST',
+                    body: { verify: true, ticket, authenticationResponse },
+                })) as any;
 
-            currentUser.value = {
-                ...user,
-                currentSessionId: session.id,
-                createdAt: new Date(user.createdAt),
-            };
-
-            currentTheme.value = user.theme;
-
-            await navigateTo((route.query.redirectTo as string) || '/dashboard');
-
-            $toast.success('Logged in successfully with passkey');
-        } catch (_error: any) {
-            if (_error.data) {
-                if (getErrorMessage(_error)) $toast.error(getErrorMessage(_error));
-                else {
-                    formErrors.value = _error.data?.data;
-                    await nextTick();
-                    calculateHeight();
+                await handleLoggedIn(user, session, 'Logged in successfully with passkey');
+            } catch (error: any) {
+                if (error.data?.data?.unknownCredential) {
+                    await (PublicKeyCredential as any)
+                        .signalUnknownCredential?.({
+                            rpId: location.hostname,
+                            credentialId: authenticationResponse.id,
+                        })
+                        .catch(() => null);
                 }
-            } else {
-                $toast.error('Failed to verify passkey');
+
+                $toast.error(getErrorMessage(error));
             }
         }
+    } catch (error) {
+        $toast.error(getErrorMessage(error));
     }
 
     passkeyLoggingIn.value = false;
 };
-
-const calculateHeight = (el?: Element) => {
-    height.value =
-        (el || document.querySelector('[data-view]')!).clientHeight +
-        (runtimeConfig.public.turnstile.siteKey ? 71 : 0);
-};
-
-onMounted(async () => {
-    const container = document.querySelector('[data-view]');
-
-    if (container) {
-        calculateHeight();
-        container.querySelector('input')?.focus();
-    }
-});
 
 definePageMeta({
     middleware: 'guest-only',
