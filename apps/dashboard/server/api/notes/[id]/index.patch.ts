@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
         ..._updatedNote,
         publicUrl: _updatedNote.public
             ? buildPublicUrl(event, currentUser.domains, `/note/${_updatedNote.id}`)
-            : undefined,
+            : null,
     };
 
     await update(noteSearchDb, updatedNote.id, {
