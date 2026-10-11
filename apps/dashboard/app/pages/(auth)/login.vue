@@ -225,11 +225,11 @@ const handleSubmit = async () => {
 
         $toast.success('Logged in successfully');
     } catch (_error: any) {
-        if (_error.data.message === 'Missing TOTP') {
+        if (getErrorMessage(_error) === 'Missing TOTP') {
             currentView.value = 'totp';
         } else {
-            if (!_error.data.data) $toast.error(_error.data.message);
-            formErrors.value = _error.data.data?.formErrors;
+            if (!_error.data?.data) $toast.error(getErrorMessage(_error));
+            formErrors.value = _error.data?.data?.formErrors;
             await nextTick();
             calculateHeight();
         }
@@ -280,9 +280,9 @@ const handlePasskeyLogin = async () => {
             $toast.success('Logged in successfully with passkey');
         } catch (_error: any) {
             if (_error.data) {
-                if (_error.data.message) $toast.error(_error.data.message);
+                if (getErrorMessage(_error)) $toast.error(getErrorMessage(_error));
                 else {
-                    formErrors.value = _error.data.data;
+                    formErrors.value = _error.data?.data;
                     await nextTick();
                     calculateHeight();
                 }

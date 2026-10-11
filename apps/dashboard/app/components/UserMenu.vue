@@ -5,12 +5,14 @@
                 <IEllipsis />
             </UiButton>
         </UiDropdownMenuTrigger>
-        <UiDropdownMenuContent align="end" class="w-48">
+        <UiDropdownMenuContent align="end" class="w-56">
             <UiDropdownMenuItem @select="emit('edit')">
                 <IPencil />
                 Edit
             </UiDropdownMenuItem>
-            <template v-if="user.id !== currentUser!.id">
+            <template
+                v-if="user.id !== currentUser!.id && (!user.superAdmin || currentUser!.superAdmin)"
+            >
                 <UiDropdownMenuItem @select="emit('impersonate')">
                     <IVenetianMask />
                     Impersonate

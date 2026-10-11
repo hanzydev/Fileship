@@ -1,4 +1,6 @@
 export const useImpersonation = () => {
+    const embed = useEmbed();
+    const domains = useDomains();
     const currentUser = useAuthUser();
     const currentTheme = useTheme();
     const adminSessionId = useCookie('adminSessionId', {
@@ -6,6 +8,13 @@ export const useImpersonation = () => {
         path: '/',
         sameSite: 'lax',
     });
+
+    const loadAccountData = async () => {
+        [embed.value, domains.value] = await Promise.all([
+            $fetch<IEmbed>('/api/users/@me/embed'),
+            $fetch<string[]>('/api/users/@me/domains'),
+        ]);
+    };
 
     const impersonate = async (username: string) => {
         const adminSession = useCookie('sessionId').value;
@@ -33,6 +42,7 @@ export const useImpersonation = () => {
         clearStates(true);
 
         await nextTick();
+        await loadAccountData();
         await refreshNuxtData();
         await navigateTo('/dashboard');
 
@@ -42,11 +52,19 @@ export const useImpersonation = () => {
     const stopImpersonating = async () => {
         closeSocket();
 
-        await $fetch('/api/auth/logout', { method: 'POST' });
+        await $fetch('/api/auth/logout', { method: 'POST' }).catch(() => null);
 
         const user = await $fetch<AuthUserData>('/api/users/@me', {
             headers: { Authorization: adminSessionId.value! },
-        });
+        }).catch(() => null);
+
+        if (!user) {
+            adminSessionId.value = null;
+            useCookie('sessionId', { path: '/', sameSite: 'lax' }).value = null;
+            clearStates(true, true);
+            await navigateTo('/login');
+            return;
+        }
 
         currentUser.value = { ...user, createdAt: new Date(user.createdAt) };
         currentTheme.value = user.theme;
@@ -61,10 +79,12 @@ export const useImpersonation = () => {
 
         adminSessionId.value = null;
 
+        clearStates(true);
+
+        await loadAccountData();
         await refreshNuxtData();
         await navigateTo('/dashboard/users');
 
-        clearStates(true);
         initSocket();
     };
 

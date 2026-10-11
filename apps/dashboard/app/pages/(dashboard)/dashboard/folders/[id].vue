@@ -193,7 +193,7 @@ const handleAddFiles = async () => {
         $toast.success(`${pluralize(addSelection.value.length, 'file')} added`);
         addFilesOpen.value = false;
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 
     isAdding.value = false;

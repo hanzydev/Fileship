@@ -14,6 +14,8 @@ export const useConfirm = () => {
 };
 
 export const askConfirmation = (options: ConfirmOptions) => {
+    confirmState.value?.resolve(false);
+
     return new Promise<boolean>((resolve) => {
         confirmState.value = { ...options, resolve };
     });

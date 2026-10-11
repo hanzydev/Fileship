@@ -42,7 +42,7 @@ export const initSocket = () => {
 
         // User
         socket.on('currentUser:update', (data) => {
-            const adminRoutes = ['/users', '/logs', '/stats'];
+            const adminRoutes = ['/dashboard/users', '/dashboard/logs', '/dashboard/stats'];
             if (
                 data.permissions?.length &&
                 !isAdmin(data) &&
@@ -77,6 +77,7 @@ export const initSocket = () => {
             clearStates(true, true);
 
             useCookie('sessionId', { path: '/', sameSite: true }).value = null;
+            useCookie('adminSessionId', { path: '/', sameSite: true }).value = null;
             nextTick(() => {
                 navigateTo(`/login?redirectTo=${route.path}`);
             });
@@ -169,7 +170,8 @@ export const initSocket = () => {
         });
 
         // Admin
-        socket.on('log:create', () => refreshLists('logs'));
+        const refreshLogs = useThrottleFn(() => refreshLists('logs'), 2_000, true);
+        socket.on('log:create', refreshLogs);
         socket.on('log:deleteAll', () => refreshLists('logs'));
 
         socket.on('user:create', () => refreshLists('users'));

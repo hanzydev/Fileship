@@ -157,7 +157,7 @@ const handleSaveEmbed = async () => {
         await $fetch('/api/users/@me/embed', { method: 'PATCH', body: embedForm });
         $toast.success('Embed settings saved');
     } catch (error: any) {
-        $toast.error(error.data.data?.formErrors?.color?._errors[0] || error.data.message);
+        $toast.error(error.data?.data?.formErrors?.color?._errors[0] || getErrorMessage(error));
     }
 
     isSavingEmbed.value = false;
@@ -180,7 +180,7 @@ const handleSaveDomains = async () => {
         await $fetch('/api/users/@me/domains', { method: 'PUT', body: domainsForm.value });
         $toast.success('Domains saved');
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 
     isSavingDomains.value = false;

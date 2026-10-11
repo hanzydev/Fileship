@@ -16,7 +16,7 @@ export const useFolderActions = () => {
 
             $toast.success(folder.public ? 'Folder is now private' : 'Folder is now public');
         } catch (error: any) {
-            $toast.error(error.data.message);
+            $toast.error(getErrorMessage(error));
         }
     };
 
@@ -40,7 +40,7 @@ export const useFolderActions = () => {
                         option.value ? 'Folder and its files deleted' : 'Folder deleted',
                     );
                 } catch (error: any) {
-                    $toast.error(error.data.message);
+                    $toast.error(getErrorMessage(error));
                     return false;
                 }
             },

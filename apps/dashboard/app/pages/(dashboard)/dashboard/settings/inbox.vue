@@ -107,7 +107,7 @@ const handleToggle = async (enabled: boolean) => {
         await update({ enabled });
         $toast.success(enabled ? 'Inbox enabled' : 'Inbox disabled');
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 
     isToggling.value = false;
@@ -121,7 +121,7 @@ const handleSaveSlug = async () => {
         await update({ slug: slug.value || null });
         $toast.success('Inbox link updated');
     } catch (error: any) {
-        slugError.value = error.data.message;
+        slugError.value = getErrorMessage(error);
     }
 
     isSavingSlug.value = false;
@@ -134,7 +134,7 @@ const handleSavePassword = async () => {
         await update({ password: password.value || null });
         $toast.success('Inbox password updated');
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 
     isSavingPassword.value = false;

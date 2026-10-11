@@ -152,7 +152,7 @@ const id = (route.params as any).id as string;
 const dropArea = useTemplateRef('dropArea');
 
 const { data: _data, error } = await useFetch(
-    `/api/inbox/${id}${route.query.password ? `?password=${route.query.password}` : ''}`,
+    `/api/inbox/${id}${route.query.password ? `?password=${encodeURIComponent(String(route.query.password))}` : ''}`,
 );
 
 if (error.value?.statusCode === 404) {
@@ -211,7 +211,7 @@ const handlePassword = async (password: string) => {
         const inbox = await $fetch(`/api/inbox/${id}`, { query: { password } });
         data.value = { ...inbox, password };
     } catch (error: any) {
-        passwordError.value = error.data.message;
+        passwordError.value = getErrorMessage(error);
     }
 
     isVerifying.value = false;

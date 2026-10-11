@@ -227,7 +227,7 @@ const handleImpersonate = async (user: UserData) => {
     try {
         await impersonate(user.username);
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 };
 
@@ -248,7 +248,7 @@ const handleDelete = async (user: UserData) => {
 
                 if (result) $toast.success('User deleted');
             } catch (error: any) {
-                $toast.error(error.data.message);
+                $toast.error(getErrorMessage(error));
             }
         },
     });

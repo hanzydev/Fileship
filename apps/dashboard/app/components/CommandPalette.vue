@@ -10,7 +10,7 @@
             <UiCommandGroup v-if="term && matchedFiles.length" class="pb-0" heading="Files">
                 <UiCommandItem
                     v-for="file in matchedFiles"
-                    :key="file.id"
+                    :key="`${file.id}:${term}`"
                     :value="`file:${file.id}`"
                     @select="handleSelect(`/dashboard/files?file=${file.id}`)"
                 >
@@ -23,7 +23,7 @@
             <UiCommandGroup v-if="term && matchedFolders.length" class="pb-0" heading="Folders">
                 <UiCommandItem
                     v-for="folder in matchedFolders"
-                    :key="folder.id"
+                    :key="`${folder.id}:${term}`"
                     :value="`folder:${folder.id}`"
                     @select="handleSelect(`/dashboard/folders/${folder.id}`)"
                 >
@@ -35,7 +35,7 @@
             <UiCommandGroup v-if="term && matchedNotes.length" class="pb-0" heading="Notes">
                 <UiCommandItem
                     v-for="note in matchedNotes"
-                    :key="note.id"
+                    :key="`${note.id}:${term}`"
                     :value="`note:${note.id}`"
                     @select="handleSelect(`/dashboard/notes/${note.id}`)"
                 >
@@ -47,7 +47,7 @@
             <UiCommandGroup v-if="term && matchedUsers.length" class="pb-0" heading="Users">
                 <UiCommandItem
                     v-for="user in matchedUsers"
-                    :key="user.id"
+                    :key="`${user.id}:${term}`"
                     :value="`user:${user.id}`"
                     @select="handleSelect(`/dashboard/users?user=${user.id}`)"
                 >
@@ -119,11 +119,14 @@ const useMatches = <T extends { id: string }>(
     resource: ListResource,
     endpoint: string,
     isAllowed: () => boolean,
-) =>
-    usePaginatedList<T>(resource, endpoint, () => ({ q: term.value }), {
+) => {
+    const { items, isFresh } = usePaginatedList<T>(resource, endpoint, () => ({ q: term.value }), {
         limit: 5,
         enabled: () => open.value && !!term.value && isAllowed(),
-    }).items;
+    });
+
+    return computed(() => (isFresh.value ? items.value : []));
+};
 
 const matchedFiles = useMatches<FileData>('files', '/api/files', () =>
     canUploadFiles(authUser.value),

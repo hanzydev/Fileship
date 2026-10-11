@@ -19,11 +19,7 @@
             >
                 {{ isAllSelected ? 'Deselect all' : 'Select all' }}
             </UiButton>
-            <UiButton
-                variant="ghost"
-                size="sm"
-                @click="moveTargets = selected.map((id) => ({ id, folderId: null }))"
-            >
+            <UiButton variant="ghost" size="sm" @click="handleMove">
                 <IFolderInput />
                 <span class="hidden sm:inline">Move</span>
             </UiButton>
@@ -77,10 +73,19 @@ const handleSelectAll = async () => {
     try {
         selected.value = await $fetch('/api/files/ids', { query });
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 
     isBusy.value = false;
+};
+
+const handleMove = () => {
+    const folderIds = new Set(
+        selected.value.map((id) => items.find((file) => file.id === id)?.folderId),
+    );
+    const folderId = folderIds.size === 1 ? [...folderIds][0] : undefined;
+
+    moveTargets.value = selected.value.map((id) => ({ id, folderId: folderId ?? null }));
 };
 
 const handleDownload = async () => {
@@ -102,7 +107,7 @@ const handleDownload = async () => {
 
         download([...loaded, ...(pages.flatMap((page) => page.items) as never[])]);
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 
     isBusy.value = false;

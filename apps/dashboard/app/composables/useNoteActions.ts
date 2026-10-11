@@ -22,7 +22,7 @@ export const useNoteActions = () => {
 
             $toast.success(note.public ? 'Note is now private' : 'Note is now public');
         } catch (error: any) {
-            $toast.error(error.data.message);
+            $toast.error(getErrorMessage(error));
         }
     };
 
@@ -39,7 +39,7 @@ export const useNoteActions = () => {
 
                     if ((route.params as any).id === note.id) navigateTo('/dashboard/notes');
                 } catch (error: any) {
-                    $toast.error(error.data.message);
+                    $toast.error(getErrorMessage(error));
                 }
             },
         });

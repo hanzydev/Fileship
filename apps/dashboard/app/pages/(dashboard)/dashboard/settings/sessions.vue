@@ -98,7 +98,7 @@ const handleRevoke = async (session: SessionData) => {
 
         if (result) $toast.success('Session signed out');
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 };
 
@@ -118,7 +118,7 @@ const handleRevokeAll = async () => {
 
                 if (result) $toast.success('Other sessions signed out');
             } catch (error: any) {
-                $toast.error(error.data.message);
+                $toast.error(getErrorMessage(error));
             }
         },
     });

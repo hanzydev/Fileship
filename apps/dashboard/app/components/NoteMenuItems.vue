@@ -5,7 +5,7 @@
             Open
         </NuxtLink>
     </component>
-    <component :is="Item" v-if="note.publicUrl" @select="copyLink(note)">
+    <component :is="Item" v-if="note.public && note.publicUrl" @select="copyLink(note)">
         <ILink />
         Copy public link
     </component>

@@ -20,7 +20,7 @@
                             <IChevronDown class="opacity-50" />
                         </UiButton>
                     </UiDropdownMenuTrigger>
-                    <UiDropdownMenuContent align="start" class="w-56">
+                    <UiDropdownMenuContent align="start" class="w-56" @scroll="handleFolderScroll">
                         <UiDropdownMenuLabel>Folder</UiDropdownMenuLabel>
                         <UiDropdownMenuRadioGroup v-model="folderFilter">
                             <UiDropdownMenuRadioItem value="all">All files</UiDropdownMenuRadioItem>
@@ -288,7 +288,13 @@
 
         <FileMoveDialog v-model="moveTargets" />
 
-        <FileSheet v-model:file-id="sheetFileId" v-model:tab="sheetTab" :files="files" />
+        <FileSheet
+            v-model:file-id="sheetFileId"
+            v-model:tab="sheetTab"
+            :files="files"
+            :has-more="hasMore"
+            :load-more="loadMore"
+        />
     </div>
 </template>
 
@@ -378,7 +384,9 @@ const folderLabel = computed(() =>
 );
 
 const sortValue = computed({
-    get: () => sort.value || (query.value ? 'relevance' : 'createdAt:desc'),
+    get: () =>
+        (sort.value === 'relevance' && !query.value ? '' : sort.value) ||
+        (query.value ? 'relevance' : 'createdAt:desc'),
     set: (value) => (sort.value = value),
 });
 
@@ -401,6 +409,7 @@ const {
     query: listQuery,
     isLoading,
     isLoadingMore,
+    hasMore,
     loadMore,
 } = usePaginatedList<FileData, FileSummary>('files', '/api/files', () => ({
     q: query.value,
@@ -411,9 +420,14 @@ const {
     summary: true,
 }));
 
-const folders = folderId
-    ? ref<FolderData[]>([])
-    : usePaginatedList<FolderData>('folders', '/api/folders', {}, { limit: 100 }).items;
+const folderList = folderId ? null : usePaginatedList<FolderData>('folders', '/api/folders');
+
+const folders = computed(() => folderList?.items.value ?? []);
+
+const handleFolderScroll = (event: Event) => {
+    const target = event.target as HTMLElement;
+    if (target.scrollHeight - target.scrollTop - target.clientHeight < 80) folderList?.loadMore();
+};
 
 const toggleType = (type: FileCategory) => {
     typeFilter.value = typeFilter.value.includes(type)
@@ -427,11 +441,11 @@ const openSheet = (file: FileData, tab = 'details') => {
 };
 
 const handleToggle = (file: FileData, event: MouseEvent) => {
-    if (event.shiftKey && lastSelected.value) {
-        const ids = files.value.map((f) => f.id);
-        const [start, end] = [ids.indexOf(lastSelected.value), ids.indexOf(file.id)].sort(
-            (a, b) => a - b,
-        );
+    const ids = files.value.map((f) => f.id);
+    const anchor = lastSelected.value ? ids.indexOf(lastSelected.value) : -1;
+
+    if (event.shiftKey && anchor > -1) {
+        const [start, end] = [anchor, ids.indexOf(file.id)].sort((a, b) => a - b);
 
         selected.value = [...new Set([...selected.value, ...ids.slice(start!, end! + 1)])];
     } else {
@@ -457,7 +471,18 @@ const handleClearFilters = () => {
     folderFilter.value = 'all';
 };
 
-watchDebounced(searchInputValue, (value) => (query.value = value.trim()), { debounce: 400 });
+let searchTimer: ReturnType<typeof setTimeout> | undefined;
+
+watch(searchInputValue, (value) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => (query.value = value.trim()), 400);
+});
+
+watch(query, (value) => {
+    if (value !== searchInputValue.value.trim()) searchInputValue.value = value;
+});
+
+onBeforeUnmount(() => clearTimeout(searchTimer));
 
 watch(listSummary, (value) => (summary.value = value));
 

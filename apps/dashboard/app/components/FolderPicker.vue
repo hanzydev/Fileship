@@ -104,7 +104,7 @@ const handleCreate = async () => {
         handleSelect(created);
         $toast.success('Folder created and selected');
     } catch (error: any) {
-        $toast.error(error.data.data?.name?._errors[0] || error.data.message);
+        $toast.error(error.data?.data?.formErrors?.name?._errors[0] || getErrorMessage(error));
     }
 
     isCreating.value = false;

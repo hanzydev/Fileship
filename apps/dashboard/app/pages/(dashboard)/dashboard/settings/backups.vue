@@ -132,7 +132,7 @@ const handleCreate = async () => {
         await $fetch('/api/users/@me/backups', { method: 'POST' });
         $toast.success('Backup is being created, this may take a while');
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 
     isCreating.value = false;
@@ -170,7 +170,6 @@ const handleUpload = async (event: Event) => {
             await $fetch('/api/users/@me/backups/upload', {
                 method: 'POST',
                 body: formData,
-                retry: 3,
             });
 
             uploadProgress.value = Math.round((end / file.size) * 100);
@@ -178,7 +177,7 @@ const handleUpload = async (event: Event) => {
 
         $toast.success('Backup uploaded, you can now restore it');
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 
     uploadProgress.value = null;
@@ -201,7 +200,7 @@ const handleRestore = async (backup: BackupData) => {
 
                 if (result) $toast.success('Backup is being restored, this may take a while');
             } catch (error: any) {
-                $toast.error(error.data.message);
+                $toast.error(getErrorMessage(error));
             }
         },
     });
@@ -218,7 +217,7 @@ const handleDelete = async (backup: BackupData) => {
                 await $fetch(`/api/users/@me/backups/${backup.id}`, { method: 'DELETE' });
                 $toast.success('Backup deleted');
             } catch (error: any) {
-                $toast.error(error.data.message);
+                $toast.error(getErrorMessage(error));
             }
         },
     });

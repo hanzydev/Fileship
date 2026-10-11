@@ -251,10 +251,17 @@ const handleLogout = async () => {
 
     try {
         await $fetch('/api/auth/logout', { method: 'POST' });
+
+        clearStates(true, true);
+        useCookie('sessionId', { path: '/', sameSite: true }).value = null;
+
         $toast.success('Logged out successfully');
-    } finally {
-        isLoggingOut.value = false;
+        await navigateTo('/login');
+    } catch (error: any) {
+        $toast.error(getErrorMessage(error));
     }
+
+    isLoggingOut.value = false;
 };
 
 onMounted(async () => {

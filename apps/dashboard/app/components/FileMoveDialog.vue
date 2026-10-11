@@ -43,6 +43,9 @@ const handleMove = async () => {
 };
 
 watch(files, (value) => {
-    if (value.length) folderId.value = value.length === 1 ? value[0]!.folderId : null;
+    if (!value.length) return;
+    folderId.value = value.every((file) => file.folderId === value[0]!.folderId)
+        ? value[0]!.folderId
+        : null;
 });
 </script>

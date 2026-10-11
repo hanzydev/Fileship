@@ -67,6 +67,7 @@ export const usePaginatedList = <T extends { id: string }, S = undefined>(
     const summary = ref<S>();
     const status = ref<'pending' | 'success' | 'error'>('pending');
     const isLoadingMore = ref(false);
+    const loadedKey = ref<string>();
 
     let version = 0;
 
@@ -91,6 +92,7 @@ export const usePaginatedList = <T extends { id: string }, S = undefined>(
 
     const load = async (count = limit) => {
         const current = ++version;
+        const key = queryKey.value;
 
         try {
             const pages = await Promise.all(
@@ -104,6 +106,7 @@ export const usePaginatedList = <T extends { id: string }, S = undefined>(
             items.value = pages.flatMap((page) => page.items.map(reviveDates<T>));
             total.value = pages[0]!.total;
             if (pages[0]!.summary) summary.value = pages[0]!.summary;
+            loadedKey.value = key;
             status.value = 'success';
         } catch {
             if (current === version) status.value = 'error';
@@ -150,8 +153,10 @@ export const usePaginatedList = <T extends { id: string }, S = undefined>(
         },
     });
 
+    const queryKey = computed(() => `${toValue(endpoint)}?${JSON.stringify(query.value)}`);
+
     watchDebounced(
-        () => toValue(enabled) && `${toValue(endpoint)}?${JSON.stringify(query.value)}`,
+        () => toValue(enabled) && queryKey.value,
         (key) => {
             if (!key) return;
 
@@ -170,6 +175,7 @@ export const usePaginatedList = <T extends { id: string }, S = undefined>(
         status,
         isLoading: computed(() => status.value === 'pending' && !items.value.length),
         isLoadingMore,
+        isFresh: computed(() => loadedKey.value === queryKey.value),
         hasMore: computed(() => items.value.length < total.value),
         query,
         loadMore,

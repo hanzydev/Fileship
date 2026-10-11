@@ -60,7 +60,7 @@ export const uploadFile = async (
     fileChunkSize = (+fileChunkSize || 25) * 1024 * 1024;
 
     const chunks = Math.ceil(file.size / fileChunkSize);
-    const uploadingFile = uploadingFiles.value.find((f) => f.name === file.name);
+    const uploadingFile = uploadingFiles.value.find((f) => toRaw(f) === toRaw(file));
 
     if (!uploadingFile) return;
 
@@ -99,7 +99,7 @@ export const uploadFile = async (
         formData.append('totalChunks', chunks.toString());
         formData.append('chunkOffset', start.toString());
 
-        if ('maxViews' in settings) formData.append('maxViews', settings.maxViews!.toString());
+        if (settings.maxViews != null) formData.append('maxViews', settings.maxViews.toString());
         if (settings.fileNameType) formData.append('fileNameType', settings.fileNameType);
         if (settings.compression) formData.append('compression', settings.compression.toString());
         if (settings.password) formData.append('password', settings.password);

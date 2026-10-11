@@ -27,7 +27,9 @@ export const withVerification = async <T>(action: (verificationData?: unknown) =
         const methods = error.data?.data?.mfa?.methods;
         if (!methods) throw error;
 
-        return new Promise<NonNullable<T> | null>((resolve) => {
+        verificationState.value?.cancel();
+
+        return new Promise<NonNullable<T> | null>((resolve, reject) => {
             verificationState.value = {
                 methods,
                 isSubmitting: false,
@@ -40,6 +42,12 @@ export const withVerification = async <T>(action: (verificationData?: unknown) =
                         verificationState.value = null;
                         resolve((result ?? true) as NonNullable<T>);
                     } catch (error: any) {
+                        if (error.statusCode !== 401 && !error.data?.data?.mfa) {
+                            verificationState.value = null;
+                            reject(error);
+                            return;
+                        }
+
                         verificationState.value!.error =
                             error.data?.message || 'Verification failed';
                         verificationState.value!.isSubmitting = false;

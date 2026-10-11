@@ -86,7 +86,7 @@ const updateAvatar = async (avatar: string | null) => {
 
         $toast.success(avatar ? 'Avatar updated' : 'Avatar removed');
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 
     isUpdatingAvatar.value = false;
@@ -114,8 +114,8 @@ const handleSave = async () => {
 
         $toast.success('Username updated');
     } catch (error: any) {
-        formErrors.value = error.data.data?.formErrors;
-        if (!formErrors.value) $toast.error(error.data.message);
+        formErrors.value = error.data?.data?.formErrors;
+        if (!formErrors.value) $toast.error(getErrorMessage(error));
     }
 
     isSaving.value = false;

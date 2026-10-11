@@ -11,6 +11,19 @@
         </EmptyState>
     </UiCard>
 
+    <UiCard v-else-if="loadedId !== id" class="min-w-0 flex-1 gap-4">
+        <UiCardContent class="flex items-center justify-between gap-2">
+            <UiSkeleton class="h-4 w-32 rounded-full" />
+            <UiSkeleton class="h-8 w-28 rounded-full" />
+        </UiCardContent>
+        <UiCardContent class="flex flex-1 flex-col gap-4">
+            <TextBlock variant="h3" class="w-full">
+                <UiSkeleton class="h-lh w-1/2 rounded-full" />
+            </TextBlock>
+            <UiSkeleton class="min-h-[60vh] flex-1" />
+        </UiCardContent>
+    </UiCard>
+
     <UiCard v-else class="min-w-0 flex-1 gap-4">
         <UiCardContent class="flex flex-wrap items-center gap-2">
             <UiButton variant="ghost" size="icon-sm" class="md:hidden" as-child>
@@ -37,19 +50,23 @@
                 </template>
             </TextBlock>
 
-            <UiTabs :model-value="mode" @update:model-value="$event && (mode = $event as never)">
-                <UiTabsList>
-                    <UiTabsTrigger value="edit" aria-label="Edit">
-                        <IPencil />
-                    </UiTabsTrigger>
-                    <UiTabsTrigger value="split" aria-label="Split" class="hidden lg:flex">
-                        <IColumns2 />
-                    </UiTabsTrigger>
-                    <UiTabsTrigger value="preview" aria-label="Preview">
-                        <IEye />
-                    </UiTabsTrigger>
-                </UiTabsList>
-            </UiTabs>
+            <UiToggleGroup
+                type="single"
+                variant="outline"
+                size="sm"
+                :model-value="mode"
+                @update:model-value="$event && (mode = $event as never)"
+            >
+                <UiToggleGroupItem value="edit" aria-label="Edit">
+                    <IPencil />
+                </UiToggleGroupItem>
+                <UiToggleGroupItem value="split" aria-label="Split" class="hidden lg:flex">
+                    <IColumns2 />
+                </UiToggleGroupItem>
+                <UiToggleGroupItem value="preview" aria-label="Preview">
+                    <IEye />
+                </UiToggleGroupItem>
+            </UiToggleGroup>
 
             <UiDropdownMenu>
                 <UiDropdownMenuTrigger as-child>
@@ -68,7 +85,7 @@
                 v-model="draft.title"
                 placeholder="Untitled note"
                 maxlength="48"
-                class="w-full bg-transparent text-2xl font-bold tracking-tight outline-none placeholder:text-muted-foreground"
+                class="w-full bg-transparent text-2xl font-semibold tracking-tight outline-none placeholder:text-muted-foreground"
             />
 
             <div :class="cn('grid flex-1 gap-4', mode === 'split' && 'lg:grid-cols-2')">
@@ -100,6 +117,8 @@ const saveState = ref<'idle' | 'saving' | 'error'>('idle');
 const loadedId = ref<string | null>(null);
 const snapshot = ref('');
 
+let isMounted = true;
+
 const draft = reactive({ title: '', content: '' });
 
 const id = computed(() => (route.params as any).id as string);
@@ -124,34 +143,53 @@ const isValid = computed(() => draft.title.trim().length >= 3 && !!draft.content
 const isDirty = computed(() => JSON.stringify(draft) !== snapshot.value);
 
 const save = async () => {
-    if (!isValid.value || !isDirty.value || saveState.value === 'saving') return;
+    const targetId = loadedId.value;
+
+    if (!targetId || !isValid.value || !isDirty.value || saveState.value === 'saving') return;
 
     const body = { ...draft };
+    const isCurrent = () => loadedId.value === targetId;
+
     saveState.value = 'saving';
 
     try {
-        if (isNew.value) {
+        if (targetId === 'new') {
             const created = await $fetch('/api/notes', { method: 'POST', body });
 
-            loadedId.value = created.id;
-            await navigateTo(`/dashboard/notes/${created.id}`, { replace: true });
+            if (isCurrent()) {
+                loadedId.value = created.id;
+                snapshot.value = JSON.stringify(body);
+            }
+
+            if (isMounted && id.value === 'new') {
+                await navigateTo(`/dashboard/notes/${created.id}`, { replace: true });
+            }
         } else {
-            await $fetch(`/api/notes/${id.value}`, { method: 'PATCH', body });
+            await $fetch(`/api/notes/${targetId}`, { method: 'PATCH', body });
+            if (isCurrent()) snapshot.value = JSON.stringify(body);
         }
 
-        snapshot.value = JSON.stringify(body);
         saveState.value = 'idle';
 
         if (isDirty.value) save();
     } catch (error: any) {
         saveState.value = 'error';
 
-        const formErrors = error.data.data?.formErrors;
+        const formErrors = error.data?.data?.formErrors;
         $toast.error(
-            formErrors?.title?._errors[0] || formErrors?.content?._errors[0] || error.data.message,
+            formErrors?.title?._errors[0] ||
+                formErrors?.content?._errors[0] ||
+                getErrorMessage(error),
         );
     }
 };
+
+watch(id, (value) => {
+    if (value === loadedId.value) return;
+
+    save();
+    loadedId.value = null;
+});
 
 watch(
     [id, note],
@@ -161,7 +199,7 @@ watch(
         if (isNew.value) {
             Object.assign(draft, { title: '', content: '' });
             mode.value = 'edit';
-        } else if (note.value) {
+        } else if (note.value?.id === id.value) {
             Object.assign(draft, {
                 title: note.value.title,
                 content: note.value.content,
@@ -177,7 +215,8 @@ watch(
 );
 
 watch(note, (value, oldValue) => {
-    if (oldValue && !value) snapshot.value = JSON.stringify(draft);
+    if (oldValue && !value && oldValue.id === loadedId.value)
+        snapshot.value = JSON.stringify(draft);
     if (value) labels.value = { ...labels.value, [value.id]: value.title };
 });
 
@@ -190,7 +229,10 @@ useListHandle({
 
 watchDebounced(draft, save, { debounce: 800, deep: true });
 
-onBeforeUnmount(save);
+onBeforeUnmount(() => {
+    isMounted = false;
+    save();
+});
 
 definePageMeta({
     key: 'note-editor',

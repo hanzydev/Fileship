@@ -8,7 +8,12 @@
             title="Logs"
             :description="isLoading ? 'Loading...' : pluralize(total, 'entry', 'entries')"
         >
-            <UiButton variant="outline" :disabled="!logs.length" @click="handleClear">
+            <UiButton
+                v-if="currentUser!.superAdmin"
+                variant="outline"
+                :disabled="!logs.length"
+                @click="handleClear"
+            >
                 <ITrash2 />
                 Clear logs
             </UiButton>
@@ -179,6 +184,7 @@ import dayjs from 'dayjs';
 import { IClipboardList } from '#components';
 
 const { $toast } = useNuxtApp();
+const currentUser = useAuthUser();
 
 const search = ref('');
 const actionFilter = ref('all');
@@ -246,7 +252,7 @@ const handleClear = async () => {
 
                 if (result) $toast.success('Logs cleared');
             } catch (error: any) {
-                $toast.error(error.data.message);
+                $toast.error(getErrorMessage(error));
             }
         },
     });

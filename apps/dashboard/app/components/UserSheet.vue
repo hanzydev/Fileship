@@ -179,8 +179,8 @@ const handleSubmit = async () => {
             $toast.success(user ? 'User updated' : 'User created');
         }
     } catch (error: any) {
-        formErrors.value = error.data.data?.formErrors;
-        if (!formErrors.value) $toast.error(error.data.message);
+        formErrors.value = error.data?.data?.formErrors;
+        if (!formErrors.value) $toast.error(getErrorMessage(error));
     }
 
     isSaving.value = false;

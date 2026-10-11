@@ -81,8 +81,8 @@
                             <UiButton
                                 variant="outline"
                                 size="icon-sm"
-                                :disabled="!next"
-                                @click="fileId = next!.id"
+                                :disabled="!hasNext"
+                                @click="goNext"
                             >
                                 <IChevronRight />
                             </UiButton>
@@ -234,8 +234,10 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
-const { files } = defineProps<{
+const { files, hasMore, loadMore } = defineProps<{
     files: FileData[];
+    hasMore?: boolean;
+    loadMore?: () => Promise<unknown>;
 }>();
 
 const fileId = defineModel<string | null>('fileId', { required: true });
@@ -262,6 +264,14 @@ const file = computed(
 const index = computed(() => files.findIndex((f) => f.id === fileId.value));
 const prev = computed(() => files[index.value - 1]);
 const next = computed(() => files[index.value + 1]);
+const hasNext = computed(() => !!next.value || (index.value > -1 && hasMore));
+
+const goNext = async () => {
+    if (!next.value && hasMore) await loadMore?.();
+
+    const target = files[index.value + 1];
+    if (target) fileId.value = target.id;
+};
 
 const isImage = computed(() => file.value!.mimeType.startsWith('image/'));
 const isVideo = computed(() => file.value!.mimeType.startsWith('video/'));
@@ -353,8 +363,8 @@ const handleSave = async () => {
         $toast.success('File updated');
         tab.value = 'details';
     } catch (error: any) {
-        formErrors.value = error.data.data?.formErrors;
-        if (!formErrors.value) $toast.error(error.data.message);
+        formErrors.value = error.data?.data?.formErrors;
+        if (!formErrors.value) $toast.error(getErrorMessage(error));
     }
 
     isSaving.value = false;
@@ -380,9 +390,13 @@ watch(
         if (value && file.value) resetEditData();
 
         if (value && !file.value) {
-            const { items } = await $fetch('/api/files', { query: { ids: value, limit: 1 } });
+            const result = await $fetch('/api/files', { query: { ids: value, limit: 1 } }).catch(
+                () => null,
+            );
 
-            if (items[0]) fallbackFile.value = reviveDates(items[0]);
+            if (fileId.value !== value) return;
+
+            if (result?.items[0]) fallbackFile.value = reviveDates(result.items[0]);
             else fileId.value = null;
         }
     },
@@ -402,7 +416,17 @@ watch(
 onKeyStroke(['ArrowLeft', 'ArrowRight'], (event) => {
     if (!file.value || document.activeElement?.closest('input, textarea, video, audio')) return;
 
-    const target = event.key === 'ArrowLeft' ? prev.value : next.value;
-    if (target) fileId.value = target.id;
+    if (event.key === 'ArrowRight') return goNext();
+    if (prev.value) fileId.value = prev.value.id;
+});
+
+useListHandle({
+    resource: 'files',
+    refresh: () => null,
+    map: (fn) => fallbackFile.value && (fallbackFile.value = fn(fallbackFile.value)),
+    remove: (ids) =>
+        fallbackFile.value &&
+        ids.includes(fallbackFile.value.id) &&
+        (fallbackFile.value = undefined),
 });
 </script>

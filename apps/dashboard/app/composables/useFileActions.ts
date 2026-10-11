@@ -1,3 +1,10 @@
+const BULK_LIMIT = 5000;
+
+const chunkIds = (files: { id: string }[]) =>
+    Array.from({ length: Math.ceil(files.length / BULK_LIMIT) }, (_, index) =>
+        files.slice(index * BULK_LIMIT, (index + 1) * BULK_LIMIT).map((file) => file.id),
+    );
+
 export const useFileActions = () => {
     const embed = useEmbed();
     const { $toast } = useNuxtApp();
@@ -19,10 +26,12 @@ export const useFileActions = () => {
     const move = async (files: Pick<FileData, 'id'>[], folderId: string | null) => {
         try {
             if (files.length > 1) {
-                await $fetch('/api/files/bulk-move', {
-                    method: 'POST',
-                    body: { files: files.map((f) => f.id), folderId },
-                });
+                for (const chunk of chunkIds(files)) {
+                    await $fetch('/api/files/bulk-move', {
+                        method: 'POST',
+                        body: { files: chunk, folderId },
+                    });
+                }
             } else {
                 await $fetch(`/api/files/${files[0]!.id}`, {
                     method: 'PATCH',
@@ -35,7 +44,7 @@ export const useFileActions = () => {
 
             return true;
         } catch (error: any) {
-            $toast.error(error.data.message);
+            $toast.error(getErrorMessage(error));
             return false;
         }
     };
@@ -51,10 +60,12 @@ export const useFileActions = () => {
             action: async () => {
                 try {
                     if (files.length > 1) {
-                        await $fetch('/api/files/bulk-delete', {
-                            method: 'POST',
-                            body: { files: files.map((f) => f.id) },
-                        });
+                        for (const chunk of chunkIds(files)) {
+                            await $fetch('/api/files/bulk-delete', {
+                                method: 'POST',
+                                body: { files: chunk },
+                            });
+                        }
                     } else {
                         await $fetch(`/api/files/${files[0]!.id}`, { method: 'DELETE' });
                     }
@@ -63,7 +74,7 @@ export const useFileActions = () => {
                         `${files.length > 1 ? `${files.length} files` : 'File'} deleted`,
                     );
                 } catch (error: any) {
-                    $toast.error(error.data.message);
+                    $toast.error(getErrorMessage(error));
                     return false;
                 }
             },

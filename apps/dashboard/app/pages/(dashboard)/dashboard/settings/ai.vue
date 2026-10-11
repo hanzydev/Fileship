@@ -53,7 +53,7 @@ const handleUpdate = async (body: { enabled?: boolean; suppressPii?: boolean }) 
         $toast.success('AI settings saved');
     } catch (error: any) {
         currentUser.value!.aiSettings = previous;
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 };
 </script>

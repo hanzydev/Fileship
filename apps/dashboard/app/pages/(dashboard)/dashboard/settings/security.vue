@@ -215,7 +215,7 @@ const handlePasswordChange = async () => {
         }
     } catch (error: any) {
         passwordError.value =
-            error.data.data?.formErrors?.password?._errors[0] || error.data.message;
+            error.data?.data?.formErrors?.password?._errors[0] || getErrorMessage(error);
     }
 
     isChangingPassword.value = false;
@@ -237,7 +237,7 @@ const handleStartTotp = async () => {
             setTimeout(() => (totpDialog.qrCode = result.base64), 400);
         }
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 
     isUpdatingTotp.value = false;
@@ -258,7 +258,7 @@ const handleEnableTotp = async () => {
         totpDialog.open = false;
         $toast.success('Authenticator app enabled');
     } catch (error: any) {
-        totpDialog.error = error.data.message;
+        totpDialog.error = getErrorMessage(error);
         totpDialog.code = '';
     }
 
@@ -278,7 +278,7 @@ const handleDisableTotp = async () => {
 
         if (result) $toast.success('Authenticator app disabled');
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error));
     }
 
     isUpdatingTotp.value = false;
@@ -336,7 +336,7 @@ const handleRenamePasskey = async () => {
 
         if (result) $toast.success('Passkey renamed');
     } catch (error: any) {
-        $toast.error(error.data.data?.formErrors?.name?._errors[0] || error.data.message);
+        $toast.error(error.data?.data?.formErrors?.name?._errors[0] || getErrorMessage(error));
     }
 };
 
@@ -357,7 +357,7 @@ const handleDeletePasskey = async (passkey: PasskeyData) => {
 
                 if (result) $toast.success('Passkey deleted');
             } catch (error: any) {
-                $toast.error(error.data.message);
+                $toast.error(getErrorMessage(error));
             }
         },
     });

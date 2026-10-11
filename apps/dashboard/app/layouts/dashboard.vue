@@ -159,6 +159,7 @@ const domains = useDomains();
 const currentUser = useAuthUser();
 const labels = useBreadcrumbLabels();
 const route = useRoute();
+const { $toast } = useNuxtApp();
 const router = useRouter();
 const colorMode = useColorMode();
 const uploadSheetOpen = useUploadSheet();
@@ -212,7 +213,7 @@ const currentFolderName = computed(() =>
 
 const handleStopImpersonating = async () => {
     isReturning.value = true;
-    await stopImpersonating();
+    await stopImpersonating().catch((error) => $toast.error(getErrorMessage(error)));
     isReturning.value = false;
 };
 

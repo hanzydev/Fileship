@@ -120,7 +120,7 @@
                     :src="fileUrl"
                     :poster="
                         data.thumbnailUrl
-                            ? `${data.thumbnailUrl}${data.password ? `?password=${data.password}` : ''}`
+                            ? `${data.thumbnailUrl}${data.password ? `?password=${encodeURIComponent(String(data.password))}` : ''}`
                             : undefined
                     "
                     class="max-h-[calc(100svh-6rem)] max-w-full rounded-2xl"
@@ -174,7 +174,7 @@ const { copy } = useClipboard({ legacy: true });
 const id = (route.params as any).id as string;
 
 const { data: _data, error } = await useFetch<FileData & { embed: IEmbed }>(
-    `/api/files/${id}${route.query.password ? `?password=${route.query.password}` : ''}`,
+    `/api/files/${id}${route.query.password ? `?password=${encodeURIComponent(String(route.query.password))}` : ''}`,
     {
         headers: useRequestHeaders(['x-forwarded-for', 'host']),
     },
@@ -209,7 +209,8 @@ const codeExtension = computed(
 );
 
 const fileUrl = computed(
-    () => `${data.value.directUrl}${data.value.password ? `?password=${data.value.password}` : ''}`,
+    () =>
+        `${data.value.directUrl}${data.value.password ? `?password=${encodeURIComponent(String(data.value.password))}` : ''}`,
 );
 
 const downloadUrl = computed(() => `${fileUrl.value}${data.value.password ? '&' : '?'}download`);
@@ -248,7 +249,7 @@ const handlePassword = async (password: string) => {
 
         data.value = { ...file, password };
     } catch (error: any) {
-        passwordError.value = error.data.message;
+        passwordError.value = getErrorMessage(error);
     }
 
     isVerifying.value = false;
