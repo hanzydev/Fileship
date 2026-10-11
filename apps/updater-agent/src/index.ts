@@ -116,12 +116,16 @@ const getComposeArgs = async () => {
         'inspect',
         hostname(),
         '--format',
-        '{{ index .Config.Labels "com.docker.compose.project" }} {{ index .Config.Labels "com.docker.compose.project.working_dir" }}',
+        '{{ index .Config.Labels "com.docker.compose.project" }}|{{ index .Config.Labels "com.docker.compose.project.working_dir" }}',
     ]);
 
-    const [project, workingDir] = stdout.trim().split(' ');
+    const [project, workingDir] = stdout.trim().split('|');
 
-    return ['compose', '-p', project!, '--project-directory', workingDir!, '-f', COMPOSE_FILE];
+    const projectDir = workingDir!
+        .replace(/^([a-z]):[\\/]/i, (_, drive) => `/run/desktop/mnt/host/${drive.toLowerCase()}/`)
+        .replaceAll('\\', '/');
+
+    return ['compose', '-p', project!, '--project-directory', projectDir, '-f', COMPOSE_FILE];
 };
 
 const compose = async (...args: string[]) =>
@@ -144,6 +148,15 @@ const waitUntilHealthy = async (color: Color) => {
         ).catch(() => null);
 
         if (health?.ready) return true;
+
+        const { stdout: state } = await compose(
+            'ps',
+            '-a',
+            '--format',
+            '{{.State}}',
+            `fileship-${color}`,
+        );
+        if (['exited', 'dead', 'restarting'].includes(state.trim())) return false;
 
         await new Promise((resolve) => setTimeout(resolve, 2_000));
     }
@@ -178,15 +191,22 @@ const handleUpdate = async (onStatus?: (status: UpdateStatus) => Promise<void>) 
         consola.info(`Pulling latest fileship image...`);
 
         await onStatus?.('Pulling');
-        await compose('pull', `fileship-${target}`);
+        await compose('pull', '--ignore-buildable', `fileship-${target}`);
 
         consola.info(`Starting fileship-${target} next to ${previous.join(', ') || 'nothing'}...`);
 
         await onStatus?.('Starting');
-        await compose('up', '-d', '--no-deps', '--force-recreate', `fileship-${target}`);
+        await compose(
+            'up',
+            '-d',
+            '--no-deps',
+            '--no-build',
+            '--force-recreate',
+            `fileship-${target}`,
+        );
 
         if (!(await waitUntilHealthy(target))) {
-            throw new Error(`fileship-${target} did not become healthy in time`);
+            throw new Error(`fileship-${target} failed to become healthy`);
         }
 
         consola.info(`fileship-${target} is healthy, switching traffic...`);
