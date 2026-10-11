@@ -13,8 +13,6 @@ pnpm + Turborepo monorepo (`pnpm@11`, `node-linker=hoisted`, workspaces `apps/*`
 | `packages/telemetry`     | `@fileship/telemetry`, anonymous usage telemetry.                                                                                    |
 | `packages/eslint-config` | `@fileship/eslint-config`, shared flat config used by the updater-agent and telemetry. The dashboard has its own `eslint.config.js`. |
 
-Patched dependency: `patches/@vueuse__core.patch`.
-
 ## Commands
 
 Run from the repository root unless noted.
