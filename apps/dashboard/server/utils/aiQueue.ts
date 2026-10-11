@@ -73,7 +73,10 @@ export const dequeueAIJob = async ({ workerId }: DequeueAIJobOptions) => {
             }
 
             const stale = await tx.aIJob.findFirst({
-                where: { status: AIJobStatus.Processing, lockedAt: { lt: leaseCutoff } },
+                where: {
+                    status: AIJobStatus.Processing,
+                    OR: [{ lockedAt: null }, { lockedAt: { lt: leaseCutoff } }],
+                },
                 orderBy: { lockedAt: 'asc' },
                 select: { id: true },
             });
@@ -85,7 +88,7 @@ export const dequeueAIJob = async ({ workerId }: DequeueAIJobOptions) => {
                 where: {
                     id: staleId,
                     status: AIJobStatus.Processing,
-                    lockedAt: { lt: leaseCutoff },
+                    OR: [{ lockedAt: null }, { lockedAt: { lt: leaseCutoff } }],
                 },
                 data: {
                     status: AIJobStatus.Processing,

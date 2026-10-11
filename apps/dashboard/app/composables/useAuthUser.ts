@@ -2,7 +2,13 @@ import type { UserModel } from '#shared/prisma/models';
 
 export type AuthUserData = Omit<
     UserModel,
-    'password' | 'totpSecret' | 'embed' | 'domains' | 'aiSettings' | 'limits'
+    | 'password'
+    | 'totpSecret'
+    | 'embed'
+    | 'domains'
+    | 'aiSettings'
+    | 'limits'
+    | 'backupRestoreStartedAt'
 > & {
     currentSessionId: string;
     stats: UserBasicStats;

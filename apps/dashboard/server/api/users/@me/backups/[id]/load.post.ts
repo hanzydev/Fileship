@@ -95,7 +95,12 @@ export default defineEventHandler(async (event) => {
     const updateState = async (state: BackupRestoreState | null) => {
         await prisma.user.update({
             where: { id: currentUser.id },
-            data: { backupRestoreState: state },
+            data: {
+                backupRestoreState: state,
+                ...(state === BackupRestoreState.Extracting || !state
+                    ? { backupRestoreStartedAt: state ? new Date() : null }
+                    : {}),
+            },
         });
         sendToUser(currentUser.id, 'currentUser:update', { backupRestoreState: state });
     };

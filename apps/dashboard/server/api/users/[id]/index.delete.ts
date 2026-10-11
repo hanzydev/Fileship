@@ -163,5 +163,5 @@ export default defineEventHandler(async (event) => {
 
     await sendByFilter(isAdmin, 'user:delete', userId);
 
-    sendToUser(findUserById.id, 'logout', null);
+    await logoutSockets((user) => user.id === findUserById.id);
 });

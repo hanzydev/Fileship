@@ -96,7 +96,7 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    await prisma.folder.create({
+    const inboxFolder = await prisma.folder.create({
         data: {
             name: 'Inbox',
             public: false,
@@ -107,6 +107,12 @@ export default defineEventHandler(async (event) => {
                 },
             },
         },
+    });
+
+    await insert(folderSearchDb, {
+        id: inboxFolder.id,
+        authorId: inboxFolder.authorId,
+        name: inboxFolder.name,
     });
 
     const createdUser = {

@@ -18,7 +18,7 @@ export const getFileCategory = (file: { mimeType: string; fileName: string }): F
     if (file.mimeType.startsWith('audio/')) return 'audio';
     if (DOCUMENT_FILE_MIME_TYPES.includes(file.mimeType)) return 'document';
     if (ARCHIVE_FILE_MIME_TYPES.includes(file.mimeType)) return 'archive';
-    if (CODE_FILE_EXTENSIONS.includes(getExtname(file.fileName))) return 'code';
+    if (CODE_FILE_EXTENSIONS.includes(getExtname(file.fileName).toLowerCase())) return 'code';
     if (file.mimeType.startsWith('text/')) return 'document';
     return 'other';
 };

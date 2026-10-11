@@ -187,15 +187,12 @@ export default defineEventHandler(async (event) => {
             },
         });
 
-        await sendByFilter(
-            (user) =>
-                user.id === userId
-                    ? userId === currentUser.id
-                        ? user.currentSessionId !== currentUser.currentSessionId
-                        : true
-                    : false,
-            'logout',
-            null,
+        await logoutSockets((user) =>
+            user.id === userId
+                ? userId === currentUser.id
+                    ? user.currentSessionId !== currentUser.currentSessionId
+                    : true
+                : false,
         );
 
         sendToUser(userId!, 'session:deleteAll', null);
@@ -259,6 +256,11 @@ export default defineEventHandler(async (event) => {
     await createLog(event, {
         action: 'Update User',
         message: `Updated user ${updatedUser.username}`,
+    });
+
+    await refreshSocketUser(updatedUser.id, {
+        permissions: updatedUser.permissions,
+        superAdmin: updatedUser.superAdmin,
     });
 
     await sendByFilter(isAdmin, 'user:update', { ...updatedUser, aiSettings: undefined });

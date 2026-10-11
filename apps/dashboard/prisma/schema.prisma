@@ -37,30 +37,31 @@ enum AIJobStatus {
 }
 
 model User {
-  id                 String              @id @unique @default(uuid())
-  username           String              @unique
-  password           String
-  avatar             String?
-  permissions        UserPermission[]
-  files              File[]
-  views              View[]
-  notes              Note[]
-  folders            Folder[]
-  sessions           Session[]
-  logs               Log[]
-  totpEnabled        Boolean             @default(false)
-  totpSecret         String?
-  superAdmin         Boolean             @default(false)
-  limits             Json                @default("{}")
-  embed              Json                @default("{}")
-  aiSettings         Json                @default("{}")
-  createdAt          DateTime            @default(now())
-  domains            String[]
-  backupRestoreState BackupRestoreState?
-  theme              String              @default("Fileship")
-  credentials        Credential[]
-  aiJobs             AIJob[]
-  inbox              Inbox?
+  id                     String              @id @unique @default(uuid())
+  username               String              @unique
+  password               String
+  avatar                 String?
+  permissions            UserPermission[]
+  files                  File[]
+  views                  View[]
+  notes                  Note[]
+  folders                Folder[]
+  sessions               Session[]
+  logs                   Log[]
+  totpEnabled            Boolean             @default(false)
+  totpSecret             String?
+  superAdmin             Boolean             @default(false)
+  limits                 Json                @default("{}")
+  embed                  Json                @default("{}")
+  aiSettings             Json                @default("{}")
+  createdAt              DateTime            @default(now())
+  domains                String[]
+  backupRestoreState     BackupRestoreState?
+  backupRestoreStartedAt DateTime?
+  theme                  String              @default("Fileship")
+  credentials            Credential[]
+  aiJobs                 AIJob[]
+  inbox                  Inbox?
 }
 
 model Credential {
@@ -199,7 +200,7 @@ model Inbox {
   userId   String  @unique
   folder   Folder  @relation(fields: [folderId], references: [id], onDelete: Cascade)
   folderId String  @unique
-  slug     String?  @unique
+  slug     String? @unique
   enabled  Boolean @default(false)
   password String?
 }

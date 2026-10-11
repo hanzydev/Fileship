@@ -28,3 +28,17 @@ export const sendByFilter = async (
 
     return filteredClients.map((client) => client.emit(event, data));
 };
+
+export const logoutSockets = async (
+    filter: (user: UserModel & { currentSessionId: string }) => boolean,
+) => {
+    const clients = (await getIO().fetchSockets()).filter((client) => filter(client.data.user));
+
+    clients.forEach((client) => client.emit('logout', null));
+    setTimeout(() => clients.forEach((client) => client.disconnect(true)), 1_000);
+};
+
+export const refreshSocketUser = async (userId: string, data: Partial<UserModel>) => {
+    const clients = await getIO().in(userId).fetchSockets();
+    clients.forEach((client) => Object.assign(client.data.user, data));
+};

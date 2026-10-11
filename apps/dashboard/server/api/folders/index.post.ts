@@ -7,7 +7,7 @@ const validationSchema = z.object({
         .string()
         .min(1, 'Name must be at least 1 character')
         .max(32, 'Name must be at most 32 characters'),
-    files: z.array(z.string()).optional(),
+    files: z.array(z.string()).max(5000).optional(),
     public: z.boolean().optional().default(false),
 });
 

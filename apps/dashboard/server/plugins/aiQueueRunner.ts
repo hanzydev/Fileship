@@ -12,7 +12,7 @@ export default defineNitroPlugin(async () => {
     let running = false;
 
     const tick = async () => {
-        if (running) return;
+        if (running || !appState.ready) return;
         running = true;
 
         try {

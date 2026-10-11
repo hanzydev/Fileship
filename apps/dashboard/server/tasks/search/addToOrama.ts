@@ -1,7 +1,7 @@
 import consola from 'consola';
 import dayjs from 'dayjs';
 
-import { insertMultiple } from '@orama/orama';
+import { type AnyOrama, getByID, insertMultiple } from '@orama/orama';
 
 export default defineTask({
     meta: {
@@ -58,9 +58,12 @@ export default defineTask({
             },
         });
 
+        const missing = <T extends { id: string }>(db: AnyOrama, docs: T[]) =>
+            docs.filter((doc) => !getByID(db, doc.id));
+
         await insertMultiple(
             fileSearchDb,
-            files.map((file) => ({
+            missing(fileSearchDb, files).map((file) => ({
                 ...file,
                 embedding: (file.embedding as number[]) || undefined,
                 textEmbedding: (file.textEmbedding as number[]) || undefined,
@@ -68,10 +71,10 @@ export default defineTask({
                 ocrText: file.ocrText || undefined,
             })),
         );
-        await insertMultiple(folderSearchDb, folders);
-        await insertMultiple(noteSearchDb, notes);
-        await insertMultiple(userSearchDb, users);
-        await insertMultiple(logSearchDb, logs);
+        await insertMultiple(folderSearchDb, missing(folderSearchDb, folders));
+        await insertMultiple(noteSearchDb, missing(noteSearchDb, notes));
+        await insertMultiple(userSearchDb, missing(userSearchDb, users));
+        await insertMultiple(logSearchDb, missing(logSearchDb, logs));
 
         consola.success(
             `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Successfully added data to Orama search database.`,

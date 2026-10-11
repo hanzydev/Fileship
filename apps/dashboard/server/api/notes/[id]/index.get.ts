@@ -37,6 +37,7 @@ export default defineEventHandler(async (event) => {
     return {
         ...findNoteById,
         author: undefined,
+        authorId: findNoteById.authorId === user?.id ? findNoteById.authorId : undefined,
         publicUrl: findNoteById.public
             ? buildPublicUrl(event, findNoteById.author.domains, `/note/${findNoteById.id}`)
             : undefined,

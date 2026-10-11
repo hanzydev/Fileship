@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 import consola from 'consola';
 import dayjs from 'dayjs';
 import { extname, join } from 'pathe';
@@ -6,13 +8,15 @@ import { insert, remove } from '@orama/orama';
 
 import { AIJobStatus, AIJobType } from '#shared/prisma/enums';
 
+const WORKER_ID = randomUUID();
+
 export default defineTask({
     meta: {
         name: 'ai:processQueue',
         description: 'Processes pending AI jobs',
     },
     async run() {
-        const workerId = `FILESHIP-AI-RUNNER-${process.pid}`;
+        const workerId = `FILESHIP-AI-RUNNER-${WORKER_ID}`;
 
         const envConcurrency = +(process.env.AI_QUEUE_CONCURRENCY ?? 0);
         const concurrency = Math.max(
@@ -86,8 +90,6 @@ export default defineTask({
                         ocrText: file.ocrText || undefined,
                         caption: file.caption || undefined,
                     });
-
-                    sendToUser(file.authorId, 'file:update', { id: file.id, embedding });
                 }
 
                 if (job.type === AIJobType.GenerateVideoEmbedding) {
@@ -134,8 +136,6 @@ export default defineTask({
                         ocrText: file.ocrText || undefined,
                         caption: file.caption || undefined,
                     });
-
-                    sendToUser(file.authorId, 'file:update', { id: file.id, embedding });
                 }
 
                 if (job.type === AIJobType.GenerateOcrText) {
@@ -253,11 +253,6 @@ export default defineTask({
                         textEmbedding: embedding,
                         ocrText: file.ocrText || undefined,
                         caption: file.caption || undefined,
-                    });
-
-                    sendToUser(file.authorId, 'file:update', {
-                        id: file.id,
-                        textEmbedding: embedding,
                     });
                 }
 

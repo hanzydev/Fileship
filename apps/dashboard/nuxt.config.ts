@@ -87,6 +87,7 @@ export default defineNuxtConfig({
             [process.env.DELETE_EXPIRED_CRON || '*/5 * * * *']: 'db:deleteExpired',
             [process.env.GENERATE_STATS_CRON || '*/30 * * * *']: 'db:generateStats',
 
+            '0 * * * *': 'dir:clearTemp',
             '0 */2 * * *': 'telemetry:collect',
         },
         framework: {

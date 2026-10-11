@@ -31,11 +31,9 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    await sendByFilter(
+    await logoutSockets(
         (user) =>
             user.id === currentUser.id && user.currentSessionId !== currentUser.currentSessionId,
-        'logout',
-        null,
     );
     sendToUser(currentUser.id, 'session:deleteAll', null);
 });

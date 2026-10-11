@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
             ],
         },
         include: {
-            views: true,
+            _count: { select: { views: true } },
             folder: {
                 select: {
                     public: true,
@@ -74,26 +74,31 @@ export default defineEventHandler(async (event) => {
         }
     }
 
+    const isOwner = findFileById.authorId === currentUser?.id;
+    const todayViews = await getTodayViews([findFileById.id]);
+
     return {
         ...findFileById,
+        _count: undefined,
         password: undefined,
         author: undefined,
         folder: undefined,
+        ...(isOwner
+            ? {}
+            : {
+                  authorId: undefined,
+                  caption: undefined,
+                  piiReasons: undefined,
+                  maxViews: undefined,
+                  expiresAt: undefined,
+              }),
         size: {
             raw: findFileById.size.toString(),
             formatted: filesize(findFileById.size),
         },
         views: {
-            total: findFileById.views.length,
-            today: findFileById.views.filter((view) => {
-                const now = new Date();
-
-                return (
-                    view.createdAt.getDate() === now.getDate() &&
-                    view.createdAt.getMonth() === now.getMonth() &&
-                    view.createdAt.getFullYear() === now.getFullYear()
-                );
-            }).length,
+            total: findFileById._count.views,
+            today: todayViews.get(findFileById.id) ?? 0,
         },
         embed: defu(findFileById.author.embed, defaultEmbed) as IEmbed,
         directUrl: buildPublicUrl(

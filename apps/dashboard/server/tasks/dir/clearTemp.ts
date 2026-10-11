@@ -6,23 +6,35 @@ import { join } from 'pathe';
 
 const TEMP_MAX_AGE = 6 * 60 * 60 * 1000;
 
+const isStale = async (path: string) => Date.now() - (await fsp.stat(path)).mtimeMs > TEMP_MAX_AGE;
+
 export default defineTask({
     meta: {
         name: 'dir:clearTemp',
-        description: 'Clears temporary directory',
+        description: 'Clears old temporary files',
     },
     async run() {
         const tempPath = join(dataDirectory, 'temp');
 
         if (existsSync(tempPath)) {
-            const files = await fsp.readdir(tempPath);
+            for (const entry of await fsp.readdir(tempPath, { withFileTypes: true })) {
+                const entryPath = join(tempPath, entry.name);
 
-            for (const file of files) {
                 try {
-                    const { mtimeMs } = await fsp.stat(join(tempPath, file));
-                    if (Date.now() - mtimeMs < TEMP_MAX_AGE) continue;
+                    if (entry.isDirectory()) {
+                        for (const child of await fsp.readdir(entryPath)) {
+                            const childPath = join(entryPath, child);
+                            if (await isStale(childPath)) {
+                                await fsp.rm(childPath, { recursive: true, force: true });
+                            }
+                        }
 
-                    await fsp.rm(join(tempPath, file), { recursive: true, force: true });
+                        if (!(await fsp.readdir(entryPath)).length && (await isStale(entryPath))) {
+                            await fsp.rm(entryPath, { recursive: true, force: true });
+                        }
+                    } else if (await isStale(entryPath)) {
+                        await fsp.rm(entryPath, { force: true });
+                    }
                 } catch {
                     //
                 }

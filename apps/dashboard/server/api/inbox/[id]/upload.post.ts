@@ -122,6 +122,30 @@ export default defineEventHandler(async (event) => {
     const removeExifData = (process.env.REMOVE_EXIF_DATA || 'true') === 'true';
     const isLastChunk = body.data.currentChunk === body.data.totalChunks;
 
+    const usableSpace = (findInboxById.user.limits as any).usableSpace as number;
+
+    const totalSize = await prisma.file.aggregate({
+        where: {
+            authorId: findInboxById.user.id,
+        },
+        _sum: {
+            size: true,
+        },
+    });
+
+    const exceedsLimit = (size: number) =>
+        !isAdmin(findInboxById.user) &&
+        usableSpace > -1 &&
+        (totalSize._sum.size ?? 0n) + BigInt(size) > BigInt(usableSpace * 1024 * 1024);
+
+    if (exceedsLimit((body.data.chunkOffset ?? 0) + buffer.length)) {
+        await fsp.rm(tempPath, { force: true });
+        throw createError({
+            statusCode: 400,
+            message: 'Storage limit reached',
+        });
+    }
+
     if (body.data.chunkOffset !== undefined) {
         await writeUploadChunk(tempPath, buffer, body.data.chunkOffset, isLastChunk);
     } else {
@@ -149,21 +173,8 @@ export default defineEventHandler(async (event) => {
         }
 
         const fileSize = (await fsp.stat(tempPath)).size;
-        const totalSize = await prisma.file.aggregate({
-            where: {
-                authorId: findInboxById.user.id,
-            },
-            _sum: {
-                size: true,
-            },
-        });
 
-        if (
-            !isAdmin(findInboxById.user) &&
-            (findInboxById.user.limits as any).usableSpace > -1 &&
-            (totalSize._sum.size ?? 0n) + BigInt(fileSize) >
-                BigInt((findInboxById.user.limits as any).usableSpace * 1024 * 1024)
-        ) {
+        if (exceedsLimit(fileSize)) {
             await fsp.rm(tempPath).catch(() => {});
             throw createError({
                 statusCode: 400,

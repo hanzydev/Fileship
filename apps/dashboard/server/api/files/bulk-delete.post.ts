@@ -6,7 +6,7 @@ import z from 'zod';
 import { removeMultiple } from '@orama/orama';
 
 const validationSchema = z.object({
-    files: z.array(z.uuid()).min(1),
+    files: z.array(z.uuid()).min(1).max(5000),
 });
 
 export default defineEventHandler(async (event) => {

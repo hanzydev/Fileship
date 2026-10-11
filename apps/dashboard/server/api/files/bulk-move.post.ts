@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const validationSchema = z.object({
-    files: z.array(z.uuid()).min(1),
+    files: z.array(z.uuid()).min(1).max(5000),
     folderId: z.string().nullable(),
 });
 
@@ -36,10 +36,17 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const { count } = await prisma.file.updateMany({
+    const files = await prisma.file.findMany({
         where: {
             id: { in: body.data.files },
             authorId: currentUser.id,
+        },
+        select: { id: true },
+    });
+
+    const { count } = await prisma.file.updateMany({
+        where: {
+            id: { in: files.map((file) => file.id) },
         },
         data: {
             folderId: body.data.folderId,
@@ -47,7 +54,7 @@ export default defineEventHandler(async (event) => {
     });
 
     sendToUser(currentUser.id, 'file:bulkMove', {
-        files: body.data.files,
+        files: files.map((file) => file.id),
         folder: findFolderById,
     });
 

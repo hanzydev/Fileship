@@ -123,7 +123,7 @@ export const serializeFile = <
 
 export const getTodayViews = async (fileIds: string[]) => {
     const start = new Date();
-    start.setHours(0, 0, 0, 0);
+    start.setUTCHours(0, 0, 0, 0);
 
     const views = await prisma.view.groupBy({
         by: ['fileId'],
