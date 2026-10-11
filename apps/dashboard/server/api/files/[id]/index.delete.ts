@@ -34,12 +34,6 @@ export default defineEventHandler(async (event) => {
         }).catch(() => null);
     }
 
-    await prisma.view.deleteMany({
-        where: {
-            fileId,
-        },
-    });
-
     await prisma.file.delete({
         where: {
             id: fileId,

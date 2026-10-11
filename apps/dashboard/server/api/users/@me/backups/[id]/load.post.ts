@@ -137,7 +137,10 @@ export default defineEventHandler(async (event) => {
                 await prisma.$transaction([
                     prisma.view.deleteMany({
                         where: {
-                            file: { authorId: currentUser.id },
+                            OR: [
+                                { ownerId: currentUser.id },
+                                { file: { authorId: currentUser.id } },
+                            ],
                         },
                     }),
                     prisma.folder.deleteMany({
@@ -233,6 +236,8 @@ export default defineEventHandler(async (event) => {
                                             }
 
                                             value.fileId = undefined;
+                                            value.ownerId = undefined;
+                                            value.owner = { connect: { id: currentUser.id } };
                                             break;
                                         }
                                     }

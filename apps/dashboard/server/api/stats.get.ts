@@ -1,65 +1,34 @@
+import dayjs from 'dayjs';
 import { filesize } from 'filesize';
 
 export default defineEventHandler(async (event) => {
     adminOnly(event);
 
-    const [stat, prevStat] = await prisma.stat.findMany({
-        where: {
-            createdAt: {
-                in: (
-                    await prisma.stat.groupBy({
-                        by: ['createdAt'],
-                        _max: {
-                            createdAt: true,
-                        },
-                        orderBy: {
-                            _max: {
-                                createdAt: 'desc',
-                            },
-                        },
-                    })
-                ).map((group) => group._max.createdAt!),
-            },
-        },
-        orderBy: {
-            createdAt: 'desc',
-        },
-        take: 2,
-    });
+    const { dayAgo, stat, prevStat } = await getStatSnapshots();
 
-    const now = new Date();
+    const [userCount, fileCount, storage, viewCount, prevViewCount, monthlyViews] =
+        await Promise.all([
+            prisma.user.count(),
+            prisma.file.count(),
+            prisma.file.aggregate({ _sum: { size: true } }),
+            prisma.view.count(),
+            prisma.view.count({ where: { createdAt: { lte: dayAgo } } }),
+            prisma.$queryRaw<{ month: string; count: number }[]>`
+            SELECT to_char(date_trunc('month', "createdAt"), 'YYYY-MM') AS month, count(*)::int AS count
+            FROM "View"
+            WHERE "createdAt" >= date_trunc('month', now()) - interval '11 months'
+            GROUP BY 1
+        `,
+        ]);
 
-    const currentViews = (stat?.views as number[]) || [];
-    const prevViews = (prevStat?.views as number[]) || [];
+    const months = Array.from({ length: 12 }, (_, i) => dayjs().subtract(11 - i, 'month'));
 
-    const viewsByMonth = currentViews.reduce(
-        (acc, createdTimestamp) => {
-            const createdAt = new Date(createdTimestamp);
-
-            if (createdAt.getFullYear() === now.getFullYear()) {
-                acc.data[createdAt.getMonth()]!++;
-            }
-
-            return acc;
-        },
-        {
-            labels: [
-                'January',
-                'February',
-                'March',
-                'April',
-                'May',
-                'June',
-                'July',
-                'August',
-                'September',
-                'October',
-                'November',
-                'December',
-            ],
-            data: Array.from({ length: 12 }, () => 0),
-        },
-    );
+    const viewsByMonth = {
+        labels: months.map((month) => month.format('MMM YYYY')),
+        data: months.map(
+            (month) => monthlyViews.find((m) => m.month === month.format('YYYY-MM'))?.count || 0,
+        ),
+    };
 
     const topUploaders = (stat?.filesByUser as { userId: string; count: number }[]) ?? [];
 
@@ -83,17 +52,17 @@ export default defineEventHandler(async (event) => {
 
     return {
         users: {
-            count: stat?.users ?? 0,
-            growth: calculateGrowthPercentage(stat?.users ?? 0, prevStat?.users ?? 0),
+            count: userCount,
+            growth: calculateGrowthPercentage(userCount, prevStat?.users ?? 0),
             all: users,
         },
         files: {
-            count: stat?.files ?? 0,
-            growth: calculateGrowthPercentage(stat?.files ?? 0, prevStat?.files ?? 0),
+            count: fileCount,
+            growth: calculateGrowthPercentage(fileCount, prevStat?.files ?? 0),
         },
         storageUsed: {
-            size: filesize(stat?.storageUsed ?? 0),
-            growth: calculateGrowthPercentage(stat?.storageUsed ?? 0, prevStat?.storageUsed ?? 0),
+            size: filesize(storage._sum.size ?? 0n),
+            growth: calculateGrowthPercentage(storage._sum.size ?? 0n, prevStat?.storageUsed ?? 0),
             byUser: storageUsedByUser
                 .map((data) => ({
                     ...data,
@@ -102,8 +71,8 @@ export default defineEventHandler(async (event) => {
                 .filter((u) => users.find((user) => user.id === u.userId)),
         },
         views: {
-            count: currentViews.length ?? 0,
-            growth: calculateGrowthPercentage(currentViews.length ?? 0, prevViews.length ?? 0),
+            count: viewCount,
+            growth: calculateGrowthPercentage(viewCount, prevViewCount),
             byMonth: viewsByMonth,
         },
         topTypes: (stat?.types ?? []) as { type: string; count: number }[],

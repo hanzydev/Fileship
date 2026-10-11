@@ -16,9 +16,7 @@
         <UiCard>
             <UiCardHeader>
                 <UiCardTitle>Views</UiCardTitle>
-                <UiCardDescription>
-                    File views per month in {{ new Date().getFullYear() }}
-                </UiCardDescription>
+                <UiCardDescription>File views over the last 12 months</UiCardDescription>
             </UiCardHeader>
             <UiCardContent>
                 <UiSkeleton v-if="!stats" class="h-64 w-full rounded-2xl" />

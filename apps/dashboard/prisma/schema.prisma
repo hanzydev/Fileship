@@ -43,6 +43,7 @@ model User {
   avatar             String?
   permissions        UserPermission[]
   files              File[]
+  views              View[]
   notes              Note[]
   folders            Folder[]
   sessions           Session[]
@@ -159,6 +160,11 @@ model View {
   createdAt DateTime @default(now())
   file      File?    @relation(fields: [fileId], references: [id])
   fileId    String?
+  owner     User?    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   String?
+
+  @@index([createdAt])
+  @@index([ownerId])
 }
 
 model Session {

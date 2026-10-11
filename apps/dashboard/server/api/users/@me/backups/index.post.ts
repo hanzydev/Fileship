@@ -49,9 +49,7 @@ export default defineEventHandler(async (event) => {
             orderBy: { createdAt: 'desc' },
         }),
         prisma.view.findMany({
-            where: {
-                file: { authorId: currentUser.id },
-            },
+            where: { ownerId: currentUser.id },
         }),
     ]);
 

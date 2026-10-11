@@ -45,12 +45,6 @@ export default defineEventHandler(async (event) => {
     const fileIds = filesToBeDeleted.map((file) => file.id);
 
     await prisma.$transaction(async (tx) => {
-        await tx.view.deleteMany({
-            where: {
-                fileId: { in: fileIds },
-            },
-        });
-
         await tx.file.deleteMany({
             where: {
                 id: { in: fileIds },

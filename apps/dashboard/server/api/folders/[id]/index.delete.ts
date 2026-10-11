@@ -53,12 +53,6 @@ export default defineEventHandler(async (event) => {
         if (body.data.deleteFilesToo) {
             const fileIds = findFolderById.files.map((file) => file.id);
 
-            await tx.view.deleteMany({
-                where: {
-                    fileId: { in: fileIds },
-                },
-            });
-
             await tx.file.deleteMany({
                 where: {
                     id: { in: fileIds },
