@@ -303,7 +303,11 @@ const uploadSheetOpen = useUploadSheet();
 const query = useQueryState('q', '');
 const typeQuery = useQueryState('type', '');
 const sort = useQueryState('sort', '');
-const view = useQueryState<'grid' | 'list'>('view', 'grid');
+const view = useCookie<'grid' | 'list'>('fileView', {
+    default: () => 'grid',
+    maxAge: 60 * 60 * 24 * 400,
+    sameSite: 'lax',
+});
 const folderFilter = useQueryState('folder', 'all');
 const sheetFileId = useQueryState('file', '');
 
