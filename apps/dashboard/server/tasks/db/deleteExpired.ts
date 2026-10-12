@@ -1,7 +1,7 @@
 export default defineTask({
     meta: {
         name: 'db:deleteExpired',
-        description: 'Deletes expired files',
+        description: 'Deletes expired files and links',
     },
     async run() {
         const expired = await prisma.file.findMany({
@@ -34,6 +34,27 @@ export default defineTask({
             });
 
             sendToUser(file.authorId, 'file:delete', file.id);
+        }
+
+        const expiredLinks = await prisma.link.findMany({
+            where: { expiresAt: { lte: new Date() } },
+            select: { id: true, code: true, authorId: true },
+        });
+
+        for (const link of expiredLinks) {
+            const { count } = await prisma.link.deleteMany({
+                where: { id: link.id, expiresAt: { lte: new Date() } },
+            });
+
+            if (!count) continue;
+
+            await createLog(null, {
+                action: 'Delete Link',
+                message: `Deleted link ${link.code} due to expiration`,
+                system: true,
+            });
+
+            sendToUser(link.authorId, 'link:delete', link.id);
         }
 
         return { result: 'success' };

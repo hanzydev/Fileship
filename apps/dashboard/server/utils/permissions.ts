@@ -23,3 +23,8 @@ export const noteTakerOnly = (event: H3Event) => {
     userOnly(event);
     if (!canTakeNotes(event)) throw forbiddenError;
 };
+
+export const linkShortenerOnly = (event: H3Event) => {
+    userOnly(event);
+    if (!canShortenLinks(event)) throw forbiddenError;
+};

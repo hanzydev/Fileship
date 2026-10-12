@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const [files, folders, notes, views] = await prisma.$transaction([
+    const [files, folders, notes, views, links] = await prisma.$transaction([
         prisma.file.findMany({
             where: { authorId: currentUser.id, deletedAt: null },
             orderBy: { createdAt: 'desc' },
@@ -45,6 +45,9 @@ export default defineEventHandler(async (event) => {
         prisma.view.findMany({
             where: { ownerId: currentUser.id },
         }),
+        prisma.link.findMany({
+            where: { authorId: currentUser.id },
+        }),
     ]);
 
     const tempPath = join(dataDirectory, 'temp', nanoid());
@@ -67,6 +70,7 @@ export default defineEventHandler(async (event) => {
         },
         { key: 'note', data: notes },
         { key: 'view', data: views },
+        { key: 'link', data: links },
         {
             key: 'user',
             data: {

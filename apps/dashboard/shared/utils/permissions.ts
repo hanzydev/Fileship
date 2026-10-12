@@ -30,3 +30,5 @@ export const canUploadFiles = (user: UserOrEvent) =>
 
 export const canTakeNotes = (user: UserOrEvent) => hasPermission(user, UserPermission.TakeNotes);
 
+export const canShortenLinks = (user: UserOrEvent) =>
+    hasPermission(user, UserPermission.ShortenLinks);

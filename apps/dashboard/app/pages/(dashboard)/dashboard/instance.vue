@@ -510,6 +510,7 @@ watch(
 const registrablePermissions = [
     { value: 'UploadFiles', label: 'Upload files' },
     { value: 'TakeNotes', label: 'Take notes' },
+    { value: 'ShortenLinks', label: 'Shorten links' },
 ] as const;
 
 const sections: SettingSection[] = [

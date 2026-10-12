@@ -11,7 +11,7 @@ export const settingsSchema = z.object({
     trashRetentionDays: z.number().int().min(0).max(365),
     registrationEnabled: z.boolean(),
     registrationPermissions: z.array(
-        z.enum([UserPermission.UploadFiles, UserPermission.TakeNotes]),
+        z.enum([UserPermission.UploadFiles, UserPermission.TakeNotes, UserPermission.ShortenLinks]),
     ),
     registrationUsableSpace: z.number().int().min(-1),
     turnstileSiteKey: z.string().trim().max(256),

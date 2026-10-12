@@ -1,4 +1,4 @@
-import { createReadStream, promises as fsp } from 'node:fs';
+import { createReadStream, existsSync, promises as fsp } from 'node:fs';
 
 import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
@@ -36,6 +36,7 @@ const BACKUP_FIELDS = {
         'textEmbedding',
     ],
     view: ['ip', 'createdAt'],
+    link: ['code', 'url', 'password', 'maxClicks', 'clicks', 'expiresAt', 'createdAt'],
     user: [],
 };
 
@@ -177,6 +178,7 @@ export default defineEventHandler(async (event) => {
                         where: { authorId: currentUser.id, inbox: null },
                     }),
                     prisma.note.deleteMany({ where: { authorId: currentUser.id } }),
+                    prisma.link.deleteMany({ where: { authorId: currentUser.id } }),
                     prisma.file.deleteMany({ where: { authorId: currentUser.id } }),
                 ]);
 
@@ -184,7 +186,7 @@ export default defineEventHandler(async (event) => {
 
                 await updateState(BackupRestoreState.RestoringData);
 
-                const databases = ['folder', 'note', 'file', 'user', 'view'] as const;
+                const databases = ['folder', 'note', 'link', 'file', 'user', 'view'] as const;
                 const remappedKeys = new Map<string, string>();
                 const uploadSizes = new Map<string, number>();
                 const uploadPaths = new Map<string, string>();
@@ -205,6 +207,8 @@ export default defineEventHandler(async (event) => {
 
                 for (const database of databases) {
                     const databasePath = join(tempPath, 'database', `${database}.json`);
+
+                    if (!existsSync(databasePath)) continue;
 
                     if (database === 'user') {
                         try {
@@ -261,6 +265,15 @@ export default defineEventHandler(async (event) => {
                                         case 'view':
                                             data.fileId = remappedKeys.get(value.fileId) ?? null;
                                             data.ownerId = currentUser.id;
+                                            break;
+                                        case 'link':
+                                            data.authorId = currentUser.id;
+                                            if (
+                                                await prisma.link.findUnique({
+                                                    where: { code: data.code },
+                                                })
+                                            )
+                                                data.code = await createLinkCode();
                                             break;
                                         default:
                                             data.authorId = currentUser.id;

@@ -12,6 +12,7 @@ enum UserPermission {
   Admin
   UploadFiles
   TakeNotes
+  ShortenLinks
 }
 
 enum BackupRestoreState {
@@ -71,6 +72,7 @@ model User {
   aiJobs                 AIJob[]
   inbox                  Inbox?
   backups                Backup[]
+  links                  Link[]
 }
 
 model Credential {
@@ -259,4 +261,19 @@ model Setting {
   key       String   @id
   value     Json
   updatedAt DateTime @updatedAt
+}
+
+model Link {
+  id        String    @id @default(uuid())
+  code      String    @unique
+  url       String
+  password  String?
+  maxClicks Int       @default(0)
+  clicks    Int       @default(0)
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+
+  @@index([authorId, createdAt])
 }

@@ -30,9 +30,13 @@ export const getSettingDefaults = (): InstanceSettings => {
                 .split(',')
                 .map((permission) => permission.trim())
                 .filter((permission) =>
-                    ([UserPermission.UploadFiles, UserPermission.TakeNotes] as string[]).includes(
-                        permission,
-                    ),
+                    (
+                        [
+                            UserPermission.UploadFiles,
+                            UserPermission.TakeNotes,
+                            UserPermission.ShortenLinks,
+                        ] as string[]
+                    ).includes(permission),
                 ),
             [UserPermission.UploadFiles, UserPermission.TakeNotes],
         ),

@@ -6,7 +6,11 @@ export default defineEventHandler(async (event) => {
     if (!token) {
         const authorization = getRequestHeader(event, 'authorization');
 
-        if (authorization && event.method === 'POST' && event.path === '/api/files') {
+        if (
+            authorization &&
+            event.method === 'POST' &&
+            ['/api/files', '/api/links'].includes(event.path)
+        ) {
             event.context.user = (await prisma.user.findUnique({
                 where: { uploadTokenHash: hashToken(authorization.replace(/^Bearer /, '')) },
             })) as any;
