@@ -103,7 +103,7 @@ export const buildUnixScript = (
         '        notify "Upload failed"',
         '        exit 1',
         '    }',
-        `    link=$(printf %s "$response" | sed -n 's/.*"url":"\\([^"]*\\)".*/\\1/p')`,
+        `    link=$(printf %s "$response" | sed -n 's/.*"url": *"\\([^"]*\\)".*/\\1/p')`,
         '    echo "$link"',
         '    links="${links:+$links }$link"',
         'done',
