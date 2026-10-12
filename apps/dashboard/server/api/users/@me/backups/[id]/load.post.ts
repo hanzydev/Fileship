@@ -326,7 +326,9 @@ export default defineEventHandler(async (event) => {
                                                         ),
                                                     };
 
-                                                    await processMedia(created);
+                                                    if (isAnalyzable(created.mimeType))
+                                                        created.metadata =
+                                                            await processMedia(created);
 
                                                     created.thumbnailUrl = getThumbnailUrl(
                                                         event,

@@ -3,7 +3,7 @@ import consola from 'consola';
 export default defineTask({
     meta: {
         name: 'media:sync',
-        description: 'Generates missing thumbnails',
+        description: 'Generates missing thumbnails and media metadata',
     },
     async run() {
         let cursor: string | undefined;
@@ -12,12 +12,11 @@ export default defineTask({
         while (true) {
             const files = await prisma.file.findMany({
                 where: {
-                    OR: [
-                        { mimeType: { startsWith: 'image/' } },
-                        { mimeType: { startsWith: 'video/' } },
-                    ],
+                    OR: ['image/', 'video/', 'audio/'].map((type) => ({
+                        mimeType: { startsWith: type },
+                    })),
                 },
-                select: { id: true, fileName: true, mimeType: true },
+                select: { id: true, fileName: true, mimeType: true, metadata: true },
                 orderBy: { id: 'asc' },
                 take: 100,
                 ...(cursor && { skip: 1, cursor: { id: cursor } }),
@@ -26,7 +25,8 @@ export default defineTask({
             if (!files.length) break;
 
             for (const file of files) {
-                if (!canHaveThumbnail(file.mimeType) || hasThumbnail(file.id)) continue;
+                if (file.metadata && (!canHaveThumbnail(file.mimeType) || hasThumbnail(file.id)))
+                    continue;
 
                 await processMedia(file);
                 processed++;

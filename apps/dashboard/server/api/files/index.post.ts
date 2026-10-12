@@ -229,7 +229,7 @@ export default defineEventHandler(async (event) => {
             },
         });
 
-        await processMedia(_upload);
+        if (isAnalyzable(_upload.mimeType)) _upload.metadata = (await processMedia(_upload)) as any;
 
         const upload = {
             ..._upload,

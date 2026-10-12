@@ -6,12 +6,17 @@ import { join } from 'pathe';
 import sharp from 'sharp';
 
 import ffmpeg from '@ffmpeg-installer/ffmpeg';
+import ffprobe from '@ffprobe-installer/ffprobe';
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
+fluentFfmpeg.setFfprobePath(ffprobe.path);
 
 export const getThumbnailPath = (id: string) => join(dataDirectory, 'thumbnails', `${id}.jpeg`);
 
 export const hasThumbnail = (id: string) => existsSync(getThumbnailPath(id));
+
+export const isAnalyzable = (mimeType: string) =>
+    ['image/', 'video/', 'audio/'].some((type) => mimeType.startsWith(type));
 
 export const canHaveThumbnail = (mimeType: string) =>
     mimeType.startsWith('video/') ||
@@ -75,7 +80,74 @@ export const createThumbnail = async (file: { id: string; mimeType: string }, fi
     await fsp.rename(tempPath, thumbnailPath).catch(() => null);
 };
 
+const readImageMetadata = async (filePath: string): Promise<IMediaMetadata> => {
+    const metadata = await sharp(filePath).metadata();
+    const isRotated = metadata.orientation! >= 5;
+    const height = metadata.pageHeight ?? metadata.height;
+
+    return {
+        width: isRotated ? height : metadata.width,
+        height: isRotated ? metadata.width : height,
+        format: metadata.format.toUpperCase(),
+        colorSpace: metadata.space,
+        bitDepth: metadata.bitsPerSample,
+        hasAlpha: metadata.hasAlpha,
+        frames: metadata.pages! > 1 ? metadata.pages : undefined,
+    };
+};
+
+const probe = (filePath: string) =>
+    new Promise<fluentFfmpeg.FfprobeData>((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('ffprobe timed out')), 30_000);
+
+        fluentFfmpeg.ffprobe(filePath, (error, data) => {
+            clearTimeout(timeout);
+
+            if (error) reject(error);
+            else resolve(data);
+        });
+    });
+
+const readStreamMetadata = async (filePath: string): Promise<IMediaMetadata> => {
+    const { format, streams } = await probe(filePath);
+
+    const video = streams.find(
+        (stream) => stream.codec_type === 'video' && !stream.disposition?.attached_pic,
+    );
+    const audio = streams.find((stream) => stream.codec_type === 'audio');
+
+    const isRotated = Math.abs(+(video?.rotation ?? 0)) === 90;
+    const [frames, seconds] = (video?.avg_frame_rate ?? '0/0').split('/').map(Number);
+
+    return {
+        width: isRotated ? video?.height : video?.width,
+        height: isRotated ? video?.width : video?.height,
+        duration: +format.duration! || undefined,
+        bitrate: +format.bit_rate! || undefined,
+        fps: seconds ? Math.round((frames! / seconds) * 100) / 100 : undefined,
+        format: format.format_long_name,
+        videoCodec: video?.codec_name,
+        audioCodec: audio?.codec_name,
+        sampleRate: Number(audio?.sample_rate) || undefined,
+        channels: audio?.channels,
+    };
+};
+
+export const readMetadata = (mimeType: string, filePath: string) =>
+    (mimeType.startsWith('image/')
+        ? readImageMetadata(filePath)
+        : readStreamMetadata(filePath)
+    ).catch(() => ({}) as IMediaMetadata);
+
 export const processMedia = async (file: { id: string; fileName: string; mimeType: string }) => {
+    const filePath = join(dataDirectory, 'uploads', file.fileName);
+
     if (canHaveThumbnail(file.mimeType) && !hasThumbnail(file.id))
-        await createThumbnail(file, join(dataDirectory, 'uploads', file.fileName));
+        await createThumbnail(file, filePath);
+
+    const metadata = await readMetadata(file.mimeType, filePath);
+
+    await prisma.file.update({ where: { id: file.id }, data: { metadata: metadata as any } });
+
+    return metadata;
 };

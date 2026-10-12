@@ -22,6 +22,10 @@ allowBuilds:
   '@ffmpeg-installer/darwin-x64': true
   '@ffmpeg-installer/linux-arm64': true
   '@ffmpeg-installer/linux-x64': true
+  '@ffprobe-installer/darwin-arm64': true
+  '@ffprobe-installer/darwin-x64': true
+  '@ffprobe-installer/linux-arm64': true
+  '@ffprobe-installer/linux-x64': true
   '@parcel/watcher': true
   '@prisma/engines': true
   argon2: true

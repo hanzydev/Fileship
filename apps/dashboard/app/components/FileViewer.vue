@@ -190,6 +190,17 @@
                                     <dd class="truncate">{{ detail.value }}</dd>
                                 </template>
                             </dl>
+                            <template v-if="metadata.length">
+                                <TextBlock variant="small" custom-tag="h3" class="mt-4">
+                                    Metadata
+                                </TextBlock>
+                                <dl class="grid grid-cols-[8rem_1fr] gap-x-4 gap-y-3 py-2 text-sm">
+                                    <template v-for="row in metadata" :key="row.label">
+                                        <dt class="text-muted-foreground">{{ row.label }}</dt>
+                                        <dd class="truncate">{{ row.value }}</dd>
+                                    </template>
+                                </dl>
+                            </template>
                         </UiTabsContent>
 
                         <UiTabsContent value="edit">
@@ -431,6 +442,67 @@ const details = computed(() => {
         },
         { label: 'Uploaded', value: dayjs(f.createdAt).format('MMM D, YYYY HH:mm') },
     ];
+});
+
+const CODECS: Record<string, string> = {
+    h264: 'H.264',
+    hevc: 'H.265',
+    av1: 'AV1',
+    vp8: 'VP8',
+    vp9: 'VP9',
+    aac: 'AAC',
+    mp3: 'MP3',
+    opus: 'Opus',
+    vorbis: 'Vorbis',
+    flac: 'FLAC',
+    pcm_s16le: 'PCM 16-bit',
+    pcm_s24le: 'PCM 24-bit',
+};
+
+const CHANNELS: Record<number, string> = { 1: 'Mono', 2: 'Stereo', 6: '5.1', 8: '7.1' };
+
+const formatDuration = (seconds: number) =>
+    [Math.floor(seconds / 3600), Math.floor((seconds % 3600) / 60), Math.floor(seconds % 60)]
+        .filter((value, i) => value || i)
+        .map((value, i) => (i ? String(value).padStart(2, '0') : value))
+        .join(':');
+
+const formatBitrate = (bps: number) =>
+    bps >= 1e6 ? `${(bps / 1e6).toFixed(1)} Mbps` : `${Math.round(bps / 1e3)} kbps`;
+
+const metadata = computed(() => {
+    const m = file.value!.metadata;
+    if (!m) return [];
+
+    return [
+        { label: 'Resolution', value: m.width && `${m.width} × ${m.height}` },
+        { label: 'Duration', value: m.duration && formatDuration(m.duration) },
+        { label: 'Frame rate', value: m.fps && `${m.fps} fps` },
+        { label: 'Bitrate', value: m.bitrate && formatBitrate(m.bitrate) },
+        {
+            label: 'Codec',
+            value: [m.videoCodec, m.audioCodec]
+                .filter(Boolean)
+                .map((codec) => CODECS[codec!] ?? codec!.toUpperCase())
+                .join(' · '),
+        },
+        {
+            label: 'Audio',
+            value:
+                m.sampleRate &&
+                `${m.sampleRate / 1000} kHz · ${CHANNELS[m.channels!] ?? `${m.channels} channels`}`,
+        },
+        { label: 'Format', value: m.format },
+        {
+            label: 'Color',
+            value:
+                m.colorSpace &&
+                [m.colorSpace, m.bitDepth && `${m.bitDepth}-bit`, m.hasAlpha && 'Alpha']
+                    .filter(Boolean)
+                    .join(' · '),
+        },
+        { label: 'Frames', value: m.frames },
+    ].filter((row) => row.value);
 });
 
 const editData = reactive({

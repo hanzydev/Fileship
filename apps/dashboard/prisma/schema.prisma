@@ -96,6 +96,7 @@ model File {
   caption       String?
   piiDetected   Boolean   @default(false)
   piiReasons    String[]  @default([])
+  metadata      Json?
 
   aiJobs AIJob[]
 }

@@ -6,6 +6,23 @@ export interface IEmbed {
     siteName: string;
 }
 
+export interface IMediaMetadata {
+    width?: number;
+    height?: number;
+    duration?: number;
+    bitrate?: number;
+    fps?: number;
+    format?: string;
+    videoCodec?: string;
+    audioCodec?: string;
+    sampleRate?: number;
+    channels?: number;
+    colorSpace?: string;
+    bitDepth?: number;
+    hasAlpha?: boolean;
+    frames?: number;
+}
+
 export interface IUserLimits {
     usableSpace: number;
     backupLimit: number;
