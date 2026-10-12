@@ -37,7 +37,7 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 - Self-registration is off by default. `NUXT_PUBLIC_REGISTRATION_ENABLED=true` enables `/register` and `POST /api/auth/register`; `NUXT_REGISTRATION_PERMISSIONS` (only `UploadFiles` and `TakeNotes` are honoured) and `NUXT_REGISTRATION_USABLE_SPACE` (MB, `-1` unlimited) set what new accounts get.
 - `NUXT_UPDATER_URL` and `NUXT_UPDATER_SECRET` point the dashboard at the updater-agent. `docker-compose.yml` sets both.
 - The updater-agent reads `PORT`, `SECRET_TOKEN`, `DEV_MODE`, `AUTOUPDATER_ENABLED`, `AUTOUPDATER_CRON`, `COMPOSE_FILE` and `FILESHIP_URL`.
-- Instance settings (site name, link protocol, uploads, registration, Turnstile, AI, log level, telemetry) are stored in the `Setting` table and edited by super admins at `/dashboard/instance`. The env/runtimeConfig values are only their defaults. Server code reads them with `getSettings()` (or `getSettingsSync()` in synchronous code) from `server/utils/settings.ts`; the client reads the public subset with `usePublicSettings()`, kept in sync over the `settings:update` socket event. The schema lives in `shared/utils/settings.ts`.
+- Instance settings (site name, link protocol, uploads, registration, Turnstile, AI, log level, telemetry, active storage) are stored in the `Setting` table and edited by super admins at `/dashboard/instance`. The env/runtimeConfig values are only their defaults. Server code reads them with `getSettings()` (or `getSettingsSync()` in synchronous code) from `server/utils/settings.ts`; the client reads the public subset with `usePublicSettings()`, kept in sync over the `settings:update` socket event. The schema lives in `shared/utils/settings.ts`.
 - Server code reads the remaining configuration through `useRuntimeConfig()`, never `process.env`. Runtime overrides therefore use the `NUXT_` prefix. The exceptions are `DATABASE_URL` (shared with the Prisma CLI) and the build-time options in `nuxt.config.ts` (`ENABLE_PWA`, `DELETE_EXPIRED_CRON`, `GENERATE_STATS_CRON`), which only take effect when the app is built.
 - Never commit `.env` files, `data/` or anything under `.claude/` or `.impeccable/`.
 
@@ -48,7 +48,7 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 - Caddy uses the `first` selection policy with active health checks on `/api/healthz`, so traffic goes to the first healthy color.
 - An update pulls the image for the idle color, starts it, waits for `ready: true`, and then stops the old color. If the new color exits, dies or never becomes healthy, the agent stops it again and the old color keeps serving.
 - `/api/healthz` returns `{ status, version, ready, busy }`. `busy` is true while any backup restore is running; the agent waits for it (up to 10 minutes) before stopping the old color, and the auto-updater skips a run when busy.
-- Both colors share the database and `data/`. Startup work must be idempotent and safe to run twice (for example, `resetBackupRestoreState` only clears restores older than 2 hours).
+- Both colors share the database and `data/`. Startup work must be idempotent and safe to run twice (for example, `resetBackupRestoreState` only clears restores older than 2 hours, and `storage:sync` skips a storage that cannot be listed or looks empty).
 - `docker-compose.dev.yml` is the same stack built from local Dockerfiles.
 
 ## Dashboard layout (`apps/dashboard`)
@@ -59,12 +59,13 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 - `app/components/ui`: shadcn-vue components (style `reka-luma`, see `components.json`). App components sit flat in `app/components`.
 - `app/composables`: `useState` stores plus action composables (`useFileActions`, `useFolderActions`, `useNoteActions`).
 - `app/utils`: client helpers (`socket.ts`, `uploadFile.ts`, `getErrorMessage.ts`, ...).
-- `server/api`: REST endpoints (`auth`, `files`, `folders`, `inbox`, `logs`, `notes`, `settings`, `updater`, `users`, `stats`, `healthz`).
+- `server/api`: REST endpoints (`auth`, `files`, `folders`, `inbox`, `logs`, `notes`, `settings`, `storages`, `updater`, `users`, `stats`, `healthz`).
 - `server/routes/u/[id]`: raw file serving.
 - `server/middleware`: `auth.ts` (the `token` session cookie, plus the upload token on `POST /api/files`) and `cors.ts`.
 - `server/plugins`: `setup.ts`, `socketIO.ts`, `aiQueueRunner.ts`.
-- `server/tasks`: `db:*`, `dir:*`, `search:*`, `ai:*`, `media:*`, `telemetry:*`, scheduled in `nuxt.config.ts` or started from `setup.ts`.
-- `server/utils`: list/query helpers (`list.ts`), permissions, Prisma, Orama search, AI queue, sessions (`session.ts`), thumbnails and metadata (`media.ts`), `verifySession`, `createLog`, `errors.ts`, ...
+- `server/tasks`: `db:*`, `dir:*`, `search:*`, `ai:*`, `media:*`, `storage:*`, `telemetry:*`, scheduled in `nuxt.config.ts` or started from `setup.ts`.
+- `server/storage`: storage drivers (`local`, `s3`, `sftp`, `ftp`) behind the `StorageDriver` interface in `types.ts`.
+- `server/utils`: list/query helpers (`list.ts`), permissions, Prisma, Orama search, AI queue, sessions (`session.ts`), thumbnails and metadata (`media.ts`), storage (`storage.ts`, `upload.ts`, `backup.ts`, `fileData.ts`), `verifySession`, `createLog`, `errors.ts`, ...
 - `shared/utils`: code used by both sides (constants, file categories, permissions, types, accents).
 - `prisma/schema.prisma` and `prisma/migrations`. The client is generated into `generated/prisma` (gitignored).
 
@@ -79,6 +80,9 @@ Reuse these instead of writing new versions.
 - `askConfirmation({ ..., action })` (`useConfirm.ts`): confirmation dialog that keeps a spinner until `action` resolves.
 - `withVerification(action)` (`useVerification.ts`): retries an action after a password, TOTP or passkey prompt when the API asks for verification.
 - `getErrorMessage(error)`: user-facing message from a fetch error.
+- Storage: never build `data/uploads` or `data/backups` paths. Upload and backup bytes live on a storage (`File.storageId` / `Backup.storageId`, `null` is the data directory) under the keys `uploadKey(fileName)` (`uploads/<name>`) and `backupKey(backup)` (`backups/<userId>/<id>.tgz`). Use `getStorage(storageId)` for `read`, `put`, `move`, `remove` and `list`, and `withLocalFile(storageId, key, fn)` when a tool needs a real path (sharp, ffmpeg, AI, tar). `removeFileData(files)` removes a file's bytes, thumbnail and search entry.
+- Chunked uploads go through `receiveUpload` (files, inbox) or `receiveChunk` (backups) in `server/utils/upload.ts`. Chunks are written straight to the active storage, except images that need EXIF removal or compression, which are assembled in `data/temp` first. Upload sessions live in `data/temp/<owner>/<uploadId>.upload.json` and `dir:clearTemp` aborts stale ones.
+- `storage:sync` runs on startup and removes files and backups whose bytes are missing, and indexes backup archives that have no row. `storage:migrate` moves everything to the active storage.
 - `app/utils/socket.ts`: socket.io client that keeps user, theme, embed, domains, passkeys and lists in sync.
 
 ## Conventions
@@ -107,6 +111,7 @@ Reuse these instead of writing new versions.
 - Upload ids, file names and paths are validated before touching the filesystem.
 - Sensitive account actions go through `verifySession` on the server and `withVerification` on the client.
 - Sessions are random tokens stored as SHA-256 hashes (`Session.tokenHash`) and sent only in the httpOnly `token` cookie. The client never reads or writes auth cookies. Sessions have no expiry and end only when they are revoked. Impersonation runs on the server (`/api/auth/impersonate`), with the admin's token kept in the httpOnly `adminToken` cookie.
+- Storage configs are stored AES-GCM encrypted with the same `<data>/secret.key`. The API never returns secret fields; it sends `<field>: true/false` flags, and an empty secret on update keeps the stored value.
 - Upload tokens (`fs_…`) are accepted only on `POST /api/files`, through the `Authorization` header. They are stored hashed for lookup and AES-GCM encrypted for display, with the key in `<data>/secret.key`.
 - Login, passkey login, registration and step-up verification are rate limited (`rateLimit`). TOTP codes cannot be reused (`verifyTotpToken`). Cookie-authenticated writes are rejected when the browser marks them as cross-site (`Sec-Fetch-Site` other than `same-origin` or `none`). The check does not depend on the `Host` header, so it works behind any reverse proxy.
 - Markdown is rendered without raw HTML, and links are limited to `http`, `https`, `mailto` and relative URLs.

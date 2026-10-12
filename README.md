@@ -70,6 +70,7 @@
 - Real-time updates across every open tab and device
 - Usage statistics
 - Instance settings managed from the dashboard
+- Uploads and backups on the local disk, any S3 compatible service, SFTP or FTP
 - Zero-downtime updates, one click or on a schedule
 - Installable as a Progressive Web App
 
@@ -133,8 +134,17 @@ Super admins can configure Fileship from the dashboard in **Administration → I
 - **Turnstile:** site and secret keys
 - **AI:** features on or off, concurrency and video processing
 - **Logs and telemetry:** log level and anonymous telemetry
+- **Storage:** where uploads and backups are kept
 
 Each of these settings can also be given a default through an environment variable (see [`apps/dashboard/.env.example`](apps/dashboard/.env.example)). A value saved in the dashboard always overrides the environment, and every field can be reset to its default.
+
+### Storage
+
+Fileship keeps uploads and backups in its data directory by default. In **Administration → Instance → Storage** you can add S3 compatible storage (AWS S3, Cloudflare R2, MinIO, Backblaze B2 and others), SFTP or FTP, and choose which one new files go to. Each file stays where it was written, so switching storage does not move anything. Use **Move everything here** on the active storage to move existing files and backups to it.
+
+Uploads stream to the storage chunk by chunk. Thumbnails and temporary files always stay in the data directory. Storage credentials are encrypted with `data/secret.key`, so keep that file together with your data.
+
+On every start, Fileship removes files whose data is missing from their storage. A storage that cannot be reached or looks empty is skipped, so a misconfigured storage never deletes anything.
 
 ### Environment-only settings
 
