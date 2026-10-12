@@ -208,10 +208,256 @@
                 </div>
             </template>
         </div>
+
+        <UiCard>
+            <UiCardHeader>
+                <UiCardTitle>Storage</UiCardTitle>
+                <UiCardDescription>
+                    Where uploads and backups are kept. New ones go to the active storage, existing
+                    ones stay where they were written.
+                </UiCardDescription>
+                <UiCardAction>
+                    <UiButton @click="handleOpenStorage()">
+                        <IPlus />
+                        Add storage
+                    </UiButton>
+                </UiCardAction>
+            </UiCardHeader>
+            <UiCardContent class="flex flex-col gap-2">
+                <div v-if="migration" class="flex flex-col gap-2 pb-2">
+                    <div class="flex items-center justify-between gap-2">
+                        <TextBlock variant="small">Moving files and backups</TextBlock>
+                        <TextBlock variant="muted" class="text-xs">
+                            {{ migration.done }} / {{ migration.total }}
+                        </TextBlock>
+                    </div>
+                    <UiProgress :model-value="(migration.done / (migration.total || 1)) * 100" />
+                </div>
+
+                <UiCard v-for="storage in storageRows" :key="storage.id ?? 'local'" size="sm">
+                    <UiCardContent class="flex min-h-8 items-center gap-3">
+                        <component
+                            :is="storageIcons[storage.type]"
+                            class="size-4 shrink-0 text-muted-foreground"
+                        />
+                        <div class="flex min-w-0 flex-1 flex-col">
+                            <div class="flex min-w-0 items-center gap-2">
+                                <TextBlock variant="small" class="truncate">
+                                    {{ storage.name }}
+                                </TextBlock>
+                                <UiBadge variant="secondary">
+                                    {{ storageTypeLabels[storage.type] }}
+                                </UiBadge>
+                                <UiBadge v-if="storage.id === storages!.activeStorageId">
+                                    Active
+                                </UiBadge>
+                            </div>
+                            <TextBlock variant="muted" class="text-xs">
+                                {{ storage.files }} files, {{ storage.backups }} backups
+                            </TextBlock>
+                        </div>
+                        <UiButton
+                            v-if="storage.id !== storages!.activeStorageId"
+                            variant="outline"
+                            size="sm"
+                            @click="handleActivateStorage(storage)"
+                        >
+                            Set active
+                        </UiButton>
+                        <UiButton
+                            v-else-if="hasDataElsewhere && !migration"
+                            variant="outline"
+                            size="sm"
+                            @click="handleMigrateStorage(storage)"
+                        >
+                            Move everything here
+                        </UiButton>
+                        <UiDropdownMenu v-if="storage.id">
+                            <UiDropdownMenuTrigger as-child>
+                                <UiButton variant="ghost" size="icon-sm">
+                                    <IEllipsis />
+                                </UiButton>
+                            </UiDropdownMenuTrigger>
+                            <UiDropdownMenuContent align="end" class="w-56">
+                                <UiDropdownMenuItem @select="handleOpenStorage(storage)">
+                                    <IPencil />
+                                    Edit
+                                </UiDropdownMenuItem>
+                                <UiDropdownMenuSeparator />
+                                <UiDropdownMenuItem
+                                    variant="destructive"
+                                    :disabled="
+                                        storage.id === storages!.activeStorageId ||
+                                        !!storage.files ||
+                                        !!storage.backups
+                                    "
+                                    @select="handleDeleteStorage(storage)"
+                                >
+                                    <ITrash2 />
+                                    Delete
+                                </UiDropdownMenuItem>
+                            </UiDropdownMenuContent>
+                        </UiDropdownMenu>
+                    </UiCardContent>
+                </UiCard>
+            </UiCardContent>
+        </UiCard>
     </div>
+
+    <UiDialog v-model:open="storageDialog.open">
+        <UiDialogContent class="sm:max-w-lg">
+            <form class="flex flex-col gap-6" @submit.prevent="handleSaveStorage">
+                <UiDialogHeader>
+                    <UiDialogTitle>
+                        {{ storageDialog.id ? 'Edit storage' : 'Add storage' }}
+                    </UiDialogTitle>
+                    <UiDialogDescription>
+                        The connection is tested before saving. Secrets are stored encrypted.
+                    </UiDialogDescription>
+                </UiDialogHeader>
+
+                <UiFieldGroup class="grid gap-x-4 sm:grid-cols-2">
+                    <UiField :data-invalid="!!storageErrors?.name">
+                        <UiFieldLabel for="storage-name">Name</UiFieldLabel>
+                        <UiInput
+                            id="storage-name"
+                            v-model="storageForm.name"
+                            placeholder="Media bucket"
+                        />
+                        <UiFieldError
+                            v-if="storageErrors?.name"
+                            :errors="storageErrors.name._errors"
+                        />
+                    </UiField>
+
+                    <UiField>
+                        <UiFieldLabel for="storage-type">Type</UiFieldLabel>
+                        <UiSelect
+                            :model-value="storageForm.type"
+                            :disabled="!!storageDialog.id"
+                            @update:model-value="handleStorageType($event as StorageType)"
+                        >
+                            <UiSelectTrigger id="storage-type" class="w-full">
+                                <UiSelectValue />
+                            </UiSelectTrigger>
+                            <UiSelectContent>
+                                <UiSelectItem
+                                    v-for="type in Object.values(StorageType)"
+                                    :key="type"
+                                    :value="type"
+                                >
+                                    {{ storageTypeLabels[type] }}
+                                </UiSelectItem>
+                            </UiSelectContent>
+                        </UiSelect>
+                    </UiField>
+
+                    <template v-for="field in storageFields[storageForm.type]" :key="field.key">
+                        <UiField
+                            v-if="field.type === 'switch'"
+                            orientation="horizontal"
+                            class="has-[>[data-slot=field-content]]:items-center sm:col-span-2"
+                        >
+                            <UiFieldContent>
+                                <UiFieldLabel :for="`storage-${field.key}`">
+                                    {{ field.label }}
+                                </UiFieldLabel>
+                                <UiFieldDescription>{{ field.description }}</UiFieldDescription>
+                            </UiFieldContent>
+                            <UiSwitch
+                                :id="`storage-${field.key}`"
+                                v-model="storageForm.config[field.key]"
+                            />
+                        </UiField>
+
+                        <UiField
+                            v-else
+                            :class="!field.half && 'sm:col-span-2'"
+                            :data-invalid="!!storageErrors?.config?.[field.key]"
+                        >
+                            <UiFieldLabel :for="`storage-${field.key}`">
+                                {{ field.label }}
+                            </UiFieldLabel>
+
+                            <PasswordInput
+                                v-if="field.type === 'secret'"
+                                :id="`storage-${field.key}`"
+                                v-model="storageForm.config[field.key]"
+                                autocomplete="off"
+                                :placeholder="
+                                    storageDialog.secrets[field.key] ? 'Leave empty to keep' : ''
+                                "
+                            />
+
+                            <UiTextarea
+                                v-else-if="field.type === 'key'"
+                                :id="`storage-${field.key}`"
+                                v-model="storageForm.config[field.key]"
+                                class="max-h-32 font-mono text-xs"
+                                :placeholder="
+                                    storageDialog.secrets[field.key]
+                                        ? 'Leave empty to keep'
+                                        : '-----BEGIN OPENSSH PRIVATE KEY-----'
+                                "
+                            />
+
+                            <UiNumberField
+                                v-else-if="field.type === 'number'"
+                                :id="`storage-${field.key}`"
+                                v-model="storageForm.config[field.key]"
+                                :min="1"
+                                :max="65535"
+                                :format-options="{ useGrouping: false }"
+                            >
+                                <UiNumberFieldContent>
+                                    <UiNumberFieldDecrement />
+                                    <UiNumberFieldInput />
+                                    <UiNumberFieldIncrement />
+                                </UiNumberFieldContent>
+                            </UiNumberField>
+
+                            <UiInput
+                                v-else
+                                :id="`storage-${field.key}`"
+                                v-model="storageForm.config[field.key]"
+                                :placeholder="field.placeholder"
+                            />
+
+                            <UiFieldDescription v-if="field.description">
+                                {{ field.description }}
+                            </UiFieldDescription>
+                            <UiFieldError
+                                v-if="storageErrors?.config?.[field.key]?._errors?.length"
+                                :errors="storageErrors.config[field.key]._errors"
+                            />
+                        </UiField>
+                    </template>
+                </UiFieldGroup>
+
+                <UiDialogFooter>
+                    <UiButton
+                        type="button"
+                        variant="outline"
+                        :disabled="isTestingStorage"
+                        @click="handleTestStorage"
+                    >
+                        <UiSpinner v-if="isTestingStorage" />
+                        Test connection
+                    </UiButton>
+                    <UiButton type="submit" :disabled="isSavingStorage">
+                        <UiSpinner v-if="isSavingStorage" />
+                        Save
+                    </UiButton>
+                </UiDialogFooter>
+            </form>
+        </UiDialogContent>
+    </UiDialog>
 </template>
 
 <script setup lang="ts">
+import { ICloud, IHardDrive, IServer } from '#components';
+import { StorageType } from '#shared/prisma/enums';
+
 type FieldType = 'text' | 'secret' | 'number' | 'switch' | 'select' | 'permissions';
 
 type SettingField = {
@@ -229,6 +475,15 @@ type SettingSection = {
     title: string;
     description: string;
     fields: SettingField[];
+};
+
+type StorageField = {
+    key: string;
+    label: string;
+    type: 'text' | 'secret' | 'key' | 'number' | 'switch';
+    placeholder?: string;
+    description?: string;
+    half?: boolean;
 };
 
 const { $toast } = useNuxtApp();
@@ -427,6 +682,142 @@ const columns = [
     [sections[4]!, sections[3]!, sections[5]!],
 ];
 
+const storageTypeLabels = {
+    Local: 'Local',
+    [StorageType.S3]: 'S3',
+    [StorageType.SFTP]: 'SFTP',
+    [StorageType.FTP]: 'FTP',
+};
+
+const storageIcons = {
+    Local: IHardDrive,
+    [StorageType.S3]: ICloud,
+    [StorageType.SFTP]: IServer,
+    [StorageType.FTP]: IServer,
+};
+
+const storageFields: Record<StorageType, StorageField[]> = {
+    [StorageType.S3]: [
+        {
+            key: 'endpoint',
+            label: 'Endpoint',
+            type: 'text',
+            placeholder: 'https://<account>.r2.cloudflarestorage.com',
+            description: 'Leave empty for AWS. Needed for R2, MinIO and other S3 services.',
+        },
+        { key: 'region', label: 'Region', type: 'text', placeholder: 'us-east-1', half: true },
+        { key: 'bucket', label: 'Bucket', type: 'text', half: true },
+        { key: 'accessKeyId', label: 'Access key ID', type: 'text', half: true },
+        { key: 'secretAccessKey', label: 'Secret access key', type: 'secret', half: true },
+        {
+            key: 'prefix',
+            label: 'Prefix',
+            type: 'text',
+            placeholder: 'fileship',
+            description: 'Optional folder inside the bucket.',
+        },
+        {
+            key: 'forcePathStyle',
+            label: 'Path-style URLs',
+            type: 'switch',
+            description: 'Needed by MinIO and some self-hosted S3 services.',
+        },
+    ],
+    [StorageType.SFTP]: [
+        { key: 'host', label: 'Host', type: 'text', half: true },
+        { key: 'port', label: 'Port', type: 'number', half: true },
+        { key: 'username', label: 'Username', type: 'text', half: true },
+        { key: 'password', label: 'Password', type: 'secret', half: true },
+        {
+            key: 'privateKey',
+            label: 'Private key',
+            type: 'key',
+            description: 'Use a password, a private key or both.',
+        },
+        { key: 'root', label: 'Folder', type: 'text', placeholder: '/srv/fileship' },
+    ],
+    [StorageType.FTP]: [
+        { key: 'host', label: 'Host', type: 'text', half: true },
+        { key: 'port', label: 'Port', type: 'number', half: true },
+        { key: 'user', label: 'Username', type: 'text', half: true },
+        { key: 'password', label: 'Password', type: 'secret', half: true },
+        { key: 'root', label: 'Folder', type: 'text', placeholder: '/fileship' },
+        {
+            key: 'secure',
+            label: 'Use TLS',
+            type: 'switch',
+            description: 'Connect with explicit FTPS.',
+        },
+    ],
+};
+
+const storageDefaults: Record<StorageType, Record<string, any>> = {
+    [StorageType.S3]: {
+        endpoint: '',
+        region: 'us-east-1',
+        bucket: '',
+        prefix: '',
+        accessKeyId: '',
+        secretAccessKey: '',
+        forcePathStyle: false,
+    },
+    [StorageType.SFTP]: {
+        host: '',
+        port: 22,
+        username: '',
+        password: '',
+        privateKey: '',
+        root: '/',
+    },
+    [StorageType.FTP]: {
+        host: '',
+        port: 21,
+        user: '',
+        password: '',
+        secure: false,
+        root: '/',
+    },
+};
+
+const migration = useStorageMigration();
+const storageErrors = ref();
+const isTestingStorage = ref(false);
+const isSavingStorage = ref(false);
+
+const storageDialog = reactive({
+    open: false,
+    id: null as string | null,
+    secrets: {} as Record<string, boolean>,
+});
+
+const storageForm = reactive({
+    name: '',
+    type: StorageType.S3 as StorageType,
+    config: {} as Record<string, any>,
+});
+
+const { data: storages, refresh: refreshStorages } = await useFetch('/api/storages');
+
+migration.value = storages.value?.migration ?? null;
+
+watch(migration, (value, oldValue) => {
+    if (!value && oldValue) refreshStorages();
+});
+
+type StorageRow = NonNullable<typeof storages.value>['items'][number];
+
+const storageRows = computed(() => [
+    { id: null, name: 'Data directory', type: 'Local' as const, ...storages.value!.local },
+    ...storages.value!.items,
+]);
+
+const hasDataElsewhere = computed(() =>
+    storageRows.value.some(
+        (storage) =>
+            storage.id !== storages.value!.activeStorageId && (storage.files || storage.backups),
+    ),
+);
+
 const isOverridden = (key: InstanceSettingKey) => !!data.value?.overridden.includes(key);
 
 const formatDefault = (field: SettingField) => {
@@ -508,6 +899,141 @@ const handleReset = async (key: InstanceSettingKey) => {
     } catch (error) {
         $toast.error(getErrorMessage(error));
     }
+};
+
+const handleOpenStorage = (storage?: StorageRow) => {
+    storageErrors.value = null;
+    storageDialog.id = storage?.id ?? null;
+    storageDialog.secrets = storage?.secrets ?? {};
+    storageForm.name = storage?.name ?? '';
+    storageForm.type = storage?.type ?? StorageType.S3;
+    storageForm.config = { ...storageDefaults[storageForm.type], ...storage?.config };
+    storageDialog.open = true;
+};
+
+const handleStorageType = (type: StorageType) => {
+    storageForm.type = type;
+    storageForm.config = { ...storageDefaults[type] };
+};
+
+const handleTestStorage = async () => {
+    isTestingStorage.value = true;
+    storageErrors.value = null;
+
+    try {
+        await $fetch('/api/storages/test', {
+            method: 'POST',
+            body: { ...storageForm, id: storageDialog.id ?? undefined },
+        });
+
+        $toast.success('Connection works');
+    } catch (error: any) {
+        storageErrors.value = error.data?.data?.formErrors;
+        if (!storageErrors.value) $toast.error(getErrorMessage(error));
+    }
+
+    isTestingStorage.value = false;
+};
+
+const handleSaveStorage = async () => {
+    isSavingStorage.value = true;
+    storageErrors.value = null;
+
+    try {
+        const result = await withVerification((verificationData) =>
+            storageDialog.id
+                ? $fetch(`/api/storages/${storageDialog.id}`, {
+                      method: 'PATCH',
+                      body: {
+                          name: storageForm.name,
+                          config: storageForm.config,
+                          verificationData,
+                      },
+                  })
+                : $fetch('/api/storages', {
+                      method: 'POST',
+                      body: { ...storageForm, verificationData },
+                  }),
+        );
+
+        if (result) {
+            storageDialog.open = false;
+            await refreshStorages();
+            $toast.success('Storage saved');
+        }
+    } catch (error: any) {
+        storageErrors.value = error.data?.data?.formErrors;
+        if (!storageErrors.value) $toast.error(getErrorMessage(error));
+    }
+
+    isSavingStorage.value = false;
+};
+
+const handleActivateStorage = async (storage: { id: string | null; name: string }) => {
+    try {
+        const result = await withVerification((verificationData) =>
+            $fetch('/api/storages/active', {
+                method: 'PUT',
+                body: { id: storage.id, verificationData },
+            }),
+        );
+
+        if (result) {
+            await refreshStorages();
+            $toast.success(`New files now go to ${storage.name}`);
+        }
+    } catch (error) {
+        $toast.error(getErrorMessage(error));
+    }
+};
+
+const handleMigrateStorage = async (storage: { name: string }) => {
+    await askConfirmation({
+        title: `Move everything to ${storage.name}?`,
+        description:
+            'Every file and backup on other storages is copied here and then removed from where it was. This can take a while.',
+        confirmText: 'Move',
+        action: async () => {
+            try {
+                const result = await withVerification((verificationData) =>
+                    $fetch('/api/storages/migrate', {
+                        method: 'POST',
+                        body: { verificationData },
+                    }),
+                );
+
+                if (result) $toast.success('Moving files in the background');
+            } catch (error) {
+                $toast.error(getErrorMessage(error));
+            }
+        },
+    });
+};
+
+const handleDeleteStorage = async (storage: StorageRow) => {
+    await askConfirmation({
+        title: `Delete ${storage.name}?`,
+        description: 'Fileship forgets this storage. Nothing is deleted from the storage itself.',
+        confirmText: 'Delete',
+        destructive: true,
+        action: async () => {
+            try {
+                const result = await withVerification((verificationData) =>
+                    $fetch(`/api/storages/${storage.id}`, {
+                        method: 'DELETE',
+                        body: { verificationData },
+                    }),
+                );
+
+                if (result) {
+                    await refreshStorages();
+                    $toast.success('Storage deleted');
+                }
+            } catch (error) {
+                $toast.error(getErrorMessage(error));
+            }
+        },
+    });
 };
 
 definePageMeta({

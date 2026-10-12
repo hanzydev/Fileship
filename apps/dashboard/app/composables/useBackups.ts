@@ -2,7 +2,7 @@ export type BackupData = {
     id: string;
     createdAt: Date;
     size: {
-        raw: number;
+        raw: string;
         formatted: string;
     };
 };

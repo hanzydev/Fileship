@@ -19,6 +19,7 @@ export const initSocket = () => {
     const publicSettings = usePublicSettings();
     const currentUser = useAuthUser();
     const currentTheme = useTheme();
+    const storageMigration = useStorageMigration();
 
     const route = useRoute();
 
@@ -150,6 +151,10 @@ export const initSocket = () => {
         // Passkeys
         socket.on('settings:update', (data) => {
             publicSettings.value = data;
+        });
+
+        socket.on('storage:migrate', (data) => {
+            storageMigration.value = data;
         });
 
         socket.on('passkey:create', (data) => {

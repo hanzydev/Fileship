@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 import { basename, join } from 'pathe';
 
 import { StorageType } from '#shared/prisma/enums';
+import type { StorageModel } from '#shared/prisma/models';
 import { createFtpDriver } from '~~/server/storage/ftp';
 import { createLocalDriver } from '~~/server/storage/local';
 import { createS3Driver } from '~~/server/storage/s3';
@@ -12,6 +13,8 @@ import type { StorageDriver } from '~~/server/storage/types';
 
 const localDriver = createLocalDriver(dataDirectory);
 const drivers = new Map<string, { config: string; driver: StorageDriver }>();
+
+export const storageMigration = { progress: null as { done: number; total: number } | null };
 
 const driverFactories = {
     [StorageType.S3]: createS3Driver,
@@ -34,10 +37,64 @@ export const getStorage = async (storageId: string | null) => {
 
     await cached?.driver.close?.();
 
-    const driver = createStorageDriver(storage.type, JSON.parse(await decrypt(storage.config)));
+    const driver = createStorageDriver(storage.type, await readStorageConfig(storage));
     drivers.set(storageId, { config: storage.config, driver });
 
     return driver;
+};
+
+export const readStorageConfig = async (storage: Pick<StorageModel, 'config'>) =>
+    JSON.parse(await decrypt(storage.config)) as Record<string, any>;
+
+export const serializeStorage = async (storage: StorageModel) => {
+    const config = await readStorageConfig(storage);
+    const secrets = storageSecretKeys[storage.type];
+
+    return {
+        id: storage.id,
+        name: storage.name,
+        type: storage.type,
+        createdAt: storage.createdAt,
+        config: Object.fromEntries(
+            Object.entries(config).map(([key, value]) => [key, secrets.includes(key) ? '' : value]),
+        ),
+        secrets: Object.fromEntries(secrets.map((key) => [key, !!config[key]])),
+    };
+};
+
+export const withStoredSecrets = async (
+    type: StorageType,
+    config: Record<string, any>,
+    storage?: Pick<StorageModel, 'config'> | null,
+) => {
+    const stored = storage ? await readStorageConfig(storage) : {};
+
+    return {
+        ...config,
+        ...Object.fromEntries(
+            storageSecretKeys[type].map((key) => [key, config[key] || stored[key] || '']),
+        ),
+    };
+};
+
+export const testStorage = async (type: StorageType, config: Record<string, any>) => {
+    const driver = createStorageDriver(type, config);
+
+    try {
+        await driver.test();
+    } catch (error: any) {
+        throw createError({
+            status: 400,
+            message: `Could not connect: ${error.message}`,
+        });
+    } finally {
+        await driver.close?.();
+    }
+};
+
+export const closeStorage = async (storageId: string) => {
+    await drivers.get(storageId)?.driver.close?.();
+    drivers.delete(storageId);
 };
 
 export const getActiveStorageId = async () => (await getSettings()).activeStorageId;
