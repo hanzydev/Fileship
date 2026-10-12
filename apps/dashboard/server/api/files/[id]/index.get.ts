@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
 
     const findFileById = await prisma.file.findFirst({
         where: {
+            deletedAt: null,
             OR: [
                 {
                     id: fileNameOrId,

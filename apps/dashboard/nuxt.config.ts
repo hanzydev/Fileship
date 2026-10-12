@@ -86,6 +86,7 @@ export default defineNuxtConfig({
             [process.env.GENERATE_STATS_CRON || '*/30 * * * *']: 'db:generateStats',
 
             '0 * * * *': 'dir:clearTemp',
+            '30 * * * *': 'db:purgeTrash',
             '0 */2 * * *': 'telemetry:collect',
         },
         framework: {
@@ -129,6 +130,7 @@ export default defineNuxtConfig({
         dataDirectory: 'data',
         removeExifData: true,
         avatarMaxSize: 4,
+        trashRetentionDays: 30,
         logLevel: 2,
         telemetryEnabled: true,
         updater: {

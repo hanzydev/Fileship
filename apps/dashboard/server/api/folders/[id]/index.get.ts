@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
     const findFolderById = await prisma.folder.findUnique({
         where: {
             id: folderId,
+            deletedAt: null,
         },
         include: {
             inbox: { select: { id: true } },
@@ -33,6 +34,7 @@ export default defineEventHandler(async (event) => {
     const fileCount = await prisma.file.count({
         where: {
             folderId: findFolderById.id,
+            deletedAt: null,
             ...(isOwner ? {} : { password: null, piiDetected: false }),
         },
     });

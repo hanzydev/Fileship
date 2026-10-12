@@ -3,6 +3,7 @@ export const usePublicSettings = () => {
         siteName: 'Fileship',
         returnHttps: 'auto',
         fileChunkSize: 25,
+        trashRetentionDays: 30,
         registrationEnabled: false,
         turnstileSiteKey: '',
         aiEnabled: false,

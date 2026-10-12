@@ -12,9 +12,13 @@ export default defineEventHandler(async (event) => {
     const findFolderById = await prisma.folder.findUnique({
         where: {
             id: folderId,
+            deletedAt: null,
         },
         include: {
             files: {
+                where: {
+                    deletedAt: null,
+                },
                 orderBy: {
                     createdAt: 'desc',
                 },

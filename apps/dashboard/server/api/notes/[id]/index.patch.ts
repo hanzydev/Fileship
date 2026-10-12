@@ -39,6 +39,7 @@ export default defineEventHandler(async (event) => {
         where: {
             id: noteId,
             authorId: currentUser.id,
+            deletedAt: null,
         },
     });
 

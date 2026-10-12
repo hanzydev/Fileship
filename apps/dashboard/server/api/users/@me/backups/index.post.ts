@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
 
     const [files, folders, notes, views] = await prisma.$transaction([
         prisma.file.findMany({
-            where: { authorId: currentUser.id },
+            where: { authorId: currentUser.id, deletedAt: null },
             orderBy: { createdAt: 'desc' },
             omit: {
                 embedding: true,
@@ -34,12 +34,12 @@ export default defineEventHandler(async (event) => {
             },
         }),
         prisma.folder.findMany({
-            where: { authorId: currentUser.id },
+            where: { authorId: currentUser.id, deletedAt: null },
             orderBy: { createdAt: 'desc' },
             include: { inbox: true },
         }),
         prisma.note.findMany({
-            where: { authorId: currentUser.id },
+            where: { authorId: currentUser.id, deletedAt: null },
             orderBy: { createdAt: 'desc' },
         }),
         prisma.view.findMany({

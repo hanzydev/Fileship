@@ -30,7 +30,7 @@ export const createUser = async (data: {
             limits: true,
             superAdmin: true,
             _count: {
-                select: { files: true, folders: true, notes: true },
+                select: userCountSelect,
             },
         },
     });

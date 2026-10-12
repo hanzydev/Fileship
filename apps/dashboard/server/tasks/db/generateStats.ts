@@ -10,14 +10,14 @@ export default defineTask({
         const [users, storage, filesCount, byUser, viewsByOwner, types] = await Promise.all([
             prisma.user.count(),
             prisma.file.aggregate({ _sum: { size: true } }),
-            prisma.file.count(),
+            prisma.file.count({ where: { deletedAt: null } }),
             prisma.file.groupBy({ by: ['authorId'], _count: true, _sum: { size: true } }),
             prisma.view.groupBy({
                 by: ['ownerId'],
                 _count: true,
                 where: { ownerId: { not: null } },
             }),
-            prisma.file.groupBy({ by: ['mimeType'], _count: true }),
+            prisma.file.groupBy({ by: ['mimeType'], _count: true, where: { deletedAt: null } }),
         ]);
 
         await prisma.stat.create({

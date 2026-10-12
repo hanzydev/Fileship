@@ -52,7 +52,7 @@ export default defineTask({
                     if (!job.fileId) throw new Error('Missing fileId');
 
                     const file = await prisma.file.findUnique({
-                        where: { id: job.fileId },
+                        where: { id: job.fileId, deletedAt: null },
                         select: {
                             id: true,
                             fileName: true,
@@ -100,7 +100,7 @@ export default defineTask({
                     if (!job.fileId) throw new Error('Missing fileId');
 
                     const file = await prisma.file.findUnique({
-                        where: { id: job.fileId },
+                        where: { id: job.fileId, deletedAt: null },
                         select: {
                             id: true,
                             fileName: true,
@@ -148,7 +148,7 @@ export default defineTask({
                     if (!job.fileId) throw new Error('Missing fileId');
 
                     const file = await prisma.file.findUnique({
-                        where: { id: job.fileId },
+                        where: { id: job.fileId, deletedAt: null },
                         select: {
                             id: true,
                             authorId: true,
@@ -205,7 +205,7 @@ export default defineTask({
                     if (!job.fileId) throw new Error('Missing fileId');
 
                     const file = await prisma.file.findUnique({
-                        where: { id: job.fileId },
+                        where: { id: job.fileId, deletedAt: null },
                         select: {
                             id: true,
                             fileName: true,
@@ -274,7 +274,7 @@ export default defineTask({
                     if (!job.fileId) throw new Error('Missing fileId');
 
                     const file = await prisma.file.findUnique({
-                        where: { id: job.fileId },
+                        where: { id: job.fileId, deletedAt: null },
                         select: {
                             id: true,
                             fileName: true,
@@ -324,7 +324,7 @@ export default defineTask({
                     if (!job.fileId) throw new Error('Missing fileId');
 
                     const file = await prisma.file.findUnique({
-                        where: { id: job.fileId },
+                        where: { id: job.fileId, deletedAt: null },
                         select: {
                             id: true,
                             fileName: true,

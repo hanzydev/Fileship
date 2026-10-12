@@ -22,6 +22,7 @@ export default defineEventHandler(async (event) => {
         where: {
             id: { in: body.data.files },
             authorId: currentUser.id,
+            deletedAt: null,
         },
         select: {
             id: true,
@@ -39,20 +40,24 @@ export default defineEventHandler(async (event) => {
 
     const fileIds = filesToBeDeleted.map((file) => file.id);
 
-    await prisma.$transaction(async (tx) => {
-        await tx.file.deleteMany({
-            where: {
-                id: { in: fileIds },
-            },
-        });
-    });
+    const isTrashed = await isTrashEnabled();
 
-    await removeFileData(filesToBeDeleted);
+    if (isTrashed) {
+        await prisma.file.updateMany({
+            where: { id: { in: fileIds } },
+            data: { deletedAt: new Date() },
+        });
+    } else {
+        await deleteFilesForever(filesToBeDeleted);
+    }
 
     sendToUser(currentUser.id, 'file:bulkDelete', fileIds);
+    sendToUser(currentUser.id, 'trash:update', null);
 
     await createLog(event, {
         action: 'Bulk Delete Files',
-        message: `Deleted ${fileIds.length} files`,
+        message: isTrashed
+            ? `Moved ${fileIds.length} files to trash`
+            : `Deleted ${fileIds.length} files`,
     });
 });

@@ -155,6 +155,7 @@ export const buildFileWhere = async (
 ) => {
     const base: Prisma.FileWhereInput = {
         authorId,
+        deletedAt: null,
         ...(query.folder && query.folder !== 'all'
             ? { folderId: query.folder === 'none' ? null : query.folder }
             : {}),
@@ -186,9 +187,10 @@ export const fileOrderBy = (sort: string | undefined): Prisma.FileOrderByWithRel
 export const folderInclude = {
     inbox: { select: { id: true } },
     author: { select: { domains: true } },
-    _count: { select: { files: true } },
+    _count: { select: { files: { where: { deletedAt: null } } } },
     files: {
         where: {
+            deletedAt: null,
             piiDetected: false,
             OR: [{ mimeType: { startsWith: 'image/' } }, { mimeType: { startsWith: 'video/' } }],
         },
@@ -226,6 +228,12 @@ export const serializeFolder = (
     isInbox: !!folder.inbox,
 });
 
+export const userCountSelect = {
+    files: { where: { deletedAt: null } },
+    folders: { where: { deletedAt: null } },
+    notes: { where: { deletedAt: null } },
+} satisfies Prisma.UserCountOutputTypeSelect;
+
 export const userListSelect = {
     id: true,
     username: true,
@@ -237,7 +245,7 @@ export const userListSelect = {
     createdAt: true,
     domains: true,
     _count: {
-        select: { files: true, folders: true, notes: true },
+        select: userCountSelect,
     },
 } satisfies Prisma.UserSelect;
 

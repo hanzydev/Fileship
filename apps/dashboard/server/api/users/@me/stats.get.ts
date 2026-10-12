@@ -20,15 +20,20 @@ export default defineEventHandler(async (event) => {
     const [users, notes, folders, currentFiles, storage, currentViews, prevViews, ...categories] =
         await Promise.all([
             isAdmin(currentUser) ? prisma.user.count() : 0,
-            prisma.note.count({ where: { authorId: currentUser.id } }),
-            prisma.folder.count({ where: { authorId: currentUser.id } }),
-            prisma.file.count({ where: { authorId: currentUser.id } }),
+            prisma.note.count({ where: { authorId: currentUser.id, deletedAt: null } }),
+            prisma.folder.count({ where: { authorId: currentUser.id, deletedAt: null } }),
+            prisma.file.count({ where: { authorId: currentUser.id, deletedAt: null } }),
             prisma.file.aggregate({ where: { authorId: currentUser.id }, _sum: { size: true } }),
             prisma.view.count({ where: { ownerId: currentUser.id } }),
             prisma.view.count({ where: { ownerId: currentUser.id, createdAt: { lte: dayAgo } } }),
             ...FILE_CATEGORY_NAMES.map((category) =>
                 prisma.file.aggregate({
-                    where: { AND: [{ authorId: currentUser.id }, fileCategoryWhere(category)] },
+                    where: {
+                        AND: [
+                            { authorId: currentUser.id, deletedAt: null },
+                            fileCategoryWhere(category),
+                        ],
+                    },
                     _count: true,
                     _sum: { size: true },
                 }),

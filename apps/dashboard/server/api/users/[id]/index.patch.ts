@@ -234,7 +234,7 @@ export default defineEventHandler(async (event) => {
                 theme: true,
                 aiSettings: true,
                 _count: {
-                    select: { files: true, folders: true, notes: true },
+                    select: userCountSelect,
                 },
             },
         });

@@ -8,6 +8,7 @@ export const settingsSchema = z.object({
     fileChunkSize: z.number().int().min(5).max(100),
     removeExifData: z.boolean(),
     avatarMaxSize: z.number().min(1).max(100),
+    trashRetentionDays: z.number().int().min(0).max(365),
     registrationEnabled: z.boolean(),
     registrationPermissions: z.array(
         z.enum([UserPermission.UploadFiles, UserPermission.TakeNotes]),
@@ -34,6 +35,7 @@ export const publicSettingKeys = [
     'siteName',
     'returnHttps',
     'fileChunkSize',
+    'trashRetentionDays',
     'registrationEnabled',
     'turnstileSiteKey',
     'aiEnabled',

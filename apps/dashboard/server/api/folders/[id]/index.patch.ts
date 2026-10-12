@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
         where: {
             id: folderId,
             authorId: currentUser.id,
+            deletedAt: null,
         },
     });
 

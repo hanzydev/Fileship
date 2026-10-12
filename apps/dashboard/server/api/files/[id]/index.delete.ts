@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
         where: {
             id: fileId,
             authorId: currentUser.id,
+            deletedAt: null,
         },
     });
 
@@ -18,18 +19,21 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    await prisma.file.delete({
-        where: {
-            id: fileId,
-        },
-    });
+    const isTrashed = await isTrashEnabled();
 
-    await removeFileData([findFileById]);
+    if (isTrashed) {
+        await prisma.file.update({ where: { id: fileId }, data: { deletedAt: new Date() } });
+    } else {
+        await deleteFilesForever([findFileById]);
+    }
 
     await createLog(event, {
         action: 'Delete File',
-        message: `Deleted file ${findFileById.fileName}`,
+        message: isTrashed
+            ? `Moved file ${findFileById.fileName} to trash`
+            : `Deleted file ${findFileById.fileName}`,
     });
 
     sendToUser(currentUser.id, 'file:delete', fileId);
+    sendToUser(currentUser.id, 'trash:update', null);
 });

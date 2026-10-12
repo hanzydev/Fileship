@@ -1,7 +1,5 @@
 import z from 'zod';
 
-import { remove } from '@orama/orama';
-
 const validationSchema = z.object({
     deleteFilesToo: z.boolean().optional(),
 });
@@ -25,9 +23,10 @@ export default defineEventHandler(async (event) => {
         where: {
             id: folderId,
             authorId: currentUser.id,
+            deletedAt: null,
         },
         include: {
-            files: true,
+            files: { where: { deletedAt: null } },
             inbox: true,
         },
     });
@@ -46,31 +45,30 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    await prisma.$transaction(async (tx) => {
-        if (body.data.deleteFilesToo) {
-            const fileIds = findFolderById.files.map((file) => file.id);
+    const isTrashed = await isTrashEnabled();
 
-            await tx.file.deleteMany({
-                where: {
-                    id: { in: fileIds },
-                },
-            });
-        }
+    if (isTrashed) {
+        const deletedAt = new Date();
 
-        await tx.folder.delete({
-            where: {
-                id: folderId,
-            },
-        });
-    });
+        await prisma.$transaction([
+            prisma.file.updateMany({
+                where: { id: { in: findFolderById.files.map((file) => file.id) } },
+                data: body.data.deleteFilesToo ? { deletedAt } : { folderId: null },
+            }),
+            prisma.folder.update({ where: { id: folderId }, data: { deletedAt } }),
+        ]);
+    } else {
+        if (body.data.deleteFilesToo) await deleteFilesForever(findFolderById.files);
+        await deleteFoldersForever([folderId!]);
+    }
 
     if (body.data.deleteFilesToo) {
-        await removeFileData(findFolderById.files);
-
         const deletionPromises = findFolderById.files.map(async (file) => {
             await createLog(event, {
                 action: 'Delete File',
-                message: `Deleted file ${file.fileName}`,
+                message: isTrashed
+                    ? `Moved file ${file.fileName} to trash`
+                    : `Deleted file ${file.fileName}`,
             });
 
             sendToUser(currentUser.id, 'file:delete', file.id);
@@ -79,12 +77,13 @@ export default defineEventHandler(async (event) => {
         await Promise.allSettled(deletionPromises);
     }
 
-    await remove(folderSearchDb, folderId!);
-
     await createLog(event, {
         action: 'Delete Folder',
-        message: `Deleted folder ${findFolderById.name}`,
+        message: isTrashed
+            ? `Moved folder ${findFolderById.name} to trash`
+            : `Deleted folder ${findFolderById.name}`,
     });
 
     sendToUser(currentUser.id, 'folder:delete', folderId);
+    sendToUser(currentUser.id, 'trash:update', null);
 });

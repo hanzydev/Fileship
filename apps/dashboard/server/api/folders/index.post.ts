@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
                     in: body.data.files,
                 },
                 authorId: currentUser.id,
+                deletedAt: null,
             },
         });
 

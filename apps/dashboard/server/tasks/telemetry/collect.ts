@@ -26,9 +26,9 @@ export default defineTask({
 
             const collectFileshipInfo = async () => {
                 const [files, folders, notes, users] = await prisma.$transaction([
-                    prisma.file.count(),
-                    prisma.folder.count(),
-                    prisma.note.count(),
+                    prisma.file.count({ where: { deletedAt: null } }),
+                    prisma.folder.count({ where: { deletedAt: null } }),
+                    prisma.note.count({ where: { deletedAt: null } }),
                     prisma.user.count(),
                 ]);
 

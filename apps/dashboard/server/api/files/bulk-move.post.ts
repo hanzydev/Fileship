@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
               where: {
                   id: body.data.folderId,
                   authorId: currentUser.id,
+                  deletedAt: null,
               },
               select: { id: true, name: true },
           })
@@ -40,6 +41,7 @@ export default defineEventHandler(async (event) => {
         where: {
             id: { in: body.data.files },
             authorId: currentUser.id,
+            deletedAt: null,
         },
         select: { id: true },
     });

@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
         },
         select: {
             _count: {
-                select: { files: true, folders: true, notes: true },
+                select: userCountSelect,
             },
         },
     });

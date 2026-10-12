@@ -18,6 +18,7 @@ export const getSettingDefaults = (): InstanceSettings => {
         fileChunkSize: parseDefault('fileChunkSize', +config.public.fileChunkSize, 25),
         removeExifData: parseDefault('removeExifData', !!config.removeExifData, true),
         avatarMaxSize: parseDefault('avatarMaxSize', +config.avatarMaxSize, 4),
+        trashRetentionDays: parseDefault('trashRetentionDays', +config.trashRetentionDays, 30),
         registrationEnabled: parseDefault(
             'registrationEnabled',
             !!config.public.registrationEnabled,

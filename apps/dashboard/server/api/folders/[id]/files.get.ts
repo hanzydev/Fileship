@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
     const findFolderById = await prisma.folder.findUnique({
         where: {
             id: folderId,
+            deletedAt: null,
         },
         include: {
             author: {
@@ -38,6 +39,7 @@ export default defineEventHandler(async (event) => {
 
     const where: Prisma.FileWhereInput = {
         folderId: findFolderById.id,
+        deletedAt: null,
         ...(isOwner ? {} : { password: null, piiDetected: false }),
         AND: [
             query.type.length ? { OR: query.type.map(fileCategoryWhere) } : {},

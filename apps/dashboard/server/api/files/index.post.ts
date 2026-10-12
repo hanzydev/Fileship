@@ -117,7 +117,9 @@ export default defineEventHandler(async (event) => {
             if (findFileByFileName) {
                 throw createError({
                     status: 409,
-                    message: 'A file with that name already exists',
+                    message: findFileByFileName.deletedAt
+                        ? 'A file with that name is in the trash'
+                        : 'A file with that name already exists',
                 });
             }
 
@@ -126,6 +128,7 @@ export default defineEventHandler(async (event) => {
                     where: {
                         id: body.data.folderId,
                         authorId: currentUser.id,
+                        deletedAt: null,
                     },
                 });
 

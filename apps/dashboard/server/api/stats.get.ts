@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     const [userCount, fileCount, storage, viewCount, prevViewCount, monthlyViews] =
         await Promise.all([
             prisma.user.count(),
-            prisma.file.count(),
+            prisma.file.count({ where: { deletedAt: null } }),
             prisma.file.aggregate({ _sum: { size: true } }),
             prisma.view.count(),
             prisma.view.count({ where: { createdAt: { lte: dayAgo } } }),

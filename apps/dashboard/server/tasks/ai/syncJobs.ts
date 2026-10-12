@@ -45,6 +45,7 @@ export default defineTask({
 
         const imagesForClip = await prisma.file.findMany({
             where: {
+                deletedAt: null,
                 embedding: { equals: AnyNull },
                 aiJobs: activeJobFilter(AIJobType.GenerateClipEmbedding),
             },
@@ -62,6 +63,7 @@ export default defineTask({
 
         const videosForClip = await prisma.file.findMany({
             where: {
+                deletedAt: null,
                 embedding: { equals: AnyNull },
                 aiJobs: activeJobFilter(AIJobType.GenerateVideoEmbedding),
             },
@@ -79,6 +81,7 @@ export default defineTask({
 
         const imagesForCaption = await prisma.file.findMany({
             where: {
+                deletedAt: null,
                 caption: null,
                 mimeType: { startsWith: 'image/' },
                 aiJobs: activeJobFilter(AIJobType.GenerateImageCaption),
@@ -97,6 +100,7 @@ export default defineTask({
 
         const imagesForOcr = await prisma.file.findMany({
             where: {
+                deletedAt: null,
                 ocrText: null,
                 mimeType: { startsWith: 'image/' },
                 aiJobs: activeJobFilter(AIJobType.GenerateOcrText),
@@ -115,6 +119,7 @@ export default defineTask({
 
         const textForEmbedding = await prisma.file.findMany({
             where: {
+                deletedAt: null,
                 textEmbedding: { equals: AnyNull },
                 OR: [
                     { ocrText: { not: null }, AND: { ocrText: { not: '' } } },
@@ -144,6 +149,7 @@ export default defineTask({
 
         const filesForPii = await prisma.file.findMany({
             where: {
+                deletedAt: null,
                 aiJobs: {
                     none: {
                         type: AIJobType.DetectPII,

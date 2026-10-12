@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
     const findNoteById = await prisma.note.findUnique({
         where: {
             id: noteId,
+            deletedAt: null,
         },
         include: {
             author: {

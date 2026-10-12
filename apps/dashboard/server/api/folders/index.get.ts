@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
 
     const where: Prisma.FolderWhereInput = {
         authorId: currentUser.id,
+        deletedAt: null,
         ...(searchIds ? { id: { in: searchIds } } : {}),
     };
 

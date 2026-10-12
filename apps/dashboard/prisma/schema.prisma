@@ -108,8 +108,11 @@ model File {
   metadata      Json?
   storage       Storage?  @relation(fields: [storageId], references: [id], onDelete: Restrict)
   storageId     String?
+  deletedAt     DateTime?
 
   aiJobs AIJob[]
+
+  @@index([authorId, deletedAt])
 }
 
 model Storage {
@@ -158,24 +161,30 @@ model AIJob {
 }
 
 model Note {
-  id        String   @id @unique @default(uuid())
+  id        String    @id @unique @default(uuid())
   title     String
   content   String
-  createdAt DateTime @default(now())
-  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime  @default(now())
+  author    User      @relation(fields: [authorId], references: [id])
   authorId  String
-  public    Boolean  @default(false)
+  public    Boolean   @default(false)
+  deletedAt DateTime?
+
+  @@index([authorId, deletedAt])
 }
 
 model Folder {
-  id        String   @id @unique @default(uuid())
+  id        String    @id @unique @default(uuid())
   name      String
   public    Boolean
-  createdAt DateTime @default(now())
-  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime  @default(now())
+  author    User      @relation(fields: [authorId], references: [id])
   authorId  String
   files     File[]
   inbox     Inbox?
+  deletedAt DateTime?
+
+  @@index([authorId, deletedAt])
 }
 
 model Log {
