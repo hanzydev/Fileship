@@ -62,7 +62,7 @@
                             </div>
                         </template>
                         <div
-                            v-for="(file, index) in recentFiles"
+                            v-for="(file, index) in gridFiles"
                             v-else
                             :key="file.id"
                             :class="recentItemClass(index)"
@@ -103,8 +103,15 @@
         </div>
 
         <template v-if="canUpload">
-            <FileViewer v-model:file-id="sheetFileId" v-model:tab="sheetTab" :files="recentFiles" />
-            <FileBulkBar v-model="selected" :items="recentFiles" :total="recentFiles.length" />
+            <FileViewer
+                v-model:file-id="sheetFileId"
+                v-model:tab="sheetTab"
+                :files="recentFiles"
+                :total="total"
+                :has-more="hasMore"
+                :load-more="loadMore"
+            />
+            <FileBulkBar v-model="selected" :items="gridFiles" :total="gridFiles.length" />
             <FileMoveDialog v-model="moveTargets" />
         </template>
     </div>
@@ -130,12 +137,15 @@ const moveTargets = ref<Pick<FileData, 'id' | 'folderId'>[]>([]);
 const canUpload = computed(() => canUploadFiles(currentUser.value));
 const canNote = computed(() => canTakeNotes(currentUser.value));
 
-const { items: recentFiles, isLoading: isFilesLoading } = usePaginatedList<FileData>(
-    'files',
-    '/api/files',
-    {},
-    { limit: 12, enabled: canUpload },
-);
+const {
+    items: recentFiles,
+    total,
+    hasMore,
+    loadMore,
+    isLoading: isFilesLoading,
+} = usePaginatedList<FileData>('files', '/api/files', {}, { limit: 12, enabled: canUpload });
+
+const gridFiles = computed(() => recentFiles.value.slice(0, 12));
 
 const recentItemClass = (index: number) =>
     cn(
