@@ -48,7 +48,9 @@
 - Image compression, EXIF removal, image and video thumbnails, and media details (resolution, duration, frame rate, bitrate, codecs)
 - Custom domains and OpenGraph embeds for links shared on Discord and other apps
 - Inbox links that let anyone send files straight to your account
-- ShareX config and macOS and Linux upload scripts, all using a revocable upload token
+- A link shortener with custom short links, passwords, click limits and expiry dates
+- A trash that keeps deleted files, folders and notes restorable for a set number of days
+- ShareX uploader and URL shortener configs and macOS and Linux scripts, all using a revocable upload token
 
 **Search and AI**
 
@@ -129,8 +131,8 @@ Fileship is now available at `http://localhost:3000`.
 Super admins can configure Fileship from the dashboard in **Administration → Instance**. The changes apply immediately, without a restart:
 
 - **General:** site name and link protocol
-- **Uploads:** chunk size, avatar size limit and EXIF removal
-- **Registration:** self-registration, default permissions and storage limit
+- **Uploads:** chunk size, avatar size limit, trash retention and EXIF removal
+- **Registration:** self-registration, default permissions (upload files, take notes, shorten links) and storage limit
 - **Turnstile:** site and secret keys
 - **AI:** features on or off, concurrency and video processing
 - **Logs and telemetry:** log level and anonymous telemetry
@@ -145,6 +147,10 @@ Fileship keeps uploads and backups in its data directory by default. In **Admini
 Uploads stream to the storage chunk by chunk. Thumbnails and temporary files always stay in the data directory. Storage credentials are encrypted with `data/secret.key`, so keep that file together with your data.
 
 On every start, Fileship removes files and backups whose data is missing from their storage. A storage that cannot be reached or looks empty is skipped, so a misconfigured storage never deletes anything.
+
+### Trash
+
+Deleted files, folders and notes move to the trash for 30 days by default. Set **Trash retention** in **Administration → Instance** (or `NUXT_TRASH_RETENTION_DAYS`) to change it; `0` deletes everything immediately. Items in the trash still count toward a user's storage limit until they are deleted for good. Expired files and files that reach their view limit are always deleted immediately.
 
 ### Environment-only settings
 
