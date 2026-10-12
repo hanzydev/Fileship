@@ -21,16 +21,11 @@ export const initSocket = () => {
     const currentTheme = useTheme();
 
     const route = useRoute();
-    const sessionId = useCookie('sessionId');
 
-    if (currentUser.value && sessionId.value) {
+    if (currentUser.value) {
         closeSocket();
 
-        socket = io({
-            auth: {
-                sessionId: sessionId.value,
-            },
-        });
+        socket = io();
 
         socket.on('connect', () => {
             console.log('[Socket.IO] Connected');
@@ -77,8 +72,6 @@ export const initSocket = () => {
         socket.on('logout', () => {
             clearStates(true, true);
 
-            useCookie('sessionId', { path: '/', sameSite: true }).value = null;
-            useCookie('adminSessionId', { path: '/', sameSite: true }).value = null;
             nextTick(() => {
                 navigateTo(`/login?redirectTo=${route.path}`);
             });

@@ -1,7 +1,6 @@
 import { verify } from 'argon2';
 import type { H3Event } from 'h3';
 import { nanoid } from 'nanoid';
-import { verify as verifyTotp } from 'otplib';
 
 import { base64URLStringToBuffer } from '@simplewebauthn/browser';
 import {
@@ -97,7 +96,9 @@ export const verifySession = async (
             });
         }
 
-        if (verificationData?.type === 'totp') {
+        await rateLimit(`verify:${currentUser.currentSessionId}`, 10, 15 * 60 * 1000);
+
+        if (verificationData.type === 'totp') {
             if (!currentUser.totpEnabled) {
                 throw createError({
                     status: 400,
@@ -105,12 +106,13 @@ export const verifySession = async (
                 });
             }
 
-            const totpValid = await verifyTotp({
-                secret: currentUser.totpSecret!,
-                token: verificationData.data as string,
-            });
-
-            if (!totpValid.valid) {
+            if (
+                !(await verifyTotpToken(
+                    currentUser.id,
+                    currentUser.totpSecret!,
+                    verificationData.data as string,
+                ))
+            ) {
                 throw createError({
                     status: 401,
                     message: 'Invalid TOTP',

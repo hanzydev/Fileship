@@ -5,7 +5,6 @@ import pkg from '../../package.json' with { type: 'json' };
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': '*',
-    'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Allow-Headers': '*',
     'Access-Control-Expose-Headers': '*',
 };

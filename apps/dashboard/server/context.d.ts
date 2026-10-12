@@ -5,12 +5,12 @@ declare module 'h3' {
         user:
             | (Omit<UserModel, 'limits' | 'embed'> & {
                   currentSessionId: string;
+                  impersonator: { sessionId: string; username: string } | null;
                   limits: IUserLimits;
                   embed: IEmbed;
                   aiSettings: IUserAiSettings;
               })
             | null;
-        sessionPrivateId: string | null;
     }
 }
 

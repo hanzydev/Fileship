@@ -170,16 +170,23 @@ model View {
 }
 
 model Session {
-  id         String    @id @unique @default(uuid())
-  privateId  String    @unique
-  ip         String
-  os         String
-  platform   String
-  location   String
-  lastSeen   DateTime  @default(now())
-  lastVerify DateTime?
-  user       User      @relation(fields: [userId], references: [id])
-  userId     String
+  id                    String    @id @unique @default(uuid())
+  tokenHash             String    @unique
+  ip                    String
+  os                    String
+  platform              String
+  location              String
+  userAgent             String    @default("")
+  createdAt             DateTime  @default(now())
+  lastSeen              DateTime  @default(now())
+  lastVerify            DateTime?
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                String
+  impersonator          Session?  @relation("Impersonation", fields: [impersonatorSessionId], references: [id], onDelete: Cascade)
+  impersonatorSessionId String?
+  impersonations        Session[] @relation("Impersonation")
+
+  @@index([userId])
 }
 
 model Stat {

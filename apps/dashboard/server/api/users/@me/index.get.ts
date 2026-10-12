@@ -5,15 +5,6 @@ export default defineEventHandler(async (event) => {
 
     const currentUser = event.context.user!;
 
-    await prisma.session.update({
-        where: {
-            id: currentUser.currentSessionId,
-        },
-        data: {
-            lastSeen: new Date(),
-        },
-    });
-
     const stats = await prisma.user.findUnique({
         where: {
             id: currentUser.id,
@@ -33,6 +24,7 @@ export default defineEventHandler(async (event) => {
         createdAt: currentUser.createdAt,
         totpEnabled: currentUser.totpEnabled,
         currentSessionId: currentUser.currentSessionId,
+        impersonator: currentUser.impersonator?.username ?? null,
         superAdmin: currentUser.superAdmin,
         backupRestoreState: currentUser.backupRestoreState,
         theme: currentUser.theme,

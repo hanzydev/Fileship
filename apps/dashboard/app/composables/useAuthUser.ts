@@ -11,6 +11,7 @@ export type AuthUserData = Omit<
     | 'backupRestoreStartedAt'
 > & {
     currentSessionId: string;
+    impersonator?: string | null;
     stats: UserBasicStats;
     aiSettings: IUserAiSettings;
 };

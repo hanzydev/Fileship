@@ -26,11 +26,8 @@ const colorMode = useColorMode();
 onMounted(initSocket);
 
 watch(currentUser, (value) => {
-    const adminSessionId = useCookie('adminSessionId');
-    if (!adminSessionId.value) {
-        if (!value) closeSocket();
-        else if (!getSocket()) initSocket();
-    }
+    if (!value) closeSocket();
+    else if (!getSocket()) initSocket();
 });
 
 useHead({

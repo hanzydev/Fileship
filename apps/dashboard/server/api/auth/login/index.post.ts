@@ -1,5 +1,4 @@
-import { verify } from 'argon2';
-import { verify as verifyTotp } from 'otplib';
+import { hash, verify } from 'argon2';
 import { z } from 'zod';
 
 const validationSchema = z.object({
@@ -17,18 +16,30 @@ const validationSchema = z.object({
         .regex(/^\d+$/, 'TOTP must be a number')
         .optional(),
     turnstile: z.string().optional(),
-    verificationData: z.any().optional(),
 });
 
-export default defineEventHandler(async (event) => {
-    const currentUser = event.context.user;
+const dummyHash = hash('fileship-dummy-password');
 
+export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
     if (!body.success) {
         throw createError({
             status: 400,
             message: 'Invalid body',
             data: { formErrors: body.error.format() },
+        });
+    }
+
+    await rateLimit(
+        `login:${getRequestIP(event, { xForwardedFor: true })}:${body.data.username}`,
+        10,
+        15 * 60 * 1000,
+    );
+
+    if (!(await verifyTurnstile(body.data.turnstile))) {
+        throw createError({
+            status: 400,
+            message: 'Invalid turnstile',
         });
     }
 
@@ -43,59 +54,38 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    if (!findUserByUsername) {
+    const passwordMatch = await verify(
+        findUserByUsername?.password ?? (await dummyHash),
+        body.data.password,
+    );
+
+    if (!findUserByUsername || !passwordMatch) {
         throw createError({
             status: 401,
             message: 'Invalid username or password',
         });
     }
 
-    const isImpersonating =
-        currentUser &&
-        isAdmin(currentUser) &&
-        (!findUserByUsername?.superAdmin || currentUser.superAdmin);
-
-    if (!isImpersonating) {
-        if (!(await verifyTurnstile(body.data.turnstile))) {
+    if (findUserByUsername.totpEnabled) {
+        if (!body.data.totp) {
             throw createError({
                 status: 400,
-                message: 'Invalid turnstile',
+                message: 'Missing TOTP',
             });
         }
 
-        const passwordMatch = await verify(findUserByUsername.password, body.data.password);
-
-        if (!passwordMatch) {
+        if (
+            !(await verifyTotpToken(
+                findUserByUsername.id,
+                findUserByUsername.totpSecret!,
+                body.data.totp,
+            ))
+        ) {
             throw createError({
                 status: 401,
-                message: 'Invalid username or password',
+                message: 'Invalid TOTP',
             });
         }
-
-        if (findUserByUsername.totpEnabled) {
-            if (!body.data.totp) {
-                throw createError({
-                    status: 400,
-                    message: 'Missing TOTP',
-                });
-            }
-
-            const totpValid = await verifyTotp({
-                secret: findUserByUsername.totpSecret!,
-                token: body.data.totp,
-            });
-
-            if (!totpValid.valid) {
-                throw createError({
-                    status: 401,
-                    message: 'Invalid TOTP',
-                });
-            }
-        }
-    }
-
-    if (currentUser && isAdmin(currentUser) && findUserByUsername.id !== currentUser.id) {
-        await verifySession(event, body.data?.verificationData);
     }
 
     return startSession(event, findUserByUsername, {

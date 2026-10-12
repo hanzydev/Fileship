@@ -261,13 +261,11 @@ const items = computed(() => {
 
 const handleLogout = async () => {
     isLoggingOut.value = true;
-    useCookie('adminSessionId').value = null;
 
     try {
         await $fetch('/api/auth/logout', { method: 'POST' });
 
         clearStates(true, true);
-        useCookie('sessionId', { path: '/', sameSite: true }).value = null;
 
         $toast.success('Logged out successfully');
         await navigateTo('/login');

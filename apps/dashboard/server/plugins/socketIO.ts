@@ -14,12 +14,12 @@ export default defineNitroPlugin((nitroApp) => {
     io.bind(engine as never);
 
     io.use(async (socket, next) => {
-        socket.data.user = await verifyUser(socket.handshake.auth.sessionId);
+        const token = socket.request.headers.cookie?.match(/(?:^|;\s*)token=([^;]+)/)?.[1];
+        const session = token && (await findSession(token));
 
-        if (!socket.data.user) {
-            return next(new Error('Unauthorized'));
-        }
+        if (!session) return next(new Error('Unauthorized'));
 
+        socket.data.user = getSessionUser(session);
         next();
     });
 

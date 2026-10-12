@@ -17,7 +17,7 @@
                 <AppSidebar />
                 <UiSidebarInset>
                     <div
-                        v-if="adminSessionId"
+                        v-if="currentUser.impersonator"
                         class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 bg-primary px-4 py-2 text-sm text-primary-foreground"
                     >
                         <span class="flex items-center gap-2">
@@ -171,7 +171,7 @@ const uploadSheet = useTemplateRef('uploadSheet');
 const commandPaletteOpen = ref(false);
 const isMac = ref(false);
 const isReturning = ref(false);
-const { adminSessionId, stopImpersonating } = useImpersonation();
+const { stopImpersonating } = useImpersonation();
 
 const restoreStates = {
     Extracting: 'Extracting the archive, this may take a while...',

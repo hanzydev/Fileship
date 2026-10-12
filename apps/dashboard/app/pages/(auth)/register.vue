@@ -131,7 +131,6 @@ const handleSubmit = async () => {
         } as any;
 
         currentTheme.value = user.theme;
-        useCookie('adminSessionId', { path: '/', sameSite: 'lax' }).value = null;
 
         await navigateTo('/dashboard');
 

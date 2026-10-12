@@ -169,7 +169,6 @@ const handleLoggedIn = async (user: any, session: any, message: string) => {
     };
 
     currentTheme.value = user.theme;
-    useCookie('adminSessionId', { path: '/', sameSite: 'lax' }).value = null;
 
     await navigateTo((route.query.redirectTo as string) || '/dashboard');
 
