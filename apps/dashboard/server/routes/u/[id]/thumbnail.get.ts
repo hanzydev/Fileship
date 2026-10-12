@@ -1,6 +1,4 @@
-import { createReadStream, existsSync } from 'node:fs';
-
-import { join } from 'pathe';
+import { createReadStream } from 'node:fs';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -51,21 +49,17 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    if (!findFileById.mimeType.startsWith('video/')) {
-        throw createError({
-            status: 400,
-            message: 'File is not a video',
-        });
-    }
-
-    const thumbnailPath = join(dataDirectory, 'thumbnails', `${findFileById.id}.jpeg`);
-
-    if (!existsSync(thumbnailPath)) {
+    if (!canHaveThumbnail(findFileById.mimeType) || !hasThumbnail(findFileById.id)) {
         throw createError({
             status: 404,
             message: 'Thumbnail not found',
         });
     }
 
-    return sendStream(event, createReadStream(thumbnailPath));
+    setResponseHeaders(event, {
+        'Content-Type': 'image/jpeg',
+        'Cache-Control': 'private, max-age=31536000, immutable',
+    });
+
+    return sendStream(event, createReadStream(getThumbnailPath(findFileById.id)));
 });

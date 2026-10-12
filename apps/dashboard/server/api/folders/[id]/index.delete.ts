@@ -69,21 +69,10 @@ export default defineEventHandler(async (event) => {
 
     if (body.data.deleteFilesToo) {
         const deletionPromises = findFolderById.files.map(async (file) => {
-            const rmPromises = [
-                rm(join(dataDirectory, 'uploads', file.fileName), {
-                    force: true,
-                }),
-            ];
-
-            if (file.mimeType.startsWith('video/')) {
-                rmPromises.push(
-                    rm(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`), {
-                        force: true,
-                    }),
-                );
-            }
-
-            await Promise.allSettled(rmPromises);
+            await Promise.allSettled([
+                rm(join(dataDirectory, 'uploads', file.fileName), { force: true }),
+                rm(getThumbnailPath(file.id), { force: true }),
+            ]);
 
             await remove(fileSearchDb, file.id);
 

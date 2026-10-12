@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { existsSync, promises as fsp } from 'node:fs';
+import { promises as fsp } from 'node:fs';
 
 import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
@@ -229,6 +229,8 @@ export default defineEventHandler(async (event) => {
             },
         });
 
+        await processMedia(_upload);
+
         const upload = {
             ..._upload,
             size: {
@@ -249,18 +251,8 @@ export default defineEventHandler(async (event) => {
             },
             directUrl: buildPublicUrl(event, currentUser.domains, `/u/${_upload.fileName}`),
             embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${_upload.fileName}`),
-            thumbnailUrl: undefined as string | null | undefined,
+            thumbnailUrl: getThumbnailUrl(event, currentUser.domains, _upload),
         };
-
-        if (file.type.startsWith('video/')) {
-            const thumbnailPath = join(dataDirectory, 'thumbnails', `${upload.id}.jpeg`);
-
-            await createVideoThumbnail(filePath, thumbnailPath);
-
-            upload.thumbnailUrl = existsSync(thumbnailPath)
-                ? buildPublicUrl(event, currentUser.domains, `/u/${_upload.fileName}/thumbnail`)
-                : null;
-        }
 
         const aiEnabled = currentUser.aiSettings?.enabled ?? true;
         if (aiEnabled) {

@@ -28,11 +28,7 @@ export default defineEventHandler(async (event) => {
         force: true,
     }).catch(() => null);
 
-    if (findFileById.mimeType.startsWith('video/')) {
-        await rm(join(dataDirectory, 'thumbnails', `${findFileById.id}.jpeg`), {
-            force: true,
-        }).catch(() => null);
-    }
+    await rm(getThumbnailPath(findFileById.id), { force: true }).catch(() => null);
 
     await prisma.file.delete({
         where: {

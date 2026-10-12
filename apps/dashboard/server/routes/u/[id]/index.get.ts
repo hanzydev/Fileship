@@ -101,11 +101,7 @@ export default defineEventHandler(async (event) => {
 
             if (findFileById.maxViews && currentViews >= findFileById.maxViews) {
                 await fsp.rm(filePath, { force: true });
-                await fsp
-                    .rm(join(dataDirectory, 'thumbnails', `${findFileById.id}.jpeg`), {
-                        force: true,
-                    })
-                    .catch(() => null);
+                await fsp.rm(getThumbnailPath(findFileById.id), { force: true }).catch(() => null);
                 await Promise.allSettled([remove(fileSearchDb, findFileById.id)]);
 
                 await prisma.file.delete({

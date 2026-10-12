@@ -31,7 +31,6 @@ export default defineEventHandler(async (event) => {
         select: {
             id: true,
             fileName: true,
-            mimeType: true,
         },
     });
 
@@ -53,21 +52,10 @@ export default defineEventHandler(async (event) => {
     });
 
     const deletionPromises = filesToBeDeleted.map(async (file) => {
-        const rmPromises = [
-            rm(join(dataDirectory, 'uploads', file.fileName), {
-                force: true,
-            }),
-        ];
-
-        if (file.mimeType.startsWith('video/')) {
-            rmPromises.push(
-                rm(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`), {
-                    force: true,
-                }),
-            );
-        }
-
-        await Promise.allSettled(rmPromises);
+        await Promise.allSettled([
+            rm(join(dataDirectory, 'uploads', file.fileName), { force: true }),
+            rm(getThumbnailPath(file.id), { force: true }),
+        ]);
     });
 
     await Promise.allSettled(deletionPromises);

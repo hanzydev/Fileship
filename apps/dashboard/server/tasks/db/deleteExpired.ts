@@ -32,7 +32,7 @@ export default defineTask({
 
             await Promise.allSettled([
                 fsp.rm(join(dataDirectory, 'uploads', file.fileName), { force: true }),
-                fsp.rm(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`), { force: true }),
+                fsp.rm(getThumbnailPath(file.id), { force: true }),
                 remove(fileSearchDb, file.id),
             ]);
 

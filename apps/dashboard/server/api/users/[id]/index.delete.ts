@@ -88,9 +88,7 @@ export default defineEventHandler(async (event) => {
 
     for (const { id, fileName } of userFiles) {
         await rm(join(uploadsPath, fileName), { force: true }).catch(() => null);
-        await rm(join(dataDirectory, 'thumbnails', `${id}.jpeg`), { force: true }).catch(
-            () => null,
-        );
+        await rm(getThumbnailPath(id), { force: true }).catch(() => null);
     }
 
     for (const directory of ['backups', 'temp']) {

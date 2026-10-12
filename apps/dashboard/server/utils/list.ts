@@ -1,9 +1,6 @@
-import { existsSync } from 'node:fs';
-
 import { defu } from 'defu';
 import { filesize } from 'filesize';
 import type { H3Event } from 'h3';
-import { join } from 'pathe';
 import { z } from 'zod';
 
 import type { Prisma } from '~~/generated/prisma/client';
@@ -114,11 +111,7 @@ export const serializeFile = <
     },
     directUrl: buildPublicUrl(event, domains, `/u/${file.fileName}`),
     embedUrl: buildPublicUrl(event, domains, `/view/${file.fileName}`),
-    thumbnailUrl: file.mimeType.startsWith('video/')
-        ? existsSync(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`))
-            ? buildPublicUrl(event, domains, `/u/${file.fileName}/thumbnail`)
-            : null
-        : undefined,
+    thumbnailUrl: getThumbnailUrl(event, domains, file),
 });
 
 export const getTodayViews = async (fileIds: string[]) => {
@@ -216,11 +209,7 @@ export const serializeFolder = (
     files: undefined,
     fileCount: folder._count.files,
     covers: folder.files
-        .filter(
-            (file) =>
-                file.mimeType.startsWith('image/') ||
-                existsSync(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`)),
-        )
+        .filter((file) => file.mimeType.startsWith('image/') || hasThumbnail(file.id))
         .slice(0, 4)
         .map((file) => ({
             id: file.id,
@@ -228,9 +217,7 @@ export const serializeFolder = (
             url: buildPublicUrl(
                 event,
                 folder.author.domains,
-                file.mimeType.startsWith('image/')
-                    ? `/u/${file.fileName}`
-                    : `/u/${file.fileName}/thumbnail`,
+                hasThumbnail(file.id) ? `/u/${file.fileName}/thumbnail` : `/u/${file.fileName}`,
             ),
         })),
     publicUrl: folder.public

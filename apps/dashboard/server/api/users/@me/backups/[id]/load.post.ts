@@ -1,7 +1,6 @@
 import { createReadStream, existsSync, promises as fsp } from 'node:fs';
 
 import { filesize } from 'filesize';
-import fluentFfmpeg from 'fluent-ffmpeg';
 import { nanoid } from 'nanoid';
 import { extname, join } from 'pathe';
 import chain from 'stream-chain';
@@ -10,12 +9,9 @@ import { streamArray } from 'stream-json/streamers/stream-array.js';
 import { extract } from 'tar';
 import { z } from 'zod';
 
-import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import { insert, removeMultiple } from '@orama/orama';
 
 import { AIJobType, BackupRestoreState } from '#shared/prisma/enums';
-
-fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 
 const validationSchema = z
     .object({
@@ -169,7 +165,6 @@ export default defineEventHandler(async (event) => {
                 ]);
 
                 const uploadsPath = join(dataDirectory, 'uploads');
-                const thumbnailsPath = join(dataDirectory, 'thumbnails');
 
                 await Promise.all(
                     userFiles.map(({ fileName }) =>
@@ -179,9 +174,7 @@ export default defineEventHandler(async (event) => {
 
                 await Promise.all(
                     userFiles.map(({ id }) =>
-                        fsp
-                            .rm(join(thumbnailsPath, `${id}.jpeg`), { force: true })
-                            .catch(() => null),
+                        fsp.rm(getThumbnailPath(id), { force: true }).catch(() => null),
                     ),
                 );
 
@@ -333,36 +326,13 @@ export default defineEventHandler(async (event) => {
                                                         ),
                                                     };
 
-                                                    const filePath = join(
-                                                        uploadsPath,
-                                                        created.fileName,
+                                                    await processMedia(created);
+
+                                                    created.thumbnailUrl = getThumbnailUrl(
+                                                        event,
+                                                        currentUser.domains,
+                                                        created,
                                                     );
-
-                                                    if (created.mimeType.startsWith('video/')) {
-                                                        const thumbnailPath = join(
-                                                            thumbnailsPath,
-                                                            `${created.id}.jpeg`,
-                                                        );
-
-                                                        await new Promise<void>((resolve) => {
-                                                            fluentFfmpeg(filePath)
-                                                                .videoFilters('thumbnail')
-                                                                .frames(1)
-                                                                .format('mjpeg')
-                                                                .output(thumbnailPath)
-                                                                .on('end', () => {
-                                                                    created.thumbnailUrl =
-                                                                        buildPublicUrl(
-                                                                            event,
-                                                                            currentUser.domains,
-                                                                            `/u/${created.fileName}/thumbnail`,
-                                                                        );
-                                                                    resolve();
-                                                                })
-                                                                .on('error', () => resolve())
-                                                                .run();
-                                                        });
-                                                    }
 
                                                     const aiEnabled =
                                                         currentUser.aiSettings?.enabled ?? true;

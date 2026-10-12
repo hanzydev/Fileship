@@ -1,4 +1,4 @@
-import { existsSync, promises as fsp } from 'node:fs';
+import { promises as fsp } from 'node:fs';
 
 import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
@@ -204,6 +204,8 @@ export default defineEventHandler(async (event) => {
             },
         });
 
+        await processMedia(_upload);
+
         const upload = {
             ..._upload,
             size: {
@@ -228,22 +230,8 @@ export default defineEventHandler(async (event) => {
                 findInboxById.user.domains,
                 `/view/${_upload.fileName}`,
             ),
-            thumbnailUrl: undefined as string | null | undefined,
+            thumbnailUrl: getThumbnailUrl(event, findInboxById.user.domains, _upload),
         };
-
-        if (file.type.startsWith('video/')) {
-            const thumbnailPath = join(dataDirectory, 'thumbnails', `${upload.id}.jpeg`);
-
-            await createVideoThumbnail(filePath, thumbnailPath);
-
-            upload.thumbnailUrl = existsSync(thumbnailPath)
-                ? buildPublicUrl(
-                      event,
-                      findInboxById.user.domains,
-                      `/u/${_upload.fileName}/thumbnail`,
-                  )
-                : null;
-        }
 
         const aiEnabled = (findInboxById.user.aiSettings as any)?.enabled ?? true;
         if (aiEnabled) {
