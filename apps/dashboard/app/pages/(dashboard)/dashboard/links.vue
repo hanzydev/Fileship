@@ -213,9 +213,6 @@
                                 <UiSelectValue />
                             </UiSelectTrigger>
                             <UiSelectContent>
-                                <UiSelectItem v-if="dialog.link" value="keep">
-                                    Keep current
-                                </UiSelectItem>
                                 <UiSelectItem
                                     v-for="option in EXPIRATIONS"
                                     :key="option.label"
@@ -310,7 +307,7 @@ const handleOpen = (link?: LinkData) => {
         code: link?.code ?? '',
         password: link?.password ?? '',
         maxClicks: link?.maxClicks ?? 0,
-        expiration: link ? 'keep' : 'Never',
+        expiration: predictExpiration(link?.expiresAt ?? null),
     });
 
     dialog.open = true;
@@ -325,10 +322,9 @@ const handleSave = async () => {
         code: form.code.trim() || (dialog.link ? undefined : null),
         password: form.password || null,
         maxClicks: form.maxClicks,
-        expiration:
-            form.expiration === 'keep'
-                ? undefined
-                : EXPIRATIONS.find((option) => option.label === form.expiration)!.value,
+        ...((!dialog.link || form.expiration !== predictExpiration(dialog.link.expiresAt)) && {
+            expiration: EXPIRATIONS.find((option) => option.label === form.expiration)!.value,
+        }),
     };
 
     try {

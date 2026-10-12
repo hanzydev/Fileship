@@ -528,16 +528,6 @@ const editData = reactive({
     password: '',
 });
 
-const predictExpiration = (date: Date | null) => {
-    if (!date) return 'Never';
-
-    const diff = date.getTime() - Date.now();
-
-    return EXPIRATIONS.slice(1).reduce((prev, curr) =>
-        Math.abs(curr.value! - diff) < Math.abs(prev.value! - diff) ? curr : prev,
-    ).label;
-};
-
 const resetEditData = () => {
     const f = currentFile.value!;
 
