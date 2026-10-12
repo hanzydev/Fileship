@@ -1,6 +1,11 @@
 <template>
     <UiDialog :open="!!confirmState" @update:open="handleOpenChange">
-        <UiDialogContent v-if="options" class="sm:max-w-sm" :show-close-button="false">
+        <UiDialogContent
+            v-if="options"
+            :key="openCount"
+            class="sm:max-w-sm"
+            :show-close-button="false"
+        >
             <UiDialogHeader>
                 <UiDialogTitle>{{ options.title }}</UiDialogTitle>
                 <UiDialogDescription v-if="options.description">
@@ -36,6 +41,7 @@
 const confirmState = useConfirm();
 
 const options = ref(confirmState.value);
+const openCount = ref(0);
 const isRunning = ref(false);
 
 const handleClose = (value: boolean) => {
@@ -59,5 +65,10 @@ const handleOpenChange = (open: boolean) => {
     if (!open && !isRunning.value) handleClose(false);
 };
 
-watch(confirmState, (value) => value && (options.value = value));
+watch(confirmState, (value, oldValue) => {
+    if (!value) return;
+
+    options.value = value;
+    if (!oldValue) openCount.value++;
+});
 </script>

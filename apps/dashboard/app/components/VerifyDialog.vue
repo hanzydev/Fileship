@@ -1,6 +1,6 @@
 <template>
     <UiDialog :open="!!verification" @update:open="!$event && verification?.cancel()">
-        <UiDialogContent v-if="current" class="sm:max-w-sm">
+        <UiDialogContent v-if="current" :key="openCount" class="sm:max-w-sm">
             <form class="flex flex-col gap-6" @submit.prevent="handleSubmit">
                 <UiDialogHeader>
                     <UiDialogTitle>Confirm it's you</UiDialogTitle>
@@ -69,6 +69,7 @@ import { startAuthentication } from '@simplewebauthn/browser';
 
 const verification = useVerification();
 const current = ref(verification.value);
+const openCount = ref(0);
 const { $toast } = useNuxtApp();
 
 const labels = { passkey: 'Passkey', totp: 'Code', password: 'Password' };
@@ -108,7 +109,12 @@ const handlePasskey = async () => {
     }
 };
 
-watch(verification, (value) => value && (current.value = value));
+watch(verification, (value, oldValue) => {
+    if (!value) return;
+
+    current.value = value;
+    if (!oldValue) openCount.value++;
+});
 
 watch(
     () => verification.value?.error,
