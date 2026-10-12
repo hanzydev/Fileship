@@ -189,19 +189,9 @@
             <template #cell-fileName="{ item }">
                 <div class="flex min-w-0 items-center gap-3">
                     <div
-                        class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted"
+                        class="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted"
                     >
-                        <img
-                            v-if="item.mimeType.startsWith('image/')"
-                            :src="item.directUrl"
-                            loading="lazy"
-                            class="size-full object-cover"
-                        />
-                        <component
-                            :is="getFileIcon(item)"
-                            v-else
-                            class="size-4 text-muted-foreground"
-                        />
+                        <FileThumbnail :file="item" />
                     </div>
                     <span class="truncate font-medium">{{ item.fileName }}</span>
                     <ILock v-if="item.password" class="size-3.5 shrink-0 text-muted-foreground" />
@@ -258,19 +248,9 @@
                 >
                     <UiCardContent class="flex items-center gap-3">
                         <div
-                            class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted"
+                            class="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted"
                         >
-                            <img
-                                v-if="item.mimeType.startsWith('image/')"
-                                :src="item.directUrl"
-                                loading="lazy"
-                                class="size-full object-cover"
-                            />
-                            <component
-                                :is="getFileIcon(item)"
-                                v-else
-                                class="size-5 text-muted-foreground"
-                            />
+                            <FileThumbnail :file="item" />
                         </div>
                         <div class="flex min-w-0 flex-1 flex-col">
                             <TextBlock variant="small" class="truncate">

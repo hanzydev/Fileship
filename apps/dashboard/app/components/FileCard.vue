@@ -19,9 +19,10 @@
                     >
                         <img
                             v-if="isImage"
-                            :src="file.directUrl"
+                            :src="file.thumbnailUrl || file.directUrl"
                             :alt="file.fileName"
                             loading="lazy"
+                            decoding="async"
                             :class="
                                 cn(
                                     'size-full object-cover transition-[filter,scale] duration-300 group-hover:scale-105',

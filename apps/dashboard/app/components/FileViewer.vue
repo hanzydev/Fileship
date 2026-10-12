@@ -124,31 +124,7 @@
                             :style="{ transform: `translateX(${item.start}px)` }"
                             @click="fileId = item.file.id"
                         >
-                            <img
-                                v-if="
-                                    item.file.mimeType.startsWith('image/') ||
-                                    item.file.thumbnailUrl
-                                "
-                                :src="item.file.thumbnailUrl || item.file.directUrl"
-                                alt=""
-                                loading="lazy"
-                                draggable="false"
-                                :class="
-                                    cn(
-                                        'size-full object-cover',
-                                        isSensitiveFile(item.file) && 'blur-sm',
-                                    )
-                                "
-                            />
-                            <component
-                                :is="getFileIcon(item.file)"
-                                v-else
-                                class="size-5 text-muted-foreground"
-                            />
-                            <IPlay
-                                v-if="item.file.mimeType.startsWith('video/')"
-                                class="absolute size-4 fill-white text-white drop-shadow"
-                            />
+                            <FileThumbnail :file="item.file" />
                         </button>
                     </div>
                 </div>
@@ -427,13 +403,13 @@ const overlayClass = computed(() =>
     cn('transition-opacity', isZoomed.value && 'pointer-events-none opacity-0'),
 );
 
-const isSensitiveFile = (f: FileData) =>
-    f.mimeType.startsWith('image/') &&
-    f.piiDetected &&
-    currentUser.value!.aiSettings.suppressPii &&
-    publicSettings.value.aiEnabled;
-
-const isSensitive = computed(() => isSensitiveFile(file.value!));
+const isSensitive = computed(
+    () =>
+        isImage.value &&
+        file.value!.piiDetected &&
+        currentUser.value!.aiSettings.suppressPii &&
+        publicSettings.value.aiEnabled,
+);
 
 const hasInsights = computed(
     () => publicSettings.value.aiEnabled && (!!file.value!.caption || file.value!.piiDetected),
