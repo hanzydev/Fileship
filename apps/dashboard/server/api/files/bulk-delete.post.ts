@@ -1,9 +1,4 @@
-import { rm } from 'node:fs/promises';
-
-import { join } from 'pathe';
 import z from 'zod';
-
-import { removeMultiple } from '@orama/orama';
 
 const validationSchema = z.object({
     files: z.array(z.uuid()).min(1).max(5000),
@@ -51,16 +46,7 @@ export default defineEventHandler(async (event) => {
         });
     });
 
-    const deletionPromises = filesToBeDeleted.map(async (file) => {
-        await Promise.allSettled([
-            rm(join(dataDirectory, 'uploads', file.fileName), { force: true }),
-            rm(getThumbnailPath(file.id), { force: true }),
-        ]);
-    });
-
-    await Promise.allSettled(deletionPromises);
-
-    await removeMultiple(fileSearchDb, fileIds);
+    await removeFileData(filesToBeDeleted);
 
     sendToUser(currentUser.id, 'file:bulkDelete', fileIds);
 

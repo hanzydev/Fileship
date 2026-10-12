@@ -1,6 +1,3 @@
-import { rm } from 'node:fs/promises';
-
-import { join } from 'pathe';
 import z from 'zod';
 
 import { remove } from '@orama/orama';
@@ -68,14 +65,9 @@ export default defineEventHandler(async (event) => {
     });
 
     if (body.data.deleteFilesToo) {
+        await removeFileData(findFolderById.files);
+
         const deletionPromises = findFolderById.files.map(async (file) => {
-            await Promise.allSettled([
-                rm(join(dataDirectory, 'uploads', file.fileName), { force: true }),
-                rm(getThumbnailPath(file.id), { force: true }),
-            ]);
-
-            await remove(fileSearchDb, file.id);
-
             await createLog(event, {
                 action: 'Delete File',
                 message: `Deleted file ${file.fileName}`,

@@ -6,6 +6,7 @@ export default defineNitroPlugin(async () => {
 
     await runTask('dir:clearTemp');
     await runTask('dir:createDirectories');
+    await runTask('storage:sync');
 
     runTask('media:sync');
 

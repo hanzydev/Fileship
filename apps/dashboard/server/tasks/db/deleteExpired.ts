@@ -1,9 +1,3 @@
-import { promises as fsp } from 'node:fs';
-
-import { join } from 'pathe';
-
-import { remove } from '@orama/orama';
-
 export default defineTask({
     meta: {
         name: 'db:deleteExpired',
@@ -30,11 +24,7 @@ export default defineTask({
 
             if (!count) continue;
 
-            await Promise.allSettled([
-                fsp.rm(join(dataDirectory, 'uploads', file.fileName), { force: true }),
-                fsp.rm(getThumbnailPath(file.id), { force: true }),
-                remove(fileSearchDb, file.id),
-            ]);
+            await removeFileData([file]);
 
             await createLog(null, {
                 action: 'Delete File',

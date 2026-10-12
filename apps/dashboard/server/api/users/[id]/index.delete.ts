@@ -84,12 +84,7 @@ export default defineEventHandler(async (event) => {
         }),
     ]);
 
-    const uploadsPath = join(dataDirectory, 'uploads');
-
-    for (const { id, fileName } of userFiles) {
-        await rm(join(uploadsPath, fileName), { force: true }).catch(() => null);
-        await rm(getThumbnailPath(id), { force: true }).catch(() => null);
-    }
+    await removeFileData(userFiles);
 
     for (const directory of ['backups', 'temp']) {
         await rm(join(dataDirectory, directory, userId!), { recursive: true, force: true }).catch(
@@ -138,11 +133,6 @@ export default defineEventHandler(async (event) => {
     ]);
 
     await remove(userSearchDb, userId!);
-
-    await removeMultiple(
-        fileSearchDb,
-        userFiles.map((f) => f.id),
-    );
 
     await removeMultiple(
         folderSearchDb,

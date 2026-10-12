@@ -1,8 +1,6 @@
-import { createReadStream, promises as fsp } from 'node:fs';
+import { createReadStream } from 'node:fs';
 
 import { join } from 'pathe';
-
-import { remove } from '@orama/orama';
 
 const VIEW_WINDOW = 10 * 60 * 1_000;
 
@@ -100,15 +98,13 @@ export default defineEventHandler(async (event) => {
             const currentViews = findFileById._count.views + 1;
 
             if (findFileById.maxViews && currentViews >= findFileById.maxViews) {
-                await fsp.rm(filePath, { force: true });
-                await fsp.rm(getThumbnailPath(findFileById.id), { force: true }).catch(() => null);
-                await Promise.allSettled([remove(fileSearchDb, findFileById.id)]);
-
                 await prisma.file.delete({
                     where: {
                         id: findFileById.id,
                     },
                 });
+
+                await removeFileData([findFileById]);
 
                 await createLog(event, {
                     action: 'Delete File',

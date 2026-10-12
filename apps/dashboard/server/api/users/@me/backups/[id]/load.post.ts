@@ -166,22 +166,7 @@ export default defineEventHandler(async (event) => {
 
                 const uploadsPath = join(dataDirectory, 'uploads');
 
-                await Promise.all(
-                    userFiles.map(({ fileName }) =>
-                        fsp.rm(join(uploadsPath, fileName), { force: true }).catch(() => null),
-                    ),
-                );
-
-                await Promise.all(
-                    userFiles.map(({ id }) =>
-                        fsp.rm(getThumbnailPath(id), { force: true }).catch(() => null),
-                    ),
-                );
-
-                await removeMultiple(
-                    fileSearchDb,
-                    userFiles.map((f) => f.id),
-                );
+                await removeFileData(userFiles);
 
                 await removeMultiple(
                     folderSearchDb,

@@ -1,9 +1,3 @@
-import { rm } from 'node:fs/promises';
-
-import { join } from 'pathe';
-
-import { remove } from '@orama/orama';
-
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
@@ -24,19 +18,13 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    await rm(join(dataDirectory, 'uploads', findFileById.fileName), {
-        force: true,
-    }).catch(() => null);
-
-    await rm(getThumbnailPath(findFileById.id), { force: true }).catch(() => null);
-
     await prisma.file.delete({
         where: {
             id: fileId,
         },
     });
 
-    await remove(fileSearchDb, fileId!);
+    await removeFileData([findFileById]);
 
     await createLog(event, {
         action: 'Delete File',
