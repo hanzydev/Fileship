@@ -12,10 +12,12 @@
                 <div
                     ref="stage"
                     class="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-2 pt-10 pb-2 lg:px-16 lg:py-10"
+                    @click.self="handleBackdropClick"
                 >
                     <div
                         v-if="isImage"
                         class="flex size-full items-center justify-center overflow-hidden"
+                        @click.self="handleBackdropClick"
                     >
                         <img
                             :src="file.directUrl"
@@ -574,6 +576,11 @@ const handleZoom = (event: MouseEvent) => {
     if (!isZoomed.value) setZoomOrigin(event);
 
     isZoomed.value = !isZoomed.value;
+};
+
+const handleBackdropClick = () => {
+    if (isZoomed.value) isZoomed.value = false;
+    else fileId.value = null;
 };
 
 watch(
