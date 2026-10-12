@@ -29,6 +29,12 @@ enum AIJobType {
   DetectPII
 }
 
+enum StorageType {
+  S3
+  SFTP
+  FTP
+}
+
 enum AIJobStatus {
   Pending
   Processing
@@ -99,8 +105,19 @@ model File {
   piiDetected   Boolean   @default(false)
   piiReasons    String[]  @default([])
   metadata      Json?
+  storage       Storage?  @relation(fields: [storageId], references: [id], onDelete: Restrict)
+  storageId     String?
 
   aiJobs AIJob[]
+}
+
+model Storage {
+  id        String      @id @default(uuid())
+  name      String
+  type      StorageType
+  config    String
+  createdAt DateTime    @default(now())
+  files     File[]
 }
 
 model AIJob {

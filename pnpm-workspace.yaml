@@ -30,11 +30,13 @@ allowBuilds:
   '@prisma/engines': true
   argon2: true
   bufferutil: true
+  cpu-features: false
   esbuild: true
   onnxruntime-node: false
   prisma: true
   protobufjs: false
   sharp: true
+  ssh2: false
   unrs-resolver: true
   utf-8-validate: true
   vue-demi: true

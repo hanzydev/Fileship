@@ -1,4 +1,4 @@
-import { cp, mkdir, readdir, rm } from 'node:fs/promises';
+import { mkdir, rm } from 'node:fs/promises';
 
 import { nanoid } from 'nanoid';
 import { join } from 'pathe';
@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
                 select: {
                     fileName: true,
                     password: true,
+                    storageId: true,
                 },
             },
         },
@@ -72,18 +73,23 @@ export default defineEventHandler(async (event) => {
 
     const tempPath = join(dataDirectory, 'temp', jobId);
     const archiveUploadsPath = join(tempPath, 'uploads');
-    const uploadsPath = join(dataDirectory, 'uploads');
 
     await mkdir(tempPath);
     await mkdir(archiveUploadsPath);
 
-    const userUploads = (await readdir(uploadsPath)).filter((file) =>
-        findFolderById.files.some((upload) => upload.fileName === file),
+    const downloads = await Promise.allSettled(
+        findFolderById.files.map(async (file) => {
+            await (
+                await getStorage(file.storageId)
+            ).download(uploadKey(file.fileName), join(archiveUploadsPath, file.fileName));
+
+            return file.fileName;
+        }),
     );
 
-    await Promise.all(
-        userUploads.map((file) => cp(join(uploadsPath, file), join(archiveUploadsPath, file))),
-    );
+    const userUploads = downloads
+        .filter((download) => download.status === 'fulfilled')
+        .map((download) => download.value);
 
     const archiveCompressedPath = join(tempPath, 'archive.tgz');
 

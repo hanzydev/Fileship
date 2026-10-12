@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 
 import consola from 'consola';
 import dayjs from 'dayjs';
-import { extname, join } from 'pathe';
+import { extname } from 'pathe';
 
 import { insert, remove } from '@orama/orama';
 
@@ -56,6 +56,7 @@ export default defineTask({
                         select: {
                             id: true,
                             fileName: true,
+                            storageId: true,
                             mimeType: true,
                             authorId: true,
                             textEmbedding: true,
@@ -66,8 +67,11 @@ export default defineTask({
 
                     if (!file) throw new Error('File not found');
 
-                    const filePath = join(dataDirectory, 'uploads', file.fileName);
-                    const embedding = await ai.createImageEmbedding(filePath);
+                    const embedding = await withLocalFile(
+                        file.storageId,
+                        uploadKey(file.fileName),
+                        (filePath) => ai.createImageEmbedding(filePath),
+                    );
 
                     await prisma.file.update({
                         where: { id: file.id },
@@ -100,6 +104,7 @@ export default defineTask({
                         select: {
                             id: true,
                             fileName: true,
+                            storageId: true,
                             mimeType: true,
                             authorId: true,
                             textEmbedding: true,
@@ -110,10 +115,11 @@ export default defineTask({
 
                     if (!file) throw new Error('File not found');
 
-                    const filePath = join(dataDirectory, 'uploads', file.fileName);
-                    const embedding = await ai.createVideoEmbedding({
-                        filePath,
-                    });
+                    const embedding = await withLocalFile(
+                        file.storageId,
+                        uploadKey(file.fileName),
+                        (filePath) => ai.createVideoEmbedding({ filePath }),
+                    );
 
                     await prisma.file.update({
                         where: { id: file.id },
@@ -147,6 +153,7 @@ export default defineTask({
                             id: true,
                             authorId: true,
                             fileName: true,
+                            storageId: true,
                             mimeType: true,
                             ocrText: true,
                             embedding: true,
@@ -157,8 +164,11 @@ export default defineTask({
 
                     if (!file) throw new Error('File not found');
 
-                    const filePath = join(dataDirectory, 'uploads', file.fileName);
-                    const text = await ai.performOcrOnImage(filePath);
+                    const text = await withLocalFile(
+                        file.storageId,
+                        uploadKey(file.fileName),
+                        (filePath) => ai.performOcrOnImage(filePath),
+                    );
 
                     await prisma.file.update({
                         where: { id: file.id },
@@ -199,6 +209,7 @@ export default defineTask({
                         select: {
                             id: true,
                             fileName: true,
+                            storageId: true,
                             mimeType: true,
                             ocrText: true,
                             embedding: true,
@@ -215,11 +226,14 @@ export default defineTask({
                         return { id: job.id, result: 'skip' };
                     }
 
-                    const filePath = join(dataDirectory, 'uploads', file.fileName);
                     const baseText =
                         file.ocrText ??
                         (ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(file.fileName))
-                            ? await readUtf8Snippet(filePath, 120_000)
+                            ? await withLocalFile(
+                                  file.storageId,
+                                  uploadKey(file.fileName),
+                                  (filePath) => readUtf8Snippet(filePath, 120_000),
+                              )
                             : null);
 
                     if (!baseText) {
@@ -264,6 +278,7 @@ export default defineTask({
                         select: {
                             id: true,
                             fileName: true,
+                            storageId: true,
                             mimeType: true,
                             authorId: true,
                             embedding: true,
@@ -274,8 +289,11 @@ export default defineTask({
 
                     if (!file) throw new Error('File not found');
 
-                    const filePath = join(dataDirectory, 'uploads', file.fileName);
-                    const caption = await ai.generateImageCaption(filePath);
+                    const caption = await withLocalFile(
+                        file.storageId,
+                        uploadKey(file.fileName),
+                        (filePath) => ai.generateImageCaption(filePath),
+                    );
 
                     await prisma.file.update({
                         where: { id: file.id },
@@ -310,14 +328,18 @@ export default defineTask({
                         select: {
                             id: true,
                             fileName: true,
+                            storageId: true,
                             authorId: true,
                             ocrText: true,
                         },
                     });
                     if (!file) throw new Error('File not found');
 
-                    const filePath = join(dataDirectory, 'uploads', file.fileName);
-                    const { piiDetected, reasons } = await ai.detectPII(filePath, file.ocrText);
+                    const { piiDetected, reasons } = await withLocalFile(
+                        file.storageId,
+                        uploadKey(file.fileName),
+                        (filePath) => ai.detectPII(filePath, file.ocrText),
+                    );
 
                     await prisma.file.update({
                         where: { id: file.id },

@@ -13,6 +13,7 @@ export default defineTask({
             select: {
                 id: true,
                 fileName: true,
+                storageId: true,
                 authorId: true,
             },
         });

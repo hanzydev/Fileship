@@ -139,9 +139,7 @@ export const readMetadata = (mimeType: string, filePath: string) =>
         : readStreamMetadata(filePath)
     ).catch(() => ({}) as IMediaMetadata);
 
-export const processMedia = async (file: { id: string; fileName: string; mimeType: string }) => {
-    const filePath = join(dataDirectory, 'uploads', file.fileName);
-
+export const processMedia = async (file: { id: string; mimeType: string }, filePath: string) => {
     if (canHaveThumbnail(file.mimeType) && !hasThumbnail(file.id))
         await createThumbnail(file, filePath);
 

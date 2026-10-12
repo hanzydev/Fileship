@@ -16,7 +16,13 @@ export default defineTask({
                         mimeType: { startsWith: type },
                     })),
                 },
-                select: { id: true, fileName: true, mimeType: true, metadata: true },
+                select: {
+                    id: true,
+                    fileName: true,
+                    mimeType: true,
+                    metadata: true,
+                    storageId: true,
+                },
                 orderBy: { id: 'asc' },
                 take: 100,
                 ...(cursor && { skip: 1, cursor: { id: cursor } }),
@@ -28,7 +34,9 @@ export default defineTask({
                 if (file.metadata && (!canHaveThumbnail(file.mimeType) || hasThumbnail(file.id)))
                     continue;
 
-                await processMedia(file);
+                await withLocalFile(file.storageId, uploadKey(file.fileName), (filePath) =>
+                    processMedia(file, filePath),
+                ).catch(() => null);
                 processed++;
             }
 

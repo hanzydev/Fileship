@@ -24,6 +24,7 @@ export const settingsSchema = z.object({
     aiJobDequeueRetries: z.number().int().min(1).max(50),
     logLevel: z.union([z.literal(0), z.literal(1), z.literal(2)]),
     telemetryEnabled: z.boolean(),
+    activeStorageId: z.string().nullable(),
 });
 
 export type InstanceSettings = z.infer<typeof settingsSchema>;

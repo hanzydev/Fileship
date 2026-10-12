@@ -55,6 +55,7 @@ export const getSettingDefaults = (): InstanceSettings => {
         aiJobDequeueRetries: parseDefault('aiJobDequeueRetries', +config.ai.jobDequeueRetries, 5),
         logLevel: parseDefault('logLevel', +config.logLevel, 2),
         telemetryEnabled: parseDefault('telemetryEnabled', !!config.telemetryEnabled, true),
+        activeStorageId: null,
     };
 };
 

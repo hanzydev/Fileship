@@ -1,7 +1,6 @@
-import { promises as fsp } from 'node:fs';
-
 import consola from 'consola';
-import { join } from 'pathe';
+
+type StoredFile = { id: string; fileName: string; authorId: string; storageId: string | null };
 
 export default defineTask({
     meta: {
@@ -9,14 +8,12 @@ export default defineTask({
         description: 'Removes files whose stored data is missing',
     },
     async run() {
-        const stored = new Set(await fsp.readdir(join(dataDirectory, 'uploads')));
-        const missing: { id: string; fileName: string; authorId: string }[] = [];
-
+        const groups = new Map<string | null, StoredFile[]>();
         let cursor: string | undefined;
 
         while (true) {
             const files = await prisma.file.findMany({
-                select: { id: true, fileName: true, authorId: true },
+                select: { id: true, fileName: true, authorId: true, storageId: true },
                 orderBy: { id: 'asc' },
                 take: 500,
                 ...(cursor && { skip: 1, cursor: { id: cursor } }),
@@ -24,19 +21,39 @@ export default defineTask({
 
             if (!files.length) break;
 
-            missing.push(...files.filter((file) => !stored.has(file.fileName)));
+            for (const file of files) {
+                groups.set(file.storageId, [...(groups.get(file.storageId) ?? []), file]);
+            }
+
             cursor = files.at(-1)!.id;
         }
 
-        if (!missing.length) return { result: 0 };
+        const missing: StoredFile[] = [];
 
-        if (!stored.size) {
-            consola.warn(
-                'The uploads storage is empty but the database has files. Skipping cleanup, check the data directory.',
-            );
+        for (const [storageId, files] of groups) {
+            const name = storageId ? `storage ${storageId}` : 'local storage';
+            const stored = await getStorage(storageId)
+                .then((storage) => storage.list('uploads/'))
+                .catch(() => null);
 
-            return { result: 0 };
+            if (!stored) {
+                consola.warn(`Could not list ${name}, skipping its cleanup.`);
+                continue;
+            }
+
+            const storageMissing = files.filter((file) => !stored.has(file.fileName));
+
+            if (!stored.size && storageMissing.length) {
+                consola.warn(
+                    `The ${name} is empty but the database has files for it. Skipping its cleanup, check its configuration.`,
+                );
+                continue;
+            }
+
+            missing.push(...storageMissing);
         }
+
+        if (!missing.length) return { result: 0 };
 
         await prisma.file.deleteMany({ where: { id: { in: missing.map((file) => file.id) } } });
         await removeFileData(missing);

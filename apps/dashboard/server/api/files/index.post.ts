@@ -202,9 +202,7 @@ export default defineEventHandler(async (event) => {
             });
         }
 
-        const filePath = join(dataDirectory, 'uploads', fileName);
-
-        await moveFileRobust(tempPath, filePath);
+        const storageId = await getActiveStorageId();
 
         const _upload = await prisma.file.create({
             data: {
@@ -218,6 +216,7 @@ export default defineEventHandler(async (event) => {
                     : null,
                 authorId: currentUser.id,
                 folderId: body.data.folderId || null,
+                storageId,
             },
             include: {
                 views: true,
@@ -229,7 +228,19 @@ export default defineEventHandler(async (event) => {
             },
         });
 
-        if (isAnalyzable(_upload.mimeType)) _upload.metadata = (await processMedia(_upload)) as any;
+        if (isAnalyzable(_upload.mimeType))
+            _upload.metadata = (await processMedia(_upload, tempPath)) as any;
+
+        await (
+            await getStorage(storageId)
+        )
+            .put(uploadKey(fileName), tempPath)
+            .catch(async (error) => {
+                await prisma.file.delete({ where: { id: _upload.id } });
+                await removeFileData([_upload]);
+                await fsp.rm(tempPath, { force: true });
+                throw error;
+            });
 
         const upload = {
             ..._upload,

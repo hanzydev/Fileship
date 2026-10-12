@@ -143,6 +143,7 @@ export default defineEventHandler(async (event) => {
                         select: {
                             id: true,
                             fileName: true,
+                            storageId: true,
                         },
                     }),
                     prisma.folder.findMany({
@@ -163,8 +164,6 @@ export default defineEventHandler(async (event) => {
                         },
                     }),
                 ]);
-
-                const uploadsPath = join(dataDirectory, 'uploads');
 
                 await removeFileData(userFiles);
 
@@ -201,23 +200,20 @@ export default defineEventHandler(async (event) => {
                 const databases = ['folder', 'note', 'file', 'user', 'view'] as const;
                 const remappedKeys = new Map<string, string>();
                 const uploadSizes = new Map<string, number>();
+                const uploadPaths = new Map<string, string>();
+                const storageId = await getActiveStorageId();
+                const storage = await getStorage(storageId);
 
                 for (const { name, size } of backupUploads) {
-                    const remappedName = existsSync(join(uploadsPath, name))
+                    const remappedName = (await prisma.file.findUnique({
+                        where: { fileName: name },
+                    }))
                         ? `${nanoid(8)}${extname(name)}`
                         : name;
 
-                    const moved = await moveFileRobust(
-                        join(backupUploadsPath, name),
-                        join(uploadsPath, remappedName),
-                    )
-                        .then(() => true)
-                        .catch(() => false);
-
-                    if (moved) {
-                        remappedKeys.set(name, remappedName);
-                        uploadSizes.set(remappedName, size);
-                    }
+                    remappedKeys.set(name, remappedName);
+                    uploadSizes.set(remappedName, size);
+                    uploadPaths.set(remappedName, join(backupUploadsPath, name));
                 }
 
                 for (const database of databases) {
@@ -272,6 +268,7 @@ export default defineEventHandler(async (event) => {
                                             data.folderId =
                                                 remappedKeys.get(value.folderId) ?? null;
                                             data.authorId = currentUser.id;
+                                            data.storageId = storageId;
                                             break;
                                         }
                                         case 'view':
@@ -311,9 +308,20 @@ export default defineEventHandler(async (event) => {
                                                         ),
                                                     };
 
+                                                    const uploadPath = uploadPaths.get(
+                                                        created.fileName,
+                                                    )!;
+
                                                     if (isAnalyzable(created.mimeType))
-                                                        created.metadata =
-                                                            await processMedia(created);
+                                                        created.metadata = await processMedia(
+                                                            created,
+                                                            uploadPath,
+                                                        );
+
+                                                    await storage.put(
+                                                        uploadKey(created.fileName),
+                                                        uploadPath,
+                                                    );
 
                                                     created.thumbnailUrl = getThumbnailUrl(
                                                         event,

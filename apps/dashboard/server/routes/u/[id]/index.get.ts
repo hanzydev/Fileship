@@ -1,7 +1,3 @@
-import { createReadStream } from 'node:fs';
-
-import { join } from 'pathe';
-
 const VIEW_WINDOW = 10 * 60 * 1_000;
 
 const ACTIVE_CONTENT_TYPES = ['html', 'svg', 'xml', 'javascript'];
@@ -67,8 +63,6 @@ export default defineEventHandler(async (event) => {
             }
         }
     }
-
-    const filePath = join(dataDirectory, 'uploads', findFileById.fileName);
 
     if (findFileById.authorId !== currentUser?.id) {
         const ip = getRequestIP(event, { xForwardedFor: true }) || 'Unknown';
@@ -141,6 +135,8 @@ export default defineEventHandler(async (event) => {
     }
 
     const fileSize = Number(findFileById.size);
+    const fileStorage = await getStorage(findFileById.storageId);
+    const key = uploadKey(findFileById.fileName);
 
     if (rangeHeader) {
         let start;
@@ -160,23 +156,22 @@ export default defineEventHandler(async (event) => {
             if (_end) end = +_end;
         }
 
-        if (isNaN(start) || isNaN(end) || start >= fileSize || start > end) {
-            setResponseHeader(event, 'Content-Length', fileSize);
-            return sendStream(event, createReadStream(filePath));
+        if (!isNaN(start) && !isNaN(end) && start < fileSize && start <= end) {
+            if (end >= fileSize) end = fileSize - 1;
+
+            const stream = await fileStorage.read(key, { start, end });
+
+            setResponseStatus(event, 206);
+            setResponseHeader(event, 'Content-Range', `bytes ${start}-${end}/${fileSize}`);
+            setResponseHeader(event, 'Content-Length', end - start + 1);
+
+            return sendStream(event, stream);
         }
-
-        if (end >= fileSize) end = fileSize - 1;
-
-        const chunkSize = end - start + 1;
-
-        setResponseStatus(event, 206);
-        setResponseHeader(event, 'Content-Range', `bytes ${start}-${end}/${fileSize}`);
-        setResponseHeader(event, 'Content-Length', chunkSize);
-
-        return sendStream(event, createReadStream(filePath, { start, end }));
     }
+
+    const stream = await fileStorage.read(key);
 
     setResponseHeader(event, 'Content-Length', fileSize);
 
-    return sendStream(event, createReadStream(filePath));
+    return sendStream(event, stream);
 });

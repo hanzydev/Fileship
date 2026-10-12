@@ -64,6 +64,7 @@ export default defineEventHandler(async (event) => {
             select: {
                 id: true,
                 fileName: true,
+                storageId: true,
             },
         }),
         prisma.folder.findMany({

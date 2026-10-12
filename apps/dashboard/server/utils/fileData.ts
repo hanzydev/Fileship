@@ -1,13 +1,13 @@
 import { rm } from 'node:fs/promises';
 
-import { join } from 'pathe';
-
 import { removeMultiple } from '@orama/orama';
 
-export const removeFileData = async (files: { id: string; fileName: string }[]) => {
+export const removeFileData = async (
+    files: { id: string; fileName: string; storageId: string | null }[],
+) => {
     await Promise.allSettled(
         files.flatMap((file) => [
-            rm(join(dataDirectory, 'uploads', file.fileName), { force: true }),
+            getStorage(file.storageId).then((storage) => storage.remove(uploadKey(file.fileName))),
             rm(getThumbnailPath(file.id), { force: true }),
         ]),
     );

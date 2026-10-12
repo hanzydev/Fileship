@@ -10,7 +10,6 @@ export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
 
     const userBackupsPath = join(dataDirectory, 'backups', currentUser.id);
-    const uploadsPath = join(dataDirectory, 'uploads');
 
     if (!existsSync(userBackupsPath)) await fsp.mkdir(userBackupsPath);
 
@@ -92,12 +91,13 @@ export default defineEventHandler(async (event) => {
         ),
     );
 
-    const userUploads = (await fsp.readdir(uploadsPath)).filter((file) =>
-        files.some((upload) => upload.fileName === file),
-    );
-
-    await Promise.all(
-        userUploads.map((file) => fsp.cp(join(uploadsPath, file), join(backupUploadsPath, file))),
+    await Promise.allSettled(
+        files.map(async (file) =>
+            (await getStorage(file.storageId)).download(
+                uploadKey(file.fileName),
+                join(backupUploadsPath, file.fileName),
+            ),
+        ),
     );
 
     const backupCompressedPath = join(tempPath, 'backup.tgz');

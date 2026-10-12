@@ -2,10 +2,9 @@ import { z } from 'zod';
 
 const validationSchema = z.object({
     ...Object.fromEntries(
-        Object.entries(settingsSchema.shape).map(([key, schema]) => [
-            key,
-            (schema as z.ZodType).nullable().optional(),
-        ]),
+        Object.entries(settingsSchema.omit({ activeStorageId: true }).shape).map(
+            ([key, schema]) => [key, (schema as z.ZodType).nullable().optional()],
+        ),
     ),
     verificationData: z.any().optional(),
 });

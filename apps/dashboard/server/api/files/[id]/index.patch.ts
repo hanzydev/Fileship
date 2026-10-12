@@ -1,4 +1,3 @@
-import { join } from 'pathe';
 import { z } from 'zod';
 
 import { update } from '@orama/orama';
@@ -91,10 +90,9 @@ export default defineEventHandler(async (event) => {
             });
         }
 
-        await moveFileRobust(
-            join(dataDirectory, 'uploads', findFileById.fileName),
-            join(dataDirectory, 'uploads', body.data.fileName),
-        );
+        await (
+            await getStorage(findFileById.storageId)
+        ).move(uploadKey(findFileById.fileName), uploadKey(body.data.fileName));
     }
 
     const _updatedFile = await prisma.file.update({
