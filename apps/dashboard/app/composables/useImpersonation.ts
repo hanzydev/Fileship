@@ -3,6 +3,7 @@ export const useImpersonation = () => {
     const domains = useDomains();
     const currentUser = useAuthUser();
     const currentTheme = useTheme();
+    const { $toast } = useNuxtApp();
 
     const loadAccountData = async () => {
         [embed.value, domains.value] = await Promise.all([
@@ -22,6 +23,7 @@ export const useImpersonation = () => {
         if (!result) return;
 
         const { user, session } = result as any;
+        const id = $toast.loading(`Signing in as ${user.username}...`);
 
         currentUser.value = {
             ...user,
@@ -33,10 +35,14 @@ export const useImpersonation = () => {
 
         clearStates(true);
 
-        await nextTick();
-        await loadAccountData();
-        await refreshNuxtData();
-        await navigateTo('/dashboard');
+        try {
+            await nextTick();
+            await loadAccountData();
+            await refreshNuxtData();
+            await navigateTo('/dashboard');
+        } finally {
+            $toast.dismiss(id);
+        }
 
         initSocket();
     };

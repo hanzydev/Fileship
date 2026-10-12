@@ -15,15 +15,17 @@ export const useNoteActions = () => {
     };
 
     const togglePublic = async (note: NoteData) => {
+        const id = $toast.loading(note.public ? 'Making note private...' : 'Making note public...');
+
         try {
             await $fetch(`/api/notes/${note.id}`, {
                 method: 'PATCH',
                 body: { public: !note.public },
             });
 
-            $toast.success(note.public ? 'Note is now private' : 'Note is now public');
+            $toast.success(note.public ? 'Note is now private' : 'Note is now public', { id });
         } catch (error: any) {
-            $toast.error(getErrorMessage(error));
+            $toast.error(getErrorMessage(error), { id });
         }
     };
 

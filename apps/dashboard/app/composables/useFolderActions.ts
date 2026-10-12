@@ -9,15 +9,21 @@ export const useFolderActions = () => {
     };
 
     const togglePublic = async (folder: FolderData) => {
+        const id = $toast.loading(
+            folder.public ? 'Making folder private...' : 'Making folder public...',
+        );
+
         try {
             await $fetch(`/api/folders/${folder.id}`, {
                 method: 'PATCH',
                 body: { public: !folder.public },
             });
 
-            $toast.success(folder.public ? 'Folder is now private' : 'Folder is now public');
+            $toast.success(folder.public ? 'Folder is now private' : 'Folder is now public', {
+                id,
+            });
         } catch (error: any) {
-            $toast.error(getErrorMessage(error));
+            $toast.error(getErrorMessage(error), { id });
         }
     };
 

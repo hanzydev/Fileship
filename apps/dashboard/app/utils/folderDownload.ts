@@ -1,15 +1,15 @@
 export const downloadFolder = async (folder: FolderData) => {
     const { $toast } = useNuxtApp();
+    const id = $toast.loading('Preparing archive...');
 
     try {
         const { jobId } = await $fetch(`/api/folders/${folder.id}/archive`, {
             method: 'POST',
         });
 
-        $toast.info('Preparing archive... Will download when ready.');
-
         const handleDownload = () => {
             downloadFile(`/api/folders/${folder.id}/archive/jobs/${jobId}/download`);
+            $toast.success('Archive ready, downloading', { id });
         };
 
         const interval = setInterval(async () => {
@@ -21,10 +21,10 @@ export const downloadFolder = async (folder: FolderData) => {
                 }
             } catch (e: any) {
                 clearInterval(interval);
-                $toast.error(getErrorMessage(e));
+                $toast.error(getErrorMessage(e), { id });
             }
         }, 2_000);
     } catch (error: any) {
-        $toast.error(getErrorMessage(error));
+        $toast.error(getErrorMessage(error), { id });
     }
 };

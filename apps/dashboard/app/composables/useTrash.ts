@@ -23,13 +23,15 @@ export const useTrash = () => {
               };
 
     const restore = async (selection: TrashSelection) => {
+        const id = $toast.loading('Restoring...');
+
         try {
             await $fetch('/api/trash/restore', { method: 'POST', body: selection });
-            $toast.success('Restored');
+            $toast.success('Restored', { id });
 
             return true;
         } catch (error: any) {
-            $toast.error(getErrorMessage(error));
+            $toast.error(getErrorMessage(error), { id });
             return false;
         }
     };

@@ -25,6 +25,11 @@ export const useFileActions = () => {
         files.forEach((file) => downloadFile(`${file.directUrl}?download`));
 
     const move = async (files: Pick<FileData, 'id'>[], folderId: string | null) => {
+        const filesText = files.length > 1 ? `${files.length} files` : 'File';
+        const id = $toast.loading(
+            folderId ? `Moving ${filesText.toLowerCase()}...` : 'Removing from folder...',
+        );
+
         try {
             if (files.length > 1) {
                 for (const chunk of chunkIds(files)) {
@@ -40,12 +45,13 @@ export const useFileActions = () => {
                 });
             }
 
-            const filesText = files.length > 1 ? `${files.length} files` : 'File';
-            $toast.success(folderId ? `${filesText} moved` : `${filesText} removed from folder`);
+            $toast.success(folderId ? `${filesText} moved` : `${filesText} removed from folder`, {
+                id,
+            });
 
             return true;
         } catch (error: any) {
-            $toast.error(getErrorMessage(error));
+            $toast.error(getErrorMessage(error), { id });
             return false;
         }
     };

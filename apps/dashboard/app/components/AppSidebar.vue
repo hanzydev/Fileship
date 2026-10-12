@@ -157,7 +157,7 @@
                     <UiDropdownMenuItem
                         variant="destructive"
                         :disabled="isLoggingOut"
-                        @select="handleLogout"
+                        @select.prevent="handleLogout"
                     >
                         <UiSpinner v-if="isLoggingOut" />
                         <ILogOut v-else />
