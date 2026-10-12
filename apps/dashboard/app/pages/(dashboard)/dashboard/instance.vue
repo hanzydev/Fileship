@@ -260,8 +260,10 @@
                             v-if="storage.id !== storages!.activeStorageId"
                             variant="outline"
                             size="sm"
+                            :disabled="activatingStorage === (storage.id ?? 'local')"
                             @click="handleActivateStorage(storage)"
                         >
+                            <UiSpinner v-if="activatingStorage === (storage.id ?? 'local')" />
                             Set active
                         </UiButton>
                         <UiButton
@@ -783,6 +785,7 @@ const migration = useStorageMigration();
 const storageErrors = ref();
 const isTestingStorage = ref(false);
 const isSavingStorage = ref(false);
+const activatingStorage = ref<string>();
 
 const storageDialog = reactive({
     open: false,
@@ -970,6 +973,8 @@ const handleSaveStorage = async () => {
 };
 
 const handleActivateStorage = async (storage: { id: string | null; name: string }) => {
+    activatingStorage.value = storage.id ?? 'local';
+
     try {
         const result = await withVerification((verificationData) =>
             $fetch('/api/storages/active', {
@@ -985,6 +990,8 @@ const handleActivateStorage = async (storage: { id: string | null; name: string 
     } catch (error) {
         $toast.error(getErrorMessage(error));
     }
+
+    activatingStorage.value = undefined;
 };
 
 const handleMigrateStorage = async (storage: { name: string }) => {
