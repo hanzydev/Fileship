@@ -1,3 +1,4 @@
+import ffprobe from '@ffprobe-installer/ffprobe';
 import tailwindcss from '@tailwindcss/vite';
 
 import pkg from '../../package.json' with { type: 'json' };
@@ -93,6 +94,9 @@ export default defineNuxtConfig({
         },
         imports: {
             autoImport: true,
+        },
+        externals: {
+            traceInclude: [ffprobe.path],
         },
     },
 
