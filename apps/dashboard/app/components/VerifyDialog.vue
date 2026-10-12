@@ -1,6 +1,6 @@
 <template>
     <UiDialog :open="!!verification" @update:open="!$event && verification?.cancel()">
-        <UiDialogContent v-if="verification" class="sm:max-w-sm">
+        <UiDialogContent v-if="current" class="sm:max-w-sm">
             <form class="flex flex-col gap-6" @submit.prevent="handleSubmit">
                 <UiDialogHeader>
                     <UiDialogTitle>Confirm it's you</UiDialogTitle>
@@ -35,31 +35,27 @@
                     />
                 </UiField>
 
-                <UiAlert v-if="verification.error" variant="destructive">
+                <UiAlert v-if="current.error" variant="destructive">
                     <ICircleAlert />
-                    <UiAlertTitle>{{ verification.error }}</UiAlertTitle>
+                    <UiAlertTitle>{{ current.error }}</UiAlertTitle>
                 </UiAlert>
 
                 <UiDialogFooter>
-                    <UiButton type="button" variant="outline" @click="verification.cancel()">
+                    <UiButton type="button" variant="outline" @click="current.cancel()">
                         Cancel
                     </UiButton>
                     <UiButton
                         v-if="method === 'passkey'"
                         type="button"
-                        :disabled="verification.isSubmitting"
+                        :disabled="current.isSubmitting"
                         @click="handlePasskey"
                     >
-                        <UiSpinner v-if="verification.isSubmitting" />
+                        <UiSpinner v-if="current.isSubmitting" />
                         <IFingerprint v-else />
                         Use a passkey
                     </UiButton>
-                    <UiButton
-                        v-else
-                        type="submit"
-                        :disabled="verification.isSubmitting || !canSubmit"
-                    >
-                        <UiSpinner v-if="verification.isSubmitting" />
+                    <UiButton v-else type="submit" :disabled="current.isSubmitting || !canSubmit">
+                        <UiSpinner v-if="current.isSubmitting" />
                         Verify
                     </UiButton>
                 </UiDialogFooter>
@@ -72,6 +68,7 @@
 import { startAuthentication } from '@simplewebauthn/browser';
 
 const verification = useVerification();
+const current = ref(verification.value);
 const { $toast } = useNuxtApp();
 
 const labels = { passkey: 'Passkey', totp: 'Code', password: 'Password' };
@@ -80,7 +77,7 @@ const method = ref<VerificationMethod['type']>('password');
 const totp = ref('');
 const password = ref('');
 
-const methods = computed(() => verification.value?.methods || []);
+const methods = computed(() => current.value?.methods || []);
 
 const canSubmit = computed(() =>
     method.value === 'totp' ? totp.value.length === 6 : !!password.value,
@@ -110,6 +107,8 @@ const handlePasskey = async () => {
         $toast.error('Failed to verify passkey');
     }
 };
+
+watch(verification, (value) => value && (current.value = value));
 
 watch(
     () => verification.value?.error,

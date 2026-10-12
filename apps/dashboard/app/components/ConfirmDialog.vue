@@ -1,31 +1,31 @@
 <template>
     <UiDialog :open="!!confirmState" @update:open="handleOpenChange">
-        <UiDialogContent v-if="confirmState" class="sm:max-w-sm" :show-close-button="false">
+        <UiDialogContent v-if="options" class="sm:max-w-sm" :show-close-button="false">
             <UiDialogHeader>
-                <UiDialogTitle>{{ confirmState.title }}</UiDialogTitle>
-                <UiDialogDescription v-if="confirmState.description">
-                    {{ confirmState.description }}
+                <UiDialogTitle>{{ options.title }}</UiDialogTitle>
+                <UiDialogDescription v-if="options.description">
+                    {{ options.description }}
                 </UiDialogDescription>
             </UiDialogHeader>
-            <UiField v-if="confirmState.option" orientation="horizontal">
+            <UiField v-if="options.option" orientation="horizontal">
                 <UiCheckbox
                     id="confirm-option"
-                    v-model="confirmState.option.value"
+                    v-model="options.option.value"
                     :disabled="isRunning"
                 />
-                <UiFieldLabel for="confirm-option">{{ confirmState.option.label }}</UiFieldLabel>
+                <UiFieldLabel for="confirm-option">{{ options.option.label }}</UiFieldLabel>
             </UiField>
             <UiDialogFooter>
                 <UiButton variant="outline" :disabled="isRunning" @click="handleClose(false)">
                     Cancel
                 </UiButton>
                 <UiButton
-                    :variant="confirmState.destructive ? 'destructive' : 'default'"
+                    :variant="options.destructive ? 'destructive' : 'default'"
                     :disabled="isRunning"
                     @click="handleConfirm"
                 >
                     <UiSpinner v-if="isRunning" />
-                    {{ confirmState.confirmText || 'Continue' }}
+                    {{ options.confirmText || 'Continue' }}
                 </UiButton>
             </UiDialogFooter>
         </UiDialogContent>
@@ -35,6 +35,7 @@
 <script setup lang="ts">
 const confirmState = useConfirm();
 
+const options = ref(confirmState.value);
 const isRunning = ref(false);
 
 const handleClose = (value: boolean) => {
@@ -57,4 +58,6 @@ const handleConfirm = async () => {
 const handleOpenChange = (open: boolean) => {
     if (!open && !isRunning.value) handleClose(false);
 };
+
+watch(confirmState, (value) => value && (options.value = value));
 </script>
