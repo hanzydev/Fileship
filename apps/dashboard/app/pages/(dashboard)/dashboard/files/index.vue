@@ -3,7 +3,7 @@
         <Title>Files</Title>
     </Head>
 
-    <div class="flex flex-1 flex-col gap-6 p-4 pt-0">
+    <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <PageHeader title="Files" :description="description" />
         <FileBrowser v-model:summary="summary" />
     </div>

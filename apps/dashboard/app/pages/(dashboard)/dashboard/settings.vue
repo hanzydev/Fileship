@@ -3,10 +3,10 @@
         <Title>Settings</Title>
     </Head>
 
-    <div class="flex flex-1 flex-col gap-6 p-4 pt-0">
+    <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <PageHeader title="Settings" description="Manage your account and preferences." />
 
-        <div class="flex flex-col gap-6 lg:flex-row">
+        <div class="flex flex-col gap-4 lg:flex-row">
             <UiCard size="sm" class="hidden w-56 shrink-0 self-start lg:flex">
                 <UiCardContent>
                     <nav class="flex flex-col gap-1">
@@ -42,7 +42,7 @@
                 </UiSelectContent>
             </UiSelect>
 
-            <div class="flex min-w-0 max-w-3xl flex-1 flex-col gap-6">
+            <div class="flex min-w-0 max-w-3xl flex-1 flex-col gap-4">
                 <NuxtPage />
             </div>
         </div>

@@ -3,15 +3,15 @@
         <Title>Instance</Title>
     </Head>
 
-    <div class="flex flex-1 flex-col gap-6 p-4 pt-0">
+    <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <PageHeader
             title="Instance"
             description="Settings for everyone on this Fileship instance. Values set here override the environment."
         />
 
-        <div class="grid items-start gap-6 lg:grid-cols-2">
+        <div class="grid items-start gap-4 lg:grid-cols-2">
             <template v-if="!data">
-                <div v-for="i in 2" :key="i" class="flex flex-col gap-6">
+                <div v-for="i in 2" :key="i" class="flex flex-col gap-4">
                     <UiCard v-for="j in 3" :key="j">
                         <UiCardHeader>
                             <UiSkeleton class="h-5 w-32" />
@@ -28,7 +28,7 @@
                 <div
                     v-for="(column, columnIndex) in columns"
                     :key="columnIndex"
-                    class="flex flex-col gap-6"
+                    class="flex flex-col gap-4"
                 >
                     <UiCard v-for="section in column" :key="section.title">
                         <form class="contents" @submit.prevent="handleSave(section)">

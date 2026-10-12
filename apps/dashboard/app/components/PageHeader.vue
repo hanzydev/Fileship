@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-wrap items-end justify-between gap-4">
+    <div class="mb-2 flex flex-wrap items-end justify-between gap-4">
         <div class="flex flex-col gap-1">
             <TextBlock variant="h3" custom-tag="h1">{{ title }}</TextBlock>
             <TextBlock v-if="description" variant="muted">{{ description }}</TextBlock>

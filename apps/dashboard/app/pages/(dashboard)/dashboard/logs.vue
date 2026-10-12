@@ -3,7 +3,7 @@
         <Title>Logs</Title>
     </Head>
 
-    <div class="flex flex-1 flex-col gap-6 p-4 pt-0">
+    <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <PageHeader
             title="Logs"
             :description="isLoading ? 'Loading...' : pluralize(total, 'entry', 'entries')"
