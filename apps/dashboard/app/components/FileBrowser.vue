@@ -293,10 +293,11 @@
 
         <FileMoveDialog v-model="moveTargets" />
 
-        <FileSheet
+        <FileViewer
             v-model:file-id="sheetFileId"
             v-model:tab="sheetTab"
             :files="files"
+            :total="total"
             :has-more="hasMore"
             :load-more="loadMore"
         />

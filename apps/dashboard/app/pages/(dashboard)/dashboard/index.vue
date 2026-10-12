@@ -103,7 +103,7 @@
         </div>
 
         <template v-if="canUpload">
-            <FileSheet v-model:file-id="sheetFileId" v-model:tab="sheetTab" :files="recentFiles" />
+            <FileViewer v-model:file-id="sheetFileId" v-model:tab="sheetTab" :files="recentFiles" />
             <FileBulkBar v-model="selected" :items="recentFiles" :total="recentFiles.length" />
             <FileMoveDialog v-model="moveTargets" />
         </template>
