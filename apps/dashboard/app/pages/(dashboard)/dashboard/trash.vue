@@ -97,27 +97,29 @@
                 </span>
             </template>
             <template #cell-actions="{ item }">
-                <UiDropdownMenu>
-                    <UiDropdownMenuTrigger as-child>
-                        <UiButton variant="ghost" size="icon-sm">
-                            <IEllipsis />
-                        </UiButton>
-                    </UiDropdownMenuTrigger>
-                    <UiDropdownMenuContent align="end" class="w-56">
-                        <UiDropdownMenuItem @select="handleRestore([item.id])">
-                            <IRotateCcw />
-                            Restore
-                        </UiDropdownMenuItem>
-                        <UiDropdownMenuSeparator />
-                        <UiDropdownMenuItem
-                            variant="destructive"
-                            @select="handleDeleteForever([item.id])"
-                        >
-                            <ITrash2 />
-                            Delete forever
-                        </UiDropdownMenuItem>
-                    </UiDropdownMenuContent>
-                </UiDropdownMenu>
+                <div class="flex justify-end">
+                    <UiDropdownMenu>
+                        <UiDropdownMenuTrigger as-child>
+                            <UiButton variant="ghost" size="icon-sm">
+                                <IEllipsis />
+                            </UiButton>
+                        </UiDropdownMenuTrigger>
+                        <UiDropdownMenuContent align="end" class="w-56">
+                            <UiDropdownMenuItem @select="handleRestore([item.id])">
+                                <IRotateCcw />
+                                Restore
+                            </UiDropdownMenuItem>
+                            <UiDropdownMenuSeparator />
+                            <UiDropdownMenuItem
+                                variant="destructive"
+                                @select="handleDeleteForever([item.id])"
+                            >
+                                <ITrash2 />
+                                Delete forever
+                            </UiDropdownMenuItem>
+                        </UiDropdownMenuContent>
+                    </UiDropdownMenu>
+                </div>
             </template>
             <template #card-skeleton>
                 <ListCardSkeleton media="size-4" />
@@ -195,7 +197,7 @@ const columns = computed(() => [
         : [{ key: 'details', label: '', class: 'hidden w-32 lg:table-cell' }]),
     { key: 'deletedAt', label: 'Deleted', sortable: true, descFirst: true, class: 'w-36' },
     { key: 'purgeAt', label: 'Deleted forever', class: 'hidden w-36 md:table-cell' },
-    { key: 'actions', label: '', class: 'w-12' },
+    { key: 'actions', label: '', class: 'w-16' },
 ]);
 
 const { items, isLoading, isLoadingMore, loadMore } = usePaginatedList<TrashItem>(
