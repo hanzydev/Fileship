@@ -1,4 +1,4 @@
-import { createReadStream, existsSync, promises as fsp } from 'node:fs';
+import { createReadStream, promises as fsp } from 'node:fs';
 
 import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
@@ -57,22 +57,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const backupId = getRouterParam(event, 'id')!;
-
-    if (!/^[\w-]+$/.test(backupId)) {
-        throw createError({
-            status: 400,
-            message: 'Invalid backup id',
-        });
-    }
-    const backupPath = join(dataDirectory, 'backups', currentUser.id, `${backupId}.tgz`);
-
-    if (!existsSync(backupPath)) {
-        throw createError({
-            status: 404,
-            message: 'Backup not found',
-        });
-    }
+    const backup = await findBackup(currentUser.id, getRouterParam(event, 'id')!);
 
     await verifySession(event, body.data?.verificationData);
 
@@ -101,7 +86,7 @@ export default defineEventHandler(async (event) => {
         sendToUser(currentUser.id, 'currentUser:update', { backupRestoreState: state });
     };
 
-    const tempPath = join(dataDirectory, 'temp', `restore-${backupId}`);
+    const tempPath = join(dataDirectory, 'temp', `restore-${backup.id}`);
 
     event.waitUntil(
         (async () => {
@@ -109,12 +94,14 @@ export default defineEventHandler(async (event) => {
                 await fsp.mkdir(tempPath, { recursive: true });
 
                 await updateState(BackupRestoreState.Extracting);
-                await extract({
-                    file: backupPath,
-                    cwd: tempPath,
-                    filter: (_, entry) =>
-                        'type' in entry && ['File', 'Directory'].includes(entry.type),
-                });
+                await withLocalFile(backup.storageId, backupKey(backup), (backupPath) =>
+                    extract({
+                        file: backupPath,
+                        cwd: tempPath,
+                        filter: (_, entry) =>
+                            'type' in entry && ['File', 'Directory'].includes(entry.type),
+                    }),
+                );
 
                 const backupUploadsPath = join(tempPath, 'uploads');
                 const backupUploads: { name: string; size: number }[] = [];
@@ -453,14 +440,14 @@ export default defineEventHandler(async (event) => {
                 await fsp.rm(tempPath, { recursive: true, force: true });
                 await createLog(event, {
                     action: 'Load Backup',
-                    message: `Loaded backup ${backupId}`,
+                    message: `Loaded backup ${backup.id}`,
                 });
                 await updateState(null);
             } catch {
                 await fsp.rm(tempPath, { recursive: true, force: true }).catch(() => null);
                 await createLog(event, {
                     action: 'Load Backup Failed',
-                    message: `Failed to load backup ${backupId}`,
+                    message: `Failed to load backup ${backup.id}`,
                 });
                 await updateState(null);
             }

@@ -70,6 +70,7 @@ model User {
   credentials            Credential[]
   aiJobs                 AIJob[]
   inbox                  Inbox?
+  backups                Backup[]
 }
 
 model Credential {
@@ -118,6 +119,19 @@ model Storage {
   config    String
   createdAt DateTime    @default(now())
   files     File[]
+  backups   Backup[]
+}
+
+model Backup {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  size      BigInt
+  storageId String?
+  storage   Storage? @relation(fields: [storageId], references: [id], onDelete: Restrict)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model AIJob {

@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
 
     await verifySession(event, body.data?.verificationData);
 
-    const [userFiles, userFolders, userNotes] = await prisma.$transaction([
+    const [userFiles, userFolders, userNotes, userBackups] = await prisma.$transaction([
         prisma.file.findMany({
             where: {
                 authorId: userId,
@@ -83,15 +83,16 @@ export default defineEventHandler(async (event) => {
                 id: true,
             },
         }),
+        prisma.backup.findMany({
+            where: {
+                userId,
+            },
+        }),
     ]);
 
     await removeFileData(userFiles);
-
-    for (const directory of ['backups', 'temp']) {
-        await rm(join(dataDirectory, directory, userId!), { recursive: true, force: true }).catch(
-            () => null,
-        );
-    }
+    await removeBackupData(userBackups);
+    await rm(join(dataDirectory, 'temp', userId!), { recursive: true, force: true });
 
     await prisma.$transaction([
         prisma.view.deleteMany({

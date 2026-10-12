@@ -110,6 +110,7 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs';
+import { nanoid } from 'nanoid';
 
 import { IArchive } from '#components';
 
@@ -153,6 +154,7 @@ const handleUpload = async (event: Event) => {
 
     const chunkSize = publicSettings.value.fileChunkSize * 1024 * 1024;
     const chunks = Math.ceil(file.size / chunkSize);
+    const uploadId = nanoid();
 
     uploadProgress.value = 0;
 
@@ -169,6 +171,8 @@ const handleUpload = async (event: Event) => {
             );
             formData.append('currentChunk', (i + 1).toString());
             formData.append('totalChunks', chunks.toString());
+            formData.append('chunkOffset', start.toString());
+            formData.append('uploadId', uploadId);
 
             await $fetch('/api/users/@me/backups/upload', {
                 method: 'POST',

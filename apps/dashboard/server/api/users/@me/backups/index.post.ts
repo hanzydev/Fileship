@@ -1,6 +1,5 @@
-import { existsSync, promises as fsp } from 'node:fs';
+import { promises as fsp } from 'node:fs';
 
-import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
 import { join } from 'pathe';
 import { create } from 'tar';
@@ -9,15 +8,11 @@ export default defineEventHandler(async (event) => {
     userOnly(event);
     const currentUser = event.context.user!;
 
-    const userBackupsPath = join(dataDirectory, 'backups', currentUser.id);
-
-    if (!existsSync(userBackupsPath)) await fsp.mkdir(userBackupsPath);
-
-    const userBackups = await fsp.readdir(userBackupsPath);
     if (
         !isAdmin(currentUser) &&
         currentUser.limits.backupLimit > -1 &&
-        userBackups.length >= currentUser.limits.backupLimit
+        (await prisma.backup.count({ where: { userId: currentUser.id } })) >=
+            currentUser.limits.backupLimit
     ) {
         throw createError({
             status: 400,
@@ -106,25 +101,23 @@ export default defineEventHandler(async (event) => {
         create({ file: backupCompressedPath, cwd: tempPath, gzip: { level: 3 } }, [
             'uploads',
             'database',
-        ]).then(async () => {
-            const backupStat = await fsp.stat(backupCompressedPath);
-            const backupId = nanoid();
-            await fsp.rename(backupCompressedPath, join(userBackupsPath, `${backupId}.tgz`));
-            await fsp.rm(tempPath, { recursive: true });
+        ])
+            .then(async () => {
+                const { size } = await fsp.stat(backupCompressedPath);
+                const storageId = await getActiveStorageId();
+                const backup = { id: nanoid(), userId: currentUser.id, size, storageId };
 
-            await createLog(event, {
-                action: 'Create Backup',
-                message: `Created backup ${backupId}`,
-            });
+                await (await getStorage(storageId)).put(backupKey(backup), backupCompressedPath);
 
-            sendToUser(currentUser.id, 'backup:create', {
-                id: backupId,
-                createdAt: backupStat.mtime,
-                size: {
-                    raw: backupStat.size,
-                    formatted: filesize(backupStat.size),
-                },
-            });
-        }),
+                const created = await prisma.backup.create({ data: backup });
+
+                await createLog(event, {
+                    action: 'Create Backup',
+                    message: `Created backup ${created.id}`,
+                });
+
+                sendToUser(currentUser.id, 'backup:create', serializeBackup(created));
+            })
+            .finally(() => fsp.rm(tempPath, { recursive: true, force: true })),
     );
 });

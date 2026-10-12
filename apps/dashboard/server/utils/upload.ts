@@ -1,12 +1,12 @@
 import { promises as fsp } from 'node:fs';
 
-import { dirname, extname, join } from 'pathe';
+import { basename, dirname, extname, join } from 'pathe';
 import sharp from 'sharp';
 
 import type { UploadState } from '~~/server/storage/types';
 
 interface UploadSession {
-    fileName: string;
+    key: string;
     storageId: string | null;
     isDirect: boolean;
     received: number;
@@ -19,8 +19,6 @@ interface UploadChunk {
     offset: number;
     isLast: boolean;
     data: Uint8Array;
-    mimeType: string;
-    compression?: number;
 }
 
 type UploadOwner = NonNullable<PartialUser> & { id: string; limits: any };
@@ -57,18 +55,17 @@ export const abortUploadSession = async (path: string) => {
         await (
             await getStorage(session.storageId)
         )
-            .abortUpload(uploadKey(session.fileName), session.state)
+            .abortUpload(session.key, session.state)
             .catch(() => null);
 };
 
-export const receiveUpload = async <T extends UploadedFile>(
-    owner: UploadOwner,
+export const receiveChunk = async (
+    ownerId: string,
     chunk: UploadChunk,
-    getFileName: () => Promise<string>,
-    create: (data: { fileName: string; size: number; storageId: string | null }) => Promise<T>,
+    start: () => Promise<{ key: string; isDirect: boolean }>,
+    isTooLarge: (size: number) => Promise<boolean> = async () => false,
 ) => {
-    const path = join(dataDirectory, 'temp', owner.id, `${chunk.uploadId}.upload`);
-    const { removeExifData } = await getSettings();
+    const path = join(dataDirectory, 'temp', ownerId, `${chunk.uploadId}.upload`);
 
     let session: UploadSession | null = await fsp
         .readFile(`${path}.json`, 'utf8')
@@ -82,21 +79,15 @@ export const receiveUpload = async <T extends UploadedFile>(
             });
         }
 
-        const fileName = await getFileName();
+        const { key, isDirect } = await start();
         const storageId = await getActiveStorageId();
-        const isDirect = !(
-            isProcessableImage(chunk.mimeType) &&
-            (removeExifData || !!chunk.compression)
-        );
 
         session = {
-            fileName,
+            key,
             storageId,
             isDirect,
             received: 0,
-            state: isDirect
-                ? await (await getStorage(storageId)).beginUpload(uploadKey(fileName))
-                : {},
+            state: isDirect ? await (await getStorage(storageId)).beginUpload(key) : {},
         };
 
         await fsp.mkdir(dirname(path), { recursive: true });
@@ -112,7 +103,7 @@ export const receiveUpload = async <T extends UploadedFile>(
 
     const received = Math.max(session.received, chunk.offset + chunk.data.length);
 
-    if (await exceedsUsableSpace(owner, received)) {
+    if (await isTooLarge(received)) {
         await abortUploadSession(path);
         throw createError({
             status: 400,
@@ -120,26 +111,46 @@ export const receiveUpload = async <T extends UploadedFile>(
         });
     }
 
-    const storage = await getStorage(session.storageId);
-    const key = uploadKey(session.fileName);
-
     if (session.isDirect)
-        session.state = await storage.writeChunk(
-            key,
-            session.state,
-            chunk.part,
-            chunk.offset,
-            chunk.data,
-        );
+        session.state = await (
+            await getStorage(session.storageId)
+        ).writeChunk(session.key, session.state, chunk.part, chunk.offset, chunk.data);
     else await writeUploadChunk(path, chunk.data, chunk.offset, chunk.isLast);
 
     session.received = received;
     await fsp.writeFile(`${path}.json`, JSON.stringify(session));
 
-    if (!chunk.isLast) return;
+    if (chunk.isLast) return { path, session };
+};
+
+export const receiveUpload = async <T extends UploadedFile>(
+    owner: UploadOwner,
+    chunk: UploadChunk & { mimeType: string; compression?: number },
+    getFileName: () => Promise<string>,
+    create: (data: { fileName: string; size: number; storageId: string | null }) => Promise<T>,
+) => {
+    const { removeExifData } = await getSettings();
+
+    const upload = await receiveChunk(
+        owner.id,
+        chunk,
+        async () => ({
+            key: uploadKey(await getFileName()),
+            isDirect: !(
+                isProcessableImage(chunk.mimeType) &&
+                (removeExifData || !!chunk.compression)
+            ),
+        }),
+        (size) => exceedsUsableSpace(owner, size),
+    );
+
+    if (!upload) return;
+
+    const { path, session } = upload;
+    const storage = await getStorage(session.storageId);
 
     if (!session.isDirect) {
-        const processedPath = `${path}${extname(session.fileName)}`;
+        const processedPath = `${path}${extname(session.key)}`;
 
         try {
             let image = sharp(path).rotate();
@@ -170,7 +181,7 @@ export const receiveUpload = async <T extends UploadedFile>(
     }
 
     const file = await create({
-        fileName: session.fileName,
+        fileName: basename(session.key),
         size: session.received,
         storageId: session.storageId,
     }).catch(async (error) => {
@@ -180,10 +191,10 @@ export const receiveUpload = async <T extends UploadedFile>(
 
     try {
         if (session.isDirect) {
-            await storage.completeUpload(key, session.state);
+            await storage.completeUpload(session.key, session.state);
         } else {
             if (isAnalyzable(file.mimeType)) file.metadata = await processMedia(file, path);
-            await storage.put(key, path);
+            await storage.put(session.key, path);
         }
     } catch (error) {
         await prisma.file.delete({ where: { id: file.id } });
@@ -195,7 +206,7 @@ export const receiveUpload = async <T extends UploadedFile>(
     await fsp.rm(`${path}.json`, { force: true });
 
     if (session.isDirect && isAnalyzable(file.mimeType))
-        file.metadata = await withLocalFile(session.storageId, key, (filePath) =>
+        file.metadata = await withLocalFile(session.storageId, session.key, (filePath) =>
             processMedia(file, filePath),
         ).catch(() => null);
 

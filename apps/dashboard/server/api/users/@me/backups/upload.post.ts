@@ -1,12 +1,14 @@
-import { existsSync, promises as fsp } from 'node:fs';
+import { promises as fsp } from 'node:fs';
 
-import { filesize } from 'filesize';
-import { basename, extname, join } from 'pathe';
+import { nanoid } from 'nanoid';
+import { basename } from 'pathe';
 import { z } from 'zod';
 
 const validationSchema = z.object({
-    totalChunks: z.number().min(1, 'Total chunks must be at least 1').optional(),
-    currentChunk: z.number().min(1, 'Current chunk must be at least 1').optional(),
+    uploadId: z.string().regex(/^[\w-]{1,64}$/, 'Invalid upload id'),
+    totalChunks: z.number().min(1, 'Total chunks must be at least 1'),
+    currentChunk: z.number().min(1, 'Current chunk must be at least 1'),
+    chunkOffset: z.number().int().min(0, 'Chunk offset must be at least 0'),
 });
 
 export default defineEventHandler(async (event) => {
@@ -31,8 +33,10 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = validationSchema.safeParse({
-        currentChunk: +formData.get('currentChunk')! || 1,
-        totalChunks: +formData.get('totalChunks')! || 1,
+        uploadId: formData.get('uploadId'),
+        currentChunk: +formData.get('currentChunk')!,
+        totalChunks: +formData.get('totalChunks')!,
+        chunkOffset: +formData.get('chunkOffset')!,
     });
 
     if (!body.success) {
@@ -43,78 +47,69 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const userBackupsPath = join(dataDirectory, 'backups', currentUser.id);
-    if (!existsSync(userBackupsPath)) await fsp.mkdir(userBackupsPath);
+    const upload = await receiveChunk(
+        currentUser.id,
+        {
+            uploadId: body.data.uploadId,
+            part: body.data.currentChunk,
+            offset: body.data.chunkOffset,
+            isLast: body.data.currentChunk === body.data.totalChunks,
+            data: new Uint8Array(await backup.arrayBuffer()),
+        },
+        async () => {
+            if (!backup.name.endsWith('.tgz')) {
+                throw createError({
+                    status: 400,
+                    message: 'Backups must be .tgz files',
+                });
+            }
 
-    const backupName = backup.name.replace(/[^a-zA-Z0-9-_.]/g, '');
+            if (
+                !isAdmin(currentUser) &&
+                currentUser.limits.backupLimit > -1 &&
+                (await prisma.backup.count({ where: { userId: currentUser.id } })) >=
+                    currentUser.limits.backupLimit
+            ) {
+                throw createError({
+                    status: 400,
+                    message: 'Backup limit reached',
+                });
+            }
 
-    if (!/^[\w-]+\.tgz$/.test(backupName)) {
-        throw createError({
-            status: 400,
-            message: 'Backups must be .tgz files',
-        });
-    }
+            return { key: backupKey({ id: nanoid(), userId: currentUser.id }), isDirect: true };
+        },
+    );
 
-    const userBackups = await fsp.readdir(userBackupsPath);
+    if (!upload) return;
 
-    if (userBackups.includes(backupName)) {
-        throw createError({
-            status: 409,
-            message: 'A backup with that name already exists',
-        });
-    }
+    const { path, session } = upload;
 
-    if (
-        !isAdmin(currentUser) &&
-        currentUser.limits.backupLimit > -1 &&
-        userBackups.length >= currentUser.limits.backupLimit
-    ) {
-        throw createError({
-            status: 400,
-            message: 'Backup limit reached',
-        });
-    }
-
-    const tempPath = join(dataDirectory, 'temp', currentUser.id, backupName);
-    if (!existsSync(join(dataDirectory, 'temp', currentUser.id)))
-        await fsp.mkdir(join(dataDirectory, 'temp', currentUser.id));
-
-    const buffer = new Uint8Array(await backup.arrayBuffer());
-
-    if (body.data.currentChunk === body.data.totalChunks) {
-        if (existsSync(tempPath)) {
-            await fsp.appendFile(tempPath, buffer);
-        } else {
-            await fsp.writeFile(tempPath, buffer);
-        }
-
-        const backupPath = join(dataDirectory, 'backups', currentUser.id, backupName);
-
-        await fsp.rename(tempPath, backupPath);
-
-        const backupStat = await fsp.stat(backupPath);
-        const id = basename(backupName, extname(backupName));
-
-        const backupObject = {
-            id,
-            createdAt: backupStat.birthtime,
-            size: {
-                raw: backupStat.size,
-                formatted: filesize(backupStat.size),
-            },
-        };
-
-        await createLog(event, {
-            action: 'Upload Backup',
-            message: `Uploaded backup ${id}`,
+    await (
+        await getStorage(session.storageId)
+    )
+        .completeUpload(session.key, session.state)
+        .catch(async (error) => {
+            await abortUploadSession(path);
+            throw error;
         });
 
-        sendToUser(currentUser.id, 'backup:create', backupObject);
+    await fsp.rm(`${path}.json`, { force: true });
 
-        return backupObject;
-    } else if (body.data.currentChunk === 1) {
-        await fsp.writeFile(tempPath, buffer);
-    } else {
-        await fsp.appendFile(tempPath, buffer);
-    }
+    const created = await prisma.backup.create({
+        data: {
+            id: basename(session.key, '.tgz'),
+            userId: currentUser.id,
+            size: session.received,
+            storageId: session.storageId,
+        },
+    });
+
+    await createLog(event, {
+        action: 'Upload Backup',
+        message: `Uploaded backup ${created.id}`,
+    });
+
+    sendToUser(currentUser.id, 'backup:create', serializeBackup(created));
+
+    return serializeBackup(created);
 });
