@@ -24,7 +24,7 @@
                             loading="lazy"
                             :class="
                                 cn(
-                                    'size-full object-cover transition-[filter,transform] duration-300 group-hover:scale-105',
+                                    'size-full object-cover transition-[filter,scale] duration-300 group-hover:scale-105',
                                     isSensitive && 'blur-2xl group-hover:blur-none',
                                 )
                             "
