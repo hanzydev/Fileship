@@ -12,25 +12,22 @@
             >
                 <div
                     v-if="isImage"
-                    :class="
-                        cn(
-                            'flex size-full items-center justify-center overflow-hidden',
-                            isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in',
-                        )
-                    "
-                    @click="handleZoom"
+                    class="flex size-full items-center justify-center overflow-hidden"
                 >
                     <img
                         :src="file.directUrl"
                         :alt="file.fileName"
+                        draggable="false"
                         :style="{ transformOrigin: zoomOrigin }"
                         :class="
                             cn(
-                                'max-h-full max-w-full object-contain transition-[scale,filter] duration-300',
-                                isZoomed && 'scale-200',
+                                'max-h-full max-w-full object-contain transition-[scale,filter] duration-300 select-none',
+                                isZoomed ? 'scale-250 cursor-zoom-out' : 'cursor-zoom-in',
                                 isSensitive && !isRevealed && 'blur-2xl',
                             )
                         "
+                        @click="handleZoom"
+                        @pointermove="isZoomed && setZoomOrigin($event)"
                     />
                 </div>
                 <video
@@ -69,7 +66,7 @@
                         v-if="prev"
                         variant="outline"
                         size="icon-sm"
-                        class="absolute top-1/2 left-3 -translate-y-1/2"
+                        :class="cn('absolute top-1/2 left-3 -translate-y-1/2', overlayClass)"
                         aria-label="Previous file"
                         @click="fileId = prev.id"
                     >
@@ -79,7 +76,7 @@
                         v-if="hasNext"
                         variant="outline"
                         size="icon-sm"
-                        class="absolute top-1/2 right-3 -translate-y-1/2"
+                        :class="cn('absolute top-1/2 right-3 -translate-y-1/2', overlayClass)"
                         aria-label="Next file"
                         @click="goNext"
                     >
@@ -88,7 +85,12 @@
                     <UiBadge
                         v-if="index > -1"
                         variant="secondary"
-                        class="absolute bottom-3 left-1/2 -translate-x-1/2 tabular-nums"
+                        :class="
+                            cn(
+                                'absolute bottom-3 left-1/2 -translate-x-1/2 tabular-nums',
+                                overlayClass,
+                            )
+                        "
                     >
                         {{ index + 1 }} / {{ total ?? files.length }}
                     </UiBadge>
@@ -334,6 +336,10 @@ const isImage = computed(() => file.value!.mimeType.startsWith('image/'));
 const isVideo = computed(() => file.value!.mimeType.startsWith('video/'));
 const isAudio = computed(() => file.value!.mimeType.startsWith('audio/'));
 
+const overlayClass = computed(() =>
+    cn('transition-opacity', isZoomed.value && 'pointer-events-none opacity-0'),
+);
+
 const isSensitive = computed(
     () =>
         isImage.value &&
@@ -427,13 +433,20 @@ const handleSave = async () => {
     isSaving.value = false;
 };
 
+const setZoomOrigin = (event: MouseEvent) => {
+    const target = event.currentTarget as HTMLElement;
+    const parent = target.parentElement!.getBoundingClientRect();
+    const left = parent.left + (parent.width - target.offsetWidth) / 2;
+    const top = parent.top + (parent.height - target.offsetHeight) / 2;
+    const x = Math.min(Math.max(((event.clientX - left) / target.offsetWidth) * 100, 0), 100);
+    const y = Math.min(Math.max(((event.clientY - top) / target.offsetHeight) * 100, 0), 100);
+
+    zoomOrigin.value = `${x}% ${y}%`;
+};
+
 const handleZoom = (event: MouseEvent) => {
     if (isSensitive.value && !isRevealed.value) return;
-
-    if (!isZoomed.value) {
-        const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-        zoomOrigin.value = `${event.clientX - rect.left}px ${event.clientY - rect.top}px`;
-    }
+    if (!isZoomed.value) setZoomOrigin(event);
 
     isZoomed.value = !isZoomed.value;
 };
