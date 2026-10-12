@@ -62,7 +62,7 @@
                     </div>
                     <div v-else class="flex flex-col items-center gap-4">
                         <component :is="getFileIcon(file)" class="size-12 text-muted-foreground" />
-                        <UiButton variant="outline" @click="openFile(file)">
+                        <UiButton variant="outline" @click="handleOpenFile">
                             <IExternalLink />
                             Open in new tab
                         </UiButton>
@@ -190,7 +190,7 @@
 
                 <div class="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
                     <UiTabs v-model="tab">
-                        <UiTabsList class="w-full">
+                        <UiTabsList v-if="!trash || hasInsights" class="w-full">
                             <UiTabsTrigger value="details">Details</UiTabsTrigger>
                             <UiTabsTrigger v-if="!trash" value="edit">Edit</UiTabsTrigger>
                             <UiTabsTrigger v-if="hasInsights" value="insights">
@@ -389,6 +389,9 @@ const goNext = async () => {
     const target = files[index.value + 1];
     if (target) fileId.value = target.id;
 };
+
+const handleOpenFile = () =>
+    trash ? window.open(file.value!.directUrl, '_blank') : openFile(file.value!);
 
 const handleRestore = () => restore({ files: [file.value!.id] });
 
