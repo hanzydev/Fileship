@@ -553,6 +553,15 @@ const sections: SettingSection[] = [
                 half: true,
             },
             {
+                key: 'trashRetentionDays',
+                label: 'Trash retention (days)',
+                type: 'number',
+                min: 0,
+                max: 365,
+                description:
+                    'Deleted items stay in the trash this long. 0 deletes them immediately.',
+            },
+            {
                 key: 'removeExifData',
                 label: 'Remove EXIF data',
                 type: 'switch',

@@ -73,6 +73,7 @@ export default defineEventHandler(async (event) => {
     });
 
     sendToUser(currentUser.id, 'trash:update', null);
+    sendToUser(currentUser.id, 'trash:restore', null);
 
     return counts;
 });

@@ -1,6 +1,7 @@
 export const useFolderActions = () => {
     const { $toast } = useNuxtApp();
     const { copy } = useClipboard({ legacy: true });
+    const { isEnabled, deleteConfirmation, notifyDeleted } = useTrash();
 
     const copyLink = (folder: FolderData) => {
         copy(folder.publicUrl!);
@@ -21,13 +22,15 @@ export const useFolderActions = () => {
     };
 
     const remove = async (folder: FolderData) => {
-        const option = reactive({ label: 'Also delete the files inside', value: true });
+        const option = reactive({
+            label: isEnabled.value
+                ? 'Also move the files inside to trash'
+                : 'Also delete the files inside',
+            value: true,
+        });
 
         return askConfirmation({
-            title: `Delete ${folder.name}?`,
-            description: 'This action cannot be undone.',
-            confirmText: 'Delete',
-            destructive: true,
+            ...deleteConfirmation(folder.name),
             option,
             action: async () => {
                 try {
@@ -36,9 +39,9 @@ export const useFolderActions = () => {
                         body: { deleteFilesToo: option.value },
                     });
 
-                    $toast.success(
-                        option.value ? 'Folder and its files deleted' : 'Folder deleted',
-                    );
+                    notifyDeleted(option.value ? 'Folder and its files' : 'Folder', {
+                        folders: [folder.id],
+                    });
                 } catch (error: any) {
                     $toast.error(getErrorMessage(error));
                     return false;

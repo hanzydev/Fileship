@@ -2,6 +2,7 @@ export const useNoteActions = () => {
     const route = useRoute();
     const { $toast } = useNuxtApp();
     const { copy } = useClipboard({ legacy: true });
+    const { deleteConfirmation, notifyDeleted } = useTrash();
 
     const copyLink = (note: NoteData) => {
         copy(note.publicUrl!);
@@ -28,14 +29,11 @@ export const useNoteActions = () => {
 
     const remove = async (note: NoteData) => {
         await askConfirmation({
-            title: `Delete ${note.title}?`,
-            description: 'This action cannot be undone.',
-            confirmText: 'Delete',
-            destructive: true,
+            ...deleteConfirmation(note.title),
             action: async () => {
                 try {
                     await $fetch(`/api/notes/${note.id}`, { method: 'DELETE' });
-                    $toast.success('Note deleted');
+                    notifyDeleted('Note', { notes: [note.id] });
 
                     if ((route.params as any).id === note.id) navigateTo('/dashboard/notes');
                 } catch (error: any) {

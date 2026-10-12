@@ -1,5 +1,5 @@
 export type ListResource =
-    'files' | 'folders' | 'notes' | 'users' | 'logs' | 'sessions' | 'backups';
+    'files' | 'folders' | 'notes' | 'users' | 'logs' | 'sessions' | 'backups' | 'trash';
 
 export type ListHandle = {
     resource: ListResource;

@@ -141,6 +141,10 @@ export const initSocket = () => {
             refreshLists('folders', 'files');
         });
 
+        // Trash
+        socket.on('trash:update', () => refreshLists('trash'));
+        socket.on('trash:restore', () => refreshLists('files', 'folders', 'notes'));
+
         // Backups
         socket.on('backup:create', () => refreshLists('backups'));
         socket.on('backup:delete', (backupId) => {

@@ -183,6 +183,7 @@ import {
     IMoon,
     IServer,
     ISun,
+    ITrash2,
     IUsers,
 } from '#components';
 import { useSidebar } from '~/components/ui/sidebar';
@@ -193,6 +194,7 @@ const colorMode = useColorMode();
 const route = useRoute();
 const { $toast } = useNuxtApp();
 const { setOpenMobile } = useSidebar();
+const trash = useTrash();
 const isLoggingOut = ref(false);
 
 const userInitials = computed(() => authUser.value!.username.slice(0, 2).toUpperCase());
@@ -240,6 +242,10 @@ const items = computed(() => {
 
     if (canTakeNotes(authUser.value)) {
         categories[0]!.children.push({ title: 'Notes', url: '/dashboard/notes', icon: IBookmark });
+    }
+
+    if (trash.isEnabled.value && (canUploadFiles(authUser.value) || canTakeNotes(authUser.value))) {
+        categories[0]!.children.push({ title: 'Trash', url: '/dashboard/trash', icon: ITrash2 });
     }
 
     if (isAdmin(authUser.value)) {

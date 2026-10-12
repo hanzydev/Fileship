@@ -9,6 +9,7 @@ export const useFileActions = () => {
     const embed = useEmbed();
     const { $toast } = useNuxtApp();
     const { copy } = useClipboard({ legacy: true });
+    const { deleteConfirmation, notifyDeleted } = useTrash();
 
     const isTextFile = (file: FileData) =>
         TEXT_FILE_TYPES.some((type) => `.${type.extension}` === getExtname(file.fileName));
@@ -53,10 +54,7 @@ export const useFileActions = () => {
         const filesText = files.length > 1 ? `${files.length} files` : files[0]!.fileName;
 
         return askConfirmation({
-            title: `Delete ${filesText}?`,
-            description: 'This action cannot be undone.',
-            confirmText: 'Delete',
-            destructive: true,
+            ...deleteConfirmation(filesText),
             action: async () => {
                 try {
                     if (files.length > 1) {
@@ -70,9 +68,9 @@ export const useFileActions = () => {
                         await $fetch(`/api/files/${files[0]!.id}`, { method: 'DELETE' });
                     }
 
-                    $toast.success(
-                        `${files.length > 1 ? `${files.length} files` : 'File'} deleted`,
-                    );
+                    notifyDeleted(files.length > 1 ? `${files.length} files` : 'File', {
+                        files: files.map((file) => file.id),
+                    });
                 } catch (error: any) {
                     $toast.error(getErrorMessage(error));
                     return false;

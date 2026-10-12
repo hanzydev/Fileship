@@ -106,6 +106,7 @@ import {
     ISettings,
     ISquarePen,
     ISun,
+    ITrash2,
     IUpload,
     IUsers,
 } from '#components';
@@ -113,6 +114,7 @@ import {
 const open = defineModel<boolean>('open', { required: true });
 
 const authUser = useAuthUser();
+const trash = useTrash();
 const colorMode = useColorMode();
 const uploadSheetOpen = useUploadSheet();
 
@@ -157,6 +159,9 @@ const pages = computed(() => [
         : []),
     ...(canTakeNotes(authUser.value)
         ? [{ label: 'Notes', url: '/dashboard/notes', icon: IBookmark }]
+        : []),
+    ...(trash.isEnabled.value && (canUploadFiles(authUser.value) || canTakeNotes(authUser.value))
+        ? [{ label: 'Trash', url: '/dashboard/trash', icon: ITrash2 }]
         : []),
     ...(isAdmin(authUser.value)
         ? [
