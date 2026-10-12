@@ -1,7 +1,7 @@
 <template>
     <Transition
-        enter-active-class="animate-in fade-in slide-in-from-bottom-4 duration-200"
-        leave-active-class="animate-out fade-out slide-out-to-bottom-4 duration-200"
+        enter-active-class="animate-in fade-in slide-in-from-bottom-4 duration-150"
+        leave-active-class="animate-out fade-out slide-out-to-bottom-4 duration-150"
     >
         <UiCard
             v-if="selected.length"
@@ -20,11 +20,15 @@
                 <UiButton
                     variant="outline"
                     size="sm"
-                    class="hidden sm:flex"
+                    :aria-label="isAllSelected ? 'Deselect all' : 'Select all'"
                     :disabled="isBusy"
                     @click="handleSelectAll"
                 >
-                    {{ isAllSelected ? 'Deselect all' : 'Select all' }}
+                    <IListX v-if="isAllSelected" />
+                    <IListChecks v-else />
+                    <span class="hidden sm:inline">
+                        {{ isAllSelected ? 'Deselect all' : 'Select all' }}
+                    </span>
                 </UiButton>
                 <UiButton variant="outline" size="sm" aria-label="Move" @click="handleMove">
                     <IFolderInput />
@@ -40,7 +44,13 @@
                     <IDownload />
                     <span class="hidden sm:inline">Download</span>
                 </UiButton>
-                <UiButton variant="outline" size="sm" aria-label="Delete" @click="handleDelete">
+                <UiButton
+                    variant="outline"
+                    size="sm"
+                    class="text-destructive hover:text-destructive"
+                    aria-label="Delete"
+                    @click="handleDelete"
+                >
                     <ITrash2 />
                     <span class="hidden sm:inline">Delete</span>
                 </UiButton>
