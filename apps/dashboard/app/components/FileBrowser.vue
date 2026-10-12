@@ -154,6 +154,9 @@
             :loading="isLoadingMore"
             @reach-end="loadMore"
         >
+            <template #skeleton>
+                <FileCardSkeleton />
+            </template>
             <template #default="{ item }">
                 <FileCard
                     :file="item"

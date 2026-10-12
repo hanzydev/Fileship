@@ -50,6 +50,9 @@
                     :loading="isLoadingMore"
                     @reach-end="loadMore"
                 >
+                    <template #skeleton>
+                        <ListCardSkeleton />
+                    </template>
                     <template #default="{ item }">
                         <UiContextMenu>
                             <UiContextMenuTrigger as-child>

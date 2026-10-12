@@ -48,6 +48,11 @@
             :loading="loadingMore"
             @reach-end="emit('reachEnd')"
         >
+            <template #skeleton>
+                <slot name="card-skeleton">
+                    <ListCardSkeleton media="size-8" />
+                </slot>
+            </template>
             <template #default="{ item }">
                 <slot name="card" :item="item" />
             </template>
@@ -103,13 +108,22 @@
                             </UiTableCell>
                         </UiTableRow>
                         <tr v-if="paddingBottom" :style="{ height: `${paddingBottom}px` }" />
-                        <UiTableRow v-if="loadingMore" class="hover:bg-transparent">
-                            <UiTableCell :colspan="columns.length">
-                                <div class="flex justify-center py-2">
-                                    <UiSpinner class="text-muted-foreground" />
-                                </div>
-                            </UiTableCell>
-                        </UiTableRow>
+                        <template v-if="loadingMore">
+                            <UiTableRow v-for="i in 3" :key="i" class="hover:bg-transparent">
+                                <UiTableCell
+                                    v-for="column in columns"
+                                    :key="column.key"
+                                    :class="column.class"
+                                >
+                                    <div class="flex h-9 items-center">
+                                        <UiSkeleton
+                                            v-if="column.label"
+                                            class="h-lh w-full max-w-32 rounded-full"
+                                        />
+                                    </div>
+                                </UiTableCell>
+                            </UiTableRow>
+                        </template>
                     </UiTableBody>
                 </UiTable>
             </div>

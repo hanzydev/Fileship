@@ -47,22 +47,7 @@
         </div>
 
         <div v-if="isLoading" class="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
-            <UiCard v-for="i in 6" :key="i" size="sm">
-                <UiCardContent>
-                    <UiSkeleton class="aspect-video" />
-                </UiCardContent>
-                <UiCardFooter class="gap-2">
-                    <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <TextBlock variant="small" class="w-full">
-                            <UiSkeleton class="h-lh w-2/3 rounded-full" />
-                        </TextBlock>
-                        <TextBlock variant="muted" class="w-full text-xs">
-                            <UiSkeleton class="h-lh w-1/3 rounded-full" />
-                        </TextBlock>
-                    </div>
-                    <UiSkeleton class="size-8 rounded-full" />
-                </UiCardFooter>
-            </UiCard>
+            <FolderCardSkeleton v-for="i in 6" :key="i" />
         </div>
 
         <EmptyState
@@ -91,6 +76,9 @@
             :loading="isLoadingMore"
             @reach-end="loadMore"
         >
+            <template #skeleton>
+                <FolderCardSkeleton />
+            </template>
             <template #default="{ item }">
                 <FolderCard :folder="item" @edit="openForm(item)" />
             </template>

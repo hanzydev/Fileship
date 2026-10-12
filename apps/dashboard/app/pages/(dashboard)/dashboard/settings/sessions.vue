@@ -22,6 +22,9 @@
                 :loading="isLoadingMore"
                 @reach-end="loadMore"
             >
+                <template #skeleton>
+                    <ListCardSkeleton media="size-5" />
+                </template>
                 <template #default="{ item }">
                     <UiCard size="sm">
                         <UiCardContent class="flex min-h-8 items-center gap-3">

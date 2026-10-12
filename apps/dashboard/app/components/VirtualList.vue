@@ -23,8 +23,14 @@
                 </template>
             </div>
         </div>
-        <div v-if="loading" class="flex justify-center py-4">
-            <UiSpinner class="text-muted-foreground" />
+        <div
+            v-if="loading"
+            class="grid w-full"
+            :style="{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: `${gap}px` }"
+        >
+            <template v-for="i in columns > 1 ? columns : 3" :key="i">
+                <slot name="skeleton" />
+            </template>
         </div>
     </div>
 </template>
