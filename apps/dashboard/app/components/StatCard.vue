@@ -4,7 +4,9 @@
             <UiCardDescription>{{ title }}</UiCardDescription>
             <UiCardTitle class="text-3xl font-semibold tabular-nums">
                 <UiSkeleton v-if="isLoading" class="h-lh w-24 rounded-full" />
-                <template v-else>{{ data }}</template>
+                <template v-else>
+                    {{ typeof data === 'number' ? numberFormat.format(data) : data }}
+                </template>
             </UiCardTitle>
             <UiCardAction>
                 <UiBadge v-if="!isLoading && growth" variant="outline">
@@ -29,6 +31,8 @@ const { data, growth } = defineProps<{
     growth?: number;
     data?: number | string;
 }>();
+
+const numberFormat = new Intl.NumberFormat('en-US');
 
 const isLoading = computed(() => data === undefined || growth === undefined);
 </script>
