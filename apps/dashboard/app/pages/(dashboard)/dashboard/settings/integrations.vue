@@ -161,7 +161,7 @@ const integrations = [
     {
         name: 'ShareX',
         description: 'A custom uploader for ShareX on Windows.',
-        fileName: 'FileUploader.sxcu',
+        fileName: 'fileship.sxcu',
         steps: [
             'Download the config and open it, ShareX imports it as a custom uploader.',
             'In ShareX, set Destinations → Image, Text and File uploader to Custom uploader.',
