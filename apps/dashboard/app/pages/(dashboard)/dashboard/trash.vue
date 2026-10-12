@@ -42,7 +42,7 @@
         </div>
 
         <EmptyState
-            v-if="!isLoading && !items.length"
+            v-if="!isLoading && !isSwitching && !items.length"
             :icon="ITrash2"
             :title="search ? 'No matching items' : 'Nothing here'"
             :description="
@@ -54,13 +54,14 @@
 
         <DataTable
             v-else
+            :key="kind"
             v-model:sort="sort"
             :items="items"
             :item-key="(item) => item.id"
             :columns="columns"
             :selected="selected"
             :card-estimate-size="74"
-            :loading="isLoading"
+            :loading="isLoading || isSwitching"
             :loading-more="isLoadingMore"
             @reach-end="loadMore"
         >
@@ -200,7 +201,7 @@ const columns = computed(() => [
     { key: 'actions', label: '', class: 'w-16' },
 ]);
 
-const { items, isLoading, isLoadingMore, loadMore } = usePaginatedList<TrashItem>(
+const { items, isLoading, isLoadingMore, isFresh, loadMore } = usePaginatedList<TrashItem>(
     'trash',
     '/api/trash',
     () => ({
@@ -210,24 +211,29 @@ const { items, isLoading, isLoadingMore, loadMore } = usePaginatedList<TrashItem
     }),
 );
 
+const isSwitching = ref(false);
+
 watch(kind, () => {
+    isSwitching.value = true;
     selected.value = [];
     search.value = '';
 });
+
+watch(isFresh, (value) => value && (isSwitching.value = false));
 
 watch(items, (value) => {
     selected.value = selected.value.filter((id) => value.some((item) => item.id === id));
 });
 
 const getIcon = (item: TrashItem) =>
-    kind.value === 'files'
-        ? getFileIcon({ mimeType: item.mimeType!, fileName: item.name })
-        : kind.value === 'folders'
-          ? IFolder
-          : IBookmark;
+    item.mimeType
+        ? getFileIcon({ mimeType: item.mimeType, fileName: item.name })
+        : item.fileCount === undefined
+          ? IBookmark
+          : IFolder;
 
 const getDetails = (item: TrashItem) =>
-    kind.value === 'files' ? item.size!.formatted : pluralize(item.fileCount!, 'file');
+    item.size?.formatted ?? pluralize(item.fileCount ?? 0, 'file');
 
 const handleToggle = (id: string) => {
     selected.value = selected.value.includes(id)
