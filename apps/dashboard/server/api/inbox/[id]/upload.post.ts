@@ -1,9 +1,6 @@
-import { promises as fsp } from 'node:fs';
-
 import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
-import { basename, extname, join } from 'pathe';
-import sharp from 'sharp';
+import { basename, extname } from 'pathe';
 import { z } from 'zod';
 
 import { insert } from '@orama/orama';
@@ -85,138 +82,58 @@ export default defineEventHandler(async (event) => {
         throw forbiddenError;
     }
 
-    const isProcessableImage =
-        file.type.startsWith('image/') && !['image/gif', 'image/svg+xml'].includes(file.type);
-
     const extensionName = extname(file.name);
-    const fileName = `${basename(file.name.replace(/[^a-zA-Z0-9-_.]/g, ''), extname(file.name))}-${nanoid(6)}${
-        extensionName
-    }`;
 
-    const findFileByFileName = await prisma.file.findUnique({
-        where: {
-            fileName,
+    const _upload = await receiveUpload(
+        findInboxById.user,
+        {
+            uploadId: body.data.uploadId ?? nanoid(8),
+            part: body.data.currentChunk!,
+            offset: body.data.chunkOffset ?? 0,
+            isLast: body.data.currentChunk === body.data.totalChunks,
+            data: new Uint8Array(await file.arrayBuffer()),
+            mimeType: file.type,
         },
-    });
+        async () => {
+            const fileName = `${basename(file.name.replace(/[^a-zA-Z0-9-_.]/g, ''), extensionName)}-${nanoid(6)}${
+                extensionName
+            }`;
 
-    if (findFileByFileName) {
-        throw createError({
-            status: 409,
-            message: 'A file with that name already exists',
-        });
-    }
+            const findFileByFileName = await prisma.file.findUnique({
+                where: {
+                    fileName,
+                },
+            });
 
-    const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9-_.]/g, '');
-    const uploadSessionId = body.data.uploadId ?? nanoid(8);
+            if (findFileByFileName) {
+                throw createError({
+                    status: 409,
+                    message: 'A file with that name already exists',
+                });
+            }
 
-    const tempPath = join(
-        dataDirectory,
-        'temp',
-        findInboxById.user.id,
-        `${uploadSessionId}_${sanitizedOriginalName}`,
+            return fileName;
+        },
+        (data) =>
+            prisma.file.create({
+                data: {
+                    ...data,
+                    mimeType: file.type,
+                    authorId: findInboxById.user.id,
+                    folderId: findInboxById.folderId,
+                },
+                include: {
+                    views: true,
+                },
+                omit: {
+                    embedding: true,
+                    textEmbedding: true,
+                    ocrText: true,
+                },
+            }),
     );
 
-    await fsp.mkdir(join(dataDirectory, 'temp', findInboxById.user.id), { recursive: true });
-
-    const buffer = new Uint8Array(await file.arrayBuffer());
-    const { removeExifData } = await getSettings();
-    const isLastChunk = body.data.currentChunk === body.data.totalChunks;
-
-    const usableSpace = (findInboxById.user.limits as any).usableSpace as number;
-
-    const totalSize = await prisma.file.aggregate({
-        where: {
-            authorId: findInboxById.user.id,
-        },
-        _sum: {
-            size: true,
-        },
-    });
-
-    const exceedsLimit = (size: number) =>
-        !isAdmin(findInboxById.user) &&
-        usableSpace > -1 &&
-        (totalSize._sum.size ?? 0n) + BigInt(size) > BigInt(usableSpace * 1024 * 1024);
-
-    if (exceedsLimit((body.data.chunkOffset ?? 0) + buffer.length)) {
-        await fsp.rm(tempPath, { force: true });
-        throw createError({
-            status: 400,
-            message: 'Storage limit reached',
-        });
-    }
-
-    if (body.data.chunkOffset !== undefined) {
-        await writeUploadChunk(tempPath, buffer, body.data.chunkOffset, isLastChunk);
-    } else {
-        await fsp.writeFile(tempPath, buffer);
-    }
-
-    if (isLastChunk) {
-        if (isProcessableImage) {
-            try {
-                const temp2Path = join(
-                    dataDirectory,
-                    'temp',
-                    findInboxById.user.id,
-                    `${nanoid(8)}${extname(file.name)}`,
-                );
-
-                let imagePipeline = sharp(tempPath).rotate();
-                if (!removeExifData) imagePipeline = imagePipeline.keepExif();
-
-                await imagePipeline.toFile(temp2Path);
-                await fsp.rename(temp2Path, tempPath);
-            } catch {
-                //
-            }
-        }
-
-        const fileSize = (await fsp.stat(tempPath)).size;
-
-        if (exceedsLimit(fileSize)) {
-            await fsp.rm(tempPath).catch(() => {});
-            throw createError({
-                status: 400,
-                message: 'Storage limit reached',
-            });
-        }
-
-        const storageId = await getActiveStorageId();
-
-        const _upload = await prisma.file.create({
-            data: {
-                fileName,
-                mimeType: file.type,
-                size: fileSize,
-                authorId: findInboxById.user.id,
-                folderId: findInboxById.folderId,
-                storageId,
-            },
-            include: {
-                views: true,
-            },
-            omit: {
-                embedding: true,
-                textEmbedding: true,
-                ocrText: true,
-            },
-        });
-
-        if (isAnalyzable(_upload.mimeType))
-            _upload.metadata = (await processMedia(_upload, tempPath)) as any;
-
-        await (
-            await getStorage(storageId)
-        )
-            .put(uploadKey(fileName), tempPath)
-            .catch(async (error) => {
-                await prisma.file.delete({ where: { id: _upload.id } });
-                await removeFileData([_upload]);
-                await fsp.rm(tempPath, { force: true });
-                throw error;
-            });
-
+    if (_upload) {
         const upload = {
             ..._upload,
             size: {
@@ -308,7 +225,7 @@ export default defineEventHandler(async (event) => {
 
         await createLog(event, {
             action: 'Inbox File Upload',
-            message: `File ${fileName} uploaded to inbox`,
+            message: `File ${_upload.fileName} uploaded to inbox`,
         });
 
         sendToUser(findInboxById.user.id, 'file:create', upload);

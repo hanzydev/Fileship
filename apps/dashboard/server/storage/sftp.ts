@@ -1,5 +1,6 @@
 import { promises as fsp } from 'node:fs';
 
+import { nanoid } from 'nanoid';
 import { posix } from 'pathe';
 import SftpClient from 'ssh2-sftp-client';
 
@@ -99,6 +100,32 @@ export const createSftpDriver = (config: SftpConfig): StorageDriver => {
             const client = await connect();
 
             await client.mkdir(config.root, true);
+        },
+        async beginUpload(key) {
+            await (await connect()).mkdir(posix.dirname(path(key)), true);
+            return { part: `${key}.${nanoid(8)}.part` };
+        },
+        async writeChunk(_, state, __, offset, data) {
+            const client = await connect();
+
+            await new Promise((resolve, reject) =>
+                client
+                    .createWriteStream(path(state.part), {
+                        flags: offset ? 'r+' : 'w',
+                        start: offset,
+                    })
+                    .on('error', reject)
+                    .on('close', resolve)
+                    .end(Buffer.from(data)),
+            );
+
+            return state;
+        },
+        async completeUpload(key, state) {
+            await (await connect()).rename(path(state.part), path(key));
+        },
+        async abortUpload(_, state) {
+            await (await connect()).delete(path(state.part), true);
         },
         async close() {
             const client = await connection?.catch(() => null);

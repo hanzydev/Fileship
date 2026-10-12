@@ -3,12 +3,16 @@ import type { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 
 import {
+    AbortMultipartUploadCommand,
+    CompleteMultipartUploadCommand,
     CopyObjectCommand,
+    CreateMultipartUploadCommand,
     DeleteObjectCommand,
     GetObjectCommand,
     HeadBucketCommand,
     ListObjectsV2Command,
     S3Client,
+    UploadPartCommand,
 } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 
@@ -119,6 +123,53 @@ export const createS3Driver = (config: S3Config): StorageDriver => {
         },
         async test() {
             await client.send(new HeadBucketCommand({ Bucket: config.bucket }));
+        },
+        async beginUpload(key) {
+            const { UploadId } = await client.send(
+                new CreateMultipartUploadCommand({ Bucket: config.bucket, Key: objectKey(key) }),
+            );
+
+            return { uploadId: UploadId, parts: [] };
+        },
+        async writeChunk(key, state, part, _, data) {
+            const { ETag } = await client.send(
+                new UploadPartCommand({
+                    Bucket: config.bucket,
+                    Key: objectKey(key),
+                    UploadId: state.uploadId,
+                    PartNumber: part,
+                    Body: data,
+                }),
+            );
+
+            return {
+                ...state,
+                parts: [
+                    ...state.parts.filter((entry: any) => entry.PartNumber !== part),
+                    { PartNumber: part, ETag },
+                ],
+            };
+        },
+        async completeUpload(key, state) {
+            await client.send(
+                new CompleteMultipartUploadCommand({
+                    Bucket: config.bucket,
+                    Key: objectKey(key),
+                    UploadId: state.uploadId,
+                    MultipartUpload: {
+                        Parts: state.parts.sort((a: any, b: any) => a.PartNumber - b.PartNumber),
+                    },
+                }),
+            );
+        },
+        async abortUpload(key, state) {
+            await client.send(
+                new AbortMultipartUploadCommand({
+                    Bucket: config.bucket,
+                    Key: objectKey(key),
+                    UploadId: state.uploadId,
+                }),
+            );
         },
         async close() {
             client.destroy();

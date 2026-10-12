@@ -24,9 +24,11 @@ export default defineTask({
                     if (entry.isDirectory()) {
                         for (const child of await fsp.readdir(entryPath)) {
                             const childPath = join(entryPath, child);
-                            if (await isStale(childPath)) {
-                                await fsp.rm(childPath, { recursive: true, force: true });
-                            }
+                            if (!(await isStale(childPath))) continue;
+
+                            if (child.endsWith('.upload.json'))
+                                await abortUploadSession(childPath.slice(0, -'.json'.length));
+                            else await fsp.rm(childPath, { recursive: true, force: true });
                         }
 
                         if (!(await fsp.readdir(entryPath)).length && (await isStale(entryPath))) {

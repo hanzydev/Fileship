@@ -1,10 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { promises as fsp } from 'node:fs';
 
 import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
-import { basename, extname, join } from 'pathe';
-import sharp from 'sharp';
+import { basename, extname } from 'pathe';
 import { z } from 'zod';
 
 import { insert } from '@orama/orama';
@@ -78,170 +76,94 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const isProcessableImage =
-        file.type.startsWith('image/') && !['image/gif', 'image/svg+xml'].includes(file.type);
-
-    const isCompressible = isProcessableImage && !!body.data.compression;
+    const isCompressible = isProcessableImage(file.type) && !!body.data.compression;
     const extensionName = isCompressible ? '.jpeg' : extname(file.name);
 
-    let fileName = `${basename(file.name.replace(/[^a-zA-Z0-9-_.]/g, ''), extname(file.name))}${
-        extensionName
-    }`;
-
-    if (body.data.fileNameType === 'Random') {
-        fileName = `${nanoid(8)}${extensionName}`;
-    } else if (body.data.fileNameType === 'UUID') {
-        fileName = `${randomUUID()}${extensionName}`;
-    }
-
-    if (!fileName.replaceAll('.', '') || fileName.startsWith('.')) {
-        throw createError({
-            status: 400,
-            message: 'Invalid file name',
-        });
-    }
-
-    const findFileByFileName = await prisma.file.findUnique({
-        where: {
-            fileName,
+    const _upload = await receiveUpload(
+        currentUser,
+        {
+            uploadId: body.data.uploadId ?? nanoid(8),
+            part: body.data.currentChunk!,
+            offset: body.data.chunkOffset ?? 0,
+            isLast: body.data.currentChunk === body.data.totalChunks,
+            data: new Uint8Array(await file.arrayBuffer()),
+            mimeType: file.type,
+            compression: body.data.compression,
         },
-    });
+        async () => {
+            let fileName = `${basename(file.name.replace(/[^a-zA-Z0-9-_.]/g, ''), extname(file.name))}${
+                extensionName
+            }`;
 
-    if (findFileByFileName) {
-        throw createError({
-            status: 409,
-            message: 'A file with that name already exists',
-        });
-    }
+            if (body.data.fileNameType === 'Random') {
+                fileName = `${nanoid(8)}${extensionName}`;
+            } else if (body.data.fileNameType === 'UUID') {
+                fileName = `${randomUUID()}${extensionName}`;
+            }
 
-    if (body.data.folderId) {
-        const findFolderById = await prisma.folder.findUnique({
-            where: {
-                id: body.data.folderId,
-                authorId: currentUser.id,
-            },
-        });
+            if (!fileName.replaceAll('.', '') || fileName.startsWith('.')) {
+                throw createError({
+                    status: 400,
+                    message: 'Invalid file name',
+                });
+            }
 
-        if (!findFolderById) {
-            throw createError({
-                status: 404,
-                message: 'Folder not found',
+            const findFileByFileName = await prisma.file.findUnique({
+                where: {
+                    fileName,
+                },
             });
-        }
-    }
 
-    const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9-_.]/g, '');
-    const uploadSessionId = body.data.uploadId ?? nanoid(8);
+            if (findFileByFileName) {
+                throw createError({
+                    status: 409,
+                    message: 'A file with that name already exists',
+                });
+            }
 
-    const tempPath = join(
-        dataDirectory,
-        'temp',
-        currentUser.id,
-        `${uploadSessionId}_${sanitizedOriginalName}`,
-    );
+            if (body.data.folderId) {
+                const findFolderById = await prisma.folder.findUnique({
+                    where: {
+                        id: body.data.folderId,
+                        authorId: currentUser.id,
+                    },
+                });
 
-    await fsp.mkdir(join(dataDirectory, 'temp', currentUser.id), { recursive: true });
-
-    const buffer = new Uint8Array(await file.arrayBuffer());
-    const { removeExifData } = await getSettings();
-    const isLastChunk = body.data.currentChunk === body.data.totalChunks;
-
-    if (body.data.chunkOffset !== undefined) {
-        await writeUploadChunk(tempPath, buffer, body.data.chunkOffset, isLastChunk);
-    } else {
-        await fsp.writeFile(tempPath, buffer);
-    }
-
-    if (isLastChunk) {
-        if (isProcessableImage) {
-            try {
-                const temp2Path = join(
-                    dataDirectory,
-                    'temp',
-                    currentUser.id,
-                    `${nanoid(8)}${extensionName}`,
-                );
-
-                let imagePipeline = sharp(tempPath).rotate();
-
-                if (body.data.compression) {
-                    imagePipeline = imagePipeline.jpeg({
-                        quality: Math.min(100, Math.max(1, 100 - body.data.compression)),
+                if (!findFolderById) {
+                    throw createError({
+                        status: 404,
+                        message: 'Folder not found',
                     });
                 }
-
-                if (!removeExifData) imagePipeline = imagePipeline.keepExif();
-
-                await imagePipeline.toFile(temp2Path);
-                await fsp.rename(temp2Path, tempPath);
-            } catch {
-                //
             }
-        }
 
-        const fileSize = (await fsp.stat(tempPath)).size;
-        const totalSize = await prisma.file.aggregate({
-            where: {
-                authorId: currentUser.id,
-            },
-            _sum: {
-                size: true,
-            },
-        });
+            return fileName;
+        },
+        (data) =>
+            prisma.file.create({
+                data: {
+                    ...data,
+                    mimeType: isCompressible ? 'image/jpeg' : file.type,
+                    password: body.data.password || null,
+                    maxViews: body.data.maxViews || 0,
+                    expiresAt: body.data.expiration
+                        ? new Date(Date.now() + body.data.expiration)
+                        : null,
+                    authorId: currentUser.id,
+                    folderId: body.data.folderId || null,
+                },
+                include: {
+                    views: true,
+                },
+                omit: {
+                    embedding: true,
+                    textEmbedding: true,
+                    ocrText: true,
+                },
+            }),
+    );
 
-        if (
-            !isAdmin(currentUser) &&
-            currentUser.limits.usableSpace > -1 &&
-            (totalSize._sum.size ?? 0n) + BigInt(fileSize) >
-                BigInt(currentUser.limits.usableSpace * 1024 * 1024)
-        ) {
-            await fsp.rm(tempPath).catch(() => {});
-            throw createError({
-                status: 400,
-                message: 'Storage limit reached',
-            });
-        }
-
-        const storageId = await getActiveStorageId();
-
-        const _upload = await prisma.file.create({
-            data: {
-                fileName,
-                mimeType: isCompressible ? 'image/jpeg' : file.type,
-                size: fileSize,
-                password: body.data.password || null,
-                maxViews: body.data.maxViews || 0,
-                expiresAt: body.data.expiration
-                    ? new Date(Date.now() + body.data.expiration)
-                    : null,
-                authorId: currentUser.id,
-                folderId: body.data.folderId || null,
-                storageId,
-            },
-            include: {
-                views: true,
-            },
-            omit: {
-                embedding: true,
-                textEmbedding: true,
-                ocrText: true,
-            },
-        });
-
-        if (isAnalyzable(_upload.mimeType))
-            _upload.metadata = (await processMedia(_upload, tempPath)) as any;
-
-        await (
-            await getStorage(storageId)
-        )
-            .put(uploadKey(fileName), tempPath)
-            .catch(async (error) => {
-                await prisma.file.delete({ where: { id: _upload.id } });
-                await removeFileData([_upload]);
-                await fsp.rm(tempPath, { force: true });
-                throw error;
-            });
-
+    if (_upload) {
         const upload = {
             ..._upload,
             size: {
@@ -329,7 +251,7 @@ export default defineEventHandler(async (event) => {
 
         await createLog(event, {
             action: 'Upload File',
-            message: `Uploaded file ${fileName}`,
+            message: `Uploaded file ${_upload.fileName}`,
         });
 
         sendToUser(currentUser.id, 'file:create', upload);

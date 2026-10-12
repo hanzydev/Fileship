@@ -282,7 +282,7 @@ const sections: SettingSection[] = [
                 key: 'fileChunkSize',
                 label: 'Chunk size (MB)',
                 type: 'number',
-                min: 1,
+                min: 5,
                 max: 100,
                 description: 'Large files are uploaded in pieces of this size.',
                 half: true,

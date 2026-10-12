@@ -1,7 +1,8 @@
 import { promises as fsp } from 'node:fs';
-import { PassThrough, Transform } from 'node:stream';
+import { PassThrough, Readable, Transform } from 'node:stream';
 
 import { Client } from 'basic-ftp';
+import { nanoid } from 'nanoid';
 import { posix } from 'pathe';
 
 import { notFound, type StorageDriver, type StoredObject } from './types';
@@ -161,6 +162,33 @@ export const createFtpDriver = (config: FtpConfig): StorageDriver => {
         },
         async test() {
             await withClient((client) => client.ensureDir(config.root));
+        },
+        async beginUpload(key) {
+            await withClient((client) => client.ensureDir(posix.dirname(path(key))));
+            return { part: `${key}.${nanoid(8)}.part` };
+        },
+        async writeChunk(_, state, __, offset, data) {
+            await withClient(async (client) => {
+                const part = path(state.part);
+                const source = Readable.from(Buffer.from(data));
+
+                if (!offset) return client.uploadFrom(source, part);
+
+                const size = await client.size(part).catch(() => 0);
+
+                if (size >= offset + data.length) return;
+                if (size !== offset) throw new Error('A previous upload chunk is missing');
+
+                return client.appendFrom(source, part);
+            });
+
+            return state;
+        },
+        async completeUpload(key, state) {
+            await withClient((client) => client.rename(path(state.part), path(key)));
+        },
+        async abortUpload(_, state) {
+            await withClient((client) => client.remove(path(state.part), true));
         },
     };
 };

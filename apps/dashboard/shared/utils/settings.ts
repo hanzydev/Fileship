@@ -5,7 +5,7 @@ import { UserPermission } from '#shared/prisma/enums';
 export const settingsSchema = z.object({
     siteName: z.string().trim().min(1, 'Site name is required').max(64),
     returnHttps: z.enum(['auto', 'true', 'false']),
-    fileChunkSize: z.number().int().min(1).max(100),
+    fileChunkSize: z.number().int().min(5).max(100),
     removeExifData: z.boolean(),
     avatarMaxSize: z.number().min(1).max(100),
     registrationEnabled: z.boolean(),

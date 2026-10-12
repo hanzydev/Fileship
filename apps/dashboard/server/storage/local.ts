@@ -1,5 +1,6 @@
 import { createReadStream, promises as fsp } from 'node:fs';
 
+import { nanoid } from 'nanoid';
 import { dirname, join, relative } from 'pathe';
 
 import { notFound, type StorageDriver, type StoredObject } from './types';
@@ -45,6 +46,20 @@ export const createLocalDriver = (root: string): StorageDriver => {
         },
         async test() {
             await fsp.access(root);
+        },
+        async beginUpload(key) {
+            await fsp.mkdir(dirname(path(key)), { recursive: true });
+            return { part: `${key}.${nanoid(8)}.part` };
+        },
+        async writeChunk(_, state, __, offset, data) {
+            await writeUploadChunk(path(state.part), data, offset, false);
+            return state;
+        },
+        async completeUpload(key, state) {
+            await moveFileRobust(path(state.part), path(key));
+        },
+        async abortUpload(_, state) {
+            await fsp.rm(path(state.part), { force: true });
         },
     };
 };
