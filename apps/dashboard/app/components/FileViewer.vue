@@ -190,17 +190,6 @@
                                     <dd class="truncate">{{ detail.value }}</dd>
                                 </template>
                             </dl>
-                            <template v-if="metadata.length">
-                                <TextBlock variant="small" custom-tag="h3" class="mt-4">
-                                    Metadata
-                                </TextBlock>
-                                <dl class="grid grid-cols-[8rem_1fr] gap-x-4 gap-y-3 py-2 text-sm">
-                                    <template v-for="row in metadata" :key="row.label">
-                                        <dt class="text-muted-foreground">{{ row.label }}</dt>
-                                        <dd class="truncate">{{ row.value }}</dd>
-                                    </template>
-                                </dl>
-                            </template>
                         </UiTabsContent>
 
                         <UiTabsContent value="edit">
@@ -432,6 +421,7 @@ const details = computed(() => {
     return [
         { label: 'Type', value: f.mimeType },
         { label: 'Size', value: f.size.formatted },
+        ...metadata.value,
         { label: 'Folder', value: f.folder?.name || 'None' },
         { label: 'Views', value: `${f.views.total} total · ${f.views.today} today` },
         { label: 'Max views', value: f.maxViews || 'Unlimited' },
