@@ -2,7 +2,18 @@ export default defineEventHandler(async (event) => {
     event.context.user = null;
 
     const token = getCookie(event, 'token');
-    if (!token) return;
+
+    if (!token) {
+        const authorization = getRequestHeader(event, 'authorization');
+
+        if (authorization && event.method === 'POST' && event.path === '/api/files') {
+            event.context.user = (await prisma.user.findUnique({
+                where: { uploadTokenHash: hashToken(authorization.replace(/^Bearer /, '')) },
+            })) as any;
+        }
+
+        return;
+    }
 
     const session = await findSession(token);
 

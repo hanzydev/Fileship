@@ -50,6 +50,8 @@ model User {
   logs                   Log[]
   totpEnabled            Boolean             @default(false)
   totpSecret             String?
+  uploadTokenHash        String?             @unique
+  uploadTokenEncrypted   String?
   superAdmin             Boolean             @default(false)
   limits                 Json                @default("{}")
   embed                  Json                @default("{}")

@@ -1,5 +1,38 @@
 <template>
     <UiCard>
+        <UiCardHeader>
+            <UiCardTitle>Upload token</UiCardTitle>
+            <UiCardDescription>
+                Used by ShareX and the upload scripts. It can only upload files, but keep it
+                private.
+            </UiCardDescription>
+            <UiCardAction>
+                <UiButton variant="outline" @click="handleRegenerate">
+                    <IRefreshCw />
+                    Regenerate
+                </UiButton>
+            </UiCardAction>
+        </UiCardHeader>
+        <UiCardContent class="flex gap-2">
+            <PasswordInput
+                :model-value="uploadToken?.token"
+                readonly
+                aria-label="Upload token"
+                class="font-mono"
+            />
+            <UiButton
+                variant="outline"
+                size="icon"
+                aria-label="Copy token"
+                :disabled="!uploadToken"
+                @click="handleCopy"
+            >
+                <ICopy />
+            </UiButton>
+        </UiCardContent>
+    </UiCard>
+
+    <UiCard>
         <form class="contents" @submit.prevent="handleDownload">
             <UiCardHeader>
                 <UiCardTitle>ShareX</UiCardTitle>
@@ -83,9 +116,9 @@
                 class="flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center"
             >
                 <TextBlock variant="muted" class="text-xs">
-                    The config contains your session token. Do not share it.
+                    The config contains your upload token. Do not share it.
                 </TextBlock>
-                <UiButton type="submit">
+                <UiButton type="submit" :disabled="!uploadToken">
                     <IDownload />
                     Download config
                 </UiButton>
@@ -97,7 +130,10 @@
 <script setup lang="ts">
 const publicSettings = usePublicSettings();
 const requestUrl = useRequestURL();
-const sessionId = useCookie('sessionId');
+const { $toast } = useNuxtApp();
+const { copy } = useClipboard({ legacy: true });
+
+const { data: uploadToken } = useFetch('/api/users/@me/upload-token', { server: false });
 
 const settings = reactive({
     fileNameType: 'Random',
@@ -115,10 +151,10 @@ const handleDownload = () => {
         RequestMethod: 'POST',
         RequestURL: `${requestUrl.origin}/api/files`,
         Headers: {
-            Authorization: sessionId.value,
+            Authorization: `Bearer ${uploadToken.value!.token}`,
         },
         URL: '{json:url}',
-        ErrorMessage: '{json:error}',
+        ErrorMessage: '{json:message}',
         Body: 'MultipartFormData',
         FileFormName: 'file',
         Arguments: {
@@ -135,4 +171,33 @@ const handleDownload = () => {
         'FileUploader.sxcu',
     );
 };
+
+const handleCopy = () => {
+    copy(uploadToken.value!.token);
+    $toast.success('Upload token copied to clipboard');
+};
+
+const handleRegenerate = () =>
+    askConfirmation({
+        title: 'Regenerate upload token?',
+        description: 'Configs and scripts that use the current token will stop working.',
+        confirmText: 'Regenerate',
+        action: async () => {
+            try {
+                const result = await withVerification((verificationData) =>
+                    $fetch('/api/users/@me/upload-token', {
+                        method: 'POST',
+                        body: { verificationData },
+                    }),
+                );
+
+                if (result) {
+                    uploadToken.value = result;
+                    $toast.success('Upload token regenerated');
+                }
+            } catch (error: any) {
+                $toast.error(getErrorMessage(error));
+            }
+        },
+    });
 </script>
