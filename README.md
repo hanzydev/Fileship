@@ -45,10 +45,10 @@
 - Folders with cover previews, public sharing and zip downloads
 - Markdown notes with code highlighting, math and public links
 - Password protection, expiry dates and view limits for files
-- Image compression, EXIF removal and video thumbnails
+- Image compression, EXIF removal, image and video thumbnails, and media details (resolution, duration, frame rate, bitrate, codecs)
 - Custom domains and OpenGraph embeds for links shared on Discord and other apps
 - Inbox links that let anyone send files straight to your account
-- ShareX configuration generator
+- ShareX config and macOS and Linux upload scripts, all using a revocable upload token
 
 **Search and AI**
 

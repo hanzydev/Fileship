@@ -61,10 +61,10 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 - `app/utils`: client helpers (`socket.ts`, `uploadFile.ts`, `getErrorMessage.ts`, ...).
 - `server/api`: REST endpoints (`auth`, `files`, `folders`, `inbox`, `logs`, `notes`, `settings`, `updater`, `users`, `stats`, `healthz`).
 - `server/routes/u/[id]`: raw file serving.
-- `server/middleware`: `auth.ts` (session cookie) and `cors.ts`.
+- `server/middleware`: `auth.ts` (the `token` session cookie, plus the upload token on `POST /api/files`) and `cors.ts`.
 - `server/plugins`: `setup.ts`, `socketIO.ts`, `aiQueueRunner.ts`.
-- `server/tasks`: `db:*`, `dir:*`, `search:*`, `ai:*`, `telemetry:*`, scheduled in `nuxt.config.ts`.
-- `server/utils`: list/query helpers (`list.ts`), permissions, Prisma, Orama search, AI queue, `verifySession`, `createLog`, `errors.ts`, ...
+- `server/tasks`: `db:*`, `dir:*`, `search:*`, `ai:*`, `media:*`, `telemetry:*`, scheduled in `nuxt.config.ts` or started from `setup.ts`.
+- `server/utils`: list/query helpers (`list.ts`), permissions, Prisma, Orama search, AI queue, sessions (`session.ts`), thumbnails and metadata (`media.ts`), `verifySession`, `createLog`, `errors.ts`, ...
 - `shared/utils`: code used by both sides (constants, file categories, permissions, types, accents).
 - `prisma/schema.prisma` and `prisma/migrations`. The client is generated into `generated/prisma` (gitignored).
 
@@ -106,3 +106,7 @@ Reuse these instead of writing new versions.
 - Backup restores accept an explicit allow-list of fields per model and always force the owner to the current user.
 - Upload ids, file names and paths are validated before touching the filesystem.
 - Sensitive account actions go through `verifySession` on the server and `withVerification` on the client.
+- Sessions are random tokens stored as SHA-256 hashes (`Session.tokenHash`) and sent only in the httpOnly `token` cookie. The client never reads or writes auth cookies. Sessions have no expiry and end only when they are revoked. Impersonation runs on the server (`/api/auth/impersonate`), with the admin's token kept in the httpOnly `adminToken` cookie.
+- Upload tokens (`fs_…`) are accepted only on `POST /api/files`, through the `Authorization` header. They are stored hashed for lookup and AES-GCM encrypted for display, with the key in `<data>/secret.key`.
+- Login, passkey login, registration and step-up verification are rate limited (`rateLimit`). TOTP codes cannot be reused (`verifyTotpToken`). Cookie-authenticated writes with a foreign `Origin` are rejected.
+- Markdown is rendered without raw HTML, and links are limited to `http`, `https`, `mailto` and relative URLs.
