@@ -1,7 +1,8 @@
 <template>
     <UiContextMenu>
-        <UiContextMenuTrigger as-child>
+        <UiContextMenuTrigger as-child :disabled="pickable">
             <UiCard
+                v-bind="$attrs"
                 size="sm"
                 class="group"
                 tabindex="0"
@@ -79,6 +80,7 @@
                         </div>
 
                         <div
+                            v-if="!pickable"
                             :class="
                                 cn(
                                     'absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100',
@@ -124,7 +126,7 @@
                 </UiCardFooter>
             </UiCard>
         </UiContextMenuTrigger>
-        <UiContextMenuContent class="w-56">
+        <UiContextMenuContent v-if="!pickable" class="w-56">
             <FileMenuItems
                 :file="file"
                 type="context"
@@ -139,10 +141,13 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
+defineOptions({ inheritAttrs: false });
+
 const { file } = defineProps<{
     file: FileData;
     selected?: boolean;
     selectionMode?: boolean;
+    pickable?: boolean;
 }>();
 
 const chipClass =

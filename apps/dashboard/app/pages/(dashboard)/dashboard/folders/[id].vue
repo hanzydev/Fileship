@@ -17,9 +17,9 @@
 
         <template v-else-if="folder">
             <PageHeader :title="folder.name" :description="description">
-                <UiButton variant="outline" @click="addFilesOpen = true">
+                <UiButton variant="outline" @click="pickerOpen = true">
                     <IFilePlus />
-                    Add files
+                    Manage files
                 </UiButton>
                 <UiButton v-if="folder.public" variant="outline" @click="copyLink(folder)">
                     <ILink />
@@ -61,62 +61,93 @@
 
             <FolderFormDialog v-model:open="formOpen" :folder="folder" />
 
-            <UiDialog v-model:open="addFilesOpen">
-                <UiDialogContent class="sm:max-w-lg">
+            <UiDialog v-model:open="pickerOpen">
+                <UiDialogContent class="flex h-[min(85svh,52rem)] flex-col sm:max-w-4xl">
                     <UiDialogHeader>
-                        <UiDialogTitle>Add files to {{ folder.name }}</UiDialogTitle>
-                        <UiDialogDescription>Pick files from your library.</UiDialogDescription>
+                        <UiDialogTitle>Files in {{ folder.name }}</UiDialogTitle>
+                        <UiDialogDescription>
+                            Select the files that belong in this folder. Files from other folders
+                            are moved here.
+                        </UiDialogDescription>
                     </UiDialogHeader>
-                    <UiInputGroup>
-                        <UiInputGroupAddon>
-                            <ISearch />
-                        </UiInputGroupAddon>
-                        <UiInputGroupInput v-model="addSearch" placeholder="Search files..." />
-                    </UiInputGroup>
+
+                    <div class="flex flex-wrap gap-2">
+                        <UiTabs v-model="pickerFilter">
+                            <UiTabsList>
+                                <UiTabsTrigger
+                                    v-for="filter in pickerFilters"
+                                    :key="filter.value"
+                                    :value="filter.value"
+                                >
+                                    {{ filter.label }}
+                                </UiTabsTrigger>
+                            </UiTabsList>
+                        </UiTabs>
+                        <UiInputGroup class="min-w-48 flex-1">
+                            <UiInputGroupAddon>
+                                <UiSpinner v-if="!!pickerSearch && isPickerLoading" />
+                                <ISearch v-else />
+                            </UiInputGroupAddon>
+                            <UiInputGroupInput
+                                v-model="pickerSearch"
+                                placeholder="Search files..."
+                            />
+                        </UiInputGroup>
+                    </div>
+
                     <div
-                        class="-mx-1 flex max-h-80 flex-col gap-2 overflow-y-auto px-1 py-1"
+                        class="-mx-2 min-h-0 flex-1 overflow-y-auto px-2 pt-1 @container"
                         @scroll="handleScroll"
                     >
-                        <UiFieldLabel
-                            v-for="file in addCandidates"
-                            :key="file.id"
-                            :for="`add-file-${file.id}`"
+                        <EmptyState
+                            v-if="!isPickerLoading && !pickerFiles.length"
+                            :icon="IFiles"
+                            title="No files here"
+                            description="Try another filter or search."
+                        />
+                        <div
+                            v-else
+                            class="grid grid-cols-2 gap-3 pb-2 @lg:grid-cols-3 @3xl:grid-cols-4"
                         >
-                            <UiField orientation="horizontal">
-                                <UiCheckbox
-                                    :id="`add-file-${file.id}`"
-                                    :model-value="addSelection.includes(file.id)"
-                                    @update:model-value="toggleAdd(file.id)"
+                            <template v-if="isPickerLoading">
+                                <FileCardSkeleton
+                                    v-for="i in 8"
+                                    :key="i"
+                                    class="bg-popover shadow-none"
                                 />
-                                <UiFieldContent class="min-w-0">
-                                    <UiFieldTitle class="w-full truncate">
-                                        {{ file.fileName }}
-                                    </UiFieldTitle>
-                                    <UiFieldDescription>
-                                        {{ file.size.formatted }}
-                                    </UiFieldDescription>
-                                </UiFieldContent>
-                            </UiField>
-                        </UiFieldLabel>
-                        <div v-if="isCandidatesLoading" class="flex justify-center py-6">
-                            <UiSpinner class="text-muted-foreground" />
+                            </template>
+                            <template v-else>
+                                <FileCard
+                                    v-for="file in pickerFiles"
+                                    :key="file.id"
+                                    :file="file"
+                                    :selected="isPicked(file)"
+                                    class="bg-popover shadow-none"
+                                    selection-mode
+                                    pickable
+                                    @click="handleTogglePick(file)"
+                                    @toggle="handleTogglePick(file)"
+                                />
+                                <template v-if="isPickerLoadingMore">
+                                    <FileCardSkeleton
+                                        v-for="i in 4"
+                                        :key="`more-${i}`"
+                                        class="bg-popover shadow-none"
+                                    />
+                                </template>
+                            </template>
                         </div>
-                        <TextBlock
-                            v-else-if="!addCandidates.length"
-                            variant="muted"
-                            class="py-6 text-center"
-                        >
-                            No files to add.
-                        </TextBlock>
                     </div>
-                    <UiDialogFooter>
-                        <UiButton variant="outline" @click="addFilesOpen = false">Cancel</UiButton>
+
+                    <UiDialogFooter class="items-center">
+                        <TextBlock variant="muted" class="mr-auto">{{ pickerChanges }}</TextBlock>
+                        <UiButton variant="outline" @click="pickerOpen = false">Cancel</UiButton>
                         <UiButton
-                            :disabled="!addSelection.length || isAdding"
-                            @click="handleAddFiles"
+                            :disabled="(!added.length && !removed.length) || isSaving"
+                            @click="handleSavePicker"
                         >
-                            <UiSpinner v-if="isAdding" />
-                            Add {{ pluralize(addSelection.length, 'file') }}
+                            <UiSpinner v-if="isSaving" />
+                            Save
                         </UiButton>
                     </UiDialogFooter>
                 </UiDialogContent>
@@ -126,19 +157,29 @@
 </template>
 
 <script setup lang="ts">
-import { IFolderX } from '#components';
+import { IFiles, IFolderX } from '#components';
 
 const route = useRoute();
 const labels = useBreadcrumbLabels();
 const { $toast } = useNuxtApp();
 const { copyLink } = useFolderActions();
 
+const BULK_LIMIT = 5000;
+
 const formOpen = ref(false);
-const addFilesOpen = ref(false);
-const addSearch = ref('');
-const addSelection = ref<string[]>([]);
-const isAdding = ref(false);
+const pickerOpen = ref(false);
+const pickerSearch = ref('');
+const pickerFilter = ref<'all' | 'in' | 'out'>('all');
+const added = ref<string[]>([]);
+const removed = ref<string[]>([]);
+const isSaving = ref(false);
 const summary = ref<FileSummary>();
+
+const pickerFilters = [
+    { label: 'All files', value: 'all' },
+    { label: 'In this folder', value: 'in' },
+    { label: 'Not in this folder', value: 'out' },
+];
 
 const folderId = computed(() => (route.params as any).id as string);
 
@@ -155,14 +196,19 @@ const {
 const isLoading = computed(() => status.value === 'pending' || status.value === 'idle');
 
 const {
-    items: addCandidates,
-    isLoading: isCandidatesLoading,
+    items: pickerFiles,
+    isLoading: isPickerLoading,
+    isLoadingMore: isPickerLoadingMore,
     loadMore,
 } = usePaginatedList<FileData>(
     'files',
     '/api/files',
-    () => ({ q: addSearch.value.trim(), excludeFolder: folderId.value }),
-    { limit: 30, enabled: addFilesOpen },
+    () => ({
+        q: pickerSearch.value.trim(),
+        ...(pickerFilter.value === 'in' && { folder: folderId.value }),
+        ...(pickerFilter.value === 'out' && { excludeFolder: folderId.value }),
+    }),
+    { limit: 40, enabled: pickerOpen },
 );
 
 const description = computed(
@@ -170,10 +216,23 @@ const description = computed(
         `${pluralize(summary.value?.count ?? folder.value!.fileCount, 'file')} · ${folder.value!.public ? 'Public' : 'Private'}`,
 );
 
-const toggleAdd = (id: string) => {
-    addSelection.value = addSelection.value.includes(id)
-        ? addSelection.value.filter((x) => x !== id)
-        : [...addSelection.value, id];
+const pickerChanges = computed(() =>
+    added.value.length || removed.value.length
+        ? `${added.value.length} to add · ${removed.value.length} to remove`
+        : 'No changes',
+);
+
+const isInFolder = (file: FileData) => file.folderId === folderId.value;
+
+const isPicked = (file: FileData) =>
+    isInFolder(file) ? !removed.value.includes(file.id) : added.value.includes(file.id);
+
+const handleTogglePick = (file: FileData) => {
+    const list = isInFolder(file) ? removed : added;
+
+    list.value = list.value.includes(file.id)
+        ? list.value.filter((id) => id !== file.id)
+        : [...list.value, file.id];
 };
 
 const handleScroll = (event: Event) => {
@@ -181,22 +240,29 @@ const handleScroll = (event: Event) => {
     if (target.scrollHeight - target.scrollTop - target.clientHeight < 80) loadMore();
 };
 
-const handleAddFiles = async () => {
-    isAdding.value = true;
-
-    try {
+const moveFiles = async (ids: string[], targetFolderId: string | null) => {
+    for (let index = 0; index < ids.length; index += BULK_LIMIT) {
         await $fetch('/api/files/bulk-move', {
             method: 'POST',
-            body: { files: addSelection.value, folderId: folderId.value },
+            body: { files: ids.slice(index, index + BULK_LIMIT), folderId: targetFolderId },
         });
+    }
+};
 
-        $toast.success(`${pluralize(addSelection.value.length, 'file')} added`);
-        addFilesOpen.value = false;
+const handleSavePicker = async () => {
+    isSaving.value = true;
+
+    try {
+        await moveFiles(added.value, folderId.value);
+        await moveFiles(removed.value, null);
+
+        $toast.success('Folder updated');
+        pickerOpen.value = false;
     } catch (error: any) {
         $toast.error(getErrorMessage(error));
     }
 
-    isAdding.value = false;
+    isSaving.value = false;
 };
 
 useListHandle({
@@ -208,11 +274,13 @@ useListHandle({
 
 watch(folder, (value) => value && (labels.value = { ...labels.value, [value.id]: value.name }));
 
-watch(addFilesOpen, (value) => {
-    if (value) {
-        addSearch.value = '';
-        addSelection.value = [];
-    }
+watch(pickerOpen, (value) => {
+    if (!value) return;
+
+    pickerSearch.value = '';
+    pickerFilter.value = 'all';
+    added.value = [];
+    removed.value = [];
 });
 
 definePageMeta({
