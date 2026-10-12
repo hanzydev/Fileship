@@ -42,7 +42,7 @@
 **Files and sharing**
 
 - Chunked uploads with drag and drop, paste-to-upload and an upload queue
-- Folders with cover previews, public sharing and zip downloads
+- Folders with cover previews, public sharing and archive downloads
 - Markdown notes with code highlighting, math and public links
 - Password protection, expiry dates and view limits for files
 - Image compression, EXIF removal, image and video thumbnails, and media details (resolution, duration, frame rate, bitrate, codecs)
@@ -84,7 +84,7 @@ Fileship targets current versions of Chrome, Edge, Firefox, Brave and Zen Browse
 
 - **CPU**: 2 cores
 - **RAM**: 4 GB (AI features use most of it; without AI, less is enough)
-- **Disk**: 4 GB, plus space for uploaded files
+- **Disk**: 4 GB, plus space for uploaded files kept on the local disk
 - [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
 
 PostgreSQL 16 is included in the Compose stack.
@@ -144,19 +144,19 @@ Fileship keeps uploads and backups in its data directory by default. In **Admini
 
 Uploads stream to the storage chunk by chunk. Thumbnails and temporary files always stay in the data directory. Storage credentials are encrypted with `data/secret.key`, so keep that file together with your data.
 
-On every start, Fileship removes files whose data is missing from their storage. A storage that cannot be reached or looks empty is skipped, so a misconfigured storage never deletes anything.
+On every start, Fileship removes files and backups whose data is missing from their storage. A storage that cannot be reached or looks empty is skipped, so a misconfigured storage never deletes anything.
 
 ### Environment-only settings
 
 A few settings can only be set through the environment, because they are needed before the dashboard starts or are fixed when the app is built:
 
-| Variable                                      | Description                                                    |
-| --------------------------------------------- | -------------------------------------------------------------- |
-| `DATABASE_URL`                                | PostgreSQL connection string (required)                        |
-| `NUXT_DATA_DIRECTORY`                         | Where uploaded files are stored (default: `data`)              |
-| `NUXT_UPDATER_URL` / `NUXT_UPDATER_SECRET`    | How the dashboard reaches the updater agent                    |
-| `DELETE_EXPIRED_CRON` / `GENERATE_STATS_CRON` | Schedules for expired file cleanup and statistics (build time) |
-| `ENABLE_PWA`                                  | Progressive Web App support (build time)                       |
+| Variable                                      | Description                                                     |
+| --------------------------------------------- | --------------------------------------------------------------- |
+| `DATABASE_URL`                                | PostgreSQL connection string (required)                         |
+| `NUXT_DATA_DIRECTORY`                         | Local storage, thumbnails and temporary files (default: `data`) |
+| `NUXT_UPDATER_URL` / `NUXT_UPDATER_SECRET`    | How the dashboard reaches the updater agent                     |
+| `DELETE_EXPIRED_CRON` / `GENERATE_STATS_CRON` | Schedules for expired file cleanup and statistics (build time)  |
+| `ENABLE_PWA`                                  | Progressive Web App support (build time)                        |
 
 To set an environment variable with Docker Compose, add it to the shared `x-fileship` block in `docker-compose.yml`, so both the `fileship-blue` and `fileship-green` containers receive it:
 
@@ -216,7 +216,7 @@ git pull
 | `AI_JOB_LEASE_MS`                  | `NUXT_AI_JOB_LEASE_MS`                  |
 | `AI_JOB_DEQUEUE_RETRIES`           | `NUXT_AI_JOB_DEQUEUE_RETRIES`           |
 
-Most of these can now be managed in **Administration → Instance** instead, so you may not need to set them at all.
+Most of these can now be managed in **Administration → Instance** instead, so you may not need to set them at all. The upload chunk size must now be at least 5 MB; a smaller `NUXT_PUBLIC_FILE_CHUNK_SIZE` falls back to the default of 25 MB.
 
 **3. Recreate the stack:**
 
