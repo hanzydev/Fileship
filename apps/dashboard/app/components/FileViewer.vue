@@ -3,98 +3,155 @@
         <UiDialogContent
             v-if="file"
             :show-close-button="false"
-            class="top-0 left-0 grid h-svh w-screen max-w-none translate-x-0 translate-y-0 grid-rows-[45svh_minmax(0,1fr)] gap-0 overflow-hidden rounded-none bg-background p-0 ring-0 sm:max-w-none lg:grid-cols-[minmax(0,1fr)_24rem] lg:grid-rows-1"
+            class="top-0 left-0 grid h-svh w-screen max-w-none translate-x-0 translate-y-0 grid-rows-[55svh_minmax(0,1fr)] gap-0 overflow-hidden rounded-none bg-background p-0 ring-0 sm:max-w-none lg:grid-cols-[minmax(0,1fr)_24rem] lg:grid-rows-1"
             @open-auto-focus.prevent="closeButton?.$el?.focus()"
         >
             <div
-                ref="stage"
-                class="dark relative flex min-h-0 min-w-0 items-center justify-center overflow-hidden bg-background px-2 pt-2 pb-10 text-foreground lg:px-16 lg:py-10"
+                class="dark flex min-h-0 min-w-0 flex-col overflow-hidden bg-background text-foreground"
             >
                 <div
-                    v-if="isImage"
-                    class="flex size-full items-center justify-center overflow-hidden"
+                    ref="stage"
+                    class="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-2 pt-10 pb-2 lg:px-16 lg:py-10"
                 >
-                    <img
+                    <div
+                        v-if="isImage"
+                        class="flex size-full items-center justify-center overflow-hidden"
+                    >
+                        <img
+                            :src="file.directUrl"
+                            :alt="file.fileName"
+                            draggable="false"
+                            :style="{ transformOrigin: zoomOrigin }"
+                            :class="
+                                cn(
+                                    'max-h-full max-w-full object-contain transition-[scale,filter] duration-300 select-none',
+                                    isZoomed ? 'scale-250 cursor-zoom-out' : 'cursor-zoom-in',
+                                    isSensitive && !isRevealed && 'blur-2xl',
+                                )
+                            "
+                            @click="handleZoom"
+                            @pointermove="isZoomed && setZoomOrigin($event)"
+                        />
+                    </div>
+                    <video
+                        v-else-if="isVideo"
+                        :key="file.id"
                         :src="file.directUrl"
-                        :alt="file.fileName"
-                        draggable="false"
-                        :style="{ transformOrigin: zoomOrigin }"
-                        :class="
-                            cn(
-                                'max-h-full max-w-full object-contain transition-[scale,filter] duration-300 select-none',
-                                isZoomed ? 'scale-250 cursor-zoom-out' : 'cursor-zoom-in',
-                                isSensitive && !isRevealed && 'blur-2xl',
-                            )
-                        "
-                        @click="handleZoom"
-                        @pointermove="isZoomed && setZoomOrigin($event)"
+                        :poster="file.thumbnailUrl || undefined"
+                        controls
+                        class="max-h-full max-w-full"
                     />
-                </div>
-                <video
-                    v-else-if="isVideo"
-                    :key="file.id"
-                    :src="file.directUrl"
-                    :poster="file.thumbnailUrl || undefined"
-                    controls
-                    class="max-h-full max-w-full"
-                />
-                <div v-else-if="isAudio" class="flex w-full max-w-md flex-col items-center gap-6">
-                    <IMusic class="size-12 text-muted-foreground" />
-                    <audio :key="file.id" :src="file.directUrl" controls class="w-full" />
-                </div>
-                <div v-else class="flex flex-col items-center gap-4">
-                    <component :is="getFileIcon(file)" class="size-12 text-muted-foreground" />
-                    <UiButton variant="outline" @click="openFile(file)">
-                        <IExternalLink />
-                        Open in new tab
-                    </UiButton>
+                    <div
+                        v-else-if="isAudio"
+                        class="flex w-full max-w-md flex-col items-center gap-6"
+                    >
+                        <IMusic class="size-12 text-muted-foreground" />
+                        <audio :key="file.id" :src="file.directUrl" controls class="w-full" />
+                    </div>
+                    <div v-else class="flex flex-col items-center gap-4">
+                        <component :is="getFileIcon(file)" class="size-12 text-muted-foreground" />
+                        <UiButton variant="outline" @click="openFile(file)">
+                            <IExternalLink />
+                            Open in new tab
+                        </UiButton>
+                    </div>
+
+                    <div
+                        v-if="isSensitive && !isRevealed"
+                        class="absolute inset-0 flex flex-col items-center justify-center gap-2"
+                    >
+                        <IShieldAlert class="size-8 text-destructive" />
+                        <TextBlock variant="small">Sensitive content detected</TextBlock>
+                        <UiButton variant="secondary" size="sm" @click="isRevealed = true">
+                            Reveal
+                        </UiButton>
+                    </div>
+
+                    <template v-if="files.length > 1">
+                        <UiButton
+                            v-if="prev"
+                            variant="outline"
+                            size="icon-sm"
+                            :class="cn('absolute top-1/2 left-3 -translate-y-1/2', overlayClass)"
+                            aria-label="Previous file"
+                            @click="fileId = prev.id"
+                        >
+                            <IChevronLeft />
+                        </UiButton>
+                        <UiButton
+                            v-if="hasNext"
+                            variant="outline"
+                            size="icon-sm"
+                            :class="cn('absolute top-1/2 right-3 -translate-y-1/2', overlayClass)"
+                            aria-label="Next file"
+                            @click="goNext"
+                        >
+                            <IChevronRight />
+                        </UiButton>
+                        <UiBadge
+                            v-if="index > -1"
+                            variant="secondary"
+                            :class="cn('absolute top-3 left-3 tabular-nums', overlayClass)"
+                        >
+                            {{ index + 1 }} / {{ total ?? files.length }}
+                        </UiBadge>
+                    </template>
                 </div>
 
                 <div
-                    v-if="isSensitive && !isRevealed"
-                    class="absolute inset-0 flex flex-col items-center justify-center gap-2"
+                    v-if="files.length > 1"
+                    ref="strip"
+                    :class="cn('no-scrollbar shrink-0 overflow-x-auto pt-2 pb-4', overlayClass)"
+                    @wheel="handleStripWheel"
                 >
-                    <IShieldAlert class="size-8 text-destructive" />
-                    <TextBlock variant="small">Sensitive content detected</TextBlock>
-                    <UiButton variant="secondary" size="sm" @click="isRevealed = true">
-                        Reveal
-                    </UiButton>
+                    <div
+                        class="relative mx-auto h-12"
+                        :style="{ width: `${stripVirtualizer.getTotalSize()}px` }"
+                    >
+                        <button
+                            v-for="item in stripItems"
+                            :key="item.file.id"
+                            type="button"
+                            :aria-label="item.file.fileName"
+                            :class="
+                                cn(
+                                    'absolute top-0 left-0 flex size-12 items-center justify-center overflow-hidden rounded-md bg-muted transition-opacity',
+                                    item.file.id === fileId
+                                        ? 'ring-2 ring-primary'
+                                        : 'opacity-50 hover:opacity-100',
+                                )
+                            "
+                            :style="{ transform: `translateX(${item.start}px)` }"
+                            @click="fileId = item.file.id"
+                        >
+                            <img
+                                v-if="
+                                    item.file.mimeType.startsWith('image/') ||
+                                    item.file.thumbnailUrl
+                                "
+                                :src="item.file.thumbnailUrl || item.file.directUrl"
+                                alt=""
+                                loading="lazy"
+                                draggable="false"
+                                :class="
+                                    cn(
+                                        'size-full object-cover',
+                                        isSensitiveFile(item.file) && 'blur-sm',
+                                    )
+                                "
+                            />
+                            <component
+                                :is="getFileIcon(item.file)"
+                                v-else
+                                class="size-5 text-muted-foreground"
+                            />
+                            <IPlay
+                                v-if="item.file.mimeType.startsWith('video/')"
+                                class="absolute size-4 fill-white text-white drop-shadow"
+                            />
+                        </button>
+                    </div>
                 </div>
-
-                <template v-if="files.length > 1">
-                    <UiButton
-                        v-if="prev"
-                        variant="outline"
-                        size="icon-sm"
-                        :class="cn('absolute top-1/2 left-3 -translate-y-1/2', overlayClass)"
-                        aria-label="Previous file"
-                        @click="fileId = prev.id"
-                    >
-                        <IChevronLeft />
-                    </UiButton>
-                    <UiButton
-                        v-if="hasNext"
-                        variant="outline"
-                        size="icon-sm"
-                        :class="cn('absolute top-1/2 right-3 -translate-y-1/2', overlayClass)"
-                        aria-label="Next file"
-                        @click="goNext"
-                    >
-                        <IChevronRight />
-                    </UiButton>
-                    <UiBadge
-                        v-if="index > -1"
-                        variant="secondary"
-                        :class="
-                            cn(
-                                'absolute bottom-3 left-1/2 -translate-x-1/2 tabular-nums',
-                                overlayClass,
-                            )
-                        "
-                    >
-                        {{ index + 1 }} / {{ total ?? files.length }}
-                    </UiBadge>
-                </template>
             </div>
 
             <div class="flex min-h-0 flex-col border-t lg:border-t-0 lg:border-l">
@@ -262,6 +319,8 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
+import { useVirtualizer } from '@tanstack/vue-virtual';
+
 import { IDownload, IExternalLink, IFolderMinus, ITrash2 } from '#components';
 
 const { files, total, hasMore, loadMore } = defineProps<{
@@ -280,6 +339,7 @@ const { $toast } = useNuxtApp();
 const { openFile, copyLink, download, move, remove } = useFileActions();
 
 const stage = useTemplateRef('stage');
+const strip = useTemplateRef('strip');
 const closeButton = useTemplateRef<any>('closeButton');
 
 const isZoomed = ref(false);
@@ -300,6 +360,33 @@ const index = computed(() => files.findIndex((f) => f.id === fileId.value));
 const prev = computed(() => files[index.value - 1]);
 const next = computed(() => files[index.value + 1]);
 const hasNext = computed(() => !!next.value || (index.value > -1 && hasMore));
+
+const stripVirtualizer = useVirtualizer(
+    computed(() => ({
+        count: files.length,
+        horizontal: true,
+        gap: 4,
+        overscan: 10,
+        paddingStart: 16,
+        paddingEnd: 16,
+        estimateSize: () => 48,
+        getKey: (i: number) => files[i]!.id,
+        getScrollElement: () => strip.value,
+    })),
+);
+
+const stripItems = computed(() =>
+    stripVirtualizer.value
+        .getVirtualItems()
+        .map((item) => ({ start: item.start, file: files[item.index]! })),
+);
+
+const handleStripWheel = (event: WheelEvent) => {
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+
+    event.preventDefault();
+    strip.value!.scrollLeft += event.deltaY;
+};
 
 const goNext = async () => {
     if (!next.value && hasMore) await loadMore?.();
@@ -340,13 +427,13 @@ const overlayClass = computed(() =>
     cn('transition-opacity', isZoomed.value && 'pointer-events-none opacity-0'),
 );
 
-const isSensitive = computed(
-    () =>
-        isImage.value &&
-        file.value!.piiDetected &&
-        currentUser.value!.aiSettings.suppressPii &&
-        publicSettings.value.aiEnabled,
-);
+const isSensitiveFile = (f: FileData) =>
+    f.mimeType.startsWith('image/') &&
+    f.piiDetected &&
+    currentUser.value!.aiSettings.suppressPii &&
+    publicSettings.value.aiEnabled;
+
+const isSensitive = computed(() => isSensitiveFile(file.value!));
 
 const hasInsights = computed(
     () => publicSettings.value.aiEnabled && (!!file.value!.caption || file.value!.piiDetected),
@@ -486,6 +573,27 @@ watch(
     () => currentFile.value && tab.value === 'edit',
     (value) => value && resetEditData(),
     { immediate: true },
+);
+
+watch(
+    [index, strip],
+    async ([value, el], [, oldEl]) => {
+        if (!el || value < 0) return;
+
+        await nextTick();
+        stripVirtualizer.value.scrollToIndex(value, {
+            align: 'center',
+            behavior: oldEl ? 'smooth' : 'auto',
+        });
+    },
+    { flush: 'post' },
+);
+
+watch(
+    () => stripVirtualizer.value.getVirtualItems().at(-1)?.index,
+    (last) => {
+        if (last !== undefined && hasMore && last >= files.length - 5) loadMore?.();
+    },
 );
 
 useSwipe(stage, {
