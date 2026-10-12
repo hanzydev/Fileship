@@ -19,6 +19,7 @@
                     >
                         <img
                             v-if="isImage"
+                            ref="media"
                             :src="file.thumbnailUrl || file.directUrl"
                             :alt="file.fileName"
                             loading="lazy"
@@ -29,14 +30,20 @@
                                     isSensitive && 'blur-2xl group-hover:blur-none',
                                 )
                             "
+                            @load="isLoaded = true"
+                            @error="isLoaded = true"
                         />
                         <img
                             v-else-if="isVideo && file.thumbnailUrl"
+                            ref="media"
                             :src="file.thumbnailUrl"
                             :alt="file.fileName"
                             loading="lazy"
                             class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            @load="isLoaded = true"
+                            @error="isLoaded = true"
                         />
+                        <UiSkeleton v-if="hasMedia && !isLoaded" class="absolute inset-0" />
                         <div v-else class="flex size-full items-center justify-center">
                             <component :is="fileIcon" class="size-10 text-muted-foreground" />
                         </div>
@@ -154,6 +161,10 @@ const publicSettings = usePublicSettings();
 
 const isImage = computed(() => file.mimeType.startsWith('image/'));
 const isVideo = computed(() => file.mimeType.startsWith('video/'));
+const hasMedia = computed(() => isImage.value || (isVideo.value && !!file.thumbnailUrl));
+
+const media = useTemplateRef<HTMLImageElement>('media');
+const isLoaded = ref(false);
 
 const isSensitive = computed(
     () =>
@@ -164,4 +175,8 @@ const isSensitive = computed(
 );
 
 const fileIcon = computed(() => getFileIcon(file));
+
+onMounted(() => {
+    if (media.value?.complete) isLoaded.value = true;
+});
 </script>
