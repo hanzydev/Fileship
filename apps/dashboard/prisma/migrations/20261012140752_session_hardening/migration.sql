@@ -2,10 +2,7 @@
 DELETE FROM "Session";
 
 -- DropForeignKey
-ALTER TABLE "Session" DROP CONSTRAINT "Session_userId_fkey";
-
--- DropIndex
-DROP INDEX "Session_privateId_key";
+ALTER TABLE "Session" DROP CONSTRAINT IF EXISTS "Session_userId_fkey";
 
 -- AlterTable
 ALTER TABLE "Session" DROP COLUMN "privateId",
