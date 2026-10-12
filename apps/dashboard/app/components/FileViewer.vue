@@ -72,7 +72,7 @@
                             v-if="prev"
                             variant="outline"
                             size="icon-sm"
-                            :class="cn('absolute top-1/2 left-3 -translate-y-1/2', overlayClass)"
+                            :class="cn('absolute inset-y-0 left-3 my-auto', overlayClass)"
                             aria-label="Previous file"
                             @click="fileId = prev.id"
                         >
@@ -82,7 +82,7 @@
                             v-if="hasNext"
                             variant="outline"
                             size="icon-sm"
-                            :class="cn('absolute top-1/2 right-3 -translate-y-1/2', overlayClass)"
+                            :class="cn('absolute inset-y-0 right-3 my-auto', overlayClass)"
                             aria-label="Next file"
                             @click="goNext"
                         >
