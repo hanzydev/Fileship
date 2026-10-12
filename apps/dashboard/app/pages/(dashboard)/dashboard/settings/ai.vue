@@ -18,6 +18,7 @@
                     <UiSwitch
                         id="ai-enabled"
                         :model-value="currentUser!.aiSettings.enabled"
+                        :disabled="isUpdating"
                         @update:model-value="handleUpdate({ enabled: $event })"
                     />
                 </UiField>
@@ -32,6 +33,7 @@
                     <UiSwitch
                         id="ai-pii"
                         :model-value="currentUser!.aiSettings.suppressPii"
+                        :disabled="isUpdating"
                         @update:model-value="handleUpdate({ suppressPii: $event })"
                     />
                 </UiField>
@@ -44,9 +46,12 @@
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
 
+const isUpdating = ref(false);
+
 const handleUpdate = async (body: { enabled?: boolean; suppressPii?: boolean }) => {
     const previous = { ...currentUser.value!.aiSettings };
     Object.assign(currentUser.value!.aiSettings, body);
+    isUpdating.value = true;
 
     try {
         await $fetch('/api/users/@me/ai-settings', { method: 'PATCH', body });
@@ -55,5 +60,7 @@ const handleUpdate = async (body: { enabled?: boolean; suppressPii?: boolean }) 
         currentUser.value!.aiSettings = previous;
         $toast.error(getErrorMessage(error));
     }
+
+    isUpdating.value = false;
 };
 </script>

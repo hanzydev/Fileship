@@ -69,9 +69,11 @@
                                                 variant="ghost"
                                                 size="icon-sm"
                                                 aria-label="Reset to default"
+                                                :disabled="resettingKey === field.key"
                                                 @click="handleReset(field.key)"
                                             >
-                                                <IRotateCcw />
+                                                <UiSpinner v-if="resettingKey === field.key" />
+                                                <IRotateCcw v-else />
                                             </UiButton>
                                             <UiSwitch
                                                 :id="field.key"
@@ -91,9 +93,13 @@
                                                             variant="ghost"
                                                             size="icon-xs"
                                                             aria-label="Reset to default"
+                                                            :disabled="resettingKey === field.key"
                                                             @click="handleReset(field.key)"
                                                         >
-                                                            <IRotateCcw />
+                                                            <UiSpinner
+                                                                v-if="resettingKey === field.key"
+                                                            />
+                                                            <IRotateCcw v-else />
                                                         </UiButton>
                                                     </UiTooltipTrigger>
                                                     <UiTooltipContent>
@@ -492,6 +498,7 @@ const { $toast } = useNuxtApp();
 
 const formErrors = ref();
 const savingSection = ref<string>();
+const resettingKey = ref<InstanceSettingKey>();
 const secret = ref('');
 
 const { data, refresh } = await useFetch('/api/settings');
@@ -897,6 +904,8 @@ const handleSave = async (section: SettingSection) => {
 };
 
 const handleReset = async (key: InstanceSettingKey) => {
+    resettingKey.value = key;
+
     try {
         const result = await withVerification((verificationData) =>
             $fetch('/api/settings', {
@@ -912,6 +921,8 @@ const handleReset = async (key: InstanceSettingKey) => {
     } catch (error) {
         $toast.error(getErrorMessage(error));
     }
+
+    resettingKey.value = undefined;
 };
 
 const handleOpenStorage = (storage?: StorageRow) => {

@@ -58,9 +58,11 @@
                                 v-if="item.id !== currentUser!.currentSessionId"
                                 variant="outline"
                                 size="sm"
+                                :disabled="revokingId === item.id"
                                 @click="handleRevoke(item)"
                             >
-                                <ILogOut />
+                                <UiSpinner v-if="revokingId === item.id" />
+                                <ILogOut v-else />
                                 Sign out
                             </UiButton>
                         </UiCardContent>
@@ -76,6 +78,7 @@ import dayjs from 'dayjs';
 
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
+const revokingId = ref<string | null>(null);
 
 const {
     items: sessions,
@@ -95,6 +98,8 @@ const sortedSessions = computed(() =>
 );
 
 const handleRevoke = async (session: SessionData) => {
+    revokingId.value = session.id;
+
     try {
         const result = await withVerification((verificationData) =>
             $fetch(`/api/users/@me/sessions/${session.id}`, {
@@ -107,6 +112,8 @@ const handleRevoke = async (session: SessionData) => {
     } catch (error: any) {
         $toast.error(getErrorMessage(error));
     }
+
+    revokingId.value = null;
 };
 
 const handleRevokeAll = async () => {

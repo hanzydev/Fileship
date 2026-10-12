@@ -21,16 +21,23 @@
                     variant="outline"
                     size="sm"
                     :aria-label="isAllSelected ? 'Deselect all' : 'Select all'"
-                    :disabled="isBusy"
+                    :disabled="!!busyAction"
                     @click="handleSelectAll"
                 >
-                    <IListX v-if="isAllSelected" />
+                    <UiSpinner v-if="busyAction === 'select'" />
+                    <IListX v-else-if="isAllSelected" />
                     <IListChecks v-else />
                     <span class="hidden sm:inline">
                         {{ isAllSelected ? 'Deselect all' : 'Select all' }}
                     </span>
                 </UiButton>
-                <UiButton variant="outline" size="sm" aria-label="Move" @click="handleMove">
+                <UiButton
+                    variant="outline"
+                    size="sm"
+                    aria-label="Move"
+                    :disabled="!!busyAction"
+                    @click="handleMove"
+                >
                     <IFolderInput />
                     <span class="hidden sm:inline">Move</span>
                 </UiButton>
@@ -38,10 +45,11 @@
                     variant="outline"
                     size="sm"
                     aria-label="Download"
-                    :disabled="isBusy"
+                    :disabled="!!busyAction"
                     @click="handleDownload"
                 >
-                    <IDownload />
+                    <UiSpinner v-if="busyAction === 'download'" />
+                    <IDownload v-else />
                     <span class="hidden sm:inline">Download</span>
                 </UiButton>
                 <UiButton
@@ -49,6 +57,7 @@
                     size="sm"
                     class="text-destructive hover:text-destructive"
                     aria-label="Delete"
+                    :disabled="!!busyAction"
                     @click="handleDelete"
                 >
                     <ITrash2 />
@@ -83,7 +92,7 @@ const uploadingFiles = useUploadingFiles();
 const { $toast } = useNuxtApp();
 const { download, remove } = useFileActions();
 
-const isBusy = ref(false);
+const busyAction = ref<'select' | 'download' | null>(null);
 const moveTargets = ref<Pick<FileData, 'id' | 'folderId'>[]>([]);
 
 const isAllSelected = computed(() => selected.value.length >= total);
@@ -99,7 +108,7 @@ const handleSelectAll = async () => {
         return;
     }
 
-    isBusy.value = true;
+    busyAction.value = 'select';
 
     try {
         selected.value = await $fetch('/api/files/ids', { query });
@@ -107,7 +116,7 @@ const handleSelectAll = async () => {
         $toast.error(getErrorMessage(error));
     }
 
-    isBusy.value = false;
+    busyAction.value = null;
 };
 
 const handleMove = () => {
@@ -123,7 +132,7 @@ const handleDownload = async () => {
     const loaded = items.filter((file) => selected.value.includes(file.id));
     const missing = selected.value.filter((id) => !loaded.some((file) => file.id === id));
 
-    isBusy.value = true;
+    busyAction.value = 'download';
 
     try {
         const chunks = Array.from({ length: Math.ceil(missing.length / 100) }, (_, index) =>
@@ -141,7 +150,7 @@ const handleDownload = async () => {
         $toast.error(getErrorMessage(error));
     }
 
-    isBusy.value = false;
+    busyAction.value = null;
 };
 
 const handleDelete = async () => {

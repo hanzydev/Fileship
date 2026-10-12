@@ -98,6 +98,8 @@ const handlePasskey = async () => {
         (m) => m.type === 'passkey',
     ) as any;
 
+    current.value!.isSubmitting = true;
+
     try {
         const authenticationResponse = await startAuthentication({
             optionsJSON: authenticationOptions,
@@ -105,6 +107,7 @@ const handlePasskey = async () => {
 
         verification.value!.submit({ type: 'passkey', data: { ticket, authenticationResponse } });
     } catch {
+        current.value!.isSubmitting = false;
         $toast.error('Failed to verify passkey');
     }
 };

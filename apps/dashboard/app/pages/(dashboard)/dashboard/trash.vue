@@ -9,8 +9,13 @@
             :description="`Items are deleted forever after ${pluralize(retentionDays, 'day')}. They still count toward your storage until then.`"
         >
             <template v-if="selected.length">
-                <UiButton variant="outline" @click="handleRestore(selected)">
-                    <IRotateCcw />
+                <UiButton
+                    variant="outline"
+                    :disabled="!!restoring.length"
+                    @click="handleRestore(selected)"
+                >
+                    <UiSpinner v-if="restoring.length" />
+                    <IRotateCcw v-else />
                     Restore {{ selected.length }}
                 </UiButton>
                 <UiButton variant="outline" @click="handleDeleteForever(selected)">
@@ -170,9 +175,11 @@
                         <UiButton
                             variant="ghost"
                             size="icon-sm"
+                            :disabled="restoring.includes(item.id)"
                             @click.stop="handleRestore([item.id])"
                         >
-                            <IRotateCcw />
+                            <UiSpinner v-if="restoring.includes(item.id)" />
+                            <IRotateCcw v-else />
                         </UiButton>
                         <UiButton
                             variant="ghost"
@@ -222,6 +229,7 @@ const search = ref('');
 const sort = ref({ key: 'deletedAt', desc: true });
 const selected = ref<string[]>([]);
 const viewerFileId = ref<string | null>(null);
+const restoring = ref<string[]>([]);
 
 const tabs = [
     { label: 'Files', value: 'files' },
@@ -297,7 +305,9 @@ const handleToggle = (id: string) => {
 };
 
 const handleRestore = async (ids: string[]) => {
+    restoring.value = [...restoring.value, ...ids];
     if (await restore({ [kind.value]: ids })) selected.value = [];
+    restoring.value = restoring.value.filter((id) => !ids.includes(id));
 };
 
 const handleDeleteForever = async (ids: string[]) => {

@@ -165,8 +165,14 @@
                 </div>
 
                 <div class="flex gap-2 px-6 pb-4">
-                    <UiButton v-if="trash" class="flex-1" @click="handleRestore">
-                        <IRotateCcw />
+                    <UiButton
+                        v-if="trash"
+                        class="flex-1"
+                        :disabled="isRestoring"
+                        @click="handleRestore"
+                    >
+                        <UiSpinner v-if="isRestoring" />
+                        <IRotateCcw v-else />
                         Restore
                     </UiButton>
                     <UiButton v-else class="flex-1" @click="copyLink(file)">
@@ -179,9 +185,11 @@
                                 :variant="action.destructive ? 'destructive' : 'outline'"
                                 size="icon"
                                 :aria-label="action.label"
-                                @click="action.run"
+                                :disabled="!!runningAction"
+                                @click="handleAction(action)"
                             >
-                                <component :is="action.icon" />
+                                <UiSpinner v-if="runningAction === action.label" />
+                                <component :is="action.icon" v-else />
                             </UiButton>
                         </UiTooltipTrigger>
                         <UiTooltipContent>{{ action.label }}</UiTooltipContent>
@@ -393,7 +401,20 @@ const goNext = async () => {
 const handleOpenFile = () =>
     trash ? window.open(file.value!.directUrl, '_blank') : openFile(file.value!);
 
-const handleRestore = () => restore({ files: [file.value!.id] });
+const isRestoring = ref(false);
+const runningAction = ref<string | null>(null);
+
+const handleRestore = async () => {
+    isRestoring.value = true;
+    await restore({ files: [file.value!.id] });
+    isRestoring.value = false;
+};
+
+const handleAction = async (action: { label: string; run: () => unknown }) => {
+    runningAction.value = action.label;
+    await action.run();
+    runningAction.value = null;
+};
 
 const handleDeleteForever = () =>
     askConfirmation({
