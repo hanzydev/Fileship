@@ -63,19 +63,36 @@
             :card-estimate-size="74"
             :loading="isLoading || isSwitching"
             :loading-more="isLoadingMore"
+            @row-click="handleRowClick"
             @reach-end="loadMore"
         >
             <template #cell-select="{ item }">
                 <UiCheckbox
                     :model-value="selected.includes(item.id)"
+                    @click.stop
                     @update:model-value="handleToggle(item.id)"
                 />
             </template>
             <template #cell-name="{ item }">
                 <div class="flex min-w-0 items-center gap-3">
-                    <component :is="getIcon(item)" class="size-4 shrink-0 text-muted-foreground" />
+                    <div
+                        v-if="item.mimeType"
+                        class="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted"
+                    >
+                        <FileThumbnail :file="item as any" />
+                    </div>
+                    <component
+                        :is="getIcon(item)"
+                        v-else
+                        class="size-4 shrink-0 text-muted-foreground"
+                    />
                     <span class="truncate font-medium">{{ item.name }}</span>
                 </div>
+            </template>
+            <template #cell-type="{ item }">
+                <UiBadge v-if="item.mimeType" variant="secondary">
+                    {{ FILE_CATEGORIES[getFileCategory(item as any)].label }}
+                </UiBadge>
             </template>
             <template #cell-details="{ item }">
                 <span class="block truncate text-muted-foreground">{{ getDetails(item) }}</span>
@@ -98,7 +115,7 @@
                 </span>
             </template>
             <template #cell-actions="{ item }">
-                <div class="flex justify-end">
+                <div class="flex justify-end" @click.stop>
                     <UiDropdownMenu>
                         <UiDropdownMenuTrigger as-child>
                             <UiButton variant="ghost" size="icon-sm">
@@ -126,14 +143,22 @@
                 <ListCardSkeleton media="size-4" />
             </template>
             <template #card="{ item }">
-                <UiCard size="sm">
+                <UiCard size="sm" @click="handleRowClick(item, $event)">
                     <UiCardContent class="flex min-h-8 items-center gap-3">
                         <UiCheckbox
                             :model-value="selected.includes(item.id)"
+                            @click.stop
                             @update:model-value="handleToggle(item.id)"
                         />
+                        <div
+                            v-if="item.mimeType"
+                            class="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted"
+                        >
+                            <FileThumbnail :file="item as any" />
+                        </div>
                         <component
                             :is="getIcon(item)"
+                            v-else
                             class="size-4 shrink-0 text-muted-foreground"
                         />
                         <div class="flex min-w-0 flex-1 flex-col">
@@ -142,13 +167,17 @@
                                 Deleted forever {{ dayjs(item.purgeAt).fromNow() }}
                             </TextBlock>
                         </div>
-                        <UiButton variant="ghost" size="icon-sm" @click="handleRestore([item.id])">
+                        <UiButton
+                            variant="ghost"
+                            size="icon-sm"
+                            @click.stop="handleRestore([item.id])"
+                        >
                             <IRotateCcw />
                         </UiButton>
                         <UiButton
                             variant="ghost"
                             size="icon-sm"
-                            @click="handleDeleteForever([item.id])"
+                            @click.stop="handleDeleteForever([item.id])"
                         >
                             <ITrash2 />
                         </UiButton>
@@ -156,6 +185,15 @@
                 </UiCard>
             </template>
         </DataTable>
+
+        <FileViewer
+            v-model:file-id="viewerFileId"
+            trash
+            :files="trashedFiles"
+            :total="total"
+            :has-more="hasMore"
+            :load-more="loadMore"
+        />
     </div>
 </template>
 
@@ -183,6 +221,7 @@ const kind = useQueryState<TrashKind>('kind', 'files');
 const search = ref('');
 const sort = ref({ key: 'deletedAt', desc: true });
 const selected = ref<string[]>([]);
+const viewerFileId = ref<string | null>(null);
 
 const tabs = [
     { label: 'Files', value: 'files' },
@@ -193,23 +232,29 @@ const tabs = [
 const columns = computed(() => [
     { key: 'select', label: '', class: 'w-10' },
     { key: 'name', label: 'Name', sortable: true },
+    ...(kind.value === 'files'
+        ? [{ key: 'type', label: 'Type', class: 'hidden w-32 lg:table-cell' }]
+        : []),
     ...(kind.value === 'notes'
         ? []
-        : [{ key: 'details', label: '', class: 'hidden w-32 lg:table-cell' }]),
+        : [
+              {
+                  key: 'details',
+                  label: kind.value === 'files' ? 'Size' : 'Files',
+                  class: 'hidden w-28 md:table-cell',
+              },
+          ]),
     { key: 'deletedAt', label: 'Deleted', sortable: true, descFirst: true, class: 'w-36' },
     { key: 'purgeAt', label: 'Deleted forever', class: 'hidden w-36 md:table-cell' },
     { key: 'actions', label: '', class: 'w-16' },
 ]);
 
-const { items, isLoading, isLoadingMore, isFresh, loadMore } = usePaginatedList<TrashItem>(
-    'trash',
-    '/api/trash',
-    () => ({
+const { items, total, hasMore, isLoading, isLoadingMore, isFresh, loadMore } =
+    usePaginatedList<TrashItem>('trash', '/api/trash', () => ({
         kind: kind.value,
         q: search.value.trim(),
         sort: `${sort.value.key}:${sort.value.desc ? 'desc' : 'asc'}`,
-    }),
-);
+    }));
 
 const isSwitching = ref(false);
 
@@ -234,6 +279,16 @@ const getIcon = (item: TrashItem) =>
 
 const getDetails = (item: TrashItem) =>
     item.size?.formatted ?? pluralize(item.fileCount ?? 0, 'file');
+
+const trashedFiles = computed(() =>
+    kind.value === 'files' && !isSwitching.value ? (items.value as unknown as FileData[]) : [],
+);
+
+const handleRowClick = (item: TrashItem, event: MouseEvent) => {
+    if (kind.value === 'files' && !selected.value.length && !event.shiftKey && !event.ctrlKey)
+        viewerFileId.value = item.id;
+    else handleToggle(item.id);
+};
 
 const handleToggle = (id: string) => {
     selected.value = selected.value.includes(id)

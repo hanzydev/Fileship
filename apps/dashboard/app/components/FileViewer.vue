@@ -165,7 +165,11 @@
                 </div>
 
                 <div class="flex gap-2 px-6 pb-4">
-                    <UiButton class="flex-1" @click="copyLink(file)">
+                    <UiButton v-if="trash" class="flex-1" @click="handleRestore">
+                        <IRotateCcw />
+                        Restore
+                    </UiButton>
+                    <UiButton v-else class="flex-1" @click="copyLink(file)">
                         <ILink />
                         Copy link
                     </UiButton>
@@ -188,7 +192,7 @@
                     <UiTabs v-model="tab">
                         <UiTabsList class="w-full">
                             <UiTabsTrigger value="details">Details</UiTabsTrigger>
-                            <UiTabsTrigger value="edit">Edit</UiTabsTrigger>
+                            <UiTabsTrigger v-if="!trash" value="edit">Edit</UiTabsTrigger>
                             <UiTabsTrigger v-if="hasInsights" value="insights">
                                 <ISparkles />
                                 Insights
@@ -204,7 +208,7 @@
                             </dl>
                         </UiTabsContent>
 
-                        <UiTabsContent value="edit">
+                        <UiTabsContent v-if="!trash" value="edit">
                             <form class="py-2" @submit.prevent="handleSave">
                                 <UiFieldGroup>
                                     <UiField :data-invalid="!!formErrors?.fileName">
@@ -311,11 +315,12 @@ import { useVirtualizer } from '@tanstack/vue-virtual';
 
 import { IDownload, IExternalLink, IFolderMinus, ITrash2 } from '#components';
 
-const { files, total, hasMore, loadMore } = defineProps<{
+const { files, total, hasMore, loadMore, trash } = defineProps<{
     files: FileData[];
     total?: number;
     hasMore?: boolean;
     loadMore?: () => Promise<unknown>;
+    trash?: boolean;
 }>();
 
 const fileId = defineModel<string | null>('fileId', { required: true });
@@ -325,6 +330,7 @@ const currentUser = useAuthUser();
 const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
 const { openFile, copyLink, download, move, remove } = useFileActions();
+const { restore } = useTrash();
 
 const stage = useTemplateRef('stage');
 const strip = useTemplateRef('strip');
@@ -384,28 +390,61 @@ const goNext = async () => {
     if (target) fileId.value = target.id;
 };
 
+const handleRestore = () => restore({ files: [file.value!.id] });
+
+const handleDeleteForever = () =>
+    askConfirmation({
+        title: `Delete ${file.value!.fileName} forever?`,
+        description: 'This action cannot be undone.',
+        confirmText: 'Delete forever',
+        destructive: true,
+        action: async () => {
+            try {
+                await $fetch('/api/trash/delete', {
+                    method: 'POST',
+                    body: { files: [file.value!.id] },
+                });
+
+                $toast.success('Deleted forever');
+            } catch (error: any) {
+                $toast.error(getErrorMessage(error));
+                return false;
+            }
+        },
+    });
+
 const footerActions = computed(() =>
-    file.value
-        ? [
-              { label: 'Open', icon: IExternalLink, run: () => openFile(file.value!) },
-              { label: 'Download', icon: IDownload, run: () => download([file.value!]) },
-              ...(file.value.folderId
-                  ? [
-                        {
-                            label: 'Remove from folder',
-                            icon: IFolderMinus,
-                            run: () => move([file.value!], null),
-                        },
-                    ]
-                  : []),
-              {
-                  label: 'Delete',
-                  icon: ITrash2,
-                  destructive: true,
-                  run: () => remove([file.value!]),
-              },
-          ]
-        : [],
+    !file.value
+        ? []
+        : trash
+          ? [
+                { label: 'Download', icon: IDownload, run: () => download([file.value!]) },
+                {
+                    label: 'Delete forever',
+                    icon: ITrash2,
+                    destructive: true,
+                    run: handleDeleteForever,
+                },
+            ]
+          : [
+                { label: 'Open', icon: IExternalLink, run: () => openFile(file.value!) },
+                { label: 'Download', icon: IDownload, run: () => download([file.value!]) },
+                ...(file.value.folderId
+                    ? [
+                          {
+                              label: 'Remove from folder',
+                              icon: IFolderMinus,
+                              run: () => move([file.value!], null),
+                          },
+                      ]
+                    : []),
+                {
+                    label: 'Delete',
+                    icon: ITrash2,
+                    destructive: true,
+                    run: () => remove([file.value!]),
+                },
+            ],
 );
 
 const isImage = computed(() => file.value!.mimeType.startsWith('image/'));
@@ -604,7 +643,7 @@ watch(
 
         if (value && currentFile.value) resetEditData();
 
-        if (value && !currentFile.value) {
+        if (value && !currentFile.value && !trash) {
             const result = await $fetch('/api/files', { query: { ids: value, limit: 1 } }).catch(
                 () => null,
             );
@@ -671,7 +710,7 @@ onKeyStroke(['ArrowLeft', 'ArrowRight'], (event) => {
 });
 
 useListHandle({
-    resource: 'files',
+    resource: trash ? 'trash' : 'files',
     refresh: () => null,
     map: (fn) => fallbackFile.value && (fallbackFile.value = fn(fallbackFile.value)),
     remove: (ids) =>

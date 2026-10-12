@@ -1,4 +1,3 @@
-import { filesize } from 'filesize';
 import { z } from 'zod';
 
 export default defineEventHandler(async (event) => {
@@ -28,17 +27,22 @@ export default defineEventHandler(async (event) => {
             prisma.file.findMany({
                 where,
                 orderBy: [field === 'name' ? { fileName: dir } : { deletedAt: dir }, { id: 'asc' }],
-                select: { id: true, fileName: true, mimeType: true, size: true, deletedAt: true },
+                include: {
+                    folder: { select: { id: true, name: true } },
+                    _count: { select: { views: true } },
+                },
+                omit: { embedding: true, textEmbedding: true, ocrText: true },
                 ...page,
             }),
             prisma.file.count({ where }),
         ]);
 
+        const todayViews = await getTodayViews(files.map((file) => file.id));
+
         return {
             items: files.map((file) => ({
+                ...serializeFile(event, file, [], todayViews.get(file.id)),
                 ...serialize(file, file.fileName),
-                mimeType: file.mimeType,
-                size: { raw: file.size.toString(), formatted: filesize(file.size) },
             })),
             total,
         };

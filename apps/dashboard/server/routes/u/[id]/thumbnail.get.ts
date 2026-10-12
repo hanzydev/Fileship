@@ -8,7 +8,6 @@ export default defineEventHandler(async (event) => {
 
     const findFileById = await prisma.file.findFirst({
         where: {
-            deletedAt: null,
             OR: [
                 {
                     id: fileNameOrId,
@@ -27,7 +26,7 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    if (!findFileById) {
+    if (!findFileById || (findFileById.deletedAt && findFileById.authorId !== currentUser?.id)) {
         throw createError({
             status: 404,
             message: 'File not found',
