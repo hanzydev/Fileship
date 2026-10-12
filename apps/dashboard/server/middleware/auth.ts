@@ -22,12 +22,12 @@ export default defineEventHandler(async (event) => {
         return;
     }
 
-    const origin = getRequestHeader(event, 'origin');
+    const fetchSite = getRequestHeader(event, 'sec-fetch-site');
 
     if (
         !['GET', 'HEAD', 'OPTIONS'].includes(event.method) &&
-        origin &&
-        origin.replace(/^https?:\/\//, '') !== getRequestHost(event, { xForwardedHost: true })
+        fetchSite &&
+        !['same-origin', 'none'].includes(fetchSite)
     ) {
         throw createError({
             status: 403,
