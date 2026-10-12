@@ -33,97 +33,110 @@
     </UiCard>
 
     <UiCard>
-        <form class="contents" @submit.prevent="handleDownload">
-            <UiCardHeader>
-                <UiCardTitle>ShareX</UiCardTitle>
-                <UiCardDescription>
-                    Generate a custom uploader config to upload straight from ShareX.
-                </UiCardDescription>
-            </UiCardHeader>
-            <UiCardContent>
-                <UiFieldGroup>
+        <UiCardHeader>
+            <UiCardTitle>Upload options</UiCardTitle>
+            <UiCardDescription>
+                Applied to every config and script you download below.
+            </UiCardDescription>
+        </UiCardHeader>
+        <UiCardContent>
+            <UiFieldGroup>
+                <UiField>
+                    <UiFieldLabel>File name</UiFieldLabel>
+                    <UiTabs v-model="settings.fileNameType">
+                        <UiTabsList class="w-full">
+                            <UiTabsTrigger
+                                v-for="type in ['Random', 'UUID', 'Original']"
+                                :key="type"
+                                :value="type"
+                            >
+                                {{ type }}
+                            </UiTabsTrigger>
+                        </UiTabsList>
+                    </UiTabs>
+                </UiField>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <UiField>
-                        <UiFieldLabel>File name</UiFieldLabel>
-                        <UiTabs v-model="settings.fileNameType">
-                            <UiTabsList class="w-full">
-                                <UiTabsTrigger
-                                    v-for="type in ['Random', 'UUID', 'Original']"
-                                    :key="type"
-                                    :value="type"
+                        <UiFieldLabel>Expiration</UiFieldLabel>
+                        <UiSelect v-model="settings.expiration">
+                            <UiSelectTrigger class="w-full">
+                                <UiSelectValue />
+                            </UiSelectTrigger>
+                            <UiSelectContent>
+                                <UiSelectItem
+                                    v-for="option in EXPIRATIONS"
+                                    :key="option.label"
+                                    :value="option.label"
                                 >
-                                    {{ type }}
-                                </UiTabsTrigger>
-                            </UiTabsList>
-                        </UiTabs>
+                                    {{ option.label }}
+                                </UiSelectItem>
+                            </UiSelectContent>
+                        </UiSelect>
                     </UiField>
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <UiField>
-                            <UiFieldLabel>Expiration</UiFieldLabel>
-                            <UiSelect v-model="settings.expiration">
-                                <UiSelectTrigger class="w-full">
-                                    <UiSelectValue />
-                                </UiSelectTrigger>
-                                <UiSelectContent>
-                                    <UiSelectItem
-                                        v-for="option in EXPIRATIONS"
-                                        :key="option.label"
-                                        :value="option.label"
-                                    >
-                                        {{ option.label }}
-                                    </UiSelectItem>
-                                </UiSelectContent>
-                            </UiSelect>
-                        </UiField>
-                        <UiField>
-                            <UiFieldLabel>Compression</UiFieldLabel>
-                            <UiSelect v-model="settings.compression">
-                                <UiSelectTrigger class="w-full">
-                                    <UiSelectValue />
-                                </UiSelectTrigger>
-                                <UiSelectContent>
-                                    <UiSelectItem
-                                        v-for="option in COMPRESSIONS"
-                                        :key="option.value"
-                                        :value="option.value"
-                                    >
-                                        {{ option.label }}
-                                    </UiSelectItem>
-                                </UiSelectContent>
-                            </UiSelect>
-                        </UiField>
-                        <UiField>
-                            <UiFieldLabel>Max views</UiFieldLabel>
-                            <UiNumberField v-model="settings.maxViews" :min="0">
-                                <UiNumberFieldContent>
-                                    <UiNumberFieldDecrement />
-                                    <UiNumberFieldInput />
-                                    <UiNumberFieldIncrement />
-                                </UiNumberFieldContent>
-                            </UiNumberField>
-                        </UiField>
-                        <UiField>
-                            <UiFieldLabel for="sharex-password">Password</UiFieldLabel>
-                            <PasswordInput
-                                id="sharex-password"
-                                v-model="settings.password"
-                                placeholder="Optional"
-                            />
-                        </UiField>
-                    </div>
-                </UiFieldGroup>
-            </UiCardContent>
-            <UiCardFooter
-                class="flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center"
-            >
-                <TextBlock variant="muted" class="text-xs">
-                    The config contains your upload token. Do not share it.
-                </TextBlock>
-                <UiButton type="submit" :disabled="!uploadToken">
+                    <UiField>
+                        <UiFieldLabel>Compression</UiFieldLabel>
+                        <UiSelect v-model="settings.compression">
+                            <UiSelectTrigger class="w-full">
+                                <UiSelectValue />
+                            </UiSelectTrigger>
+                            <UiSelectContent>
+                                <UiSelectItem
+                                    v-for="option in COMPRESSIONS"
+                                    :key="option.value"
+                                    :value="option.value"
+                                >
+                                    {{ option.label }}
+                                </UiSelectItem>
+                            </UiSelectContent>
+                        </UiSelect>
+                    </UiField>
+                    <UiField>
+                        <UiFieldLabel>Max views</UiFieldLabel>
+                        <UiNumberField v-model="settings.maxViews" :min="0">
+                            <UiNumberFieldContent>
+                                <UiNumberFieldDecrement />
+                                <UiNumberFieldInput />
+                                <UiNumberFieldIncrement />
+                            </UiNumberFieldContent>
+                        </UiNumberField>
+                    </UiField>
+                    <UiField>
+                        <UiFieldLabel for="upload-password">Password</UiFieldLabel>
+                        <PasswordInput
+                            id="upload-password"
+                            v-model="settings.password"
+                            placeholder="Optional"
+                        />
+                    </UiField>
+                </div>
+                <UiField>
+                    <UiFieldLabel>Folder</UiFieldLabel>
+                    <FolderPicker v-model="settings.folderId" />
+                </UiField>
+            </UiFieldGroup>
+        </UiCardContent>
+    </UiCard>
+
+    <UiCard v-for="integration in integrations" :key="integration.name">
+        <UiCardHeader>
+            <UiCardTitle>{{ integration.name }}</UiCardTitle>
+            <UiCardDescription>{{ integration.description }}</UiCardDescription>
+            <UiCardAction>
+                <UiButton
+                    variant="outline"
+                    :disabled="!uploadToken"
+                    @click="handleDownload(integration)"
+                >
                     <IDownload />
-                    Download config
+                    Download
                 </UiButton>
-            </UiCardFooter>
-        </form>
+            </UiCardAction>
+        </UiCardHeader>
+        <UiCardContent>
+            <ol class="flex list-decimal flex-col gap-1 pl-5 text-sm text-muted-foreground">
+                <li v-for="step in integration.steps" :key="step">{{ step }}</li>
+            </ol>
+        </UiCardContent>
     </UiCard>
 </template>
 
@@ -141,34 +154,68 @@ const settings = reactive({
     compression: 0,
     maxViews: 0,
     password: '',
+    folderId: null as string | null,
 });
 
-const handleDownload = () => {
-    const config = {
-        Version: '16.1.0',
-        Name: `${publicSettings.value.siteName} - File Uploader`,
-        DestinationType: 'ImageUploader, TextUploader, FileUploader',
-        RequestMethod: 'POST',
-        RequestURL: `${requestUrl.origin}/api/files`,
-        Headers: {
-            Authorization: `Bearer ${uploadToken.value!.token}`,
-        },
-        URL: '{json:url}',
-        ErrorMessage: '{json:message}',
-        Body: 'MultipartFormData',
-        FileFormName: 'file',
-        Arguments: {
-            fileNameType: settings.fileNameType,
-            password: settings.password || null,
-            expiration: EXPIRATIONS.find((e) => e.label === settings.expiration)!.value,
-            maxViews: settings.maxViews,
-            compression: settings.compression,
-        },
+const integrations = [
+    {
+        name: 'ShareX',
+        description: 'A custom uploader for ShareX on Windows.',
+        fileName: 'FileUploader.sxcu',
+        steps: [
+            'Download the config and open it, ShareX imports it as a custom uploader.',
+            'In ShareX, set Destinations → Image, Text and File uploader to Custom uploader.',
+        ],
+        build: buildShareXConfig,
+    },
+    {
+        name: 'macOS',
+        description: 'A shell script that uploads a screenshot or files and copies the link.',
+        fileName: 'fileship.sh',
+        steps: [
+            'Download the script and make it executable with chmod +x fileship.sh.',
+            'Run it without arguments to capture a region, or pass files to upload them.',
+            'For a keyboard shortcut, run it from a Shortcuts "Run Shell Script" action and allow screen recording when asked.',
+        ],
+        build: (options: IntegrationOptions) => buildUnixScript('macos', options),
+    },
+    {
+        name: 'Linux',
+        description: 'A shell script that uploads a screenshot or files and copies the link.',
+        fileName: 'fileship.sh',
+        steps: [
+            'Install curl, a screenshot tool (grim and slurp, flameshot, maim, gnome-screenshot or spectacle) and wl-clipboard or xclip.',
+            'Download the script and make it executable with chmod +x fileship.sh.',
+            'Run it without arguments to capture a region, or pass files to upload them. Bind it to a shortcut in your desktop settings.',
+        ],
+        build: (options: IntegrationOptions) => buildUnixScript('linux', options),
+    },
+];
+
+const fields = computed(() => {
+    const expiration = EXPIRATIONS.find((e) => e.label === settings.expiration)!.value;
+
+    return {
+        fileNameType: settings.fileNameType,
+        maxViews: settings.maxViews,
+        compression: settings.compression,
+        ...(expiration && { expiration }),
+        ...(settings.password && { password: settings.password }),
+        ...(settings.folderId && { folderId: settings.folderId }),
     };
+});
+
+const handleDownload = (integration: (typeof integrations)[number]) => {
+    const content = integration.build({
+        name: `${publicSettings.value.siteName} - File Uploader`,
+        url: `${requestUrl.origin}/api/files`,
+        token: uploadToken.value!.token,
+        fields: fields.value,
+    });
 
     downloadFile(
-        URL.createObjectURL(new Blob([JSON.stringify(config)], { type: 'application/json' })),
-        'FileUploader.sxcu',
+        URL.createObjectURL(new Blob([content], { type: 'text/plain' })),
+        integration.fileName,
     );
 };
 
