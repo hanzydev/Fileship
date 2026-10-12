@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import type { ListboxFilterProps } from 'reka-ui'
-
+import { ListboxFilter, useForwardProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
+
 import { SearchIcon } from '@lucide/vue'
 import { reactiveOmit } from '@vueuse/core'
-import { ListboxFilter, useForwardProps } from 'reka-ui'
-import { cn } from '@/utils'
-import { InputGroup, InputGroupAddon } from '@/components/ui/input-group'
+
 import { useCommand } from '.'
+
+import { InputGroup, InputGroupAddon } from '@/components/ui/input-group'
+import { cn } from '@/utils'
 
 defineOptions({
   inheritAttrs: false,

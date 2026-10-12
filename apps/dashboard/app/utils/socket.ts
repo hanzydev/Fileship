@@ -80,7 +80,7 @@ export const initSocket = () => {
 
         socket.on('deleteAll', () => {
             clearStates();
-            refreshLists('files', 'folders', 'notes', 'backups');
+            refreshLists('files', 'folders', 'notes', 'backups', 'links');
         });
 
         // Sessions
@@ -139,6 +139,14 @@ export const initSocket = () => {
         socket.on('folder:delete', (folderId) => {
             removeListItems('folders', [folderId]);
             refreshLists('folders', 'files');
+        });
+
+        // Links
+        socket.on('link:create', () => refreshLists('links'));
+        socket.on('link:update', (data) => patchListItem('links', data));
+        socket.on('link:delete', (linkId) => {
+            removeListItems('links', [linkId]);
+            refreshLists('links');
         });
 
         // Trash

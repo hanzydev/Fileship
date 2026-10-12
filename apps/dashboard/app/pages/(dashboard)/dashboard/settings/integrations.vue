@@ -3,8 +3,8 @@
         <UiCardHeader>
             <UiCardTitle>Upload token</UiCardTitle>
             <UiCardDescription>
-                Used by ShareX and the upload scripts. It can only upload files, but keep it
-                private.
+                Used by ShareX and the upload scripts. It can only upload files and shorten links,
+                but keep it private.
             </UiCardDescription>
             <UiCardAction>
                 <UiButton variant="outline" @click="handleRegenerate">
@@ -142,6 +142,7 @@
 
 <script setup lang="ts">
 const publicSettings = usePublicSettings();
+const authUser = useAuthUser();
 const requestUrl = useRequestURL();
 const { $toast } = useNuxtApp();
 const { copy } = useClipboard({ legacy: true });
@@ -157,7 +158,7 @@ const settings = reactive({
     folderId: null as string | null,
 });
 
-const integrations = [
+const integrations = computed(() => [
     {
         name: 'ShareX',
         description: 'A custom uploader for ShareX on Windows.',
@@ -168,6 +169,20 @@ const integrations = [
         ],
         build: buildShareXConfig,
     },
+    ...(canShortenLinks(authUser.value)
+        ? [
+              {
+                  name: 'ShareX URL shortener',
+                  description: 'Shortens links from ShareX with your short links.',
+                  fileName: 'fileship-shortener.sxcu',
+                  steps: [
+                      'Download the config and open it, ShareX imports it as a custom URL shortener.',
+                      'In ShareX, set Destinations → URL shortener to Custom URL shortener.',
+                  ],
+                  build: buildShareXShortenerConfig,
+              },
+          ]
+        : []),
     {
         name: 'macOS',
         description: 'A shell script that uploads a screenshot or files and copies the link.',
@@ -175,6 +190,9 @@ const integrations = [
         steps: [
             'Download the script and make it executable with chmod +x fileship.sh.',
             'Run it without arguments to capture a region, or pass files to upload them.',
+            ...(canShortenLinks(authUser.value)
+                ? ['Run it with --link and a URL to shorten the link.']
+                : []),
             'For a keyboard shortcut, run it from a Shortcuts "Run Shell Script" action and allow screen recording when asked.',
         ],
         build: (options: IntegrationOptions) => buildUnixScript('macos', options),
@@ -187,10 +205,13 @@ const integrations = [
             'Install curl, a screenshot tool (grim and slurp, flameshot, maim, gnome-screenshot or spectacle) and wl-clipboard or xclip.',
             'Download the script and make it executable with chmod +x fileship.sh.',
             'Run it without arguments to capture a region, or pass files to upload them. Bind it to a shortcut in your desktop settings.',
+            ...(canShortenLinks(authUser.value)
+                ? ['Run it with --link and a URL to shorten the link.']
+                : []),
         ],
         build: (options: IntegrationOptions) => buildUnixScript('linux', options),
     },
-];
+]);
 
 const fields = computed(() => {
     const expiration = EXPIRATIONS.find((e) => e.label === settings.expiration)!.value;
@@ -205,10 +226,11 @@ const fields = computed(() => {
     };
 });
 
-const handleDownload = (integration: (typeof integrations)[number]) => {
+const handleDownload = (integration: (typeof integrations.value)[number]) => {
     const content = integration.build({
-        name: `${publicSettings.value.siteName} - File Uploader`,
+        name: `${publicSettings.value.siteName} - ${integration.fileName.includes('shortener') ? 'URL Shortener' : 'File Uploader'}`,
         url: `${requestUrl.origin}/api/files`,
+        linkUrl: canShortenLinks(authUser.value) ? `${requestUrl.origin}/api/links` : undefined,
         token: uploadToken.value!.token,
         fields: fields.value,
     });

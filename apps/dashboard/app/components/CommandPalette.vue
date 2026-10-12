@@ -101,6 +101,7 @@ import {
     IFolder,
     IFolderPlus,
     IHome,
+    ILink,
     IMoon,
     IServer,
     ISettings,
@@ -160,6 +161,9 @@ const pages = computed(() => [
     ...(canTakeNotes(authUser.value)
         ? [{ label: 'Notes', url: '/dashboard/notes', icon: IBookmark }]
         : []),
+    ...(canShortenLinks(authUser.value)
+        ? [{ label: 'Links', url: '/dashboard/links', icon: ILink }]
+        : []),
     ...(trash.isEnabled.value && (canUploadFiles(authUser.value) || canTakeNotes(authUser.value))
         ? [{ label: 'Trash', url: '/dashboard/trash', icon: ITrash2 }]
         : []),
@@ -194,6 +198,15 @@ const actions = computed(() => [
         : []),
     ...(canTakeNotes(authUser.value)
         ? [{ label: 'New note', icon: ISquarePen, run: () => navigateTo('/dashboard/notes/new') }]
+        : []),
+    ...(canShortenLinks(authUser.value)
+        ? [
+              {
+                  label: 'Shorten link',
+                  icon: ILink,
+                  run: () => navigateTo('/dashboard/links?new=1'),
+              },
+          ]
         : []),
     {
         label: colorMode.value === 'dark' ? 'Switch to light mode' : 'Switch to dark mode',

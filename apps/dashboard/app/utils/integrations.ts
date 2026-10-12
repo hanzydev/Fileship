@@ -1,6 +1,7 @@
 export interface IntegrationOptions {
     name: string;
     url: string;
+    linkUrl?: string;
     token: string;
     fields: Record<string, string | number>;
 }
@@ -21,6 +22,24 @@ export const buildShareXConfig = ({ name, url, token, fields }: IntegrationOptio
             Body: 'MultipartFormData',
             FileFormName: 'file',
             Arguments: fields,
+        },
+        null,
+        2,
+    );
+
+export const buildShareXShortenerConfig = ({ name, linkUrl, token }: IntegrationOptions) =>
+    JSON.stringify(
+        {
+            Version: '16.1.0',
+            Name: name,
+            DestinationType: 'URLShortener',
+            RequestMethod: 'POST',
+            RequestURL: linkUrl,
+            Headers: { Authorization: `Bearer ${token}` },
+            Body: 'JSON',
+            Data: '{"url":"{input}"}',
+            URL: '{json:shortUrl}',
+            ErrorMessage: '{json:message}',
         },
         null,
         2,
@@ -65,7 +84,7 @@ const platforms = {
 
 export const buildUnixScript = (
     platform: keyof typeof platforms,
-    { url, token, fields }: IntegrationOptions,
+    { url, linkUrl, token, fields }: IntegrationOptions,
 ) => {
     const { capture, copy, notify } = platforms[platform];
 
@@ -84,6 +103,24 @@ export const buildUnixScript = (
         `    ${notify}`,
         '}',
         '',
+        ...(linkUrl
+            ? [
+                  `if [ "\${1:-}" = "--link" ]; then`,
+                  '    response=$(curl -fsS -H "Authorization: Bearer $token" \\',
+                  '        -H "Content-Type: application/json" \\',
+                  `        -d "{\\"url\\":\\"$2\\"}" ${shellQuote(linkUrl)}) || {`,
+                  '        notify "Shortening failed"',
+                  '        exit 1',
+                  '    }',
+                  `    link=$(printf %s "$response" | sed -n 's/.*"shortUrl": *"\\([^"]*\\)".*/\\1/p')`,
+                  '    echo "$link"',
+                  '    copy "$link"',
+                  '    notify "Link copied to clipboard"',
+                  '    exit 0',
+                  'fi',
+                  '',
+              ]
+            : []),
         'if [ "$#" -eq 0 ]; then',
         '    file="${TMPDIR:-/tmp}/fileship-$$.png"',
         `    trap 'rm -f "$file"' EXIT`,

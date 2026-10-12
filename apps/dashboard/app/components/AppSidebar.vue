@@ -179,6 +179,7 @@ import {
     IFiles,
     IFolder,
     IHome,
+    ILink,
     IMonitor,
     IMoon,
     IServer,
@@ -242,6 +243,10 @@ const items = computed(() => {
 
     if (canTakeNotes(authUser.value)) {
         categories[0]!.children.push({ title: 'Notes', url: '/dashboard/notes', icon: IBookmark });
+    }
+
+    if (canShortenLinks(authUser.value)) {
+        categories[0]!.children.push({ title: 'Links', url: '/dashboard/links', icon: ILink });
     }
 
     if (trash.isEnabled.value && (canUploadFiles(authUser.value) || canTakeNotes(authUser.value))) {
