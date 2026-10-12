@@ -11,7 +11,7 @@
             >
                 <div
                     ref="stage"
-                    class="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-2 pt-10 pb-2 lg:px-16 lg:py-10"
+                    class="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-2 pt-10 pb-2 [container-type:size] lg:px-16 lg:py-10"
                     @click.self="handleBackdropClick"
                 >
                     <div
@@ -19,7 +19,9 @@
                         class="flex size-full items-center justify-center overflow-hidden"
                         @click.self="handleBackdropClick"
                     >
+                        <UiSkeleton v-if="hasPlaceholder && !isLoaded" :style="mediaBoxStyle" />
                         <img
+                            v-show="isLoaded || !hasPlaceholder"
                             :src="file.directUrl"
                             :alt="file.fileName"
                             draggable="false"
@@ -33,16 +35,24 @@
                             "
                             @click="handleZoom"
                             @pointermove="isZoomed && setZoomOrigin($event)"
+                            @load="loadedId = file.id"
+                            @error="loadedId = file.id"
                         />
                     </div>
-                    <video
-                        v-else-if="isVideo"
-                        :key="file.id"
-                        :src="file.directUrl"
-                        :poster="file.thumbnailUrl || undefined"
-                        controls
-                        class="max-h-full max-w-full"
-                    />
+                    <template v-else-if="isVideo">
+                        <UiSkeleton v-if="hasPlaceholder && !isLoaded" :style="mediaBoxStyle" />
+                        <video
+                            v-show="isLoaded || !hasPlaceholder"
+                            :key="file.id"
+                            :src="file.directUrl"
+                            :poster="file.thumbnailUrl || undefined"
+                            controls
+                            class="max-h-full max-w-full"
+                            :style="hasPlaceholder && mediaBoxStyle"
+                            @loadedmetadata="loadedId = file.id"
+                            @error="loadedId = file.id"
+                        />
+                    </template>
                     <div
                         v-else-if="isAudio"
                         class="flex w-full max-w-md flex-col items-center gap-6"
@@ -322,6 +332,7 @@ const closeButton = useTemplateRef<any>('closeButton');
 
 const isZoomed = ref(false);
 const isRevealed = ref(false);
+const loadedId = ref<string>();
 const isSaving = ref(false);
 const zoomOrigin = ref('center');
 const formErrors = ref();
@@ -404,6 +415,18 @@ const isAudio = computed(() => file.value!.mimeType.startsWith('audio/'));
 const overlayClass = computed(() =>
     cn('transition-opacity', isZoomed.value && 'pointer-events-none opacity-0'),
 );
+
+const hasPlaceholder = computed(() => !!file.value!.metadata?.width);
+const isLoaded = computed(() => loadedId.value === file.value!.id);
+
+const mediaBoxStyle = computed(() => {
+    const { width, height } = file.value!.metadata!;
+
+    return {
+        width: `min(100cqw, ${width}px, 100cqh * ${width! / height!})`,
+        aspectRatio: `${width} / ${height}`,
+    };
+});
 
 const isSensitive = computed(
     () =>
