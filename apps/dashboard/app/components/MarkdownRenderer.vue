@@ -17,10 +17,20 @@ const { copy } = useClipboard({ legacy: true });
 const copyIcon =
     '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
 
+const escapeHtml = (value: string) =>
+    value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`);
+
+const isSafeUrl = (url: string) => !/^[a-z][\w+.-]*:/i.test(url) || /^(https?|mailto):/i.test(url);
+
 const marked = new Marked(markedKatex({ throwOnError: false }), {
     renderer: {
+        html({ text }) {
+            return escapeHtml(text);
+        },
         link({ href, title, text }) {
-            return `<a href="${href}" target="_blank" rel="noopener noreferrer"${title ? ` title="${title}"` : ''}>${text}</a>`;
+            if (!isSafeUrl(href)) return escapeHtml(text);
+
+            return `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer"${title ? ` title="${escapeHtml(title)}"` : ''}>${escapeHtml(text)}</a>`;
         },
         code({ text, lang }) {
             const language = hljs.getLanguage(lang || '') ? lang! : 'plaintext';
