@@ -27,8 +27,6 @@ export const fileSearchDb = create({
         authorId: 'enum',
         fileName: 'string',
         mimeType: 'string',
-        embedding: 'vector[512]',
-        textEmbedding: 'vector[384]',
         caption: 'string',
         ocrText: 'string',
     },

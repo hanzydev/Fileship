@@ -11,7 +11,7 @@ import { z } from 'zod';
 
 import { insert, removeMultiple } from '@orama/orama';
 
-import { AIJobType, BackupRestoreState } from '#shared/prisma/enums';
+import { BackupRestoreState } from '#shared/prisma/enums';
 
 const validationSchema = z
     .object({
@@ -22,16 +22,7 @@ const validationSchema = z
 const BACKUP_FIELDS = {
     folder: ['name', 'public', 'createdAt'],
     note: ['title', 'content', 'public', 'createdAt'],
-    file: [
-        'mimeType',
-        'maxViews',
-        'expiresAt',
-        'password',
-        'createdAt',
-        'caption',
-        'piiOverride',
-        'ocrText',
-    ],
+    file: ['mimeType', 'maxViews', 'expiresAt', 'password', 'createdAt', 'caption', 'piiOverride'],
     view: ['ip', 'createdAt'],
     link: ['code', 'url', 'password', 'maxClicks', 'clicks', 'expiresAt', 'createdAt'],
     user: [],
@@ -334,66 +325,10 @@ export default defineEventHandler(async (event) => {
                                                     const aiEnabled =
                                                         currentUser.aiSettings?.enabled ?? true;
 
-                                                    if (aiEnabled) {
-                                                        if (
-                                                            ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
-                                                                extname(created.fileName),
-                                                            )
-                                                        ) {
-                                                            event.waitUntil(
-                                                                Promise.all([
-                                                                    enqueueAIJob({
-                                                                        userId: currentUser.id,
-                                                                        fileId: created.id,
-                                                                        type: AIJobType.GenerateClipEmbedding,
-                                                                    }),
-                                                                    enqueueAIJob({
-                                                                        userId: currentUser.id,
-                                                                        fileId: created.id,
-                                                                        type: AIJobType.GenerateOcrText,
-                                                                    }),
-                                                                    enqueueAIJob({
-                                                                        userId: currentUser.id,
-                                                                        fileId: created.id,
-                                                                        type: AIJobType.GenerateImageCaption,
-                                                                    }),
-                                                                ]),
-                                                            );
-                                                        } else if (
-                                                            ai.VIDEO_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
-                                                                extname(created.fileName),
-                                                            )
-                                                        ) {
-                                                            event.waitUntil(
-                                                                Promise.all([
-                                                                    enqueueAIJob({
-                                                                        userId: currentUser.id,
-                                                                        fileId: created.id,
-                                                                        type: AIJobType.GenerateVideoEmbedding,
-                                                                    }),
-                                                                ]),
-                                                            );
-                                                        } else if (
-                                                            ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
-                                                                extname(created.fileName),
-                                                            )
-                                                        ) {
-                                                            event.waitUntil(
-                                                                Promise.all([
-                                                                    enqueueAIJob({
-                                                                        userId: currentUser.id,
-                                                                        fileId: created.id,
-                                                                        type: AIJobType.GenerateTextEmbedding,
-                                                                    }),
-                                                                    enqueueAIJob({
-                                                                        userId: currentUser.id,
-                                                                        fileId: created.id,
-                                                                        type: AIJobType.DetectPII,
-                                                                    }),
-                                                                ]),
-                                                            );
-                                                        }
-                                                    }
+                                                    if (aiEnabled)
+                                                        event.waitUntil(
+                                                            enqueueFileAnalysis(created),
+                                                        );
 
                                                     await upsertFileSearchEntry(created.id);
                                                 }

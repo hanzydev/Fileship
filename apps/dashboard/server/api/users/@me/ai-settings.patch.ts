@@ -31,5 +31,8 @@ export default defineEventHandler(async (event) => {
 
     sendToUser(currentUser.id, 'currentUser:update', { aiSettings });
 
+    if (aiSettings.enabled && !(currentUser.aiSettings?.enabled ?? true))
+        runTask('ai:syncJobs', { payload: { userId: currentUser.id } }).catch(() => null);
+
     return aiSettings as IUserAiSettings;
 });

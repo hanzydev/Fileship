@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const wasAiEnabled = await isAiEnabled();
+    const previous = await getSettings();
 
     await updateSettings(patch as never);
 
@@ -46,8 +46,23 @@ export default defineEventHandler(async (event) => {
 
     sendToAll('settings:update', publicSettings);
 
-    if (!wasAiEnabled && publicSettings.aiEnabled && appState.ready) {
+    const settings = await getSettings();
+
+    if (
+        settings.aiPreset !== previous.aiPreset ||
+        settings.aiInferenceThreads !== previous.aiInferenceThreads
+    )
+        await unloadAIModels();
+
+    if (settings.aiPreset !== previous.aiPreset && appState.ready) await reloadFileVectors();
+
+    if (
+        settings.aiEnabled &&
+        (!previous.aiEnabled || settings.aiPreset !== previous.aiPreset) &&
+        appState.ready
+    ) {
         runTask('ai:syncJobs').catch(() => null);
+        ai.warmUp().catch(() => null);
     }
 
     return publicSettings;

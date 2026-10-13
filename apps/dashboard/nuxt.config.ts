@@ -87,6 +87,8 @@ export default defineNuxtConfig({
 
             '0 * * * *': 'dir:clearTemp',
             '30 * * * *': 'db:purgeTrash',
+            '* * * * *': 'search:refresh',
+            '15 4 * * *': 'ai:cleanup',
             '0 */2 * * *': 'telemetry:collect',
         },
         framework: {
@@ -138,12 +140,10 @@ export default defineNuxtConfig({
             secret: 'dev-secret-token',
         },
         ai: {
+            preset: 'medium',
             queueConcurrency: 1,
             inferenceThreads: 2,
-            videoMaxFrames: 24,
-            videoSampleIntervalSeconds: 10,
-            jobLeaseMs: 15 * 60_000,
-            jobDequeueRetries: 5,
+            jobLeaseMs: 2 * 60_000,
         },
     },
 

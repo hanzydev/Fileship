@@ -5,8 +5,6 @@ import { nanoid } from 'nanoid';
 import { basename, extname } from 'pathe';
 import { z } from 'zod';
 
-import { AIJobType } from '#shared/prisma/enums';
-
 const validationSchema = z.object({
     uploadId: z
         .string()
@@ -189,54 +187,7 @@ export default defineEventHandler(async (event) => {
         };
 
         const aiEnabled = currentUser.aiSettings?.enabled ?? true;
-        if (aiEnabled) {
-            if (ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
-                event.waitUntil(
-                    Promise.all([
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.GenerateClipEmbedding,
-                        }),
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.GenerateOcrText,
-                        }),
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.GenerateImageCaption,
-                        }),
-                    ]),
-                );
-            } else if (ai.VIDEO_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
-                event.waitUntil(
-                    Promise.all([
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.GenerateVideoEmbedding,
-                        }),
-                    ]),
-                );
-            } else if (ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
-                event.waitUntil(
-                    Promise.all([
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.GenerateTextEmbedding,
-                        }),
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.DetectPII,
-                        }),
-                    ]),
-                );
-            }
-        }
+        if (aiEnabled) event.waitUntil(enqueueFileAnalysis(upload));
 
         await upsertFileSearchEntry(upload.id);
 

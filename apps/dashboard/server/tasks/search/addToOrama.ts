@@ -55,6 +55,7 @@ export default defineTask({
         await insertMultiple(noteSearchDb, missing(noteSearchDb, notes));
         await insertMultiple(userSearchDb, missing(userSearchDb, users));
         await insertMultiple(logSearchDb, missing(logSearchDb, logs));
+        await reloadFileVectors();
 
         consola.success(
             `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Successfully added data to Orama search database.`,

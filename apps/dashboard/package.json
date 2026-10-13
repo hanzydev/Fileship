@@ -45,6 +45,7 @@
         "nanoid": "^6.0.2",
         "otplib": "^13.5.0",
         "pathe": "^2.0.3",
+        "ppu-paddle-ocr": "6.6.1",
         "reka-ui": "^2.11.0",
         "shadcn-vue": "^2.8.2",
         "sharp": "^0.35.3",

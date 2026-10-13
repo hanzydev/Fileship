@@ -22,11 +22,9 @@ enum BackupRestoreState {
 }
 
 enum AIJobType {
-  GenerateClipEmbedding
-  GenerateVideoEmbedding
-  GenerateOcrText
-  GenerateTextEmbedding
-  GenerateImageCaption
+  AnalyzeImage
+  AnalyzeVideo
+  AnalyzeText
   DetectPII
 }
 
@@ -88,30 +86,33 @@ model Credential {
 }
 
 model File {
-  id            String    @id @unique @default(uuid())
-  fileName      String    @unique
-  mimeType      String
-  size          BigInt
-  maxViews      Int       @default(0)
-  expiresAt     DateTime?
-  password      String?
-  createdAt     DateTime  @default(now())
-  author        User      @relation(fields: [authorId], references: [id])
-  authorId      String
-  folder        Folder?   @relation(fields: [folderId], references: [id])
-  folderId      String?
-  views         View[]
-  embedding     Json?
-  textEmbedding Json?
-  ocrText       String?
-  caption       String?
-  piiDetected   Boolean   @default(false)
-  piiReasons    String[]  @default([])
-  piiOverride   Boolean?
-  metadata      Json?
-  storage       Storage?  @relation(fields: [storageId], references: [id], onDelete: Restrict)
-  storageId     String?
-  deletedAt     DateTime?
+  id                 String    @id @unique @default(uuid())
+  fileName           String    @unique
+  mimeType           String
+  size               BigInt
+  maxViews           Int       @default(0)
+  expiresAt          DateTime?
+  password           String?
+  createdAt          DateTime  @default(now())
+  author             User      @relation(fields: [authorId], references: [id])
+  authorId           String
+  folder             Folder?   @relation(fields: [folderId], references: [id])
+  folderId           String?
+  views              View[]
+  embedding          Json?
+  textEmbedding      Json?
+  ocrText            String?
+  caption            String?
+  piiDetected        Boolean   @default(false)
+  piiReasons         String[]  @default([])
+  piiOverride        Boolean?
+  embeddingModel     String?
+  textEmbeddingModel String?
+  aiAnalyzedAt       DateTime?
+  metadata           Json?
+  storage            Storage?  @relation(fields: [storageId], references: [id], onDelete: Restrict)
+  storageId          String?
+  deletedAt          DateTime?
 
   aiJobs AIJob[]
 
@@ -147,8 +148,8 @@ model AIJob {
   attempts Int         @default(0)
   error    String?
 
-  fileId String?
-  file   File?   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -159,7 +160,6 @@ model AIJob {
   updatedAt DateTime  @updatedAt
 
   @@index([status, createdAt])
-  @@index([userId, status, createdAt])
   @@index([fileId])
 }
 

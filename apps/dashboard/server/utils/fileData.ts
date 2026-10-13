@@ -16,4 +16,6 @@ export const removeFileData = async (
         fileSearchDb,
         files.map((file) => file.id),
     );
+
+    removeFileVectors(files.map((file) => file.id));
 };

@@ -1,454 +1,370 @@
 import { promises as fsp } from 'node:fs';
-import { mkdtemp, rm } from 'node:fs/promises';
-import { cpus, tmpdir } from 'node:os';
+import { cpus } from 'node:os';
 
 import consola from 'consola';
 import dayjs from 'dayjs';
 import fluentFfmpeg from 'fluent-ffmpeg';
-import { dirname, extname, join } from 'pathe';
+import { dirname, join } from 'pathe';
+import sharp, { type Sharp } from 'sharp';
 
 import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import {
-    AutoModel,
+    AutoProcessor,
     AutoTokenizer,
-    CLIPImageProcessor,
-    CLIPVisionModelWithProjection,
     env,
     Florence2ForConditionalGeneration,
     Florence2Processor,
-    mean_pooling,
     pipeline,
-    type PreTrainedModel,
-    type PreTrainedTokenizer,
     RawImage,
+    SiglipTextModel,
+    SiglipVisionModel,
 } from '@huggingface/transformers';
 
+import type { ImageModel, TextModel } from './aiPresets';
+import { dataDirectory } from './directory';
 import type { PrivacyEntity } from './pii';
 
 env.allowLocalModels = true;
+env.cacheDir = join(dataDirectory, 'models');
 env.backends.onnx.logLevel = 'error';
-
-export const setInferenceThreads = (threads: number) => {
-    if (!env.backends.onnx.wasm) return;
-
-    env.backends.onnx.wasm.numThreads = Math.max(1, Math.min(cpus().length, Math.floor(threads)));
-};
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 
-const CLIP_VISION_MODEL_ID = 'Xenova/clip-vit-base-patch32';
-const CLIP_TEXT_MODEL_ID = 'sentence-transformers/clip-ViT-B-32-multilingual-v1';
 const FLORENCE_MODEL_ID = 'onnx-community/Florence-2-base';
-const SEMANTIC_TEXT_MODEL_ID = 'Xenova/paraphrase-multilingual-MiniLM-L12-v2';
 const PRIVACY_FILTER_MODEL_ID = 'openai/privacy-filter';
 
 const PRIVACY_FILTER_MAX_CHARS = 20_000;
-const PRIVACY_FILTER_IDLE_MS = 5 * 60_000;
+const QUERY_MODEL_KEEP_ALIVE_MS = 30 * 60_000;
+const IMAGE_SIZE = 1024;
+const OCR_IMAGE_SIZE = 1600;
+const VIDEO_FRAME_TIMEOUT_MS = 60_000;
 
-const CLIP_CENTERING = 0.8;
-const CLIP_NEUTRAL_PROMPTS = [
-    'a photo',
-    'an image',
-    'a picture',
-    'something',
-    'a thing',
-    'object',
-    'photo of a thing',
-    'bir fotoğraf',
-    'bir resim',
-    'bir şey',
-    'nesne',
-    'görüntü',
-];
+const log = (message: string) =>
+    consola.info(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - ${message}`);
 
-type ClipVisionBundle = {
-    imageProcessor: CLIPImageProcessor;
-    visionModel: CLIPVisionModelWithProjection;
+export const getSessionOptions = async () => {
+    const { aiInferenceThreads } = await getSettings();
+
+    return {
+        intraOpNumThreads: Math.max(1, Math.min(cpus().length, aiInferenceThreads)),
+        interOpNumThreads: 1,
+        enableCpuMemArena: false,
+        enableMemPattern: false,
+    };
 };
 
-type ClipTextBundle = {
-    tokenizer: PreTrainedTokenizer;
-    textModel: PreTrainedModel;
-    projection: Float32Array;
-    center: number[];
+export const downloadModelFile = async (url: string, name: string) => {
+    const path = join(env.cacheDir!, name);
+    if (await fsp.stat(path).catch(() => null)) return path;
+
+    log(`Downloading ${name}...`);
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Could not download ${name} (${response.status})`);
+
+    await fsp.mkdir(dirname(path), { recursive: true });
+    await fsp.writeFile(`${path}.tmp`, Buffer.from(await response.arrayBuffer()));
+    await fsp.rename(`${path}.tmp`, path);
+
+    return path;
 };
 
-const normalizeVector = (vector: number[]) => {
-    const magnitude = Math.hypot(...vector) || 1;
-    return vector.map((value) => value / magnitude);
+type LoadedModel = {
+    value: Promise<any>;
+    users: number;
+    keepAliveMs?: number;
+    timer?: NodeJS.Timeout;
+    dispose: (value: any) => Promise<unknown>;
 };
 
-const loadClipProjection = async () => {
-    const path = join(env.cacheDir!, CLIP_TEXT_MODEL_ID, '2_Dense', 'model.safetensors');
+const loadedModels = new Map<string, LoadedModel>();
 
-    let buffer = await fsp.readFile(path).catch(() => null);
+const unloadModel = async (key: string, entry: LoadedModel) => {
+    if (loadedModels.get(key) !== entry || entry.users) return;
 
-    if (!buffer) {
-        const response = await fetch(
-            `${env.remoteHost}${CLIP_TEXT_MODEL_ID}/resolve/main/2_Dense/model.safetensors`,
-        );
-        if (!response.ok)
-            throw new Error(`Could not download the CLIP projection (${response.status})`);
+    loadedModels.delete(key);
+    await entry.dispose(await entry.value).catch(() => null);
+};
 
-        buffer = Buffer.from(await response.arrayBuffer());
-        await fsp.mkdir(dirname(path), { recursive: true });
-        await fsp.writeFile(`${path}.tmp`, buffer);
-        await fsp.rename(`${path}.tmp`, path);
+export const useAIModel = async <T, R>(
+    key: string,
+    load: () => Promise<T>,
+    dispose: (value: T) => Promise<unknown>,
+    fn: (value: T) => Promise<R>,
+    keepAliveMs?: number,
+): Promise<R> => {
+    let entry = loadedModels.get(key);
+
+    if (!entry) {
+        log(`Loading ${key}...`);
+
+        entry = { value: load(), users: 0, keepAliveMs, dispose };
+        loadedModels.set(key, entry);
+
+        const loading = entry;
+        entry.value.catch(() => loadedModels.get(key) === loading && loadedModels.delete(key));
     }
 
-    const headerLength = Number(buffer.readBigUInt64LE(0));
-    const header = JSON.parse(buffer.subarray(8, 8 + headerLength).toString());
-    const [start, end] = header['linear.weight'].data_offsets as [number, number];
+    clearTimeout(entry.timer);
+    if (keepAliveMs !== undefined) entry.keepAliveMs = keepAliveMs;
+    entry.users++;
 
-    return new Float32Array(
-        buffer.buffer.slice(
-            buffer.byteOffset + 8 + headerLength + start,
-            buffer.byteOffset + 8 + headerLength + end,
-        ),
+    try {
+        return await fn(await entry.value);
+    } finally {
+        const current = entry;
+
+        if (!--current.users) {
+            const idle = current.keepAliveMs ?? (await getAIPreset()).keepAliveMs;
+
+            if (idle) current.timer = setTimeout(() => unloadModel(key, current), idle);
+            else await unloadModel(key, current);
+        }
+    }
+};
+
+export const unloadAIModels = async () => {
+    await Promise.all(
+        [...loadedModels.entries()].map(([key, entry]) => {
+            clearTimeout(entry.timer);
+            return entry.users ? null : unloadModel(key, entry);
+        }),
     );
 };
 
-type FlorenceBundle = {
-    model: Florence2ForConditionalGeneration;
-    processor: Florence2Processor;
+const normalize = (vector: ArrayLike<number>) => {
+    let magnitude = 0;
+    for (let i = 0; i < vector.length; i++) magnitude += vector[i]! * vector[i]!;
+    magnitude = Math.sqrt(magnitude) || 1;
+
+    return Array.from(vector, (value) => value / magnitude);
 };
 
-class AIService {
-    private static instance: AIService | null = null;
-
-    public readonly CLIP_EMBEDDING_DIM = 512;
-    public readonly SEMANTIC_TEXT_EMBEDDING_DIM = 384;
-
-    public get IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS() {
-        const list = ['.jpg', '.jpeg', '.png', '.webp', '.bmp'];
-        return list.concat(list.map((ext) => ext.toUpperCase()));
-    }
-
-    public get VIDEO_EMBEDDING_SUPPORTED_EXTENSIONS() {
-        const list = [
-            '.mp4',
-            '.webm',
-            '.mov',
-            '.avi',
-            '.mkv',
-            '.flv',
-            '.wmv',
-            '.m4v',
-            '.mpg',
-            '.mpeg',
-            '.3gp',
-        ];
-        return list.concat(list.map((ext) => ext.toUpperCase()));
-    }
-
-    public get TEXT_EMBEDDING_SUPPORTED_EXTENSIONS() {
-        const list = ['.txt', '.md', '.rtf', '.html', '.xml', '.json', '.csv'];
-        return list.concat(list.map((ext) => ext.toUpperCase()));
-    }
-
-    private clipVisionPromise: Promise<ClipVisionBundle> | null = null;
-    private clipTextPromise: Promise<ClipTextBundle> | null = null;
-    private florencePromise: Promise<FlorenceBundle> | null = null;
-    private semanticPipelinePromise: Promise<any> | null = null;
-    private privacyFilterPromise: Promise<any> | null = null;
-    private privacyFilterUsers = 0;
-    private privacyFilterTimer: NodeJS.Timeout | undefined;
-
-    public static getInstance() {
-        if (!this.instance) {
-            this.instance = new AIService();
-        }
-        return this.instance;
-    }
-
-    private async getClipVision() {
-        if (!this.clipVisionPromise) {
-            consola.info(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Initializing CLIP model...`);
-
-            this.clipVisionPromise = Promise.all([
-                CLIPImageProcessor.from_pretrained(CLIP_VISION_MODEL_ID),
-                CLIPVisionModelWithProjection.from_pretrained(CLIP_VISION_MODEL_ID, {
-                    dtype: 'q8',
+const useImageVision = <R>(model: ImageModel, fn: (vision: any) => Promise<R>) =>
+    useAIModel(
+        `image:${model.key}`,
+        async () => {
+            return {
+                processor: await AutoProcessor.from_pretrained(model.id),
+                model: await SiglipVisionModel.from_pretrained(model.id, {
+                    dtype: model.visionDtype as any,
+                    session_options: await getSessionOptions(),
                 }),
-            ]).then(([imageProcessor, visionModel]) => {
-                consola.success(
-                    `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - CLIP model initialized successfully.`,
-                );
-                return { imageProcessor, visionModel };
-            });
-        }
+            };
+        },
+        (vision) => vision.model.dispose(),
+        fn,
+    );
 
-        return this.clipVisionPromise;
-    }
-
-    private async getClipText() {
-        if (!this.clipTextPromise) {
-            this.clipTextPromise = Promise.all([
-                AutoTokenizer.from_pretrained(CLIP_TEXT_MODEL_ID),
-                AutoModel.from_pretrained(CLIP_TEXT_MODEL_ID, {
-                    dtype: 'fp32',
-                    model_file_name:
-                        process.arch === 'arm64' ? 'model_qint8_arm64' : 'model_quint8_avx2',
-                }),
-                loadClipProjection(),
-            ]).then(async ([tokenizer, textModel, projection]) => {
-                const bundle = { tokenizer, textModel, projection, center: [] as number[] };
-                const prompts = await Promise.all(
-                    CLIP_NEUTRAL_PROMPTS.map((prompt) => this.encodeClipText(bundle, prompt)),
-                );
-
-                bundle.center = normalizeVector(
-                    prompts.reduce((sum, prompt) => sum.map((value, i) => value + prompt[i]!)),
-                );
-
-                return bundle;
-            });
-
-            this.clipTextPromise.catch(() => (this.clipTextPromise = null));
-        }
-
-        return this.clipTextPromise;
-    }
-
-    private async encodeClipText(
-        { tokenizer, textModel, projection }: ClipTextBundle,
-        text: string,
-    ) {
-        const inputs = tokenizer(text, { padding: true, truncation: true });
-        const { last_hidden_state } = await textModel(inputs);
-        const pooled = mean_pooling(last_hidden_state, inputs.attention_mask).data as Float32Array;
-
-        return normalizeVector(
-            Array.from({ length: this.CLIP_EMBEDDING_DIM }, (_, row) => {
-                let sum = 0;
-
-                for (let column = 0; column < pooled.length; column++)
-                    sum += projection[row * pooled.length + column]! * pooled[column]!;
-
-                return sum;
+const useImageText = <R>(model: ImageModel, fn: (text: any) => Promise<R>) =>
+    useAIModel(
+        `image-query:${model.key}:${model.textDtype}`,
+        async () => ({
+            tokenizer: await AutoTokenizer.from_pretrained(model.id),
+            model: await SiglipTextModel.from_pretrained(model.id, {
+                dtype: model.textDtype as any,
+                session_options: await getSessionOptions(),
             }),
-        );
+        }),
+        (text) => text.model.dispose(),
+        fn,
+        QUERY_MODEL_KEEP_ALIVE_MS,
+    );
+
+const useTextModel = <R>(model: TextModel, fn: (extractor: any) => Promise<R>, query = false) =>
+    useAIModel(
+        `text:${model.key}`,
+        async () =>
+            pipeline('feature-extraction', model.id, {
+                dtype: model.dtype as any,
+                session_options: await getSessionOptions(),
+            }),
+        (extractor) => extractor.dispose(),
+        fn,
+        query ? QUERY_MODEL_KEEP_ALIVE_MS : undefined,
+    );
+
+const useFlorence = <R>(visionDtype: string, fn: (florence: any) => Promise<R>) =>
+    useAIModel(
+        `caption:${visionDtype}`,
+        async () => ({
+            model: await Florence2ForConditionalGeneration.from_pretrained(FLORENCE_MODEL_ID, {
+                dtype: {
+                    vision_encoder: visionDtype,
+                    encoder_model: 'q8',
+                    decoder_model_merged: 'q8',
+                    embed_tokens: 'q8',
+                } as any,
+                session_options: await getSessionOptions(),
+            }),
+            processor: await Florence2Processor.from_pretrained(FLORENCE_MODEL_ID),
+        }),
+        (florence) => florence.model.dispose(),
+        fn,
+    );
+
+const usePrivacyFilter = <R>(fn: (filter: any) => Promise<R>) =>
+    useAIModel(
+        'privacy-filter',
+        async () =>
+            pipeline('token-classification', PRIVACY_FILTER_MODEL_ID, {
+                dtype: 'q4',
+                session_options: await getSessionOptions(),
+            }),
+        (filter) => filter.dispose(),
+        fn,
+    );
+
+const toRawImage = async (input: Sharp, size: number) => {
+    const { data, info } = await input
+        .rotate()
+        .resize(size, size, { fit: 'inside', withoutEnlargement: true })
+        .removeAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+
+    return new RawImage(new Uint8ClampedArray(data), info.width, info.height, 3);
+};
+
+const readVideoFrame = (path: string, seconds: number) =>
+    new Promise<Buffer>((resolve, reject) => {
+        const chunks: Buffer[] = [];
+        const command = fluentFfmpeg(path)
+            .seekInput(seconds)
+            .inputOptions('-threads 1')
+            .frames(1)
+            .videoFilters('scale=448:-2')
+            .outputOptions(['-f image2pipe', '-vcodec mjpeg', '-threads 1'])
+            .on('error', reject);
+
+        const timer = setTimeout(() => {
+            command.kill('SIGKILL');
+            reject(new Error('Reading a video frame timed out'));
+        }, VIDEO_FRAME_TIMEOUT_MS);
+
+        const stream = command.pipe();
+        stream.on('data', (chunk: Buffer) => chunks.push(chunk));
+        stream.on('end', () => {
+            clearTimeout(timer);
+            resolve(Buffer.concat(chunks));
+        });
+    });
+
+class AIService {
+    public async warmUp() {
+        const preset = await getAIPreset();
+
+        await useImageText(preset.image, async () => null);
+        await useTextModel(preset.text, async () => null, true);
     }
 
-    private async getFlorence() {
-        if (!this.florencePromise) {
-            consola.info(
-                `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Initializing Florence-2 model...`,
-            );
-
-            this.florencePromise = Promise.all([
-                Florence2ForConditionalGeneration.from_pretrained(FLORENCE_MODEL_ID, {
-                    dtype: 'q8',
-                }),
-                Florence2Processor.from_pretrained(FLORENCE_MODEL_ID),
-            ] as [Promise<Florence2ForConditionalGeneration>, Promise<Florence2Processor>]).then(
-                ([model, processor]) => {
-                    consola.success(
-                        `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Florence-2 model initialized successfully.`,
-                    );
-                    return { model, processor };
-                },
-            );
-        }
-
-        return this.florencePromise;
+    public async loadImage(path: string) {
+        return toRawImage(sharp(path), IMAGE_SIZE);
     }
 
-    private async getSemanticTextPipeline() {
-        if (!this.semanticPipelinePromise) {
-            this.semanticPipelinePromise = pipeline('feature-extraction', SEMANTIC_TEXT_MODEL_ID, {
-                dtype: 'q8',
+    public async embedImage(image: RawImage) {
+        const { image: model } = await getAIPreset();
+
+        return useImageVision(model, async ({ processor, model: vision }) => {
+            return normalize((await vision(await processor(image))).pooler_output.data);
+        });
+    }
+
+    public async embedImageQuery(query: string) {
+        const { image: model } = await getAIPreset();
+
+        return useImageText(model, async (text) => {
+            const inputs = text.tokenizer(query.toLowerCase(), {
+                padding: 'max_length',
+                truncation: true,
+                max_length: 64,
             });
-        }
 
-        return this.semanticPipelinePromise;
-    }
-
-    private async withPrivacyFilter<T>(fn: (filter: any) => Promise<T>) {
-        clearTimeout(this.privacyFilterTimer);
-        this.privacyFilterUsers++;
-
-        try {
-            if (!this.privacyFilterPromise) {
-                this.privacyFilterPromise = pipeline(
-                    'token-classification',
-                    PRIVACY_FILTER_MODEL_ID,
-                    { dtype: 'q4' },
-                );
-                this.privacyFilterPromise.catch(() => (this.privacyFilterPromise = null));
-            }
-
-            return await fn(await this.privacyFilterPromise);
-        } finally {
-            if (!--this.privacyFilterUsers) {
-                this.privacyFilterTimer = setTimeout(async () => {
-                    const filter = this.privacyFilterPromise;
-                    this.privacyFilterPromise = null;
-                    await (await filter?.catch(() => null))?.dispose();
-                }, PRIVACY_FILTER_IDLE_MS);
-            }
-        }
-    }
-
-    public async createImageEmbedding(imagePath: string): Promise<number[]> {
-        const { imageProcessor, visionModel } = await this.getClipVision();
-        const image = await RawImage.fromURL(imagePath);
-        const imageInputs = await imageProcessor(image);
-        const { image_embeds } = await visionModel(imageInputs);
-        const normalizedEmbeds = image_embeds.normalize(2, -1);
-
-        return Array.from(normalizedEmbeds.data);
-    }
-
-    public async createClipQueryEmbedding(text: string) {
-        const bundle = await this.getClipText();
-        const embedding = await this.encodeClipText(bundle, text);
-
-        return embedding.map((value, i) => value - CLIP_CENTERING * bundle.center[i]!);
-    }
-
-    public async runFlorenceTask(imagePath: string, task: string) {
-        const { model, processor } = await this.getFlorence();
-        const image = await RawImage.fromURL(imagePath);
-
-        const prompts = processor.construct_prompts(task);
-        const inputs = await processor(image, prompts);
-
-        const generatedIds = await model.generate({
-            ...inputs,
-            max_new_tokens: 1024,
-            use_cache: true,
+            return normalize((await text.model(inputs)).pooler_output.data);
         });
-
-        const generatedText = processor.batch_decode(generatedIds as never, {
-            skip_special_tokens: false,
-        })[0]!;
-
-        const result = processor.post_process_generation(generatedText, task, image.size);
-        return result[task] ?? null;
     }
 
-    public async performOcrOnImage(imagePath: string) {
-        const result = (await this.runFlorenceTask(imagePath, '<OCR_WITH_REGION>')) as {
-            labels?: string[];
-        } | null;
+    public async embedVideo(path: string, duration?: number) {
+        const { videoFrames } = await getAIPreset();
+        const times = duration
+            ? Array.from({ length: videoFrames }, (_, i) => (duration * (i + 0.5)) / videoFrames)
+            : Array.from({ length: videoFrames }, (_, i) => i * 10);
 
-        return (result?.labels ?? []).join(' ').replace(/\s+/g, ' ').trim();
-    }
+        const embeddings: number[][] = [];
 
-    public async createSemanticTextEmbedding(text: string) {
-        const input = text.replace(/\s+/g, ' ').trim();
-        if (!input.length) return null;
+        for (const time of times) {
+            const frame = await readVideoFrame(path, time).catch(() => null);
+            if (!frame?.length) continue;
 
-        const extractor = await this.getSemanticTextPipeline();
-        const result = await extractor(input.slice(0, 4000), {
-            pooling: 'mean',
-            normalize: true,
-        });
-
-        if (Array.isArray(result) && typeof result[0] === 'number') {
-            return result as number[];
+            embeddings.push(await this.embedImage(await toRawImage(sharp(frame), IMAGE_SIZE)));
         }
 
-        const data = result?.data;
-        if (data && typeof data.length === 'number') {
-            return Array.from(data) as number[];
-        }
+        if (!embeddings.length) throw new Error('No frames could be read from the video');
 
-        return null;
-    }
-
-    public async generateImageCaption(imagePath: string) {
-        const result = await this.runFlorenceTask(imagePath, '<CAPTION>');
-        return typeof result === 'string' ? result.replace(/\s+/g, ' ').trim() : '';
-    }
-
-    public async detectPII(filePath: string, ocrText?: string | null) {
-        const isImage = ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(filePath));
-        const isText = ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(filePath));
-
-        const text = (
-            isImage
-                ? (ocrText ?? (await this.performOcrOnImage(filePath)))
-                : isText
-                  ? await readUtf8Snippet(filePath, 120_000)
-                  : ''
-        ).slice(0, PRIVACY_FILTER_MAX_CHARS);
-
-        if (!text.trim()) return { piiDetected: false, reasons: [] };
-
-        const entities: PrivacyEntity[] = await this.withPrivacyFilter((filter) =>
-            filter(text, { aggregation_strategy: 'simple' }),
+        return normalize(
+            embeddings[0]!.map(
+                (_, i) =>
+                    embeddings.reduce((sum, embedding) => sum + embedding[i]!, 0) /
+                    embeddings.length,
+            ),
         );
-        const reasons = findPii(text, entities);
+    }
+
+    public async embedText(text: string, query = false) {
+        const { text: model } = await getAIPreset();
+        const input = text.replace(/\s+/g, ' ').trim().slice(0, model.maxChars);
+
+        if (!input) return null;
+
+        return useTextModel(
+            model,
+            async (extractor) =>
+                normalize((await extractor(input, { pooling: 'mean', normalize: true })).data),
+            query,
+        );
+    }
+
+    public async captionImage(image: RawImage) {
+        const { caption } = await getAIPreset();
+
+        return useFlorence(caption.visionDtype, async ({ model, processor }) => {
+            const inputs = await processor(image, processor.construct_prompts(caption.task));
+            const generated = await model.generate({ ...inputs, max_new_tokens: 256 });
+            const text = processor.batch_decode(generated, { skip_special_tokens: false })[0];
+            const result = processor.post_process_generation(text, caption.task, image.size)[
+                caption.task
+            ];
+
+            return typeof result === 'string' ? result.replace(/\s+/g, ' ').trim() : '';
+        });
+    }
+
+    public async recognizeText(path: string) {
+        const { ocr } = await getAIPreset();
+        const { data, info } = await sharp(path)
+            .rotate()
+            .resize(OCR_IMAGE_SIZE, OCR_IMAGE_SIZE, { fit: 'inside', withoutEnlargement: true })
+            .png()
+            .toBuffer({ resolveWithObject: true });
+
+        return recognizeImageText(
+            data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer,
+            info,
+            ocr,
+        );
+    }
+
+    public async detectPII(text: string, caption = '') {
+        const input = text.slice(0, PRIVACY_FILTER_MAX_CHARS);
+        if (!input.trim()) return { piiDetected: false, reasons: [] };
+
+        const entities: PrivacyEntity[] = await usePrivacyFilter((filter) =>
+            filter(input, { aggregation_strategy: 'simple' }),
+        );
+        const reasons = findPii(input, entities, caption);
 
         return { piiDetected: reasons.size > 0, reasons: [...reasons] };
     }
-
-    public async createVideoEmbedding(options: { filePath: string }): Promise<number[]> {
-        const workDir = await mkdtemp(join(tmpdir(), 'fileship-video-'));
-        const settings = await getSettings();
-        const configuredMaxFrames = settings.aiVideoMaxFrames;
-        const maxFrames = Math.max(
-            1,
-            Math.min(
-                120,
-                Number.isFinite(configuredMaxFrames) && configuredMaxFrames > 0
-                    ? Math.floor(configuredMaxFrames)
-                    : 24,
-            ),
-        );
-        const configuredSampleInterval = settings.aiVideoSampleIntervalSeconds;
-        const sampleIntervalSeconds = Math.max(
-            1,
-            Math.min(
-                3_600,
-                Number.isFinite(configuredSampleInterval) && configuredSampleInterval > 0
-                    ? configuredSampleInterval
-                    : 10,
-            ),
-        );
-
-        try {
-            await new Promise<void>((resolve, reject) => {
-                fluentFfmpeg(options.filePath)
-                    .inputOptions('-threads 1')
-                    .videoFilters([`fps=1/${sampleIntervalSeconds}`, 'scale=336:-2'])
-                    .frames(maxFrames)
-                    .outputOptions('-threads 1')
-                    .output(join(workDir, 'frame-%03d.jpg'))
-                    .on('end', () => resolve())
-                    .on('error', (err) => reject(err))
-                    .run();
-            });
-
-            const files = (await fsp.readdir(workDir))
-                .filter((f) => f.startsWith('frame-') && f.endsWith('.jpg'))
-                .sort();
-
-            const embeddings: number[][] = [];
-            for (const f of files) {
-                const framePath = join(workDir, f);
-                try {
-                    embeddings.push(await this.createImageEmbedding(framePath));
-                } finally {
-                    await fsp.unlink(framePath).catch(() => null);
-                }
-            }
-
-            if (!embeddings.length) throw new Error('No frames could be read from the video');
-
-            return normalizeVector(
-                embeddings[0]!.map(
-                    (_, i) =>
-                        embeddings.reduce((sum, embedding) => sum + embedding[i]!, 0) /
-                        embeddings.length,
-                ),
-            );
-        } finally {
-            await rm(workDir, { recursive: true, force: true });
-        }
-    }
 }
 
-export const ai = AIService.getInstance();
+export const ai = new AIService();

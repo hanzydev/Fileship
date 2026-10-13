@@ -1,4 +1,3 @@
-import { extname } from 'pathe';
 import { z } from 'zod';
 
 import { AIJobType } from '#shared/prisma/enums';
@@ -141,10 +140,7 @@ export default defineEventHandler(async (event) => {
     if (
         (body.data as any).piiOverride === null &&
         (currentUser.aiSettings?.enabled ?? true) &&
-        [
-            ...ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS,
-            ...ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS,
-        ].includes(extname(updatedFile.fileName))
+        ['image', 'text'].includes(getAIFileKind(updatedFile.fileName)!)
     )
         event.waitUntil(
             enqueueAIJob({

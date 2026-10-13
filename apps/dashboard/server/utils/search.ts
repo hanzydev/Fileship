@@ -2,17 +2,17 @@ import consola from 'consola';
 
 import { type AnyOrama, insert, remove, search } from '@orama/orama';
 
+import type { AIPreset, SearchCutoff } from './aiPresets';
+import type { VectorKind } from './vectorIndex';
+
 import type { Prisma } from '~~/generated/prisma/client';
 
 const SEARCH_LIMIT = 1000;
 const QUERY_CACHE_SIZE = 200;
 const RRF_K = 60;
 
-const CLIP_FLOOR = 0.065;
-const CLIP_RATIO = 0.8;
-const SEMANTIC_FLOOR = 0.42;
-const SEMANTIC_RATIO = 0.65;
 const FULLTEXT_RATIO = 0.3;
+const QUERY_EMBEDDING_TIMEOUT_MS = 10_000;
 
 const queryEmbeddings = new Map<string, Promise<number[] | null>>();
 
@@ -78,10 +78,17 @@ export const fileSearchSelect = {
     authorId: true,
     fileName: true,
     mimeType: true,
-    embedding: true,
-    textEmbedding: true,
     caption: true,
     ocrText: true,
+} satisfies Prisma.FileSelect;
+
+const fileVectorSelect = {
+    id: true,
+    authorId: true,
+    embedding: true,
+    embeddingModel: true,
+    textEmbedding: true,
+    textEmbeddingModel: true,
 } satisfies Prisma.FileSelect;
 
 export const toFileSearchDoc = (
@@ -89,11 +96,41 @@ export const toFileSearchDoc = (
 ) => ({
     ...file,
     fileName: `${file.fileName} ${toWords(file.fileName).join(' ')}`,
-    embedding: (file.embedding as number[]) || undefined,
-    textEmbedding: (file.textEmbedding as number[]) || undefined,
     caption: file.caption || undefined,
     ocrText: file.ocrText || undefined,
 });
+
+const indexFileVectors = (
+    file: Prisma.FileGetPayload<{ select: typeof fileVectorSelect }>,
+    preset: AIPreset,
+) =>
+    setFileVectors(file.id, file.authorId, {
+        image: file.embeddingModel === preset.image.key ? (file.embedding as number[]) : null,
+        text: file.textEmbeddingModel === preset.text.key ? (file.textEmbedding as number[]) : null,
+    });
+
+export const reloadFileVectors = async () => {
+    const preset = await getAIPreset();
+    let cursor: string | undefined;
+
+    clearFileVectors();
+
+    while (true) {
+        const files = await prisma.file.findMany({
+            where: {
+                OR: [{ embeddingModel: preset.image.key }, { textEmbeddingModel: preset.text.key }],
+            },
+            select: fileVectorSelect,
+            orderBy: { id: 'asc' },
+            take: 500,
+            ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+        });
+
+        files.forEach((file) => indexFileVectors(file, preset));
+        if (files.length < 500) break;
+        cursor = files.at(-1)!.id;
+    }
+};
 
 let searchWrites = Promise.resolve();
 
@@ -102,7 +139,7 @@ export const upsertFileSearchEntry = (fileId: string) =>
         .then(async () => {
             const file = await prisma.file.findUnique({
                 where: { id: fileId },
-                select: fileSearchSelect,
+                select: { ...fileSearchSelect, ...fileVectorSelect },
             });
 
             try {
@@ -111,7 +148,12 @@ export const upsertFileSearchEntry = (fileId: string) =>
                 //
             }
 
-            if (file) await insert(fileSearchDb, toFileSearchDoc(file));
+            removeFileVectors([fileId]);
+
+            if (!file) return;
+
+            await insert(fileSearchDb, toFileSearchDoc(file));
+            indexFileVectors(file, await getAIPreset());
         })
         .catch(() => undefined));
 
@@ -169,42 +211,26 @@ export const searchFileIds = async (
 
     if (mode === 'fulltext' || !(await isSmartSearchEnabled(authorId))) return runFulltext();
 
-    const runClip = async () => {
-        const vector = (await getQueryEmbedding(`clip:${query}`, () =>
-            ai.createClipQueryEmbedding(query),
-        ))!;
-        const magnitude = Math.hypot(...vector);
+    const preset = await getAIPreset();
 
-        const { hits } = await search(fileSearchDb, {
-            mode: 'vector',
-            similarity: Math.min(1, CLIP_FLOOR / magnitude),
-            limit: SEARCH_LIMIT,
-            where,
-            vector: { value: vector, property: 'embedding' },
-        });
-
-        return keepRelevant(
-            hits.map((hit) => ({ id: hit.id, score: hit.score * magnitude })),
-            CLIP_FLOOR,
-            CLIP_RATIO,
-        );
-    };
-
-    const runSemantic = async () => {
-        const vector = await getQueryEmbedding(`text:${query}`, () =>
-            ai.createSemanticTextEmbedding(query),
-        );
+    const runVectors = async (
+        kind: VectorKind,
+        cutoff: SearchCutoff,
+        embed: () => Promise<number[] | null>,
+    ) => {
+        const vector = await Promise.race([
+            getQueryEmbedding(`${kind}:${preset[kind].key}:${query}`, embed),
+            new Promise<null>((resolve) =>
+                setTimeout(() => resolve(null), QUERY_EMBEDDING_TIMEOUT_MS),
+            ),
+        ]);
         if (!vector) return [];
 
-        const { hits } = await search(fileSearchDb, {
-            mode: 'vector',
-            similarity: SEMANTIC_FLOOR,
-            limit: SEARCH_LIMIT,
-            where,
-            vector: { value: vector, property: 'textEmbedding' },
-        });
-
-        return keepRelevant(hits, SEMANTIC_FLOOR, SEMANTIC_RATIO);
+        return keepRelevant(
+            searchFileVectors(authorId, kind, vector, cutoff.floor),
+            cutoff.floor,
+            cutoff.ratio,
+        );
     };
 
     const skipOnError = (error: any) => {
@@ -212,15 +238,17 @@ export const searchFileIds = async (
         return [];
     };
 
-    const [semanticIds, clipIds, fulltextIds] = await Promise.all([
-        runSemantic().catch(skipOnError),
-        runClip().catch(skipOnError),
+    const [textIds, imageIds, fulltextIds] = await Promise.all([
+        runVectors('text', preset.text.cutoff, () => ai.embedText(query, true)).catch(skipOnError),
+        runVectors('image', preset.image.cutoff, () => ai.embedImageQuery(query)).catch(
+            skipOnError,
+        ),
         runFulltext(true),
     ]);
 
     return fuseRanked([
-        { ids: semanticIds, weight: 1 },
-        { ids: clipIds, weight: 1 },
+        { ids: textIds, weight: 1 },
+        { ids: imageIds, weight: 1 },
         { ids: fulltextIds, weight: 1.5 },
     ]);
 };

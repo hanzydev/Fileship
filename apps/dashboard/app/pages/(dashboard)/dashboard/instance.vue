@@ -198,6 +198,36 @@
                                             />
                                         </UiField>
                                     </template>
+
+                                    <template v-if="section.title === 'AI' && aiStatus">
+                                        <UiFieldSeparator class="sm:col-span-2" />
+                                        <UiField
+                                            orientation="horizontal"
+                                            class="has-[>[data-slot=field-content]]:items-center sm:col-span-2"
+                                        >
+                                            <UiFieldContent>
+                                                <UiFieldLabel>Queue</UiFieldLabel>
+                                                <UiFieldDescription>
+                                                    {{ aiStatus.pending }} waiting ·
+                                                    {{ aiStatus.processing }} running ·
+                                                    {{ aiStatus.failed }} failed · models use
+                                                    {{ filesize(aiStatus.modelCacheSize) }}
+                                                </UiFieldDescription>
+                                            </UiFieldContent>
+                                            <UiButton
+                                                v-if="aiStatus.failed"
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                :disabled="isRetryingAi"
+                                                @click="handleRetryAi"
+                                            >
+                                                <UiSpinner v-if="isRetryingAi" />
+                                                <IRotateCcw v-else />
+                                                Retry failed
+                                            </UiButton>
+                                        </UiField>
+                                    </template>
                                 </UiFieldGroup>
                             </UiCardContent>
                             <UiCardFooter class="justify-end">
@@ -463,6 +493,8 @@
 </template>
 
 <script setup lang="ts">
+import { filesize } from 'filesize';
+
 import { ICloud, IHardDrive, IServer } from '#components';
 import { StorageType } from '#shared/prisma/enums';
 
@@ -502,6 +534,10 @@ const resettingKey = ref<InstanceSettingKey>();
 const secret = ref('');
 
 const { data, refresh } = await useFetch('/api/settings');
+const { data: aiStatus, refresh: refreshAiStatus } = await useFetch('/api/settings/ai-status');
+const isRetryingAi = ref(false);
+
+useIntervalFn(refreshAiStatus, 10_000);
 
 const form = reactive({} as InstanceSettings);
 
@@ -622,6 +658,18 @@ const sections: SettingSection[] = [
                 description: 'Process uploads with the local AI models.',
             },
             {
+                key: 'aiPreset',
+                label: 'Preset',
+                type: 'select',
+                options: [
+                    { value: 'low', label: 'Low (4 GB RAM)' },
+                    { value: 'medium', label: 'Medium (6 GB RAM)' },
+                    { value: 'high', label: 'High (8 GB RAM)' },
+                ],
+                description:
+                    'Larger presets use more accurate models. Changing it analyzes every file again in the background.',
+            },
+            {
                 key: 'aiQueueConcurrency',
                 label: 'Parallel jobs',
                 type: 'number',
@@ -631,44 +679,19 @@ const sections: SettingSection[] = [
             },
             {
                 key: 'aiInferenceThreads',
-                label: 'Inference threads',
+                label: 'Threads per job',
                 type: 'number',
                 min: 1,
                 max: 64,
-                description: 'Applies after a restart.',
-                half: true,
-            },
-            {
-                key: 'aiVideoMaxFrames',
-                label: 'Video frames',
-                type: 'number',
-                min: 1,
-                max: 120,
-                half: true,
-            },
-            {
-                key: 'aiVideoSampleIntervalSeconds',
-                label: 'Frame interval (seconds)',
-                type: 'number',
-                min: 1,
-                max: 3600,
                 half: true,
             },
             {
                 key: 'aiJobLeaseMs',
-                label: 'Job timeout (ms)',
+                label: 'Job heartbeat timeout (ms)',
                 type: 'number',
                 min: 60_000,
-                description: 'A job running longer than this is retried.',
-                half: true,
-            },
-            {
-                key: 'aiJobDequeueRetries',
-                label: 'Queue retries',
-                type: 'number',
-                min: 1,
-                max: 50,
-                half: true,
+                description:
+                    'A job whose server stops responding for this long is picked up again.',
             },
         ],
     },
@@ -901,6 +924,20 @@ const handleSave = async (section: SettingSection) => {
     }
 
     savingSection.value = undefined;
+};
+
+const handleRetryAi = async () => {
+    isRetryingAi.value = true;
+
+    try {
+        const { retried } = await $fetch('/api/settings/ai-retry', { method: 'POST' });
+        await refreshAiStatus();
+        $toast.success(`Retrying ${pluralize(retried, 'file')}`);
+    } catch (error: any) {
+        $toast.error(getErrorMessage(error));
+    }
+
+    isRetryingAi.value = false;
 };
 
 const handleReset = async (key: InstanceSettingKey) => {

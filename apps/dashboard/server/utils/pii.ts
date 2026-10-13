@@ -23,6 +23,14 @@ const CARD_PATTERN =
 
 const CARD_PRINT = /\b(?:valid|good)\s?(?:thru|until)\b|\bexp(?:iry|ires)?\b/i;
 
+const CAPTION_DOCUMENTS: [RegExp, string][] = [
+    [/\b(?:credit|debit|bank|payment)\s+cards?\b/i, 'PAYMENT_CARD'],
+    [
+        /\b(?:passports?|id cards?|identity cards?|identification cards?|driver'?s licen[cs]es?)\b/i,
+        'ID_DOCUMENT',
+    ],
+];
+
 const IBAN_PATTERN = /\b[A-Z]{2}\d{2}(?:\s?[A-Z0-9]{4}){2,7}(?:\s?[A-Z0-9]{1,4})?\b/g;
 
 const compact = (value: string) => value.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -112,8 +120,12 @@ const findValidatedPii = (text: string) => {
     return { reasons, numbers };
 };
 
-export const findPii = (text: string, entities: PrivacyEntity[]) => {
+export const findPii = (text: string, entities: PrivacyEntity[], caption = '') => {
     const { reasons, numbers } = findValidatedPii(text);
+
+    if (/\d(?:[\s-]?\d){5,}/.test(text))
+        for (const [pattern, reason] of CAPTION_DOCUMENTS)
+            if (pattern.test(caption)) reasons.add(reason);
 
     for (const entity of entities) {
         const reason = ENTITY_REASONS[entity.entity_group];
