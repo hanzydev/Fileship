@@ -4,20 +4,21 @@
             <Title>{{ data!.name }}</Title>
         </Head>
 
-        <ViewHeader
-            :title="data!.name"
-            :subtitle="pluralize(data!.fileCount, 'file')"
-            content-class="max-w-7xl"
-        >
-            <UiButton
-                size="sm"
-                :disabled="!data!.fileCount || isDownloading"
-                @click="handleDownload"
-            >
-                <UiSpinner v-if="isDownloading" />
-                <IDownload v-else />
-                <span class="hidden sm:inline">Download all</span>
-            </UiButton>
+        <ViewHeader :title="data!.name" :subtitle="subtitle" content-class="max-w-7xl">
+            <UiTooltip :disabled="!data!.lockedCount">
+                <UiTooltipTrigger as-child>
+                    <UiButton
+                        size="sm"
+                        :disabled="!data!.fileCount || isDownloading"
+                        @click="handleDownload"
+                    >
+                        <UiSpinner v-if="isDownloading" />
+                        <IDownload v-else />
+                        <span class="hidden sm:inline">Download all</span>
+                    </UiButton>
+                </UiTooltipTrigger>
+                <UiTooltipContent>Locked files are not included</UiTooltipContent>
+            </UiTooltip>
         </ViewHeader>
 
         <main class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 p-4">
@@ -28,7 +29,7 @@
                     class="lg:flex-1"
                     placeholder="Search files..."
                     :loading="!!search && isLoading"
-                    ai-available
+                    :ai-available="!!data!.authorId"
                 />
                 <div class="flex flex-wrap items-center gap-2">
                     <UiDropdownMenu>
@@ -114,7 +115,7 @@
 
             <VirtualList
                 v-else
-                :items="files"
+                :items="visibleFiles"
                 :item-key="(f) => f.id"
                 :min-item-width="220"
                 :estimate-size="260"
@@ -135,9 +136,20 @@
                     >
                         <UiCardContent>
                             <div class="relative aspect-4/3 overflow-hidden rounded-2xl bg-muted">
+                                <div
+                                    v-if="item.isLocked"
+                                    class="flex size-full flex-col items-center justify-center gap-2 text-muted-foreground"
+                                >
+                                    <ILock class="size-8" />
+                                    <TextBlock variant="muted" class="text-xs">
+                                        Password protected
+                                    </TextBlock>
+                                </div>
                                 <img
-                                    v-if="item.mimeType.startsWith('image/') || item.thumbnailUrl"
-                                    :src="item.thumbnailUrl || item.directUrl"
+                                    v-else-if="
+                                        item.mimeType.startsWith('image/') || item.thumbnailUrl
+                                    "
+                                    :src="withPassword(item, item.thumbnailUrl || item.directUrl)"
                                     :alt="item.fileName"
                                     loading="lazy"
                                     class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -149,7 +161,7 @@
                                     />
                                 </div>
                                 <div
-                                    v-if="item.mimeType.startsWith('video/')"
+                                    v-if="!item.isLocked && item.mimeType.startsWith('video/')"
                                     class="absolute inset-0 flex items-center justify-center"
                                 >
                                     <IPlay class="size-8 fill-white text-white drop-shadow" />
@@ -157,9 +169,15 @@
                             </div>
                         </UiCardContent>
                         <UiCardFooter class="flex-col items-start gap-0.5">
-                            <TextBlock variant="small" class="w-full truncate">
-                                {{ item.fileName }}
-                            </TextBlock>
+                            <div class="flex w-full items-center gap-1.5">
+                                <ILock
+                                    v-if="unlocked[item.id] || item.isLocked"
+                                    class="size-3.5 shrink-0 text-muted-foreground"
+                                />
+                                <TextBlock variant="small" class="truncate">
+                                    {{ item.fileName }}
+                                </TextBlock>
+                            </div>
                             <TextBlock variant="muted" class="truncate text-xs">
                                 {{ item.size.formatted }}
                             </TextBlock>
@@ -181,20 +199,30 @@
                 <div class="relative flex min-h-0 flex-1 items-center justify-center">
                     <img
                         v-if="current.mimeType.startsWith('image/')"
-                        :src="current.directUrl"
+                        :src="withPassword(current, current.directUrl)"
                         :alt="current.fileName"
                         class="max-h-full max-w-full rounded-2xl object-contain"
                     />
                     <video
                         v-else-if="current.mimeType.startsWith('video/')"
                         :key="current.id"
-                        :src="current.directUrl"
-                        :poster="current.thumbnailUrl || undefined"
+                        :src="withPassword(current, current.directUrl)"
+                        :poster="
+                            current.thumbnailUrl
+                                ? withPassword(current, current.thumbnailUrl)
+                                : undefined
+                        "
                         controls
                         autoplay
                         class="max-h-full max-w-full rounded-2xl"
                     />
-                    <audio v-else :key="current.id" :src="current.directUrl" controls autoplay />
+                    <audio
+                        v-else
+                        :key="current.id"
+                        :src="withPassword(current, current.directUrl)"
+                        controls
+                        autoplay
+                    />
 
                     <div class="absolute top-1/2 left-0 -translate-y-1/2">
                         <UiButton
@@ -219,18 +247,53 @@
                 </div>
                 <UiDialogFooter>
                     <UiButton variant="outline" as-child>
-                        <a :href="current.embedUrl" target="_blank">
+                        <a :href="withPassword(current, current.embedUrl)" target="_blank">
                             <IExternalLink />
                             Open
                         </a>
                     </UiButton>
                     <UiButton as-child>
-                        <a :href="`${current.directUrl}?download`" download>
+                        <a :href="withPassword(current, current.directUrl, true)" download>
                             <IDownload />
                             Download
                         </a>
                     </UiButton>
                 </UiDialogFooter>
+            </UiDialogContent>
+        </UiDialog>
+
+        <UiDialog :open="!!unlockTarget" @update:open="!$event && (unlockTarget = null)">
+            <UiDialogContent v-if="unlockTarget" class="sm:max-w-sm">
+                <form class="flex flex-col gap-6" @submit.prevent="handleUnlock">
+                    <UiDialogHeader>
+                        <UiDialogTitle class="flex items-center gap-2 pr-10">
+                            <ILock class="size-4 shrink-0" />
+                            <span class="truncate">{{ unlockTarget.fileName }}</span>
+                        </UiDialogTitle>
+                        <UiDialogDescription>
+                            This file is password protected. Enter the password to open it.
+                        </UiDialogDescription>
+                    </UiDialogHeader>
+                    <UiField :data-invalid="!!unlockError">
+                        <UiFieldLabel for="unlock-password">Password</UiFieldLabel>
+                        <PasswordInput
+                            id="unlock-password"
+                            v-model="unlockPassword"
+                            autofocus
+                            autocomplete="off"
+                        />
+                        <UiFieldError v-if="unlockError" :errors="[unlockError]" />
+                    </UiField>
+                    <UiDialogFooter>
+                        <UiButton type="button" variant="outline" @click="unlockTarget = null">
+                            Cancel
+                        </UiButton>
+                        <UiButton type="submit" :disabled="!unlockPassword || isUnlocking">
+                            <UiSpinner v-if="isUnlocking" />
+                            Open
+                        </UiButton>
+                    </UiDialogFooter>
+                </form>
             </UiDialogContent>
         </UiDialog>
     </div>
@@ -241,7 +304,9 @@ import { IFolderOpen, ISearchX } from '#components';
 
 const route = useRoute();
 
-const { data, error } = await useFetch<FolderData & { embed: IEmbed }>(
+type PublicFile = FileData & { isLocked: boolean };
+
+const { data, error } = await useFetch<FolderData & { embed: IEmbed; lockedCount: number }>(
     `/api/folders/${(route.params as any).id}`,
     {
         headers: useRequestHeaders(['host']),
@@ -258,6 +323,17 @@ const typeFilter = ref<FileCategory[]>([]);
 const sort = ref('');
 const isDownloading = ref(false);
 const current = ref<FileData | null>(null);
+const unlocked = ref<Record<string, { file: FileData; password: string }>>({});
+const unlockTarget = ref<PublicFile | null>(null);
+const unlockPassword = ref('');
+const unlockError = ref('');
+const isUnlocking = ref(false);
+
+const subtitle = computed(() =>
+    data.value!.lockedCount
+        ? `${pluralize(data.value!.fileCount, 'file')} · ${data.value!.lockedCount} locked`
+        : pluralize(data.value!.fileCount, 'file'),
+);
 
 const sortOptions = computed(() => [
     ...(search.value.trim() ? [{ label: 'Relevance', value: 'relevance' }] : []),
@@ -281,7 +357,7 @@ const {
     isLoading,
     isLoadingMore,
     loadMore,
-} = usePaginatedList<FileData>('files', `/api/folders/${data.value!.id}/files`, () => ({
+} = usePaginatedList<PublicFile>('files', `/api/folders/${data.value!.id}/files`, () => ({
     q: search.value.trim(),
     mode: search.value.trim() && aiSearch.value ? 'vector' : undefined,
     sort: sortValue.value === 'relevance' ? undefined : sortValue.value,
@@ -301,18 +377,65 @@ const handleClearFilters = () => {
     typeFilter.value = [];
 };
 
-const media = computed(() =>
-    files.value.filter((f) => ['image/', 'video/', 'audio/'].some((t) => f.mimeType.startsWith(t))),
+const visibleFiles = computed(() =>
+    files.value.map((file) =>
+        unlocked.value[file.id] ? { ...unlocked.value[file.id]!.file, isLocked: false } : file,
+    ),
 );
+
+const isMedia = (file: FileData) =>
+    ['image/', 'video/', 'audio/'].some((type) => file.mimeType.startsWith(type));
+
+const media = computed(() => visibleFiles.value.filter((f) => !f.isLocked && isMedia(f)));
+
+const withPassword = (file: FileData, url: string, download = false) => {
+    const params = new URLSearchParams();
+    const password = unlocked.value[file.id]?.password;
+
+    if (password) params.set('password', password);
+    if (download) params.set('download', '');
+
+    return params.size ? `${url}?${params.toString().replace(/=$/, '')}` : url;
+};
 
 const index = computed(() => media.value.findIndex((f) => f.id === current.value?.id));
 const prev = computed(() => media.value[index.value - 1]);
 const next = computed(() => media.value[index.value + 1]);
 
-const handleOpen = (file: FileData) => {
-    if (['image/', 'video/', 'audio/'].some((t) => file.mimeType.startsWith(t)))
-        current.value = file;
-    else window.open(file.embedUrl, '_blank');
+const handleOpen = (file: PublicFile) => {
+    if (file.isLocked) {
+        unlockTarget.value = file;
+        unlockPassword.value = '';
+        unlockError.value = '';
+        return;
+    }
+
+    if (isMedia(file)) current.value = file;
+    else window.open(withPassword(file, file.embedUrl), '_blank');
+};
+
+const handleUnlock = async () => {
+    const target = unlockTarget.value!;
+
+    isUnlocking.value = true;
+    unlockError.value = '';
+
+    try {
+        const file = await $fetch<FileData>(`/api/files/${target.id}`, {
+            query: { password: unlockPassword.value },
+        });
+
+        unlocked.value = {
+            ...unlocked.value,
+            [target.id]: { file, password: unlockPassword.value },
+        };
+        unlockTarget.value = null;
+        handleOpen({ ...file, isLocked: false });
+    } catch (error: any) {
+        unlockError.value = getErrorMessage(error);
+    }
+
+    isUnlocking.value = false;
 };
 
 const handleDownload = async () => {
