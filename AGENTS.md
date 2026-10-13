@@ -33,7 +33,7 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 
 ## Environment
 
-- `apps/dashboard/.env.example` lists every dashboard variable. Only `DATABASE_URL` is required. Optional groups: storage (`NUXT_DATA_DIRECTORY`), crons (`DELETE_EXPIRED_CRON`, `GENERATE_STATS_CRON`), uploads (`NUXT_PUBLIC_FILE_CHUNK_SIZE`, `NUXT_REMOVE_EXIF_DATA`, `NUXT_AVATAR_MAX_SIZE`), Turnstile, PWA (`ENABLE_PWA`), telemetry and the `NUXT_AI_*` / `NUXT_PUBLIC_AI_ENABLED` group.
+- `apps/dashboard/.env.example` lists every dashboard variable. Only `DATABASE_URL` is required. Optional groups: storage (`NUXT_DATA_DIRECTORY`), site (`NUXT_PUBLIC_SITE_NAME`, `NUXT_PUBLIC_RETURN_HTTPS`), updater (`NUXT_UPDATER_URL`, `NUXT_UPDATER_SECRET`), trash (`NUXT_TRASH_RETENTION_DAYS`), logs (`NUXT_LOG_LEVEL`), crons (`DELETE_EXPIRED_CRON`, `GENERATE_STATS_CRON`), uploads (`NUXT_PUBLIC_FILE_CHUNK_SIZE`, `NUXT_REMOVE_EXIF_DATA`, `NUXT_AVATAR_MAX_SIZE`), Turnstile, PWA (`ENABLE_PWA`), telemetry and the `NUXT_AI_*` / `NUXT_PUBLIC_AI_ENABLED` group.
 - Self-registration is off by default. `NUXT_PUBLIC_REGISTRATION_ENABLED=true` enables `/register` and `POST /api/auth/register`; `NUXT_REGISTRATION_PERMISSIONS` (only `UploadFiles`, `TakeNotes` and `ShortenLinks` are honoured) and `NUXT_REGISTRATION_USABLE_SPACE` (MB, `-1` unlimited) set what new accounts get.
 - `NUXT_UPDATER_URL` and `NUXT_UPDATER_SECRET` point the dashboard at the updater-agent. `docker-compose.yml` sets both.
 - The updater-agent reads `PORT`, `SECRET_TOKEN`, `DEV_MODE`, `AUTOUPDATER_ENABLED`, `AUTOUPDATER_CRON`, `COMPOSE_FILE` and `FILESHIP_URL`.
@@ -61,7 +61,7 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 - `app/utils`: client helpers (`socket.ts`, `uploadFile.ts`, `getErrorMessage.ts`, ...).
 - `server/api`: REST endpoints (`auth`, `files`, `folders`, `inbox`, `links`, `logs`, `notes`, `settings`, `storages`, `trash`, `updater`, `users`, `stats`, `healthz`).
 - `server/routes/u/[id]`: raw file serving. `server/routes/s/[code]`: short link redirects.
-- `server/middleware`: `auth.ts` (the `token` session cookie, plus the upload token on `POST /api/files`) and `cors.ts`.
+- `server/middleware`: `auth.ts` (the `token` session cookie, plus the upload token on `POST /api/files` and `POST /api/links`) and `cors.ts`.
 - `server/plugins`: `setup.ts`, `socketIO.ts`, `aiQueueRunner.ts`.
 - `server/tasks`: `db:*`, `dir:*`, `search:*`, `ai:*`, `media:*`, `storage:*`, `telemetry:*`, scheduled in `nuxt.config.ts` or started from `setup.ts`.
 - `server/storage`: storage drivers (`local`, `s3`, `sftp`, `ftp`) behind the `StorageDriver` interface in `types.ts`.

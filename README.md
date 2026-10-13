@@ -139,7 +139,7 @@ Super admins can configure Fileship from the dashboard in **Administration → I
 - **Uploads:** chunk size, avatar size limit, trash retention and EXIF removal
 - **Registration:** self-registration, default permissions (upload files, take notes, shorten links) and storage limit
 - **Turnstile:** site and secret keys
-- **AI:** features on or off, concurrency and video processing
+- **AI:** features on or off, preset, parallel jobs, threads per job and job heartbeat timeout, plus the analysis queue with **Retry failed** and **Reset AI data**
 - **Logs and telemetry:** log level and anonymous telemetry
 - **Storage:** where uploads and backups are kept
 
@@ -220,10 +220,11 @@ git pull
 | `TELEMETRY_ENABLED`    | `NUXT_TELEMETRY_ENABLED`    |
 | `UPDATER_URL`          | `NUXT_UPDATER_URL`          |
 | `UPDATER_SECRET`       | `NUXT_UPDATER_SECRET`       |
-| `AI_PRESET`            | `NUXT_AI_PRESET`            |
 | `AI_QUEUE_CONCURRENCY` | `NUXT_AI_QUEUE_CONCURRENCY` |
 | `AI_INFERENCE_THREADS` | `NUXT_AI_INFERENCE_THREADS` |
 | `AI_JOB_LEASE_MS`      | `NUXT_AI_JOB_LEASE_MS`      |
+
+`AI_VIDEO_MAX_FRAMES`, `AI_VIDEO_SAMPLE_INTERVAL_SECONDS` and `AI_JOB_DEQUEUE_RETRIES` were removed: the AI preset (`NUXT_AI_PRESET`, `low`, `medium` or `high`) now sets the video frames, and the queue no longer needs retries.
 
 Most of these can now be managed in **Administration → Instance** instead, so you may not need to set them at all. The upload chunk size must now be at least 5 MB; a smaller `NUXT_PUBLIC_FILE_CHUNK_SIZE` falls back to the default of 25 MB.
 
