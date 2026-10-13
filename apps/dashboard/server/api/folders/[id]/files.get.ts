@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
             author: {
                 select: {
                     domains: true,
+                    aiSettings: true,
                 },
             },
         },
@@ -64,7 +65,7 @@ export default defineEventHandler(async (event) => {
     const where: Prisma.FileWhereInput = {
         folderId: findFolderById.id,
         deletedAt: null,
-        ...(isOwner ? {} : { piiDetected: false }),
+        ...(isOwner ? {} : await visitorFileWhere(findFolderById.author)),
         AND: [
             query.type.length ? { OR: query.type.map(fileCategoryWhere) } : {},
             searchIds ? { id: { in: searchIds } } : {},

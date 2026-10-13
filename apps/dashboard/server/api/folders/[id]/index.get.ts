@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
                 select: {
                     domains: true,
                     embed: true,
+                    aiSettings: true,
                 },
             },
         },
@@ -34,7 +35,7 @@ export default defineEventHandler(async (event) => {
     const visibleFiles = {
         folderId: findFolderById.id,
         deletedAt: null,
-        ...(isOwner ? {} : { piiDetected: false }),
+        ...(isOwner ? {} : await visitorFileWhere(findFolderById.author)),
     };
 
     const [fileCount, lockedCount] = await Promise.all([

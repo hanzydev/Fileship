@@ -23,12 +23,13 @@ export default defineEventHandler(async (event) => {
                     createdAt: 'desc',
                 },
                 select: {
+                    id: true,
                     fileName: true,
                     password: true,
-                    piiDetected: true,
                     storageId: true,
                 },
             },
+            author: { select: { aiSettings: true } },
         },
     });
 
@@ -46,8 +47,18 @@ export default defineEventHandler(async (event) => {
             throw forbiddenError;
         } else {
             isPrivate = false;
-            findFolderById.files = findFolderById.files.filter(
-                (file) => !file.password && !file.piiDetected,
+            const visible = await prisma.file.findMany({
+                where: {
+                    folderId: findFolderById.id,
+                    deletedAt: null,
+                    password: null,
+                    ...(await visitorFileWhere(findFolderById.author)),
+                },
+                select: { id: true },
+            });
+
+            findFolderById.files = findFolderById.files.filter((file) =>
+                visible.some((other) => other.id === file.id),
             );
         }
     }
