@@ -42,7 +42,7 @@
 **Files and sharing**
 
 - Chunked uploads with drag and drop, paste-to-upload and an upload queue
-- Folders with cover previews, public sharing and archive downloads
+- Folders with cover previews, public sharing and archive downloads; password protected files in a public folder show a lock and open with their password
 - Markdown notes with code highlighting, math and public links
 - Password protection, expiry dates and view limits for files
 - Image compression, EXIF removal, image and video thumbnails, and media details (resolution, duration, frame rate, bitrate, codecs)
@@ -54,8 +54,8 @@
 
 **Search and AI**
 
-- Smart search that understands what is in your images
-- Image captions, OCR and sensitive content detection
+- Smart search in over 50 languages that understands what is in your images, videos and documents
+- Image captions, OCR and detection of sensitive content such as ID documents, payment cards and contact details
 - Every model runs locally on your server, and all of it can be turned off
 
 **Accounts and security**
@@ -294,6 +294,38 @@ When AI is disabled:
 - AI-related parts of the interface are hidden
 
 AI processing is CPU-intensive. On small servers, keep **Parallel jobs** at 1 and lower **Inference threads** in the instance settings.
+
+### Models
+
+The models are downloaded from Hugging Face the first time they are needed.
+
+| Task                                   | Model                                                                                                                                                                                      |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Image and video search                 | [CLIP ViT-B/32](https://huggingface.co/Xenova/clip-vit-base-patch32) with the [multilingual CLIP text encoder](https://huggingface.co/sentence-transformers/clip-ViT-B-32-multilingual-v1) |
+| Captions, OCR and document detection   | [Florence-2 base](https://huggingface.co/onnx-community/Florence-2-base)                                                                                                                   |
+| Search in captions, OCR and text files | [Multilingual MiniLM](https://huggingface.co/Xenova/paraphrase-multilingual-MiniLM-L12-v2)                                                                                                 |
+| Names next to sensitive content        | [Multilingual BERT NER](https://huggingface.co/Xenova/bert-base-multilingual-cased-ner-hrl)                                                                                                |
+
+### Smart search
+
+Smart search combines what images and videos show, what their captions and OCR text say, the content of text files, and file names. Queries work in over 50 languages, so `köpek` finds the same photos as `dog`. Only results that clearly match are shown; a query that matches nothing returns nothing.
+
+### Sensitive content
+
+Fileship marks a file as sensitive when it finds:
+
+- email addresses and phone numbers
+- payment card numbers (checked with the Luhn algorithm) and IBANs (checked with their checksum)
+- Turkish national ID numbers and passport machine-readable lines
+- photos of payment cards and ID documents
+
+Faces, brands, places and names on their own are not sensitive; a name only counts next to one of the above. Sensitive files are hidden from public folders and their archives, and can be blurred for you with **Hide sensitive previews** in your AI settings.
+
+If Fileship gets it wrong, choose **Not sensitive** or **Mark as sensitive** from the file's menu. Your choice is kept when the file is checked again.
+
+### Upgrading to v6
+
+v6 replaces the search models and the sensitive content rules. On the first start the old embeddings and the sensitive flags that no longer apply are removed, and every file is processed again in the background while AI is enabled. Full-text search keeps working in the meantime.
 
 ## 📊 Telemetry
 
