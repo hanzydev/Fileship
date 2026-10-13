@@ -31,13 +31,16 @@ export default defineEventHandler(async (event) => {
 
     if (!isOwner && !findFolderById.public) throw forbiddenError;
 
-    const fileCount = await prisma.file.count({
-        where: {
-            folderId: findFolderById.id,
-            deletedAt: null,
-            ...(isOwner ? {} : { password: null, piiDetected: false }),
-        },
-    });
+    const visibleFiles = {
+        folderId: findFolderById.id,
+        deletedAt: null,
+        ...(isOwner ? {} : { piiDetected: false }),
+    };
+
+    const [fileCount, lockedCount] = await Promise.all([
+        prisma.file.count({ where: visibleFiles }),
+        isOwner ? 0 : prisma.file.count({ where: { ...visibleFiles, password: { not: null } } }),
+    ]);
 
     return {
         ...findFolderById,
@@ -45,6 +48,7 @@ export default defineEventHandler(async (event) => {
         author: undefined,
         authorId: isOwner ? findFolderById.authorId : undefined,
         fileCount,
+        lockedCount,
         isInbox: !!findFolderById.inbox,
         embed: defu(findFolderById.author.embed, defaultEmbed) as IEmbed,
         publicUrl: findFolderById.public

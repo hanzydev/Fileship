@@ -63,6 +63,12 @@ export default defineEventHandler(async (event) => {
                 });
             }
 
+            await rateLimit(
+                `filePassword:${getRequestIP(event, { xForwardedFor: true })}:${findFileById.id}`,
+                20,
+                10 * 60 * 1000,
+            );
+
             if (query.password !== findFileById.password) {
                 throw createError({
                     status: 401,

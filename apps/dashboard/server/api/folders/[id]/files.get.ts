@@ -1,3 +1,5 @@
+import { filesize } from 'filesize';
+
 import type { Prisma } from '~~/generated/prisma/client';
 
 export default defineEventHandler(async (event) => {
@@ -33,17 +35,40 @@ export default defineEventHandler(async (event) => {
         mode: fileListShape.mode,
         type: fileListShape.type,
     });
+    const lockedIds =
+        query.q && !isOwner
+            ? (
+                  await prisma.file.findMany({
+                      where: {
+                          folderId: findFolderById.id,
+                          deletedAt: null,
+                          password: { not: null },
+                          fileName: { contains: query.q, mode: 'insensitive' },
+                      },
+                      select: { id: true },
+                  })
+              ).map((file) => file.id)
+            : [];
+
     const searchIds = query.q
-        ? await searchFileIds(query.q, findFolderById.authorId, isOwner ? query.mode : 'fulltext')
+        ? [
+              ...(await searchFileIds(
+                  query.q,
+                  findFolderById.authorId,
+                  isOwner ? query.mode : 'fulltext',
+              )),
+              ...lockedIds,
+          ]
         : undefined;
 
     const where: Prisma.FileWhereInput = {
         folderId: findFolderById.id,
         deletedAt: null,
-        ...(isOwner ? {} : { password: null, piiDetected: false }),
+        ...(isOwner ? {} : { piiDetected: false }),
         AND: [
             query.type.length ? { OR: query.type.map(fileCategoryWhere) } : {},
             searchIds ? { id: { in: searchIds } } : {},
+            searchIds && !isOwner ? { OR: [{ password: null }, { id: { in: lockedIds } }] } : {},
         ],
     };
 
@@ -52,7 +77,6 @@ export default defineEventHandler(async (event) => {
             embedding: true,
             textEmbedding: true,
             ocrText: true,
-            password: true,
             maxViews: true,
             expiresAt: true,
             folderId: true,
@@ -89,8 +113,25 @@ export default defineEventHandler(async (event) => {
     const todayViews = isOwner ? await getTodayViews(items.map((file) => file.id)) : new Map();
 
     return {
-        items: items.map((file) =>
-            serializeFile(event, file, findFolderById.author.domains, todayViews.get(file.id)),
+        items: items.map(({ password, ...file }) =>
+            password && !isOwner
+                ? {
+                      id: file.id,
+                      fileName: file.fileName,
+                      mimeType: file.mimeType,
+                      size: { raw: file.size.toString(), formatted: filesize(file.size) },
+                      createdAt: file.createdAt,
+                      isLocked: true,
+                  }
+                : {
+                      ...serializeFile(
+                          event,
+                          file,
+                          findFolderById.author.domains,
+                          todayViews.get(file.id),
+                      ),
+                      isLocked: false,
+                  },
         ),
         total,
     };
