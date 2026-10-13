@@ -252,7 +252,7 @@ const route = useRoute();
 const { $toast } = useNuxtApp();
 const { copy } = useClipboard({ legacy: true });
 
-const search = ref('');
+const search = useQueryState('q', '');
 const sort = ref({ key: 'createdAt', desc: true });
 const formErrors = ref();
 const isSaving = ref(false);

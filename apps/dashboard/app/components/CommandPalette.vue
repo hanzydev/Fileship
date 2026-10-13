@@ -1,7 +1,7 @@
 <template>
     <UiCommandDialog v-model:open="open" title="Search" description="Search or run a command">
         <UiCommandInput
-            placeholder="Search files, folders, notes or commands..."
+            placeholder="Search files, folders, notes, links or commands..."
             @update:model-value="query = $event"
         />
         <UiCommandList class="mb-1">
@@ -45,6 +45,19 @@
                 >
                     <IBookmark />
                     <span class="truncate">{{ note.title }}</span>
+                </UiCommandItem>
+            </UiCommandGroup>
+
+            <UiCommandGroup v-if="term && matchedLinks.length" class="px-1 pb-0" heading="Links">
+                <UiCommandItem
+                    v-for="link in matchedLinks"
+                    :key="`${link.id}:${term}`"
+                    :value="`link:${link.id}`"
+                    @select="handleSelect(`/dashboard/links?q=${encodeURIComponent(link.code)}`)"
+                >
+                    <ILink />
+                    <span class="truncate">{{ link.code }}</span>
+                    <UiCommandShortcut class="max-w-48 truncate">{{ link.url }}</UiCommandShortcut>
                 </UiCommandItem>
             </UiCommandGroup>
 
@@ -146,6 +159,10 @@ const matchedFolders = useMatches<FolderData>('folders', '/api/folders', () =>
 
 const matchedNotes = useMatches<NoteData>('notes', '/api/notes', () =>
     canTakeNotes(authUser.value),
+);
+
+const matchedLinks = useMatches<LinkData>('links', '/api/links', () =>
+    canShortenLinks(authUser.value),
 );
 
 const matchedUsers = useMatches<UserData>('users', '/api/users', () => isAdmin(authUser.value));
