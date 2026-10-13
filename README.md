@@ -84,10 +84,15 @@ Fileship targets current versions of Chrome, Edge, Firefox, Brave and Zen Browse
 
 ### Requirements
 
-- **CPU**: 2 cores
-- **RAM**: 6 GB with AI features (without them, less is enough)
-- **Disk**: 4 GB, plus space for uploaded files kept on the local disk
-- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
+|          | AI disabled | AI enabled                             |
+| -------- | ----------- | -------------------------------------- |
+| **CPU**  | 2 cores     | 4 cores                                |
+| **RAM**  | 2 GB        | 6 GB                                   |
+| **Disk** | 4 GB        | 6 GB (the AI models take about 1.5 GB) |
+
+Add the space for uploaded files kept on the local disk. AI runs on the CPU, so more cores make captions, OCR and search indexing faster; no GPU is needed. Both x86-64 and ARM64 are supported.
+
+You also need [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/).
 
 PostgreSQL 16 is included in the Compose stack.
 
