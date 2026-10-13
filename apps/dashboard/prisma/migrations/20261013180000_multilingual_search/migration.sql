@@ -2,4 +2,4 @@
 UPDATE "File" SET "embedding" = NULL, "textEmbedding" = NULL;
 
 DELETE FROM "AIJob"
-WHERE "type" IN ('GenerateClipEmbedding', 'GenerateVideoEmbedding', 'GenerateTextEmbedding');
+WHERE "type"::text IN ('GenerateClipEmbedding', 'GenerateVideoEmbedding', 'GenerateTextEmbedding');

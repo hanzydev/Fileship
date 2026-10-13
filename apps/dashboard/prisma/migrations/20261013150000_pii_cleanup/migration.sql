@@ -1,5 +1,5 @@
 -- AlterTable
-ALTER TABLE "File" ADD COLUMN "piiOverride" BOOLEAN;
+ALTER TABLE "File" ADD COLUMN IF NOT EXISTS "piiOverride" BOOLEAN;
 
 -- Remove the "null" strings left by empty OCR and caption results
 UPDATE "File" SET "ocrText" = '' WHERE "ocrText" = 'null';
@@ -39,4 +39,4 @@ UPDATE "File" SET "piiReasons" = '{}' WHERE "piiReasons" = ARRAY['PERSON_NAME'];
 UPDATE "File" SET "piiDetected" = cardinality("piiReasons") > 0;
 
 -- Re-check every file with the new rules
-DELETE FROM "AIJob" WHERE "type" = 'DetectPII';
+DELETE FROM "AIJob" WHERE "type"::text = 'DetectPII';
