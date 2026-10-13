@@ -23,10 +23,7 @@ import {
     RawImage,
 } from '@huggingface/transformers';
 
-type ODResult = {
-    bboxes: number[][];
-    labels: string[];
-};
+import type { PrivacyEntity } from './pii';
 
 env.allowLocalModels = true;
 env.backends.onnx.logLevel = 'error';
@@ -43,7 +40,10 @@ const CLIP_VISION_MODEL_ID = 'Xenova/clip-vit-base-patch32';
 const CLIP_TEXT_MODEL_ID = 'sentence-transformers/clip-ViT-B-32-multilingual-v1';
 const FLORENCE_MODEL_ID = 'onnx-community/Florence-2-base';
 const SEMANTIC_TEXT_MODEL_ID = 'Xenova/paraphrase-multilingual-MiniLM-L12-v2';
-const NER_MODEL_ID = 'Xenova/bert-base-multilingual-cased-ner-hrl';
+const PRIVACY_FILTER_MODEL_ID = 'openai/privacy-filter';
+
+const PRIVACY_FILTER_MAX_CHARS = 20_000;
+const PRIVACY_FILTER_IDLE_MS = 5 * 60_000;
 
 const CLIP_CENTERING = 0.8;
 const CLIP_NEUTRAL_PROMPTS = [
@@ -150,7 +150,9 @@ class AIService {
     private clipTextPromise: Promise<ClipTextBundle> | null = null;
     private florencePromise: Promise<FlorenceBundle> | null = null;
     private semanticPipelinePromise: Promise<any> | null = null;
-    private nerPipelinePromise: Promise<any> | null = null;
+    private privacyFilterPromise: Promise<any> | null = null;
+    private privacyFilterUsers = 0;
+    private privacyFilterTimer: NodeJS.Timeout | undefined;
 
     public static getInstance() {
         if (!this.instance) {
@@ -262,13 +264,30 @@ class AIService {
         return this.semanticPipelinePromise;
     }
 
-    private async getNerPipeline() {
-        if (!this.nerPipelinePromise) {
-            this.nerPipelinePromise = pipeline('token-classification', NER_MODEL_ID, {
-                dtype: 'q8',
-            });
+    private async withPrivacyFilter<T>(fn: (filter: any) => Promise<T>) {
+        clearTimeout(this.privacyFilterTimer);
+        this.privacyFilterUsers++;
+
+        try {
+            if (!this.privacyFilterPromise) {
+                this.privacyFilterPromise = pipeline(
+                    'token-classification',
+                    PRIVACY_FILTER_MODEL_ID,
+                    { dtype: 'q4' },
+                );
+                this.privacyFilterPromise.catch(() => (this.privacyFilterPromise = null));
+            }
+
+            return await fn(await this.privacyFilterPromise);
+        } finally {
+            if (!--this.privacyFilterUsers) {
+                this.privacyFilterTimer = setTimeout(async () => {
+                    const filter = this.privacyFilterPromise;
+                    this.privacyFilterPromise = null;
+                    await (await filter?.catch(() => null))?.dispose();
+                }, PRIVACY_FILTER_IDLE_MS);
+            }
         }
-        return this.nerPipelinePromise;
     }
 
     public async createImageEmbedding(imagePath: string): Promise<number[]> {
@@ -307,11 +326,6 @@ class AIService {
 
         const result = processor.post_process_generation(generatedText, task, image.size);
         return result[task] ?? null;
-    }
-
-    public async performObjectDetection(imagePath: string) {
-        const result = (await this.runFlorenceTask(imagePath, '<OD>')) as ODResult;
-        return result?.bboxes && result?.labels ? result : null;
     }
 
     public async performOcrOnImage(imagePath: string) {
@@ -353,39 +367,20 @@ class AIService {
         const isImage = ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(filePath));
         const isText = ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(filePath));
 
-        const text = isImage
-            ? (ocrText ?? (await this.performOcrOnImage(filePath)))
-            : isText
-              ? await readUtf8Snippet(filePath, 120_000)
-              : '';
+        const text = (
+            isImage
+                ? (ocrText ?? (await this.performOcrOnImage(filePath)))
+                : isText
+                  ? await readUtf8Snippet(filePath, 120_000)
+                  : ''
+        ).slice(0, PRIVACY_FILTER_MAX_CHARS);
 
-        const reasons = findPii(text);
+        if (!text.trim()) return { piiDetected: false, reasons: [] };
 
-        if (isImage) findDocumentPii(text).forEach((reason) => reasons.add(reason));
-
-        if (isImage && hasDocumentEvidence(text)) {
-            const detection = await this.performObjectDetection(filePath).catch(() => null);
-
-            for (const label of detection?.labels ?? []) {
-                const reason = getVisualPiiReason(label);
-                if (reason) reasons.add(reason);
-            }
-        }
-
-        if (reasons.size) {
-            const ner = await this.getNerPipeline();
-            const entities = await ner(text.slice(0, 2000), { aggregation_strategy: 'simple' });
-
-            if (
-                (entities as any[]).some(
-                    (entity) =>
-                        (entity.entity_group ?? entity.entity)?.endsWith('PER') &&
-                        entity.score >= 0.85 &&
-                        entity.word.replace(/#/g, '').trim().length > 2,
-                )
-            )
-                reasons.add('PERSON_NAME');
-        }
+        const entities: PrivacyEntity[] = await this.withPrivacyFilter((filter) =>
+            filter(text, { aggregation_strategy: 'simple' }),
+        );
+        const reasons = findPii(text, entities);
 
         return { piiDetected: reasons.size > 0, reasons: [...reasons] };
     }
