@@ -11,7 +11,24 @@ type CreateLogData = {
     system?: boolean;
 };
 
-const AllowedActions = ['Login', 'Create User', 'Update User', 'Delete User', 'Update Settings'];
+const AllowedActions = [
+    'Login',
+    'Register',
+    'TOTP',
+    'Impersonate',
+    'Regenerate Upload Token',
+    'Create User',
+    'Update User',
+    'Delete User',
+    'Update Settings',
+    'Create Storage',
+    'Update Storage',
+    'Delete Storage',
+    'Retry AI Jobs',
+    'Reset AI Data',
+    'Update Fileship',
+    'Flush Logs',
+];
 
 export const createLog = async (
     event: H3Event | null,
