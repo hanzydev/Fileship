@@ -32,7 +32,7 @@
         </UiCardContent>
     </UiCard>
 
-    <UiCard>
+    <UiCard v-if="canUpload">
         <UiCardHeader>
             <UiCardTitle>Upload options</UiCardTitle>
             <UiCardDescription>
@@ -158,18 +158,29 @@ const settings = reactive({
     folderId: null as string | null,
 });
 
+const canUpload = computed(() => canUploadFiles(authUser.value));
+const canShorten = computed(() => canShortenLinks(authUser.value));
+
+const linkStep = computed(() =>
+    canShorten.value ? ['Run it with --link and a URL to shorten the link.'] : [],
+);
+
 const integrations = computed(() => [
-    {
-        name: 'ShareX',
-        description: 'A custom uploader for ShareX on Windows.',
-        fileName: 'fileship.sxcu',
-        steps: [
-            'Download the config and open it, ShareX imports it as a custom uploader.',
-            'In ShareX, set Destinations → Image, Text and File uploader to Custom uploader.',
-        ],
-        build: buildShareXConfig,
-    },
-    ...(canShortenLinks(authUser.value)
+    ...(canUpload.value
+        ? [
+              {
+                  name: 'ShareX',
+                  description: 'A custom uploader for ShareX on Windows.',
+                  fileName: 'fileship.sxcu',
+                  steps: [
+                      'Download the config and open it, ShareX imports it as a custom uploader.',
+                      'In ShareX, set Destinations → Image, Text and File uploader to Custom uploader.',
+                  ],
+                  build: buildShareXConfig,
+              },
+          ]
+        : []),
+    ...(canShorten.value
         ? [
               {
                   name: 'ShareX URL shortener',
@@ -183,34 +194,36 @@ const integrations = computed(() => [
               },
           ]
         : []),
-    {
-        name: 'macOS',
-        description: 'A shell script that uploads a screenshot or files and copies the link.',
-        fileName: 'fileship.sh',
-        steps: [
-            'Download the script and make it executable with chmod +x fileship.sh.',
-            'Run it without arguments to capture a region, or pass files to upload them.',
-            ...(canShortenLinks(authUser.value)
-                ? ['Run it with --link and a URL to shorten the link.']
-                : []),
-            'For a keyboard shortcut, run it from a Shortcuts "Run Shell Script" action and allow screen recording when asked.',
-        ],
-        build: (options: IntegrationOptions) => buildUnixScript('macos', options),
-    },
-    {
-        name: 'Linux',
-        description: 'A shell script that uploads a screenshot or files and copies the link.',
-        fileName: 'fileship.sh',
-        steps: [
-            'Install curl, a screenshot tool (grim and slurp, flameshot, maim, gnome-screenshot or spectacle) and wl-clipboard or xclip.',
-            'Download the script and make it executable with chmod +x fileship.sh.',
-            'Run it without arguments to capture a region, or pass files to upload them. Bind it to a shortcut in your desktop settings.',
-            ...(canShortenLinks(authUser.value)
-                ? ['Run it with --link and a URL to shorten the link.']
-                : []),
-        ],
-        build: (options: IntegrationOptions) => buildUnixScript('linux', options),
-    },
+    ...(canUpload.value
+        ? [
+              {
+                  name: 'macOS',
+                  description:
+                      'A shell script that uploads a screenshot or files and copies the link.',
+                  fileName: 'fileship.sh',
+                  steps: [
+                      'Download the script and make it executable with chmod +x fileship.sh.',
+                      'Run it without arguments to capture a region, or pass files to upload them.',
+                      ...linkStep.value,
+                      'For a keyboard shortcut, run it from a Shortcuts "Run Shell Script" action and allow screen recording when asked.',
+                  ],
+                  build: (options: IntegrationOptions) => buildUnixScript('macos', options),
+              },
+              {
+                  name: 'Linux',
+                  description:
+                      'A shell script that uploads a screenshot or files and copies the link.',
+                  fileName: 'fileship.sh',
+                  steps: [
+                      'Install curl, a screenshot tool (grim and slurp, flameshot, maim, gnome-screenshot or spectacle) and wl-clipboard or xclip.',
+                      'Download the script and make it executable with chmod +x fileship.sh.',
+                      'Run it without arguments to capture a region, or pass files to upload them. Bind it to a shortcut in your desktop settings.',
+                      ...linkStep.value,
+                  ],
+                  build: (options: IntegrationOptions) => buildUnixScript('linux', options),
+              },
+          ]
+        : []),
 ]);
 
 const fields = computed(() => {
@@ -230,7 +243,7 @@ const handleDownload = (integration: (typeof integrations.value)[number]) => {
     const content = integration.build({
         name: `${publicSettings.value.siteName} - ${integration.fileName.includes('shortener') ? 'URL Shortener' : 'File Uploader'}`,
         url: `${requestUrl.origin}/api/files`,
-        linkUrl: canShortenLinks(authUser.value) ? `${requestUrl.origin}/api/links` : undefined,
+        linkUrl: canShorten.value ? `${requestUrl.origin}/api/links` : undefined,
         token: uploadToken.value!.token,
         fields: fields.value,
     });

@@ -24,6 +24,11 @@ export const noteTakerOnly = (event: H3Event) => {
     if (!canTakeNotes(event)) throw forbiddenError;
 };
 
+export const uploadTokenUserOnly = (event: H3Event) => {
+    userOnly(event);
+    if (!canUploadFiles(event) && !canShortenLinks(event)) throw forbiddenError;
+};
+
 export const linkShortenerOnly = (event: H3Event) => {
     userOnly(event);
     if (!canShortenLinks(event)) throw forbiddenError;

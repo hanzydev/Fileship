@@ -7,7 +7,7 @@ const validationSchema = z
     .optional();
 
 export default defineEventHandler(async (event) => {
-    fileUploaderOnly(event);
+    uploadTokenUserOnly(event);
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
