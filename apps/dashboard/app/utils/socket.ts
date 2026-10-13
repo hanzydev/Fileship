@@ -67,7 +67,7 @@ export const initSocket = () => {
 
         socket.on('currentUser:domainsUpdate', (data) => {
             domains.value = data;
-            refreshLists('files', 'folders', 'notes');
+            refreshLists('files', 'folders', 'notes', 'links');
         });
 
         socket.on('logout', () => {
