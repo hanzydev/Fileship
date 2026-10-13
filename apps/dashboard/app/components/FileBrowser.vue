@@ -7,7 +7,9 @@
                 v-model:ai="aiSearch"
                 class="xl:flex-1"
                 placeholder="Search files..."
-                :loading="!!query && isLoading"
+                :loading="
+                    !!searchInputValue.trim() && (isFetching || searchInputValue.trim() !== query)
+                "
                 :ai-available="canUseAi"
             />
 
@@ -401,6 +403,7 @@ const {
     summary: listSummary,
     query: listQuery,
     isLoading,
+    isFetching,
     isLoadingMore,
     hasMore,
     loadMore,

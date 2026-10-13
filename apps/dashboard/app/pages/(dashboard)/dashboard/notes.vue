@@ -24,7 +24,7 @@
             <UiCardContent class="flex flex-1 flex-col gap-3">
                 <UiInputGroup>
                     <UiInputGroupAddon>
-                        <UiSpinner v-if="!!search && isLoading" />
+                        <UiSpinner v-if="!!search && isFetching" />
                         <ISearch v-else />
                     </UiInputGroupAddon>
                     <UiInputGroupInput v-model="search" placeholder="Search notes..." />
@@ -129,6 +129,7 @@ const {
     items: notes,
     total,
     isLoading,
+    isFetching,
     isLoadingMore,
     loadMore,
 } = usePaginatedList<NoteData>('notes', '/api/notes', () => ({ q: search.value.trim() }));

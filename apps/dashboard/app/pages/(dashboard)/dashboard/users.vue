@@ -17,7 +17,7 @@
         <div class="flex flex-wrap items-center gap-2">
             <UiInputGroup class="max-w-sm flex-1">
                 <UiInputGroupAddon>
-                    <UiSpinner v-if="!!search && isLoading" />
+                    <UiSpinner v-if="!!search && isFetching" />
                     <ISearch v-else />
                 </UiInputGroupAddon>
                 <UiInputGroupInput v-model="search" placeholder="Search users..." />
@@ -165,6 +165,7 @@ const {
     items: users,
     total,
     isLoading,
+    isFetching,
     isLoadingMore,
     loadMore,
 } = usePaginatedList<UserData>('users', '/api/users', () => ({

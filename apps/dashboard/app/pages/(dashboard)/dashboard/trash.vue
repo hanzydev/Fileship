@@ -39,7 +39,7 @@
             </UiTabs>
             <UiInputGroup class="max-w-sm min-w-48 flex-1">
                 <UiInputGroupAddon>
-                    <UiSpinner v-if="!!search && isLoading" />
+                    <UiSpinner v-if="!!search && isFetching" />
                     <ISearch v-else />
                 </UiInputGroupAddon>
                 <UiInputGroupInput v-model="search" placeholder="Search trash..." />
@@ -257,7 +257,7 @@ const columns = computed(() => [
     { key: 'actions', label: '', class: 'w-16' },
 ]);
 
-const { items, total, hasMore, isLoading, isLoadingMore, isFresh, loadMore } =
+const { items, total, hasMore, isLoading, isFetching, isLoadingMore, isFresh, loadMore } =
     usePaginatedList<TrashItem>('trash', '/api/trash', () => ({
         kind: kind.value,
         q: search.value.trim(),

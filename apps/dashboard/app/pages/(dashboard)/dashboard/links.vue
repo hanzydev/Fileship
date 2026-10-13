@@ -16,7 +16,7 @@
 
         <UiInputGroup class="max-w-sm">
             <UiInputGroupAddon>
-                <UiSpinner v-if="!!search && isLoading" />
+                <UiSpinner v-if="!!search && isFetching" />
                 <ISearch v-else />
             </UiInputGroupAddon>
             <UiInputGroupInput v-model="search" placeholder="Search links..." />
@@ -286,6 +286,7 @@ const {
     items: links,
     total,
     isLoading,
+    isFetching,
     isLoadingMore,
     loadMore,
 } = usePaginatedList<LinkData>('links', '/api/links', () => ({

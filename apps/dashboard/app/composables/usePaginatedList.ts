@@ -175,6 +175,11 @@ export const usePaginatedList = <T extends { id: string }, S = undefined>(
         status,
         isLoading: computed(() => status.value === 'pending' && !items.value.length),
         isLoadingMore,
+        isFetching: computed(
+            () =>
+                status.value === 'pending' ||
+                (status.value === 'success' && loadedKey.value !== queryKey.value),
+        ),
         isFresh: computed(() => loadedKey.value === queryKey.value),
         hasMore: computed(() => items.value.length < total.value),
         query,

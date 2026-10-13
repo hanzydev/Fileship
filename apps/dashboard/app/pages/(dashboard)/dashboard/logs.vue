@@ -22,7 +22,7 @@
         <div class="flex flex-wrap gap-2">
             <UiInputGroup class="max-w-sm flex-1">
                 <UiInputGroupAddon>
-                    <UiSpinner v-if="!!search && isLoading" />
+                    <UiSpinner v-if="!!search && isFetching" />
                     <ISearch v-else />
                 </UiInputGroupAddon>
                 <UiInputGroupInput v-model="search" placeholder="Search logs..." />
@@ -224,6 +224,7 @@ const {
     items: logs,
     total,
     isLoading,
+    isFetching,
     isLoadingMore,
     loadMore,
 } = usePaginatedList<LogData>('logs', '/api/logs', () => ({

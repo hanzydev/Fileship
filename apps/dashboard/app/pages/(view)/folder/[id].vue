@@ -28,7 +28,7 @@
                     v-model:ai="aiSearch"
                     class="lg:flex-1"
                     placeholder="Search files..."
-                    :loading="!!search && isLoading"
+                    :loading="!!search && isFetching"
                     :ai-available="!!data!.authorId"
                 />
                 <div class="flex flex-wrap items-center gap-2">
@@ -355,6 +355,7 @@ const sortValue = computed({
 const {
     items: files,
     isLoading,
+    isFetching,
     isLoadingMore,
     loadMore,
 } = usePaginatedList<PublicFile>('files', `/api/folders/${data.value!.id}/files`, () => ({
