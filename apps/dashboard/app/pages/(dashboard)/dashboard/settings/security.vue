@@ -48,7 +48,7 @@
             <UiCardDescription>
                 Use a code from an authenticator app when signing in and for sensitive actions.
             </UiCardDescription>
-            <UiCardAction>
+            <UiCardAction class="self-center">
                 <UiButton
                     :variant="currentUser!.totpEnabled ? 'outline' : 'default'"
                     :disabled="isUpdatingTotp"
