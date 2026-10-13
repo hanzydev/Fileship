@@ -235,7 +235,8 @@ const handleImpersonate = async (user: UserData) => {
 const handleDelete = async (user: UserData) => {
     await askConfirmation({
         title: `Delete ${user.username}?`,
-        description: 'Their files, folders and notes will be deleted too. This cannot be undone.',
+        description:
+            'Their files, folders, notes and short links will be deleted too. This cannot be undone.',
         confirmText: 'Delete',
         destructive: true,
         action: async () => {

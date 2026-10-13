@@ -48,7 +48,7 @@
                 v-else-if="!backups.length"
                 :icon="IArchive"
                 title="No backups yet"
-                description="Create one to export all of your files, folders and notes."
+                description="Create one to export all of your files, folders, notes and short links."
             />
 
             <VirtualList
