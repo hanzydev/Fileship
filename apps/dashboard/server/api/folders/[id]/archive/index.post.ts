@@ -25,6 +25,7 @@ export default defineEventHandler(async (event) => {
                 select: {
                     fileName: true,
                     password: true,
+                    piiDetected: true,
                     storageId: true,
                 },
             },
@@ -45,7 +46,9 @@ export default defineEventHandler(async (event) => {
             throw forbiddenError;
         } else {
             isPrivate = false;
-            findFolderById.files = findFolderById.files.filter((f) => !f.password);
+            findFolderById.files = findFolderById.files.filter(
+                (file) => !file.password && !file.piiDetected,
+            );
         }
     }
 
