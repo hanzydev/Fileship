@@ -292,6 +292,13 @@
 
                         <UiTabsContent v-if="hasInsights" value="insights">
                             <div class="flex flex-col gap-4 py-2">
+                                <div
+                                    v-if="isAnalyzing"
+                                    class="flex items-center gap-2 text-muted-foreground"
+                                >
+                                    <UiSpinner />
+                                    <TextBlock variant="muted">Analyzing this file...</TextBlock>
+                                </div>
                                 <div v-if="file.caption" class="flex flex-col gap-1">
                                     <TextBlock variant="small">Caption</TextBlock>
                                     <TextBlock variant="muted">{{ file.caption }}</TextBlock>
@@ -524,8 +531,18 @@ const isSensitive = computed(
         publicSettings.value.aiEnabled,
 );
 
+const isAnalyzing = computed(
+    () =>
+        !trash &&
+        currentUser.value!.aiSettings.enabled &&
+        !file.value!.aiAnalyzedAt &&
+        !!getAIFileKind(file.value!.fileName),
+);
+
 const hasInsights = computed(
-    () => publicSettings.value.aiEnabled && (!!file.value!.caption || file.value!.piiDetected),
+    () =>
+        publicSettings.value.aiEnabled &&
+        (!!file.value!.caption || file.value!.piiDetected || isAnalyzing.value),
 );
 
 const details = computed(() => {
