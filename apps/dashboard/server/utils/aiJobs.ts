@@ -23,6 +23,42 @@ export const visitorFileWhere = async (owner: {
     };
 };
 
+export const resetAIData = async () => {
+    const cleared = {
+        embedding: DbNull,
+        embeddingModel: null,
+        textEmbedding: DbNull,
+        textEmbeddingModel: null,
+        ocrText: null,
+        caption: null,
+        aiAnalyzedAt: null,
+        piiReasons: [],
+    };
+
+    const [, ...updates] = await prisma.$transaction([
+        prisma.aIJob.deleteMany({}),
+        prisma.file.updateMany({
+            where: { piiOverride: null },
+            data: { ...cleared, piiDetected: false },
+        }),
+        prisma.file.updateMany({
+            where: { piiOverride: true },
+            data: { ...cleared, piiDetected: true },
+        }),
+        prisma.file.updateMany({
+            where: { piiOverride: false },
+            data: { ...cleared, piiDetected: false },
+        }),
+    ]);
+
+    clearFileVectors();
+    await rebuildFileSearchIndex();
+
+    if (await isAiEnabled()) runTask('ai:syncJobs').catch(() => null);
+
+    return updates.reduce((sum, update) => sum + update.count, 0);
+};
+
 export const AI_JOB_TYPES = {
     image: AIJobType.AnalyzeImage,
     video: AIJobType.AnalyzeVideo,

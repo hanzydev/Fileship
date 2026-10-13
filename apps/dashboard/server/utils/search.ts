@@ -1,6 +1,13 @@
 import consola from 'consola';
 
-import { type AnyOrama, insert, remove, search } from '@orama/orama';
+import {
+    type AnyOrama,
+    insert,
+    insertMultiple,
+    remove,
+    removeMultiple,
+    search,
+} from '@orama/orama';
 
 import type { AIPreset, SearchCutoff } from './aiPresets';
 import type { VectorKind } from './vectorIndex';
@@ -154,6 +161,31 @@ export const upsertFileSearchEntry = (fileId: string) =>
 
             await insert(fileSearchDb, toFileSearchDoc(file));
             indexFileVectors(file, await getAIPreset());
+        })
+        .catch(() => undefined));
+
+export const rebuildFileSearchIndex = () =>
+    (searchWrites = searchWrites
+        .then(async () => {
+            let cursor: string | undefined;
+
+            while (true) {
+                const files = await prisma.file.findMany({
+                    select: fileSearchSelect,
+                    orderBy: { id: 'asc' },
+                    take: 500,
+                    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+                });
+
+                await removeMultiple(
+                    fileSearchDb,
+                    files.map((file) => file.id),
+                );
+                await insertMultiple(fileSearchDb, files.map(toFileSearchDoc));
+
+                if (files.length < 500) break;
+                cursor = files.at(-1)!.id;
+            }
         })
         .catch(() => undefined));
 
