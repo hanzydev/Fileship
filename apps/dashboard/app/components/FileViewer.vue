@@ -197,7 +197,7 @@
                 </div>
 
                 <div class="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
-                    <UiTabs v-model="tab">
+                    <UiTabs v-model="activeTab">
                         <UiTabsList v-if="!trash || hasInsights" class="w-full">
                             <UiTabsTrigger value="details">Details</UiTabsTrigger>
                             <UiTabsTrigger v-if="!trash" value="edit">Edit</UiTabsTrigger>
@@ -538,6 +538,11 @@ const isAnalyzing = computed(
         !file.value!.aiAnalyzedAt &&
         !!getAIFileKind(file.value!.fileName),
 );
+
+const activeTab = computed({
+    get: () => (tab.value === 'insights' && !hasInsights.value ? 'details' : tab.value),
+    set: (value) => (tab.value = value),
+});
 
 const hasInsights = computed(
     () =>
