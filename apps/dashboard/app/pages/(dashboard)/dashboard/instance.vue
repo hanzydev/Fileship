@@ -214,18 +214,29 @@
                                                     {{ filesize(aiStatus.modelCacheSize) }}
                                                 </UiFieldDescription>
                                             </UiFieldContent>
-                                            <UiButton
-                                                v-if="aiStatus.failed"
-                                                type="button"
-                                                variant="outline"
-                                                size="sm"
-                                                :disabled="isRetryingAi"
-                                                @click="handleRetryAi"
-                                            >
-                                                <UiSpinner v-if="isRetryingAi" />
-                                                <IRotateCcw v-else />
-                                                Retry failed
-                                            </UiButton>
+                                            <div class="flex flex-wrap justify-end gap-2">
+                                                <UiButton
+                                                    v-if="aiStatus.failed"
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    :disabled="isRetryingAi"
+                                                    @click="handleRetryAi"
+                                                >
+                                                    <UiSpinner v-if="isRetryingAi" />
+                                                    <IRotateCcw v-else />
+                                                    Retry failed
+                                                </UiButton>
+                                                <UiButton
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    @click="handleResetAi"
+                                                >
+                                                    <ITrash2 />
+                                                    Reset AI data
+                                                </UiButton>
+                                            </div>
                                         </UiField>
                                     </template>
                                 </UiFieldGroup>
@@ -939,6 +950,33 @@ const handleRetryAi = async () => {
 
     isRetryingAi.value = false;
 };
+
+const handleResetAi = () =>
+    askConfirmation({
+        title: 'Reset all AI data?',
+        description:
+            'Captions, OCR text, search data and sensitive content flags of every file are deleted and every file is analyzed again in the background. Choices made with Not sensitive or Mark as sensitive are kept.',
+        confirmText: 'Reset',
+        destructive: true,
+        action: async () => {
+            try {
+                const result = await withVerification((verificationData) =>
+                    $fetch('/api/settings/ai-reset', {
+                        method: 'POST',
+                        body: { verificationData },
+                    }),
+                );
+
+                if (result) {
+                    await refreshAiStatus();
+                    $toast.success(`Analyzing ${pluralize(result.files, 'file')} again`);
+                }
+            } catch (error: any) {
+                $toast.error(getErrorMessage(error));
+                return false;
+            }
+        },
+    });
 
 const handleReset = async (key: InstanceSettingKey) => {
     resettingKey.value = key;

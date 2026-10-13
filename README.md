@@ -296,7 +296,7 @@ When AI is disabled:
 - smart search falls back to full-text search
 - AI-related parts of the interface are hidden
 
-Every image, video and text file is analyzed once in the background after it is uploaded. **Parallel jobs** sets how many files are analyzed at the same time and **Threads per job** how many CPU cores each one uses; on small servers keep both low. A job whose server stops responding is picked up again after **Job heartbeat timeout**, and a file that fails three times is left alone until you choose **Retry failed** in the AI section of **Administration → Instance**, which also shows the queue.
+Every image, video and text file is analyzed once in the background after it is uploaded. **Parallel jobs** sets how many files are analyzed at the same time and **Threads per job** how many CPU cores each one uses; on small servers keep both low. A job whose server stops responding is picked up again after **Job heartbeat timeout**, and a file that fails three times is left alone until you choose **Retry failed** in the AI section of **Administration → Instance**, which also shows the queue. **Reset AI data** there deletes the captions, OCR text, search data and sensitive content flags of every file and analyzes everything again; choices made with **Not sensitive** or **Mark as sensitive** are kept.
 
 ### AI presets
 
