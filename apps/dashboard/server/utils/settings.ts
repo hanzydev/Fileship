@@ -38,7 +38,7 @@ export const getSettingDefaults = (): InstanceSettings => {
                         ] as string[]
                     ).includes(permission),
                 ),
-            [UserPermission.UploadFiles, UserPermission.TakeNotes],
+            [UserPermission.UploadFiles, UserPermission.TakeNotes, UserPermission.ShortenLinks],
         ),
         registrationUsableSpace: parseDefault(
             'registrationUsableSpace',

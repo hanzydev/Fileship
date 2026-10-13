@@ -126,7 +126,7 @@ export default defineNuxtConfig({
             secretKey: '',
         },
         registration: {
-            permissions: 'UploadFiles,TakeNotes',
+            permissions: 'UploadFiles,TakeNotes,ShortenLinks',
             usableSpace: -1,
         },
         dataDirectory: 'data',
