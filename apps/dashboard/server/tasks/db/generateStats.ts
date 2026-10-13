@@ -7,18 +7,20 @@ export default defineTask({
         description: 'Generates statistics',
     },
     async run() {
-        const [users, storage, filesCount, byUser, viewsByOwner, types] = await Promise.all([
-            prisma.user.count(),
-            prisma.file.aggregate({ _sum: { size: true } }),
-            prisma.file.count({ where: { deletedAt: null } }),
-            prisma.file.groupBy({ by: ['authorId'], _count: true, _sum: { size: true } }),
-            prisma.view.groupBy({
-                by: ['ownerId'],
-                _count: true,
-                where: { ownerId: { not: null } },
-            }),
-            prisma.file.groupBy({ by: ['mimeType'], _count: true, where: { deletedAt: null } }),
-        ]);
+        const [users, storage, filesCount, byUser, filesByOwner, viewsByOwner, types] =
+            await Promise.all([
+                prisma.user.count(),
+                prisma.file.aggregate({ _sum: { size: true } }),
+                prisma.file.count({ where: { deletedAt: null } }),
+                prisma.file.groupBy({ by: ['authorId'], _sum: { size: true } }),
+                prisma.file.groupBy({ by: ['authorId'], _count: true, where: { deletedAt: null } }),
+                prisma.view.groupBy({
+                    by: ['ownerId'],
+                    _count: true,
+                    where: { ownerId: { not: null } },
+                }),
+                prisma.file.groupBy({ by: ['mimeType'], _count: true, where: { deletedAt: null } }),
+            ]);
 
         await prisma.stat.create({
             data: {
@@ -32,7 +34,7 @@ export default defineTask({
                     .map((v) => ({ userId: v.ownerId!, count: v._count }))
                     .sort((a, b) => b.count - a.count),
                 files: filesCount,
-                filesByUser: byUser
+                filesByUser: filesByOwner
                     .map((u) => ({ userId: u.authorId, count: u._count }))
                     .sort((a, b) => b.count - a.count),
                 types: types
