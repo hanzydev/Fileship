@@ -84,13 +84,13 @@ Fileship targets current versions of Chrome, Edge, Firefox, Brave and Zen Browse
 
 ### Requirements
 
-|          | AI disabled | AI enabled                             |
-| -------- | ----------- | -------------------------------------- |
-| **CPU**  | 2 cores     | 4 cores                                |
-| **RAM**  | 2 GB        | 6 GB                                   |
-| **Disk** | 4 GB        | 6 GB (the AI models take about 1.5 GB) |
+|          | AI disabled | AI preset `low` | AI preset `medium` | AI preset `high` |
+| -------- | ----------- | --------------- | ------------------ | ---------------- |
+| **CPU**  | 2 cores     | 2 cores         | 4 cores            | 4 cores or more  |
+| **RAM**  | 2 GB        | 4 GB            | 6 GB               | 8 GB             |
+| **Disk** | 4 GB        | 6 GB            | 7 GB               | 7.5 GB           |
 
-Add the space for uploaded files kept on the local disk. AI runs on the CPU, so more cores make captions, OCR and search indexing faster; no GPU is needed. Both x86-64 and ARM64 are supported.
+The disk sizes include about 1.8, 2.6 and 3 GB of AI models. Add the space for uploaded files kept on the local disk. AI runs on the CPU, so more cores analyze uploads faster; no GPU is needed. Both x86-64 and ARM64 are supported. See [AI presets](#ai-presets) for what each preset does.
 
 You also need [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/).
 
@@ -211,21 +211,19 @@ git pull
 
 **2. Rename any of these variables you set yourself:**
 
-| 5.x                                | 6.0                                     |
-| ---------------------------------- | --------------------------------------- |
-| `DATA_DIRECTORY`                   | `NUXT_DATA_DIRECTORY`                   |
-| `REMOVE_EXIF_DATA`                 | `NUXT_REMOVE_EXIF_DATA`                 |
-| `AVATAR_MAX_SIZE`                  | `NUXT_AVATAR_MAX_SIZE`                  |
-| `LOG_LEVEL`                        | `NUXT_LOG_LEVEL`                        |
-| `TELEMETRY_ENABLED`                | `NUXT_TELEMETRY_ENABLED`                |
-| `UPDATER_URL`                      | `NUXT_UPDATER_URL`                      |
-| `UPDATER_SECRET`                   | `NUXT_UPDATER_SECRET`                   |
-| `AI_QUEUE_CONCURRENCY`             | `NUXT_AI_QUEUE_CONCURRENCY`             |
-| `AI_INFERENCE_THREADS`             | `NUXT_AI_INFERENCE_THREADS`             |
-| `AI_VIDEO_MAX_FRAMES`              | `NUXT_AI_VIDEO_MAX_FRAMES`              |
-| `AI_VIDEO_SAMPLE_INTERVAL_SECONDS` | `NUXT_AI_VIDEO_SAMPLE_INTERVAL_SECONDS` |
-| `AI_JOB_LEASE_MS`                  | `NUXT_AI_JOB_LEASE_MS`                  |
-| `AI_JOB_DEQUEUE_RETRIES`           | `NUXT_AI_JOB_DEQUEUE_RETRIES`           |
+| 5.x                    | 6.0                         |
+| ---------------------- | --------------------------- |
+| `DATA_DIRECTORY`       | `NUXT_DATA_DIRECTORY`       |
+| `REMOVE_EXIF_DATA`     | `NUXT_REMOVE_EXIF_DATA`     |
+| `AVATAR_MAX_SIZE`      | `NUXT_AVATAR_MAX_SIZE`      |
+| `LOG_LEVEL`            | `NUXT_LOG_LEVEL`            |
+| `TELEMETRY_ENABLED`    | `NUXT_TELEMETRY_ENABLED`    |
+| `UPDATER_URL`          | `NUXT_UPDATER_URL`          |
+| `UPDATER_SECRET`       | `NUXT_UPDATER_SECRET`       |
+| `AI_PRESET`            | `NUXT_AI_PRESET`            |
+| `AI_QUEUE_CONCURRENCY` | `NUXT_AI_QUEUE_CONCURRENCY` |
+| `AI_INFERENCE_THREADS` | `NUXT_AI_INFERENCE_THREADS` |
+| `AI_JOB_LEASE_MS`      | `NUXT_AI_JOB_LEASE_MS`      |
 
 Most of these can now be managed in **Administration → Instance** instead, so you may not need to set them at all. The upload chunk size must now be at least 5 MB; a smaller `NUXT_PUBLIC_FILE_CHUNK_SIZE` falls back to the default of 25 MB.
 
@@ -298,22 +296,37 @@ When AI is disabled:
 - smart search falls back to full-text search
 - AI-related parts of the interface are hidden
 
-AI processing is CPU-intensive. On small servers, keep **Parallel jobs** at 1 and lower **Inference threads** in the instance settings.
+Every image, video and text file is analyzed once in the background after it is uploaded. **Parallel jobs** sets how many files are analyzed at the same time and **Threads per job** how many CPU cores each one uses; on small servers keep both low. A job whose server stops responding is picked up again after **Job heartbeat timeout**, and a file that fails three times is left alone until you choose **Retry failed** in the AI section of **Administration → Instance**, which also shows the queue.
+
+### AI presets
+
+The preset sets which models are used and how long they stay in memory. Choose it in **Administration → Instance** or with `NUXT_AI_PRESET`. Changing it analyzes files again in the background where the models differ.
+
+|                        | `low`                          | `medium` (default)                    | `high`                                 |
+| ---------------------- | ------------------------------ | ------------------------------------- | -------------------------------------- |
+| Image and video search | mSigLIP, compact query encoder | mSigLIP, full precision query encoder | mSigLIP, full precision query encoder  |
+| Captions               | short                          | detailed                              | detailed, full precision image encoder |
+| OCR                    | PaddleOCR tiny                 | PaddleOCR small                       | PaddleOCR small                        |
+| Video frames           | 8                              | 16                                    | 32                                     |
+| Models stay loaded for | 2 minutes                      | 5 minutes                             | 15 minutes                             |
 
 ### Models
 
-The models are downloaded from Hugging Face the first time they are needed.
+The models are downloaded from Hugging Face the first time they are needed and kept in `data/models`, so updates and both blue/green containers reuse them. To run without internet access, copy that folder from another installation.
 
-| Task                                   | Model                                                                                                                                                                                      |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Image and video search                 | [CLIP ViT-B/32](https://huggingface.co/Xenova/clip-vit-base-patch32) with the [multilingual CLIP text encoder](https://huggingface.co/sentence-transformers/clip-ViT-B-32-multilingual-v1) |
-| Captions, OCR and document detection   | [Florence-2 base](https://huggingface.co/onnx-community/Florence-2-base)                                                                                                                   |
-| Search in captions, OCR and text files | [Multilingual MiniLM](https://huggingface.co/Xenova/paraphrase-multilingual-MiniLM-L12-v2)                                                                                                 |
-| Sensitive content                      | [OpenAI Privacy Filter](https://huggingface.co/openai/privacy-filter)                                                                                                                      |
+| Task                                   | Model                                                                                                                                                                  |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Image and video search                 | [mSigLIP base](https://huggingface.co/google/siglip-base-patch16-256-multilingual) ([ONNX](https://huggingface.co/pulsejet/siglip-base-patch16-256-multilingual-onnx)) |
+| Captions                               | [Florence-2 base](https://huggingface.co/onnx-community/Florence-2-base)                                                                                               |
+| OCR                                    | [PaddleOCR PP-OCRv6 and PP-OCRv5 script models](https://github.com/PT-Perkasa-Pilar-Utama/ppu-paddle-ocr)                                                              |
+| Search in captions, OCR and text files | [Multilingual MiniLM](https://huggingface.co/Xenova/paraphrase-multilingual-MiniLM-L12-v2)                                                                             |
+| Sensitive content                      | [OpenAI Privacy Filter](https://huggingface.co/openai/privacy-filter)                                                                                                  |
+
+The models were chosen by measuring them on 400 images of [Crossmodal-3600](https://google.github.io/crossmodal-3600/) with human captions in English, Turkish, German, Spanish, French, Arabic, Russian, Japanese and Chinese. Compared with v5, the `medium` preset finds the right image first for 76% of non-English queries instead of 58%, and a query that describes nothing in the library returns about 1.5 results instead of 12. OCR reads Latin, Cyrillic, Greek, Thai, Korean, Japanese and Chinese text (Arabic only partly), and no longer invents text on photos that have none.
 
 ### Smart search
 
-Smart search combines what images and videos show, what their captions and OCR text say, the content of text files, and file names. Queries work in over 50 languages, so `köpek` finds the same photos as `dog`. Only results that clearly match are shown; a query that matches nothing returns nothing.
+Smart search combines what images and videos show, what their captions and OCR text say, the content of text files, and file names. Queries work in many languages, so `köpek` finds the same photos as `dog`. Only results that clearly match are shown; a query that matches nothing returns few or no results. While a file is still being analyzed, full-text search already finds it by name.
 
 ### Sensitive content
 
@@ -323,16 +336,17 @@ Fileship reads the text of documents and the OCR text of images with the [OpenAI
 - account, ID, tax or social security numbers
 - passwords and secret keys
 - payment card numbers (checked with the Luhn algorithm), IBANs (checked with their checksum) and the machine-readable lines of passports and ID cards
+- photos of payment cards and ID documents that show a number
 
 Public information such as company addresses, support emails, brands and public figures is not sensitive. Faces are not sensitive, and a name or a personal date only counts next to something else, or when they appear together.
 
-The model is loaded when a file is checked and unloaded after five idle minutes. It needs about 2 GB of RAM while loaded. Sensitive files are hidden from public folders and their archives, and can be blurred for you with **Hide sensitive previews** in your AI settings.
+Sensitive files are hidden from public folders and their archives, and can be blurred for you with **Hide sensitive previews** in your AI settings. While AI is enabled, images and text files are also kept out of public folders until they have been checked.
 
 If Fileship gets it wrong, choose **Not sensitive** or **Mark as sensitive** from the file's menu. Your choice is kept when the file is checked again.
 
 ### Upgrading to v6
 
-v6 replaces the search models and the sensitive content rules. On the first start the old embeddings and the sensitive flags that no longer apply are removed, and every file is processed again in the background while AI is enabled. Full-text search keeps working in the meantime.
+v6 replaces the AI models, the OCR engine and the sensitive content rules. On the first start the old embeddings, OCR text and the sensitive flags that no longer apply are removed, and every file is analyzed again in the background while AI is enabled. Full-text search by file name and caption keeps working in the meantime.
 
 ## 📊 Telemetry
 
