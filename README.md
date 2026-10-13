@@ -55,7 +55,7 @@
 **Search and AI**
 
 - Smart search in over 50 languages that understands what is in your images, videos and documents
-- Image captions, OCR and detection of sensitive content such as ID documents, payment cards and contact details
+- Image captions, OCR and detection of sensitive content such as contact details, addresses, ID and account numbers, payment cards and secret keys, in any language
 - Every model runs locally on your server, and all of it can be turned off
 
 **Accounts and security**
@@ -85,7 +85,7 @@ Fileship targets current versions of Chrome, Edge, Firefox, Brave and Zen Browse
 ### Requirements
 
 - **CPU**: 2 cores
-- **RAM**: 4 GB (AI features use most of it; without AI, less is enough)
+- **RAM**: 6 GB with AI features (without them, less is enough)
 - **Disk**: 4 GB, plus space for uploaded files kept on the local disk
 - [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
 
@@ -304,7 +304,7 @@ The models are downloaded from Hugging Face the first time they are needed.
 | Image and video search                 | [CLIP ViT-B/32](https://huggingface.co/Xenova/clip-vit-base-patch32) with the [multilingual CLIP text encoder](https://huggingface.co/sentence-transformers/clip-ViT-B-32-multilingual-v1) |
 | Captions, OCR and document detection   | [Florence-2 base](https://huggingface.co/onnx-community/Florence-2-base)                                                                                                                   |
 | Search in captions, OCR and text files | [Multilingual MiniLM](https://huggingface.co/Xenova/paraphrase-multilingual-MiniLM-L12-v2)                                                                                                 |
-| Names next to sensitive content        | [Multilingual BERT NER](https://huggingface.co/Xenova/bert-base-multilingual-cased-ner-hrl)                                                                                                |
+| Sensitive content                      | [OpenAI Privacy Filter](https://huggingface.co/openai/privacy-filter)                                                                                                                      |
 
 ### Smart search
 
@@ -312,14 +312,16 @@ Smart search combines what images and videos show, what their captions and OCR t
 
 ### Sensitive content
 
-Fileship marks a file as sensitive when it finds:
+Fileship reads the text of documents and the OCR text of images with the [OpenAI Privacy Filter](https://huggingface.co/openai/privacy-filter) model, which looks at the context instead of fixed patterns, so it works with any country's formats. A file is marked as sensitive when it contains:
 
-- email addresses and phone numbers
-- payment card numbers (checked with the Luhn algorithm) and IBANs (checked with their checksum)
-- Turkish national ID numbers and passport machine-readable lines
-- photos of payment cards and ID documents
+- private email addresses, phone numbers or home addresses
+- account, ID, tax or social security numbers
+- passwords and secret keys
+- payment card numbers (checked with the Luhn algorithm), IBANs (checked with their checksum) and the machine-readable lines of passports and ID cards
 
-Faces, brands, places and names on their own are not sensitive; a name only counts next to one of the above. Sensitive files are hidden from public folders and their archives, and can be blurred for you with **Hide sensitive previews** in your AI settings.
+Public information such as company addresses, support emails, brands and public figures is not sensitive. Faces are not sensitive, and a name or a personal date only counts next to something else, or when they appear together.
+
+The model is loaded when a file is checked and unloaded after five idle minutes. It needs about 2 GB of RAM while loaded. Sensitive files are hidden from public folders and their archives, and can be blurred for you with **Hide sensitive previews** in your AI settings.
 
 If Fileship gets it wrong, choose **Not sensitive** or **Mark as sensitive** from the file's menu. Your choice is kept when the file is checked again.
 
