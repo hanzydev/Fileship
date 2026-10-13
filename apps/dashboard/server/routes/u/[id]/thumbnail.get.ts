@@ -41,7 +41,14 @@ export default defineEventHandler(async (event) => {
             });
         }
 
-        if (findFileById.password && query.password !== findFileById.password) {
+        if (
+            findFileById.password &&
+            !(await limitPasswordAttempts(
+                event,
+                findFileById.id,
+                query.password === findFileById.password,
+            ))
+        ) {
             throw createError({
                 status: 401,
                 message: 'Invalid password',

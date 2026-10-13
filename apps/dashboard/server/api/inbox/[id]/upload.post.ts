@@ -73,7 +73,11 @@ export default defineEventHandler(async (event) => {
     if (
         currentUser?.id !== findInboxById.user.id &&
         findInboxById.password &&
-        findInboxById.password !== body.data.inboxPassword
+        !(await limitPasswordAttempts(
+            event,
+            findInboxById.id,
+            findInboxById.password === body.data.inboxPassword,
+        ))
     ) {
         throw forbiddenError;
     }

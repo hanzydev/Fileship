@@ -41,7 +41,13 @@ export default defineEventHandler(async (event) => {
             });
         }
 
-        if (query.password !== findInboxById.password) {
+        if (
+            !(await limitPasswordAttempts(
+                event,
+                findInboxById.id,
+                query.password === findInboxById.password,
+            ))
+        ) {
             throw createError({
                 status: 401,
                 message: 'Invalid password',

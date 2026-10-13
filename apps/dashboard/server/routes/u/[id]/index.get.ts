@@ -55,7 +55,13 @@ export default defineEventHandler(async (event) => {
                 return await sendRedirect(event, `/view/${fileNameOrId}`);
             }
 
-            if (query.password !== findFileById.password) {
+            if (
+                !(await limitPasswordAttempts(
+                    event,
+                    findFileById.id,
+                    query.password === findFileById.password,
+                ))
+            ) {
                 throw createError({
                     status: 401,
                     message: 'Invalid password',
