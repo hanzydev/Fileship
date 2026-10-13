@@ -75,5 +75,8 @@ export default defineEventHandler(async (event) => {
     sendToUser(currentUser.id, 'trash:update', null);
     sendToUser(currentUser.id, 'trash:restore', null);
 
+    if (counts.files && (await isAiEnabled()))
+        runTask('ai:syncJobs', { payload: { userId: currentUser.id } }).catch(() => null);
+
     return counts;
 });
