@@ -4,9 +4,8 @@ import consola from 'consola';
 import dayjs from 'dayjs';
 import { extname } from 'pathe';
 
-import { insert, remove } from '@orama/orama';
-
 import { AIJobStatus, AIJobType } from '#shared/prisma/enums';
+import { DbNull } from '~~/generated/prisma/internal/prismaNamespace';
 
 const WORKER_ID = randomUUID();
 
@@ -48,309 +47,88 @@ export default defineTask({
                     return { id: job.id, result: 'disabled' };
                 }
 
-                if (job.type === AIJobType.GenerateClipEmbedding) {
-                    if (!job.fileId) throw new Error('Missing fileId');
+                if (!job.fileId) throw new Error('Missing fileId');
 
-                    const file = await prisma.file.findUnique({
-                        where: { id: job.fileId, deletedAt: null },
-                        select: {
-                            id: true,
-                            fileName: true,
-                            storageId: true,
-                            mimeType: true,
-                            authorId: true,
-                            textEmbedding: true,
-                            ocrText: true,
-                            caption: true,
-                        },
-                    });
+                const file = await prisma.file.findUnique({
+                    where: { id: job.fileId, deletedAt: null },
+                    select: {
+                        id: true,
+                        fileName: true,
+                        storageId: true,
+                        authorId: true,
+                        ocrText: true,
+                        caption: true,
+                        piiOverride: true,
+                    },
+                });
 
-                    if (!file) throw new Error('File not found');
+                if (!file) throw new Error('File not found');
 
-                    const embedding = await withLocalFile(
-                        file.storageId,
-                        uploadKey(file.fileName),
-                        (filePath) => ai.createImageEmbedding(filePath),
+                const withFile = <T>(fn: (filePath: string) => Promise<T>) =>
+                    withLocalFile(file.storageId, uploadKey(file.fileName), fn);
+
+                const isImage = ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(
+                    extname(file.fileName),
+                );
+
+                if (
+                    job.type === AIJobType.GenerateClipEmbedding ||
+                    job.type === AIJobType.GenerateVideoEmbedding
+                ) {
+                    const embedding = await withFile((filePath) =>
+                        job.type === AIJobType.GenerateClipEmbedding
+                            ? ai.createImageEmbedding(filePath)
+                            : ai.createVideoEmbedding({ filePath }),
                     );
 
-                    await prisma.file.update({
-                        where: { id: file.id },
-                        data: { embedding },
-                    });
-
-                    try {
-                        await remove(fileSearchDb, file.id);
-                    } catch {
-                        //
-                    }
-
-                    await insert(fileSearchDb, {
-                        id: file.id,
-                        authorId: file.authorId,
-                        fileName: file.fileName,
-                        mimeType: file.mimeType,
-                        embedding,
-                        textEmbedding: (file.textEmbedding as number[]) || undefined,
-                        ocrText: file.ocrText || undefined,
-                        caption: file.caption || undefined,
-                    });
-                }
-
-                if (job.type === AIJobType.GenerateVideoEmbedding) {
-                    if (!job.fileId) throw new Error('Missing fileId');
-
-                    const file = await prisma.file.findUnique({
-                        where: { id: job.fileId, deletedAt: null },
-                        select: {
-                            id: true,
-                            fileName: true,
-                            storageId: true,
-                            mimeType: true,
-                            authorId: true,
-                            textEmbedding: true,
-                            ocrText: true,
-                            caption: true,
-                        },
-                    });
-
-                    if (!file) throw new Error('File not found');
-
-                    const embedding = await withLocalFile(
-                        file.storageId,
-                        uploadKey(file.fileName),
-                        (filePath) => ai.createVideoEmbedding({ filePath }),
-                    );
-
-                    await prisma.file.update({
-                        where: { id: file.id },
-                        data: { embedding },
-                    });
-
-                    try {
-                        await remove(fileSearchDb, file.id);
-                    } catch {
-                        //
-                    }
-
-                    await insert(fileSearchDb, {
-                        id: file.id,
-                        authorId: file.authorId,
-                        fileName: file.fileName,
-                        mimeType: file.mimeType,
-                        embedding,
-                        textEmbedding: (file.textEmbedding as number[]) || undefined,
-                        ocrText: file.ocrText || undefined,
-                        caption: file.caption || undefined,
-                    });
+                    await prisma.file.update({ where: { id: file.id }, data: { embedding } });
+                    await upsertFileSearchEntry(file.id);
                 }
 
                 if (job.type === AIJobType.GenerateOcrText) {
-                    if (!job.fileId) throw new Error('Missing fileId');
+                    const ocrText = await withFile((filePath) => ai.performOcrOnImage(filePath));
 
-                    const file = await prisma.file.findUnique({
-                        where: { id: job.fileId, deletedAt: null },
-                        select: {
-                            id: true,
-                            authorId: true,
-                            fileName: true,
-                            storageId: true,
-                            mimeType: true,
-                            ocrText: true,
-                            embedding: true,
-                            textEmbedding: true,
-                            caption: true,
-                        },
-                    });
+                    await prisma.file.update({ where: { id: file.id }, data: { ocrText } });
+                    await upsertFileSearchEntry(file.id);
 
-                    if (!file) throw new Error('File not found');
+                    for (const type of [AIJobType.GenerateTextEmbedding, AIJobType.DetectPII])
+                        await enqueueAIJob({ userId: job.userId, fileId: file.id, type });
+                }
 
-                    const text = await withLocalFile(
-                        file.storageId,
-                        uploadKey(file.fileName),
-                        (filePath) => ai.performOcrOnImage(filePath),
-                    );
+                if (job.type === AIJobType.GenerateImageCaption) {
+                    const caption = await withFile((filePath) => ai.generateImageCaption(filePath));
 
-                    await prisma.file.update({
-                        where: { id: file.id },
-                        data: { ocrText: text },
-                    });
-
-                    try {
-                        await remove(fileSearchDb, file.id);
-                    } catch {
-                        //
-                    }
-
-                    await insert(fileSearchDb, {
-                        id: file.id,
-                        authorId: file.authorId,
-                        fileName: file.fileName,
-                        mimeType: file.mimeType,
-                        embedding: (file.embedding as number[]) || undefined,
-                        textEmbedding: (file.textEmbedding as number[]) || undefined,
-                        ocrText: text || undefined,
-                        caption: file.caption || undefined,
-                    });
-
-                    if (text && !file.textEmbedding) {
-                        await enqueueAIJob({
-                            userId: job.userId,
-                            fileId: file.id,
-                            type: AIJobType.GenerateTextEmbedding,
-                        });
-                    }
+                    await prisma.file.update({ where: { id: file.id }, data: { caption } });
+                    await upsertFileSearchEntry(file.id);
 
                     await enqueueAIJob({
                         userId: job.userId,
                         fileId: file.id,
-                        type: AIJobType.DetectPII,
-                    });
-                }
-
-                if (job.type === AIJobType.GenerateTextEmbedding) {
-                    if (!job.fileId) throw new Error('Missing fileId');
-
-                    const file = await prisma.file.findUnique({
-                        where: { id: job.fileId, deletedAt: null },
-                        select: {
-                            id: true,
-                            fileName: true,
-                            storageId: true,
-                            mimeType: true,
-                            ocrText: true,
-                            embedding: true,
-                            textEmbedding: true,
-                            caption: true,
-                            authorId: true,
-                        },
-                    });
-
-                    if (!file) throw new Error('File not found');
-
-                    if (file.textEmbedding) {
-                        await completeAIJob(job.id);
-                        return { id: job.id, result: 'skip' };
-                    }
-
-                    const baseText =
-                        file.ocrText ??
-                        (ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(file.fileName))
-                            ? await withLocalFile(
-                                  file.storageId,
-                                  uploadKey(file.fileName),
-                                  (filePath) => readUtf8Snippet(filePath, 120_000),
-                              )
-                            : null);
-
-                    if (!baseText) {
-                        await completeAIJob(job.id);
-                        return { id: job.id, result: 'skip' };
-                    }
-
-                    const embedding = await ai.createSemanticTextEmbedding(baseText);
-                    if (!embedding) {
-                        await completeAIJob(job.id);
-                        return { id: job.id, result: 'skip' };
-                    }
-
-                    await prisma.file.update({
-                        where: { id: file.id },
-                        data: { textEmbedding: embedding },
-                    });
-
-                    try {
-                        await remove(fileSearchDb, file.id);
-                    } catch {
-                        //
-                    }
-
-                    await insert(fileSearchDb, {
-                        id: file.id,
-                        authorId: file.authorId,
-                        fileName: file.fileName,
-                        mimeType: file.mimeType,
-                        embedding: (file.embedding as number[]) || undefined,
-                        textEmbedding: embedding,
-                        ocrText: file.ocrText || undefined,
-                        caption: file.caption || undefined,
-                    });
-                }
-
-                if (job.type === AIJobType.GenerateImageCaption) {
-                    if (!job.fileId) throw new Error('Missing fileId');
-
-                    const file = await prisma.file.findUnique({
-                        where: { id: job.fileId, deletedAt: null },
-                        select: {
-                            id: true,
-                            fileName: true,
-                            storageId: true,
-                            mimeType: true,
-                            authorId: true,
-                            embedding: true,
-                            textEmbedding: true,
-                            ocrText: true,
-                        },
-                    });
-
-                    if (!file) throw new Error('File not found');
-
-                    const caption = await withLocalFile(
-                        file.storageId,
-                        uploadKey(file.fileName),
-                        (filePath) => ai.generateImageCaption(filePath),
-                    );
-
-                    await prisma.file.update({
-                        where: { id: file.id },
-                        data: { caption },
-                    });
-
-                    try {
-                        await remove(fileSearchDb, file.id);
-                    } catch {
-                        //
-                    }
-
-                    await insert(fileSearchDb, {
-                        id: file.id,
-                        authorId: file.authorId,
-                        fileName: file.fileName,
-                        mimeType: file.mimeType,
-                        embedding: (file.embedding as number[]) || undefined,
-                        textEmbedding: (file.textEmbedding as number[]) || undefined,
-                        ocrText: file.ocrText || undefined,
-                        caption,
+                        type: AIJobType.GenerateTextEmbedding,
                     });
 
                     sendToUser(file.authorId, 'file:update', { id: file.id, caption });
                 }
 
-                if (job.type === AIJobType.DetectPII) {
-                    if (!job.fileId) throw new Error('Missing fileId');
+                if (job.type === AIJobType.GenerateTextEmbedding) {
+                    const text = isImage
+                        ? [file.caption, file.ocrText].filter(Boolean).join('\n')
+                        : ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(file.fileName))
+                          ? await withFile((filePath) => readUtf8Snippet(filePath, 120_000))
+                          : '';
 
-                    const file = await prisma.file.findUnique({
-                        where: { id: job.fileId, deletedAt: null },
-                        select: {
-                            id: true,
-                            fileName: true,
-                            storageId: true,
-                            authorId: true,
-                            ocrText: true,
-                            piiOverride: true,
-                        },
+                    const textEmbedding = await ai.createSemanticTextEmbedding(text);
+
+                    await prisma.file.update({
+                        where: { id: file.id },
+                        data: { textEmbedding: textEmbedding ?? DbNull },
                     });
-                    if (!file) throw new Error('File not found');
+                    await upsertFileSearchEntry(file.id);
+                }
 
-                    if (file.piiOverride !== null) {
-                        await completeAIJob(job.id);
-                        return { id: job.id, result: 'skip' };
-                    }
-
-                    const { piiDetected, reasons } = await withLocalFile(
-                        file.storageId,
-                        uploadKey(file.fileName),
-                        (filePath) => ai.detectPII(filePath, file.ocrText),
+                if (job.type === AIJobType.DetectPII && file.piiOverride === null) {
+                    const { piiDetected, reasons } = await withFile((filePath) =>
+                        ai.detectPII(filePath, file.ocrText),
                     );
 
                     await prisma.file.update({

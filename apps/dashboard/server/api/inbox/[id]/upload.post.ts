@@ -3,8 +3,6 @@ import { nanoid } from 'nanoid';
 import { basename, extname } from 'pathe';
 import { z } from 'zod';
 
-import { insert } from '@orama/orama';
-
 import { AIJobType } from '#shared/prisma/enums';
 
 const validationSchema = z.object({
@@ -211,12 +209,7 @@ export default defineEventHandler(async (event) => {
             }
         }
 
-        await insert(fileSearchDb, {
-            id: upload.id,
-            authorId: upload.authorId,
-            fileName: upload.fileName,
-            mimeType: upload.mimeType,
-        });
+        await upsertFileSearchEntry(upload.id);
 
         await createLog(event, {
             action: 'Inbox File Upload',

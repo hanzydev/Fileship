@@ -13,18 +13,7 @@ export default defineTask({
             `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Adding data to Orama search database...`,
         );
 
-        const files = await prisma.file.findMany({
-            select: {
-                id: true,
-                authorId: true,
-                fileName: true,
-                mimeType: true,
-                embedding: true,
-                textEmbedding: true,
-                caption: true,
-                ocrText: true,
-            },
-        });
+        const files = await prisma.file.findMany({ select: fileSearchSelect });
 
         const folders = await prisma.folder.findMany({
             select: {
@@ -61,16 +50,7 @@ export default defineTask({
         const missing = <T extends { id: string }>(db: AnyOrama, docs: T[]) =>
             docs.filter((doc) => !getByID(db, doc.id));
 
-        await insertMultiple(
-            fileSearchDb,
-            missing(fileSearchDb, files).map((file) => ({
-                ...file,
-                embedding: (file.embedding as number[]) || undefined,
-                textEmbedding: (file.textEmbedding as number[]) || undefined,
-                caption: file.caption || undefined,
-                ocrText: file.ocrText || undefined,
-            })),
-        );
+        await insertMultiple(fileSearchDb, missing(fileSearchDb, files).map(toFileSearchDoc));
         await insertMultiple(folderSearchDb, missing(folderSearchDb, folders));
         await insertMultiple(noteSearchDb, missing(noteSearchDb, notes));
         await insertMultiple(userSearchDb, missing(userSearchDb, users));

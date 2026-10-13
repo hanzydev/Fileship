@@ -5,18 +5,21 @@ import { cpus, tmpdir } from 'node:os';
 import consola from 'consola';
 import dayjs from 'dayjs';
 import fluentFfmpeg from 'fluent-ffmpeg';
-import { extname, join } from 'pathe';
+import { dirname, extname, join } from 'pathe';
 
 import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import {
+    AutoModel,
+    AutoTokenizer,
     CLIPImageProcessor,
-    CLIPTextModelWithProjection,
-    CLIPTokenizer,
     CLIPVisionModelWithProjection,
     env,
     Florence2ForConditionalGeneration,
     Florence2Processor,
+    mean_pooling,
     pipeline,
+    type PreTrainedModel,
+    type PreTrainedTokenizer,
     RawImage,
 } from '@huggingface/transformers';
 
@@ -36,16 +39,73 @@ export const setInferenceThreads = (threads: number) => {
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 
-const CLIP_MODEL_ID = 'Xenova/clip-vit-large-patch14';
+const CLIP_VISION_MODEL_ID = 'Xenova/clip-vit-base-patch32';
+const CLIP_TEXT_MODEL_ID = 'sentence-transformers/clip-ViT-B-32-multilingual-v1';
 const FLORENCE_MODEL_ID = 'onnx-community/Florence-2-base';
-const SEMANTIC_TEXT_MODEL_ID = 'Xenova/all-MiniLM-L6-v2';
+const SEMANTIC_TEXT_MODEL_ID = 'Xenova/paraphrase-multilingual-MiniLM-L12-v2';
 const NER_MODEL_ID = 'Xenova/bert-base-multilingual-cased-ner-hrl';
 
-type ClipBundle = {
-    tokenizer: CLIPTokenizer;
+const CLIP_CENTERING = 0.8;
+const CLIP_NEUTRAL_PROMPTS = [
+    'a photo',
+    'an image',
+    'a picture',
+    'something',
+    'a thing',
+    'object',
+    'photo of a thing',
+    'bir fotoğraf',
+    'bir resim',
+    'bir şey',
+    'nesne',
+    'görüntü',
+];
+
+type ClipVisionBundle = {
     imageProcessor: CLIPImageProcessor;
-    textModel: CLIPTextModelWithProjection;
     visionModel: CLIPVisionModelWithProjection;
+};
+
+type ClipTextBundle = {
+    tokenizer: PreTrainedTokenizer;
+    textModel: PreTrainedModel;
+    projection: Float32Array;
+    center: number[];
+};
+
+const normalizeVector = (vector: number[]) => {
+    const magnitude = Math.hypot(...vector) || 1;
+    return vector.map((value) => value / magnitude);
+};
+
+const loadClipProjection = async () => {
+    const path = join(env.cacheDir!, CLIP_TEXT_MODEL_ID, '2_Dense', 'model.safetensors');
+
+    let buffer = await fsp.readFile(path).catch(() => null);
+
+    if (!buffer) {
+        const response = await fetch(
+            `${env.remoteHost}${CLIP_TEXT_MODEL_ID}/resolve/main/2_Dense/model.safetensors`,
+        );
+        if (!response.ok)
+            throw new Error(`Could not download the CLIP projection (${response.status})`);
+
+        buffer = Buffer.from(await response.arrayBuffer());
+        await fsp.mkdir(dirname(path), { recursive: true });
+        await fsp.writeFile(`${path}.tmp`, buffer);
+        await fsp.rename(`${path}.tmp`, path);
+    }
+
+    const headerLength = Number(buffer.readBigUInt64LE(0));
+    const header = JSON.parse(buffer.subarray(8, 8 + headerLength).toString());
+    const [start, end] = header['linear.weight'].data_offsets as [number, number];
+
+    return new Float32Array(
+        buffer.buffer.slice(
+            buffer.byteOffset + 8 + headerLength + start,
+            buffer.byteOffset + 8 + headerLength + end,
+        ),
+    );
 };
 
 type FlorenceBundle = {
@@ -56,6 +116,7 @@ type FlorenceBundle = {
 class AIService {
     private static instance: AIService | null = null;
 
+    public readonly CLIP_EMBEDDING_DIM = 512;
     public readonly SEMANTIC_TEXT_EMBEDDING_DIM = 384;
 
     public get IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS() {
@@ -85,7 +146,8 @@ class AIService {
         return list.concat(list.map((ext) => ext.toUpperCase()));
     }
 
-    private clipPromise: Promise<ClipBundle> | null = null;
+    private clipVisionPromise: Promise<ClipVisionBundle> | null = null;
+    private clipTextPromise: Promise<ClipTextBundle> | null = null;
     private florencePromise: Promise<FlorenceBundle> | null = null;
     private semanticPipelinePromise: Promise<any> | null = null;
     private nerPipelinePromise: Promise<any> | null = null;
@@ -97,24 +159,73 @@ class AIService {
         return this.instance;
     }
 
-    private async getClip() {
-        if (!this.clipPromise) {
+    private async getClipVision() {
+        if (!this.clipVisionPromise) {
             consola.info(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Initializing CLIP model...`);
 
-            this.clipPromise = Promise.all([
-                CLIPTokenizer.from_pretrained(CLIP_MODEL_ID),
-                CLIPImageProcessor.from_pretrained(CLIP_MODEL_ID),
-                CLIPTextModelWithProjection.from_pretrained(CLIP_MODEL_ID, { dtype: 'q8' }),
-                CLIPVisionModelWithProjection.from_pretrained(CLIP_MODEL_ID, { dtype: 'q8' }),
-            ]).then(([tokenizer, imageProcessor, textModel, visionModel]) => {
+            this.clipVisionPromise = Promise.all([
+                CLIPImageProcessor.from_pretrained(CLIP_VISION_MODEL_ID),
+                CLIPVisionModelWithProjection.from_pretrained(CLIP_VISION_MODEL_ID, {
+                    dtype: 'q8',
+                }),
+            ]).then(([imageProcessor, visionModel]) => {
                 consola.success(
                     `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - CLIP model initialized successfully.`,
                 );
-                return { tokenizer, imageProcessor, textModel, visionModel };
+                return { imageProcessor, visionModel };
             });
         }
 
-        return this.clipPromise;
+        return this.clipVisionPromise;
+    }
+
+    private async getClipText() {
+        if (!this.clipTextPromise) {
+            this.clipTextPromise = Promise.all([
+                AutoTokenizer.from_pretrained(CLIP_TEXT_MODEL_ID),
+                AutoModel.from_pretrained(CLIP_TEXT_MODEL_ID, {
+                    dtype: 'fp32',
+                    model_file_name:
+                        process.arch === 'arm64' ? 'model_qint8_arm64' : 'model_quint8_avx2',
+                }),
+                loadClipProjection(),
+            ]).then(async ([tokenizer, textModel, projection]) => {
+                const bundle = { tokenizer, textModel, projection, center: [] as number[] };
+                const prompts = await Promise.all(
+                    CLIP_NEUTRAL_PROMPTS.map((prompt) => this.encodeClipText(bundle, prompt)),
+                );
+
+                bundle.center = normalizeVector(
+                    prompts.reduce((sum, prompt) => sum.map((value, i) => value + prompt[i]!)),
+                );
+
+                return bundle;
+            });
+
+            this.clipTextPromise.catch(() => (this.clipTextPromise = null));
+        }
+
+        return this.clipTextPromise;
+    }
+
+    private async encodeClipText(
+        { tokenizer, textModel, projection }: ClipTextBundle,
+        text: string,
+    ) {
+        const inputs = tokenizer(text, { padding: true, truncation: true });
+        const { last_hidden_state } = await textModel(inputs);
+        const pooled = mean_pooling(last_hidden_state, inputs.attention_mask).data as Float32Array;
+
+        return normalizeVector(
+            Array.from({ length: this.CLIP_EMBEDDING_DIM }, (_, row) => {
+                let sum = 0;
+
+                for (let column = 0; column < pooled.length; column++)
+                    sum += projection[row * pooled.length + column]! * pooled[column]!;
+
+                return sum;
+            }),
+        );
     }
 
     private async getFlorence() {
@@ -161,7 +272,7 @@ class AIService {
     }
 
     public async createImageEmbedding(imagePath: string): Promise<number[]> {
-        const { imageProcessor, visionModel } = await this.getClip();
+        const { imageProcessor, visionModel } = await this.getClipVision();
         const image = await RawImage.fromURL(imagePath);
         const imageInputs = await imageProcessor(image);
         const { image_embeds } = await visionModel(imageInputs);
@@ -170,17 +281,11 @@ class AIService {
         return Array.from(normalizedEmbeds.data);
     }
 
-    public async createTextEmbedding(text: string): Promise<number[]> {
-        const { tokenizer, textModel } = await this.getClip();
-        const textInputs = tokenizer(text, {
-            padding: true,
-            truncation: true,
-            return_tensor: true,
-        });
-        const { text_embeds } = await textModel(textInputs);
-        const normalizedEmbeds = text_embeds.normalize(2, -1);
+    public async createClipQueryEmbedding(text: string) {
+        const bundle = await this.getClipText();
+        const embedding = await this.encodeClipText(bundle, text);
 
-        return Array.from(normalizedEmbeds.data);
+        return embedding.map((value, i) => value - CLIP_CENTERING * bundle.center[i]!);
     }
 
     public async runFlorenceTask(imagePath: string, task: string) {
@@ -336,58 +441,18 @@ class AIService {
                 }
             }
 
-            if (!embeddings.length) {
-                return new Array(768).fill(0);
-            }
+            if (!embeddings.length) throw new Error('No frames could be read from the video');
 
-            return this.hybridPool(embeddings);
+            return normalizeVector(
+                embeddings[0]!.map(
+                    (_, i) =>
+                        embeddings.reduce((sum, embedding) => sum + embedding[i]!, 0) /
+                        embeddings.length,
+                ),
+            );
         } finally {
             await rm(workDir, { recursive: true, force: true });
         }
-    }
-
-    private meanPool(vectors: number[][]) {
-        if (!vectors.length) return [];
-
-        const dim = vectors[0]?.length ?? 0;
-        if (dim === 0) return [];
-
-        const out = new Array<number>(dim).fill(0);
-        const len = vectors.length;
-
-        for (const v of vectors) {
-            for (let i = 0; i < dim; i++) {
-                out[i]! += v[i] ?? 0;
-            }
-        }
-
-        for (let i = 0; i < dim; i++) {
-            out[i]! /= len;
-        }
-
-        return out;
-    }
-
-    private maxPool(vectors: number[][]) {
-        if (!vectors.length) return [];
-        const dim = vectors[0]!.length;
-        const out = new Array(dim).fill(-Infinity);
-
-        for (const v of vectors) {
-            for (let i = 0; i < dim; i++) {
-                if (v[i]! > out[i]) {
-                    out[i] = v[i]!;
-                }
-            }
-        }
-        return out;
-    }
-
-    private hybridPool(vectors: number[][]) {
-        const mean = this.meanPool(vectors);
-        const max = this.maxPool(vectors);
-
-        return mean.map((v, i) => v * 0.3 + max[i] * 0.7);
     }
 }
 

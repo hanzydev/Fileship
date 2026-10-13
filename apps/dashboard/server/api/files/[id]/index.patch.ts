@@ -1,8 +1,6 @@
 import { extname } from 'pathe';
 import { z } from 'zod';
 
-import { update } from '@orama/orama';
-
 import { AIJobType } from '#shared/prisma/enums';
 
 const validationSchema = z
@@ -138,16 +136,7 @@ export default defineEventHandler(async (event) => {
         todayViews.get(_updatedFile.id),
     );
 
-    await update(fileSearchDb, updatedFile.id, {
-        id: updatedFile.id,
-        authorId: updatedFile.authorId,
-        fileName: updatedFile.fileName,
-        mimeType: updatedFile.mimeType,
-        embedding: (findFileById.embedding as never[]) || undefined,
-        textEmbedding: (findFileById.textEmbedding as never[]) || undefined,
-        caption: findFileById.caption || undefined,
-        ocrText: findFileById.ocrText || undefined,
-    });
+    await upsertFileSearchEntry(updatedFile.id);
 
     if (
         (body.data as any).piiOverride === null &&

@@ -31,8 +31,6 @@ const BACKUP_FIELDS = {
         'caption',
         'piiOverride',
         'ocrText',
-        'embedding',
-        'textEmbedding',
     ],
     view: ['ip', 'createdAt'],
     link: ['code', 'url', 'password', 'maxClicks', 'clicks', 'expiresAt', 'createdAt'],
@@ -397,12 +395,7 @@ export default defineEventHandler(async (event) => {
                                                         }
                                                     }
 
-                                                    await insert(fileSearchDb, {
-                                                        id: created.id,
-                                                        authorId: created.authorId,
-                                                        fileName: created.fileName,
-                                                        mimeType: created.mimeType,
-                                                    });
+                                                    await upsertFileSearchEntry(created.id);
                                                 }
                                                 break;
                                             case 'folder':

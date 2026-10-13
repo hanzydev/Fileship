@@ -122,25 +122,20 @@ export default defineTask({
                 deletedAt: null,
                 textEmbedding: { equals: AnyNull },
                 OR: [
-                    { ocrText: { not: null }, AND: { ocrText: { not: '' } } },
+                    { ocrText: { gt: '' } },
+                    { caption: { gt: '' } },
                     { mimeType: { startsWith: 'text/' } },
                 ],
                 aiJobs: activeJobFilter(AIJobType.GenerateTextEmbedding),
             },
-            select: {
-                id: true,
-                fileName: true,
-                authorId: true,
-                ocrText: true,
-                mimeType: true,
-            },
+            select: { id: true, fileName: true, authorId: true, mimeType: true },
         });
 
-        const canEmbed = textForEmbedding.filter((f) => {
-            const hasOcr = f.ocrText && f.ocrText.length > 0;
-            const isText = ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(f.fileName));
-            return hasOcr || isText;
-        });
+        const canEmbed = textForEmbedding.filter(
+            (f) =>
+                f.mimeType.startsWith('image/') ||
+                ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(f.fileName)),
+        );
 
         if (canEmbed.length) {
             consola.info(`Enqueuing ${canEmbed.length} files for Text Embedding...`);
