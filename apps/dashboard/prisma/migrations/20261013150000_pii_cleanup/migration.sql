@@ -5,6 +5,9 @@ ALTER TABLE "File" ADD COLUMN IF NOT EXISTS "piiOverride" BOOLEAN;
 UPDATE "File" SET "ocrText" = '' WHERE "ocrText" = 'null';
 UPDATE "File" SET "caption" = '' WHERE "caption" = 'null';
 
+-- Files created before piiReasons had a default have NULL instead of an empty list
+UPDATE "File" SET "piiReasons" = '{}' WHERE "piiReasons" IS NULL;
+
 -- Faces, signatures, organizations, places and unvalidated patterns are no longer sensitive
 UPDATE "File"
 SET "piiReasons" = ARRAY(
