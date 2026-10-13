@@ -85,5 +85,20 @@ export const useFileActions = () => {
         });
     };
 
-    return { isTextFile, copyLink, openFile, download, move, remove };
+    const setSensitive = async (file: Pick<FileData, 'id'>, sensitive: boolean) => {
+        const id = $toast.loading(
+            sensitive ? 'Marking as sensitive...' : 'Marking as not sensitive...',
+        );
+
+        try {
+            await $fetch(`/api/files/${file.id}`, { method: 'PATCH', body: { sensitive } });
+            $toast.success(sensitive ? 'Marked as sensitive' : 'Marked as not sensitive', { id });
+            return true;
+        } catch (error: any) {
+            $toast.error(getErrorMessage(error), { id });
+            return false;
+        }
+    };
+
+    return { isTextFile, copyLink, openFile, download, move, remove, setSensitive };
 };

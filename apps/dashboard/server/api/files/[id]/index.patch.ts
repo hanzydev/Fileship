@@ -1,6 +1,9 @@
+import { extname } from 'pathe';
 import { z } from 'zod';
 
 import { update } from '@orama/orama';
+
+import { AIJobType } from '#shared/prisma/enums';
 
 const validationSchema = z
     .object({
@@ -19,6 +22,7 @@ const validationSchema = z
         maxViews: z.number().min(0, 'Max views must be at least 0').optional(),
         expiration: z.number().min(0, 'Expiration must be at least 0').nullish(),
         folderId: z.string().nullish(),
+        sensitive: z.boolean().nullable().optional(),
     })
     .strict();
 
@@ -59,6 +63,17 @@ export default defineEventHandler(async (event) => {
         } else (body.data as any).expiresAt = null;
 
         delete body.data.expiration;
+    }
+
+    if ('sensitive' in body.data) {
+        const { sensitive } = body.data;
+
+        Object.assign(body.data, {
+            piiOverride: sensitive,
+            piiDetected: sensitive ?? findFileById.piiReasons.length > 0,
+        });
+
+        delete body.data.sensitive;
     }
 
     if (body.data.folderId) {
@@ -133,6 +148,22 @@ export default defineEventHandler(async (event) => {
         caption: findFileById.caption || undefined,
         ocrText: findFileById.ocrText || undefined,
     });
+
+    if (
+        (body.data as any).piiOverride === null &&
+        (currentUser.aiSettings?.enabled ?? true) &&
+        [
+            ...ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS,
+            ...ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS,
+        ].includes(extname(updatedFile.fileName))
+    )
+        event.waitUntil(
+            enqueueAIJob({
+                userId: currentUser.id,
+                fileId: updatedFile.id,
+                type: AIJobType.DetectPII,
+            }),
+        );
 
     await createLog(event, {
         action: 'Update File',

@@ -296,17 +296,41 @@
                                     <TextBlock variant="small">Caption</TextBlock>
                                     <TextBlock variant="muted">{{ file.caption }}</TextBlock>
                                 </div>
-                                <UiAlert v-if="file.piiDetected" variant="destructive">
-                                    <IShieldAlert />
-                                    <UiAlertTitle>Sensitive information detected</UiAlertTitle>
-                                    <UiAlertDescription>
-                                        <ul class="list-disc pl-4">
-                                            <li v-for="reason in file.piiReasons" :key="reason">
-                                                {{ reason }}
-                                            </li>
-                                        </ul>
-                                    </UiAlertDescription>
-                                </UiAlert>
+                                <div v-if="file.piiDetected" class="flex flex-col gap-2">
+                                    <UiAlert variant="destructive">
+                                        <IShieldAlert />
+                                        <UiAlertTitle>
+                                            {{
+                                                file.piiOverride
+                                                    ? 'Marked as sensitive'
+                                                    : 'Sensitive information detected'
+                                            }}
+                                        </UiAlertTitle>
+                                        <UiAlertDescription>
+                                            <ul
+                                                v-if="!file.piiOverride && file.piiReasons.length"
+                                                class="list-disc pl-4"
+                                            >
+                                                <li v-for="reason in file.piiReasons" :key="reason">
+                                                    {{ PII_REASONS[reason] ?? reason }}
+                                                </li>
+                                            </ul>
+                                            <p>It is hidden from public folders.</p>
+                                        </UiAlertDescription>
+                                    </UiAlert>
+                                    <UiButton
+                                        v-if="!trash"
+                                        variant="outline"
+                                        size="sm"
+                                        class="self-start"
+                                        :disabled="isMarking"
+                                        @click="handleNotSensitive"
+                                    >
+                                        <UiSpinner v-if="isMarking" />
+                                        <IShieldCheck v-else />
+                                        Not sensitive
+                                    </UiButton>
+                                </div>
                             </div>
                         </UiTabsContent>
                     </UiTabs>
@@ -337,7 +361,7 @@ const tab = defineModel<string>('tab', { default: 'details' });
 const currentUser = useAuthUser();
 const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
-const { openFile, copyLink, download, move, remove } = useFileActions();
+const { openFile, copyLink, download, move, remove, setSensitive } = useFileActions();
 const { restore } = useTrash();
 
 const stage = useTemplateRef('stage');
@@ -348,6 +372,7 @@ const isZoomed = ref(false);
 const isRevealed = ref(false);
 const loadedId = ref<string>();
 const isSaving = ref(false);
+const isMarking = ref(false);
 const zoomOrigin = ref('center');
 const formErrors = ref();
 
@@ -634,6 +659,12 @@ const handleSave = async () => {
     }
 
     isSaving.value = false;
+};
+
+const handleNotSensitive = async () => {
+    isMarking.value = true;
+    await setSensitive(file.value!, false);
+    isMarking.value = false;
 };
 
 const setZoomOrigin = (event: MouseEvent) => {

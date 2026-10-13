@@ -41,16 +41,6 @@ const FLORENCE_MODEL_ID = 'onnx-community/Florence-2-base';
 const SEMANTIC_TEXT_MODEL_ID = 'Xenova/all-MiniLM-L6-v2';
 const NER_MODEL_ID = 'Xenova/bert-base-multilingual-cased-ner-hrl';
 
-const SENSITIVE_VISUAL_LABELS = [
-    'face',
-    'credit card',
-    'debit card',
-    'card',
-    'passport',
-    'identity card',
-    'signature',
-];
-
 type ClipBundle = {
     tokenizer: CLIPTokenizer;
     imageProcessor: CLIPImageProcessor;
@@ -211,7 +201,7 @@ class AIService {
         })[0]!;
 
         const result = processor.post_process_generation(generatedText, task, image.size);
-        return result[task] || null;
+        return result[task] ?? null;
     }
 
     public async performObjectDetection(imagePath: string) {
@@ -220,10 +210,11 @@ class AIService {
     }
 
     public async performOcrOnImage(imagePath: string) {
-        const result = await this.runFlorenceTask(imagePath, '<OCR>');
-        const text = String(result);
-        const trimmed = text.replace(/\s+/g, ' ').trim();
-        return trimmed.length ? trimmed : null;
+        const result = (await this.runFlorenceTask(imagePath, '<OCR_WITH_REGION>')) as {
+            labels?: string[];
+        } | null;
+
+        return (result?.labels ?? []).join(' ').replace(/\s+/g, ' ').trim();
     }
 
     public async createSemanticTextEmbedding(text: string) {
@@ -250,77 +241,48 @@ class AIService {
 
     public async generateImageCaption(imagePath: string) {
         const result = await this.runFlorenceTask(imagePath, '<CAPTION>');
-        const caption = String(result);
-        return caption.replace(/\s+/g, ' ').trim();
+        return typeof result === 'string' ? result.replace(/\s+/g, ' ').trim() : '';
     }
 
-    public async detectPII(filePath: string, existingText?: string | null) {
-        let text = existingText || '';
-        const reasons: string[] = [];
-
+    public async detectPII(filePath: string, ocrText?: string | null) {
         const isImage = ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(filePath));
         const isText = ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(filePath));
 
-        if (isImage) {
-            if (!text) {
-                text = (await this.performOcrOnImage(filePath)) ?? '';
-            }
+        const text = isImage
+            ? (ocrText ?? (await this.performOcrOnImage(filePath)))
+            : isText
+              ? await readUtf8Snippet(filePath, 120_000)
+              : '';
 
-            try {
-                const odResults = await this.performObjectDetection(filePath);
-                if (odResults && odResults.labels) {
-                    odResults.labels.forEach((label) => {
-                        const normalizedLabel = label.toLowerCase();
-                        if (
-                            SENSITIVE_VISUAL_LABELS.some((sensitive) =>
-                                normalizedLabel.includes(sensitive),
-                            )
-                        ) {
-                            reasons.push(
-                                `VISUAL_${normalizedLabel.toUpperCase().replace(/\s+/g, '_')}`,
-                            );
-                        }
-                    });
-                }
-            } catch {
-                //
-            }
-        } else if (isText) {
-            text = await readUtf8Snippet(filePath, 120_000);
-        }
+        const reasons = findPii(text);
 
-        if (!text && !reasons.length) return { piiDetected: false, reasons: [] };
+        if (isImage) findDocumentPii(text).forEach((reason) => reasons.add(reason));
 
-        if (text) {
-            try {
-                const ner = await this.getNerPipeline();
-                const entities = await ner(text, { aggregation_strategy: 'simple' });
+        if (isImage && hasDocumentEvidence(text)) {
+            const detection = await this.performObjectDetection(filePath).catch(() => null);
 
-                if (Array.isArray(entities)) {
-                    for (const ent of entities) {
-                        const entityName = ent.entity || ent.entity_group;
-                        const entityGroup = entityName.includes('-')
-                            ? entityName.split('-')[1]
-                            : entityName;
-
-                        if (
-                            ent.score > 0.6 &&
-                            ['PER', 'ORG', 'LOC'].includes(entityGroup) &&
-                            ent.word.length > 2
-                        ) {
-                            reasons.push(`NER_${entityGroup}`);
-                        }
-                    }
-                }
-            } catch {
-                //
+            for (const label of detection?.labels ?? []) {
+                const reason = getVisualPiiReason(label);
+                if (reason) reasons.add(reason);
             }
         }
 
-        return {
-            piiDetected: reasons.length > 0,
-            reasons: Array.from(new Set(reasons)),
-        };
+        if (reasons.size) {
+            const ner = await this.getNerPipeline();
+            const entities = await ner(text.slice(0, 2000), { aggregation_strategy: 'simple' });
+
+            if (
+                (entities as any[]).some(
+                    (entity) =>
+                        (entity.entity_group ?? entity.entity)?.endsWith('PER') &&
+                        entity.score >= 0.85 &&
+                        entity.word.replace(/#/g, '').trim().length > 2,
+                )
+            )
+                reasons.add('PERSON_NAME');
+        }
+
+        return { piiDetected: reasons.size > 0, reasons: [...reasons] };
     }
 
     public async createVideoEmbedding(options: { filePath: string }): Promise<number[]> {
@@ -426,25 +388,6 @@ class AIService {
         const max = this.maxPool(vectors);
 
         return mean.map((v, i) => v * 0.3 + max[i] * 0.7);
-    }
-
-    private isValidLuhn(number: string) {
-        const res = number.replace(/\D/g, '');
-        if (res.length < 13 || res.length > 19) return false;
-
-        let sum = 0;
-        let shouldDouble = false;
-
-        for (let i = res.length - 1; i >= 0; i--) {
-            let digit = parseInt(res.charAt(i));
-            if (shouldDouble) {
-                if ((digit *= 2) > 9) digit -= 9;
-            }
-            sum += digit;
-            shouldDouble = !shouldDouble;
-        }
-
-        return sum % 10 === 0;
     }
 }
 

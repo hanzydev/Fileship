@@ -80,7 +80,9 @@ export default defineEventHandler(async (event) => {
             maxViews: true,
             expiresAt: true,
             folderId: true,
-            ...(isOwner ? {} : { caption: true, piiReasons: true, authorId: true }),
+            ...(isOwner
+                ? {}
+                : { caption: true, piiReasons: true, piiOverride: true, authorId: true }),
         },
         include: {
             _count: { select: { views: true } },

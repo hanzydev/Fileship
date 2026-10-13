@@ -29,8 +29,7 @@ const BACKUP_FIELDS = {
         'password',
         'createdAt',
         'caption',
-        'piiDetected',
-        'piiReasons',
+        'piiOverride',
         'ocrText',
         'embedding',
         'textEmbedding',
@@ -260,6 +259,11 @@ export default defineEventHandler(async (event) => {
                                                 remappedKeys.get(value.folderId) ?? null;
                                             data.authorId = currentUser.id;
                                             data.storageId = storageId;
+                                            data.piiOverride =
+                                                typeof value.piiOverride === 'boolean'
+                                                    ? value.piiOverride
+                                                    : null;
+                                            data.piiDetected = data.piiOverride === true;
                                             break;
                                         }
                                         case 'view':
@@ -354,11 +358,6 @@ export default defineEventHandler(async (event) => {
                                                                         userId: currentUser.id,
                                                                         fileId: created.id,
                                                                         type: AIJobType.GenerateImageCaption,
-                                                                    }),
-                                                                    enqueueAIJob({
-                                                                        userId: currentUser.id,
-                                                                        fileId: created.id,
-                                                                        type: AIJobType.DetectPII,
                                                                     }),
                                                                 ]),
                                                             );

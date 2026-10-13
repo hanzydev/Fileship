@@ -28,6 +28,15 @@
         <IFolderMinus />
         Remove from folder
     </component>
+    <component
+        :is="Item"
+        v-if="publicSettings.aiEnabled"
+        @select="setSensitive(file, !file.piiDetected)"
+    >
+        <IShieldCheck v-if="file.piiDetected" />
+        <IShieldAlert v-else />
+        {{ file.piiDetected ? 'Not sensitive' : 'Mark as sensitive' }}
+    </component>
     <component :is="Separator" />
     <component :is="Item" variant="destructive" @select="remove([file])">
         <ITrash2 />
@@ -54,7 +63,8 @@ const emit = defineEmits<{
     move: [];
 }>();
 
-const { openFile, copyLink, download, move, remove } = useFileActions();
+const publicSettings = usePublicSettings();
+const { openFile, copyLink, download, move, remove, setSensitive } = useFileActions();
 
 const Item = type === 'context' ? UiContextMenuItem : UiDropdownMenuItem;
 const Separator = type === 'context' ? UiContextMenuSeparator : UiDropdownMenuSeparator;

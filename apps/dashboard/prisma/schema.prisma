@@ -107,6 +107,7 @@ model File {
   caption       String?
   piiDetected   Boolean   @default(false)
   piiReasons    String[]  @default([])
+  piiOverride   Boolean?
   metadata      Json?
   storage       Storage?  @relation(fields: [storageId], references: [id], onDelete: Restrict)
   storageId     String?

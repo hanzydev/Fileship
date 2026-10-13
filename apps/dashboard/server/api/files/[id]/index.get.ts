@@ -93,6 +93,7 @@ export default defineEventHandler(async (event) => {
                   authorId: undefined,
                   caption: undefined,
                   piiReasons: undefined,
+                  piiOverride: undefined,
                   maxViews: undefined,
                   expiresAt: undefined,
               }),

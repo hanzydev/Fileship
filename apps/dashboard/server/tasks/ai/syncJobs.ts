@@ -150,32 +150,26 @@ export default defineTask({
         const filesForPii = await prisma.file.findMany({
             where: {
                 deletedAt: null,
+                piiOverride: null,
                 aiJobs: {
                     none: {
                         type: AIJobType.DetectPII,
                     },
                 },
                 OR: [
-                    { ocrText: { not: null }, AND: { ocrText: { not: '' } } },
+                    { mimeType: { startsWith: 'image/' }, ocrText: { not: null } },
                     { mimeType: { startsWith: 'text/' } },
-                    { mimeType: { startsWith: 'image/' } },
                 ],
             },
-            select: {
-                id: true,
-                fileName: true,
-                authorId: true,
-                ocrText: true,
-                mimeType: true,
-            },
+            select: { id: true, fileName: true, authorId: true },
         });
 
-        const canPii = filesForPii.filter((f) => {
-            const hasOcr = f.ocrText && f.ocrText.length > 0;
-            const isText = ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(f.fileName));
-            const isImage = ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extname(f.fileName));
-            return hasOcr || isText || isImage;
-        });
+        const canPii = filesForPii.filter((f) =>
+            [
+                ...ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS,
+                ...ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS,
+            ].includes(extname(f.fileName)),
+        );
 
         if (canPii.length) {
             consola.info(`Enqueuing ${canPii.length} files for PII detection...`);

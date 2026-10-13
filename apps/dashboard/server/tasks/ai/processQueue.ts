@@ -199,6 +199,12 @@ export default defineTask({
                             type: AIJobType.GenerateTextEmbedding,
                         });
                     }
+
+                    await enqueueAIJob({
+                        userId: job.userId,
+                        fileId: file.id,
+                        type: AIJobType.DetectPII,
+                    });
                 }
 
                 if (job.type === AIJobType.GenerateTextEmbedding) {
@@ -331,9 +337,15 @@ export default defineTask({
                             storageId: true,
                             authorId: true,
                             ocrText: true,
+                            piiOverride: true,
                         },
                     });
                     if (!file) throw new Error('File not found');
+
+                    if (file.piiOverride !== null) {
+                        await completeAIJob(job.id);
+                        return { id: job.id, result: 'skip' };
+                    }
 
                     const { piiDetected, reasons } = await withLocalFile(
                         file.storageId,

@@ -210,11 +210,6 @@ export default defineEventHandler(async (event) => {
                             fileId: upload.id,
                             type: AIJobType.GenerateImageCaption,
                         }),
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.DetectPII,
-                        }),
                     ]),
                 );
             } else if (ai.VIDEO_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
