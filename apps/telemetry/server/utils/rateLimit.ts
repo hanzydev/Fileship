@@ -14,13 +14,13 @@ export const rateLimit = async (key: string, limit: number, windowMs: number) =>
     await storage.setItem(`rateLimit:${key}`, { ...current, count: current.count + 1 });
 };
 
-export const limitFailedAttempts = async (key: string, valid: boolean) => {
+export const limitFailedAttempts = async (key: string, valid: boolean, limit = 10) => {
     const storage = useStorage('cache');
     const now = Date.now();
     const entry = await storage.getItem<{ count: number; resetAt: number }>(`rateLimit:${key}`);
     const current = entry && entry.resetAt > now ? entry : { count: 0, resetAt: now + 15 * 60_000 };
 
-    if (current.count >= 10) {
+    if (current.count >= limit) {
         throw createError({
             status: 429,
             message: 'Too many attempts, try again later',

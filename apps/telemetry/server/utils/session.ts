@@ -4,6 +4,8 @@ import type { H3Event } from 'h3';
 
 const SESSION_MAX_AGE = 30 * 24 * 60 * 60;
 
+export const SESSION_COOKIE = 'telemetryToken';
+
 const hash = (value: string) => createHash('sha256').update(value).digest();
 
 export const hashToken = (token: string) => hash(token).toString('hex');
@@ -28,7 +30,7 @@ export const startSession = async (event: H3Event) => {
         },
     });
 
-    setCookie(event, 'token', token, {
+    setCookie(event, SESSION_COOKIE, token, {
         httpOnly: true,
         secure: getRequestProtocol(event, { xForwardedProto: true }) === 'https',
         sameSite: 'lax',
@@ -38,10 +40,10 @@ export const startSession = async (event: H3Event) => {
 };
 
 export const endSession = async (event: H3Event) => {
-    const token = getCookie(event, 'token');
+    const token = getCookie(event, SESSION_COOKIE);
     if (token) await prisma.session.deleteMany({ where: { tokenHash: hashToken(token) } });
 
-    deleteCookie(event, 'token');
+    deleteCookie(event, SESSION_COOKIE);
 };
 
 export const adminOnly = (event: H3Event) => {

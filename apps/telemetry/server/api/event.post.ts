@@ -8,9 +8,7 @@ const eventSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
-    assertBodySize(event);
-
-    const body = await readValidatedBody(event, eventSchema.safeParse);
+    const body = eventSchema.safeParse(await readJsonBody(event));
 
     if (!body.success) {
         throw createError({
@@ -45,7 +43,7 @@ export default defineEventHandler(async (event) => {
 
     const instanceId = projectId.toLowerCase();
 
-    await limitInstance(instanceId);
+    await limitReports(event, instanceId);
     await saveReport(instanceId, report, { sentAt: timestamp, legacy: true });
 
     setResponseStatus(event, 204);

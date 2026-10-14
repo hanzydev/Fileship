@@ -1,13 +1,13 @@
 export default defineEventHandler(async (event) => {
     event.context.admin = false;
 
-    const token = getCookie(event, 'token');
+    const token = getCookie(event, SESSION_COOKIE);
     if (!token) return;
 
     const session = await findSession(token);
 
     if (!session) {
-        deleteCookie(event, 'token');
+        deleteCookie(event, SESSION_COOKIE);
         return;
     }
 

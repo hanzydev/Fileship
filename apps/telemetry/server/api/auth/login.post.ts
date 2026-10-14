@@ -23,8 +23,11 @@ export default defineEventHandler(async (event) => {
     }
 
     const ip = getRequestIP(event, { xForwardedFor: true });
+    const valid = isAdminPassword(body.data.password);
 
-    if (!(await limitFailedAttempts(`login:${ip}`, isAdminPassword(body.data.password)))) {
+    await limitFailedAttempts('login', valid, 50);
+
+    if (!(await limitFailedAttempts(`login:${ip}`, valid))) {
         throw createError({
             status: 401,
             message: 'Wrong password',

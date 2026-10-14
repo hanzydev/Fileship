@@ -1,9 +1,7 @@
 import { reportSchema } from '@fileship/telemetry';
 
 export default defineEventHandler(async (event) => {
-    assertBodySize(event);
-
-    const body = await readValidatedBody(event, reportSchema.safeParse);
+    const body = reportSchema.safeParse(await readJsonBody(event));
 
     if (!body.success) {
         throw createError({
@@ -15,7 +13,7 @@ export default defineEventHandler(async (event) => {
 
     const instanceId = body.data.id.toLowerCase();
 
-    await limitInstance(instanceId);
+    await limitReports(event, instanceId);
     await saveReport(instanceId, toStoredReport(body.data), { sentAt: body.data.sentAt });
 
     setResponseStatus(event, 204);
