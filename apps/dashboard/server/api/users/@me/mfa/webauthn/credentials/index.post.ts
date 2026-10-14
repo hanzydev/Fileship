@@ -90,6 +90,11 @@ export default defineEventHandler(async (event) => {
                 },
             });
 
+            await createLog(event, {
+                action: 'Add Passkey',
+                message: `Added passkey ${passkey.name}`,
+            });
+
             sendToUser(currentUser.id, 'passkey:create', passkey);
         }
 

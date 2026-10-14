@@ -46,5 +46,10 @@ export default defineEventHandler(async (event) => {
     await logoutSockets(
         (user) => user.id === currentUser.id && user.currentSessionId === sessionId,
     );
+    await createLog(event, {
+        action: 'Revoke Session',
+        message: `Revoked the session on ${findSessionById.os} ${findSessionById.platform}`,
+    });
+
     sendToUser(currentUser.id, 'session:delete', sessionId);
 });

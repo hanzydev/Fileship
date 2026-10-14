@@ -35,5 +35,10 @@ export default defineEventHandler(async (event) => {
         (user) =>
             user.id === currentUser.id && user.currentSessionId !== currentUser.currentSessionId,
     );
+    await createLog(event, {
+        action: 'Revoke Session',
+        message: 'Revoked all other sessions',
+    });
+
     sendToUser(currentUser.id, 'session:deleteAll', null);
 });

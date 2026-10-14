@@ -43,5 +43,10 @@ export default defineEventHandler(async (event) => {
         },
     });
 
+    await createLog(event, {
+        action: 'Delete Passkey',
+        message: `Deleted passkey ${findCredentialById.name}`,
+    });
+
     sendToUser(currentUser.id, 'passkey:delete', credentialId);
 });
