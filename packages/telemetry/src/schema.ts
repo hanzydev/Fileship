@@ -75,7 +75,7 @@ export const featuresSchema = z.object({
 });
 
 export const reportSchema = z.object({
-    id: z.uuid(),
+    id: z.guid(),
     version: text(32),
     sentAt: z.number().int().min(0),
     runtime: runtimeSchema,

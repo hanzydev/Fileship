@@ -1,4 +1,5 @@
 import os from 'node:os';
+import { resolve } from 'node:path';
 
 import checkDiskSpace from 'check-disk-space';
 import isDocker from 'is-docker';
@@ -12,7 +13,7 @@ export const TELEMETRY_URL = 'https://fileship-telemetry.hanzy.dev';
 
 export const collectRuntime = async (directory: string): Promise<TelemetryRuntime> => {
     const cpus = os.cpus();
-    const disk = await checkDiskSpace(directory).catch(() => ({ size: 0, free: 0 }));
+    const disk = await checkDiskSpace(resolve(directory)).catch(() => ({ size: 0, free: 0 }));
 
     return {
         node: process.version,
