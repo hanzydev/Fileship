@@ -16,15 +16,9 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    await rateLimit(
-        `linkUnlock:${getRequestIP(event, { xForwardedFor: true })}`,
-        10,
-        10 * 60 * 1000,
-    );
-
     const link = await findActiveLink(body.data.code);
 
-    if (link.password !== body.data.password) {
+    if (!(await limitPasswordAttempts(event, link.id, link.password === body.data.password))) {
         throw createError({
             status: 401,
             message: 'Invalid password',

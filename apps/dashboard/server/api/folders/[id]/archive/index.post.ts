@@ -47,6 +47,13 @@ export default defineEventHandler(async (event) => {
             throw forbiddenError;
         } else {
             isPrivate = false;
+
+            await rateLimit(
+                `folderArchive:${getRequestIP(event, { xForwardedFor: true })}`,
+                5,
+                10 * 60_000,
+            );
+
             const visible = await prisma.file.findMany({
                 where: {
                     folderId: findFolderById.id,
