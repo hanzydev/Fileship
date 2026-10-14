@@ -11,6 +11,7 @@
         "lint:types": "nuxt typecheck",
         "lint:code": "eslint --fix .",
         "lint": "pnpm lint:code",
+        "import:legacy": "tsx --env-file-if-exists=.env scripts/importLegacy.ts",
         "db:migrate": "prisma migrate dev --create-only",
         "db:studio": "prisma studio",
         "db:generate": "prisma generate --no-hints",
@@ -40,6 +41,7 @@
         "eslint": "^10.12.0",
         "nuxt": "^4.6.1",
         "prisma": "^7.8.0",
+        "tsx": "^4.21.0",
         "typescript": "^6.0.3",
         "vue-tsc": "^3.3.12"
     }
