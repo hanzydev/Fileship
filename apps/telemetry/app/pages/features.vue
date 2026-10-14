@@ -21,10 +21,11 @@
             <StatCard v-for="card in securityCards" :key="card.title" v-bind="card" />
         </div>
 
-        <div class="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+        <div class="flex flex-wrap gap-4">
             <StatsDonut
                 v-for="chart in charts"
                 :key="chart.title"
+                class="min-w-0 grow basis-full lg:basis-[calc((100%-1rem)/2)] xl:basis-[calc((100%-2rem)/3)]"
                 v-bind="chart"
                 :is-loading="latest === undefined"
             />
