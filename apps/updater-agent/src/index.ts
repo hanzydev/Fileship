@@ -25,7 +25,7 @@ const AUTOUPDATER_ENABLED = process.env.AUTOUPDATER_ENABLED === 'true';
 const AUTOUPDATER_CRON = process.env.AUTOUPDATER_CRON || '0 3 * * *';
 
 const PORT = +process.env.PORT! || 3001;
-const SECRET_TOKEN = process.env.SECRET_TOKEN || 'dev-secret-token';
+const SECRET_TOKEN = process.env.SECRET_TOKEN || (IS_DEV ? 'dev-secret-token' : '');
 const COMPOSE_FILE = process.env.COMPOSE_FILE || 'docker-compose.yml';
 const FILESHIP_URL = process.env.FILESHIP_URL || 'http://proxy:3000';
 
@@ -282,7 +282,7 @@ router.use(
     '/api/**',
     defineEventHandler((event) => {
         const authHeader = getRequestHeader(event, 'Authorization');
-        if (authHeader !== SECRET_TOKEN) {
+        if (!SECRET_TOKEN || authHeader !== SECRET_TOKEN) {
             throw createError({ status: 401, statusText: 'Unauthorized' });
         }
     }),
@@ -315,4 +315,10 @@ const server = createServer(toNodeListener(app));
 
 server.listen(PORT, '0.0.0.0', () => {
     consola.info(`Updater agent running on port ${PORT}`);
+
+    if (!SECRET_TOKEN) {
+        consola.warn(
+            'SECRET_TOKEN is not set, so the dashboard cannot start updates. Add it to the .env file next to docker-compose.yml.',
+        );
+    }
 });
