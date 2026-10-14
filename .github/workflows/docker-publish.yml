@@ -19,6 +19,8 @@ jobs:
                       dockerfile: apps/dashboard/Dockerfile
                     - image_name: fileship-updater-agent
                       dockerfile: apps/updater-agent/Dockerfile
+                    - image_name: fileship-telemetry
+                      dockerfile: apps/telemetry/Dockerfile
 
         steps:
             - name: Checkout
