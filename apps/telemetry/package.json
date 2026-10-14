@@ -11,7 +11,6 @@
         "lint:types": "nuxt typecheck",
         "lint:code": "eslint --fix .",
         "lint": "pnpm lint:code",
-        "import:legacy": "tsx --env-file-if-exists=.env scripts/importLegacy.ts",
         "db:migrate": "prisma migrate dev --create-only",
         "db:studio": "prisma studio",
         "db:generate": "prisma generate --no-hints",
@@ -27,7 +26,6 @@
         "defu": "^6.1.7",
         "dotenv": "^18.0.7",
         "filesize": "^11.0.25",
-        "pg": "^8.23.0",
         "vue": "^3.5.43",
         "vue-router": "^5.4.0",
         "zod": "^4.6.5"
@@ -36,12 +34,10 @@
         "@fileship/eslint-config": "workspace:*",
         "@prisma/adapter-pg": "^7.8.0",
         "@prisma/client": "^7.8.0",
-        "@types/pg": "^8.23.1",
         "@vueuse/core": "^15.0.0",
         "eslint": "^10.12.0",
         "nuxt": "^4.6.1",
         "prisma": "^7.8.0",
-        "tsx": "^4.21.0",
         "typescript": "^6.0.3",
         "vue-tsc": "^3.3.12"
     }

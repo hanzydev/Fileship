@@ -24,7 +24,6 @@ The panel that receives the anonymous reports sent by Fileship instances and tur
 | `DATABASE_URL`                 | PostgreSQL connection string (required)                              |
 | `NUXT_ADMIN_PASSWORD`          | Password for the panel (required, the panel stays locked without it) |
 | `NUXT_INSTANCE_RETENTION_DAYS` | Days without a report before an instance is deleted (default: 90)    |
-| `LEGACY_DATABASE_URL`          | The old telemetry database, only read by `pnpm import:legacy`        |
 
 ## 🐳 Running
 
@@ -53,16 +52,6 @@ services:
 ```
 
 Migrations run on start. Fileship instances send their reports to `POST /api/v2/report`; instances older than 6.0 use `POST /api/event`, which keeps working.
-
-## 📥 Importing the old panel's data
-
-The previous panel stored every report in `FileshipInfo` and `SystemInfo`. To bring them over, set `LEGACY_DATABASE_URL` and run:
-
-```sh
-pnpm --filter telemetry import:legacy
-```
-
-The import only reads the old database. It keeps the latest report of each instance per day, skips days that already have a report, and recomputes the daily statistics on the panel's next hourly run or restart. Instances that stopped reporting are then deleted as usual, while their past days stay in the charts. The old `AiSearchUsage` table, which held raw search queries, is not read; drop it after the import.
 
 ## 🧑‍💻 Development
 

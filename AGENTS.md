@@ -31,7 +31,7 @@ Dashboard only (`pnpm --filter dashboard <script>`):
 - `lint:code`: `eslint --fix .`
 - `db:generate`, `db:deploy`, `db:migrate` (create-only), `db:prototype` (db push), `db:studio`, `db:reset`.
 
-Telemetry panel only (`pnpm --filter telemetry <script>`): `dev` (port 3002), `db:generate`, `db:deploy`, `db:migrate` (create-only), `db:studio` and `import:legacy`.
+Telemetry panel only (`pnpm --filter telemetry <script>`): `dev` (port 3002), `db:generate`, `db:deploy`, `db:migrate` (create-only) and `db:studio`.
 
 Turborepo behaviour can differ between versions. Before changing `turbo.json`, read the docs bundled with the installed package (`node_modules/turbo/docs`).
 
@@ -42,7 +42,7 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 - `NUXT_UPDATER_URL` and `NUXT_UPDATER_SECRET` point the dashboard at the updater-agent. `docker-compose.yml` sets both.
 - The updater-agent reads `PORT`, `SECRET_TOKEN`, `DEV_MODE`, `AUTOUPDATER_ENABLED`, `AUTOUPDATER_CRON`, `COMPOSE_FILE` and `FILESHIP_URL`.
 - `NUXT_TELEMETRY_URL` sends the dashboard's reports to another panel. Development builds only send reports when it is set.
-- The telemetry panel (`apps/telemetry/.env.example`) reads `DATABASE_URL`, `NUXT_ADMIN_PASSWORD` (the panel stays locked while it is empty), `NUXT_INSTANCE_RETENTION_DAYS` and, for the import only, `LEGACY_DATABASE_URL`.
+- The telemetry panel (`apps/telemetry/.env.example`) reads `DATABASE_URL`, `NUXT_ADMIN_PASSWORD` (the panel stays locked while it is empty) and `NUXT_INSTANCE_RETENTION_DAYS`.
 - Instance settings (site name, link protocol, uploads, trash retention, registration, Turnstile, AI, log level, telemetry, active storage) are stored in the `Setting` table and edited by super admins at `/dashboard/instance`. The env/runtimeConfig values are only their defaults. Server code reads them with `getSettings()` (or `getSettingsSync()` in synchronous code) from `server/utils/settings.ts`; the client reads the public subset with `usePublicSettings()`, kept in sync over the `settings:update` socket event. The schema lives in `shared/utils/settings.ts`.
 - Server code reads the remaining configuration through `useRuntimeConfig()`, never `process.env`. Runtime overrides therefore use the `NUXT_` prefix. The exceptions are `DATABASE_URL` (shared with the Prisma CLI) and the build-time options in `nuxt.config.ts` (`ENABLE_PWA`, `DELETE_EXPIRED_CRON`, `GENERATE_STATS_CRON`), which only take effect when the app is built.
 - Never commit `.env` files, `data/` or anything under `.claude/` or `.impeccable/`.
@@ -120,7 +120,6 @@ Reuse these instead of writing new versions.
 - An instance is active on a day when it reported in the `ACTIVE_DAYS` (7) days before it; a day's totals add up the latest report of every active instance (`computeDay` in `server/utils/rollup.ts`). `DailyStat` stores those totals. `stats:rollup` (hourly) fills missing days and recomputes only today and yesterday, so pages read ready rows and past days never change.
 - `db:prune` (daily and on startup) runs the rollup first, then deletes instances silent for `NUXT_INSTANCE_RETENTION_DAYS` with their reports, reports older than 13 months and expired sessions. `DailyStat` is never pruned.
 - Access is a single admin password (`NUXT_ADMIN_PASSWORD`). Sessions are random tokens stored as SHA-256 hashes, sent in an httpOnly cookie and expiring after 30 days. Failed logins are rate limited per IP, and cookie-authenticated writes reject cross-site requests like the dashboard.
-- `scripts/importLegacy.ts` imports the old panel's `FileshipInfo` and `SystemInfo` tables read-only (latest row per instance and UTC day) and clears `DailyStat` from the first imported day so the rollup recomputes it.
 
 ## Conventions
 

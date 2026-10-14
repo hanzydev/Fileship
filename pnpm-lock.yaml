@@ -238,9 +238,6 @@ importers:
       filesize:
         specifier: ^11.0.25
         version: 11.0.25
-      pg:
-        specifier: ^8.23.0
-        version: 8.23.0
       vue:
         specifier: ^3.5.43
         version: 3.5.43(typescript@6.0.3)
@@ -260,9 +257,6 @@ importers:
       '@prisma/client':
         specifier: ^7.8.0
         version: 7.10.0(prisma@7.10.0(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@6.0.3))(typescript@6.0.3)
-      '@types/pg':
-        specifier: ^8.23.1
-        version: 8.23.1
       '@vueuse/core':
         specifier: ^15.0.0
         version: 15.0.0(vue@3.5.43(typescript@6.0.3))
@@ -275,9 +269,6 @@ importers:
       prisma:
         specifier: ^7.8.0
         version: 7.10.0(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@6.0.3)
-      tsx:
-        specifier: ^4.21.0
-        version: 4.23.15
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -18303,6 +18294,7 @@ snapshots:
       esbuild: 0.28.2
     optionalDependencies:
       fsevents: 2.3.3
+    optional: true
 
   tsyringe@4.10.0:
     dependencies:
