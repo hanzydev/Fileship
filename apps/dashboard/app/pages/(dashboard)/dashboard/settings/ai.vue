@@ -63,4 +63,8 @@ const handleUpdate = async (body: { enabled?: boolean; suppressPii?: boolean }) 
 
     isUpdating.value = false;
 };
+
+definePageMeta({
+    middleware: 'file-uploader-only',
+});
 </script>

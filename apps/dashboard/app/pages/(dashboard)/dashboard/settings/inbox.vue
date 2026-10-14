@@ -152,4 +152,8 @@ watch(inbox, (value) => {
     slug.value = value.slug || value.id;
     password.value = value.password || '';
 });
+
+definePageMeta({
+    middleware: 'file-uploader-only',
+});
 </script>

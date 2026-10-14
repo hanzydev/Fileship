@@ -1,5 +1,5 @@
 export default defineEventHandler((event) => {
-    userOnly(event);
+    fileUploaderOnly(event);
 
     const currentUser = event.context.user!;
 

@@ -19,7 +19,7 @@ const validationSchema = z
     .strict();
 
 export default defineEventHandler(async (event) => {
-    userOnly(event);
+    fileUploaderOnly(event);
 
     const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);

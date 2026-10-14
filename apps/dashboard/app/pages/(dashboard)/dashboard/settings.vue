@@ -72,11 +72,13 @@ const sections = computed(() => [
     { label: 'Sessions', path: '/dashboard/settings/sessions', icon: IMonitorSmartphone },
     { label: 'Backups', path: '/dashboard/settings/backups', icon: IArchive },
     { label: 'Sharing', path: '/dashboard/settings/sharing', icon: IShare2 },
-    { label: 'Inbox', path: '/dashboard/settings/inbox', icon: IInbox },
+    ...(canUploadFiles(currentUser.value)
+        ? [{ label: 'Inbox', path: '/dashboard/settings/inbox', icon: IInbox }]
+        : []),
     ...(canUploadFiles(currentUser.value) || canShortenLinks(currentUser.value)
         ? [{ label: 'Integrations', path: '/dashboard/settings/integrations', icon: IPlug }]
         : []),
-    ...(publicSettings.value.aiEnabled
+    ...(publicSettings.value.aiEnabled && canUploadFiles(currentUser.value)
         ? [{ label: 'AI', path: '/dashboard/settings/ai', icon: IBrain }]
         : []),
     { label: 'Appearance', path: '/dashboard/settings/appearance', icon: IPalette },

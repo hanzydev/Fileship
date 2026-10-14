@@ -282,4 +282,19 @@ const handleRegenerate = () =>
             }
         },
     });
+
+definePageMeta({
+    middleware: [
+        () => {
+            const user = useAuthUser();
+
+            if (!canUploadFiles(user) && !canShortenLinks(user)) {
+                return abortNavigation({
+                    status: 403,
+                    message: 'You do not have permission to access this page',
+                });
+            }
+        },
+    ],
+});
 </script>

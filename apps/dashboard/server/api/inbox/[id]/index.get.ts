@@ -21,12 +21,14 @@ export default defineEventHandler(async (event) => {
                     id: true,
                     username: true,
                     avatar: true,
+                    permissions: true,
+                    superAdmin: true,
                 },
             },
         },
     });
 
-    if (!findInboxById?.enabled) {
+    if (!findInboxById?.enabled || !canUploadFiles(findInboxById.user)) {
         throw createError({
             status: 404,
             message: 'Inbox not found',
@@ -57,6 +59,10 @@ export default defineEventHandler(async (event) => {
 
     return {
         id: findInboxById.id,
-        user: findInboxById.user,
+        user: {
+            id: findInboxById.user.id,
+            username: findInboxById.user.username,
+            avatar: findInboxById.user.avatar,
+        },
     };
 });

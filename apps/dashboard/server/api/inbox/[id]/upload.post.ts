@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    if (!findInboxById?.enabled) {
+    if (!findInboxById?.enabled || !canUploadFiles(findInboxById.user)) {
         throw createError({
             status: 404,
             message: 'Inbox not found',
