@@ -1,5 +1,4 @@
 import ffprobe from '@ffprobe-installer/ffprobe';
-import tailwindcss from '@tailwindcss/vite';
 
 import pkg from '../../package.json' with { type: 'json' };
 
@@ -11,19 +10,15 @@ const corsHeaders = {
 };
 
 export default defineNuxtConfig({
+    extends: ['@fileship/ui'],
+
     future: {
         compatibilityVersion: 5,
     },
 
-    modules: [
-        '@nuxtjs/turnstile',
-        '@nuxt/eslint',
-        '@nuxt/fonts',
-        '@vueuse/nuxt',
-        '@nuxtjs/color-mode',
-        'vue-sonner/nuxt',
-        'nuxt-lucide-icons',
-    ].concat((process.env.ENABLE_PWA || 'true') === 'true' ? ['@vite-pwa/nuxt'] : []),
+    modules: ['@nuxtjs/turnstile'].concat(
+        (process.env.ENABLE_PWA || 'true') === 'true' ? ['@vite-pwa/nuxt'] : [],
+    ),
 
     components: [
         {
@@ -37,27 +32,6 @@ export default defineNuxtConfig({
         'katex/dist/katex.min.css',
         'highlight.js/styles/tokyo-night-dark.css',
     ],
-
-    fonts: {
-        families: [
-            {
-                name: 'Geist',
-                provider: 'google',
-                weights: [400, 500, 600, 700, 800],
-            },
-        ],
-    },
-
-    colorMode: {
-        classSuffix: '',
-        preference: 'system',
-        fallback: 'dark',
-        storage: 'cookie',
-    },
-
-    lucide: {
-        namePrefix: 'I',
-    },
 
     imports: {
         autoImport: true,
@@ -175,7 +149,6 @@ export default defineNuxtConfig({
     },
 
     vite: {
-        plugins: [tailwindcss()],
         build: {
             rollupOptions: {
                 output: {
@@ -190,11 +163,7 @@ export default defineNuxtConfig({
         },
         optimizeDeps: {
             include: [
-                '@lucide/vue',
-                '@unovis/ts',
                 '@unovis/vue',
-                'class-variance-authority',
-                'clsx',
                 'dayjs', // CJS
                 'dayjs/plugin/duration', // CJS
                 'dayjs/plugin/relativeTime', // CJS
@@ -203,10 +172,7 @@ export default defineNuxtConfig({
                 'marked',
                 'marked-katex-extension',
                 'nanoid',
-                'reka-ui',
                 'socket.io-client',
-                'tailwind-merge',
-                'vue-input-otp',
             ],
         },
     },

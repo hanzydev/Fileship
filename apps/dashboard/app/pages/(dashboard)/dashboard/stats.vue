@@ -85,7 +85,7 @@
 import { VisArea, VisAxis, VisCrosshair, VisLine, VisTooltip, VisXYContainer } from '@unovis/vue';
 
 import { IBox, IEye, IFiles, IUsers, UiChartTooltipContent } from '#components';
-import { componentToString } from '~/components/ui/chart';
+import { componentToString } from '#layers/ui/app/components/ui/chart';
 
 type ViewsDatum = { index: number; month: string; views: number };
 

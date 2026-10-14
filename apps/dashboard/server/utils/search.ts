@@ -9,10 +9,10 @@ import {
     search,
 } from '@orama/orama';
 
+import type { Prisma } from '~~/generated/prisma/client';
+
 import type { AIPreset, SearchCutoff } from './aiPresets';
 import type { VectorKind } from './vectorIndex';
-
-import type { Prisma } from '~~/generated/prisma/client';
 
 const SEARCH_LIMIT = 1000;
 const QUERY_CACHE_SIZE = 200;

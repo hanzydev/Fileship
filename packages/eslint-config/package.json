@@ -5,7 +5,8 @@
     "type": "module",
     "main": "./src/index.js",
     "exports": {
-        ".": "./src/index.js"
+        ".": "./src/index.js",
+        "./nuxt": "./src/nuxt.js"
     },
     "dependencies": {
         "@eslint/js": "^10.0.1",

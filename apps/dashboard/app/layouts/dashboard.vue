@@ -35,85 +35,32 @@
                             Return to my account
                         </UiButton>
                     </div>
-                    <header
-                        class="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
-                    >
-                        <div class="flex min-w-0 flex-1 items-center gap-2 px-4">
-                            <UiSidebarTrigger class="-ml-1" />
-
-                            <UiBreadcrumb class="min-w-0">
-                                <UiBreadcrumbList class="flex-nowrap">
-                                    <template
-                                        v-for="(item, index) in breadcrumbItems"
-                                        :key="item.to"
-                                    >
-                                        <UiBreadcrumbSeparator
-                                            v-if="index > 0"
-                                            :class="isMiddleCrumb(index) && 'hidden sm:block'"
-                                        />
-                                        <UiBreadcrumbItem
-                                            :class="
-                                                cn(
-                                                    'min-w-0',
-                                                    isMiddleCrumb(index) && 'hidden sm:inline-flex',
-                                                )
-                                            "
-                                        >
-                                            <UiBreadcrumbLink
-                                                v-if="index < breadcrumbItems.length - 1"
-                                                as-child
-                                            >
-                                                <NuxtLink :to="item.to" class="truncate">
-                                                    {{ item.label }}
-                                                </NuxtLink>
-                                            </UiBreadcrumbLink>
-                                            <UiBreadcrumbPage v-else class="truncate">
-                                                {{ item.label }}
-                                            </UiBreadcrumbPage>
-                                        </UiBreadcrumbItem>
-                                    </template>
-                                </UiBreadcrumbList>
-                            </UiBreadcrumb>
-                        </div>
-
-                        <div class="flex shrink-0 items-center gap-2 px-4">
-                            <UiButton v-if="canUpload" @click="uploadSheetOpen = true">
-                                <IUpload />
-                                <span class="hidden sm:inline">Upload</span>
-                            </UiButton>
-                            <UiButton
-                                variant="outline"
-                                class="hidden w-56 justify-start sm:flex"
-                                @click="commandPaletteOpen = true"
-                            >
-                                <ISearch class="text-muted-foreground" />
-                                <span class="font-normal text-muted-foreground">Search...</span>
-                                <UiKbdGroup class="ml-auto">
-                                    <UiKbd>{{ isMac ? '⌘' : 'Ctrl' }}</UiKbd>
-                                    <UiKbd>K</UiKbd>
-                                </UiKbdGroup>
-                            </UiButton>
-                            <UiButton
-                                variant="ghost"
-                                size="icon"
-                                class="sm:hidden"
-                                @click="commandPaletteOpen = true"
-                            >
-                                <ISearch />
-                            </UiButton>
-                            <UiButton
-                                variant="ghost"
-                                size="icon"
-                                @click="
-                                    colorMode.preference =
-                                        colorMode.value === 'dark' ? 'light' : 'dark'
-                                "
-                            >
-                                <ISun class="hidden dark:block" />
-                                <IMoon class="dark:hidden" />
-                            </UiButton>
-                        </div>
-                    </header>
+                    <AppHeader :labels="breadcrumbLabels">
+                        <UiButton v-if="canUpload" @click="uploadSheetOpen = true">
+                            <IUpload />
+                            <span class="hidden sm:inline">Upload</span>
+                        </UiButton>
+                        <UiButton
+                            variant="outline"
+                            class="hidden w-56 justify-start sm:flex"
+                            @click="commandPaletteOpen = true"
+                        >
+                            <ISearch class="text-muted-foreground" />
+                            <span class="font-normal text-muted-foreground">Search...</span>
+                            <UiKbdGroup class="ml-auto">
+                                <UiKbd>{{ isMac ? '⌘' : 'Ctrl' }}</UiKbd>
+                                <UiKbd>K</UiKbd>
+                            </UiKbdGroup>
+                        </UiButton>
+                        <UiButton
+                            variant="ghost"
+                            size="icon"
+                            class="sm:hidden"
+                            @click="commandPaletteOpen = true"
+                        >
+                            <ISearch />
+                        </UiButton>
+                    </AppHeader>
 
                     <slot />
                 </UiSidebarInset>
@@ -159,16 +106,12 @@
 </template>
 
 <script setup lang="ts">
-import { upperFirst } from 'scule';
-
 const embed = useEmbed();
 const domains = useDomains();
 const currentUser = useAuthUser();
-const labels = useBreadcrumbLabels();
 const route = useRoute();
 const { $toast } = useNuxtApp();
 const router = useRouter();
-const colorMode = useColorMode();
 const uploadSheetOpen = useUploadSheet();
 const { quickUpload } = useUploader();
 
@@ -196,25 +139,9 @@ const breadcrumbLabels = {
     users: 'Users',
 };
 
-const breadcrumbItems = computed(() => {
-    const segments = route.path.split('/').filter(Boolean);
-    let path = '';
-
-    return segments.map((segment) => {
-        path += `/${segment}`;
-
-        const label =
-            labels.value[segment] ||
-            breadcrumbLabels[segment as never] ||
-            upperFirst(segment.replace(/[-_]/g, ' '));
-
-        return { to: path, label };
-    });
-});
+const breadcrumbItems = useBreadcrumbs(breadcrumbLabels);
 
 const canUpload = computed(() => canUploadFiles(currentUser.value));
-
-const isMiddleCrumb = (index: number) => index > 0 && index < breadcrumbItems.value.length - 1;
 
 const currentFolderName = computed(() =>
     route.path.startsWith('/dashboard/folders/') ? breadcrumbItems.value.at(-1)!.label : null,

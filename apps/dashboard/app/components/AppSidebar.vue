@@ -187,7 +187,7 @@ import {
     ITrash2,
     IUsers,
 } from '#components';
-import { useSidebar } from '~/components/ui/sidebar';
+import { useSidebar } from '#layers/ui/app/components/ui/sidebar';
 
 const authUser = useAuthUser();
 const currentTheme = useTheme();
