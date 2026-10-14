@@ -10,13 +10,13 @@
             </UiCardDescription>
         </UiCardHeader>
         <UiCardFooter class="gap-2">
-            <UiButton v-if="status.updaterAvailable" size="sm" class="flex-1" @click="handleUpdate">
+            <UiButton v-if="canUpdate" size="sm" class="flex-1" @click="handleUpdate">
                 Update
             </UiButton>
             <UiButton
                 size="sm"
-                :variant="status.updaterAvailable ? 'outline' : 'default'"
-                :class="!status.updaterAvailable && 'flex-1'"
+                :variant="canUpdate ? 'outline' : 'default'"
+                :class="!canUpdate && 'flex-1'"
                 as-child
             >
                 <a :href="status.url" target="_blank" rel="noopener noreferrer">Changelog</a>
@@ -42,7 +42,10 @@ const { status } = defineProps<{
     status: { version: string; url: string; latestVersion: string; updaterAvailable: boolean };
 }>();
 
+const authUser = useAuthUser();
 const { $toast } = useNuxtApp();
+
+const canUpdate = computed(() => status.updaterAvailable && !!authUser.value?.superAdmin);
 
 const isUpdating = ref(false);
 const state = ref('Pulling');

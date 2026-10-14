@@ -6,7 +6,10 @@
             </UiButton>
         </UiDropdownMenuTrigger>
         <UiDropdownMenuContent align="end" class="w-56">
-            <UiDropdownMenuItem @select="emit('edit')">
+            <UiDropdownMenuItem
+                v-if="!user.superAdmin || currentUser!.superAdmin"
+                @select="emit('edit')"
+            >
                 <IPencil />
                 Edit
             </UiDropdownMenuItem>
