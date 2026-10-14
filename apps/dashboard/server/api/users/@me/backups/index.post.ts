@@ -28,8 +28,6 @@ export default defineEventHandler(async (event) => {
                 embedding: true,
                 textEmbedding: true,
                 ocrText: true,
-                piiDetected: true,
-                piiReasons: true,
                 caption: true,
             },
         }),

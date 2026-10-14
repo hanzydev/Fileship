@@ -22,10 +22,33 @@ const validationSchema = z
 const BACKUP_FIELDS = {
     folder: ['name', 'public', 'createdAt'],
     note: ['title', 'content', 'public', 'createdAt'],
-    file: ['mimeType', 'maxViews', 'expiresAt', 'password', 'createdAt', 'caption', 'piiOverride'],
+    file: [
+        'mimeType',
+        'maxViews',
+        'expiresAt',
+        'password',
+        'createdAt',
+        'piiDetected',
+        'piiReasons',
+        'piiOverride',
+    ],
     view: ['ip', 'createdAt'],
     link: ['code', 'url', 'password', 'maxClicks', 'clicks', 'expiresAt', 'createdAt'],
     user: [],
+};
+
+const BACKUP_ROW_SCHEMAS = {
+    folder: z.object({ name: z.string().min(1).max(32), public: z.boolean() }),
+    note: z.object({
+        title: z.string().trim().min(3).max(48),
+        content: z.string().min(1).max(50_000),
+        public: z.boolean(),
+    }),
+    file: z.object({
+        piiDetected: z.boolean().optional(),
+        piiReasons: z.array(z.string().refine((reason) => reason in PII_REASONS)).optional(),
+    }),
+    link: z.object({ url: linkUrlSchema }),
 };
 
 const pickBackupFields = (database: keyof typeof BACKUP_FIELDS, value: Record<string, any>) =>
@@ -47,6 +70,15 @@ export default defineEventHandler(async (event) => {
     }
 
     const backup = await findBackup(currentUser.id, getRouterParam(event, 'id')!);
+
+    const canRestore = {
+        folder: canUploadFiles(event),
+        file: canUploadFiles(event),
+        view: canUploadFiles(event),
+        note: canTakeNotes(event),
+        link: canShortenLinks(event),
+        user: true,
+    };
 
     await verifySession(event, body.data?.verificationData);
 
@@ -196,7 +228,7 @@ export default defineEventHandler(async (event) => {
                 for (const database of databases) {
                     const databasePath = join(tempPath, 'database', `${database}.json`);
 
-                    if (!existsSync(databasePath)) continue;
+                    if (!existsSync(databasePath) || !canRestore[database]) continue;
 
                     if (database === 'user') {
                         try {
@@ -235,6 +267,12 @@ export default defineEventHandler(async (event) => {
 
                             pipeline.on('data', async ({ value }: any) => {
                                 processing = processing.then(async () => {
+                                    const schema =
+                                        BACKUP_ROW_SCHEMAS[
+                                            database as keyof typeof BACKUP_ROW_SCHEMAS
+                                        ];
+                                    if (schema && !schema.safeParse(value).success) return;
+
                                     const data = pickBackupFields(database, value);
 
                                     switch (database) {
@@ -252,7 +290,11 @@ export default defineEventHandler(async (event) => {
                                                 typeof value.piiOverride === 'boolean'
                                                     ? value.piiOverride
                                                     : null;
-                                            data.piiDetected = data.piiOverride === true;
+                                            data.piiDetected =
+                                                data.piiOverride ?? value.piiDetected === true;
+                                            data.piiReasons = data.piiDetected
+                                                ? (value.piiReasons ?? [])
+                                                : [];
                                             break;
                                         }
                                         case 'view':
@@ -262,9 +304,10 @@ export default defineEventHandler(async (event) => {
                                         case 'link':
                                             data.authorId = currentUser.id;
                                             if (
-                                                await prisma.link.findUnique({
+                                                !linkCodeSchema.safeParse(data.code).success ||
+                                                (await prisma.link.findUnique({
                                                     where: { code: data.code },
-                                                })
+                                                }))
                                             )
                                                 data.code = await createLinkCode();
                                             break;
@@ -362,7 +405,12 @@ export default defineEventHandler(async (event) => {
                                             created.views = { today: 0, total: 0 };
                                         }
 
-                                        sendToUser(currentUser.id, `${database}:create`, created);
+                                        if (database !== 'view')
+                                            sendToUser(
+                                                currentUser.id,
+                                                `${database}:create`,
+                                                created,
+                                            );
                                     } catch {
                                         //
                                     }
