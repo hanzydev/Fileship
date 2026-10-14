@@ -143,7 +143,7 @@ Super admins can configure Fileship from the dashboard in **Administration → I
 - **Logs and telemetry:** log level and anonymous telemetry
 - **Storage:** where uploads and backups are kept
 
-Each of these settings can also be given a default through an environment variable (see [`apps/dashboard/.env.example`](apps/dashboard/.env.example)). A value saved in the dashboard always overrides the environment, and every field can be reset to its default.
+Each of these settings except Storage can also be given a default through an environment variable (see [`apps/dashboard/.env.example`](apps/dashboard/.env.example)). A value outside the allowed range falls back to the built-in default. A value saved in the dashboard always overrides the environment, and every field can be reset to its default.
 
 ### Storage
 
@@ -161,13 +161,16 @@ Deleted files, folders and notes move to the trash for 30 days by default. Set *
 
 A few settings can only be set through the environment, because they are needed before the dashboard starts or are fixed when the app is built:
 
-| Variable                                      | Description                                                     |
-| --------------------------------------------- | --------------------------------------------------------------- |
-| `DATABASE_URL`                                | PostgreSQL connection string (required)                         |
-| `NUXT_DATA_DIRECTORY`                         | Local storage, thumbnails and temporary files (default: `data`) |
-| `NUXT_UPDATER_URL` / `NUXT_UPDATER_SECRET`    | How the dashboard reaches the updater agent                     |
-| `DELETE_EXPIRED_CRON` / `GENERATE_STATS_CRON` | Schedules for expired file cleanup and statistics (build time)  |
-| `ENABLE_PWA`                                  | Progressive Web App support (build time)                        |
+| Variable                                      | Description                                                                     |
+| --------------------------------------------- | ------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                | PostgreSQL connection string (required)                                         |
+| `NUXT_DATA_DIRECTORY`                         | Local storage, thumbnails and temporary files (default: `data`)                 |
+| `NUXT_UPDATER_URL` / `NUXT_UPDATER_SECRET`    | How the dashboard reaches the updater agent                                     |
+| `NUXT_TELEMETRY_URL`                          | Where anonymous telemetry reports are sent                                      |
+| `DELETE_EXPIRED_CRON` / `GENERATE_STATS_CRON` | Schedules for removing expired files and links, and for statistics (build time) |
+| `ENABLE_PWA`                                  | Progressive Web App support (build time)                                        |
+
+Build time options only take effect when you build the image yourself, for example with `docker-compose.dev.yml`. The published image always uses their defaults.
 
 To set an environment variable with Docker Compose, add it to the shared `x-fileship` block in `docker-compose.yml`, so both the `fileship-blue` and `fileship-green` containers receive it:
 
@@ -181,15 +184,15 @@ Then apply it with `docker compose up -d`.
 
 ## 🔄 Updating Fileship
 
-Fileship updates itself without downtime. A small built-in proxy ([Caddy](https://caddyserver.com/)) listens on port `3000` and always routes requests to a healthy container. During an update, the updater agent starts the new version in a second container (`fileship-blue` / `fileship-green`), waits until it is healthy and then stops the old one. If the new version fails to start, it is removed and the current version keeps running. Updates also wait for any running backup restore to finish.
+Fileship updates itself without downtime. A small built-in proxy ([Caddy](https://caddyserver.com/)) listens on port `3000` and always routes requests to a healthy container. During an update, the updater agent starts the new version in a second container (`fileship-blue` / `fileship-green`), waits until it is healthy and then stops the old one. If the new version fails to start, it is stopped and the current version keeps running. Updates also wait for any running backup restore to finish.
 
 ### One-click update
 
-When a new release is available, admins see an update card in the sidebar. Click **Update** to start it and follow its progress live.
+When a new release is available, admins see an update card in the sidebar. Super admins can click **Update** to start it and follow its progress live.
 
 ### Scheduled updates
 
-Automatic updates are enabled by default and run every day at 3:00 AM. You can change or disable them in `docker-compose.yml`:
+Automatic updates are enabled by default and run every day at 3:00 AM in the updater agent's time zone (UTC unless you set `TZ` on it). You can change or disable them in `docker-compose.yml`:
 
 ```yaml
 updater-agent:
@@ -236,9 +239,9 @@ docker compose up -d --remove-orphans
 ```
 
 <details>
-<summary><strong>Upgrading from an older 5.x setup</strong></summary>
+<summary><strong>Moving from the 5.x compose file</strong></summary>
 
-If your installation predates the updater agent or zero-downtime updates (your `docker-compose.yml` has a single `fileship` service), run the steps above as well. The new `docker-compose.yml` adds the updater agent, the proxy and the two app containers. If you don't have a `.env` file with a `SECRET_TOKEN` yet, create one first:
+Every 5.x installation runs a single `fileship` service. The new `docker-compose.yml` you pulled in step 1 adds the updater agent, the proxy and the two app containers. If you don't have a `.env` file with a `SECRET_TOKEN` yet, create one first:
 
 ```sh
 echo "SECRET_TOKEN=$(openssl rand -hex 32)" > .env
@@ -297,11 +300,11 @@ When AI is disabled:
 - smart search falls back to full-text search
 - AI-related parts of the interface are hidden
 
-Every image, video and text file is analyzed once in the background after it is uploaded. **Parallel jobs** sets how many files are analyzed at the same time and **Threads per job** how many CPU cores each one uses; on small servers keep both low. A job whose server stops responding is picked up again after **Job heartbeat timeout**, and a file that fails three times is left alone until you choose **Retry failed** in the AI section of **Administration → Instance**, which also shows the queue. **Reset AI data** there deletes the captions, OCR text, search data and sensitive content flags of every file and analyzes everything again; choices made with **Not sensitive** or **Mark as sensitive** are kept.
+Every image, video and text file is analyzed once in the background after it is uploaded. **Parallel jobs** sets how many files are analyzed at the same time and **Threads per job** how many CPU cores each one uses; on small servers keep both low. A job whose server stops responding is picked up again after **Job heartbeat timeout**, and a file that fails three times waits until you choose **Retry failed** in the AI section of **Administration → Instance**, which also shows the queue. Failed jobs are cleared after 30 days, and those files are then tried again. **Reset AI data** there deletes the captions, OCR text, search data and sensitive content flags of every file and analyzes everything again; choices made with **Not sensitive** or **Mark as sensitive** are kept.
 
 ### AI presets
 
-The preset sets which models are used and how long they stay in memory. Choose it in **Administration → Instance** or with `NUXT_AI_PRESET`. Changing it analyzes files again in the background where the models differ.
+The preset sets which models are used and how long they stay in memory. Choose it in **Administration → Instance** or with `NUXT_AI_PRESET`. A new preset applies to files analyzed from then on. Files that were already analyzed keep their captions and text until you choose **Reset AI data**.
 
 |                        | `low`                          | `medium` (default)                    | `high`                                 |
 | ---------------------- | ------------------------------ | ------------------------------------- | -------------------------------------- |

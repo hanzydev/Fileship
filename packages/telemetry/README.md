@@ -12,11 +12,11 @@ The report contains counts, sizes, on/off values and version strings. It never c
 
 ### ℹ️ Instance
 
-| Field     | Description                                                      |
-| --------- | ---------------------------------------------------------------- |
-| `id`      | A random ID generated on first start, kept in the data directory |
-| `version` | The Fileship version                                             |
-| `sentAt`  | When the report was sent                                         |
+| Field     | Description                                                           |
+| --------- | --------------------------------------------------------------------- |
+| `id`      | A random ID created with the first report, kept in the data directory |
+| `version` | The Fileship version                                                  |
+| `sentAt`  | When the report was sent                                              |
 
 ### 💻 Runtime
 

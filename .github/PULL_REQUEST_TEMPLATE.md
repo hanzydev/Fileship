@@ -36,7 +36,7 @@ Thank you for your contribution ❤️
 <!-- Put an `x` in every box that applies. If you are unsure about any of them, just ask. -->
 
 - [ ] I have linked an issue or discussion.
-- [ ] `pnpm --filter dashboard lint:types` reports no errors and `pnpm lint` passes.
+- [ ] `pnpm lint:types` reports no errors and `pnpm lint` passes.
 - [ ] I have tested the change locally.
 - [ ] Database migrations, if any, are backward compatible.
 - [ ] I have updated the documentation (`README.md`, `AGENTS.md`, `.env.example`) where needed.
