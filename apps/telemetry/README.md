@@ -1,0 +1,74 @@
+# Fileship Telemetry
+
+The panel that receives the anonymous reports sent by Fileship instances and turns them into statistics. Only the person running it can open it; there are no public pages.
+
+## 📊 How the numbers are calculated
+
+- Each instance keeps **one report per UTC day**. A newer report on the same day replaces the older one, so restarts and blue/green updates never count twice.
+- An instance is **active** on a day when it reported in the 7 days before it. Totals add up the latest report of every active instance.
+- The statistics of each day are computed once and kept, so the overview loads in a single query. The current and the previous day are refreshed every hour.
+- Growth compares today with 30 days earlier.
+- Storage, links, views and feature usage come only from Fileship 6 and later; older versions only send counts and system information.
+
+## 🗑️ Retention
+
+- An instance that sends no report for `NUXT_INSTANCE_RETENTION_DAYS` days (90 by default) is deleted together with its reports. If it reports again later, it starts as a new instance.
+- Reports of active instances are kept for 13 months.
+- Daily statistics hold only totals and are kept, so the charts keep the history of deleted instances.
+- IP addresses are never stored.
+
+## ⚙️ Environment
+
+| Variable                       | Description                                                          |
+| ------------------------------ | -------------------------------------------------------------------- |
+| `DATABASE_URL`                 | PostgreSQL connection string (required)                              |
+| `NUXT_ADMIN_PASSWORD`          | Password for the panel (required, the panel stays locked without it) |
+| `NUXT_INSTANCE_RETENTION_DAYS` | Days without a report before an instance is deleted (default: 90)    |
+| `LEGACY_DATABASE_URL`          | The old telemetry database, only read by `pnpm import:legacy`        |
+
+## 🐳 Running
+
+```yaml
+services:
+    telemetry:
+        image: ghcr.io/hanzydev/fileship-telemetry:latest
+        restart: unless-stopped
+        environment:
+            DATABASE_URL: postgresql://telemetry:password@postgres:5432/telemetry
+            NUXT_ADMIN_PASSWORD: change-me
+        ports:
+            - 3000:3000
+        depends_on:
+            - postgres
+
+    postgres:
+        image: postgres:17-alpine
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: telemetry
+            POSTGRES_PASSWORD: password
+            POSTGRES_DB: telemetry
+        volumes:
+            - ./postgres:/var/lib/postgresql/data
+```
+
+Migrations run on start. Fileship instances send their reports to `POST /api/v2/report`; instances older than 6.0 use `POST /api/event`, which keeps working.
+
+## 📥 Importing the old panel's data
+
+The previous panel stored every report in `FileshipInfo` and `SystemInfo`. To bring them over, set `LEGACY_DATABASE_URL` and run:
+
+```sh
+pnpm --filter telemetry import:legacy
+```
+
+The import only reads the old database. It keeps the latest report of each instance per day, skips days that already have a report, and recomputes the daily statistics on the panel's next hourly run or restart. Instances that stopped reporting are then deleted as usual, while their past days stay in the charts. The old `AiSearchUsage` table, which held raw search queries, is not read; drop it after the import.
+
+## 🧑‍💻 Development
+
+```sh
+cp apps/telemetry/.env.example apps/telemetry/.env
+pnpm --filter telemetry dev
+```
+
+The panel runs on port 3002. Point a local dashboard at it with `NUXT_TELEMETRY_URL=http://localhost:3002` to send reports from development.

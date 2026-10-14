@@ -362,7 +362,7 @@ One report is sent about five minutes after startup and then every six hours. It
 - **Usage:** how many users, files (with sizes per category), folders, notes, short links and clicks, backups, inboxes and views in the last 30 days there are, and which storage types are configured. Items in the trash are counted separately.
 - **Features:** whether registration, Turnstile, EXIF removal and AI are enabled, the trash retention, the log level, the AI preset and how many files were analyzed or marked as sensitive
 
-No personal information, names, file contents, file names, URLs or domains are collected, and the telemetry server does not store IP addresses. See the [telemetry package](packages/telemetry/README.md) for the full list of fields.
+No personal information, names, file contents, file names, URLs or domains are collected, and the telemetry server does not store IP addresses. See the [telemetry package](packages/telemetry/README.md) for the full list of fields, and the [telemetry panel](apps/telemetry/README.md) for how they are stored and counted.
 
 ### Opting out
 

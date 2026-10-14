@@ -4,14 +4,16 @@ Guidance for AI coding agents (and humans) working on Fileship, an open-source, 
 
 ## Repository
 
-pnpm + Turborepo monorepo (`pnpm@11`, `node-linker=hoisted`, workspaces `apps/*` and `packages/*`).
+pnpm + Turborepo monorepo (`pnpm@11`, workspaces `apps/*` and `packages/*`). pnpm uses its default isolated linker, so every workspace declares the packages it imports.
 
-| Path                     | What it is                                                                                                                           |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `apps/dashboard`         | Nuxt 4 app: the UI and the Nitro API. Prisma/Postgres, socket.io, Orama search, local AI queue.                                      |
-| `apps/updater-agent`     | Small h3 service (`src/index.ts`) that performs blue/green updates by driving `docker compose`.                                      |
-| `packages/telemetry`     | `@fileship/telemetry`, anonymous usage telemetry.                                                                                    |
-| `packages/eslint-config` | `@fileship/eslint-config`, shared flat config used by the updater-agent and telemetry. The dashboard has its own `eslint.config.js`. |
+| Path                     | What it is                                                                                                                              |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/dashboard`         | Nuxt 4 app: the UI and the Nitro API. Prisma/Postgres, socket.io, Orama search, local AI queue.                                         |
+| `apps/updater-agent`     | Small h3 service (`src/index.ts`) that performs blue/green updates by driving `docker compose`.                                         |
+| `apps/telemetry`         | Nuxt 4 telemetry panel: receives the anonymous reports and shows the statistics. Admin only. Not part of the user-facing stack.         |
+| `packages/ui`            | `@fileship/ui`, the shared Nuxt layer: shadcn-vue components, theme tokens, generic app components and the shared Nuxt modules.         |
+| `packages/telemetry`     | `@fileship/telemetry`, the report schema (zod) and the client that collects runtime info and sends reports.                             |
+| `packages/eslint-config` | `@fileship/eslint-config`: `.` for plain TypeScript packages, `./nuxt` for the rules the Nuxt apps and the ui layer pass to `withNuxt`. |
 
 ## Commands
 
@@ -21,13 +23,15 @@ Run from the repository root unless noted.
 - `pnpm dev`: run every app in dev mode through Turbo. The dashboard generates the Prisma client and applies migrations first.
 - `pnpm build`: build every workspace.
 - `pnpm lint`: ESLint in every workspace, then `prettier --write .`.
-- `pnpm check`: build + lint, which is what CI runs (`.github/workflows/check.yml`).
+- `pnpm lint:types`: `nuxt typecheck` in the dashboard, the telemetry panel and the ui layer. It must report zero errors.
+- `pnpm check`: build + lint + lint:types, which is what CI runs (`.github/workflows/check.yml`).
 
 Dashboard only (`pnpm --filter dashboard <script>`):
 
-- `lint:types`: `nuxt typecheck`. It must report zero errors.
 - `lint:code`: `eslint --fix .`
 - `db:generate`, `db:deploy`, `db:migrate` (create-only), `db:prototype` (db push), `db:studio`, `db:reset`.
+
+Telemetry panel only (`pnpm --filter telemetry <script>`): `dev` (port 3002), `db:generate`, `db:deploy`, `db:migrate` (create-only), `db:studio` and `import:legacy`.
 
 Turborepo behaviour can differ between versions. Before changing `turbo.json`, read the docs bundled with the installed package (`node_modules/turbo/docs`).
 
@@ -37,6 +41,8 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 - Self-registration is off by default. `NUXT_PUBLIC_REGISTRATION_ENABLED=true` enables `/register` and `POST /api/auth/register`; `NUXT_REGISTRATION_PERMISSIONS` (only `UploadFiles`, `TakeNotes` and `ShortenLinks` are honoured) and `NUXT_REGISTRATION_USABLE_SPACE` (MB, `-1` unlimited) set what new accounts get.
 - `NUXT_UPDATER_URL` and `NUXT_UPDATER_SECRET` point the dashboard at the updater-agent. `docker-compose.yml` sets both.
 - The updater-agent reads `PORT`, `SECRET_TOKEN`, `DEV_MODE`, `AUTOUPDATER_ENABLED`, `AUTOUPDATER_CRON`, `COMPOSE_FILE` and `FILESHIP_URL`.
+- `NUXT_TELEMETRY_URL` sends the dashboard's reports to another panel. Development builds only send reports when it is set.
+- The telemetry panel (`apps/telemetry/.env.example`) reads `DATABASE_URL`, `NUXT_ADMIN_PASSWORD` (the panel stays locked while it is empty), `NUXT_INSTANCE_RETENTION_DAYS` and, for the import only, `LEGACY_DATABASE_URL`.
 - Instance settings (site name, link protocol, uploads, trash retention, registration, Turnstile, AI, log level, telemetry, active storage) are stored in the `Setting` table and edited by super admins at `/dashboard/instance`. The env/runtimeConfig values are only their defaults. Server code reads them with `getSettings()` (or `getSettingsSync()` in synchronous code) from `server/utils/settings.ts`; the client reads the public subset with `usePublicSettings()`, kept in sync over the `settings:update` socket event. The schema lives in `shared/utils/settings.ts`.
 - Server code reads the remaining configuration through `useRuntimeConfig()`, never `process.env`. Runtime overrides therefore use the `NUXT_` prefix. The exceptions are `DATABASE_URL` (shared with the Prisma CLI) and the build-time options in `nuxt.config.ts` (`ENABLE_PWA`, `DELETE_EXPIRED_CRON`, `GENERATE_STATS_CRON`), which only take effect when the app is built.
 - Never commit `.env` files, `data/` or anything under `.claude/` or `.impeccable/`.
@@ -51,14 +57,24 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 - Both colors share the database and `data/`. Startup work must be idempotent and safe to run twice (for example, `resetBackupRestoreState` only clears restores older than 2 hours, and `storage:sync` skips a storage that cannot be listed or looks empty).
 - `docker-compose.dev.yml` is the same stack built from local Dockerfiles.
 
+## Shared UI layer (`packages/ui`)
+
+- A Nuxt layer shipped as source. The dashboard and the telemetry panel use it through `extends: ['@fileship/ui']`, and its `components`, `composables`, `utils`, `layouts` and `plugins` are auto-imported there.
+- `app/components/ui`: shadcn-vue components (style `reka-luma`, see `packages/ui/components.json`). Run `shadcn-vue add` from `packages/ui`.
+- Generic components: `AppHeader` (sidebar trigger, breadcrumbs, theme toggle), `PageHeader`, `TextBlock`, `EmptyState`, `Centered`, `StatCard`, `StatsDonut`, `DataTable`, `VirtualList`, `ListCardSkeleton`, `PasswordInput` and `ConfirmDialog`. Composables: `useConfirm`, `useQueryState`, `useBreadcrumbs`, `useBreadcrumbLabels`. Utils: `cn`, `pluralize`, `clamp`, `getErrorMessage`.
+- `app/styles/tailwind.css` holds the Fileship theme tokens (light and dark). Each app imports it from its own `app/styles/tailwind.css` (`@import '@fileship/ui/app/styles/tailwind.css';`). The dashboard adds its accent colors after it; the panel uses only the default colors.
+- Inside the layer, `@/` and `~/` point to the app that extends it. Import layer files through `#layers/ui/...` instead, for example `#layers/ui/app/components/ui/sidebar`.
+- The layer declares every module and package it uses (`@nuxt/fonts`, `@nuxtjs/color-mode`, `@vueuse/nuxt`, `vue-sonner/nuxt`, `nuxt-lucide-icons`, `@nuxt/eslint`, Tailwind, reka-ui, Unovis, ...). Apps add only what they import themselves.
+- Put something here only when both apps use it or it is part of the design system. Anything that needs `useAuthUser`, the socket or Fileship APIs stays in the dashboard.
+
 ## Dashboard layout (`apps/dashboard`)
 
 - `app/pages`: route groups `(auth)` (login, register), `(dashboard)/dashboard/*` (home, files, folders, notes, links, trash, logs, stats, users, instance, settings/\*) and `(view)` (public `view/[id]`, `folder/[id]`, `note/[id]`, `inbox/[id]`, `link/[code]`).
-- `app/layouts`: `default.vue` (public pages) and `dashboard.vue` (sidebar shell, command palette, upload sheet and queue, global drop zone, paste upload).
+- `app/layouts`: `dashboard.vue` (sidebar shell, command palette, upload sheet and queue, global drop zone, paste upload). Public pages use the layer's `default.vue`.
 - `app/middleware`: `userOnly`, `guestOnly`, `adminOnly`, `superAdminOnly`, `fileUploaderOnly`, `noteTakerOnly`, `linkShortenerOnly`.
-- `app/components/ui`: shadcn-vue components (style `reka-luma`, see `components.json`). App components sit flat in `app/components`.
+- `app/components`: app components, flat. The shadcn-vue components come from the ui layer.
 - `app/composables`: `useState` stores plus action composables (`useFileActions`, `useFolderActions`, `useNoteActions`).
-- `app/utils`: client helpers (`socket.ts`, `uploadFile.ts`, `getErrorMessage.ts`, ...).
+- `app/utils`: client helpers (`socket.ts`, `uploadFile.ts`, ...).
 - `server/api`: REST endpoints (`auth`, `files`, `folders`, `inbox`, `links`, `logs`, `notes`, `settings`, `storages`, `trash`, `updater`, `users`, `stats`, `healthz`).
 - `server/routes/u/[id]`: raw file serving. `server/routes/s/[code]`: short link redirects.
 - `server/middleware`: `auth.ts` (the `token` session cookie, plus the upload token on `POST /api/files` and `POST /api/links`) and `cors.ts`.
@@ -91,6 +107,21 @@ Reuse these instead of writing new versions.
 - Search index: write file entries with `upsertFileSearchEntry(fileId)` (`server/utils/search.ts`), which re-reads the row and serializes writes, never with Orama `insert`/`update` directly. Orama only holds text; vectors live in `server/utils/vectorIndex.ts` and only those made by the active preset's models are loaded (`reloadFileVectors`). `search:refresh` indexes files analyzed by the other blue/green color. `searchFileIds` runs fulltext only for visitors, when AI is off for the instance or the user, or in fulltext mode; smart mode fuses the image, text and whole-word fulltext lists, each cut by its model's calibrated floor and ratio, and falls back to fulltext while a query model is still loading.
 - `app/utils/socket.ts`: socket.io client that keeps user, theme, embed, domains, passkeys and lists in sync.
 
+## Telemetry
+
+- The report schema is `reportSchema` in `packages/telemetry/src/schema.ts`. The dashboard (`server/tasks/telemetry/collect.ts`) and the panel both validate against it, so change it in one place and keep older reports readable.
+- Reports are anonymous: counts, sizes, on/off flags and version strings only. Never add names, file names, captions, URLs, domains, hosts, IP addresses or setting values such as keys. The instance id is the random `data/.fileship_project_id`.
+- The dashboard collects nothing while telemetry is off. It sends one report five minutes after startup and then every six hours (`POST /api/v2/report`). Instances older than 6.0 still call `POST /api/event`, which the panel keeps accepting.
+
+## Telemetry panel (`apps/telemetry`)
+
+- Same structure and conventions as the dashboard, on the ui layer, with the default Fileship colors and a light/dark toggle.
+- `Report` keeps one row per instance and UTC day (`@@unique([instanceId, day])`). Ingestion (`saveReport` in `server/utils/ingest.ts`) upserts that row; legacy events are merged into it and carry the instance's last known values forward. Ingestion is rate limited per instance and never stores IP addresses.
+- An instance is active on a day when it reported in the `ACTIVE_DAYS` (7) days before it; a day's totals add up the latest report of every active instance (`computeDay` in `server/utils/rollup.ts`). `DailyStat` stores those totals. `stats:rollup` (hourly) fills missing days and recomputes only today and yesterday, so pages read ready rows and past days never change.
+- `db:prune` (daily and on startup) runs the rollup first, then deletes instances silent for `NUXT_INSTANCE_RETENTION_DAYS` with their reports, reports older than 13 months and expired sessions. `DailyStat` is never pruned.
+- Access is a single admin password (`NUXT_ADMIN_PASSWORD`). Sessions are random tokens stored as SHA-256 hashes, sent in an httpOnly cookie and expiring after 30 days. Failed logins are rate limited per IP, and cookie-authenticated writes reject cross-site requests like the dashboard.
+- `scripts/importLegacy.ts` imports the old panel's `FileshipInfo` and `SystemInfo` tables read-only (latest row per instance and UTC day) and clears `DailyStat` from the first imported day so the rollup recomputes it.
+
 ## Conventions
 
 - Code style: no comments, `handle*` names for event handlers, `<template>` before `<script setup>`, `definePageMeta` last, non-null `!` and `as any` are fine where the type is known.
@@ -103,11 +134,12 @@ Reuse these instead of writing new versions.
 ## UI rules
 
 - Use shadcn-vue components. Read `https://www.shadcn-vue.com/docs/components/<name>` before using one and follow its documented composition.
-- Never restyle `app/components/ui`. Small upstream logic or attribute fixes are acceptable; colors, radii and spacing are not changed there. Adjust at the usage site instead.
-- Add new shadcn components from the `reka-luma` registry and keep them unmodified.
+- Never restyle `packages/ui/app/components/ui`. Small upstream logic or attribute fixes are acceptable; colors, radii and spacing are not changed there. Adjust at the usage site instead.
+- Add new shadcn components from the `reka-luma` registry in `packages/ui` and keep them unmodified. Prettier skips that folder.
 - No `cursor-pointer`.
 - Icons come from lucide through `nuxt-lucide-icons` (`<IName />`).
 - Use theme tokens (`bg-muted`, `text-muted-foreground`, `var(--primary)`, ...) instead of raw colors, so accents and dark mode keep working.
+- Both apps share one design language: build the panel's pages from the same components and layout patterns as the dashboard.
 
 ## Security notes
 
