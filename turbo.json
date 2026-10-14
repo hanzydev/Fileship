@@ -8,6 +8,9 @@
             "outputs": [".nuxt/**", ".output/**", "dist/**"]
         },
         "lint": {},
+        "lint:types": {
+            "dependsOn": ["^build"]
+        },
         "dev": {
             "cache": false,
             "persistent": true,

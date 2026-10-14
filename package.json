@@ -8,7 +8,8 @@
         "dev": "turbo run dev",
         "preinstall": "npx only-allow pnpm",
         "lint": "turbo run lint && prettier --write .",
-        "check": "pnpm build && pnpm lint",
+        "lint:types": "turbo run lint:types",
+        "check": "pnpm build && pnpm lint && pnpm lint:types",
         "release": "changelogen --release"
     },
     "devDependencies": {
