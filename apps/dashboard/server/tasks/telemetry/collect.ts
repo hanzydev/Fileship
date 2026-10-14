@@ -9,6 +9,7 @@ import {
     collectRuntime,
     FILE_CATEGORIES,
     type FileCategory,
+    reportSchema,
     sendReport,
     type TelemetryUsage,
 } from '@fileship/telemetry';
@@ -186,17 +187,16 @@ export default defineTask({
                 collectFeatures(),
             ]);
 
-            await sendReport(
-                {
-                    id: getInstanceId(),
-                    version: pkg.version,
-                    sentAt: Date.now(),
-                    runtime,
-                    usage,
-                    features,
-                },
-                telemetryUrl || undefined,
-            );
+            const report = reportSchema.parse({
+                id: getInstanceId(),
+                version: pkg.version,
+                sentAt: Date.now(),
+                runtime,
+                usage,
+                features,
+            });
+
+            await sendReport(report, telemetryUrl || undefined);
 
             return { result: 'success' };
         } catch (error: any) {
