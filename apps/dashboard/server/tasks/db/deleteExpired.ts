@@ -15,6 +15,7 @@ export default defineTask({
                 fileName: true,
                 storageId: true,
                 authorId: true,
+                deletedAt: true,
             },
         });
 
@@ -34,6 +35,7 @@ export default defineTask({
             });
 
             sendToUser(file.authorId, 'file:delete', file.id);
+            if (file.deletedAt) sendToUser(file.authorId, 'trash:update', null);
         }
 
         const expiredLinks = await prisma.link.findMany({

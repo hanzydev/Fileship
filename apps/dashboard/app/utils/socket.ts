@@ -3,6 +3,17 @@ import { io } from 'socket.io-client';
 
 let socket: Socket | null;
 
+const routeAccess: [string, (user: PartialUser) => boolean][] = [
+    ['/dashboard/instance', (user) => !!user?.superAdmin],
+    ['/dashboard/users', isAdmin],
+    ['/dashboard/logs', isAdmin],
+    ['/dashboard/stats', isAdmin],
+    ['/dashboard/files', canUploadFiles],
+    ['/dashboard/folders', canUploadFiles],
+    ['/dashboard/notes', canTakeNotes],
+    ['/dashboard/links', canShortenLinks],
+];
+
 export const closeSocket = () => {
     if (socket) {
         socket.close();
@@ -39,22 +50,15 @@ export const initSocket = () => {
 
         // User
         socket.on('currentUser:update', (data) => {
-            const adminRoutes = ['/dashboard/users', '/dashboard/logs', '/dashboard/stats'];
-            if (
-                data.permissions?.length &&
-                !isAdmin(data) &&
-                isAdmin(currentUser.value) &&
-                adminRoutes.some((r) => route.path.startsWith(r))
-            ) {
-                navigateTo('/dashboard');
-            }
-
             if (data.theme) currentTheme.value = data.theme;
 
             currentUser.value = {
                 ...currentUser.value,
                 ...data,
             };
+
+            const access = routeAccess.find(([path]) => route.path.startsWith(path));
+            if (access && !access[1](currentUser.value)) navigateTo('/dashboard');
         });
 
         socket.on('currentUser:updateTotp', (data) => {
@@ -80,7 +84,7 @@ export const initSocket = () => {
 
         socket.on('deleteAll', () => {
             clearStates();
-            refreshLists('files', 'folders', 'notes', 'backups', 'links');
+            refreshLists('files', 'folders', 'notes', 'backups', 'links', 'trash');
         });
 
         // Sessions
