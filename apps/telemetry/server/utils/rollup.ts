@@ -44,7 +44,7 @@ export const summarize = (reports: StoredReport[]) => {
     const disk: Record<string, number> = {};
     const presets: Record<string, number> = {};
     const activeStorages: Record<string, number> = {};
-    const configuredStorages: Record<string, number> = {};
+    const storageSetups: Record<string, number> = {};
     const trashRetention: Record<string, number> = {};
     const logLevels: Record<string, number> = {};
     const categories = Object.fromEntries(
@@ -132,9 +132,15 @@ export const summarize = (reports: StoredReport[]) => {
 
         tally(activeStorages, usage.storages?.active);
 
-        for (const [type, amount] of Object.entries(usage.storages?.types ?? {})) {
-            if (amount) tally(configuredStorages, type);
-        }
+        const storageTypes = Object.entries(usage.storages?.types ?? {})
+            .filter(([, amount]) => amount)
+            .map(([type]) => type)
+            .sort();
+
+        tally(
+            storageSetups,
+            storageTypes.length ? storageTypes.join(' + ') : 'Data directory only',
+        );
 
         if (features.ai?.enabled) {
             flags.aiEnabled++;
@@ -169,7 +175,7 @@ export const summarize = (reports: StoredReport[]) => {
             disk,
             presets,
             activeStorages,
-            configuredStorages,
+            storageSetups,
             trashRetention,
             logLevels,
         },

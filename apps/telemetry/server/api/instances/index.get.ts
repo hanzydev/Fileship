@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const SORT_FIELDS = ['lastSeenAt', 'firstSeenAt', 'version', 'users', 'files', 'storage'];
+const SORT_FIELDS = ['lastSeenAt', 'firstSeenAt', 'users', 'files', 'storage'];
 
 const querySchema = z.object({
     limit: z.coerce.number().int().min(1).max(200).default(50),

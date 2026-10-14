@@ -14,13 +14,10 @@ export default defineEventHandler(async (event) => {
     const storage = Number(latest.storage);
 
     return {
-        day: toDateString(latest.day),
-        updatedAt: latest.updatedAt,
         instances: latest.instances,
         users: latest.users,
         files: latest.files,
         storage,
-        links: latest.links,
         versions: latest.versions as Record<string, number>,
         data: latest.data as DayData,
         growth: {

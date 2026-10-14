@@ -1,5 +1,24 @@
 import dayjs from 'dayjs';
 
+const fillHistory = (reports: { day: Date; payload: unknown }[]) => {
+    const history: { day: string; users: number; files: number }[] = [];
+    const last = reports.at(-1);
+    let index = 0;
+    let current = { users: 0, files: 0 };
+
+    for (let day = reports[0]?.day; day && last && day <= last.day; day = addDays(day, 1)) {
+        if (reports[index]?.day.getTime() === day.getTime()) {
+            const usage = (reports[index]!.payload as StoredReport).usage;
+            current = { users: usage?.users?.total ?? 0, files: usage?.files?.total ?? 0 };
+            index++;
+        }
+
+        history.push({ day: toDateString(day), ...current });
+    }
+
+    return history;
+};
+
 export default defineEventHandler(async (event) => {
     adminOnly(event);
 
@@ -25,16 +44,6 @@ export default defineEventHandler(async (event) => {
         ...serializeInstance(instance),
         report: instance.report as StoredReport,
         retentionDays: useRuntimeConfig().instanceRetentionDays,
-        history: instance.reports.map(({ day, payload }) => {
-            const report = payload as StoredReport;
-
-            return {
-                day: toDateString(day),
-                version: report.version ?? '',
-                users: report.usage?.users?.total ?? 0,
-                files: report.usage?.files?.total ?? 0,
-                storage: report.usage?.files?.bytes ?? 0,
-            };
-        }),
+        history: fillHistory(instance.reports),
     };
 });

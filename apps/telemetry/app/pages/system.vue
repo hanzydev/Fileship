@@ -102,7 +102,7 @@ const charts = computed(() => {
         },
         {
             title: 'CPU models',
-            description: 'The 10 most common CPU models',
+            description: 'The most common CPU models',
             items: toDonutItems(data?.cpuModels),
         },
         {

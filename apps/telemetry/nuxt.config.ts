@@ -67,10 +67,10 @@ export default defineNuxtConfig({
         optimizeDeps: {
             include: [
                 '@unovis/vue',
-                'dayjs', // CJS
-                'dayjs/plugin/duration', // CJS
-                'dayjs/plugin/localizedFormat', // CJS
-                'dayjs/plugin/relativeTime', // CJS
+                'dayjs',
+                'dayjs/plugin/duration',
+                'dayjs/plugin/localizedFormat',
+                'dayjs/plugin/relativeTime',
                 'filesize',
             ],
         },

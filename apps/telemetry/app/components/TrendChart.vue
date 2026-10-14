@@ -75,9 +75,7 @@ const {
     isLoading?: boolean;
 }>();
 
-const numberFormat = new Intl.NumberFormat('en-US');
-
-const formatValue = (value: number) => (format ? format(value) : numberFormat.format(value));
+const formatValue = (value: number) => (format ?? formatNumber)(value);
 
 const data = computed<Datum[]>(() =>
     points.map((point, index) => ({

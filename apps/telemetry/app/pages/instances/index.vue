@@ -22,7 +22,16 @@
         </UiInputGroup>
 
         <EmptyState
-            v-if="!isLoading && !instances.length"
+            v-if="loadError"
+            :icon="ICircleAlert"
+            title="Couldn't load instances"
+            :description="loadError"
+        >
+            <UiButton variant="outline" @click="load">Try again</UiButton>
+        </EmptyState>
+
+        <EmptyState
+            v-else-if="!isLoading && !instances.length"
             :icon="IServer"
             :title="search ? 'No matching instances' : 'No instances yet'"
             :description="
@@ -105,7 +114,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
-import { IServer } from '#components';
+import { ICircleAlert, IServer } from '#components';
 
 const PAGE_SIZE = 50;
 
@@ -132,12 +141,13 @@ const retentionDays = ref(90);
 const isLoading = ref(true);
 const isFetching = ref(false);
 const isLoadingMore = ref(false);
+const loadError = ref('');
 
 let version = 0;
 
 const columns = [
     { key: 'id', label: 'Instance' },
-    { key: 'version', label: 'Version', sortable: true, descFirst: true, class: 'w-28' },
+    { key: 'version', label: 'Version', class: 'w-28' },
     { key: 'users', label: 'Users', sortable: true, descFirst: true, class: 'w-20' },
     { key: 'files', label: 'Files', sortable: true, descFirst: true, class: 'w-24' },
     {
@@ -169,9 +179,10 @@ const load = async () => {
             instances.value = page.items;
             total.value = page.total;
             retentionDays.value = page.retentionDays;
+            loadError.value = '';
         }
     } catch (error: any) {
-        $toast.error(getErrorMessage(error));
+        if (current === version) loadError.value = getErrorMessage(error);
     }
 
     if (current === version) {
@@ -186,7 +197,10 @@ const handleLoadMore = async () => {
     const current = version;
     isLoadingMore.value = true;
 
-    const page = await fetchPage(instances.value.length).catch(() => null);
+    const page = await fetchPage(instances.value.length).catch((error) => {
+        $toast.error(getErrorMessage(error));
+        return null;
+    });
 
     if (page && current === version) {
         const known = new Set(instances.value.map((instance) => instance.id));

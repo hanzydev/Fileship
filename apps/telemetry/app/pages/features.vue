@@ -119,7 +119,12 @@ const usageCards = computed(() => {
     const data = latest.value?.data;
 
     return [
-        { title: 'Short links', legend: 'short links', icon: ILink, data: total(data?.links) },
+        {
+            title: 'Short links',
+            legend: 'links on these instances',
+            icon: ILink,
+            data: total(data?.links),
+        },
         {
             title: 'Link clicks',
             legend: 'clicks on short links',
@@ -161,10 +166,10 @@ const charts = computed(() => {
             items: toDonutItems(data?.activeStorages),
         },
         {
-            title: 'Storage types',
-            description: 'Instances with at least one storage of each type',
+            title: 'Storage setups',
+            description: 'Storages added besides the data directory',
             valueLabel: 'Instances',
-            items: toDonutItems(data?.configuredStorages),
+            items: toDonutItems(data?.storageSetups),
         },
         {
             title: 'File types',

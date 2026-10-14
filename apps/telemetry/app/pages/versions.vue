@@ -18,7 +18,8 @@
             <UiCardHeader>
                 <UiCardTitle>Adoption</UiCardTitle>
                 <UiCardDescription>
-                    Active instances per version, the {{ TOP_VERSIONS }} most used ones
+                    Active instances per version, the {{ TOP_VERSIONS }} most used ones and the rest
+                    as Other
                 </UiCardDescription>
             </UiCardHeader>
             <UiCardContent>

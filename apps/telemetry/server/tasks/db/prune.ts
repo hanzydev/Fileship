@@ -3,6 +3,8 @@ import dayjs from 'dayjs';
 
 const REPORT_RETENTION_MONTHS = 13;
 
+const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
+
 export default defineTask({
     meta: {
         name: 'db:prune',
@@ -29,7 +31,7 @@ export default defineTask({
 
         if (instances.count || reports.count) {
             consola.success(
-                `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Deleted ${instances.count} instances and ${reports.count} reports.`,
+                `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Deleted ${plural(instances.count, 'instance')} and ${plural(reports.count, 'report')}.`,
             );
         }
 

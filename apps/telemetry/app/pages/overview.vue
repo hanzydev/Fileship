@@ -6,7 +6,7 @@
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <PageHeader
             title="Overview"
-            :description="`Instances that reported in the last ${ACTIVE_DAYS} days, refreshed hourly.`"
+            :description="`Instances that reported in the last ${ACTIVE_DAYS} days, refreshed hourly. Growth compares with 30 days earlier.`"
         >
             <UiTabs v-model="range">
                 <UiTabsList>
@@ -67,7 +67,7 @@ const statCards = computed(() => [
     },
     {
         title: 'Storage',
-        legend: 'used by files on active instances',
+        legend: 'used by files on Fileship 6 and later',
         icon: IBox,
         data: latest.value === undefined ? undefined : formatBytes(latest.value?.storage ?? 0),
         growth: latest.value?.growth.storage ?? undefined,
@@ -77,7 +77,7 @@ const statCards = computed(() => [
 const charts = computed(() => [
     {
         title: 'Active instances',
-        description: `Instances that reported in the ${ACTIVE_DAYS} days before each day`,
+        description: `Instances that reported in the ${ACTIVE_DAYS} days up to each day`,
         valueLabel: 'Instances',
         color: 'var(--chart-2)',
         points: (series.value ?? []).map((stat) => ({ day: stat.day, value: stat.instances })),

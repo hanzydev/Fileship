@@ -27,7 +27,6 @@ export default defineEventHandler(async (event) => {
             users: true,
             files: true,
             storage: true,
-            links: true,
             versions: true,
         },
     });

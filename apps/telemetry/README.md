@@ -5,8 +5,8 @@ The panel that receives the anonymous reports sent by Fileship instances and tur
 ## 📊 How the numbers are calculated
 
 - Each instance keeps **one report per UTC day**. A newer report on the same day replaces the older one, so restarts and blue/green updates never count twice.
-- An instance is **active** on a day when it reported in the 7 days before it. Totals add up the latest report of every active instance.
-- The statistics of each day are computed once and kept, so the overview loads in a single query. The current and the previous day are refreshed every hour.
+- An instance is **active** on a day when it reported in the 7 days up to and including it. Totals add up the latest report of every active instance.
+- The statistics of each day are computed once and kept, so pages read ready rows instead of every report. The current and the previous day are refreshed every hour.
 - Growth compares today with 30 days earlier.
 - Storage, links, views and feature usage come only from Fileship 6 and later; older versions only send counts and system information.
 

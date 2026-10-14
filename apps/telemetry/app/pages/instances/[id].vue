@@ -94,31 +94,37 @@ const yesNo = (value?: boolean) => (value === undefined ? null : value ? 'Yes' :
 const statCards = computed(() => {
     const usage = instance.value?.report.usage;
     const isLoaded = !!instance.value;
+    const isFull = !!instance.value?.report.features;
+    const notReported = 'reported by Fileship 6 and later';
 
     return [
         {
             title: 'Users',
-            legend: pluralize(usage?.users?.admins ?? 0, 'admin'),
+            legend: isFull
+                ? pluralize(usage?.users?.admins ?? 0, 'admin')
+                : 'users on this instance',
             icon: IUsers,
             data: isLoaded ? (usage?.users?.total ?? 0) : undefined,
         },
         {
             title: 'Files',
-            legend: `${formatNumber(usage?.files?.trashed ?? 0)} in the trash`,
+            legend: isFull
+                ? `${formatNumber(usage?.files?.trashed ?? 0)} in the trash`
+                : 'files on this instance',
             icon: IFiles,
             data: isLoaded ? (usage?.files?.total ?? 0) : undefined,
         },
         {
             title: 'Storage',
-            legend: 'used by files',
+            legend: isFull ? 'used by files' : notReported,
             icon: IBox,
-            data: isLoaded ? formatBytes(usage?.files?.bytes ?? 0) : undefined,
+            data: isLoaded ? (isFull ? formatBytes(usage?.files?.bytes ?? 0) : '—') : undefined,
         },
         {
             title: 'Short links',
-            legend: pluralize(usage?.links?.clicks ?? 0, 'click'),
+            legend: isFull ? pluralize(usage?.links?.clicks ?? 0, 'click') : notReported,
             icon: ILink,
-            data: isLoaded ? (usage?.links?.total ?? 0) : undefined,
+            data: isLoaded ? (isFull ? (usage?.links?.total ?? 0) : '—') : undefined,
         },
     ];
 });
@@ -142,10 +148,18 @@ const sections = computed(() => {
             title: 'System',
             description: 'Where this instance runs',
             rows: rows([
-                ['Platform', runtime?.platform && `${runtime.platform} ${runtime.release ?? ''}`],
+                ['Platform', [runtime?.platform, runtime?.release].filter(Boolean).join(' ')],
                 ['Architecture', runtime?.arch],
                 ['Node.js', runtime?.node],
-                ['CPU', runtime?.cpuModel && `${runtime.cpuModel} (${runtime.cpuCount} cores)`],
+                [
+                    'CPU',
+                    [
+                        runtime?.cpuModel,
+                        runtime?.cpuCount && `(${pluralize(runtime.cpuCount, 'core')})`,
+                    ]
+                        .filter(Boolean)
+                        .join(' '),
+                ],
                 ['Memory', runtime?.memoryTotal ? formatBytes(runtime.memoryTotal) : null],
                 [
                     'Disk',
