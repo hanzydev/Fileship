@@ -1,3 +1,5 @@
+import pkg from '../../package.json' with { type: 'json' };
+
 export default defineNuxtConfig({
     extends: ['@fileship/ui'],
 
@@ -45,6 +47,10 @@ export default defineNuxtConfig({
     },
 
     app: {
+        buildAssetsDir: '/_hanzy_was_here/',
+        rootAttrs: {
+            id: '__fileship_telemetry',
+        },
         head: {
             title: 'Fileship Telemetry',
             htmlAttrs: {
@@ -64,6 +70,18 @@ export default defineNuxtConfig({
     },
 
     vite: {
+        build: {
+            rollupOptions: {
+                output: {
+                    banner: `/*
+* Fileship Telemetry v${pkg.version}
+* https://github.com/hanzydev/Fileship
+* (c) 2024-present Hànzy and Fileship contributors
+* @license MIT
+*/`,
+                },
+            },
+        },
         optimizeDeps: {
             include: [
                 '@unovis/vue',
