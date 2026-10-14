@@ -17,28 +17,38 @@ export default defineEventHandler(async (event) => {
             (storage) => storage.userId === currentUser.id,
         )?.size ?? '0';
 
-    const [users, notes, folders, currentFiles, storage, currentViews, prevViews, ...categories] =
-        await Promise.all([
-            isAdmin(currentUser) ? prisma.user.count() : 0,
-            prisma.note.count({ where: { authorId: currentUser.id, deletedAt: null } }),
-            prisma.folder.count({ where: { authorId: currentUser.id, deletedAt: null } }),
-            prisma.file.count({ where: { authorId: currentUser.id, deletedAt: null } }),
-            prisma.file.aggregate({ where: { authorId: currentUser.id }, _sum: { size: true } }),
-            prisma.view.count({ where: { ownerId: currentUser.id } }),
-            prisma.view.count({ where: { ownerId: currentUser.id, createdAt: { lte: dayAgo } } }),
-            ...FILE_CATEGORY_NAMES.map((category) =>
-                prisma.file.aggregate({
-                    where: {
-                        AND: [
-                            { authorId: currentUser.id, deletedAt: null },
-                            fileCategoryWhere(category),
-                        ],
-                    },
-                    _count: true,
-                    _sum: { size: true },
-                }),
-            ),
-        ]);
+    const [
+        users,
+        notes,
+        folders,
+        links,
+        currentFiles,
+        storage,
+        currentViews,
+        prevViews,
+        ...categories
+    ] = await Promise.all([
+        isAdmin(currentUser) ? prisma.user.count() : 0,
+        prisma.note.count({ where: { authorId: currentUser.id, deletedAt: null } }),
+        prisma.folder.count({ where: { authorId: currentUser.id, deletedAt: null } }),
+        prisma.link.count({ where: { authorId: currentUser.id } }),
+        prisma.file.count({ where: { authorId: currentUser.id, deletedAt: null } }),
+        prisma.file.aggregate({ where: { authorId: currentUser.id }, _sum: { size: true } }),
+        prisma.view.count({ where: { ownerId: currentUser.id } }),
+        prisma.view.count({ where: { ownerId: currentUser.id, createdAt: { lte: dayAgo } } }),
+        ...FILE_CATEGORY_NAMES.map((category) =>
+            prisma.file.aggregate({
+                where: {
+                    AND: [
+                        { authorId: currentUser.id, deletedAt: null },
+                        fileCategoryWhere(category),
+                    ],
+                },
+                _count: true,
+                _sum: { size: true },
+            }),
+        ),
+    ]);
 
     const currentStorageUsed = storage._sum.size ?? 0n;
 
@@ -49,6 +59,7 @@ export default defineEventHandler(async (event) => {
         },
         notes: { count: notes },
         folders: { count: folders },
+        links: { count: links },
         files: {
             count: currentFiles,
             growth: calculateGrowthPercentage(currentFiles, prevFiles),

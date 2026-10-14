@@ -121,7 +121,7 @@
 import dayjs from 'dayjs';
 import { upperFirst } from 'scule';
 
-import { IBookmark, IBox, IEye, IFiles, IFolder, IUsers } from '#components';
+import { IBookmark, IBox, IEye, IFiles, IFolder, ILink, IUsers } from '#components';
 
 const stats = useStats();
 const currentUser = useAuthUser();
@@ -136,6 +136,7 @@ const moveTargets = ref<Pick<FileData, 'id' | 'folderId'>[]>([]);
 
 const canUpload = computed(() => canUploadFiles(currentUser.value));
 const canNote = computed(() => canTakeNotes(currentUser.value));
+const canShorten = computed(() => canShortenLinks(currentUser.value));
 
 const {
     items: recentFiles,
@@ -201,13 +202,26 @@ const statCards = computed(() => [
               data: stats.value?.users.count,
               growth: stats.value?.users.growth,
           }
-        : {
-              title: canNote.value ? 'Notes' : 'Folders',
-              legend: canNote.value ? 'saved notes' : 'created folders',
-              icon: canNote.value ? IBookmark : IFolder,
-              data: stats.value?.[canNote.value ? 'notes' : 'folders'].count,
-              growth: stats.value ? 0 : undefined,
-          },
+        : canNote.value
+          ? {
+                title: 'Notes',
+                legend: 'saved notes',
+                icon: IBookmark,
+                data: stats.value?.notes.count,
+            }
+          : canShorten.value && !canUpload.value
+            ? {
+                  title: 'Short links',
+                  legend: 'short links',
+                  icon: ILink,
+                  data: stats.value?.links.count,
+              }
+            : {
+                  title: 'Folders',
+                  legend: 'created folders',
+                  icon: IFolder,
+                  data: stats.value?.folders.count,
+              },
 ]);
 
 const handleToggle = (file: FileData) => {
