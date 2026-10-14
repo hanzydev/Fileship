@@ -9,7 +9,7 @@ COPY . .
 RUN npm i -g corepack@latest
 RUN corepack enable
 
-RUN pnpm install --filter telemetry...
+RUN pnpm install --frozen-lockfile --filter telemetry...
 RUN pnpm --filter telemetry... build
 
 FROM node:24-slim AS runner
