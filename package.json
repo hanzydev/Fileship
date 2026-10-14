@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "build": "turbo run build",
-        "dev": "turbo run dev",
+        "dev": "turbo run dev --filter=dashboard",
         "preinstall": "npx only-allow pnpm",
         "lint": "turbo run lint && prettier --write .",
         "lint:types": "turbo run lint:types",

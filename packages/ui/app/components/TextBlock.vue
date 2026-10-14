@@ -1,3 +1,13 @@
+<template>
+    <component
+        :is="targetTag"
+        ref="elementRef"
+        :class="cn(textBlockVariants({ variant }), customClass)"
+    >
+        <slot />
+    </component>
+</template>
+
 <script setup lang="ts">
 import { cva, type VariantProps } from 'class-variance-authority';
 import type { ClassValue } from 'vue';
@@ -60,13 +70,3 @@ defineExpose({ element: elementRef });
 
 const targetTag = computed(() => customTag || defaultTags[variant]);
 </script>
-
-<template>
-    <component
-        :is="targetTag"
-        ref="elementRef"
-        :class="cn(textBlockVariants({ variant }), customClass)"
-    >
-        <slot />
-    </component>
-</template>
