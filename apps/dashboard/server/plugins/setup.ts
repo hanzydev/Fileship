@@ -15,4 +15,6 @@ export default defineNitroPlugin(async () => {
     await runTask('ai:syncJobs');
 
     appState.ready = true;
+
+    setTimeout(() => runTask('telemetry:collect'), 5 * 60_000);
 });

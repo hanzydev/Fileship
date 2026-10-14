@@ -25,6 +25,7 @@
     "dependencies": {
         "check-disk-space": "^3.4.0",
         "is-docker": "^4.0.0",
-        "ofetch": "^1.5.1"
+        "ofetch": "^1.5.1",
+        "zod": "^4.6.5"
     }
 }

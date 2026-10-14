@@ -63,7 +63,7 @@ export default defineNuxtConfig({
             '30 * * * *': 'db:purgeTrash',
             '* * * * *': 'search:refresh',
             '15 4 * * *': 'ai:cleanup',
-            '0 */2 * * *': 'telemetry:collect',
+            '0 */6 * * *': 'telemetry:collect',
         },
         framework: {
             name: pkg.name,
@@ -109,6 +109,7 @@ export default defineNuxtConfig({
         trashRetentionDays: 30,
         logLevel: 2,
         telemetryEnabled: true,
+        telemetryUrl: '',
         updater: {
             url: 'http://updater-agent:3001',
             secret: 'dev-secret-token',

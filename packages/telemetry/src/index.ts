@@ -4,124 +4,36 @@ import checkDiskSpace from 'check-disk-space';
 import isDocker from 'is-docker';
 import { ofetch } from 'ofetch';
 
-export enum TelemetryEventType {
-    SystemInformation = 1,
-    FileshipInformation = 2,
-}
+import type { TelemetryReport, TelemetryRuntime } from './schema';
 
-export interface TelemetryServiceOptions {
-    enabled: boolean;
-    projectId: string;
-}
+export * from './schema';
 
-export interface TelemetryEvent {
-    event: TelemetryEventType;
-    payload: FileshipInfoPayload | SystemInfoPayload;
-}
+export const TELEMETRY_URL = 'https://fileship-telemetry.hanzy.dev';
 
-export interface FileshipInfoPayload {
-    version: string;
-    files: number;
-    folders: number;
-    notes: number;
-    users: number;
-    nodeVersion?: string;
-}
+export const collectRuntime = async (directory: string): Promise<TelemetryRuntime> => {
+    const cpus = os.cpus();
+    const disk = await checkDiskSpace(directory).catch(() => ({ size: 0, free: 0 }));
 
-export interface SystemInfoPayload {
-    cpu: {
-        count: number;
-        model: string;
+    return {
+        node: process.version,
+        platform: os.platform(),
+        release: os.release().slice(0, 128),
+        arch: os.arch(),
+        cpuCount: cpus.length,
+        cpuModel: (cpus[0]?.model ?? '').replace(/\s+/g, ' ').trim().slice(0, 128),
+        memoryTotal: os.totalmem(),
+        diskTotal: disk.size,
+        diskFree: disk.free,
+        docker: isDocker(),
+        uptime: Math.round(process.uptime()),
     };
-    memory: {
-        total: number;
-        free: number;
-        used: number;
-    };
-    disk: {
-        total: number;
-        free: number;
-        used: number;
-    };
-    os: {
-        platform: string;
-        release: string;
-        arch: string;
-    };
-    isDocker: boolean;
-}
+};
 
-export class Telemetry {
-    public enabled: boolean;
-    public projectId: string;
-
-    private apiFetch = ofetch.create({
-        baseURL: 'https://fileship-telemetry.hanzy.dev/api',
+export const sendReport = (report: TelemetryReport, url = TELEMETRY_URL) =>
+    ofetch(`${url.replace(/\/+$/, '')}/api/v2/report`, {
+        method: 'POST',
+        body: report,
+        timeout: 10_000,
+        retry: 2,
+        retryDelay: 5_000,
     });
-
-    public constructor({ enabled, projectId }: TelemetryServiceOptions) {
-        this.enabled = enabled;
-        this.projectId = projectId;
-    }
-
-    private async invokeEvent(event: TelemetryEvent) {
-        if (!this.enabled) return;
-
-        try {
-            await this.apiFetch('/event', {
-                method: 'POST',
-                body: {
-                    ...event,
-                    timestamp: Date.now(),
-                    projectId: this.projectId,
-                },
-            });
-        } catch {
-            //
-        }
-    }
-
-    public collectFileshipInfo(payload: FileshipInfoPayload) {
-        return this.invokeEvent({
-            event: TelemetryEventType.FileshipInformation,
-            payload: {
-                ...payload,
-                nodeVersion: process.version,
-            },
-        });
-    }
-
-    public async collectSystemInfo() {
-        const directoryPath = os.platform() === 'win32' ? 'C:\\' : '/';
-        const diskSpace = await checkDiskSpace(directoryPath).catch(() => ({
-            size: 0,
-            free: 0,
-        }));
-
-        return this.invokeEvent({
-            event: TelemetryEventType.SystemInformation,
-            payload: {
-                cpu: {
-                    count: os.cpus().length,
-                    model: os.cpus()[0].model,
-                },
-                memory: {
-                    total: os.totalmem(),
-                    free: os.freemem(),
-                    used: os.totalmem() - os.freemem(),
-                },
-                disk: {
-                    total: diskSpace.size,
-                    free: diskSpace.free,
-                    used: diskSpace.size - diskSpace.free,
-                },
-                os: {
-                    platform: os.platform(),
-                    release: os.release(),
-                    arch: os.arch(),
-                },
-                isDocker: isDocker(),
-            },
-        });
-    }
-}
