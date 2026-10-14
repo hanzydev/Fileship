@@ -93,7 +93,6 @@ export default defineNuxtConfig({
             registrationEnabled: false,
             site: {
                 name: 'Fileship',
-                description: 'An open-source, self-hosted file and media management platform.',
             },
         },
         turnstile: {
