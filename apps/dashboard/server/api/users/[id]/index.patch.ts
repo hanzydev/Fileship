@@ -118,6 +118,13 @@ export default defineEventHandler(async (event) => {
 
     if (body.data.superAdmin) body.data.permissions = [UserPermission.Admin];
 
+    const grantsAdmin =
+        (body.data.superAdmin && !findUserById.superAdmin) ||
+        (body.data.permissions?.includes(UserPermission.Admin) &&
+            !findUserById.permissions.includes(UserPermission.Admin));
+
+    if (grantsAdmin) await verifySession(event, body.data.verificationData);
+
     if (body.data.avatar) {
         const buffer = Buffer.from(body.data.avatar, 'base64');
 
