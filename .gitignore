@@ -35,3 +35,4 @@ data/
 
 # Prisma
 apps/dashboard/generated/prisma
+apps/telemetry/generated/prisma
