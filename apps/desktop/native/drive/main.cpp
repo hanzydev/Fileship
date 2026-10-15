@@ -145,7 +145,7 @@ void handle(JsonObject const& request) {
         } else if (type == L"update") {
             std::optional<std::wstring> identity;
             if (request.HasKey(L"identity")) identity = request.GetNamedString(L"identity");
-            updatePlaceholder(std::wstring(request.GetNamedString(L"path")), identity);
+            updatePlaceholder(std::wstring(request.GetNamedString(L"path")), identity, true);
         } else if (type == L"remove") {
             removePath(std::wstring(request.GetNamedString(L"path")));
         } else if (type == L"adopt") {

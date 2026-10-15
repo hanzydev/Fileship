@@ -40,7 +40,7 @@ const MIME_TYPES: Record<string, string> = {
     '.ts': 'text/plain',
 };
 
-const mimeTypeOf = (path: string) =>
+export const mimeTypeOf = (path: string) =>
     MIME_TYPES[extname(path).toLowerCase()] ?? 'application/octet-stream';
 
 const notify = (title: string, body: string) => {

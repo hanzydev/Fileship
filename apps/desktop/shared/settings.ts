@@ -145,6 +145,12 @@ export const settingsSchema = z.object({
             folderId: z.string().nullable().default(null),
         })
         .prefault({}),
+    drive: z
+        .object({
+            enabled: z.boolean().default(true),
+            folder: z.string().max(1024).default(''),
+        })
+        .prefault({}),
     save: z
         .object({
             folder: z.string().default(''),

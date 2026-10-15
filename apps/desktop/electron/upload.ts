@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { open, stat } from 'node:fs/promises';
 
 import type { UploadProgress } from '../shared/ipc';
+import type { Settings } from '../shared/settings';
 import { handleUnauthorized } from './account';
 import { api, ApiError } from './api';
 import { getSettings, getStore } from './store';
@@ -19,9 +20,11 @@ export type UploadedFile = {
     directUrl: string;
 };
 
-export type UploadSource = { name: string; mimeType: string } & (
-    { data: Buffer; path?: never } | { path: string; data?: never }
-);
+export type UploadSource = {
+    name: string;
+    mimeType: string;
+    options?: Partial<Settings['upload']>;
+} & ({ data: Buffer; path?: never } | { path: string; data?: never });
 
 type Job = UploadSource & {
     id: string;
@@ -75,7 +78,7 @@ const sendChunk = async (form: () => FormData) => {
 };
 
 const runJob = async (job: Job) => {
-    const { upload } = getSettings();
+    const upload = { ...getSettings().upload, ...job.options };
     const size = await getChunkSize();
     const uploadId = randomBytes(12).toString('base64url');
     const fileSize = job.data ? job.data.length : (await stat(job.path!)).size;

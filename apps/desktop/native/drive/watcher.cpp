@@ -43,6 +43,11 @@ void report(std::wstring const& type, std::wstring const& relative, std::wstring
     sendEvent(type, message);
 }
 
+void retryLater(std::wstring const& relative) {
+    std::lock_guard lock(changesMutex);
+    changes[relative] = Clock::now();
+}
+
 void inspect(std::wstring const& relative) {
     auto absolute = fullPath(relative);
     auto name = std::filesystem::path(absolute).filename().wstring();
@@ -62,7 +67,7 @@ void inspect(std::wstring const& relative) {
     auto identity = placeholderIdentity(absolute, &pin, &sync);
 
     if (!identity || identity->empty()) {
-        if (!isFolder && !isClosed(absolute)) return;
+        if (!isFolder && !isClosed(absolute)) return retryLater(relative);
 
         JsonObject message;
         message.SetNamedValue(L"isFolder", JsonValue::CreateBooleanValue(isFolder));
@@ -73,8 +78,8 @@ void inspect(std::wstring const& relative) {
 
     if (isFolder) return;
 
-    if (sync == CF_IN_SYNC_STATE_NOT_IN_SYNC && isHydrated) {
-        if (!isClosed(absolute)) return;
+    if (isHydrated && isModified(absolute)) {
+        if (!isClosed(absolute)) return retryLater(relative);
 
         JsonObject message;
         message.SetNamedValue(L"identity", JsonValue::CreateStringValue(*identity));

@@ -9,6 +9,7 @@ import {
     MIN_FILESHIP_VERSION,
 } from '../shared/ipc';
 import { ApiError, desktopUserAgent, normalizeInstanceUrl, request } from './api';
+import { stopDrive } from './drive';
 import { clearSession, getStore, getToken, setSession } from './store';
 import { broadcast, getMainWindow, iconPath } from './windows';
 
@@ -169,6 +170,7 @@ export const logout = async () => {
 };
 
 export const handleUnauthorized = () => {
+    stopDrive({ remove: true });
     clearSession();
     broadcast('account:changed', null);
 };

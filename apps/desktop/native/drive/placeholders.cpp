@@ -102,12 +102,29 @@ void movePlaceholder(std::wstring const& from, std::wstring const& to) {
     updatePlaceholder(to, std::nullopt);
 }
 
-void updatePlaceholder(std::wstring const& path, std::optional<std::wstring> const& identity) {
+std::optional<CF_FS_METADATA> baselineOf(HANDLE handle) {
+    FILE_BASIC_INFO basic{};
+    LARGE_INTEGER size{};
+
+    if (!GetFileInformationByHandleEx(handle, FileBasicInfo, &basic, sizeof(basic))) throw_last_error();
+    if (basic.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) return std::nullopt;
+    if (!GetFileSizeEx(handle, &size)) throw_last_error();
+
+    CF_FS_METADATA metadata{};
+    metadata.BasicInfo = basic;
+    metadata.BasicInfo.LastWriteTime = basic.CreationTime;
+    metadata.FileSize = size;
+    return metadata;
+}
+
+void updatePlaceholder(std::wstring const& path, std::optional<std::wstring> const& identity,
+                       bool resetBaseline) {
     Handle handle(fullPath(path), FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES);
+    auto metadata = resetBaseline ? baselineOf(handle.value) : std::nullopt;
 
     check_hresult(CfUpdatePlaceholder(
         handle.value,
-        nullptr,
+        metadata ? &*metadata : nullptr,
         identity ? identity->c_str() : nullptr,
         identity ? static_cast<DWORD>(identity->size() * sizeof(wchar_t)) : 0,
         nullptr,
@@ -134,6 +151,21 @@ void adoptPath(std::wstring const& path, std::wstring const& identity) {
     check_hresult(CfConvertToPlaceholder(handle.value, identity.c_str(),
                                          static_cast<DWORD>(identity.size() * sizeof(wchar_t)), flags,
                                          nullptr, nullptr));
+
+    if (!directory) updatePlaceholder(path, std::nullopt, true);
+}
+
+bool isModified(std::wstring const& absolute) {
+    try {
+        Handle handle(absolute, FILE_READ_ATTRIBUTES);
+        FILE_BASIC_INFO basic{};
+        if (!GetFileInformationByHandleEx(handle.value, FileBasicInfo, &basic, sizeof(basic))) return false;
+        if (basic.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) return false;
+
+        return std::llabs(basic.LastWriteTime.QuadPart - basic.CreationTime.QuadPart) > 20000000LL;
+    } catch (hresult_error const&) {
+        return false;
+    }
 }
 
 void clearRoot() {
@@ -172,6 +204,7 @@ JsonArray scanRoot() {
         item.SetNamedValue(L"identity", identity ? JsonValue::CreateStringValue(*identity)
                                                  : JsonValue::CreateNullValue());
         item.SetNamedValue(L"inSync", JsonValue::CreateBooleanValue(sync == CF_IN_SYNC_STATE_IN_SYNC));
+        item.SetNamedValue(L"modified", JsonValue::CreateBooleanValue(identity && isModified(absolute)));
         item.SetNamedValue(L"hydrated",
                            JsonValue::CreateBooleanValue((attributes & FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS) == 0));
         item.SetNamedValue(L"pinned", JsonValue::CreateBooleanValue(pin == CF_PIN_STATE_PINNED));

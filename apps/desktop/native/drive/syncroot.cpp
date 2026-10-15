@@ -90,7 +90,9 @@ void registerSyncRoot() {
     info.HydrationPolicyModifier(StorageProviderHydrationPolicyModifier::AutoDehydrationAllowed);
     info.PopulationPolicy(StorageProviderPopulationPolicy::AlwaysFull);
     info.InSyncPolicy(StorageProviderInSyncPolicy::FileCreationTime |
-                      StorageProviderInSyncPolicy::DirectoryCreationTime);
+                      StorageProviderInSyncPolicy::FileLastWriteTime |
+                      StorageProviderInSyncPolicy::DirectoryCreationTime |
+                      StorageProviderInSyncPolicy::PreserveInsyncForSyncEngine);
     info.HardlinkPolicy(StorageProviderHardlinkPolicy::None);
     info.ShowSiblingsAsGroup(false);
     info.AllowPinning(true);

@@ -259,6 +259,9 @@ importers:
       semver:
         specifier: ^7.8.5
         version: 7.8.5
+      socket.io-client:
+        specifier: ^4.8.4
+        version: 4.8.4(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       tsdown:
         specifier: ^0.23.0
         version: 0.23.0(@volar/typescript@2.4.28)(@vue/language-core@3.3.12)(tsx@4.23.15)(typescript@6.0.3)(vue-tsc@3.3.12(typescript@6.0.3))

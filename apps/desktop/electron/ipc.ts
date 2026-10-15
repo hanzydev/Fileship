@@ -6,6 +6,7 @@ import { runAction, uploadPath } from './actions';
 import { api } from './api';
 import { writeText } from './clipboard';
 import { closeDashboard, openDashboard } from './dashboard';
+import { getDriveStatus, openDrive, startDrive, stopDrive } from './drive';
 import { finishEditor, getEditorImage } from './editor';
 import { clearHistory, getHistory, listHistory, removeHistory } from './history';
 import {
@@ -61,17 +62,25 @@ const handlers: Handlers = {
         const account = await login(url);
         resetUploadSettings();
         refreshTray();
+        startDrive();
         return account;
     },
     'account:logout': async () => {
         await closeDashboard();
+        await stopDrive({ remove: true });
         await logout();
         refreshTray();
     },
     'settings:get': () => getSettings(),
     'settings:set': (patch) => {
-        const previousPath = getSettings().recording.ffmpegPath;
+        const previous = getSettings();
+        const previousPath = previous.recording.ffmpegPath;
         const settings = updateSettings(patch);
+
+        if (settings.drive.enabled !== previous.drive.enabled) {
+            if (settings.drive.enabled) startDrive();
+            else stopDrive({ remove: true });
+        }
         if (settings.recording.ffmpegPath !== previousPath) resetFfmpegProbe();
         applySettings();
         if ('hotkeys' in patch || 'hotkeysEnabled' in patch) registerHotkeys();
@@ -159,6 +168,16 @@ const handlers: Handlers = {
     },
     'recorder:mute': (source, muted) => setRecordingMute(source, muted),
     'recorder:visible': (view) => showRecorderWindow(view),
+    'drive:status': () => getDriveStatus(),
+    'drive:open': () => {
+        openDrive();
+    },
+    'drive:setFolder': async (folder) => {
+        await stopDrive({ remove: true });
+        updateSettings({ drive: { ...getSettings().drive, folder } });
+        await startDrive();
+        return getDriveStatus();
+    },
 };
 
 export const registerIpc = () => {

@@ -128,6 +128,14 @@ export type OverlayFinish =
 
 export type Folder = { id: string; name: string };
 
+export type DriveStatus = {
+    state: 'off' | 'starting' | 'syncing' | 'ready' | 'error';
+    root: string;
+    files: number;
+    folders: number;
+    error: string | null;
+};
+
 export type EditorImage = { png: Uint8Array; name: string; continueLabel: string };
 
 export type EditorFinish =
@@ -184,6 +192,9 @@ export type IpcInvoke = {
     'recorder:control': (action: RecorderControl) => void;
     'recorder:mute': (source: AudioSourceId, muted: boolean) => void;
     'recorder:visible': (view: 'toolbar' | 'border') => void;
+    'drive:status': () => DriveStatus;
+    'drive:open': () => void;
+    'drive:setFolder': (folder: string) => DriveStatus;
 };
 
 export type IpcEvents = {
@@ -196,6 +207,7 @@ export type IpcEvents = {
     'uploads:progress': UploadProgress[];
     'ffmpeg:status': FfmpegStatus;
     'recorder:state': RecorderState;
+    'drive:status': DriveStatus;
 };
 
 export const INVOKE_CHANNELS = [
@@ -243,6 +255,9 @@ export const INVOKE_CHANNELS = [
     'recorder:control',
     'recorder:mute',
     'recorder:visible',
+    'drive:status',
+    'drive:open',
+    'drive:setFolder',
 ] as const satisfies (keyof IpcInvoke)[];
 
 export const EVENT_CHANNELS = [
@@ -255,6 +270,7 @@ export const EVENT_CHANNELS = [
     'uploads:progress',
     'ffmpeg:status',
     'recorder:state',
+    'drive:status',
 ] as const satisfies (keyof IpcEvents)[];
 
 export type DesktopBridge = {

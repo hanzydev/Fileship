@@ -1,5 +1,5 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
@@ -38,6 +38,19 @@ const files = readdirSync(source)
 
 mkdirSync(objects, { recursive: true });
 
+const executable = join(output, 'fileship-drive.exe');
+
+for (const name of readdirSync(output).filter((item) => item.startsWith('fileship-drive.old-'))) {
+    try {
+        rmSync(join(output, name));
+    } catch {
+        continue;
+    }
+}
+
+if (existsSync(executable))
+    renameSync(executable, join(output, `fileship-drive.old-${Date.now()}.exe`));
+
 const script = join(output, 'build.cmd');
 
 writeFileSync(
@@ -48,7 +61,7 @@ writeFileSync(
         [
             'cl /nologo /std:c++20 /EHsc /O2 /MT /W4 /permissive- /utf-8',
             '/DUNICODE /D_UNICODE /DNOMINMAX /DWIN32_LEAN_AND_MEAN',
-            `/Fo"${objects}\\\\" /Fe"${join(output, 'fileship-drive.exe')}"`,
+            `/Fo"${objects}\\\\" /Fe"${executable}"`,
             ...files,
             '/link cldapi.lib windowsapp.lib winhttp.lib advapi32.lib ole32.lib shell32.lib',
         ].join(' '),

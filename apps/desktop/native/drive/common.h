@@ -71,7 +71,9 @@ CF_CONNECTION_KEY connectionKey();
 
 void createPlaceholders(std::vector<PlaceholderItem> const& items);
 void movePlaceholder(std::wstring const& from, std::wstring const& to);
-void updatePlaceholder(std::wstring const& path, std::optional<std::wstring> const& identity);
+void updatePlaceholder(std::wstring const& path, std::optional<std::wstring> const& identity,
+                       bool resetBaseline = false);
+bool isModified(std::wstring const& absolute);
 void removePath(std::wstring const& path);
 void adoptPath(std::wstring const& path, std::wstring const& identity);
 void clearRoot();
