@@ -52,8 +52,8 @@ void CALLBACK onCancelFetchData(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAME
     cancelFetch(info);
 }
 
-void CALLBACK onNotifyDelete(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters) {
-    askDelete(info, parameters);
+void CALLBACK onNotifyDeleteCompletion(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const*) {
+    reportDeleted(info);
 }
 
 void CALLBACK onNotifyRename(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters) {
@@ -63,7 +63,7 @@ void CALLBACK onNotifyRename(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETER
 CF_CALLBACK_REGISTRATION callbacks[] = {
     {CF_CALLBACK_TYPE_FETCH_DATA, onFetchData},
     {CF_CALLBACK_TYPE_CANCEL_FETCH_DATA, onCancelFetchData},
-    {CF_CALLBACK_TYPE_NOTIFY_DELETE, onNotifyDelete},
+    {CF_CALLBACK_TYPE_NOTIFY_DELETE_COMPLETION, onNotifyDeleteCompletion},
     {CF_CALLBACK_TYPE_NOTIFY_RENAME, onNotifyRename},
     CF_CALLBACK_REGISTRATION_END,
 };

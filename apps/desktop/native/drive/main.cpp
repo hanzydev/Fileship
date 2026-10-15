@@ -16,7 +16,6 @@ std::mutex tokenMutex;
 std::mutex outputMutex;
 
 struct PendingAck {
-    CF_OPERATION_TYPE type;
     CF_TRANSFER_KEY transferKey;
     CF_REQUEST_KEY requestKey;
     std::optional<std::wstring> target;
@@ -46,21 +45,14 @@ std::atomic<uint64_t> nextRequestId{1};
 void executeAck(PendingAck const& pending, bool ok) {
     CF_OPERATION_INFO info{};
     info.StructSize = sizeof(info);
-    info.Type = pending.type;
+    info.Type = CF_OPERATION_TYPE_ACK_RENAME;
     info.ConnectionKey = connectionKey();
     info.TransferKey = pending.transferKey;
     info.RequestKey = pending.requestKey;
 
     CF_OPERATION_PARAMETERS parameters{};
-    NTSTATUS status = ok ? STATUS_SUCCESS : STATUS_UNSUCCESSFUL;
-
-    if (pending.type == CF_OPERATION_TYPE_ACK_DELETE) {
-        parameters.ParamSize = CF_SIZE_OF_OP_PARAM(AckDelete);
-        parameters.AckDelete.CompletionStatus = status;
-    } else {
-        parameters.ParamSize = CF_SIZE_OF_OP_PARAM(AckRename);
-        parameters.AckRename.CompletionStatus = status;
-    }
+    parameters.ParamSize = CF_SIZE_OF_OP_PARAM(AckRename);
+    parameters.AckRename.CompletionStatus = ok ? STATUS_SUCCESS : STATUS_UNSUCCESSFUL;
 
     HRESULT result = CfExecute(&info, &parameters);
     if (FAILED(result)) log(L"CfExecute ack failed: " + std::to_wstring(result));
@@ -68,13 +60,13 @@ void executeAck(PendingAck const& pending, bool ok) {
     if (ok && pending.target) markInSyncWhenMoved(*pending.target);
 }
 
-void acknowledgeLater(CF_OPERATION_TYPE type, CF_CALLBACK_INFO const* info, JsonObject message,
-                      std::optional<std::wstring> target = std::nullopt) {
+void acknowledgeLater(CF_CALLBACK_INFO const* info, JsonObject message,
+                      std::optional<std::wstring> target) {
     uint64_t requestId = nextRequestId++;
 
     {
         std::lock_guard lock(pendingMutex);
-        pendingAcks[requestId] = PendingAck{type, info->TransferKey, info->RequestKey, target};
+        pendingAcks[requestId] = PendingAck{info->TransferKey, info->RequestKey, target};
     }
 
     message.SetNamedValue(L"requestId", JsonValue::CreateNumberValue(static_cast<double>(requestId)));
@@ -271,29 +263,26 @@ bool isIgnoredName(std::wstring const& name) {
     return lower == L"desktop.ini" || lower == L"thumbs.db";
 }
 
-void askDelete(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters) {
-    if (isOwnProcess(info)) {
-        executeAck(PendingAck{CF_OPERATION_TYPE_ACK_DELETE, info->TransferKey, info->RequestKey, std::nullopt},
-                   true);
-        return;
-    }
+void reportDeleted(CF_CALLBACK_INFO const* info) {
+    if (isOwnProcess(info)) return;
+
+    std::wstring identity = identityOf(info);
+    if (identity.empty()) return;
 
     std::wstring absolute = std::wstring(info->VolumeDosName) + info->NormalizedPath;
+    if (placeholderIdentity(absolute, nullptr, nullptr) == identity) return;
 
     JsonObject message;
     message.SetNamedValue(L"type", JsonValue::CreateStringValue(L"delete"));
-    message.SetNamedValue(L"identity", JsonValue::CreateStringValue(identityOf(info)));
+    message.SetNamedValue(L"identity", JsonValue::CreateStringValue(identity));
     message.SetNamedValue(L"path", JsonValue::CreateStringValue(relativePath(absolute).value_or(L"")));
-    message.SetNamedValue(L"isFolder", JsonValue::CreateBooleanValue(
-        (parameters->Delete.Flags & CF_CALLBACK_DELETE_FLAG_IS_DIRECTORY) != 0));
-
-    acknowledgeLater(CF_OPERATION_TYPE_ACK_DELETE, info, message);
+    message.SetNamedValue(L"isFolder", JsonValue::CreateBooleanValue(identity.starts_with(L"d:")));
+    send(message);
 }
 
 void askRename(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters) {
     if (isOwnProcess(info)) {
-        executeAck(PendingAck{CF_OPERATION_TYPE_ACK_RENAME, info->TransferKey, info->RequestKey, std::nullopt},
-                   true);
+        executeAck(PendingAck{info->TransferKey, info->RequestKey, std::nullopt}, true);
         return;
     }
 
@@ -311,8 +300,7 @@ void askRename(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* param
     message.SetNamedValue(L"isFolder", JsonValue::CreateBooleanValue(
         (parameters->Rename.Flags & CF_CALLBACK_RENAME_FLAG_IS_DIRECTORY) != 0));
 
-    acknowledgeLater(CF_OPERATION_TYPE_ACK_RENAME, info, message,
-                     isTargetInScope ? relativePath(target) : std::nullopt);
+    acknowledgeLater(info, message, isTargetInScope ? relativePath(target) : std::nullopt);
 }
 
 void resolveAck(uint64_t requestId, bool ok) {

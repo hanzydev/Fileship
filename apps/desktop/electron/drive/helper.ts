@@ -19,7 +19,7 @@ export type ScanItem = {
 };
 
 export type HelperEvent =
-    | { type: 'delete'; requestId: number; identity: string; path: string; isFolder: boolean }
+    | { type: 'delete'; identity: string; path: string; isFolder: boolean }
     | {
           type: 'rename';
           requestId: number;

@@ -90,7 +90,7 @@ void cancelFetch(CF_CALLBACK_INFO const* info);
 void startWatcher();
 void stopWatcher();
 
-void askDelete(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters);
+void reportDeleted(CF_CALLBACK_INFO const* info);
 void askRename(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters);
 void resolveAck(uint64_t requestId, bool ok);
 

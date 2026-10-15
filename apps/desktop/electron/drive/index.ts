@@ -251,11 +251,12 @@ const reload = () =>
 
 const isMissing = (error: unknown) => error instanceof ApiError && error.status === 404;
 
-const deleteRemote = async (identity: string) => {
+const deleteRemote = async (identity: string, isPermanent = false) => {
     const id = identity.slice(2);
+    const isFile = identity.startsWith('f:');
 
     try {
-        if (identity.startsWith('f:')) {
+        if (isFile) {
             await api(`/api/files/${id}`, { method: 'DELETE' });
         } else {
             await api(`/api/folders/${id}`, {
@@ -266,6 +267,18 @@ const deleteRemote = async (identity: string) => {
         }
     } catch (error) {
         if (!isMissing(error)) throw error;
+    }
+
+    if (isPermanent) {
+        await api('/api/trash/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                files: isFile ? [id] : [],
+                folders: isFile ? [] : [id],
+                notes: [],
+            }),
+        });
     }
 
     if (identity.startsWith('f:')) {
@@ -286,12 +299,11 @@ const deleteRemote = async (identity: string) => {
 
 const handleDelete = async (event: Extract<HelperEvent, { type: 'delete' }>) => {
     try {
-        await deleteRemote(event.identity);
-        helper?.ack(event.requestId, true);
+        await deleteRemote(event.identity, true);
         setStatus({});
     } catch (error) {
         log.warn('Could not delete on Fileship', event.path, error);
-        helper?.ack(event.requestId, false);
+        scheduleApply();
     }
 };
 

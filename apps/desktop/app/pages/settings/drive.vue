@@ -144,7 +144,8 @@ const TIPS = [
     {
         icon: ITrash2,
         title: 'Deleting moves to the trash',
-        description: 'Files you delete in File Explorer go to the Fileship trash.',
+        description:
+            'Files you move to the Recycle Bin go to the Fileship trash. When Windows deletes a file for good, with Shift + Delete or because it was online only, it is deleted from Fileship too.',
     },
 ];
 
