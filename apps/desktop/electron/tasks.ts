@@ -12,7 +12,7 @@ import { openEditor } from './editor';
 import { addHistory, getHistory, updateHistory } from './history';
 import { getSettings } from './store';
 import { shortenUrl, uploadFile, type UploadSource } from './upload';
-import { notify } from './windows';
+import { notify, openWebUrl } from './windows';
 
 const pad = (value: number) => String(value).padStart(2, '0');
 
@@ -55,11 +55,11 @@ export const finishUpload = async (historyId: string, file: { url: string; id: s
     updateHistory(historyId, { url: file.url, shortUrl, fileId: file.id, error: null });
 
     if (afterUpload.copyUrl) await writeText(url);
-    if (afterUpload.openUrl) shell.openExternal(url);
+    if (afterUpload.openUrl) openWebUrl(url);
 
     if (afterUpload.notify) {
         notify(afterUpload.copyUrl ? 'Uploaded, link copied' : 'Uploaded', url, () =>
-            shell.openExternal(url),
+            openWebUrl(url),
         );
     }
 

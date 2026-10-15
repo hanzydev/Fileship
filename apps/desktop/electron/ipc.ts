@@ -34,7 +34,7 @@ import { editHistoryImage } from './tasks';
 import { refreshTray } from './tray';
 import { checkForUpdates, getUpdateStatus, installUpdate } from './updater';
 import { getUploadProgress, resetUploadSettings } from './upload';
-import { isAppUrl, setWindowTheme } from './windows';
+import { isAppUrl, openWebUrl, setWindowTheme } from './windows';
 
 type Handlers = {
     [K in keyof IpcInvoke]: (
@@ -109,7 +109,7 @@ const handlers: Handlers = {
     'history:open': (id) => {
         const item = getHistory(id);
         const url = item?.shortUrl ?? item?.url;
-        if (url) shell.openExternal(url);
+        if (url) openWebUrl(url);
     },
     'history:showFile': (id) => {
         const item = getHistory(id);

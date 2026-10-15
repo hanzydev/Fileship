@@ -1,4 +1,4 @@
-import { app, BrowserWindow, session, shell } from 'electron';
+import { app, BrowserWindow, session } from 'electron';
 import log from 'electron-log/main';
 import semver from 'semver';
 
@@ -11,7 +11,7 @@ import {
 import { ApiError, desktopUserAgent, normalizeInstanceUrl, request } from './api';
 import { stopDrive } from './drive';
 import { clearSession, getStore, getToken, setSession } from './store';
-import { broadcast, getMainWindow, iconPath, themeBackground } from './windows';
+import { broadcast, getMainWindow, iconPath, openWebUrl, themeBackground } from './windows';
 
 const CHECK_REUSE_MS = 5 * 60 * 1000;
 
@@ -119,7 +119,7 @@ export const login = async (input: string): Promise<Account> => {
     });
 
     loginWindow.webContents.setWindowOpenHandler(({ url }) => {
-        if (/^https?:\/\//.test(url)) shell.openExternal(url);
+        openWebUrl(url);
         return { action: 'deny' };
     });
 

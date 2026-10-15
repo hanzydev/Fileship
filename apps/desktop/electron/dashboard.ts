@@ -1,8 +1,8 @@
-import { app, BrowserWindow, session, shell } from 'electron';
+import { app, BrowserWindow, session } from 'electron';
 
 import { desktopUserAgent } from './api';
 import { getStore, getToken } from './store';
-import { iconPath, themeBackground } from './windows';
+import { iconPath, openWebUrl, themeBackground } from './windows';
 
 const PARTITION = 'persist:dashboard';
 
@@ -60,7 +60,7 @@ export const openDashboard = async (route = '/dashboard') => {
     });
 
     dashboardWindow.webContents.setWindowOpenHandler(({ url }) => {
-        if (/^https?:\/\//.test(url)) shell.openExternal(url);
+        openWebUrl(url);
         return { action: 'deny' };
     });
 
@@ -68,7 +68,7 @@ export const openDashboard = async (route = '/dashboard') => {
         if (new URL(url).origin === instanceUrl) return;
 
         event.preventDefault();
-        if (/^https?:\/\//.test(url)) shell.openExternal(url);
+        openWebUrl(url);
     });
 
     dashboardWindow.on('closed', () => {

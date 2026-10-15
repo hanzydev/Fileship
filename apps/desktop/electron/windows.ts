@@ -25,13 +25,22 @@ export const isAppUrl = (url: string) => {
     return url.startsWith(origin);
 };
 
+export const openWebUrl = (url: string) => {
+    try {
+        const { protocol } = new URL(url);
+        if (protocol === 'http:' || protocol === 'https:') shell.openExternal(url);
+    } catch {
+        return;
+    }
+};
+
 export const markQuitting = () => {
     isQuitting = true;
 };
 
 const hardenWebContents = (window: BrowserWindow) => {
     window.webContents.setWindowOpenHandler(({ url }) => {
-        if (/^https?:\/\//.test(url)) shell.openExternal(url);
+        openWebUrl(url);
         return { action: 'deny' };
     });
 
