@@ -399,13 +399,13 @@ export const useAnnotator = (container: Ref<HTMLElement | null | undefined>) => 
         }
     };
 
-    const isSelectable = () => tool.value === 'select';
+    const isSelectable = () => tool.value === 'select' || tool.value === null;
 
     const attachNode = (shape: Annotation, node: Konva.Node) => {
         node.draggable(isSelectable() || selectedId.value === shape.id);
 
         node.on('pointerdown', (event) => {
-            if (tool.value !== 'select' && selectedId.value !== shape.id) return;
+            if (!isSelectable() && selectedId.value !== shape.id) return;
             event.cancelBubble = true;
             select(shape.id);
         });
@@ -512,6 +512,8 @@ export const useAnnotator = (container: Ref<HTMLElement | null | undefined>) => 
     };
 
     const pointer = () => layer!.getRelativePointerPosition() ?? { x: 0, y: 0 };
+
+    const isOverShape = (point: { x: number; y: number }) => !!stage?.getIntersection(point);
 
     const newId = () => Math.random().toString(36).slice(2, 10);
 
@@ -993,7 +995,13 @@ export const useAnnotator = (container: Ref<HTMLElement | null | undefined>) => 
 
         if (container.value) {
             container.value.style.cursor =
-                tool.value === 'select' ? 'default' : tool.value === 'text' ? 'text' : 'crosshair';
+                tool.value === null
+                    ? ''
+                    : tool.value === 'select'
+                      ? 'default'
+                      : tool.value === 'text'
+                        ? 'text'
+                        : 'crosshair';
         }
     });
 
@@ -1054,6 +1062,7 @@ export const useAnnotator = (container: Ref<HTMLElement | null | undefined>) => 
         clear,
         renderRegion,
         handleKey,
+        isOverShape,
         select,
         setTool,
         setToolOption,

@@ -1,7 +1,8 @@
 <template>
     <div
-        class="fixed inset-0 cursor-crosshair overflow-hidden bg-black select-none"
-        @pointerdown="handlePointerDown"
+        class="fixed inset-0 overflow-hidden bg-black select-none"
+        :style="{ cursor }"
+        @pointerdown.capture="handlePointerDown"
         @pointermove="handlePointerMove"
         @pointerup="handlePointerUp"
         @pointercancel="handlePointerCancel"
@@ -12,7 +13,7 @@
         <canvas ref="baseCanvas" class="absolute inset-0 size-full" />
         <div
             ref="annotationLayer"
-            :class="cn('absolute inset-0', !isAnnotating && 'pointer-events-none')"
+            :class="cn('absolute inset-0', !hasCaptureToolbar && 'pointer-events-none')"
         />
         <canvas ref="drawCanvas" class="pointer-events-none absolute inset-0 size-full" />
 
@@ -41,25 +42,41 @@
                         <IGripHorizontal v-if="toolbarSide === 'left' || toolbarSide === 'right'" />
                         <IGripVertical v-else />
                     </UiButton>
-                    <UiButton
-                        :variant="!annotator.tool.value ? 'secondary' : 'ghost'"
-                        size="icon-sm"
-                        aria-label="Region"
-                        :aria-pressed="!annotator.tool.value"
-                        @click="annotator.setTool(null)"
-                    >
-                        <IScan />
-                    </UiButton>
+                    <UiTooltip>
+                        <UiTooltipTrigger as-child>
+                            <UiButton
+                                :variant="!annotator.tool.value ? 'secondary' : 'ghost'"
+                                size="icon-sm"
+                                aria-label="Region"
+                                :aria-pressed="!annotator.tool.value"
+                                @click="annotator.setTool(null)"
+                            >
+                                <IScan />
+                            </UiButton>
+                        </UiTooltipTrigger>
+                        <UiTooltipContent :side="toolbarSide">
+                            Region
+                            <UiKbd class="ml-1">C</UiKbd>
+                        </UiTooltipContent>
+                    </UiTooltip>
                 </template>
                 <template #actions>
-                    <UiButton
-                        size="icon-sm"
-                        variant="ghost"
-                        aria-label="Cancel"
-                        @click="handleCancel"
-                    >
-                        <IX />
-                    </UiButton>
+                    <UiTooltip>
+                        <UiTooltipTrigger as-child>
+                            <UiButton
+                                size="icon-sm"
+                                variant="ghost"
+                                aria-label="Cancel"
+                                @click="handleCancel"
+                            >
+                                <IX />
+                            </UiButton>
+                        </UiTooltipTrigger>
+                        <UiTooltipContent :side="toolbarSide">
+                            Cancel
+                            <UiKbd class="ml-1">Esc</UiKbd>
+                        </UiTooltipContent>
+                    </UiTooltip>
                 </template>
             </AnnotationToolbar>
         </div>
@@ -104,12 +121,13 @@ const payload = shallowRef<OverlayPayload | null>(null);
 const displays = shallowRef<LocalDisplay[]>([]);
 const selection = ref<LocalRect | null>(null);
 const mode = ref<Mode>('idle');
+const cursor = ref('crosshair');
 
 let windows: LocalWindow[] = [];
 let pointer: Point | null = null;
 let hover: LocalRect | null = null;
 let hoverAnimation: { from: LocalRect; start: number } | null = null;
-let regionDrag: { id: number; start: Point } | null = null;
+let regionDrag: { id: number; start: Point; isDeselect: boolean } | null = null;
 let frame = 0;
 let isFinishing = false;
 
@@ -449,6 +467,8 @@ const render = () => {
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
     context.clearRect(0, 0, bounds.width, bounds.height);
 
+    if (isAnnotating.value) return;
+
     context.fillStyle = 'rgba(0, 0, 0, 0.45)';
     context.fillRect(0, 0, bounds.width, bounds.height);
 
@@ -470,9 +490,7 @@ const render = () => {
         drawLabel(context, `${physical.width} × ${physical.height}`, rect.x, labelY);
     }
 
-    if (payload.value.showMagnifier && pointer && !isAnnotating.value) {
-        drawMagnifier(context, pointer);
-    }
+    if (payload.value.showMagnifier && pointer) drawMagnifier(context, pointer);
 };
 
 const scheduleRender = () => {
@@ -491,6 +509,7 @@ const resizeDrawCanvas = () => {
 const reset = () => {
     selection.value = null;
     mode.value = 'idle';
+    cursor.value = 'crosshair';
     pointer = null;
     hover = null;
     hoverAnimation = null;
@@ -541,12 +560,18 @@ const cancelRegion = () => {
     scheduleRender();
 };
 
+const isOnToolbar = (event: Event) => !!captureToolbar.value?.contains(event.target as Node);
+
 const handlePointerDown = (event: PointerEvent) => {
     if (event.button !== 0 || !payload.value || isAnnotating.value || regionDrag) return;
+    if (annotator.isEditingText.value || isOnToolbar(event)) return;
+
+    const point = pointFrom(event);
+    if (annotator.isOverShape(point)) return;
 
     if (event.isTrusted) (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
 
-    regionDrag = { id: event.pointerId, start: pointFrom(event) };
+    regionDrag = { id: event.pointerId, start: point, isDeselect: !!annotator.selectedId.value };
     selection.value = null;
     mode.value = 'pending';
     scheduleRender();
@@ -584,6 +609,8 @@ const handlePointerMove = (event: PointerEvent) => {
         setHover(targetAt(point));
     }
 
+    cursor.value =
+        !drag && !isAnnotating.value && annotator.isOverShape(point) ? 'move' : 'crosshair';
     scheduleRender();
 };
 
@@ -591,8 +618,11 @@ const handlePointerUp = (event: PointerEvent) => {
     const drag = regionDrag;
     if (!drag || event.pointerId !== drag.id || !payload.value) return;
 
-    const rect = mode.value === 'pending' ? targetAt(pointFrom(event)) : selection.value;
+    const isClick = mode.value === 'pending';
+    const rect = isClick ? targetAt(pointFrom(event)) : selection.value;
     regionDrag = null;
+
+    if (isClick && drag.isDeselect) return cancelRegion();
 
     if (rect && isLargeEnough(rect)) return finishRegion(rect);
     cancelRegion();
@@ -610,13 +640,11 @@ const handlePointerLeave = () => {
     scheduleRender();
 };
 
-const handleRightClick = () => {
+const handleRightClick = (event: MouseEvent) => {
     if (regionDrag) return cancelRegion();
-
-    if (isAnnotating.value) {
-        annotator.select(null);
-        return;
-    }
+    if (annotator.isEditingText.value || isOnToolbar(event)) return;
+    if (annotator.selectedId.value) return annotator.select(null);
+    if (annotator.tool.value) return annotator.setTool(null);
 
     finish({ type: 'cancel' });
 };
@@ -627,16 +655,28 @@ const handleKeyDown = (event: KeyboardEvent) => {
     if (!payload.value || annotator.isEditingText.value) return;
 
     if (event.key === 'Escape') {
+        if (regionDrag) return cancelRegion();
         if (annotator.selectedId.value) return annotator.select(null);
         return finish({ type: 'cancel' });
     }
 
-    if (hasCaptureToolbar.value && annotator.handleKey(event)) {
-        event.preventDefault();
-        return;
+    if (hasCaptureToolbar.value) {
+        const isPlain = !event.ctrlKey && !event.altKey && !event.metaKey;
+
+        if (isPlain && event.key.toLowerCase() === 'c') {
+            event.preventDefault();
+            return annotator.setTool(null);
+        }
+
+        if (annotator.handleKey(event)) {
+            event.preventDefault();
+            return;
+        }
     }
 
-    if (event.key === ' ') return finish({ type: 'fullscreen' });
+    if (regionDrag) return;
+
+    if (event.key === ' ') return finishRegion(viewport());
 
     if (event.key === 'Enter') {
         const rect = pointer ? targetAt(pointer) : hover;
@@ -644,9 +684,8 @@ const handleKeyDown = (event: KeyboardEvent) => {
         return;
     }
 
-    if (/^[1-9]$/.test(event.key) && !regionDrag) {
-        return finish({ type: 'monitor', index: Number(event.key) - 1 });
-    }
+    const display = /^[1-9]$/.test(event.key) ? displays.value[Number(event.key) - 1] : null;
+    if (display) finishRegion(display.rect);
 };
 
 const toImageData = (pixels: Uint8Array, width: number, height: number) => {

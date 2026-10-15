@@ -7,11 +7,8 @@ import type { OverlayFinish, OverlayPayload, OverlayPurpose } from '../shared/ip
 import {
     type Bitmap,
     bitmapFromRgba,
-    captureActiveMonitor,
-    captureFullscreen,
     captureRect,
     intersectRects,
-    physicalBounds,
     playShutter,
     snapshotDisplays,
     virtualScreen,
@@ -238,36 +235,15 @@ const finishArea = (result: OverlayFinish) => {
     onArea = null;
     if (!callback || result.type === 'cancel') return;
 
-    if (result.type === 'fullscreen') return callback(virtualScreen());
-
-    if (result.type === 'monitor') {
-        const display = screen.getAllDisplays()[result.index];
-        if (display) callback(physicalBounds(display));
-        return;
-    }
-
     const rect = intersectRects(result.rect, virtualScreen());
     if (rect && rect.width >= 2 && rect.height >= 2) callback(rect);
 };
 
-const finishImage = async (result: OverlayFinish) => {
+const finishImage = (result: OverlayFinish) => {
     const callback = onImage;
     onImage = null;
-    if (!callback || result.type === 'cancel' || result.type === 'area') return;
-
-    if (result.type === 'region')
-        return callback(bitmapFromRgba(result.rgba, result.width, result.height));
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    const display =
-        result.type === 'monitor'
-            ? screen.getAllDisplays()[result.index]
-            : screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
-    const rect =
-        result.type === 'fullscreen' || !display ? virtualScreen() : physicalBounds(display);
-
-    callback((await captureRect(rect, false)).image);
+    if (callback && result.type === 'region')
+        callback(bitmapFromRgba(result.rgba, result.width, result.height));
 };
 
 export const finishRegionCapture = async (result: OverlayFinish) => {
@@ -275,16 +251,7 @@ export const finishRegionCapture = async (result: OverlayFinish) => {
 
     if (purpose === 'ocr') return finishImage(result);
     if (purpose !== 'capture') return finishArea(result);
-    if (result.type === 'cancel' || result.type === 'area') return;
-
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    if (result.type === 'fullscreen') return handleImage((await captureFullscreen()).image);
-    if (result.type === 'monitor') {
-        const display = screen.getAllDisplays()[result.index];
-        if (!display) return handleImage((await captureActiveMonitor()).image);
-        return handleImage((await captureRect(physicalBounds(display))).image);
-    }
+    if (result.type !== 'region') return;
 
     lastRegion = intersectRects(result.rect, virtualScreen()) ?? lastRegion;
     playShutter();

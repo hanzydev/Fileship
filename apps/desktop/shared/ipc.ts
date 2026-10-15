@@ -116,8 +116,6 @@ export type OverlayPayload = {
 
 export type OverlayFinish =
     | { type: 'cancel' }
-    | { type: 'fullscreen' }
-    | { type: 'monitor'; index: number }
     | { type: 'area'; rect: ScreenRect }
     | { type: 'region'; rect: ScreenRect; width: number; height: number; rgba: Uint8Array };
 
