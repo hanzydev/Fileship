@@ -59,7 +59,66 @@
             </UiSidebarGroup>
         </UiSidebarContent>
         <UiSidebarFooter>
-            <UpdaterCard v-if="updaterStatus?.hasUpdate" :status="updaterStatus" />
+            <template v-if="updaterStatus?.hasUpdate">
+                <UiCard size="sm" class="group-data-[collapsible=icon]:hidden">
+                    <UiCardHeader>
+                        <UiCardTitle class="flex items-center gap-2">
+                            <ISparkles class="size-4 text-primary" />
+                            Update available
+                        </UiCardTitle>
+                        <UiCardDescription>
+                            v{{ updaterStatus.version }} → v{{ updaterStatus.latestVersion }}
+                        </UiCardDescription>
+                    </UiCardHeader>
+                    <UiCardFooter class="gap-2">
+                        <UiButton v-if="canUpdate" size="sm" class="flex-1" @click="handleUpdate">
+                            Update
+                        </UiButton>
+                        <UiButton
+                            size="sm"
+                            :variant="canUpdate ? 'outline' : 'default'"
+                            :class="!canUpdate && 'flex-1'"
+                            as-child
+                        >
+                            <a :href="updaterStatus.url" target="_blank" rel="noopener noreferrer">
+                                Changelog
+                            </a>
+                        </UiButton>
+                    </UiCardFooter>
+                </UiCard>
+
+                <UiDialog
+                    :open="isUpdating"
+                    @update:open="updateState === 'Error' && (isUpdating = $event)"
+                >
+                    <UiDialogContent
+                        :show-close-button="updateState === 'Error'"
+                        class="sm:max-w-sm"
+                        @interact-outside.prevent
+                    >
+                        <UiDialogHeader class="items-center text-center">
+                            <UiSpinner
+                                v-if="updateState !== 'Success' && updateState !== 'Error'"
+                                class="size-8"
+                            />
+                            <ICircleCheck
+                                v-else-if="updateState === 'Success'"
+                                class="size-8 text-primary"
+                            />
+                            <ICircleX v-else class="size-8 text-destructive" />
+                            <UiDialogTitle>Updating Fileship</UiDialogTitle>
+                            <UiDialogDescription>
+                                {{ updateStates[updateState] || updateState }}
+                            </UiDialogDescription>
+                        </UiDialogHeader>
+                        <UiDialogFooter v-if="updateState === 'Error'">
+                            <UiButton variant="outline" class="w-full" @click="isUpdating = false">
+                                Close
+                            </UiButton>
+                        </UiDialogFooter>
+                    </UiDialogContent>
+                </UiDialog>
+            </template>
             <UiDropdownMenu>
                 <UiDropdownMenuTrigger as-child>
                     <UiSidebarMenuButton
@@ -211,6 +270,86 @@ const updaterStatus = ref<{
     latestVersion: string;
     updaterAvailable: boolean;
 } | null>(null);
+
+const canUpdate = computed(
+    () => !!updaterStatus.value?.updaterAvailable && !!authUser.value?.superAdmin,
+);
+
+const isUpdating = ref(false);
+const updateState = ref('Pulling');
+
+const updateStates: Record<string, string> = {
+    Pulling: 'Downloading the new version...',
+    Starting: 'Starting the new version next to the current one...',
+    Switching: 'Moving traffic to the new version...',
+    Success: 'Update completed, reloading...',
+    Error: 'Update failed, the current version keeps running.',
+};
+
+const finishUpdate = (success: boolean) => {
+    updateState.value = success ? 'Success' : 'Error';
+
+    if (success) {
+        $toast.success('Fileship updated successfully!');
+        setTimeout(() => window.location.reload(), 2_000);
+    } else {
+        $toast.error('An unknown error occurred while updating Fileship');
+    }
+};
+
+const waitForNewVersion = async () => {
+    for (let attempt = 0; attempt < 90; attempt++) {
+        const data = await $fetch('/api/healthz', { cache: 'no-store' }).catch(() => null);
+        if (data?.version === updaterStatus.value!.latestVersion) return finishUpdate(true);
+
+        await new Promise((resolve) => setTimeout(resolve, 2_000));
+    }
+
+    finishUpdate(false);
+};
+
+const handleUpdate = async () => {
+    const confirmed = await askConfirmation({
+        title: `Update to v${updaterStatus.value!.latestVersion}?`,
+        description: 'The new version starts next to the current one, so Fileship stays online.',
+        confirmText: 'Update',
+    });
+
+    if (!confirmed) return;
+
+    isUpdating.value = true;
+    updateState.value = 'Pulling';
+
+    let isFinished = false;
+
+    try {
+        const response = await $fetch('/api/updater/update', {
+            method: 'POST',
+            responseType: 'stream',
+        });
+
+        await parseSseStream<{ status?: string }>(response, (data) => {
+            if (!data.status) return;
+
+            if (data.status === 'Success' || data.status === 'Error') isFinished = true;
+
+            if (data.status === 'Success') waitForNewVersion();
+            else if (data.status === 'Error') finishUpdate(false);
+            else updateState.value = data.status;
+        });
+    } catch (error: any) {
+        if (updateState.value === 'Switching') return waitForNewVersion();
+
+        $toast.error(getErrorMessage(error));
+        isUpdating.value = false;
+        return;
+    }
+
+    if (isFinished) return;
+    if (updateState.value === 'Switching') return waitForNewVersion();
+
+    finishUpdate(false);
+};
 
 const colorModes = [
     { label: 'Light', value: 'light', icon: ISun },
