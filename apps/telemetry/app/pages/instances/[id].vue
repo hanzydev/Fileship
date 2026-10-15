@@ -57,9 +57,9 @@
                 <UiCardContent>
                     <template v-if="!instance">
                         <TextBlock
-                            custom-tag="div"
                             v-for="i in 6"
                             :key="i"
+                            custom-tag="div"
                             variant="muted"
                             class="w-full py-1"
                         >

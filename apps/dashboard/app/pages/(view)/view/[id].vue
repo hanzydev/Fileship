@@ -139,9 +139,9 @@
                         </TextBlock>
                         <div v-else-if="fileContent === undefined" class="flex flex-col gap-3">
                             <TextBlock
-                                custom-tag="div"
                                 v-for="i in 6"
                                 :key="i"
+                                custom-tag="div"
                                 variant="muted"
                                 class="w-full"
                             >

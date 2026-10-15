@@ -37,9 +37,9 @@
                 <div class="flex min-w-0 flex-1 flex-col gap-2">
                     <template v-if="isLoading">
                         <TextBlock
-                            custom-tag="div"
                             v-for="i in 4"
                             :key="i"
+                            custom-tag="div"
                             variant="muted"
                             class="w-full"
                         >
