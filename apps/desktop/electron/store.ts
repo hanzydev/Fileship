@@ -21,6 +21,7 @@ const storeSchema = z.object({
     token: z.string().nullable().default(null),
     user: userSchema.nullable().default(null),
     settings: settingsSchema.prefault({}),
+    driveRoot: z.string().nullable().default(null),
     ffmpegProbe: z
         .object({
             key: z.string(),

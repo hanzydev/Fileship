@@ -1,3 +1,6 @@
+import { existsSync, readdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import { app, dialog, globalShortcut, ipcMain, nativeTheme, shell } from 'electron';
 
 import { type Folder, INVOKE_CHANNELS, type IpcInvoke } from '../shared/ipc';
@@ -6,7 +9,7 @@ import { runAction, uploadPath } from './actions';
 import { api } from './api';
 import { writeText } from './clipboard';
 import { closeDashboard, openDashboard } from './dashboard';
-import { getDriveStatus, openDrive, startDrive, stopDrive } from './drive';
+import { driveRoot, getDriveStatus, openDrive, startDrive, stopDrive } from './drive';
 import { finishEditor, getEditorImage } from './editor';
 import { clearHistory, getHistory, listHistory, removeHistory } from './history';
 import {
@@ -67,7 +70,7 @@ const handlers: Handlers = {
     },
     'account:logout': async () => {
         await closeDashboard();
-        await stopDrive({ remove: true });
+        await stopDrive({ remove: true, forget: true });
         await logout();
         refreshTray();
     },
@@ -174,6 +177,12 @@ const handlers: Handlers = {
         openDrive();
     },
     'drive:setFolder': async (folder) => {
+        if (folder && resolve(folder) === resolve(driveRoot())) return getDriveStatus();
+
+        if (folder && existsSync(folder) && readdirSync(folder).length > 0) {
+            throw new Error('Choose an empty folder. The drive keeps only Fileship files in it.');
+        }
+
         await stopDrive({ remove: true });
         updateSettings({ drive: { ...getSettings().drive, folder } });
         await startDrive();

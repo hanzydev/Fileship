@@ -171,7 +171,7 @@ export const logout = async () => {
 };
 
 export const handleUnauthorized = () => {
-    stopDrive({ remove: true });
+    stopDrive({ remove: true, forget: true });
     clearSession();
     broadcast('account:changed', null);
 };

@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
-import { mkdirSync, readdirSync, rmdirSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, rmdirSync, statSync } from 'node:fs';
 import { basename, join } from 'node:path';
 
 import { app, shell } from 'electron';
@@ -9,7 +9,7 @@ import { io, type Socket } from 'socket.io-client';
 import type { DriveStatus } from '../../shared/ipc';
 import { mimeTypeOf } from '../actions';
 import { api, ApiError, desktopUserAgent } from '../api';
-import { getSettings, getStore, getToken } from '../store';
+import { getSettings, getStore, getToken, updateStore } from '../store';
 import { uploadFile } from '../upload';
 import { broadcast } from '../windows';
 import {
@@ -230,9 +230,13 @@ const reload = () =>
         for (const item of items) {
             if (!item.identity || isPendingIdentity(item.identity)) {
                 unsynced.push({ ...item, identity: null });
+            } else if (!item.isFolder && item.modified && item.hydrated) {
+                unsynced.push(item);
+                if (files.has(item.identity.slice(2))) {
+                    local.set(item.identity, { path: item.path, isFolder: false });
+                }
             } else {
                 local.set(item.identity, { path: item.path, isFolder: item.isFolder });
-                if (!item.isFolder && item.modified && item.hydrated) unsynced.push(item);
             }
         }
 
@@ -614,6 +618,11 @@ const syncRootKey = () => {
     return createHash('sha256').update(`${instanceUrl}|${user?.id}`).digest('hex').slice(0, 16);
 };
 
+const holdsDrive = async (current: DriveHelper) => {
+    const { items } = await current.request<{ items: ScanItem[] }>('scan');
+    return items.some((item) => item.identity && !isPendingIdentity(item.identity));
+};
+
 export const startDrive = async () => {
     const { user, instanceUrl, siteName } = getStore();
     const token = getToken();
@@ -627,13 +636,15 @@ export const startDrive = async () => {
 
     root = driveRoot();
     isStopping = false;
+
+    const isUnknownRoot = getStore().driveRoot !== root && existsSync(root) && !isEmptyFolder(root);
+
     mkdirSync(root, { recursive: true });
     setStatus({ state: 'starting', root, error: null });
 
     const current = new DriveHelper();
     helper = current;
 
-    current.on('event', handleHelperEvent);
     current.on('exit', (code) => {
         if (helper !== current) return;
 
@@ -665,6 +676,20 @@ export const startDrive = async () => {
             token,
         });
 
+        if (isUnknownRoot && !(await holdsDrive(current))) {
+            await current.request('unregister').catch(() => null);
+            isStopping = true;
+            await current.stop();
+            helper = null;
+            setStatus({
+                state: 'error',
+                error: `${root} is not empty. Choose an empty folder for the drive.`,
+            });
+            return;
+        }
+
+        updateStore({ driveRoot: root });
+        current.on('event', handleHelperEvent);
         await reload();
         connectSocket();
     } catch (error: any) {
@@ -673,7 +698,9 @@ export const startDrive = async () => {
     }
 };
 
-export const stopDrive = async (options: { remove?: boolean } = {}) => {
+export const stopDrive = async (options: { remove?: boolean; forget?: boolean } = {}) => {
+    if (options.forget) updateStore({ driveRoot: null });
+
     const current = helper;
     if (!current) return;
 
@@ -685,9 +712,25 @@ export const stopDrive = async (options: { remove?: boolean } = {}) => {
     await queue.catch(() => null);
 
     if (options.remove) {
-        const placeholders = [...local.values()].sort(
-            (a, b) => Number(a.isFolder) - Number(b.isFolder),
+        const { items } = await current
+            .request<{ items: ScanItem[] }>('scan')
+            .catch(() => ({ items: [] as ScanItem[] }));
+
+        const synced = new Set(
+            items
+                .filter(
+                    (item) =>
+                        item.identity &&
+                        !isPendingIdentity(item.identity) &&
+                        item.inSync &&
+                        !item.modified,
+                )
+                .map((item) => item.path),
         );
+
+        const placeholders = [...local.values()]
+            .filter((item) => synced.has(item.path))
+            .sort((a, b) => Number(a.isFolder) - Number(b.isFolder));
 
         for (const item of placeholders) {
             if (item.isFolder && !isEmptyFolder(join(root, item.path))) continue;
