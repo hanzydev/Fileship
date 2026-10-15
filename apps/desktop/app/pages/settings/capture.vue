@@ -65,12 +65,6 @@ const sections: {
                 description: 'Show a zoomed view next to the mouse for pixel exact selections.',
             },
             {
-                key: 'quickCrop',
-                label: 'Capture on release',
-                description:
-                    'Finish as soon as you release the mouse instead of adjusting the area first.',
-            },
-            {
                 key: 'showCursor',
                 label: 'Include the mouse cursor',
                 description: 'Draw the cursor into screenshots.',

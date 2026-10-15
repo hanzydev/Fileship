@@ -119,7 +119,6 @@ export const settingsSchema = z.object({
             detectWindows: z.boolean().default(true),
             detectControls: z.boolean().default(true),
             showMagnifier: z.boolean().default(true),
-            quickCrop: z.boolean().default(false),
             playSound: z.boolean().default(true),
         })
         .prefault({}),

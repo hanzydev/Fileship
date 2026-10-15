@@ -221,7 +221,6 @@ export const openRegionCapture = async (
             windows: shots[0]?.windows ?? [],
             cursor: screen.dipToScreenPoint(screen.getCursorScreenPoint()),
             showMagnifier: capture.showMagnifier,
-            quickCrop: capture.quickCrop,
             purpose,
         };
 

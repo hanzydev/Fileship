@@ -10,7 +10,6 @@
                         size="icon-sm"
                         :aria-label="tool.label"
                         :aria-pressed="annotator.tool.value === tool.value"
-                        :disabled="disabled"
                         @click="annotator.setTool(tool.value)"
                     >
                         <component :is="tool.icon" />
@@ -28,12 +27,7 @@
 
             <UiPopover v-if="isColored">
                 <UiPopoverTrigger as-child>
-                    <UiButton
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Color"
-                        :disabled="disabled"
-                    >
+                    <UiButton variant="ghost" size="icon-sm" aria-label="Color">
                         <span
                             class="size-4 rounded-full border border-border"
                             :style="{ background: annotator.current.value.color }"
@@ -99,12 +93,7 @@
 
             <UiPopover v-if="range || hasToggles">
                 <UiPopoverTrigger as-child>
-                    <UiButton
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Options"
-                        :disabled="disabled"
-                    >
+                    <UiButton variant="ghost" size="icon-sm" aria-label="Options">
                         <ISlidersHorizontal />
                     </UiButton>
                 </UiPopoverTrigger>
@@ -222,14 +211,9 @@ import {
     IType,
 } from '#components';
 
-const {
-    annotator,
-    side = 'bottom',
-    disabled = false,
-} = defineProps<{
+const { annotator, side = 'bottom' } = defineProps<{
     annotator: Annotator;
     side?: 'top' | 'bottom' | 'left' | 'right';
-    disabled?: boolean;
 }>();
 
 const COLORS = [

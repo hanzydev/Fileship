@@ -1,12 +1,12 @@
 <template>
     <div
-        class="fixed inset-0 overflow-hidden bg-black select-none"
-        :style="{ cursor }"
-        @mousedown="handleMouseDown"
-        @mousemove="handleMouseMove"
-        @mouseup="handleMouseUp"
-        @mouseleave="handleMouseLeave"
-        @dblclick="handleDoubleClick"
+        class="fixed inset-0 cursor-crosshair overflow-hidden bg-black select-none"
+        @pointerdown="handlePointerDown"
+        @pointermove="handlePointerMove"
+        @pointerup="handlePointerUp"
+        @pointercancel="handlePointerCancel"
+        @lostpointercapture="handlePointerCancel"
+        @pointerleave="handlePointerLeave"
         @contextmenu.prevent="handleRightClick"
     >
         <canvas ref="baseCanvas" class="absolute inset-0 size-full" />
@@ -19,15 +19,14 @@
         <div
             v-if="hasCaptureToolbar"
             ref="captureToolbar"
-            class="absolute rounded-4xl border bg-popover p-1 text-popover-foreground shadow-md"
+            class="absolute cursor-default rounded-4xl border bg-popover p-1 text-popover-foreground shadow-md"
             :style="captureToolbarStyle"
-            @mousedown.stop
-            @mousemove.stop
-            @mouseup.stop
-            @dblclick.stop
+            @pointerdown.stop
+            @pointermove.stop
+            @pointerup.stop
             @contextmenu.stop.prevent
         >
-            <AnnotationToolbar :annotator="annotator" :side="toolbarSide" :disabled="!selection">
+            <AnnotationToolbar :annotator="annotator" :side="toolbarSide">
                 <template #start>
                     <UiButton
                         variant="ghost"
@@ -45,9 +44,8 @@
                     <UiButton
                         :variant="!annotator.tool.value ? 'secondary' : 'ghost'"
                         size="icon-sm"
-                        aria-label="Adjust area"
+                        aria-label="Region"
                         :aria-pressed="!annotator.tool.value"
-                        :disabled="!selection"
                         @click="annotator.setTool(null)"
                     >
                         <IScan />
@@ -62,39 +60,8 @@
                     >
                         <IX />
                     </UiButton>
-                    <UiButton
-                        size="icon-sm"
-                        aria-label="Capture"
-                        :disabled="!selection"
-                        @click="handleConfirm"
-                    >
-                        <ICheck />
-                    </UiButton>
                 </template>
             </AnnotationToolbar>
-        </div>
-
-        <div
-            v-if="recordToolbar"
-            ref="recordToolbarElement"
-            class="absolute flex items-center gap-1 rounded-4xl border bg-popover p-1 text-popover-foreground shadow-md"
-            :style="{ left: `${recordToolbar.x}px`, top: `${recordToolbar.y}px` }"
-            @mousedown.stop
-            @mouseup.stop
-            @dblclick.stop
-            @contextmenu.stop.prevent
-        >
-            <UiButton size="icon-sm" variant="ghost" aria-label="Cancel" @click="handleCancel">
-                <IX />
-            </UiButton>
-            <UiButton v-if="payload?.purpose === 'ocr'" size="sm" @click="handleConfirm">
-                <IScanText />
-                Copy text
-            </UiButton>
-            <UiButton v-else size="sm" variant="destructive" @click="handleConfirm">
-                <ICircle class="fill-current" />
-                {{ payload?.purpose === 'gif' ? 'Record GIF' : 'Record' }}
-            </UiButton>
         </div>
     </div>
 </template>
@@ -106,11 +73,9 @@ type Point = { x: number; y: number };
 type LocalRect = ScreenRect;
 type LocalDisplay = { id: number; rect: LocalRect; scaleFactor: number; isPrimary: boolean };
 type LocalWindow = LocalRect & { controls: LocalRect[] };
-type Handle = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | 'move';
-type Mode = 'idle' | 'pending' | 'drawing' | 'selected' | 'moving' | 'resizing';
+type Mode = 'idle' | 'pending' | 'drawing';
 type ToolbarEdge = 'top' | 'bottom' | 'left' | 'right' | null;
 
-const HANDLE_SIZE = 8;
 const DRAG_THRESHOLD = 3;
 const MAGNIFIER_PIXELS = 15;
 const MAGNIFIER_ZOOM = 8;
@@ -120,29 +85,13 @@ const TOOLBAR_EDGE = 96;
 const TOOLBAR_EDGE_Y = 64;
 const TOOLBAR_MAGNET = 72;
 
-const CURSORS: Record<Handle, string> = {
-    n: 'ns-resize',
-    s: 'ns-resize',
-    e: 'ew-resize',
-    w: 'ew-resize',
-    ne: 'nesw-resize',
-    sw: 'nesw-resize',
-    nw: 'nwse-resize',
-    se: 'nwse-resize',
-    move: 'move',
-};
-
 const baseCanvas = useTemplateRef('baseCanvas');
 const drawCanvas = useTemplateRef('drawCanvas');
 const annotationLayer = useTemplateRef('annotationLayer');
 const captureToolbar = useTemplateRef('captureToolbar');
-const recordToolbarElement = useTemplateRef('recordToolbarElement');
 
 const annotator = useAnnotator(annotationLayer);
 const captureToolbarSize = useElementSize(captureToolbar, undefined, { box: 'border-box' });
-const recordToolbarSize = useElementSize(recordToolbarElement, undefined, {
-    box: 'border-box',
-});
 
 const toolbarPlacement = useLocalStorage<{ edge: ToolbarEdge; cx: number; cy: number }>(
     'fileship-capture-toolbar-placement',
@@ -155,15 +104,12 @@ const payload = shallowRef<OverlayPayload | null>(null);
 const displays = shallowRef<LocalDisplay[]>([]);
 const selection = ref<LocalRect | null>(null);
 const mode = ref<Mode>('idle');
-const cursor = ref('crosshair');
 
 let windows: LocalWindow[] = [];
 let pointer: Point | null = null;
 let hover: LocalRect | null = null;
 let hoverAnimation: { from: LocalRect; start: number } | null = null;
-let dragStart: Point | null = null;
-let dragOrigin: LocalRect | null = null;
-let dragHandle: Handle | null = null;
+let regionDrag: { id: number; start: Point } | null = null;
 let frame = 0;
 let isFinishing = false;
 
@@ -247,59 +193,13 @@ const targetAt = (point: Point) => {
     return !rect || covers(rect, display) ? display : rect;
 };
 
-const handleAt = (point: Point): Handle | null => {
-    const rect = selection.value;
-    if (!rect) return null;
-
-    const near = (value: number, edge: number) => Math.abs(value - edge) <= HANDLE_SIZE;
-    const insideX = point.x > rect.x - HANDLE_SIZE && point.x < rect.x + rect.width + HANDLE_SIZE;
-    const insideY = point.y > rect.y - HANDLE_SIZE && point.y < rect.y + rect.height + HANDLE_SIZE;
-    if (!insideX || !insideY) return null;
-
-    const vertical = near(point.y, rect.y) ? 'n' : near(point.y, rect.y + rect.height) ? 's' : '';
-    const horizontal = near(point.x, rect.x) ? 'w' : near(point.x, rect.x + rect.width) ? 'e' : '';
-
-    if (vertical || horizontal) return `${vertical}${horizontal}` as Handle;
-    return contains(rect, point) ? 'move' : null;
-};
-
-const resizeRect = (origin: LocalRect, handle: Handle, dx: number, dy: number) => {
-    let left = origin.x;
-    let top = origin.y;
-    let right = origin.x + origin.width;
-    let bottom = origin.y + origin.height;
-
-    if (handle.includes('w')) left += dx;
-    if (handle.includes('e')) right += dx;
-    if (handle.includes('n')) top += dy;
-    if (handle.includes('s')) bottom += dy;
-
-    return intersect(fromPoints({ x: left, y: top }, { x: right, y: bottom }), viewport());
-};
-
-const moveRect = (origin: LocalRect, dx: number, dy: number) => {
-    const bounds = viewport();
-
-    return {
-        ...origin,
-        x: clamp(origin.x + dx, 0, bounds.width - origin.width),
-        y: clamp(origin.y + dy, 0, bounds.height - origin.height),
-    };
-};
-
 const isRecording = computed(
     () => payload.value?.purpose === 'video' || payload.value?.purpose === 'gif',
 );
 
-const hasSmallBar = computed(() => !!payload.value && payload.value.purpose !== 'capture');
+const hasCaptureToolbar = computed(() => !!payload.value && payload.value.purpose === 'capture');
 
-const isAnnotating = computed(
-    () => mode.value === 'selected' && !hasSmallBar.value && !!annotator.tool.value,
-);
-
-const hasCaptureToolbar = computed(
-    () => !!payload.value && payload.value.purpose === 'capture' && !payload.value.quickCrop,
-);
+const isAnnotating = computed(() => hasCaptureToolbar.value && !!annotator.tool.value);
 
 const toolbarHost = computed(
     () => (displays.value.find((item) => item.isPrimary) ?? displays.value[0])?.rect ?? viewport(),
@@ -417,22 +317,6 @@ const handleToolbarDragEnd = (event: PointerEvent) => {
     };
     toolbarDrag.value = null;
 };
-
-const recordToolbar = computed(() => {
-    const rect = selection.value;
-    if (!rect || mode.value !== 'selected' || !hasSmallBar.value) return null;
-
-    const bounds = viewport();
-    const width = recordToolbarSize.width.value || 82;
-    const height = recordToolbarSize.height.value || 42;
-    const x = clamp(rect.x + rect.width - width, 8, Math.max(8, bounds.width - width - 8));
-    const below = rect.y + rect.height + 8;
-    const above = rect.y - height - 8;
-
-    if (below + height <= bounds.height) return { x, y: below };
-    if (above >= 0) return { x, y: above };
-    return { x, y: Math.max(8, rect.y + rect.height - height - 8) };
-});
 
 const isSameRect = (a: LocalRect | null, b: LocalRect | null) =>
     a === b ||
@@ -560,9 +444,7 @@ const render = () => {
     const bounds = viewport();
     const dpr = window.devicePixelRatio;
     const primary = themeColor('--primary');
-    const region =
-        selection.value ??
-        (mode.value === 'idle' || mode.value === 'pending' ? animatedHover() : null);
+    const region = mode.value === 'drawing' ? selection.value : animatedHover();
 
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
     context.clearRect(0, 0, bounds.width, bounds.height);
@@ -574,46 +456,23 @@ const render = () => {
         context.clearRect(region.x, region.y, region.width, region.height);
 
         context.strokeStyle = primary;
-        context.lineWidth = selection.value ? 2 : 1.5;
-        context.setLineDash(selection.value ? [] : [6, 4]);
+        context.lineWidth = mode.value === 'drawing' ? 2 : 1.5;
+        context.setLineDash(mode.value === 'drawing' ? [] : [6, 4]);
         context.strokeRect(region.x, region.y, region.width, region.height);
         context.setLineDash([]);
     }
 
-    if (selection.value) {
+    if (mode.value === 'drawing' && selection.value) {
         const rect = selection.value;
         const physical = toPhysical(rect);
         const labelY = rect.y >= 28 ? rect.y - 26 : rect.y + 6;
 
         drawLabel(context, `${physical.width} × ${physical.height}`, rect.x, labelY);
-
-        if (mode.value !== 'drawing') {
-            const xs = [rect.x, rect.x + rect.width / 2, rect.x + rect.width];
-            const ys = [rect.y, rect.y + rect.height / 2, rect.y + rect.height];
-
-            context.fillStyle = primary;
-            context.strokeStyle = '#ffffff';
-            context.lineWidth = 1.5;
-
-            for (const [i, x] of xs.entries()) {
-                for (const [j, y] of ys.entries()) {
-                    if (i === 1 && j === 1) continue;
-                    context.beginPath();
-                    context.rect(x - 4, y - 4, 8, 8);
-                    context.fill();
-                    context.stroke();
-                }
-            }
-        }
     }
 
-    const showsMagnifier =
-        payload.value.showMagnifier &&
-        pointer &&
-        mode.value !== 'selected' &&
-        mode.value !== 'moving';
-
-    if (showsMagnifier) drawMagnifier(context, pointer!);
+    if (payload.value.showMagnifier && pointer && !isAnnotating.value) {
+        drawMagnifier(context, pointer);
+    }
 };
 
 const scheduleRender = () => {
@@ -632,13 +491,10 @@ const resizeDrawCanvas = () => {
 const reset = () => {
     selection.value = null;
     mode.value = 'idle';
-    cursor.value = 'crosshair';
     pointer = null;
     hover = null;
     hoverAnimation = null;
-    dragStart = null;
-    dragOrigin = null;
-    dragHandle = null;
+    regionDrag = null;
     annotator.reset();
     annotator.tool.value = null;
 };
@@ -672,126 +528,100 @@ const finishRegion = (rect: LocalRect) => {
 
 const pointFrom = (event: MouseEvent): Point => ({ x: event.clientX, y: event.clientY });
 
-const handleMouseDown = (event: MouseEvent) => {
-    if (event.button !== 0 || !payload.value || isAnnotating.value) return;
-
-    const point = pointFrom(event);
-    const handle = mode.value === 'selected' ? handleAt(point) : null;
-
-    dragStart = point;
-
-    if (handle) {
-        dragOrigin = { ...selection.value! };
-        dragHandle = handle;
-        mode.value = handle === 'move' ? 'moving' : 'resizing';
-        return;
-    }
-
-    selection.value = null;
-    mode.value = 'pending';
-    scheduleRender();
+const isLargeEnough = (rect: LocalRect) => {
+    const physical = toPhysical(rect);
+    return physical.width >= 2 && physical.height >= 2;
 };
 
-const handleMouseMove = (event: MouseEvent) => {
-    if (!payload.value || isAnnotating.value) return;
-
-    const point = pointFrom(event);
-    pointer = point;
-
-    if (mode.value === 'pending' && dragStart) {
-        const distance = Math.hypot(point.x - dragStart.x, point.y - dragStart.y);
-        if (distance >= DRAG_THRESHOLD) mode.value = 'drawing';
-    }
-
-    if (mode.value === 'drawing' && dragStart) {
-        let end = point;
-
-        if (event.shiftKey) {
-            const size = Math.max(Math.abs(point.x - dragStart.x), Math.abs(point.y - dragStart.y));
-            end = {
-                x: dragStart.x + Math.sign(point.x - dragStart.x) * size,
-                y: dragStart.y + Math.sign(point.y - dragStart.y) * size,
-            };
-        }
-
-        selection.value = intersect(fromPoints(dragStart, end), viewport());
-    } else if (mode.value === 'moving' && dragStart && dragOrigin) {
-        selection.value = moveRect(dragOrigin, point.x - dragStart.x, point.y - dragStart.y);
-    } else if (mode.value === 'resizing' && dragStart && dragOrigin && dragHandle) {
-        selection.value =
-            resizeRect(dragOrigin, dragHandle, point.x - dragStart.x, point.y - dragStart.y) ??
-            selection.value;
-    } else if (mode.value === 'idle') {
-        setHover(targetAt(point));
-    }
-
-    if (mode.value === 'selected') {
-        const handle = handleAt(point);
-        cursor.value = handle ? CURSORS[handle] : 'crosshair';
-    } else if (mode.value === 'idle' || mode.value === 'pending' || mode.value === 'drawing') {
-        cursor.value = 'crosshair';
-    }
-
-    scheduleRender();
-};
-
-const handleMouseUp = (event: MouseEvent) => {
-    if (event.button !== 0 || !payload.value || isAnnotating.value) return;
-
-    if (mode.value === 'pending') {
-        selection.value = targetAt(pointFrom(event));
-    }
-
-    dragStart = null;
-    dragOrigin = null;
-    dragHandle = null;
-
-    if (!selection.value || selection.value.width < 1 || selection.value.height < 1) {
-        selection.value = null;
-        mode.value = 'idle';
-        scheduleRender();
-        return;
-    }
-
-    if (payload.value.quickCrop) return finishRegion(selection.value);
-
-    mode.value = 'selected';
-    scheduleRender();
-};
-
-const handleMouseLeave = () => {
-    pointer = null;
-    if (mode.value === 'idle') setHover(null);
-    scheduleRender();
-};
-
-const handleDoubleClick = (event: MouseEvent) => {
-    if (isAnnotating.value) return;
-
-    if (selection.value && contains(selection.value, pointFrom(event))) {
-        finishRegion(selection.value);
-    }
-};
-
-const handleRightClick = () => {
-    if (isAnnotating.value) {
-        annotator.select(null);
-        return;
-    }
-
-    if (mode.value === 'idle' && !selection.value) return finish({ type: 'cancel' });
-
+const cancelRegion = () => {
+    regionDrag = null;
     selection.value = null;
     mode.value = 'idle';
     if (pointer) setHover(targetAt(pointer));
     scheduleRender();
 };
 
-const handleCancel = () => finish({ type: 'cancel' });
+const handlePointerDown = (event: PointerEvent) => {
+    if (event.button !== 0 || !payload.value || isAnnotating.value || regionDrag) return;
 
-const handleConfirm = () => {
-    if (selection.value) finishRegion(selection.value);
+    if (event.isTrusted) (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+
+    regionDrag = { id: event.pointerId, start: pointFrom(event) };
+    selection.value = null;
+    mode.value = 'pending';
+    scheduleRender();
 };
+
+const handlePointerMove = (event: PointerEvent) => {
+    if (!payload.value) return;
+
+    const point = pointFrom(event);
+    pointer = point;
+
+    const drag = regionDrag;
+
+    if (drag && event.pointerId === drag.id) {
+        const distance = Math.hypot(point.x - drag.start.x, point.y - drag.start.y);
+        if (mode.value === 'pending' && distance >= DRAG_THRESHOLD) mode.value = 'drawing';
+
+        if (mode.value === 'drawing') {
+            let end = point;
+
+            if (event.shiftKey) {
+                const size = Math.max(
+                    Math.abs(point.x - drag.start.x),
+                    Math.abs(point.y - drag.start.y),
+                );
+                end = {
+                    x: drag.start.x + Math.sign(point.x - drag.start.x) * size,
+                    y: drag.start.y + Math.sign(point.y - drag.start.y) * size,
+                };
+            }
+
+            selection.value = intersect(fromPoints(drag.start, end), viewport());
+        }
+    } else if (!drag) {
+        setHover(targetAt(point));
+    }
+
+    scheduleRender();
+};
+
+const handlePointerUp = (event: PointerEvent) => {
+    const drag = regionDrag;
+    if (!drag || event.pointerId !== drag.id || !payload.value) return;
+
+    const rect = mode.value === 'pending' ? targetAt(pointFrom(event)) : selection.value;
+    regionDrag = null;
+
+    if (rect && isLargeEnough(rect)) return finishRegion(rect);
+    cancelRegion();
+};
+
+const handlePointerCancel = (event: PointerEvent) => {
+    if (regionDrag && event.pointerId === regionDrag.id) cancelRegion();
+};
+
+const handlePointerLeave = () => {
+    if (regionDrag) return;
+
+    pointer = null;
+    setHover(null);
+    scheduleRender();
+};
+
+const handleRightClick = () => {
+    if (regionDrag) return cancelRegion();
+
+    if (isAnnotating.value) {
+        annotator.select(null);
+        return;
+    }
+
+    finish({ type: 'cancel' });
+};
+
+const handleCancel = () => finish({ type: 'cancel' });
 
 const handleKeyDown = (event: KeyboardEvent) => {
     if (!payload.value || annotator.isEditingText.value) return;
@@ -801,7 +631,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
         return finish({ type: 'cancel' });
     }
 
-    if (mode.value === 'selected' && !hasSmallBar.value && annotator.handleKey(event)) {
+    if (hasCaptureToolbar.value && annotator.handleKey(event)) {
         event.preventDefault();
         return;
     }
@@ -809,36 +639,14 @@ const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === ' ') return finish({ type: 'fullscreen' });
 
     if (event.key === 'Enter') {
-        const rect = selection.value ?? hover;
+        const rect = pointer ? targetAt(pointer) : hover;
         if (rect) finishRegion(rect);
         return;
     }
 
-    if (/^[1-9]$/.test(event.key) && mode.value === 'idle') {
+    if (/^[1-9]$/.test(event.key) && !regionDrag) {
         return finish({ type: 'monitor', index: Number(event.key) - 1 });
     }
-
-    const arrows: Record<string, Point> = {
-        ArrowLeft: { x: -1, y: 0 },
-        ArrowRight: { x: 1, y: 0 },
-        ArrowUp: { x: 0, y: -1 },
-        ArrowDown: { x: 0, y: 1 },
-    };
-
-    const arrow = arrows[event.key];
-    if (!arrow || mode.value !== 'selected' || !selection.value || annotator.tool.value) return;
-
-    event.preventDefault();
-
-    const step = event.shiftKey ? 10 : 1;
-    const dx = arrow.x * step;
-    const dy = arrow.y * step;
-
-    selection.value = event.ctrlKey
-        ? (resizeRect(selection.value, 'se', dx, dy) ?? selection.value)
-        : moveRect(selection.value, dx, dy);
-
-    scheduleRender();
 };
 
 const toImageData = (pixels: Uint8Array, width: number, height: number) => {

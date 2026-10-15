@@ -111,7 +111,6 @@ export type OverlayPayload = {
     windows: (ScreenRect & { title: string; controls: ScreenRect[] })[];
     cursor: { x: number; y: number };
     showMagnifier: boolean;
-    quickCrop: boolean;
     purpose: OverlayPurpose;
 };
 
