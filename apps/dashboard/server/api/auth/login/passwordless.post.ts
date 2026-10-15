@@ -32,11 +32,7 @@ export default defineEventHandler(async (event) => {
     const storage = useStorage('cache');
 
     if (body.data.verify) {
-        await rateLimit(
-            `passkey:${getClientIp(event)}`,
-            10,
-            15 * 60 * 1000,
-        );
+        await rateLimit(`passkey:${getClientIp(event)}`, 10, 15 * 60 * 1000);
 
         const credentialId = body.data.authenticationResponse?.id;
         const userHandle = body.data.authenticationResponse?.response?.userHandle;

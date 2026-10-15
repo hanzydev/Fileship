@@ -30,11 +30,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    await rateLimit(
-        `login:${getClientIp(event)}:${body.data.username}`,
-        10,
-        15 * 60 * 1000,
-    );
+    await rateLimit(`login:${getClientIp(event)}:${body.data.username}`, 10, 15 * 60 * 1000);
 
     if (!(await verifyTurnstile(body.data.turnstile))) {
         throw createError({
