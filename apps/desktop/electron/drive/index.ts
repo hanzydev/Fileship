@@ -12,7 +12,13 @@ import { api, ApiError, desktopUserAgent } from '../api';
 import { getSettings, getStore, getToken } from '../store';
 import { uploadFile } from '../upload';
 import { broadcast } from '../windows';
-import { DriveHelper, type HelperEvent, isHelperAvailable, type ScanItem } from './helper';
+import {
+    DriveHelper,
+    type HelperEvent,
+    helperPath,
+    isHelperAvailable,
+    type ScanItem,
+} from './helper';
 import {
     buildLayout,
     fileIdentity,
@@ -603,7 +609,7 @@ export const startDrive = async () => {
             root,
             syncRootId: syncRootKey(),
             displayName: siteName || 'Fileship',
-            iconPath: `${process.execPath},0`,
+            iconPath: `${helperPath()},0`,
             version: app.getVersion(),
             instanceUrl,
             userAgent: desktopUserAgent(),
