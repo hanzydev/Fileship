@@ -14,7 +14,10 @@ export default defineNitroPlugin((nitroApp) => {
     io.bind(engine as never);
 
     io.use(async (socket, next) => {
-        const token = socket.request.headers.cookie?.match(/(?:^|;\s*)token=([^;]+)/)?.[1];
+        const token =
+            socket.request.headers.cookie?.match(/(?:^|;\s*)token=([^;]+)/)?.[1] ||
+            socket.handshake.auth?.token ||
+            socket.request.headers.authorization?.replace(/^Bearer /, '');
         const session = token && (await findSession(token));
 
         if (!session) return next(new Error('Unauthorized'));
