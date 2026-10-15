@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 
-import { app, BrowserWindow, Notification, shell } from 'electron';
+import { app, BrowserWindow, nativeTheme, Notification, shell } from 'electron';
 
 import type { IpcEvents } from '../shared/ipc';
 
@@ -10,9 +10,10 @@ const LIGHT = '#ffffff';
 let mainWindow: BrowserWindow | null = null;
 let isQuitting = false;
 let hasShownTrayHint = false;
-let backgroundColor = DARK;
 
 export const iconPath = () => join(app.getAppPath(), 'resources', 'icon.png');
+
+export const themeBackground = () => (nativeTheme.shouldUseDarkColors ? DARK : LIGHT);
 
 export const rendererUrl = (route = '/') =>
     process.env.DESKTOP_RENDERER_URL
@@ -48,7 +49,7 @@ const createMainWindow = (route = '/') => {
         show: false,
         title: 'Fileship',
         icon: iconPath(),
-        backgroundColor,
+        backgroundColor: themeBackground(),
         autoHideMenuBar: true,
         webPreferences: {
             preload: join(__dirname, 'preload.cjs'),
@@ -97,8 +98,7 @@ export const showMainWindow = (route?: string) => {
 };
 
 export const setWindowTheme = (isDark: boolean) => {
-    backgroundColor = isDark ? DARK : LIGHT;
-    mainWindow?.setBackgroundColor(backgroundColor);
+    mainWindow?.setBackgroundColor(isDark ? DARK : LIGHT);
 };
 
 export const broadcast = <K extends keyof IpcEvents>(channel: K, payload: IpcEvents[K]) => {

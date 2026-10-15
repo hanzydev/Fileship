@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 
-import { BrowserWindow, nativeTheme, screen } from 'electron';
+import { BrowserWindow, screen } from 'electron';
 
 import type { EditorFinish, EditorImage } from '../shared/ipc';
 import { type Bitmap, bitmapFromRgba } from './capture';
-import { iconPath, rendererUrl } from './windows';
+import { iconPath, rendererUrl, themeBackground } from './windows';
 
 export type EditorResult =
     { action: 'cancel' } | { action: 'continue' | 'copy' | 'save'; image: Bitmap };
@@ -49,7 +49,7 @@ export const openEditor = (
             title: 'Edit · Fileship',
             icon: iconPath(),
             autoHideMenuBar: true,
-            backgroundColor: nativeTheme.shouldUseDarkColors ? '#0a0a0a' : '#ffffff',
+            backgroundColor: themeBackground(),
             webPreferences: {
                 preload: join(__dirname, 'preload.cjs'),
                 contextIsolation: true,

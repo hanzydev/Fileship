@@ -2,7 +2,7 @@ import { app, BrowserWindow, session, shell } from 'electron';
 
 import { desktopUserAgent } from './api';
 import { getStore, getToken } from './store';
-import { iconPath } from './windows';
+import { iconPath, themeBackground } from './windows';
 
 const PARTITION = 'persist:dashboard';
 
@@ -49,6 +49,7 @@ export const openDashboard = async (route = '/dashboard') => {
         minHeight: 520,
         title: siteName,
         icon: iconPath(),
+        backgroundColor: themeBackground(),
         autoHideMenuBar: true,
         webPreferences: {
             session: windowSession,

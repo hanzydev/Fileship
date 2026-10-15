@@ -11,7 +11,7 @@ import {
 import { ApiError, desktopUserAgent, normalizeInstanceUrl, request } from './api';
 import { stopDrive } from './drive';
 import { clearSession, getStore, getToken, setSession } from './store';
-import { broadcast, getMainWindow, iconPath } from './windows';
+import { broadcast, getMainWindow, iconPath, themeBackground } from './windows';
 
 export const checkInstance = async (input: string): Promise<InstanceInfo> => {
     let url: string;
@@ -95,6 +95,7 @@ export const login = async (input: string): Promise<Account> => {
         modal: !!getMainWindow(),
         title: `Log in to ${instance.siteName}`,
         icon: iconPath(),
+        backgroundColor: themeBackground(),
         autoHideMenuBar: true,
         webPreferences: {
             session: windowSession,
