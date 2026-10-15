@@ -54,6 +54,8 @@ export default defineEventHandler(async (event) => {
         }
     }
 
+    await ensureInbox(currentUser.id);
+
     await prisma.inbox.update({
         where: {
             userId: currentUser.id,

@@ -1,7 +1,9 @@
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
     fileUploaderOnly(event);
 
     const currentUser = event.context.user!;
+
+    await ensureInbox(currentUser.id);
 
     return prisma.inbox.findUnique({
         where: {
@@ -14,5 +16,5 @@ export default defineEventHandler((event) => {
             password: true,
             slug: true,
         },
-    })!;
+    });
 });

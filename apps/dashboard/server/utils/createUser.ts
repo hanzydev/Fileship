@@ -35,24 +35,7 @@ export const createUser = async (data: {
         },
     });
 
-    const inboxFolder = await prisma.folder.create({
-        data: {
-            name: 'Inbox',
-            public: false,
-            authorId: _createdUser.id,
-            inbox: {
-                create: {
-                    userId: _createdUser.id,
-                },
-            },
-        },
-    });
-
-    await insert(folderSearchDb, {
-        id: inboxFolder.id,
-        authorId: inboxFolder.authorId,
-        name: inboxFolder.name,
-    });
+    await ensureInbox(_createdUser.id);
 
     const createdUser = {
         ..._createdUser,
