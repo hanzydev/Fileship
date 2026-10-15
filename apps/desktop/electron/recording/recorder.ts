@@ -23,7 +23,14 @@ import { formatFileName, handleRecording, saveFolder, uniquePath } from '../task
 import { refreshTray } from '../tray';
 import { notifyIdle } from '../updater';
 import { mimeTypeOf } from '../mime';
-import { broadcast, isAppUrl, notify, rendererUrl, showMainWindow } from '../windows';
+import {
+    broadcast,
+    hardenWebContents,
+    isAppUrl,
+    notify,
+    rendererUrl,
+    showMainWindow,
+} from '../windows';
 import {
     audioTracks,
     BYTES_PER_SECOND,
@@ -176,6 +183,7 @@ const createWindows = (recording: Recording) => {
             enableLargerThanScreen: true,
         });
 
+        hardenWebContents(border);
         border.setBounds(bounds);
         border.setIgnoreMouseEvents(true);
         border.setContentProtection(true);
@@ -200,6 +208,7 @@ const createWindows = (recording: Recording) => {
 
     const toolbar = new BrowserWindow({ ...shared, x, y: Math.round(y), width, height });
 
+    hardenWebContents(toolbar);
     toolbar.setContentProtection(true);
     toolbar.setAlwaysOnTop(true, 'screen-saver');
     toolbar.loadURL(rendererUrl('/recorder'));

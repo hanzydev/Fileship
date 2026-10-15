@@ -5,7 +5,7 @@ import { BrowserWindow, screen } from 'electron';
 
 import type { EditorFinish, EditorImage } from '../shared/ipc';
 import { type Bitmap, bitmapFromRgba } from './capture';
-import { iconPath, rendererUrl, themeBackground } from './windows';
+import { hardenWebContents, iconPath, rendererUrl, themeBackground } from './windows';
 
 export type EditorResult =
     { action: 'cancel' } | { action: 'continue' | 'copy' | 'save'; image: Bitmap };
@@ -68,6 +68,7 @@ export const openEditor = (
             resolve,
         });
 
+        hardenWebContents(window);
         window.once('ready-to-show', () => {
             window.show();
             window.focus();

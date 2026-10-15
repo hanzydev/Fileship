@@ -17,7 +17,7 @@ import {
 import { native, type Rect } from './native';
 import { getSettings } from './store';
 import { handleImage } from './tasks';
-import { rendererUrl } from './windows';
+import { hardenWebContents, rendererUrl } from './windows';
 
 const OVERLAY_IDLE_MS = 2 * 60 * 1000;
 const OVERLAY_LOAD_TIMEOUT_MS = 5000;
@@ -75,6 +75,7 @@ const createOverlay = (display: Electron.Display) => {
 
     window.webContents.on('render-process-gone', (_, details) => handleGone(details.reason));
     window.on('unresponsive', () => handleGone('unresponsive'));
+    hardenWebContents(window);
     window.setAlwaysOnTop(true, 'screen-saver');
     window.loadURL(rendererUrl(`/overlay?display=${display.id}`));
     window.on('closed', () => {

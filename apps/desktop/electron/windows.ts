@@ -47,7 +47,7 @@ export const markQuitting = () => {
     isQuitting = true;
 };
 
-const hardenWebContents = (window: BrowserWindow) => {
+export const hardenWebContents = (window: BrowserWindow) => {
     window.webContents.setWindowOpenHandler(({ url }) => {
         openWebUrl(url);
         return { action: 'deny' };
