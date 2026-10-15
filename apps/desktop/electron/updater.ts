@@ -14,6 +14,7 @@ const RETRY_DELAY = 15 * 60 * 1000;
 let status: UpdateStatus = { state: 'idle' };
 let isBusy = () => false;
 let installWhenIdle = false;
+let retryTimer: NodeJS.Timeout | null = null;
 
 const describeError = (error: any) => {
     const message = String(error?.message ?? '');
@@ -68,12 +69,15 @@ export const checkForUpdates = async () => {
 
     if (['checking', 'downloading', 'ready'].includes(status.state)) return;
 
+    if (retryTimer) clearTimeout(retryTimer);
+    retryTimer = null;
+
     try {
         await autoUpdater.checkForUpdates();
     } catch (error: any) {
         log.warn('Update check failed', error);
         setStatus({ state: 'error', error: describeError(error) });
-        setTimeout(checkForUpdates, RETRY_DELAY);
+        retryTimer = setTimeout(checkForUpdates, RETRY_DELAY);
     }
 };
 
