@@ -129,11 +129,14 @@ Reuse these instead of writing new versions.
 
 - **Processes:**
     - `electron/` is the main process. tsdown bundles it, with every dependency, into `dist-electron/main.cjs` and `preload.cjs`, so the package ships no `node_modules`. Keep runtime packages in `devDependencies`.
+    - Native Windows calls (GDI capture, window enumeration, DWM bounds) go through koffi in `electron/capture/native.ts`. Its JS is bundled; `scripts/koffi.mjs` copies `koffi.node` to `build/koffi`, which ships as `resources/koffi`. `tsdown --watch` keeps koffi external so dev loads it from `node_modules`.
     - `app/` is a Nuxt SPA on the ui layer, served from the `app://fileship` protocol (`electron/protocol.ts`).
 - **IPC:** the renderer only talks to the main process through the typed bridge in `shared/ipc.ts` (`window.fileship`, `desktop(channel, ...args)`). Add every channel to `IpcInvoke`/`IpcEvents` and the channel lists. Handlers in `electron/ipc.ts` reject senders that are not app pages.
 - **Login:** the instance's own `/login` runs in a temporary partition. Its httpOnly `token` cookie becomes the app's session, kept DPAPI encrypted (`safeStorage`) and sent as `Authorization: Bearer`. The user agent carries `FileshipDesktop/<version>`, so the session shows as "Fileship for Windows". The app requires Fileship `MIN_FILESHIP_VERSION` (6.0.0) from `/api/healthz`.
 - **Dashboard:** file management is not rebuilt in the app. The Dashboard window loads the instance itself, in the `persist:dashboard` partition with the same session cookie.
 - **Updates:** electron-updater uses the GitHub provider with the public `hanzydev/fileship-desktop` releases repo. `.github/workflows/desktop-release.yml` builds and publishes on `desktop-v*` tags (`DESKTOP_RELEASE_TOKEN` secret). Updates download in the background and install on restart or quit, never while `setBusyCheck` reports work in progress.
+- **Capture:** global hotkeys (`electron/hotkeys.ts`, editable, ShareX defaults) and the tray run actions from `electron/actions.ts`. Region capture uses one hidden overlay window per display (`electron/overlay.ts`, page `app/pages/overlay.vue`), which gets a frozen BGRA snapshot and the window rects, and shows only after the page has painted. Results go through `handleImage`/`handleFile` (`electron/tasks.ts`) for the after-capture and after-upload tasks, uploads are chunked through `electron/upload.ts`, and every item lands in the SQLite history (`electron/history.ts`, `node:sqlite`).
+- **Clipboard:** Electron 44's clipboard is async. Use the helpers in `electron/clipboard.ts`.
 - **Windows:** the main window hides to the tray instead of closing. Fileship starts with Windows (`--hidden`) and keeps a single instance.
 
 ## Conventions

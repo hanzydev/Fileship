@@ -12,6 +12,10 @@ files:
     - resources/**
     - package.json
 
+extraResources:
+    - from: build/koffi
+      to: koffi
+
 npmRebuild: false
 nodeGypRebuild: false
 

@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
 
 import { type DesktopBridge, EVENT_CHANNELS, INVOKE_CHANNELS } from '../shared/ipc';
 
@@ -18,6 +18,7 @@ const bridge: DesktopBridge = {
 
         return () => ipcRenderer.off(channel, handleEvent);
     },
+    pathForFile: (file) => webUtils.getPathForFile(file),
 };
 
 contextBridge.exposeInMainWorld('fileship', bridge);

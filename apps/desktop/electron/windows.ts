@@ -97,9 +97,7 @@ export const showMainWindow = (route?: string) => {
 };
 
 export const setWindowTheme = (isDark: boolean) => {
-    for (const window of BrowserWindow.getAllWindows()) {
-        if (!window.isDestroyed()) window.setBackgroundColor(isDark ? DARK : LIGHT);
-    }
+    mainWindow?.setBackgroundColor(isDark ? DARK : LIGHT);
 };
 
 export const broadcast = <K extends keyof IpcEvents>(channel: K, payload: IpcEvents[K]) => {

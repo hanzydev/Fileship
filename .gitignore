@@ -25,6 +25,7 @@ node_modules
 # Desktop app
 apps/desktop/dist-electron
 apps/desktop/release
+apps/desktop/build/koffi
 
 # Turbo
 .turbo

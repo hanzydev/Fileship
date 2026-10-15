@@ -4,7 +4,8 @@ import { dirname, join } from 'node:path';
 import { app, safeStorage } from 'electron';
 import { z } from 'zod';
 
-import type { AccountUser, Settings } from '../shared/ipc';
+import type { AccountUser } from '../shared/ipc';
+import { type Settings, settingsSchema } from '../shared/settings';
 
 const userSchema = z.object({
     id: z.string(),
@@ -19,12 +20,7 @@ const storeSchema = z.object({
     siteName: z.string().default('Fileship'),
     token: z.string().nullable().default(null),
     user: userSchema.nullable().default(null),
-    settings: z
-        .object({
-            startAtLogin: z.boolean().default(true),
-            theme: z.enum(['system', 'light', 'dark']).default('system'),
-        })
-        .prefault({}),
+    settings: settingsSchema.prefault({}),
 });
 
 type StoreData = z.infer<typeof storeSchema>;
@@ -63,7 +59,7 @@ export const updateStore = (patch: Partial<StoreData>) => {
 export const getSettings = (): Settings => load().settings;
 
 export const updateSettings = (patch: Partial<Settings>) =>
-    updateStore({ settings: { ...load().settings, ...patch } }).settings;
+    updateStore({ settings: settingsSchema.parse({ ...load().settings, ...patch }) }).settings;
 
 export const getToken = () => {
     const token = load().token;

@@ -1,5 +1,6 @@
 import { app, Menu, nativeImage, Tray } from 'electron';
 
+import { runAction } from './actions';
 import { openDashboard } from './dashboard';
 import { getStore } from './store';
 import { checkForUpdates, getUpdateStatus, installUpdate } from './updater';
@@ -12,6 +13,29 @@ const buildMenu = () => {
     const update = getUpdateStatus();
 
     return Menu.buildFromTemplate([
+        {
+            label: 'Capture',
+            submenu: [
+                { label: 'Region', click: () => runAction('captureRegion') },
+                { label: 'Entire screen', click: () => runAction('captureFullscreen') },
+                { label: 'Active window', click: () => runAction('captureWindow') },
+                { label: 'Active monitor', click: () => runAction('captureMonitor') },
+                { label: 'Last region', click: () => runAction('captureLastRegion') },
+            ],
+        },
+        {
+            label: 'Upload',
+            enabled: isConnected,
+            submenu: [
+                { label: 'File...', click: () => runAction('uploadFile') },
+                { label: 'From clipboard', click: () => runAction('uploadClipboard') },
+                {
+                    label: 'Shorten link from clipboard',
+                    click: () => runAction('shortenClipboard'),
+                },
+            ],
+        },
+        { type: 'separator' },
         { label: 'Open Fileship', click: () => showMainWindow() },
         {
             label: 'Open dashboard',
@@ -44,7 +68,8 @@ export const refreshTray = () => {
 export const createTray = () => {
     tray = new Tray(nativeImage.createFromPath(iconPath()).resize({ width: 16, height: 16 }));
 
-    tray.on('click', () => showMainWindow());
+    tray.on('click', () => runAction('captureRegion'));
+    tray.on('middle-click', () => runAction('uploadClipboard'));
     tray.on('double-click', () => showMainWindow());
     refreshTray();
 

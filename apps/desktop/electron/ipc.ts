@@ -1,11 +1,23 @@
-import { app, ipcMain, nativeTheme, shell } from 'electron';
+import { app, dialog, globalShortcut, ipcMain, nativeTheme, shell } from 'electron';
 
-import { INVOKE_CHANNELS, type IpcInvoke } from '../shared/ipc';
+import { type Folder, INVOKE_CHANNELS, type IpcInvoke } from '../shared/ipc';
 import { checkInstance, getAccount, login, logout } from './account';
+import { runAction, uploadPath } from './actions';
+import { api } from './api';
+import { writeText } from './clipboard';
 import { closeDashboard, openDashboard } from './dashboard';
+import { clearHistory, getHistory, listHistory, removeHistory } from './history';
+import {
+    getHotkeyStatus,
+    isSnippingToolKeyEnabled,
+    registerHotkeys,
+    setSnippingToolKey,
+} from './hotkeys';
+import { finishRegionCapture, markOverlayReady } from './overlay';
 import { getSettings, updateSettings } from './store';
 import { refreshTray } from './tray';
 import { checkForUpdates, getUpdateStatus, installUpdate } from './updater';
+import { getUploadProgress, resetUploadSettings } from './upload';
 import { isAppUrl, setWindowTheme } from './windows';
 
 type Handlers = {
@@ -30,6 +42,7 @@ const handlers: Handlers = {
     },
     'account:login': async (url) => {
         const account = await login(url);
+        resetUploadSettings();
         refreshTray();
         return account;
     },
@@ -42,6 +55,7 @@ const handlers: Handlers = {
     'settings:set': (patch) => {
         const settings = updateSettings(patch);
         applySettings();
+        if ('hotkeys' in patch || 'hotkeysEnabled' in patch) registerHotkeys();
         return settings;
     },
     'app:info': () => ({ version: app.getVersion(), isPackaged: app.isPackaged }),
@@ -55,6 +69,51 @@ const handlers: Handlers = {
         checkForUpdates();
     },
     'updates:install': () => installUpdate(),
+    'capture:run': (action) => {
+        runAction(action);
+    },
+    'overlay:ready': (displayId) => markOverlayReady(displayId),
+    'overlay:finish': (result) => {
+        finishRegionCapture(result);
+    },
+    'history:list': (offset, limit) => listHistory(offset, limit),
+    'history:copy': async (id) => {
+        const item = getHistory(id);
+        const url = item?.shortUrl ?? item?.url;
+        if (url) await writeText(url);
+    },
+    'history:open': (id) => {
+        const item = getHistory(id);
+        const url = item?.shortUrl ?? item?.url;
+        if (url) shell.openExternal(url);
+    },
+    'history:showFile': (id) => {
+        const item = getHistory(id);
+        if (item?.localPath) shell.showItemInFolder(item.localPath);
+    },
+    'history:remove': (id) => removeHistory(id),
+    'history:clear': () => clearHistory(),
+    'uploads:paths': (paths) => {
+        for (const path of paths) uploadPath(path);
+    },
+    'uploads:progress': () => getUploadProgress(),
+    'hotkeys:status': () => getHotkeyStatus(),
+    'hotkeys:pause': (paused) => {
+        if (!paused) return registerHotkeys();
+
+        globalShortcut.unregisterAll();
+        return getHotkeyStatus();
+    },
+    'hotkeys:snippingTool': () => isSnippingToolKeyEnabled(),
+    'hotkeys:setSnippingTool': (enabled) => setSnippingToolKey(enabled),
+    'folders:list': async () => {
+        const { items } = await api<{ items: Folder[] }>('/api/folders?limit=200&sort=name:asc');
+        return items.map(({ id, name }) => ({ id, name }));
+    },
+    'dialog:pickFolder': async () => {
+        const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+        return result.filePaths[0] ?? null;
+    },
 };
 
 export const registerIpc = () => {
