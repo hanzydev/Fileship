@@ -11,7 +11,7 @@ import { isRecording, quitRecorder, registerRecorder } from './recording/recorde
 import { createTray } from './tray';
 import { setBusyCheck, startUpdater } from './updater';
 import { isUploading } from './upload';
-import { createMainWindow, showMainWindow } from './windows';
+import { showMainWindow } from './windows';
 
 log.initialize();
 log.errorHandler.startCatching();
@@ -38,7 +38,7 @@ app.whenReady().then(() => {
 
     registerIpc();
     registerRecorder();
-    createMainWindow(!process.argv.includes('--hidden'));
+    if (!process.argv.includes('--hidden')) showMainWindow();
     createTray();
     watchDisplays();
     registerHotkeys();

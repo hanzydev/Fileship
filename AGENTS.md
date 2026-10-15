@@ -144,7 +144,7 @@ Reuse these instead of writing new versions.
     - `electron/drive/` owns the Fileship side: it loads folders and files, maps names to safe, unique Windows paths (`paths.ts`), applies socket events, and turns Explorer actions into API calls (Recycle Bin → trash, a completed delete such as Shift + Delete → trash and then `POST /api/trash/delete`, rename and move → `PATCH`, new file → upload, edited file → upload as a new file and trash the old one). Fileship folders are flat, so nested folders are refused.
     - Logging out or turning the drive off removes the placeholders and unregisters the sync root; the uninstaller runs `--unregister-all` except during updates.
 - **Clipboard:** Electron 44's clipboard is async. Use the helpers in `electron/clipboard.ts`.
-- **Windows:** the main window hides to the tray instead of closing. Fileship starts with Windows (`--hidden`) and keeps a single instance.
+- **Windows:** the main window exists only while it is open: it is created when shown (`showMainWindow`, also with `--hidden` startup) and destroyed when closed, while the app keeps running in the tray. Fileship starts with Windows (`--hidden`) and keeps a single instance.
 
 ## Conventions
 

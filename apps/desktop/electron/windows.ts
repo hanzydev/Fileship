@@ -10,6 +10,7 @@ const LIGHT = '#ffffff';
 let mainWindow: BrowserWindow | null = null;
 let isQuitting = false;
 let hasShownTrayHint = false;
+let backgroundColor = DARK;
 
 export const iconPath = () => join(app.getAppPath(), 'resources', 'icon.png');
 
@@ -38,8 +39,8 @@ const hardenWebContents = (window: BrowserWindow) => {
     });
 };
 
-export const createMainWindow = (show: boolean) => {
-    mainWindow = new BrowserWindow({
+const createMainWindow = (route = '/') => {
+    const window = new BrowserWindow({
         width: 1100,
         height: 720,
         minWidth: 760,
@@ -47,7 +48,7 @@ export const createMainWindow = (show: boolean) => {
         show: false,
         title: 'Fileship',
         icon: iconPath(),
-        backgroundColor: DARK,
+        backgroundColor,
         autoHideMenuBar: true,
         webPreferences: {
             preload: join(__dirname, 'preload.cjs'),
@@ -57,37 +58,36 @@ export const createMainWindow = (show: boolean) => {
         },
     });
 
-    hardenWebContents(mainWindow);
+    hardenWebContents(window);
 
-    mainWindow.once('ready-to-show', () => {
-        if (show) mainWindow?.show();
+    window.once('ready-to-show', () => {
+        window.show();
+        window.focus();
     });
 
-    mainWindow.on('close', (event) => {
-        if (isQuitting) return;
+    window.on('close', () => {
+        if (isQuitting || hasShownTrayHint || !Notification.isSupported()) return;
 
-        event.preventDefault();
-        mainWindow?.hide();
-
-        if (!hasShownTrayHint && Notification.isSupported()) {
-            hasShownTrayHint = true;
-            new Notification({
-                title: 'Fileship is still running',
-                body: 'Use the tray icon or your hotkeys to capture. Right click it to quit.',
-                icon: iconPath(),
-            }).show();
-        }
+        hasShownTrayHint = true;
+        new Notification({
+            title: 'Fileship is still running',
+            body: 'Use the tray icon or your hotkeys to capture. Right click it to quit.',
+            icon: iconPath(),
+        }).show();
     });
 
-    mainWindow.loadURL(rendererUrl());
+    window.on('closed', () => {
+        if (mainWindow === window) mainWindow = null;
+    });
 
-    return mainWindow;
+    window.loadURL(rendererUrl(route));
+    mainWindow = window;
 };
 
 export const getMainWindow = () => mainWindow;
 
 export const showMainWindow = (route?: string) => {
-    if (!mainWindow) return;
+    if (!mainWindow || mainWindow.isDestroyed()) return createMainWindow(route);
 
     if (route) mainWindow.webContents.send('app:navigate', route);
     if (mainWindow.isMinimized()) mainWindow.restore();
@@ -97,7 +97,8 @@ export const showMainWindow = (route?: string) => {
 };
 
 export const setWindowTheme = (isDark: boolean) => {
-    mainWindow?.setBackgroundColor(isDark ? DARK : LIGHT);
+    backgroundColor = isDark ? DARK : LIGHT;
+    mainWindow?.setBackgroundColor(backgroundColor);
 };
 
 export const broadcast = <K extends keyof IpcEvents>(channel: K, payload: IpcEvents[K]) => {
