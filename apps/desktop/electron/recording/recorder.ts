@@ -370,7 +370,7 @@ const startSegment = async (recording: Recording) => {
         if (segment.isStopping || current !== recording) return;
 
         log.error('ffmpeg stopped while recording', code, stderr);
-        notify('Recording stopped', lastLine(stderr) || `ffmpeg exited with code ${code}`);
+        notify('Recording stopped', lastLine(stderr) || `FFmpeg exited with code ${code}`);
         stopRecording();
     });
 };
@@ -624,7 +624,7 @@ const begin = async (kind: RecordingKind, rect: Rect) => {
     const ffmpeg = await getFfmpeg();
 
     if (!ffmpeg) {
-        notify('Could not run ffmpeg', 'Check the ffmpeg in the recording settings.');
+        notify('Could not run FFmpeg', 'Check FFmpeg in the recording settings.');
         showMainWindow('/settings/recording?ffmpeg=missing');
         return;
     }

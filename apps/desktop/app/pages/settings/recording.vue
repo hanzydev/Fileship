@@ -1,9 +1,9 @@
 <template>
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>ffmpeg</UiCardTitle>
+            <UiCardTitle>FFmpeg</UiCardTitle>
             <UiCardDescription>
-                Fileship records with ffmpeg. Download the tested build or point to your own.
+                Fileship records with FFmpeg. Download the tested build or point to your own.
             </UiCardDescription>
         </UiCardHeader>
         <UiCardContent class="flex flex-col gap-4">
@@ -15,7 +15,7 @@
 
             <div v-if="isDownloading" class="flex flex-col gap-2">
                 <TextBlock variant="small">
-                    Downloading ffmpeg {{ ffmpeg?.managedVersion }}...
+                    Downloading FFmpeg {{ ffmpeg?.managedVersion }}...
                     {{ ffmpeg?.download?.progress }}%
                 </TextBlock>
                 <UiProgress :model-value="ffmpeg?.download?.progress ?? 0" />
@@ -46,7 +46,7 @@
 
             <UiAlert v-else>
                 <IInfo />
-                <UiAlertTitle>ffmpeg is not installed</UiAlertTitle>
+                <UiAlertTitle>FFmpeg is not installed</UiAlertTitle>
                 <UiAlertDescription>
                     Screen and GIF recording need it. The download is about 110 MB.
                 </UiAlertDescription>
@@ -58,7 +58,7 @@
                 {{
                     ffmpeg?.isInstalled
                         ? 'Download again'
-                        : `Download ffmpeg ${ffmpeg?.managedVersion ?? ''}`
+                        : `Download FFmpeg ${ffmpeg?.managedVersion ?? ''}`
                 }}
             </UiButton>
             <UiButton variant="outline" :disabled="isDownloading" @click="handlePickFfmpeg">
@@ -652,7 +652,7 @@
     <UiCard v-if="settings">
         <UiCardHeader>
             <UiCardTitle>Advanced</UiCardTitle>
-            <UiCardDescription>Extra ffmpeg arguments and the full command.</UiCardDescription>
+            <UiCardDescription>Extra FFmpeg arguments and the full command.</UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
             <UiFieldGroup>
