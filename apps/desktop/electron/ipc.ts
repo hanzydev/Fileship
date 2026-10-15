@@ -39,8 +39,21 @@ import { isAppUrl, notify, openWebUrl, setWindowTheme } from './windows';
 
 type Handlers = {
     [K in keyof IpcInvoke]: (
+        this: Electron.IpcMainInvokeEvent,
         ...args: Parameters<IpcInvoke[K]>
     ) => ReturnType<IpcInvoke[K]> | Promise<ReturnType<IpcInvoke[K]>>;
+};
+
+const pausingHotkeys = new Set<Electron.WebContents>();
+
+const watchHotkeyPause = (sender: Electron.WebContents) => {
+    if (pausingHotkeys.has(sender)) return;
+
+    pausingHotkeys.add(sender);
+    sender.once('destroyed', () => {
+        pausingHotkeys.delete(sender);
+        registerHotkeys();
+    });
 };
 
 const runInBackground = (label: string, task: () => Promise<unknown>) => {
@@ -133,9 +146,10 @@ const handlers: Handlers = {
     },
     'uploads:progress': () => getUploadProgress(),
     'hotkeys:status': () => getHotkeyStatus(),
-    'hotkeys:pause': (paused) => {
+    'hotkeys:pause': function (paused) {
         if (!paused) return registerHotkeys();
 
+        watchHotkeyPause(this.sender);
         globalShortcut.unregisterAll();
         return getHotkeyStatus();
     },
@@ -195,7 +209,7 @@ export const registerIpc = () => {
     for (const channel of INVOKE_CHANNELS) {
         ipcMain.handle(channel, (event, ...args) => {
             if (!isAppUrl(event.senderFrame?.url ?? '')) throw new Error('Not allowed');
-            return (handlers[channel] as (...values: unknown[]) => unknown)(...args);
+            return (handlers[channel] as (...values: unknown[]) => unknown).call(event, ...args);
         });
     }
 };
