@@ -1,0 +1,46 @@
+name: Release the desktop app
+
+on:
+    push:
+        tags:
+            - 'desktop-v*'
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    release:
+        runs-on: windows-latest
+
+        steps:
+            - uses: actions/checkout@v6
+            - uses: pnpm/action-setup@v6
+
+            - name: Use Node.js 24
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: 'pnpm'
+
+            - name: Check the version
+              if: startsWith(github.ref, 'refs/tags/desktop-v')
+              shell: bash
+              run: |
+                  version=$(node -p "require('./apps/desktop/package.json').version")
+                  if [ "desktop-v$version" != "${GITHUB_REF_NAME}" ]; then
+                      echo "Tag ${GITHUB_REF_NAME} does not match apps/desktop/package.json ($version)"
+                      exit 1
+                  fi
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build
+              run: pnpm --filter desktop... build
+
+            - name: Package and publish
+              working-directory: apps/desktop
+              run: pnpm exec electron-builder --win --publish always
+              env:
+                  GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}
