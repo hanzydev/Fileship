@@ -17,7 +17,7 @@ import {
 import { native, type Rect } from './native';
 import { getSettings } from './store';
 import { handleImage } from './tasks';
-import { hardenWebContents, rendererUrl } from './windows';
+import { hardenWebContents, rendererUrl, webPreferences } from './windows';
 
 const OVERLAY_IDLE_MS = 2 * 60 * 1000;
 const OVERLAY_LOAD_TIMEOUT_MS = 5000;
@@ -51,13 +51,10 @@ const createOverlay = () => {
         hasShadow: false,
         enableLargerThanScreen: true,
         backgroundColor: '#000000',
-        webPreferences: {
+        webPreferences: webPreferences({
             preload: join(__dirname, 'preload.cjs'),
-            contextIsolation: true,
-            sandbox: true,
-            nodeIntegration: false,
             backgroundThrottling: false,
-        },
+        }),
     });
 
     loading = new Promise<boolean>((resolve) => {

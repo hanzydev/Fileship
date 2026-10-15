@@ -34,6 +34,16 @@ export const openWebUrl = (url: string) => {
     }
 };
 
+export const webPreferences = (
+    preferences: Electron.WebPreferences = {},
+): Electron.WebPreferences => ({
+    ...preferences,
+    contextIsolation: true,
+    sandbox: true,
+    nodeIntegration: false,
+    devTools: !app.isPackaged,
+});
+
 const WEB_PERMISSIONS = new Set(['clipboard-sanitized-write', 'fullscreen']);
 
 export const restrictPermissions = (target: Electron.Session) => {
@@ -69,12 +79,7 @@ const createMainWindow = (route = '/') => {
         icon: iconPath(),
         backgroundColor: themeBackground(),
         autoHideMenuBar: true,
-        webPreferences: {
-            preload: join(__dirname, 'preload.cjs'),
-            contextIsolation: true,
-            sandbox: true,
-            nodeIntegration: false,
-        },
+        webPreferences: webPreferences({ preload: join(__dirname, 'preload.cjs') }),
     });
 
     hardenWebContents(window);

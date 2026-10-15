@@ -19,6 +19,7 @@ import {
     openWebUrl,
     restrictPermissions,
     themeBackground,
+    webPreferences,
 } from './windows';
 
 const CHECK_REUSE_MS = 5 * 60 * 1000;
@@ -119,12 +120,7 @@ export const login = async (input: string): Promise<Account> => {
         icon: iconPath(),
         backgroundColor: themeBackground(),
         autoHideMenuBar: true,
-        webPreferences: {
-            session: windowSession,
-            contextIsolation: true,
-            sandbox: true,
-            nodeIntegration: false,
-        },
+        webPreferences: webPreferences({ session: windowSession }),
     });
 
     loginWindow.webContents.setWindowOpenHandler(({ url }) => {

@@ -2,7 +2,13 @@ import { app, BrowserWindow, session } from 'electron';
 
 import { desktopUserAgent } from './api';
 import { getStore, getToken } from './store';
-import { iconPath, openWebUrl, restrictPermissions, themeBackground } from './windows';
+import {
+    iconPath,
+    openWebUrl,
+    restrictPermissions,
+    themeBackground,
+    webPreferences,
+} from './windows';
 
 const PARTITION = 'persist:dashboard';
 
@@ -43,12 +49,7 @@ const createDashboard = async (url: string, siteName: string, token: string) => 
         icon: iconPath(),
         backgroundColor: themeBackground(),
         autoHideMenuBar: true,
-        webPreferences: {
-            session: windowSession,
-            contextIsolation: true,
-            sandbox: true,
-            nodeIntegration: false,
-        },
+        webPreferences: webPreferences({ session: windowSession }),
     });
 
     window.webContents.setWindowOpenHandler(({ url: target }) => {

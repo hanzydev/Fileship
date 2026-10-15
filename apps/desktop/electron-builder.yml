@@ -18,6 +18,11 @@ extraResources:
     - from: build/drive/fileship-drive.exe
       to: drive/fileship-drive.exe
 
+electronFuses:
+    runAsNode: false
+    enableNodeOptionsEnvironmentVariable: false
+    enableNodeCliInspectArguments: false
+
 npmRebuild: false
 nodeGypRebuild: false
 

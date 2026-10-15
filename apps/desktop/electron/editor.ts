@@ -5,7 +5,13 @@ import { BrowserWindow, screen } from 'electron';
 
 import type { EditorFinish, EditorImage } from '../shared/ipc';
 import { type Bitmap, bitmapFromRgba } from './capture';
-import { hardenWebContents, iconPath, rendererUrl, themeBackground } from './windows';
+import {
+    hardenWebContents,
+    iconPath,
+    rendererUrl,
+    themeBackground,
+    webPreferences,
+} from './windows';
 
 export type EditorResult =
     { action: 'cancel' } | { action: 'continue' | 'copy' | 'save'; image: Bitmap };
@@ -50,12 +56,7 @@ export const openEditor = (
             icon: iconPath(),
             autoHideMenuBar: true,
             backgroundColor: themeBackground(),
-            webPreferences: {
-                preload: join(__dirname, 'preload.cjs'),
-                contextIsolation: true,
-                sandbox: true,
-                nodeIntegration: false,
-            },
+            webPreferences: webPreferences({ preload: join(__dirname, 'preload.cjs') }),
         });
 
         sessions.set(id, {

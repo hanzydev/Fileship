@@ -16,6 +16,12 @@ import { showMainWindow } from './windows';
 log.initialize();
 log.errorHandler.startCatching();
 
+const DEBUG_SWITCHES = ['remote-debugging-port', 'remote-debugging-pipe'];
+
+if (app.isPackaged && DEBUG_SWITCHES.some((name) => app.commandLine.hasSwitch(name))) {
+    app.exit(1);
+}
+
 if (!app.requestSingleInstanceLock()) {
     app.exit(0);
 }
@@ -26,6 +32,10 @@ registerAppScheme();
 app.on('second-instance', () => showMainWindow());
 
 app.on('window-all-closed', () => {});
+
+app.on('web-contents-created', (_, contents) => {
+    if (app.isPackaged) contents.on('devtools-opened', () => contents.closeDevTools());
+});
 
 app.on('will-quit', () => {
     globalShortcut.unregisterAll();

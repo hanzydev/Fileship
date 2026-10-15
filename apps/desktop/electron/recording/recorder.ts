@@ -38,6 +38,7 @@ import {
     notify,
     rendererUrl,
     showMainWindow,
+    webPreferences,
 } from '../windows';
 import {
     audioTracks,
@@ -207,13 +208,10 @@ const createWindows = (recording: Recording) => {
     );
     const dip = screen.screenToDipRect(null, host?.part ?? rect);
     const { workArea } = host?.display ?? screen.getDisplayMatching(dip);
-    const preferences = {
+    const preferences = webPreferences({
         preload: join(__dirname, 'preload.cjs'),
-        contextIsolation: true,
-        sandbox: true,
-        nodeIntegration: false,
         backgroundThrottling: false,
-    };
+    });
 
     const shared = {
         frame: false,
