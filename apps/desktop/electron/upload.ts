@@ -24,8 +24,8 @@ export type UploadedFile = {
 export type UploadSource = {
     name: string;
     mimeType: string;
-    origin?: UploadProgress['origin'];
     options?: Partial<Settings['upload']>;
+    onProgress?: (sent: number, total: number) => void;
 } & ({ data: Buffer; path?: never } | { path: string; data?: never });
 
 type Job = UploadSource & {
@@ -153,6 +153,7 @@ const runJob = async (job: Job) => {
         });
 
         publish();
+        job.onProgress?.(sent, fileSize);
     };
 
     const worker = async () => {
@@ -201,7 +202,7 @@ export const uploadFile = (file: UploadSource & { id?: string }) => {
 
     return new Promise<UploadedFile>((resolve, reject) => {
         queue.push({ ...file, id, resolve, reject } as Job);
-        progress.set(id, { id, name: file.name, progress: 0, origin: file.origin ?? 'app' });
+        progress.set(id, { id, name: file.name, progress: 0 });
         publish();
         pump();
     });

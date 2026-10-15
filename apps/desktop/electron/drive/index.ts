@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { mkdirSync, readdirSync, rmdirSync, statSync } from 'node:fs';
 import { basename, join } from 'node:path';
 
@@ -55,6 +55,9 @@ const folders = new Map<string, RemoteFolder>();
 const files = new Map<string, RemoteFile>();
 const local = new Map<string, { path: string; isFolder: boolean }>();
 const pendingPaths = new Set<string>();
+const cancelledUploads = new Set<string>();
+
+const isPendingIdentity = (identity: string) => identity.startsWith('p:');
 
 const isEmptyFolder = (path: string) => {
     try {
@@ -225,8 +228,8 @@ const reload = () =>
         const unsynced: ScanItem[] = [];
 
         for (const item of items) {
-            if (!item.identity) {
-                unsynced.push(item);
+            if (!item.identity || isPendingIdentity(item.identity)) {
+                unsynced.push({ ...item, identity: null });
             } else {
                 local.set(item.identity, { path: item.path, isFolder: item.isFolder });
                 if (!item.isFolder && item.modified && item.hydrated) unsynced.push(item);
@@ -298,6 +301,11 @@ const deleteRemote = async (identity: string, isPermanent = false) => {
 };
 
 const handleDelete = async (event: Extract<HelperEvent, { type: 'delete' }>) => {
+    if (isPendingIdentity(event.identity)) {
+        cancelledUploads.add(event.identity);
+        return;
+    }
+
     try {
         await deleteRemote(event.identity, true);
         setStatus({});
@@ -354,6 +362,11 @@ const moveFile = async (identity: string, to: string) => {
 };
 
 const handleRename = async (event: Extract<HelperEvent, { type: 'rename' }>) => {
+    if (isPendingIdentity(event.identity)) {
+        helper?.ack(event.requestId, false);
+        return;
+    }
+
     try {
         if (event.to === null) {
             await deleteRemote(event.identity);
@@ -373,13 +386,18 @@ const handleRename = async (event: Extract<HelperEvent, { type: 'rename' }>) => 
     }
 };
 
+const reportProgress = (path: string, sent: number, total: number) =>
+    helper
+        ?.request('progress', { path, total, completed: sent })
+        .catch((error) => log.warn('Could not report progress', path, error));
+
 const uploadLocal = async (path: string, folderId: string | null) => {
     const absolute = join(root, path);
     const uploaded = await uploadFile({
         name: basename(path),
         mimeType: mimeTypeOf(path),
         path: absolute,
-        origin: 'drive',
+        onProgress: (sent, total) => reportProgress(path, sent, total),
         options: {
             folderId,
             fileNameType: 'Random',
@@ -444,15 +462,27 @@ const handleLocalNew = async (event: Extract<HelperEvent, { type: 'localNew' }>)
         return;
     }
 
+    const pending = `p:${randomBytes(8).toString('hex')}`;
+
     pendingPaths.add(event.path);
     setStatus({ state: 'syncing' });
 
     try {
+        await helper!
+            .request('prepare', { path: event.path, identity: pending })
+            .catch((error) => log.warn('Could not prepare', event.path, error));
+
         const id = await uploadLocal(event.path, folderId);
-        await helper!.request('adopt', { path: event.path, identity: fileIdentity(id) });
-        local.set(fileIdentity(id), { path: event.path, isFolder: false });
+
+        if (cancelledUploads.has(pending)) {
+            await deleteRemote(fileIdentity(id), true);
+        } else {
+            await helper!.request('adopt', { path: event.path, identity: fileIdentity(id) });
+            local.set(fileIdentity(id), { path: event.path, isFolder: false });
+        }
     } finally {
         pendingPaths.delete(event.path);
+        cancelledUploads.delete(pending);
     }
 
     setStatus({});
@@ -469,6 +499,10 @@ const handleLocalModified = async (event: Extract<HelperEvent, { type: 'localMod
     setStatus({ state: 'syncing' });
 
     try {
+        await helper!
+            .request('prepare', { path: event.path, identity: event.identity })
+            .catch((error) => log.warn('Could not prepare', event.path, error));
+
         const id = await uploadLocal(event.path, previous?.folderId ?? null);
         await helper!.request('update', { path: event.path, identity: fileIdentity(id) });
 
@@ -496,7 +530,9 @@ const handleHelperEvent = (event: HelperEvent) => {
               ? handleRename(event)
               : event.type === 'localNew'
                 ? handleLocalNew(event)
-                : handleLocalModified(event);
+                : isPendingIdentity(event.identity)
+                  ? handleLocalNew({ ...event, type: 'localNew', isFolder: false })
+                  : handleLocalModified(event);
 
     task.catch((error) => {
         log.warn(`Drive ${event.type} failed`, error);

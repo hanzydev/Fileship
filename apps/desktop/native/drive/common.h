@@ -76,6 +76,8 @@ void updatePlaceholder(std::wstring const& path, std::optional<std::wstring> con
 bool isModified(std::wstring const& absolute);
 void removePath(std::wstring const& path);
 void adoptPath(std::wstring const& path, std::wstring const& identity);
+void preparePath(std::wstring const& path, std::wstring const& identity);
+void reportProgress(std::wstring const& path, int64_t total, int64_t completed);
 void clearRoot();
 JsonArray scanRoot();
 void setPinned(std::wstring const& path, bool pinned);

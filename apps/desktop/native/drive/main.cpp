@@ -143,6 +143,13 @@ void handle(JsonObject const& request) {
         } else if (type == L"adopt") {
             adoptPath(std::wstring(request.GetNamedString(L"path")),
                       std::wstring(request.GetNamedString(L"identity")));
+        } else if (type == L"prepare") {
+            preparePath(std::wstring(request.GetNamedString(L"path")),
+                        std::wstring(request.GetNamedString(L"identity")));
+        } else if (type == L"progress") {
+            reportProgress(std::wstring(request.GetNamedString(L"path")),
+                           static_cast<int64_t>(request.GetNamedNumber(L"total")),
+                           static_cast<int64_t>(request.GetNamedNumber(L"completed")));
         } else if (type == L"pin") {
             setPinned(std::wstring(request.GetNamedString(L"path")), request.GetNamedBoolean(L"pinned"));
         } else if (type == L"scan") {

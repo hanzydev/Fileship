@@ -143,6 +143,12 @@ void removePath(std::wstring const& path) {
 void adoptPath(std::wstring const& path, std::wstring const& identity) {
     auto absolute = fullPath(path);
     bool directory = isDirectory(absolute);
+
+    if (!directory && readIdentity(absolute, nullptr, nullptr)) {
+        updatePlaceholder(path, identity, true);
+        return;
+    }
+
     Handle handle(absolute, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES);
 
     CF_CONVERT_FLAGS flags = CF_CONVERT_FLAG_MARK_IN_SYNC;
@@ -153,6 +159,37 @@ void adoptPath(std::wstring const& path, std::wstring const& identity) {
                                          nullptr, nullptr));
 
     if (!directory) updatePlaceholder(path, std::nullopt, true);
+}
+
+void preparePath(std::wstring const& path, std::wstring const& identity) {
+    auto absolute = fullPath(path);
+    bool isPlaceholder = readIdentity(absolute, nullptr, nullptr).has_value();
+    Handle handle(absolute, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES);
+
+    if (isPlaceholder) {
+        check_hresult(CfSetInSyncState(handle.value, CF_IN_SYNC_STATE_NOT_IN_SYNC, CF_SET_IN_SYNC_FLAG_NONE,
+                                       nullptr));
+        return;
+    }
+
+    check_hresult(CfConvertToPlaceholder(handle.value, identity.c_str(),
+                                         static_cast<DWORD>(identity.size() * sizeof(wchar_t)),
+                                         CF_CONVERT_FLAG_NONE, nullptr, nullptr));
+}
+
+void reportProgress(std::wstring const& path, int64_t total, int64_t completed) {
+    Handle handle(fullPath(path), FILE_READ_ATTRIBUTES);
+    CF_TRANSFER_KEY key{};
+    check_hresult(CfGetTransferKey(handle.value, &key));
+
+    LARGE_INTEGER totalBytes{};
+    LARGE_INTEGER completedBytes{};
+    totalBytes.QuadPart = total;
+    completedBytes.QuadPart = completed;
+
+    HRESULT result = CfReportProviderProgress(connectionKey(), key, totalBytes, completedBytes);
+    CfReleaseTransferKey(handle.value, &key);
+    check_hresult(result);
 }
 
 bool isModified(std::wstring const& absolute) {
