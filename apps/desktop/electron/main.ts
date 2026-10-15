@@ -20,7 +20,7 @@ if (!app.requestSingleInstanceLock()) {
     app.exit(0);
 }
 
-app.setAppUserModelId('dev.hanzy.fileship');
+app.setAppUserModelId(app.isPackaged ? 'dev.hanzy.fileship' : 'dev.hanzy.fileship.dev');
 registerAppScheme();
 
 app.on('second-instance', () => showMainWindow());
