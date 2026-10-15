@@ -10,13 +10,19 @@ import {
     DeleteObjectCommand,
     GetObjectCommand,
     HeadBucketCommand,
+    HeadObjectCommand,
     ListObjectsV2Command,
     S3Client,
     UploadPartCommand,
+    UploadPartCopyCommand,
 } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 
 import { notFound, type StorageDriver, type StoredObject } from './types';
+
+const MAX_COPY_SIZE = 5 * 1024 ** 3;
+const COPY_PART_SIZE = 512 * 1024 ** 2;
+const COPY_CONCURRENCY = 4;
 
 export interface S3Config {
     endpoint?: string;
@@ -61,6 +67,57 @@ export const createS3Driver = (config: S3Config): StorageDriver => {
         return Body as Readable;
     };
 
+    const copyMultipart = async (copySource: string, to: string, size: number) => {
+        const { UploadId } = await client.send(
+            new CreateMultipartUploadCommand({ Bucket: config.bucket, Key: to }),
+        );
+
+        const total = Math.ceil(size / COPY_PART_SIZE);
+        const parts: { PartNumber: number; ETag?: string }[] = [];
+        let next = 1;
+
+        const copyParts = async () => {
+            while (next <= total) {
+                const part = next++;
+                const start = (part - 1) * COPY_PART_SIZE;
+                const end = Math.min(start + COPY_PART_SIZE, size) - 1;
+
+                const { CopyPartResult } = await client.send(
+                    new UploadPartCopyCommand({
+                        Bucket: config.bucket,
+                        Key: to,
+                        UploadId,
+                        PartNumber: part,
+                        CopySource: copySource,
+                        CopySourceRange: `bytes=${start}-${end}`,
+                    }),
+                );
+
+                parts.push({ PartNumber: part, ETag: CopyPartResult?.ETag });
+            }
+        };
+
+        try {
+            await Promise.all(Array.from({ length: COPY_CONCURRENCY }, copyParts));
+
+            await client.send(
+                new CompleteMultipartUploadCommand({
+                    Bucket: config.bucket,
+                    Key: to,
+                    UploadId,
+                    MultipartUpload: {
+                        Parts: parts.sort((a, b) => a.PartNumber - b.PartNumber),
+                    },
+                }),
+            );
+        } catch (error) {
+            await client
+                .send(new AbortMultipartUploadCommand({ Bucket: config.bucket, Key: to, UploadId }))
+                .catch(() => null);
+            throw error;
+        }
+    };
+
     return {
         async put(key, localPath) {
             await new Upload({
@@ -79,13 +136,26 @@ export const createS3Driver = (config: S3Config): StorageDriver => {
             await pipeline(await getObject(key), createWriteStream(localPath));
         },
         async move(from, to) {
-            await client.send(
-                new CopyObjectCommand({
-                    Bucket: config.bucket,
-                    CopySource: `${config.bucket}/${objectKey(from).split('/').map(encodeURIComponent).join('/')}`,
-                    Key: objectKey(to),
-                }),
-            );
+            const copySource = `${config.bucket}/${objectKey(from).split('/').map(encodeURIComponent).join('/')}`;
+
+            const { ContentLength } = await client
+                .send(new HeadObjectCommand({ Bucket: config.bucket, Key: objectKey(from) }))
+                .catch((error) => {
+                    if (error.name === 'NotFound') throw notFound();
+                    throw error;
+                });
+
+            if ((ContentLength ?? 0) > MAX_COPY_SIZE) {
+                await copyMultipart(copySource, objectKey(to), ContentLength!);
+            } else {
+                await client.send(
+                    new CopyObjectCommand({
+                        Bucket: config.bucket,
+                        CopySource: copySource,
+                        Key: objectKey(to),
+                    }),
+                );
+            }
 
             await client.send(
                 new DeleteObjectCommand({ Bucket: config.bucket, Key: objectKey(from) }),
