@@ -49,6 +49,8 @@ For larger changes, please open an issue first so the approach can be discussed 
 
 To work on the telemetry panel, create `apps/telemetry/.env` from [`apps/telemetry/.env.example`](apps/telemetry/.env.example) with its own database and a password, then run `pnpm --filter telemetry dev` (port 3002). Set `NUXT_TELEMETRY_URL=http://localhost:3002` in the dashboard to send it reports.
 
+To work on the desktop app (Windows), run a 6.0 dashboard and then `pnpm --filter desktop dev`. `pnpm --filter desktop package` builds the installer locally.
+
 To work on AI features without loading the models, set `NUXT_PUBLIC_AI_ENABLED=false`, or turn AI off in **Administration → Instance**.
 
 ### Project structure

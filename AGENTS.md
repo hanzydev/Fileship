@@ -10,6 +10,7 @@ pnpm + Turborepo monorepo (`pnpm@11`, workspaces `apps/*` and `packages/*`). pnp
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
 | `apps/dashboard`         | Nuxt 4 app: the UI and the Nitro API. Prisma/Postgres, socket.io, Orama search, local AI queue.                                         |
 | `apps/updater-agent`     | Small h3 service (`src/index.ts`) that performs blue/green updates by driving `docker compose`.                                         |
+| `apps/desktop`           | Fileship for Windows: an Electron app that captures, records and uploads to Fileship 6.0+, with a Nuxt renderer on the ui layer.        |
 | `apps/telemetry`         | Nuxt 4 telemetry panel: receives the anonymous reports and shows the statistics. Admin only. Not part of the user-facing stack.         |
 | `packages/ui`            | `@fileship/ui`, the shared Nuxt layer: shadcn-vue components, theme tokens, generic app components and the shared Nuxt modules.         |
 | `packages/telemetry`     | `@fileship/telemetry`, the report schema (zod) and the client that collects runtime info and sends reports.                             |
@@ -30,6 +31,8 @@ Dashboard only (`pnpm --filter dashboard <script>`):
 
 - `lint:code`: `eslint --fix .`
 - `db:generate`, `db:deploy`, `db:migrate` (create-only), `db:prototype` (db push), `db:studio`, `db:reset`.
+
+Desktop app only (`pnpm --filter desktop <script>`): `dev` (Nuxt on port 3020 plus Electron, restarts on main process changes) and `package` (builds `release/Fileship-Setup-<version>.exe` locally).
 
 Telemetry panel only (`pnpm --filter telemetry <script>`): `dev` (port 3002), `db:generate`, `db:deploy`, `db:migrate` (create-only) and `db:studio`.
 
@@ -121,6 +124,17 @@ Reuse these instead of writing new versions.
 - An instance is active on a day when it reported in the `ACTIVE_DAYS` (7) days up to and including it; a day's totals add up the latest report of every active instance (`computeDay` in `server/utils/rollup.ts`). `DailyStat` stores those totals. `stats:rollup` (hourly) fills missing days and recomputes only today and yesterday, so pages read ready rows and past days never change.
 - `db:prune` (daily and on startup) runs the rollup first, then deletes instances silent for `NUXT_INSTANCE_RETENTION_DAYS` with their reports, reports older than 13 months and expired sessions. `DailyStat` is never pruned.
 - Access is a single admin password (`NUXT_ADMIN_PASSWORD`). Sessions are random tokens stored as SHA-256 hashes, sent in the httpOnly `telemetryToken` cookie and expiring after 30 days. Failed logins are rate limited per IP and across all addresses, and cookie-authenticated writes reject cross-site requests like the dashboard.
+
+## Desktop app (`apps/desktop`)
+
+- **Processes:**
+    - `electron/` is the main process. tsdown bundles it, with every dependency, into `dist-electron/main.cjs` and `preload.cjs`, so the package ships no `node_modules`. Keep runtime packages in `devDependencies`.
+    - `app/` is a Nuxt SPA on the ui layer, served from the `app://fileship` protocol (`electron/protocol.ts`).
+- **IPC:** the renderer only talks to the main process through the typed bridge in `shared/ipc.ts` (`window.fileship`, `desktop(channel, ...args)`). Add every channel to `IpcInvoke`/`IpcEvents` and the channel lists. Handlers in `electron/ipc.ts` reject senders that are not app pages.
+- **Login:** the instance's own `/login` runs in a temporary partition. Its httpOnly `token` cookie becomes the app's session, kept DPAPI encrypted (`safeStorage`) and sent as `Authorization: Bearer`. The user agent carries `FileshipDesktop/<version>`, so the session shows as "Fileship for Windows". The app requires Fileship `MIN_FILESHIP_VERSION` (6.0.0) from `/api/healthz`.
+- **Dashboard:** file management is not rebuilt in the app. The Dashboard window loads the instance itself, in the `persist:dashboard` partition with the same session cookie.
+- **Updates:** electron-updater uses the GitHub provider with the public `hanzydev/fileship-desktop` releases repo. `.github/workflows/desktop-release.yml` builds and publishes on `desktop-v*` tags (`DESKTOP_RELEASE_TOKEN` secret). Updates download in the background and install on restart or quit, never while `setBusyCheck` reports work in progress.
+- **Windows:** the main window hides to the tray instead of closing. Fileship starts with Windows (`--hidden`) and keeps a single instance.
 
 ## Conventions
 
