@@ -1,8 +1,10 @@
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { once } from 'node:events';
 import { createWriteStream, existsSync } from 'node:fs';
 import { mkdir, rename, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
+import { finished } from 'node:stream/promises';
 import { promisify } from 'node:util';
 
 import { app, net } from 'electron';
@@ -167,29 +169,41 @@ export const downloadFfmpeg = async () => {
         const total = Number(response.headers.get('content-length')) || 0;
         const hash = createHash('sha256');
         const file = createWriteStream(archive);
+        const failure: { error: Error | null } = { error: null };
         const reader = response.body.getReader();
         let received = 0;
         let lastPublish = 0;
 
-        for (;;) {
-            const { done, value } = await reader.read();
-            if (done) break;
+        file.on('error', (error) => {
+            failure.error = error;
+        });
 
-            hash.update(value);
-            received += value.length;
+        try {
+            for (;;) {
+                if (failure.error) throw failure.error;
 
-            if (!file.write(value)) await new Promise((resolve) => file.once('drain', resolve));
+                const { done, value } = await reader.read();
+                if (done) break;
 
-            if (total && Date.now() - lastPublish > 250) {
-                lastPublish = Date.now();
-                download.progress = Math.round((received / total) * 100);
-                publish();
+                hash.update(value);
+                received += value.length;
+
+                if (!file.write(value)) await once(file, 'drain');
+
+                if (total && Date.now() - lastPublish > 250) {
+                    lastPublish = Date.now();
+                    download.progress = Math.round((received / total) * 100);
+                    publish();
+                }
             }
-        }
 
-        await new Promise<void>((resolve, reject) =>
-            file.end((error?: Error | null) => (error ? reject(error) : resolve())),
-        );
+            file.end();
+            await finished(file);
+        } catch (error) {
+            file.destroy();
+            await reader.cancel().catch(() => {});
+            throw error;
+        }
 
         if (hash.digest('hex') !== BUILD.sha256) {
             throw new Error('The download is damaged. Try again.');
