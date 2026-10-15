@@ -5,6 +5,7 @@ import log from 'electron-log/main';
 
 import type { OverlayFinish, OverlayPayload, OverlayPurpose } from '../shared/ipc';
 import {
+    type Bitmap,
     bitmapFromRgba,
     captureActiveMonitor,
     captureFullscreen,
@@ -31,6 +32,7 @@ let idleTimer: NodeJS.Timeout | null = null;
 let isOpen = false;
 let purpose: OverlayPurpose = 'capture';
 let onArea: ((rect: Rect) => void) | null = null;
+let onImage: ((image: Bitmap) => void) | null = null;
 let lastRegion: Rect | null = null;
 
 const createOverlay = (display: Electron.Display) => {
@@ -201,11 +203,13 @@ const hideOverlays = () => {
 export const openRegionCapture = async (
     nextPurpose: OverlayPurpose = 'capture',
     nextOnArea: ((rect: Rect) => void) | null = null,
+    nextOnImage: ((image: Bitmap) => void) | null = null,
 ) => {
     if (isOpen) return;
     isOpen = true;
     purpose = nextPurpose;
     onArea = nextOnArea;
+    onImage = nextOnImage;
 
     if (idleTimer) clearTimeout(idleTimer);
     idleTimer = null;
@@ -290,9 +294,30 @@ const finishArea = (result: OverlayFinish) => {
     }
 };
 
+const finishImage = async (result: OverlayFinish) => {
+    const callback = onImage;
+    onImage = null;
+    if (!callback || result.type === 'cancel' || result.type === 'area') return;
+
+    if (result.type === 'region')
+        return callback(bitmapFromRgba(result.rgba, result.width, result.height));
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const display =
+        result.type === 'monitor'
+            ? screen.getAllDisplays()[result.index]
+            : screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    const rect =
+        result.type === 'fullscreen' || !display ? virtualScreen() : physicalBounds(display);
+
+    callback((await captureRect(rect, false)).image);
+};
+
 export const finishRegionCapture = async (result: OverlayFinish) => {
     hideOverlays();
 
+    if (purpose === 'ocr') return finishImage(result);
     if (purpose !== 'capture') return finishArea(result);
     if (result.type === 'cancel' || result.type === 'area') return;
 

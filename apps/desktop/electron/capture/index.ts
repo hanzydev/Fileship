@@ -86,11 +86,11 @@ export const virtualScreen = (): Rect => {
     return { x: left, y: top, width: right - left, height: bottom - top };
 };
 
-export const captureRect = async (rect: Rect): Promise<Shot> => {
+export const captureRect = async (rect: Rect, sound = true): Promise<Shot> => {
     const { showCursor } = getSettings().capture;
     const [data] = await native.captureRects([rect], { cursor: showCursor });
 
-    playShutter();
+    if (sound) playShutter();
     return { image: { pixels: data!, width: rect.width, height: rect.height, order: 'bgra' } };
 };
 

@@ -87,7 +87,11 @@
             <UiButton size="icon-sm" variant="ghost" aria-label="Cancel" @click="handleCancel">
                 <IX />
             </UiButton>
-            <UiButton size="sm" variant="destructive" @click="handleConfirm">
+            <UiButton v-if="payload?.purpose === 'ocr'" size="sm" @click="handleConfirm">
+                <IScanText />
+                Copy text
+            </UiButton>
+            <UiButton v-else size="sm" variant="destructive" @click="handleConfirm">
                 <ICircle class="fill-current" />
                 {{ payload?.purpose === 'gif' ? 'Record GIF' : 'Record' }}
             </UiButton>
@@ -249,10 +253,14 @@ const moveRect = (origin: LocalRect, dx: number, dy: number) => {
     };
 };
 
-const isRecording = computed(() => !!payload.value && payload.value.purpose !== 'capture');
+const isRecording = computed(
+    () => payload.value?.purpose === 'video' || payload.value?.purpose === 'gif',
+);
+
+const hasSmallBar = computed(() => !!payload.value && payload.value.purpose !== 'capture');
 
 const isAnnotating = computed(
-    () => mode.value === 'selected' && !isRecording.value && !!annotator.tool.value,
+    () => mode.value === 'selected' && !hasSmallBar.value && !!annotator.tool.value,
 );
 
 const hasCaptureToolbar = computed(
@@ -382,7 +390,7 @@ const handleToolbarDragEnd = (event: PointerEvent) => {
 
 const recordToolbar = computed(() => {
     const rect = selection.value;
-    if (!rect || mode.value !== 'selected' || !isRecording.value) return null;
+    if (!rect || mode.value !== 'selected' || !hasSmallBar.value) return null;
 
     const bounds = viewport();
     const width = recordToolbarSize.width.value || 82;
@@ -768,7 +776,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
         return finish({ type: 'cancel' });
     }
 
-    if (mode.value === 'selected' && !isRecording.value && annotator.handleKey(event)) {
+    if (mode.value === 'selected' && !hasSmallBar.value && annotator.handleKey(event)) {
         event.preventDefault();
         return;
     }

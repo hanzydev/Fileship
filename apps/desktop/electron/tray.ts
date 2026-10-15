@@ -57,6 +57,8 @@ const buildMenu = () => {
                 { label: 'Active window', click: () => runAction('captureWindow') },
                 { label: 'Active monitor', click: () => runAction('captureMonitor') },
                 { label: 'Last region', click: () => runAction('captureLastRegion') },
+                { type: 'separator' },
+                { label: 'Text from region (OCR)', click: () => runAction('captureText') },
             ],
         },
         {

@@ -8,6 +8,7 @@ import type { HotkeyAction } from '../shared/settings';
 import { captureActiveMonitor, captureActiveWindow, captureFullscreen, type Shot } from './capture';
 import { readFilePath, readImage, readText, writeText } from './clipboard';
 import { mimeTypeOf } from './mime';
+import { captureText } from './ocr';
 import { captureLastRegion, openRegionCapture } from './overlay';
 import { toggleRecording } from './recording/recorder';
 import { getStore } from './store';
@@ -83,6 +84,7 @@ const handlers: Record<HotkeyAction, () => unknown> = {
     captureMonitor: () => withShot(captureActiveMonitor()),
     captureRegion: () => openRegionCapture(),
     captureLastRegion: () => captureLastRegion(),
+    captureText,
     recordVideo: () => toggleRecording('video'),
     recordGif: () => toggleRecording('gif'),
     uploadClipboard,
@@ -91,7 +93,12 @@ const handlers: Record<HotkeyAction, () => unknown> = {
     openMain: () => showMainWindow(),
 };
 
-const NEEDS_ACCOUNT: HotkeyAction[] = ['uploadClipboard', 'uploadFile', 'shortenClipboard'];
+const NEEDS_ACCOUNT: HotkeyAction[] = [
+    'captureText',
+    'uploadClipboard',
+    'uploadFile',
+    'shortenClipboard',
+];
 
 const REPEAT_WINDOW_MS = 400;
 const lastRuns = new Map<HotkeyAction, number>();

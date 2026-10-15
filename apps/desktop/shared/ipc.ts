@@ -60,7 +60,7 @@ export type UploadProgress = {
 
 export type HotkeyStatus = Partial<Record<HotkeyAction, 'ok' | 'conflict' | 'invalid'>>;
 
-export type OverlayPurpose = 'capture' | 'video' | 'gif';
+export type OverlayPurpose = 'capture' | 'video' | 'gif' | 'ocr';
 
 export type RecordingKind = 'video' | 'gif';
 
