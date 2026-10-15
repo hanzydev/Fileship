@@ -1,14 +1,14 @@
 import { z } from 'zod';
 
 export const HOTKEY_ACTIONS = [
-    'captureFullscreen',
+    'captureMonitor',
     'captureRegion',
     'captureWindow',
-    'captureMonitor',
-    'captureLastRegion',
     'captureText',
     'recordVideo',
     'recordGif',
+    'captureFullscreen',
+    'captureLastRegion',
     'uploadClipboard',
     'uploadFile',
     'shortenClipboard',
@@ -18,14 +18,14 @@ export const HOTKEY_ACTIONS = [
 export type HotkeyAction = (typeof HOTKEY_ACTIONS)[number];
 
 export const HOTKEY_LABELS: Record<HotkeyAction, string> = {
-    captureFullscreen: 'Capture entire screen',
+    captureMonitor: 'Capture active monitor',
     captureRegion: 'Capture region',
     captureWindow: 'Capture active window',
-    captureMonitor: 'Capture active monitor',
-    captureLastRegion: 'Capture last region',
     captureText: 'Copy text from region (OCR)',
     recordVideo: 'Start or stop screen recording',
     recordGif: 'Start or stop GIF recording',
+    captureFullscreen: 'Capture entire screen',
+    captureLastRegion: 'Capture last region',
     uploadClipboard: 'Upload from clipboard',
     uploadFile: 'Upload file',
     shortenClipboard: 'Shorten URL from clipboard',
@@ -33,14 +33,14 @@ export const HOTKEY_LABELS: Record<HotkeyAction, string> = {
 };
 
 export const DEFAULT_HOTKEYS: Record<HotkeyAction, string> = {
-    captureFullscreen: '',
+    captureMonitor: 'PrintScreen',
     captureRegion: 'Control+PrintScreen',
     captureWindow: 'Alt+PrintScreen',
-    captureMonitor: 'PrintScreen',
-    captureLastRegion: '',
     captureText: 'Control+Alt+PrintScreen',
     recordVideo: 'Shift+PrintScreen',
     recordGif: 'Control+Shift+PrintScreen',
+    captureFullscreen: '',
+    captureLastRegion: '',
     uploadClipboard: '',
     uploadFile: '',
     shortenClipboard: '',
