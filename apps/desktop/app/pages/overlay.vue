@@ -20,65 +20,72 @@
         <div
             v-if="hasCaptureToolbar"
             ref="captureToolbar"
-            class="absolute cursor-default rounded-4xl border bg-popover p-1 text-popover-foreground shadow-md"
+            class="absolute cursor-default"
             :style="captureToolbarStyle"
             @pointerdown.stop
             @pointermove.stop
             @pointerup.stop
             @contextmenu.stop.prevent
         >
-            <AnnotationToolbar :annotator="annotator" :side="toolbarSide">
-                <template #start>
-                    <UiButton
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Move the toolbar"
-                        class="cursor-grab touch-none active:cursor-grabbing"
-                        @pointerdown="handleToolbarDragStart"
-                        @pointermove="handleToolbarDragMove"
-                        @pointerup="handleToolbarDragEnd"
-                        @lostpointercapture="handleToolbarDragEnd"
-                    >
-                        <IGripHorizontal v-if="toolbarSide === 'left' || toolbarSide === 'right'" />
-                        <IGripVertical v-else />
-                    </UiButton>
-                    <UiTooltip>
-                        <UiTooltipTrigger as-child>
-                            <UiButton
-                                :variant="!annotator.tool.value ? 'secondary' : 'ghost'"
-                                size="icon-sm"
-                                aria-label="Region"
-                                :aria-pressed="!annotator.tool.value"
-                                @click="annotator.setTool(null)"
-                            >
-                                <IScan />
-                            </UiButton>
-                        </UiTooltipTrigger>
-                        <UiTooltipContent :side="toolbarSide">
-                            Region
-                            <UiKbd class="ml-1">C</UiKbd>
-                        </UiTooltipContent>
-                    </UiTooltip>
-                </template>
-                <template #actions>
-                    <UiTooltip>
-                        <UiTooltipTrigger as-child>
-                            <UiButton
-                                size="icon-sm"
-                                variant="ghost"
-                                aria-label="Cancel"
-                                @click="handleCancel"
-                            >
-                                <IX />
-                            </UiButton>
-                        </UiTooltipTrigger>
-                        <UiTooltipContent :side="toolbarSide">
-                            Cancel
-                            <UiKbd class="ml-1">Esc</UiKbd>
-                        </UiTooltipContent>
-                    </UiTooltip>
-                </template>
-            </AnnotationToolbar>
+            <div
+                class="rounded-4xl border bg-popover p-1 text-popover-foreground shadow-md"
+                :style="{ zoom: toolbarZoom }"
+            >
+                <AnnotationToolbar :annotator="annotator" :side="toolbarSide">
+                    <template #start>
+                        <UiButton
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label="Move the toolbar"
+                            class="cursor-grab touch-none active:cursor-grabbing"
+                            @pointerdown="handleToolbarDragStart"
+                            @pointermove="handleToolbarDragMove"
+                            @pointerup="handleToolbarDragEnd"
+                            @lostpointercapture="handleToolbarDragEnd"
+                        >
+                            <IGripHorizontal
+                                v-if="toolbarSide === 'left' || toolbarSide === 'right'"
+                            />
+                            <IGripVertical v-else />
+                        </UiButton>
+                        <UiTooltip>
+                            <UiTooltipTrigger as-child>
+                                <UiButton
+                                    :variant="!annotator.tool.value ? 'secondary' : 'ghost'"
+                                    size="icon-sm"
+                                    aria-label="Region"
+                                    :aria-pressed="!annotator.tool.value"
+                                    @click="annotator.setTool(null)"
+                                >
+                                    <IScan />
+                                </UiButton>
+                            </UiTooltipTrigger>
+                            <UiTooltipContent :side="toolbarSide">
+                                Region
+                                <UiKbd class="ml-1">C</UiKbd>
+                            </UiTooltipContent>
+                        </UiTooltip>
+                    </template>
+                    <template #actions>
+                        <UiTooltip>
+                            <UiTooltipTrigger as-child>
+                                <UiButton
+                                    size="icon-sm"
+                                    variant="ghost"
+                                    aria-label="Cancel"
+                                    @click="handleCancel"
+                                >
+                                    <IX />
+                                </UiButton>
+                            </UiTooltipTrigger>
+                            <UiTooltipContent :side="toolbarSide">
+                                Cancel
+                                <UiKbd class="ml-1">Esc</UiKbd>
+                            </UiTooltipContent>
+                        </UiTooltip>
+                    </template>
+                </AnnotationToolbar>
+            </div>
         </div>
     </div>
 </template>
@@ -92,6 +99,7 @@ type LocalDisplay = { id: number; rect: LocalRect; scaleFactor: number; isPrimar
 type LocalWindow = LocalRect & { controls: LocalRect[] };
 type Mode = 'idle' | 'pending' | 'drawing';
 type ToolbarEdge = 'top' | 'bottom' | 'left' | 'right' | null;
+type ToolbarPlacement = { display: number | null; edge: ToolbarEdge; cx: number; cy: number };
 
 const DRAG_THRESHOLD = 3;
 const MAGNIFIER_PIXELS = 15;
@@ -110,12 +118,15 @@ const captureToolbar = useTemplateRef('captureToolbar');
 const annotator = useAnnotator(annotationLayer);
 const captureToolbarSize = useElementSize(captureToolbar, undefined, { box: 'border-box' });
 
-const toolbarPlacement = useLocalStorage<{ edge: ToolbarEdge; cx: number; cy: number }>(
+const toolbarPlacement = useLocalStorage<ToolbarPlacement>(
     'fileship-capture-toolbar-placement',
-    { edge: 'top', cx: 0.5, cy: 0 },
+    { display: null, edge: 'top', cx: 0.5, cy: 0 },
+    { mergeDefaults: true },
 );
 
-const toolbarDrag = ref<{ id: number; offset: Point; pointer: Point } | null>(null);
+const toolbarDrag = ref<{ id: number; offset: Point; pointer: Point; display: number } | null>(
+    null,
+);
 
 const payload = shallowRef<OverlayPayload | null>(null);
 const displays = shallowRef<LocalDisplay[]>([]);
@@ -219,8 +230,21 @@ const hasCaptureToolbar = computed(() => !!payload.value && payload.value.purpos
 
 const isAnnotating = computed(() => hasCaptureToolbar.value && !!annotator.tool.value);
 
-const toolbarHost = computed(
-    () => (displays.value.find((item) => item.isPrimary) ?? displays.value[0])?.rect ?? viewport(),
+const toolbarDisplay = computed(() => {
+    const id = toolbarDrag.value?.display ?? toolbarPlacement.value.display;
+
+    return (
+        displays.value.find((item) => item.id === id) ??
+        displays.value.find((item) => item.isPrimary) ??
+        displays.value[0] ??
+        null
+    );
+});
+
+const toolbarHost = computed(() => toolbarDisplay.value?.rect ?? viewport());
+
+const toolbarZoom = computed(
+    () => (toolbarDisplay.value?.scaleFactor ?? 1) / window.devicePixelRatio,
 );
 
 const edgeAt = (point: Point): ToolbarEdge => {
@@ -311,6 +335,7 @@ const handleToolbarDragStart = (event: PointerEvent) => {
         id: event.pointerId,
         offset: { x: event.clientX - rect.left, y: event.clientY - rect.top },
         pointer: { x: event.clientX, y: event.clientY },
+        display: toolbarDisplay.value?.id ?? 0,
     };
 };
 
@@ -318,7 +343,9 @@ const handleToolbarDragMove = (event: PointerEvent) => {
     const drag = toolbarDrag.value;
     if (!drag || event.pointerId !== drag.id) return;
 
-    toolbarDrag.value = { ...drag, pointer: { x: event.clientX, y: event.clientY } };
+    const point = pointFrom(event);
+
+    toolbarDrag.value = { ...drag, pointer: point, display: displayAt(point)?.id ?? drag.display };
 };
 
 const handleToolbarDragEnd = (event: PointerEvent) => {
@@ -329,6 +356,7 @@ const handleToolbarDragEnd = (event: PointerEvent) => {
     const { center } = currentLayout.value;
 
     toolbarPlacement.value = {
+        display: toolbarDisplay.value?.id ?? null,
         edge: currentEdge.value,
         cx: (center.x - host.x) / host.width,
         cy: (center.y - host.y) / host.height,
