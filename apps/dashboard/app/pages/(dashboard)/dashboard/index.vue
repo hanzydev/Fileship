@@ -87,7 +87,7 @@
                     title="File types"
                     description="Files by type"
                     value-label="Files"
-                    :is-loading="!stats"
+                    :is-loading="!stats && !statsFailed"
                     :items="filesByType"
                     compact
                 />
@@ -95,7 +95,7 @@
                     title="Storage"
                     description="Storage used by file type"
                     value-label="Size"
-                    :is-loading="!stats"
+                    :is-loading="!stats && !statsFailed"
                     :items="storageByType"
                     compact
                 />
@@ -123,7 +123,9 @@ import { upperFirst } from 'scule';
 
 import { IBookmark, IBox, IEye, IFiles, IFolder, ILink, IUsers } from '#components';
 
+const { $toast } = useNuxtApp();
 const stats = useStats();
+const statsFailed = ref(false);
 const currentUser = useAuthUser();
 const uploadSheetOpen = useUploadSheet();
 
@@ -172,59 +174,61 @@ const storageByType = computed(() =>
     })),
 );
 
-const statCards = computed(() => [
-    {
-        title: 'Files',
-        legend: 'uploaded files',
-        icon: IFiles,
-        data: stats.value?.files.count,
-        growth: stats.value?.files.growth,
-    },
-    {
-        title: 'Views',
-        legend: 'total file views',
-        icon: IEye,
-        data: stats.value?.views.count,
-        growth: stats.value?.views.growth,
-    },
-    {
-        title: 'Storage',
-        legend: +(stats.value?.storageUsed.trashed?.raw ?? 0)
-            ? `used storage, ${stats.value!.storageUsed.trashed.formatted} in trash`
-            : 'used storage',
-        icon: IBox,
-        data: stats.value?.storageUsed.size,
-        growth: stats.value?.storageUsed.growth,
-    },
-    isAdmin(currentUser.value)
-        ? {
-              title: 'Users',
-              legend: 'total users',
-              icon: IUsers,
-              data: stats.value?.users.count,
-              growth: stats.value?.users.growth,
-          }
-        : canNote.value
-          ? {
-                title: 'Notes',
-                legend: 'saved notes',
-                icon: IBookmark,
-                data: stats.value?.notes.count,
-            }
-          : canShorten.value && !canUpload.value
+const statCards = computed(() =>
+    [
+        {
+            title: 'Files',
+            legend: 'uploaded files',
+            icon: IFiles,
+            data: stats.value?.files.count,
+            growth: stats.value?.files.growth,
+        },
+        {
+            title: 'Views',
+            legend: 'total file views',
+            icon: IEye,
+            data: stats.value?.views.count,
+            growth: stats.value?.views.growth,
+        },
+        {
+            title: 'Storage',
+            legend: +(stats.value?.storageUsed.trashed?.raw ?? 0)
+                ? `used storage, ${stats.value!.storageUsed.trashed.formatted} in trash`
+                : 'used storage',
+            icon: IBox,
+            data: stats.value?.storageUsed.size,
+            growth: stats.value?.storageUsed.growth,
+        },
+        isAdmin(currentUser.value)
             ? {
-                  title: 'Short links',
-                  legend: 'short links',
-                  icon: ILink,
-                  data: stats.value?.links.count,
+                  title: 'Users',
+                  legend: 'total users',
+                  icon: IUsers,
+                  data: stats.value?.users.count,
+                  growth: stats.value?.users.growth,
               }
-            : {
-                  title: 'Folders',
-                  legend: 'created folders',
-                  icon: IFolder,
-                  data: stats.value?.folders.count,
-              },
-]);
+            : canNote.value
+              ? {
+                    title: 'Notes',
+                    legend: 'saved notes',
+                    icon: IBookmark,
+                    data: stats.value?.notes.count,
+                }
+              : canShorten.value && !canUpload.value
+                ? {
+                      title: 'Short links',
+                      legend: 'short links',
+                      icon: ILink,
+                      data: stats.value?.links.count,
+                  }
+                : {
+                      title: 'Folders',
+                      legend: 'created folders',
+                      icon: IFolder,
+                      data: stats.value?.folders.count,
+                  },
+    ].map((card) => (statsFailed.value ? { ...card, data: card.data ?? '—' } : card)),
+);
 
 const handleToggle = (file: FileData) => {
     selected.value = selected.value.includes(file.id)
@@ -256,7 +260,12 @@ onMounted(async () => {
                 ? 'Good evening'
                 : 'Good night';
 
-    stats.value = await $fetch('/api/users/@me/stats');
+    await $fetch('/api/users/@me/stats')
+        .then((data) => (stats.value = data))
+        .catch((error) => {
+            statsFailed.value = true;
+            $toast.error(getErrorMessage(error));
+        });
 });
 
 definePageMeta({

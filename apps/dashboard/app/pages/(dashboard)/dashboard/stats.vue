@@ -19,7 +19,12 @@
                 <UiCardDescription>File views over the last 12 months</UiCardDescription>
             </UiCardHeader>
             <UiCardContent>
-                <UiSkeleton v-if="!stats" class="h-64 w-full" />
+                <EmptyState
+                    v-if="statsFailed"
+                    :icon="IChartNoAxesColumn"
+                    title="Statistics could not be loaded"
+                />
+                <UiSkeleton v-else-if="!stats" class="h-64 w-full" />
                 <UiChartContainer v-else :config="viewsConfig" class="aspect-auto h-64" cursor>
                     <VisXYContainer
                         :data="viewsData"
@@ -60,21 +65,21 @@
                 title="Top uploaders"
                 description="Files uploaded per user"
                 value-label="Files"
-                :is-loading="!stats"
+                :is-loading="!stats && !statsFailed"
                 :items="topUploaders"
             />
             <StatsDonut
                 title="Storage"
                 description="Storage used per user"
                 value-label="Size"
-                :is-loading="!stats"
+                :is-loading="!stats && !statsFailed"
                 :items="storageByUser"
             />
             <StatsDonut
                 title="File types"
                 description="Most uploaded file types"
                 value-label="Files"
-                :is-loading="!stats"
+                :is-loading="!stats && !statsFailed"
                 :items="topTypes"
             />
         </div>
@@ -84,12 +89,14 @@
 <script setup lang="ts">
 import { VisArea, VisAxis, VisCrosshair, VisLine, VisTooltip, VisXYContainer } from '@unovis/vue';
 
-import { IBox, IEye, IFiles, IUsers, UiChartTooltipContent } from '#components';
+import { IBox, IChartNoAxesColumn, IEye, IFiles, IUsers, UiChartTooltipContent } from '#components';
 import { componentToString } from '#layers/ui/app/components/ui/chart';
 
 type ViewsDatum = { index: number; month: string; views: number };
 
+const { $toast } = useNuxtApp();
 const stats = ref<any>(null);
+const statsFailed = ref(false);
 
 const viewsConfig = { views: { label: 'Views', color: 'var(--chart-2)' } };
 
@@ -132,41 +139,48 @@ const topTypes = computed(() =>
     stats.value ? stats.value.topTypes.map((t: any) => ({ label: t.type, value: t.count })) : [],
 );
 
-const statCards = computed(() => [
-    {
-        title: 'Users',
-        legend: 'registered users',
-        icon: IUsers,
-        data: stats.value?.users.count,
-        growth: stats.value?.users.growth,
-    },
-    {
-        title: 'Files',
-        legend: 'files on this instance',
-        icon: IFiles,
-        data: stats.value?.files.count,
-        growth: stats.value?.files.growth,
-    },
-    {
-        title: 'Storage',
-        legend: +(stats.value?.storageUsed.trashed?.raw ?? 0)
-            ? `total storage used, ${stats.value.storageUsed.trashed.formatted} in trash`
-            : 'total storage used',
-        icon: IBox,
-        data: stats.value?.storageUsed.size,
-        growth: stats.value?.storageUsed.growth,
-    },
-    {
-        title: 'Views',
-        legend: 'total file views',
-        icon: IEye,
-        data: stats.value?.views.count,
-        growth: stats.value?.views.growth,
-    },
-]);
+const statCards = computed(() =>
+    [
+        {
+            title: 'Users',
+            legend: 'registered users',
+            icon: IUsers,
+            data: stats.value?.users.count,
+            growth: stats.value?.users.growth,
+        },
+        {
+            title: 'Files',
+            legend: 'files on this instance',
+            icon: IFiles,
+            data: stats.value?.files.count,
+            growth: stats.value?.files.growth,
+        },
+        {
+            title: 'Storage',
+            legend: +(stats.value?.storageUsed.trashed?.raw ?? 0)
+                ? `total storage used, ${stats.value.storageUsed.trashed.formatted} in trash`
+                : 'total storage used',
+            icon: IBox,
+            data: stats.value?.storageUsed.size,
+            growth: stats.value?.storageUsed.growth,
+        },
+        {
+            title: 'Views',
+            legend: 'total file views',
+            icon: IEye,
+            data: stats.value?.views.count,
+            growth: stats.value?.views.growth,
+        },
+    ].map((card) => (statsFailed.value ? { ...card, data: card.data ?? '—' } : card)),
+);
 
 onMounted(async () => {
-    stats.value = await $fetch('/api/stats');
+    await $fetch('/api/stats')
+        .then((data) => (stats.value = data))
+        .catch((error) => {
+            statsFailed.value = true;
+            $toast.error(getErrorMessage(error));
+        });
 });
 
 definePageMeta({

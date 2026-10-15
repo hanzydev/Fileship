@@ -207,7 +207,9 @@ watch(
 onMounted(async () => {
     isMac.value = /Mac|iPhone|iPad/.test(navigator.userAgent);
 
-    embed.value = await $fetch<IEmbed>('/api/users/@me/embed');
-    domains.value = await $fetch<string[]>('/api/users/@me/domains');
+    await Promise.all([
+        $fetch<IEmbed>('/api/users/@me/embed').then((data) => (embed.value = data)),
+        $fetch<string[]>('/api/users/@me/domains').then((data) => (domains.value = data)),
+    ]).catch((error) => $toast.error(getErrorMessage(error)));
 });
 </script>
