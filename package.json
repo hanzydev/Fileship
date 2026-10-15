@@ -9,11 +9,9 @@
         "preinstall": "npx -y only-allow pnpm",
         "lint": "turbo run lint && prettier --write .",
         "lint:types": "turbo run lint:types",
-        "check": "pnpm build && pnpm lint && pnpm lint:types",
-        "release": "changelogen --release"
+        "check": "pnpm build && pnpm lint && pnpm lint:types"
     },
     "devDependencies": {
-        "changelogen": "^0.6.2",
         "prettier": "^3.9.10",
         "turbo": "^2.11.7"
     },

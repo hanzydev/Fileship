@@ -80,7 +80,7 @@ Migrations must stay **backward compatible**. During an update, the old and new 
 
 ### Commits
 
-Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) (for example `feat(ui): ...`, `fix(api): ...`, `docs: ...`). The changelog is generated from them. Mark breaking changes with `!` and a `BREAKING CHANGE:` footer.
+Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) (for example `feat(ui): ...`, `fix(api): ...`, `docs: ...`). They keep the history readable, and `CHANGELOG.md` is written from them when a version is released. Mark breaking changes with `!` and a `BREAKING CHANGE:` footer.
 
 ## Submitting a pull request
 
