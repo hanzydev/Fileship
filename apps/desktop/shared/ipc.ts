@@ -56,6 +56,7 @@ export type UploadProgress = {
     id: string;
     name: string;
     progress: number;
+    origin: 'app' | 'drive';
 };
 
 export type HotkeyStatus = Partial<Record<HotkeyAction, 'ok' | 'conflict' | 'invalid'>>;

@@ -12,6 +12,7 @@ import {
 } from './recording/recorder';
 import { getSettings, getStore } from './store';
 import { checkForUpdates, getUpdateStatus, installUpdate } from './updater';
+import { getUploadSummary } from './upload';
 import { iconPath, markQuitting, showMainWindow } from './windows';
 
 let tray: Tray | null = null;
@@ -110,10 +111,17 @@ export const refreshTray = () => {
     if (!tray) return;
 
     tray.setContextMenu(buildMenu());
+
+    const uploads = getUploadSummary();
     const tooltip = getStore().user ? `Fileship · ${getStore().siteName}` : 'Fileship';
 
+    if (getRecorderState().phase !== 'idle')
+        return tray.setToolTip('Fileship · Recording, click to stop');
+
     tray.setToolTip(
-        getRecorderState().phase === 'idle' ? tooltip : 'Fileship · Recording, click to stop',
+        uploads
+            ? `Fileship · Uploading ${uploads.count === 1 ? '1 file' : `${uploads.count} files`}, ${uploads.progress}%`
+            : tooltip,
     );
 };
 

@@ -73,6 +73,24 @@
         </UiCardFooter>
     </UiCard>
 
+    <UiCard v-if="uploads.length">
+        <UiCardHeader>
+            <UiCardTitle>Uploading</UiCardTitle>
+            <UiCardDescription>
+                {{ pluralize(uploads.length, 'file') }} from the drive
+            </UiCardDescription>
+        </UiCardHeader>
+        <UiCardContent class="flex flex-col gap-4">
+            <div v-for="upload in uploads" :key="upload.id" class="flex flex-col gap-2">
+                <div class="flex items-center justify-between gap-4 text-sm">
+                    <span class="truncate">{{ upload.name }}</span>
+                    <span class="text-muted-foreground tabular-nums">{{ upload.progress }}%</span>
+                </div>
+                <UiProgress :model-value="upload.progress" />
+            </div>
+        </UiCardContent>
+    </UiCard>
+
     <UiCard>
         <UiCardHeader>
             <UiCardTitle>How it works</UiCardTitle>
@@ -96,7 +114,7 @@
 <script setup lang="ts">
 import { ICloud, ICloudDownload, IFilePen, ITrash2 } from '#components';
 
-import type { DriveStatus } from '../../../shared/ipc';
+import type { DriveStatus, UploadProgress } from '../../../shared/ipc';
 
 const STATE_LABELS: Record<DriveStatus['state'], string> = {
     off: 'Off',
@@ -135,6 +153,11 @@ const { $toast } = useNuxtApp();
 
 const status = ref<DriveStatus>({ state: 'off', root: '', files: 0, folders: 0, error: null });
 const isBusy = ref(false);
+const uploads = ref<UploadProgress[]>([]);
+
+const setUploads = (value: UploadProgress[]) => {
+    uploads.value = value.filter((item) => item.origin === 'drive');
+};
 
 const handleToggle = async (enabled: boolean) => {
     if (!settings.value) return;
@@ -160,12 +183,22 @@ const handlePickFolder = async () => {
 };
 
 onMounted(async () => {
-    const off = window.fileship.on('drive:status', (value) => {
+    const offStatus = window.fileship.on('drive:status', (value) => {
         status.value = value;
     });
+    const offUploads = window.fileship.on('uploads:progress', setUploads);
 
-    onBeforeUnmount(off);
+    onBeforeUnmount(() => {
+        offStatus();
+        offUploads();
+    });
 
-    status.value = await desktop('drive:status');
+    const [current, progress] = await Promise.all([
+        desktop('drive:status'),
+        desktop('uploads:progress'),
+    ]);
+
+    status.value = current;
+    setUploads(progress);
 });
 </script>

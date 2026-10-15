@@ -6,8 +6,9 @@ import type { Settings } from '../shared/settings';
 import { handleUnauthorized } from './account';
 import { api, ApiError } from './api';
 import { getSettings, getStore } from './store';
+import { refreshTray } from './tray';
 import { notifyIdle } from './updater';
-import { broadcast } from './windows';
+import { broadcast, getMainWindow } from './windows';
 
 const MAX_ATTEMPTS = 3;
 const MAX_CONCURRENT = 3;
@@ -23,6 +24,7 @@ export type UploadedFile = {
 export type UploadSource = {
     name: string;
     mimeType: string;
+    origin?: UploadProgress['origin'];
     options?: Partial<Settings['upload']>;
 } & ({ data: Buffer; path?: never } | { path: string; data?: never });
 
@@ -35,25 +37,45 @@ type Job = UploadSource & {
 const queue: Job[] = [];
 const progress = new Map<string, UploadProgress>();
 let running = 0;
-let chunkSize: number | null = null;
+let limits: { chunkSize: number; concurrency: number } | null = null;
 
-const publish = () => broadcast('uploads:progress', [...progress.values()]);
+export const getUploadSummary = () => {
+    const items = [...progress.values()];
+    if (!items.length) return null;
+
+    return {
+        count: items.length,
+        progress: Math.round(items.reduce((sum, item) => sum + item.progress, 0) / items.length),
+    };
+};
+
+const publish = () => {
+    const summary = getUploadSummary();
+
+    broadcast('uploads:progress', [...progress.values()]);
+    getMainWindow()?.setProgressBar(summary ? Math.max(summary.progress, 1) / 100 : -1);
+    refreshTray();
+};
 
 export const isUploading = () => running > 0 || queue.length > 0;
 
-const getChunkSize = async () => {
-    if (chunkSize) return chunkSize;
+const getUploadLimits = async () => {
+    if (limits) return limits;
 
-    const settings = await api<{ fileChunkSize?: number }>('/api/settings/public').catch(
-        () => null,
-    );
+    const settings = await api<{ fileChunkSize?: number; uploadConcurrency?: number }>(
+        '/api/settings/public',
+    ).catch(() => null);
 
-    chunkSize = (settings?.fileChunkSize ?? 25) * 1024 * 1024;
-    return chunkSize;
+    limits = {
+        chunkSize: (settings?.fileChunkSize ?? 25) * 1024 * 1024,
+        concurrency: Math.max(1, settings?.uploadConcurrency ?? 1),
+    };
+
+    return limits;
 };
 
 export const resetUploadSettings = () => {
-    chunkSize = null;
+    limits = null;
 };
 
 const sendChunk = async (form: () => FormData) => {
@@ -79,7 +101,7 @@ const sendChunk = async (form: () => FormData) => {
 
 const runJob = async (job: Job) => {
     const upload = { ...getSettings().upload, ...job.options };
-    const size = await getChunkSize();
+    const { chunkSize: size, concurrency } = await getUploadLimits();
     const uploadId = randomBytes(12).toString('base64url');
     const fileSize = job.data ? job.data.length : (await stat(job.path!)).size;
     const totalChunks = Math.max(1, Math.ceil(fileSize / size));
@@ -95,43 +117,61 @@ const runJob = async (job: Job) => {
     };
 
     let result: UploadedFile | undefined;
+    let next = 0;
+    let sent = 0;
+    let failure: unknown = null;
+
+    const sendPart = async (index: number) => {
+        const offset = index * size;
+        const data = await readChunk(offset);
+        const chunk = new Blob([new Uint8Array(data)], { type: job.mimeType });
+
+        const response = await sendChunk(() => {
+            const form = new FormData();
+
+            form.append('uploadId', uploadId);
+            form.append('currentChunk', String(index + 1));
+            form.append('totalChunks', String(totalChunks));
+            form.append('chunkOffset', String(offset));
+            form.append('fileNameType', upload.fileNameType);
+            if (upload.expiration) form.append('expiration', String(upload.expiration));
+            if (upload.maxViews) form.append('maxViews', String(upload.maxViews));
+            if (upload.compression) form.append('compression', String(upload.compression));
+            if (upload.password) form.append('password', upload.password);
+            if (upload.folderId) form.append('folderId', upload.folderId);
+            form.append('file', chunk, job.name);
+
+            return form;
+        });
+
+        if (response) result = response;
+        sent += data.length;
+
+        progress.set(job.id, {
+            ...progress.get(job.id)!,
+            progress: fileSize ? Math.round((sent / fileSize) * 100) : 100,
+        });
+
+        publish();
+    };
+
+    const worker = async () => {
+        while (!failure && next < totalChunks) {
+            try {
+                await sendPart(next++);
+            } catch (error) {
+                failure ??= error;
+            }
+        }
+    };
 
     try {
-        for (let index = 0; index < totalChunks; index++) {
-            const offset = index * size;
-            const chunk = new Blob([new Uint8Array(await readChunk(offset))], {
-                type: job.mimeType,
-            });
-
-            result = await sendChunk(() => {
-                const form = new FormData();
-
-                form.append('uploadId', uploadId);
-                form.append('currentChunk', String(index + 1));
-                form.append('totalChunks', String(totalChunks));
-                form.append('chunkOffset', String(offset));
-                form.append('fileNameType', upload.fileNameType);
-                if (upload.expiration) form.append('expiration', String(upload.expiration));
-                if (upload.maxViews) form.append('maxViews', String(upload.maxViews));
-                if (upload.compression) form.append('compression', String(upload.compression));
-                if (upload.password) form.append('password', upload.password);
-                if (upload.folderId) form.append('folderId', upload.folderId);
-                form.append('file', chunk, job.name);
-
-                return form;
-            });
-
-            progress.set(job.id, {
-                id: job.id,
-                name: job.name,
-                progress: Math.round(((index + 1) / totalChunks) * 100),
-            });
-
-            publish();
-        }
+        await Promise.all(Array.from({ length: Math.min(concurrency, totalChunks) }, worker));
     } finally {
         await handle?.close();
     }
+
+    if (failure) throw failure;
 
     if (!result?.url) throw new Error('The server did not return a link');
     return result;
@@ -161,7 +201,7 @@ export const uploadFile = (file: UploadSource & { id?: string }) => {
 
     return new Promise<UploadedFile>((resolve, reject) => {
         queue.push({ ...file, id, resolve, reject } as Job);
-        progress.set(id, { id, name: file.name, progress: 0 });
+        progress.set(id, { id, name: file.name, progress: 0, origin: file.origin ?? 'app' });
         publish();
         pump();
     });

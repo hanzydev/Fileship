@@ -367,6 +367,7 @@ const uploadLocal = async (path: string, folderId: string | null) => {
         name: basename(path),
         mimeType: mimeTypeOf(path),
         path: absolute,
+        origin: 'drive',
         options: {
             folderId,
             fileNameType: 'Random',
