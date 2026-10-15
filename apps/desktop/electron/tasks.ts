@@ -1,6 +1,6 @@
-import { mkdirSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { extname, join } from 'node:path';
 
 import { app, dialog, nativeImage, shell } from 'electron';
 import log from 'electron-log/main';
@@ -36,6 +36,18 @@ export const formatFileName = (pattern: string, title = '') => {
 
 export const saveFolder = () =>
     getSettings().save.folder || join(app.getPath('pictures'), 'Fileship');
+
+export const uniquePath = (folder: string, name: string) => {
+    const extension = extname(name);
+    const base = name.slice(0, name.length - extension.length);
+    let path = join(folder, name);
+
+    for (let index = 2; existsSync(path); index++) {
+        path = join(folder, `${base} (${index})${extension}`);
+    }
+
+    return path;
+};
 
 export const finishUpload = async (historyId: string, file: { url: string; id: string }) => {
     const { afterUpload } = getSettings();
@@ -134,7 +146,7 @@ export const handleImage = async (
     if (afterCapture.saveToFile) {
         const folder = saveFolder();
         mkdirSync(folder, { recursive: true });
-        localPath = join(folder, name);
+        localPath = uniquePath(folder, name);
         writeFileSync(localPath, png);
     }
 

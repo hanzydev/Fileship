@@ -1,7 +1,7 @@
 import { type ChildProcess, execFile, spawn } from 'node:child_process';
 import { mkdir, rm, stat, writeFile } from 'node:fs/promises';
 import { createServer, type Server, type Socket } from 'node:net';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { promisify } from 'node:util';
 
 import { app, BrowserWindow, desktopCapturer, screen, session } from 'electron';
@@ -19,7 +19,7 @@ import { physicalBounds } from '../capture';
 import { native, type Rect } from '../native';
 import { openRegionCapture } from '../overlay';
 import { getSettings } from '../store';
-import { formatFileName, handleRecording, saveFolder } from '../tasks';
+import { formatFileName, handleRecording, saveFolder, uniquePath } from '../tasks';
 import { refreshTray } from '../tray';
 import { notifyIdle } from '../updater';
 import { mimeTypeOf } from '../mime';
@@ -387,11 +387,15 @@ const produce = async (recording: Recording) => {
     const extension = kind === 'gif' ? 'gif' : settings.recording.container;
     const isSaved = settings.afterCapture.saveToFile || !settings.afterCapture.upload;
     const folder = isSaved ? saveFolder() : recording.folder;
-    const name = `${formatFileName(settings.save.pattern) || 'recording'}.${extension}`;
-    const output = join(folder, name);
+    await mkdir(folder, { recursive: true });
+
+    const output = uniquePath(
+        folder,
+        `${formatFileName(settings.save.pattern) || 'recording'}.${extension}`,
+    );
+    const name = basename(output);
     const input = segmentInput(segments, list);
 
-    await mkdir(folder, { recursive: true });
     await runFfmpeg(
         ffmpeg,
         kind === 'gif'
