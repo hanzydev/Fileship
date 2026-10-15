@@ -13,3 +13,6 @@ export const assertFileNameAllowed = (fileName: string) => {
         });
     }
 };
+
+export const isValidFileName = (fileName: string) =>
+    /^[a-zA-Z0-9-_.]{3,255}$/.test(fileName) && !fileName.startsWith('.') && !isUuid(fileName);
