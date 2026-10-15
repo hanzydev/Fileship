@@ -86,6 +86,15 @@ export const virtualScreen = (): Rect => {
     return { x: left, y: top, width: right - left, height: bottom - top };
 };
 
+export const intersectRects = (a: Rect, b: Rect): Rect | null => {
+    const x = Math.max(a.x, b.x);
+    const y = Math.max(a.y, b.y);
+    const right = Math.min(a.x + a.width, b.x + b.width);
+    const bottom = Math.min(a.y + a.height, b.y + b.height);
+
+    return right > x && bottom > y ? { x, y, width: right - x, height: bottom - y } : null;
+};
+
 export const captureRect = async (rect: Rect, sound = true): Promise<Shot> => {
     const { showCursor } = getSettings().capture;
     const [data] = await native.captureRects([rect], { cursor: showCursor });

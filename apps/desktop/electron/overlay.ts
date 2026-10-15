@@ -10,6 +10,7 @@ import {
     captureActiveMonitor,
     captureFullscreen,
     captureRect,
+    intersectRects,
     physicalBounds,
     playShutter,
     snapshotDisplays,
@@ -24,10 +25,10 @@ import { hardenWebContents, rendererUrl } from './windows';
 const OVERLAY_IDLE_MS = 2 * 60 * 1000;
 const OVERLAY_LOAD_TIMEOUT_MS = 5000;
 
-const overlays = new Map<number, BrowserWindow>();
-const loading = new Map<number, Promise<boolean>>();
-const loaded = new Map<number, () => void>();
-const pending = new Map<number, { done: () => void; timer: NodeJS.Timeout }>();
+let overlay: BrowserWindow | null = null;
+let loading: Promise<boolean> | null = null;
+let markLoaded: (() => void) | null = null;
+let pendingReveal: { done: () => void; timer: NodeJS.Timeout } | null = null;
 let idleTimer: NodeJS.Timeout | null = null;
 let isOpen = false;
 let purpose: OverlayPurpose = 'capture';
@@ -35,9 +36,12 @@ let onArea: ((rect: Rect) => void) | null = null;
 let onImage: ((image: Bitmap) => void) | null = null;
 let lastRegion: Rect | null = null;
 
-const createOverlay = (display: Electron.Display) => {
+const isSameRect = (a: Rect, b: Rect) =>
+    a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+
+const createOverlay = () => {
     const window = new BrowserWindow({
-        ...display.bounds,
+        ...screen.screenToDipRect(null, virtualScreen()),
         show: false,
         frame: false,
         resizable: false,
@@ -59,144 +63,128 @@ const createOverlay = (display: Electron.Display) => {
         },
     });
 
-    const isLoaded = new Promise<boolean>((resolve) => {
+    loading = new Promise<boolean>((resolve) => {
         const timer = setTimeout(() => resolve(false), OVERLAY_LOAD_TIMEOUT_MS);
 
-        loaded.set(display.id, () => {
+        markLoaded = () => {
             clearTimeout(timer);
-            loaded.delete(display.id);
+            markLoaded = null;
             resolve(true);
-        });
+        };
     });
 
     const handleGone = (reason: string) => {
-        if (overlays.get(display.id) !== window) return;
+        if (overlay !== window) return;
 
-        log.warn('A capture overlay stopped', reason);
-        resetOverlays();
+        log.warn('The capture overlay stopped', reason);
+        resetOverlay();
     };
 
     window.webContents.on('render-process-gone', (_, details) => handleGone(details.reason));
     window.on('unresponsive', () => handleGone('unresponsive'));
     hardenWebContents(window);
     window.setAlwaysOnTop(true, 'screen-saver');
-    window.loadURL(rendererUrl(`/overlay?display=${display.id}`));
+    window.loadURL(rendererUrl('/overlay'));
     window.on('closed', () => {
-        if (overlays.get(display.id) !== window) return;
+        if (overlay !== window) return;
 
-        overlays.delete(display.id);
-        loading.delete(display.id);
-        loaded.delete(display.id);
+        overlay = null;
+        loading = null;
+        markLoaded = null;
     });
 
-    overlays.set(display.id, window);
-    loading.set(display.id, isLoaded);
+    overlay = window;
 };
 
-const destroyOverlay = (id: number) => {
-    const window = overlays.get(id);
+const destroyOverlay = () => {
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = null;
 
-    overlays.delete(id);
-    loading.delete(id);
-    loaded.delete(id);
+    const window = overlay;
+    overlay = null;
+    loading = null;
+    markLoaded = null;
 
     if (window && !window.isDestroyed()) window.destroy();
 };
 
-const destroyOverlays = () => {
-    if (idleTimer) clearTimeout(idleTimer);
-    idleTimer = null;
-
-    for (const id of [...overlays.keys()]) destroyOverlay(id);
-};
-
 const clearPending = () => {
-    for (const { timer } of pending.values()) clearTimeout(timer);
-    pending.clear();
+    if (pendingReveal) clearTimeout(pendingReveal.timer);
+    pendingReveal = null;
 };
 
-const resetOverlays = () => {
-    destroyOverlays();
+const resetOverlay = () => {
+    destroyOverlay();
     clearPending();
     isOpen = false;
     onArea = null;
 };
 
-const createMissing = (displays: Electron.Display[]) => {
-    for (const display of displays) {
-        if (!overlays.get(display.id) || overlays.get(display.id)!.isDestroyed()) {
-            createOverlay(display);
-        }
+const ensureOverlay = async () => {
+    for (let attempt = 0; attempt < 2; attempt++) {
+        if (!overlay || overlay.isDestroyed()) createOverlay();
+        if (await loading) return overlay!;
+
+        log.warn('The capture overlay did not load, recreating it');
+        destroyOverlay();
     }
 
-    return Promise.all(displays.map((display) => loading.get(display.id) ?? false));
+    throw new Error('The capture overlay did not load');
 };
 
-const ensureOverlays = async () => {
-    const displays = screen.getAllDisplays();
-    const results = await createMissing(displays);
-    const failed = displays.filter((_, index) => !results[index]);
+const placeOverlay = (window: BrowserWindow, bounds: Rect) => {
+    window.setBounds(screen.screenToDipRect(null, bounds));
+    if (isSameRect(screen.dipToScreenRect(window, window.getBounds()), bounds)) return;
 
-    if (!failed.length) return;
+    window.setBounds(screen.screenToDipRect(window, bounds));
 
-    log.warn('Capture overlays did not load, recreating them', failed.length);
-    for (const display of failed) destroyOverlay(display.id);
-
-    if ((await createMissing(failed)).some((isLoaded) => !isLoaded)) {
-        throw new Error('The capture overlay did not load');
-    }
+    const placed = screen.dipToScreenRect(window, window.getBounds());
+    if (!isSameRect(placed, bounds)) log.warn('The capture overlay is misplaced', placed, bounds);
 };
 
-export const markOverlayLoaded = (displayId: number) => loaded.get(displayId)?.();
+export const markOverlayLoaded = () => markLoaded?.();
 
 export const watchDisplays = () => {
     for (const event of ['display-added', 'display-removed', 'display-metrics-changed'] as const) {
         screen.on(event as 'display-added', () => {
-            if (!isOpen) destroyOverlays();
+            if (!isOpen) destroyOverlay();
         });
     }
 };
 
-export const markOverlayReady = (displayId: number) => pending.get(displayId)?.done();
+export const markOverlayReady = () => pendingReveal?.done();
 
-const reveal = (id: number, window: BrowserWindow, isActive: boolean) => {
+const reveal = (window: BrowserWindow) => {
     const done = () => {
         clearTimeout(timer);
-        pending.delete(id);
+        pendingReveal = null;
         if (!window.isDestroyed()) window.setOpacity(1);
     };
 
     const timer = setTimeout(done, 400);
-    pending.set(id, { done, timer });
+    pendingReveal = { done, timer };
 
     window.setOpacity(0);
+    window.show();
+    window.focus();
 
-    if (isActive) {
-        window.show();
-        window.focus();
-
-        try {
-            native.forceForeground(windowHandle(window));
-        } catch (error) {
-            log.warn('Could not focus the capture overlay', error);
-        }
-    } else {
-        window.showInactive();
+    try {
+        native.forceForeground(windowHandle(window));
+    } catch (error) {
+        log.warn('Could not focus the capture overlay', error);
     }
 };
 
-const hideOverlays = () => {
+const hideOverlay = () => {
     isOpen = false;
     clearPending();
 
     if (idleTimer) clearTimeout(idleTimer);
-    idleTimer = setTimeout(destroyOverlays, OVERLAY_IDLE_MS);
+    idleTimer = setTimeout(destroyOverlay, OVERLAY_IDLE_MS);
 
-    for (const window of overlays.values()) {
-        if (!window.isDestroyed()) {
-            window.webContents.send('overlay:close', null);
-            window.hide();
-        }
+    if (overlay && !overlay.isDestroyed()) {
+        overlay.webContents.send('overlay:close', null);
+        overlay.hide();
     }
 };
 
@@ -214,65 +202,36 @@ export const openRegionCapture = async (
     if (idleTimer) clearTimeout(idleTimer);
     idleTimer = null;
 
-    const cursor = screen.getCursorScreenPoint();
-    const active = screen.getDisplayNearestPoint(cursor);
     const { capture } = getSettings();
 
     try {
-        const [shots] = await Promise.all([snapshotDisplays(), ensureOverlays()]);
+        const [shots, window] = await Promise.all([snapshotDisplays(), ensureOverlay()]);
+        const bounds = virtualScreen();
+        const primary = screen.getPrimaryDisplay();
 
-        for (const shot of shots) {
-            const window = overlays.get(shot.display.id);
-            if (!window || window.isDestroyed()) continue;
-
-            const { bounds, scaleFactor } = shot.display;
-            const toLocal = (rect: Rect) => {
-                const dip = screen.screenToDipRect(null, rect);
-                return { ...dip, x: dip.x - bounds.x, y: dip.y - bounds.y };
-            };
-
-            const payload: OverlayPayload = {
-                displayId: shot.display.id,
-                index: screen.getAllDisplays().findIndex((d) => d.id === shot.display.id),
-                width: shot.physical.width,
-                height: shot.physical.height,
-                scaleFactor,
+        const payload: OverlayPayload = {
+            bounds,
+            displays: shots.map((shot) => ({
+                id: shot.display.id,
+                rect: shot.physical,
+                scaleFactor: shot.display.scaleFactor,
+                isPrimary: shot.display.id === primary.id,
                 pixels: shot.data,
-                windows: shot.windows.map((item) => ({
-                    ...toLocal(item),
-                    title: item.title,
-                    controls: item.controls.map(toLocal),
-                })),
-                cursor: { x: cursor.x - bounds.x, y: cursor.y - bounds.y },
-                showMagnifier: capture.showMagnifier,
-                quickCrop: capture.quickCrop,
-                isActive: shot.display.id === active.id,
-                purpose,
-            };
+            })),
+            windows: shots[0]?.windows ?? [],
+            cursor: screen.dipToScreenPoint(screen.getCursorScreenPoint()),
+            showMagnifier: capture.showMagnifier,
+            quickCrop: capture.quickCrop,
+            purpose,
+        };
 
-            window.setBounds(bounds);
-            window.webContents.send('overlay:open', payload);
-        }
-
-        for (const [id, window] of overlays) {
-            if (!window.isDestroyed()) reveal(id, window, id === active.id);
-        }
+        placeOverlay(window, bounds);
+        window.webContents.send('overlay:open', payload);
+        reveal(window);
     } catch (error) {
         log.error('Could not open region capture', error);
-        hideOverlays();
+        hideOverlay();
     }
-};
-
-const toScreenRect = (displayId: number, region: Rect) => {
-    const display = screen.getAllDisplays().find((item) => item.id === displayId);
-    if (!display) return null;
-
-    return screen.dipToScreenRect(null, {
-        x: display.bounds.x + region.x,
-        y: display.bounds.y + region.y,
-        width: region.width,
-        height: region.height,
-    });
 };
 
 const finishArea = (result: OverlayFinish) => {
@@ -288,10 +247,8 @@ const finishArea = (result: OverlayFinish) => {
         return;
     }
 
-    if (result.type === 'area' || result.type === 'region') {
-        const rect = toScreenRect(result.displayId, result.region);
-        if (rect && rect.width >= 2 && rect.height >= 2) callback(rect);
-    }
+    const rect = intersectRects(result.rect, virtualScreen());
+    if (rect && rect.width >= 2 && rect.height >= 2) callback(rect);
 };
 
 const finishImage = async (result: OverlayFinish) => {
@@ -315,7 +272,7 @@ const finishImage = async (result: OverlayFinish) => {
 };
 
 export const finishRegionCapture = async (result: OverlayFinish) => {
-    hideOverlays();
+    hideOverlay();
 
     if (purpose === 'ocr') return finishImage(result);
     if (purpose !== 'capture') return finishArea(result);
@@ -330,7 +287,7 @@ export const finishRegionCapture = async (result: OverlayFinish) => {
         return handleImage((await captureRect(physicalBounds(display))).image);
     }
 
-    lastRegion = toScreenRect(result.displayId, result.region) ?? lastRegion;
+    lastRegion = intersectRects(result.rect, virtualScreen()) ?? lastRegion;
     playShutter();
 
     return handleImage(bitmapFromRgba(result.rgba, result.width, result.height), {

@@ -116,8 +116,8 @@ const handlers: Handlers = {
     'capture:run': (action) => {
         runAction(action);
     },
-    'overlay:loaded': (displayId) => markOverlayLoaded(displayId),
-    'overlay:ready': (displayId) => markOverlayReady(displayId),
+    'overlay:loaded': () => markOverlayLoaded(),
+    'overlay:ready': () => markOverlayReady(),
     'overlay:finish': (result) => {
         runInBackground('Capture', () => finishRegionCapture(result));
     },

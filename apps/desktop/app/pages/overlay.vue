@@ -100,9 +100,12 @@
 </template>
 
 <script setup lang="ts">
-import type { LocalRect, OverlayFinish, OverlayPayload } from '../../shared/ipc';
+import type { OverlayFinish, OverlayPayload, ScreenRect } from '../../shared/ipc';
 
 type Point = { x: number; y: number };
+type LocalRect = ScreenRect;
+type LocalDisplay = { id: number; rect: LocalRect; scaleFactor: number; isPrimary: boolean };
+type LocalWindow = LocalRect & { controls: LocalRect[] };
 type Handle = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | 'move';
 type Mode = 'idle' | 'pending' | 'drawing' | 'selected' | 'moving' | 'resizing';
 type ToolbarEdge = 'top' | 'bottom' | 'left' | 'right' | null;
@@ -135,7 +138,6 @@ const annotationLayer = useTemplateRef('annotationLayer');
 const captureToolbar = useTemplateRef('captureToolbar');
 const recordToolbarElement = useTemplateRef('recordToolbarElement');
 
-const route = useRoute();
 const annotator = useAnnotator(annotationLayer);
 const captureToolbarSize = useElementSize(captureToolbar, undefined, { box: 'border-box' });
 const recordToolbarSize = useElementSize(recordToolbarElement, undefined, {
@@ -150,10 +152,12 @@ const toolbarPlacement = useLocalStorage<{ edge: ToolbarEdge; cx: number; cy: nu
 const toolbarDrag = ref<{ id: number; offset: Point; pointer: Point } | null>(null);
 
 const payload = shallowRef<OverlayPayload | null>(null);
+const displays = shallowRef<LocalDisplay[]>([]);
 const selection = ref<LocalRect | null>(null);
 const mode = ref<Mode>('idle');
 const cursor = ref('crosshair');
 
+let windows: LocalWindow[] = [];
 let pointer: Point | null = null;
 let hover: LocalRect | null = null;
 let hoverAnimation: { from: LocalRect; start: number } | null = null;
@@ -165,7 +169,19 @@ let isFinishing = false;
 
 const viewport = () => ({ x: 0, y: 0, width: window.innerWidth, height: window.innerHeight });
 
-const ratio = () => (payload.value ? payload.value.width / window.innerWidth : 1);
+const ratio = () => (payload.value ? payload.value.bounds.width / window.innerWidth : 1);
+
+const toLocal = (rect: ScreenRect): LocalRect => {
+    const { bounds } = payload.value!;
+    const scale = ratio();
+
+    return {
+        x: (rect.x - bounds.x) / scale,
+        y: (rect.y - bounds.y) / scale,
+        width: rect.width / scale,
+        height: rect.height / scale,
+    };
+};
 
 const contains = (rect: LocalRect, point: Point) =>
     point.x >= rect.x &&
@@ -202,15 +218,33 @@ const toPhysical = (rect: LocalRect) => {
     };
 };
 
+const toScreen = (rect: LocalRect): ScreenRect => {
+    const { bounds } = payload.value!;
+    const physical = toPhysical(rect);
+
+    return { ...physical, x: physical.x + bounds.x, y: physical.y + bounds.y };
+};
+
+const displayAt = (point: Point) =>
+    displays.value.find((item) => contains(item.rect, point)) ?? null;
+
+const covers = (rect: LocalRect, inner: LocalRect) =>
+    rect.x <= inner.x &&
+    rect.y <= inner.y &&
+    rect.x + rect.width >= inner.x + inner.width &&
+    rect.y + rect.height >= inner.y + inner.height;
+
 const targetAt = (point: Point) => {
-    const target = payload.value?.windows.find((item) => contains(item, point));
-    if (!target) return viewport();
+    const display = displayAt(point)?.rect ?? viewport();
+    const target = windows.find((item) => contains(item, point));
+    if (!target) return display;
 
     const control = target.controls
         .filter((item) => contains(item, point))
         .sort((a, b) => a.width * a.height - b.width * b.height)[0];
+    const rect = intersect(control ?? target, viewport());
 
-    return intersect(control ?? target, viewport()) ?? viewport();
+    return !rect || covers(rect, display) ? display : rect;
 };
 
 const handleAt = (point: Point): Handle | null => {
@@ -264,20 +298,20 @@ const isAnnotating = computed(
 );
 
 const hasCaptureToolbar = computed(
-    () =>
-        !!payload.value &&
-        payload.value.purpose === 'capture' &&
-        !payload.value.quickCrop &&
-        (payload.value.isActive || !!selection.value),
+    () => !!payload.value && payload.value.purpose === 'capture' && !payload.value.quickCrop,
+);
+
+const toolbarHost = computed(
+    () => (displays.value.find((item) => item.isPrimary) ?? displays.value[0])?.rect ?? viewport(),
 );
 
 const edgeAt = (point: Point): ToolbarEdge => {
-    const bounds = viewport();
+    const host = toolbarHost.value;
 
-    if (point.x < TOOLBAR_EDGE) return 'left';
-    if (point.x > bounds.width - TOOLBAR_EDGE) return 'right';
-    if (point.y < TOOLBAR_EDGE_Y) return 'top';
-    if (point.y > bounds.height - TOOLBAR_EDGE_Y) return 'bottom';
+    if (point.x < host.x + TOOLBAR_EDGE) return 'left';
+    if (point.x > host.x + host.width - TOOLBAR_EDGE) return 'right';
+    if (point.y < host.y + TOOLBAR_EDGE_Y) return 'top';
+    if (point.y > host.y + host.height - TOOLBAR_EDGE_Y) return 'bottom';
     return null;
 };
 
@@ -285,30 +319,26 @@ const magnet = (value: number, middle: number) =>
     Math.abs(value - middle) < TOOLBAR_MAGNET ? middle : value;
 
 const layoutToolbar = (edge: ToolbarEdge, center: Point) => {
-    const bounds = viewport();
+    const host = toolbarHost.value;
     const width = captureToolbarSize.width.value;
     const height = captureToolbarSize.height.value;
+    const minX = host.x + TOOLBAR_MARGIN;
+    const minY = host.y + TOOLBAR_MARGIN;
+    const maxX = host.x + host.width - TOOLBAR_MARGIN;
+    const maxY = host.y + host.height - TOOLBAR_MARGIN;
 
     let x = center.x;
     let y = center.y;
 
-    if (edge === 'left') x = TOOLBAR_MARGIN + width / 2;
-    if (edge === 'right') x = bounds.width - TOOLBAR_MARGIN - width / 2;
-    if (edge === 'top') y = TOOLBAR_MARGIN + height / 2;
-    if (edge === 'bottom') y = bounds.height - TOOLBAR_MARGIN - height / 2;
-    if (edge === 'left' || edge === 'right') y = magnet(y, bounds.height / 2);
-    if (edge === 'top' || edge === 'bottom') x = magnet(x, bounds.width / 2);
+    if (edge === 'left') x = minX + width / 2;
+    if (edge === 'right') x = maxX - width / 2;
+    if (edge === 'top') y = minY + height / 2;
+    if (edge === 'bottom') y = maxY - height / 2;
+    if (edge === 'left' || edge === 'right') y = magnet(y, host.y + host.height / 2);
+    if (edge === 'top' || edge === 'bottom') x = magnet(x, host.x + host.width / 2);
 
-    const left = clamp(
-        x - width / 2,
-        TOOLBAR_MARGIN,
-        Math.max(TOOLBAR_MARGIN, bounds.width - width - TOOLBAR_MARGIN),
-    );
-    const top = clamp(
-        y - height / 2,
-        TOOLBAR_MARGIN,
-        Math.max(TOOLBAR_MARGIN, bounds.height - height - TOOLBAR_MARGIN),
-    );
+    const left = clamp(x - width / 2, minX, Math.max(minX, maxX - width));
+    const top = clamp(y - height / 2, minY, Math.max(minY, maxY - height));
 
     return { left, top, center: { x: left + width / 2, y: top + height / 2 } };
 };
@@ -318,7 +348,7 @@ const currentEdge = computed(() =>
 );
 
 const currentLayout = computed(() => {
-    const bounds = viewport();
+    const host = toolbarHost.value;
     const drag = toolbarDrag.value;
     const isOnEdge = currentEdge.value !== null;
     const center = drag
@@ -331,8 +361,8 @@ const currentLayout = computed(() => {
                   : drag.pointer.y - drag.offset.y + captureToolbarSize.height.value / 2,
           }
         : {
-              x: toolbarPlacement.value.cx * bounds.width,
-              y: toolbarPlacement.value.cy * bounds.height,
+              x: host.x + toolbarPlacement.value.cx * host.width,
+              y: host.y + toolbarPlacement.value.cy * host.height,
           };
 
     return layoutToolbar(currentEdge.value, center);
@@ -377,13 +407,13 @@ const handleToolbarDragEnd = (event: PointerEvent) => {
     const drag = toolbarDrag.value;
     if (!drag || event.pointerId !== drag.id) return;
 
-    const bounds = viewport();
+    const host = toolbarHost.value;
     const { center } = currentLayout.value;
 
     toolbarPlacement.value = {
         edge: currentEdge.value,
-        cx: center.x / bounds.width,
-        cy: center.y / bounds.height,
+        cx: (center.x - host.x) / host.width,
+        cy: (center.y - host.y) / host.height,
     };
     toolbarDrag.value = null;
 };
@@ -460,15 +490,15 @@ const drawLabel = (context: CanvasRenderingContext2D, text: string, x: number, y
 
 const drawMagnifier = (context: CanvasRenderingContext2D, point: Point) => {
     const source = baseCanvas.value!;
-    const bounds = viewport();
+    const bounds = displayAt(point)?.rect ?? viewport();
     const size = MAGNIFIER_PIXELS * MAGNIFIER_ZOOM;
     const physical = toPhysical({ x: point.x, y: point.y, width: 0, height: 0 });
     const half = Math.floor(MAGNIFIER_PIXELS / 2);
 
     let x = point.x + 24;
     let y = point.y + 24;
-    if (x + size > bounds.width) x = point.x - size - 24;
-    if (y + size + 28 > bounds.height) y = point.y - size - 52;
+    if (x + size > bounds.x + bounds.width) x = point.x - size - 24;
+    if (y + size + 28 > bounds.y + bounds.height) y = point.y - size - 52;
 
     context.save();
     context.beginPath();
@@ -516,7 +546,8 @@ const drawMagnifier = (context: CanvasRenderingContext2D, point: Point) => {
     context.roundRect(x - 0.5, y - 0.5, size + 1, size + 1, 8);
     context.stroke();
 
-    drawLabel(context, `${physical.x}, ${physical.y}`, x, y + size + 6);
+    const { bounds: origin } = payload.value!;
+    drawLabel(context, `${physical.x + origin.x}, ${physical.y + origin.y}`, x, y + size + 6);
 };
 
 const render = () => {
@@ -624,21 +655,15 @@ const finish = (result: OverlayFinish) => {
 };
 
 const finishRegion = (rect: LocalRect) => {
-    if (isRecording.value) {
-        return finish({
-            type: 'area',
-            displayId: payload.value!.displayId,
-            region: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
-        });
-    }
+    const screenRect = toScreen(rect);
+    if (isRecording.value) return finish({ type: 'area', rect: screenRect });
 
-    const canvas = annotator.renderRegion(rect);
+    const canvas = annotator.renderRegion(toLocal(screenRect));
     const { data } = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height);
 
     finish({
         type: 'region',
-        displayId: payload.value!.displayId,
-        region: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+        rect: screenRect,
         width: canvas.width,
         height: canvas.height,
         rgba: new Uint8Array(data.buffer),
@@ -816,18 +841,8 @@ const handleKeyDown = (event: KeyboardEvent) => {
     scheduleRender();
 };
 
-const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
-
-const handleOpen = async (value: OverlayPayload) => {
-    reset();
-    isFinishing = false;
-    payload.value = value;
-
-    const canvas = baseCanvas.value!;
-    canvas.width = value.width;
-    canvas.height = value.height;
-
-    const bytes = value.pixels.byteOffset % 4 ? value.pixels.slice() : value.pixels;
+const toImageData = (pixels: Uint8Array, width: number, height: number) => {
+    const bytes = pixels.byteOffset % 4 ? pixels.slice() : pixels;
     const source = new Uint32Array(bytes.buffer, bytes.byteOffset, bytes.length / 4);
     const rgba = new Uint8ClampedArray(source.length * 4);
     const target = new Uint32Array(rgba.buffer);
@@ -837,12 +852,47 @@ const handleOpen = async (value: OverlayPayload) => {
         target[i] = (pixel & 0xff00ff00) | ((pixel & 0xff) << 16) | ((pixel >>> 16) & 0xff);
     }
 
-    canvas.getContext('2d')!.putImageData(new ImageData(rgba, value.width, value.height), 0, 0);
+    return new ImageData(rgba, width, height);
+};
 
-    if (value.isActive) {
-        pointer = value.cursor;
-        hover = targetAt(value.cursor);
+const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+
+const handleOpen = async (value: OverlayPayload) => {
+    reset();
+    isFinishing = false;
+    payload.value = value;
+
+    const { bounds } = value;
+    const canvas = baseCanvas.value!;
+    canvas.width = bounds.width;
+    canvas.height = bounds.height;
+
+    const context = canvas.getContext('2d')!;
+    context.fillStyle = '#000000';
+    context.fillRect(0, 0, bounds.width, bounds.height);
+
+    for (const display of value.displays) {
+        context.putImageData(
+            toImageData(display.pixels, display.rect.width, display.rect.height),
+            display.rect.x - bounds.x,
+            display.rect.y - bounds.y,
+        );
     }
+
+    displays.value = value.displays.map((item) => ({
+        id: item.id,
+        rect: toLocal(item.rect),
+        scaleFactor: item.scaleFactor,
+        isPrimary: item.isPrimary,
+    }));
+    windows = value.windows.map((item) => ({
+        ...toLocal(item),
+        controls: item.controls.map(toLocal),
+    }));
+
+    const cursorPoint = toLocal({ ...value.cursor, width: 0, height: 0 });
+    pointer = { x: cursorPoint.x, y: cursorPoint.y };
+    hover = targetAt(pointer);
 
     annotator.resize(window.innerWidth, window.innerHeight);
     annotator.setSource(canvas, ratio());
@@ -851,11 +901,13 @@ const handleOpen = async (value: OverlayPayload) => {
 
     await nextFrame();
     await nextFrame();
-    desktop('overlay:ready', value.displayId);
+    desktop('overlay:ready');
 };
 
 const handleClose = () => {
     payload.value = null;
+    displays.value = [];
+    windows = [];
     reset();
     annotator.unmount();
 
@@ -884,7 +936,7 @@ onMounted(() => {
         offClose();
     });
 
-    desktop('overlay:loaded', Number(route.query.display));
+    desktop('overlay:loaded');
 });
 
 definePageMeta({

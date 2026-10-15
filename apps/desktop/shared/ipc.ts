@@ -95,20 +95,23 @@ export type FfmpegStatus = {
     download: { progress: number; error: string | null } | null;
 };
 
-export type LocalRect = { x: number; y: number; width: number; height: number };
+export type ScreenRect = { x: number; y: number; width: number; height: number };
+
+export type OverlayDisplay = {
+    id: number;
+    rect: ScreenRect;
+    scaleFactor: number;
+    isPrimary: boolean;
+    pixels: Uint8Array;
+};
 
 export type OverlayPayload = {
-    displayId: number;
-    index: number;
-    width: number;
-    height: number;
-    scaleFactor: number;
-    pixels: Uint8Array;
-    windows: (LocalRect & { title: string; controls: LocalRect[] })[];
+    bounds: ScreenRect;
+    displays: OverlayDisplay[];
+    windows: (ScreenRect & { title: string; controls: ScreenRect[] })[];
     cursor: { x: number; y: number };
     showMagnifier: boolean;
     quickCrop: boolean;
-    isActive: boolean;
     purpose: OverlayPurpose;
 };
 
@@ -116,15 +119,8 @@ export type OverlayFinish =
     | { type: 'cancel' }
     | { type: 'fullscreen' }
     | { type: 'monitor'; index: number }
-    | { type: 'area'; displayId: number; region: LocalRect }
-    | {
-          type: 'region';
-          displayId: number;
-          region: LocalRect;
-          width: number;
-          height: number;
-          rgba: Uint8Array;
-      };
+    | { type: 'area'; rect: ScreenRect }
+    | { type: 'region'; rect: ScreenRect; width: number; height: number; rgba: Uint8Array };
 
 export type Folder = { id: string; name: string };
 
@@ -161,8 +157,8 @@ export type IpcInvoke = {
     'updates:check': () => void;
     'updates:install': () => void;
     'capture:run': (action: HotkeyAction) => void;
-    'overlay:loaded': (displayId: number) => void;
-    'overlay:ready': (displayId: number) => void;
+    'overlay:loaded': () => void;
+    'overlay:ready': () => void;
     'overlay:finish': (result: OverlayFinish) => void;
     'history:list': (offset: number, limit: number) => { items: HistoryItem[]; total: number };
     'history:copy': (id: string) => void;
