@@ -249,10 +249,7 @@ const addFiles = (newFiles: File[] | null) => {
     if (!newFiles?.length) return;
 
     tab.value = 'files';
-    files.value = [
-        ...files.value,
-        ...newFiles.filter((f) => !files.value.some((file) => file.name === f.name)),
-    ];
+    files.value = mergeFiles(files.value, newFiles);
 };
 
 const handleUpload = async () => {

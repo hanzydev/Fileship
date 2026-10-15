@@ -173,10 +173,7 @@ const addFiles = (files: File[] | null) => {
     if (!files?.length) return;
 
     isDone.value = false;
-    uploadingFiles.value = [
-        ...uploadingFiles.value,
-        ...files.filter((f) => !uploadingFiles.value.some((file) => file.name === f.name)),
-    ];
+    uploadingFiles.value = mergeFiles(uploadingFiles.value, files);
 };
 
 const handlePassword = async (password: string) => {
