@@ -44,10 +44,10 @@
                             @load="isLoaded = true"
                             @error="isLoaded = true"
                         />
-                        <UiSkeleton v-if="hasMedia && !isLoaded" class="absolute inset-0" />
                         <div v-else class="flex size-full items-center justify-center">
                             <component :is="fileIcon" class="size-10 text-muted-foreground" />
                         </div>
+                        <UiSkeleton v-if="hasMedia && !isLoaded" class="absolute inset-0" />
 
                         <div
                             v-if="isVideo"
