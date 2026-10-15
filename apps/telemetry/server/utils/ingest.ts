@@ -7,11 +7,7 @@ const MAX_CLOCK_SKEW = 24 * 60 * 60 * 1000;
 
 export const limitReports = async (event: H3Event, instanceId: string) => {
     await rateLimit(`report:${instanceId}`, 30, 60 * 60_000);
-    await rateLimit(
-        `reportSender:${getRequestIP(event, { xForwardedFor: true })}`,
-        120,
-        60 * 60_000,
-    );
+    await rateLimit(`reportSender:${getClientIp(event)}`, 120, 60 * 60_000);
 };
 
 export const saveReport = async (
