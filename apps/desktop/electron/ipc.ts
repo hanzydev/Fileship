@@ -2,6 +2,7 @@ import { existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { app, dialog, globalShortcut, ipcMain, nativeTheme, shell } from 'electron';
+import log from 'electron-log/main';
 
 import { type Folder, INVOKE_CHANNELS, type IpcInvoke } from '../shared/ipc';
 import { checkInstance, getAccount, login, logout } from './account';
@@ -34,12 +35,19 @@ import { editHistoryImage } from './tasks';
 import { refreshTray } from './tray';
 import { checkForUpdates, getUpdateStatus, installUpdate } from './updater';
 import { getUploadProgress, resetUploadSettings } from './upload';
-import { isAppUrl, openWebUrl, setWindowTheme } from './windows';
+import { isAppUrl, notify, openWebUrl, setWindowTheme } from './windows';
 
 type Handlers = {
     [K in keyof IpcInvoke]: (
         ...args: Parameters<IpcInvoke[K]>
     ) => ReturnType<IpcInvoke[K]> | Promise<ReturnType<IpcInvoke[K]>>;
+};
+
+const runInBackground = (label: string, task: () => Promise<unknown>) => {
+    task().catch((error) => {
+        log.error(`${label} failed`, error);
+        notify('Something went wrong', error.message);
+    });
 };
 
 const applySettings = () => {
@@ -98,7 +106,7 @@ const handlers: Handlers = {
     'overlay:loaded': (displayId) => markOverlayLoaded(displayId),
     'overlay:ready': (displayId) => markOverlayReady(displayId),
     'overlay:finish': (result) => {
-        finishRegionCapture(result);
+        runInBackground('Capture', () => finishRegionCapture(result));
     },
     'history:list': (offset, limit) => listHistory(offset, limit),
     'history:copy': async (id) => {
@@ -159,7 +167,7 @@ const handlers: Handlers = {
     'recorder:ready': (error) => markRecorderReady(error),
     'recorder:audio': (track, chunk) => writeRecordingAudio(track, chunk),
     'recorder:control': (action) => {
-        controlRecording(action);
+        runInBackground('Recorder', () => controlRecording(action));
     },
     'recorder:mute': (source, muted) => setRecordingMute(source, muted),
     'recorder:visible': (view) => showRecorderWindow(view),
