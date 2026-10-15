@@ -44,10 +44,7 @@ export default defineEventHandler(async (event) => {
                           folderId: findFolderById.id,
                           deletedAt: null,
                           password: { not: null },
-                          OR: [
-                              { fileName: { contains: query.q, mode: 'insensitive' } },
-                              { name: { contains: query.q, mode: 'insensitive' } },
-                          ],
+                          fileName: { contains: query.q, mode: 'insensitive' },
                       },
                       select: { id: true },
                   })
@@ -132,7 +129,7 @@ export default defineEventHandler(async (event) => {
                 ? {
                       id: file.id,
                       fileName: file.fileName,
-                      name: file.name,
+                      name: file.fileName,
                       mimeType: file.mimeType,
                       size: { raw: file.size.toString(), formatted: filesize(file.size) },
                       createdAt: file.createdAt,
