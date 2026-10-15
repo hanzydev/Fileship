@@ -92,6 +92,7 @@ export default defineEventHandler(async (event) => {
 
     await removeFileData(userFiles);
     await removeBackupData(userBackups);
+    await abortUploadSessions(join(dataDirectory, 'temp', userId!));
     await rm(join(dataDirectory, 'temp', userId!), { recursive: true, force: true });
 
     await prisma.$transaction([

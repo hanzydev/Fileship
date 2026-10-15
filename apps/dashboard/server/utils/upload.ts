@@ -72,6 +72,12 @@ const uploadSessionPaths = async (directory: string) =>
         .filter((name) => name.endsWith('.upload.json'))
         .map((name) => join(directory, name.slice(0, -'.json'.length)));
 
+export const abortUploadSessions = async (directory: string) => {
+    for (const path of await uploadSessionPaths(directory)) {
+        await abortUploadSession(path).catch(() => null);
+    }
+};
+
 export const pendingUploadKeys = async () => {
     const tempPath = join(dataDirectory, 'temp');
     const keys = new Set<string>();
