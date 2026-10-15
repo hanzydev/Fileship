@@ -31,6 +31,8 @@ allowBuilds:
   argon2: true
   bufferutil: true
   cpu-features: false
+  electron: true
+  electron-winstaller: false
   esbuild: true
   onnxruntime-node: false
   prisma: true
