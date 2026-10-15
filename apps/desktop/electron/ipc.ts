@@ -6,6 +6,7 @@ import { runAction, uploadPath } from './actions';
 import { api } from './api';
 import { writeText } from './clipboard';
 import { closeDashboard, openDashboard } from './dashboard';
+import { finishEditor, getEditorImage } from './editor';
 import { clearHistory, getHistory, listHistory, removeHistory } from './history';
 import {
     getHotkeyStatus,
@@ -29,6 +30,7 @@ import {
     writeRecordingAudio,
 } from './recording/recorder';
 import { getSettings, updateSettings } from './store';
+import { editHistoryImage } from './tasks';
 import { refreshTray } from './tray';
 import { checkForUpdates, getUpdateStatus, installUpdate } from './updater';
 import { getUploadProgress, resetUploadSettings } from './upload';
@@ -108,6 +110,9 @@ const handlers: Handlers = {
         if (item?.localPath) shell.showItemInFolder(item.localPath);
     },
     'history:remove': (id) => removeHistory(id),
+    'history:edit': (id) => editHistoryImage(id),
+    'editor:get': (id) => getEditorImage(id),
+    'editor:finish': (id, result) => finishEditor(id, result),
     'history:clear': () => clearHistory(),
     'uploads:paths': (paths) => {
         for (const path of paths) uploadPath(path);

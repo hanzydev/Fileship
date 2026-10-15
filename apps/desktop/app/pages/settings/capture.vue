@@ -88,6 +88,12 @@ const sections: {
                 description: 'Upload the screenshot with your upload settings.',
             },
             {
+                key: 'annotate',
+                label: 'Open the editor',
+                description:
+                    'Draw, blur and add text before the next steps. Region captures are edited while you select.',
+            },
+            {
                 key: 'copyImage',
                 label: 'Copy image',
                 description: 'Put the image itself on the clipboard.',

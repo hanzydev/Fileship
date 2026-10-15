@@ -1,12 +1,14 @@
 import { mkdirSync, statSync, writeFileSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { app, Notification, shell } from 'electron';
+import { app, dialog, nativeImage, Notification, shell } from 'electron';
 import log from 'electron-log/main';
 
 import type { HistoryKind } from '../shared/ipc';
 import { writeImage, writeText } from './clipboard';
-import { addHistory, updateHistory } from './history';
+import { openEditor } from './editor';
+import { addHistory, getHistory, updateHistory } from './history';
 import { getSettings } from './store';
 import { shortenUrl, uploadFile, type UploadSource } from './upload';
 import { iconPath } from './windows';
@@ -81,13 +83,51 @@ export const uploadAndFinish = async (historyId: string, file: UploadSource) => 
     }
 };
 
+const continueLabel = () => {
+    const { afterCapture } = getSettings();
+    if (afterCapture.upload) return 'Upload';
+    if (afterCapture.saveToFile) return 'Save';
+    return 'Copy';
+};
+
+const saveImageAs = async (image: Electron.NativeImage, name: string) => {
+    const result = await dialog.showSaveDialog({
+        defaultPath: join(saveFolder(), name),
+        filters: [{ name: 'PNG image', extensions: ['png'] }],
+    });
+
+    if (result.canceled || !result.filePath) return;
+
+    await writeFile(result.filePath, image.toPNG());
+    notify('Image saved', result.filePath);
+};
+
+const runEditor = async (image: Electron.NativeImage, name: string) => {
+    const result = await openEditor(image, { name, continueLabel: continueLabel() });
+
+    if (result.action === 'copy') {
+        await writeImage(result.image);
+        notify('Image copied', 'Paste it anywhere.');
+    } else if (result.action === 'save') {
+        await saveImageAs(result.image, name);
+    }
+
+    return result.action === 'continue' ? result.image : null;
+};
+
 export const handleImage = async (
-    image: Electron.NativeImage,
-    options: { title?: string; kind?: HistoryKind } = {},
+    captured: Electron.NativeImage,
+    options: { title?: string; kind?: HistoryKind; isEdited?: boolean } = {},
 ) => {
     const { afterCapture, save } = getSettings();
-    const png = image.toPNG();
     const name = `${formatFileName(save.pattern, options.title) || 'capture'}.png`;
+
+    const image =
+        afterCapture.annotate && !options.isEdited ? await runEditor(captured, name) : captured;
+
+    if (!image) return null;
+
+    const png = image.toPNG();
 
     let localPath: string | null = null;
 
@@ -159,4 +199,15 @@ export const handleRecording = async (file: {
     }
 
     return entry;
+};
+
+export const editHistoryImage = async (id: string) => {
+    const item = getHistory(id);
+    if (!item?.localPath) throw new Error('Only screenshots saved on this computer can be edited.');
+
+    const image = nativeImage.createFromPath(item.localPath);
+    if (image.isEmpty()) throw new Error('The saved screenshot could not be opened.');
+
+    const edited = await runEditor(image, item.name);
+    if (edited) await handleImage(edited, { isEdited: true });
 };

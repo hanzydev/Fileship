@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 
-import { BrowserWindow, nativeImage, screen } from 'electron';
+import { BrowserWindow, screen } from 'electron';
 import log from 'electron-log/main';
 
 import type { OverlayFinish, OverlayPayload, OverlayPurpose } from '../shared/ipc';
@@ -8,6 +8,7 @@ import {
     captureActiveMonitor,
     captureFullscreen,
     captureRect,
+    imageFromRgba,
     physicalBounds,
     snapshotDisplays,
     virtualScreen,
@@ -208,17 +209,9 @@ export const finishRegionCapture = async (result: OverlayFinish) => {
 
     lastRegion = toScreenRect(result.displayId, result.region) ?? lastRegion;
 
-    const pixels = Buffer.from(result.rgba.buffer, result.rgba.byteOffset, result.rgba.byteLength);
-
-    for (let i = 0; i < pixels.length; i += 4) {
-        const red = pixels[i]!;
-        pixels[i] = pixels[i + 2]!;
-        pixels[i + 2] = red;
-    }
-
-    return handleImage(
-        nativeImage.createFromBitmap(pixels, { width: result.width, height: result.height }),
-    );
+    return handleImage(imageFromRgba(result.rgba, result.width, result.height), {
+        isEdited: true,
+    });
 };
 
 export const captureLastRegion = () => {

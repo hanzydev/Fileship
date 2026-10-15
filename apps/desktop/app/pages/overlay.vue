@@ -10,26 +10,57 @@
         @contextmenu.prevent="handleRightClick"
     >
         <canvas ref="baseCanvas" class="absolute inset-0 size-full" />
-        <canvas ref="drawCanvas" class="absolute inset-0 size-full" />
+        <div
+            ref="annotationLayer"
+            :class="cn('absolute inset-0', !isAnnotating && 'pointer-events-none')"
+        />
+        <canvas ref="drawCanvas" class="pointer-events-none absolute inset-0 size-full" />
 
         <div
             v-if="toolbar"
-            class="absolute flex items-center gap-1 rounded-4xl border bg-popover p-1 text-popover-foreground shadow-md"
+            ref="toolbarElement"
+            class="absolute rounded-4xl border bg-popover p-1 text-popover-foreground shadow-md"
             :style="{ left: `${toolbar.x}px`, top: `${toolbar.y}px` }"
             @mousedown.stop
             @mouseup.stop
             @dblclick.stop
+            @contextmenu.stop.prevent
         >
-            <UiButton size="icon-sm" variant="ghost" @click="handleCancel">
-                <IX />
-            </UiButton>
-            <UiButton v-if="isRecording" size="sm" variant="destructive" @click="handleConfirm">
-                <ICircle class="fill-current" />
-                {{ payload?.purpose === 'gif' ? 'Record GIF' : 'Record' }}
-            </UiButton>
-            <UiButton v-else size="icon-sm" @click="handleConfirm">
-                <ICheck />
-            </UiButton>
+            <AnnotationToolbar v-if="!isRecording" :annotator="annotator">
+                <template #start>
+                    <UiToggle
+                        size="sm"
+                        aria-label="Adjust area"
+                        :model-value="!annotator.tool.value"
+                        @update:model-value="annotator.tool.value = null"
+                    >
+                        <IScan />
+                    </UiToggle>
+                </template>
+                <template #actions>
+                    <UiButton
+                        size="icon-sm"
+                        variant="ghost"
+                        aria-label="Cancel"
+                        @click="handleCancel"
+                    >
+                        <IX />
+                    </UiButton>
+                    <UiButton size="icon-sm" aria-label="Capture" @click="handleConfirm">
+                        <ICheck />
+                    </UiButton>
+                </template>
+            </AnnotationToolbar>
+
+            <div v-else class="flex items-center gap-1">
+                <UiButton size="icon-sm" variant="ghost" aria-label="Cancel" @click="handleCancel">
+                    <IX />
+                </UiButton>
+                <UiButton size="sm" variant="destructive" @click="handleConfirm">
+                    <ICircle class="fill-current" />
+                    {{ payload?.purpose === 'gif' ? 'Record GIF' : 'Record' }}
+                </UiButton>
+            </div>
         </div>
     </div>
 </template>
@@ -45,8 +76,6 @@ const HANDLE_SIZE = 8;
 const DRAG_THRESHOLD = 3;
 const MAGNIFIER_PIXELS = 15;
 const MAGNIFIER_ZOOM = 8;
-const TOOLBAR_WIDTH = 82;
-const TOOLBAR_HEIGHT = 42;
 
 const CURSORS: Record<Handle, string> = {
     n: 'ns-resize',
@@ -62,6 +91,11 @@ const CURSORS: Record<Handle, string> = {
 
 const baseCanvas = useTemplateRef('baseCanvas');
 const drawCanvas = useTemplateRef('drawCanvas');
+const annotationLayer = useTemplateRef('annotationLayer');
+const toolbarElement = useTemplateRef('toolbarElement');
+
+const annotator = useAnnotator(annotationLayer);
+const toolbarSize = useElementSize(toolbarElement, undefined, { box: 'border-box' });
 
 const payload = shallowRef<OverlayPayload | null>(null);
 const selection = ref<LocalRect | null>(null);
@@ -166,18 +200,26 @@ const moveRect = (origin: LocalRect, dx: number, dy: number) => {
     };
 };
 
+const isRecording = computed(() => !!payload.value && payload.value.purpose !== 'capture');
+
+const isAnnotating = computed(
+    () => mode.value === 'selected' && !isRecording.value && !!annotator.tool.value,
+);
+
 const toolbar = computed(() => {
     const rect = selection.value;
     if (!rect || mode.value !== 'selected') return null;
 
     const bounds = viewport();
-    const x = clamp(rect.x + rect.width - TOOLBAR_WIDTH, 8, bounds.width - TOOLBAR_WIDTH - 8);
+    const width = toolbarSize.width.value || 82;
+    const height = toolbarSize.height.value || 42;
+    const x = clamp(rect.x + rect.width - width, 8, Math.max(8, bounds.width - width - 8));
     const below = rect.y + rect.height + 8;
-    const above = rect.y - TOOLBAR_HEIGHT - 8;
+    const above = rect.y - height - 8;
 
-    if (below + TOOLBAR_HEIGHT <= bounds.height) return { x, y: below };
+    if (below + height <= bounds.height) return { x, y: below };
     if (above >= 0) return { x, y: above };
-    return { x, y: rect.y + rect.height - TOOLBAR_HEIGHT - 8 };
+    return { x, y: Math.max(8, rect.y + rect.height - height - 8) };
 });
 
 const themeColor = (name: string) =>
@@ -347,6 +389,8 @@ const reset = () => {
     dragStart = null;
     dragOrigin = null;
     dragHandle = null;
+    annotator.reset();
+    annotator.tool.value = null;
 };
 
 const finish = (result: OverlayFinish) => {
@@ -360,8 +404,6 @@ const finish = (result: OverlayFinish) => {
         });
 };
 
-const isRecording = computed(() => !!payload.value && payload.value.purpose !== 'capture');
-
 const finishRegion = (rect: LocalRect) => {
     if (isRecording.value) {
         return finish({
@@ -371,34 +413,15 @@ const finishRegion = (rect: LocalRect) => {
         });
     }
 
-    const source = baseCanvas.value!;
-    const physical = toPhysical(rect);
-    const canvas = document.createElement('canvas');
-
-    canvas.width = physical.width;
-    canvas.height = physical.height;
-
-    const context = canvas.getContext('2d')!;
-    context.drawImage(
-        source,
-        physical.x,
-        physical.y,
-        physical.width,
-        physical.height,
-        0,
-        0,
-        physical.width,
-        physical.height,
-    );
-
-    const { data } = context.getImageData(0, 0, physical.width, physical.height);
+    const canvas = annotator.renderRegion(rect);
+    const { data } = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height);
 
     finish({
         type: 'region',
         displayId: payload.value!.displayId,
         region: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
-        width: physical.width,
-        height: physical.height,
+        width: canvas.width,
+        height: canvas.height,
         rgba: new Uint8Array(data.buffer),
     });
 };
@@ -406,7 +429,7 @@ const finishRegion = (rect: LocalRect) => {
 const pointFrom = (event: MouseEvent): Point => ({ x: event.clientX, y: event.clientY });
 
 const handleMouseDown = (event: MouseEvent) => {
-    if (event.button !== 0 || !payload.value) return;
+    if (event.button !== 0 || !payload.value || isAnnotating.value) return;
 
     const point = pointFrom(event);
     const handle = mode.value === 'selected' ? handleAt(point) : null;
@@ -426,7 +449,7 @@ const handleMouseDown = (event: MouseEvent) => {
 };
 
 const handleMouseMove = (event: MouseEvent) => {
-    if (!payload.value) return;
+    if (!payload.value || isAnnotating.value) return;
 
     const point = pointFrom(event);
     pointer = point;
@@ -469,7 +492,7 @@ const handleMouseMove = (event: MouseEvent) => {
 };
 
 const handleMouseUp = (event: MouseEvent) => {
-    if (event.button !== 0 || !payload.value) return;
+    if (event.button !== 0 || !payload.value || isAnnotating.value) return;
 
     if (mode.value === 'pending') {
         selection.value = targetAt(pointFrom(event));
@@ -499,12 +522,19 @@ const handleMouseLeave = () => {
 };
 
 const handleDoubleClick = (event: MouseEvent) => {
+    if (isAnnotating.value) return;
+
     if (selection.value && contains(selection.value, pointFrom(event))) {
         finishRegion(selection.value);
     }
 };
 
 const handleRightClick = () => {
+    if (isAnnotating.value) {
+        annotator.select(null);
+        return;
+    }
+
     if (mode.value === 'idle' && !selection.value) return finish({ type: 'cancel' });
 
     selection.value = null;
@@ -520,9 +550,18 @@ const handleConfirm = () => {
 };
 
 const handleKeyDown = (event: KeyboardEvent) => {
-    if (!payload.value) return;
+    if (!payload.value || annotator.isEditingText.value) return;
 
-    if (event.key === 'Escape') return finish({ type: 'cancel' });
+    if (event.key === 'Escape') {
+        if (annotator.selectedId.value) return annotator.select(null);
+        return finish({ type: 'cancel' });
+    }
+
+    if (mode.value === 'selected' && !isRecording.value && annotator.handleKey(event)) {
+        event.preventDefault();
+        return;
+    }
+
     if (event.key === ' ') return finish({ type: 'fullscreen' });
 
     if (event.key === 'Enter') {
@@ -543,7 +582,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
     };
 
     const arrow = arrows[event.key];
-    if (!arrow || mode.value !== 'selected' || !selection.value) return;
+    if (!arrow || mode.value !== 'selected' || !selection.value || annotator.tool.value) return;
 
     event.preventDefault();
 
@@ -586,6 +625,8 @@ const handleOpen = async (value: OverlayPayload) => {
         hover = targetAt(value.cursor);
     }
 
+    annotator.resize(window.innerWidth, window.innerHeight);
+    annotator.setSource(canvas, ratio());
     resizeDrawCanvas();
     render();
 
@@ -607,6 +648,9 @@ useEventListener('keydown', handleKeyDown);
 useEventListener('resize', resizeDrawCanvas);
 
 onMounted(() => {
+    annotator.mount(window.innerWidth, window.innerHeight);
+    annotator.tool.value = null;
+
     const offOpen = window.fileship.on('overlay:open', handleOpen);
     const offClose = window.fileship.on('overlay:close', handleClose);
 

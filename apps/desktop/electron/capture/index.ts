@@ -26,6 +26,18 @@ export const virtualScreen = (): Rect => {
     return { x: left, y: top, width: right - left, height: bottom - top };
 };
 
+export const imageFromRgba = (rgba: Uint8Array, width: number, height: number) => {
+    const pixels = Buffer.from(rgba.buffer, rgba.byteOffset, rgba.byteLength);
+
+    for (let i = 0; i < pixels.length; i += 4) {
+        const red = pixels[i]!;
+        pixels[i] = pixels[i + 2]!;
+        pixels[i + 2] = red;
+    }
+
+    return nativeImage.createFromBitmap(pixels, { width, height });
+};
+
 export const toImage = (rect: Rect, data: Buffer) =>
     nativeImage.createFromBitmap(data, { width: rect.width, height: rect.height });
 

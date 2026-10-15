@@ -128,6 +128,12 @@ export type OverlayFinish =
 
 export type Folder = { id: string; name: string };
 
+export type EditorImage = { png: Uint8Array; name: string; continueLabel: string };
+
+export type EditorFinish =
+    | { action: 'cancel' }
+    | { action: 'continue' | 'copy' | 'save'; width: number; height: number; rgba: Uint8Array };
+
 export type AppInfo = {
     version: string;
     isPackaged: boolean;
@@ -155,6 +161,9 @@ export type IpcInvoke = {
     'history:open': (id: string) => void;
     'history:showFile': (id: string) => void;
     'history:remove': (id: string) => void;
+    'history:edit': (id: string) => void;
+    'editor:get': (id: string) => EditorImage;
+    'editor:finish': (id: string, result: EditorFinish) => void;
     'history:clear': () => void;
     'uploads:paths': (paths: string[]) => void;
     'uploads:progress': () => UploadProgress[];
@@ -210,6 +219,9 @@ export const INVOKE_CHANNELS = [
     'history:open',
     'history:showFile',
     'history:remove',
+    'history:edit',
+    'editor:get',
+    'editor:finish',
     'history:clear',
     'uploads:paths',
     'uploads:progress',
