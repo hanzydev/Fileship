@@ -14,7 +14,7 @@
                     id="start-at-login"
                     :model-value="settings?.startAtLogin"
                     :disabled="!settings"
-                    @update:model-value="handleUpdate({ startAtLogin: $event })"
+                    @update:model-value="updateSettings({ startAtLogin: $event })"
                 />
             </UiField>
         </UiCardContent>
@@ -47,22 +47,6 @@
 </template>
 
 <script setup lang="ts">
-import type { Settings } from '../../../shared/ipc';
-
 const colorMode = useColorMode();
-const { $toast } = useNuxtApp();
-
-const settings = ref<Settings | null>(null);
-
-const handleUpdate = async (patch: Partial<Settings>) => {
-    try {
-        settings.value = await desktop('settings:set', patch);
-    } catch (error: any) {
-        $toast.error(error.message);
-    }
-};
-
-onMounted(async () => {
-    settings.value = await desktop('settings:get');
-});
+const settings = useSettings();
 </script>

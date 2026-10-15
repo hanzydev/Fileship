@@ -50,12 +50,15 @@
 </template>
 
 <script setup lang="ts">
-import { IDownload, ISlidersHorizontal, IUser } from '#components';
+import { ICamera, IDownload, IKeyboard, ISlidersHorizontal, IUpload, IUser } from '#components';
 
 const route = useRoute();
 
 const sections = [
     { label: 'General', path: '/settings/general', icon: ISlidersHorizontal },
+    { label: 'Hotkeys', path: '/settings/hotkeys', icon: IKeyboard },
+    { label: 'Capture', path: '/settings/capture', icon: ICamera },
+    { label: 'Upload', path: '/settings/upload', icon: IUpload },
     { label: 'Account', path: '/settings/account', icon: IUser },
     { label: 'Updates', path: '/settings/updates', icon: IDownload },
 ];

@@ -30,6 +30,9 @@ const updateStatus = useUpdateStatus();
 const breadcrumbLabels = {
     settings: 'Settings',
     general: 'General',
+    hotkeys: 'Hotkeys',
+    capture: 'Capture',
+    upload: 'Upload',
     account: 'Account',
     updates: 'Updates',
 };
