@@ -19,6 +19,7 @@ const storeSchema = z.object({
     instanceUrl: z.string().nullable().default(null),
     siteName: z.string().default('Fileship'),
     token: z.string().nullable().default(null),
+    uploadPassword: z.string().nullable().default(null),
     user: userSchema.nullable().default(null),
     settings: settingsSchema.prefault({}),
     driveRoot: z.string().nullable().default(null),
@@ -40,6 +41,32 @@ const storePath = () => join(app.getPath('userData'), 'settings.json');
 
 let data: StoreData | null = null;
 
+const encrypt = (value: string) => safeStorage.encryptString(value).toString('base64');
+
+const decrypt = (value: string | null) => {
+    if (!value) return null;
+
+    try {
+        return safeStorage.decryptString(Buffer.from(value, 'base64'));
+    } catch {
+        return null;
+    }
+};
+
+const withoutPassword = (settings: Settings): Settings => ({
+    ...settings,
+    upload: { ...settings.upload, password: '' },
+});
+
+const migratePassword = (stored: StoreData) => {
+    const password = stored.settings.upload.password;
+    if (!password || !safeStorage.isEncryptionAvailable()) return false;
+
+    stored.uploadPassword = encrypt(password);
+    stored.settings = withoutPassword(stored.settings);
+    return true;
+};
+
 const load = (): StoreData => {
     if (data) return data;
 
@@ -48,6 +75,8 @@ const load = (): StoreData => {
     } catch {
         data = storeSchema.parse({});
     }
+
+    if (migratePassword(data)) save();
 
     return data;
 };
@@ -67,21 +96,26 @@ export const updateStore = (patch: Partial<StoreData>) => {
     return data;
 };
 
-export const getSettings = (): Settings => load().settings;
+export const getSettings = (): Settings => {
+    const { settings, uploadPassword } = load();
+    if (settings.upload.password || !uploadPassword) return settings;
 
-export const updateSettings = (patch: Partial<Settings>) =>
-    updateStore({ settings: settingsSchema.parse({ ...load().settings, ...patch }) }).settings;
-
-export const getToken = () => {
-    const token = load().token;
-    if (!token) return null;
-
-    try {
-        return safeStorage.decryptString(Buffer.from(token, 'base64'));
-    } catch {
-        return null;
-    }
+    return { ...settings, upload: { ...settings.upload, password: decrypt(uploadPassword) ?? '' } };
 };
+
+export const updateSettings = (patch: Partial<Settings>) => {
+    const settings = settingsSchema.parse({ ...getSettings(), ...patch });
+    const { password } = settings.upload;
+
+    updateStore({
+        settings: withoutPassword(settings),
+        uploadPassword: password ? encrypt(password) : null,
+    });
+
+    return settings;
+};
+
+export const getToken = () => decrypt(load().token);
 
 export const setSession = (session: {
     instanceUrl: string;
@@ -91,7 +125,7 @@ export const setSession = (session: {
 }) =>
     updateStore({
         ...session,
-        token: safeStorage.encryptString(session.token).toString('base64'),
+        token: encrypt(session.token),
     });
 
 export const clearSession = () => updateStore({ token: null, user: null });
