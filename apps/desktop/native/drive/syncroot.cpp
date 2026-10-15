@@ -1,0 +1,138 @@
+#include "common.h"
+
+#include <sddl.h>
+
+#include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Security.Cryptography.h>
+#include <winrt/Windows.Storage.Provider.h>
+#include <winrt/Windows.Storage.h>
+
+using namespace winrt;
+using namespace Windows::Security::Cryptography;
+using namespace Windows::Storage;
+using namespace Windows::Storage::Provider;
+
+namespace drive {
+
+namespace {
+
+CF_CONNECTION_KEY currentKey{};
+bool isConnected = false;
+
+std::wstring userSid() {
+    HANDLE token = nullptr;
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token)) throw_last_error();
+
+    DWORD size = 0;
+    GetTokenInformation(token, TokenUser, nullptr, 0, &size);
+    std::vector<BYTE> buffer(size);
+
+    if (!GetTokenInformation(token, TokenUser, buffer.data(), size, &size)) {
+        CloseHandle(token);
+        throw_last_error();
+    }
+
+    CloseHandle(token);
+
+    LPWSTR text = nullptr;
+    if (!ConvertSidToStringSidW(reinterpret_cast<TOKEN_USER*>(buffer.data())->User.Sid, &text)) {
+        throw_last_error();
+    }
+
+    std::wstring sid(text);
+    LocalFree(text);
+    return sid;
+}
+
+void CALLBACK onFetchData(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters) {
+    fetchData(info, parameters);
+}
+
+void CALLBACK onCancelFetchData(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const*) {
+    cancelFetch(info);
+}
+
+void CALLBACK onNotifyDelete(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters) {
+    askDelete(info, parameters);
+}
+
+void CALLBACK onNotifyRename(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters) {
+    askRename(info, parameters);
+}
+
+CF_CALLBACK_REGISTRATION callbacks[] = {
+    {CF_CALLBACK_TYPE_FETCH_DATA, onFetchData},
+    {CF_CALLBACK_TYPE_CANCEL_FETCH_DATA, onCancelFetchData},
+    {CF_CALLBACK_TYPE_NOTIFY_DELETE, onNotifyDelete},
+    {CF_CALLBACK_TYPE_NOTIFY_RENAME, onNotifyRename},
+    CF_CALLBACK_REGISTRATION_END,
+};
+
+}
+
+CF_CONNECTION_KEY connectionKey() {
+    return currentKey;
+}
+
+std::wstring syncRootId() {
+    return L"Fileship!" + userSid() + L"!" + config().syncRootId;
+}
+
+void registerSyncRoot() {
+    auto const& settings = config();
+
+    StorageProviderSyncRootInfo info;
+    info.Id(syncRootId());
+    info.Path(StorageFolder::GetFolderFromPathAsync(settings.root).get());
+    info.DisplayNameResource(settings.displayName);
+    info.IconResource(settings.iconPath);
+    info.HydrationPolicy(StorageProviderHydrationPolicy::Full);
+    info.HydrationPolicyModifier(StorageProviderHydrationPolicyModifier::AutoDehydrationAllowed);
+    info.PopulationPolicy(StorageProviderPopulationPolicy::AlwaysFull);
+    info.InSyncPolicy(StorageProviderInSyncPolicy::FileCreationTime |
+                      StorageProviderInSyncPolicy::DirectoryCreationTime);
+    info.HardlinkPolicy(StorageProviderHardlinkPolicy::None);
+    info.ShowSiblingsAsGroup(false);
+    info.AllowPinning(true);
+    info.Version(settings.version);
+    info.Context(CryptographicBuffer::ConvertStringToBinary(syncRootId(), BinaryStringEncoding::Utf8));
+
+    StorageProviderSyncRootManager::Register(info);
+}
+
+void unregisterSyncRoot(std::wstring const& id) {
+    try {
+        StorageProviderSyncRootManager::Unregister(id);
+    } catch (hresult_error const& error) {
+        log(L"Unregister failed: " + std::wstring(error.message()));
+    }
+}
+
+void unregisterAll() {
+    for (auto const& root : StorageProviderSyncRootManager::GetCurrentSyncRoots()) {
+        std::wstring id(root.Id());
+        if (id.starts_with(L"Fileship!")) unregisterSyncRoot(id);
+    }
+}
+
+void connectSyncRoot() {
+    if (isConnected) return;
+
+    check_hresult(CfConnectSyncRoot(
+        config().root.c_str(),
+        callbacks,
+        nullptr,
+        CF_CONNECT_FLAG_REQUIRE_PROCESS_INFO | CF_CONNECT_FLAG_REQUIRE_FULL_FILE_PATH,
+        &currentKey));
+
+    isConnected = true;
+}
+
+void disconnectSyncRoot() {
+    if (!isConnected) return;
+
+    CfDisconnectSyncRoot(currentKey);
+    isConnected = false;
+}
+
+}
