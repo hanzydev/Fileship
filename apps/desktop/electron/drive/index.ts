@@ -42,6 +42,7 @@ type ApiFolder = { id: string; name: string; createdAt: string; deletedAt?: stri
 const PAGE_SIZE = 200;
 const APPLY_DELAY_MS = 300;
 const RETRY_DELAY_MS = 2000;
+const RETRY_DELAYS_MS = [5000, 15_000, 60_000];
 
 let helper: DriveHelper | null = null;
 let socket: Socket | null = null;
@@ -50,6 +51,10 @@ let status: DriveStatus = { state: 'off', root: '', files: 0, folders: 0, error:
 let queue: Promise<unknown> = Promise.resolve();
 let applyTimer: NodeJS.Timeout | null = null;
 let isStopping = false;
+let isSynced = false;
+let lifecycle: Promise<unknown> = Promise.resolve();
+let retryTimer: NodeJS.Timeout | null = null;
+let retries = 0;
 
 const folders = new Map<string, RemoteFolder>();
 const files = new Map<string, RemoteFile>();
@@ -254,6 +259,13 @@ const reload = () =>
 
             handleHelperEvent(event);
         }
+    });
+
+const resync = () =>
+    reload().catch((error) => {
+        log.warn('Could not reload the drive', error);
+        isSynced = false;
+        scheduleRetry(error.message);
     });
 
 const isMissing = (error: unknown) => error instanceof ApiError && error.status === 404;
@@ -607,10 +619,10 @@ const connectSocket = () => {
     });
 
     for (const event of ['folder:delete', 'trash:restore', 'currentUser:update']) {
-        socket.on(event, () => reload());
+        socket.on(event, () => resync());
     }
 
-    socket.io.on('reconnect', () => reload());
+    socket.io.on('reconnect', () => resync());
 };
 
 const syncRootKey = () => {
@@ -623,48 +635,73 @@ const holdsDrive = async (current: DriveHelper) => {
     return items.some((item) => item.identity && !isPendingIdentity(item.identity));
 };
 
-export const startDrive = async () => {
-    const { user, instanceUrl, siteName } = getStore();
-    const token = getToken();
+const isAllowed = () => {
+    const { user, instanceUrl } = getStore();
+    return getSettings().drive.enabled && !!user && !!instanceUrl && !!getToken();
+};
 
-    if (helper || !getSettings().drive.enabled || !user || !instanceUrl || !token) return;
+const clearRetry = () => {
+    if (retryTimer) clearTimeout(retryTimer);
+    retryTimer = null;
+};
 
-    if (!isHelperAvailable()) {
-        setStatus({ state: 'error', error: 'The drive helper is missing from this build.' });
-        return;
-    }
+const scheduleRetry = (error: string) => {
+    clearRetry();
+    setStatus({ state: 'error', error });
+
+    const delay = RETRY_DELAYS_MS[Math.min(retries, RETRY_DELAYS_MS.length - 1)]!;
+    retries++;
+    retryTimer = setTimeout(() => {
+        retryTimer = null;
+        startDrive();
+    }, delay);
+};
+
+const serialize = <T>(task: () => Promise<T>) => {
+    const run = lifecycle.then(task, task);
+    lifecycle = run.catch(() => null);
+    return run;
+};
+
+const shutDown = async (current: DriveHelper) => {
+    isStopping = true;
+    isSynced = false;
+    socket?.disconnect();
+    socket = null;
+    await current.stop();
+    if (helper === current) helper = null;
+};
+
+const launch = async () => {
+    const { instanceUrl, siteName } = getStore();
+    const current = new DriveHelper();
 
     root = driveRoot();
     isStopping = false;
-
-    const isUnknownRoot = getStore().driveRoot !== root && existsSync(root) && !isEmptyFolder(root);
-
-    mkdirSync(root, { recursive: true });
     setStatus({ state: 'starting', root, error: null });
-
-    const current = new DriveHelper();
-    helper = current;
 
     current.on('exit', (code) => {
         if (helper !== current) return;
 
         helper = null;
+        isSynced = false;
         socket?.disconnect();
         socket = null;
 
         if (!isStopping) {
             log.warn('The drive helper stopped', code);
-            setStatus({
-                state: 'error',
-                error: 'The drive stopped. It restarts in a few seconds.',
-            });
-            setTimeout(() => startDrive(), 5000);
+            scheduleRetry('The drive stopped. It restarts in a few seconds.');
         }
     });
 
-    current.start();
-
     try {
+        const isUnknownRoot =
+            getStore().driveRoot !== root && existsSync(root) && !isEmptyFolder(root);
+
+        mkdirSync(root, { recursive: true });
+        helper = current;
+        current.start();
+
         await current.request('init', {
             root,
             syncRootId: syncRootKey(),
@@ -673,98 +710,125 @@ export const startDrive = async () => {
             version: app.getVersion(),
             instanceUrl,
             userAgent: desktopUserAgent(),
-            token,
+            token: getToken(),
         });
 
         if (isUnknownRoot && !(await holdsDrive(current))) {
             await current.request('unregister').catch(() => null);
-            isStopping = true;
-            await current.stop();
-            helper = null;
+            await shutDown(current);
             setStatus({
                 state: 'error',
                 error: `${root} is not empty. Choose an empty folder for the drive.`,
             });
-            return;
+            return false;
         }
 
         updateStore({ driveRoot: root });
         current.on('event', handleHelperEvent);
-        await reload();
-        connectSocket();
+        return true;
     } catch (error: any) {
         log.error('Could not start the drive', error);
-        setStatus({ state: 'error', error: error.message });
+        await shutDown(current);
+        scheduleRetry(error.message);
+        return false;
     }
 };
 
-export const stopDrive = async (options: { remove?: boolean; forget?: boolean } = {}) => {
-    if (options.forget) updateStore({ driveRoot: null });
+export const startDrive = () =>
+    serialize(async () => {
+        clearRetry();
 
-    const current = helper;
-    if (!current) return;
+        if (!isAllowed() || (helper && isSynced)) return;
 
-    isStopping = true;
-    socket?.disconnect();
-    socket = null;
-
-    if (applyTimer) clearTimeout(applyTimer);
-    await queue.catch(() => null);
-
-    if (options.remove) {
-        const { items } = await current
-            .request<{ items: ScanItem[] }>('scan')
-            .catch(() => ({ items: [] as ScanItem[] }));
-
-        const synced = new Set(
-            items
-                .filter(
-                    (item) =>
-                        item.identity &&
-                        !isPendingIdentity(item.identity) &&
-                        item.inSync &&
-                        !item.modified,
-                )
-                .map((item) => item.path),
-        );
-
-        const placeholders = [...local.values()]
-            .filter((item) => synced.has(item.path))
-            .sort((a, b) => Number(a.isFolder) - Number(b.isFolder));
-
-        for (const item of placeholders) {
-            if (item.isFolder && !isEmptyFolder(join(root, item.path))) continue;
-
-            await current.request('remove', { path: item.path }).catch((error) => {
-                log.warn('Could not remove', item.path, error);
-            });
+        if (!isHelperAvailable()) {
+            setStatus({ state: 'error', error: 'The drive helper is missing from this build.' });
+            return;
         }
 
-        await current
-            .request('unregister')
-            .catch((error) => log.warn('Could not unregister', error));
-    }
+        if (!helper && !(await launch())) return;
 
-    await current.stop();
-    helper = null;
-    local.clear();
-    files.clear();
-    folders.clear();
-
-    if (options.remove) {
         try {
-            if (!readdirSync(root).length) rmdirSync(root);
-        } catch {
-            log.warn('Could not remove the drive folder', root);
+            await reload();
+            if (!socket) connectSocket();
+            isSynced = true;
+            retries = 0;
+        } catch (error: any) {
+            log.error('Could not load the drive', error);
+            scheduleRetry(error.message);
         }
-    }
+    });
 
-    setStatus({ state: 'off', error: null });
-};
+export const stopDrive = (options: { remove?: boolean; forget?: boolean } = {}) =>
+    serialize(async () => {
+        clearRetry();
+        retries = 0;
 
-export const restartDrive = async () => {
-    await stopDrive({ remove: true });
-    await startDrive();
-};
+        if (options.forget) updateStore({ driveRoot: null });
+
+        const current = helper;
+
+        if (!current) {
+            if (status.state !== 'off') setStatus({ state: 'off', error: null });
+            return;
+        }
+
+        isStopping = true;
+        isSynced = false;
+        socket?.disconnect();
+        socket = null;
+
+        if (applyTimer) clearTimeout(applyTimer);
+        await queue.catch(() => null);
+
+        if (options.remove) {
+            const { items } = await current
+                .request<{ items: ScanItem[] }>('scan')
+                .catch(() => ({ items: [] as ScanItem[] }));
+
+            const synced = new Set(
+                items
+                    .filter(
+                        (item) =>
+                            item.identity &&
+                            !isPendingIdentity(item.identity) &&
+                            item.inSync &&
+                            !item.modified,
+                    )
+                    .map((item) => item.path),
+            );
+
+            const placeholders = [...local.values()]
+                .filter((item) => synced.has(item.path))
+                .sort((a, b) => Number(a.isFolder) - Number(b.isFolder));
+
+            for (const item of placeholders) {
+                if (item.isFolder && !isEmptyFolder(join(root, item.path))) continue;
+
+                await current.request('remove', { path: item.path }).catch((error) => {
+                    log.warn('Could not remove', item.path, error);
+                });
+            }
+
+            await current
+                .request('unregister')
+                .catch((error) => log.warn('Could not unregister', error));
+        }
+
+        await current.stop();
+        helper = null;
+        local.clear();
+        files.clear();
+        folders.clear();
+
+        if (options.remove) {
+            try {
+                if (!readdirSync(root).length) rmdirSync(root);
+            } catch {
+                log.warn('Could not remove the drive folder', root);
+            }
+        }
+
+        setStatus({ state: 'off', error: null });
+    });
 
 export const openDrive = () => shell.openPath(driveRoot());

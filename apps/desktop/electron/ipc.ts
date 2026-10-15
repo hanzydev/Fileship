@@ -75,14 +75,14 @@ const handlers: Handlers = {
         refreshTray();
     },
     'settings:get': () => getSettings(),
-    'settings:set': (patch) => {
+    'settings:set': async (patch) => {
         const previous = getSettings();
         const previousPath = previous.recording.ffmpegPath;
         const settings = updateSettings(patch);
 
         if (settings.drive.enabled !== previous.drive.enabled) {
             if (settings.drive.enabled) startDrive();
-            else stopDrive({ remove: true });
+            else await stopDrive({ remove: true });
         }
         if (settings.recording.ffmpegPath !== previousPath) resetFfmpegProbe();
         applySettings();
