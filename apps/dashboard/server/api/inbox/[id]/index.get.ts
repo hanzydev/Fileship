@@ -4,29 +4,22 @@ export default defineEventHandler(async (event) => {
     const inboxSlugOrId = getRouterParam(event, 'id');
     const query = getQuery(event);
 
-    const findInboxById = await prisma.inbox.findFirst({
-        where: {
-            OR: [
-                {
-                    id: inboxSlugOrId,
-                },
-                {
-                    slug: inboxSlugOrId,
-                },
-            ],
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                    avatar: true,
-                    permissions: true,
-                    superAdmin: true,
-                },
+    const include = {
+        user: {
+            select: {
+                id: true,
+                username: true,
+                avatar: true,
+                permissions: true,
+                superAdmin: true,
             },
         },
-    });
+    } as const;
+
+    const findInboxById =
+        (isUuid(inboxSlugOrId!)
+            ? await prisma.inbox.findUnique({ where: { id: inboxSlugOrId }, include })
+            : null) ?? (await prisma.inbox.findUnique({ where: { slug: inboxSlugOrId }, include }));
 
     if (!findInboxById?.enabled || !canUploadFiles(findInboxById.user)) {
         throw createError({

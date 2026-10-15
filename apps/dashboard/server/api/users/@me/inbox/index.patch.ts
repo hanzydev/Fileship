@@ -13,6 +13,12 @@ const validationSchema = z
                     .replace(/[^a-z0-9-_]/g, '')
                     .trim(),
             )
+            .pipe(
+                z
+                    .string()
+                    .min(1, 'Slug can only contain letters, numbers, dashes and underscores')
+                    .refine((value) => !isUuid(value), 'This slug is reserved'),
+            )
             .nullish(),
         password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
     })
