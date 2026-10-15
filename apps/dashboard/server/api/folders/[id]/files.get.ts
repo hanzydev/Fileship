@@ -60,6 +60,14 @@ export default defineEventHandler(async (event) => {
                   query.q,
                   findFolderById.authorId,
                   isOwner ? query.mode : 'fulltext',
+                  new Set(
+                      (
+                          await prisma.file.findMany({
+                              where: { folderId: findFolderById.id, deletedAt: null },
+                              select: { id: true },
+                          })
+                      ).map((file) => file.id),
+                  ),
               )),
               ...lockedIds,
           ]

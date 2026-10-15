@@ -215,17 +215,20 @@ export const searchFileIds = async (
     query: string,
     authorId: string,
     mode: 'vector' | 'fulltext' = 'fulltext',
+    scope?: Set<string>,
 ) => {
     const where = { authorId: { eq: authorId } };
+    const inScope = <T extends { id: string }>(hits: T[]) =>
+        scope ? hits.filter((hit) => scope.has(hit.id)) : hits;
 
-    const runFulltext = async (wholeWords = false) => {
-        const { hits } = await search(fileSearchDb, {
+    const searchFulltext = (limit: number) =>
+        search(fileSearchDb, {
             mode: 'fulltext',
             term: query,
             properties: ['fileName', 'caption', 'ocrText'],
             tolerance: 0,
             threshold: 0,
-            limit: SEARCH_LIMIT,
+            limit,
             where,
             boost: {
                 fileName: 4,
@@ -234,10 +237,16 @@ export const searchFileIds = async (
             },
         });
 
+    const runFulltext = async (wholeWords = false) => {
+        const first = await searchFulltext(SEARCH_LIMIT);
+        const { hits } =
+            scope && first.count > first.hits.length ? await searchFulltext(first.count) : first;
+
         const words = toWords(query);
+        const scoped = inScope(hits);
 
         return keepRelevant(
-            wholeWords ? hits.filter((hit) => containsWord(hit.document, words)) : hits,
+            wholeWords ? scoped.filter((hit) => containsWord(hit.document, words)) : scoped,
             0,
             FULLTEXT_RATIO,
         );
@@ -261,7 +270,7 @@ export const searchFileIds = async (
         if (!vector) return [];
 
         return keepRelevant(
-            searchFileVectors(authorId, kind, vector, cutoff.floor),
+            inScope(searchFileVectors(authorId, kind, vector, cutoff.floor)),
             cutoff.floor,
             cutoff.ratio,
         );
