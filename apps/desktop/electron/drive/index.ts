@@ -516,14 +516,19 @@ const handleLocalNew = async (event: Extract<HelperEvent, { type: 'localNew' }>)
         return;
     }
 
-    const pending = `p:${randomBytes(8).toString('hex')}`;
-
     pendingPaths.add(event.path);
     setStatus({ state: 'syncing' });
 
-    await helper!
-        .request('prepare', { path: event.path, identity: pending })
-        .catch((error) => log.warn('Could not prepare', event.path, error));
+    const generated = `p:${randomBytes(8).toString('hex')}`;
+    const prepared = await helper!
+        .request<{ identity?: string }>('prepare', { path: event.path, identity: generated })
+        .catch((error) => {
+            log.warn('Could not prepare', event.path, error);
+            return null;
+        });
+
+    const pending =
+        prepared?.identity && isPendingIdentity(prepared.identity) ? prepared.identity : generated;
 
     startUpload(
         event.path,

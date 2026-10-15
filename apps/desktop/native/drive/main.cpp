@@ -144,8 +144,9 @@ void handle(JsonObject const& request) {
             adoptPath(std::wstring(request.GetNamedString(L"path")),
                       std::wstring(request.GetNamedString(L"identity")));
         } else if (type == L"prepare") {
-            preparePath(std::wstring(request.GetNamedString(L"path")),
-                        std::wstring(request.GetNamedString(L"identity")));
+            auto identity = preparePath(std::wstring(request.GetNamedString(L"path")),
+                                        std::wstring(request.GetNamedString(L"identity")));
+            response.SetNamedValue(L"identity", JsonValue::CreateStringValue(identity));
         } else if (type == L"progress") {
             reportProgress(std::wstring(request.GetNamedString(L"path")),
                            static_cast<int64_t>(request.GetNamedNumber(L"total")),

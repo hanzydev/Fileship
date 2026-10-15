@@ -161,20 +161,21 @@ void adoptPath(std::wstring const& path, std::wstring const& identity) {
     if (!directory) updatePlaceholder(path, std::nullopt, true);
 }
 
-void preparePath(std::wstring const& path, std::wstring const& identity) {
+std::wstring preparePath(std::wstring const& path, std::wstring const& identity) {
     auto absolute = fullPath(path);
-    bool isPlaceholder = readIdentity(absolute, nullptr, nullptr).has_value();
+    auto existing = readIdentity(absolute, nullptr, nullptr);
     Handle handle(absolute, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES);
 
-    if (isPlaceholder) {
+    if (existing) {
         check_hresult(CfSetInSyncState(handle.value, CF_IN_SYNC_STATE_NOT_IN_SYNC, CF_SET_IN_SYNC_FLAG_NONE,
                                        nullptr));
-        return;
+        return existing->empty() ? identity : *existing;
     }
 
     check_hresult(CfConvertToPlaceholder(handle.value, identity.c_str(),
                                          static_cast<DWORD>(identity.size() * sizeof(wchar_t)),
                                          CF_CONVERT_FLAG_NONE, nullptr, nullptr));
+    return identity;
 }
 
 void reportProgress(std::wstring const& path, int64_t total, int64_t completed) {
