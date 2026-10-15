@@ -56,7 +56,7 @@ export const uploadFile = async (
 
     const fileChunkSize = usePublicSettings().value.fileChunkSize * 1024 * 1024;
 
-    const chunks = Math.ceil(file.size / fileChunkSize);
+    const chunks = Math.max(1, Math.ceil(file.size / fileChunkSize));
     const uploadingFile = uploadingFiles.value.find((f) => toRaw(f) === toRaw(file));
 
     if (!uploadingFile) return;
@@ -127,7 +127,9 @@ export const uploadFile = async (
                     const loaded = start + e.loaded;
                     const elapsedSeconds = Math.max((Date.now() - startedAt) / 1000, 0.001);
                     const speed = loaded / elapsedSeconds;
-                    const percent = clamp(Math.round((loaded / file.size) * 100), 0, 99);
+                    const percent = file.size
+                        ? clamp(Math.round((loaded / file.size) * 100), 0, 99)
+                        : 0;
                     const eta = Math.max(0, Math.round((file.size - loaded) / speed));
 
                     uploadingFile.status!.progress = { speed, percent, eta };
