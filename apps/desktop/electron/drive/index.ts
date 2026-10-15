@@ -11,7 +11,7 @@ import { handleUnauthorized } from '../account';
 import { mimeTypeOf } from '../mime';
 import { api, ApiError, desktopUserAgent } from '../api';
 import { getSettings, getStore, getToken, updateStore } from '../store';
-import { uploadFile } from '../upload';
+import { resetUploadSettings, uploadFile } from '../upload';
 import { broadcast } from '../windows';
 import {
     DriveHelper,
@@ -704,6 +704,7 @@ const connectSocket = () => {
         socket.on(event, () => resync());
     }
 
+    socket.on('settings:update', () => resetUploadSettings());
     socket.io.on('reconnect', () => resync());
 };
 

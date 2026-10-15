@@ -12,6 +12,7 @@ import { broadcast, getMainWindow } from './windows';
 
 const MAX_ATTEMPTS = 3;
 const MAX_CONCURRENT = 3;
+const LIMITS_TTL_MS = 5 * 60 * 1000;
 
 export type UploadedFile = {
     id: string;
@@ -37,7 +38,7 @@ type Job = UploadSource & {
 const queue: Job[] = [];
 const progress = new Map<string, UploadProgress>();
 let running = 0;
-let limits: { chunkSize: number; concurrency: number } | null = null;
+let limits: { chunkSize: number; concurrency: number; at: number } | null = null;
 
 export const getUploadSummary = () => {
     const items = [...progress.values()];
@@ -60,18 +61,20 @@ const publish = () => {
 export const isUploading = () => running > 0 || queue.length > 0;
 
 const getUploadLimits = async () => {
-    if (limits) return limits;
+    if (limits && Date.now() - limits.at < LIMITS_TTL_MS) return limits;
 
     const settings = await api<{ fileChunkSize?: number; uploadConcurrency?: number }>(
         '/api/settings/public',
     ).catch(() => null);
 
-    limits = {
+    const next = {
         chunkSize: (settings?.fileChunkSize ?? 25) * 1024 * 1024,
         concurrency: Math.max(1, settings?.uploadConcurrency ?? 1),
+        at: Date.now(),
     };
 
-    return limits;
+    if (settings) limits = next;
+    return next;
 };
 
 export const resetUploadSettings = () => {
