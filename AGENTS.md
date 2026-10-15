@@ -64,7 +64,8 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 
 - A Nuxt layer shipped as source. The dashboard and the telemetry panel use it through `extends: ['@fileship/ui']`, and its `components`, `composables`, `utils`, `layouts` and `plugins` are auto-imported there.
 - `app/components/ui`: shadcn-vue components (style `reka-luma`, see `packages/ui/components.json`). Run `shadcn-vue add` from `packages/ui`.
-- Generic components: `AppHeader` (sidebar trigger, breadcrumbs, theme toggle), `PageHeader`, `TextBlock`, `EmptyState`, `Centered`, `StatCard`, `StatsDonut`, `DataTable`, `VirtualList`, `ListCardSkeleton`, `PasswordInput`, `ConfirmDialog` and `AppToaster` (the Sonner toaster every app renders: `rounded-3xl` toasts with `buttonVariants` action and cancel buttons; `tailwind.css` releases vue-sonner's unlayered radius and button styles with `revert-layer` so those classes apply). Composables: `useConfirm`, `useQueryState`, `useBreadcrumbs`, `useBreadcrumbLabels`. Utils: `cn`, `pluralize`, `clamp`, `getErrorMessage`.
+- Generic components: `AppHeader` (sidebar trigger, breadcrumbs, theme toggle), `PageHeader`, `TextBlock`, `EmptyState`, `Centered`, `StatCard`, `StatsDonut`, `TrendChart`, `DataTable`, `VirtualList`, `ListCardSkeleton`, `PasswordInput`, `ConfirmDialog` and `AppToaster` (the Sonner toaster every app renders: `rounded-3xl` toasts with `buttonVariants` action and cancel buttons; `tailwind.css` releases vue-sonner's unlayered radius and button styles with `revert-layer` so those classes apply). Composables: `useConfirm`, `useQueryState`, `useBreadcrumbs`, `useBreadcrumbLabels`. Utils: `cn`, `pluralize`, `clamp`, `getErrorMessage`.
+- `app/error.vue` is the error page of every app. Its home button leads to the `home` app config (`{ path, label }`), which each app sets in its own `app/app.config.ts`.
 - `app/styles/tailwind.css` holds the Fileship theme tokens (light and dark). Each app imports it from its own `app/styles/tailwind.css` (`@import '@fileship/ui/app/styles/tailwind.css';`). The tokens set `color-scheme`, and the layer's `color-scheme` plugin writes the matching `<meta name="color-scheme">` from the color-mode preference (on the server from the cookie), so a browser paints the right canvas before the stylesheets load. The dashboard adds its accent colors after it; the panel uses only the default colors.
 - Inside the layer, `@/` and `~/` point to the app that extends it. Import layer files through `#layers/ui/...` instead, for example `#layers/ui/app/components/ui/sidebar`.
 - The layer declares every module and package it uses (`@nuxt/fonts`, `@nuxtjs/color-mode`, `@vueuse/nuxt`, `vue-sonner/nuxt`, `nuxt-lucide-icons`, `@nuxt/eslint`, Tailwind, reka-ui, Unovis, ...). Apps add only what they import themselves.
@@ -77,6 +78,7 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 - `app/middleware`: `userOnly`, `guestOnly`, `adminOnly`, `superAdminOnly`, `fileUploaderOnly`, `noteTakerOnly`, `linkShortenerOnly`.
 - `app/components`: app components, flat. The shadcn-vue components come from the ui layer.
 - `app/composables`: `useState` stores plus action composables (`useFileActions`, `useFolderActions`, `useNoteActions`).
+- `app/types`: the client data types (`FileData`, `FolderData`, `NoteData`, `LinkData`, `UserData`, `LogData`, `SessionData`, `BackupData`), imported with `import type` from `~/types/<name>`.
 - `app/utils`: client helpers (`socket.ts`, `uploadFile.ts`, ...).
 - `server/api`: REST endpoints (`auth`, `files`, `folders`, `inbox`, `links`, `logs`, `notes`, `settings`, `storages`, `trash`, `updater`, `users`, `stats`, `healthz`).
 - `server/routes/u/[id]`: raw file serving. `server/routes/s/[code]`: short link redirects.
@@ -92,9 +94,9 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 
 Reuse these instead of writing new versions.
 
-- `usePaginatedList(resource, endpoint, params, options)` (`app/composables/usePaginatedList.ts`): infinite list state (`items`, `total`, `summary`, `isLoading`, `hasMore`, `loadMore`, `refresh`). Socket events update every open list through `refreshLists`, `patchListItem`, `removeListItems` and `mapListItems`. `useListHandle` registers single items for detail pages.
+- `usePaginatedList(resource, endpoint, params, options)` (`app/composables/usePaginatedList.ts`): infinite list state (`items`, `total`, `summary`, `isLoading`, `isError`, `hasMore`, `loadMore`, `refresh`). Pages show an `EmptyState` with a retry (`refresh`) while `isError` is set; a failed background refresh keeps the items already shown. Socket events update every open list through `refreshLists`, `patchListItem`, `removeListItems` and `mapListItems`. `useListHandle` registers single items for detail pages.
 - `DataTable.vue`: window-virtualized table. Columns support `sortable` and `descFirst`; it switches to a `#card` slot below 640px of container width and emits `reachEnd`.
-- `VirtualList.vue`: window-virtualized responsive grid (`minItemWidth`, `gap`, `estimateSize`, `reachEnd`).
+- `VirtualList.vue`: window-virtualized responsive grid (`minItemWidth`, `gap`, `estimateSize`, `reachEnd`). With `contained` it virtualizes against its nearest scrolling ancestor instead (dropdowns, command lists, dialogs).
 - `useQueryState(key, default)`: a ref bound to the URL query. It drops defaults and batches updates.
 - `askConfirmation({ ..., action })` (`useConfirm.ts`): confirmation dialog that keeps a spinner until `action` resolves.
 - `withVerification(action)` (`useVerification.ts`): retries an action after a password, TOTP or passkey prompt when the API asks for verification.
