@@ -6,7 +6,7 @@ const validationSchema = z
     .object({
         fileName: z
             .string()
-            .transform((value) => value.replace(/[^a-zA-Z0-9-_.]/g, '').trim())
+            .transform((value) => toFileNameSlug(value))
             .pipe(
                 z
                     .string()

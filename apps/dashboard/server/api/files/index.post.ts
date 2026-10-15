@@ -112,9 +112,7 @@ export default defineEventHandler(async (event) => {
             compression: body.data.compression,
         },
         async () => {
-            let fileName = `${basename(file.name, extname(file.name)).replace(/[^a-zA-Z0-9-_.]/g, '')}${
-                extensionName
-            }`;
+            let fileName = `${fileNameBase(file.name) || nanoid(8)}${extensionName}`;
 
             if (body.data.fileNameType === 'Random') {
                 fileName = `${nanoid(8)}${extensionName}`;
@@ -122,13 +120,6 @@ export default defineEventHandler(async (event) => {
                 fileName = `${randomUUID()}${extensionName}`;
             } else {
                 assertFileNameAllowed(fileName);
-            }
-
-            if (!fileName.replaceAll('.', '') || fileName.startsWith('.')) {
-                throw createError({
-                    status: 400,
-                    message: 'Invalid file name',
-                });
             }
 
             const findFileByFileName = await prisma.file.findUnique({

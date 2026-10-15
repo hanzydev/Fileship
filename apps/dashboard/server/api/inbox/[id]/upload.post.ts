@@ -1,6 +1,5 @@
 import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
-import { basename, extname } from 'pathe';
 import { z } from 'zod';
 
 const validationSchema = z.object({
@@ -108,9 +107,8 @@ export default defineEventHandler(async (event) => {
             mimeType: file.type,
         },
         async () => {
-            const fileName = `${basename(file.name, extname(file.name)).replace(/[^a-zA-Z0-9-_.]/g, '')}-${nanoid(6)}${
-                extensionName
-            }`;
+            const base = fileNameBase(file.name);
+            const fileName = `${base ? `${base}-${nanoid(6)}` : nanoid(8)}${extensionName}`;
 
             const findFileByFileName = await prisma.file.findUnique({
                 where: {
