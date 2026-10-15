@@ -3,6 +3,11 @@ import { join } from 'node:path';
 
 import { moveAsideLocked, root, runWithMsvc, sourceFiles, writeVersionResource } from './msvc.mjs';
 
+if (process.platform !== 'win32') {
+    console.log('Skipping the drive helper build, it needs Windows and MSVC.');
+    process.exit(0);
+}
+
 const source = join(root, 'native', 'drive');
 const output = join(root, 'build', 'drive');
 const objects = join(output, 'obj');

@@ -4,6 +4,11 @@ import { dirname, join } from 'node:path';
 
 import { moveAsideLocked, root, runWithMsvc, sourceFiles, writeVersionResource } from './msvc.mjs';
 
+if (process.platform !== 'win32') {
+    console.log('Skipping the native addon build, it needs Windows and MSVC.');
+    process.exit(0);
+}
+
 const require = createRequire(import.meta.url);
 const headers = dirname(require.resolve('node-api-headers/package.json'));
 const addonApi = dirname(require.resolve('node-addon-api/package.json'));

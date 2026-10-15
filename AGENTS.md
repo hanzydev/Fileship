@@ -24,8 +24,8 @@ Run from the repository root unless noted.
 - `pnpm dev`: run the dashboard in dev mode through Turbo. It generates the Prisma client and applies migrations first. The telemetry panel needs its own `.env` and runs with `pnpm --filter telemetry dev`.
 - `pnpm build`: build every workspace.
 - `pnpm lint`: ESLint in every workspace, then `prettier --write .`.
-- `pnpm lint:types`: `nuxt typecheck` in the dashboard, the telemetry panel and the ui layer. It must report zero errors.
-- `pnpm check`: build + lint + lint:types, which is what CI runs (`.github/workflows/check.yml`).
+- `pnpm lint:types`: `nuxt typecheck` in the dashboard, the telemetry panel and the ui layer, plus `nuxt typecheck` and `tsc` for the main process in the desktop app. It must report zero errors.
+- `pnpm check`: build + lint + lint:types, which is what CI runs (`.github/workflows/check.yml`, on Linux, where the desktop build skips the native addon and the drive helper).
 
 Dashboard only (`pnpm --filter dashboard <script>`):
 
