@@ -189,7 +189,9 @@ const statCards = computed(() => [
     },
     {
         title: 'Storage',
-        legend: 'used storage',
+        legend: +(stats.value?.storageUsed.trashed?.raw ?? 0)
+            ? `used storage, ${stats.value!.storageUsed.trashed.formatted} in trash`
+            : 'used storage',
         icon: IBox,
         data: stats.value?.storageUsed.size,
         growth: stats.value?.storageUsed.growth,

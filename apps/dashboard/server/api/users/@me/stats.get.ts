@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
         links,
         currentFiles,
         storage,
+        trashed,
         currentViews,
         prevViews,
         ...categories
@@ -32,17 +33,18 @@ export default defineEventHandler(async (event) => {
         prisma.note.count({ where: { authorId: currentUser.id, deletedAt: null } }),
         prisma.folder.count({ where: { authorId: currentUser.id, deletedAt: null } }),
         prisma.link.count({ where: { authorId: currentUser.id } }),
-        prisma.file.count({ where: { authorId: currentUser.id, deletedAt: null } }),
+        prisma.file.count({ where: { authorId: currentUser.id } }),
         prisma.file.aggregate({ where: { authorId: currentUser.id }, _sum: { size: true } }),
+        prisma.file.aggregate({
+            where: { authorId: currentUser.id, deletedAt: { not: null } },
+            _sum: { size: true },
+        }),
         prisma.view.count({ where: { ownerId: currentUser.id } }),
         prisma.view.count({ where: { ownerId: currentUser.id, createdAt: { lte: dayAgo } } }),
         ...FILE_CATEGORY_NAMES.map((category) =>
             prisma.file.aggregate({
                 where: {
-                    AND: [
-                        { authorId: currentUser.id, deletedAt: null },
-                        fileCategoryWhere(category),
-                    ],
+                    AND: [{ authorId: currentUser.id }, fileCategoryWhere(category)],
                 },
                 _count: true,
                 _sum: { size: true },
@@ -51,6 +53,7 @@ export default defineEventHandler(async (event) => {
     ]);
 
     const currentStorageUsed = storage._sum.size ?? 0n;
+    const trashedSize = trashed._sum.size ?? 0n;
 
     return {
         users: {
@@ -67,6 +70,7 @@ export default defineEventHandler(async (event) => {
         storageUsed: {
             size: filesize(currentStorageUsed),
             growth: calculateGrowthPercentage(currentStorageUsed, BigInt(prevStorageUsed)),
+            trashed: { raw: trashedSize.toString(), formatted: filesize(trashedSize) },
         },
         views: {
             count: currentViews,

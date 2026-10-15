@@ -6,11 +6,12 @@ export default defineEventHandler(async (event) => {
 
     const { dayAgo, stat, prevStat } = await getStatSnapshots();
 
-    const [userCount, fileCount, storage, viewCount, prevViewCount, monthlyViews] =
+    const [userCount, fileCount, storage, trashed, viewCount, prevViewCount, monthlyViews] =
         await Promise.all([
             prisma.user.count(),
-            prisma.file.count({ where: { deletedAt: null } }),
+            prisma.file.count(),
             prisma.file.aggregate({ _sum: { size: true } }),
+            prisma.file.aggregate({ where: { deletedAt: { not: null } }, _sum: { size: true } }),
             prisma.view.count(),
             prisma.view.count({ where: { createdAt: { lte: dayAgo } } }),
             prisma.$queryRaw<{ month: string; count: number }[]>`
@@ -63,6 +64,10 @@ export default defineEventHandler(async (event) => {
         storageUsed: {
             size: filesize(storage._sum.size ?? 0n),
             growth: calculateGrowthPercentage(storage._sum.size ?? 0n, prevStat?.storageUsed ?? 0),
+            trashed: {
+                raw: (trashed._sum.size ?? 0n).toString(),
+                formatted: filesize(trashed._sum.size ?? 0n),
+            },
             byUser: storageUsedByUser
                 .map((data) => ({
                     ...data,

@@ -11,15 +11,15 @@ export default defineTask({
             await Promise.all([
                 prisma.user.count(),
                 prisma.file.aggregate({ _sum: { size: true } }),
-                prisma.file.count({ where: { deletedAt: null } }),
+                prisma.file.count(),
                 prisma.file.groupBy({ by: ['authorId'], _sum: { size: true } }),
-                prisma.file.groupBy({ by: ['authorId'], _count: true, where: { deletedAt: null } }),
+                prisma.file.groupBy({ by: ['authorId'], _count: true }),
                 prisma.view.groupBy({
                     by: ['ownerId'],
                     _count: true,
                     where: { ownerId: { not: null } },
                 }),
-                prisma.file.groupBy({ by: ['mimeType'], _count: true, where: { deletedAt: null } }),
+                prisma.file.groupBy({ by: ['mimeType'], _count: true }),
             ]);
 
         await prisma.stat.create({
