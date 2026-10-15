@@ -39,4 +39,6 @@ export const publicSettingKeys = [
     'aiEnabled',
 ] as const satisfies InstanceSettingKey[];
 
-export type PublicSettings = Pick<InstanceSettings, (typeof publicSettingKeys)[number]>;
+export type PublicSettings = Pick<InstanceSettings, (typeof publicSettingKeys)[number]> & {
+    uploadConcurrency: number;
+};

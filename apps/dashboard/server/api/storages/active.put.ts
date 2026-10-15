@@ -32,6 +32,8 @@ export default defineEventHandler(async (event) => {
 
     await updateSettings({ activeStorageId: body.data.id });
 
+    sendToAll('settings:update', await getPublicSettings());
+
     await createLog(event, {
         action: 'Update Settings',
         message: `New files are now stored on ${storage.name}`,

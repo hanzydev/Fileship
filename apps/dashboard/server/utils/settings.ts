@@ -110,9 +110,15 @@ export const getSettingsSync = (): InstanceSettings => {
 
 export const getPublicSettings = async (): Promise<PublicSettings> => {
     const settings = await getSettings();
-    return Object.fromEntries(
-        publicSettingKeys.map((key) => [key, settings[key]]),
-    ) as PublicSettings;
+    const storage = await getStorage(settings.activeStorageId).catch(() => null);
+
+    return {
+        ...(Object.fromEntries(publicSettingKeys.map((key) => [key, settings[key]])) as Omit<
+            PublicSettings,
+            'uploadConcurrency'
+        >),
+        uploadConcurrency: storage && !storage.isSequential ? 4 : 1,
+    };
 };
 
 export const updateSettings = async (patch: {

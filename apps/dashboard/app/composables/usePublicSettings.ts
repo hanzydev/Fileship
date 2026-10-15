@@ -7,5 +7,6 @@ export const usePublicSettings = () => {
         registrationEnabled: false,
         turnstileSiteKey: '',
         aiEnabled: false,
+        uploadConcurrency: 4,
     }));
 };
