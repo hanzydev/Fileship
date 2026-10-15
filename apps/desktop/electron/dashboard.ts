@@ -7,6 +7,7 @@ import { iconPath, openWebUrl, restrictPermissions, themeBackground } from './wi
 const PARTITION = 'persist:dashboard';
 
 let dashboardWindow: BrowserWindow | null = null;
+let opening: Promise<void> | null = null;
 
 const dashboardSession = () => session.fromPartition(PARTITION);
 
@@ -29,21 +30,11 @@ const signIn = async (instanceUrl: string, token: string) => {
     return windowSession;
 };
 
-export const openDashboard = async (route = '/dashboard') => {
-    const { instanceUrl, siteName } = getStore();
-    const token = getToken();
-    if (!instanceUrl || !token) return;
+const createDashboard = async (url: string, siteName: string, token: string) => {
+    const { origin } = new URL(url);
+    const windowSession = await signIn(origin, token);
 
-    if (dashboardWindow && !dashboardWindow.isDestroyed()) {
-        if (route !== '/dashboard') dashboardWindow.loadURL(`${instanceUrl}${route}`);
-        if (dashboardWindow.isMinimized()) dashboardWindow.restore();
-        dashboardWindow.focus();
-        return;
-    }
-
-    const windowSession = await signIn(instanceUrl, token);
-
-    dashboardWindow = new BrowserWindow({
+    const window = new BrowserWindow({
         width: 1280,
         height: 820,
         minWidth: 760,
@@ -60,23 +51,49 @@ export const openDashboard = async (route = '/dashboard') => {
         },
     });
 
-    dashboardWindow.webContents.setWindowOpenHandler(({ url }) => {
-        openWebUrl(url);
+    window.webContents.setWindowOpenHandler(({ url: target }) => {
+        openWebUrl(target);
         return { action: 'deny' };
     });
 
-    dashboardWindow.webContents.on('will-navigate', (event, url) => {
-        if (new URL(url).origin === instanceUrl) return;
+    window.webContents.on('will-navigate', (event, target) => {
+        if (new URL(target).origin === origin) return;
 
         event.preventDefault();
-        openWebUrl(url);
+        openWebUrl(target);
     });
 
-    dashboardWindow.on('closed', () => {
-        dashboardWindow = null;
+    window.on('closed', () => {
+        if (dashboardWindow === window) dashboardWindow = null;
     });
 
-    dashboardWindow.loadURL(`${instanceUrl}${route}`);
+    dashboardWindow = window;
+    window.loadURL(url);
+};
+
+export const openDashboard = async (route = '/dashboard') => {
+    const { instanceUrl, siteName } = getStore();
+    const token = getToken();
+    if (!instanceUrl || !token) return;
+
+    if (!dashboardWindow || dashboardWindow.isDestroyed()) {
+        if (!opening) {
+            opening = createDashboard(`${instanceUrl}${route}`, siteName, token).finally(() => {
+                opening = null;
+            });
+
+            return opening;
+        }
+
+        await opening;
+    }
+
+    const window = dashboardWindow;
+    if (!window || window.isDestroyed()) return;
+
+    if (route !== '/dashboard') window.loadURL(`${instanceUrl}${route}`);
+    if (window.isMinimized()) window.restore();
+    window.focus();
 };
 
 export const closeDashboard = async () => {
