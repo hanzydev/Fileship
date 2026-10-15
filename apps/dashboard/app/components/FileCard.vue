@@ -112,17 +112,27 @@
                         </div>
                     </div>
                 </UiCardContent>
-                <UiCardFooter class="flex-col items-start gap-0.5">
-                    <div class="flex w-full items-center gap-1.5">
-                        <ILock
-                            v-if="file.password"
-                            class="size-3.5 shrink-0 text-muted-foreground"
-                        />
-                        <TextBlock variant="small" class="truncate">{{ file.name }}</TextBlock>
+                <UiCardFooter class="gap-2">
+                    <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <div class="flex w-full items-center gap-1.5">
+                            <ILock
+                                v-if="file.password"
+                                class="size-3.5 shrink-0 text-muted-foreground"
+                            />
+                            <TextBlock variant="small" class="truncate">{{ file.name }}</TextBlock>
+                        </div>
+                        <TextBlock variant="muted" class="truncate text-xs">
+                            {{ file.size.formatted }} · {{ dayjs(file.createdAt).fromNow() }}
+                        </TextBlock>
                     </div>
-                    <TextBlock variant="muted" class="truncate text-xs">
-                        {{ file.size.formatted }} · {{ dayjs(file.createdAt).fromNow() }}
-                    </TextBlock>
+                    <UiTooltip v-if="file.piiDetected">
+                        <UiTooltipTrigger as-child>
+                            <UiBadge variant="destructive" aria-label="Sensitive">
+                                <IShieldAlert />
+                            </UiBadge>
+                        </UiTooltipTrigger>
+                        <UiTooltipContent>Sensitive · hidden from visitors</UiTooltipContent>
+                    </UiTooltip>
                 </UiCardFooter>
             </UiCard>
         </UiContextMenuTrigger>
