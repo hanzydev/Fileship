@@ -43,6 +43,7 @@ type ApiFolder = { id: string; name: string; createdAt: string; deletedAt?: stri
 const PAGE_SIZE = 200;
 const APPLY_DELAY_MS = 300;
 const RETRY_DELAY_MS = 2000;
+const REPLACE_WINDOW_MS = 3000;
 const RETRY_DELAYS_MS = [5000, 15_000, 60_000];
 
 let helper: DriveHelper | null = null;
@@ -61,7 +62,7 @@ const folders = new Map<string, RemoteFolder>();
 const files = new Map<string, RemoteFile>();
 const local = new Map<string, { path: string; isFolder: boolean }>();
 const pendingPaths = new Set<string>();
-const replacing = new Set<string>();
+const hiddenFiles = new Set<string>();
 const cancelledUploads = new Set<string>();
 
 const isPendingIdentity = (identity: string) => identity.startsWith('p:');
@@ -204,7 +205,7 @@ const apply = async () => {
 
     const layout = buildLayout(
         [...folders.values()],
-        [...files.values()].filter((file) => !replacing.has(file.id)),
+        [...files.values()].filter((file) => !hiddenFiles.has(file.id)),
     );
     const entries = [...layout.values()];
 
@@ -338,13 +339,38 @@ const handleDelete = async (event: Extract<HelperEvent, { type: 'delete' }>) => 
         return;
     }
 
-    try {
-        await deleteRemote(event.identity, true);
-        setStatus({});
-    } catch (error) {
-        log.warn('Could not delete on Fileship', event.path, error);
-        scheduleApply();
+    if (event.isFolder) {
+        try {
+            await deleteRemote(event.identity, true);
+            setStatus({});
+        } catch (error) {
+            log.warn('Could not delete on Fileship', event.path, error);
+            scheduleApply();
+        }
+
+        return;
     }
+
+    const id = event.identity.slice(2);
+    const absolute = join(root, event.path);
+
+    hiddenFiles.add(id);
+    local.delete(event.identity);
+    setStatus({});
+
+    setTimeout(() => {
+        enqueue(async () => {
+            try {
+                await deleteRemote(event.identity, !existsSync(absolute));
+            } catch (error) {
+                log.warn('Could not delete on Fileship', event.path, error);
+            } finally {
+                hiddenFiles.delete(id);
+                setStatus({});
+                scheduleApply();
+            }
+        });
+    }, REPLACE_WINDOW_MS);
 };
 
 const renameFolder = async (identity: string, from: string, to: string) => {
@@ -553,7 +579,7 @@ const handleLocalModified = async (event: Extract<HelperEvent, { type: 'localMod
     const previous = files.get(previousId);
 
     pendingPaths.add(event.path);
-    replacing.add(previousId);
+    hiddenFiles.add(previousId);
     setStatus({ state: 'syncing' });
 
     await helper!
@@ -574,7 +600,7 @@ const handleLocalModified = async (event: Extract<HelperEvent, { type: 'localMod
             local.delete(event.identity);
             local.set(fileIdentity(file.id), { path: event.path, isFolder: false });
         },
-        () => replacing.delete(previousId),
+        () => hiddenFiles.delete(previousId),
     );
 };
 
