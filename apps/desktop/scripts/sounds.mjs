@@ -100,5 +100,5 @@ chime(1975.5, 120, 240, 0.16);
 const outputPeak = output.reduce((max, sample) => Math.max(max, Math.abs(sample)), 0);
 writeWav(
     join(resources, 'uploaded.wav'),
-    output.map((sample) => (sample / outputPeak) * peak),
+    output.map((sample) => (sample / outputPeak) * peak * 0.8),
 );
