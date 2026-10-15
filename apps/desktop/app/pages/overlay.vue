@@ -35,6 +35,9 @@
                         aria-label="Move the toolbar"
                         class="cursor-grab touch-none active:cursor-grabbing"
                         @pointerdown="handleToolbarDragStart"
+                        @pointermove="handleToolbarDragMove"
+                        @pointerup="handleToolbarDragEnd"
+                        @lostpointercapture="handleToolbarDragEnd"
                     >
                         <IGripHorizontal v-if="toolbarSide === 'left' || toolbarSide === 'right'" />
                         <IGripVertical v-else />
@@ -98,7 +101,7 @@ import type { LocalRect, OverlayFinish, OverlayPayload } from '../../shared/ipc'
 type Point = { x: number; y: number };
 type Handle = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | 'move';
 type Mode = 'idle' | 'pending' | 'drawing' | 'selected' | 'moving' | 'resizing';
-type ToolbarDock = 'top' | 'left' | 'right' | 'free';
+type ToolbarEdge = 'top' | 'bottom' | 'left' | 'right' | null;
 
 const HANDLE_SIZE = 8;
 const DRAG_THRESHOLD = 3;
@@ -107,6 +110,8 @@ const MAGNIFIER_ZOOM = 8;
 const HOVER_ANIMATION_MS = 140;
 const TOOLBAR_MARGIN = 16;
 const TOOLBAR_EDGE = 96;
+const TOOLBAR_EDGE_Y = 64;
+const TOOLBAR_MAGNET = 72;
 
 const CURSORS: Record<Handle, string> = {
     n: 'ns-resize',
@@ -132,17 +137,12 @@ const recordToolbarSize = useElementSize(recordToolbarElement, undefined, {
     box: 'border-box',
 });
 
-const toolbarPlacement = useLocalStorage<{ dock: ToolbarDock; x: number; y: number }>(
-    'fileship-capture-toolbar',
-    { dock: 'top', x: 0.5, y: 0.5 },
+const toolbarPlacement = useLocalStorage<{ edge: ToolbarEdge; cx: number; cy: number }>(
+    'fileship-capture-toolbar-placement',
+    { edge: 'top', cx: 0.5, cy: 0 },
 );
 
-const toolbarDrag = ref<{
-    id: number;
-    offset: Point;
-    position: Point;
-    pointer: Point;
-} | null>(null);
+const toolbarDrag = ref<{ id: number; offset: Point; pointer: Point } | null>(null);
 
 const payload = shallowRef<OverlayPayload | null>(null);
 const selection = ref<LocalRect | null>(null);
@@ -262,68 +262,98 @@ const hasCaptureToolbar = computed(
         (payload.value.isActive || !!selection.value),
 );
 
-const dockAt = (point: Point): ToolbarDock => {
+const edgeAt = (point: Point): ToolbarEdge => {
     const bounds = viewport();
+
     if (point.x < TOOLBAR_EDGE) return 'left';
     if (point.x > bounds.width - TOOLBAR_EDGE) return 'right';
-    if (point.y < TOOLBAR_EDGE / 2) return 'top';
-    return 'free';
+    if (point.y < TOOLBAR_EDGE_Y) return 'top';
+    if (point.y > bounds.height - TOOLBAR_EDGE_Y) return 'bottom';
+    return null;
 };
 
-const currentDock = computed(() =>
-    toolbarDrag.value ? dockAt(toolbarDrag.value.pointer) : toolbarPlacement.value.dock,
-);
+const magnet = (value: number, middle: number) =>
+    Math.abs(value - middle) < TOOLBAR_MAGNET ? middle : value;
 
-const toolbarSide = computed(() => {
-    if (currentDock.value === 'left') return 'right';
-    if (currentDock.value === 'right') return 'left';
-    return 'bottom';
-});
-
-const captureToolbarStyle = computed(() => {
+const layoutToolbar = (edge: ToolbarEdge, center: Point) => {
     const bounds = viewport();
     const width = captureToolbarSize.width.value;
     const height = captureToolbarSize.height.value;
-    const maxX = Math.max(TOOLBAR_MARGIN, bounds.width - width - TOOLBAR_MARGIN);
-    const maxY = Math.max(TOOLBAR_MARGIN, bounds.height - height - TOOLBAR_MARGIN);
-    const placement = toolbarPlacement.value;
 
-    let x: number;
-    let y: number;
+    let x = center.x;
+    let y = center.y;
 
-    if (toolbarDrag.value) {
-        x = toolbarDrag.value.position.x;
-        y = toolbarDrag.value.position.y;
-    } else if (placement.dock === 'top') {
-        x = (bounds.width - width) / 2;
-        y = TOOLBAR_MARGIN;
-    } else if (placement.dock === 'free') {
-        x = placement.x * bounds.width;
-        y = placement.y * bounds.height;
-    } else {
-        x = placement.dock === 'left' ? TOOLBAR_MARGIN : maxX;
-        y = placement.y * bounds.height - height / 2;
-    }
+    if (edge === 'left') x = TOOLBAR_MARGIN + width / 2;
+    if (edge === 'right') x = bounds.width - TOOLBAR_MARGIN - width / 2;
+    if (edge === 'top') y = TOOLBAR_MARGIN + height / 2;
+    if (edge === 'bottom') y = bounds.height - TOOLBAR_MARGIN - height / 2;
+    if (edge === 'left' || edge === 'right') y = magnet(y, bounds.height / 2);
+    if (edge === 'top' || edge === 'bottom') x = magnet(x, bounds.width / 2);
 
-    return {
-        left: `${clamp(x, TOOLBAR_MARGIN, maxX)}px`,
-        top: `${clamp(y, TOOLBAR_MARGIN, maxY)}px`,
-        visibility: width ? 'visible' : 'hidden',
-    } as const;
+    const left = clamp(
+        x - width / 2,
+        TOOLBAR_MARGIN,
+        Math.max(TOOLBAR_MARGIN, bounds.width - width - TOOLBAR_MARGIN),
+    );
+    const top = clamp(
+        y - height / 2,
+        TOOLBAR_MARGIN,
+        Math.max(TOOLBAR_MARGIN, bounds.height - height - TOOLBAR_MARGIN),
+    );
+
+    return { left, top, center: { x: left + width / 2, y: top + height / 2 } };
+};
+
+const currentEdge = computed(() =>
+    toolbarDrag.value ? edgeAt(toolbarDrag.value.pointer) : toolbarPlacement.value.edge,
+);
+
+const currentLayout = computed(() => {
+    const bounds = viewport();
+    const drag = toolbarDrag.value;
+    const isOnEdge = currentEdge.value !== null;
+    const center = drag
+        ? {
+              x: isOnEdge
+                  ? drag.pointer.x
+                  : drag.pointer.x - drag.offset.x + captureToolbarSize.width.value / 2,
+              y: isOnEdge
+                  ? drag.pointer.y
+                  : drag.pointer.y - drag.offset.y + captureToolbarSize.height.value / 2,
+          }
+        : {
+              x: toolbarPlacement.value.cx * bounds.width,
+              y: toolbarPlacement.value.cy * bounds.height,
+          };
+
+    return layoutToolbar(currentEdge.value, center);
 });
+
+const toolbarSide = computed(() => {
+    if (currentEdge.value === 'left') return 'right';
+    if (currentEdge.value === 'right') return 'left';
+    if (currentEdge.value === 'bottom') return 'top';
+    return 'bottom';
+});
+
+const captureToolbarStyle = computed(() => ({
+    left: `${currentLayout.value.left}px`,
+    top: `${currentLayout.value.top}px`,
+    visibility: captureToolbarSize.width.value ? ('visible' as const) : ('hidden' as const),
+}));
 
 const handleToolbarDragStart = (event: PointerEvent) => {
     const element = captureToolbar.value;
     if (!element || event.button !== 0) return;
 
+    if (event.isTrusted) (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+
     const rect = element.getBoundingClientRect();
-    const pointer = { x: event.clientX, y: event.clientY };
 
     toolbarDrag.value = {
         id: event.pointerId,
-        offset: { x: pointer.x - rect.left, y: pointer.y - rect.top },
-        position: { x: rect.left, y: rect.top },
-        pointer,
+        offset: { x: event.clientX - rect.left, y: event.clientY - rect.top },
+        pointer: { x: event.clientX, y: event.clientY },
     };
 };
 
@@ -331,12 +361,7 @@ const handleToolbarDragMove = (event: PointerEvent) => {
     const drag = toolbarDrag.value;
     if (!drag || event.pointerId !== drag.id) return;
 
-    const pointer = { x: event.clientX, y: event.clientY };
-    toolbarDrag.value = {
-        ...drag,
-        pointer,
-        position: { x: pointer.x - drag.offset.x, y: pointer.y - drag.offset.y },
-    };
+    toolbarDrag.value = { ...drag, pointer: { x: event.clientX, y: event.clientY } };
 };
 
 const handleToolbarDragEnd = (event: PointerEvent) => {
@@ -344,15 +369,12 @@ const handleToolbarDragEnd = (event: PointerEvent) => {
     if (!drag || event.pointerId !== drag.id) return;
 
     const bounds = viewport();
-    const dock = dockAt(drag.pointer);
+    const { center } = currentLayout.value;
 
     toolbarPlacement.value = {
-        dock,
-        x: drag.position.x / bounds.width,
-        y:
-            dock === 'left' || dock === 'right'
-                ? drag.pointer.y / bounds.height
-                : drag.position.y / bounds.height,
+        edge: currentEdge.value,
+        cx: center.x / bounds.width,
+        cy: center.y / bounds.height,
     };
     toolbarDrag.value = null;
 };
@@ -837,9 +859,6 @@ useHead({
 });
 
 useEventListener('keydown', handleKeyDown);
-useEventListener('pointermove', handleToolbarDragMove);
-useEventListener('pointerup', handleToolbarDragEnd);
-useEventListener('pointercancel', handleToolbarDragEnd);
 useEventListener('resize', resizeDrawCanvas);
 
 onMounted(() => {
