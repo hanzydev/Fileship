@@ -61,9 +61,12 @@ const handleSubmit = async () => {
 
         admin.value = true;
 
-        const redirectTo = route.query.redirectTo as string | undefined;
+        const redirectTo = route.query.redirectTo;
+
         await navigateTo(
-            redirectTo?.startsWith('/') && !redirectTo.startsWith('//') ? redirectTo : '/overview',
+            typeof redirectTo === 'string' && /^\/(?![/\\])/.test(redirectTo)
+                ? redirectTo
+                : '/overview',
         );
     } catch (error: any) {
         formErrors.value = error.data?.data?.formErrors;

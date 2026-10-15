@@ -170,7 +170,13 @@ const handleLoggedIn = async (user: any, session: any, message: string) => {
 
     currentTheme.value = user.theme;
 
-    await navigateTo((route.query.redirectTo as string) || '/dashboard');
+    const redirectTo = route.query.redirectTo;
+
+    await navigateTo(
+        typeof redirectTo === 'string' && /^\/(?![/\\])/.test(redirectTo)
+            ? redirectTo
+            : '/dashboard',
+    );
 
     $toast.success(message);
 };
