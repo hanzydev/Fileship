@@ -113,16 +113,16 @@ const labels = useBreadcrumbLabels();
 const { $toast } = useNuxtApp();
 
 const mode = ref<'edit' | 'split' | 'preview'>('edit');
-const saveState = ref<'idle' | 'saving' | 'error'>('idle');
-const loadedId = ref<string | null>(null);
-const snapshot = ref('');
+const current = ref<SaveTarget | null>(null);
 
 let isMounted = true;
+let queue = Promise.resolve();
 
 const draft = reactive({ title: '', content: '' });
 
 const id = computed(() => (route.params as any).id as string);
 const isNew = computed(() => id.value === 'new');
+const loadedId = computed(() => current.value?.id ?? null);
 
 const {
     data: note,
@@ -139,41 +139,37 @@ const {
 
 const isLoading = computed(() => status.value === 'pending' || status.value === 'idle');
 
-const isValid = computed(() => draft.title.trim().length >= 3 && !!draft.content);
-const isDirty = computed(() => JSON.stringify(draft) !== snapshot.value);
+const isValidBody = (body: typeof draft) => body.title.trim().length >= 3 && !!body.content;
 
-const save = async () => {
-    const targetId = loadedId.value;
+const isValid = computed(() => isValidBody(draft));
 
-    if (!targetId || !isValid.value || !isDirty.value || saveState.value === 'saving') return;
+const saveState = computed(() =>
+    current.value?.pending ? 'saving' : current.value?.failed ? 'error' : 'idle',
+);
 
-    const body = { ...draft };
-    const isCurrent = () => loadedId.value === targetId;
+const persist = async (target: SaveTarget, body: typeof draft) => {
+    const json = JSON.stringify(body);
 
-    saveState.value = 'saving';
+    if (json === target.snapshot) return;
 
     try {
-        if (targetId === 'new') {
+        if (target.id === 'new') {
             const created = await $fetch('/api/notes', { method: 'POST', body });
 
-            if (isCurrent()) {
-                loadedId.value = created.id;
-                snapshot.value = JSON.stringify(body);
-            }
+            target.id = created.id;
 
-            if (isMounted && id.value === 'new') {
-                await navigateTo(`/dashboard/notes/${created.id}`, { replace: true });
+            if (isMounted && current.value === target && id.value === 'new') {
+                navigateTo(`/dashboard/notes/${created.id}`, { replace: true });
             }
         } else {
-            await $fetch(`/api/notes/${targetId}`, { method: 'PATCH', body });
-            if (isCurrent()) snapshot.value = JSON.stringify(body);
+            await $fetch(`/api/notes/${target.id}`, { method: 'PATCH', body });
         }
 
-        saveState.value = 'idle';
-
-        if (isDirty.value) save();
+        target.snapshot = json;
+        target.failed = false;
     } catch (error: any) {
-        saveState.value = 'error';
+        target.failed = true;
+        target.queued = target.snapshot;
 
         const formErrors = error.data?.data?.formErrors;
         $toast.error(
@@ -184,11 +180,24 @@ const save = async () => {
     }
 };
 
+const save = () => {
+    const target = current.value;
+    const body = { ...draft };
+    const json = JSON.stringify(body);
+
+    if (!target || !isValidBody(body) || json === target.queued) return;
+
+    target.queued = json;
+    target.pending++;
+
+    queue = queue.then(() => persist(target, body)).finally(() => target.pending--);
+};
+
 watch(id, (value) => {
     if (value === loadedId.value) return;
 
     save();
-    loadedId.value = null;
+    current.value = null;
 });
 
 watch(
@@ -207,16 +216,17 @@ watch(
             mode.value = 'preview';
         } else return;
 
-        loadedId.value = id.value;
-        snapshot.value = JSON.stringify(draft);
-        saveState.value = 'idle';
+        const snapshot = JSON.stringify(draft);
+
+        current.value = { id: id.value, snapshot, queued: snapshot, pending: 0, failed: false };
     },
     { immediate: true },
 );
 
 watch(note, (value, oldValue) => {
-    if (oldValue && !value && oldValue.id === loadedId.value)
-        snapshot.value = JSON.stringify(draft);
+    if (oldValue && !value && oldValue.id === loadedId.value) {
+        current.value!.snapshot = current.value!.queued = JSON.stringify(draft);
+    }
     if (value) labels.value = { ...labels.value, [value.id]: value.title };
 });
 
@@ -233,6 +243,14 @@ onBeforeUnmount(() => {
     isMounted = false;
     save();
 });
+
+interface SaveTarget {
+    id: string;
+    snapshot: string;
+    queued: string;
+    pending: number;
+    failed: boolean;
+}
 
 definePageMeta({
     key: 'note-editor',
