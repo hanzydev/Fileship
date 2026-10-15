@@ -542,6 +542,17 @@ const handleLocalNew = async (event: Extract<HelperEvent, { type: 'localNew' }>)
         return;
     }
 
+    const occupant = occupantOf(event.path);
+
+    if (occupant?.startsWith('f:')) {
+        return handleLocalModified({
+            type: 'localModified',
+            path: event.path,
+            identity: occupant,
+            size: event.size,
+        });
+    }
+
     pendingPaths.add(event.path);
     setStatus({ state: 'syncing' });
 
