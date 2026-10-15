@@ -24,8 +24,12 @@
         </UiCardFooter>
     </UiCard>
 
-    <UiDialog :open="isUpdating">
-        <UiDialogContent :show-close-button="false" class="sm:max-w-sm" @interact-outside.prevent>
+    <UiDialog :open="isUpdating" @update:open="state === 'Error' && (isUpdating = $event)">
+        <UiDialogContent
+            :show-close-button="state === 'Error'"
+            class="sm:max-w-sm"
+            @interact-outside.prevent
+        >
             <UiDialogHeader class="items-center text-center">
                 <UiSpinner v-if="state !== 'Success' && state !== 'Error'" class="size-8" />
                 <ICircleCheck v-else-if="state === 'Success'" class="size-8 text-primary" />
@@ -33,6 +37,11 @@
                 <UiDialogTitle>Updating Fileship</UiDialogTitle>
                 <UiDialogDescription>{{ states[state] || state }}</UiDialogDescription>
             </UiDialogHeader>
+            <UiDialogFooter v-if="state === 'Error'">
+                <UiButton variant="outline" class="w-full" @click="isUpdating = false">
+                    Close
+                </UiButton>
+            </UiDialogFooter>
         </UiDialogContent>
     </UiDialog>
 </template>
@@ -66,7 +75,6 @@ const finish = (success: boolean) => {
         setTimeout(() => window.location.reload(), 2_000);
     } else {
         $toast.error('An unknown error occurred while updating Fileship');
-        setTimeout(() => (isUpdating.value = false), 2_000);
     }
 };
 
@@ -93,6 +101,8 @@ const handleUpdate = async () => {
     isUpdating.value = true;
     state.value = 'Pulling';
 
+    let isFinished = false;
+
     try {
         const response = await $fetch('/api/updater/update', {
             method: 'POST',
@@ -102,6 +112,8 @@ const handleUpdate = async () => {
         await parseSseStream<{ status?: string }>(response, (data) => {
             if (!data.status) return;
 
+            if (data.status === 'Success' || data.status === 'Error') isFinished = true;
+
             if (data.status === 'Success') waitForNewVersion();
             else if (data.status === 'Error') finish(false);
             else state.value = data.status;
@@ -109,12 +121,14 @@ const handleUpdate = async () => {
     } catch (error: any) {
         if (state.value === 'Switching') return waitForNewVersion();
 
-        $toast.error(
-            error?.data?.message ||
-                error?.statusText ||
-                'An unknown error occurred while updating Fileship',
-        );
+        $toast.error(getErrorMessage(error));
         isUpdating.value = false;
+        return;
     }
+
+    if (isFinished) return;
+    if (state.value === 'Switching') return waitForNewVersion();
+
+    finish(false);
 };
 </script>
