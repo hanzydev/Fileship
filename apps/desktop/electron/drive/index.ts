@@ -8,8 +8,8 @@ import { io, type Socket } from 'socket.io-client';
 
 import type { DriveStatus } from '../../shared/ipc';
 import { handleUnauthorized } from '../account';
-import { mimeTypeOf } from '../mime';
 import { api, ApiError, desktopUserAgent } from '../api';
+import { mimeTypeOf } from '../mime';
 import { getSettings, getStore, getToken, updateStore } from '../store';
 import { refreshTray } from '../tray';
 import { resetUploadSettings, uploadFile } from '../upload';

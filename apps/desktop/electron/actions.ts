@@ -7,12 +7,12 @@ import log from 'electron-log/main';
 import type { HotkeyAction } from '../shared/settings';
 import { captureActiveMonitor, captureActiveWindow, captureFullscreen, type Shot } from './capture';
 import { readFilePath, readImage, readText, writeText } from './clipboard';
+import { mimeTypeOf } from './mime';
 import { captureLastRegion, openRegionCapture } from './overlay';
 import { toggleRecording } from './recording/recorder';
 import { getStore } from './store';
 import { handleFile, handleImage } from './tasks';
 import { shortenUrl } from './upload';
-import { mimeTypeOf } from './mime';
 import { notify, showMainWindow } from './windows';
 
 export const uploadPath = (path: string) =>

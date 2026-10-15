@@ -16,13 +16,13 @@ import type {
 } from '../../shared/ipc';
 import type { Settings, VideoCodec } from '../../shared/settings';
 import { physicalBounds } from '../capture';
+import { mimeTypeOf } from '../mime';
 import { native, type Rect } from '../native';
 import { openRegionCapture } from '../overlay';
 import { getSettings } from '../store';
 import { formatFileName, handleRecording, saveFolder, uniquePath } from '../tasks';
 import { refreshTray } from '../tray';
 import { notifyIdle } from '../updater';
-import { mimeTypeOf } from '../mime';
 import {
     broadcast,
     hardenWebContents,
