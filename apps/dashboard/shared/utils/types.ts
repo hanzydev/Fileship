@@ -21,6 +21,7 @@ export interface IMediaMetadata {
     bitDepth?: number;
     hasAlpha?: boolean;
     frames?: number;
+    thumbnailFailed?: boolean;
 }
 
 export interface IUserLimits {

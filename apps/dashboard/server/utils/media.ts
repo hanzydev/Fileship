@@ -145,6 +145,8 @@ export const processMedia = async (file: { id: string; mimeType: string }, fileP
 
     const metadata = await readMetadata(file.mimeType, filePath);
 
+    if (canHaveThumbnail(file.mimeType) && !hasThumbnail(file.id)) metadata.thumbnailFailed = true;
+
     await prisma.file.update({ where: { id: file.id }, data: { metadata: metadata as any } });
 
     return metadata;

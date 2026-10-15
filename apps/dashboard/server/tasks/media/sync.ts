@@ -31,7 +31,14 @@ export default defineTask({
             if (!files.length) break;
 
             for (const file of files) {
-                if (file.metadata && (!canHaveThumbnail(file.mimeType) || hasThumbnail(file.id)))
+                const metadata = file.metadata as IMediaMetadata | null;
+
+                if (
+                    metadata &&
+                    (metadata.thumbnailFailed ||
+                        !canHaveThumbnail(file.mimeType) ||
+                        hasThumbnail(file.id))
+                )
                     continue;
 
                 await withLocalFile(file.storageId, uploadKey(file.fileName), (filePath) =>
