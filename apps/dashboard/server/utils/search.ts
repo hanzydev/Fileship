@@ -53,20 +53,17 @@ const keepRelevant = (hits: { id: string; score: number }[], floor: number, rati
         .map((hit) => hit.id);
 };
 
-const toWords = (text: string) =>
-    text
-        .toLocaleLowerCase()
-        .split(/[^\p{L}\p{N}]+/u)
-        .filter(Boolean);
-
 const containsWord = (
     file: { fileName: string; caption?: string; ocrText?: string },
     words: string[],
 ) => {
-    const fileName = file.fileName.toLocaleLowerCase();
-    const text = new Set(toWords(`${file.caption ?? ''} ${file.ocrText ?? ''}`));
+    const { tokenizer } = fileSearchDb;
+    const fileName = tokenizer.tokenize(file.fileName, undefined, 'fileName');
+    const text = new Set(
+        tokenizer.tokenize(`${file.caption ?? ''} ${file.ocrText ?? ''}`, undefined, 'ocrText'),
+    );
 
-    return words.some((word) => fileName.includes(word) || text.has(word));
+    return words.some((word) => text.has(word) || fileName.some((token) => token.startsWith(word)));
 };
 
 const fuseRanked = (lists: { ids: string[]; weight: number }[]) => {
@@ -104,7 +101,7 @@ export const toFileSearchDoc = ({
     ...file
 }: Prisma.FileGetPayload<{ select: typeof fileSearchSelect }>) => ({
     ...file,
-    fileName: `${file.fileName} ${name} ${toWords(`${file.fileName} ${name}`).join(' ')}`,
+    fileName: `${file.fileName} ${name}`,
     caption: file.caption || undefined,
     ocrText: file.ocrText || undefined,
 });
@@ -242,7 +239,7 @@ export const searchFileIds = async (
         const { hits } =
             scope && first.count > first.hits.length ? await searchFulltext(first.count) : first;
 
-        const words = toWords(query);
+        const words = fileSearchDb.tokenizer.tokenize(query);
         const scoped = inScope(hits);
 
         return keepRelevant(
