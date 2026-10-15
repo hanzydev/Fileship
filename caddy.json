@@ -28,6 +28,7 @@
                             "::1"
                         ]
                     },
+                    "trusted_proxies_strict": 1,
                     "routes": [
                         {
                             "handle": [
@@ -57,6 +58,13 @@
                                         },
                                         "passive": {
                                             "fail_duration": "5s"
+                                        }
+                                    },
+                                    "headers": {
+                                        "request": {
+                                            "set": {
+                                                "X-Fileship-Client-IP": ["{http.vars.client_ip}"]
+                                            }
                                         }
                                     }
                                 }

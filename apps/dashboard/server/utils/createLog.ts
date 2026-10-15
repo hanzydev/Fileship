@@ -51,7 +51,7 @@ export const createLog = async (
     }
 
     const currentUser = event?.context?.user;
-    const ip = event ? getRequestIP(event, { xForwardedFor: true }) || 'Unknown' : '::1';
+    const ip = event ? getClientIp(event) : '::1';
 
     if (system || !currentUser) {
         consola.info(

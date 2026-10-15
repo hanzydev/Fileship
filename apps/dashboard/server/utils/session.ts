@@ -42,7 +42,7 @@ export const startSession = async (
 ) => {
     const token = randomBytes(32).toString('base64url');
     const userAgent = getRequestHeader(event, 'user-agent') || '';
-    const ip = getRequestIP(event, { xForwardedFor: true }) || 'Unknown';
+    const ip = getClientIp(event);
     const { os, platform } = getDevice(userAgent);
 
     const session = await prisma.session.create({

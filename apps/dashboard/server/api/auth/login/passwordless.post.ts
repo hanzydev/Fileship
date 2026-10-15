@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 
     if (body.data.verify) {
         await rateLimit(
-            `passkey:${getRequestIP(event, { xForwardedFor: true })}`,
+            `passkey:${getClientIp(event)}`,
             10,
             15 * 60 * 1000,
         );

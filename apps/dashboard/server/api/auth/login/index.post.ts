@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     }
 
     await rateLimit(
-        `login:${getRequestIP(event, { xForwardedFor: true })}:${body.data.username}`,
+        `login:${getClientIp(event)}:${body.data.username}`,
         10,
         15 * 60 * 1000,
     );

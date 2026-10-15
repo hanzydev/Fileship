@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    await rateLimit(`register:${getRequestIP(event, { xForwardedFor: true })}`, 5, 60 * 60 * 1000);
+    await rateLimit(`register:${getClientIp(event)}`, 5, 60 * 60 * 1000);
 
     if (!(await verifyTurnstile(body.data.turnstile))) {
         throw createError({

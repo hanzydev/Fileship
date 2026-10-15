@@ -18,7 +18,7 @@ export const rateLimit = async (key: string, limit: number, windowMs: number) =>
 
 export const limitPasswordAttempts = async (event: H3Event, resourceId: string, valid: boolean) => {
     const storage = useStorage('cache');
-    const key = `rateLimit:password:${getRequestIP(event, { xForwardedFor: true })}:${resourceId}`;
+    const key = `rateLimit:password:${getClientIp(event)}:${resourceId}`;
     const now = Date.now();
     const entry = await storage.getItem<{ count: number; resetAt: number }>(key);
     const current = entry && entry.resetAt > now ? entry : { count: 0, resetAt: now + 10 * 60_000 };

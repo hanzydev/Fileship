@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
             isPrivate = false;
 
             await rateLimit(
-                `folderArchive:${getRequestIP(event, { xForwardedFor: true })}`,
+                `folderArchive:${getClientIp(event)}`,
                 5,
                 10 * 60_000,
             );
