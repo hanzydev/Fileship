@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, watch } from 'node:fs';
 import { createRequire } from 'node:module';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -11,6 +11,9 @@ const MAIN = 'dist-electron/main.cjs';
 
 const run = (command, args) =>
     spawn(command, args, { stdio: 'inherit', shell: process.platform === 'win32' });
+
+const addon = spawnSync(process.execPath, ['scripts/native.mjs'], { stdio: 'inherit' });
+if (addon.status !== 0) process.exit(addon.status ?? 1);
 
 const renderer = run('pnpm', ['exec', 'nuxt', 'dev', '--port', '3020']);
 const bundler = run('pnpm', ['exec', 'tsdown', '--watch']);

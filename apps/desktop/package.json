@@ -10,7 +10,7 @@
     "main": "dist-electron/main.cjs",
     "scripts": {
         "dev": "node scripts/dev.mjs",
-        "build": "nuxt generate && tsdown && node scripts/koffi.mjs && node scripts/drive.mjs",
+        "build": "nuxt generate && tsdown && node scripts/koffi.mjs && node scripts/native.mjs && node scripts/drive.mjs",
         "package": "pnpm build && electron-builder --win",
         "postinstall": "nuxt prepare",
         "lint:types": "nuxt typecheck && tsc -p electron/tsconfig.json --noEmit",
@@ -31,6 +31,8 @@
         "filesize": "^11.0.25",
         "koffi": "^3.3.3",
         "konva": "^10.8.0",
+        "node-addon-api": "8.9.2",
+        "node-api-headers": "1.9.0",
         "nuxt": "^4.6.1",
         "semver": "^7.8.5",
         "socket.io-client": "^4.8.4",
