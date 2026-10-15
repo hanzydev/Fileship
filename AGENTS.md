@@ -81,7 +81,7 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 - `app/composables`: `useState` stores plus action composables (`useFileActions`, `useFolderActions`, `useNoteActions`).
 - `app/types`: the client data types (`FileData`, `FolderData`, `NoteData`, `LinkData`, `UserData`, `LogData`, `SessionData`, `BackupData`), imported with `import type` from `~/types/<name>`.
 - `app/utils`: client helpers (`socket.ts`, `uploadFile.ts`, ...).
-- `server/api`: REST endpoints (`auth`, `files`, `folders`, `inbox`, `links`, `logs`, `notes`, `settings`, `storages`, `trash`, `updater`, `users`, `stats`, `healthz`).
+- `server/api`: REST endpoints (`ai`, `auth`, `files`, `folders`, `inbox`, `links`, `logs`, `notes`, `settings`, `storages`, `trash`, `updater`, `users`, `stats`, `healthz`).
 - `server/routes/u/[id]`: raw file serving. `server/routes/s/[code]`: short link redirects.
 - `server/middleware`: `auth.ts` (the `token` session cookie or the same session token as `Authorization: Bearer`, plus the upload token on `POST /api/files` and `POST /api/links`) and `cors.ts`.
 - `server/plugins`: `setup.ts`, `socketIO.ts`, `aiQueueRunner.ts`.
