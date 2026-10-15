@@ -7,6 +7,7 @@ import log from 'electron-log/main';
 import { io, type Socket } from 'socket.io-client';
 
 import type { DriveStatus } from '../../shared/ipc';
+import { handleUnauthorized } from '../account';
 import { mimeTypeOf } from '../actions';
 import { api, ApiError, desktopUserAgent } from '../api';
 import { getSettings, getStore, getToken, updateStore } from '../store';
@@ -87,6 +88,17 @@ const enqueue = <T>(task: () => Promise<T>) => {
     return run;
 };
 
+const isUnauthorized = (error: unknown) => error instanceof ApiError && error.status === 401;
+
+const driveApi = async <T>(path: string, init?: Parameters<typeof api>[1]) => {
+    try {
+        return await api<T>(path, init);
+    } catch (error) {
+        if (isUnauthorized(error)) handleUnauthorized();
+        throw error;
+    }
+};
+
 const toSize = (size: ApiFile['size']) =>
     Number(typeof size === 'object' && size ? size.raw : (size ?? 0)) || 0;
 
@@ -109,7 +121,7 @@ const loadAll = async <T>(path: string) => {
 
     for (let offset = 0; ; offset += PAGE_SIZE) {
         const separator = path.includes('?') ? '&' : '?';
-        const page = await api<{ items: T[]; total: number }>(
+        const page = await driveApi<{ items: T[]; total: number }>(
             `${path}${separator}limit=${PAGE_SIZE}&offset=${offset}`,
         );
 
@@ -265,7 +277,7 @@ const resync = () =>
     reload().catch((error) => {
         log.warn('Could not reload the drive', error);
         isSynced = false;
-        scheduleRetry(error.message);
+        if (!isUnauthorized(error)) scheduleRetry(error.message);
     });
 
 const isMissing = (error: unknown) => error instanceof ApiError && error.status === 404;
@@ -276,9 +288,9 @@ const deleteRemote = async (identity: string, isPermanent = false) => {
 
     try {
         if (isFile) {
-            await api(`/api/files/${id}`, { method: 'DELETE' });
+            await driveApi(`/api/files/${id}`, { method: 'DELETE' });
         } else {
-            await api(`/api/folders/${id}`, {
+            await driveApi(`/api/folders/${id}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ deleteFilesToo: true }),
@@ -289,7 +301,7 @@ const deleteRemote = async (identity: string, isPermanent = false) => {
     }
 
     if (isPermanent) {
-        await api('/api/trash/delete', {
+        await driveApi('/api/trash/delete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -333,7 +345,7 @@ const handleDelete = async (event: Extract<HelperEvent, { type: 'delete' }>) => 
 
 const renameFolder = async (identity: string, from: string, to: string) => {
     const id = identity.slice(2);
-    const updated = await api<ApiFolder>(`/api/folders/${id}`, {
+    const updated = await driveApi<ApiFolder>(`/api/folders/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: to.slice(0, 32) }),
@@ -365,7 +377,7 @@ const moveFile = async (identity: string, to: string) => {
     if (folderId !== (file?.folderId ?? null)) body.folderId = folderId;
 
     if (Object.keys(body).length) {
-        const updated = await api<ApiFile>(`/api/files/${id}`, {
+        const updated = await driveApi<ApiFile>(`/api/files/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
@@ -445,7 +457,7 @@ const handleLocalNew = async (event: Extract<HelperEvent, { type: 'localNew' }>)
         pendingPaths.add(event.path);
 
         try {
-            const folder = await api<ApiFolder>('/api/folders', {
+            const folder = await driveApi<ApiFolder>('/api/folders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: event.path.slice(0, 32) }),
@@ -525,7 +537,7 @@ const handleLocalModified = async (event: Extract<HelperEvent, { type: 'localMod
         local.delete(event.identity);
         local.set(fileIdentity(id), { path: event.path, isFolder: false });
 
-        await api(`/api/files/${previousId}`, { method: 'DELETE' }).catch((error) => {
+        await driveApi(`/api/files/${previousId}`, { method: 'DELETE' }).catch((error) => {
             if (!isMissing(error)) throw error;
         });
 
@@ -754,7 +766,7 @@ export const startDrive = () =>
             retries = 0;
         } catch (error: any) {
             log.error('Could not load the drive', error);
-            scheduleRetry(error.message);
+            if (!isUnauthorized(error)) scheduleRetry(error.message);
         }
     });
 

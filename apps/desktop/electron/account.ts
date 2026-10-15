@@ -67,7 +67,7 @@ export const getAccount = async (): Promise<Account | null> => {
         setSession({ ...getStore(), instanceUrl, token, user });
     } catch (error) {
         if (error instanceof ApiError && error.status === 401) {
-            clearSession();
+            handleUnauthorized();
             return null;
         }
 
