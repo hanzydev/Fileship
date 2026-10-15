@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { app, Notification, shell } from 'electron';
@@ -8,7 +8,7 @@ import type { HistoryKind } from '../shared/ipc';
 import { writeImage, writeText } from './clipboard';
 import { addHistory, updateHistory } from './history';
 import { getSettings } from './store';
-import { shortenUrl, uploadFile } from './upload';
+import { shortenUrl, uploadFile, type UploadSource } from './upload';
 import { iconPath } from './windows';
 
 const pad = (value: number) => String(value).padStart(2, '0');
@@ -69,10 +69,7 @@ export const finishUpload = async (historyId: string, file: { url: string; id: s
     return url;
 };
 
-export const uploadAndFinish = async (
-    historyId: string,
-    file: { name: string; mimeType: string; data: Buffer },
-) => {
+export const uploadAndFinish = async (historyId: string, file: UploadSource) => {
     try {
         const uploaded = await uploadFile({ ...file, id: historyId });
         return await finishUpload(historyId, uploaded);
@@ -121,8 +118,45 @@ export const handleImage = async (
     return entry;
 };
 
-export const handleFile = async (file: { name: string; mimeType: string; data: Buffer }) => {
-    const entry = addHistory({ kind: 'file', name: file.name, size: file.data.length });
+export const handleFile = async (file: UploadSource) => {
+    const size = file.data ? file.data.length : statSync(file.path!).size;
+    const entry = addHistory({ kind: 'file', name: file.name, size });
     await uploadAndFinish(entry.id, file);
+    return entry;
+};
+
+export const handleRecording = async (file: {
+    kind: HistoryKind;
+    path: string;
+    name: string;
+    mimeType: string;
+    thumbnail: string | null;
+    isSaved: boolean;
+}) => {
+    const entry = addHistory({
+        kind: file.kind,
+        name: file.name,
+        size: statSync(file.path).size,
+        localPath: file.isSaved ? file.path : null,
+        thumbnail: file.thumbnail,
+    });
+
+    if (getSettings().afterCapture.upload) {
+        await uploadAndFinish(entry.id, {
+            name: file.name,
+            mimeType: file.mimeType,
+            path: file.path,
+        });
+    } else if (Notification.isSupported()) {
+        const notification = new Notification({
+            title: 'Recording saved',
+            body: file.path,
+            icon: iconPath(),
+        });
+
+        notification.on('click', () => shell.showItemInFolder(file.path));
+        notification.show();
+    }
+
     return entry;
 };

@@ -23,7 +23,11 @@
             <UiButton size="icon-sm" variant="ghost" @click="handleCancel">
                 <IX />
             </UiButton>
-            <UiButton size="icon-sm" @click="handleConfirm">
+            <UiButton v-if="isRecording" size="sm" variant="destructive" @click="handleConfirm">
+                <ICircle class="fill-current" />
+                {{ payload?.purpose === 'gif' ? 'Record GIF' : 'Record' }}
+            </UiButton>
+            <UiButton v-else size="icon-sm" @click="handleConfirm">
                 <ICheck />
             </UiButton>
         </div>
@@ -356,7 +360,17 @@ const finish = (result: OverlayFinish) => {
         });
 };
 
+const isRecording = computed(() => !!payload.value && payload.value.purpose !== 'capture');
+
 const finishRegion = (rect: LocalRect) => {
+    if (isRecording.value) {
+        return finish({
+            type: 'area',
+            displayId: payload.value!.displayId,
+            region: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+        });
+    }
+
     const source = baseCanvas.value!;
     const physical = toPhysical(rect);
     const canvas = document.createElement('canvas');

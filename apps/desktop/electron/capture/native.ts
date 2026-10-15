@@ -7,6 +7,7 @@ export type WindowRect = Rect & { title: string; controls: Rect[] };
 const user32 = koffi.load('user32.dll');
 const gdi32 = koffi.load('gdi32.dll');
 const dwmapi = koffi.load('dwmapi.dll');
+const dxgi = koffi.load('dxgi.dll');
 
 koffi.struct('RECT', {
     left: 'long',
@@ -45,6 +46,42 @@ const BITMAPINFOHEADER = koffi.struct('BITMAPINFOHEADER', {
     biClrUsed: 'uint32',
     biClrImportant: 'uint32',
 });
+
+koffi.struct('GUID', {
+    Data1: 'uint32',
+    Data2: 'uint16',
+    Data3: 'uint16',
+    Data4: koffi.array('uint8', 8),
+});
+
+koffi.struct('DXGI_OUTPUT_DESC', {
+    DeviceName: koffi.array('char16_t', 32, 'String'),
+    DesktopCoordinates: 'RECT',
+    AttachedToDesktop: 'int',
+    Rotation: 'int',
+    Monitor: 'void *',
+});
+
+const CreateDXGIFactory1 = dxgi.func(
+    'long __stdcall CreateDXGIFactory1(GUID *riid, _Out_ void **ppFactory)',
+);
+const EnumAdapters1 = koffi.proto(
+    'long __stdcall EnumAdapters1(void *self, uint32 index, _Out_ void **adapter)',
+);
+const EnumOutputs = koffi.proto(
+    'long __stdcall EnumOutputs(void *self, uint32 index, _Out_ void **output)',
+);
+const GetOutputDesc = koffi.proto(
+    'long __stdcall GetOutputDesc(void *self, _Out_ DXGI_OUTPUT_DESC *desc)',
+);
+const Release = koffi.proto('uint32 __stdcall Release(void *self)');
+
+const IID_IDXGIFactory1 = {
+    Data1: 0x770aae78,
+    Data2: 0xf26f,
+    Data3: 0x4dba,
+    Data4: [0xa8, 0x29, 0x25, 0x3c, 0x83, 0xd1, 0xb3, 0x87],
+};
 
 const EnumWindowsProc = koffi.proto('bool __stdcall EnumWindowsProc(void *hwnd, intptr_t lParam)');
 
@@ -292,4 +329,53 @@ export const foregroundWindow = (ignored: bigint[]) => {
 
     const frame = readFrame(hwnd);
     return frame ? { ...frame, title: readTitle(hwnd) } : null;
+};
+
+const method = (object: unknown, index: number, proto: ReturnType<typeof koffi.proto>) => {
+    const table = koffi.decode(object, 'void *');
+    const fn = koffi.decode(table, index * koffi.sizeof('void *'), 'void *');
+    return (...args: unknown[]) => koffi.call(fn, proto, object, ...args) as number;
+};
+
+export type DisplayOutput = { adapter: number; output: number; rect: Rect };
+
+export const listOutputs = () => {
+    const outputs: DisplayOutput[] = [];
+    const factoryOut: unknown[] = [null];
+    if (CreateDXGIFactory1(IID_IDXGIFactory1, factoryOut) < 0) return outputs;
+
+    const factory = factoryOut[0];
+
+    for (let adapterIndex = 0; ; adapterIndex++) {
+        const adapterOut: unknown[] = [null];
+        if (method(factory, 12, EnumAdapters1)(adapterIndex, adapterOut) < 0) break;
+
+        const adapter = adapterOut[0];
+
+        for (let outputIndex = 0; ; outputIndex++) {
+            const outputOut: unknown[] = [null];
+            if (method(adapter, 7, EnumOutputs)(outputIndex, outputOut) < 0) break;
+
+            const output = outputOut[0];
+            const desc = {} as {
+                DesktopCoordinates: { left: number; top: number; right: number; bottom: number };
+            };
+
+            if (method(output, 7, GetOutputDesc)(desc) >= 0) {
+                const { left, top, right, bottom } = desc.DesktopCoordinates;
+                outputs.push({
+                    adapter: adapterIndex,
+                    output: outputIndex,
+                    rect: { x: left, y: top, width: right - left, height: bottom - top },
+                });
+            }
+
+            method(output, 2, Release)();
+        }
+
+        method(adapter, 2, Release)();
+    }
+
+    method(factory, 2, Release)();
+    return outputs;
 };

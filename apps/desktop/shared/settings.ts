@@ -71,6 +71,37 @@ export const COMPRESSIONS = [
     { label: 'Maximum (100%)', value: 100 },
 ];
 
+export const VIDEO_SOURCES = ['auto', 'ddagrab', 'gdigrab'] as const;
+
+export const VIDEO_CODECS = [
+    'auto',
+    'libx264',
+    'libx265',
+    'h264_nvenc',
+    'hevc_nvenc',
+    'av1_nvenc',
+    'h264_amf',
+    'hevc_amf',
+    'av1_amf',
+    'h264_qsv',
+    'hevc_qsv',
+    'av1_qsv',
+    'libvpx-vp9',
+    'libsvtav1',
+] as const;
+
+export const HARDWARE_CODECS = ['h264_nvenc', 'h264_amf', 'h264_qsv'] as const;
+
+export const CONTAINERS = ['mp4', 'mkv', 'webm'] as const;
+
+export const AUDIO_CODECS = ['aac', 'libopus', 'libmp3lame'] as const;
+
+export const AUDIO_TRACKS = ['mixed', 'separate', 'both'] as const;
+
+export const GIF_DITHERS = ['sierra2_4a', 'floyd_steinberg', 'bayer', 'none'] as const;
+
+export type VideoCodec = (typeof VIDEO_CODECS)[number];
+
 export const settingsSchema = z.object({
     startAtLogin: z.boolean().default(true),
     theme: z.enum(['system', 'light', 'dark']).default('system'),
@@ -118,6 +149,50 @@ export const settingsSchema = z.object({
         .object({
             folder: z.string().default(''),
             pattern: z.string().min(1).max(128).default('%yyyy-%mo-%d_%h-%mi-%s'),
+        })
+        .prefault({}),
+    recording: z
+        .object({
+            ffmpegPath: z.string().max(1024).default(''),
+            source: z.enum(VIDEO_SOURCES).default('auto').catch('auto'),
+            fps: z.number().int().min(1).max(240).default(30),
+            showCursor: z.boolean().default(true),
+            codec: z.enum(VIDEO_CODECS).default('auto'),
+            rateControl: z.enum(['quality', 'bitrate']).default('quality'),
+            quality: z.number().int().min(0).max(63).default(23),
+            bitrate: z.number().int().min(100).max(500_000).default(8000),
+            preset: z.string().max(32).default(''),
+            container: z.enum(CONTAINERS).default('mp4'),
+            inputArgs: z.string().max(2000).default(''),
+            outputArgs: z.string().max(2000).default(''),
+            startDelay: z.number().int().min(0).max(30).default(0),
+            maxDuration: z.number().int().min(0).max(86_400).default(0),
+            showBorder: z.boolean().default(true),
+        })
+        .prefault({}),
+    audio: z
+        .object({
+            microphone: z.boolean().default(false),
+            microphoneId: z.string().max(512).default(''),
+            microphoneVolume: z.number().int().min(0).max(300).default(100),
+            noiseSuppression: z.boolean().default(true),
+            echoCancellation: z.boolean().default(false),
+            autoGainControl: z.boolean().default(false),
+            system: z.boolean().default(false),
+            systemVolume: z.number().int().min(0).max(300).default(100),
+            tracks: z.enum(AUDIO_TRACKS).default('mixed'),
+            codec: z.enum(AUDIO_CODECS).default('aac'),
+            bitrate: z.number().int().min(32).max(512).default(192),
+            delay: z.number().int().min(-2000).max(2000).default(0),
+        })
+        .prefault({}),
+    gif: z
+        .object({
+            fps: z.number().int().min(1).max(50).default(15),
+            maxWidth: z.number().int().min(0).max(7680).default(0),
+            dither: z.enum(GIF_DITHERS).default('sierra2_4a'),
+            statsMode: z.enum(['diff', 'full']).default('diff'),
+            loop: z.boolean().default(true),
         })
         .prefault({}),
 });

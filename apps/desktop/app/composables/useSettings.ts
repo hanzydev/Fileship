@@ -1,6 +1,7 @@
 import type { Settings } from '../../shared/ipc';
 
-type Section = 'capture' | 'afterCapture' | 'afterUpload' | 'upload' | 'save';
+type Section =
+    'capture' | 'afterCapture' | 'afterUpload' | 'upload' | 'save' | 'recording' | 'audio' | 'gif';
 
 export const useSettings = () => useState<Settings | null>('settings', () => null);
 

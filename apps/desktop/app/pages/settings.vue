@@ -50,7 +50,15 @@
 </template>
 
 <script setup lang="ts">
-import { ICamera, IDownload, IKeyboard, ISlidersHorizontal, IUpload, IUser } from '#components';
+import {
+    ICamera,
+    IDownload,
+    IKeyboard,
+    ISlidersHorizontal,
+    IUpload,
+    IUser,
+    IVideo,
+} from '#components';
 
 const route = useRoute();
 
@@ -58,6 +66,7 @@ const sections = [
     { label: 'General', path: '/settings/general', icon: ISlidersHorizontal },
     { label: 'Hotkeys', path: '/settings/hotkeys', icon: IKeyboard },
     { label: 'Capture', path: '/settings/capture', icon: ICamera },
+    { label: 'Recording', path: '/settings/recording', icon: IVideo },
     { label: 'Upload', path: '/settings/upload', icon: IUpload },
     { label: 'Account', path: '/settings/account', icon: IUser },
     { label: 'Updates', path: '/settings/updates', icon: IDownload },

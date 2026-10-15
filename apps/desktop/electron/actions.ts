@@ -1,4 +1,4 @@
-import { readFileSync, statSync } from 'node:fs';
+import { statSync } from 'node:fs';
 import { basename, extname } from 'node:path';
 
 import { dialog, Notification } from 'electron';
@@ -8,6 +8,7 @@ import type { HotkeyAction } from '../shared/settings';
 import { captureActiveMonitor, captureActiveWindow, captureFullscreen } from './capture';
 import { readFilePath, readImage, readText, writeText } from './clipboard';
 import { captureLastRegion, openRegionCapture } from './overlay';
+import { toggleRecording } from './recording/recorder';
 import { getStore } from './store';
 import { handleFile, handleImage } from './tasks';
 import { shortenUrl } from './upload';
@@ -47,7 +48,7 @@ const notify = (title: string, body: string) => {
 };
 
 export const uploadPath = (path: string) =>
-    handleFile({ name: basename(path), mimeType: mimeTypeOf(path), data: readFileSync(path) });
+    handleFile({ name: basename(path), mimeType: mimeTypeOf(path), path });
 
 const clipboardFile = async () => {
     const path = await readFilePath();
@@ -83,7 +84,7 @@ const uploadFromDialog = async () => {
         properties: ['openFile', 'multiSelections'],
     });
 
-    for (const path of result.filePaths) await uploadPath(path);
+    await Promise.all(result.filePaths.map(uploadPath));
 };
 
 const shortenClipboard = async () => {
@@ -113,8 +114,8 @@ const handlers: Record<HotkeyAction, () => unknown> = {
     captureMonitor: () => withShot(captureActiveMonitor()),
     captureRegion: () => openRegionCapture(),
     captureLastRegion: () => captureLastRegion(),
-    recordVideo: () => notify('Screen recording', 'Recording is not available yet.'),
-    recordGif: () => notify('GIF recording', 'Recording is not available yet.'),
+    recordVideo: () => toggleRecording('video'),
+    recordGif: () => toggleRecording('gif'),
     uploadClipboard,
     uploadFile: uploadFromDialog,
     shortenClipboard,

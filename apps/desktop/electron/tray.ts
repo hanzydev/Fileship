@@ -2,6 +2,13 @@ import { app, Menu, nativeImage, Tray } from 'electron';
 
 import { runAction } from './actions';
 import { openDashboard } from './dashboard';
+import {
+    abortRecording,
+    getRecorderState,
+    pauseRecording,
+    resumeRecording,
+    stopRecording,
+} from './recording/recorder';
 import { getStore } from './store';
 import { checkForUpdates, getUpdateStatus, installUpdate } from './updater';
 import { iconPath, markQuitting, showMainWindow } from './windows';
@@ -12,7 +19,34 @@ const buildMenu = () => {
     const isConnected = !!getStore().user;
     const update = getUpdateStatus();
 
+    const recorder = getRecorderState();
+    const isRecording = recorder.phase !== 'idle';
+
+    const recordingItems: Electron.MenuItemConstructorOptions[] = isRecording
+        ? [
+              {
+                  label: recorder.kind === 'gif' ? 'Stop GIF recording' : 'Stop recording',
+                  enabled: recorder.phase !== 'processing',
+                  click: () => stopRecording(),
+              },
+              recorder.phase === 'paused'
+                  ? { label: 'Resume', click: () => resumeRecording() }
+                  : {
+                        label: 'Pause',
+                        enabled: recorder.phase === 'recording',
+                        click: () => pauseRecording(),
+                    },
+              {
+                  label: 'Discard recording',
+                  enabled: recorder.phase !== 'processing',
+                  click: () => abortRecording(),
+              },
+              { type: 'separator' },
+          ]
+        : [];
+
     return Menu.buildFromTemplate([
+        ...recordingItems,
         {
             label: 'Capture',
             submenu: [
@@ -21,6 +55,14 @@ const buildMenu = () => {
                 { label: 'Active window', click: () => runAction('captureWindow') },
                 { label: 'Active monitor', click: () => runAction('captureMonitor') },
                 { label: 'Last region', click: () => runAction('captureLastRegion') },
+            ],
+        },
+        {
+            label: 'Record',
+            enabled: !isRecording,
+            submenu: [
+                { label: 'Screen recording', click: () => runAction('recordVideo') },
+                { label: 'GIF', click: () => runAction('recordGif') },
             ],
         },
         {
@@ -62,13 +104,20 @@ export const refreshTray = () => {
     if (!tray) return;
 
     tray.setContextMenu(buildMenu());
-    tray.setToolTip(getStore().user ? `Fileship · ${getStore().siteName}` : 'Fileship');
+    const tooltip = getStore().user ? `Fileship · ${getStore().siteName}` : 'Fileship';
+
+    tray.setToolTip(
+        getRecorderState().phase === 'idle' ? tooltip : 'Fileship · Recording, click to stop',
+    );
 };
 
 export const createTray = () => {
     tray = new Tray(nativeImage.createFromPath(iconPath()).resize({ width: 16, height: 16 }));
 
-    tray.on('click', () => runAction('captureRegion'));
+    tray.on('click', () => {
+        if (getRecorderState().phase === 'idle') return runAction('captureRegion');
+        stopRecording();
+    });
     tray.on('middle-click', () => runAction('uploadClipboard'));
     tray.on('double-click', () => showMainWindow());
     refreshTray();

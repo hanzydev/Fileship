@@ -1,7 +1,7 @@
 import type { Theme } from '../../shared/ipc';
 
 export default defineNuxtPlugin(async () => {
-    if (window.location.pathname === '/overlay') return;
+    if (['/overlay', '/recorder'].includes(window.location.pathname)) return;
 
     const account = useAccount();
     const updateStatus = useUpdateStatus();

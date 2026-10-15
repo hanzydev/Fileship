@@ -60,6 +60,41 @@ export type UploadProgress = {
 
 export type HotkeyStatus = Partial<Record<HotkeyAction, 'ok' | 'conflict' | 'invalid'>>;
 
+export type OverlayPurpose = 'capture' | 'video' | 'gif';
+
+export type RecordingKind = 'video' | 'gif';
+
+export type RecorderPhase =
+    'idle' | 'preparing' | 'countdown' | 'recording' | 'paused' | 'processing';
+
+export type AudioSourceId = 'microphone' | 'system';
+
+export type AudioTrack = { id: 'mixed' | AudioSourceId; title: string; sources: AudioSourceId[] };
+
+export type RecorderState = {
+    phase: RecorderPhase;
+    kind: RecordingKind;
+    elapsed: number;
+    since: number | null;
+    countdown: number;
+    tracks: AudioTrack[];
+    muted: AudioSourceId[];
+    maxDuration: number;
+};
+
+export type RecorderControl = 'stop' | 'pause' | 'resume' | 'abort';
+
+export type FfmpegStatus = {
+    path: string | null;
+    version: string | null;
+    isManaged: boolean;
+    isInstalled: boolean;
+    ddagrab: boolean;
+    encoders: string[];
+    managedVersion: string;
+    download: { progress: number; error: string | null } | null;
+};
+
 export type LocalRect = { x: number; y: number; width: number; height: number };
 
 export type OverlayPayload = {
@@ -74,12 +109,14 @@ export type OverlayPayload = {
     showMagnifier: boolean;
     quickCrop: boolean;
     isActive: boolean;
+    purpose: OverlayPurpose;
 };
 
 export type OverlayFinish =
     | { type: 'cancel' }
     | { type: 'fullscreen' }
     | { type: 'monitor'; index: number }
+    | { type: 'area'; displayId: number; region: LocalRect }
     | {
           type: 'region';
           displayId: number;
@@ -127,6 +164,16 @@ export type IpcInvoke = {
     'hotkeys:setSnippingTool': (enabled: boolean) => HotkeyStatus;
     'folders:list': () => Folder[];
     'dialog:pickFolder': () => string | null;
+    'dialog:pickFfmpeg': () => string | null;
+    'ffmpeg:status': () => FfmpegStatus;
+    'ffmpeg:download': () => void;
+    'ffmpeg:remove': () => void;
+    'recording:preview': () => string;
+    'recorder:get': () => RecorderState;
+    'recorder:ready': (error: string | null) => void;
+    'recorder:audio': (track: number, chunk: ArrayBuffer) => void;
+    'recorder:control': (action: RecorderControl) => void;
+    'recorder:mute': (source: AudioSourceId, muted: boolean) => void;
 };
 
 export type IpcEvents = {
@@ -137,6 +184,8 @@ export type IpcEvents = {
     'overlay:close': null;
     'history:changed': null;
     'uploads:progress': UploadProgress[];
+    'ffmpeg:status': FfmpegStatus;
+    'recorder:state': RecorderState;
 };
 
 export const INVOKE_CHANNELS = [
@@ -170,6 +219,16 @@ export const INVOKE_CHANNELS = [
     'hotkeys:setSnippingTool',
     'folders:list',
     'dialog:pickFolder',
+    'dialog:pickFfmpeg',
+    'ffmpeg:status',
+    'ffmpeg:download',
+    'ffmpeg:remove',
+    'recording:preview',
+    'recorder:get',
+    'recorder:ready',
+    'recorder:audio',
+    'recorder:control',
+    'recorder:mute',
 ] as const satisfies (keyof IpcInvoke)[];
 
 export const EVENT_CHANNELS = [
@@ -180,6 +239,8 @@ export const EVENT_CHANNELS = [
     'overlay:close',
     'history:changed',
     'uploads:progress',
+    'ffmpeg:status',
+    'recorder:state',
 ] as const satisfies (keyof IpcEvents)[];
 
 export type DesktopBridge = {

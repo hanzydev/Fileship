@@ -5,6 +5,7 @@ import { registerHotkeys } from './hotkeys';
 import { registerIpc } from './ipc';
 import { createOverlays, watchDisplays } from './overlay';
 import { handleAppProtocol, registerAppScheme } from './protocol';
+import { isRecording, quitRecorder, registerRecorder } from './recording/recorder';
 import { createTray } from './tray';
 import { setBusyCheck, startUpdater } from './updater';
 import { isUploading } from './upload';
@@ -24,17 +25,21 @@ app.on('second-instance', () => showMainWindow());
 
 app.on('window-all-closed', () => {});
 
-app.on('will-quit', () => globalShortcut.unregisterAll());
+app.on('will-quit', () => {
+    globalShortcut.unregisterAll();
+    quitRecorder();
+});
 
 app.whenReady().then(() => {
     if (!process.env.DESKTOP_RENDERER_URL) handleAppProtocol();
 
     registerIpc();
+    registerRecorder();
     createMainWindow(!process.argv.includes('--hidden'));
     createTray();
     createOverlays();
     watchDisplays();
     registerHotkeys();
-    setBusyCheck(isUploading);
+    setBusyCheck(() => isUploading() || isRecording());
     startUpdater();
 });

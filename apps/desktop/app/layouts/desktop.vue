@@ -32,6 +32,7 @@ const breadcrumbLabels = {
     general: 'General',
     hotkeys: 'Hotkeys',
     capture: 'Capture',
+    recording: 'Recording',
     upload: 'Upload',
     account: 'Account',
     updates: 'Updates',

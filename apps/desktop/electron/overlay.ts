@@ -3,13 +3,14 @@ import { join } from 'node:path';
 import { BrowserWindow, nativeImage, screen } from 'electron';
 import log from 'electron-log/main';
 
-import type { OverlayFinish, OverlayPayload } from '../shared/ipc';
+import type { OverlayFinish, OverlayPayload, OverlayPurpose } from '../shared/ipc';
 import {
     captureActiveMonitor,
     captureFullscreen,
     captureRect,
     physicalBounds,
     snapshotDisplays,
+    virtualScreen,
 } from './capture';
 import type { Rect } from './capture/native';
 import { getSettings } from './store';
@@ -19,6 +20,8 @@ import { rendererUrl } from './windows';
 const overlays = new Map<number, BrowserWindow>();
 const pending = new Map<number, () => void>();
 let isOpen = false;
+let purpose: OverlayPurpose = 'capture';
+let onArea: ((rect: Rect) => void) | null = null;
 let lastRegion: Rect | null = null;
 
 const createOverlay = (display: Electron.Display) => {
@@ -101,9 +104,14 @@ const hideOverlays = () => {
     }
 };
 
-export const openRegionCapture = () => {
+export const openRegionCapture = (
+    nextPurpose: OverlayPurpose = 'capture',
+    nextOnArea: ((rect: Rect) => void) | null = null,
+) => {
     if (isOpen) return;
     isOpen = true;
+    purpose = nextPurpose;
+    onArea = nextOnArea;
 
     const cursor = screen.getCursorScreenPoint();
     const active = screen.getDisplayNearestPoint(cursor);
@@ -136,6 +144,7 @@ export const openRegionCapture = () => {
                 showMagnifier: capture.showMagnifier,
                 quickCrop: capture.quickCrop,
                 isActive: shot.display.id === active.id,
+                purpose,
             };
 
             window.setBounds(bounds);
@@ -151,10 +160,42 @@ export const openRegionCapture = () => {
     }
 };
 
+const toScreenRect = (displayId: number, region: Rect) => {
+    const display = screen.getAllDisplays().find((item) => item.id === displayId);
+    if (!display) return null;
+
+    return screen.dipToScreenRect(null, {
+        x: display.bounds.x + region.x,
+        y: display.bounds.y + region.y,
+        width: region.width,
+        height: region.height,
+    });
+};
+
+const finishArea = (result: OverlayFinish) => {
+    const callback = onArea;
+    onArea = null;
+    if (!callback || result.type === 'cancel') return;
+
+    if (result.type === 'fullscreen') return callback(virtualScreen());
+
+    if (result.type === 'monitor') {
+        const display = screen.getAllDisplays()[result.index];
+        if (display) callback(physicalBounds(display));
+        return;
+    }
+
+    if (result.type === 'area' || result.type === 'region') {
+        const rect = toScreenRect(result.displayId, result.region);
+        if (rect && rect.width >= 2 && rect.height >= 2) callback(rect);
+    }
+};
+
 export const finishRegionCapture = async (result: OverlayFinish) => {
     hideOverlays();
 
-    if (result.type === 'cancel') return;
+    if (purpose !== 'capture') return finishArea(result);
+    if (result.type === 'cancel' || result.type === 'area') return;
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -165,18 +206,7 @@ export const finishRegionCapture = async (result: OverlayFinish) => {
         return handleImage(captureRect(physicalBounds(display)).image);
     }
 
-    const display = screen.getAllDisplays().find((item) => item.id === result.displayId);
-
-    if (display) {
-        const { bounds } = display;
-
-        lastRegion = screen.dipToScreenRect(null, {
-            x: bounds.x + result.region.x,
-            y: bounds.y + result.region.y,
-            width: result.region.width,
-            height: result.region.height,
-        });
-    }
+    lastRegion = toScreenRect(result.displayId, result.region) ?? lastRegion;
 
     const pixels = Buffer.from(result.rgba.buffer, result.rgba.byteOffset, result.rgba.byteLength);
 

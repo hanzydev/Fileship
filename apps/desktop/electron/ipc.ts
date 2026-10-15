@@ -14,6 +14,20 @@ import {
     setSnippingToolKey,
 } from './hotkeys';
 import { finishRegionCapture, markOverlayReady } from './overlay';
+import {
+    downloadFfmpeg,
+    getFfmpegStatus,
+    removeManagedFfmpeg,
+    resetFfmpegProbe,
+} from './recording/ffmpeg';
+import {
+    controlRecording,
+    getRecorderState,
+    markRecorderReady,
+    recordingPreview,
+    setRecordingMute,
+    writeRecordingAudio,
+} from './recording/recorder';
 import { getSettings, updateSettings } from './store';
 import { refreshTray } from './tray';
 import { checkForUpdates, getUpdateStatus, installUpdate } from './updater';
@@ -53,7 +67,9 @@ const handlers: Handlers = {
     },
     'settings:get': () => getSettings(),
     'settings:set': (patch) => {
+        const previousPath = getSettings().recording.ffmpegPath;
         const settings = updateSettings(patch);
+        if (settings.recording.ffmpegPath !== previousPath) resetFfmpegProbe();
         applySettings();
         if ('hotkeys' in patch || 'hotkeysEnabled' in patch) registerHotkeys();
         return settings;
@@ -114,6 +130,28 @@ const handlers: Handlers = {
         const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
         return result.filePaths[0] ?? null;
     },
+    'dialog:pickFfmpeg': async () => {
+        const result = await dialog.showOpenDialog({
+            title: 'Choose ffmpeg.exe',
+            properties: ['openFile'],
+            filters: [{ name: 'ffmpeg', extensions: ['exe'] }],
+        });
+
+        return result.filePaths[0] ?? null;
+    },
+    'ffmpeg:status': () => getFfmpegStatus(),
+    'ffmpeg:download': () => {
+        downloadFfmpeg();
+    },
+    'ffmpeg:remove': () => removeManagedFfmpeg(),
+    'recording:preview': () => recordingPreview(),
+    'recorder:get': () => getRecorderState(),
+    'recorder:ready': (error) => markRecorderReady(error),
+    'recorder:audio': (track, chunk) => writeRecordingAudio(track, chunk),
+    'recorder:control': (action) => {
+        controlRecording(action);
+    },
+    'recorder:mute': (source, muted) => setRecordingMute(source, muted),
 };
 
 export const registerIpc = () => {

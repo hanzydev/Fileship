@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { open, stat } from 'node:fs/promises';
 
 import type { UploadProgress } from '../shared/ipc';
 import { handleUnauthorized } from './account';
@@ -18,11 +19,12 @@ export type UploadedFile = {
     directUrl: string;
 };
 
-type Job = {
+export type UploadSource = { name: string; mimeType: string } & (
+    { data: Buffer; path?: never } | { path: string; data?: never }
+);
+
+type Job = UploadSource & {
     id: string;
-    name: string;
-    mimeType: string;
-    data: Buffer;
     resolve: (file: UploadedFile) => void;
     reject: (error: Error) => void;
 };
@@ -76,39 +78,56 @@ const runJob = async (job: Job) => {
     const { upload } = getSettings();
     const size = await getChunkSize();
     const uploadId = randomBytes(12).toString('base64url');
-    const totalChunks = Math.max(1, Math.ceil(job.data.length / size));
-    const blob = new Blob([new Uint8Array(job.data)], { type: job.mimeType });
+    const fileSize = job.data ? job.data.length : (await stat(job.path!)).size;
+    const totalChunks = Math.max(1, Math.ceil(fileSize / size));
+    const handle = job.path ? await open(job.path, 'r') : null;
+
+    const readChunk = async (offset: number) => {
+        const length = Math.min(size, fileSize - offset);
+        if (!handle) return job.data!.subarray(offset, offset + length);
+
+        const buffer = Buffer.alloc(length);
+        await handle.read(buffer, 0, length, offset);
+        return buffer;
+    };
 
     let result: UploadedFile | undefined;
 
-    for (let index = 0; index < totalChunks; index++) {
-        const offset = index * size;
+    try {
+        for (let index = 0; index < totalChunks; index++) {
+            const offset = index * size;
+            const chunk = new Blob([new Uint8Array(await readChunk(offset))], {
+                type: job.mimeType,
+            });
 
-        result = await sendChunk(() => {
-            const form = new FormData();
+            result = await sendChunk(() => {
+                const form = new FormData();
 
-            form.append('uploadId', uploadId);
-            form.append('currentChunk', String(index + 1));
-            form.append('totalChunks', String(totalChunks));
-            form.append('chunkOffset', String(offset));
-            form.append('fileNameType', upload.fileNameType);
-            if (upload.expiration) form.append('expiration', String(upload.expiration));
-            if (upload.maxViews) form.append('maxViews', String(upload.maxViews));
-            if (upload.compression) form.append('compression', String(upload.compression));
-            if (upload.password) form.append('password', upload.password);
-            if (upload.folderId) form.append('folderId', upload.folderId);
-            form.append('file', blob.slice(offset, offset + size, job.mimeType), job.name);
+                form.append('uploadId', uploadId);
+                form.append('currentChunk', String(index + 1));
+                form.append('totalChunks', String(totalChunks));
+                form.append('chunkOffset', String(offset));
+                form.append('fileNameType', upload.fileNameType);
+                if (upload.expiration) form.append('expiration', String(upload.expiration));
+                if (upload.maxViews) form.append('maxViews', String(upload.maxViews));
+                if (upload.compression) form.append('compression', String(upload.compression));
+                if (upload.password) form.append('password', upload.password);
+                if (upload.folderId) form.append('folderId', upload.folderId);
+                form.append('file', chunk, job.name);
 
-            return form;
-        });
+                return form;
+            });
 
-        progress.set(job.id, {
-            id: job.id,
-            name: job.name,
-            progress: Math.round(((index + 1) / totalChunks) * 100),
-        });
+            progress.set(job.id, {
+                id: job.id,
+                name: job.name,
+                progress: Math.round(((index + 1) / totalChunks) * 100),
+            });
 
-        publish();
+            publish();
+        }
+    } finally {
+        await handle?.close();
     }
 
     if (!result?.url) throw new Error('The server did not return a link');
@@ -132,13 +151,13 @@ const pump = () => {
     }
 };
 
-export const uploadFile = (file: { id?: string; name: string; mimeType: string; data: Buffer }) => {
+export const uploadFile = (file: UploadSource & { id?: string }) => {
     if (!getStore().token) return Promise.reject(new Error('Log in to Fileship to upload'));
 
     const id = file.id ?? randomBytes(8).toString('hex');
 
     return new Promise<UploadedFile>((resolve, reject) => {
-        queue.push({ ...file, id, resolve, reject });
+        queue.push({ ...file, id, resolve, reject } as Job);
         progress.set(id, { id, name: file.name, progress: 0 });
         publish();
         pump();
