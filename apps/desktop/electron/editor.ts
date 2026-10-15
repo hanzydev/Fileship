@@ -4,11 +4,11 @@ import { join } from 'node:path';
 import { BrowserWindow, nativeTheme, screen } from 'electron';
 
 import type { EditorFinish, EditorImage } from '../shared/ipc';
-import { imageFromRgba } from './capture';
+import { type Bitmap, bitmapFromRgba } from './capture';
 import { iconPath, rendererUrl } from './windows';
 
 export type EditorResult =
-    { action: 'cancel' } | { action: 'continue' | 'copy' | 'save'; image: Electron.NativeImage };
+    { action: 'cancel' } | { action: 'continue' | 'copy' | 'save'; image: Bitmap };
 
 type Session = {
     image: EditorImage;
@@ -28,12 +28,12 @@ const settle = (id: string, result: EditorResult) => {
 };
 
 export const openEditor = (
-    image: Electron.NativeImage,
+    image: { png: Buffer; width: number; height: number },
     options: { name: string; continueLabel: string },
 ) =>
     new Promise<EditorResult>((resolve) => {
         const id = randomUUID();
-        const size = image.getSize();
+        const size = { width: image.width, height: image.height };
         const { workArea } = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
         const width = Math.min(Math.max(size.width + 96, 1240), workArea.width);
         const height = Math.min(Math.max(size.height + 160, 640), workArea.height);
@@ -60,7 +60,7 @@ export const openEditor = (
 
         sessions.set(id, {
             image: {
-                png: new Uint8Array(image.toPNG()),
+                png: new Uint8Array(image.png),
                 name: options.name,
                 continueLabel: options.continueLabel,
             },
@@ -87,6 +87,6 @@ export const finishEditor = (id: string, result: EditorFinish) => {
 
     settle(id, {
         action: result.action,
-        image: imageFromRgba(result.rgba, result.width, result.height),
+        image: bitmapFromRgba(result.rgba, result.width, result.height),
     });
 };

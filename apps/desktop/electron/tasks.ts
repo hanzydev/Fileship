@@ -6,6 +6,7 @@ import { app, dialog, nativeImage, Notification, shell } from 'electron';
 import log from 'electron-log/main';
 
 import type { HistoryKind } from '../shared/ipc';
+import { type Bitmap, bitmapFromImage, encodePng, encodeThumbnail } from './capture';
 import { writeImage, writeText } from './clipboard';
 import { openEditor } from './editor';
 import { addHistory, getHistory, updateHistory } from './history';
@@ -90,7 +91,7 @@ const continueLabel = () => {
     return 'Copy';
 };
 
-const saveImageAs = async (image: Electron.NativeImage, name: string) => {
+const saveImageAs = async (png: Buffer, name: string) => {
     const result = await dialog.showSaveDialog({
         defaultPath: join(saveFolder(), name),
         filters: [{ name: 'PNG image', extensions: ['png'] }],
@@ -98,25 +99,28 @@ const saveImageAs = async (image: Electron.NativeImage, name: string) => {
 
     if (result.canceled || !result.filePath) return;
 
-    await writeFile(result.filePath, image.toPNG());
+    await writeFile(result.filePath, png);
     notify('Image saved', result.filePath);
 };
 
-const runEditor = async (image: Electron.NativeImage, name: string) => {
-    const result = await openEditor(image, { name, continueLabel: continueLabel() });
+const runEditor = async (image: Bitmap, name: string) => {
+    const result = await openEditor(
+        { png: await encodePng(image), width: image.width, height: image.height },
+        { name, continueLabel: continueLabel() },
+    );
 
     if (result.action === 'copy') {
-        await writeImage(result.image);
+        await writeImage(await encodePng(result.image));
         notify('Image copied', 'Paste it anywhere.');
     } else if (result.action === 'save') {
-        await saveImageAs(result.image, name);
+        await saveImageAs(await encodePng(result.image), name);
     }
 
     return result.action === 'continue' ? result.image : null;
 };
 
 export const handleImage = async (
-    captured: Electron.NativeImage,
+    captured: Bitmap,
     options: { title?: string; kind?: HistoryKind; isEdited?: boolean } = {},
 ) => {
     const { afterCapture, save } = getSettings();
@@ -127,11 +131,11 @@ export const handleImage = async (
 
     if (!image) return null;
 
-    const png = image.toPNG();
+    const [png, thumbnail] = await Promise.all([encodePng(image), encodeThumbnail(image)]);
 
     let localPath: string | null = null;
 
-    if (afterCapture.copyImage) await writeImage(image);
+    if (afterCapture.copyImage) await writeImage(png);
 
     if (afterCapture.saveToFile) {
         const folder = saveFolder();
@@ -145,13 +149,13 @@ export const handleImage = async (
         name,
         size: png.length,
         localPath,
-        thumbnail: `data:image/jpeg;base64,${image.resize({ width: 480 }).toJPEG(75).toString('base64')}`,
+        thumbnail,
     });
 
     if (afterCapture.upload) {
         await uploadAndFinish(entry.id, { name, mimeType: 'image/png', data: png });
     } else if (!afterCapture.copyImage && !afterCapture.saveToFile) {
-        await writeImage(image);
+        await writeImage(png);
         notify('Screenshot copied', 'Uploading is turned off in the after capture settings.');
     }
 
@@ -205,8 +209,8 @@ export const editHistoryImage = async (id: string) => {
     const item = getHistory(id);
     if (!item?.localPath) throw new Error('Only screenshots saved on this computer can be edited.');
 
-    const image = nativeImage.createFromPath(item.localPath);
-    if (image.isEmpty()) throw new Error('The saved screenshot could not be opened.');
+    const image = bitmapFromImage(nativeImage.createFromPath(item.localPath));
+    if (!image) throw new Error('The saved screenshot could not be opened.');
 
     const edited = await runEditor(image, item.name);
     if (edited) await handleImage(edited, { isEdited: true });

@@ -5,10 +5,10 @@ import log from 'electron-log/main';
 
 import type { OverlayFinish, OverlayPayload, OverlayPurpose } from '../shared/ipc';
 import {
+    bitmapFromRgba,
     captureActiveMonitor,
     captureFullscreen,
     captureRect,
-    imageFromRgba,
     physicalBounds,
     snapshotDisplays,
     virtualScreen,
@@ -216,7 +216,7 @@ export const finishRegionCapture = async (result: OverlayFinish) => {
 
     lastRegion = toScreenRect(result.displayId, result.region) ?? lastRegion;
 
-    return handleImage(imageFromRgba(result.rgba, result.width, result.height), {
+    return handleImage(bitmapFromRgba(result.rgba, result.width, result.height), {
         isEdited: true,
     });
 };

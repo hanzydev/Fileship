@@ -1,9 +1,42 @@
-import { BrowserWindow, nativeImage, screen } from 'electron';
+import { BrowserWindow, screen } from 'electron';
 
-import { native, type Rect } from '../native';
+import { native, type PixelOrder, type Rect } from '../native';
 import { getSettings } from '../store';
 
-export type Shot = { image: Electron.NativeImage; title?: string };
+export type Bitmap = { pixels: Buffer; width: number; height: number; order: PixelOrder };
+
+export type Shot = { image: Bitmap; title?: string };
+
+export const bitmapFromImage = (image: Electron.NativeImage): Bitmap | null => {
+    if (image.isEmpty()) return null;
+
+    const { width, height } = image.getSize();
+    return { pixels: image.toBitmap(), width, height, order: 'bgra' };
+};
+
+export const bitmapFromRgba = (rgba: Uint8Array, width: number, height: number): Bitmap => ({
+    pixels: Buffer.from(rgba.buffer, rgba.byteOffset, rgba.byteLength),
+    width,
+    height,
+    order: 'rgba',
+});
+
+export const encodePng = (bitmap: Bitmap) =>
+    native.encodeImage(bitmap.pixels, bitmap.width, bitmap.height, {
+        order: bitmap.order,
+        format: 'png',
+    });
+
+export const encodeThumbnail = async (bitmap: Bitmap) => {
+    const jpeg = await native.encodeImage(bitmap.pixels, bitmap.width, bitmap.height, {
+        order: bitmap.order,
+        format: 'jpeg',
+        quality: 75,
+        maxWidth: 480,
+    });
+
+    return `data:image/jpeg;base64,${jpeg.toString('base64')}`;
+};
 
 export const windowHandle = (window: BrowserWindow) => {
     const handle = window.getNativeWindowHandle();
@@ -28,25 +61,10 @@ export const virtualScreen = (): Rect => {
     return { x: left, y: top, width: right - left, height: bottom - top };
 };
 
-export const imageFromRgba = (rgba: Uint8Array, width: number, height: number) => {
-    const pixels = Buffer.from(rgba.buffer, rgba.byteOffset, rgba.byteLength);
-
-    for (let i = 0; i < pixels.length; i += 4) {
-        const red = pixels[i]!;
-        pixels[i] = pixels[i + 2]!;
-        pixels[i + 2] = red;
-    }
-
-    return nativeImage.createFromBitmap(pixels, { width, height });
-};
-
-export const toImage = (rect: Rect, data: Buffer) =>
-    nativeImage.createFromBitmap(data, { width: rect.width, height: rect.height });
-
 export const captureRect = async (rect: Rect): Promise<Shot> => {
     const { showCursor } = getSettings().capture;
     const [data] = await native.captureRects([rect], { cursor: showCursor });
-    return { image: toImage(rect, data!) };
+    return { image: { pixels: data!, width: rect.width, height: rect.height, order: 'bgra' } };
 };
 
 export const captureFullscreen = () => captureRect(virtualScreen());

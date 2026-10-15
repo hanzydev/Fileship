@@ -1,6 +1,8 @@
 import { clipboard, ClipboardItem, nativeImage } from 'electron';
 import log from 'electron-log/main';
 
+import { bitmapFromImage } from './capture';
+
 const FILE_NAME_TYPE = 'electron application/osclipboard;format="FileNameW"';
 const RETRY_DELAYS = [0, 100, 200];
 const HISTORY_GAP_MS = 1000;
@@ -42,11 +44,11 @@ export const writeText = async (text: string) => {
 
 export const readText = () => clipboard.readText();
 
-export const writeImage = async (image: Electron.NativeImage) => {
+export const writeImage = async (png: Buffer) => {
     const isCopied = await withRetry('image', () =>
         clipboard.write([
             new ClipboardItem({
-                'image/png': new Blob([new Uint8Array(image.toPNG())], { type: 'image/png' }),
+                'image/png': new Blob([new Uint8Array(png)], { type: 'image/png' }),
             }),
         ]),
     );
@@ -57,7 +59,7 @@ export const writeImage = async (image: Electron.NativeImage) => {
 
 export const readImage = async () => {
     const png = await readType('image/png');
-    return png ? nativeImage.createFromBuffer(png) : null;
+    return png ? bitmapFromImage(nativeImage.createFromBuffer(png)) : null;
 };
 
 export const readFilePath = async () => {

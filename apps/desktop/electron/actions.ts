@@ -65,7 +65,7 @@ const uploadClipboard = async () => {
     if (path) return uploadPath(path);
 
     const image = await readImage();
-    if (image && !image.isEmpty()) return handleImage(image, { kind: 'screenshot' });
+    if (image) return handleImage(image, { kind: 'screenshot' });
 
     const text = await readText();
     if (!text.trim())
