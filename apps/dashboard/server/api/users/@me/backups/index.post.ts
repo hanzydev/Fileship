@@ -111,7 +111,11 @@ export default defineEventHandler(async (event) => {
 
                 await (await getStorage(storageId)).put(backupKey(backup), backupCompressedPath);
 
-                const created = await prisma.backup.create({ data: backup });
+                const created = await prisma.backup.upsert({
+                    where: { id: backup.id },
+                    create: backup,
+                    update: { size, storageId, createdAt: new Date() },
+                });
 
                 await createLog(event, {
                     action: 'Create Backup',

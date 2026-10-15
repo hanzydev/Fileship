@@ -66,6 +66,25 @@ export const abortUploadSession = async (path: string) => {
             .catch(() => null);
 };
 
+const uploadSessionPaths = async (directory: string) =>
+    (await fsp.readdir(directory).catch(() => [] as string[]))
+        .filter((name) => name.endsWith('.upload.json'))
+        .map((name) => join(directory, name.slice(0, -'.json'.length)));
+
+export const pendingUploadKeys = async () => {
+    const tempPath = join(dataDirectory, 'temp');
+    const keys = new Set<string>();
+
+    for (const owner of await fsp.readdir(tempPath).catch(() => [] as string[])) {
+        for (const path of await uploadSessionPaths(join(tempPath, owner))) {
+            const session = await readSession(path);
+            if (session) keys.add(session.key);
+        }
+    }
+
+    return keys;
+};
+
 const sessionLocks = new Map<string, Promise<unknown>>();
 
 const withSessionLock = <T>(path: string, fn: () => Promise<T>) => {

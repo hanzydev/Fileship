@@ -2,6 +2,10 @@ import consola from 'consola';
 
 type StoredFile = { id: string; fileName: string; authorId: string; storageId: string | null };
 
+const SETTLE_TIME = 15 * 60 * 1000;
+
+const settledBefore = () => new Date(Date.now() - SETTLE_TIME);
+
 const storageName = (storageId: string | null) =>
     storageId ? `storage ${storageId}` : 'local storage';
 
@@ -19,11 +23,13 @@ const warnEmpty = (storageId: string | null) =>
     );
 
 const syncFiles = async () => {
+    const createdBefore = settledBefore();
     const groups = new Map<string | null, StoredFile[]>();
     let cursor: string | undefined;
 
     while (true) {
         const files = await prisma.file.findMany({
+            where: { createdAt: { lt: createdBefore } },
             select: { id: true, fileName: true, authorId: true, storageId: true },
             orderBy: { id: 'asc' },
             take: 500,
@@ -81,16 +87,20 @@ const syncBackups = async () => {
         (await prisma.user.findMany({ select: { id: true } })).map(({ id }) => id),
     );
 
+    const pending = await pendingUploadKeys();
     let changed = 0;
 
     for (const storageId of [null, ...storages.map(({ id }) => id)]) {
         const stored = await listStorage(storageId, 'backups/');
         if (!stored) continue;
 
+        const createdBefore = settledBefore();
         const backups = await prisma.backup.findMany({ where: { storageId } });
         const known = new Set(backups.map((backup) => `${backup.userId}/${backup.id}.tgz`));
         const missing = backups.filter(
-            (backup) => !stored.has(`${backup.userId}/${backup.id}.tgz`),
+            (backup) =>
+                backup.createdAt < createdBefore &&
+                !stored.has(`${backup.userId}/${backup.id}.tgz`),
         );
 
         if (!stored.size && missing.length) {
@@ -101,7 +111,7 @@ const syncBackups = async () => {
         const unindexed = [...stored].flatMap(([key, object]) => {
             const [, userId, id] = key.match(/^([\w-]+)\/([\w-]+)\.tgz$/) ?? [];
 
-            return userId && users.has(userId) && !known.has(key)
+            return userId && users.has(userId) && !known.has(key) && !pending.has(`backups/${key}`)
                 ? [{ id: id!, userId, size: object.size, storageId, createdAt: object.modifiedAt }]
                 : [];
         });

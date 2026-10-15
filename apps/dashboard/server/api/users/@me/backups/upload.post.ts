@@ -101,13 +101,17 @@ export default defineEventHandler(async (event) => {
 
     await fsp.rm(`${path}.json`, { force: true });
 
-    const created = await prisma.backup.create({
-        data: {
-            id: basename(session.key, '.tgz'),
-            userId: currentUser.id,
-            size: session.received,
-            storageId: session.storageId,
-        },
+    const data = {
+        id: basename(session.key, '.tgz'),
+        userId: currentUser.id,
+        size: session.received,
+        storageId: session.storageId,
+    };
+
+    const created = await prisma.backup.upsert({
+        where: { id: data.id },
+        create: data,
+        update: { size: data.size, storageId: data.storageId, createdAt: new Date() },
     });
 
     await createLog(event, {
