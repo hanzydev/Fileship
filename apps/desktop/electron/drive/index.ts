@@ -578,7 +578,7 @@ const handleLocalModified = async (event: Extract<HelperEvent, { type: 'localMod
     );
 };
 
-const runHelperEvent = (event: HelperEvent) => {
+const runHelperEvent = (event: Exclude<HelperEvent, { type: 'rescan' }>) => {
     if (event.type === 'delete') return handleDelete(event);
     if (event.type === 'rename') return handleRename(event);
     if (event.type === 'localNew') return handleLocalNew(event);
@@ -590,6 +590,11 @@ const runHelperEvent = (event: HelperEvent) => {
 };
 
 const handleHelperEvent = (event: HelperEvent) => {
+    if (event.type === 'rescan') {
+        resync();
+        return;
+    }
+
     enqueue(() => runHelperEvent(event)).catch((error) => {
         log.warn(`Drive ${event.type} failed`, error);
         setStatus({ state: 'error', error: error.message });

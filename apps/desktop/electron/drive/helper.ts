@@ -29,7 +29,8 @@ export type HelperEvent =
           isFolder: boolean;
       }
     | { type: 'localNew'; path: string; isFolder: boolean; size: number }
-    | { type: 'localModified'; path: string; identity: string; size: number };
+    | { type: 'localModified'; path: string; identity: string; size: number }
+    | { type: 'rescan' };
 
 type Pending = {
     resolve: (value: any) => void;

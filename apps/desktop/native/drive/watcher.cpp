@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <map>
+#include <string_view>
 #include <thread>
 
 using namespace winrt;
@@ -41,6 +42,17 @@ void report(std::wstring const& type, std::wstring const& relative, std::wstring
 
     message.SetNamedValue(L"path", JsonValue::CreateStringValue(relative));
     sendEvent(type, message);
+}
+
+void forget(std::wstring const& relative) {
+    for (auto iterator = reported.begin(); iterator != reported.end();) {
+        auto path = std::wstring_view(iterator->first).substr(iterator->first.find(L'|') + 1);
+        bool isSame = path.size() >= relative.size() &&
+                      _wcsnicmp(path.data(), relative.c_str(), relative.size()) == 0 &&
+                      (path.size() == relative.size() || path[relative.size()] == L'\\');
+
+        iterator = isSame ? reported.erase(iterator) : std::next(iterator);
+    }
 }
 
 void retryLater(std::wstring const& relative) {
@@ -143,7 +155,17 @@ void readChanges() {
             &returned, nullptr, nullptr);
 
         if (!ok || !isWatching) break;
-        if (returned == 0) continue;
+
+        if (returned == 0) {
+            {
+                std::lock_guard lock(changesMutex);
+                changes.clear();
+                reported.clear();
+            }
+
+            sendEvent(L"rescan", JsonObject());
+            continue;
+        }
 
         auto now = Clock::now();
         auto entry = reinterpret_cast<FILE_NOTIFY_INFORMATION const*>(buffer.data());
@@ -151,7 +173,9 @@ void readChanges() {
 
         for (;;) {
             std::wstring relative(entry->FileName, entry->FileNameLength / sizeof(wchar_t));
-            if (entry->Action != FILE_ACTION_REMOVED && entry->Action != FILE_ACTION_RENAMED_OLD_NAME) {
+            if (entry->Action == FILE_ACTION_REMOVED || entry->Action == FILE_ACTION_RENAMED_OLD_NAME) {
+                forget(relative);
+            } else {
                 changes[relative] = now;
             }
 
