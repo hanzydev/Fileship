@@ -5,7 +5,13 @@
             <UiCardDescription>{{ description }}</UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
-            <UiSkeleton v-if="isLoading" class="h-56 w-full" />
+            <EmptyState
+                v-if="isError"
+                :icon="ICircleAlert"
+                title="Couldn't load the data"
+                class="h-56 py-0"
+            />
+            <UiSkeleton v-else-if="isLoading" class="h-56 w-full" />
             <EmptyState
                 v-else-if="!data.length"
                 :icon="IChartArea"
@@ -32,8 +38,8 @@
                         :tick-line="false"
                         :domain-line="false"
                         :grid-line="false"
-                        :num-ticks="6"
-                        :tick-format="(i: number) => data[i]?.label ?? ''"
+                        :num-ticks="numTicks"
+                        :tick-format="(i: number) => data[i]?.tick ?? ''"
                     />
                     <VisAxis
                         type="y"
@@ -51,36 +57,42 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
-
 import { VisArea, VisAxis, VisCrosshair, VisLine, VisTooltip, VisXYContainer } from '@unovis/vue';
 
-import { IChartArea, UiChartTooltipContent } from '#components';
+import { IChartArea, ICircleAlert, UiChartTooltipContent } from '#components';
 import { componentToString } from '#layers/ui/app/components/ui/chart';
 
-type Datum = { index: number; label: string; value: number };
+export type TrendPoint = { label: string; value: number; tick?: string };
+
+type Datum = { index: number; label: string; tick: string; value: number };
+
+const numberFormat = new Intl.NumberFormat('en-US');
 
 const {
     points,
     valueLabel,
     color = 'var(--chart-2)',
     format,
+    numTicks = 6,
 } = defineProps<{
     title: string;
     description: string;
-    points: { day: string; value: number }[];
+    points: TrendPoint[];
     valueLabel: string;
     color?: string;
     format?: (value: number) => string;
+    numTicks?: number;
     isLoading?: boolean;
+    isError?: boolean;
 }>();
 
-const formatValue = (value: number) => (format ?? formatNumber)(value);
+const formatValue = (value: number) => (format ?? numberFormat.format)(value);
 
 const data = computed<Datum[]>(() =>
     points.map((point, index) => ({
         index,
-        label: dayjs(point.day).format('MMM D'),
+        label: point.label,
+        tick: point.tick ?? point.label,
         value: point.value,
     })),
 );

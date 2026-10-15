@@ -80,21 +80,30 @@ const charts = computed(() => [
         description: `Instances that reported in the ${ACTIVE_DAYS} days up to each day`,
         valueLabel: 'Instances',
         color: 'var(--chart-2)',
-        points: (series.value ?? []).map((stat) => ({ day: stat.day, value: stat.instances })),
+        points: (series.value ?? []).map((stat) => ({
+            label: formatDay(stat.day),
+            value: stat.instances,
+        })),
     },
     {
         title: 'Users',
         description: 'Users on the active instances',
         valueLabel: 'Users',
         color: 'var(--chart-3)',
-        points: (series.value ?? []).map((stat) => ({ day: stat.day, value: stat.users })),
+        points: (series.value ?? []).map((stat) => ({
+            label: formatDay(stat.day),
+            value: stat.users,
+        })),
     },
     {
         title: 'Files',
         description: 'Files on the active instances, trash excluded',
         valueLabel: 'Files',
         color: 'var(--chart-4)',
-        points: (series.value ?? []).map((stat) => ({ day: stat.day, value: stat.files })),
+        points: (series.value ?? []).map((stat) => ({
+            label: formatDay(stat.day),
+            value: stat.files,
+        })),
     },
     {
         title: 'Storage',
@@ -102,7 +111,10 @@ const charts = computed(() => [
         valueLabel: 'Storage',
         color: 'var(--chart-1)',
         format: formatBytes,
-        points: (series.value ?? []).map((stat) => ({ day: stat.day, value: stat.storage })),
+        points: (series.value ?? []).map((stat) => ({
+            label: formatDay(stat.day),
+            value: stat.storage,
+        })),
     },
 ]);
 

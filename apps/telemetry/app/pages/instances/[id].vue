@@ -130,7 +130,7 @@ const statCards = computed(() => {
 });
 
 const points = (key: 'users' | 'files') =>
-    (instance.value?.history ?? []).map((day) => ({ day: day.day, value: day[key] }));
+    (instance.value?.history ?? []).map((day) => ({ label: formatDay(day.day), value: day[key] }));
 
 const sections = computed(() => {
     const { runtime, usage, features } = instance.value?.report ?? {};

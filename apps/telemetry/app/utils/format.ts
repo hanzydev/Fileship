@@ -1,8 +1,11 @@
+import dayjs from 'dayjs';
 import { filesize } from 'filesize';
 
 const numberFormat = new Intl.NumberFormat('en-US');
 
 export const formatNumber = (value: number) => numberFormat.format(value);
+
+export const formatDay = (day: string | Date) => dayjs(day).format('MMM D');
 
 export const formatBytes = (value: number) => filesize(value) as string;
 
