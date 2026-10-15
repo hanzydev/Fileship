@@ -12,8 +12,9 @@ import {
     physicalBounds,
     snapshotDisplays,
     virtualScreen,
+    windowHandle,
 } from './capture';
-import type { Rect } from './capture/native';
+import { forceForeground, type Rect } from './capture/native';
 import { getSettings } from './store';
 import { handleImage } from './tasks';
 import { rendererUrl } from './windows';
@@ -88,6 +89,12 @@ const reveal = (id: number, window: BrowserWindow, isActive: boolean) => {
     if (isActive) {
         window.show();
         window.focus();
+
+        try {
+            forceForeground(windowHandle(window));
+        } catch (error) {
+            log.warn('Could not focus the capture overlay', error);
+        }
     } else {
         window.showInactive();
     }

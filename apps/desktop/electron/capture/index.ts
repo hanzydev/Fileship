@@ -5,13 +5,15 @@ import { captureScreen, foregroundWindow, listWindows, type Rect } from './nativ
 
 export type Shot = { image: Electron.NativeImage; title?: string };
 
+export const windowHandle = (window: BrowserWindow) => {
+    const handle = window.getNativeWindowHandle();
+    return handle.length >= 8 ? handle.readBigUInt64LE(0) : BigInt(handle.readUInt32LE(0));
+};
+
 export const ownWindowHandles = () =>
     BrowserWindow.getAllWindows()
         .filter((window) => !window.isDestroyed())
-        .map((window) => {
-            const handle = window.getNativeWindowHandle();
-            return handle.length >= 8 ? handle.readBigUInt64LE(0) : BigInt(handle.readUInt32LE(0));
-        });
+        .map(windowHandle);
 
 export const physicalBounds = (display: Electron.Display): Rect =>
     screen.dipToScreenRect(null, display.bounds);

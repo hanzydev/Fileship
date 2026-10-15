@@ -379,3 +379,32 @@ export const listOutputs = () => {
     method(factory, 2, Release)();
     return outputs;
 };
+
+const kernel32 = koffi.load('kernel32.dll');
+const GetCurrentThreadId = kernel32.func('uint32 __stdcall GetCurrentThreadId()');
+const GetWindowThreadProcessId = user32.func(
+    'uint32 __stdcall GetWindowThreadProcessId(void *hWnd, _Out_ uint32 *lpdwProcessId)',
+);
+const AttachThreadInput = user32.func(
+    'bool __stdcall AttachThreadInput(uint32 idAttach, uint32 idAttachTo, bool fAttach)',
+);
+const SetForegroundWindow = user32.func('bool __stdcall SetForegroundWindow(intptr_t hWnd)');
+const BringWindowToTop = user32.func('bool __stdcall BringWindowToTop(intptr_t hWnd)');
+const SetFocus = user32.func('intptr_t __stdcall SetFocus(intptr_t hWnd)');
+
+export const forceForeground = (handle: bigint) => {
+    const foreground = GetForegroundWindow();
+    const current = GetCurrentThreadId();
+    const target = foreground ? GetWindowThreadProcessId(foreground, null) : 0;
+    const shouldAttach = target !== 0 && target !== current;
+
+    if (shouldAttach) AttachThreadInput(current, target, true);
+
+    try {
+        BringWindowToTop(handle);
+        SetForegroundWindow(handle);
+        SetFocus(handle);
+    } finally {
+        if (shouldAttach) AttachThreadInput(current, target, false);
+    }
+};
