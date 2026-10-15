@@ -102,24 +102,24 @@ export const createSftpDriver = (config: SftpConfig): StorageDriver => {
             await client.mkdir(config.root, true);
         },
         async beginUpload(key) {
-            await (await connect()).mkdir(posix.dirname(path(key)), true);
-            return { part: `${key}.${nanoid(8)}.part` };
+            const client = await connect();
+            const part = `${key}.${nanoid(8)}.part`;
+
+            await client.mkdir(posix.dirname(path(key)), true);
+            await client.put(Buffer.alloc(0), path(part));
+
+            return { part };
         },
         async writeChunk(_, state, __, offset, data) {
             const client = await connect();
 
             await new Promise((resolve, reject) =>
                 client
-                    .createWriteStream(path(state.part), {
-                        flags: offset ? 'r+' : 'w',
-                        start: offset,
-                    })
+                    .createWriteStream(path(state.part), { flags: 'r+', start: offset })
                     .on('error', reject)
                     .on('close', resolve)
                     .end(Buffer.from(data)),
             );
-
-            return state;
         },
         async completeUpload(key, state) {
             await (await connect()).rename(path(state.part), path(key));

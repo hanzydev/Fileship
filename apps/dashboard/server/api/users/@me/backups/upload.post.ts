@@ -6,8 +6,12 @@ import { z } from 'zod';
 
 const validationSchema = z.object({
     uploadId: z.string().regex(/^[\w-]{1,64}$/, 'Invalid upload id'),
-    totalChunks: z.number().min(1, 'Total chunks must be at least 1'),
-    currentChunk: z.number().min(1, 'Current chunk must be at least 1'),
+    totalChunks: z
+        .number()
+        .int()
+        .min(1, 'Total chunks must be at least 1')
+        .max(10000, 'Too many chunks'),
+    currentChunk: z.number().int().min(1, 'Current chunk must be at least 1'),
     chunkOffset: z.number().int().min(0, 'Chunk offset must be at least 0'),
 });
 
@@ -53,7 +57,7 @@ export default defineEventHandler(async (event) => {
             uploadId: body.data.uploadId,
             part: body.data.currentChunk,
             offset: body.data.chunkOffset,
-            isLast: body.data.currentChunk === body.data.totalChunks,
+            total: body.data.totalChunks,
             data: new Uint8Array(await backup.arrayBuffer()),
         },
         async () => {
@@ -82,12 +86,12 @@ export default defineEventHandler(async (event) => {
 
     if (!upload) return;
 
-    const { path, session } = upload;
+    const { path, session, parts } = upload;
 
     await (
         await getStorage(session.storageId)
     )
-        .completeUpload(session.key, session.state)
+        .completeUpload(session.key, session.state, parts)
         .catch(async (error) => {
             await abortUploadSession(path);
             throw error;

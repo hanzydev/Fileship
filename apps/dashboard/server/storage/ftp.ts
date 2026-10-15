@@ -163,6 +163,7 @@ export const createFtpDriver = (config: FtpConfig): StorageDriver => {
         async test() {
             await withClient((client) => client.ensureDir(config.root));
         },
+        isSequential: true,
         async beginUpload(key) {
             await withClient((client) => client.ensureDir(posix.dirname(path(key))));
             return { part: `${key}.${nanoid(8)}.part` };
@@ -181,8 +182,6 @@ export const createFtpDriver = (config: FtpConfig): StorageDriver => {
 
                 return client.appendFrom(source, part);
             });
-
-            return state;
         },
         async completeUpload(key, state) {
             await withClient((client) => client.rename(path(state.part), path(key)));

@@ -8,8 +8,13 @@ const validationSchema = z.object({
         .string()
         .regex(/^[\w-]{1,64}$/, 'Invalid upload id')
         .optional(),
-    totalChunks: z.number().min(1, 'Total chunks must be at least 1').optional(),
-    currentChunk: z.number().min(1, 'Current chunk must be at least 1').optional(),
+    totalChunks: z
+        .number()
+        .int()
+        .min(1, 'Total chunks must be at least 1')
+        .max(10000, 'Too many chunks')
+        .optional(),
+    currentChunk: z.number().int().min(1, 'Current chunk must be at least 1').optional(),
     chunkOffset: z.number().int().min(0, 'Chunk offset must be at least 0').optional(),
     inboxPassword: z.string().max(48, 'Inbox password must be at most 48 characters').nullish(),
 });
@@ -90,7 +95,7 @@ export default defineEventHandler(async (event) => {
             uploadId: body.data.uploadId ?? nanoid(8),
             part: body.data.currentChunk!,
             offset: body.data.chunkOffset ?? 0,
-            isLast: body.data.currentChunk === body.data.totalChunks,
+            total: body.data.totalChunks!,
             data: new Uint8Array(await file.arrayBuffer()),
             mimeType: file.type,
         },

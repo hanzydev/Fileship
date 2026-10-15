@@ -131,7 +131,7 @@ export const createS3Driver = (config: S3Config): StorageDriver => {
                 new CreateMultipartUploadCommand({ Bucket: config.bucket, Key: objectKey(key) }),
             );
 
-            return { uploadId: UploadId, parts: [] };
+            return { uploadId: UploadId };
         },
         async writeChunk(key, state, part, _, data) {
             const { ETag } = await client.send(
@@ -144,22 +144,16 @@ export const createS3Driver = (config: S3Config): StorageDriver => {
                 }),
             );
 
-            return {
-                ...state,
-                parts: [
-                    ...state.parts.filter((entry: any) => entry.PartNumber !== part),
-                    { PartNumber: part, ETag },
-                ],
-            };
+            return { PartNumber: part, ETag };
         },
-        async completeUpload(key, state) {
+        async completeUpload(key, state, parts) {
             await client.send(
                 new CompleteMultipartUploadCommand({
                     Bucket: config.bucket,
                     Key: objectKey(key),
                     UploadId: state.uploadId,
                     MultipartUpload: {
-                        Parts: state.parts.sort((a: any, b: any) => a.PartNumber - b.PartNumber),
+                        Parts: [...parts].sort((a, b) => a.PartNumber - b.PartNumber),
                     },
                 }),
             );

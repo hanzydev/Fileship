@@ -48,12 +48,15 @@ export const createLocalDriver = (root: string): StorageDriver => {
             await fsp.access(root);
         },
         async beginUpload(key) {
+            const part = `${key}.${nanoid(8)}.part`;
+
             await fsp.mkdir(dirname(path(key)), { recursive: true });
-            return { part: `${key}.${nanoid(8)}.part` };
+            await fsp.writeFile(path(part), new Uint8Array());
+
+            return { part };
         },
         async writeChunk(_, state, __, offset, data) {
             await writeUploadChunk(path(state.part), data, offset, false);
-            return state;
         },
         async completeUpload(key, state) {
             await moveFileRobust(path(state.part), path(key));

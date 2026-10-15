@@ -69,16 +69,6 @@ export const writeUploadChunk = async (
     offset: number,
     isLastChunk: boolean,
 ) => {
-    if (offset === 0) {
-        await fsp.writeFile(filePath, buffer);
-        return;
-    }
-
-    const stats = await fsp.stat(filePath).catch(() => null);
-    if (!stats || stats.size < offset) {
-        throw new Error('A previous upload chunk is missing');
-    }
-
     const handle = await fsp.open(filePath, 'r+');
     try {
         await handle.write(buffer, 0, buffer.byteLength, offset);

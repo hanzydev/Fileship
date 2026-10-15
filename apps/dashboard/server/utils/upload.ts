@@ -3,21 +3,25 @@ import { promises as fsp } from 'node:fs';
 import { basename, dirname, extname, join } from 'pathe';
 import sharp from 'sharp';
 
-import type { UploadState } from '~~/server/storage/types';
+import type { UploadPart, UploadState } from '~~/server/storage/types';
 
 interface UploadSession {
     key: string;
     storageId: string | null;
     isDirect: boolean;
+    total: number;
+    chunkSize: number | null;
     received: number;
+    parts: Record<number, { size: number; result?: UploadPart }>;
+    isComplete?: boolean;
     state: UploadState;
 }
 
 interface UploadChunk {
     uploadId: string;
     part: number;
+    total: number;
     offset: number;
-    isLast: boolean;
     data: Uint8Array;
 }
 
@@ -59,6 +63,50 @@ export const abortUploadSession = async (path: string) => {
             .catch(() => null);
 };
 
+const sessionLocks = new Map<string, Promise<unknown>>();
+
+const withSessionLock = <T>(path: string, fn: () => Promise<T>) => {
+    const result = (sessionLocks.get(path) ?? Promise.resolve()).then(fn, fn);
+    const tail = result.catch(() => null);
+
+    sessionLocks.set(path, tail);
+    tail.then(() => {
+        if (sessionLocks.get(path) === tail) sessionLocks.delete(path);
+    });
+
+    return result;
+};
+
+const readSession = (path: string): Promise<UploadSession | null> =>
+    fsp.readFile(`${path}.json`, 'utf8').then(JSON.parse, () => null);
+
+const invalidChunk = (message: string) => createError({ status: 400, message });
+
+const checkLayout = (session: UploadSession, chunk: UploadChunk) => {
+    const isLast = chunk.part === chunk.total;
+
+    if (chunk.total !== session.total || chunk.part > session.total)
+        throw invalidChunk('Invalid upload chunk');
+
+    if (session.total === 1) {
+        if (chunk.offset) throw invalidChunk('Invalid upload chunk');
+        return;
+    }
+
+    const chunkSize = isLast ? chunk.offset / (session.total - 1) : chunk.data.length;
+
+    if (!Number.isInteger(chunkSize) || chunkSize < 1) throw invalidChunk('Invalid upload chunk');
+
+    session.chunkSize ??= chunkSize;
+
+    if (
+        chunkSize !== session.chunkSize ||
+        chunk.offset !== (chunk.part - 1) * session.chunkSize ||
+        (isLast && chunk.data.length > session.chunkSize)
+    )
+        throw invalidChunk('Invalid upload chunk');
+};
+
 export const receiveChunk = async (
     ownerId: string,
     chunk: UploadChunk,
@@ -67,60 +115,75 @@ export const receiveChunk = async (
 ) => {
     const path = join(dataDirectory, 'temp', ownerId, `${chunk.uploadId}.upload`);
 
-    let session: UploadSession | null = await fsp
-        .readFile(`${path}.json`, 'utf8')
-        .then(JSON.parse, () => null);
+    if (chunk.part > chunk.total) throw invalidChunk('Invalid upload chunk');
 
-    if (!session) {
-        if (chunk.offset) {
+    const session = await withSessionLock(path, async () => {
+        let session = await readSession(path);
+
+        if (!session) {
+            const { key, isDirect } = await start();
+            const storageId = await getActiveStorageId();
+
+            await fsp.mkdir(dirname(path), { recursive: true });
+            if (!isDirect) await fsp.writeFile(path, new Uint8Array());
+
+            session = {
+                key,
+                storageId,
+                isDirect,
+                total: chunk.total,
+                chunkSize: null,
+                received: 0,
+                parts: {},
+                state: isDirect ? await (await getStorage(storageId)).beginUpload(key) : {},
+            };
+        }
+
+        if (session.isComplete) throw invalidChunk('Upload already completed');
+
+        checkLayout(session, chunk);
+
+        const received =
+            session.received - (session.parts[chunk.part]?.size ?? 0) + chunk.data.length;
+
+        if (await isTooLarge(received)) {
+            await fsp.writeFile(`${path}.json`, JSON.stringify(session));
+            await abortUploadSession(path);
             throw createError({
                 status: 400,
-                message: 'Upload not found',
+                message: 'Storage limit reached',
             });
         }
 
-        const { key, isDirect } = await start();
-        const storageId = await getActiveStorageId();
-
-        session = {
-            key,
-            storageId,
-            isDirect,
-            received: 0,
-            state: isDirect ? await (await getStorage(storageId)).beginUpload(key) : {},
-        };
-
-        await fsp.mkdir(dirname(path), { recursive: true });
         await fsp.writeFile(`${path}.json`, JSON.stringify(session));
-    }
+        return session;
+    });
 
-    if (chunk.offset > session.received) {
-        throw createError({
-            status: 400,
-            message: 'A previous upload chunk is missing',
-        });
-    }
+    const result = session.isDirect
+        ? await (
+              await getStorage(session.storageId)
+          ).writeChunk(session.key, session.state, chunk.part, chunk.offset, chunk.data)
+        : await writeUploadChunk(path, chunk.data, chunk.offset, chunk.part === chunk.total);
 
-    const received = Math.max(session.received, chunk.offset + chunk.data.length);
+    return withSessionLock(path, async () => {
+        const session = await readSession(path);
 
-    if (await isTooLarge(received)) {
-        await abortUploadSession(path);
-        throw createError({
-            status: 400,
-            message: 'Storage limit reached',
-        });
-    }
+        if (!session || session.isComplete) throw invalidChunk('Upload not found');
 
-    if (session.isDirect)
-        session.state = await (
-            await getStorage(session.storageId)
-        ).writeChunk(session.key, session.state, chunk.part, chunk.offset, chunk.data);
-    else await writeUploadChunk(path, chunk.data, chunk.offset, chunk.isLast);
+        session.received += chunk.data.length - (session.parts[chunk.part]?.size ?? 0);
+        session.parts[chunk.part] = { size: chunk.data.length, ...(result && { result }) };
+        session.isComplete = Object.keys(session.parts).length === session.total;
 
-    session.received = received;
-    await fsp.writeFile(`${path}.json`, JSON.stringify(session));
+        await fsp.writeFile(`${path}.json`, JSON.stringify(session));
 
-    if (chunk.isLast) return { path, session };
+        if (!session.isComplete) return;
+
+        const parts = Object.values(session.parts).flatMap((part) =>
+            part.result ? [part.result] : [],
+        );
+
+        return { path, session, parts };
+    });
 };
 
 export const receiveUpload = async <T extends UploadedFile>(
@@ -146,7 +209,7 @@ export const receiveUpload = async <T extends UploadedFile>(
 
     if (!upload) return;
 
-    const { path, session } = upload;
+    const { path, session, parts } = upload;
     const storage = await getStorage(session.storageId);
 
     if (!session.isDirect) {
@@ -191,7 +254,7 @@ export const receiveUpload = async <T extends UploadedFile>(
 
     try {
         if (session.isDirect) {
-            await storage.completeUpload(session.key, session.state);
+            await storage.completeUpload(session.key, session.state, parts);
         } else {
             if (isAnalyzable(file.mimeType)) file.metadata = await processMedia(file, path);
             await storage.put(session.key, path);
