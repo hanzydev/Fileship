@@ -2,7 +2,7 @@ import { app, BrowserWindow, session } from 'electron';
 
 import { desktopUserAgent } from './api';
 import { getStore, getToken } from './store';
-import { iconPath, openWebUrl, themeBackground } from './windows';
+import { iconPath, openWebUrl, restrictPermissions, themeBackground } from './windows';
 
 const PARTITION = 'persist:dashboard';
 
@@ -14,6 +14,7 @@ const signIn = async (instanceUrl: string, token: string) => {
     const windowSession = dashboardSession();
 
     windowSession.setUserAgent(`${app.userAgentFallback} ${desktopUserAgent()}`);
+    restrictPermissions(windowSession);
 
     await windowSession.cookies.set({
         url: instanceUrl,

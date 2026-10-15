@@ -11,7 +11,14 @@ import {
 import { ApiError, desktopUserAgent, normalizeInstanceUrl, request } from './api';
 import { stopDrive } from './drive';
 import { clearSession, getStore, getToken, setSession } from './store';
-import { broadcast, getMainWindow, iconPath, openWebUrl, themeBackground } from './windows';
+import {
+    broadcast,
+    getMainWindow,
+    iconPath,
+    openWebUrl,
+    restrictPermissions,
+    themeBackground,
+} from './windows';
 
 const CHECK_REUSE_MS = 5 * 60 * 1000;
 
@@ -100,6 +107,7 @@ export const login = async (input: string): Promise<Account> => {
     const windowSession = session.fromPartition(`login-${Date.now()}`);
 
     windowSession.setUserAgent(`${app.userAgentFallback} ${desktopUserAgent()}`);
+    restrictPermissions(windowSession);
 
     const loginWindow = new BrowserWindow({
         width: 480,

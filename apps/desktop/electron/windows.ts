@@ -34,6 +34,15 @@ export const openWebUrl = (url: string) => {
     }
 };
 
+const WEB_PERMISSIONS = new Set(['clipboard-sanitized-write', 'fullscreen']);
+
+export const restrictPermissions = (target: Electron.Session) => {
+    target.setPermissionRequestHandler((_, permission, callback) =>
+        callback(WEB_PERMISSIONS.has(permission)),
+    );
+    target.setPermissionCheckHandler((_, permission) => WEB_PERMISSIONS.has(permission));
+};
+
 export const markQuitting = () => {
     isQuitting = true;
 };
