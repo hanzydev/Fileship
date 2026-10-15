@@ -134,7 +134,10 @@
                 </UiCard>
                 <UiCard v-else-if="isText" class="w-full flex-1">
                     <UiCardContent>
-                        <div v-if="fileContent === undefined" class="flex flex-col gap-3">
+                        <TextBlock v-if="contentError" variant="muted">
+                            {{ contentError }}
+                        </TextBlock>
+                        <div v-else-if="fileContent === undefined" class="flex flex-col gap-3">
                             <TextBlock v-for="i in 6" :key="i" variant="muted" class="w-full">
                                 <UiSkeleton
                                     class="h-lh rounded-full"
@@ -201,6 +204,7 @@ const data = ref({
 });
 
 const fileContent = ref<string>();
+const contentError = ref<string>();
 const previewMode = ref(true);
 const passwordError = ref<string>();
 const isVerifying = ref(false);
@@ -274,13 +278,18 @@ const handleCopy = () => {
 watch(
     () => data.value.id,
     async () => {
-        if (!isText.value || !data.value.id) return;
+        if (import.meta.server || !isText.value || !data.value.id) return;
 
-        const file = await $fetch<Blob | string>(`/u/${id}`, {
-            query: { password: data.value.password },
-        });
+        try {
+            const file = await $fetch<Blob | string>(`/u/${id}`, {
+                query: { password: data.value.password },
+            });
 
-        fileContent.value = file instanceof Blob ? await file.text() : file;
+            contentError.value = undefined;
+            fileContent.value = file instanceof Blob ? await file.text() : file;
+        } catch (error) {
+            contentError.value = getErrorMessage(error);
+        }
     },
     { immediate: true },
 );

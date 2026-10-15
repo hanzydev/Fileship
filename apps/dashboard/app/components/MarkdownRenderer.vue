@@ -20,7 +20,15 @@ const copyIcon =
 const escapeHtml = (value: string) =>
     value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`);
 
-const isSafeUrl = (url: string) => !/^[a-z][\w+.-]*:/i.test(url) || /^(https?|mailto):/i.test(url);
+const SAFE_PROTOCOLS = ['http:', 'https:', 'mailto:'];
+
+const isSafeUrl = (url: string) => {
+    try {
+        return SAFE_PROTOCOLS.includes(new URL(url, 'https://relative.invalid').protocol);
+    } catch {
+        return false;
+    }
+};
 
 const marked = new Marked(markedKatex({ throwOnError: false }), {
     renderer: {
@@ -31,6 +39,11 @@ const marked = new Marked(markedKatex({ throwOnError: false }), {
             if (!isSafeUrl(href)) return escapeHtml(text);
 
             return `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer"${title ? ` title="${escapeHtml(title)}"` : ''}>${escapeHtml(text)}</a>`;
+        },
+        image({ href, title, text }) {
+            if (!isSafeUrl(href)) return escapeHtml(text);
+
+            return `<img src="${escapeHtml(href)}" alt="${escapeHtml(text)}"${title ? ` title="${escapeHtml(title)}"` : ''}>`;
         },
         code({ text, lang }) {
             const language = hljs.getLanguage(lang || '') ? lang! : 'plaintext';
