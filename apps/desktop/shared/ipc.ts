@@ -155,7 +155,6 @@ export type IpcInvoke = {
     'settings:get': () => Settings;
     'settings:set': (patch: Partial<Settings>) => Settings;
     'app:info': () => AppInfo;
-    'app:openExternal': (url: string) => void;
     'app:openDashboard': (route?: string) => void;
     'window:theme': (isDark: boolean) => void;
     'updates:get': () => UpdateStatus;
@@ -185,7 +184,6 @@ export type IpcInvoke = {
     'dialog:pickFfmpeg': () => string | null;
     'ffmpeg:status': () => FfmpegStatus;
     'ffmpeg:download': () => void;
-    'ffmpeg:remove': () => void;
     'recording:preview': () => string;
     'recorder:get': () => RecorderState;
     'recorder:ready': (error: string | null) => void;
@@ -219,7 +217,6 @@ export const INVOKE_CHANNELS = [
     'settings:get',
     'settings:set',
     'app:info',
-    'app:openExternal',
     'app:openDashboard',
     'window:theme',
     'updates:get',
@@ -249,7 +246,6 @@ export const INVOKE_CHANNELS = [
     'dialog:pickFfmpeg',
     'ffmpeg:status',
     'ffmpeg:download',
-    'ffmpeg:remove',
     'recording:preview',
     'recorder:get',
     'recorder:ready',

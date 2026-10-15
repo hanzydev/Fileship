@@ -19,12 +19,7 @@ import {
     setSnippingToolKey,
 } from './hotkeys';
 import { finishRegionCapture, markOverlayLoaded, markOverlayReady } from './overlay';
-import {
-    downloadFfmpeg,
-    getFfmpegStatus,
-    removeManagedFfmpeg,
-    resetFfmpegProbe,
-} from './recording/ffmpeg';
+import { downloadFfmpeg, getFfmpegStatus, resetFfmpegProbe } from './recording/ffmpeg';
 import {
     controlRecording,
     getRecorderState,
@@ -90,9 +85,6 @@ const handlers: Handlers = {
         return settings;
     },
     'app:info': () => ({ version: app.getVersion(), isPackaged: app.isPackaged }),
-    'app:openExternal': (url) => {
-        if (/^https?:\/\//.test(url)) shell.openExternal(url);
-    },
     'app:openDashboard': (route) => openDashboard(route),
     'window:theme': (isDark) => setWindowTheme(isDark),
     'updates:get': () => getUpdateStatus(),
@@ -162,7 +154,6 @@ const handlers: Handlers = {
     'ffmpeg:download': () => {
         downloadFfmpeg();
     },
-    'ffmpeg:remove': () => removeManagedFfmpeg(),
     'recording:preview': () => recordingPreview(),
     'recorder:get': () => getRecorderState(),
     'recorder:ready': (error) => markRecorderReady(error),

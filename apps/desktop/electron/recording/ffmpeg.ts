@@ -1,7 +1,7 @@
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { createWriteStream, existsSync } from 'node:fs';
-import { mkdir, readdir, rename, rm, stat } from 'node:fs/promises';
+import { mkdir, rename, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
 
@@ -224,13 +224,4 @@ export const downloadFfmpeg = async () => {
         await rm(extracted, { recursive: true, force: true }).catch(() => {});
         publish();
     }
-};
-
-export const removeManagedFfmpeg = async () => {
-    for (const name of await readdir(managedDir()).catch(() => [] as string[])) {
-        await rm(join(managedDir(), name), { force: true, recursive: true });
-    }
-
-    probed = null;
-    publish();
 };
