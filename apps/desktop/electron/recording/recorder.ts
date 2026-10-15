@@ -345,13 +345,12 @@ const stopTimer = (recording: Recording) => {
     recording.timer = null;
 };
 
-const finish = async (recording: Recording) => {
+const finish = (recording: Recording) => {
     stopTimer(recording);
     closeWindows(recording);
 
     if (current === recording) current = null;
     setState(idleState(recording.kind));
-    notifyIdle();
 };
 
 const runFfmpeg = async (path: string, args: string[]) => {
@@ -431,19 +430,21 @@ export const stopRecording = async () => {
         notify('Could not finish the recording', error.message);
     }
 
-    await finish(recording);
+    finish(recording);
 
-    if (result) {
-        await handleRecording({
-            kind: recording.kind === 'gif' ? 'gif' : 'recording',
-            path: result.output,
-            name: result.name,
-            mimeType: result.mimeType,
-            thumbnail: result.thumbnail,
-            isSaved: result.isSaved,
-        });
-    }
+    const handled = result
+        ? handleRecording({
+              kind: recording.kind === 'gif' ? 'gif' : 'recording',
+              path: result.output,
+              name: result.name,
+              mimeType: result.mimeType,
+              thumbnail: result.thumbnail,
+              isSaved: result.isSaved,
+          })
+        : null;
 
+    notifyIdle();
+    await handled?.catch((error) => log.error('Could not handle the recording', error));
     await rm(recording.folder, { recursive: true, force: true }).catch(() => {});
 };
 
@@ -455,7 +456,8 @@ export const abortRecording = async () => {
     recording.markReady?.('aborted');
     if (recording.segment) await closeSegment(recording, recording.segment, true);
 
-    await finish(recording);
+    finish(recording);
+    notifyIdle();
     await rm(recording.folder, { recursive: true, force: true }).catch(() => {});
 };
 
