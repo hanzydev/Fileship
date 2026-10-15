@@ -653,7 +653,7 @@ const connectSocket = () => {
         scheduleApply();
     });
 
-    for (const event of ['folder:delete', 'trash:restore', 'currentUser:update']) {
+    for (const event of ['folder:delete', 'trash:restore', 'currentUser:update', 'deleteAll']) {
         socket.on(event, () => resync());
     }
 
