@@ -1,8 +1,12 @@
+import { copyFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
+import { join } from 'node:path';
 
 import ffprobe from '@ffprobe-installer/ffprobe';
 
 import pkg from '../../package.json' with { type: 'json' };
+
+const aiWorkerPath = createRequire(import.meta.url).resolve('@fileship/ai/worker');
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -75,11 +79,16 @@ export default defineNuxtConfig({
             autoImport: true,
         },
         externals: {
-            external: ['@fileship/ai'],
-            traceInclude: [
-                ffprobe.path,
-                createRequire(import.meta.url).resolve('@fileship/ai/worker'),
-            ],
+            traceInclude: [ffprobe.path, aiWorkerPath],
+        },
+        hooks: {
+            compiled: async (nitro) => {
+                if (!nitro.options.dev)
+                    await copyFile(
+                        aiWorkerPath,
+                        join(nitro.options.output.serverDir, 'worker.mjs'),
+                    );
+            },
         },
     },
 
