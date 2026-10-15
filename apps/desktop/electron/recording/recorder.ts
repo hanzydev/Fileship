@@ -340,8 +340,13 @@ const closeSegment = async (recording: Recording, segment: Segment, isAbort = fa
     if (recording.segment === segment) recording.segment = null;
 };
 
-const finish = async (recording: Recording) => {
+const stopTimer = (recording: Recording) => {
     if (recording.timer) clearInterval(recording.timer);
+    recording.timer = null;
+};
+
+const finish = async (recording: Recording) => {
+    stopTimer(recording);
     closeWindows(recording);
 
     if (current === recording) current = null;
@@ -413,8 +418,9 @@ export const stopRecording = async () => {
 
     if (state.phase === 'preparing' || state.phase === 'countdown') return abortRecording();
 
-    if (recording.segment) await closeSegment(recording, recording.segment);
+    stopTimer(recording);
     setState({ phase: 'processing' });
+    if (recording.segment) await closeSegment(recording, recording.segment);
 
     let result: Awaited<ReturnType<typeof produce>> | null = null;
 
@@ -443,7 +449,7 @@ export const stopRecording = async () => {
 
 export const abortRecording = async () => {
     const recording = current;
-    if (!recording) return;
+    if (!recording || state.phase === 'processing') return;
 
     current = null;
     recording.markReady?.('aborted');
