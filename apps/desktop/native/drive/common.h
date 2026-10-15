@@ -78,9 +78,7 @@ void removePath(std::wstring const& path);
 void adoptPath(std::wstring const& path, std::wstring const& identity);
 std::wstring preparePath(std::wstring const& path, std::wstring const& identity);
 void reportProgress(std::wstring const& path, int64_t total, int64_t completed);
-void clearRoot();
 JsonArray scanRoot();
-void setPinned(std::wstring const& path, bool pinned);
 std::optional<std::wstring> placeholderIdentity(std::wstring const& absolute, CF_PIN_STATE* pin,
                                                 CF_IN_SYNC_STATE* sync);
 void hydratePath(std::wstring const& absolute);

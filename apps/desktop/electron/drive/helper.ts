@@ -14,7 +14,6 @@ export type ScanItem = {
     inSync: boolean;
     modified: boolean;
     hydrated: boolean;
-    pinned: boolean;
     size: number;
 };
 

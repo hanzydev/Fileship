@@ -206,15 +206,6 @@ bool isModified(std::wstring const& absolute) {
     }
 }
 
-void clearRoot() {
-    std::error_code error;
-
-    for (auto const& entry : std::filesystem::directory_iterator(config().root, error)) {
-        std::filesystem::remove_all(entry.path(), error);
-        if (error) log(L"Could not remove " + entry.path().wstring());
-    }
-}
-
 JsonArray scanRoot() {
     JsonArray items;
     std::error_code error;
@@ -231,9 +222,8 @@ JsonArray scanRoot() {
         DWORD attributes = GetFileAttributesW(absolute.c_str());
         if (attributes == INVALID_FILE_ATTRIBUTES) continue;
 
-        CF_PIN_STATE pin = CF_PIN_STATE_UNSPECIFIED;
         CF_IN_SYNC_STATE sync = CF_IN_SYNC_STATE_NOT_IN_SYNC;
-        auto identity = readIdentity(absolute, &pin, &sync);
+        auto identity = readIdentity(absolute, nullptr, &sync);
         bool directory = (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
         JsonObject item;
@@ -245,19 +235,12 @@ JsonArray scanRoot() {
         item.SetNamedValue(L"modified", JsonValue::CreateBooleanValue(identity && isModified(absolute)));
         item.SetNamedValue(L"hydrated",
                            JsonValue::CreateBooleanValue((attributes & FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS) == 0));
-        item.SetNamedValue(L"pinned", JsonValue::CreateBooleanValue(pin == CF_PIN_STATE_PINNED));
         item.SetNamedValue(L"size", JsonValue::CreateNumberValue(
             directory ? 0 : static_cast<double>(std::filesystem::file_size(iterator->path(), error))));
         items.Append(item);
     }
 
     return items;
-}
-
-void setPinned(std::wstring const& path, bool pinned) {
-    Handle handle(fullPath(path), FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES);
-    check_hresult(CfSetPinState(handle.value, pinned ? CF_PIN_STATE_PINNED : CF_PIN_STATE_UNPINNED,
-                                CF_SET_PIN_FLAG_NONE, nullptr));
 }
 
 std::optional<std::wstring> placeholderIdentity(std::wstring const& absolute, CF_PIN_STATE* pin,

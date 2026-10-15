@@ -127,8 +127,6 @@ void handle(JsonObject const& request) {
             registerSyncRoot();
             connectSyncRoot();
             startWatcher();
-        } else if (type == L"token") {
-            setToken(std::wstring(request.GetNamedString(L"token")));
         } else if (type == L"create") {
             createPlaceholders(readItems(request));
         } else if (type == L"move") {
@@ -151,16 +149,12 @@ void handle(JsonObject const& request) {
             reportProgress(std::wstring(request.GetNamedString(L"path")),
                            static_cast<int64_t>(request.GetNamedNumber(L"total")),
                            static_cast<int64_t>(request.GetNamedNumber(L"completed")));
-        } else if (type == L"pin") {
-            setPinned(std::wstring(request.GetNamedString(L"path")), request.GetNamedBoolean(L"pinned"));
         } else if (type == L"scan") {
             response.SetNamedValue(L"items", scanRoot());
         } else if (type == L"ack") {
             resolveAck(static_cast<uint64_t>(request.GetNamedNumber(L"requestId")),
                        request.GetNamedBoolean(L"ok"));
             return;
-        } else if (type == L"clear") {
-            clearRoot();
         } else if (type == L"unregister") {
             stopWatcher();
             disconnectSyncRoot();
