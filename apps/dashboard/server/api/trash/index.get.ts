@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     if (query.kind === 'files') {
         const where = {
             ...trashed,
-            OR: [{ fileName: contains }, { name: contains }],
+            ...(contains && { OR: [{ fileName: contains }, { name: contains }] }),
         };
         const [files, total] = await Promise.all([
             prisma.file.findMany({
