@@ -39,16 +39,8 @@ export const initSocket = () => {
 
         socket = io();
 
-        socket.on('connect', () => {
-            console.log('[Socket.IO] Connected');
-            socket?.emit('client:ready');
-        });
+        socket.on('connect', () => socket?.emit('client:ready'));
 
-        socket.on('disconnect', () => {
-            console.log('[Socket.IO] Disconnected');
-        });
-
-        // User
         socket.on('currentUser:update', (data) => {
             if (data.theme) currentTheme.value = data.theme;
 
@@ -87,7 +79,6 @@ export const initSocket = () => {
             refreshLists('files', 'folders', 'notes', 'backups', 'links', 'trash');
         });
 
-        // Sessions
         socket.on('session:create', () => refreshLists('sessions'));
         socket.on('session:delete', (sessionId) => {
             removeListItems('sessions', [sessionId]);
@@ -95,7 +86,6 @@ export const initSocket = () => {
         });
         socket.on('session:deleteAll', () => refreshLists('sessions'));
 
-        // Notes
         socket.on('note:create', () => refreshLists('notes'));
         socket.on('note:update', (data) => patchListItem('notes', data));
         socket.on('note:delete', (noteId) => {
@@ -103,7 +93,6 @@ export const initSocket = () => {
             refreshLists('notes');
         });
 
-        // Files
         socket.on('file:create', () => refreshLists('files', 'folders'));
 
         socket.on('file:update', (data) => {
@@ -128,7 +117,6 @@ export const initSocket = () => {
             refreshLists('files', 'folders');
         });
 
-        // Folders
         socket.on('folder:create', () => refreshLists('folders', 'files'));
 
         socket.on('folder:update', (data) => {
@@ -145,7 +133,6 @@ export const initSocket = () => {
             refreshLists('folders', 'files');
         });
 
-        // Links
         socket.on('link:create', () => refreshLists('links'));
         socket.on('link:update', (data) => patchListItem('links', data));
         socket.on('link:delete', (linkId) => {
@@ -153,18 +140,15 @@ export const initSocket = () => {
             refreshLists('links');
         });
 
-        // Trash
         socket.on('trash:update', () => refreshLists('trash'));
         socket.on('trash:restore', () => refreshLists('files', 'folders', 'notes'));
 
-        // Backups
         socket.on('backup:create', () => refreshLists('backups'));
         socket.on('backup:delete', (backupId) => {
             removeListItems('backups', [backupId]);
             refreshLists('backups');
         });
 
-        // Passkeys
         socket.on('settings:update', (data) => {
             publicSettings.value = data;
         });
@@ -188,7 +172,6 @@ export const initSocket = () => {
             }
         });
 
-        // Admin
         const refreshLogs = useThrottleFn(() => refreshLists('logs'), 2_000, true);
         socket.on('log:create', refreshLogs);
         socket.on('log:deleteAll', () => refreshLists('logs'));
