@@ -19,8 +19,14 @@ import { getSettings } from './store';
 import { handleImage } from './tasks';
 import { rendererUrl } from './windows';
 
+const OVERLAY_IDLE_MS = 2 * 60 * 1000;
+const OVERLAY_LOAD_TIMEOUT_MS = 5000;
+
 const overlays = new Map<number, BrowserWindow>();
+const loading = new Map<number, Promise<void>>();
+const loaded = new Map<number, () => void>();
 const pending = new Map<number, () => void>();
+let idleTimer: NodeJS.Timeout | null = null;
 let isOpen = false;
 let purpose: OverlayPurpose = 'capture';
 let onArea: ((rect: Rect) => void) | null = null;
@@ -50,24 +56,61 @@ const createOverlay = (display: Electron.Display) => {
         },
     });
 
+    const isLoaded = new Promise<void>((resolve) => {
+        const timer = setTimeout(resolve, OVERLAY_LOAD_TIMEOUT_MS);
+
+        loaded.set(display.id, () => {
+            clearTimeout(timer);
+            loaded.delete(display.id);
+            resolve();
+        });
+    });
+
     window.setAlwaysOnTop(true, 'screen-saver');
     window.loadURL(rendererUrl(`/overlay?display=${display.id}`));
-    window.on('closed', () => overlays.delete(display.id));
+    window.on('closed', () => {
+        if (overlays.get(display.id) !== window) return;
+
+        overlays.delete(display.id);
+        loading.delete(display.id);
+        loaded.delete(display.id);
+    });
 
     overlays.set(display.id, window);
+    loading.set(display.id, isLoaded);
 };
 
-export const createOverlays = () => {
-    for (const window of overlays.values()) window.destroy();
+const destroyOverlays = () => {
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = null;
+
+    for (const window of overlays.values()) {
+        if (!window.isDestroyed()) window.destroy();
+    }
+
     overlays.clear();
-
-    for (const display of screen.getAllDisplays()) createOverlay(display);
+    loading.clear();
+    loaded.clear();
 };
+
+const ensureOverlays = async () => {
+    const displays = screen.getAllDisplays();
+
+    for (const display of displays) {
+        if (!overlays.get(display.id) || overlays.get(display.id)!.isDestroyed()) {
+            createOverlay(display);
+        }
+    }
+
+    await Promise.all(displays.map((display) => loading.get(display.id)));
+};
+
+export const markOverlayLoaded = (displayId: number) => loaded.get(displayId)?.();
 
 export const watchDisplays = () => {
     for (const event of ['display-added', 'display-removed', 'display-metrics-changed'] as const) {
         screen.on(event as 'display-added', () => {
-            if (!isOpen) createOverlays();
+            if (!isOpen) destroyOverlays();
         });
     }
 };
@@ -104,6 +147,9 @@ const hideOverlays = () => {
     isOpen = false;
     pending.clear();
 
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = setTimeout(destroyOverlays, OVERLAY_IDLE_MS);
+
     for (const window of overlays.values()) {
         if (!window.isDestroyed()) {
             window.webContents.send('overlay:close', null);
@@ -121,12 +167,17 @@ export const openRegionCapture = async (
     purpose = nextPurpose;
     onArea = nextOnArea;
 
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = null;
+
     const cursor = screen.getCursorScreenPoint();
     const active = screen.getDisplayNearestPoint(cursor);
     const { capture } = getSettings();
 
     try {
-        for (const shot of await snapshotDisplays()) {
+        const [shots] = await Promise.all([snapshotDisplays(), ensureOverlays()]);
+
+        for (const shot of shots) {
             const window = overlays.get(shot.display.id);
             if (!window || window.isDestroyed()) continue;
 

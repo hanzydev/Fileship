@@ -15,7 +15,7 @@ import {
     registerHotkeys,
     setSnippingToolKey,
 } from './hotkeys';
-import { finishRegionCapture, markOverlayReady } from './overlay';
+import { finishRegionCapture, markOverlayLoaded, markOverlayReady } from './overlay';
 import {
     downloadFfmpeg,
     getFfmpegStatus,
@@ -100,6 +100,7 @@ const handlers: Handlers = {
     'capture:run': (action) => {
         runAction(action);
     },
+    'overlay:loaded': (displayId) => markOverlayLoaded(displayId),
     'overlay:ready': (displayId) => markOverlayReady(displayId),
     'overlay:finish': (result) => {
         finishRegionCapture(result);

@@ -131,6 +131,7 @@ const annotationLayer = useTemplateRef('annotationLayer');
 const captureToolbar = useTemplateRef('captureToolbar');
 const recordToolbarElement = useTemplateRef('recordToolbarElement');
 
+const route = useRoute();
 const annotator = useAnnotator(annotationLayer);
 const captureToolbarSize = useElementSize(captureToolbar, undefined, { box: 'border-box' });
 const recordToolbarSize = useElementSize(recordToolbarElement, undefined, {
@@ -582,7 +583,7 @@ const scheduleRender = () => {
 
 const resizeDrawCanvas = () => {
     const canvas = drawCanvas.value;
-    if (!canvas) return;
+    if (!canvas || !payload.value) return;
 
     canvas.width = Math.round(window.innerWidth * window.devicePixelRatio);
     canvas.height = Math.round(window.innerHeight * window.devicePixelRatio);
@@ -848,9 +849,12 @@ const handleOpen = async (value: OverlayPayload) => {
 const handleClose = () => {
     payload.value = null;
     reset();
+    annotator.unmount();
 
     for (const canvas of [baseCanvas.value, drawCanvas.value]) {
-        canvas?.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height);
+        if (!canvas) continue;
+        canvas.width = 0;
+        canvas.height = 0;
     }
 };
 
@@ -862,7 +866,6 @@ useEventListener('keydown', handleKeyDown);
 useEventListener('resize', resizeDrawCanvas);
 
 onMounted(() => {
-    annotator.mount(window.innerWidth, window.innerHeight);
     annotator.tool.value = null;
 
     const offOpen = window.fileship.on('overlay:open', handleOpen);
@@ -872,6 +875,8 @@ onMounted(() => {
         offOpen();
         offClose();
     });
+
+    desktop('overlay:loaded', Number(route.query.display));
 });
 
 definePageMeta({

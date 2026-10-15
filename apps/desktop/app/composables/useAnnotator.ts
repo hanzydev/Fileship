@@ -831,6 +831,16 @@ export const useAnnotator = (container: Ref<HTMLElement | null | undefined>) => 
         render();
     };
 
+    const unmount = () => {
+        finishTextEdit();
+        stage?.destroy();
+        stage = null;
+        layer = null;
+        transformer = null;
+        source = null;
+        nodes.clear();
+    };
+
     const reset = () => {
         finishTextEdit();
         draft = null;
@@ -1034,6 +1044,7 @@ export const useAnnotator = (container: Ref<HTMLElement | null | undefined>) => 
         canRedo,
         hasShapes,
         mount,
+        unmount,
         resize,
         setSource,
         reset,

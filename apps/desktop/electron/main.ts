@@ -4,7 +4,7 @@ import log from 'electron-log/main';
 import { startDrive, stopDrive } from './drive';
 import { registerHotkeys } from './hotkeys';
 import { registerIpc } from './ipc';
-import { createOverlays, watchDisplays } from './overlay';
+import { watchDisplays } from './overlay';
 import { handleAppProtocol, registerAppScheme } from './protocol';
 import { getFfmpeg } from './recording/ffmpeg';
 import { isRecording, quitRecorder, registerRecorder } from './recording/recorder';
@@ -40,7 +40,6 @@ app.whenReady().then(() => {
     registerRecorder();
     createMainWindow(!process.argv.includes('--hidden'));
     createTray();
-    createOverlays();
     watchDisplays();
     registerHotkeys();
     setBusyCheck(() => isUploading() || isRecording());

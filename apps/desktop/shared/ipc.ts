@@ -162,6 +162,7 @@ export type IpcInvoke = {
     'updates:check': () => void;
     'updates:install': () => void;
     'capture:run': (action: HotkeyAction) => void;
+    'overlay:loaded': (displayId: number) => void;
     'overlay:ready': (displayId: number) => void;
     'overlay:finish': (result: OverlayFinish) => void;
     'history:list': (offset: number, limit: number) => { items: HistoryItem[]; total: number };
@@ -225,6 +226,7 @@ export const INVOKE_CHANNELS = [
     'updates:check',
     'updates:install',
     'capture:run',
+    'overlay:loaded',
     'overlay:ready',
     'overlay:finish',
     'history:list',
