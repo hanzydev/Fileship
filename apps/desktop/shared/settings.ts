@@ -33,10 +33,10 @@ export const HOTKEY_LABELS: Record<HotkeyAction, string> = {
 };
 
 export const DEFAULT_HOTKEYS: Record<HotkeyAction, string> = {
-    captureFullscreen: 'PrintScreen',
+    captureFullscreen: '',
     captureRegion: 'Control+PrintScreen',
     captureWindow: 'Alt+PrintScreen',
-    captureMonitor: '',
+    captureMonitor: 'PrintScreen',
     captureLastRegion: '',
     captureText: 'Control+Alt+PrintScreen',
     recordVideo: 'Shift+PrintScreen',
