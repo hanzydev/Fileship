@@ -53,6 +53,7 @@
 import {
     ICamera,
     IDownload,
+    IHardDrive,
     IKeyboard,
     ISlidersHorizontal,
     IUpload,
@@ -68,6 +69,7 @@ const sections = [
     { label: 'Capture', path: '/settings/capture', icon: ICamera },
     { label: 'Recording', path: '/settings/recording', icon: IVideo },
     { label: 'Upload', path: '/settings/upload', icon: IUpload },
+    { label: 'Drive', path: '/settings/drive', icon: IHardDrive },
     { label: 'Account', path: '/settings/account', icon: IUser },
     { label: 'Updates', path: '/settings/updates', icon: IDownload },
 ];

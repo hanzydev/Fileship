@@ -34,6 +34,7 @@ const breadcrumbLabels = {
     capture: 'Capture',
     recording: 'Recording',
     upload: 'Upload',
+    drive: 'Drive',
     account: 'Account',
     updates: 'Updates',
 };

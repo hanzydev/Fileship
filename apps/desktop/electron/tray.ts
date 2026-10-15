@@ -2,6 +2,7 @@ import { app, Menu, nativeImage, Tray } from 'electron';
 
 import { runAction } from './actions';
 import { openDashboard } from './dashboard';
+import { openDrive } from './drive';
 import {
     abortRecording,
     getRecorderState,
@@ -9,7 +10,7 @@ import {
     resumeRecording,
     stopRecording,
 } from './recording/recorder';
-import { getStore } from './store';
+import { getSettings, getStore } from './store';
 import { checkForUpdates, getUpdateStatus, installUpdate } from './updater';
 import { iconPath, markQuitting, showMainWindow } from './windows';
 
@@ -79,6 +80,11 @@ const buildMenu = () => {
         },
         { type: 'separator' },
         { label: 'Open Fileship', click: () => showMainWindow() },
+        {
+            label: 'Open Fileship drive',
+            enabled: isConnected && getSettings().drive.enabled,
+            click: () => openDrive(),
+        },
         {
             label: 'Open dashboard',
             enabled: isConnected,
