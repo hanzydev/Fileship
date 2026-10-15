@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-const validationSchema = storageInputSchema.and(z.object({ id: z.string().optional() }));
+const validationSchema = storageInputSchema.and(
+    z.object({ id: z.string().optional(), verificationData: z.any().optional() }),
+);
 
 export default defineEventHandler(async (event) => {
     superAdminOnly(event);
@@ -18,8 +20,11 @@ export default defineEventHandler(async (event) => {
         ? await prisma.storage.findUnique({ where: { id: body.data.id } })
         : null;
 
-    await testStorage(
-        body.data.type,
-        await withStoredSecrets(body.data.type, body.data.config, storage),
-    );
+    const config = body.data.config as Record<string, any>;
+
+    if (storage && storageSecretKeys[body.data.type].some((key) => !config[key])) {
+        await verifySession(event, body.data.verificationData);
+    }
+
+    await testStorage(body.data.type, await withStoredSecrets(body.data.type, config, storage));
 });
