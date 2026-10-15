@@ -170,7 +170,11 @@
                                     />
                                 </div>
                                 <div
-                                    v-if="!item.isLocked && item.mimeType.startsWith('video/')"
+                                    v-if="
+                                        !item.isLocked &&
+                                        item.mimeType.startsWith('video/') &&
+                                        item.thumbnailUrl
+                                    "
                                     class="absolute inset-0 flex items-center justify-center"
                                 >
                                     <IPlay class="size-8 fill-white text-white drop-shadow" />
