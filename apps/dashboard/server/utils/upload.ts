@@ -42,14 +42,15 @@ export const isProcessableImage = (mimeType: string) =>
     mimeType.startsWith('image/') && !['image/gif', 'image/svg+xml'].includes(mimeType);
 
 export const exceedsUsableSpace = async (owner: UploadOwner, size: number) => {
-    if (isAdmin(owner) || owner.limits.usableSpace < 0) return false;
+    const usableSpace = owner.limits?.usableSpace ?? -1;
+    if (isAdmin(owner) || usableSpace < 0) return false;
 
     const { _sum } = await prisma.file.aggregate({
         where: { authorId: owner.id },
         _sum: { size: true },
     });
 
-    return (_sum.size ?? 0n) + BigInt(size) > BigInt(owner.limits.usableSpace * 1024 * 1024);
+    return (_sum.size ?? 0n) + BigInt(size) > BigInt(usableSpace * 1024 * 1024);
 };
 
 export const abortUploadSession = async (path: string) => {

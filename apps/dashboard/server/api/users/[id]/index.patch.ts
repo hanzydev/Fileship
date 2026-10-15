@@ -23,8 +23,16 @@ const validationSchema = z
         permissions: z.array(z.enum(UserPermission)).optional(),
         limits: z
             .object({
-                backupLimit: z.number().min(-1, 'Backup limit must be at least -1').optional(),
-                usableSpace: z.number().min(-1, 'Usable space must be at least -1').optional(),
+                backupLimit: z
+                    .number()
+                    .int('Backup limit must be a whole number')
+                    .min(-1, 'Backup limit must be at least -1')
+                    .optional(),
+                usableSpace: z
+                    .number()
+                    .int('Usable space must be a whole number')
+                    .min(-1, 'Usable space must be at least -1')
+                    .optional(),
             })
             .optional(),
         superAdmin: z.boolean().optional(),
@@ -206,6 +214,14 @@ export default defineEventHandler(async (event) => {
     } else delete body.data.password;
 
     delete body.data.verificationData;
+
+    if (body.data.limits) {
+        body.data.limits = defu(
+            body.data.limits,
+            findUserById.limits as Partial<IUserLimits>,
+            defaultUserLimits,
+        );
+    }
 
     const _updatedUser = await prisma.$transaction(async (tx) => {
         const superAdminsCount = await tx.user.count({

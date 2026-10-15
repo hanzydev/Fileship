@@ -14,8 +14,16 @@ const validationSchema = z.object({
     permissions: z.array(z.enum(UserPermission)).optional(),
     limits: z
         .object({
-            backupLimit: z.number().min(-1, 'Backup limit must be at least -1').optional(),
-            usableSpace: z.number().min(-1, 'Usable space must be at least -1').optional(),
+            backupLimit: z
+                .number()
+                .int('Backup limit must be a whole number')
+                .min(-1, 'Backup limit must be at least -1')
+                .optional(),
+            usableSpace: z
+                .number()
+                .int('Usable space must be a whole number')
+                .min(-1, 'Usable space must be at least -1')
+                .optional(),
         })
         .optional(),
     superAdmin: z.boolean().optional(),
