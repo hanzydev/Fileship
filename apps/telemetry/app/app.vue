@@ -1,6 +1,6 @@
 <template>
     <NuxtLoadingIndicator color="var(--primary)" :height="2" />
-    <UiSonner position="top-center" :theme="colorMode.value as never" />
+    <AppToaster />
 
     <NuxtLayout>
         <NuxtPage />
@@ -16,8 +16,6 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(duration);
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
-
-const colorMode = useColorMode();
 
 useHead({
     titleTemplate: (title) => (title ? `${title} · Fileship Telemetry` : 'Fileship Telemetry'),

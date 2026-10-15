@@ -1,6 +1,6 @@
 <template>
     <NuxtLoadingIndicator color="var(--primary)" :height="2" />
-    <UiSonner position="top-center" :theme="colorMode.value as never" />
+    <AppToaster />
 
     <Head>
         <Title>{{ publicSettings.siteName }}</Title>
@@ -21,7 +21,6 @@ dayjs.extend(relativeTime);
 const publicSettings = usePublicSettings();
 const currentUser = useAuthUser();
 const currentTheme = useTheme();
-const colorMode = useColorMode();
 
 onMounted(initSocket);
 

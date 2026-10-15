@@ -145,3 +145,23 @@
         cursor: default;
     }
 }
+
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] {
+    border-radius: revert-layer;
+}
+
+[data-sonner-toaster][data-sonner-theme]
+    [data-sonner-toast][data-styled='true']
+    [data-button][data-button] {
+    border-radius: revert-layer;
+    height: revert-layer;
+    padding-left: revert-layer;
+    padding-right: revert-layer;
+    font-size: revert-layer;
+    font-weight: revert-layer;
+    color: revert-layer;
+    background: revert-layer;
+    border: revert-layer;
+    transition: revert-layer;
+    cursor: revert-layer;
+}
