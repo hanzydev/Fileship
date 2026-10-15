@@ -4,6 +4,18 @@ const count = z.number().int().min(0);
 const bytes = z.number().min(0);
 const text = (max: number) => z.string().trim().max(max);
 
+const knownKeys = <K extends z.ZodEnum, V extends z.ZodType>(keys: K, value: V) =>
+    z
+        .record(z.string(), z.unknown())
+        .transform((record) =>
+            Object.fromEntries(
+                Object.entries(record).filter(([key]) =>
+                    (keys.options as readonly unknown[]).includes(key),
+                ),
+            ),
+        )
+        .pipe(z.partialRecord(keys, value));
+
 export const FILE_CATEGORIES = [
     'image',
     'video',
@@ -44,7 +56,7 @@ export const usageSchema = z.object({
         total: count,
         trashed: count,
         bytes,
-        categories: z.record(z.enum(FILE_CATEGORIES), z.object({ total: count, bytes })),
+        categories: knownKeys(z.enum(FILE_CATEGORIES), z.object({ total: count, bytes })),
     }),
     folders: z.object({ total: count, public: count, trashed: count }),
     notes: z.object({ total: count, public: count, trashed: count }),
@@ -54,7 +66,7 @@ export const usageSchema = z.object({
     views: z.object({ last30Days: count }),
     storages: z.object({
         active: z.enum(STORAGE_TYPES),
-        types: z.record(z.enum(STORAGE_TYPES).exclude(['local']), count),
+        types: knownKeys(z.enum(STORAGE_TYPES).exclude(['local']), count),
     }),
 });
 
