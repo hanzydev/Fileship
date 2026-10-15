@@ -43,6 +43,7 @@ Napi::Object initialize(Napi::Env env, Napi::Object exports) {
     native::registerWindows(env, exports);
     native::registerOutputs(env, exports);
     native::registerImage(env, exports);
+    native::registerSound(env, exports);
     return exports;
 }
 

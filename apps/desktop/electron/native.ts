@@ -29,6 +29,7 @@ type NativeCore = {
         height: number,
         options: EncodeOptions,
     ) => Promise<Buffer>;
+    playSound: (wav: Buffer) => boolean;
 };
 
 const addonPath = () =>

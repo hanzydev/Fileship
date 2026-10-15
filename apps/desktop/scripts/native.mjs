@@ -43,6 +43,6 @@ runWithMsvc(join(output, 'build.cmd'), [
         ...sourceFiles(source),
         `"${compiledResource}"`,
         `/link /IMPLIB:"${join(objects, 'fileship-native.lib')}" /DELAYLOAD:node.exe "${importLibrary}" delayimp.lib`,
-        'user32.lib gdi32.lib dwmapi.lib dxgi.lib windowscodecs.lib ole32.lib oleaut32.lib',
+        'user32.lib gdi32.lib dwmapi.lib dxgi.lib windowscodecs.lib ole32.lib oleaut32.lib winmm.lib',
     ].join(' '),
 ]);

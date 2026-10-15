@@ -117,6 +117,7 @@ export const settingsSchema = z.object({
             detectControls: z.boolean().default(true),
             showMagnifier: z.boolean().default(true),
             quickCrop: z.boolean().default(false),
+            playSound: z.boolean().default(true),
         })
         .prefault({}),
     afterCapture: z

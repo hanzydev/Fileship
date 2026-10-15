@@ -1,4 +1,8 @@
-import { BrowserWindow, screen } from 'electron';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import { app, BrowserWindow, screen } from 'electron';
+import log from 'electron-log/main';
 
 import { native, type PixelOrder, type Rect } from '../native';
 import { getSettings } from '../store';
@@ -6,6 +10,19 @@ import { getSettings } from '../store';
 export type Bitmap = { pixels: Buffer; width: number; height: number; order: PixelOrder };
 
 export type Shot = { image: Bitmap; title?: string };
+
+let shutter: Buffer | null = null;
+
+export const playShutter = () => {
+    if (!getSettings().capture.playSound) return;
+
+    try {
+        shutter ??= readFileSync(join(app.getAppPath(), 'resources', 'shutter.wav'));
+        native.playSound(shutter);
+    } catch (error) {
+        log.warn('Could not play the shutter sound', error);
+    }
+};
 
 export const bitmapFromImage = (image: Electron.NativeImage): Bitmap | null => {
     if (image.isEmpty()) return null;
@@ -64,6 +81,8 @@ export const virtualScreen = (): Rect => {
 export const captureRect = async (rect: Rect): Promise<Shot> => {
     const { showCursor } = getSettings().capture;
     const [data] = await native.captureRects([rect], { cursor: showCursor });
+
+    playShutter();
     return { image: { pixels: data!, width: rect.width, height: rect.height, order: 'bgra' } };
 };
 

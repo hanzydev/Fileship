@@ -75,6 +75,11 @@ const sections: {
                 label: 'Include the mouse cursor',
                 description: 'Draw the cursor into screenshots.',
             },
+            {
+                key: 'playSound',
+                label: 'Shutter sound',
+                description: 'Play a camera shutter sound when a screenshot is taken.',
+            },
         ],
     },
     {

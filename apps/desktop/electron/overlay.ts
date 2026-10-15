@@ -10,6 +10,7 @@ import {
     captureFullscreen,
     captureRect,
     physicalBounds,
+    playShutter,
     snapshotDisplays,
     virtualScreen,
     windowHandle,
@@ -305,6 +306,7 @@ export const finishRegionCapture = async (result: OverlayFinish) => {
     }
 
     lastRegion = toScreenRect(result.displayId, result.region) ?? lastRegion;
+    playShutter();
 
     return handleImage(bitmapFromRgba(result.rgba, result.width, result.height), {
         isEdited: true,

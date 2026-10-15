@@ -25,5 +25,6 @@ void registerCapture(Napi::Env env, Napi::Object exports);
 void registerWindows(Napi::Env env, Napi::Object exports);
 void registerOutputs(Napi::Env env, Napi::Object exports);
 void registerImage(Napi::Env env, Napi::Object exports);
+void registerSound(Napi::Env env, Napi::Object exports);
 
 }
