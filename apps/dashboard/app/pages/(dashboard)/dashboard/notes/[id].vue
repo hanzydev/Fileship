@@ -17,7 +17,7 @@
             <UiSkeleton class="h-8 w-28 rounded-full" />
         </UiCardContent>
         <UiCardContent class="flex flex-1 flex-col gap-4">
-            <TextBlock variant="h3" class="w-full">
+            <TextBlock custom-tag="div" variant="h3" class="w-full">
                 <UiSkeleton class="h-lh w-1/2 rounded-full" />
             </TextBlock>
             <UiSkeleton class="min-h-[60vh] flex-1" />

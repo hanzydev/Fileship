@@ -138,7 +138,13 @@
                             {{ contentError }}
                         </TextBlock>
                         <div v-else-if="fileContent === undefined" class="flex flex-col gap-3">
-                            <TextBlock v-for="i in 6" :key="i" variant="muted" class="w-full">
+                            <TextBlock
+                                custom-tag="div"
+                                v-for="i in 6"
+                                :key="i"
+                                variant="muted"
+                                class="w-full"
+                            >
                                 <UiSkeleton
                                     class="h-lh rounded-full"
                                     :style="{ width: `${90 - ((i * 13) % 40)}%` }"

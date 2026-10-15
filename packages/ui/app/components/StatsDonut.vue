@@ -36,7 +36,13 @@
                 </div>
                 <div class="flex min-w-0 flex-1 flex-col gap-2">
                     <template v-if="isLoading">
-                        <TextBlock v-for="i in 4" :key="i" variant="muted" class="w-full">
+                        <TextBlock
+                            custom-tag="div"
+                            v-for="i in 4"
+                            :key="i"
+                            variant="muted"
+                            class="w-full"
+                        >
                             <UiSkeleton class="h-lh w-full rounded-full" />
                         </TextBlock>
                     </template>

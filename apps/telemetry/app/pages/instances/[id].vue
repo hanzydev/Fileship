@@ -56,7 +56,13 @@
                 </UiCardHeader>
                 <UiCardContent>
                     <template v-if="!instance">
-                        <TextBlock v-for="i in 6" :key="i" variant="muted" class="w-full py-1">
+                        <TextBlock
+                            custom-tag="div"
+                            v-for="i in 6"
+                            :key="i"
+                            variant="muted"
+                            class="w-full py-1"
+                        >
                             <UiSkeleton class="h-lh w-full rounded-full" />
                         </TextBlock>
                     </template>

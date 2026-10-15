@@ -152,14 +152,18 @@
                     <UiCardContent class="flex flex-col gap-1">
                         <div class="flex items-center gap-2">
                             <UiSkeleton class="h-5 w-28 rounded-full" />
-                            <TextBlock variant="muted" class="ml-auto w-16 text-xs">
+                            <TextBlock
+                                custom-tag="div"
+                                variant="muted"
+                                class="ml-auto w-16 text-xs"
+                            >
                                 <UiSkeleton class="h-lh w-full rounded-full" />
                             </TextBlock>
                         </div>
-                        <TextBlock variant="small" class="w-full">
+                        <TextBlock custom-tag="div" variant="small" class="w-full">
                             <UiSkeleton class="h-lh w-3/4 rounded-full" />
                         </TextBlock>
-                        <TextBlock variant="muted" class="w-full text-xs">
+                        <TextBlock custom-tag="div" variant="muted" class="w-full text-xs">
                             <UiSkeleton class="h-lh w-1/3 rounded-full" />
                         </TextBlock>
                     </UiCardContent>
