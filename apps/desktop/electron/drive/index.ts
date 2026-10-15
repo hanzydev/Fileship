@@ -61,6 +61,7 @@ const folders = new Map<string, RemoteFolder>();
 const files = new Map<string, RemoteFile>();
 const local = new Map<string, { path: string; isFolder: boolean }>();
 const pendingPaths = new Set<string>();
+const replacing = new Set<string>();
 const cancelledUploads = new Set<string>();
 
 const isPendingIdentity = (identity: string) => identity.startsWith('p:');
@@ -201,7 +202,10 @@ const placeEntry = async (entry: LayoutEntry) => {
 const apply = async () => {
     if (!helper?.isRunning) return;
 
-    const layout = buildLayout([...folders.values()], [...files.values()]);
+    const layout = buildLayout(
+        [...folders.values()],
+        [...files.values()].filter((file) => !replacing.has(file.id)),
+    );
     const entries = [...layout.values()];
 
     for (const entry of entries.filter((item) => item.isFolder)) {
@@ -213,7 +217,7 @@ const apply = async () => {
     }
 
     const stale = [...local.entries()]
-        .filter(([identity]) => !layout.has(identity))
+        .filter(([identity, item]) => !layout.has(identity) && !pendingPaths.has(item.path))
         .sort(([, a], [, b]) => Number(a.isFolder) - Number(b.isFolder));
 
     for (const [identity, item] of stale) {
@@ -223,7 +227,7 @@ const apply = async () => {
             .catch((error) => log.warn('Could not remove', item.path, error));
     }
 
-    setStatus({ state: 'ready', error: null });
+    setStatus({ state: pendingPaths.size ? 'syncing' : 'ready', error: null });
 };
 
 const scheduleApply = () => {
@@ -421,6 +425,7 @@ const reportProgress = (path: string, sent: number, total: number) =>
 
 const uploadLocal = async (path: string, folderId: string | null) => {
     const absolute = join(root, path);
+    const size = statSync(absolute).size;
     const uploaded = await uploadFile({
         name: basename(path),
         mimeType: mimeTypeOf(path),
@@ -436,15 +441,36 @@ const uploadLocal = async (path: string, folderId: string | null) => {
         },
     });
 
-    files.set(uploaded.id, {
-        id: uploaded.id,
-        name: uploaded.name,
-        folderId,
-        size: statSync(absolute).size,
-        createdAt: Date.now(),
-    });
+    return { id: uploaded.id, name: uploaded.name, folderId, size, createdAt: Date.now() };
+};
 
-    return uploaded.id;
+const startUpload = (
+    path: string,
+    folderId: string | null,
+    finish: (file: RemoteFile) => Promise<void>,
+    cleanup: () => void,
+) => {
+    uploadLocal(path, folderId)
+        .then((file) =>
+            enqueue(async () => {
+                files.set(file.id, file);
+                if (helper?.isRunning) await finish(file);
+            }),
+        )
+        .then(
+            () => {
+                pendingPaths.delete(path);
+                cleanup();
+                setStatus({});
+                scheduleApply();
+            },
+            (error) => {
+                pendingPaths.delete(path);
+                cleanup();
+                log.warn('Could not upload', path, error);
+                setStatus({ state: 'error', error: error.message });
+            },
+        );
 };
 
 const handleLocalNew = async (event: Extract<HelperEvent, { type: 'localNew' }>) => {
@@ -495,26 +521,24 @@ const handleLocalNew = async (event: Extract<HelperEvent, { type: 'localNew' }>)
     pendingPaths.add(event.path);
     setStatus({ state: 'syncing' });
 
-    try {
-        await helper!
-            .request('prepare', { path: event.path, identity: pending })
-            .catch((error) => log.warn('Could not prepare', event.path, error));
+    await helper!
+        .request('prepare', { path: event.path, identity: pending })
+        .catch((error) => log.warn('Could not prepare', event.path, error));
 
-        const id = await uploadLocal(event.path, folderId);
+    startUpload(
+        event.path,
+        folderId,
+        async (file) => {
+            if (cancelledUploads.has(pending)) {
+                await deleteRemote(fileIdentity(file.id), true);
+                return;
+            }
 
-        if (cancelledUploads.has(pending)) {
-            await deleteRemote(fileIdentity(id), true);
-        } else {
-            await helper!.request('adopt', { path: event.path, identity: fileIdentity(id) });
-            local.set(fileIdentity(id), { path: event.path, isFolder: false });
-        }
-    } finally {
-        pendingPaths.delete(event.path);
-        cancelledUploads.delete(pending);
-    }
-
-    setStatus({});
-    scheduleApply();
+            await helper!.request('adopt', { path: event.path, identity: fileIdentity(file.id) });
+            local.set(fileIdentity(file.id), { path: event.path, isFolder: false });
+        },
+        () => cancelledUploads.delete(pending),
+    );
 };
 
 const handleLocalModified = async (event: Extract<HelperEvent, { type: 'localModified' }>) => {
@@ -524,45 +548,44 @@ const handleLocalModified = async (event: Extract<HelperEvent, { type: 'localMod
     const previous = files.get(previousId);
 
     pendingPaths.add(event.path);
+    replacing.add(previousId);
     setStatus({ state: 'syncing' });
 
-    try {
-        await helper!
-            .request('prepare', { path: event.path, identity: event.identity })
-            .catch((error) => log.warn('Could not prepare', event.path, error));
+    await helper!
+        .request('prepare', { path: event.path, identity: event.identity })
+        .catch((error) => log.warn('Could not prepare', event.path, error));
 
-        const id = await uploadLocal(event.path, previous?.folderId ?? null);
-        await helper!.request('update', { path: event.path, identity: fileIdentity(id) });
+    startUpload(
+        event.path,
+        previous?.folderId ?? null,
+        async (file) => {
+            await driveApi(`/api/files/${previousId}`, { method: 'DELETE' }).catch((error) => {
+                if (!isMissing(error)) throw error;
+            });
 
-        local.delete(event.identity);
-        local.set(fileIdentity(id), { path: event.path, isFolder: false });
+            files.delete(previousId);
+            await helper!.request('update', { path: event.path, identity: fileIdentity(file.id) });
 
-        await driveApi(`/api/files/${previousId}`, { method: 'DELETE' }).catch((error) => {
-            if (!isMissing(error)) throw error;
-        });
+            local.delete(event.identity);
+            local.set(fileIdentity(file.id), { path: event.path, isFolder: false });
+        },
+        () => replacing.delete(previousId),
+    );
+};
 
-        files.delete(previousId);
-    } finally {
-        pendingPaths.delete(event.path);
+const runHelperEvent = (event: HelperEvent) => {
+    if (event.type === 'delete') return handleDelete(event);
+    if (event.type === 'rename') return handleRename(event);
+    if (event.type === 'localNew') return handleLocalNew(event);
+    if (isPendingIdentity(event.identity)) {
+        return handleLocalNew({ ...event, type: 'localNew', isFolder: false });
     }
 
-    setStatus({});
-    scheduleApply();
+    return handleLocalModified(event);
 };
 
 const handleHelperEvent = (event: HelperEvent) => {
-    const task =
-        event.type === 'delete'
-            ? handleDelete(event)
-            : event.type === 'rename'
-              ? handleRename(event)
-              : event.type === 'localNew'
-                ? handleLocalNew(event)
-                : isPendingIdentity(event.identity)
-                  ? handleLocalNew({ ...event, type: 'localNew', isFolder: false })
-                  : handleLocalModified(event);
-
-    task.catch((error) => {
+    enqueue(() => runHelperEvent(event)).catch((error) => {
         log.warn(`Drive ${event.type} failed`, error);
         setStatus({ state: 'error', error: error.message });
     });
