@@ -13,6 +13,10 @@ import { stopDrive } from './drive';
 import { clearSession, getStore, getToken, setSession } from './store';
 import { broadcast, getMainWindow, iconPath, themeBackground } from './windows';
 
+const CHECK_REUSE_MS = 5 * 60 * 1000;
+
+let lastCheck: { info: InstanceInfo; at: number } | null = null;
+
 export const checkInstance = async (input: string): Promise<InstanceInfo> => {
     let url: string;
 
@@ -45,7 +49,16 @@ export const checkInstance = async (input: string): Promise<InstanceInfo> => {
         () => null,
     );
 
-    return { url, version, siteName: settings?.siteName || 'Fileship' };
+    const info = { url, version, siteName: settings?.siteName || 'Fileship' };
+    lastCheck = { info, at: Date.now() };
+
+    return info;
+};
+
+const checkedInstance = (input: string) => {
+    const isRecent = lastCheck?.info.url === input && Date.now() - lastCheck.at < CHECK_REUSE_MS;
+
+    return isRecent ? lastCheck!.info : checkInstance(input);
 };
 
 const fetchUser = (instanceUrl: string, token: string) =>
@@ -83,7 +96,7 @@ const readToken = (windowSession: Electron.Session, instanceUrl: string) =>
         .then((cookies) => cookies[0]?.value ?? null);
 
 export const login = async (input: string): Promise<Account> => {
-    const instance = await checkInstance(input);
+    const instance = await checkedInstance(input);
     const windowSession = session.fromPartition(`login-${Date.now()}`);
 
     windowSession.setUserAgent(`${app.userAgentFallback} ${desktopUserAgent()}`);
