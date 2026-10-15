@@ -15,7 +15,7 @@
                     @select="handleSelect(`/dashboard/files?file=${file.id}`)"
                 >
                     <IFile />
-                    <span class="truncate">{{ file.fileName }}</span>
+                    <span class="truncate">{{ file.name }}</span>
                     <UiCommandShortcut>{{ file.size.formatted }}</UiCommandShortcut>
                 </UiCommandItem>
             </UiCommandGroup>

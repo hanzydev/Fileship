@@ -118,6 +118,7 @@ export default defineEventHandler(async (event) => {
             prisma.file.create({
                 data: {
                     ...data,
+                    name: toDisplayName(file.name, data.fileName),
                     mimeType: file.type,
                     authorId: findInboxById.user.id,
                     folderId: findInboxById.folderId,

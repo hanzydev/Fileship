@@ -191,14 +191,14 @@
                     @click.stop="handleToggle(item, $event)"
                 />
             </template>
-            <template #cell-fileName="{ item }">
+            <template #cell-name="{ item }">
                 <div class="flex min-w-0 items-center gap-3">
                     <div
                         class="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted"
                     >
                         <FileThumbnail :file="item" />
                     </div>
-                    <span class="truncate font-medium">{{ item.fileName }}</span>
+                    <span class="truncate font-medium">{{ item.name }}</span>
                     <ILock v-if="item.password" class="size-3.5 shrink-0 text-muted-foreground" />
                 </div>
             </template>
@@ -259,7 +259,7 @@
                         </div>
                         <div class="flex min-w-0 flex-1 flex-col">
                             <TextBlock variant="small" class="truncate">
-                                {{ item.fileName }}
+                                {{ item.name }}
                             </TextBlock>
                             <TextBlock variant="muted" class="truncate text-xs">
                                 {{ item.size.formatted }} · {{ dayjs(item.createdAt).fromNow() }}
@@ -334,8 +334,8 @@ const sortOptions = computed(() => [
     ...(query.value ? [{ label: 'Relevance', value: 'relevance' }] : []),
     { label: 'Newest', value: 'createdAt:desc' },
     { label: 'Oldest', value: 'createdAt:asc' },
-    { label: 'Name A–Z', value: 'fileName:asc' },
-    { label: 'Name Z–A', value: 'fileName:desc' },
+    { label: 'Name A–Z', value: 'name:asc' },
+    { label: 'Name Z–A', value: 'name:desc' },
     { label: 'Largest', value: 'size:desc' },
     { label: 'Smallest', value: 'size:asc' },
     { label: 'Most viewed', value: 'views:desc' },
@@ -344,7 +344,7 @@ const sortOptions = computed(() => [
 
 const columns = [
     { key: 'select', label: '', class: 'w-10' },
-    { key: 'fileName', label: 'Name', sortable: true },
+    { key: 'name', label: 'Name', sortable: true },
     { key: 'type', label: 'Type', class: 'hidden w-32 lg:table-cell' },
     { key: 'size', label: 'Size', sortable: true, descFirst: true, class: 'w-28' },
     {

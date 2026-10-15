@@ -22,11 +22,14 @@ export default defineEventHandler(async (event) => {
     });
 
     if (query.kind === 'files') {
-        const where = { ...trashed, fileName: contains };
+        const where = {
+            ...trashed,
+            OR: [{ fileName: contains }, { name: contains }],
+        };
         const [files, total] = await Promise.all([
             prisma.file.findMany({
                 where,
-                orderBy: [field === 'name' ? { fileName: dir } : { deletedAt: dir }, { id: 'asc' }],
+                orderBy: [field === 'name' ? { name: dir } : { deletedAt: dir }, { id: 'asc' }],
                 include: {
                     folder: { select: { id: true, name: true } },
                     _count: { select: { views: true } },
@@ -42,7 +45,7 @@ export default defineEventHandler(async (event) => {
         return {
             items: files.map((file) => ({
                 ...serializeFile(event, file, [], todayViews.get(file.id)),
-                ...serialize(file, file.fileName),
+                ...serialize(file, file.name),
             })),
             total,
         };

@@ -142,6 +142,10 @@ export default defineEventHandler(async (event) => {
             prisma.file.create({
                 data: {
                     ...data,
+                    name: toDisplayName(
+                        `${basename(file.name, extname(file.name))}${extensionName}`,
+                        data.fileName,
+                    ),
                     mimeType: isCompressible ? 'image/jpeg' : file.type,
                     password: body.data.password || null,
                     maxViews: body.data.maxViews || 0,

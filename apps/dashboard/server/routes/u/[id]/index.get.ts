@@ -136,7 +136,7 @@ export default defineEventHandler(async (event) => {
         setResponseHeader(
             event,
             'Content-Disposition',
-            `attachment; filename="${findFileById.fileName}"`,
+            `attachment; filename="${findFileById.fileName}"; filename*=UTF-8''${encodeURIComponent(findFileById.name)}`,
         );
     }
 

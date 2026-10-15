@@ -56,8 +56,8 @@ export const useFileActions = () => {
         }
     };
 
-    const remove = async (files: Pick<FileData, 'id' | 'fileName'>[]) => {
-        const filesText = files.length > 1 ? `${files.length} files` : files[0]!.fileName;
+    const remove = async (files: Pick<FileData, 'id' | 'name'>[]) => {
+        const filesText = files.length > 1 ? `${files.length} files` : files[0]!.name;
 
         return askConfirmation({
             ...deleteConfirmation(filesText),

@@ -23,6 +23,7 @@ const BACKUP_FIELDS = {
     folder: ['name', 'public', 'createdAt'],
     note: ['title', 'content', 'public', 'createdAt'],
     file: [
+        'name',
         'mimeType',
         'maxViews',
         'expiresAt',
@@ -281,6 +282,10 @@ export default defineEventHandler(async (event) => {
                                             if (!fileName) return;
 
                                             data.fileName = fileName;
+                                            data.name = toDisplayName(
+                                                typeof value.name === 'string' ? value.name : '',
+                                                fileName,
+                                            );
                                             data.size = BigInt(uploadSizes.get(fileName)!);
                                             data.folderId =
                                                 remappedKeys.get(value.folderId) ?? null;

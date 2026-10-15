@@ -23,7 +23,7 @@
                         <img
                             v-show="isLoaded || !hasPlaceholder"
                             :src="file.directUrl"
-                            :alt="file.fileName"
+                            :alt="file.name"
                             draggable="false"
                             :style="{ transformOrigin: zoomOrigin }"
                             :class="
@@ -124,7 +124,7 @@
                             v-for="item in stripItems"
                             :key="item.file.id"
                             type="button"
-                            :aria-label="item.file.fileName"
+                            :aria-label="item.file.name"
                             :class="
                                 cn(
                                     'absolute top-0 left-0 flex size-12 items-center justify-center overflow-hidden rounded-md bg-muted transition-opacity',
@@ -145,7 +145,7 @@
             <div class="flex min-h-0 flex-col border-t lg:border-t-0 lg:border-l">
                 <div class="flex items-start gap-3 p-6 pb-4">
                     <UiDialogHeader class="min-w-0 flex-1">
-                        <UiDialogTitle class="truncate">{{ file.fileName }}</UiDialogTitle>
+                        <UiDialogTitle class="truncate">{{ file.name }}</UiDialogTitle>
                         <UiDialogDescription>
                             {{ file.size.formatted }} ·
                             {{ dayjs(file.createdAt).format('MMM D, YYYY HH:mm') }} ·
@@ -219,8 +219,16 @@
                         <UiTabsContent v-if="!trash" value="edit">
                             <form class="py-2" @submit.prevent="handleSave">
                                 <UiFieldGroup>
+                                    <UiField :data-invalid="!!formErrors?.name">
+                                        <UiFieldLabel for="edit-name">Name</UiFieldLabel>
+                                        <UiInput id="edit-name" v-model="editData.name" />
+                                        <UiFieldError
+                                            v-if="formErrors?.name"
+                                            :errors="formErrors.name._errors"
+                                        />
+                                    </UiField>
                                     <UiField :data-invalid="!!formErrors?.fileName">
-                                        <UiFieldLabel for="edit-file-name">File name</UiFieldLabel>
+                                        <UiFieldLabel for="edit-file-name">Link name</UiFieldLabel>
                                         <UiInputGroup>
                                             <UiInputGroupInput
                                                 id="edit-file-name"
@@ -450,7 +458,7 @@ const handleAction = async (action: { label: string; run: () => unknown }) => {
 
 const handleDeleteForever = () =>
     askConfirmation({
-        title: `Delete ${file.value!.fileName} forever?`,
+        title: `Delete ${file.value!.name} forever?`,
         description: 'This action cannot be undone.',
         confirmText: 'Delete forever',
         destructive: true,
@@ -631,6 +639,7 @@ const metadata = computed(() => {
 });
 
 const editData = reactive({
+    name: '',
     fileName: '',
     folderId: null as string | null,
     expiration: 'Never',
@@ -642,6 +651,7 @@ const resetEditData = () => {
     const f = currentFile.value!;
 
     Object.assign(editData, {
+        name: f.name,
         fileName: getBasename(f.fileName),
         folderId: f.folderId,
         expiration: predictExpiration(f.expiresAt),
@@ -663,6 +673,7 @@ const handleSave = async () => {
         await $fetch(`/api/files/${f.id}`, {
             method: 'PATCH',
             body: {
+                name: editData.name,
                 fileName: `${editData.fileName}${getExtname(f.fileName)}`,
                 folderId: editData.folderId,
                 maxViews: editData.maxViews,

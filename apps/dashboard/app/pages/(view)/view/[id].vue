@@ -2,13 +2,13 @@
     <div class="flex min-h-svh flex-col">
         <Head>
             <Title v-if="!data.id">Verify Password</Title>
-            <Title v-else>{{ data.fileName }}</Title>
+            <Title v-else>{{ data.name }}</Title>
 
             <template v-if="data?.embed?.enabled">
                 <Meta name="theme-color" :content="data.embed.color" />
                 <Meta
                     property="og:title"
-                    :content="replaceString(data.embed.title || data.fileName!)"
+                    :content="replaceString(data.embed.title || data.name!)"
                 />
                 <Meta
                     v-if="data.embed.description"
@@ -27,7 +27,7 @@
                 <Meta property="og:image" itemprop="image" :content="fileUrl" />
                 <Meta property="og:url" :content="fileUrl" />
 
-                <Meta name="twitter:title" :content="data.fileName" />
+                <Meta name="twitter:title" :content="data.name" />
                 <Meta name="twitter:card" content="summary_large_image" />
                 <Meta name="twitter:image" :content="fileUrl" />
             </template>
@@ -40,7 +40,7 @@
                 <Meta property="og:video:secure_url" :content="fileUrl" />
                 <Meta property="og:video:type" :content="data.mimeType" />
 
-                <Meta name="twitter:title" :content="data.fileName" />
+                <Meta name="twitter:title" :content="data.name" />
                 <Meta name="twitter:card" content="player" />
                 <Meta name="twitter:player" :content="fileUrl" />
                 <Meta name="twitter:player:stream" :content="fileUrl" />
@@ -54,7 +54,7 @@
                 <Meta property="og:audio:secure_url" :content="fileUrl" />
                 <Meta property="og:audio:type" :content="data.mimeType" />
 
-                <Meta name="twitter:title" :content="data.fileName" />
+                <Meta name="twitter:title" :content="data.name" />
                 <Meta name="twitter:card" content="player" />
                 <Meta name="twitter:player" :content="fileUrl" />
                 <Meta name="twitter:player:stream" :content="fileUrl" />
@@ -75,7 +75,7 @@
 
         <template v-else>
             <ViewHeader
-                :title="data.fileName!"
+                :title="data.name!"
                 :subtitle="`${data.size!.formatted} · ${dayjs(data.createdAt).format('MMM D, YYYY')}`"
                 content-class="max-w-5xl"
             >
@@ -112,7 +112,7 @@
                 <img
                     v-if="isImage"
                     :src="fileUrl"
-                    :alt="data.fileName"
+                    :alt="data.name"
                     class="max-h-[calc(100svh-6rem)] max-w-full rounded-2xl object-contain"
                 />
                 <video

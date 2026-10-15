@@ -15,6 +15,16 @@ const validationSchema = z
                     .regex(/^[^.]/, 'File name cannot start with a dot'),
             )
             .optional(),
+        name: z
+            .string()
+            .transform((value) => value.replace(/[\\/:*?"<>|\p{Cc}]/gu, '').trim())
+            .pipe(
+                z
+                    .string()
+                    .min(1, 'Name is required')
+                    .max(255, 'Name must be at most 255 characters'),
+            )
+            .optional(),
         password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
         maxViews: z.number().min(0, 'Max views must be at least 0').optional(),
         expiration: z.number().min(0, 'Expiration must be at least 0').nullish(),

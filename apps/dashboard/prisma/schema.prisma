@@ -88,6 +88,7 @@ model Credential {
 model File {
   id                 String    @id @unique @default(uuid())
   fileName           String    @unique
+  name               String
   mimeType           String
   size               BigInt
   maxViews           Int       @default(0)

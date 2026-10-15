@@ -155,7 +155,7 @@ const handleDownload = async () => {
 
 const handleDelete = async () => {
     const files = selected.value.map(
-        (id) => items.find((file) => file.id === id) ?? { id, fileName: 'file' },
+        (id) => items.find((file) => file.id === id) ?? { id, name: 'file' },
     );
 
     if (await remove(files)) selected.value = [];

@@ -22,7 +22,7 @@
                             v-if="isImage"
                             ref="media"
                             :src="file.thumbnailUrl || file.directUrl"
-                            :alt="file.fileName"
+                            :alt="file.name"
                             loading="lazy"
                             decoding="async"
                             :class="
@@ -38,7 +38,7 @@
                             v-else-if="isVideo && file.thumbnailUrl"
                             ref="media"
                             :src="file.thumbnailUrl"
-                            :alt="file.fileName"
+                            :alt="file.name"
                             loading="lazy"
                             class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                             @load="isLoaded = true"
@@ -118,7 +118,7 @@
                             v-if="file.password"
                             class="size-3.5 shrink-0 text-muted-foreground"
                         />
-                        <TextBlock variant="small" class="truncate">{{ file.fileName }}</TextBlock>
+                        <TextBlock variant="small" class="truncate">{{ file.name }}</TextBlock>
                     </div>
                     <TextBlock variant="muted" class="truncate text-xs">
                         {{ file.size.formatted }} · {{ dayjs(file.createdAt).fromNow() }}

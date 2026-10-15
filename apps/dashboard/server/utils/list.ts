@@ -145,7 +145,7 @@ export const fileListShape = {
     summary: z.stringbool().default(false),
 };
 
-export const FILE_SORT_FIELDS = ['createdAt', 'fileName', 'size', 'views'];
+export const FILE_SORT_FIELDS = ['createdAt', 'name', 'fileName', 'size', 'views'];
 
 export const readFileListQuery = (event: H3Event) => readListQuery(event, fileListShape);
 

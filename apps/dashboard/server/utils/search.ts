@@ -84,6 +84,7 @@ export const fileSearchSelect = {
     id: true,
     authorId: true,
     fileName: true,
+    name: true,
     mimeType: true,
     caption: true,
     ocrText: true,
@@ -98,11 +99,12 @@ const fileVectorSelect = {
     textEmbeddingModel: true,
 } satisfies Prisma.FileSelect;
 
-export const toFileSearchDoc = (
-    file: Prisma.FileGetPayload<{ select: typeof fileSearchSelect }>,
-) => ({
+export const toFileSearchDoc = ({
+    name,
+    ...file
+}: Prisma.FileGetPayload<{ select: typeof fileSearchSelect }>) => ({
     ...file,
-    fileName: `${file.fileName} ${toWords(file.fileName).join(' ')}`,
+    fileName: `${file.fileName} ${name} ${toWords(`${file.fileName} ${name}`).join(' ')}`,
     caption: file.caption || undefined,
     ocrText: file.ocrText || undefined,
 });

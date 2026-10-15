@@ -150,7 +150,7 @@
                                         item.mimeType.startsWith('image/') || item.thumbnailUrl
                                     "
                                     :src="withPassword(item, item.thumbnailUrl || item.directUrl)"
-                                    :alt="item.fileName"
+                                    :alt="item.name"
                                     loading="lazy"
                                     class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
                                 />
@@ -175,7 +175,7 @@
                                     class="size-3.5 shrink-0 text-muted-foreground"
                                 />
                                 <TextBlock variant="small" class="truncate">
-                                    {{ item.fileName }}
+                                    {{ item.name }}
                                 </TextBlock>
                             </div>
                             <TextBlock variant="muted" class="truncate text-xs">
@@ -193,14 +193,14 @@
                 class="flex h-[90svh] max-w-[95vw] flex-col gap-4 sm:max-w-[95vw]"
             >
                 <UiDialogHeader>
-                    <UiDialogTitle class="truncate pr-10">{{ current.fileName }}</UiDialogTitle>
+                    <UiDialogTitle class="truncate pr-10">{{ current.name }}</UiDialogTitle>
                     <UiDialogDescription>{{ current.size.formatted }}</UiDialogDescription>
                 </UiDialogHeader>
                 <div class="relative flex min-h-0 flex-1 items-center justify-center">
                     <img
                         v-if="current.mimeType.startsWith('image/')"
                         :src="withPassword(current, current.directUrl)"
-                        :alt="current.fileName"
+                        :alt="current.name"
                         class="max-h-full max-w-full rounded-2xl object-contain"
                     />
                     <video
@@ -268,7 +268,7 @@
                     <UiDialogHeader>
                         <UiDialogTitle class="flex items-center gap-2 pr-10">
                             <ILock class="size-4 shrink-0" />
-                            <span class="truncate">{{ unlockTarget.fileName }}</span>
+                            <span class="truncate">{{ unlockTarget.name }}</span>
                         </UiDialogTitle>
                         <UiDialogDescription>
                             This file is password protected. Enter the password to open it.
@@ -339,8 +339,8 @@ const sortOptions = computed(() => [
     ...(search.value.trim() ? [{ label: 'Relevance', value: 'relevance' }] : []),
     { label: 'Newest', value: 'createdAt:desc' },
     { label: 'Oldest', value: 'createdAt:asc' },
-    { label: 'Name A–Z', value: 'fileName:asc' },
-    { label: 'Name Z–A', value: 'fileName:desc' },
+    { label: 'Name A–Z', value: 'name:asc' },
+    { label: 'Name Z–A', value: 'name:desc' },
     { label: 'Largest', value: 'size:desc' },
     { label: 'Smallest', value: 'size:asc' },
 ]);
