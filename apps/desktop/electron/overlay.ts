@@ -23,9 +23,9 @@ const OVERLAY_IDLE_MS = 2 * 60 * 1000;
 const OVERLAY_LOAD_TIMEOUT_MS = 5000;
 
 const overlays = new Map<number, BrowserWindow>();
-const loading = new Map<number, Promise<void>>();
+const loading = new Map<number, Promise<boolean>>();
 const loaded = new Map<number, () => void>();
-const pending = new Map<number, () => void>();
+const pending = new Map<number, { done: () => void; timer: NodeJS.Timeout }>();
 let idleTimer: NodeJS.Timeout | null = null;
 let isOpen = false;
 let purpose: OverlayPurpose = 'capture';
@@ -56,16 +56,25 @@ const createOverlay = (display: Electron.Display) => {
         },
     });
 
-    const isLoaded = new Promise<void>((resolve) => {
-        const timer = setTimeout(resolve, OVERLAY_LOAD_TIMEOUT_MS);
+    const isLoaded = new Promise<boolean>((resolve) => {
+        const timer = setTimeout(() => resolve(false), OVERLAY_LOAD_TIMEOUT_MS);
 
         loaded.set(display.id, () => {
             clearTimeout(timer);
             loaded.delete(display.id);
-            resolve();
+            resolve(true);
         });
     });
 
+    const handleGone = (reason: string) => {
+        if (overlays.get(display.id) !== window) return;
+
+        log.warn('A capture overlay stopped', reason);
+        resetOverlays();
+    };
+
+    window.webContents.on('render-process-gone', (_, details) => handleGone(details.reason));
+    window.on('unresponsive', () => handleGone('unresponsive'));
     window.setAlwaysOnTop(true, 'screen-saver');
     window.loadURL(rendererUrl(`/overlay?display=${display.id}`));
     window.on('closed', () => {
@@ -80,29 +89,58 @@ const createOverlay = (display: Electron.Display) => {
     loading.set(display.id, isLoaded);
 };
 
+const destroyOverlay = (id: number) => {
+    const window = overlays.get(id);
+
+    overlays.delete(id);
+    loading.delete(id);
+    loaded.delete(id);
+
+    if (window && !window.isDestroyed()) window.destroy();
+};
+
 const destroyOverlays = () => {
     if (idleTimer) clearTimeout(idleTimer);
     idleTimer = null;
 
-    for (const window of overlays.values()) {
-        if (!window.isDestroyed()) window.destroy();
-    }
-
-    overlays.clear();
-    loading.clear();
-    loaded.clear();
+    for (const id of [...overlays.keys()]) destroyOverlay(id);
 };
 
-const ensureOverlays = async () => {
-    const displays = screen.getAllDisplays();
+const clearPending = () => {
+    for (const { timer } of pending.values()) clearTimeout(timer);
+    pending.clear();
+};
 
+const resetOverlays = () => {
+    destroyOverlays();
+    clearPending();
+    isOpen = false;
+    onArea = null;
+};
+
+const createMissing = (displays: Electron.Display[]) => {
     for (const display of displays) {
         if (!overlays.get(display.id) || overlays.get(display.id)!.isDestroyed()) {
             createOverlay(display);
         }
     }
 
-    await Promise.all(displays.map((display) => loading.get(display.id)));
+    return Promise.all(displays.map((display) => loading.get(display.id) ?? false));
+};
+
+const ensureOverlays = async () => {
+    const displays = screen.getAllDisplays();
+    const results = await createMissing(displays);
+    const failed = displays.filter((_, index) => !results[index]);
+
+    if (!failed.length) return;
+
+    log.warn('Capture overlays did not load, recreating them', failed.length);
+    for (const display of failed) destroyOverlay(display.id);
+
+    if ((await createMissing(failed)).some((isLoaded) => !isLoaded)) {
+        throw new Error('The capture overlay did not load');
+    }
 };
 
 export const markOverlayLoaded = (displayId: number) => loaded.get(displayId)?.();
@@ -115,7 +153,7 @@ export const watchDisplays = () => {
     }
 };
 
-export const markOverlayReady = (displayId: number) => pending.get(displayId)?.();
+export const markOverlayReady = (displayId: number) => pending.get(displayId)?.done();
 
 const reveal = (id: number, window: BrowserWindow, isActive: boolean) => {
     const done = () => {
@@ -125,7 +163,7 @@ const reveal = (id: number, window: BrowserWindow, isActive: boolean) => {
     };
 
     const timer = setTimeout(done, 400);
-    pending.set(id, done);
+    pending.set(id, { done, timer });
 
     window.setOpacity(0);
 
@@ -145,7 +183,7 @@ const reveal = (id: number, window: BrowserWindow, isActive: boolean) => {
 
 const hideOverlays = () => {
     isOpen = false;
-    pending.clear();
+    clearPending();
 
     if (idleTimer) clearTimeout(idleTimer);
     idleTimer = setTimeout(destroyOverlays, OVERLAY_IDLE_MS);
