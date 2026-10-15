@@ -51,6 +51,15 @@
         </div>
 
         <EmptyState
+            v-else-if="isError"
+            :icon="ICircleAlert"
+            title="Couldn't load folders"
+            description="Something went wrong. Check your connection and try again."
+        >
+            <UiButton variant="outline" @click="refresh">Try again</UiButton>
+        </EmptyState>
+
+        <EmptyState
             v-else-if="!folders.length"
             :icon="search ? ISearchX : IFolder"
             :title="search ? 'No matching folders' : 'No folders yet'"
@@ -89,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { IFolder, ISearchX } from '#components';
+import { ICircleAlert, IFolder, ISearchX } from '#components';
 
 const route = useRoute();
 const router = useRouter();
@@ -111,9 +120,11 @@ const {
     items: folders,
     total,
     isLoading,
+    isError,
     isFetching,
     isLoadingMore,
     loadMore,
+    refresh,
 } = usePaginatedList<FolderData>('folders', '/api/folders', () => ({
     q: search.value.trim(),
     sort: sort.value,

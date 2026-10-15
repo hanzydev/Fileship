@@ -47,7 +47,16 @@
         </div>
 
         <EmptyState
-            v-if="!isLoading && !users.length"
+            v-if="isError"
+            :icon="ICircleAlert"
+            title="Couldn't load users"
+            description="Something went wrong. Check your connection and try again."
+        >
+            <UiButton variant="outline" @click="refresh">Try again</UiButton>
+        </EmptyState>
+
+        <EmptyState
+            v-else-if="!isLoading && !users.length"
             :icon="ISearchX"
             title="No matching users"
             description="Try a different username."
@@ -148,7 +157,7 @@
 import dayjs from 'dayjs';
 import { titleCase } from 'scule';
 
-import { ISearchX } from '#components';
+import { ICircleAlert, ISearchX } from '#components';
 import { UserPermission } from '#shared/prisma/enums';
 
 const currentUser = useAuthUser();
@@ -165,9 +174,11 @@ const {
     items: users,
     total,
     isLoading,
+    isError,
     isFetching,
     isLoadingMore,
     loadMore,
+    refresh,
 } = usePaginatedList<UserData>('users', '/api/users', () => ({
     q: search.value.trim(),
     sort: `${sort.value.key}:${sort.value.desc ? 'desc' : 'asc'}`,

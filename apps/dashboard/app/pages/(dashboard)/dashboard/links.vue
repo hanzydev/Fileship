@@ -23,7 +23,16 @@
         </UiInputGroup>
 
         <EmptyState
-            v-if="!isLoading && !links.length"
+            v-if="isError"
+            :icon="ICircleAlert"
+            title="Couldn't load short links"
+            description="Something went wrong. Check your connection and try again."
+        >
+            <UiButton variant="outline" @click="refresh">Try again</UiButton>
+        </EmptyState>
+
+        <EmptyState
+            v-else-if="!isLoading && !links.length"
             :icon="ILink"
             :title="search ? 'No matching links' : 'No short links yet'"
             :description="
@@ -246,7 +255,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
-import { ILink } from '#components';
+import { ICircleAlert, ILink } from '#components';
 
 const route = useRoute();
 const { $toast } = useNuxtApp();
@@ -286,9 +295,11 @@ const {
     items: links,
     total,
     isLoading,
+    isError,
     isFetching,
     isLoadingMore,
     loadMore,
+    refresh,
 } = usePaginatedList<LinkData>('links', '/api/links', () => ({
     q: search.value.trim(),
     sort: `${sort.value.key}:${sort.value.desc ? 'desc' : 'asc'}`,

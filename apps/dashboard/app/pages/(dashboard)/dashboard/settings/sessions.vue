@@ -14,6 +14,14 @@
             <div v-if="isLoading" class="flex flex-col gap-2">
                 <ListCardSkeleton v-for="i in 3" :key="i" media="size-5" />
             </div>
+            <EmptyState
+                v-else-if="isError"
+                :icon="ICircleAlert"
+                title="Couldn't load sessions"
+                description="Something went wrong. Check your connection and try again."
+            >
+                <UiButton variant="outline" @click="refresh">Try again</UiButton>
+            </EmptyState>
             <VirtualList
                 v-else
                 :items="sortedSessions"
@@ -76,6 +84,8 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
+import { ICircleAlert } from '#components';
+
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
 const revokingId = ref<string | null>(null);
@@ -84,8 +94,10 @@ const {
     items: sessions,
     total,
     isLoading,
+    isError,
     isLoadingMore,
     loadMore,
+    refresh,
 } = usePaginatedList<SessionData>('sessions', '/api/users/@me/sessions');
 
 const sortedSessions = computed(() =>

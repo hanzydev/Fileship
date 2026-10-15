@@ -76,7 +76,16 @@
         </div>
 
         <EmptyState
-            v-if="!isLoading && !logs.length"
+            v-if="isError"
+            :icon="ICircleAlert"
+            title="Couldn't load logs"
+            description="Something went wrong. Check your connection and try again."
+        >
+            <UiButton variant="outline" @click="refresh">Try again</UiButton>
+        </EmptyState>
+
+        <EmptyState
+            v-else-if="!isLoading && !logs.length"
             :icon="IClipboardList"
             :title="isFiltered ? 'No matching entries' : 'No logs yet'"
             :description="
@@ -181,7 +190,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
-import { IClipboardList } from '#components';
+import { ICircleAlert, IClipboardList } from '#components';
 
 const { $toast } = useNuxtApp();
 const currentUser = useAuthUser();
@@ -224,9 +233,11 @@ const {
     items: logs,
     total,
     isLoading,
+    isError,
     isFetching,
     isLoadingMore,
     loadMore,
+    refresh,
 } = usePaginatedList<LogData>('logs', '/api/logs', () => ({
     q: search.value.trim(),
     action: actionFilter.value === 'all' ? undefined : actionFilter.value,

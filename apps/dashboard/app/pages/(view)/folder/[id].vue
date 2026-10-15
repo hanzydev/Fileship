@@ -99,6 +99,15 @@
             </div>
 
             <EmptyState
+                v-else-if="isError"
+                :icon="ICircleAlert"
+                title="Couldn't load files"
+                description="Something went wrong. Check your connection and try again."
+            >
+                <UiButton variant="outline" @click="refresh">Try again</UiButton>
+            </EmptyState>
+
+            <EmptyState
                 v-else-if="!files.length && !isFiltered"
                 :icon="IFolderOpen"
                 title="This folder is empty"
@@ -300,7 +309,7 @@
 </template>
 
 <script setup lang="ts">
-import { IFolderOpen, ISearchX } from '#components';
+import { ICircleAlert, IFolderOpen, ISearchX } from '#components';
 
 const route = useRoute();
 
@@ -355,9 +364,11 @@ const sortValue = computed({
 const {
     items: files,
     isLoading,
+    isError,
     isFetching,
     isLoadingMore,
     loadMore,
+    refresh,
 } = usePaginatedList<PublicFile>('files', `/api/folders/${data.value!.id}/files`, () => ({
     q: search.value.trim(),
     mode: search.value.trim() && aiSearch.value ? 'vector' : undefined,

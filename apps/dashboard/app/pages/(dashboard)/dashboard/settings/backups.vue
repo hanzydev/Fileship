@@ -45,6 +45,15 @@
             </div>
 
             <EmptyState
+                v-else-if="isError"
+                :icon="ICircleAlert"
+                title="Couldn't load backups"
+                description="Something went wrong. Check your connection and try again."
+            >
+                <UiButton variant="outline" @click="refresh">Try again</UiButton>
+            </EmptyState>
+
+            <EmptyState
                 v-else-if="!backups.length"
                 :icon="IArchive"
                 title="No backups yet"
@@ -112,7 +121,7 @@
 import dayjs from 'dayjs';
 import { nanoid } from 'nanoid';
 
-import { IArchive } from '#components';
+import { IArchive, ICircleAlert } from '#components';
 
 const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
@@ -122,8 +131,10 @@ const backupInput = useTemplateRef('backupInput');
 const {
     items: backups,
     isLoading,
+    isError,
     isLoadingMore,
     loadMore,
+    refresh,
 } = usePaginatedList<BackupData>('backups', '/api/users/@me/backups');
 
 const isCreating = ref(false);

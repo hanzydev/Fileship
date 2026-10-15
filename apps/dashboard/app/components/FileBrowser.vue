@@ -126,6 +126,15 @@
         </div>
 
         <EmptyState
+            v-else-if="isError"
+            :icon="ICircleAlert"
+            title="Couldn't load files"
+            description="Something went wrong. Check your connection and try again."
+        >
+            <UiButton variant="outline" @click="refresh">Try again</UiButton>
+        </EmptyState>
+
+        <EmptyState
             v-else-if="!isLoading && !files.length && !isFiltered"
             :icon="IFiles"
             :title="emptyTitle"
@@ -292,7 +301,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
-import { IFiles, ISearchX } from '#components';
+import { ICircleAlert, IFiles, ISearchX } from '#components';
 
 const { folderId, emptyTitle = 'No files yet' } = defineProps<{
     folderId?: string;
@@ -403,10 +412,12 @@ const {
     summary: listSummary,
     query: listQuery,
     isLoading,
+    isError,
     isFetching,
     isLoadingMore,
     hasMore,
     loadMore,
+    refresh,
 } = usePaginatedList<FileData, FileSummary>('files', '/api/files', () => ({
     q: query.value,
     mode: query.value && aiSearch.value ? 'vector' : undefined,

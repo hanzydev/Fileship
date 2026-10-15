@@ -109,7 +109,9 @@ export const usePaginatedList = <T extends { id: string }, S = undefined>(
             loadedKey.value = key;
             status.value = 'success';
         } catch {
-            if (current === version) status.value = 'error';
+            if (current !== version) return;
+
+            status.value = loadedKey.value === key && items.value.length ? 'success' : 'error';
         }
     };
 
@@ -140,7 +142,12 @@ export const usePaginatedList = <T extends { id: string }, S = undefined>(
         isLoadingMore.value = false;
     };
 
-    const refresh = () => toValue(enabled) && load(Math.max(items.value.length, limit));
+    const refresh = () => {
+        if (!toValue(enabled)) return;
+        if (status.value === 'error') status.value = 'pending';
+
+        return load(Math.max(items.value.length, limit));
+    };
 
     useListHandle({
         resource,
@@ -174,6 +181,7 @@ export const usePaginatedList = <T extends { id: string }, S = undefined>(
         summary,
         status,
         isLoading: computed(() => status.value === 'pending' && !items.value.length),
+        isError: computed(() => status.value === 'error'),
         isLoadingMore,
         isFetching: computed(
             () =>

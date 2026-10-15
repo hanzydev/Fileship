@@ -47,7 +47,16 @@
         </div>
 
         <EmptyState
-            v-if="!isLoading && !isSwitching && !items.length"
+            v-if="isError"
+            :icon="ICircleAlert"
+            title="Couldn't load the trash"
+            description="Something went wrong. Check your connection and try again."
+        >
+            <UiButton variant="outline" @click="refresh">Try again</UiButton>
+        </EmptyState>
+
+        <EmptyState
+            v-else-if="!isLoading && !isSwitching && !items.length"
             :icon="ITrash2"
             :title="search ? 'No matching items' : 'Nothing here'"
             :description="
@@ -207,7 +216,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
-import { IBookmark, IFolder, ITrash2 } from '#components';
+import { IBookmark, ICircleAlert, IFolder, ITrash2 } from '#components';
 
 type TrashKind = 'files' | 'folders' | 'notes';
 
@@ -257,12 +266,22 @@ const columns = computed(() => [
     { key: 'actions', label: '', class: 'w-16' },
 ]);
 
-const { items, total, hasMore, isLoading, isFetching, isLoadingMore, isFresh, loadMore } =
-    usePaginatedList<TrashItem>('trash', '/api/trash', () => ({
-        kind: kind.value,
-        q: search.value.trim(),
-        sort: `${sort.value.key}:${sort.value.desc ? 'desc' : 'asc'}`,
-    }));
+const {
+    items,
+    total,
+    hasMore,
+    isLoading,
+    isError,
+    isFetching,
+    isLoadingMore,
+    isFresh,
+    loadMore,
+    refresh,
+} = usePaginatedList<TrashItem>('trash', '/api/trash', () => ({
+    kind: kind.value,
+    q: search.value.trim(),
+    sort: `${sort.value.key}:${sort.value.desc ? 'desc' : 'asc'}`,
+}));
 
 const isSwitching = ref(false);
 
@@ -272,7 +291,7 @@ watch(kind, () => {
     search.value = '';
 });
 
-watch(isFresh, (value) => value && (isSwitching.value = false));
+watch([isFresh, isError], ([fresh, error]) => (fresh || error) && (isSwitching.value = false));
 
 watch(items, (value) => {
     selected.value = selected.value.filter((id) => value.some((item) => item.id === id));

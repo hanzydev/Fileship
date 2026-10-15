@@ -35,6 +35,15 @@
                 </div>
 
                 <EmptyState
+                    v-else-if="isError"
+                    :icon="ICircleAlert"
+                    title="Couldn't load notes"
+                    description="Something went wrong. Check your connection and try again."
+                >
+                    <UiButton variant="outline" @click="refresh">Try again</UiButton>
+                </EmptyState>
+
+                <EmptyState
                     v-else-if="!notes.length"
                     :icon="search ? ISearchX : IBookmark"
                     :title="search ? 'No matching notes' : 'No notes yet'"
@@ -119,7 +128,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
-import { IBookmark, ISearchX } from '#components';
+import { IBookmark, ICircleAlert, ISearchX } from '#components';
 
 const route = useRoute();
 
@@ -129,9 +138,11 @@ const {
     items: notes,
     total,
     isLoading,
+    isError,
     isFetching,
     isLoadingMore,
     loadMore,
+    refresh,
 } = usePaginatedList<NoteData>('notes', '/api/notes', () => ({ q: search.value.trim() }));
 
 const activeId = computed(() => (route.params as any).id as string | undefined);
