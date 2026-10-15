@@ -1,5 +1,14 @@
 <template>
-    <div v-if="isBorder" class="fixed inset-0 border-2 border-dashed border-destructive" />
+    <div
+        v-if="isBorder"
+        class="fixed inset-0 border-dashed border-destructive"
+        :class="{
+            'border-t-2': sides.includes('t'),
+            'border-r-2': sides.includes('r'),
+            'border-b-2': sides.includes('b'),
+            'border-l-2': sides.includes('l'),
+        }"
+    />
 
     <div v-else class="flex size-full items-center justify-center p-1 select-none">
         <div
@@ -105,6 +114,7 @@ registerProcessor('fileship-pcm', FileshipPcm);
 
 const route = useRoute();
 const isBorder = route.query.view === 'border';
+const sides = typeof route.query.sides === 'string' ? route.query.sides : 'trbl';
 
 const state = ref<RecorderState>({
     phase: 'preparing',

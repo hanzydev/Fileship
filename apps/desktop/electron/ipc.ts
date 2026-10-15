@@ -184,7 +184,9 @@ const handlers: Handlers = {
         runInBackground('Recorder', () => controlRecording(action));
     },
     'recorder:mute': (source, muted) => setRecordingMute(source, muted),
-    'recorder:visible': (view) => showRecorderWindow(view),
+    'recorder:visible': function () {
+        showRecorderWindow(this.sender);
+    },
     'drive:status': () => getDriveStatus(),
     'drive:open': () => {
         openDrive();

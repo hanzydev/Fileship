@@ -4,7 +4,15 @@ import { createServer, type Server, type Socket } from 'node:net';
 import { basename, join } from 'node:path';
 import { promisify } from 'node:util';
 
-import { app, BrowserWindow, desktopCapturer, screen, session } from 'electron';
+import {
+    app,
+    BrowserWindow,
+    desktopCapturer,
+    type Display,
+    screen,
+    session,
+    type WebContents,
+} from 'electron';
 import log from 'electron-log/main';
 
 import type {
@@ -78,7 +86,7 @@ type Recording = {
     segments: string[];
     segment: Segment | null;
     toolbar: BrowserWindow | null;
-    border: BrowserWindow | null;
+    borders: BrowserWindow[];
     markReady: ((error: string | null) => void) | null;
     timer: NodeJS.Timeout | null;
 };
@@ -113,11 +121,51 @@ const contains = (outer: Rect, inner: Rect) =>
     inner.x + inner.width <= outer.x + outer.width &&
     inner.y + inner.height <= outer.y + outer.height;
 
+const BORDER_PADDING = 3;
+
+const intersect = (a: Rect, b: Rect): Rect | null => {
+    const x = Math.max(a.x, b.x);
+    const y = Math.max(a.y, b.y);
+    const right = Math.min(a.x + a.width, b.x + b.width);
+    const bottom = Math.min(a.y + a.height, b.y + b.height);
+
+    return right > x && bottom > y ? { x, y, width: right - x, height: bottom - y } : null;
+};
+
+const outerSides = (rect: Rect, part: Rect) =>
+    [
+        part.y === rect.y && 't',
+        part.x + part.width === rect.x + rect.width && 'r',
+        part.y + part.height === rect.y + rect.height && 'b',
+        part.x === rect.x && 'l',
+    ]
+        .filter(Boolean)
+        .join('');
+
+const displayParts = (rect: Rect) =>
+    screen.getAllDisplays().flatMap((display) => {
+        const part = intersect(rect, screen.dipToScreenRect(null, display.bounds));
+        return part ? [{ display, part, sides: outerSides(rect, part) }] : [];
+    });
+
+const borderBounds = (display: Display, part: Rect, sides: string) => {
+    const dip = screen.screenToDipRect(null, part);
+    const pad = (side: string) => (sides.includes(side) ? BORDER_PADDING : 0);
+    const { bounds } = display;
+
+    const left = Math.max(dip.x - pad('l'), bounds.x);
+    const top = Math.max(dip.y - pad('t'), bounds.y);
+    const right = Math.min(dip.x + dip.width + pad('r'), bounds.x + bounds.width);
+    const bottom = Math.min(dip.y + dip.height + pad('b'), bounds.y + bounds.height);
+
+    return { x: left, y: top, width: right - left, height: bottom - top };
+};
+
 const closeWindows = (recording: Recording) => {
-    const windows = [recording.toolbar, recording.border];
+    const windows = [recording.toolbar, ...recording.borders];
 
     recording.toolbar = null;
-    recording.border = null;
+    recording.borders = [];
 
     for (const window of windows) {
         if (window && !window.isDestroyed()) window.destroy();
@@ -140,12 +188,25 @@ const fadeIn = (window: BrowserWindow | null) => {
     }, 16);
 };
 
-export const showRecorderWindow = (view: 'toolbar' | 'border') =>
-    fadeIn((view === 'border' ? current?.border : current?.toolbar) ?? null);
+export const showRecorderWindow = (sender: WebContents) => {
+    const window = BrowserWindow.fromWebContents(sender);
+    if (!window || !current) return;
+
+    if (window === current.toolbar || current.borders.includes(window)) fadeIn(window);
+};
 
 const createWindows = (recording: Recording) => {
-    const dip = screen.screenToDipRect(null, recording.target.rect);
-    const { workArea, bounds: displayBounds } = screen.getDisplayMatching(dip);
+    const { rect } = recording.target;
+    const parts = displayParts(rect);
+    const host = parts.reduce<(typeof parts)[number] | null>(
+        (best, item) =>
+            !best || item.part.width * item.part.height > best.part.width * best.part.height
+                ? item
+                : best,
+        null,
+    );
+    const dip = screen.screenToDipRect(null, host?.part ?? rect);
+    const { workArea } = host?.display ?? screen.getDisplayMatching(dip);
     const preferences = {
         preload: join(__dirname, 'preload.cjs'),
         contextIsolation: true,
@@ -170,27 +231,26 @@ const createWindows = (recording: Recording) => {
     };
 
     if (recording.settings.recording.showBorder) {
-        const left = Math.max(dip.x - 3, displayBounds.x);
-        const top = Math.max(dip.y - 3, displayBounds.y);
-        const right = Math.min(dip.x + dip.width + 3, displayBounds.x + displayBounds.width);
-        const bottom = Math.min(dip.y + dip.height + 3, displayBounds.y + displayBounds.height);
-        const bounds = { x: left, y: top, width: right - left, height: bottom - top };
+        for (const { display, part, sides } of parts) {
+            if (!sides) continue;
 
-        const border = new BrowserWindow({
-            ...shared,
-            ...bounds,
-            focusable: false,
-            enableLargerThanScreen: true,
-        });
+            const bounds = borderBounds(display, part, sides);
+            const border = new BrowserWindow({
+                ...shared,
+                ...bounds,
+                focusable: false,
+                enableLargerThanScreen: true,
+            });
 
-        hardenWebContents(border);
-        border.setBounds(bounds);
-        border.setIgnoreMouseEvents(true);
-        border.setContentProtection(true);
-        border.setAlwaysOnTop(true, 'screen-saver');
-        border.loadURL(rendererUrl('/recorder?view=border'));
-        setTimeout(() => fadeIn(border), 3000);
-        recording.border = border;
+            hardenWebContents(border);
+            border.setBounds(bounds);
+            border.setIgnoreMouseEvents(true);
+            border.setContentProtection(true);
+            border.setAlwaysOnTop(true, 'screen-saver');
+            border.loadURL(rendererUrl(`/recorder?view=border&sides=${sides}`));
+            setTimeout(() => fadeIn(border), 3000);
+            recording.borders.push(border);
+        }
     }
 
     const width = 440;
@@ -610,7 +670,7 @@ const begin = async (kind: RecordingKind, rect: Rect) => {
         segments: [],
         segment: null,
         toolbar: null,
-        border: null,
+        borders: [],
         markReady: null,
         timer: null,
     };
