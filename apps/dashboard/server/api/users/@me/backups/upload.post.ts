@@ -54,6 +54,7 @@ export default defineEventHandler(async (event) => {
     const upload = await receiveChunk(
         currentUser.id,
         {
+            kind: 'backup',
             uploadId: body.data.uploadId,
             part: body.data.currentChunk,
             offset: body.data.chunkOffset,
@@ -82,6 +83,7 @@ export default defineEventHandler(async (event) => {
 
             return { key: backupKey({ id: nanoid(), userId: currentUser.id }), isDirect: true };
         },
+        (size) => exceedsUsableSpace(currentUser, size),
     );
 
     if (!upload) return;

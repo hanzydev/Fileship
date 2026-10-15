@@ -87,11 +87,12 @@ export default defineEventHandler(async (event) => {
         throw forbiddenError;
     }
 
-    const extensionName = extname(file.name);
+    const extensionName = safeExtension(file.name);
 
     const _upload = await receiveUpload(
         findInboxById.user,
         {
+            kind: `inbox:${findInboxById.id}`,
             uploadId: body.data.uploadId ?? nanoid(8),
             part: body.data.currentChunk!,
             offset: body.data.chunkOffset ?? 0,
@@ -100,7 +101,7 @@ export default defineEventHandler(async (event) => {
             mimeType: file.type,
         },
         async () => {
-            const fileName = `${basename(file.name.replace(/[^a-zA-Z0-9-_.]/g, ''), extensionName)}-${nanoid(6)}${
+            const fileName = `${basename(file.name, extname(file.name)).replace(/[^a-zA-Z0-9-_.]/g, '')}-${nanoid(6)}${
                 extensionName
             }`;
 

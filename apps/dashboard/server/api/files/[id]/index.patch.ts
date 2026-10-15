@@ -12,7 +12,8 @@ const validationSchema = z
                     .string()
                     .min(3, 'File name must be at least 3 characters')
                     .max(255, 'File name must be at most 255 characters')
-                    .regex(/^[^.]/, 'File name cannot start with a dot'),
+                    .regex(/^[^.]/, 'File name cannot start with a dot')
+                    .refine((value) => !isUuid(value), 'This file name is reserved'),
             )
             .optional(),
         name: z
@@ -26,9 +27,12 @@ const validationSchema = z
             )
             .optional(),
         password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
-        maxViews: z.number().min(0, 'Max views must be at least 0').optional(),
-        expiration: z.number().min(0, 'Expiration must be at least 0').nullish(),
-        folderId: z.string().nullish(),
+        maxViews: z.number().int().min(0, 'Max views must be at least 0').optional(),
+        expiration: z.number().int().min(0, 'Expiration must be at least 0').nullish(),
+        folderId: z
+            .string()
+            .nullish()
+            .transform((value) => (value === '' ? null : value)),
         sensitive: z.boolean().nullable().optional(),
     })
     .strict();

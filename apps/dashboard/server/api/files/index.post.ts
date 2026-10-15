@@ -27,8 +27,8 @@ const validationSchema = z.object({
         .max(100, 'Compression must be at most 100')
         .optional(),
     password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
-    maxViews: z.number().min(0, 'Max views must be at least 0').nullish(),
-    expiration: z.number().min(0, 'Expiration must be at least 0').nullish(),
+    maxViews: z.number().int().min(0, 'Max views must be at least 0').nullish(),
+    expiration: z.number().int().min(0, 'Expiration must be at least 0').nullish(),
     folderId: z.string().nullish(),
 });
 
@@ -78,11 +78,31 @@ export default defineEventHandler(async (event) => {
     }
 
     const isCompressible = isProcessableImage(file.type) && !!body.data.compression;
-    const extensionName = isCompressible ? '.jpeg' : extname(file.name);
+    const extensionName = isCompressible ? '.jpeg' : safeExtension(file.name);
+
+    const assertFolder = async () => {
+        if (!body.data.folderId) return;
+
+        const findFolderById = await prisma.folder.findUnique({
+            where: {
+                id: body.data.folderId,
+                authorId: currentUser.id,
+                deletedAt: null,
+            },
+        });
+
+        if (!findFolderById) {
+            throw createError({
+                status: 404,
+                message: 'Folder not found',
+            });
+        }
+    };
 
     const _upload = await receiveUpload(
         currentUser,
         {
+            kind: 'file',
             uploadId: body.data.uploadId ?? nanoid(8),
             part: body.data.currentChunk!,
             offset: body.data.chunkOffset ?? 0,
@@ -92,7 +112,7 @@ export default defineEventHandler(async (event) => {
             compression: body.data.compression,
         },
         async () => {
-            let fileName = `${basename(file.name.replace(/[^a-zA-Z0-9-_.]/g, ''), extname(file.name))}${
+            let fileName = `${basename(file.name, extname(file.name)).replace(/[^a-zA-Z0-9-_.]/g, '')}${
                 extensionName
             }`;
 
@@ -100,6 +120,8 @@ export default defineEventHandler(async (event) => {
                 fileName = `${nanoid(8)}${extensionName}`;
             } else if (body.data.fileNameType === 'UUID') {
                 fileName = `${randomUUID()}${extensionName}`;
+            } else {
+                assertFileNameAllowed(fileName);
             }
 
             if (!fileName.replaceAll('.', '') || fileName.startsWith('.')) {
@@ -124,31 +146,18 @@ export default defineEventHandler(async (event) => {
                 });
             }
 
-            if (body.data.folderId) {
-                const findFolderById = await prisma.folder.findUnique({
-                    where: {
-                        id: body.data.folderId,
-                        authorId: currentUser.id,
-                        deletedAt: null,
-                    },
-                });
-
-                if (!findFolderById) {
-                    throw createError({
-                        status: 404,
-                        message: 'Folder not found',
-                    });
-                }
-            }
+            await assertFolder();
 
             return fileName;
         },
-        (data) =>
-            prisma.file.create({
+        async (data) => {
+            await assertFolder();
+
+            return prisma.file.create({
                 data: {
                     ...data,
                     name: toDisplayName(
-                        `${basename(file.name, extname(file.name))}${extensionName}`,
+                        `${basename(file.name, extname(file.name))}${isCompressible ? '.jpeg' : extname(file.name)}`,
                         data.fileName,
                     ),
                     mimeType: isCompressible ? 'image/jpeg' : file.type,
@@ -168,7 +177,8 @@ export default defineEventHandler(async (event) => {
                     textEmbedding: true,
                     ocrText: true,
                 },
-            }),
+            });
+        },
     );
 
     if (_upload) {

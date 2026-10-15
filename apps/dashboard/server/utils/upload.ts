@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { promises as fsp } from 'node:fs';
 
 import { basename, dirname, extname, join } from 'pathe';
@@ -6,18 +7,20 @@ import sharp from 'sharp';
 import type { UploadPart, UploadState } from '~~/server/storage/types';
 
 interface UploadSession {
+    kind: string;
     key: string;
     storageId: string | null;
     isDirect: boolean;
     total: number;
     chunkSize: number | null;
     received: number;
-    parts: Record<number, { size: number; result?: UploadPart }>;
+    parts: Record<number, { size: number; attempt: string; isDone: boolean; result?: UploadPart }>;
     isComplete?: boolean;
     state: UploadState;
 }
 
 interface UploadChunk {
+    kind: string;
     uploadId: string;
     part: number;
     total: number;
@@ -114,8 +117,7 @@ export const receiveChunk = async (
     isTooLarge: (size: number) => Promise<boolean> = async () => false,
 ) => {
     const path = join(dataDirectory, 'temp', ownerId, `${chunk.uploadId}.upload`);
-
-    if (chunk.part > chunk.total) throw invalidChunk('Invalid upload chunk');
+    const attempt = randomUUID();
 
     const session = await withSessionLock(path, async () => {
         let session = await readSession(path);
@@ -128,6 +130,7 @@ export const receiveChunk = async (
             if (!isDirect) await fsp.writeFile(path, new Uint8Array());
 
             session = {
+                kind: chunk.kind,
                 key,
                 storageId,
                 isDirect,
@@ -139,6 +142,7 @@ export const receiveChunk = async (
             };
         }
 
+        if (session.kind !== chunk.kind) throw invalidChunk('Upload not found');
         if (session.isComplete) throw invalidChunk('Upload already completed');
 
         checkLayout(session, chunk);
@@ -155,24 +159,51 @@ export const receiveChunk = async (
             });
         }
 
+        session.received = received;
+        session.parts[chunk.part] = { size: chunk.data.length, attempt, isDone: false };
+
         await fsp.writeFile(`${path}.json`, JSON.stringify(session));
         return session;
     });
 
-    const result = session.isDirect
-        ? await (
-              await getStorage(session.storageId)
-          ).writeChunk(session.key, session.state, chunk.part, chunk.offset, chunk.data)
-        : await writeUploadChunk(path, chunk.data, chunk.offset, chunk.part === chunk.total);
+    const result = await (
+        session.isDirect
+            ? (await getStorage(session.storageId)).writeChunk(
+                  session.key,
+                  session.state,
+                  chunk.part,
+                  chunk.offset,
+                  chunk.data,
+              )
+            : writeUploadChunk(path, chunk.data, chunk.offset, chunk.part === chunk.total)
+    ).catch(async (error) => {
+        await withSessionLock(path, async () => {
+            const current = await readSession(path);
+            if (current?.parts[chunk.part]?.attempt !== attempt) return;
+
+            current.received -= chunk.data.length;
+            current.parts = Object.fromEntries(
+                Object.entries(current.parts).filter(([part]) => Number(part) !== chunk.part),
+            );
+            await fsp.writeFile(`${path}.json`, JSON.stringify(current));
+        });
+
+        throw error;
+    });
 
     return withSessionLock(path, async () => {
         const session = await readSession(path);
 
         if (!session || session.isComplete) throw invalidChunk('Upload not found');
 
-        session.received += chunk.data.length - (session.parts[chunk.part]?.size ?? 0);
-        session.parts[chunk.part] = { size: chunk.data.length, ...(result && { result }) };
-        session.isComplete = Object.keys(session.parts).length === session.total;
+        const entry = session.parts[chunk.part];
+        if (entry?.attempt !== attempt) return;
+
+        entry.isDone = true;
+        if (result) entry.result = result;
+
+        session.isComplete =
+            Object.values(session.parts).filter((part) => part.isDone).length === session.total;
 
         await fsp.writeFile(`${path}.json`, JSON.stringify(session));
 
