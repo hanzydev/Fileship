@@ -1,6 +1,28 @@
-const VIEW_WINDOW = 10 * 60 * 1_000;
-
 const ACTIVE_CONTENT_TYPES = ['html', 'svg', 'xml', 'javascript'];
+
+const findFile = async (idOrName: string) => {
+    for (const lookup of fileLookups(idOrName)) {
+        const file = await prisma.file.findFirst({
+            where: lookup,
+            include: {
+                _count: {
+                    select: {
+                        views: true,
+                    },
+                },
+                folder: {
+                    select: {
+                        public: true,
+                    },
+                },
+            },
+        });
+
+        if (file) return file;
+    }
+
+    return null;
+};
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -8,41 +30,24 @@ export default defineEventHandler(async (event) => {
     const fileNameOrId = decodeURIComponent(getRouterParam(event, 'id')!);
     const query = getQuery(event);
     const rangeHeader = getRequestHeader(event, 'range');
-    const storage = useStorage('cache');
 
-    const findFileById = await prisma.file.findFirst({
-        where: {
-            OR: [
-                {
-                    id: fileNameOrId,
-                },
-                {
-                    fileName: fileNameOrId,
-                },
-            ],
-        },
-        include: {
-            _count: {
-                select: {
-                    views: true,
-                },
-            },
-            folder: {
-                select: {
-                    public: true,
-                },
-            },
-        },
-    });
+    const findFileById = await findFile(fileNameOrId);
+    const isVisitor = findFileById?.authorId !== currentUser?.id;
 
-    if (!findFileById || (findFileById.deletedAt && findFileById.authorId !== currentUser?.id)) {
+    if (
+        !findFileById ||
+        (isVisitor &&
+            (findFileById.deletedAt ||
+                isHiddenFromVisitors(findFileById) ||
+                (findFileById.maxViews && findFileById._count.views >= findFileById.maxViews)))
+    ) {
         throw createError({
             status: 404,
             message: 'File not found',
         });
     }
 
-    if (findFileById.authorId !== currentUser?.id) {
+    if (isVisitor) {
         if (findFileById.folder?.public === false) {
             throw createError({
                 status: 403,
@@ -70,22 +75,19 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    if (findFileById.authorId !== currentUser?.id) {
-        const ip = getRequestIP(event, { xForwardedFor: true }) || 'Unknown';
+    let isLastView = false;
+
+    if (isVisitor) {
+        const ip = getClientIp(event);
         const userAgent = getRequestHeader(event, 'user-agent') || 'Unknown';
-        const key = `${ip}-${userAgent}-${findFileById.id}`;
-        const now = Date.now();
-        const lastView = (await storage.getItem<number>(key)) || 0;
-
         const isStartOfFile = !rangeHeader || rangeHeader.startsWith('bytes=0-');
-        const shouldCountView = isStartOfFile && now - lastView > VIEW_WINDOW;
 
-        if (shouldCountView) {
+        if (isStartOfFile && claimView(`${ip}-${userAgent}-${findFileById.id}`)) {
             await prisma.view.create({
                 data: {
                     fileId: findFileById.id,
                     ownerId: findFileById.authorId,
-                    ip: getRequestIP(event, { xForwardedFor: true }) ?? 'Unknown',
+                    ip,
                 },
             });
 
@@ -95,31 +97,24 @@ export default defineEventHandler(async (event) => {
                 system: true,
             });
 
-            const currentViews = findFileById._count.views + 1;
-
-            if (findFileById.maxViews && currentViews >= findFileById.maxViews) {
-                await prisma.file.delete({
-                    where: {
-                        id: findFileById.id,
-                    },
-                });
-
-                await removeFileData([findFileById]);
-
-                await createLog(event, {
-                    action: 'Delete File',
-                    message: `Deleted file ${findFileById.fileName} due to max views reached`,
-                    system: true,
-                });
-
-                sendToUser(findFileById.authorId, 'file:delete', findFileById.id);
-
-                throw createError({
-                    status: 404,
-                    message: 'File not found',
-                });
-            }
+            isLastView =
+                !!findFileById.maxViews && findFileById._count.views + 1 >= findFileById.maxViews;
         }
+    }
+
+    if (isLastView) {
+        event.node.res.once('close', async () => {
+            await prisma.file.delete({ where: { id: findFileById.id } }).catch(() => null);
+            await removeFileData([findFileById]);
+
+            await createLog(event, {
+                action: 'Delete File',
+                message: `Deleted file ${findFileById.fileName} due to max views reached`,
+                system: true,
+            });
+
+            sendToUser(findFileById.authorId, 'file:delete', findFileById.id);
+        });
     }
 
     setResponseHeaders(event, {

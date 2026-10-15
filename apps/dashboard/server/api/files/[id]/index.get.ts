@@ -4,43 +4,45 @@ import { filesize } from 'filesize';
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
 
-    const fileNameOrId = getRouterParam(event, 'id');
+    const fileNameOrId = getRouterParam(event, 'id')!;
     const query = getQuery(event);
 
-    const findFileById = await prisma.file.findFirst({
-        where: {
-            deletedAt: null,
-            OR: [
-                {
-                    id: fileNameOrId,
-                },
-                {
-                    fileName: fileNameOrId,
-                },
-            ],
-        },
-        include: {
-            _count: { select: { views: true } },
-            folder: {
-                select: {
-                    public: true,
-                },
-            },
-            author: {
-                select: {
-                    embed: true,
-                    domains: true,
-                },
-            },
-        },
-        omit: {
-            embedding: true,
-            textEmbedding: true,
-            ocrText: true,
-        },
-    });
+    let findFileById = null;
 
-    if (!findFileById) {
+    for (const lookup of fileLookups(fileNameOrId)) {
+        findFileById = await prisma.file.findFirst({
+            where: {
+                ...lookup,
+                deletedAt: null,
+            },
+            include: {
+                _count: { select: { views: true } },
+                folder: {
+                    select: {
+                        public: true,
+                    },
+                },
+                author: {
+                    select: {
+                        embed: true,
+                        domains: true,
+                    },
+                },
+            },
+            omit: {
+                embedding: true,
+                textEmbedding: true,
+                ocrText: true,
+            },
+        });
+
+        if (findFileById) break;
+    }
+
+    if (
+        !findFileById ||
+        (findFileById.authorId !== currentUser?.id && isHiddenFromVisitors(findFileById))
+    ) {
         throw createError({
             status: 404,
             message: 'File not found',
@@ -87,16 +89,7 @@ export default defineEventHandler(async (event) => {
         password: undefined,
         author: undefined,
         folder: undefined,
-        ...(isOwner
-            ? {}
-            : {
-                  authorId: undefined,
-                  caption: undefined,
-                  piiReasons: undefined,
-                  piiOverride: undefined,
-                  maxViews: undefined,
-                  expiresAt: undefined,
-              }),
+        ...(isOwner ? {} : visitorFileFields),
         size: {
             raw: findFileById.size.toString(),
             formatted: filesize(findFileById.size),

@@ -6,27 +6,28 @@ export default defineEventHandler(async (event) => {
     const fileNameOrId = decodeURIComponent(getRouterParam(event, 'id')!);
     const query = getQuery(event);
 
-    const findFileById = await prisma.file.findFirst({
-        where: {
-            OR: [
-                {
-                    id: fileNameOrId,
-                },
-                {
-                    fileName: fileNameOrId,
-                },
-            ],
-        },
-        include: {
-            folder: {
-                select: {
-                    public: true,
+    let findFileById = null;
+
+    for (const lookup of fileLookups(fileNameOrId)) {
+        findFileById = await prisma.file.findFirst({
+            where: lookup,
+            include: {
+                folder: {
+                    select: {
+                        public: true,
+                    },
                 },
             },
-        },
-    });
+        });
 
-    if (!findFileById || (findFileById.deletedAt && findFileById.authorId !== currentUser?.id)) {
+        if (findFileById) break;
+    }
+
+    if (
+        !findFileById ||
+        (findFileById.authorId !== currentUser?.id &&
+            (findFileById.deletedAt || isHiddenFromVisitors(findFileById)))
+    ) {
         throw createError({
             status: 404,
             message: 'File not found',
