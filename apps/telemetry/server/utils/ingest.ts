@@ -4,10 +4,16 @@ import type { H3Event } from 'h3';
 import type { Prisma } from '~~/generated/prisma/client';
 
 const MAX_CLOCK_SKEW = 24 * 60 * 60 * 1000;
+const NEW_INSTANCES_PER_DAY = 5;
 
 export const limitReports = async (event: H3Event, instanceId: string) => {
+    const ip = getClientIp(event);
+
     await rateLimit(`report:${instanceId}`, 30, 60 * 60_000);
-    await rateLimit(`reportSender:${getClientIp(event)}`, 120, 60 * 60_000);
+    await rateLimit(`reportSender:${ip}`, 120, 60 * 60_000);
+
+    if (!(await prisma.instance.findUnique({ where: { id: instanceId }, select: { id: true } })))
+        await rateLimit(`newInstance:${ip}`, NEW_INSTANCES_PER_DAY, 24 * 60 * 60_000);
 };
 
 export const saveReport = async (
