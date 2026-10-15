@@ -59,7 +59,8 @@ export const getSettingDefaults = (): InstanceSettings => {
 };
 
 let cache: { overrides: Partial<InstanceSettings>; expiresAt: number } | null = null;
-let pending: Promise<Partial<InstanceSettings>> | null = null;
+let pending: { version: number; overrides: Promise<Partial<InstanceSettings>> } | null = null;
+let version = 0;
 
 const loadOverrides = async () => {
     const rows = await prisma.setting.findMany();
@@ -77,10 +78,22 @@ const loadOverrides = async () => {
 export const getSettingOverrides = async () => {
     if (cache && cache.expiresAt > Date.now()) return cache.overrides;
 
-    pending ??= loadOverrides().finally(() => (pending = null));
-    const overrides = await pending;
+    let load = pending;
 
-    cache = { overrides, expiresAt: Date.now() + 10_000 };
+    if (load?.version !== version) {
+        const current = { version, overrides: loadOverrides() };
+
+        pending = load = current;
+        current.overrides
+            .finally(() => {
+                if (pending === current) pending = null;
+            })
+            .catch(() => null);
+    }
+
+    const overrides = await load.overrides;
+
+    if (load.version === version) cache = { overrides, expiresAt: Date.now() + 10_000 };
     return overrides;
 };
 
@@ -119,6 +132,7 @@ export const updateSettings = async (patch: {
         ),
     );
 
+    version++;
     cache = null;
 };
 
