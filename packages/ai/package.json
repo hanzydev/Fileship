@@ -14,7 +14,8 @@
             "types": "./dist/index.d.mts",
             "import": "./dist/index.mjs"
         },
-        "./worker": "./dist/worker.mjs"
+        "./worker": "./dist/worker.mjs",
+        "./package.json": "./package.json"
     },
     "devDependencies": {
         "@fileship/eslint-config": "workspace:*",

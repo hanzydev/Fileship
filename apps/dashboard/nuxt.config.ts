@@ -1,12 +1,15 @@
 import { copyFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 import ffprobe from '@ffprobe-installer/ffprobe';
 
 import pkg from '../../package.json' with { type: 'json' };
 
-const aiWorkerPath = createRequire(import.meta.url).resolve('@fileship/ai/worker');
+const aiWorkerPath = join(
+    dirname(createRequire(import.meta.url).resolve('@fileship/ai/package.json')),
+    'dist/worker.mjs',
+);
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
