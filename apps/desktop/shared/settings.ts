@@ -134,6 +134,7 @@ export const settingsSchema = z.object({
             shortenUrl: z.boolean().default(false),
             openUrl: z.boolean().default(false),
             notify: z.boolean().default(true),
+            playSound: z.boolean().default(true),
         })
         .prefault({}),
     upload: z

@@ -135,6 +135,11 @@ const sections: {
                 label: 'Show a notification',
                 description: 'Click the notification to open the link.',
             },
+            {
+                key: 'playSound',
+                label: 'Upload sound',
+                description: 'Play a short chime when an upload finishes.',
+            },
         ],
     },
 ];

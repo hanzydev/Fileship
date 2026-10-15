@@ -11,17 +11,25 @@ export type Bitmap = { pixels: Buffer; width: number; height: number; order: Pix
 
 export type Shot = { image: Bitmap; title?: string };
 
-let shutter: Buffer | null = null;
+const sounds = new Map<string, Buffer>();
+
+const playSoundFile = (name: string) => {
+    try {
+        const sound = sounds.get(name) ?? readFileSync(join(app.getAppPath(), 'resources', name));
+
+        sounds.set(name, sound);
+        native.playSound(sound);
+    } catch (error) {
+        log.warn(`Could not play ${name}`, error);
+    }
+};
 
 export const playShutter = () => {
-    if (!getSettings().capture.playSound) return;
+    if (getSettings().capture.playSound) playSoundFile('shutter.wav');
+};
 
-    try {
-        shutter ??= readFileSync(join(app.getAppPath(), 'resources', 'shutter.wav'));
-        native.playSound(shutter);
-    } catch (error) {
-        log.warn('Could not play the shutter sound', error);
-    }
+export const playUploaded = () => {
+    if (getSettings().afterUpload.playSound) playSoundFile('uploaded.wav');
 };
 
 export const bitmapFromImage = (image: Electron.NativeImage): Bitmap | null => {

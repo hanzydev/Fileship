@@ -6,7 +6,7 @@ import { app, dialog, nativeImage, shell } from 'electron';
 import log from 'electron-log/main';
 
 import type { HistoryKind } from '../shared/ipc';
-import { type Bitmap, bitmapFromImage, encodePng, encodeThumbnail } from './capture';
+import { type Bitmap, bitmapFromImage, encodePng, encodeThumbnail, playUploaded } from './capture';
 import { writeImage, writeText } from './clipboard';
 import { openEditor } from './editor';
 import { addHistory, getHistory, updateHistory } from './history';
@@ -67,6 +67,7 @@ export const finishUpload = async (historyId: string, file: { url: string; id: s
     updateHistory(historyId, { url: file.url, shortUrl, fileId: file.id, error: null });
 
     if (afterUpload.copyUrl) await writeText(url);
+    playUploaded();
     if (afterUpload.openUrl) openWebUrl(url);
 
     if (afterUpload.notify) {
