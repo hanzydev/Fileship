@@ -10,8 +10,11 @@ import {
     V6_TINY_MODEL,
 } from 'ppu-paddle-ocr';
 
+import { downloadModelFile, getSessionOptions, useAIModel } from './models';
+
 const MIN_CONFIDENCE = 0.7;
 const GOOD_CONFIDENCE = 0.85;
+const READ_CONFIDENCE = 0.3;
 
 const BASE_MODELS = { tiny: V6_TINY_MODEL, small: V6_SMALL_MODEL };
 
@@ -24,6 +27,7 @@ const SCRIPT_MODELS: Record<string, ModelUrls> = {
 };
 
 type Box = { x: number; y: number; width: number; height: number };
+type Item = { text: string; confidence: number; box: Box };
 type Line = { text: string; confidence: number; box: Box };
 
 const loadService = async (model: ModelUrls) => {
@@ -38,7 +42,7 @@ const loadService = async (model: ModelUrls) => {
 
     const service = new PaddleOcrService({
         model: { detection, recognition, charactersDictionary },
-        session: { ...(await getSessionOptions()) },
+        session: { ...getSessionOptions() },
     });
 
     await service.initialize();
@@ -56,6 +60,68 @@ const useOcrService = <T>(
         (service) => service.destroy(),
         fn,
     );
+
+const groupItems = (items: Item[]) => {
+    const groups: Item[][] = [];
+    let line: Item[] = [];
+    let lineY = items[0]?.box.y ?? 0;
+    let averageHeight = items[0]?.box.height ?? 0;
+
+    for (const item of items) {
+        if (Math.abs(item.box.y - lineY) < averageHeight / 2) {
+            line.push(item);
+            averageHeight = (averageHeight * (line.length - 1) + item.box.height) / line.length;
+        } else {
+            groups.push(line.sort((a, b) => a.box.x - b.box.x));
+            line = [item];
+            lineY = item.box.y;
+            averageHeight = item.box.height;
+        }
+    }
+
+    if (line.length) groups.push(line.sort((a, b) => a.box.x - b.box.x));
+    return groups;
+};
+
+const toLines = (groups: Item[][]): Line[] =>
+    groups.map((items) => {
+        const xs = items.flatMap((item) => [item.box.x, item.box.x + item.box.width]);
+        const ys = items.flatMap((item) => [item.box.y, item.box.y + item.box.height]);
+
+        return {
+            text: items
+                .map((item) => item.text)
+                .join(' ')
+                .trim(),
+            confidence: items.reduce((sum, item) => sum + item.confidence, 0) / items.length,
+            box: {
+                x: Math.min(...xs),
+                y: Math.min(...ys),
+                width: Math.max(...xs) - Math.min(...xs),
+                height: Math.max(...ys) - Math.min(...ys),
+            },
+        };
+    });
+
+const readImage = async (service: PaddleOcrService, image: ArrayBuffer) => {
+    const internal = service as any;
+    const canvas = await internal.platform.canvas.prepareCanvas(image);
+    const boxes: Box[] = (await internal.detector.run(canvas)).filter(
+        (box: Box) => box.width > 0 && box.height > 0,
+    );
+
+    if (!boxes.length) return { boxes, lines: [] as Line[] };
+
+    const items: Item[] = await internal.recognitor.run(
+        canvas,
+        boxes,
+        internal.options.recognition?.charactersDictionary,
+        internal.options.recognition?.strategy ?? 'per-line',
+        { minimumConfidence: READ_CONFIDENCE },
+    );
+
+    return { boxes, lines: toLines(groupItems(items)) };
+};
 
 const letters = (text: string) => text.match(/[\p{L}\p{N}]/gu)?.length ?? 0;
 const area = (box: Box) => box.width * box.height;
@@ -79,32 +145,14 @@ const fixRightToLeft = (text: string) =>
         .join('')
         .replace(/[0-9٠-٩.,:/-]+/g, (run) => [...run].reverse().join(''));
 
-const toLines = (result: any): Line[] =>
-    result.lines.map((items: any[]) => {
-        const xs = items.flatMap((item) => [item.box.x, item.box.x + item.box.width]);
-        const ys = items.flatMap((item) => [item.box.y, item.box.y + item.box.height]);
-
-        return {
-            text: items
-                .map((item) => item.text)
-                .join(' ')
-                .trim(),
-            confidence: items.reduce((sum, item) => sum + item.confidence, 0) / items.length,
-            box: {
-                x: Math.min(...xs),
-                y: Math.min(...ys),
-                width: Math.max(...xs) - Math.min(...xs),
-                height: Math.max(...ys) - Math.min(...ys),
-            },
-        };
-    });
-
 const recognizeWithScripts = async (image: ArrayBuffer, lines: Line[]) => {
     let best: { score: number; lines: Line[] } = { score: 0, lines: [] };
 
     for (const [name, model] of Object.entries(SCRIPT_MODELS)) {
-        let scriptLines = await useOcrService(`script:${name}`, model, async (service) =>
-            toLines(await service.recognize(image, { flatten: false, minimumConfidence: 0.3 })),
+        let scriptLines = await useOcrService(
+            `script:${name}`,
+            model,
+            async (service) => (await readImage(service, image)).lines,
         );
 
         if (name === 'arabic')
@@ -135,17 +183,8 @@ export const recognizeImageText = async (
     size: { width: number; height: number },
     tier: 'tiny' | 'small',
 ) => {
-    const { boxes, lines } = await useOcrService(
-        `base:${tier}`,
-        BASE_MODELS[tier],
-        async (service) => {
-            const [detected, recognized] = await Promise.all([
-                service.detect(image),
-                service.recognize(image, { flatten: false, minimumConfidence: 0.3 }),
-            ]);
-
-            return { boxes: detected.boxes as Box[], lines: toLines(recognized) };
-        },
+    const { boxes, lines } = await useOcrService(`base:${tier}`, BASE_MODELS[tier], (service) =>
+        readImage(service, image),
     );
 
     const good = lines.filter(isGood);

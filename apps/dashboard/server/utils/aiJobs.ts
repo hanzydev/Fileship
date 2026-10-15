@@ -131,12 +131,11 @@ const finishAnalysis = async (file: AnalysisFile) => {
 
 const analyzeImage = async (file: AnalysisFile, path: string) => {
     const preset = await getAIPreset();
-    const image = await ai.loadImage(path);
     let textChanged = false;
 
     if (file.embeddingModel !== preset.image.key) {
         await saveFile(file, {
-            embedding: await ai.embedImage(image),
+            embedding: await ai.embedImage(path),
             embeddingModel: preset.image.key,
         });
     }
@@ -147,7 +146,7 @@ const analyzeImage = async (file: AnalysisFile, path: string) => {
     }
 
     if (file.caption === null) {
-        const caption = await ai.captionImage(image);
+        const caption = await ai.captionImage(path);
 
         await saveFile(file, { caption });
         sendToUser(file.authorId, 'file:update', { id: file.id, caption });

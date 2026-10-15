@@ -3,7 +3,9 @@ import { hostname } from 'node:os';
 
 import consola from 'consola';
 
-export default defineNitroPlugin(async () => {
+export default defineNitroPlugin(async (nitroApp) => {
+    nitroApp.hooks.hook('close', () => stopAIWorker());
+
     const workerId = `${hostname()}-${process.pid}-${randomUUID().slice(0, 8)}`;
 
     if (!(await isAiEnabled())) {

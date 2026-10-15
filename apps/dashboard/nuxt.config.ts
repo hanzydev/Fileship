@@ -1,3 +1,5 @@
+import { createRequire } from 'node:module';
+
 import ffprobe from '@ffprobe-installer/ffprobe';
 
 import pkg from '../../package.json' with { type: 'json' };
@@ -73,7 +75,11 @@ export default defineNuxtConfig({
             autoImport: true,
         },
         externals: {
-            traceInclude: [ffprobe.path],
+            external: ['@fileship/ai'],
+            traceInclude: [
+                ffprobe.path,
+                createRequire(import.meta.url).resolve('@fileship/ai/worker'),
+            ],
         },
     },
 

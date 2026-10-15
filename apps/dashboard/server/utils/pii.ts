@@ -1,8 +1,4 @@
-export type PrivacyEntity = {
-    entity_group: string;
-    score: number;
-    word: string;
-};
+import type { PrivacyEntity } from '@fileship/ai';
 
 const MIN_ENTITY_SCORE = 0.5;
 
