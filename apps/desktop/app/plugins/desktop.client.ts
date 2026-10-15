@@ -1,8 +1,11 @@
 import type { Theme } from '../../shared/ipc';
 
 export default defineNuxtPlugin(async () => {
+    if (window.location.pathname === '/overlay') return;
+
     const account = useAccount();
     const updateStatus = useUpdateStatus();
+    const savedSettings = useSettings();
     const colorMode = useColorMode();
     const router = useRouter();
 
@@ -13,6 +16,7 @@ export default defineNuxtPlugin(async () => {
     ]);
 
     account.value = currentAccount;
+    savedSettings.value = settings;
     updateStatus.value = status;
     colorMode.preference = settings.theme;
 
@@ -29,7 +33,9 @@ export default defineNuxtPlugin(async () => {
 
     watch(
         () => colorMode.preference,
-        (theme) => desktop('settings:set', { theme: theme as Theme }),
+        (theme) => {
+            if (theme !== savedSettings.value?.theme) updateSettings({ theme: theme as Theme });
+        },
     );
 
     watch(

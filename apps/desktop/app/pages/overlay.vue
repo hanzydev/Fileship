@@ -1,0 +1,608 @@
+<template>
+    <div
+        class="fixed inset-0 overflow-hidden bg-black select-none"
+        :style="{ cursor }"
+        @mousedown="handleMouseDown"
+        @mousemove="handleMouseMove"
+        @mouseup="handleMouseUp"
+        @mouseleave="handleMouseLeave"
+        @dblclick="handleDoubleClick"
+        @contextmenu.prevent="handleRightClick"
+    >
+        <canvas ref="baseCanvas" class="absolute inset-0 size-full" />
+        <canvas ref="drawCanvas" class="absolute inset-0 size-full" />
+
+        <div
+            v-if="toolbar"
+            class="absolute flex items-center gap-1 rounded-4xl border bg-popover p-1 text-popover-foreground shadow-md"
+            :style="{ left: `${toolbar.x}px`, top: `${toolbar.y}px` }"
+            @mousedown.stop
+            @mouseup.stop
+            @dblclick.stop
+        >
+            <UiButton size="icon-sm" variant="ghost" @click="handleCancel">
+                <IX />
+            </UiButton>
+            <UiButton size="icon-sm" @click="handleConfirm">
+                <ICheck />
+            </UiButton>
+        </div>
+    </div>
+</template>
+
+<script setup lang="ts">
+import type { LocalRect, OverlayFinish, OverlayPayload } from '../../shared/ipc';
+
+type Point = { x: number; y: number };
+type Handle = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | 'move';
+type Mode = 'idle' | 'pending' | 'drawing' | 'selected' | 'moving' | 'resizing';
+
+const HANDLE_SIZE = 8;
+const DRAG_THRESHOLD = 3;
+const MAGNIFIER_PIXELS = 15;
+const MAGNIFIER_ZOOM = 8;
+const TOOLBAR_WIDTH = 82;
+const TOOLBAR_HEIGHT = 42;
+
+const CURSORS: Record<Handle, string> = {
+    n: 'ns-resize',
+    s: 'ns-resize',
+    e: 'ew-resize',
+    w: 'ew-resize',
+    ne: 'nesw-resize',
+    sw: 'nesw-resize',
+    nw: 'nwse-resize',
+    se: 'nwse-resize',
+    move: 'move',
+};
+
+const baseCanvas = useTemplateRef('baseCanvas');
+const drawCanvas = useTemplateRef('drawCanvas');
+
+const payload = shallowRef<OverlayPayload | null>(null);
+const selection = ref<LocalRect | null>(null);
+const mode = ref<Mode>('idle');
+const cursor = ref('crosshair');
+
+let pointer: Point | null = null;
+let hover: LocalRect | null = null;
+let dragStart: Point | null = null;
+let dragOrigin: LocalRect | null = null;
+let dragHandle: Handle | null = null;
+let frame = 0;
+let isFinishing = false;
+
+const viewport = () => ({ x: 0, y: 0, width: window.innerWidth, height: window.innerHeight });
+
+const ratio = () => (payload.value ? payload.value.width / window.innerWidth : 1);
+
+const contains = (rect: LocalRect, point: Point) =>
+    point.x >= rect.x &&
+    point.y >= rect.y &&
+    point.x < rect.x + rect.width &&
+    point.y < rect.y + rect.height;
+
+const intersect = (rect: LocalRect, bounds: LocalRect): LocalRect | null => {
+    const x = Math.max(rect.x, bounds.x);
+    const y = Math.max(rect.y, bounds.y);
+    const right = Math.min(rect.x + rect.width, bounds.x + bounds.width);
+    const bottom = Math.min(rect.y + rect.height, bounds.y + bounds.height);
+
+    return right > x && bottom > y ? { x, y, width: right - x, height: bottom - y } : null;
+};
+
+const fromPoints = (a: Point, b: Point): LocalRect => ({
+    x: Math.min(a.x, b.x),
+    y: Math.min(a.y, b.y),
+    width: Math.abs(a.x - b.x),
+    height: Math.abs(a.y - b.y),
+});
+
+const toPhysical = (rect: LocalRect) => {
+    const scale = ratio();
+    const x = Math.round(rect.x * scale);
+    const y = Math.round(rect.y * scale);
+
+    return {
+        x,
+        y,
+        width: Math.max(1, Math.round((rect.x + rect.width) * scale) - x),
+        height: Math.max(1, Math.round((rect.y + rect.height) * scale) - y),
+    };
+};
+
+const targetAt = (point: Point) => {
+    const target = payload.value?.windows.find((item) => contains(item, point));
+    if (!target) return viewport();
+
+    const control = target.controls
+        .filter((item) => contains(item, point))
+        .sort((a, b) => a.width * a.height - b.width * b.height)[0];
+
+    return intersect(control ?? target, viewport()) ?? viewport();
+};
+
+const handleAt = (point: Point): Handle | null => {
+    const rect = selection.value;
+    if (!rect) return null;
+
+    const near = (value: number, edge: number) => Math.abs(value - edge) <= HANDLE_SIZE;
+    const insideX = point.x > rect.x - HANDLE_SIZE && point.x < rect.x + rect.width + HANDLE_SIZE;
+    const insideY = point.y > rect.y - HANDLE_SIZE && point.y < rect.y + rect.height + HANDLE_SIZE;
+    if (!insideX || !insideY) return null;
+
+    const vertical = near(point.y, rect.y) ? 'n' : near(point.y, rect.y + rect.height) ? 's' : '';
+    const horizontal = near(point.x, rect.x) ? 'w' : near(point.x, rect.x + rect.width) ? 'e' : '';
+
+    if (vertical || horizontal) return `${vertical}${horizontal}` as Handle;
+    return contains(rect, point) ? 'move' : null;
+};
+
+const resizeRect = (origin: LocalRect, handle: Handle, dx: number, dy: number) => {
+    let left = origin.x;
+    let top = origin.y;
+    let right = origin.x + origin.width;
+    let bottom = origin.y + origin.height;
+
+    if (handle.includes('w')) left += dx;
+    if (handle.includes('e')) right += dx;
+    if (handle.includes('n')) top += dy;
+    if (handle.includes('s')) bottom += dy;
+
+    return intersect(fromPoints({ x: left, y: top }, { x: right, y: bottom }), viewport());
+};
+
+const moveRect = (origin: LocalRect, dx: number, dy: number) => {
+    const bounds = viewport();
+
+    return {
+        ...origin,
+        x: clamp(origin.x + dx, 0, bounds.width - origin.width),
+        y: clamp(origin.y + dy, 0, bounds.height - origin.height),
+    };
+};
+
+const toolbar = computed(() => {
+    const rect = selection.value;
+    if (!rect || mode.value !== 'selected') return null;
+
+    const bounds = viewport();
+    const x = clamp(rect.x + rect.width - TOOLBAR_WIDTH, 8, bounds.width - TOOLBAR_WIDTH - 8);
+    const below = rect.y + rect.height + 8;
+    const above = rect.y - TOOLBAR_HEIGHT - 8;
+
+    if (below + TOOLBAR_HEIGHT <= bounds.height) return { x, y: below };
+    if (above >= 0) return { x, y: above };
+    return { x, y: rect.y + rect.height - TOOLBAR_HEIGHT - 8 };
+});
+
+const themeColor = (name: string) =>
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+const drawLabel = (context: CanvasRenderingContext2D, text: string, x: number, y: number) => {
+    context.font = `500 12px ${getComputedStyle(document.body).fontFamily}`;
+    const width = context.measureText(text).width + 12;
+
+    context.fillStyle = 'rgba(0, 0, 0, 0.75)';
+    context.beginPath();
+    context.roundRect(x, y, width, 20, 6);
+    context.fill();
+
+    context.fillStyle = '#ffffff';
+    context.textBaseline = 'middle';
+    context.fillText(text, x + 6, y + 10);
+
+    return width;
+};
+
+const drawMagnifier = (context: CanvasRenderingContext2D, point: Point) => {
+    const source = baseCanvas.value!;
+    const bounds = viewport();
+    const size = MAGNIFIER_PIXELS * MAGNIFIER_ZOOM;
+    const physical = toPhysical({ x: point.x, y: point.y, width: 0, height: 0 });
+    const half = Math.floor(MAGNIFIER_PIXELS / 2);
+
+    let x = point.x + 24;
+    let y = point.y + 24;
+    if (x + size > bounds.width) x = point.x - size - 24;
+    if (y + size + 28 > bounds.height) y = point.y - size - 52;
+
+    context.save();
+    context.beginPath();
+    context.roundRect(x, y, size, size, 8);
+    context.clip();
+    context.fillStyle = '#000000';
+    context.fillRect(x, y, size, size);
+    context.imageSmoothingEnabled = false;
+    context.drawImage(
+        source,
+        physical.x - half,
+        physical.y - half,
+        MAGNIFIER_PIXELS,
+        MAGNIFIER_PIXELS,
+        x,
+        y,
+        size,
+        size,
+    );
+
+    context.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    context.lineWidth = 1;
+    context.beginPath();
+    for (let i = 1; i < MAGNIFIER_PIXELS; i++) {
+        context.moveTo(x + i * MAGNIFIER_ZOOM + 0.5, y);
+        context.lineTo(x + i * MAGNIFIER_ZOOM + 0.5, y + size);
+        context.moveTo(x, y + i * MAGNIFIER_ZOOM + 0.5);
+        context.lineTo(x + size, y + i * MAGNIFIER_ZOOM + 0.5);
+    }
+    context.stroke();
+
+    context.strokeStyle = themeColor('--primary');
+    context.lineWidth = 2;
+    context.strokeRect(
+        x + half * MAGNIFIER_ZOOM,
+        y + half * MAGNIFIER_ZOOM,
+        MAGNIFIER_ZOOM,
+        MAGNIFIER_ZOOM,
+    );
+    context.restore();
+
+    context.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+    context.lineWidth = 1;
+    context.beginPath();
+    context.roundRect(x - 0.5, y - 0.5, size + 1, size + 1, 8);
+    context.stroke();
+
+    drawLabel(context, `${physical.x}, ${physical.y}`, x, y + size + 6);
+};
+
+const render = () => {
+    frame = 0;
+
+    const canvas = drawCanvas.value;
+    if (!canvas || !payload.value) return;
+
+    const context = canvas.getContext('2d')!;
+    const bounds = viewport();
+    const dpr = window.devicePixelRatio;
+    const primary = themeColor('--primary');
+    const region =
+        selection.value ?? (mode.value === 'idle' || mode.value === 'pending' ? hover : null);
+
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    context.clearRect(0, 0, bounds.width, bounds.height);
+
+    context.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    context.fillRect(0, 0, bounds.width, bounds.height);
+
+    if (region) {
+        context.clearRect(region.x, region.y, region.width, region.height);
+
+        context.strokeStyle = primary;
+        context.lineWidth = selection.value ? 2 : 1.5;
+        context.setLineDash(selection.value ? [] : [6, 4]);
+        context.strokeRect(region.x, region.y, region.width, region.height);
+        context.setLineDash([]);
+    }
+
+    if (selection.value) {
+        const rect = selection.value;
+        const physical = toPhysical(rect);
+        const labelY = rect.y >= 28 ? rect.y - 26 : rect.y + 6;
+
+        drawLabel(context, `${physical.width} × ${physical.height}`, rect.x, labelY);
+
+        if (mode.value !== 'drawing') {
+            const xs = [rect.x, rect.x + rect.width / 2, rect.x + rect.width];
+            const ys = [rect.y, rect.y + rect.height / 2, rect.y + rect.height];
+
+            context.fillStyle = primary;
+            context.strokeStyle = '#ffffff';
+            context.lineWidth = 1.5;
+
+            for (const [i, x] of xs.entries()) {
+                for (const [j, y] of ys.entries()) {
+                    if (i === 1 && j === 1) continue;
+                    context.beginPath();
+                    context.rect(x - 4, y - 4, 8, 8);
+                    context.fill();
+                    context.stroke();
+                }
+            }
+        }
+    }
+
+    const showsMagnifier =
+        payload.value.showMagnifier &&
+        pointer &&
+        mode.value !== 'selected' &&
+        mode.value !== 'moving';
+
+    if (showsMagnifier) drawMagnifier(context, pointer!);
+};
+
+const scheduleRender = () => {
+    if (!frame) frame = requestAnimationFrame(render);
+};
+
+const resizeDrawCanvas = () => {
+    const canvas = drawCanvas.value;
+    if (!canvas) return;
+
+    canvas.width = Math.round(window.innerWidth * window.devicePixelRatio);
+    canvas.height = Math.round(window.innerHeight * window.devicePixelRatio);
+    scheduleRender();
+};
+
+const reset = () => {
+    selection.value = null;
+    mode.value = 'idle';
+    cursor.value = 'crosshair';
+    pointer = null;
+    hover = null;
+    dragStart = null;
+    dragOrigin = null;
+    dragHandle = null;
+};
+
+const finish = (result: OverlayFinish) => {
+    if (isFinishing) return;
+    isFinishing = true;
+
+    desktop('overlay:finish', result)
+        .catch(() => desktop('overlay:finish', { type: 'cancel' }))
+        .finally(() => {
+            isFinishing = false;
+        });
+};
+
+const finishRegion = (rect: LocalRect) => {
+    const source = baseCanvas.value!;
+    const physical = toPhysical(rect);
+    const canvas = document.createElement('canvas');
+
+    canvas.width = physical.width;
+    canvas.height = physical.height;
+
+    const context = canvas.getContext('2d')!;
+    context.drawImage(
+        source,
+        physical.x,
+        physical.y,
+        physical.width,
+        physical.height,
+        0,
+        0,
+        physical.width,
+        physical.height,
+    );
+
+    const { data } = context.getImageData(0, 0, physical.width, physical.height);
+
+    finish({
+        type: 'region',
+        displayId: payload.value!.displayId,
+        region: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+        width: physical.width,
+        height: physical.height,
+        rgba: new Uint8Array(data.buffer),
+    });
+};
+
+const pointFrom = (event: MouseEvent): Point => ({ x: event.clientX, y: event.clientY });
+
+const handleMouseDown = (event: MouseEvent) => {
+    if (event.button !== 0 || !payload.value) return;
+
+    const point = pointFrom(event);
+    const handle = mode.value === 'selected' ? handleAt(point) : null;
+
+    dragStart = point;
+
+    if (handle) {
+        dragOrigin = { ...selection.value! };
+        dragHandle = handle;
+        mode.value = handle === 'move' ? 'moving' : 'resizing';
+        return;
+    }
+
+    selection.value = null;
+    mode.value = 'pending';
+    scheduleRender();
+};
+
+const handleMouseMove = (event: MouseEvent) => {
+    if (!payload.value) return;
+
+    const point = pointFrom(event);
+    pointer = point;
+
+    if (mode.value === 'pending' && dragStart) {
+        const distance = Math.hypot(point.x - dragStart.x, point.y - dragStart.y);
+        if (distance >= DRAG_THRESHOLD) mode.value = 'drawing';
+    }
+
+    if (mode.value === 'drawing' && dragStart) {
+        let end = point;
+
+        if (event.shiftKey) {
+            const size = Math.max(Math.abs(point.x - dragStart.x), Math.abs(point.y - dragStart.y));
+            end = {
+                x: dragStart.x + Math.sign(point.x - dragStart.x) * size,
+                y: dragStart.y + Math.sign(point.y - dragStart.y) * size,
+            };
+        }
+
+        selection.value = intersect(fromPoints(dragStart, end), viewport());
+    } else if (mode.value === 'moving' && dragStart && dragOrigin) {
+        selection.value = moveRect(dragOrigin, point.x - dragStart.x, point.y - dragStart.y);
+    } else if (mode.value === 'resizing' && dragStart && dragOrigin && dragHandle) {
+        selection.value =
+            resizeRect(dragOrigin, dragHandle, point.x - dragStart.x, point.y - dragStart.y) ??
+            selection.value;
+    } else if (mode.value === 'idle') {
+        hover = targetAt(point);
+    }
+
+    if (mode.value === 'selected') {
+        const handle = handleAt(point);
+        cursor.value = handle ? CURSORS[handle] : 'crosshair';
+    } else if (mode.value === 'idle' || mode.value === 'pending' || mode.value === 'drawing') {
+        cursor.value = 'crosshair';
+    }
+
+    scheduleRender();
+};
+
+const handleMouseUp = (event: MouseEvent) => {
+    if (event.button !== 0 || !payload.value) return;
+
+    if (mode.value === 'pending') {
+        selection.value = targetAt(pointFrom(event));
+    }
+
+    dragStart = null;
+    dragOrigin = null;
+    dragHandle = null;
+
+    if (!selection.value || selection.value.width < 1 || selection.value.height < 1) {
+        selection.value = null;
+        mode.value = 'idle';
+        scheduleRender();
+        return;
+    }
+
+    if (payload.value.quickCrop) return finishRegion(selection.value);
+
+    mode.value = 'selected';
+    scheduleRender();
+};
+
+const handleMouseLeave = () => {
+    pointer = null;
+    if (mode.value === 'idle') hover = null;
+    scheduleRender();
+};
+
+const handleDoubleClick = (event: MouseEvent) => {
+    if (selection.value && contains(selection.value, pointFrom(event))) {
+        finishRegion(selection.value);
+    }
+};
+
+const handleRightClick = () => {
+    if (mode.value === 'idle' && !selection.value) return finish({ type: 'cancel' });
+
+    selection.value = null;
+    mode.value = 'idle';
+    if (pointer) hover = targetAt(pointer);
+    scheduleRender();
+};
+
+const handleCancel = () => finish({ type: 'cancel' });
+
+const handleConfirm = () => {
+    if (selection.value) finishRegion(selection.value);
+};
+
+const handleKeyDown = (event: KeyboardEvent) => {
+    if (!payload.value) return;
+
+    if (event.key === 'Escape') return finish({ type: 'cancel' });
+    if (event.key === ' ') return finish({ type: 'fullscreen' });
+
+    if (event.key === 'Enter') {
+        const rect = selection.value ?? hover;
+        if (rect) finishRegion(rect);
+        return;
+    }
+
+    if (/^[1-9]$/.test(event.key) && mode.value === 'idle') {
+        return finish({ type: 'monitor', index: Number(event.key) - 1 });
+    }
+
+    const arrows: Record<string, Point> = {
+        ArrowLeft: { x: -1, y: 0 },
+        ArrowRight: { x: 1, y: 0 },
+        ArrowUp: { x: 0, y: -1 },
+        ArrowDown: { x: 0, y: 1 },
+    };
+
+    const arrow = arrows[event.key];
+    if (!arrow || mode.value !== 'selected' || !selection.value) return;
+
+    event.preventDefault();
+
+    const step = event.shiftKey ? 10 : 1;
+    const dx = arrow.x * step;
+    const dy = arrow.y * step;
+
+    selection.value = event.ctrlKey
+        ? (resizeRect(selection.value, 'se', dx, dy) ?? selection.value)
+        : moveRect(selection.value, dx, dy);
+
+    scheduleRender();
+};
+
+const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+
+const handleOpen = async (value: OverlayPayload) => {
+    reset();
+    isFinishing = false;
+    payload.value = value;
+
+    const canvas = baseCanvas.value!;
+    canvas.width = value.width;
+    canvas.height = value.height;
+
+    const bytes = value.pixels.byteOffset % 4 ? value.pixels.slice() : value.pixels;
+    const source = new Uint32Array(bytes.buffer, bytes.byteOffset, bytes.length / 4);
+    const rgba = new Uint8ClampedArray(source.length * 4);
+    const target = new Uint32Array(rgba.buffer);
+
+    for (let i = 0; i < source.length; i++) {
+        const pixel = source[i]!;
+        target[i] = (pixel & 0xff00ff00) | ((pixel & 0xff) << 16) | ((pixel >>> 16) & 0xff);
+    }
+
+    canvas.getContext('2d')!.putImageData(new ImageData(rgba, value.width, value.height), 0, 0);
+
+    if (value.isActive) {
+        pointer = value.cursor;
+        hover = targetAt(value.cursor);
+    }
+
+    resizeDrawCanvas();
+    render();
+
+    await nextFrame();
+    await nextFrame();
+    desktop('overlay:ready', value.displayId);
+};
+
+const handleClose = () => {
+    payload.value = null;
+    reset();
+
+    for (const canvas of [baseCanvas.value, drawCanvas.value]) {
+        canvas?.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height);
+    }
+};
+
+useEventListener('keydown', handleKeyDown);
+useEventListener('resize', resizeDrawCanvas);
+
+onMounted(() => {
+    const offOpen = window.fileship.on('overlay:open', handleOpen);
+    const offClose = window.fileship.on('overlay:close', handleClose);
+
+    onBeforeUnmount(() => {
+        offOpen();
+        offClose();
+    });
+});
+
+definePageMeta({
+    layout: false,
+});
+</script>
