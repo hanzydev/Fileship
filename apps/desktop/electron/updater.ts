@@ -3,6 +3,7 @@ import log from 'electron-log/main';
 import electronUpdater from 'electron-updater';
 
 import type { UpdateStatus } from '../shared/ipc';
+import { refreshTray } from './tray';
 import { broadcast, markQuitting, notify } from './windows';
 
 const { autoUpdater } = electronUpdater;
@@ -26,8 +27,11 @@ const describeError = (error: any) => {
 };
 
 const setStatus = (next: UpdateStatus) => {
+    const isChanged = next.state !== status.state;
+
     status = next;
     broadcast('updates:status', status);
+    if (isChanged) refreshTray();
 };
 
 export const getUpdateStatus = () => status;

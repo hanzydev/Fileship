@@ -11,6 +11,7 @@ import {
 import { ApiError, desktopUserAgent, normalizeInstanceUrl, request } from './api';
 import { stopDrive } from './drive';
 import { clearSession, getStore, getToken, setSession } from './store';
+import { refreshTray } from './tray';
 import {
     broadcast,
     getMainWindow,
@@ -189,6 +190,7 @@ export const logout = async () => {
 
     clearSession();
     broadcast('account:changed', null);
+    refreshTray();
 };
 
 export const handleUnauthorized = () => {

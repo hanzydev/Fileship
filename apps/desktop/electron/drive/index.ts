@@ -11,6 +11,7 @@ import { handleUnauthorized } from '../account';
 import { mimeTypeOf } from '../mime';
 import { api, ApiError, desktopUserAgent } from '../api';
 import { getSettings, getStore, getToken, updateStore } from '../store';
+import { refreshTray } from '../tray';
 import { resetUploadSettings, uploadFile } from '../upload';
 import { broadcast } from '../windows';
 import {
@@ -78,8 +79,11 @@ const isEmptyFolder = (path: string) => {
 export const driveRoot = () => getSettings().drive.folder || join(app.getPath('home'), 'Fileship');
 
 const setStatus = (patch: Partial<DriveStatus>) => {
+    const isChanged = !!patch.state && patch.state !== status.state;
+
     status = { ...status, ...patch, files: files.size, folders: folders.size };
     broadcast('drive:status', status);
+    if (isChanged) refreshTray();
 };
 
 export const getDriveStatus = () => status;
