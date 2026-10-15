@@ -85,6 +85,7 @@ const labels = useBreadcrumbLabels();
 
 const { data: instance, error } = useFetch(`/api/instances/${route.params.id}`, {
     server: false,
+    onResponseError: useUnauthorizedHandler(),
 });
 
 const shortId = computed(() => (route.params.id as string).slice(0, 8));
@@ -201,7 +202,7 @@ const sections = computed(() => {
 });
 
 watch(error, (value) => {
-    if (value) showError(value);
+    if (value && value.status !== 401) showError(value);
 });
 
 watch(

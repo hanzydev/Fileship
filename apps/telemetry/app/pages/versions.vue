@@ -14,54 +14,70 @@
             </UiTabs>
         </PageHeader>
 
-        <UiCard>
-            <UiCardHeader>
-                <UiCardTitle>Adoption</UiCardTitle>
-                <UiCardDescription>
-                    Active instances per version, the {{ TOP_VERSIONS }} most used ones and the rest
-                    as Other
-                </UiCardDescription>
-            </UiCardHeader>
-            <UiCardContent>
-                <UiSkeleton v-if="!series" class="h-72 w-full" />
-                <EmptyState
-                    v-else-if="!data.length"
-                    :icon="IChartArea"
-                    title="No data yet"
-                    class="h-72 py-0"
-                />
-                <UiChartContainer v-else :config="config" class="aspect-auto h-72" cursor>
-                    <VisXYContainer :data="data" :y-domain="[0, undefined]">
-                        <VisArea
-                            :x="(d: Datum) => d.index"
-                            :y="accessors"
-                            :color="colors"
-                            :opacity="0.6"
-                        />
-                        <VisAxis
-                            type="x"
-                            :x="(d: Datum) => d.index"
-                            :tick-line="false"
-                            :domain-line="false"
-                            :grid-line="false"
-                            :num-ticks="6"
-                            :tick-format="(i: number) => data[i]?.label ?? ''"
-                        />
-                        <VisAxis type="y" :num-ticks="4" :tick-line="false" :domain-line="false" />
-                        <VisTooltip />
-                        <VisCrosshair :template="tooltip" :color="colors" />
-                    </VisXYContainer>
-                </UiChartContainer>
-            </UiCardContent>
-        </UiCard>
+        <EmptyState
+            v-if="loadError"
+            :icon="ICircleAlert"
+            title="Couldn't load the statistics"
+            :description="getErrorMessage(loadError)"
+        >
+            <UiButton variant="outline" @click="handleRetry">Try again</UiButton>
+        </EmptyState>
 
-        <StatsDonut
-            title="Current versions"
-            :description="`Versions of ${pluralize(latest?.instances ?? 0, 'active instance')}`"
-            value-label="Instances"
-            :is-loading="latest === undefined"
-            :items="toDonutItems(latest?.versions)"
-        />
+        <template v-else>
+            <UiCard>
+                <UiCardHeader>
+                    <UiCardTitle>Adoption</UiCardTitle>
+                    <UiCardDescription>
+                        Active instances per version, the {{ TOP_VERSIONS }} most used ones and the
+                        rest as Other
+                    </UiCardDescription>
+                </UiCardHeader>
+                <UiCardContent>
+                    <UiSkeleton v-if="!series" class="h-72 w-full" />
+                    <EmptyState
+                        v-else-if="!data.length"
+                        :icon="IChartArea"
+                        title="No data yet"
+                        class="h-72 py-0"
+                    />
+                    <UiChartContainer v-else :config="config" class="aspect-auto h-72" cursor>
+                        <VisXYContainer :data="data" :y-domain="[0, undefined]">
+                            <VisArea
+                                :x="(d: Datum) => d.index"
+                                :y="accessors"
+                                :color="colors"
+                                :opacity="0.6"
+                            />
+                            <VisAxis
+                                type="x"
+                                :x="(d: Datum) => d.index"
+                                :tick-line="false"
+                                :domain-line="false"
+                                :grid-line="false"
+                                :num-ticks="6"
+                                :tick-format="(i: number) => data[i]?.label ?? ''"
+                            />
+                            <VisAxis
+                                type="y"
+                                :num-ticks="4"
+                                :tick-line="false"
+                                :domain-line="false"
+                            />
+                            <VisTooltip />
+                            <VisCrosshair :template="tooltip" :color="colors" />
+                        </VisXYContainer>
+                    </UiChartContainer>
+                </UiCardContent>
+            </UiCard>
+
+            <StatsDonut
+                title="Current versions"
+                :description="`Versions of ${pluralize(latest?.instances ?? 0, 'active instance')}`"
+                value-label="Instances"
+                :is-loading="latest === undefined"
+                :items="toDonutItems(latest?.versions)"
+            />
+        </template>
     </div>
 </template>
 
@@ -70,7 +86,7 @@ import dayjs from 'dayjs';
 
 import { VisArea, VisAxis, VisCrosshair, VisTooltip, VisXYContainer } from '@unovis/vue';
 
-import { IChartArea, UiChartTooltipContent } from '#components';
+import { IChartArea, ICircleAlert, UiChartTooltipContent } from '#components';
 import { type ChartConfig, componentToString } from '#layers/ui/app/components/ui/chart';
 
 type Datum = { index: number; label: string } & Record<string, number | string>;
@@ -79,11 +95,27 @@ const TOP_VERSIONS = 5;
 
 const range = useQueryState<(typeof STAT_RANGES)[number]>('range', '90d');
 
-const { data: latest } = useFetch('/api/stats/latest', { server: false });
-const { data: series } = useFetch('/api/stats/series', {
+const handleUnauthorized = useUnauthorizedHandler();
+
+const {
+    data: latest,
+    error: latestError,
+    refresh: refreshLatest,
+} = useFetch('/api/stats/latest', { server: false, onResponseError: handleUnauthorized });
+
+const {
+    data: series,
+    error: seriesError,
+    refresh: refreshSeries,
+} = useFetch('/api/stats/series', {
     query: { range },
     server: false,
+    onResponseError: handleUnauthorized,
 });
+
+const loadError = computed(() => latestError.value || seriesError.value);
+
+const handleRetry = () => Promise.all([refreshLatest(), refreshSeries()]);
 
 const config = reactive<ChartConfig>({});
 

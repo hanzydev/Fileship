@@ -9,27 +9,45 @@
             :description="`Based on ${pluralize(latest?.data.runtime ?? 0, 'active instance')} that sent system information.`"
         />
 
-        <div class="grid auto-rows-min gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard v-for="card in statCards" :key="card.title" v-bind="card" />
-        </div>
+        <EmptyState
+            v-if="error"
+            :icon="ICircleAlert"
+            title="Couldn't load the statistics"
+            :description="getErrorMessage(error)"
+        >
+            <UiButton variant="outline" @click="refresh()">Try again</UiButton>
+        </EmptyState>
 
-        <div class="flex flex-wrap gap-4">
-            <StatsDonut
-                v-for="chart in charts"
-                :key="chart.title"
-                class="min-w-0 grow basis-full lg:basis-[calc((100%-1rem)/2)] xl:basis-[calc((100%-2rem)/3)]"
-                v-bind="chart"
-                value-label="Instances"
-                :is-loading="latest === undefined"
-            />
-        </div>
+        <template v-else>
+            <div class="grid auto-rows-min gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <StatCard v-for="card in statCards" :key="card.title" v-bind="card" />
+            </div>
+
+            <div class="flex flex-wrap gap-4">
+                <StatsDonut
+                    v-for="chart in charts"
+                    :key="chart.title"
+                    class="min-w-0 grow basis-full lg:basis-[calc((100%-1rem)/2)] xl:basis-[calc((100%-2rem)/3)]"
+                    v-bind="chart"
+                    value-label="Instances"
+                    :is-loading="latest === undefined"
+                />
+            </div>
+        </template>
     </div>
 </template>
 
 <script setup lang="ts">
-import { IContainer, ICpu, IMemoryStick, IMonitor } from '#components';
+import { ICircleAlert, IContainer, ICpu, IMemoryStick, IMonitor } from '#components';
 
-const { data: latest } = useFetch('/api/stats/latest', { server: false });
+const {
+    data: latest,
+    error,
+    refresh,
+} = useFetch('/api/stats/latest', {
+    server: false,
+    onResponseError: useUnauthorizedHandler(),
+});
 
 const topOf = (counts: Record<string, number> | undefined) =>
     Object.entries(counts ?? {}).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';

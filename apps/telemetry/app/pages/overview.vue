@@ -17,31 +17,58 @@
             </UiTabs>
         </PageHeader>
 
-        <div class="grid auto-rows-min gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard v-for="card in statCards" :key="card.title" v-bind="card" />
-        </div>
+        <EmptyState
+            v-if="loadError"
+            :icon="ICircleAlert"
+            title="Couldn't load the statistics"
+            :description="getErrorMessage(loadError)"
+        >
+            <UiButton variant="outline" @click="handleRetry">Try again</UiButton>
+        </EmptyState>
 
-        <div class="grid gap-4 lg:grid-cols-2">
-            <TrendChart
-                v-for="chart in charts"
-                :key="chart.title"
-                v-bind="chart"
-                :is-loading="!series"
-            />
-        </div>
+        <template v-else>
+            <div class="grid auto-rows-min gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <StatCard v-for="card in statCards" :key="card.title" v-bind="card" />
+            </div>
+
+            <div class="grid gap-4 lg:grid-cols-2">
+                <TrendChart
+                    v-for="chart in charts"
+                    :key="chart.title"
+                    v-bind="chart"
+                    :is-loading="!series"
+                />
+            </div>
+        </template>
     </div>
 </template>
 
 <script setup lang="ts">
-import { IBox, IFiles, IServer, IUsers } from '#components';
+import { IBox, ICircleAlert, IFiles, IServer, IUsers } from '#components';
 
 const range = useQueryState<(typeof STAT_RANGES)[number]>('range', '90d');
 
-const { data: latest } = useFetch('/api/stats/latest', { server: false });
-const { data: series } = useFetch('/api/stats/series', {
+const handleUnauthorized = useUnauthorizedHandler();
+
+const {
+    data: latest,
+    error: latestError,
+    refresh: refreshLatest,
+} = useFetch('/api/stats/latest', { server: false, onResponseError: handleUnauthorized });
+
+const {
+    data: series,
+    error: seriesError,
+    refresh: refreshSeries,
+} = useFetch('/api/stats/series', {
     query: { range },
     server: false,
+    onResponseError: handleUnauthorized,
 });
+
+const loadError = computed(() => latestError.value || seriesError.value);
+
+const handleRetry = () => Promise.all([refreshLatest(), refreshSeries()]);
 
 const statCards = computed(() => [
     {
