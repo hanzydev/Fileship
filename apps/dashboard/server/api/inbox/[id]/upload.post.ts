@@ -21,6 +21,13 @@ const validationSchema = z.object({
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
+
+    await rateLimit(
+        `inboxUpload:${getClientIp(event)}:${getRouterParam(event, 'id')}`,
+        120,
+        60 * 1000,
+    );
+
     const formData = await readFormData(event);
 
     const file = formData.get('file');
