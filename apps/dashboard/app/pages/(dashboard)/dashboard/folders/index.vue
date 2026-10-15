@@ -89,7 +89,97 @@
                 <FolderCardSkeleton />
             </template>
             <template #default="{ item }">
-                <FolderCard :folder="item" @edit="openForm(item)" />
+                <UiContextMenu>
+                    <UiContextMenuTrigger as-child>
+                        <NuxtLink :to="`/dashboard/folders/${item.id}`">
+                            <UiCard size="sm" class="group">
+                                <UiCardContent>
+                                    <div
+                                        class="relative grid aspect-video grid-cols-2 grid-rows-2 gap-1 overflow-hidden rounded-2xl bg-muted"
+                                    >
+                                        <img
+                                            v-for="(file, index) in item.covers"
+                                            :key="file.id"
+                                            :src="file.url"
+                                            :alt="file.fileName"
+                                            loading="lazy"
+                                            :class="
+                                                cn(
+                                                    'size-full object-cover transition-transform duration-300',
+                                                    item.public
+                                                        ? 'group-hover:scale-105'
+                                                        : 'scale-125 blur-2xl',
+                                                    item.covers?.length === 1 &&
+                                                        'col-span-2 row-span-2',
+                                                    item.covers?.length === 2 && 'row-span-2',
+                                                    item.covers?.length === 3 &&
+                                                        index === 0 &&
+                                                        'row-span-2',
+                                                )
+                                            "
+                                        />
+                                        <div
+                                            v-if="item.covers?.length && !item.public"
+                                            class="absolute inset-0 flex items-center justify-center"
+                                        >
+                                            <div
+                                                class="flex size-10 items-center justify-center rounded-full bg-background/60 backdrop-blur-md"
+                                            >
+                                                <ILock class="size-4" />
+                                            </div>
+                                        </div>
+                                        <div
+                                            v-if="!item.covers?.length"
+                                            class="col-span-2 row-span-2 flex items-center justify-center"
+                                        >
+                                            <IInbox
+                                                v-if="item.isInbox"
+                                                class="size-10 text-muted-foreground"
+                                            />
+                                            <IFolder v-else class="size-10 text-muted-foreground" />
+                                        </div>
+                                    </div>
+                                </UiCardContent>
+                                <UiCardFooter class="gap-2">
+                                    <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                                        <TextBlock variant="small" class="truncate">
+                                            {{ item.name }}
+                                        </TextBlock>
+                                        <TextBlock variant="muted" class="text-xs">
+                                            {{ pluralize(item.fileCount, 'file') }}
+                                        </TextBlock>
+                                    </div>
+                                    <UiBadge v-if="item.isInbox" variant="secondary">Inbox</UiBadge>
+                                    <UiBadge v-if="item.public" variant="outline">
+                                        <IGlobe />
+                                        Public
+                                    </UiBadge>
+                                    <UiDropdownMenu>
+                                        <UiDropdownMenuTrigger as-child>
+                                            <UiButton
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                @click.prevent.stop
+                                            >
+                                                <IEllipsis />
+                                            </UiButton>
+                                        </UiDropdownMenuTrigger>
+                                        <UiDropdownMenuContent align="end" class="w-56">
+                                            <FolderMenuItems
+                                                :folder="item"
+                                                type="dropdown"
+                                                @edit="openForm(item)"
+                                            />
+                                        </UiDropdownMenuContent>
+                                    </UiDropdownMenu>
+                                </UiCardFooter>
+                            </UiCard>
+                        </NuxtLink>
+                    </UiContextMenuTrigger>
+                    <UiContextMenuContent class="w-56">
+                        <FolderMenuItems :folder="item" type="context" @edit="openForm(item)" />
+                    </UiContextMenuContent>
+                </UiContextMenu>
             </template>
         </VirtualList>
 
