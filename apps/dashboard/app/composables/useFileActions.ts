@@ -1,10 +1,3 @@
-const BULK_LIMIT = 5000;
-
-const chunkIds = (files: { id: string }[]) =>
-    Array.from({ length: Math.ceil(files.length / BULK_LIMIT) }, (_, index) =>
-        files.slice(index * BULK_LIMIT, (index + 1) * BULK_LIMIT).map((file) => file.id),
-    );
-
 export const useFileActions = () => {
     const embed = useEmbed();
     const { $toast } = useNuxtApp();
@@ -32,7 +25,7 @@ export const useFileActions = () => {
 
         try {
             if (files.length > 1) {
-                for (const chunk of chunkIds(files)) {
+                for (const chunk of chunkIds(files.map((file) => file.id))) {
                     await $fetch('/api/files/bulk-move', {
                         method: 'POST',
                         body: { files: chunk, folderId },
@@ -64,7 +57,7 @@ export const useFileActions = () => {
             action: async () => {
                 try {
                     if (files.length > 1) {
-                        for (const chunk of chunkIds(files)) {
+                        for (const chunk of chunkIds(files.map((file) => file.id))) {
                             await $fetch('/api/files/bulk-delete', {
                                 method: 'POST',
                                 body: { files: chunk },

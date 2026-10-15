@@ -174,8 +174,6 @@ const labels = useBreadcrumbLabels();
 const { $toast } = useNuxtApp();
 const { copyLink } = useFolderActions();
 
-const BULK_LIMIT = 5000;
-
 const formOpen = ref(false);
 const pickerOpen = ref(false);
 const pickerSearch = ref('');
@@ -248,10 +246,10 @@ const handleTogglePick = (file: FileData) => {
 };
 
 const moveFiles = async (ids: string[], targetFolderId: string | null) => {
-    for (let index = 0; index < ids.length; index += BULK_LIMIT) {
+    for (const chunk of chunkIds(ids)) {
         await $fetch('/api/files/bulk-move', {
             method: 'POST',
-            body: { files: ids.slice(index, index + BULK_LIMIT), folderId: targetFolderId },
+            body: { files: chunk, folderId: targetFolderId },
         });
     }
 };
