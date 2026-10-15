@@ -9,8 +9,8 @@
             :title="`${error?.status} · ${title}`"
             :description="error?.message"
         >
-            <UiButton @click="canHistoryComeBack ? router.back() : router.push('/overview')">
-                {{ canHistoryComeBack ? 'Go back' : 'Go to overview' }}
+            <UiButton @click="canHistoryComeBack ? router.back() : router.push(home.path)">
+                {{ canHistoryComeBack ? 'Go back' : home.label }}
                 <IArrowRight />
             </UiButton>
         </EmptyState>
@@ -22,6 +22,7 @@ import { ICircleAlert, ISearchX } from '#components';
 
 const error = useError();
 const router = useRouter();
+const { home } = useAppConfig();
 
 const title = computed(
     () =>
