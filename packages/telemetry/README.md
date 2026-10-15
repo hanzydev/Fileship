@@ -64,7 +64,7 @@ File categories are `image`, `video`, `audio`, `document`, `archive`, `code` and
 
 ## 🔔 Opting out
 
-Super admins can turn off **Anonymous telemetry** in **Administration → Instance**. Alternatively, set the `NUXT_TELEMETRY_ENABLED` environment variable to `false`.
+Super admins can turn off **Anonymous telemetry** in **Administration → Instance**. Alternatively, set the `NUXT_TELEMETRY_ENABLED` environment variable to `false`. The variable is only the default: once the setting has been saved in **Administration → Instance**, the saved value wins over it.
 
 ## ⚖️ License
 
