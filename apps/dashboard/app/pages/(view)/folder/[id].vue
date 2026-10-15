@@ -202,27 +202,27 @@
 
         <UiDialog :open="!!current" @update:open="!$event && (current = null)">
             <UiDialogContent
-                v-if="current"
+                v-if="shownFile"
                 class="flex h-[90svh] max-w-[95vw] flex-col gap-4 sm:max-w-[95vw]"
             >
                 <UiDialogHeader>
-                    <UiDialogTitle class="truncate pr-10">{{ current.name }}</UiDialogTitle>
-                    <UiDialogDescription>{{ current.size.formatted }}</UiDialogDescription>
+                    <UiDialogTitle class="truncate pr-10">{{ shownFile.name }}</UiDialogTitle>
+                    <UiDialogDescription>{{ shownFile.size.formatted }}</UiDialogDescription>
                 </UiDialogHeader>
                 <div class="relative flex min-h-0 flex-1 items-center justify-center">
                     <img
-                        v-if="current.mimeType.startsWith('image/')"
-                        :src="withPassword(current, current.directUrl)"
-                        :alt="current.name"
+                        v-if="shownFile.mimeType.startsWith('image/')"
+                        :src="withPassword(shownFile, shownFile.directUrl)"
+                        :alt="shownFile.name"
                         class="max-h-full max-w-full rounded-2xl object-contain"
                     />
                     <video
-                        v-else-if="current.mimeType.startsWith('video/')"
-                        :key="current.id"
-                        :src="withPassword(current, current.directUrl)"
+                        v-else-if="shownFile.mimeType.startsWith('video/')"
+                        :key="shownFile.id"
+                        :src="withPassword(shownFile, shownFile.directUrl)"
                         :poster="
-                            current.thumbnailUrl
-                                ? withPassword(current, current.thumbnailUrl)
+                            shownFile.thumbnailUrl
+                                ? withPassword(shownFile, shownFile.thumbnailUrl)
                                 : undefined
                         "
                         controls
@@ -231,8 +231,8 @@
                     />
                     <audio
                         v-else
-                        :key="current.id"
-                        :src="withPassword(current, current.directUrl)"
+                        :key="shownFile.id"
+                        :src="withPassword(shownFile, shownFile.directUrl)"
                         controls
                         autoplay
                     />
@@ -260,13 +260,13 @@
                 </div>
                 <UiDialogFooter>
                     <UiButton variant="outline" as-child>
-                        <a :href="withPassword(current, current.embedUrl)" target="_blank">
+                        <a :href="withPassword(shownFile, shownFile.embedUrl)" target="_blank">
                             <IExternalLink />
                             Open
                         </a>
                     </UiButton>
                     <UiButton as-child>
-                        <a :href="withPassword(current, current.directUrl, true)" download>
+                        <a :href="withPassword(shownFile, shownFile.directUrl, true)" download>
                             <IDownload />
                             Download
                         </a>
@@ -276,12 +276,12 @@
         </UiDialog>
 
         <UiDialog :open="!!unlockTarget" @update:open="!$event && (unlockTarget = null)">
-            <UiDialogContent v-if="unlockTarget" class="sm:max-w-sm">
+            <UiDialogContent v-if="shownUnlock" class="sm:max-w-sm">
                 <form class="flex flex-col gap-6" @submit.prevent="handleUnlock">
                     <UiDialogHeader>
                         <UiDialogTitle class="flex items-center gap-2 pr-10">
                             <ILock class="size-4 shrink-0" />
-                            <span class="truncate">{{ unlockTarget.name }}</span>
+                            <span class="truncate">{{ shownUnlock.name }}</span>
                         </UiDialogTitle>
                         <UiDialogDescription>
                             This file is password protected. Enter the password to open it.
@@ -341,6 +341,8 @@ const isDownloading = ref(false);
 const current = ref<FileData | null>(null);
 const unlocked = ref<Record<string, { file: FileData; password: string }>>({});
 const unlockTarget = ref<PublicFile | null>(null);
+const shownFile = ref(current.value);
+const shownUnlock = ref(unlockTarget.value);
 const unlockPassword = ref('');
 const unlockError = ref('');
 const isUnlocking = ref(false);
@@ -416,6 +418,9 @@ const withPassword = (file: FileData, url: string, download = false) => {
 
     return params.size ? `${url}?${params.toString().replace(/=$/, '')}` : url;
 };
+
+watch(current, (file) => file && (shownFile.value = file));
+watch(unlockTarget, (file) => file && (shownUnlock.value = file));
 
 const index = computed(() => media.value.findIndex((f) => f.id === current.value?.id));
 const prev = computed(() => media.value[index.value - 1]);
