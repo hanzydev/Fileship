@@ -317,16 +317,25 @@ const handleUpdate = async () => {
 
     if (!confirmed) return;
 
-    isUpdating.value = true;
     updateState.value = 'Pulling';
 
     let isFinished = false;
 
     try {
-        const response = await $fetch('/api/updater/update', {
-            method: 'POST',
-            responseType: 'stream',
-        });
+        const response = await withVerification((verificationData) =>
+            $fetch('/api/updater/update', {
+                method: 'POST',
+                body: { verificationData },
+                responseType: 'stream',
+                onResponseError: async ({ response }) => {
+                    response._data = await new Response(response._data).json().catch(() => null);
+                },
+            }),
+        );
+
+        if (!response) return;
+
+        isUpdating.value = true;
 
         await parseSseStream<{ status?: string }>(response, (data) => {
             if (!data.status) return;

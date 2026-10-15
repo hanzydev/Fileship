@@ -1020,12 +1020,14 @@ const handleTestStorage = async () => {
     storageErrors.value = null;
 
     try {
-        await $fetch('/api/storages/test', {
-            method: 'POST',
-            body: { ...storageForm, id: storageDialog.id ?? undefined },
-        });
+        const result = await withVerification((verificationData) =>
+            $fetch('/api/storages/test', {
+                method: 'POST',
+                body: { ...storageForm, id: storageDialog.id ?? undefined, verificationData },
+            }),
+        );
 
-        $toast.success('Connection works');
+        if (result) $toast.success('Connection works');
     } catch (error: any) {
         storageErrors.value = error.data?.data?.formErrors;
         if (!storageErrors.value) $toast.error(getErrorMessage(error));
