@@ -78,12 +78,36 @@ std::wstring syncRootId() {
     return L"Fileship!" + userSid() + L"!" + config().syncRootId;
 }
 
+namespace {
+
+std::optional<std::wstring> folderSyncRootId(StorageFolder const& folder) {
+    try {
+        return std::wstring(StorageProviderSyncRootManager::GetSyncRootInformationForFolder(folder).Id());
+    } catch (hresult_error const&) {
+        return std::nullopt;
+    }
+}
+
+void unregisterStaleRoot(StorageFolder const& folder) {
+    auto const other = folderSyncRootId(folder);
+
+    if (other && *other != syncRootId() && other->starts_with(L"Fileship!" + userSid() + L"!")) {
+        log(L"Removing the stale sync root " + *other);
+        unregisterSyncRoot(*other);
+    }
+}
+
+}
+
 void registerSyncRoot() {
     auto const& settings = config();
 
+    auto const folder = StorageFolder::GetFolderFromPathAsync(settings.root).get();
+    unregisterStaleRoot(folder);
+
     StorageProviderSyncRootInfo info;
     info.Id(syncRootId());
-    info.Path(StorageFolder::GetFolderFromPathAsync(settings.root).get());
+    info.Path(folder);
     info.DisplayNameResource(settings.displayName);
     info.IconResource(settings.iconPath);
     info.HydrationPolicy(StorageProviderHydrationPolicy::Full);
