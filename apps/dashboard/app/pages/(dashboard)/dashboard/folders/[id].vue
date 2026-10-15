@@ -95,48 +95,58 @@
                         </UiInputGroup>
                     </div>
 
-                    <div
-                        class="-mx-2 min-h-0 flex-1 overflow-y-auto px-2 pt-1 @container"
-                        @scroll="handleScroll"
-                    >
+                    <div class="-mx-2 min-h-0 flex-1 overflow-y-auto px-2 pt-1">
                         <EmptyState
-                            v-if="!isPickerLoading && !pickerFiles.length"
+                            v-if="isPickerError"
+                            :icon="ICircleAlert"
+                            title="Couldn't load files"
+                            description="Something went wrong. Check your connection and try again."
+                        >
+                            <UiButton variant="outline" @click="refreshPicker">Try again</UiButton>
+                        </EmptyState>
+                        <EmptyState
+                            v-else-if="!isPickerLoading && !pickerFiles.length"
                             :icon="IFiles"
                             title="No files here"
                             description="Try another filter or search."
                         />
                         <div
-                            v-else
-                            class="grid grid-cols-2 gap-3 pb-2 @lg:grid-cols-3 @3xl:grid-cols-4"
+                            v-else-if="isPickerLoading"
+                            class="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3 pb-2"
                         >
-                            <template v-if="isPickerLoading">
-                                <FileCardSkeleton
-                                    v-for="i in 8"
-                                    :key="i"
-                                    class="bg-popover shadow-none"
-                                />
+                            <FileCardSkeleton
+                                v-for="i in 8"
+                                :key="i"
+                                class="bg-popover shadow-none"
+                            />
+                        </div>
+                        <VirtualList
+                            v-else
+                            :items="pickerFiles"
+                            :item-key="(file) => file.id"
+                            :min-item-width="160"
+                            :estimate-size="220"
+                            :gap="12"
+                            :loading="isPickerLoadingMore"
+                            contained
+                            class="pb-2"
+                            @reach-end="loadMore"
+                        >
+                            <template #skeleton>
+                                <FileCardSkeleton class="bg-popover shadow-none" />
                             </template>
-                            <template v-else>
+                            <template #default="{ item }">
                                 <FileCard
-                                    v-for="file in pickerFiles"
-                                    :key="file.id"
-                                    :file="file"
-                                    :selected="isPicked(file)"
+                                    :file="item"
+                                    :selected="isPicked(item)"
                                     class="bg-popover shadow-none"
                                     selection-mode
                                     pickable
-                                    @click="handleTogglePick(file)"
-                                    @toggle="handleTogglePick(file)"
+                                    @click="handleTogglePick(item)"
+                                    @toggle="handleTogglePick(item)"
                                 />
-                                <template v-if="isPickerLoadingMore">
-                                    <FileCardSkeleton
-                                        v-for="i in 4"
-                                        :key="`more-${i}`"
-                                        class="bg-popover shadow-none"
-                                    />
-                                </template>
                             </template>
-                        </div>
+                        </VirtualList>
                     </div>
 
                     <UiDialogFooter class="items-center">
@@ -157,7 +167,7 @@
 </template>
 
 <script setup lang="ts">
-import { IFiles, IFolderX } from '#components';
+import { ICircleAlert, IFiles, IFolderX } from '#components';
 
 const route = useRoute();
 const labels = useBreadcrumbLabels();
@@ -199,7 +209,9 @@ const {
     items: pickerFiles,
     isLoading: isPickerLoading,
     isLoadingMore: isPickerLoadingMore,
+    isError: isPickerError,
     loadMore,
+    refresh: refreshPicker,
 } = usePaginatedList<FileData>(
     'files',
     '/api/files',
@@ -233,11 +245,6 @@ const handleTogglePick = (file: FileData) => {
     list.value = list.value.includes(file.id)
         ? list.value.filter((id) => id !== file.id)
         : [...list.value, file.id];
-};
-
-const handleScroll = (event: Event) => {
-    const target = event.target as HTMLElement;
-    if (target.scrollHeight - target.scrollTop - target.clientHeight < 80) loadMore();
 };
 
 const moveFiles = async (ids: string[], targetFolderId: string | null) => {

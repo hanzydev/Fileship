@@ -15,7 +15,7 @@
                     placeholder="Search or create a folder..."
                     @update:model-value="query = $event"
                 />
-                <UiCommandList class="mb-1" @scroll="handleScroll">
+                <UiCommandList class="mb-1">
                     <UiCommandGroup class="px-1 pb-0">
                         <UiCommandItem
                             value="none"
@@ -25,16 +25,25 @@
                             <IFolderX />
                             No folder
                         </UiCommandItem>
-                        <UiCommandItem
-                            v-for="f in folders"
-                            :key="f.id"
-                            :value="f.id"
-                            :data-checked="folder === f.id"
-                            @select="handleSelect(f)"
+                        <VirtualList
+                            :items="folders"
+                            :item-key="(f) => f.id"
+                            :estimate-size="36"
+                            :gap="0"
+                            contained
+                            @reach-end="loadMore"
                         >
-                            <IFolder />
-                            <span class="truncate">{{ f.name }}</span>
-                        </UiCommandItem>
+                            <template #default="{ item }">
+                                <UiCommandItem
+                                    :value="item.id"
+                                    :data-checked="folder === item.id"
+                                    @select="handleSelect(item)"
+                                >
+                                    <IFolder />
+                                    <span class="truncate">{{ item.name }}</span>
+                                </UiCommandItem>
+                            </template>
+                        </VirtualList>
                     </UiCommandGroup>
                     <UiCommandGroup v-if="canCreate" class="px-1 pb-0">
                         <UiCommandItem
@@ -85,11 +94,6 @@ const handleSelect = (selected: { id: string; name: string } | null) => {
     selectedName.value = selected?.name;
     folder.value = selected?.id ?? null;
     isOpen.value = false;
-};
-
-const handleScroll = (event: Event) => {
-    const target = event.target as HTMLElement;
-    if (target.scrollHeight - target.scrollTop - target.clientHeight < 80) loadMore();
 };
 
 const handleCreate = async () => {

@@ -22,7 +22,7 @@
                             <IChevronDown class="opacity-50" />
                         </UiButton>
                     </UiDropdownMenuTrigger>
-                    <UiDropdownMenuContent align="start" class="w-56" @scroll="handleFolderScroll">
+                    <UiDropdownMenuContent align="start" class="w-56">
                         <UiDropdownMenuLabel>Folder</UiDropdownMenuLabel>
                         <UiDropdownMenuRadioGroup v-model="folderFilter">
                             <UiDropdownMenuRadioItem value="all">All files</UiDropdownMenuRadioItem>
@@ -31,13 +31,20 @@
                             </UiDropdownMenuRadioItem>
                             <template v-if="folders.length">
                                 <UiDropdownMenuSeparator />
-                                <UiDropdownMenuRadioItem
-                                    v-for="folder in folders"
-                                    :key="folder.id"
-                                    :value="folder.id"
+                                <VirtualList
+                                    :items="folders"
+                                    :item-key="(folder) => folder.id"
+                                    :estimate-size="36"
+                                    :gap="0"
+                                    contained
+                                    @reach-end="folderList?.loadMore()"
                                 >
-                                    <span class="truncate">{{ folder.name }}</span>
-                                </UiDropdownMenuRadioItem>
+                                    <template #default="{ item }">
+                                        <UiDropdownMenuRadioItem :value="item.id">
+                                            <span class="truncate">{{ item.name }}</span>
+                                        </UiDropdownMenuRadioItem>
+                                    </template>
+                                </VirtualList>
                             </template>
                         </UiDropdownMenuRadioGroup>
                     </UiDropdownMenuContent>
@@ -430,11 +437,6 @@ const {
 const folderList = folderId ? null : usePaginatedList<FolderData>('folders', '/api/folders');
 
 const folders = computed(() => folderList?.items.value ?? []);
-
-const handleFolderScroll = (event: Event) => {
-    const target = event.target as HTMLElement;
-    if (target.scrollHeight - target.scrollTop - target.clientHeight < 80) folderList?.loadMore();
-};
 
 const toggleType = (type: FileCategory) => {
     typeFilter.value = typeFilter.value.includes(type)

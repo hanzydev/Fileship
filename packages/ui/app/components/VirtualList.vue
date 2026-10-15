@@ -36,7 +36,8 @@
 </template>
 
 <script setup lang="ts" generic="T">
-import { useWindowVirtualizer } from '@tanstack/vue-virtual';
+import type { Virtualizer } from '@tanstack/vue-virtual';
+import { useVirtualizer, useWindowVirtualizer } from '@tanstack/vue-virtual';
 
 const {
     items,
@@ -45,6 +46,7 @@ const {
     minItemWidth,
     gap = 8,
     loading,
+    contained,
 } = defineProps<{
     items: T[];
     itemKey: (item: T) => string;
@@ -52,6 +54,7 @@ const {
     minItemWidth?: number;
     gap?: number;
     loading?: boolean;
+    contained?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -59,6 +62,7 @@ const emit = defineEmits<{
 }>();
 
 const container = useTemplateRef('container');
+const scroller = shallowRef<HTMLElement | null>(null);
 const { width } = useElementSize(container);
 const scrollMargin = ref(0);
 
@@ -74,14 +78,43 @@ const rows = computed(() => {
     return result;
 });
 
-const virtualizer = useWindowVirtualizer(
-    computed(() => ({
-        count: rows.value.length,
-        estimateSize: () => estimateSize + gap,
-        overscan: 4,
-        scrollMargin: scrollMargin.value,
-    })),
-);
+const options = computed(() => ({
+    count: rows.value.length,
+    estimateSize: () => estimateSize + gap,
+    overscan: 4,
+    scrollMargin: scrollMargin.value,
+}));
+
+const virtualizer = (
+    contained
+        ? useVirtualizer(
+              computed(() => ({ ...options.value, getScrollElement: () => scroller.value })),
+          )
+        : useWindowVirtualizer(options)
+) as Ref<Virtualizer<any, Element>>;
+
+const getScrollParent = (element: HTMLElement) => {
+    let parent = element.parentElement;
+
+    while (parent && !/auto|scroll/.test(getComputedStyle(parent).overflowY)) {
+        parent = parent.parentElement;
+    }
+
+    return parent ?? document.documentElement;
+};
+
+const updateScrollMargin = () => {
+    if (!container.value) return;
+
+    if (!contained) {
+        scrollMargin.value = container.value.getBoundingClientRect().top + window.scrollY;
+    } else if (scroller.value) {
+        scrollMargin.value =
+            container.value.getBoundingClientRect().top -
+            scroller.value.getBoundingClientRect().top +
+            scroller.value.scrollTop;
+    }
+};
 
 watch(columns, () => virtualizer.value.measure());
 
@@ -90,7 +123,13 @@ watchEffect(() => {
     if (last && last.index >= rows.value.length - 3) emit('reachEnd');
 });
 
-useResizeObserver(import.meta.client ? document.body : undefined, () => {
-    scrollMargin.value = container.value!.getBoundingClientRect().top + window.scrollY;
+useResizeObserver(
+    computed(() => (import.meta.client ? (contained ? scroller.value : document.body) : null)),
+    updateScrollMargin,
+);
+
+onMounted(() => {
+    if (contained) scroller.value = getScrollParent(container.value!);
+    updateScrollMargin();
 });
 </script>
