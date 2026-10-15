@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
-import { writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 
 import { app, dialog, nativeImage, shell } from 'electron';
@@ -78,14 +78,18 @@ export const finishUpload = async (historyId: string, file: { url: string; id: s
     return url;
 };
 
-export const uploadAndFinish = async (historyId: string, file: UploadSource) => {
+export const uploadAndFinish = async (
+    historyId: string,
+    file: UploadSource,
+    onFailure: (message: string) => unknown = (message) => notify('Upload failed', message),
+) => {
     try {
         const uploaded = await uploadFile({ ...file, id: historyId });
         return await finishUpload(historyId, uploaded);
     } catch (error: any) {
         log.warn('Upload failed', error);
         updateHistory(historyId, { error: error.message });
-        notify('Upload failed', error.message);
+        await onFailure(error.message);
         return null;
     }
 };
@@ -175,6 +179,33 @@ export const handleFile = async (file: UploadSource) => {
     return entry;
 };
 
+const moveFile = async (from: string, to: string) => {
+    try {
+        await rename(from, to);
+    } catch (error: any) {
+        if (error.code !== 'EXDEV') throw error;
+
+        await copyFile(from, to);
+        await rm(from, { force: true });
+    }
+};
+
+const keepRecording = async (historyId: string, path: string, name: string, message: string) => {
+    try {
+        const folder = saveFolder();
+        await mkdir(folder, { recursive: true });
+
+        const kept = uniquePath(folder, name);
+        await moveFile(path, kept);
+
+        updateHistory(historyId, { localPath: kept });
+        notify('Upload failed, recording saved', kept, () => shell.showItemInFolder(kept));
+    } catch (error) {
+        log.warn('Could not keep the recording', error);
+        notify('Upload failed', message);
+    }
+};
+
 export const handleRecording = async (file: {
     kind: HistoryKind;
     path: string;
@@ -192,11 +223,13 @@ export const handleRecording = async (file: {
     });
 
     if (getSettings().afterCapture.upload) {
-        await uploadAndFinish(entry.id, {
-            name: file.name,
-            mimeType: file.mimeType,
-            path: file.path,
-        });
+        await uploadAndFinish(
+            entry.id,
+            { name: file.name, mimeType: file.mimeType, path: file.path },
+            file.isSaved
+                ? undefined
+                : (message) => keepRecording(entry.id, file.path, file.name, message),
+        );
     } else {
         notify('Recording saved', file.path, () => shell.showItemInFolder(file.path));
     }
