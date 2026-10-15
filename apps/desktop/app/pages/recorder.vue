@@ -13,7 +13,7 @@
                 <TextBlock variant="small" class="tabular-nums">{{ label }}</TextBlock>
             </div>
 
-            <UiSeparator orientation="vertical" class="mx-1 h-6" />
+            <UiSeparator orientation="vertical" class="mx-1 my-3" />
 
             <UiButton
                 v-for="source in sources"

@@ -330,7 +330,7 @@ const isVertical = computed(() => side === 'left' || side === 'right');
 
 const separatorOrientation = computed(() => (isVertical.value ? 'horizontal' : 'vertical'));
 
-const separatorClass = computed(() => (isVertical.value ? 'my-1 w-6' : 'mx-1 h-6'));
+const separatorClass = computed(() => (isVertical.value ? 'my-1' : 'mx-1 my-1.5'));
 
 const handleColor = (color: string) => {
     annotator.setToolOption('color', color);
