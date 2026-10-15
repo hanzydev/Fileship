@@ -48,11 +48,7 @@ export default defineEventHandler(async (event) => {
         } else {
             isPrivate = false;
 
-            await rateLimit(
-                `folderArchive:${getClientIp(event)}`,
-                5,
-                10 * 60_000,
-            );
+            await rateLimit(`folderArchive:${getClientIp(event)}`, 5, 10 * 60_000);
 
             const visible = await prisma.file.findMany({
                 where: {
@@ -136,15 +132,6 @@ export default defineEventHandler(async (event) => {
                     isDone: true,
                     authorId: findFolderById.authorId,
                 });
-
-                if (findFolderById.authorId === currentUser?.id) {
-                    await sendToSession(
-                        currentUser.id,
-                        currentUser.currentSessionId,
-                        'folder:archiveReady',
-                        folderId,
-                    );
-                }
             })
             .catch(() => storage.removeItem(`folderArchiveStatus:${folderId}:${jobId}`)),
     );
