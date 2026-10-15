@@ -1,7 +1,7 @@
 import { BrowserWindow, nativeImage, screen } from 'electron';
 
+import { native, type Rect } from '../native';
 import { getSettings } from '../store';
-import { captureScreen, foregroundWindow, listWindows, type Rect } from './native';
 
 export type Shot = { image: Electron.NativeImage; title?: string };
 
@@ -43,9 +43,10 @@ export const imageFromRgba = (rgba: Uint8Array, width: number, height: number) =
 export const toImage = (rect: Rect, data: Buffer) =>
     nativeImage.createFromBitmap(data, { width: rect.width, height: rect.height });
 
-export const captureRect = (rect: Rect): Shot => {
+export const captureRect = async (rect: Rect): Promise<Shot> => {
     const { showCursor } = getSettings().capture;
-    return { image: toImage(rect, captureScreen(rect, { cursor: showCursor })) };
+    const [data] = await native.captureRects([rect], { cursor: showCursor });
+    return { image: toImage(rect, data!) };
 };
 
 export const captureFullscreen = () => captureRect(virtualScreen());
@@ -53,27 +54,29 @@ export const captureFullscreen = () => captureRect(virtualScreen());
 export const captureActiveMonitor = () =>
     captureRect(physicalBounds(screen.getDisplayNearestPoint(screen.getCursorScreenPoint())));
 
-export const captureActiveWindow = (): Shot | null => {
-    const window = foregroundWindow(ownWindowHandles());
+export const captureActiveWindow = async (): Promise<Shot | null> => {
+    const window = native.foregroundWindow(ownWindowHandles());
     if (!window) return null;
 
-    return { ...captureRect(window), title: window.title };
+    return { ...(await captureRect(window)), title: window.title };
 };
 
-export const snapshotDisplays = () => {
+export const snapshotDisplays = async () => {
     const { capture } = getSettings();
-    const windows = capture.detectWindows
-        ? listWindows(ownWindowHandles(), { controls: capture.detectControls })
-        : [];
+    const displays = screen.getAllDisplays();
+    const rects = displays.map(physicalBounds);
 
-    return screen.getAllDisplays().map((display) => {
-        const physical = physicalBounds(display);
+    const [buffers, windows] = await Promise.all([
+        native.captureRects(rects, { cursor: false }),
+        capture.detectWindows
+            ? native.listWindows(ownWindowHandles(), { controls: capture.detectControls })
+            : [],
+    ]);
 
-        return {
-            display,
-            physical,
-            data: captureScreen(physical, { cursor: false }),
-            windows,
-        };
-    });
+    return displays.map((display, index) => ({
+        display,
+        physical: rects[index]!,
+        data: buffers[index]!,
+        windows,
+    }));
 };

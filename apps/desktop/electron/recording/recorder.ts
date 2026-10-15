@@ -16,7 +16,7 @@ import type {
 } from '../../shared/ipc';
 import type { Settings, VideoCodec } from '../../shared/settings';
 import { physicalBounds } from '../capture';
-import { listOutputs, type Rect } from '../capture/native';
+import { native, type Rect } from '../native';
 import { openRegionCapture } from '../overlay';
 import { getSettings } from '../store';
 import { formatFileName, handleRecording, saveFolder } from '../tasks';
@@ -543,7 +543,7 @@ export const writeRecordingAudio = (track: number, chunk: ArrayBuffer) => {
 
 const findOutput = (rect: Rect) => {
     try {
-        const match = listOutputs().find((item) => contains(item.rect, rect));
+        const match = native.listOutputs().find((item) => contains(item.rect, rect));
         return match ? { adapter: match.adapter, index: match.output, bounds: match.rect } : null;
     } catch (error) {
         log.warn('Could not list the displays', error);

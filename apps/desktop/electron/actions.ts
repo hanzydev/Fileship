@@ -5,7 +5,7 @@ import { dialog, Notification } from 'electron';
 import log from 'electron-log/main';
 
 import type { HotkeyAction } from '../shared/settings';
-import { captureActiveMonitor, captureActiveWindow, captureFullscreen } from './capture';
+import { captureActiveMonitor, captureActiveWindow, captureFullscreen, type Shot } from './capture';
 import { readFilePath, readImage, readText, writeText } from './clipboard';
 import { captureLastRegion, openRegionCapture } from './overlay';
 import { toggleRecording } from './recording/recorder';
@@ -103,7 +103,8 @@ const shortenClipboard = async () => {
     }
 };
 
-const withShot = async (shot: ReturnType<typeof captureFullscreen> | null) => {
+const withShot = async (capture: Promise<Shot | null>) => {
+    const shot = await capture;
     if (!shot) return notify('Nothing to capture', 'No window is active.');
     await handleImage(shot.image, { title: shot.title });
 };

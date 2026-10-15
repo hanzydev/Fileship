@@ -14,7 +14,7 @@ import {
     virtualScreen,
     windowHandle,
 } from './capture';
-import { forceForeground, type Rect } from './capture/native';
+import { native, type Rect } from './native';
 import { getSettings } from './store';
 import { handleImage } from './tasks';
 import { rendererUrl } from './windows';
@@ -91,7 +91,7 @@ const reveal = (id: number, window: BrowserWindow, isActive: boolean) => {
         window.focus();
 
         try {
-            forceForeground(windowHandle(window));
+            native.forceForeground(windowHandle(window));
         } catch (error) {
             log.warn('Could not focus the capture overlay', error);
         }
@@ -112,7 +112,7 @@ const hideOverlays = () => {
     }
 };
 
-export const openRegionCapture = (
+export const openRegionCapture = async (
     nextPurpose: OverlayPurpose = 'capture',
     nextOnArea: ((rect: Rect) => void) | null = null,
 ) => {
@@ -126,7 +126,7 @@ export const openRegionCapture = (
     const { capture } = getSettings();
 
     try {
-        for (const shot of snapshotDisplays()) {
+        for (const shot of await snapshotDisplays()) {
             const window = overlays.get(shot.display.id);
             if (!window || window.isDestroyed()) continue;
 
@@ -207,11 +207,11 @@ export const finishRegionCapture = async (result: OverlayFinish) => {
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    if (result.type === 'fullscreen') return handleImage(captureFullscreen().image);
+    if (result.type === 'fullscreen') return handleImage((await captureFullscreen()).image);
     if (result.type === 'monitor') {
         const display = screen.getAllDisplays()[result.index];
-        if (!display) return handleImage(captureActiveMonitor().image);
-        return handleImage(captureRect(physicalBounds(display)).image);
+        if (!display) return handleImage((await captureActiveMonitor()).image);
+        return handleImage((await captureRect(physicalBounds(display))).image);
     }
 
     lastRegion = toScreenRect(result.displayId, result.region) ?? lastRegion;
@@ -221,7 +221,7 @@ export const finishRegionCapture = async (result: OverlayFinish) => {
     });
 };
 
-export const captureLastRegion = () => {
+export const captureLastRegion = async () => {
     if (!lastRegion) return openRegionCapture();
-    return handleImage(captureRect(lastRegion).image);
+    return handleImage((await captureRect(lastRegion)).image);
 };

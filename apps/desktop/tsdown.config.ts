@@ -1,13 +1,11 @@
 import { defineConfig } from 'tsdown';
 
-const isWatching = process.argv.includes('--watch');
-
 const shared = {
     outDir: 'dist-electron',
     format: 'cjs',
     platform: 'node',
     target: 'node24',
-    external: isWatching ? ['electron', 'koffi'] : ['electron'],
+    external: ['electron'],
     noExternal: [/.*/],
     clean: false,
     dts: false,

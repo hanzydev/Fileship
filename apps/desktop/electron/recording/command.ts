@@ -1,6 +1,6 @@
 import type { AudioSourceId, AudioTrack, RecordingKind } from '../../shared/ipc';
 import type { Settings, VideoCodec } from '../../shared/settings';
-import type { Rect } from '../capture/native';
+import type { Rect } from '../native';
 
 export const SAMPLE_RATE = 48_000;
 

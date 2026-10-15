@@ -13,8 +13,6 @@ files:
     - package.json
 
 extraResources:
-    - from: build/koffi
-      to: koffi
     - from: build/native/fileship-native.node
       to: native/fileship-native.node
     - from: build/drive/fileship-drive.exe
