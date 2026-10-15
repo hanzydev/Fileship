@@ -39,9 +39,6 @@ export default [
                         // Packages prefixed with `@`.
                         ['^@\\w'],
 
-                        // Nuxt
-                        ['^~~\\w'],
-
                         // Nuxt aliases.
                         ['^#', '^~~/'],
 
