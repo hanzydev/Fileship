@@ -198,6 +198,10 @@ const handleKeyDown = (event: KeyboardEvent) => {
     if (annotator.handleKey(event)) event.preventDefault();
 };
 
+useHead({
+    style: [{ innerHTML: '#nuxt-devtools-container { display: none !important; }' }],
+});
+
 useEventListener('keydown', handleKeyDown);
 
 onMounted(async () => {

@@ -1,41 +1,46 @@
 <template>
-    <div class="flex flex-wrap items-center gap-1">
+    <div :class="cn('flex items-center gap-1', isVertical ? 'flex-col' : 'flex-wrap')">
         <UiTooltipProvider :delay-duration="300">
             <slot name="start" />
 
-            <UiToggleGroup
-                type="single"
-                size="sm"
-                :model-value="annotator.tool.value ?? ''"
-                @update:model-value="handleTool"
-            >
-                <UiTooltip v-for="tool in tools" :key="tool.value">
-                    <UiTooltipTrigger as-child>
-                        <UiToggleGroupItem :value="tool.value" :aria-label="tool.label">
-                            <component :is="tool.icon" />
-                        </UiToggleGroupItem>
-                    </UiTooltipTrigger>
-                    <UiTooltipContent>
-                        {{ tool.label }}
-                        <UiKbd class="ml-1">
-                            {{ ANNOTATION_SHORTCUTS[tool.value].toUpperCase() }}
-                        </UiKbd>
-                    </UiTooltipContent>
-                </UiTooltip>
-            </UiToggleGroup>
+            <UiTooltip v-for="tool in tools" :key="tool.value">
+                <UiTooltipTrigger as-child>
+                    <UiButton
+                        :variant="annotator.tool.value === tool.value ? 'secondary' : 'ghost'"
+                        size="icon-sm"
+                        :aria-label="tool.label"
+                        :aria-pressed="annotator.tool.value === tool.value"
+                        :disabled="disabled"
+                        @click="annotator.setTool(tool.value)"
+                    >
+                        <component :is="tool.icon" />
+                    </UiButton>
+                </UiTooltipTrigger>
+                <UiTooltipContent :side="side">
+                    {{ tool.label }}
+                    <UiKbd class="ml-1">
+                        {{ ANNOTATION_SHORTCUTS[tool.value].toUpperCase() }}
+                    </UiKbd>
+                </UiTooltipContent>
+            </UiTooltip>
 
-            <UiSeparator orientation="vertical" class="mx-1 h-6" />
+            <UiSeparator :orientation="separatorOrientation" :class="separatorClass" />
 
             <UiPopover v-if="isColored">
                 <UiPopoverTrigger as-child>
-                    <UiButton variant="ghost" size="icon-sm" aria-label="Color">
+                    <UiButton
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Color"
+                        :disabled="disabled"
+                    >
                         <span
                             class="size-4 rounded-full border border-border"
                             :style="{ background: annotator.current.value.color }"
                         />
                     </UiButton>
                 </UiPopoverTrigger>
-                <UiPopoverContent class="w-auto" align="center">
+                <UiPopoverContent class="w-auto" align="center" :side="side">
                     <div class="grid grid-cols-5 gap-2">
                         <button
                             v-for="color in COLORS"
@@ -76,7 +81,7 @@
                         </span>
                     </UiButton>
                 </UiPopoverTrigger>
-                <UiPopoverContent class="w-72" align="center">
+                <UiPopoverContent class="w-72" align="center" :side="side">
                     <div class="grid grid-cols-8 gap-1">
                         <UiButton
                             v-for="emoji in EMOJIS"
@@ -94,11 +99,16 @@
 
             <UiPopover v-if="range || hasToggles">
                 <UiPopoverTrigger as-child>
-                    <UiButton variant="ghost" size="icon-sm" aria-label="Options">
+                    <UiButton
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Options"
+                        :disabled="disabled"
+                    >
                         <ISlidersHorizontal />
                     </UiButton>
                 </UiPopoverTrigger>
-                <UiPopoverContent class="w-64" align="center">
+                <UiPopoverContent class="w-64" align="center" :side="side">
                     <UiFieldGroup>
                         <UiField v-if="range">
                             <UiFieldLabel>
@@ -145,7 +155,7 @@
                         <IUndo2 />
                     </UiButton>
                 </UiTooltipTrigger>
-                <UiTooltipContent>
+                <UiTooltipContent :side="side">
                     Undo
                     <UiKbd class="ml-1">Ctrl Z</UiKbd>
                 </UiTooltipContent>
@@ -162,7 +172,7 @@
                         <IRedo2 />
                     </UiButton>
                 </UiTooltipTrigger>
-                <UiTooltipContent>
+                <UiTooltipContent :side="side">
                     Redo
                     <UiKbd class="ml-1">Ctrl Y</UiKbd>
                 </UiTooltipContent>
@@ -179,14 +189,14 @@
                         <ITrash2 />
                     </UiButton>
                 </UiTooltipTrigger>
-                <UiTooltipContent>
+                <UiTooltipContent :side="side">
                     Delete
                     <UiKbd class="ml-1">Del</UiKbd>
                 </UiTooltipContent>
             </UiTooltip>
 
             <template v-if="$slots.actions">
-                <UiSeparator orientation="vertical" class="mx-1 h-6" />
+                <UiSeparator :orientation="separatorOrientation" :class="separatorClass" />
                 <slot name="actions" />
             </template>
         </UiTooltipProvider>
@@ -212,8 +222,14 @@ import {
     IType,
 } from '#components';
 
-const { annotator } = defineProps<{
+const {
+    annotator,
+    side = 'bottom',
+    disabled = false,
+} = defineProps<{
     annotator: Annotator;
+    side?: 'top' | 'bottom' | 'left' | 'right';
+    disabled?: boolean;
 }>();
 
 const COLORS = [
@@ -310,9 +326,11 @@ const toggles = computed(() => {
 
 const hasToggles = computed(() => toggles.value.length > 0);
 
-const handleTool = (value: unknown) => {
-    if (typeof value === 'string' && value) annotator.setTool(value as AnnotationTool);
-};
+const isVertical = computed(() => side === 'left' || side === 'right');
+
+const separatorOrientation = computed(() => (isVertical.value ? 'horizontal' : 'vertical'));
+
+const separatorClass = computed(() => (isVertical.value ? 'my-1 w-6' : 'mx-1 h-6'));
 
 const handleColor = (color: string) => {
     annotator.setToolOption('color', color);

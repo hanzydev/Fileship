@@ -17,25 +17,38 @@
         <canvas ref="drawCanvas" class="pointer-events-none absolute inset-0 size-full" />
 
         <div
-            v-if="toolbar"
-            ref="toolbarElement"
+            v-if="hasCaptureToolbar"
+            ref="captureToolbar"
             class="absolute rounded-4xl border bg-popover p-1 text-popover-foreground shadow-md"
-            :style="{ left: `${toolbar.x}px`, top: `${toolbar.y}px` }"
+            :style="captureToolbarStyle"
             @mousedown.stop
+            @mousemove.stop
             @mouseup.stop
             @dblclick.stop
             @contextmenu.stop.prevent
         >
-            <AnnotationToolbar v-if="!isRecording" :annotator="annotator">
+            <AnnotationToolbar :annotator="annotator" :side="toolbarSide" :disabled="!selection">
                 <template #start>
-                    <UiToggle
-                        size="sm"
+                    <UiButton
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Move the toolbar"
+                        class="cursor-grab touch-none active:cursor-grabbing"
+                        @pointerdown="handleToolbarDragStart"
+                    >
+                        <IGripHorizontal v-if="toolbarSide === 'left' || toolbarSide === 'right'" />
+                        <IGripVertical v-else />
+                    </UiButton>
+                    <UiButton
+                        :variant="!annotator.tool.value ? 'secondary' : 'ghost'"
+                        size="icon-sm"
                         aria-label="Adjust area"
-                        :model-value="!annotator.tool.value"
-                        @update:model-value="annotator.tool.value = null"
+                        :aria-pressed="!annotator.tool.value"
+                        :disabled="!selection"
+                        @click="annotator.setTool(null)"
                     >
                         <IScan />
-                    </UiToggle>
+                    </UiButton>
                 </template>
                 <template #actions>
                     <UiButton
@@ -46,21 +59,35 @@
                     >
                         <IX />
                     </UiButton>
-                    <UiButton size="icon-sm" aria-label="Capture" @click="handleConfirm">
+                    <UiButton
+                        size="icon-sm"
+                        aria-label="Capture"
+                        :disabled="!selection"
+                        @click="handleConfirm"
+                    >
                         <ICheck />
                     </UiButton>
                 </template>
             </AnnotationToolbar>
+        </div>
 
-            <div v-else class="flex items-center gap-1">
-                <UiButton size="icon-sm" variant="ghost" aria-label="Cancel" @click="handleCancel">
-                    <IX />
-                </UiButton>
-                <UiButton size="sm" variant="destructive" @click="handleConfirm">
-                    <ICircle class="fill-current" />
-                    {{ payload?.purpose === 'gif' ? 'Record GIF' : 'Record' }}
-                </UiButton>
-            </div>
+        <div
+            v-if="recordToolbar"
+            ref="recordToolbarElement"
+            class="absolute flex items-center gap-1 rounded-4xl border bg-popover p-1 text-popover-foreground shadow-md"
+            :style="{ left: `${recordToolbar.x}px`, top: `${recordToolbar.y}px` }"
+            @mousedown.stop
+            @mouseup.stop
+            @dblclick.stop
+            @contextmenu.stop.prevent
+        >
+            <UiButton size="icon-sm" variant="ghost" aria-label="Cancel" @click="handleCancel">
+                <IX />
+            </UiButton>
+            <UiButton size="sm" variant="destructive" @click="handleConfirm">
+                <ICircle class="fill-current" />
+                {{ payload?.purpose === 'gif' ? 'Record GIF' : 'Record' }}
+            </UiButton>
         </div>
     </div>
 </template>
@@ -71,11 +98,15 @@ import type { LocalRect, OverlayFinish, OverlayPayload } from '../../shared/ipc'
 type Point = { x: number; y: number };
 type Handle = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | 'move';
 type Mode = 'idle' | 'pending' | 'drawing' | 'selected' | 'moving' | 'resizing';
+type ToolbarDock = 'top' | 'left' | 'right' | 'free';
 
 const HANDLE_SIZE = 8;
 const DRAG_THRESHOLD = 3;
 const MAGNIFIER_PIXELS = 15;
 const MAGNIFIER_ZOOM = 8;
+const HOVER_ANIMATION_MS = 140;
+const TOOLBAR_MARGIN = 16;
+const TOOLBAR_EDGE = 96;
 
 const CURSORS: Record<Handle, string> = {
     n: 'ns-resize',
@@ -92,10 +123,26 @@ const CURSORS: Record<Handle, string> = {
 const baseCanvas = useTemplateRef('baseCanvas');
 const drawCanvas = useTemplateRef('drawCanvas');
 const annotationLayer = useTemplateRef('annotationLayer');
-const toolbarElement = useTemplateRef('toolbarElement');
+const captureToolbar = useTemplateRef('captureToolbar');
+const recordToolbarElement = useTemplateRef('recordToolbarElement');
 
 const annotator = useAnnotator(annotationLayer);
-const toolbarSize = useElementSize(toolbarElement, undefined, { box: 'border-box' });
+const captureToolbarSize = useElementSize(captureToolbar, undefined, { box: 'border-box' });
+const recordToolbarSize = useElementSize(recordToolbarElement, undefined, {
+    box: 'border-box',
+});
+
+const toolbarPlacement = useLocalStorage<{ dock: ToolbarDock; x: number; y: number }>(
+    'fileship-capture-toolbar',
+    { dock: 'top', x: 0.5, y: 0.5 },
+);
+
+const toolbarDrag = ref<{
+    id: number;
+    offset: Point;
+    position: Point;
+    pointer: Point;
+} | null>(null);
 
 const payload = shallowRef<OverlayPayload | null>(null);
 const selection = ref<LocalRect | null>(null);
@@ -104,6 +151,7 @@ const cursor = ref('crosshair');
 
 let pointer: Point | null = null;
 let hover: LocalRect | null = null;
+let hoverAnimation: { from: LocalRect; start: number } | null = null;
 let dragStart: Point | null = null;
 let dragOrigin: LocalRect | null = null;
 let dragHandle: Handle | null = null;
@@ -206,13 +254,116 @@ const isAnnotating = computed(
     () => mode.value === 'selected' && !isRecording.value && !!annotator.tool.value,
 );
 
-const toolbar = computed(() => {
-    const rect = selection.value;
-    if (!rect || mode.value !== 'selected') return null;
+const hasCaptureToolbar = computed(
+    () =>
+        !!payload.value &&
+        payload.value.purpose === 'capture' &&
+        !payload.value.quickCrop &&
+        (payload.value.isActive || !!selection.value),
+);
+
+const dockAt = (point: Point): ToolbarDock => {
+    const bounds = viewport();
+    if (point.x < TOOLBAR_EDGE) return 'left';
+    if (point.x > bounds.width - TOOLBAR_EDGE) return 'right';
+    if (point.y < TOOLBAR_EDGE / 2) return 'top';
+    return 'free';
+};
+
+const currentDock = computed(() =>
+    toolbarDrag.value ? dockAt(toolbarDrag.value.pointer) : toolbarPlacement.value.dock,
+);
+
+const toolbarSide = computed(() => {
+    if (currentDock.value === 'left') return 'right';
+    if (currentDock.value === 'right') return 'left';
+    return 'bottom';
+});
+
+const captureToolbarStyle = computed(() => {
+    const bounds = viewport();
+    const width = captureToolbarSize.width.value;
+    const height = captureToolbarSize.height.value;
+    const maxX = Math.max(TOOLBAR_MARGIN, bounds.width - width - TOOLBAR_MARGIN);
+    const maxY = Math.max(TOOLBAR_MARGIN, bounds.height - height - TOOLBAR_MARGIN);
+    const placement = toolbarPlacement.value;
+
+    let x: number;
+    let y: number;
+
+    if (toolbarDrag.value) {
+        x = toolbarDrag.value.position.x;
+        y = toolbarDrag.value.position.y;
+    } else if (placement.dock === 'top') {
+        x = (bounds.width - width) / 2;
+        y = TOOLBAR_MARGIN;
+    } else if (placement.dock === 'free') {
+        x = placement.x * bounds.width;
+        y = placement.y * bounds.height;
+    } else {
+        x = placement.dock === 'left' ? TOOLBAR_MARGIN : maxX;
+        y = placement.y * bounds.height - height / 2;
+    }
+
+    return {
+        left: `${clamp(x, TOOLBAR_MARGIN, maxX)}px`,
+        top: `${clamp(y, TOOLBAR_MARGIN, maxY)}px`,
+        visibility: width ? 'visible' : 'hidden',
+    } as const;
+});
+
+const handleToolbarDragStart = (event: PointerEvent) => {
+    const element = captureToolbar.value;
+    if (!element || event.button !== 0) return;
+
+    const rect = element.getBoundingClientRect();
+    const pointer = { x: event.clientX, y: event.clientY };
+
+    toolbarDrag.value = {
+        id: event.pointerId,
+        offset: { x: pointer.x - rect.left, y: pointer.y - rect.top },
+        position: { x: rect.left, y: rect.top },
+        pointer,
+    };
+};
+
+const handleToolbarDragMove = (event: PointerEvent) => {
+    const drag = toolbarDrag.value;
+    if (!drag || event.pointerId !== drag.id) return;
+
+    const pointer = { x: event.clientX, y: event.clientY };
+    toolbarDrag.value = {
+        ...drag,
+        pointer,
+        position: { x: pointer.x - drag.offset.x, y: pointer.y - drag.offset.y },
+    };
+};
+
+const handleToolbarDragEnd = (event: PointerEvent) => {
+    const drag = toolbarDrag.value;
+    if (!drag || event.pointerId !== drag.id) return;
 
     const bounds = viewport();
-    const width = toolbarSize.width.value || 82;
-    const height = toolbarSize.height.value || 42;
+    const dock = dockAt(drag.pointer);
+
+    toolbarPlacement.value = {
+        dock,
+        x: drag.position.x / bounds.width,
+        y:
+            dock === 'left' || dock === 'right'
+                ? drag.pointer.y / bounds.height
+                : drag.position.y / bounds.height,
+    };
+    toolbarDrag.value = null;
+};
+
+const recordToolbar = computed(() => {
+    const rect = selection.value;
+    if (!rect || mode.value !== 'selected' || !isRecording.value) return null;
+
+    const bounds = viewport();
+    const width = recordToolbarSize.width.value || 82;
+    const height = recordToolbarSize.height.value || 42;
     const x = clamp(rect.x + rect.width - width, 8, Math.max(8, bounds.width - width - 8));
     const below = rect.y + rect.height + 8;
     const above = rect.y - height - 8;
@@ -221,6 +372,41 @@ const toolbar = computed(() => {
     if (above >= 0) return { x, y: above };
     return { x, y: Math.max(8, rect.y + rect.height - height - 8) };
 });
+
+const isSameRect = (a: LocalRect | null, b: LocalRect | null) =>
+    a === b ||
+    (!!a && !!b && a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height);
+
+const animatedHover = (): LocalRect | null => {
+    if (!hoverAnimation || !hover) return hover;
+
+    const progress = Math.min(1, (performance.now() - hoverAnimation.start) / HOVER_ANIMATION_MS);
+    const eased = 1 - (1 - progress) ** 3;
+    const { from } = hoverAnimation;
+    const mix = (a: number, b: number) => a + (b - a) * eased;
+
+    if (progress >= 1) {
+        hoverAnimation = null;
+        return hover;
+    }
+
+    scheduleRender();
+
+    return {
+        x: mix(from.x, hover.x),
+        y: mix(from.y, hover.y),
+        width: mix(from.width, hover.width),
+        height: mix(from.height, hover.height),
+    };
+};
+
+const setHover = (next: LocalRect | null) => {
+    if (isSameRect(next, hover)) return;
+
+    const from = animatedHover();
+    hover = next;
+    hoverAnimation = from && next ? { from, start: performance.now() } : null;
+};
 
 const themeColor = (name: string) =>
     getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -313,7 +499,8 @@ const render = () => {
     const dpr = window.devicePixelRatio;
     const primary = themeColor('--primary');
     const region =
-        selection.value ?? (mode.value === 'idle' || mode.value === 'pending' ? hover : null);
+        selection.value ??
+        (mode.value === 'idle' || mode.value === 'pending' ? animatedHover() : null);
 
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
     context.clearRect(0, 0, bounds.width, bounds.height);
@@ -386,6 +573,7 @@ const reset = () => {
     cursor.value = 'crosshair';
     pointer = null;
     hover = null;
+    hoverAnimation = null;
     dragStart = null;
     dragOrigin = null;
     dragHandle = null;
@@ -478,7 +666,7 @@ const handleMouseMove = (event: MouseEvent) => {
             resizeRect(dragOrigin, dragHandle, point.x - dragStart.x, point.y - dragStart.y) ??
             selection.value;
     } else if (mode.value === 'idle') {
-        hover = targetAt(point);
+        setHover(targetAt(point));
     }
 
     if (mode.value === 'selected') {
@@ -517,7 +705,7 @@ const handleMouseUp = (event: MouseEvent) => {
 
 const handleMouseLeave = () => {
     pointer = null;
-    if (mode.value === 'idle') hover = null;
+    if (mode.value === 'idle') setHover(null);
     scheduleRender();
 };
 
@@ -539,7 +727,7 @@ const handleRightClick = () => {
 
     selection.value = null;
     mode.value = 'idle';
-    if (pointer) hover = targetAt(pointer);
+    if (pointer) setHover(targetAt(pointer));
     scheduleRender();
 };
 
@@ -644,7 +832,14 @@ const handleClose = () => {
     }
 };
 
+useHead({
+    style: [{ innerHTML: '#nuxt-devtools-container { display: none !important; }' }],
+});
+
 useEventListener('keydown', handleKeyDown);
+useEventListener('pointermove', handleToolbarDragMove);
+useEventListener('pointerup', handleToolbarDragEnd);
+useEventListener('pointercancel', handleToolbarDragEnd);
 useEventListener('resize', resizeDrawCanvas);
 
 onMounted(() => {
