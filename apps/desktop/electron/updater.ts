@@ -1,9 +1,9 @@
-import { app, Notification } from 'electron';
+import { app } from 'electron';
 import log from 'electron-log/main';
 import electronUpdater from 'electron-updater';
 
 import type { UpdateStatus } from '../shared/ipc';
-import { broadcast, iconPath, markQuitting } from './windows';
+import { broadcast, markQuitting, notify } from './windows';
 
 const { autoUpdater } = electronUpdater;
 
@@ -93,16 +93,11 @@ export const startUpdater = () => {
     autoUpdater.on('update-downloaded', (info) => {
         setStatus({ state: 'ready', version: info.version });
 
-        if (Notification.isSupported()) {
-            const notification = new Notification({
-                title: `Fileship ${info.version} is ready`,
-                body: 'Click to restart and update now, or it installs when you quit.',
-                icon: iconPath(),
-            });
-
-            notification.on('click', installUpdate);
-            notification.show();
-        }
+        notify(
+            `Fileship ${info.version} is ready`,
+            'Click to restart and update now, or it installs when you quit.',
+            installUpdate,
+        );
     });
 
     autoUpdater.on('error', (error) => {

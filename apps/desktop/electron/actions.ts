@@ -1,7 +1,7 @@
 import { statSync } from 'node:fs';
-import { basename, extname } from 'node:path';
+import { basename } from 'node:path';
 
-import { dialog, Notification } from 'electron';
+import { dialog } from 'electron';
 import log from 'electron-log/main';
 
 import type { HotkeyAction } from '../shared/settings';
@@ -12,40 +12,8 @@ import { toggleRecording } from './recording/recorder';
 import { getStore } from './store';
 import { handleFile, handleImage } from './tasks';
 import { shortenUrl } from './upload';
-import { iconPath, showMainWindow } from './windows';
-
-const MIME_TYPES: Record<string, string> = {
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.gif': 'image/gif',
-    '.webp': 'image/webp',
-    '.bmp': 'image/bmp',
-    '.svg': 'image/svg+xml',
-    '.mp4': 'video/mp4',
-    '.webm': 'video/webm',
-    '.mkv': 'video/x-matroska',
-    '.mov': 'video/quicktime',
-    '.mp3': 'audio/mpeg',
-    '.wav': 'audio/wav',
-    '.ogg': 'audio/ogg',
-    '.pdf': 'application/pdf',
-    '.zip': 'application/zip',
-    '.txt': 'text/plain',
-    '.md': 'text/markdown',
-    '.json': 'application/json',
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.js': 'text/javascript',
-    '.ts': 'text/plain',
-};
-
-export const mimeTypeOf = (path: string) =>
-    MIME_TYPES[extname(path).toLowerCase()] ?? 'application/octet-stream';
-
-const notify = (title: string, body: string) => {
-    if (Notification.isSupported()) new Notification({ title, body, icon: iconPath() }).show();
-};
+import { mimeTypeOf } from './mime';
+import { notify, showMainWindow } from './windows';
 
 export const uploadPath = (path: string) =>
     handleFile({ name: basename(path), mimeType: mimeTypeOf(path), path });

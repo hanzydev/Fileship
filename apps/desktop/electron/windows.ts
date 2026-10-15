@@ -70,11 +70,10 @@ const createMainWindow = (route = '/') => {
         if (isQuitting || hasShownTrayHint || !Notification.isSupported()) return;
 
         hasShownTrayHint = true;
-        new Notification({
-            title: 'Fileship is still running',
-            body: 'Use the tray icon or your hotkeys to capture. Right click it to quit.',
-            icon: iconPath(),
-        }).show();
+        notify(
+            'Fileship is still running',
+            'Use the tray icon or your hotkeys to capture. Right click it to quit.',
+        );
     });
 
     window.on('closed', () => {
@@ -86,6 +85,14 @@ const createMainWindow = (route = '/') => {
 };
 
 export const getMainWindow = () => mainWindow;
+
+export const notify = (title: string, body: string, onClick?: () => void) => {
+    if (!Notification.isSupported()) return;
+
+    const notification = new Notification({ title, body, icon: iconPath() });
+    if (onClick) notification.on('click', onClick);
+    notification.show();
+};
 
 export const showMainWindow = (route?: string) => {
     if (!mainWindow || mainWindow.isDestroyed()) return createMainWindow(route);

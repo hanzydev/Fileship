@@ -4,7 +4,7 @@ import { createServer, type Server, type Socket } from 'node:net';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
 
-import { app, BrowserWindow, desktopCapturer, Notification, screen, session } from 'electron';
+import { app, BrowserWindow, desktopCapturer, screen, session } from 'electron';
 import log from 'electron-log/main';
 
 import type {
@@ -22,7 +22,8 @@ import { getSettings } from '../store';
 import { formatFileName, handleRecording, saveFolder } from '../tasks';
 import { refreshTray } from '../tray';
 import { notifyIdle } from '../updater';
-import { broadcast, iconPath, isAppUrl, rendererUrl, showMainWindow } from '../windows';
+import { mimeTypeOf } from '../mime';
+import { broadcast, isAppUrl, notify, rendererUrl, showMainWindow } from '../windows';
 import {
     audioTracks,
     BYTES_PER_SECOND,
@@ -42,13 +43,6 @@ import { autoCodec, ffmpegPath, getFfmpeg } from './ffmpeg';
 const run = promisify(execFile);
 
 const CAPTURE_LATENCY_MS = 100;
-
-const MIME_TYPES: Record<string, string> = {
-    mp4: 'video/mp4',
-    mkv: 'video/x-matroska',
-    webm: 'video/webm',
-    gif: 'image/gif',
-};
 
 type PendingChunk = { at: number; data: Buffer };
 
@@ -95,10 +89,6 @@ const idleState = (kind: RecordingKind = 'video'): RecorderState => ({
 
 let state = idleState();
 let current: Recording | null = null;
-
-const notify = (title: string, body: string) => {
-    if (Notification.isSupported()) new Notification({ title, body, icon: iconPath() }).show();
-};
 
 const setState = (patch: Partial<RecorderState>) => {
     state = { ...state, ...patch };
@@ -414,7 +404,7 @@ const produce = async (recording: Recording) => {
         () => null,
     );
 
-    return { output, name, isSaved, mimeType: MIME_TYPES[extension]!, thumbnail };
+    return { output, name, isSaved, mimeType: mimeTypeOf(output), thumbnail };
 };
 
 export const stopRecording = async () => {

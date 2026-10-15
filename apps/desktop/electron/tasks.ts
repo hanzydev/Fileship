@@ -2,7 +2,7 @@ import { mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { app, dialog, nativeImage, Notification, shell } from 'electron';
+import { app, dialog, nativeImage, shell } from 'electron';
 import log from 'electron-log/main';
 
 import type { HistoryKind } from '../shared/ipc';
@@ -12,7 +12,7 @@ import { openEditor } from './editor';
 import { addHistory, getHistory, updateHistory } from './history';
 import { getSettings } from './store';
 import { shortenUrl, uploadFile, type UploadSource } from './upload';
-import { iconPath } from './windows';
+import { notify } from './windows';
 
 const pad = (value: number) => String(value).padStart(2, '0');
 
@@ -37,14 +37,6 @@ export const formatFileName = (pattern: string, title = '') => {
 export const saveFolder = () =>
     getSettings().save.folder || join(app.getPath('pictures'), 'Fileship');
 
-const notify = (title: string, body: string, url?: string) => {
-    if (!Notification.isSupported()) return;
-
-    const notification = new Notification({ title, body, icon: iconPath() });
-    if (url) notification.on('click', () => shell.openExternal(url));
-    notification.show();
-};
-
 export const finishUpload = async (historyId: string, file: { url: string; id: string }) => {
     const { afterUpload } = getSettings();
 
@@ -66,7 +58,9 @@ export const finishUpload = async (historyId: string, file: { url: string; id: s
     if (afterUpload.openUrl) shell.openExternal(url);
 
     if (afterUpload.notify) {
-        notify(afterUpload.copyUrl ? 'Uploaded, link copied' : 'Uploaded', url, url);
+        notify(afterUpload.copyUrl ? 'Uploaded, link copied' : 'Uploaded', url, () =>
+            shell.openExternal(url),
+        );
     }
 
     return url;
@@ -191,15 +185,8 @@ export const handleRecording = async (file: {
             mimeType: file.mimeType,
             path: file.path,
         });
-    } else if (Notification.isSupported()) {
-        const notification = new Notification({
-            title: 'Recording saved',
-            body: file.path,
-            icon: iconPath(),
-        });
-
-        notification.on('click', () => shell.showItemInFolder(file.path));
-        notification.show();
+    } else {
+        notify('Recording saved', file.path, () => shell.showItemInFolder(file.path));
     }
 
     return entry;

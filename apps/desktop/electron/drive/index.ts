@@ -8,7 +8,7 @@ import { io, type Socket } from 'socket.io-client';
 
 import type { DriveStatus } from '../../shared/ipc';
 import { handleUnauthorized } from '../account';
-import { mimeTypeOf } from '../actions';
+import { mimeTypeOf } from '../mime';
 import { api, ApiError, desktopUserAgent } from '../api';
 import { getSettings, getStore, getToken, updateStore } from '../store';
 import { uploadFile } from '../upload';
