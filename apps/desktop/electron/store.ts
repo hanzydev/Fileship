@@ -21,6 +21,16 @@ const storeSchema = z.object({
     token: z.string().nullable().default(null),
     user: userSchema.nullable().default(null),
     settings: settingsSchema.prefault({}),
+    ffmpegProbe: z
+        .object({
+            key: z.string(),
+            version: z.string(),
+            ddagrab: z.boolean(),
+            encoders: z.array(z.string()),
+        })
+        .nullable()
+        .catch(null)
+        .default(null),
 });
 
 type StoreData = z.infer<typeof storeSchema>;

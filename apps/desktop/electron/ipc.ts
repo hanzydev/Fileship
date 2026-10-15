@@ -27,6 +27,7 @@ import {
     markRecorderReady,
     recordingPreview,
     setRecordingMute,
+    showRecorderWindow,
     writeRecordingAudio,
 } from './recording/recorder';
 import { getSettings, updateSettings } from './store';
@@ -157,6 +158,7 @@ const handlers: Handlers = {
         controlRecording(action);
     },
     'recorder:mute': (source, muted) => setRecordingMute(source, muted),
+    'recorder:visible': (view) => showRecorderWindow(view),
 };
 
 export const registerIpc = () => {

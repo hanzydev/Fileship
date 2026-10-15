@@ -5,6 +5,7 @@ import { registerHotkeys } from './hotkeys';
 import { registerIpc } from './ipc';
 import { createOverlays, watchDisplays } from './overlay';
 import { handleAppProtocol, registerAppScheme } from './protocol';
+import { getFfmpeg } from './recording/ffmpeg';
 import { isRecording, quitRecorder, registerRecorder } from './recording/recorder';
 import { createTray } from './tray';
 import { setBusyCheck, startUpdater } from './updater';
@@ -42,4 +43,5 @@ app.whenReady().then(() => {
     registerHotkeys();
     setBusyCheck(() => isUploading() || isRecording());
     startUpdater();
+    setTimeout(() => getFfmpeg(), 5000);
 });

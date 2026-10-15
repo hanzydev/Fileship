@@ -124,7 +124,16 @@ const handlers: Record<HotkeyAction, () => unknown> = {
 
 const NEEDS_ACCOUNT: HotkeyAction[] = ['uploadClipboard', 'uploadFile', 'shortenClipboard'];
 
+const REPEAT_WINDOW_MS = 400;
+const lastRuns = new Map<HotkeyAction, number>();
+
 export const runAction = async (action: HotkeyAction) => {
+    const now = Date.now();
+    const last = lastRuns.get(action);
+
+    lastRuns.set(action, now);
+    if (last && now - last < REPEAT_WINDOW_MS) return;
+
     if (NEEDS_ACCOUNT.includes(action) && !getStore().token) {
         showMainWindow('/connect');
         return;

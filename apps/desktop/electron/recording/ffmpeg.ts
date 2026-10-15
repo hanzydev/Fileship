@@ -10,7 +10,7 @@ import log from 'electron-log/main';
 
 import type { FfmpegStatus } from '../../shared/ipc';
 import { HARDWARE_CODECS, VIDEO_CODECS } from '../../shared/settings';
-import { getSettings } from '../store';
+import { getSettings, getStore, updateStore } from '../store';
 import { broadcast } from '../windows';
 
 const run = promisify(execFile);
@@ -25,7 +25,10 @@ const managedDir = () => join(app.getPath('userData'), 'ffmpeg');
 const managedPath = () => join(managedDir(), 'ffmpeg.exe');
 
 let download: { progress: number; error: string | null } | null = null;
-let probed: { path: string; version: string; ddagrab: boolean; encoders: string[] } | null = null;
+type Probe = { path: string; version: string; ddagrab: boolean; encoders: string[] };
+
+let probed: Probe | null = null;
+let probing: { path: string; promise: Promise<Probe> } | null = null;
 
 export const ffmpegPath = () => {
     const custom = getSettings().recording.ffmpegPath;
@@ -33,8 +36,19 @@ export const ffmpegPath = () => {
     return existsSync(managedPath()) ? managedPath() : null;
 };
 
-const probe = async (path: string) => {
-    if (probed?.path === path) return probed;
+const probeKey = async (path: string) => {
+    const info = await stat(path);
+    return `${path}|${info.size}|${info.mtimeMs}`;
+};
+
+const runProbe = async (path: string): Promise<Probe> => {
+    const key = await probeKey(path);
+    const cached = getStore().ffmpegProbe;
+
+    if (cached?.key === key) {
+        const { version, ddagrab, encoders } = cached;
+        return { path, version, ddagrab, encoders };
+    }
 
     const { stdout: version } = await run(path, ['-hide_banner', '-version']);
     const { stdout: filters } = await run(path, ['-hide_banner', '-filters']);
@@ -70,14 +84,32 @@ const probe = async (path: string) => {
         );
     }
 
-    probed = {
+    const result = {
         path,
         version: /ffmpeg version (\S+)/.exec(version)?.[1] ?? 'unknown',
         ddagrab: /\bddagrab\b/.test(filters),
         encoders: working,
     };
 
-    return probed;
+    const { path: _path, ...rest } = result;
+    updateStore({ ffmpegProbe: { key, ...rest } });
+
+    return result;
+};
+
+const probe = async (path: string) => {
+    if (probed?.path === path) return probed;
+    if (probing?.path === path) return probing.promise;
+
+    const promise = runProbe(path);
+    probing = { path, promise };
+
+    try {
+        probed = await promise;
+        return probed;
+    } finally {
+        if (probing?.promise === promise) probing = null;
+    }
 };
 
 export const getFfmpeg = async () => {

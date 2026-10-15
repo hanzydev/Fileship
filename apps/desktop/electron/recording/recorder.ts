@@ -37,7 +37,7 @@ import {
     segmentInput,
     thumbnailArgs,
 } from './command';
-import { autoCodec, getFfmpeg } from './ffmpeg';
+import { autoCodec, ffmpegPath, getFfmpeg } from './ffmpeg';
 
 const run = promisify(execFile);
 
@@ -127,9 +127,28 @@ const closeWindows = (recording: Recording) => {
     }
 };
 
+const fadeIn = (window: BrowserWindow | null) => {
+    if (!window || window.isDestroyed() || window.isVisible()) return;
+
+    let opacity = 0;
+    window.setOpacity(0);
+    window.showInactive();
+
+    const timer = setInterval(() => {
+        if (window.isDestroyed()) return clearInterval(timer);
+
+        opacity = Math.min(1, opacity + 0.2);
+        window.setOpacity(opacity);
+        if (opacity >= 1) clearInterval(timer);
+    }, 16);
+};
+
+export const showRecorderWindow = (view: 'toolbar' | 'border') =>
+    fadeIn((view === 'border' ? current?.border : current?.toolbar) ?? null);
+
 const createWindows = (recording: Recording) => {
     const dip = screen.screenToDipRect(null, recording.target.rect);
-    const { workArea } = screen.getDisplayMatching(dip);
+    const { workArea, bounds: displayBounds } = screen.getDisplayMatching(dip);
     const preferences = {
         preload: join(__dirname, 'preload.cjs'),
         contextIsolation: true,
@@ -154,20 +173,25 @@ const createWindows = (recording: Recording) => {
     };
 
     if (recording.settings.recording.showBorder) {
+        const left = Math.max(dip.x - 3, displayBounds.x);
+        const top = Math.max(dip.y - 3, displayBounds.y);
+        const right = Math.min(dip.x + dip.width + 3, displayBounds.x + displayBounds.width);
+        const bottom = Math.min(dip.y + dip.height + 3, displayBounds.y + displayBounds.height);
+        const bounds = { x: left, y: top, width: right - left, height: bottom - top };
+
         const border = new BrowserWindow({
             ...shared,
-            x: dip.x - 3,
-            y: dip.y - 3,
-            width: dip.width + 6,
-            height: dip.height + 6,
+            ...bounds,
             focusable: false,
+            enableLargerThanScreen: true,
         });
 
+        border.setBounds(bounds);
         border.setIgnoreMouseEvents(true);
         border.setContentProtection(true);
         border.setAlwaysOnTop(true, 'screen-saver');
         border.loadURL(rendererUrl('/recorder?view=border'));
-        border.once('ready-to-show', () => border.showInactive());
+        setTimeout(() => fadeIn(border), 3000);
         recording.border = border;
     }
 
@@ -189,7 +213,7 @@ const createWindows = (recording: Recording) => {
     toolbar.setContentProtection(true);
     toolbar.setAlwaysOnTop(true, 'screen-saver');
     toolbar.loadURL(rendererUrl('/recorder'));
-    toolbar.once('ready-to-show', () => toolbar.showInactive());
+    setTimeout(() => fadeIn(toolbar), 3000);
     toolbar.on('closed', () => {
         if (current === recording && recording.toolbar === toolbar) abortRecording();
     });
@@ -529,7 +553,12 @@ const findOutput = (rect: Rect) => {
 
 const begin = async (kind: RecordingKind, rect: Rect) => {
     const ffmpeg = await getFfmpeg();
-    if (!ffmpeg) return;
+
+    if (!ffmpeg) {
+        notify('Could not run ffmpeg', 'Check the ffmpeg in the recording settings.');
+        showMainWindow('/settings/recording?ffmpeg=missing');
+        return;
+    }
 
     const settings = getSettings();
     const codec =
@@ -629,11 +658,12 @@ export const toggleRecording = async (kind: RecordingKind) => {
     if (state.phase === 'preparing' || state.phase === 'countdown') return abortRecording();
     if (state.phase !== 'idle') return;
 
-    if (!(await getFfmpeg())) {
-        notify('Recording needs ffmpeg', 'Download it in the recording settings, then try again.');
-        showMainWindow('/settings/recording');
+    if (!ffmpegPath()) {
+        showMainWindow('/settings/recording?ffmpeg=missing');
         return;
     }
+
+    getFfmpeg();
 
     openRegionCapture(kind, (rect) => {
         begin(kind, rect).catch((error) => {

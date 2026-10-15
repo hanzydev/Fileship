@@ -1,11 +1,11 @@
 <template>
-    <div v-if="isBorder" class="size-full border-2 border-dashed border-destructive" />
+    <div v-if="isBorder" class="fixed inset-0 border-2 border-dashed border-destructive" />
 
     <div v-else class="flex size-full items-center justify-center p-1 select-none">
         <div
-            class="flex h-12 items-center gap-1 rounded-4xl border bg-popover py-1 pr-1 pl-4 text-popover-foreground shadow-md"
+            class="flex h-12 items-center gap-1 rounded-4xl border bg-popover px-1.5 text-popover-foreground shadow-md"
         >
-            <div class="flex min-w-24 items-center gap-2">
+            <div class="flex min-w-24 items-center gap-2 pl-2.5">
                 <UiSpinner v-if="isBusy" />
                 <IPause v-else-if="state.phase === 'paused'" class="size-4 text-muted-foreground" />
                 <span v-else class="size-2.5 animate-pulse rounded-full bg-destructive" />
@@ -15,14 +15,15 @@
 
             <UiSeparator orientation="vertical" class="mx-1 h-6" />
 
-            <UiToggle
+            <UiButton
                 v-for="source in sources"
                 :key="source"
-                size="sm"
-                :model-value="!state.muted.includes(source)"
+                variant="ghost"
+                size="icon-sm"
                 :aria-label="source === 'microphone' ? 'Microphone' : 'System audio'"
+                :aria-pressed="!state.muted.includes(source)"
                 :disabled="isBusy"
-                @update:model-value="handleMute(source, !$event)"
+                @click="handleMute(source, !state.muted.includes(source))"
             >
                 <template v-if="source === 'microphone'">
                     <IMic v-if="!state.muted.includes(source)" />
@@ -32,7 +33,7 @@
                     <IVolume2 v-if="!state.muted.includes(source)" />
                     <IVolumeX v-else class="text-destructive" />
                 </template>
-            </UiToggle>
+            </UiButton>
 
             <UiButton
                 variant="ghost"
@@ -251,9 +252,17 @@ const handleMute = (source: AudioSourceId, muted: boolean) =>
 useHead({
     htmlAttrs: { class: 'bg-transparent' },
     bodyAttrs: { class: 'bg-transparent overflow-hidden' },
+    style: [{ innerHTML: '#nuxt-devtools-container { display: none !important; }' }],
 });
 
+const reveal = async () => {
+    await nextTick();
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    await desktop('recorder:visible', isBorder ? 'border' : 'toolbar');
+};
+
 onMounted(async () => {
+    reveal();
     if (isBorder) return;
 
     const off = window.fileship.on('recorder:state', (value) => {

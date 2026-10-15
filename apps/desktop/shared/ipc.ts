@@ -183,6 +183,7 @@ export type IpcInvoke = {
     'recorder:audio': (track: number, chunk: ArrayBuffer) => void;
     'recorder:control': (action: RecorderControl) => void;
     'recorder:mute': (source: AudioSourceId, muted: boolean) => void;
+    'recorder:visible': (view: 'toolbar' | 'border') => void;
 };
 
 export type IpcEvents = {
@@ -241,6 +242,7 @@ export const INVOKE_CHANNELS = [
     'recorder:audio',
     'recorder:control',
     'recorder:mute',
+    'recorder:visible',
 ] as const satisfies (keyof IpcInvoke)[];
 
 export const EVENT_CHANNELS = [
