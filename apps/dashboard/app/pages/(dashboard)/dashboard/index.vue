@@ -123,6 +123,8 @@ import { upperFirst } from 'scule';
 
 import { IBookmark, IBox, IEye, IFiles, IFolder, ILink, IUsers } from '#components';
 
+import type { FileData } from '~/types/files';
+
 const { $toast } = useNuxtApp();
 const stats = useStats();
 const statsFailed = ref(false);

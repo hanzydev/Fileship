@@ -151,6 +151,8 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
+import type { FileData } from '~/types/files';
+
 defineOptions({ inheritAttrs: false });
 
 const { file } = defineProps<{

@@ -31,6 +31,8 @@
 </template>
 
 <script setup lang="ts">
+import type { UserData } from '~/types/users';
+
 defineProps<{
     user: UserData;
 }>();

@@ -52,6 +52,8 @@
 </template>
 
 <script setup lang="ts">
+import type { FolderData } from '~/types/folders';
+
 const { folder } = defineProps<{
     folder?: FolderData | null;
 }>();

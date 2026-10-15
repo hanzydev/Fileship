@@ -192,6 +192,8 @@ import dayjs from 'dayjs';
 
 import { ICircleAlert, IClipboardList } from '#components';
 
+import type { LogData } from '~/types/logs';
+
 const { $toast } = useNuxtApp();
 const currentUser = useAuthUser();
 

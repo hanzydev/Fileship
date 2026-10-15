@@ -123,6 +123,8 @@ import { nanoid } from 'nanoid';
 
 import { IArchive, ICircleAlert } from '#components';
 
+import type { BackupData } from '~/types/backups';
+
 const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
 

@@ -33,6 +33,8 @@ import {
     UiDropdownMenuSeparator,
 } from '#components';
 
+import type { NoteData } from '~/types/notes';
+
 const { note, type } = defineProps<{
     note: NoteData;
     type: 'context' | 'dropdown';

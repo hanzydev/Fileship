@@ -1,3 +1,5 @@
+import type { NoteData } from '~/types/notes';
+
 export const useNoteActions = () => {
     const route = useRoute();
     const { $toast } = useNuxtApp();

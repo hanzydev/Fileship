@@ -79,6 +79,8 @@
 </template>
 
 <script setup lang="ts">
+import type { FileData } from '~/types/files';
+
 const { items, total, query } = defineProps<{
     items: FileData[];
     total: number;

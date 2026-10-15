@@ -190,6 +190,8 @@
 <script setup lang="ts">
 import { ICircleAlert, IFolder, ISearchX } from '#components';
 
+import type { FolderData } from '~/types/folders';
+
 const route = useRoute();
 const router = useRouter();
 

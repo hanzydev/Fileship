@@ -16,6 +16,8 @@
 </template>
 
 <script setup lang="ts">
+import type { FileData } from '~/types/files';
+
 const { file } = defineProps<{
     file: FileData;
 }>();

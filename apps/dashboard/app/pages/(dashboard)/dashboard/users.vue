@@ -284,6 +284,8 @@ import { titleCase } from 'scule';
 import { ICircleAlert, ISearchX } from '#components';
 import { UserPermission } from '#shared/prisma/enums';
 
+import type { UserData } from '~/types/users';
+
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
 const { impersonate } = useImpersonation();

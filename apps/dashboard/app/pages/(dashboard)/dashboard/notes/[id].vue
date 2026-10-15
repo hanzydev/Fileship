@@ -108,6 +108,8 @@
 <script setup lang="ts">
 import { IFileX } from '#components';
 
+import type { NoteData } from '~/types/notes';
+
 const route = useRoute();
 const labels = useBreadcrumbLabels();
 const { $toast } = useNuxtApp();

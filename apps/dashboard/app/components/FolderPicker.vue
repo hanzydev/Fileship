@@ -64,6 +64,8 @@
 </template>
 
 <script setup lang="ts">
+import type { FolderData } from '~/types/folders';
+
 const { disabled } = defineProps<{
     disabled?: boolean;
 }>();

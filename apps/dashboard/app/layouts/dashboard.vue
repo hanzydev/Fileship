@@ -445,6 +445,12 @@ import {
     IUsers,
 } from '#components';
 
+import type { FileData } from '~/types/files';
+import type { FolderData } from '~/types/folders';
+import type { LinkData } from '~/types/links';
+import type { NoteData } from '~/types/notes';
+import type { UserData } from '~/types/users';
+
 const embed = useEmbed();
 const domains = useDomains();
 const currentUser = useAuthUser();

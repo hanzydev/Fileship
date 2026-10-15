@@ -218,6 +218,8 @@ import dayjs from 'dayjs';
 
 import { IBookmark, ICircleAlert, IFolder, ITrash2 } from '#components';
 
+import type { FileData } from '~/types/files';
+
 type TrashKind = 'files' | 'folders' | 'notes';
 
 type TrashItem = {

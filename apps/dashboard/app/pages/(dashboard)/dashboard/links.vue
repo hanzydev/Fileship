@@ -257,6 +257,8 @@ import dayjs from 'dayjs';
 
 import { ICircleAlert, ILink } from '#components';
 
+import type { LinkData } from '~/types/links';
+
 const route = useRoute();
 const { $toast } = useNuxtApp();
 const { copy } = useClipboard({ legacy: true });

@@ -176,6 +176,8 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
+import type { FileData } from '~/types/files';
+
 const route = useRoute();
 const { $toast } = useNuxtApp();
 const { copy } = useClipboard({ legacy: true });

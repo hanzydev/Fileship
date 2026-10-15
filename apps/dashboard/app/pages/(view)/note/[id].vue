@@ -50,6 +50,8 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
 
+import type { NoteData } from '~/types/notes';
+
 const route = useRoute();
 const { $toast } = useNuxtApp();
 const { copy } = useClipboard({ legacy: true });

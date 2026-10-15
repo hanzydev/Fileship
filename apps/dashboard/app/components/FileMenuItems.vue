@@ -52,6 +52,8 @@ import {
     UiDropdownMenuSeparator,
 } from '#components';
 
+import type { FileData } from '~/types/files';
+
 const { file, type } = defineProps<{
     file: FileData;
     type: 'context' | 'dropdown';

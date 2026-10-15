@@ -1,5 +1,7 @@
 import type { UserModel } from '#shared/prisma/models';
 
+import type { UserBasicStats } from '~/types/users';
+
 export type AuthUserData = Omit<
     UserModel,
     | 'password'

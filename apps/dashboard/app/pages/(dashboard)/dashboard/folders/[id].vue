@@ -169,6 +169,9 @@
 <script setup lang="ts">
 import { ICircleAlert, IFiles, IFolderX } from '#components';
 
+import type { FileData, FileSummary } from '~/types/files';
+import type { FolderData } from '~/types/folders';
+
 const route = useRoute();
 const labels = useBreadcrumbLabels();
 const { $toast } = useNuxtApp();

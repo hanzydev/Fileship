@@ -40,6 +40,8 @@ import {
     UiDropdownMenuSeparator,
 } from '#components';
 
+import type { FolderData } from '~/types/folders';
+
 const { folder, type } = defineProps<{
     folder: FolderData;
     type: 'context' | 'dropdown';

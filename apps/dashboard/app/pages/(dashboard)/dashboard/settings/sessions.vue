@@ -86,6 +86,8 @@ import dayjs from 'dayjs';
 
 import { ICircleAlert } from '#components';
 
+import type { SessionData } from '~/types/sessions';
+
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
 const revokingId = ref<string | null>(null);

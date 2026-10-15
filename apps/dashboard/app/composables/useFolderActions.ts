@@ -1,3 +1,5 @@
+import type { FolderData } from '~/types/folders';
+
 export const useFolderActions = () => {
     const { $toast } = useNuxtApp();
     const { copy } = useClipboard({ legacy: true });

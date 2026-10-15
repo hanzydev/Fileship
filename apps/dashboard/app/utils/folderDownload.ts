@@ -1,3 +1,5 @@
+import type { FolderData } from '~/types/folders';
+
 export const downloadFolder = async (folder: FolderData) => {
     const { $toast } = useNuxtApp();
     const id = $toast.loading('Preparing archive...');

@@ -20,6 +20,8 @@
 </template>
 
 <script setup lang="ts">
+import type { FileData } from '~/types/files';
+
 const files = defineModel<Pick<FileData, 'id' | 'folderId'>[]>({ required: true });
 
 const emit = defineEmits<{

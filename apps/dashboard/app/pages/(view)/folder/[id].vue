@@ -315,6 +315,9 @@
 <script setup lang="ts">
 import { ICircleAlert, IFolderOpen, ISearchX } from '#components';
 
+import type { FileData } from '~/types/files';
+import type { FolderData } from '~/types/folders';
+
 const route = useRoute();
 
 type PublicFile = FileData & { isLocked: boolean };

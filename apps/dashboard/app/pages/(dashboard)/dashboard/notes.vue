@@ -130,6 +130,8 @@ import dayjs from 'dayjs';
 
 import { IBookmark, ICircleAlert, ISearchX } from '#components';
 
+import type { NoteData } from '~/types/notes';
+
 const route = useRoute();
 
 const search = ref('');

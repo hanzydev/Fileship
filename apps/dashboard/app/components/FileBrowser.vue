@@ -310,6 +310,9 @@ import dayjs from 'dayjs';
 
 import { ICircleAlert, IFiles, ISearchX } from '#components';
 
+import type { FileData, FileSummary } from '~/types/files';
+import type { FolderData } from '~/types/folders';
+
 const { folderId, emptyTitle = 'No files yet' } = defineProps<{
     folderId?: string;
     emptyTitle?: string;

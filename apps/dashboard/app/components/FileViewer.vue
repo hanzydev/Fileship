@@ -362,6 +362,8 @@ import { useVirtualizer } from '@tanstack/vue-virtual';
 
 import { IDownload, IExternalLink, IFolderMinus, ITrash2 } from '#components';
 
+import type { FileData } from '~/types/files';
+
 const { files, total, hasMore, loadMore, trash } = defineProps<{
     files: FileData[];
     total?: number;

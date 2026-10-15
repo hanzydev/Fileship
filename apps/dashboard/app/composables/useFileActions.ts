@@ -1,3 +1,5 @@
+import type { FileData } from '~/types/files';
+
 export const useFileActions = () => {
     const embed = useEmbed();
     const { $toast } = useNuxtApp();

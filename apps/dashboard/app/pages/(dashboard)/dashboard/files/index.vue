@@ -12,6 +12,8 @@
 <script setup lang="ts">
 import { filesize } from 'filesize';
 
+import type { FileSummary } from '~/types/files';
+
 const summary = ref<FileSummary>();
 
 const description = computed(() =>
