@@ -77,42 +77,34 @@
                                         size="sm"
                                         :class="activeId === item.id && 'ring-2 ring-primary!'"
                                     >
-                                        <UiCardContent class="flex flex-col gap-0.5">
-                                            <div class="flex items-center gap-2">
-                                                <TextBlock variant="small" class="flex-1 truncate">
+                                        <UiCardContent class="flex items-center gap-2">
+                                            <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                                                <TextBlock variant="small" class="truncate">
                                                     {{ item.title }}
                                                 </TextBlock>
-                                                <IGlobe
-                                                    v-if="item.public"
-                                                    class="size-3.5 text-muted-foreground"
-                                                />
-                                                <UiDropdownMenu>
-                                                    <UiDropdownMenuTrigger as-child>
-                                                        <UiButton
-                                                            variant="ghost"
-                                                            size="icon-sm"
-                                                            class="-my-1.5"
-                                                            @click.prevent.stop
-                                                        >
-                                                            <IEllipsis />
-                                                        </UiButton>
-                                                    </UiDropdownMenuTrigger>
-                                                    <UiDropdownMenuContent align="end" class="w-56">
-                                                        <NoteMenuItems
-                                                            :note="item"
-                                                            type="dropdown"
-                                                        />
-                                                    </UiDropdownMenuContent>
-                                                </UiDropdownMenu>
+                                                <TextBlock variant="muted" class="truncate text-xs">
+                                                    {{ date(item.createdAt).fromNow() }}
+                                                </TextBlock>
                                             </div>
-                                            <TextBlock variant="muted" class="truncate text-xs">
-                                                {{ date(item.createdAt).fromNow() }} ·
-                                                {{
-                                                    item.content
-                                                        .replace(/[#*_`>\-\n]+/g, ' ')
-                                                        .trim()
-                                                }}
-                                            </TextBlock>
+                                            <IGlobe
+                                                v-if="item.public"
+                                                class="size-3.5 shrink-0 text-muted-foreground"
+                                            />
+                                            <UiDropdownMenu>
+                                                <UiDropdownMenuTrigger as-child>
+                                                    <UiButton
+                                                        variant="ghost"
+                                                        size="icon-sm"
+                                                        :aria-label="$t('notes.actions')"
+                                                        @click.prevent.stop
+                                                    >
+                                                        <IEllipsis />
+                                                    </UiButton>
+                                                </UiDropdownMenuTrigger>
+                                                <UiDropdownMenuContent align="end" class="w-56">
+                                                    <NoteMenuItems :note="item" type="dropdown" />
+                                                </UiDropdownMenuContent>
+                                            </UiDropdownMenu>
                                         </UiCardContent>
                                     </UiCard>
                                 </NuxtLink>

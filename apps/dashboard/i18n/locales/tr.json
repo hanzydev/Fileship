@@ -1104,7 +1104,8 @@
             "makePrivate": "Gizli yap",
             "makePublic": "Herkese açık yap",
             "delete": "Sil"
-        }
+        },
+        "actions": "İşlemler"
     },
     "publicPages": {
         "folder": {

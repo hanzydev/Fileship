@@ -1104,7 +1104,8 @@
             "makePrivate": "Make private",
             "makePublic": "Make public",
             "delete": "Delete"
-        }
+        },
+        "actions": "Actions"
     },
     "publicPages": {
         "folder": {
