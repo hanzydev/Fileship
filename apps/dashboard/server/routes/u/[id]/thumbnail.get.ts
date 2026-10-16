@@ -28,18 +28,12 @@ export default defineEventHandler(async (event) => {
         (findFileById.authorId !== currentUser?.id &&
             (findFileById.deletedAt || isHiddenFromVisitors(findFileById)))
     ) {
-        throw createError({
-            status: 404,
-            message: 'File not found',
-        });
+        throw apiError(404, 'errorsFiles.fileNotFound');
     }
 
     if (findFileById.authorId !== currentUser?.id) {
         if (findFileById.folder?.public === false) {
-            throw createError({
-                status: 403,
-                message: 'You do not have permission to access this page',
-            });
+            throw apiError(403, 'errorsFiles.noAccess');
         }
 
         if (
@@ -50,18 +44,12 @@ export default defineEventHandler(async (event) => {
                 query.password === findFileById.password,
             ))
         ) {
-            throw createError({
-                status: 401,
-                message: 'Invalid password',
-            });
+            throw apiError(401, 'errorsFiles.invalidPassword');
         }
     }
 
     if (!canHaveThumbnail(findFileById.mimeType) || !hasThumbnail(findFileById.id)) {
-        throw createError({
-            status: 404,
-            message: 'Thumbnail not found',
-        });
+        throw apiError(404, 'errorsFiles.thumbnailNotFound');
     }
 
     setResponseHeaders(event, {

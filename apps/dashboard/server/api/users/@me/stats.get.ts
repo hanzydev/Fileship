@@ -1,5 +1,3 @@
-import { filesize } from 'filesize';
-
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
@@ -68,9 +66,9 @@ export default defineEventHandler(async (event) => {
             growth: calculateGrowthPercentage(currentFiles, prevFiles),
         },
         storageUsed: {
-            size: filesize(currentStorageUsed),
+            size: formatSize(currentStorageUsed),
             growth: calculateGrowthPercentage(currentStorageUsed, BigInt(prevStorageUsed)),
-            trashed: { raw: trashedSize.toString(), formatted: filesize(trashedSize) },
+            trashed: { raw: trashedSize.toString(), formatted: formatSize(trashedSize) },
         },
         views: {
             count: currentViews,
@@ -83,7 +81,7 @@ export default defineEventHandler(async (event) => {
                 type,
                 count: categories[index]!._count,
                 size: size.toString(),
-                formatted: filesize(size),
+                formatted: formatSize(size),
             };
         }).filter((category) => category.count),
     };

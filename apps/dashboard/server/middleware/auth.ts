@@ -33,13 +33,11 @@ export default defineEventHandler(async (event) => {
         fetchSite &&
         !['same-origin', 'none'].includes(fetchSite)
     ) {
-        throw createError({
-            status: 403,
-            message: 'Invalid origin',
-        });
+        throw apiError(403, 'errorsCommon.invalidOrigin');
     }
 
     event.context.user = getSessionUser(session) as any;
+    if (event.context.user!.language) await refreshTranslation(event);
 
     if (Date.now() - session.lastSeen.getTime() > 60 * 60 * 1000) {
         if (cookieToken) setTokenCookie(event, 'token', token);

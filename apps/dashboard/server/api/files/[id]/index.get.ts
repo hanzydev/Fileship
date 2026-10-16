@@ -1,5 +1,4 @@
 import { defu } from 'defu';
-import { filesize } from 'filesize';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -43,26 +42,17 @@ export default defineEventHandler(async (event) => {
         !findFileById ||
         (findFileById.authorId !== currentUser?.id && isHiddenFromVisitors(findFileById))
     ) {
-        throw createError({
-            status: 404,
-            message: 'File not found',
-        });
+        throw apiError(404, 'errorsFiles.fileNotFound');
     }
 
     if (findFileById.authorId !== currentUser?.id) {
         if (findFileById.folder?.public === false) {
-            throw createError({
-                status: 403,
-                message: 'You do not have permission to access this page',
-            });
+            throw apiError(403, 'errorsFiles.noAccess');
         }
 
         if (findFileById.password) {
             if (!query.password) {
-                throw createError({
-                    status: 400,
-                    message: 'Verification is required',
-                });
+                throw apiError(400, 'errorsFiles.verificationRequired');
             }
 
             if (
@@ -72,10 +62,7 @@ export default defineEventHandler(async (event) => {
                     query.password === findFileById.password,
                 ))
             ) {
-                throw createError({
-                    status: 401,
-                    message: 'Invalid password',
-                });
+                throw apiError(401, 'errorsFiles.invalidPassword');
             }
         }
     }
@@ -92,7 +79,7 @@ export default defineEventHandler(async (event) => {
         ...(isOwner ? {} : visitorFileFields),
         size: {
             raw: findFileById.size.toString(),
-            formatted: filesize(findFileById.size),
+            formatted: formatSize(findFileById.size),
         },
         views: {
             total: findFileById._count.views,

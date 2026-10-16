@@ -1,35 +1,35 @@
 import type { H3Event } from 'h3';
 
 export const userOnly = (event: H3Event) => {
-    if (!event.context.user) throw unauthorizedError;
+    if (!event.context.user) throw unauthorizedError();
 };
 
 export const adminOnly = (event: H3Event) => {
     userOnly(event);
-    if (!isAdmin(event)) throw forbiddenError;
+    if (!isAdmin(event)) throw forbiddenError();
 };
 
 export const superAdminOnly = (event: H3Event) => {
     userOnly(event);
-    if (!event.context.user!.superAdmin) throw forbiddenError;
+    if (!event.context.user!.superAdmin) throw forbiddenError();
 };
 
 export const fileUploaderOnly = (event: H3Event) => {
     userOnly(event);
-    if (!canUploadFiles(event)) throw forbiddenError;
+    if (!canUploadFiles(event)) throw forbiddenError();
 };
 
 export const noteTakerOnly = (event: H3Event) => {
     userOnly(event);
-    if (!canTakeNotes(event)) throw forbiddenError;
+    if (!canTakeNotes(event)) throw forbiddenError();
 };
 
 export const uploadTokenUserOnly = (event: H3Event) => {
     userOnly(event);
-    if (!canUploadFiles(event) && !canShortenLinks(event)) throw forbiddenError;
+    if (!canUploadFiles(event) && !canShortenLinks(event)) throw forbiddenError();
 };
 
 export const linkShortenerOnly = (event: H3Event) => {
     userOnly(event);
-    if (!canShortenLinks(event)) throw forbiddenError;
+    if (!canShortenLinks(event)) throw forbiddenError();
 };

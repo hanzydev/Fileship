@@ -7,10 +7,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findLinkById) {
-        throw createError({
-            status: 404,
-            message: 'Link not found',
-        });
+        throw apiError(404, 'errorsContent.linkNotFound');
     }
 
     await prisma.link.delete({ where: { id: findLinkById.id } });

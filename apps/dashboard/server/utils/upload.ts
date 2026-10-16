@@ -109,22 +109,21 @@ const withSessionLock = <T>(path: string, fn: () => Promise<T>) => {
 const readSession = (path: string): Promise<UploadSession | null> =>
     fsp.readFile(`${path}.json`, 'utf8').then(JSON.parse, () => null);
 
-const invalidChunk = (message: string) => createError({ status: 400, message });
+const invalidChunk = () => apiError(400, 'errorsFiles.invalidChunk');
 
 const checkLayout = (session: UploadSession, chunk: UploadChunk) => {
     const isLast = chunk.part === chunk.total;
 
-    if (chunk.total !== session.total || chunk.part > session.total)
-        throw invalidChunk('Invalid upload chunk');
+    if (chunk.total !== session.total || chunk.part > session.total) throw invalidChunk();
 
     if (session.total === 1) {
-        if (chunk.offset) throw invalidChunk('Invalid upload chunk');
+        if (chunk.offset) throw invalidChunk();
         return;
     }
 
     const chunkSize = isLast ? chunk.offset / (session.total - 1) : chunk.data.length;
 
-    if (!Number.isInteger(chunkSize) || chunkSize < 1) throw invalidChunk('Invalid upload chunk');
+    if (!Number.isInteger(chunkSize) || chunkSize < 1) throw invalidChunk();
 
     session.chunkSize ??= chunkSize;
 
@@ -133,7 +132,7 @@ const checkLayout = (session: UploadSession, chunk: UploadChunk) => {
         chunk.offset !== (chunk.part - 1) * session.chunkSize ||
         (isLast && chunk.data.length > session.chunkSize)
     )
-        throw invalidChunk('Invalid upload chunk');
+        throw invalidChunk();
 };
 
 export const receiveChunk = async (
@@ -168,8 +167,8 @@ export const receiveChunk = async (
             };
         }
 
-        if (session.kind !== chunk.kind) throw invalidChunk('Upload not found');
-        if (session.isComplete) throw invalidChunk('Upload already completed');
+        if (session.kind !== chunk.kind) throw apiError(400, 'errorsFiles.uploadNotFound');
+        if (session.isComplete) throw apiError(400, 'errorsFiles.uploadCompleted');
 
         checkLayout(session, chunk);
 
@@ -179,10 +178,7 @@ export const receiveChunk = async (
         if (await isTooLarge(received)) {
             await fsp.writeFile(`${path}.json`, JSON.stringify(session));
             await abortUploadSession(path);
-            throw createError({
-                status: 400,
-                message: 'Storage limit reached',
-            });
+            throw apiError(400, 'errorsFiles.storageLimitReached');
         }
 
         session.received = received;
@@ -220,7 +216,7 @@ export const receiveChunk = async (
     return withSessionLock(path, async () => {
         const session = await readSession(path);
 
-        if (!session || session.isComplete) throw invalidChunk('Upload not found');
+        if (!session || session.isComplete) throw apiError(400, 'errorsFiles.uploadNotFound');
 
         const entry = session.parts[chunk.part];
         if (entry?.attempt !== attempt) return;
@@ -293,10 +289,7 @@ export const receiveUpload = async <T extends UploadedFile>(
 
         if (await exceedsUsableSpace(owner, session.received)) {
             await abortUploadSession(path);
-            throw createError({
-                status: 400,
-                message: 'Storage limit reached',
-            });
+            throw apiError(400, 'errorsFiles.storageLimitReached');
         }
     }
 

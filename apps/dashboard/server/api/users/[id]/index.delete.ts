@@ -18,10 +18,7 @@ export default defineEventHandler(async (event) => {
     const userId = getRouterParam(event, 'id');
 
     if (userId === currentUser.id) {
-        throw createError({
-            status: 403,
-            message: 'You cannot delete yourself',
-        });
+        throw apiError(403, 'errorsUsers.cannotDeleteSelf');
     }
 
     const findUserById = await prisma.user.findUnique({
@@ -31,27 +28,17 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findUserById) {
-        throw createError({
-            status: 404,
-            message: 'User not found',
-        });
+        throw apiError(404, 'errorsUsers.userNotFound');
     }
 
     if (findUserById.superAdmin && !currentUser.superAdmin) {
-        throw createError({
-            status: 403,
-            message: 'You cannot delete a super admin',
-        });
+        throw apiError(403, 'errorsUsers.cannotDeleteSuperAdmin');
     }
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     await verifySession(event, body.data?.verificationData);

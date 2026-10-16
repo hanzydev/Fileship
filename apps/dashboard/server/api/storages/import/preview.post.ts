@@ -8,30 +8,18 @@ export default defineEventHandler(async (event) => {
     superAdminOnly(event);
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     const { storageId } = body.data;
 
     if (storageId && !(await prisma.storage.findUnique({ where: { id: storageId } }))) {
-        throw createError({
-            status: 404,
-            message: 'Storage not found',
-        });
+        throw apiError(404, 'errorsSystem.storageNotFound');
     }
 
     const importPath = storageId ? null : await localImportPath();
 
     const files = await findImportableFiles(storageId).catch((error) => {
-        throw createError({
-            status: 400,
-            message: `Could not list the storage: ${error.message}`,
-        });
+        throw apiError(400, 'errorsSystem.storageListFailed', { error: error.message });
     });
 
     return {

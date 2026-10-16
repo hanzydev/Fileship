@@ -5,8 +5,8 @@ const validationSchema = z.object({
     enabled: z.boolean(),
     totp: z
         .string()
-        .length(6, 'TOTP must be 6 digits')
-        .regex(/^\d+$/, 'TOTP must be a number')
+        .length(6, 'errorsAuth.totpLength')
+        .regex(/^\d+$/, 'errorsAuth.totpNumber')
         .optional(),
     verificationData: z.any().optional(),
 });
@@ -17,19 +17,13 @@ export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     if (currentUser.totpEnabled === body.data.enabled) {
-        throw createError({
-            status: 400,
-            message: `Authenticator App is already ${body.data.enabled ? 'enabled' : 'disabled'}`,
-        });
+        throw apiError(
+            400,
+            body.data.enabled ? 'errorsAuth.totpAlreadyEnabled' : 'errorsAuth.totpAlreadyDisabled',
+        );
     }
 
     if (!body.data.enabled) {
@@ -40,10 +34,7 @@ export default defineEventHandler(async (event) => {
         body.data.enabled &&
         !(await verifyTotp({ secret: currentUser.totpSecret!, token: body.data.totp! })).valid
     ) {
-        throw createError({
-            status: 400,
-            message: 'Invalid TOTP',
-        });
+        throw apiError(400, 'errorsAuth.invalidTotp');
     }
 
     await prisma.user.update({

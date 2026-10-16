@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
 
-import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
 import { basename, extname } from 'pathe';
 import { z } from 'zod';
@@ -8,27 +7,27 @@ import { z } from 'zod';
 const validationSchema = z.object({
     uploadId: z
         .string()
-        .regex(/^[\w-]{1,64}$/, 'Invalid upload id')
+        .regex(/^[\w-]{1,64}$/, 'errorsFiles.invalidUploadId')
         .optional(),
     totalChunks: z
         .number()
         .int()
-        .min(1, 'Total chunks must be at least 1')
-        .max(10000, 'Too many chunks')
+        .min(1, 'errorsFiles.totalChunksMin')
+        .max(10000, 'errorsFiles.tooManyChunks')
         .optional(),
-    currentChunk: z.number().int().min(1, 'Current chunk must be at least 1').optional(),
-    chunkOffset: z.number().int().min(0, 'Chunk offset must be at least 0').optional(),
+    currentChunk: z.number().int().min(1, 'errorsFiles.currentChunkMin').optional(),
+    chunkOffset: z.number().int().min(0, 'errorsFiles.chunkOffsetMin').optional(),
     fileNameType: z
         .union([z.literal('Random'), z.literal('UUID'), z.literal('Original')])
         .nullish(),
     compression: z
         .number()
-        .min(0, 'Compression must be at least 0')
-        .max(100, 'Compression must be at most 100')
+        .min(0, 'errorsFiles.compressionMin')
+        .max(100, 'errorsFiles.compressionMax')
         .optional(),
-    password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
-    maxViews: z.number().int().min(0, 'Max views must be at least 0').nullish(),
-    expiration: z.number().int().min(0, 'Expiration must be at least 0').nullish(),
+    password: z.string().max(48, 'errorsFiles.passwordMax').nullish(),
+    maxViews: z.number().int().min(0, 'errorsFiles.maxViewsMin').nullish(),
+    expiration: z.number().int().min(0, 'errorsFiles.expirationMin').nullish(),
     folderId: z.string().nullish(),
 });
 
@@ -40,17 +39,11 @@ export default defineEventHandler(async (event) => {
 
     const file = formData.get('file');
     if (!file) {
-        throw createError({
-            status: 400,
-            message: 'Missing file',
-        });
+        throw apiError(400, 'errorsFiles.missingFile');
     }
 
     if (typeof file === 'string') {
-        throw createError({
-            status: 400,
-            message: 'Invalid file',
-        });
+        throw apiError(400, 'errorsFiles.invalidFile');
     }
 
     const chunkOffset = formData.get('chunkOffset');
@@ -69,13 +62,7 @@ export default defineEventHandler(async (event) => {
         folderId: formData.get('folderId') as string,
     });
 
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     const isCompressible = isProcessableImage(file.type) && !!body.data.compression;
     const extensionName = isCompressible ? '.jpeg' : safeExtension(file.name);
@@ -92,10 +79,7 @@ export default defineEventHandler(async (event) => {
         });
 
         if (!findFolderById) {
-            throw createError({
-                status: 404,
-                message: 'Folder not found',
-            });
+            throw apiError(404, 'errorsFiles.folderNotFound');
         }
     };
 
@@ -129,12 +113,12 @@ export default defineEventHandler(async (event) => {
             });
 
             if (findFileByFileName) {
-                throw createError({
-                    status: 409,
-                    message: findFileByFileName.deletedAt
-                        ? 'A file with that name is in the trash'
-                        : 'A file with that name already exists',
-                });
+                throw apiError(
+                    409,
+                    findFileByFileName.deletedAt
+                        ? 'errorsFiles.nameInTrash'
+                        : 'errorsFiles.nameExists',
+                );
             }
 
             await assertFolder();
@@ -177,7 +161,7 @@ export default defineEventHandler(async (event) => {
             ..._upload,
             size: {
                 raw: _upload.size.toString(),
-                formatted: filesize(_upload.size),
+                formatted: formatSize(_upload.size),
             },
             views: {
                 total: _upload.views.length,

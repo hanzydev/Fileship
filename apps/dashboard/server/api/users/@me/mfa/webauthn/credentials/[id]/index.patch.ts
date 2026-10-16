@@ -2,10 +2,7 @@ import { z } from 'zod';
 
 const validationSchema = z
     .object({
-        name: z
-            .string()
-            .min(3, 'Name must be at least 3 characters')
-            .max(32, 'Name must be less than 32 characters'),
+        name: z.string().min(3, 'errorsAuth.nameMin').max(32, 'errorsAuth.nameMax'),
         verificationData: z.any().optional(),
     })
     .optional();
@@ -16,13 +13,7 @@ export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     await verifySession(event, body.data?.verificationData);
 
@@ -35,10 +26,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findCredentialById) {
-        throw createError({
-            status: 404,
-            message: 'Credential not found',
-        });
+        throw apiError(404, 'errorsAuth.passkeyNotFound');
     }
 
     const updatedCredential = await prisma.credential.update({

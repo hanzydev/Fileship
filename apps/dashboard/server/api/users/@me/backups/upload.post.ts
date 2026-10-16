@@ -5,14 +5,14 @@ import { basename } from 'pathe';
 import { z } from 'zod';
 
 const validationSchema = z.object({
-    uploadId: z.string().regex(/^[\w-]{1,64}$/, 'Invalid upload id'),
+    uploadId: z.string().regex(/^[\w-]{1,64}$/, 'errorsUsers.invalidUploadId'),
     totalChunks: z
         .number()
         .int()
-        .min(1, 'Total chunks must be at least 1')
-        .max(10000, 'Too many chunks'),
-    currentChunk: z.number().int().min(1, 'Current chunk must be at least 1'),
-    chunkOffset: z.number().int().min(0, 'Chunk offset must be at least 0'),
+        .min(1, 'errorsUsers.totalChunksMin')
+        .max(10000, 'errorsUsers.tooManyChunks'),
+    currentChunk: z.number().int().min(1, 'errorsUsers.currentChunkMin'),
+    chunkOffset: z.number().int().min(0, 'errorsUsers.chunkOffsetMin'),
 });
 
 export default defineEventHandler(async (event) => {
@@ -23,17 +23,11 @@ export default defineEventHandler(async (event) => {
 
     const backup = formData.get('backup');
     if (!backup) {
-        throw createError({
-            status: 400,
-            message: 'Missing backup file',
-        });
+        throw apiError(400, 'errorsUsers.missingBackupFile');
     }
 
     if (typeof backup === 'string') {
-        throw createError({
-            status: 400,
-            message: 'Invalid backup file',
-        });
+        throw apiError(400, 'errorsUsers.invalidBackupFile');
     }
 
     const body = validationSchema.safeParse({
@@ -44,11 +38,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     const upload = await receiveChunk(
@@ -63,10 +53,7 @@ export default defineEventHandler(async (event) => {
         },
         async () => {
             if (!backup.name.endsWith('.tgz')) {
-                throw createError({
-                    status: 400,
-                    message: 'Backups must be .tgz files',
-                });
+                throw apiError(400, 'errorsUsers.backupNotTgz');
             }
 
             if (
@@ -75,10 +62,7 @@ export default defineEventHandler(async (event) => {
                 (await prisma.backup.count({ where: { userId: currentUser.id } })) >=
                     currentUser.limits.backupLimit
             ) {
-                throw createError({
-                    status: 400,
-                    message: 'Backup limit reached',
-                });
+                throw apiError(400, 'errorsUsers.backupLimitReached');
             }
 
             return { key: backupKey({ id: nanoid(), userId: currentUser.id }), isDirect: true };

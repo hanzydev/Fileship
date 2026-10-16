@@ -12,11 +12,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     const findFolderById = await prisma.folder.findUnique({
@@ -32,17 +28,11 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findFolderById) {
-        throw createError({
-            status: 404,
-            message: 'Folder not found',
-        });
+        throw apiError(404, 'errorsContent.folderNotFound');
     }
 
     if (findFolderById.inbox) {
-        throw createError({
-            status: 400,
-            message: 'Cannot delete inbox folder',
-        });
+        throw apiError(400, 'errorsContent.inboxFolderDelete');
     }
 
     const isTrashed = await isTrashEnabled();

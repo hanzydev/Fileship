@@ -31,8 +31,4 @@ export interface StorageDriver {
     close?(): Promise<void>;
 }
 
-export const notFound = () =>
-    createError({
-        status: 404,
-        message: 'File not found',
-    });
+export const notFound = () => apiError(404, 'errorsSystem.fileNotFound');

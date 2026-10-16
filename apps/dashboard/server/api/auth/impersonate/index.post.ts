@@ -11,13 +11,7 @@ export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     const findUserByUsername = await prisma.user.findUnique({
         where: {
@@ -36,10 +30,7 @@ export default defineEventHandler(async (event) => {
         (findUserByUsername.superAdmin && !currentUser.superAdmin) ||
         currentUser.impersonator
     ) {
-        throw createError({
-            status: 403,
-            message: 'You cannot sign in as this user',
-        });
+        throw apiError(403, 'errorsAuth.cannotImpersonate');
     }
 
     await verifySession(event, body.data.verificationData);

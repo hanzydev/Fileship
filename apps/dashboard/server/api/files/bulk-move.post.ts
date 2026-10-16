@@ -11,13 +11,7 @@ export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     const findFolderById = body.data.folderId
         ? await prisma.folder.findUnique({
@@ -31,10 +25,7 @@ export default defineEventHandler(async (event) => {
         : null;
 
     if (body.data.folderId && !findFolderById) {
-        throw createError({
-            status: 404,
-            message: 'Folder not found',
-        });
+        throw apiError(404, 'errorsFiles.folderNotFound');
     }
 
     const files = await prisma.file.findMany({

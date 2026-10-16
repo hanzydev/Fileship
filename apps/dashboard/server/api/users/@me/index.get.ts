@@ -28,6 +28,7 @@ export default defineEventHandler(async (event) => {
         superAdmin: currentUser.superAdmin,
         backupRestoreState: currentUser.backupRestoreState,
         theme: currentUser.theme,
+        language: currentUser.language,
         aiSettings: defu(currentUser.aiSettings, defaultUserAiSettings) as IUserAiSettings,
         stats: stats!._count,
     };

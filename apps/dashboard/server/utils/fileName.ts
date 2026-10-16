@@ -37,10 +37,7 @@ export const fileNameBase = (name: string) =>
 
 export const assertFileNameAllowed = (fileName: string) => {
     if (isUuid(fileName)) {
-        throw createError({
-            status: 400,
-            message: 'This file name is reserved',
-        });
+        throw apiError(400, 'errorsFiles.fileNameReserved');
     }
 };
 

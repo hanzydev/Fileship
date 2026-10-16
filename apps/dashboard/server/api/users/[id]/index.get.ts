@@ -9,10 +9,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findUserById) {
-        throw createError({
-            status: 404,
-            message: 'User not found',
-        });
+        throw apiError(404, 'errorsUsers.userNotFound');
     }
 
     return serializeListUser(findUserById);

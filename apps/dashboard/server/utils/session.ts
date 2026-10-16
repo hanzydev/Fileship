@@ -85,6 +85,7 @@ export const startSession = async (
             aiSettings: defu(user.aiSettings, defaultUserAiSettings) as IUserAiSettings,
             backupRestoreState: user.backupRestoreState,
             theme: user.theme,
+            language: user.language,
             stats: user._count,
         },
         session: { id: session.id },

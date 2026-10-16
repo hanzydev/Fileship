@@ -20,13 +20,7 @@ const validationSchema = z.union([
 
 export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     const reqUrl = getRequestURL(event);
     const storage = useStorage('cache');
@@ -38,10 +32,7 @@ export default defineEventHandler(async (event) => {
         const userHandle = body.data.authenticationResponse?.response?.userHandle;
 
         if (typeof credentialId !== 'string') {
-            throw createError({
-                status: 400,
-                message: 'Invalid authentication response',
-            });
+            throw apiError(400, 'errorsAuth.invalidAuthResponse');
         }
 
         const findCredentialById = await prisma.credential.findUnique({
@@ -58,10 +49,8 @@ export default defineEventHandler(async (event) => {
         });
 
         if (!findCredentialById) {
-            throw createError({
-                status: 404,
-                message: "This passkey isn't registered here",
-                data: { unknownCredential: true },
+            throw apiError(404, 'errorsAuth.unknownPasskey', undefined, {
+                unknownCredential: true,
             });
         }
 
@@ -69,10 +58,7 @@ export default defineEventHandler(async (event) => {
             userHandle &&
             Buffer.from(userHandle, 'base64url').toString() !== findCredentialById.userId
         ) {
-            throw createError({
-                status: 400,
-                message: 'Invalid authentication response',
-            });
+            throw apiError(400, 'errorsAuth.invalidAuthResponse');
         }
 
         const findUserById = findCredentialById.user;
@@ -82,10 +68,7 @@ export default defineEventHandler(async (event) => {
             expiresAt: number;
         }>(`webauthnTicket:${body.data.ticket}`);
         if (!webauthnTicket || webauthnTicket.expiresAt < Date.now()) {
-            throw createError({
-                status: 400,
-                message: 'Invalid or expired ticket',
-            });
+            throw apiError(400, 'errorsAuth.invalidTicket');
         }
 
         const expectedChallenge = webauthnTicket.expectedChallenge;

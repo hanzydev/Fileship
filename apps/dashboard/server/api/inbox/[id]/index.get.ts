@@ -22,18 +22,12 @@ export default defineEventHandler(async (event) => {
             : null) ?? (await prisma.inbox.findUnique({ where: { slug: inboxSlugOrId }, include }));
 
     if (!findInboxById?.enabled || !canUploadFiles(findInboxById.user)) {
-        throw createError({
-            status: 404,
-            message: 'Inbox not found',
-        });
+        throw apiError(404, 'errorsContent.inboxNotFound');
     }
 
     if (findInboxById.userId !== currentUser?.id && findInboxById.password) {
         if (!query.password) {
-            throw createError({
-                status: 400,
-                message: 'Verification is required',
-            });
+            throw apiError(400, 'errorsContent.passwordRequired');
         }
 
         if (
@@ -43,10 +37,7 @@ export default defineEventHandler(async (event) => {
                 query.password === findInboxById.password,
             ))
         ) {
-            throw createError({
-                status: 401,
-                message: 'Invalid password',
-            });
+            throw apiError(401, 'errorsContent.invalidPassword');
         }
     }
 

@@ -10,25 +10,20 @@ const validationSchema = z
             .pipe(
                 z
                     .string()
-                    .min(3, 'File name must be at least 3 characters')
-                    .max(255, 'File name must be at most 255 characters')
-                    .regex(/^[^.]/, 'File name cannot start with a dot')
-                    .refine((value) => !isUuid(value), 'This file name is reserved'),
+                    .min(3, 'errorsFiles.fileNameMin')
+                    .max(255, 'errorsFiles.fileNameMax')
+                    .regex(/^[^.]/, 'errorsFiles.fileNameDot')
+                    .refine((value) => !isUuid(value), 'errorsFiles.fileNameReserved'),
             )
             .optional(),
         name: z
             .string()
             .transform((value) => value.replace(/[\\/:*?"<>|\p{Cc}]/gu, '').trim())
-            .pipe(
-                z
-                    .string()
-                    .min(1, 'Name is required')
-                    .max(255, 'Name must be at most 255 characters'),
-            )
+            .pipe(z.string().min(1, 'errorsFiles.nameRequired').max(255, 'errorsFiles.nameMax'))
             .optional(),
-        password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
-        maxViews: z.number().int().min(0, 'Max views must be at least 0').optional(),
-        expiration: z.number().int().min(0, 'Expiration must be at least 0').nullish(),
+        password: z.string().max(48, 'errorsFiles.passwordMax').nullish(),
+        maxViews: z.number().int().min(0, 'errorsFiles.maxViewsMin').optional(),
+        expiration: z.number().int().min(0, 'errorsFiles.expirationMin').nullish(),
         folderId: z
             .string()
             .nullish()
@@ -43,13 +38,7 @@ export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     const fileId = getRouterParam(event, 'id');
 
@@ -62,10 +51,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findFileById) {
-        throw createError({
-            status: 404,
-            message: 'File not found',
-        });
+        throw apiError(404, 'errorsFiles.fileNotFound');
     }
 
     if ('expiration' in body.data) {
@@ -97,10 +83,7 @@ export default defineEventHandler(async (event) => {
         });
 
         if (!findFolderById) {
-            throw createError({
-                status: 404,
-                message: 'Folder not found',
-            });
+            throw apiError(404, 'errorsFiles.folderNotFound');
         }
     }
 
@@ -112,12 +95,10 @@ export default defineEventHandler(async (event) => {
         });
 
         if (findFileByFileName) {
-            throw createError({
-                status: 409,
-                message: findFileByFileName.deletedAt
-                    ? 'A file with that name is in the trash'
-                    : 'A file with that name already exists',
-            });
+            throw apiError(
+                409,
+                findFileByFileName.deletedAt ? 'errorsFiles.nameInTrash' : 'errorsFiles.nameExists',
+            );
         }
 
         await (

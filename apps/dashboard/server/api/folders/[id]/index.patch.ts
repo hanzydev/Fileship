@@ -6,8 +6,8 @@ const validationSchema = z
     .object({
         name: z
             .string()
-            .min(1, 'Name must be at least 1 character')
-            .max(32, 'Name must be at most 32 characters')
+            .min(1, 'errorsContent.folderNameMin')
+            .max(32, 'errorsContent.folderNameMax')
             .optional(),
         public: z.boolean().optional(),
     })
@@ -20,11 +20,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     const folderId = getRouterParam(event, 'id');
@@ -38,10 +34,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findFolderById) {
-        throw createError({
-            status: 404,
-            message: 'Folder not found',
-        });
+        throw apiError(404, 'errorsContent.folderNotFound');
     }
 
     const _updatedFolder = await prisma.folder.update({

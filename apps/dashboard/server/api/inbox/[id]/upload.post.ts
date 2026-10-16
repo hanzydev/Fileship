@@ -1,21 +1,20 @@
-import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
 
 const validationSchema = z.object({
     uploadId: z
         .string()
-        .regex(/^[\w-]{1,64}$/, 'Invalid upload id')
+        .regex(/^[\w-]{1,64}$/, 'errorsContent.invalidUploadId')
         .optional(),
     totalChunks: z
         .number()
         .int()
-        .min(1, 'Total chunks must be at least 1')
-        .max(10000, 'Too many chunks')
+        .min(1, 'errorsContent.totalChunksMin')
+        .max(10000, 'errorsContent.tooManyChunks')
         .optional(),
-    currentChunk: z.number().int().min(1, 'Current chunk must be at least 1').optional(),
-    chunkOffset: z.number().int().min(0, 'Chunk offset must be at least 0').optional(),
-    inboxPassword: z.string().max(48, 'Inbox password must be at most 48 characters').nullish(),
+    currentChunk: z.number().int().min(1, 'errorsContent.currentChunkMin').optional(),
+    chunkOffset: z.number().int().min(0, 'errorsContent.chunkOffsetMin').optional(),
+    inboxPassword: z.string().max(48, 'errorsContent.inboxPasswordMax').nullish(),
 });
 
 export default defineEventHandler(async (event) => {
@@ -31,17 +30,11 @@ export default defineEventHandler(async (event) => {
 
     const file = formData.get('file');
     if (!file) {
-        throw createError({
-            status: 400,
-            message: 'Missing file',
-        });
+        throw apiError(400, 'errorsContent.missingFile');
     }
 
     if (typeof file === 'string') {
-        throw createError({
-            status: 400,
-            message: 'Invalid file',
-        });
+        throw apiError(400, 'errorsContent.invalidFile');
     }
 
     const chunkOffset = formData.get('chunkOffset');
@@ -56,11 +49,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     const inboxId = getRouterParam(event, 'id');
@@ -75,10 +64,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findInboxById?.enabled || !canUploadFiles(findInboxById.user)) {
-        throw createError({
-            status: 404,
-            message: 'Inbox not found',
-        });
+        throw apiError(404, 'errorsContent.inboxNotFound');
     }
 
     if (
@@ -90,7 +76,7 @@ export default defineEventHandler(async (event) => {
             findInboxById.password === body.data.inboxPassword,
         ))
     ) {
-        throw forbiddenError;
+        throw forbiddenError();
     }
 
     const extensionName = safeExtension(file.name);
@@ -117,10 +103,7 @@ export default defineEventHandler(async (event) => {
             });
 
             if (findFileByFileName) {
-                throw createError({
-                    status: 409,
-                    message: 'A file with that name already exists',
-                });
+                throw apiError(409, 'errorsContent.fileNameTaken');
             }
 
             return fileName;
@@ -150,7 +133,7 @@ export default defineEventHandler(async (event) => {
             ..._upload,
             size: {
                 raw: _upload.size.toString(),
-                formatted: filesize(_upload.size),
+                formatted: formatSize(_upload.size),
             },
             views: {
                 total: _upload.views.length,

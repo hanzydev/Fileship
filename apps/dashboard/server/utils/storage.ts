@@ -83,10 +83,7 @@ export const testStorage = async (type: StorageType, config: Record<string, any>
     try {
         await driver.test();
     } catch (error: any) {
-        throw createError({
-            status: 400,
-            message: `Could not connect: ${error.message}`,
-        });
+        throw apiError(400, 'errorsSystem.storageConnectFailed', { error: error.message });
     } finally {
         await driver.close?.();
     }

@@ -1,5 +1,4 @@
 import { defu } from 'defu';
-import { filesize } from 'filesize';
 import type { H3Event } from 'h3';
 import { z } from 'zod';
 
@@ -16,10 +15,8 @@ export const readListQuery = async <T extends z.ZodRawShape>(event: H3Event, sha
     const result = await getValidatedQuery(event, listQuerySchema.extend(shape || {}).safeParse);
 
     if (!result.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid query',
-            data: { formErrors: result.error.format() },
+        throw apiError(400, 'errorsFiles.invalidQuery', undefined, {
+            formErrors: translateIssues(result.error).format(),
         });
     }
 
@@ -103,7 +100,7 @@ export const serializeFile = <
     ...file,
     size: {
         raw: size.toString(),
-        formatted: filesize(size),
+        formatted: formatSize(size),
     },
     views: {
         total: _count.views,

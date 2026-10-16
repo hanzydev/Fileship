@@ -5,11 +5,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, trashSelectionSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     const trashed = { authorId: currentUser.id, deletedAt: { not: null } };

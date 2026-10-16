@@ -1,5 +1,3 @@
-import { filesize } from 'filesize';
-
 type StoredBackup = { id: string; userId: string; storageId: string | null };
 
 export const backupKey = (backup: { id: string; userId: string }) =>
@@ -10,7 +8,7 @@ export const serializeBackup = (backup: { id: string; size: bigint; createdAt: D
     createdAt: backup.createdAt,
     size: {
         raw: backup.size.toString(),
-        formatted: filesize(backup.size),
+        formatted: formatSize(backup.size),
     },
 });
 
@@ -18,10 +16,7 @@ export const findBackup = async (userId: string, id: string) => {
     const backup = await prisma.backup.findFirst({ where: { id, userId } });
 
     if (!backup) {
-        throw createError({
-            status: 404,
-            message: 'Backup not found',
-        });
+        throw apiError(404, 'errorsSystem.backupNotFound');
     }
 
     return backup;

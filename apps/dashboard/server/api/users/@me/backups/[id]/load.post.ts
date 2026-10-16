@@ -1,6 +1,5 @@
 import { createReadStream, existsSync, promises as fsp } from 'node:fs';
 
-import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
 import { join } from 'pathe';
 import chain from 'stream-chain';
@@ -69,11 +68,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     const backup = await findBackup(currentUser.id, getRouterParam(event, 'id')!);
@@ -98,10 +93,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!count) {
-        throw createError({
-            status: 400,
-            message: 'A backup restoration is already in progress',
-        });
+        throw apiError(400, 'errorsUsers.restoreInProgress');
     }
 
     sendToUser(currentUser.id, 'currentUser:update', {
@@ -323,7 +315,7 @@ export default defineEventHandler(async (event) => {
                         );
                         created.size = {
                             raw: created.size.toString(),
-                            formatted: filesize(created.size.toString()),
+                            formatted: formatSize(created.size.toString()),
                         };
 
                         const uploadPath = uploads.get(created.fileName)!.path;

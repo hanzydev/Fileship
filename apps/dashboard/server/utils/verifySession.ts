@@ -33,10 +33,7 @@ export const verifySession = async (
         },
     });
     if (!currentSession) {
-        throw createError({
-            status: 401,
-            message: 'Session not found',
-        });
+        throw apiError(401, 'errorsAuth.sessionNotFound');
     }
 
     if (
@@ -77,21 +74,17 @@ export const verifySession = async (
                 });
             }
 
-            throw createError({
-                status: 400,
-                message: 'Verification is required',
-                data: {
-                    mfa: {
-                        methods: [
-                            passkeyMethod && {
-                                type: 'passkey',
-                                ...passkeyMethod,
-                            },
-                            {
-                                type: currentUser.totpEnabled ? 'totp' : 'password',
-                            },
-                        ].filter(Boolean),
-                    },
+            throw apiError(400, 'errorsAuth.verificationRequired', undefined, {
+                mfa: {
+                    methods: [
+                        passkeyMethod && {
+                            type: 'passkey',
+                            ...passkeyMethod,
+                        },
+                        {
+                            type: currentUser.totpEnabled ? 'totp' : 'password',
+                        },
+                    ].filter(Boolean),
                 },
             });
         }
@@ -100,10 +93,7 @@ export const verifySession = async (
 
         if (verificationData.type === 'totp') {
             if (!currentUser.totpEnabled) {
-                throw createError({
-                    status: 400,
-                    message: 'TOTP verification is not enabled for this user',
-                });
+                throw apiError(400, 'errorsAuth.totpNotEnabled');
             }
 
             if (
@@ -113,17 +103,11 @@ export const verifySession = async (
                     verificationData.data as string,
                 ))
             ) {
-                throw createError({
-                    status: 401,
-                    message: 'Invalid TOTP',
-                });
+                throw apiError(401, 'errorsAuth.invalidTotp');
             }
         } else if (verificationData?.type === 'password') {
             if (currentUser.totpEnabled) {
-                throw createError({
-                    status: 400,
-                    message: 'Password verification is not allowed because TOTP is enabled',
-                });
+                throw apiError(400, 'errorsAuth.passwordNotAllowed');
             }
 
             const passwordMatch = await verify(
@@ -132,10 +116,7 @@ export const verifySession = async (
             );
 
             if (!passwordMatch) {
-                throw createError({
-                    status: 401,
-                    message: 'Invalid password',
-                });
+                throw apiError(401, 'errorsAuth.invalidPassword');
             }
         } else if (verificationData?.type === 'passkey') {
             const { ticket, authenticationResponse } =
@@ -149,10 +130,7 @@ export const verifySession = async (
             });
 
             if (!findCredentialById) {
-                throw createError({
-                    status: 401,
-                    message: 'Passkey not found',
-                });
+                throw apiError(401, 'errorsAuth.passkeyNotFound');
             }
 
             const webauthnTicket = await storage.getItem<{
@@ -160,10 +138,7 @@ export const verifySession = async (
                 expiresAt: number;
             }>(`webauthnTicket:${ticket}`);
             if (!webauthnTicket || webauthnTicket.expiresAt < Date.now()) {
-                throw createError({
-                    status: 400,
-                    message: 'Invalid or expired ticket',
-                });
+                throw apiError(400, 'errorsAuth.invalidTicket');
             }
 
             const expectedChallenge = webauthnTicket.expectedChallenge;
@@ -186,10 +161,7 @@ export const verifySession = async (
             });
 
             if (!response.verified) {
-                throw createError({
-                    status: 401,
-                    message: 'Invalid passkey',
-                });
+                throw apiError(401, 'errorsAuth.invalidPasskey');
             }
 
             await prisma.credential.update({
@@ -201,10 +173,7 @@ export const verifySession = async (
                 },
             });
         } else {
-            throw createError({
-                status: 400,
-                message: 'Invalid verification type',
-            });
+            throw apiError(400, 'errorsAuth.invalidVerificationType');
         }
 
         await prisma.session.update({

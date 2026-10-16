@@ -6,7 +6,7 @@ export const ensureInbox = async (userId: string) => {
 
     const folder = await prisma.folder.create({
         data: {
-            name: 'Inbox',
+            name: translate('errorsSweep.inboxFolder'),
             public: false,
             authorId: userId,
             inbox: {

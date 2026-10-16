@@ -13,10 +13,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findNoteById) {
-        throw createError({
-            status: 404,
-            message: 'Note not found',
-        });
+        throw apiError(404, 'errorsContent.noteNotFound');
     }
 
     const isTrashed = await isTrashEnabled();

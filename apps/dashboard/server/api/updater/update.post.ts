@@ -6,13 +6,7 @@ export default defineEventHandler(async (event) => {
     superAdminOnly(event);
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     await verifySession(event, body.data?.verificationData);
 
@@ -21,10 +15,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (isRestoring) {
-        throw createError({
-            status: 409,
-            message: 'A backup is being restored, try again when it finishes',
-        });
+        throw apiError(409, 'errorsSystem.restoreInProgress');
     }
 
     await createLog(event, {

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const validationSchema = z.object({
-    name: z.string().trim().min(1, 'Name is required').max(64),
+    name: z.string().trim().min(1, 'errorsSystem.storageNameRequired').max(64),
     config: z.record(z.string(), z.any()),
     verificationData: z.any().optional(),
 });
@@ -14,24 +14,17 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!storage) {
-        throw createError({
-            status: 404,
-            message: 'Storage not found',
-        });
+        throw apiError(404, 'errorsSystem.storageNotFound');
     }
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
     const config = storageConfigSchemas[storage.type].safeParse(body.data?.config);
 
     if (!body.success || !config.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: {
-                formErrors: {
-                    ...body.error?.format(),
-                    ...(config.error && { config: config.error.format() }),
-                },
+        throw apiError(400, 'errorsCommon.invalidBody', undefined, {
+            formErrors: {
+                ...translateIssues(body.error)?.format(),
+                ...(config.error && { config: translateIssues(config.error).format() }),
             },
         });
     }

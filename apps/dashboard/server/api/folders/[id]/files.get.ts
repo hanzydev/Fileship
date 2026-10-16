@@ -1,5 +1,3 @@
-import { filesize } from 'filesize';
-
 import type { Prisma } from '~~/generated/prisma/client';
 
 export default defineEventHandler(async (event) => {
@@ -22,15 +20,12 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findFolderById) {
-        throw createError({
-            status: 404,
-            message: 'Folder not found',
-        });
+        throw apiError(404, 'errorsContent.folderNotFound');
     }
 
     const isOwner = findFolderById.authorId === currentUser?.id;
 
-    if (!isOwner && !findFolderById.public) throw forbiddenError;
+    if (!isOwner && !findFolderById.public) throw forbiddenError();
 
     const query = await readListQuery(event, {
         mode: fileListShape.mode,
@@ -131,7 +126,7 @@ export default defineEventHandler(async (event) => {
                       fileName: file.fileName,
                       name: file.fileName,
                       mimeType: file.mimeType,
-                      size: { raw: file.size.toString(), formatted: filesize(file.size) },
+                      size: { raw: file.size.toString(), formatted: formatSize(file.size) },
                       createdAt: file.createdAt,
                       isLocked: true,
                   }

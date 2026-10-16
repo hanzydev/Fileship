@@ -6,10 +6,7 @@ export default defineEventHandler(async (event) => {
     const adminSession = adminToken && (await findSession(adminToken));
 
     if (!adminSession || adminSession.id !== currentUser.impersonator?.sessionId) {
-        throw createError({
-            status: 400,
-            message: 'You are not signed in as another user',
-        });
+        throw apiError(400, 'errorsAuth.notImpersonating');
     }
 
     await prisma.session.delete({

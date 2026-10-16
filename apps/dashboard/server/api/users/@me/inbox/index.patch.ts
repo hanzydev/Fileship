@@ -5,8 +5,8 @@ const validationSchema = z
         enabled: z.boolean().optional(),
         slug: z
             .string()
-            .min(1)
-            .max(48, 'Slug must be at most 48 characters')
+            .min(1, 'errorsUsers.slugRequired')
+            .max(48, 'errorsUsers.slugMax')
             .transform((value) =>
                 value
                     .toLowerCase()
@@ -16,11 +16,11 @@ const validationSchema = z
             .pipe(
                 z
                     .string()
-                    .min(1, 'Slug can only contain letters, numbers, dashes and underscores')
-                    .refine((value) => !isUuid(value), 'This slug is reserved'),
+                    .min(1, 'errorsUsers.slugCharacters')
+                    .refine((value) => !isUuid(value), 'errorsUsers.slugReserved'),
             )
             .nullish(),
-        password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
+        password: z.string().max(48, 'errorsUsers.passwordMax').nullish(),
     })
     .strict();
 
@@ -31,11 +31,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     if (body.data.slug) {
@@ -47,10 +43,7 @@ export default defineEventHandler(async (event) => {
         });
 
         if (findInboxBySlug) {
-            throw createError({
-                status: 409,
-                message: 'Slug already taken',
-            });
+            throw apiError(409, 'errorsUsers.slugTaken');
         }
     }
 

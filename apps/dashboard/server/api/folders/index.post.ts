@@ -3,10 +3,7 @@ import { z } from 'zod';
 import { insert } from '@orama/orama';
 
 const validationSchema = z.object({
-    name: z
-        .string()
-        .min(1, 'Name must be at least 1 character')
-        .max(32, 'Name must be at most 32 characters'),
+    name: z.string().min(1, 'errorsContent.folderNameMin').max(32, 'errorsContent.folderNameMax'),
     files: z.array(z.string()).max(5000).optional(),
     public: z.boolean().optional().default(false),
 });
@@ -18,11 +15,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     if (body.data.files?.length) {
@@ -37,10 +30,7 @@ export default defineEventHandler(async (event) => {
         });
 
         if (files.length !== body.data.files.length) {
-            throw createError({
-                status: 400,
-                message: 'Invalid files',
-            });
+            throw apiError(400, 'errorsContent.invalidFiles');
         }
     }
 

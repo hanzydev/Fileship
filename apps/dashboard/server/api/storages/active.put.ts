@@ -9,13 +9,7 @@ export default defineEventHandler(async (event) => {
     superAdminOnly(event);
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     await verifySession(event, body.data.verificationData);
 
@@ -24,10 +18,7 @@ export default defineEventHandler(async (event) => {
         : { name: 'local storage' };
 
     if (!storage) {
-        throw createError({
-            status: 404,
-            message: 'Storage not found',
-        });
+        throw apiError(404, 'errorsSystem.storageNotFound');
     }
 
     await updateSettings({ activeStorageId: body.data.id });

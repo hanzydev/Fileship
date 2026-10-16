@@ -10,13 +10,7 @@ export default defineEventHandler(async (event) => {
     superAdminOnly(event);
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     const storage = await prisma.storage.findUnique({
         where: { id: getRouterParam(event, 'id') },
@@ -24,10 +18,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!storage) {
-        throw createError({
-            status: 404,
-            message: 'Storage not found',
-        });
+        throw apiError(404, 'errorsSystem.storageNotFound');
     }
 
     if (
@@ -35,10 +26,7 @@ export default defineEventHandler(async (event) => {
         storage._count.files ||
         storage._count.backups
     ) {
-        throw createError({
-            status: 400,
-            message: 'Storage is in use',
-        });
+        throw apiError(400, 'errorsSystem.storageInUse');
     }
 
     await verifySession(event, body.data?.verificationData);

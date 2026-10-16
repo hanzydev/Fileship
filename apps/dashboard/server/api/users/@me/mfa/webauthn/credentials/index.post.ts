@@ -9,11 +9,7 @@ const validationSchema = z.discriminatedUnion('verify', [
         verify: z.literal(true),
         ticket: z.string().length(32),
         registrationResponse: z.any(),
-        name: z
-            .string()
-            .min(3, 'Name must be at least 3 characters')
-            .max(32, 'Name must be less than 32 characters')
-            .optional(),
+        name: z.string().min(3, 'errorsAuth.nameMin').max(32, 'errorsAuth.nameMax').optional(),
         verificationData: z.any().optional(),
     }),
     z.object({
@@ -26,13 +22,7 @@ export default defineEventHandler(async (event) => {
     userOnly(event);
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     const currentUser = event.context.user!;
 
@@ -47,10 +37,7 @@ export default defineEventHandler(async (event) => {
             expiresAt: number;
         }>(`webauthnTicket:${body.data.ticket}`);
         if (!webauthnTicket || webauthnTicket.expiresAt < Date.now()) {
-            throw createError({
-                status: 400,
-                message: 'Invalid or expired ticket',
-            });
+            throw apiError(400, 'errorsAuth.invalidTicket');
         }
 
         const expectedChallenge = webauthnTicket.expectedChallenge;

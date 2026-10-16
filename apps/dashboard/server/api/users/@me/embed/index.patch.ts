@@ -8,8 +8,8 @@ const validationSchema = z
         siteName: z.string().optional(),
         color: z
             .string()
-            .startsWith('#', 'Color must start with #')
-            .length(7, 'Color must be 7 characters')
+            .startsWith('#', 'errorsUsers.colorStart')
+            .length(7, 'errorsUsers.colorLength')
             .optional(),
         enabled: z.boolean(),
     })
@@ -22,11 +22,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     const embed = defu(body.data, currentUser.embed, defaultEmbed);

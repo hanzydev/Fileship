@@ -6,14 +6,14 @@ const validationSchema = z
     .object({
         title: z
             .string()
-            .min(3, 'Title must be at least 3 characters')
-            .max(48, 'Title must be at most 48 characters')
+            .min(3, 'errorsContent.noteTitleMin')
+            .max(48, 'errorsContent.noteTitleMax')
             .optional()
             .transform((title) => title?.trim()),
         content: z
             .string()
-            .min(1, 'Content must be at least 1 character')
-            .max(50_000, 'Content must be at most 50000 characters')
+            .min(1, 'errorsContent.noteContentMin')
+            .max(50_000, 'errorsContent.noteContentMax')
             .optional(),
         public: z.boolean().optional(),
     })
@@ -26,11 +26,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     const noteId = getRouterParam(event, 'id');
@@ -44,10 +40,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findNoteById) {
-        throw createError({
-            status: 404,
-            message: 'Note not found',
-        });
+        throw apiError(404, 'errorsContent.noteNotFound');
     }
 
     const _updatedNote = await prisma.note.update({

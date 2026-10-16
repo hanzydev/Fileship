@@ -3,9 +3,9 @@ import { z } from 'zod';
 const validationSchema = z.object({
     url: linkUrlSchema.optional(),
     code: linkCodeSchema.optional(),
-    password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
-    maxClicks: z.number().int().min(0, 'Max clicks must be at least 0').optional(),
-    expiration: z.number().min(0, 'Expiration must be at least 0').nullish(),
+    password: z.string().max(48, 'errorsContent.linkPasswordMax').nullish(),
+    maxClicks: z.number().int().min(0, 'errorsContent.maxClicksMin').optional(),
+    expiration: z.number().min(0, 'errorsContent.expirationMin').nullish(),
 });
 
 export default defineEventHandler(async (event) => {
@@ -15,11 +15,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     const findLinkById = await prisma.link.findUnique({
@@ -27,10 +23,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findLinkById) {
-        throw createError({
-            status: 404,
-            message: 'Link not found',
-        });
+        throw apiError(404, 'errorsContent.linkNotFound');
     }
 
     if (body.data.code && body.data.code !== findLinkById.code) {

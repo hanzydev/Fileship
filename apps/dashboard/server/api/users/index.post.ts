@@ -3,26 +3,20 @@ import { z } from 'zod';
 import { UserPermission } from '#shared/prisma/enums';
 
 const validationSchema = z.object({
-    username: z
-        .string()
-        .min(3, 'Username must be at least 3 characters')
-        .max(24, 'Username must be at most 24 characters'),
-    password: z
-        .string()
-        .min(8, 'Password must be at least 8 characters')
-        .max(48, 'Password must be at most 48 characters'),
+    username: z.string().min(3, 'errorsUsers.usernameMin').max(24, 'errorsUsers.usernameMax'),
+    password: z.string().min(8, 'errorsUsers.passwordMin').max(48, 'errorsUsers.passwordMax'),
     permissions: z.array(z.enum(UserPermission)).optional(),
     limits: z
         .object({
             backupLimit: z
                 .number()
-                .int('Backup limit must be a whole number')
-                .min(-1, 'Backup limit must be at least -1')
+                .int('errorsUsers.backupLimitInt')
+                .min(-1, 'errorsUsers.backupLimitMin')
                 .optional(),
             usableSpace: z
                 .number()
-                .int('Usable space must be a whole number')
-                .min(-1, 'Usable space must be at least -1')
+                .int('errorsUsers.usableSpaceInt')
+                .min(-1, 'errorsUsers.usableSpaceMin')
                 .optional(),
         })
         .optional(),
@@ -37,25 +31,15 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     if (body.data.superAdmin && !currentUser.superAdmin) {
-        throw createError({
-            status: 403,
-            message: 'You do not have permission to create a super admin',
-        });
+        throw apiError(403, 'errorsUsers.cannotCreateSuperAdmin');
     }
 
     if (!body.data.superAdmin && !body.data.permissions?.length) {
-        throw createError({
-            status: 400,
-            message: 'Permissions must be provided if user is not a super admin',
-        });
+        throw apiError(400, 'errorsUsers.permissionsRequired');
     }
 
     if (body.data.superAdmin) body.data.permissions = [UserPermission.Admin];
@@ -71,10 +55,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (findUserByUsername) {
-        throw createError({
-            status: 409,
-            message: 'A user with that username already exists',
-        });
+        throw apiError(409, 'errorsUsers.usernameExists');
     }
 
     const createdUser = await createUser({

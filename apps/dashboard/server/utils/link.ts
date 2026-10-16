@@ -7,13 +7,13 @@ import type { LinkModel } from '#shared/prisma/models';
 const generateCode = customAlphabet('23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ', 6);
 
 export const linkUrlSchema = z
-    .url({ protocol: /^https?$/, message: 'Enter a valid http or https URL' })
-    .max(2048, 'URL must be at most 2048 characters');
+    .url({ protocol: /^https?$/, message: 'errorsContent.linkUrlInvalid' })
+    .max(2048, 'errorsContent.linkUrlMax');
 
 export const linkCodeSchema = z
     .string()
     .trim()
-    .regex(/^[\w-]{1,32}$/, 'Use up to 32 letters, numbers, dashes or underscores');
+    .regex(/^[\w-]{1,32}$/, 'errorsContent.linkCodeInvalid');
 
 export const createLinkCode = async (): Promise<string> => {
     const code = generateCode();
@@ -23,10 +23,7 @@ export const createLinkCode = async (): Promise<string> => {
 
 export const assertLinkCodeFree = async (code: string) => {
     if (await prisma.link.findUnique({ where: { code } })) {
-        throw createError({
-            status: 409,
-            message: 'That short link is already taken',
-        });
+        throw apiError(409, 'errorsContent.linkCodeTaken');
     }
 };
 
@@ -34,10 +31,7 @@ export const findActiveLink = async (code: string) => {
     const link = await prisma.link.findUnique({ where: { code } });
 
     if (!link || (link.expiresAt && link.expiresAt <= new Date())) {
-        throw createError({
-            status: 404,
-            message: 'Link not found',
-        });
+        throw apiError(404, 'errorsContent.linkNotFound');
     }
 
     return link;

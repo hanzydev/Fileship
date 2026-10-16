@@ -10,13 +10,7 @@ export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     const filesToBeDeleted = await prisma.file.findMany({
         where: {
@@ -32,10 +26,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!filesToBeDeleted.length) {
-        throw createError({
-            status: 404,
-            message: 'No files found to delete',
-        });
+        throw apiError(404, 'errorsFiles.noFilesToDelete');
     }
 
     const fileIds = filesToBeDeleted.map((file) => file.id);

@@ -13,10 +13,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findFileById) {
-        throw createError({
-            status: 404,
-            message: 'File not found',
-        });
+        throw apiError(404, 'errorsFiles.fileNotFound');
     }
 
     const isTrashed = await isTrashEnabled();

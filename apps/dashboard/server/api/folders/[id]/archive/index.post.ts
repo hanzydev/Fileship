@@ -34,17 +34,14 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findFolderById) {
-        throw createError({
-            status: 404,
-            message: 'Folder not found',
-        });
+        throw apiError(404, 'errorsContent.folderNotFound');
     }
 
     let isPrivate = true;
 
     if (findFolderById.authorId !== currentUser?.id) {
         if (!findFolderById.public) {
-            throw forbiddenError;
+            throw forbiddenError();
         } else {
             isPrivate = false;
 
@@ -71,17 +68,11 @@ export default defineEventHandler(async (event) => {
 
     const isAnyJobRunning = items.some((item) => item.value && !item.value.isDone);
     if (isAnyJobRunning) {
-        throw createError({
-            status: 400,
-            message: 'An archive job is already running for this folder',
-        });
+        throw apiError(400, 'errorsContent.archiveRunning');
     }
 
     if (!findFolderById.files.length) {
-        throw createError({
-            status: 400,
-            message: 'No files to archive in this folder',
-        });
+        throw apiError(400, 'errorsContent.nothingToArchive');
     }
 
     const jobId = nanoid();

@@ -20,17 +20,11 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findNoteById) {
-        throw createError({
-            status: 404,
-            message: 'Note not found',
-        });
+        throw apiError(404, 'errorsContent.noteNotFound');
     }
 
     if (!findNoteById.public && findNoteById.authorId !== user?.id) {
-        throw createError({
-            status: 403,
-            message: 'You do not have permission to access this page',
-        });
+        throw apiError(403, 'errorsContent.notePageForbidden');
     }
 
     const embed = defu(findNoteById.author.embed, defaultEmbed) as IEmbed;

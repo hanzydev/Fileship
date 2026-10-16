@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import { filesize } from 'filesize';
 
 export default defineEventHandler(async (event) => {
     adminOnly(event);
@@ -26,6 +25,7 @@ export default defineEventHandler(async (event) => {
 
     const viewsByMonth = {
         labels: months.map((month) => month.format('MMM YYYY')),
+        months: months.map((month) => month.format('YYYY-MM')),
         data: months.map(
             (month) => monthlyViews.find((m) => m.month === month.format('YYYY-MM'))?.count || 0,
         ),
@@ -62,16 +62,17 @@ export default defineEventHandler(async (event) => {
             growth: calculateGrowthPercentage(fileCount, prevStat?.files ?? 0),
         },
         storageUsed: {
-            size: filesize(storage._sum.size ?? 0n),
+            size: formatSize(storage._sum.size ?? 0n),
+            raw: (storage._sum.size ?? 0n).toString(),
             growth: calculateGrowthPercentage(storage._sum.size ?? 0n, prevStat?.storageUsed ?? 0),
             trashed: {
                 raw: (trashed._sum.size ?? 0n).toString(),
-                formatted: filesize(trashed._sum.size ?? 0n),
+                formatted: formatSize(trashed._sum.size ?? 0n),
             },
             byUser: storageUsedByUser
                 .map((data) => ({
                     ...data,
-                    formattedSize: filesize(BigInt(data.size)),
+                    formattedSize: formatSize(BigInt(data.size)),
                 }))
                 .filter((u) => users.find((user) => user.id === u.userId)),
         },

@@ -14,10 +14,7 @@ export default defineEventHandler(async (event) => {
         (await prisma.backup.count({ where: { userId: currentUser.id } })) >=
             currentUser.limits.backupLimit
     ) {
-        throw createError({
-            status: 400,
-            message: 'Backup limit reached',
-        });
+        throw apiError(400, 'errorsUsers.backupLimitReached');
     }
 
     const [files, folders, notes, views, links] = await prisma.$transaction([

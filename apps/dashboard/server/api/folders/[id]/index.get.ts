@@ -22,15 +22,12 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findFolderById) {
-        throw createError({
-            status: 404,
-            message: 'Folder not found',
-        });
+        throw apiError(404, 'errorsContent.folderNotFound');
     }
 
     const isOwner = findFolderById.authorId === currentUser?.id;
 
-    if (!isOwner && !findFolderById.public) throw forbiddenError;
+    if (!isOwner && !findFolderById.public) throw forbiddenError();
 
     const visibleFiles = {
         folderId: findFolderById.id,

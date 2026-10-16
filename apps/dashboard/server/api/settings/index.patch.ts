@@ -13,13 +13,7 @@ export default defineEventHandler(async (event) => {
     superAdminOnly(event);
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     await verifySession(event, body.data.verificationData);
 
@@ -27,10 +21,7 @@ export default defineEventHandler(async (event) => {
     const keys = Object.keys(patch) as InstanceSettingKey[];
 
     if (!keys.length) {
-        throw createError({
-            status: 400,
-            message: 'Nothing to update',
-        });
+        throw apiError(400, 'errorsSystem.nothingToUpdate');
     }
 
     const previous = await getSettings();

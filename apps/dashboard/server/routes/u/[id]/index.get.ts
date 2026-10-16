@@ -41,18 +41,12 @@ export default defineEventHandler(async (event) => {
                 isHiddenFromVisitors(findFileById) ||
                 (findFileById.maxViews && findFileById._count.views >= findFileById.maxViews)))
     ) {
-        throw createError({
-            status: 404,
-            message: 'File not found',
-        });
+        throw apiError(404, 'errorsFiles.fileNotFound');
     }
 
     if (isVisitor) {
         if (findFileById.folder?.public === false) {
-            throw createError({
-                status: 403,
-                message: 'You do not have permission to access this page',
-            });
+            throw apiError(403, 'errorsFiles.noAccess');
         }
 
         if (findFileById.password) {
@@ -67,10 +61,7 @@ export default defineEventHandler(async (event) => {
                     query.password === findFileById.password,
                 ))
             ) {
-                throw createError({
-                    status: 401,
-                    message: 'Invalid password',
-                });
+                throw apiError(401, 'errorsFiles.invalidPassword');
             }
         }
     }

@@ -2,24 +2,24 @@ import { z } from 'zod';
 
 import { StorageType } from '#shared/prisma/enums';
 
-const host = z.string().trim().min(1, 'Host is required');
+const host = z.string().trim().min(1, 'sweepApp.hostRequired');
 const port = z.number().int().min(1).max(65535);
-const root = z.string().trim().min(1, 'Root folder is required');
+const root = z.string().trim().min(1, 'sweepApp.rootRequired');
 
 export const storageConfigSchemas = {
     [StorageType.S3]: z.object({
         endpoint: z.url().or(z.literal('')),
-        region: z.string().trim().min(1, 'Region is required'),
-        bucket: z.string().trim().min(1, 'Bucket is required'),
+        region: z.string().trim().min(1, 'sweepApp.regionRequired'),
+        bucket: z.string().trim().min(1, 'sweepApp.bucketRequired'),
         prefix: z.string().trim(),
-        accessKeyId: z.string().trim().min(1, 'Access key is required'),
+        accessKeyId: z.string().trim().min(1, 'sweepApp.accessKeyRequired'),
         secretAccessKey: z.string(),
         forcePathStyle: z.boolean(),
     }),
     [StorageType.SFTP]: z.object({
         host,
         port,
-        username: z.string().trim().min(1, 'Username is required'),
+        username: z.string().trim().min(1, 'sweepApp.usernameRequired'),
         password: z.string(),
         privateKey: z.string(),
         root,
@@ -27,7 +27,7 @@ export const storageConfigSchemas = {
     [StorageType.FTP]: z.object({
         host,
         port,
-        user: z.string().trim().min(1, 'Username is required'),
+        user: z.string().trim().min(1, 'sweepApp.usernameRequired'),
         password: z.string(),
         secure: z.boolean(),
         root,

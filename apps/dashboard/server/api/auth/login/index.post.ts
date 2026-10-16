@@ -2,18 +2,12 @@ import { hash, verify } from 'argon2';
 import { z } from 'zod';
 
 const validationSchema = z.object({
-    username: z
-        .string()
-        .min(3, 'Username must be at least 3 characters')
-        .max(24, 'Username must be at most 24 characters'),
-    password: z
-        .string()
-        .min(8, 'Password must be at least 8 characters')
-        .max(48, 'Password must be at most 48 characters'),
+    username: z.string().min(3, 'errorsAuth.usernameMin').max(24, 'errorsAuth.usernameMax'),
+    password: z.string().min(8, 'errorsAuth.passwordMin').max(48, 'errorsAuth.passwordMax'),
     totp: z
         .string()
-        .length(6, 'TOTP must be 6 digits')
-        .regex(/^\d+$/, 'TOTP must be a number')
+        .length(6, 'errorsAuth.totpLength')
+        .regex(/^\d+$/, 'errorsAuth.totpNumber')
         .optional(),
     turnstile: z.string().optional(),
 });
@@ -22,21 +16,12 @@ const dummyHash = hash('fileship-dummy-password');
 
 export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
-    if (!body.success) {
-        throw createError({
-            status: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     await rateLimit(`login:${getClientIp(event)}:${body.data.username}`, 10, 15 * 60 * 1000);
 
     if (!(await verifyTurnstile(body.data.turnstile))) {
-        throw createError({
-            status: 400,
-            message: 'Invalid turnstile',
-        });
+        throw apiError(400, 'errorsAuth.invalidTurnstile');
     }
 
     const findUserByUsername = await prisma.user.findUnique({
@@ -56,18 +41,12 @@ export default defineEventHandler(async (event) => {
     );
 
     if (!findUserByUsername || !passwordMatch) {
-        throw createError({
-            status: 401,
-            message: 'Invalid username or password',
-        });
+        throw apiError(401, 'errorsAuth.invalidCredentials');
     }
 
     if (findUserByUsername.totpEnabled) {
         if (!body.data.totp) {
-            throw createError({
-                status: 400,
-                message: 'Missing TOTP',
-            });
+            throw apiError(400, 'errorsAuth.totpRequired', undefined, { totpRequired: true });
         }
 
         if (
@@ -77,10 +56,7 @@ export default defineEventHandler(async (event) => {
                 body.data.totp,
             ))
         ) {
-            throw createError({
-                status: 401,
-                message: 'Invalid TOTP',
-            });
+            throw apiError(401, 'errorsAuth.invalidTotp');
         }
     }
 
