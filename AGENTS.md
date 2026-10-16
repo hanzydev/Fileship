@@ -2,7 +2,7 @@
 
 Guidance for AI coding agents (and humans) working on Fileship, an open-source, self-hosted file and media management platform.
 
-Also read [MEMORY.md](MEMORY.md) (decisions, release facts and known traps) and [PLAN.md](PLAN.md) (what is left before v6). Update them when you learn something the hard way or finish a planned item.
+Also read [MEMORY.md](MEMORY.md) (decisions, release facts and known traps), [PLAN.md](PLAN.md) (what is left before v6) and [I18N.md](I18N.md) (translations, Turkish style and glossary). Update them when you learn something the hard way or finish a planned item.
 
 ## Repository
 
@@ -17,7 +17,7 @@ pnpm + Turborepo monorepo (`pnpm@11`, workspaces `apps/*` and `packages/*`). pnp
 | `packages/ui`            | `@fileship/ui`, the shared Nuxt layer: shadcn-vue components, theme tokens, generic app components and the shared Nuxt modules.         |
 | `packages/telemetry`     | `@fileship/telemetry`, the report schema (zod) and the client that collects runtime info and sends reports.                             |
 | `packages/ai`            | `@fileship/ai`, the AI models (SigLIP, Florence-2, text embeddings, PaddleOCR, privacy filter) running on a worker thread.              |
-| `packages/eslint-config` | `@fileship/eslint-config`: `.` for plain TypeScript packages, `./nuxt` for the rules the Nuxt apps and the ui layer pass to `withNuxt`. |
+| `packages/eslint-config` | `@fileship/eslint-config`: `.` for plain TypeScript packages, `./nuxt` for the rules the Nuxt apps and the ui layer pass to `withNuxt`, `./i18n` for the vue-i18n rules. |
 
 ## Commands
 
@@ -26,7 +26,7 @@ Run from the repository root unless noted.
 - `pnpm install`: install everything (pnpm only, enforced by `preinstall`).
 - `pnpm dev`: run the dashboard in dev mode through Turbo. It generates the Prisma client and applies migrations first. The telemetry panel needs its own `.env` and runs with `pnpm --filter telemetry dev`.
 - `pnpm build`: build every workspace.
-- `pnpm lint`: ESLint in every workspace, then `prettier --write .`.
+- `pnpm lint`: `lint:i18n` (`scripts/check-i18n.mjs`: `en` and `tr` catalogs have the same keys and every message compiles), ESLint in every workspace, then `prettier --write .`.
 - `pnpm lint:types`: `nuxt typecheck` in the dashboard, the telemetry panel and the ui layer, plus `nuxt typecheck` and `tsc` for the main process in the desktop app. It must report zero errors.
 - `pnpm check`: build + lint + lint:types, which is what CI runs (`.github/workflows/check.yml`, on Linux, where the desktop build skips the native addon and the drive helper).
 
@@ -52,6 +52,16 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 - Instance settings (site name, link protocol, uploads, trash retention, registration, Turnstile, AI, log level, telemetry, active storage) are stored in the `Setting` table and edited by super admins at `/dashboard/instance`. The env/runtimeConfig values are only their defaults. Server code reads them with `getSettings()` (or `getSettingsSync()` in synchronous code) from `server/utils/settings.ts`; the client reads the public subset with `usePublicSettings()`, kept in sync over the `settings:update` socket event. The schema lives in `shared/utils/settings.ts`.
 - Server code reads the remaining configuration through `useRuntimeConfig()`, never `process.env`. Runtime overrides therefore use the `NUXT_` prefix. The exceptions are `DATABASE_URL` (shared with the Prisma CLI) and the build-time options in `nuxt.config.ts` (`ENABLE_PWA`, `DELETE_EXPIRED_CRON`, `GENERATE_STATS_CRON`), which only take effect when the app is built.
 - Never commit `.env` files, `data/` or anything under `.claude/` or `.impeccable/`.
+
+## Translations
+
+The dashboard and the desktop app are translated into English (source and fallback) and Turkish; the telemetry panel is English only. [I18N.md](I18N.md) has the catalog layout, the code rules and the Turkish style guide with its glossary.
+
+- Every user-visible string is a key, in both `en` and `tr`. ESLint rejects raw template text and unknown keys, and `pnpm lint:i18n` rejects catalogs that differ.
+- The ui layer registers `@nuxtjs/i18n` (`no_prefix`, so URLs never change) with its own `common` and `error` messages in `packages/ui/i18n`. Each app adds its locales: the dashboard loads `i18n/locales/<locale>/*.json` as locale files, the desktop app bundles them through `i18n/messages.ts`.
+- Dashboard: the language is `User.language` (`null` follows the browser), changed on the appearance page (`updateLanguage`), applied during SSR in `fetchCurrentUser` and synced over `currentUser:update`; guests use the `fileship_locale` cookie or `Accept-Language`. `i18n/localeDetector.ts` resolves the same order on the server, `server/middleware/0.i18n.ts` stores `event.context.t` (refreshed in `auth.ts` once the user is known), and API errors are thrown with `apiError(status, key)` / `invalidBodyError(error)` from `server/utils/i18n.ts`. Clients never compare error messages; the API adds flags to `data` instead. Logs stay English.
+- Dates use `useDate()` (dayjs with the active locale and localized formats), numbers `Intl` with the active locale.
+- Desktop: the `language` setting (`system` follows Windows) is resolved in `electron/i18n.ts`, whose `t()` translates the tray, notifications and dialogs; a change refreshes the tray and broadcasts `app:language` to every window (`app/plugins/language.client.ts`). API requests send `Accept-Language`, so server errors arrive translated.
 
 ## Deployment model
 

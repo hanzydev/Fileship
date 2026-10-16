@@ -15,6 +15,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - Write code in the existing style: minimal, `!` instead of defensive `?.`/`??` where the value is known, no guards for states that cannot happen, no comments. Mirror `AppSidebar.vue`, `layouts/dashboard.vue` and `login.vue` in the dashboard.
 - shadcn-vue components are used as documented and never restyled; lists use virtual scroll, never pagination; no `cursor-pointer` anywhere.
 - Telemetry panel: admin only (one password), default Fileship colors only, instances silent for `NUXT_INSTANCE_RETENTION_DAYS` (default 90) are deleted while daily totals stay. The legacy import from the old panel is done and was removed on purpose; do not bring it back.
+- Translations: English is the source and fallback, Turkish is the second language. The telemetry panel is not translated on purpose (it gets the layer's English messages only and keeps `pluralize`). Turkish copy is written as native product text in the "sen" form, never word by word; see [I18N.md](I18N.md).
 - Desktop capture follows ShareX: Print Screen captures the active monitor, Ctrl+Print Screen opens the region overlay, a selection finishes on mouse release, annotations can be drawn before choosing the region, and one toolbar serves every monitor.
 
 ## Releasing
@@ -37,6 +38,10 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - Run prettier only on the files you changed; `pnpm lint` formats the whole repository.
 
 ## Runtime traps
+
+- **Server translations load one locale.** `useTranslation(event)` only loads the messages of the detected locale, so a key missing in `tr` comes back as the raw key instead of falling back to English. `pnpm lint:i18n` keeps the catalogs equal; never skip it.
+- **vue-i18n message syntax:** `@`, `$`, `|`, `{` and `}` are syntax. Literal ones are written `{'@'}` (an email placeholder needs it). The check script compiles every message to catch this.
+- **Translated messages are not identifiers.** Client code that compared `getErrorMessage(error)` with an English string broke as soon as the API translated it; the API sends a flag in `data` (for example `totpRequired`).
 
 - **AI never runs on the main thread.** onnxruntime runs inference and session creation synchronously, so models on the main thread freeze every request, socket message and health check for seconds (and Caddy's 2 s health check then fails). Everything goes through `packages/ai` and its worker. To measure lag, poll `/api/healthz` every 100 ms while files are being analyzed; p95 should stay well under 100 ms.
 - **Orama:** the default English splitter drops every non-Latin character. Every index uses `createSearchTokenizer`; never create an Orama index without it.
