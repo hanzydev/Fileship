@@ -20,11 +20,11 @@
         "goHome": "Go home"
     },
     "error": {
-        "goBack": "Go back",
         "401": "Unauthorized",
         "403": "Access denied",
         "404": "Page not found",
         "500": "Something went wrong",
+        "goBack": "Go back",
         "default": "Error"
     }
 }

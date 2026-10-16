@@ -20,11 +20,11 @@
         "goHome": "Ana sayfaya dön"
     },
     "error": {
-        "goBack": "Geri dön",
         "401": "Giriş yapılmamış",
         "403": "Erişim yok",
         "404": "Sayfa bulunamadı",
         "500": "Bir sorun oluştu",
+        "goBack": "Geri dön",
         "default": "Hata"
     }
 }
