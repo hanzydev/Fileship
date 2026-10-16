@@ -13,11 +13,7 @@ export default defineEventHandler(async (event) => {
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
     if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     await verifySession(event, body.data?.verificationData);

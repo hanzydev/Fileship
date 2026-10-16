@@ -10,6 +10,8 @@ export default defineNuxtPlugin(async () => {
             createdAt: new Date(data.value.createdAt),
         };
 
-        currentTheme.value = data.value.theme as never;
+        currentTheme.value = data.value.theme;
+
+        if (data.value.language) await applyLanguage(data.value.language);
     }
 });

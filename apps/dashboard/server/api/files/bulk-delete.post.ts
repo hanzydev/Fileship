@@ -1,12 +1,7 @@
-import { rm } from 'node:fs/promises';
-
-import { join } from 'pathe';
 import z from 'zod';
 
-import { removeMultiple } from '@orama/orama';
-
 const validationSchema = z.object({
-    files: z.array(z.uuid()).min(1),
+    files: z.array(z.uuid()).min(1).max(5000),
 });
 
 export default defineEventHandler(async (event) => {
@@ -15,75 +10,45 @@ export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
-    if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     const filesToBeDeleted = await prisma.file.findMany({
         where: {
             id: { in: body.data.files },
             authorId: currentUser.id,
+            deletedAt: null,
         },
         select: {
             id: true,
             fileName: true,
-            mimeType: true,
+            storageId: true,
         },
     });
 
     if (!filesToBeDeleted.length) {
-        throw createError({
-            statusCode: 404,
-            message: 'No files found to delete',
-        });
+        throw apiError(404, 'errorsFiles.noFilesToDelete');
     }
 
     const fileIds = filesToBeDeleted.map((file) => file.id);
 
-    await prisma.$transaction(async (tx) => {
-        await tx.view.deleteMany({
-            where: {
-                fileId: { in: fileIds },
-            },
+    const isTrashed = await isTrashEnabled();
+
+    if (isTrashed) {
+        await prisma.file.updateMany({
+            where: { id: { in: fileIds } },
+            data: { deletedAt: new Date() },
         });
-
-        await tx.file.deleteMany({
-            where: {
-                id: { in: fileIds },
-            },
-        });
-    });
-
-    const deletionPromises = filesToBeDeleted.map(async (file) => {
-        const rmPromises = [
-            rm(join(dataDirectory, 'uploads', file.fileName), {
-                force: true,
-            }),
-        ];
-
-        if (file.mimeType.startsWith('video/')) {
-            rmPromises.push(
-                rm(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`), {
-                    force: true,
-                }),
-            );
-        }
-
-        await Promise.allSettled(rmPromises);
-    });
-
-    await Promise.allSettled(deletionPromises);
-
-    await removeMultiple(fileSearchDb, fileIds);
+    } else {
+        await deleteFilesForever(filesToBeDeleted);
+    }
 
     sendToUser(currentUser.id, 'file:bulkDelete', fileIds);
+    sendToUser(currentUser.id, 'trash:update', null);
 
     await createLog(event, {
         action: 'Bulk Delete Files',
-        message: `Deleted ${fileIds.length} files`,
+        message: isTrashed
+            ? `Moved ${fileIds.length} files to trash`
+            : `Deleted ${fileIds.length} files`,
     });
 });

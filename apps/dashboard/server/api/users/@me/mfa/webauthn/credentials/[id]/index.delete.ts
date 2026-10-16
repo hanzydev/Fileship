@@ -12,13 +12,7 @@ export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
-    if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     await verifySession(event, body.data?.verificationData);
 
@@ -31,16 +25,18 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findCredentialById) {
-        throw createError({
-            statusCode: 404,
-            message: 'Credential not found',
-        });
+        throw apiError(404, 'errorsAuth.passkeyNotFound');
     }
 
     await prisma.credential.delete({
         where: {
             id: credentialId,
         },
+    });
+
+    await createLog(event, {
+        action: 'Delete Passkey',
+        message: `Deleted passkey ${findCredentialById.name}`,
     });
 
     sendToUser(currentUser.id, 'passkey:delete', credentialId);

@@ -1,194 +1,166 @@
 <template>
     <div>
         <Head>
-            <Title>Login</Title>
+            <Title>{{ $t('auth.login.title') }}</Title>
         </Head>
-        <UiCentered>
-            <div
-                relative
-                w20rem
-                overflow-hidden
-                rounded-2xl
-                bg-fs-overlay-1
-                text-start
-                transition-height
-                duration-250
-                sm:w35rem
-                border="~ fs-overlay-3"
-                :style="{ height: `${height}px` }"
-            >
-                <Transition
-                    enter-active-class="motion-safe:(animate-in fade-in data-[view=main]:slide-in-from-left data-[view=totp]:slide-in-from-right animate-duration-250)"
-                    leave-active-class="motion-safe:(animate-out fade-out data-[view=main]:slide-out-to-left data-[view=totp]:slide-out-to-right animate-duration-250)"
-                    @enter="calculateHeight"
-                    @after-enter="(event) => event.querySelector('input')?.focus()"
-                >
-                    <form
-                        v-if="currentView === 'main'"
-                        data-view="main"
-                        absolute
-                        wfull
-                        p8
-                        flex="~ col justify-between gap10"
-                        @submit.prevent="handleSubmit()"
-                    >
-                        <h2>Login</h2>
-
-                        <div space-y-4>
-                            <UiInput
-                                v-model="auth.username"
-                                label="Username"
-                                type="text"
-                                :error="formErrors?.username?._errors?.[0]"
-                                required
-                                wfull
-                                rounded-xl="!"
-                                :disabled="loggingIn"
-                            />
-                            <UiInput
-                                v-model="auth.password"
-                                label="Password"
-                                type="password"
-                                :error="formErrors?.password?._errors?.[0]"
-                                required
-                                wfull
-                                rounded-xl="!"
-                                :disabled="loggingIn"
-                            />
-                        </div>
-
-                        <NuxtTurnstile
-                            v-if="runtimeConfig.public.turnstile.siteKey"
-                            ref="turnstileRef"
-                            v-model="auth.turnstile"
-                            :options="{
-                                theme: 'dark',
-                                size: 'flexible',
-                            }"
-                        />
-
-                        <div flex="~ items-center gap-3">
-                            <UiButton
-                                alignment="center"
-                                wfull
-                                flex-1
-                                gap2
-                                variant="accent"
-                                type="submit"
-                                icon="solar:lock-keyhole-minimalistic-bold"
-                                icon-size="20"
-                                rounded-xl="!"
-                                :loading="loggingIn"
-                                :disabled="passkeyLoggingIn || loggingIn"
-                            >
-                                Login
-                            </UiButton>
-                            <ClientOnly>
-                                <UiButton
-                                    v-if="browserSupportsWebAuthn()"
-                                    alignment="center"
-                                    size-10
-                                    gap2
-                                    variant="secondary"
-                                    icon="lucide:fingerprint-pattern"
-                                    icon-size="24"
-                                    rounded-xl="!"
-                                    p0="!"
-                                    :loading="passkeyLoggingIn"
-                                    :disabled="loggingIn || passkeyLoggingIn"
-                                    @click="handlePasskeyLogin"
+        <Centered>
+            <UiCard class="w-full max-w-sm">
+                <template v-if="currentView === 'main'">
+                    <UiCardHeader>
+                        <UiCardTitle>{{ $t('auth.login.heading') }}</UiCardTitle>
+                        <UiCardDescription>
+                            {{ $t('auth.login.description') }}
+                        </UiCardDescription>
+                    </UiCardHeader>
+                    <UiCardContent>
+                        <form @submit.prevent="handleSubmit">
+                            <UiFieldGroup>
+                                <UiField>
+                                    <UiFieldLabel for="username">
+                                        {{ $t('auth.username') }}
+                                    </UiFieldLabel>
+                                    <UiInput
+                                        id="username"
+                                        v-model="auth.username"
+                                        type="text"
+                                        :placeholder="$t('auth.usernamePlaceholder')"
+                                        autocomplete="username webauthn"
+                                        autofocus
+                                    />
+                                    <UiFieldError
+                                        v-if="formErrors?.username?._errors?.length"
+                                        :errors="formErrors.username._errors"
+                                    />
+                                </UiField>
+                                <UiField>
+                                    <UiFieldLabel for="password">
+                                        {{ $t('auth.password') }}
+                                    </UiFieldLabel>
+                                    <PasswordInput
+                                        id="password"
+                                        v-model="auth.password"
+                                        placeholder="••••••••"
+                                        autocomplete="current-password"
+                                    />
+                                    <UiFieldError
+                                        v-if="formErrors?.password?._errors?.length"
+                                        :errors="formErrors.password._errors"
+                                    />
+                                </UiField>
+                                <NuxtTurnstile
+                                    v-if="publicSettings.turnstileSiteKey"
+                                    ref="turnstileRef"
+                                    v-model="auth.turnstile"
+                                    :site-key="publicSettings.turnstileSiteKey"
+                                    :options="{ theme: colorMode.value as never, size: 'flexible' }"
                                 />
-                            </ClientOnly>
-                        </div>
-                    </form>
-                    <div
-                        v-else-if="currentView === 'totp'"
-                        data-view="totp"
-                        absolute
-                        wfull
-                        p8
-                        flex="~ col justify-between gap10"
-                    >
-                        <div space-y-2>
-                            <h2>Multi-Factor Authentication</h2>
-                            <p text-fs-muted-2>Enter the code from your authenticator app.</p>
-                        </div>
+                                <UiField>
+                                    <UiButton type="submit" :disabled="loggingIn">
+                                        <UiSpinner v-if="loggingIn" />
+                                        {{ $t('auth.login.submit') }}
+                                    </UiButton>
+                                    <ClientOnly>
+                                        <UiButton
+                                            v-if="browserSupportsWebAuthn()"
+                                            variant="outline"
+                                            type="button"
+                                            :disabled="loggingIn || passkeyLoggingIn"
+                                            @click="handlePasskeyLogin"
+                                        >
+                                            <UiSpinner v-if="passkeyLoggingIn" />
+                                            <IFingerprintPattern v-else />
+                                            {{ $t('auth.login.passkey') }}
+                                        </UiButton>
+                                    </ClientOnly>
+                                    <UiFieldDescription
+                                        v-if="publicSettings.registrationEnabled"
+                                        class="text-center"
+                                    >
+                                        {{ $t('auth.login.noAccount') }}
+                                        <NuxtLink to="/register">
+                                            {{ $t('auth.login.signUp') }}
+                                        </NuxtLink>
+                                    </UiFieldDescription>
+                                </UiField>
+                            </UiFieldGroup>
+                        </form>
+                    </UiCardContent>
+                </template>
 
-                        <UiTotpInput
-                            type="text"
-                            :error
-                            required
-                            :disabled="loggingIn"
-                            input-class="!wfull !rounded-xl"
-                            @got="handleSubmit"
-                        />
-
-                        <NuxtTurnstile
-                            v-if="runtimeConfig.public.turnstile.siteKey"
-                            ref="turnstileRef"
-                            v-model="auth.turnstile"
-                            :options="{
-                                theme: 'dark',
-                                size: 'flexible',
-                            }"
-                        />
-
-                        <div grid="~ cols-2 gap-4">
-                            <UiButton
-                                alignment="center"
-                                wfull
-                                gap2
-                                variant="secondary"
-                                icon="solar:arrow-left-linear"
-                                icon-size="20"
-                                rounded-xl="!"
-                                :disabled="loggingIn"
-                                @click="currentView = 'main'"
-                            >
-                                Back
-                            </UiButton>
-                            <UiButton
-                                alignment="center"
-                                wfull
-                                gap2
-                                variant="accent"
-                                type="submit"
-                                icon="solar:lock-keyhole-minimalistic-bold"
-                                icon-size="20"
-                                rounded-xl="!"
-                                :loading="loggingIn"
-                                :disabled="loggingIn"
-                            >
-                                Login
-                            </UiButton>
-                        </div>
-                    </div>
-                </Transition>
-            </div>
-        </UiCentered>
+                <template v-else>
+                    <UiCardHeader>
+                        <UiCardTitle>{{ $t('auth.totp.title') }}</UiCardTitle>
+                        <UiCardDescription>
+                            {{ $t('auth.totp.description') }}
+                        </UiCardDescription>
+                    </UiCardHeader>
+                    <UiCardContent>
+                        <form @submit.prevent="handleSubmit">
+                            <UiFieldGroup>
+                                <UiField>
+                                    <UiFieldLabel for="totp">
+                                        {{ $t('auth.totp.code') }}
+                                    </UiFieldLabel>
+                                    <OtpInput id="totp" v-model="auth.totp" />
+                                    <UiFieldError
+                                        v-if="formErrors?.totp?._errors?.length"
+                                        :errors="formErrors.totp._errors"
+                                    />
+                                </UiField>
+                                <NuxtTurnstile
+                                    v-if="publicSettings.turnstileSiteKey"
+                                    ref="turnstileRef"
+                                    v-model="auth.turnstile"
+                                    :site-key="publicSettings.turnstileSiteKey"
+                                    :options="{ theme: colorMode.value as never, size: 'flexible' }"
+                                />
+                                <UiField>
+                                    <UiButton type="submit" :disabled="loggingIn">
+                                        <UiSpinner v-if="loggingIn" />
+                                        {{ $t('auth.totp.verify') }}
+                                    </UiButton>
+                                    <UiButton
+                                        variant="outline"
+                                        type="button"
+                                        :disabled="loggingIn"
+                                        @click="handleBack"
+                                    >
+                                        <IArrowLeft />
+                                        {{ $t('auth.totp.back') }}
+                                    </UiButton>
+                                </UiField>
+                            </UiFieldGroup>
+                        </form>
+                    </UiCardContent>
+                </template>
+            </UiCard>
+        </Centered>
     </div>
 </template>
 
 <script setup lang="ts">
-import { browserSupportsWebAuthn, startAuthentication } from '@simplewebauthn/browser';
-import type { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/types';
+import {
+    browserSupportsWebAuthn,
+    type PublicKeyCredentialRequestOptionsJSON,
+    sendSignal,
+    startAuthentication,
+} from '@simplewebauthn/browser';
 
 const formErrors = ref();
 const turnstileRef = ref();
 
-const error = ref<string>();
 const loggingIn = ref(false);
 const passkeyLoggingIn = ref(false);
 
-const height = ref(380 /** initial */);
-
-const runtimeConfig = useRuntimeConfig();
+const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 
 const auth = reactive({
     username: '',
     password: '',
     turnstile: '',
+    totp: '',
 });
 
 const currentView = ref<'main' | 'totp'>('main');
@@ -196,38 +168,48 @@ const currentView = ref<'main' | 'totp'>('main');
 const route = useRoute();
 const currentUser = useAuthUser();
 const currentTheme = useTheme();
+const colorMode = useColorMode();
 
-const handleSubmit = async (totp?: string) => {
+const handleLoggedIn = async (user: any, session: any, messageKey: string) => {
+    currentUser.value = {
+        ...user,
+        currentSessionId: session.id,
+        createdAt: new Date(user.createdAt),
+    };
+
+    currentTheme.value = user.theme;
+    await applyLanguage(user.language);
+
+    const redirectTo = route.query.redirectTo;
+
+    await navigateTo(
+        typeof redirectTo === 'string' && /^\/(?![/\\])/.test(redirectTo)
+            ? redirectTo
+            : '/dashboard',
+    );
+
+    $toast.success(t(messageKey));
+};
+
+const handleSubmit = async () => {
     loggingIn.value = true;
     formErrors.value = {};
-    error.value = undefined;
 
     try {
         const { user, session } = await $fetch('/api/auth/login', {
             method: 'POST',
-            body: {
-                ...auth,
-                totp,
-            },
+            body: { ...auth, totp: auth.totp || undefined },
         });
 
-        currentUser.value = {
-            ...user,
-            currentSessionId: session.id,
-            createdAt: new Date(user.createdAt),
-        };
-
-        currentTheme.value = user.theme as never;
-
-        await navigateTo((route.query.redirectTo as string) || '/dashboard');
-
-        $toast.success('Logged in successfully');
-    } catch (_error: any) {
-        if (_error.data.message === 'Missing TOTP') {
+        await handleLoggedIn(user, session, 'auth.login.success');
+    } catch (error: any) {
+        if (error.data?.data?.totpRequired) {
             currentView.value = 'totp';
+            await nextTick();
+            document.querySelector<HTMLInputElement>('#totp input, input#totp')?.focus();
         } else {
-            if (!_error.data.data) $toast.error(_error.data.message);
-            formErrors.value = _error.data.data?.formErrors;
+            if (!error.data?.data) $toast.error(getErrorMessage(error));
+            formErrors.value = error.data?.data?.formErrors;
         }
 
         turnstileRef.value?.reset();
@@ -236,69 +218,54 @@ const handleSubmit = async (totp?: string) => {
     loggingIn.value = false;
 };
 
+const handleBack = () => {
+    auth.totp = '';
+    formErrors.value = {};
+    currentView.value = 'main';
+};
+
 const handlePasskeyLogin = async () => {
     passkeyLoggingIn.value = true;
 
-    const { ticket, authenticationOptions } = await $fetch<{
-        ticket: string;
-        authenticationOptions: PublicKeyCredentialRequestOptionsJSON;
-    }>('/api/auth/login/passwordless', {
-        method: 'POST',
-        body: { verify: false },
-        credentials: 'include',
-    });
+    try {
+        const { ticket, authenticationOptions } = await $fetch<{
+            ticket: string;
+            authenticationOptions: PublicKeyCredentialRequestOptionsJSON;
+        }>('/api/auth/login/passwordless', {
+            method: 'POST',
+            body: { verify: false },
+        });
 
-    const authenticationResponse = await startAuthentication({
-        optionsJSON: authenticationOptions,
-    }).catch(() => null);
+        const authenticationResponse = await startAuthentication({
+            optionsJSON: authenticationOptions,
+        }).catch(() => null);
 
-    if (authenticationResponse) {
-        try {
-            const { user, session } = await $fetch<any>('/api/auth/login/passwordless', {
-                method: 'POST',
-                body: {
-                    verify: true,
-                    ticket,
-                    authenticationResponse,
-                },
-            });
+        if (authenticationResponse) {
+            try {
+                const { user, session } = (await $fetch('/api/auth/login/passwordless', {
+                    method: 'POST',
+                    body: { verify: true, ticket, authenticationResponse },
+                })) as any;
 
-            currentUser.value = {
-                ...user,
-                currentSessionId: session.id,
-                createdAt: new Date(user.createdAt),
-            };
+                await handleLoggedIn(user, session, 'auth.login.passkeySuccess');
+            } catch (error: any) {
+                if (error.data?.data?.unknownCredential) {
+                    await sendSignal({
+                        signalName: 'unknownCredential',
+                        rpID: location.hostname,
+                        credentialID: authenticationResponse.id,
+                    }).catch(() => null);
+                }
 
-            currentTheme.value = user.theme as never;
-
-            await navigateTo((route.query.redirectTo as string) || '/dashboard');
-
-            $toast.success('Logged in successfully with passkey');
-        } catch (_error: any) {
-            if (_error.data) {
-                if (_error.data.message) $toast.error(_error.data.message);
-                else formErrors.value = _error.data.data;
-            } else {
-                $toast.error('Failed to verify passkey');
+                $toast.error(getErrorMessage(error));
             }
         }
+    } catch (error) {
+        $toast.error(getErrorMessage(error));
     }
 
     passkeyLoggingIn.value = false;
 };
-
-const calculateHeight = (el: Element) => {
-    height.value = el.clientHeight + (runtimeConfig.public.turnstile.siteKey ? 71 : 0);
-};
-
-onMounted(async () => {
-    const container = document.querySelector('form');
-
-    if (container) {
-        calculateHeight(container);
-        container.querySelector('input')?.focus();
-    }
-});
 
 definePageMeta({
     middleware: 'guest-only',

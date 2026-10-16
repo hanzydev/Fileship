@@ -10,7 +10,7 @@ COPY . .
 RUN npm i -g corepack@latest
 RUN corepack enable
 
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 RUN pnpm --filter updater-agent... build
 
 FROM node:24-slim AS runner

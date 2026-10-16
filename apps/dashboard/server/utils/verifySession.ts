@@ -1,18 +1,14 @@
 import { verify } from 'argon2';
 import type { H3Event } from 'h3';
 import { nanoid } from 'nanoid';
-import { verify as verifyTotp } from 'otplib';
 
 import { base64URLStringToBuffer } from '@simplewebauthn/browser';
 import {
+    type AuthenticationResponseJSON,
     generateAuthenticationOptions,
+    type PublicKeyCredentialRequestOptionsJSON,
     verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
-import type {
-    AuthenticationResponseJSON,
-    AuthenticatorTransportFuture,
-    PublicKeyCredentialRequestOptionsJSON,
-} from '@simplewebauthn/types';
 
 interface PasskeyVerificationData {
     ticket: string;
@@ -37,10 +33,7 @@ export const verifySession = async (
         },
     });
     if (!currentSession) {
-        throw createError({
-            statusCode: 401,
-            message: 'Session not found',
-        });
+        throw apiError(401, 'errorsAuth.sessionNotFound');
     }
 
     if (
@@ -56,7 +49,7 @@ export const verifySession = async (
                     id: true,
                     transports: true,
                 },
-            })) as { id: string; transports: AuthenticatorTransportFuture[] }[];
+            })) as { id: string; transports: string[] }[];
 
             let passkeyMethod: {
                 ticket: string;
@@ -81,50 +74,40 @@ export const verifySession = async (
                 });
             }
 
-            throw createError({
-                statusCode: 400,
-                message: 'Verification is required',
-                data: {
-                    mfa: {
-                        methods: [
-                            passkeyMethod && {
-                                type: 'passkey',
-                                ...passkeyMethod,
-                            },
-                            {
-                                type: currentUser.totpEnabled ? 'totp' : 'password',
-                            },
-                        ].filter(Boolean),
-                    },
+            throw apiError(400, 'errorsAuth.verificationRequired', undefined, {
+                mfa: {
+                    methods: [
+                        passkeyMethod && {
+                            type: 'passkey',
+                            ...passkeyMethod,
+                        },
+                        {
+                            type: currentUser.totpEnabled ? 'totp' : 'password',
+                        },
+                    ].filter(Boolean),
                 },
             });
         }
 
-        if (verificationData?.type === 'totp') {
+        await rateLimit(`verify:${currentUser.currentSessionId}`, 10, 15 * 60 * 1000);
+
+        if (verificationData.type === 'totp') {
             if (!currentUser.totpEnabled) {
-                throw createError({
-                    statusCode: 400,
-                    message: 'TOTP verification is not enabled for this user',
-                });
+                throw apiError(400, 'errorsAuth.totpNotEnabled');
             }
 
-            const totpValid = await verifyTotp({
-                secret: currentUser.totpSecret!,
-                token: verificationData.data as string,
-            });
-
-            if (!totpValid.valid) {
-                throw createError({
-                    statusCode: 401,
-                    message: 'Invalid TOTP',
-                });
+            if (
+                !(await verifyTotpToken(
+                    currentUser.id,
+                    currentUser.totpSecret!,
+                    verificationData.data as string,
+                ))
+            ) {
+                throw apiError(401, 'errorsAuth.invalidTotp');
             }
         } else if (verificationData?.type === 'password') {
             if (currentUser.totpEnabled) {
-                throw createError({
-                    statusCode: 400,
-                    message: 'Password verification is not allowed because TOTP is enabled',
-                });
+                throw apiError(400, 'errorsAuth.passwordNotAllowed');
             }
 
             const passwordMatch = await verify(
@@ -133,10 +116,7 @@ export const verifySession = async (
             );
 
             if (!passwordMatch) {
-                throw createError({
-                    statusCode: 401,
-                    message: 'Invalid password',
-                });
+                throw apiError(401, 'errorsAuth.invalidPassword');
             }
         } else if (verificationData?.type === 'passkey') {
             const { ticket, authenticationResponse } =
@@ -150,10 +130,7 @@ export const verifySession = async (
             });
 
             if (!findCredentialById) {
-                throw createError({
-                    statusCode: 401,
-                    message: 'Credential not found',
-                });
+                throw apiError(401, 'errorsAuth.passkeyNotFound');
             }
 
             const webauthnTicket = await storage.getItem<{
@@ -161,10 +138,7 @@ export const verifySession = async (
                 expiresAt: number;
             }>(`webauthnTicket:${ticket}`);
             if (!webauthnTicket || webauthnTicket.expiresAt < Date.now()) {
-                throw createError({
-                    statusCode: 400,
-                    message: 'Invalid or expired ticket',
-                });
+                throw apiError(400, 'errorsAuth.invalidTicket');
             }
 
             const expectedChallenge = webauthnTicket.expectedChallenge;
@@ -181,16 +155,13 @@ export const verifySession = async (
                         base64URLStringToBuffer(findCredentialById.publicKey),
                     ),
                     counter: findCredentialById.counter,
-                    transports: findCredentialById.transports as AuthenticatorTransportFuture[],
+                    transports: findCredentialById.transports,
                 },
                 requireUserVerification: true,
             });
 
             if (!response.verified) {
-                throw createError({
-                    statusCode: 401,
-                    message: 'Invalid passkey',
-                });
+                throw apiError(401, 'errorsAuth.invalidPasskey');
             }
 
             await prisma.credential.update({
@@ -202,10 +173,7 @@ export const verifySession = async (
                 },
             });
         } else {
-            throw createError({
-                statusCode: 400,
-                message: 'Invalid verification type',
-            });
+            throw apiError(400, 'errorsAuth.invalidVerificationType');
         }
 
         await prisma.session.update({

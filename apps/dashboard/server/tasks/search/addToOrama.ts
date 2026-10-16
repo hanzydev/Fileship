@@ -1,7 +1,7 @@
 import consola from 'consola';
 import dayjs from 'dayjs';
 
-import { insertMultiple } from '@orama/orama';
+import { type AnyOrama, getByID, insertMultiple } from '@orama/orama';
 
 export default defineTask({
     meta: {
@@ -13,21 +13,12 @@ export default defineTask({
             `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Adding data to Orama search database...`,
         );
 
-        const files = await prisma.file.findMany({
-            select: {
-                id: true,
-                fileName: true,
-                mimeType: true,
-                embedding: true,
-                textEmbedding: true,
-                caption: true,
-                ocrText: true,
-            },
-        });
+        const files = await prisma.file.findMany({ select: fileSearchSelect });
 
         const folders = await prisma.folder.findMany({
             select: {
                 id: true,
+                authorId: true,
                 name: true,
             },
         });
@@ -35,6 +26,7 @@ export default defineTask({
         const notes = await prisma.note.findMany({
             select: {
                 id: true,
+                authorId: true,
                 title: true,
             },
         });
@@ -55,20 +47,15 @@ export default defineTask({
             },
         });
 
-        await insertMultiple(
-            fileSearchDb,
-            files.map((file) => ({
-                ...file,
-                embedding: (file.embedding as number[]) || undefined,
-                textEmbedding: (file.textEmbedding as number[]) || undefined,
-                caption: file.caption || undefined,
-                ocrText: file.ocrText || undefined,
-            })),
-        );
-        await insertMultiple(folderSearchDb, folders);
-        await insertMultiple(noteSearchDb, notes);
-        await insertMultiple(userSearchDb, users);
-        await insertMultiple(logSearchDb, logs);
+        const missing = <T extends { id: string }>(db: AnyOrama, docs: T[]) =>
+            docs.filter((doc) => !getByID(db, doc.id));
+
+        await insertMultiple(fileSearchDb, missing(fileSearchDb, files).map(toFileSearchDoc));
+        await insertMultiple(folderSearchDb, missing(folderSearchDb, folders));
+        await insertMultiple(noteSearchDb, missing(noteSearchDb, notes));
+        await insertMultiple(userSearchDb, missing(userSearchDb, users));
+        await insertMultiple(logSearchDb, missing(logSearchDb, logs));
+        await reloadFileVectors();
 
         consola.success(
             `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - Successfully added data to Orama search database.`,

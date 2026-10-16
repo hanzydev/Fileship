@@ -1,29 +1,48 @@
+import { randomUUID } from 'node:crypto';
+import { hostname } from 'node:os';
+
 import consola from 'consola';
 
-export default defineNitroPlugin(async () => {
-    if (!AI_ENABLED) {
-        consola.warn(
-            'AI is disabled, queue runner will not start. Set NUXT_PUBLIC_AI_ENABLED=true to enable it.',
+export default defineNitroPlugin(async (nitroApp) => {
+    nitroApp.hooks.hook('close', () => stopAIWorker());
+
+    const workerId = `${hostname()}-${process.pid}-${randomUUID().slice(0, 8)}`;
+
+    if (!(await isAiEnabled())) {
+        consola.warn('AI is disabled, the queue runner is idle until it is enabled.');
+    } else {
+        ai.warmUp().catch((error) =>
+            consola.error(`Loading AI models failed: ${error?.message ?? error}`),
         );
-        return;
     }
 
-    const intervalMs = 1_000;
-    let running = false;
+    let active = 0;
+    let filling = false;
 
-    const tick = async () => {
-        if (running) return;
-        running = true;
+    const fill = async () => {
+        if (filling || !appState.ready) return;
+        filling = true;
 
         try {
-            await runTask('ai:processQueue');
+            const settings = await getSettings();
+            if (!settings.aiEnabled) return;
+
+            while (active < settings.aiQueueConcurrency) {
+                const job = await claimAIJob(workerId);
+                if (!job) break;
+
+                active++;
+                runAIJob(job, workerId).finally(() => {
+                    active--;
+                    fill();
+                });
+            }
         } catch (error: any) {
             consola.error(`AI queue runner failed: ${error?.message ?? error}`);
         } finally {
-            running = false;
+            filling = false;
         }
     };
 
-    await tick();
-    setInterval(tick, intervalMs);
+    setInterval(fill, 2_000);
 });

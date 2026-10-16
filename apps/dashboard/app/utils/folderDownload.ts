@@ -1,32 +1,18 @@
+import type { FolderData } from '~/types/folders';
+
 export const downloadFolder = async (folder: FolderData) => {
-    const { $toast } = useNuxtApp();
-    const currentUser = useAuthUser();
+    const { $toast, $i18n } = useNuxtApp();
+    const id = $toast.loading($i18n.t('actions.folder.preparingArchive'));
 
     try {
         const { jobId } = await $fetch(`/api/folders/${folder.id}/archive`, {
             method: 'POST',
         });
 
-        $toast.info('Preparing archive... Will download when ready.');
-
         const handleDownload = () => {
             downloadFile(`/api/folders/${folder.id}/archive/jobs/${jobId}/download`);
+            $toast.success($i18n.t('actions.folder.archiveReady'), { id });
         };
-
-        if (currentUser.value?.id && currentUser.value.id === folder.authorId) {
-            const socket = getSocket();
-            if (socket) {
-                const onArchiveReady = (folderId: string) => {
-                    if (folderId === folder.id) {
-                        handleDownload();
-                        socket.off('folder:archiveReady', onArchiveReady);
-                    }
-                };
-                socket.on('folder:archiveReady', onArchiveReady);
-            }
-
-            return;
-        }
 
         const interval = setInterval(async () => {
             try {
@@ -37,10 +23,10 @@ export const downloadFolder = async (folder: FolderData) => {
                 }
             } catch (e: any) {
                 clearInterval(interval);
-                $toast.error(e.data.message);
+                $toast.error(getErrorMessage(e), { id });
             }
         }, 2_000);
     } catch (error: any) {
-        $toast.error(error.data.message);
+        $toast.error(getErrorMessage(error), { id });
     }
 };

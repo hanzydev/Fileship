@@ -5,31 +5,33 @@ const validationSchema = z
         enabled: z.boolean().optional(),
         slug: z
             .string()
-            .min(1)
-            .max(48, 'Slug must be at most 48 characters')
+            .min(1, 'errorsUsers.slugRequired')
+            .max(48, 'errorsUsers.slugMax')
             .transform((value) =>
                 value
                     .toLowerCase()
                     .replace(/[^a-z0-9-_]/g, '')
                     .trim(),
             )
+            .pipe(
+                z
+                    .string()
+                    .min(1, 'errorsUsers.slugCharacters')
+                    .refine((value) => !isUuid(value), 'errorsUsers.slugReserved'),
+            )
             .nullish(),
-        password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
+        password: z.string().max(48, 'errorsUsers.passwordMax').nullish(),
     })
     .strict();
 
 export default defineEventHandler(async (event) => {
-    userOnly(event);
+    fileUploaderOnly(event);
 
     const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     if (body.data.slug) {
@@ -41,12 +43,11 @@ export default defineEventHandler(async (event) => {
         });
 
         if (findInboxBySlug) {
-            throw createError({
-                statusCode: 409,
-                message: 'Slug already taken',
-            });
+            throw apiError(409, 'errorsUsers.slugTaken');
         }
     }
+
+    await ensureInbox(currentUser.id);
 
     await prisma.inbox.update({
         where: {

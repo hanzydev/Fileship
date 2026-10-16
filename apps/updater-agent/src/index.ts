@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
+import { hostname } from 'node:os';
 
 import { consola } from 'consola';
 import { execa } from 'execa';
@@ -24,9 +25,16 @@ const AUTOUPDATER_ENABLED = process.env.AUTOUPDATER_ENABLED === 'true';
 const AUTOUPDATER_CRON = process.env.AUTOUPDATER_CRON || '0 3 * * *';
 
 const PORT = +process.env.PORT! || 3001;
-const SECRET_TOKEN = process.env.SECRET_TOKEN || 'dev-secret-token';
+const SECRET_TOKEN = process.env.SECRET_TOKEN || (IS_DEV ? 'dev-secret-token' : '');
 const COMPOSE_FILE = process.env.COMPOSE_FILE || 'docker-compose.yml';
-const FILESHIP_URL = process.env.FILESHIP_URL || 'http://fileship:3000';
+const FILESHIP_URL = process.env.FILESHIP_URL || 'http://proxy:3000';
+
+const COLORS = ['blue', 'green'] as const;
+const HEALTH_TIMEOUT = 3 * 60 * 1000;
+const RESTORE_WAIT_TIMEOUT = 10 * 60 * 1000;
+
+type Color = (typeof COLORS)[number];
+type UpdateStatus = 'Pulling' | 'Starting' | 'Switching' | 'Success' | 'Error';
 
 let isUpdating = false;
 
@@ -104,9 +112,65 @@ const isUpdateAvailable = async () => {
     };
 };
 
-const handleUpdate = async (
-    onStatus?: (status: 'Pulling' | 'Recreating' | 'Success' | 'Error') => Promise<void>,
-) => {
+const getComposeArgs = async () => {
+    const { stdout } = await execa('docker', [
+        'inspect',
+        hostname(),
+        '--format',
+        '{{ index .Config.Labels "com.docker.compose.project" }}|{{ index .Config.Labels "com.docker.compose.project.working_dir" }}',
+    ]);
+
+    const [project, workingDir] = stdout.trim().split('|');
+
+    const projectDir = workingDir!
+        .replace(/^([a-z]):[\\/]/i, (_, drive) => `/run/desktop/mnt/host/${drive.toLowerCase()}/`)
+        .replaceAll('\\', '/');
+
+    return ['compose', '-p', project!, '--project-directory', projectDir, '-f', COMPOSE_FILE];
+};
+
+const compose = async (...args: string[]) =>
+    execa('docker', [...(await getComposeArgs()), '--profile', 'green', ...args], {
+        cwd: rootDir,
+    });
+
+const getRunningColors = async () => {
+    const { stdout } = await compose('ps', '--status', 'running', '--services');
+    return COLORS.filter((color) => stdout.split('\n').includes(`fileship-${color}`));
+};
+
+const waitUntilHealthy = async (color: Color) => {
+    const startedAt = Date.now();
+
+    while (Date.now() - startedAt < HEALTH_TIMEOUT) {
+        const health = await ofetch<{ ready: boolean }>(
+            `http://fileship-${color}:3000/api/healthz`,
+            { timeout: 5_000 },
+        ).catch(() => null);
+
+        if (health?.ready) return true;
+
+        const { stdout: state } = await compose(
+            'ps',
+            '-a',
+            '--format',
+            '{{.State}}',
+            `fileship-${color}`,
+        );
+        if (['exited', 'dead', 'restarting'].includes(state.trim())) return false;
+
+        await new Promise((resolve) => setTimeout(resolve, 2_000));
+    }
+
+    return false;
+};
+
+const isFileshipBusy = async () => {
+    const health = await fsFetch<{ busy?: boolean }>('/healthz').catch(() => null);
+    return !!health?.busy;
+};
+
+const handleUpdate = async (onStatus?: (status: UpdateStatus) => Promise<void>) => {
     if (isUpdating) {
         consola.warn('An update is already in progress. Skipping this request.');
         return false;
@@ -116,29 +180,68 @@ const handleUpdate = async (
 
     consola.info('Starting update process...');
 
+    let target: Color | null = null;
+    let isSwitched = false;
+
     try {
-        consola.info('Pulling latest fileship image...');
+        const running = await getRunningColors();
+        target = running.includes('green') ? 'blue' : 'green';
+
+        const previous = running.filter((color) => color !== target);
+
+        consola.info(`Pulling latest fileship image...`);
 
         await onStatus?.('Pulling');
-        await execa('docker', ['compose', '-f', COMPOSE_FILE, 'pull', 'fileship'], {
-            cwd: rootDir,
-        });
+        await compose('pull', '--ignore-buildable', `fileship-${target}`);
 
-        consola.info('Recreating fileship container...');
+        consola.info(`Starting fileship-${target} next to ${previous.join(', ') || 'nothing'}...`);
 
-        await onStatus?.('Recreating');
-        await execa(
-            'docker',
-            ['compose', '-f', COMPOSE_FILE, 'up', '-d', '--no-deps', 'fileship'],
-            { cwd: rootDir },
+        await onStatus?.('Starting');
+        await compose(
+            'up',
+            '-d',
+            '--no-deps',
+            '--no-build',
+            '--force-recreate',
+            `fileship-${target}`,
         );
 
-        consola.success('Fileship updated successfully!');
+        if (!(await waitUntilHealthy(target))) {
+            throw new Error(`fileship-${target} failed to become healthy`);
+        }
+
+        consola.info(`fileship-${target} is healthy, switching traffic...`);
+
+        await onStatus?.('Switching');
+
+        isSwitched = true;
+
         await onStatus?.('Success');
+
+        const waitStartedAt = Date.now();
+
+        while ((await isFileshipBusy()) && Date.now() - waitStartedAt < RESTORE_WAIT_TIMEOUT) {
+            consola.info('A backup is being restored, waiting before stopping the old version...');
+            await new Promise((resolve) => setTimeout(resolve, 5_000));
+        }
+
+        for (const color of previous) {
+            await compose('stop', `fileship-${color}`);
+        }
+
+        consola.success(`Fileship updated successfully, fileship-${target} is now serving.`);
 
         return true;
     } catch (error) {
         consola.error('Update execution failed:', error);
+
+        if (isSwitched) return true;
+
+        if (target) {
+            consola.info(`Rolling back, stopping fileship-${target}...`);
+            await compose('stop', `fileship-${target}`).catch(() => null);
+        }
+
         await onStatus?.('Error');
 
         return false;
@@ -161,6 +264,10 @@ cron.schedule(AUTOUPDATER_CRON, async () => {
         );
     }
 
+    if (await isFileshipBusy()) {
+        return consola.info('A backup is being restored, skipping this auto-update.');
+    }
+
     consola.info(`New version found: ${updateAvailable.latestVersion}. Executing auto-update...`);
 
     await handleUpdate();
@@ -175,8 +282,8 @@ router.use(
     '/api/**',
     defineEventHandler((event) => {
         const authHeader = getRequestHeader(event, 'Authorization');
-        if (authHeader !== SECRET_TOKEN) {
-            throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });
+        if (!SECRET_TOKEN || authHeader !== SECRET_TOKEN) {
+            throw createError({ status: 401, statusText: 'Unauthorized' });
         }
     }),
 );
@@ -186,16 +293,16 @@ router.post(
     defineEventHandler((event) => {
         if (isUpdating) {
             throw createError({
-                statusCode: 409,
-                statusMessage: 'An update is already in progress',
+                status: 409,
+                statusText: 'An update is already in progress',
             });
         }
 
         const eventStream = createEventStream(event);
 
         handleUpdate(async (status) => {
-            await eventStream.push(JSON.stringify({ status }));
-            if (['Success', 'Error'].includes(status)) await eventStream.close();
+            await eventStream.push(JSON.stringify({ status })).catch(() => null);
+            if (['Success', 'Error'].includes(status)) await eventStream.close().catch(() => null);
         });
 
         return eventStream.send();
@@ -208,4 +315,10 @@ const server = createServer(toNodeListener(app));
 
 server.listen(PORT, '0.0.0.0', () => {
     consola.info(`Updater agent running on port ${PORT}`);
+
+    if (!SECRET_TOKEN) {
+        consola.warn(
+            'SECRET_TOKEN is not set, so the dashboard cannot start updates. Add it to the .env file next to docker-compose.yml.',
+        );
+    }
 });

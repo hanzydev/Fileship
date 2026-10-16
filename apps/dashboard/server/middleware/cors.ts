@@ -1,7 +1,6 @@
 export default defineEventHandler((event) => {
     if (isPreflightRequest(event)) {
-        event.node.res.statusCode = 204;
-        event.node.res.statusMessage = 'No Content';
+        setResponseStatus(event, 204, 'No Content');
         return 'OK';
     }
 });

@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 
-interface FileSettings {
+export interface FileSettings {
     fileNameType?: 'Random' | 'UUID' | 'Original';
     maxViews?: number;
     password?: string | null;
@@ -52,15 +52,13 @@ export const uploadFile = async (
     },
     uploadEndpoint = '/api/files',
 ) => {
-    let {
-        public: { fileChunkSize },
-    } = useRuntimeConfig();
     const uploadingFiles = useUploadingFiles();
+    const { t } = useNuxtApp().$i18n;
 
-    fileChunkSize = (+fileChunkSize || 25) * 1024 * 1024;
+    const fileChunkSize = usePublicSettings().value.fileChunkSize * 1024 * 1024;
 
-    const chunks = Math.ceil(file.size / fileChunkSize);
-    const uploadingFile = uploadingFiles.value.find((f) => f.name === file.name);
+    const chunks = Math.max(1, Math.ceil(file.size / fileChunkSize));
+    const uploadingFile = uploadingFiles.value.find((f) => toRaw(f) === toRaw(file));
 
     if (!uploadingFile) return;
 
@@ -83,7 +81,7 @@ export const uploadFile = async (
 
     const startedAt = Date.now();
     const uploadId = nanoid();
-    
+
     let uploadedFileUrl = '';
 
     for (let i = 0; i < chunks; i++) {
@@ -99,7 +97,7 @@ export const uploadFile = async (
         formData.append('totalChunks', chunks.toString());
         formData.append('chunkOffset', start.toString());
 
-        if ('maxViews' in settings) formData.append('maxViews', settings.maxViews!.toString());
+        if (settings.maxViews != null) formData.append('maxViews', settings.maxViews.toString());
         if (settings.fileNameType) formData.append('fileNameType', settings.fileNameType);
         if (settings.compression) formData.append('compression', settings.compression.toString());
         if (settings.password) formData.append('password', settings.password);
@@ -130,7 +128,9 @@ export const uploadFile = async (
                     const loaded = start + e.loaded;
                     const elapsedSeconds = Math.max((Date.now() - startedAt) / 1000, 0.001);
                     const speed = loaded / elapsedSeconds;
-                    const percent = clamp(Math.round((loaded / file.size) * 100), 0, 99);
+                    const percent = file.size
+                        ? clamp(Math.round((loaded / file.size) * 100), 0, 99)
+                        : 0;
                     const eta = Math.max(0, Math.round((file.size - loaded) / speed));
 
                     uploadingFile.status!.progress = { speed, percent, eta };
@@ -146,7 +146,9 @@ export const uploadFile = async (
                             settle({
                                 ok: false,
                                 retryable: req.status >= 500 && canRetry(),
-                                error: `Upload failed with an invalid server response (${req.status})`,
+                                error: t('upload.errors.invalidResponse', {
+                                    status: req.status,
+                                }),
                             });
                             return;
                         }
@@ -156,7 +158,9 @@ export const uploadFile = async (
                         settle({
                             ok: false,
                             retryable: (req.status === 0 || req.status >= 500) && canRetry(),
-                            error: response.message || `Upload failed (${req.status})`,
+                            error:
+                                response.message ||
+                                t('upload.errors.failedStatus', { status: req.status }),
                         });
                         return;
                     }
@@ -167,21 +171,21 @@ export const uploadFile = async (
                     settle({
                         ok: false,
                         retryable: canRetry(),
-                        error: 'Network error during upload',
+                        error: t('upload.errors.network'),
                     }),
                 );
                 req.addEventListener('timeout', () =>
                     settle({
                         ok: false,
                         retryable: canRetry(),
-                        error: 'Upload request timed out',
+                        error: t('upload.errors.timeout'),
                     }),
                 );
                 req.addEventListener('abort', () =>
                     settle({
                         ok: false,
                         retryable: canRetry(),
-                        error: 'Upload request was aborted',
+                        error: t('upload.errors.aborted'),
                     }),
                 );
 
@@ -194,7 +198,7 @@ export const uploadFile = async (
         }
 
         if (!result.ok) {
-            uploadingFile.status!.error = result.error || 'Upload failed';
+            uploadingFile.status!.error = result.error || t('upload.errors.failed');
             return false;
         }
 

@@ -1,6 +1,4 @@
-import { createReadStream, existsSync } from 'node:fs';
-
-import { join } from 'pathe';
+import { createReadStream } from 'node:fs';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -8,64 +6,56 @@ export default defineEventHandler(async (event) => {
     const fileNameOrId = decodeURIComponent(getRouterParam(event, 'id')!);
     const query = getQuery(event);
 
-    const findFileById = await prisma.file.findFirst({
-        where: {
-            OR: [
-                {
-                    id: fileNameOrId,
-                },
-                {
-                    fileName: fileNameOrId,
-                },
-            ],
-        },
-        include: {
-            folder: {
-                select: {
-                    public: true,
+    let findFileById = null;
+
+    for (const lookup of fileLookups(fileNameOrId)) {
+        findFileById = await prisma.file.findFirst({
+            where: lookup,
+            include: {
+                folder: {
+                    select: {
+                        public: true,
+                    },
                 },
             },
-        },
-    });
-
-    if (!findFileById) {
-        throw createError({
-            statusCode: 404,
-            message: 'File not found',
         });
+
+        if (findFileById) break;
+    }
+
+    if (
+        !findFileById ||
+        (findFileById.authorId !== currentUser?.id &&
+            (findFileById.deletedAt || isHiddenFromVisitors(findFileById)))
+    ) {
+        throw apiError(404, 'errorsFiles.fileNotFound');
     }
 
     if (findFileById.authorId !== currentUser?.id) {
         if (findFileById.folder?.public === false) {
-            throw createError({
-                statusCode: 403,
-                message: 'You do not have permission to access this page',
-            });
+            throw apiError(403, 'errorsFiles.noAccess');
         }
 
-        if (findFileById.password && query.password !== findFileById.password) {
-            throw createError({
-                statusCode: 401,
-                message: 'Invalid password',
-            });
+        if (
+            findFileById.password &&
+            !(await limitPasswordAttempts(
+                event,
+                findFileById.id,
+                query.password === findFileById.password,
+            ))
+        ) {
+            throw apiError(401, 'errorsFiles.invalidPassword');
         }
     }
 
-    if (!findFileById.mimeType.startsWith('video/')) {
-        throw createError({
-            statusCode: 400,
-            message: 'File is not a video',
-        });
+    if (!canHaveThumbnail(findFileById.mimeType) || !hasThumbnail(findFileById.id)) {
+        throw apiError(404, 'errorsFiles.thumbnailNotFound');
     }
 
-    const thumbnailPath = join(dataDirectory, 'thumbnails', `${findFileById.id}.jpeg`);
+    setResponseHeaders(event, {
+        'Content-Type': 'image/jpeg',
+        'Cache-Control': 'private, max-age=31536000, immutable',
+    });
 
-    if (!existsSync(thumbnailPath)) {
-        throw createError({
-            statusCode: 404,
-            message: 'Thumbnail not found',
-        });
-    }
-
-    return sendStream(event, createReadStream(thumbnailPath));
+    return sendStream(event, createReadStream(getThumbnailPath(findFileById.id)));
 });

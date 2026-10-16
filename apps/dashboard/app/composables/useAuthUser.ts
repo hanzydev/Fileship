@@ -1,10 +1,19 @@
 import type { UserModel } from '#shared/prisma/models';
 
+import type { UserBasicStats } from '~/types/users';
+
 export type AuthUserData = Omit<
     UserModel,
-    'password' | 'totpSecret' | 'embed' | 'domains' | 'aiSettings' | 'limits'
+    | 'password'
+    | 'totpSecret'
+    | 'embed'
+    | 'domains'
+    | 'aiSettings'
+    | 'limits'
+    | 'backupRestoreStartedAt'
 > & {
     currentSessionId: string;
+    impersonator?: string | null;
     stats: UserBasicStats;
     aiSettings: IUserAiSettings;
 };

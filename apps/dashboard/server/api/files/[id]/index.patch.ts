@@ -1,23 +1,34 @@
-import { existsSync } from 'node:fs';
-
-import { filesize } from 'filesize';
-import { join } from 'pathe';
 import { z } from 'zod';
 
-import { update } from '@orama/orama';
+import { AIJobType } from '#shared/prisma/enums';
 
 const validationSchema = z
     .object({
         fileName: z
             .string()
-            .min(3, 'File name must be at least 3 characters')
-            .max(255, 'File name must be at most 255 characters')
-            .transform((value) => value.replace(/[^a-zA-Z0-9-_.]/g, '').trim())
+            .transform((value) => toFileNameSlug(value))
+            .pipe(
+                z
+                    .string()
+                    .min(3, 'errorsFiles.fileNameMin')
+                    .max(255, 'errorsFiles.fileNameMax')
+                    .regex(/^[^.]/, 'errorsFiles.fileNameDot')
+                    .refine((value) => !isUuid(value), 'errorsFiles.fileNameReserved'),
+            )
             .optional(),
-        password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
-        maxViews: z.number().min(0, 'Max views must be at least 0').optional(),
-        expiration: z.number().min(0, 'Expiration must be at least 0').nullish(),
-        folderId: z.string().nullish(),
+        name: z
+            .string()
+            .transform((value) => value.replace(/[\\/:*?"<>|\p{Cc}]/gu, '').trim())
+            .pipe(z.string().min(1, 'errorsFiles.nameRequired').max(255, 'errorsFiles.nameMax'))
+            .optional(),
+        password: z.string().max(48, 'errorsFiles.passwordMax').nullish(),
+        maxViews: z.number().int().min(0, 'errorsFiles.maxViewsMin').optional(),
+        expiration: z.number().int().min(0, 'errorsFiles.expirationMin').nullish(),
+        folderId: z
+            .string()
+            .nullish()
+            .transform((value) => (value === '' ? null : value)),
+        sensitive: z.boolean().nullable().optional(),
     })
     .strict();
 
@@ -27,13 +38,7 @@ export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
-    if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     const fileId = getRouterParam(event, 'id');
 
@@ -41,14 +46,12 @@ export default defineEventHandler(async (event) => {
         where: {
             id: fileId,
             authorId: currentUser.id,
+            deletedAt: null,
         },
     });
 
     if (!findFileById) {
-        throw createError({
-            statusCode: 404,
-            message: 'File not found',
-        });
+        throw apiError(404, 'errorsFiles.fileNotFound');
     }
 
     if ('expiration' in body.data) {
@@ -59,19 +62,28 @@ export default defineEventHandler(async (event) => {
         delete body.data.expiration;
     }
 
+    if ('sensitive' in body.data) {
+        const { sensitive } = body.data;
+
+        Object.assign(body.data, {
+            piiOverride: sensitive,
+            piiDetected: sensitive ?? findFileById.piiReasons.length > 0,
+        });
+
+        delete body.data.sensitive;
+    }
+
     if (body.data.folderId) {
         const findFolderById = await prisma.folder.findUnique({
             where: {
                 id: body.data.folderId,
                 authorId: currentUser.id,
+                deletedAt: null,
             },
         });
 
         if (!findFolderById) {
-            throw createError({
-                statusCode: 404,
-                message: 'Folder not found',
-            });
+            throw apiError(404, 'errorsFiles.folderNotFound');
         }
     }
 
@@ -83,16 +95,15 @@ export default defineEventHandler(async (event) => {
         });
 
         if (findFileByFileName) {
-            throw createError({
-                statusCode: 409,
-                message: 'A file with that name already exists',
-            });
+            throw apiError(
+                409,
+                findFileByFileName.deletedAt ? 'errorsFiles.nameInTrash' : 'errorsFiles.nameExists',
+            );
         }
 
-        await moveFileRobust(
-            join(dataDirectory, 'uploads', findFileById.fileName),
-            join(dataDirectory, 'uploads', body.data.fileName),
-        );
+        await (
+            await getStorage(findFileById.storageId)
+        ).move(uploadKey(findFileById.fileName), uploadKey(body.data.fileName));
     }
 
     const _updatedFile = await prisma.file.update({
@@ -100,7 +111,8 @@ export default defineEventHandler(async (event) => {
             id: fileId,
         },
         include: {
-            views: true,
+            folder: { select: { id: true, name: true } },
+            _count: { select: { views: true } },
         },
         data: body.data,
         omit: {
@@ -110,51 +122,41 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const updatedFile = {
-        ..._updatedFile,
-        size: {
-            raw: _updatedFile.size.toString(),
-            formatted: filesize(_updatedFile.size),
-        },
-        views: {
-            total: _updatedFile.views.length,
-            today: _updatedFile.views.filter((view) => {
-                const now = new Date();
+    const todayViews = await getTodayViews([_updatedFile.id]);
+    const updatedFile = serializeFile(
+        event,
+        _updatedFile,
+        currentUser.domains,
+        todayViews.get(_updatedFile.id),
+    );
 
-                return (
-                    view.createdAt.getDate() === now.getDate() &&
-                    view.createdAt.getMonth() === now.getMonth() &&
-                    view.createdAt.getFullYear() === now.getFullYear()
-                );
-            }).length,
-        },
-        directUrl: buildPublicUrl(event, currentUser.domains, `/u/${_updatedFile.fileName}`),
-        embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${_updatedFile.fileName}`),
-        thumbnailUrl: _updatedFile.mimeType.startsWith('video/')
-            ? existsSync(join(dataDirectory, 'thumbnails', `${_updatedFile.id}.jpeg`))
-                ? buildPublicUrl(
-                      event,
-                      currentUser.domains,
-                      `/u/${_updatedFile.fileName}/thumbnail`,
-                  )
-                : null
-            : undefined,
-    };
+    await upsertFileSearchEntry(updatedFile.id);
 
-    await update(fileSearchDb, updatedFile.id, {
-        id: updatedFile.id,
-        fileName: updatedFile.fileName,
-        mimeType: updatedFile.mimeType,
-        embedding: (findFileById.embedding as never[]) || undefined,
-        textEmbedding: (findFileById.textEmbedding as never[]) || undefined,
-    });
+    if (
+        (body.data as any).piiOverride === null &&
+        (currentUser.aiSettings?.enabled ?? true) &&
+        ['image', 'text'].includes(getAIFileKind(updatedFile.fileName)!)
+    )
+        event.waitUntil(
+            enqueueAIJob({
+                userId: currentUser.id,
+                fileId: updatedFile.id,
+                type: AIJobType.DetectPII,
+            }),
+        );
 
     await createLog(event, {
         action: 'Update File',
         message: `Updated file ${updatedFile.fileName}`,
     });
 
-    sendToUser(currentUser.id, 'file:update', updatedFile);
+    sendToUser(
+        currentUser.id,
+        'file:update',
+        updatedFile.folderId === findFileById.folderId
+            ? { ...updatedFile, folderId: undefined, folder: undefined }
+            : updatedFile,
+    );
 
     return updatedFile;
 });

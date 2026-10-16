@@ -1,9 +1,4 @@
-import { rm } from 'node:fs/promises';
-
-import { join } from 'pathe';
 import z from 'zod';
-
-import { remove } from '@orama/orama';
 
 const validationSchema = z.object({
     deleteFilesToo: z.boolean().optional(),
@@ -17,85 +12,53 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     const findFolderById = await prisma.folder.findUnique({
         where: {
             id: folderId,
             authorId: currentUser.id,
+            deletedAt: null,
         },
         include: {
-            files: true,
+            files: { where: { deletedAt: null } },
             inbox: true,
         },
     });
 
     if (!findFolderById) {
-        throw createError({
-            statusCode: 404,
-            message: 'Folder not found',
-        });
+        throw apiError(404, 'errorsContent.folderNotFound');
     }
 
     if (findFolderById.inbox) {
-        throw createError({
-            statusCode: 400,
-            message: 'Cannot delete inbox folder',
-        });
+        throw apiError(400, 'errorsContent.inboxFolderDelete');
     }
 
-    await prisma.$transaction(async (tx) => {
-        if (body.data.deleteFilesToo) {
-            const fileIds = findFolderById.files.map((file) => file.id);
+    const isTrashed = await isTrashEnabled();
 
-            await tx.view.deleteMany({
-                where: {
-                    fileId: { in: fileIds },
-                },
-            });
+    if (isTrashed) {
+        const deletedAt = new Date();
 
-            await tx.file.deleteMany({
-                where: {
-                    id: { in: fileIds },
-                },
-            });
-        }
-
-        await tx.folder.delete({
-            where: {
-                id: folderId,
-            },
-        });
-    });
+        await prisma.$transaction([
+            prisma.file.updateMany({
+                where: { id: { in: findFolderById.files.map((file) => file.id) } },
+                data: body.data.deleteFilesToo ? { deletedAt } : { folderId: null },
+            }),
+            prisma.folder.update({ where: { id: folderId }, data: { deletedAt } }),
+        ]);
+    } else {
+        if (body.data.deleteFilesToo) await deleteFilesForever(findFolderById.files);
+        await deleteFoldersForever([folderId!]);
+    }
 
     if (body.data.deleteFilesToo) {
         const deletionPromises = findFolderById.files.map(async (file) => {
-            const rmPromises = [
-                rm(join(dataDirectory, 'uploads', file.fileName), {
-                    force: true,
-                }),
-            ];
-
-            if (file.mimeType.startsWith('video/')) {
-                rmPromises.push(
-                    rm(join(dataDirectory, 'thumbnails', `${file.id}.jpeg`), {
-                        force: true,
-                    }),
-                );
-            }
-
-            await Promise.allSettled(rmPromises);
-
-            await remove(fileSearchDb, file.id);
-
             await createLog(event, {
                 action: 'Delete File',
-                message: `Deleted file ${file.fileName}`,
+                message: isTrashed
+                    ? `Moved file ${file.fileName} to trash`
+                    : `Deleted file ${file.fileName}`,
             });
 
             sendToUser(currentUser.id, 'file:delete', file.id);
@@ -104,12 +67,13 @@ export default defineEventHandler(async (event) => {
         await Promise.allSettled(deletionPromises);
     }
 
-    await remove(folderSearchDb, folderId!);
-
     await createLog(event, {
         action: 'Delete Folder',
-        message: `Deleted folder ${findFolderById.name}`,
+        message: isTrashed
+            ? `Moved folder ${findFolderById.name} to trash`
+            : `Deleted folder ${findFolderById.name}`,
     });
 
     sendToUser(currentUser.id, 'folder:delete', folderId);
+    sendToUser(currentUser.id, 'trash:update', null);
 });

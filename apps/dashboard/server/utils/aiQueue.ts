@@ -1,124 +1,62 @@
 import { AIJobStatus, type AIJobType } from '#shared/prisma/enums';
+import type { AIJob } from '~~/generated/prisma/client';
 
-const AI_JOB_LEASE_MS = Math.max(60_000, +(process.env.AI_JOB_LEASE_MS ?? 15 * 60_000));
-const AI_JOB_DEQUEUE_RETRIES = Math.max(1, +(process.env.AI_JOB_DEQUEUE_RETRIES ?? 5));
+export const AI_MAX_ATTEMPTS = 3;
 
-export const AI_ENABLED = (process.env.NUXT_PUBLIC_AI_ENABLED || 'true') === 'true';
-
-export interface EnqueueAIJobOptions {
+export const enqueueAIJob = async (options: {
     userId: string;
-    fileId?: string | null;
+    fileId: string;
     type: AIJobType;
-}
+}) => {
+    if (!(await isAiEnabled())) return null;
 
-export interface DequeueAIJobOptions {
-    workerId: string;
-}
-
-export const enqueueAIJob = async (options: EnqueueAIJobOptions) => {
-    if (!AI_ENABLED) return;
-
-    if (options.fileId) {
-        const existing = await prisma.aIJob.findFirst({
-            where: {
-                userId: options.userId,
-                fileId: options.fileId,
-                type: options.type,
-                status: { in: [AIJobStatus.Pending, AIJobStatus.Processing] },
-            },
-            select: { id: true },
-        });
-        if (existing) return existing;
-    }
-
-    return prisma.aIJob.create({
-        data: {
-            userId: options.userId,
-            fileId: options.fileId ?? null,
-            type: options.type,
-            status: AIJobStatus.Pending,
-        },
-        select: { id: true },
+    return prisma.aIJob.create({ data: options, select: { id: true } }).catch((error) => {
+        if (error?.code === 'P2002') return null;
+        throw error;
     });
 };
 
-export const dequeueAIJob = async ({ workerId }: DequeueAIJobOptions) => {
-    if (!AI_ENABLED) return;
+export const claimAIJob = async (workerId: string) => {
+    const { aiJobLeaseMs } = await getSettings();
+    const now = new Date();
+    const leaseCutoff = new Date(now.getTime() - aiJobLeaseMs);
 
-    for (let i = 0; i < AI_JOB_DEQUEUE_RETRIES; i++) {
-        const claimed = await prisma.$transaction(async (tx) => {
-            const now = new Date();
-            const leaseCutoff = new Date(now.getTime() - AI_JOB_LEASE_MS);
+    const [job] = await prisma.$queryRaw<AIJob[]>`
+        UPDATE "AIJob"
+        SET "status" = 'Processing',
+            "lockedAt" = ${now.toISOString()}::timestamp,
+            "lockedBy" = ${workerId},
+            "attempts" = "attempts" + 1,
+            "updatedAt" = ${now.toISOString()}::timestamp
+        WHERE "id" = (
+            SELECT "id" FROM "AIJob"
+            WHERE "status" = 'Pending'
+               OR ("status" = 'Processing' AND ("lockedAt" IS NULL OR "lockedAt" < ${leaseCutoff.toISOString()}::timestamp))
+            ORDER BY "createdAt" ASC
+            LIMIT 1
+            FOR UPDATE SKIP LOCKED
+        )
+        RETURNING *`;
 
-            const pending = await tx.aIJob.findFirst({
-                where: { status: AIJobStatus.Pending, lockedAt: null },
-                orderBy: { createdAt: 'asc' },
-                select: { id: true },
-            });
-
-            const candidateId = pending?.id;
-            if (candidateId) {
-                const res = await tx.aIJob.updateMany({
-                    where: { id: candidateId, status: AIJobStatus.Pending, lockedAt: null },
-                    data: {
-                        status: AIJobStatus.Processing,
-                        lockedAt: now,
-                        lockedBy: workerId,
-                        attempts: { increment: 1 },
-                    },
-                });
-
-                if (res.count !== 1) return null;
-                return tx.aIJob.findUnique({ where: { id: candidateId } });
-            }
-
-            const stale = await tx.aIJob.findFirst({
-                where: { status: AIJobStatus.Processing, lockedAt: { lt: leaseCutoff } },
-                orderBy: { lockedAt: 'asc' },
-                select: { id: true },
-            });
-
-            const staleId = stale?.id;
-            if (!staleId) return null;
-
-            const res = await tx.aIJob.updateMany({
-                where: {
-                    id: staleId,
-                    status: AIJobStatus.Processing,
-                    lockedAt: { lt: leaseCutoff },
-                },
-                data: {
-                    status: AIJobStatus.Processing,
-                    lockedAt: now,
-                    lockedBy: workerId,
-                    attempts: { increment: 1 },
-                },
-            });
-
-            if (res.count !== 1) return null;
-            return tx.aIJob.findUnique({ where: { id: staleId } });
-        });
-
-        if (claimed) return claimed;
-    }
-
-    return null;
+    return job ?? null;
 };
 
-export const completeAIJob = async (jobId: string) => {
-    if (!AI_ENABLED) return;
-
-    return prisma.aIJob.update({
-        where: { id: jobId },
-        data: { status: AIJobStatus.Completed, lockedAt: null, lockedBy: null, error: null },
+export const renewAIJob = (jobId: string, workerId: string) =>
+    prisma.aIJob.updateMany({
+        where: { id: jobId, lockedBy: workerId, status: AIJobStatus.Processing },
+        data: { lockedAt: new Date() },
     });
-};
 
-export const failAIJob = async (jobId: string, error: string) => {
-    if (!AI_ENABLED) return;
+export const completeAIJob = (jobId: string) => prisma.aIJob.deleteMany({ where: { id: jobId } });
 
-    return prisma.aIJob.update({
+export const failAIJob = (jobId: string, error: string) =>
+    prisma.aIJob.updateMany({
         where: { id: jobId },
         data: { status: AIJobStatus.Failed, lockedAt: null, lockedBy: null, error },
     });
-};
+
+export const retryAIJobLater = (jobId: string, error: string) =>
+    prisma.aIJob.updateMany({
+        where: { id: jobId },
+        data: { lockedAt: new Date(), lockedBy: null, error },
+    });

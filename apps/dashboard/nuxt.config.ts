@@ -1,55 +1,71 @@
-import pkg from '../../package.json';
+import { copyFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
+
+import ffprobe from '@ffprobe-installer/ffprobe';
+
+import pkg from '../../package.json' with { type: 'json' };
+
+const aiWorkerPath = join(
+    dirname(createRequire(import.meta.url).resolve('@fileship/ai/package.json')),
+    'dist/worker.mjs',
+);
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': '*',
-    'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Allow-Headers': '*',
     'Access-Control-Expose-Headers': '*',
 };
 
 export default defineNuxtConfig({
+    extends: ['@fileship/ui'],
+
     future: {
         compatibilityVersion: 5,
     },
 
-    modules: [
-        '@nuxtjs/turnstile',
-        '@nuxt/eslint',
-        '@nuxt/fonts',
-        '@vueuse/nuxt',
-        '@unocss/nuxt',
-        '@nuxt/icon',
-        'vue-sonner/nuxt',
-    ].concat((process.env.ENABLE_PWA || 'true') === 'true' ? ['@vite-pwa/nuxt'] : []),
+    modules: ['@nuxtjs/turnstile'].concat(
+        (process.env.ENABLE_PWA || 'true') === 'true' ? ['@vite-pwa/nuxt'] : [],
+    ),
+
+    components: [
+        {
+            path: '~/components',
+            extensions: ['.vue'],
+        },
+    ],
 
     css: [
-        '~/styles/main.css',
-        '@unocss/reset/tailwind.css',
-        '~/styles/apexcharts.css',
-        '~/styles/sonner.css',
+        '~/styles/tailwind.css',
         'katex/dist/katex.min.css',
         'highlight.js/styles/tokyo-night-dark.css',
     ],
 
-    fonts: {
-        families: [
-            {
-                name: 'Nunito Sans',
-                provider: 'google',
-                weights: [300, 400, 500, 600, 700],
-            },
+    i18n: {
+        locales: [
+            { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+            { code: 'tr', language: 'tr-TR', name: 'Türkçe', file: 'tr.json' },
         ],
+        detectBrowserLanguage: {
+            useCookie: true,
+            cookieKey: 'fileship_locale',
+            fallbackLocale: 'en',
+        },
+        experimental: {
+            localeDetector: 'localeDetector.ts',
+        },
     },
 
-    imports: { autoImport: true },
+    imports: {
+        autoImport: true,
+    },
 
     devtools: {
         enabled: true,
     },
 
     experimental: {
-        clientNodeCompat: true,
         nitroAutoImports: true,
     },
 
@@ -57,6 +73,7 @@ export default defineNuxtConfig({
         experimental: {
             websocket: true,
             tasks: true,
+            asyncContext: true,
         },
         esbuild: {
             options: {
@@ -67,7 +84,11 @@ export default defineNuxtConfig({
             [process.env.DELETE_EXPIRED_CRON || '*/5 * * * *']: 'db:deleteExpired',
             [process.env.GENERATE_STATS_CRON || '*/30 * * * *']: 'db:generateStats',
 
-            '0 */2 * * *': 'telemetry:collect',
+            '0 * * * *': 'dir:clearTemp',
+            '30 * * * *': 'db:purgeTrash',
+            '* * * * *': 'search:refresh',
+            '15 4 * * *': 'ai:cleanup',
+            '0 */6 * * *': 'telemetry:collect',
         },
         framework: {
             name: pkg.name,
@@ -75,6 +96,18 @@ export default defineNuxtConfig({
         },
         imports: {
             autoImport: true,
+        },
+        externals: {
+            traceInclude: [ffprobe.path, aiWorkerPath],
+        },
+        hooks: {
+            compiled: async (nitro) => {
+                if (!nitro.options.dev)
+                    await copyFile(
+                        aiWorkerPath,
+                        join(nitro.options.output.serverDir, 'worker.mjs'),
+                    );
+            },
         },
     },
 
@@ -91,27 +124,44 @@ export default defineNuxtConfig({
                 siteKey: '',
             },
             aiEnabled: true,
+            registrationEnabled: false,
             site: {
                 name: 'Fileship',
-                description:
-                    'Fileship is an open-source and self-hosted image uploading service with cool features.',
             },
         },
         turnstile: {
             secretKey: '',
         },
+        registration: {
+            permissions: 'UploadFiles,TakeNotes,ShortenLinks',
+            usableSpace: -1,
+        },
+        dataDirectory: 'data',
+        removeExifData: true,
+        avatarMaxSize: 4,
+        trashRetentionDays: 30,
+        logLevel: 2,
+        telemetryEnabled: true,
+        telemetryUrl: '',
+        updater: {
+            url: 'http://updater-agent:3001',
+            secret: 'dev-secret-token',
+        },
+        ai: {
+            preset: 'medium',
+            queueConcurrency: 1,
+            inferenceThreads: 2,
+            jobLeaseMs: 2 * 60_000,
+        },
     },
 
     app: {
-        buildAssetsDir: '/_fileship/',
+        buildAssetsDir: '/_hanzy_was_here/',
         rootAttrs: {
-            id: '__FileshipRoot',
+            id: '__fileship',
         },
         head: {
             title: 'Fileship',
-            htmlAttrs: {
-                lang: 'en',
-            },
             link: [
                 {
                     rel: 'icon',
@@ -144,15 +194,18 @@ export default defineNuxtConfig({
         },
         optimizeDeps: {
             include: [
-                '@vue/devtools-core',
-                '@vue/devtools-kit',
+                '@unovis/vue',
                 'dayjs', // CJS
+                'dayjs/locale/tr', // CJS
                 'dayjs/plugin/duration', // CJS
+                'dayjs/plugin/localizedFormat', // CJS
                 'dayjs/plugin/relativeTime', // CJS
-                'socket.io-client',
-                'gsap',
-                'gsap/SplitText',
                 'filesize',
+                'highlight.js',
+                'marked',
+                'marked-katex-extension',
+                'nanoid',
+                'socket.io-client',
             ],
         },
     },

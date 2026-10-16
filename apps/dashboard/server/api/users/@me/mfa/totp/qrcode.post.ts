@@ -14,19 +14,10 @@ export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
-    if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     if (currentUser.totpEnabled) {
-        throw createError({
-            statusCode: 400,
-            message: 'Authenticator App is already enabled',
-        });
+        throw apiError(400, 'errorsAuth.totpAlreadyEnabled');
     }
 
     await verifySession(event, body.data?.verificationData);
@@ -42,7 +33,7 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    const runtimeConfig = useRuntimeConfig();
+    const { siteName } = await getSettings();
 
     return {
         base64: `data:image/svg+xml;base64,${Buffer.from(
@@ -50,7 +41,7 @@ export default defineEventHandler(async (event) => {
                 generateURI({
                     secret: totpSecret,
                     label: currentUser.username,
-                    issuer: runtimeConfig.public.site.name,
+                    issuer: siteName,
                 }),
             ),
         ).toString('base64')}`,

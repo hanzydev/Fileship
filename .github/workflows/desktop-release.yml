@@ -1,0 +1,63 @@
+name: Release the desktop app
+
+on:
+    push:
+        tags:
+            - 'desktop-v*'
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    release:
+        runs-on: windows-latest
+
+        steps:
+            - uses: actions/checkout@v6
+            - uses: pnpm/action-setup@v6
+
+            - name: Use Node.js 24
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: 'pnpm'
+
+            - name: Read the version
+              shell: bash
+              run: echo "VERSION=$(node -p "require('./apps/desktop/package.json').version")" >> "$GITHUB_ENV"
+
+            - name: Check the version
+              if: startsWith(github.ref, 'refs/tags/desktop-v')
+              shell: bash
+              run: |
+                  if [ "desktop-v$VERSION" != "${GITHUB_REF_NAME}" ]; then
+                      echo "Tag ${GITHUB_REF_NAME} does not match apps/desktop/package.json ($VERSION)"
+                      exit 1
+                  fi
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build
+              run: pnpm --filter desktop... build
+
+            - name: Create a draft release
+              shell: bash
+              run: |
+                  gh release view "v$VERSION" --repo hanzydev/fileship-desktop > /dev/null 2>&1 ||
+                      gh release create "v$VERSION" --repo hanzydev/fileship-desktop --draft --title "$VERSION" --notes ""
+              env:
+                  GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}
+
+            - name: Package and upload
+              working-directory: apps/desktop
+              run: pnpm exec electron-builder --win --publish always
+              env:
+                  GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}
+
+            - name: Publish the release
+              shell: bash
+              run: gh release edit "v$VERSION" --repo hanzydev/fileship-desktop --draft=false --latest
+              env:
+                  GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}

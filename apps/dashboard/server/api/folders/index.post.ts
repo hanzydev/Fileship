@@ -3,11 +3,8 @@ import { z } from 'zod';
 import { insert } from '@orama/orama';
 
 const validationSchema = z.object({
-    name: z
-        .string()
-        .min(1, 'Name must be at least 1 character')
-        .max(32, 'Name must be at most 32 characters'),
-    files: z.array(z.string()).optional(),
+    name: z.string().min(1, 'errorsContent.folderNameMin').max(32, 'errorsContent.folderNameMax'),
+    files: z.array(z.string()).max(5000).optional(),
     public: z.boolean().optional().default(false),
 });
 
@@ -18,11 +15,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     if (body.data.files?.length) {
@@ -32,14 +25,12 @@ export default defineEventHandler(async (event) => {
                     in: body.data.files,
                 },
                 authorId: currentUser.id,
+                deletedAt: null,
             },
         });
 
         if (files.length !== body.data.files.length) {
-            throw createError({
-                statusCode: 400,
-                message: 'Invalid files',
-            });
+            throw apiError(400, 'errorsContent.invalidFiles');
         }
     }
 
@@ -52,29 +43,14 @@ export default defineEventHandler(async (event) => {
             },
             authorId: currentUser.id,
         },
-        include: {
-            files: {
-                select: {
-                    id: true,
-                    createdAt: true,
-                },
-            },
-        },
+        include: folderInclude,
     });
 
-    const folder = {
-        ..._folder,
-        files: _folder.files
-            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-            .map((file) => file.id),
-        publicUrl: _folder.public
-            ? buildPublicUrl(event, currentUser.domains, `/folder/${_folder.id}`)
-            : undefined,
-        isInbox: false,
-    };
+    const folder = serializeFolder(event, _folder);
 
     await insert(folderSearchDb, {
         id: folder.id,
+        authorId: folder.authorId,
         name: folder.name,
     });
 

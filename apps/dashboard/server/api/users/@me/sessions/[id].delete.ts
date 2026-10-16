@@ -12,13 +12,7 @@ export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
-    if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     await verifySession(event, body.data?.verificationData);
 
@@ -31,10 +25,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findSessionById) {
-        throw createError({
-            statusCode: 404,
-            message: 'Session not found',
-        });
+        throw apiError(404, 'errorsAuth.sessionNotFound');
     }
 
     await prisma.session.delete({
@@ -43,6 +34,13 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    await sendToSession(currentUser.id, sessionId!, 'logout', null);
+    await logoutSockets(
+        (user) => user.id === currentUser.id && user.currentSessionId === sessionId,
+    );
+    await createLog(event, {
+        action: 'Revoke Session',
+        message: `Revoked the session on ${findSessionById.os} ${findSessionById.platform}`,
+    });
+
     sendToUser(currentUser.id, 'session:delete', sessionId);
 });

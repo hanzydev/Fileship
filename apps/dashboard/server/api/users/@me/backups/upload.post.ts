@@ -1,12 +1,18 @@
-import { existsSync, promises as fsp } from 'node:fs';
+import { promises as fsp } from 'node:fs';
 
-import { filesize } from 'filesize';
-import { basename, extname, join } from 'pathe';
+import { nanoid } from 'nanoid';
+import { basename } from 'pathe';
 import { z } from 'zod';
 
 const validationSchema = z.object({
-    totalChunks: z.number().min(1, 'Total chunks must be at least 1').optional(),
-    currentChunk: z.number().min(1, 'Current chunk must be at least 1').optional(),
+    uploadId: z.string().regex(/^[\w-]{1,64}$/, 'errorsUsers.invalidUploadId'),
+    totalChunks: z
+        .number()
+        .int()
+        .min(1, 'errorsUsers.totalChunksMin')
+        .max(10000, 'errorsUsers.tooManyChunks'),
+    currentChunk: z.number().int().min(1, 'errorsUsers.currentChunkMin'),
+    chunkOffset: z.number().int().min(0, 'errorsUsers.chunkOffsetMin'),
 });
 
 export default defineEventHandler(async (event) => {
@@ -17,85 +23,87 @@ export default defineEventHandler(async (event) => {
 
     const backup = formData.get('backup');
     if (!backup) {
-        throw createError({
-            statusCode: 400,
-            message: 'Missing backup file',
-        });
+        throw apiError(400, 'errorsUsers.missingBackupFile');
     }
 
     if (typeof backup === 'string') {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid backup file',
-        });
+        throw apiError(400, 'errorsUsers.invalidBackupFile');
     }
 
     const body = validationSchema.safeParse({
-        currentChunk: +formData.get('currentChunk')! || 1,
-        totalChunks: +formData.get('totalChunks')! || 1,
+        uploadId: formData.get('uploadId'),
+        currentChunk: +formData.get('currentChunk')!,
+        totalChunks: +formData.get('totalChunks')!,
+        chunkOffset: +formData.get('chunkOffset')!,
     });
 
     if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
-    const userBackupsPath = join(dataDirectory, 'backups', currentUser.id);
-    if (!existsSync(userBackupsPath)) await fsp.mkdir(userBackupsPath);
+    const upload = await receiveChunk(
+        currentUser.id,
+        {
+            kind: 'backup',
+            uploadId: body.data.uploadId,
+            part: body.data.currentChunk,
+            offset: body.data.chunkOffset,
+            total: body.data.totalChunks,
+            data: new Uint8Array(await backup.arrayBuffer()),
+        },
+        async () => {
+            if (!backup.name.endsWith('.tgz')) {
+                throw apiError(400, 'errorsUsers.backupNotTgz');
+            }
 
-    const userBackups = await fsp.readdir(userBackupsPath);
-    if (userBackups.includes(backup.name)) {
-        throw createError({
-            statusCode: 409,
-            message: 'A backup with that name already exists',
-        });
-    }
+            if (
+                !isAdmin(currentUser) &&
+                currentUser.limits.backupLimit > -1 &&
+                (await prisma.backup.count({ where: { userId: currentUser.id } })) >=
+                    currentUser.limits.backupLimit
+            ) {
+                throw apiError(400, 'errorsUsers.backupLimitReached');
+            }
 
-    const backupName = backup.name.replace(/[^a-zA-Z0-9-_.]/g, '');
+            return { key: backupKey({ id: nanoid(), userId: currentUser.id }), isDirect: true };
+        },
+        (size) => exceedsUsableSpace(currentUser, size),
+    );
 
-    const tempPath = join(dataDirectory, 'temp', currentUser.id, backupName);
-    if (!existsSync(join(dataDirectory, 'temp', currentUser.id)))
-        await fsp.mkdir(join(dataDirectory, 'temp', currentUser.id));
+    if (!upload) return;
 
-    const buffer = new Uint8Array(await backup.arrayBuffer());
+    const { path, session, parts } = upload;
 
-    if (body.data.currentChunk === body.data.totalChunks) {
-        if (existsSync(tempPath)) {
-            await fsp.appendFile(tempPath, buffer);
-        } else {
-            await fsp.writeFile(tempPath, buffer);
-        }
-
-        const backupPath = join(dataDirectory, 'backups', currentUser.id, backupName);
-
-        await fsp.rename(tempPath, backupPath);
-
-        const backupStat = await fsp.stat(backupPath);
-        const id = basename(backupName, extname(backupName));
-
-        const backupObject = {
-            id,
-            createdAt: backupStat.birthtime,
-            size: {
-                raw: backupStat.size,
-                formatted: filesize(backupStat.size),
-            },
-        };
-
-        await createLog(event, {
-            action: 'Upload Backup',
-            message: `Uploaded backup ${id}`,
+    await (
+        await getStorage(session.storageId)
+    )
+        .completeUpload(session.key, session.state, parts)
+        .catch(async (error) => {
+            await abortUploadSession(path);
+            throw error;
         });
 
-        sendToUser(currentUser.id, 'backup:create', backupObject);
+    await fsp.rm(`${path}.json`, { force: true });
 
-        return backupObject;
-    } else if (body.data.currentChunk === 1) {
-        await fsp.writeFile(tempPath, buffer);
-    } else {
-        await fsp.appendFile(tempPath, buffer);
-    }
+    const data = {
+        id: basename(session.key, '.tgz'),
+        userId: currentUser.id,
+        size: session.received,
+        storageId: session.storageId,
+    };
+
+    const created = await prisma.backup.upsert({
+        where: { id: data.id },
+        create: data,
+        update: { size: data.size, storageId: data.storageId, createdAt: new Date() },
+    });
+
+    await createLog(event, {
+        action: 'Upload Backup',
+        message: `Uploaded backup ${created.id}`,
+    });
+
+    sendToUser(currentUser.id, 'backup:create', serializeBackup(created));
+
+    return serializeBackup(created);
 });

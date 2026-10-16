@@ -1,4 +1,3 @@
-import { defu } from 'defu';
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
 
@@ -7,7 +6,6 @@ import {
     generateAuthenticationOptions,
     verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
-import type { AuthenticatorTransportFuture } from '@simplewebauthn/types';
 
 const validationSchema = z.union([
     z.object({
@@ -22,62 +20,55 @@ const validationSchema = z.union([
 
 export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
-    if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     const reqUrl = getRequestURL(event);
     const storage = useStorage('cache');
 
     if (body.data.verify) {
+        await rateLimit(`passkey:${getClientIp(event)}`, 10, 15 * 60 * 1000);
+
+        const credentialId = body.data.authenticationResponse?.id;
         const userHandle = body.data.authenticationResponse?.response?.userHandle;
-        if (!userHandle) {
-            throw createError({
-                statusCode: 400,
-                message: 'Invalid authentication response',
-            });
+
+        if (typeof credentialId !== 'string') {
+            throw apiError(400, 'errorsAuth.invalidAuthResponse');
         }
 
-        const findUserByUsername = await prisma.user.findUnique({
-            where: { id: Buffer.from(userHandle, 'base64url').toString() },
+        const findCredentialById = await prisma.credential.findUnique({
+            where: { id: credentialId },
             include: {
-                _count: {
-                    select: { files: true, folders: true, notes: true },
+                user: {
+                    include: {
+                        _count: {
+                            select: userCountSelect,
+                        },
+                    },
                 },
             },
         });
 
-        if (!findUserByUsername) {
-            throw createError({
-                statusCode: 404,
-                message: 'User not found',
-            });
-        }
-
-        const findCredentialById = (await prisma.credential.findUnique({
-            where: { id: body.data.authenticationResponse?.id, userId: findUserByUsername.id },
-        }))!;
-
         if (!findCredentialById) {
-            throw createError({
-                statusCode: 404,
-                message: 'Credential not found',
+            throw apiError(404, 'errorsAuth.unknownPasskey', undefined, {
+                unknownCredential: true,
             });
         }
+
+        if (
+            userHandle &&
+            Buffer.from(userHandle, 'base64url').toString() !== findCredentialById.userId
+        ) {
+            throw apiError(400, 'errorsAuth.invalidAuthResponse');
+        }
+
+        const findUserById = findCredentialById.user;
 
         const webauthnTicket = await storage.getItem<{
             expectedChallenge: string;
             expiresAt: number;
         }>(`webauthnTicket:${body.data.ticket}`);
         if (!webauthnTicket || webauthnTicket.expiresAt < Date.now()) {
-            throw createError({
-                statusCode: 400,
-                message: 'Invalid or expired ticket',
-            });
+            throw apiError(400, 'errorsAuth.invalidTicket');
         }
 
         const expectedChallenge = webauthnTicket.expectedChallenge;
@@ -93,7 +84,7 @@ export default defineEventHandler(async (event) => {
                 id: findCredentialById.id,
                 publicKey: new Uint8Array(base64URLStringToBuffer(findCredentialById.publicKey)),
                 counter: findCredentialById.counter,
-                transports: findCredentialById.transports as AuthenticatorTransportFuture[],
+                transports: findCredentialById.transports,
             },
         });
 
@@ -105,77 +96,12 @@ export default defineEventHandler(async (event) => {
                 },
             });
 
-            const headers = getHeaders(event);
-            const ip = getRequestIP(event, { xForwardedFor: true }) || 'Unknown';
-
-            const { os, platform, location } = await getDevice(headers as never, ip);
-
-            const sessionPrivateId = nanoid(128);
-
-            const user = await prisma.user.update({
-                where: {
-                    id: findUserByUsername.id,
-                },
-                data: {
-                    sessions: {
-                        create: {
-                            privateId: sessionPrivateId,
-                            ip,
-                            os,
-                            platform,
-                            location,
-                        },
-                    },
-                },
-                select: {
-                    sessions: true,
-                },
-            });
-
-            const session = user.sessions.find(
-                (session) => session.privateId === sessionPrivateId,
-            )!;
-
-            await createLog(
-                Object.assign({}, event, {
-                    context: { user: findUserByUsername },
-                }),
-                {
-                    action: 'Login',
-                    message: `Logged in with passkey using ${os} on ${platform}`,
-                },
-            );
-
-            setCookie(event, 'sessionId', sessionPrivateId, {
-                expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
-                path: '/',
-                sameSite: 'lax',
-            });
-
-            sendToUser(findUserByUsername.id, 'session:create', session);
-
             return {
                 verified: true,
-                user: {
-                    id: findUserByUsername.id,
-                    username: findUserByUsername.username,
-                    avatar: findUserByUsername.avatar,
-                    permissions: findUserByUsername.permissions,
-                    createdAt: findUserByUsername.createdAt,
-                    totpEnabled: findUserByUsername.totpEnabled,
-                    superAdmin: findUserByUsername.superAdmin,
-                    aiSettings: defu(
-                        findUserByUsername.aiSettings,
-                        defaultUserAiSettings,
-                    ) as IUserAiSettings,
-                    backupRestoreState: findUserByUsername.backupRestoreState,
-                    theme: findUserByUsername.theme,
-                    stats: findUserByUsername._count,
-                },
-                session: {
-                    id: session.id,
-                    privateId: session.privateId,
-                },
+                ...(await startSession(event, findUserById, {
+                    action: 'Login',
+                    message: 'Logged in with passkey',
+                })),
             };
         }
 

@@ -6,10 +6,9 @@ const validationSchema = z
     .object({
         name: z
             .string()
-            .min(1, 'Name must be at least 1 character')
-            .max(32, 'Name must be at most 32 characters')
+            .min(1, 'errorsContent.folderNameMin')
+            .max(32, 'errorsContent.folderNameMax')
             .optional(),
-        files: z.array(z.string()).optional(),
         public: z.boolean().optional(),
     })
     .strict();
@@ -21,11 +20,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     const folderId = getRouterParam(event, 'id');
@@ -34,91 +29,30 @@ export default defineEventHandler(async (event) => {
         where: {
             id: folderId,
             authorId: currentUser.id,
-        },
-        include: {
-            files: {
-                select: {
-                    id: true,
-                },
-            },
+            deletedAt: null,
         },
     });
 
     if (!findFolderById) {
-        throw createError({
-            statusCode: 404,
-            message: 'Folder not found',
-        });
-    }
-
-    let connect: { id: string }[] = [];
-    let disconnect: { id: string }[] = [];
-
-    if (body.data.files) {
-        const files = await prisma.file.findMany({
-            where: {
-                id: {
-                    in: body.data.files,
-                },
-                authorId: currentUser.id,
-            },
-            select: {
-                id: true,
-            },
-        });
-
-        if (files.length !== body.data.files.length) {
-            throw createError({
-                statusCode: 400,
-                message: 'Invalid files',
-            });
-        }
-
-        connect = body.data.files
-            .filter((fileId) => !findFolderById.files.some((f) => f.id === fileId))
-            .map((fileId) => ({ id: fileId }));
-
-        disconnect = findFolderById.files
-            .filter((f) => !body.data.files?.includes(f.id))
-            .map((f) => ({ id: f.id }));
+        throw apiError(404, 'errorsContent.folderNotFound');
     }
 
     const _updatedFolder = await prisma.folder.update({
         where: {
             id: folderId,
         },
-        include: {
-            files: {
-                select: {
-                    id: true,
-                    createdAt: true,
-                },
-            },
-            inbox: true,
-        },
+        include: folderInclude,
         data: {
             name: body.data.name,
             public: body.data.public,
-            files: {
-                connect,
-                disconnect,
-            },
         },
     });
 
-    const updatedFolder = {
-        ..._updatedFolder,
-        files: _updatedFolder.files
-            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-            .map((file) => file.id),
-        publicUrl: _updatedFolder.public
-            ? buildPublicUrl(event, currentUser.domains, `/folder/${_updatedFolder.id}`)
-            : undefined,
-        isInbox: !!_updatedFolder.inbox,
-    };
+    const updatedFolder = serializeFolder(event, _updatedFolder);
 
     await update(folderSearchDb, _updatedFolder.id, {
         id: updatedFolder.id,
+        authorId: updatedFolder.authorId,
         name: updatedFolder.name,
     });
 

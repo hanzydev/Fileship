@@ -1,20 +1,21 @@
+type StatGrowth = {
+    count: number;
+    growth: number;
+};
+
 export type StatData = {
-    users: {
-        count: number;
-        growth: number;
-    };
-    files: {
-        count: number;
-        growth: number;
-    };
+    users: StatGrowth;
+    notes: { count: number };
+    folders: { count: number };
+    links: { count: number };
+    files: StatGrowth;
     storageUsed: {
         size: string;
         growth: number;
+        trashed: { raw: string; formatted: string };
     };
-    views: {
-        count: number;
-        growth: number;
-    };
+    views: StatGrowth;
+    byType: { type: string; count: number; size: string; formatted: string }[];
 };
 
 export const useStats = () => {

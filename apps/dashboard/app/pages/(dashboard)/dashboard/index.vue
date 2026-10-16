@@ -1,357 +1,285 @@
 <template>
     <Head>
-        <Title>Dashboard</Title>
+        <Title>{{ $t('home.title') }}</Title>
     </Head>
 
-    <ModalsViewFile v-if="viewModal.fileId" v-model="viewModal.open" :file-id="viewModal.fileId" />
+    <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <PageHeader :title="greeting" :description="today">
+            <UiButton v-if="canUpload" variant="outline" as-child>
+                <NuxtLink to="/dashboard/folders?new=1">
+                    <IFolderPlus />
+                    {{ $t('home.newFolder') }}
+                </NuxtLink>
+            </UiButton>
+            <UiButton v-if="canNote" variant="outline" as-child>
+                <NuxtLink to="/dashboard/notes/new">
+                    <ISquarePen />
+                    {{ $t('home.newNote') }}
+                </NuxtLink>
+            </UiButton>
+        </PageHeader>
 
-    <ModalsEditFile
-        v-if="editModal.file"
-        :key="editModal.file!.id"
-        v-model="editModal.open"
-        :data="editModal.file!"
-    />
-
-    <DashboardContent>
-        <template #header>
-            <h2 lt-md="text-2xl!">
-                {{ greetingMessage }}, {{ upperFirst(currentUser!.username) }} 👋
-            </h2>
-        </template>
-        <div space-y-2>
-            <h3>Your Statistics</h3>
-
-            <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4">
-                <StatCard
-                    title="Files"
-                    description="uploaded files"
-                    icon="solar:documents-bold"
-                    :data="stats?.files?.count"
-                    :growth="stats?.files?.growth"
-                    :loading="isLoading"
-                />
-                <StatCard
-                    title="Views"
-                    description="total file views"
-                    icon="solar:eye-bold"
-                    :data="stats?.views?.count"
-                    :growth="stats?.views?.growth"
-                    :loading="isLoading"
-                />
-                <StatCard
-                    title="Storage"
-                    description="used storage"
-                    icon="solar:diskette-bold"
-                    :data="stats?.storageUsed?.size"
-                    :growth="stats?.storageUsed?.growth"
-                    :loading="isLoading"
-                />
-                <StatCard
-                    title="Users"
-                    description="total users"
-                    icon="solar:users-group-rounded-bold"
-                    :data="stats?.users?.count"
-                    :growth="stats?.users?.growth"
-                    :loading="isLoading"
-                />
-            </div>
+        <div class="grid auto-rows-min gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <StatCard v-for="card in statCards" :key="card.title" v-bind="card" />
         </div>
 
-        <div pt6 space-y-2>
-            <h3>Recent Files</h3>
-            <div
-                v-show="filteredFiles.length || isLoading"
-                grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4"
-            >
-                <template v-if="isLoading">
-                    <UiSkeletonCard
-                        v-for="i in 4"
-                        :key="i"
-                        flex="~ col items-center justify-center gap2"
-                        h208px
+        <div v-if="canUpload" class="grid flex-1 gap-4 xl:grid-cols-3">
+            <UiCard class="min-w-0 xl:col-span-2">
+                <UiCardHeader>
+                    <UiCardTitle>{{ $t('home.recentFiles') }}</UiCardTitle>
+                    <UiCardDescription>{{ $t('home.recentFilesDescription') }}</UiCardDescription>
+                    <UiCardAction>
+                        <UiButton variant="ghost" size="sm" as-child>
+                            <NuxtLink to="/dashboard/files">
+                                {{ $t('home.viewAll') }}
+                                <IArrowRight />
+                            </NuxtLink>
+                        </UiButton>
+                    </UiCardAction>
+                </UiCardHeader>
+                <UiCardContent class="@container">
+                    <EmptyState
+                        v-if="!isFilesLoading && !recentFiles.length"
+                        :icon="IFiles"
+                        :title="$t('home.noFiles')"
+                        :description="$t('home.noFilesDescription')"
                     >
-                        <Icon
-                            v-if="randomNumber(0, 1) === 0"
-                            name="solar:play-bold"
-                            size="64"
-                            animate-pulse
-                            op75
-                        />
-                        <Icon v-else name="solar:gallery-bold" size="64" animate-pulse op75 />
-                    </UiSkeletonCard>
-                </template>
-                <TransitionGroup
-                    v-else
-                    :css="false"
-                    @enter="
-                        (el, done) => {
-                            (el as HTMLDivElement).style.opacity = '1';
-                            done();
-                        }
-                    "
-                >
+                        <UiButton @click="uploadSheetOpen = true">
+                            <IUpload />
+                            {{ $t('home.uploadFiles') }}
+                        </UiButton>
+                    </EmptyState>
                     <div
-                        v-for="file in filteredFiles.slice(0, 4)"
-                        :key="file.id"
-                        op0
-                        class="fileCard"
+                        v-else
+                        class="grid grid-cols-2 gap-3 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5 @6xl:grid-cols-6"
                     >
-                        <FileCard
-                            :data="file"
-                            @view-file="
-                                (file) => {
-                                    viewModal.fileId = file.id;
-                                    nextTick(() => (viewModal.open = true));
-                                }
-                            "
-                        />
+                        <template v-if="isFilesLoading">
+                            <div v-for="i in 12" :key="i" :class="recentItemClass(i - 1)">
+                                <FileCardSkeleton />
+                            </div>
+                        </template>
+                        <div
+                            v-for="(file, index) in gridFiles"
+                            v-else
+                            :key="file.id"
+                            :class="recentItemClass(index)"
+                        >
+                            <FileCard
+                                :file="file"
+                                :selected="selected.includes(file.id)"
+                                :selection-mode="!!selected.length"
+                                @click="handleClick(file)"
+                                @toggle="handleToggle(file)"
+                                @view="sheetFileId = file.id"
+                                @edit="openEdit(file)"
+                                @move="moveTargets = [file]"
+                            />
+                        </div>
                     </div>
-                </TransitionGroup>
+                </UiCardContent>
+            </UiCard>
+
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+                <StatsDonut
+                    :title="$t('home.fileTypes')"
+                    :description="$t('home.fileTypesDescription')"
+                    :value-label="$t('home.files')"
+                    :is-loading="!stats && !statsFailed"
+                    :items="filesByType"
+                    compact
+                />
+                <StatsDonut
+                    :title="$t('home.storage')"
+                    :description="$t('home.storageDescription')"
+                    :value-label="$t('home.size')"
+                    :is-loading="!stats && !statsFailed"
+                    :items="storageByType"
+                    compact
+                />
             </div>
-            <NothingHere
-                v-if="!filteredFiles.length && !isLoading"
-                message="There are no files to display."
-                icon="solar:documents-bold"
+        </div>
+
+        <template v-if="canUpload">
+            <FileViewer
+                v-model:file-id="sheetFileId"
+                v-model:tab="sheetTab"
+                :files="recentFiles"
+                :total="total"
+                :has-more="hasMore"
+                :load-more="loadMore"
             />
-        </div>
-
-        <div pt6 space-y-2>
-            <h3>Files</h3>
-            <div space-y-4>
-                <UiTable
-                    ring="1 fs-overlay-4"
-                    :loading="isLoading"
-                    :columns="[
-                        {
-                            key: 'fileName',
-                            width: '25%',
-                        },
-                        {
-                            key: 'mimeType',
-                            width: '20%',
-                        },
-                        {
-                            key: 'size',
-                            width: '10%',
-                            resolve: ({ size }) => size.formatted,
-                        },
-                        {
-                            key: 'createdAt',
-                            width: '15%',
-                            resolve: ({ createdAt }) => dayjs(createdAt).fromNow(),
-                        },
-                        {
-                            key: 'Quick Actions',
-                            width: '20%',
-                            render: (row) => {
-                                const isImage = row.mimeType.startsWith('image/');
-                                const isVideo = row.mimeType.startsWith('video/');
-                                const isAudio = row.mimeType.startsWith('audio/');
-
-                                const canBeViewed = isImage || isVideo || isAudio;
-
-                                return h('div', { class: 'flex items-center gap4' }, [
-                                    h(UiButton, {
-                                        variant: 'outline',
-                                        alignment: 'center',
-                                        class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
-                                        icon: canBeViewed
-                                            ? 'solar:eye-bold'
-                                            : 'lucide:external-link',
-                                        iconSize: '20',
-                                        'aria-label': canBeViewed
-                                            ? 'View file'
-                                            : 'Open file in new tab',
-                                        ...(canBeViewed
-                                            ? {
-                                                  onClick: () => {
-                                                      viewModal.fileId = row.id;
-                                                      nextTick(() => (viewModal.open = true));
-                                                  },
-                                              }
-                                            : {
-                                                  href: row.embedUrl,
-                                                  target: '_blank',
-                                              }),
-                                    }),
-                                    h(UiButton, {
-                                        variant: 'outline',
-                                        alignment: 'center',
-                                        class: [
-                                            'h8 w8 !p0 hover:text-white',
-                                            copiedFiles.has(row.fileName)
-                                                ? 'text-green500!'
-                                                : 'text-fs-muted-2',
-                                        ],
-                                        icon: copiedFiles.has(row.fileName)
-                                            ? 'solar:clipboard-check-bold'
-                                            : 'solar:clipboard-bold',
-                                        iconSize: '20',
-                                        'aria-label': 'Copy link to clipboard',
-                                        onClick: () => handleCopy(row),
-                                    }),
-                                    h(UiButton, {
-                                        variant: 'outline',
-                                        alignment: 'center',
-                                        class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
-                                        icon: 'solar:download-minimalistic-bold',
-                                        iconSize: '20',
-                                        'aria-label': 'Download file',
-                                        onClick: () => downloadFile(`${row.directUrl}?download`),
-                                    }),
-                                    h(UiButton, {
-                                        variant: 'outline',
-                                        alignment: 'center',
-                                        class: 'h8 w8 !p0 text-fs-muted-2 hover:text-white',
-                                        icon: 'solar:pen-2-bold',
-                                        iconSize: '20',
-                                        'aria-label': 'Edit file',
-                                        onClick: () => {
-                                            editModal.file = row;
-                                            nextTick(() => (editModal.open = true));
-                                        },
-                                    }),
-                                    h(UiButton, {
-                                        variant: 'outline',
-                                        alignment: 'center',
-                                        class: 'h8 w8 !p0 ring-red-500 text-fs-muted-2 hover:text-white hover:!bg-red-500',
-                                        icon: 'solar:trash-bin-minimalistic-bold',
-                                        iconSize: '20',
-                                        disabled: willBeDeleted.has(row.id),
-                                        loading: willBeDeleted.has(row.id),
-                                        'aria-label': 'Delete file',
-                                        onClick: () => handleDelete(row.id),
-                                    }),
-                                ]);
-                            },
-                        },
-                    ]"
-                    :rows="calculatedFiles"
-                    nothing-here-message="There are no files to display."
-                    nothing-here-icon="solar:documents-bold"
-                />
-                <UiPagination
-                    v-model="currentPage"
-                    :item-count="filteredFiles.length"
-                    :items-per-page="20"
-                />
-            </div>
-        </div>
-    </DashboardContent>
+            <FileBulkBar v-model="selected" :items="gridFiles" :total="gridFiles.length" />
+            <FileMoveDialog v-model="moveTargets" />
+        </template>
+    </div>
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
 import { upperFirst } from 'scule';
 
-import { UiButton } from '#components';
+import { IBookmark, IBox, IEye, IFiles, IFolder, ILink, IUsers } from '#components';
 
-const stats = useStats();
-const embed = useEmbed();
-const files = useFiles();
-const folders = useFolders();
-const currentUser = useAuthUser();
+import type { FileData } from '~/types/files';
+
 const { $toast } = useNuxtApp();
+const { t, locale } = useI18n();
+const stats = useStats();
+const statsFailed = ref(false);
+const currentUser = useAuthUser();
+const uploadSheetOpen = useUploadSheet();
 
-const greetingMessage = computed(() => {
-    const hour = new Date().getHours();
+const greetingKey = ref('welcomeBack');
+const now = ref<Date | null>(null);
 
-    if (hour >= 5 && hour < 12) {
-        return 'Good Morning';
-    } else if (hour >= 12 && hour < 17) {
-        return 'Good Afternoon';
-    } else if (hour >= 17 && hour < 22) {
-        return 'Good Evening';
-    } else {
-        return 'Good Night';
-    }
-});
+const today = computed(() =>
+    now.value
+        ? new Intl.DateTimeFormat(locale.value, {
+              weekday: 'long',
+              month: 'long',
+              day: 'numeric',
+          }).format(now.value)
+        : '',
+);
+const sheetFileId = useQueryState('file', '');
+const sheetTab = ref('details');
+const selected = ref<string[]>([]);
+const moveTargets = ref<Pick<FileData, 'id' | 'folderId'>[]>([]);
 
-const currentPage = ref(1);
+const canUpload = computed(() => canUploadFiles(currentUser.value));
+const canNote = computed(() => canTakeNotes(currentUser.value));
+const canShorten = computed(() => canShortenLinks(currentUser.value));
 
-const willBeDeleted = ref(new Set<string>());
-const copiedFiles = ref(new Set<string>());
+const greeting = computed(() =>
+    t(`home.greeting.${greetingKey.value}`, { name: upperFirst(currentUser.value!.username) }),
+);
 
-const isLoading = ref(files.value.length !== currentUser.value!.stats.files || !stats.value);
+const {
+    items: recentFiles,
+    total,
+    hasMore,
+    loadMore,
+    isLoading: isFilesLoading,
+} = usePaginatedList<FileData>('files', '/api/files', {}, { limit: 12, enabled: canUpload });
 
-const viewModal = reactive({
-    open: false,
-    fileId: null as string | null,
-});
-const editModal = reactive({
-    open: false,
-    file: null as FileData | null,
-});
+const gridFiles = computed(() => recentFiles.value.slice(0, 12));
 
-const filteredFiles = computed(() => files.value.filter((f) => !f.folderId));
-
-const calculatedFiles = computed(() => {
-    const start = (currentPage.value - 1) * 20;
-    const end = start + 20;
-    return filteredFiles.value.slice(start, end);
-});
-
-const handleCopy = async (file: FileData) => {
-    const { copy, copied } = useClipboard({ legacy: true });
-
-    const isText = TEXT_FILE_TYPES.some(
-        (type) => type.extension === getExtname(file.fileName!).slice(1),
+const recentItemClass = (index: number) =>
+    cn(
+        index >= 4 && 'hidden',
+        index >= 4 && index < 6 && '@lg:block',
+        index >= 6 && index < 8 && '@2xl:block',
+        index >= 8 && index < 10 && '@4xl:block',
+        index >= 10 && '@6xl:block',
     );
 
-    copy(embed.value.enabled || isText ? file.embedUrl : file.directUrl);
+const filesByType = computed(() =>
+    (stats.value?.byType ?? []).map((category) => ({
+        label: t(FILE_CATEGORIES[category.type as FileCategory].label),
+        value: category.count,
+    })),
+);
 
-    $toast.success('Link copied to clipboard');
+const storageByType = computed(() =>
+    (stats.value?.byType ?? []).map((category) => ({
+        label: t(FILE_CATEGORIES[category.type as FileCategory].label),
+        value: +category.size,
+        formatted: category.formatted,
+    })),
+);
 
-    copiedFiles.value.add(file.fileName);
+const statCards = computed(() =>
+    [
+        {
+            title: t('home.cards.files'),
+            legend: t('home.cards.filesLegend'),
+            icon: IFiles,
+            data: stats.value?.files.count,
+            growth: stats.value?.files.growth,
+        },
+        {
+            title: t('home.cards.views'),
+            legend: t('home.cards.viewsLegend'),
+            icon: IEye,
+            data: stats.value?.views.count,
+            growth: stats.value?.views.growth,
+        },
+        {
+            title: t('home.cards.storage'),
+            legend: +(stats.value?.storageUsed.trashed?.raw ?? 0)
+                ? t('home.cards.storageLegendTrashed', {
+                      size: stats.value!.storageUsed.trashed.formatted,
+                  })
+                : t('home.cards.storageLegend'),
+            icon: IBox,
+            data: stats.value?.storageUsed.size,
+            growth: stats.value?.storageUsed.growth,
+        },
+        isAdmin(currentUser.value)
+            ? {
+                  title: t('home.cards.users'),
+                  legend: t('home.cards.usersLegend'),
+                  icon: IUsers,
+                  data: stats.value?.users.count,
+                  growth: stats.value?.users.growth,
+              }
+            : canNote.value
+              ? {
+                    title: t('home.cards.notes'),
+                    legend: t('home.cards.notesLegend'),
+                    icon: IBookmark,
+                    data: stats.value?.notes.count,
+                }
+              : canShorten.value && !canUpload.value
+                ? {
+                      title: t('home.cards.links'),
+                      legend: t('home.cards.linksLegend'),
+                      icon: ILink,
+                      data: stats.value?.links.count,
+                  }
+                : {
+                      title: t('home.cards.folders'),
+                      legend: t('home.cards.foldersLegend'),
+                      icon: IFolder,
+                      data: stats.value?.folders.count,
+                  },
+    ].map((card) => (statsFailed.value ? { ...card, data: card.data ?? '—' } : card)),
+);
 
-    const unwatch = watch(copied, () => {
-        copiedFiles.value.delete(file.fileName);
-        unwatch();
-    });
+const handleToggle = (file: FileData) => {
+    selected.value = selected.value.includes(file.id)
+        ? selected.value.filter((id) => id !== file.id)
+        : [...selected.value, file.id];
 };
 
-const handleDelete = async (id: string) => {
-    willBeDeleted.value.add(id);
-
-    try {
-        await $fetch(`/api/files/${id}`, {
-            method: 'DELETE',
-        });
-        $toast.success('File deleted successfully');
-    } catch (error: any) {
-        $toast.error(error.data.message);
-    }
-
-    willBeDeleted.value.delete(id);
+const handleClick = (file: FileData) => {
+    if (selected.value.length) handleToggle(file);
+    else sheetFileId.value = file.id;
 };
 
-const { all, enter: _enter, leave: _leave } = animateCards();
+const openEdit = (file: FileData) => {
+    sheetTab.value = 'edit';
+    sheetFileId.value = file.id;
+};
 
 onMounted(async () => {
-    if (isLoading.value) {
-        const filesData = await $fetch('/api/files');
-        const foldersData = await $fetch('/api/folders');
-        const statsData = await $fetch('/api/users/@me/stats');
+    now.value = new Date();
+    const hour = now.value.getHours();
 
-        files.value = filesData.map((f) => ({
-            ...f,
-            expiresAt: f.expiresAt ? new Date(f.expiresAt) : null,
-            createdAt: new Date(f.createdAt),
-        }));
+    greetingKey.value =
+        hour >= 5 && hour < 12
+            ? 'morning'
+            : hour >= 12 && hour < 17
+              ? 'afternoon'
+              : hour >= 17 && hour < 22
+                ? 'evening'
+                : 'night';
 
-        folders.value = foldersData.map((f) => ({
-            ...f,
-            createdAt: new Date(f.createdAt),
-        }));
-
-        stats.value = statsData;
-    }
-
-    isLoading.value = false;
-
-    await nextTick();
-
-    all('recentFiles', '.fileCard');
+    await $fetch('/api/users/@me/stats')
+        .then((data) => (stats.value = data))
+        .catch((error) => {
+            statsFailed.value = true;
+            $toast.error(getErrorMessage(error));
+        });
 });
 
 definePageMeta({

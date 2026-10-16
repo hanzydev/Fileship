@@ -1,7 +1,7 @@
 import { ofetch } from 'ofetch';
 
-export const updaterUrl = process.env.UPDATER_URL || 'http://updater-agent:3001';
-export const updaterSecret = process.env.UPDATER_SECRET || 'dev-secret-token';
+export const updaterUrl = useRuntimeConfig().updater.url;
+export const updaterSecret = useRuntimeConfig().updater.secret;
 
 export const updaterFetch = ofetch.create({
     baseURL: updaterUrl,

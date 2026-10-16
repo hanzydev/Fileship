@@ -16,19 +16,14 @@ export default defineEventHandler(async (event) => {
     }>(`folderArchiveStatus:${folderId}:${jobId}`);
 
     if (!archiveStatus) {
-        throw createError({
-            statusCode: 404,
-            message: 'Job not found',
-        });
+        throw apiError(404, 'errorsContent.jobNotFound');
     }
 
-    if (archiveStatus.isPrivate && archiveStatus.authorId !== currentUser?.id) throw forbiddenError;
+    if (archiveStatus.isPrivate && archiveStatus.authorId !== currentUser?.id)
+        throw forbiddenError();
 
     if (!archiveStatus.isDone) {
-        throw createError({
-            statusCode: 400,
-            message: 'Job is not done yet',
-        });
+        throw apiError(400, 'errorsContent.jobNotDone');
     }
 
     const tempPath = join(dataDirectory, 'temp', jobId!);
@@ -36,10 +31,7 @@ export default defineEventHandler(async (event) => {
 
     if (!existsSync(archivePath)) {
         await storage.removeItem(`folderArchiveStatus:${folderId}:${jobId}`);
-        throw createError({
-            statusCode: 404,
-            message: 'Archive not found',
-        });
+        throw apiError(404, 'errorsContent.archiveNotFound');
     }
 
     const archiveStat = await fsp.stat(archivePath);

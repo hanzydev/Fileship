@@ -1,0 +1,59 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Instance {
+  id          String   @id
+  firstSeenAt DateTime
+  lastSeenAt  DateTime
+  version     String   @default("")
+  users       Int      @default(0)
+  files       Int      @default(0)
+  storage     BigInt   @default(0)
+  report      Json     @default("{}")
+  reports     Report[]
+
+  @@index([lastSeenAt])
+  @@index([version])
+}
+
+model Report {
+  id         String    @id @default(uuid())
+  instanceId String
+  instance   Instance  @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  day        DateTime  @db.Date
+  receivedAt DateTime
+  sentAt     DateTime?
+  legacy     Boolean   @default(false)
+  payload    Json
+
+  @@unique([instanceId, day])
+  @@index([day])
+}
+
+model DailyStat {
+  day       DateTime @id @db.Date
+  instances Int
+  users     Int
+  files     Int
+  storage   BigInt
+  links     Int
+  versions  Json
+  data      Json
+  updatedAt DateTime @updatedAt
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}

@@ -1,205 +1,148 @@
 <template>
-    <ClientOnly>
-        <div
-            ref="markdownContent"
-            class="markdownContent p8"
-            :data-variant="variant"
-            v-html="renderMarkdown()"
-        />
-    </ClientOnly>
+    <div class="markdown" @click="handleClick" v-html="html" />
 </template>
 
 <script setup lang="ts">
 import hljs from 'highlight.js';
 import { Marked } from 'marked';
-import { markedHighlight } from 'marked-highlight';
 import markedKatex from 'marked-katex-extension';
-import { render } from 'vue';
 
-import { Icon, UiButton, UiTable } from '#components';
-
-const {
-    content,
-    variant = 'primary',
-    injectCopyButton = true,
-} = defineProps<{
+const { content } = defineProps<{
     content: string;
-    variant?: 'primary' | 'secondary';
-    injectCopyButton?: boolean;
 }>();
 
-const { $toast, vueApp } = useNuxtApp();
+const { $toast } = useNuxtApp();
+const { t } = useI18n();
+const { copy } = useClipboard({ legacy: true });
 
-const markdownContentRef = useTemplateRef('markdownContent');
+const copyIcon =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
 
-const marked = new Marked(
-    markedHighlight({
-        emptyLangClass: 'hljs',
-        langPrefix: `${variant === 'primary' ? 'rounded-2xl' : 'rounded-xl'} hljs language-`,
-        highlight(code, lang) {
-            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-            return hljs.highlight(code, { language }).value;
-        },
-    }),
-);
+const escapeHtml = (value: string) =>
+    value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`);
 
-marked.use({
+const SAFE_PROTOCOLS = ['http:', 'https:', 'mailto:'];
+
+const isSafeUrl = (url: string) => {
+    try {
+        return SAFE_PROTOCOLS.includes(new URL(url, 'https://relative.invalid').protocol);
+    } catch {
+        return false;
+    }
+};
+
+const marked = new Marked(markedKatex({ throwOnError: false }), {
     renderer: {
-        link({ href, title, text }) {
-            const iconVNode = h(Icon, {
-                name: 'lucide:external-link',
-                size: '16',
-            });
-
-            return `<a href="${href}" target="_blank" rel="noopener noreferrer" flex="~ items-center wrap gap-1" class="text-fs-accent hover:underline wfit"${title ? ` title="${title}"` : ''}><span>${text}</span>${vnodeToString(iconVNode)}</a>`;
+        html({ text }) {
+            return escapeHtml(text);
         },
-        table({ header, rows }) {
-            const columnConfigs = header.map((cell) => ({
-                key: cell.text,
-            }));
+        link({ href, title, text }) {
+            if (!isSafeUrl(href)) return escapeHtml(text);
 
-            const formattedRows = rows.map((row) => {
-                const rowObj: Record<string, string> = {};
-                row.forEach((cell, index) => {
-                    const columnKey = columnConfigs[index]!.key;
-                    rowObj[columnKey] = cell.text;
-                });
-                return rowObj;
-            });
+            return `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer"${title ? ` title="${escapeHtml(title)}"` : ''}>${escapeHtml(text)}</a>`;
+        },
+        image({ href, title, text }) {
+            if (!isSafeUrl(href)) return escapeHtml(text);
 
-            const tableVNode = h(UiTable, {
-                columns: columnConfigs,
-                rows: formattedRows,
-                class: 'my-3 hfit!',
-            });
+            return `<img src="${escapeHtml(href)}" alt="${escapeHtml(text)}"${title ? ` title="${escapeHtml(title)}"` : ''}>`;
+        },
+        code({ text, lang }) {
+            const language = hljs.getLanguage(lang || '') ? lang! : 'plaintext';
+            const highlighted = hljs.highlight(text, { language }).value;
 
-            return vnodeToString(tableVNode);
+            return `<pre><button type="button" data-copy aria-label="${escapeHtml(t('view.copyCode'))}">${copyIcon}</button><code class="hljs language-${language}">${highlighted}</code></pre>`;
         },
     },
 });
 
-marked.use(
-    markedKatex({
-        throwOnError: false,
-    }),
-);
+const html = computed(() => marked.parse(content, { breaks: true, gfm: true }) as string);
 
-const renderMarkdown = () => {
-    const html = marked.parse(content, {
-        breaks: true,
-        gfm: true,
-    });
+const handleClick = (event: MouseEvent) => {
+    const button = (event.target as HTMLElement).closest('[data-copy]');
+    if (!button) return;
 
-    if (injectCopyButton) {
-        nextTick(() => {
-            const codeBlocks = markdownContentRef.value!.getElementsByClassName('hljs');
-            for (const codeBlock of codeBlocks) {
-                const pre = codeBlock.parentElement!;
-
-                pre.classList.add('relative');
-
-                const { copy, copied } = useClipboard({ legacy: true });
-
-                const doRender = () => {
-                    const copyButtonVNode = h(UiButton, {
-                        alignment: 'center',
-                        variant: 'glass',
-                        class: [
-                            'absolute top-4 right-4 size-10 !p0',
-                            copied.value ? 'text-green500!' : 'text-fs-muted-2',
-                            variant === 'primary' && 'rounded-xl!',
-                        ],
-                        icon: copied.value ? 'solar:clipboard-check-bold' : 'solar:clipboard-bold',
-                        iconSize: '24',
-                        'aria-label': 'Copy code to clipboard',
-                        onClick: () => {
-                            copy(codeBlock.textContent!);
-                            $toast.success('Code copied to clipboard');
-                        },
-                    });
-
-                    copyButtonVNode.appContext = vueApp._context;
-                    render(copyButtonVNode, pre);
-                };
-
-                doRender();
-                watch(copied, doRender);
-            }
-        });
-    }
-
-    return html;
+    copy(button.nextElementSibling!.textContent!);
+    $toast.success(t('view.codeCopied'));
 };
 </script>
 
 <style scoped>
-.markdownContent :deep(em) {
-    @apply italic;
+@reference '~/styles/tailwind.css';
+
+.markdown {
+    @apply text-sm leading-7 break-words;
 }
 
-.markdownContent :deep(p code) {
-    @apply px-2 py-1.5 font-mono text-sm;
+.markdown :deep(> * + *) {
+    @apply mt-4;
 }
 
-.markdownContent :deep(p:has(code)) {
-    @apply my-3;
+.markdown :deep(h1) {
+    @apply text-2xl font-bold tracking-tight;
 }
 
-.markdownContent :deep(ul) {
-    @apply ml-4 list-outside list-disc;
+.markdown :deep(h2) {
+    @apply border-b pb-1 text-xl font-semibold tracking-tight;
 }
 
-.markdownContent :deep(ul ul) {
-    @apply ml-4 list-circle;
+.markdown :deep(h3) {
+    @apply text-lg font-semibold;
 }
 
-.markdownContent :deep(ol) {
-    @apply my-1 list-inside list-decimal;
+.markdown :deep(a) {
+    @apply font-medium text-primary underline underline-offset-4;
 }
 
-.markdownContent :deep(h1),
-.markdownContent :deep(h2),
-.markdownContent :deep(h3) {
-    @apply mb-3! mt-3! font-bold!;
+.markdown :deep(ul) {
+    @apply ml-6 list-disc;
 }
 
-.markdownContent :deep(> *:first-child) {
-    @apply mt-0!;
+.markdown :deep(ol) {
+    @apply ml-6 list-decimal;
 }
 
-.markdownContent :deep(hr) {
-    @apply border-none! h-px my4;
+.markdown :deep(blockquote) {
+    @apply border-l-2 border-primary pl-4 text-muted-foreground italic;
 }
 
-.markdownContent :deep(blockquote) {
-    @apply border-l-4 border-fs-accent pl-2.5 my-3 py-1.5 pr-1.5;
+.markdown :deep(hr) {
+    @apply border-border;
 }
 
-.markdownContent :deep(blockquote p) {
-    @apply break-all;
+.markdown :deep(:not(pre) > code) {
+    @apply rounded-md bg-muted px-1.5 py-0.5 font-mono text-[0.85em];
 }
 
-.markdownContent[data-variant='primary'] :deep(p code) {
-    @apply bg-fs-overlay-3 rounded-2xl;
-}
-.markdownContent[data-variant='primary'] :deep(hr) {
-    @apply bg-fs-overlay-3;
-}
-.markdownContent[data-variant='primary'] :deep(blockquote) {
-    @apply bg-fs-overlay-3 rounded-r-2xl;
+.markdown :deep(pre) {
+    @apply relative overflow-x-auto rounded-2xl;
 }
 
-.markdownContent[data-variant='primary'] :deep(> *:nth-child(-n + 2)) {
-    @apply max-w-[calc(100%-140px)] break-all;
+.markdown :deep(pre code) {
+    @apply block p-4 font-mono text-[0.85em];
 }
 
-.markdownContent[data-variant='secondary'] :deep(p code) {
-    @apply bg-fs-overlay-4 rounded-xl;
+.markdown :deep(pre [data-copy]) {
+    @apply absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-background/70 text-muted-foreground opacity-0 transition-opacity hover:text-foreground;
 }
-.markdownContent[data-variant='secondary'] :deep(hr) {
-    @apply bg-fs-overlay-4;
+
+.markdown :deep(pre:hover [data-copy]) {
+    @apply opacity-100;
 }
-.markdownContent[data-variant='secondary'] :deep(blockquote) {
-    @apply bg-fs-overlay-4 rounded-r-xl;
+
+.markdown :deep(table) {
+    @apply w-full border-collapse text-left;
+}
+
+.markdown :deep(th),
+.markdown :deep(td) {
+    @apply border-b px-3 py-2;
+}
+
+.markdown :deep(th) {
+    @apply font-medium text-muted-foreground;
+}
+
+.markdown :deep(img) {
+    @apply max-w-full rounded-xl;
 }
 </style>

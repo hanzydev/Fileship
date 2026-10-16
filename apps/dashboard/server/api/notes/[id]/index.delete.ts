@@ -1,5 +1,3 @@
-import { remove } from '@orama/orama';
-
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
@@ -10,28 +8,29 @@ export default defineEventHandler(async (event) => {
         where: {
             id: noteId,
             authorId: currentUser.id,
+            deletedAt: null,
         },
     });
 
     if (!findNoteById) {
-        throw createError({
-            statusCode: 404,
-            message: 'Note not found',
-        });
+        throw apiError(404, 'errorsContent.noteNotFound');
     }
 
-    await prisma.note.delete({
-        where: {
-            id: noteId,
-        },
-    });
+    const isTrashed = await isTrashEnabled();
 
-    await remove(noteSearchDb, noteId!);
+    if (isTrashed) {
+        await prisma.note.update({ where: { id: noteId }, data: { deletedAt: new Date() } });
+    } else {
+        await deleteNotesForever([noteId!]);
+    }
 
     await createLog(event, {
         action: 'Delete Note',
-        message: `Deleted note ${findNoteById.title}`,
+        message: isTrashed
+            ? `Moved note ${findNoteById.title} to trash`
+            : `Deleted note ${findNoteById.title}`,
     });
 
     sendToUser(currentUser.id, 'note:delete', noteId);
+    sendToUser(currentUser.id, 'trash:update', null);
 });

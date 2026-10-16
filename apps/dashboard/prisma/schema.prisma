@@ -12,6 +12,7 @@ enum UserPermission {
   Admin
   UploadFiles
   TakeNotes
+  ShortenLinks
 }
 
 enum BackupRestoreState {
@@ -21,12 +22,16 @@ enum BackupRestoreState {
 }
 
 enum AIJobType {
-  GenerateClipEmbedding
-  GenerateVideoEmbedding
-  GenerateOcrText
-  GenerateTextEmbedding
-  GenerateImageCaption
+  AnalyzeImage
+  AnalyzeVideo
+  AnalyzeText
   DetectPII
+}
+
+enum StorageType {
+  S3
+  SFTP
+  FTP
 }
 
 enum AIJobStatus {
@@ -37,29 +42,36 @@ enum AIJobStatus {
 }
 
 model User {
-  id                 String              @id @unique @default(uuid())
-  username           String              @unique
-  password           String
-  avatar             String?
-  permissions        UserPermission[]
-  files              File[]
-  notes              Note[]
-  folders            Folder[]
-  sessions           Session[]
-  logs               Log[]
-  totpEnabled        Boolean             @default(false)
-  totpSecret         String?
-  superAdmin         Boolean             @default(false)
-  limits             Json                @default("{}")
-  embed              Json                @default("{}")
-  aiSettings         Json                @default("{}")
-  createdAt          DateTime            @default(now())
-  domains            String[]
-  backupRestoreState BackupRestoreState?
-  theme              String              @default("Fileship")
-  credentials        Credential[]
-  aiJobs             AIJob[]
-  inbox              Inbox?
+  id                     String              @id @unique @default(uuid())
+  username               String              @unique
+  password               String
+  avatar                 String?
+  permissions            UserPermission[]
+  files                  File[]
+  views                  View[]
+  notes                  Note[]
+  folders                Folder[]
+  sessions               Session[]
+  logs                   Log[]
+  totpEnabled            Boolean             @default(false)
+  totpSecret             String?
+  uploadTokenHash        String?             @unique
+  uploadTokenEncrypted   String?
+  superAdmin             Boolean             @default(false)
+  limits                 Json                @default("{}")
+  embed                  Json                @default("{}")
+  aiSettings             Json                @default("{}")
+  createdAt              DateTime            @default(now())
+  domains                String[]
+  backupRestoreState     BackupRestoreState?
+  backupRestoreStartedAt DateTime?
+  theme                  String              @default("Fileship")
+  language               String?
+  credentials            Credential[]
+  aiJobs                 AIJob[]
+  inbox                  Inbox?
+  backups                Backup[]
+  links                  Link[]
 }
 
 model Credential {
@@ -75,27 +87,60 @@ model Credential {
 }
 
 model File {
-  id            String    @id @unique @default(uuid())
-  fileName      String    @unique
-  mimeType      String
-  size          BigInt
-  maxViews      Int       @default(0)
-  expiresAt     DateTime?
-  password      String?
-  createdAt     DateTime  @default(now())
-  author        User      @relation(fields: [authorId], references: [id])
-  authorId      String
-  folder        Folder?   @relation(fields: [folderId], references: [id])
-  folderId      String?
-  views         View[]
-  embedding     Json?
-  textEmbedding Json?
-  ocrText       String?
-  caption       String?
-  piiDetected   Boolean   @default(false)
-  piiReasons    String[]  @default([])
+  id                 String    @id @unique @default(uuid())
+  fileName           String    @unique
+  name               String
+  mimeType           String
+  size               BigInt
+  maxViews           Int       @default(0)
+  expiresAt          DateTime?
+  password           String?
+  createdAt          DateTime  @default(now())
+  author             User      @relation(fields: [authorId], references: [id])
+  authorId           String
+  folder             Folder?   @relation(fields: [folderId], references: [id])
+  folderId           String?
+  views              View[]
+  embedding          Json?
+  textEmbedding      Json?
+  ocrText            String?
+  caption            String?
+  piiDetected        Boolean   @default(false)
+  piiReasons         String[]  @default([])
+  piiOverride        Boolean?
+  embeddingModel     String?
+  textEmbeddingModel String?
+  aiAnalyzedAt       DateTime?
+  metadata           Json?
+  storage            Storage?  @relation(fields: [storageId], references: [id], onDelete: Restrict)
+  storageId          String?
+  deletedAt          DateTime?
 
   aiJobs AIJob[]
+
+  @@index([authorId, deletedAt])
+}
+
+model Storage {
+  id        String      @id @default(uuid())
+  name      String
+  type      StorageType
+  config    String
+  createdAt DateTime    @default(now())
+  files     File[]
+  backups   Backup[]
+}
+
+model Backup {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  size      BigInt
+  storageId String?
+  storage   Storage? @relation(fields: [storageId], references: [id], onDelete: Restrict)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model AIJob {
@@ -105,8 +150,8 @@ model AIJob {
   attempts Int         @default(0)
   error    String?
 
-  fileId String?
-  file   File?   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -117,29 +162,34 @@ model AIJob {
   updatedAt DateTime  @updatedAt
 
   @@index([status, createdAt])
-  @@index([userId, status, createdAt])
   @@index([fileId])
 }
 
 model Note {
-  id        String   @id @unique @default(uuid())
+  id        String    @id @unique @default(uuid())
   title     String
   content   String
-  createdAt DateTime @default(now())
-  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime  @default(now())
+  author    User      @relation(fields: [authorId], references: [id])
   authorId  String
-  public    Boolean  @default(false)
+  public    Boolean   @default(false)
+  deletedAt DateTime?
+
+  @@index([authorId, deletedAt])
 }
 
 model Folder {
-  id        String   @id @unique @default(uuid())
+  id        String    @id @unique @default(uuid())
   name      String
   public    Boolean
-  createdAt DateTime @default(now())
-  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime  @default(now())
+  author    User      @relation(fields: [authorId], references: [id])
   authorId  String
   files     File[]
   inbox     Inbox?
+  deletedAt DateTime?
+
+  @@index([authorId, deletedAt])
 }
 
 model Log {
@@ -159,19 +209,31 @@ model View {
   createdAt DateTime @default(now())
   file      File?    @relation(fields: [fileId], references: [id])
   fileId    String?
+  owner     User?    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   String?
+
+  @@index([createdAt])
+  @@index([ownerId])
 }
 
 model Session {
-  id         String    @id @unique @default(uuid())
-  privateId  String    @unique
-  ip         String
-  os         String
-  platform   String
-  location   String
-  lastSeen   DateTime  @default(now())
-  lastVerify DateTime?
-  user       User      @relation(fields: [userId], references: [id])
-  userId     String
+  id                    String    @id @unique @default(uuid())
+  tokenHash             String    @unique
+  ip                    String
+  os                    String
+  platform              String
+  location              String
+  userAgent             String    @default("")
+  createdAt             DateTime  @default(now())
+  lastSeen              DateTime  @default(now())
+  lastVerify            DateTime?
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                String
+  impersonator          Session?  @relation("Impersonation", fields: [impersonatorSessionId], references: [id], onDelete: Cascade)
+  impersonatorSessionId String?
+  impersonations        Session[] @relation("Impersonation")
+
+  @@index([userId])
 }
 
 model Stat {
@@ -193,7 +255,28 @@ model Inbox {
   userId   String  @unique
   folder   Folder  @relation(fields: [folderId], references: [id], onDelete: Cascade)
   folderId String  @unique
-  slug     String?  @unique
+  slug     String? @unique
   enabled  Boolean @default(false)
   password String?
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model Link {
+  id        String    @id @default(uuid())
+  code      String    @unique
+  url       String
+  password  String?
+  maxClicks Int       @default(0)
+  clicks    Int       @default(0)
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+
+  @@index([authorId, createdAt])
 }

@@ -1,0 +1,47 @@
+appId: dev.hanzy.fileship
+productName: Fileship
+copyright: Copyright © 2024-present Hànzy and Fileship contributors
+
+directories:
+    output: release
+    buildResources: build
+
+files:
+    - dist-electron/**
+    - .output/public/**
+    - resources/**
+    - package.json
+
+extraResources:
+    - from: build/native/fileship-native.node
+      to: native/fileship-native.node
+    - from: build/drive/fileship-drive.exe
+      to: drive/fileship-drive.exe
+
+electronFuses:
+    runAsNode: false
+    enableNodeOptionsEnvironmentVariable: false
+    enableNodeCliInspectArguments: false
+
+npmRebuild: false
+nodeGypRebuild: false
+
+win:
+    target:
+        - target: nsis
+          arch: [x64]
+    icon: build/icon.ico
+    artifactName: Fileship-Setup-${version}.${ext}
+
+nsis:
+    oneClick: true
+    perMachine: false
+    shortcutName: Fileship
+    uninstallDisplayName: Fileship
+    deleteAppDataOnUninstall: false
+
+publish:
+    provider: github
+    owner: hanzydev
+    repo: fileship-desktop
+    releaseType: release

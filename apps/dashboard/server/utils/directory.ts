@@ -1,7 +1,7 @@
-import { join } from 'pathe';
+import { join, resolve } from 'pathe';
 
-export const baseDirectory = join(process.env.NODE_ENV === 'development' ? './' : process.cwd());
+export const baseDirectory = join(import.meta.dev ? './' : process.cwd());
 
 export const rootDirectory = join(baseDirectory, '..', '..');
 
-export const dataDirectory = join(rootDirectory, process.env.DATA_DIRECTORY || 'data');
+export const dataDirectory = resolve(rootDirectory, useRuntimeConfig().dataDirectory || 'data');

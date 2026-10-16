@@ -5,13 +5,13 @@ import { insert } from '@orama/orama';
 const validationSchema = z.object({
     title: z
         .string()
-        .min(3, 'Title must be at least 3 characters')
-        .max(48, 'Title must be at most 48 characters')
+        .min(3, 'errorsContent.noteTitleMin')
+        .max(48, 'errorsContent.noteTitleMax')
         .transform((title) => title.trim()),
     content: z
         .string()
-        .min(1, 'Content must be at least 1 character')
-        .max(50_000, 'Content must be at most 50000 characters'),
+        .min(1, 'errorsContent.noteContentMin')
+        .max(50_000, 'errorsContent.noteContentMax'),
     public: z.boolean().optional().default(false),
 });
 
@@ -22,11 +22,7 @@ export default defineEventHandler(async (event) => {
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     const _note = await prisma.note.create({
@@ -47,6 +43,7 @@ export default defineEventHandler(async (event) => {
 
     await insert(noteSearchDb, {
         id: note.id,
+        authorId: note.authorId,
         title: note.title,
     });
 

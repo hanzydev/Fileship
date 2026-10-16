@@ -10,7 +10,7 @@ COPY . .
 RUN npm i -g corepack@latest
 RUN corepack enable
 
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 RUN pnpm --filter dashboard... build
 
 FROM node:24-slim AS runner
@@ -29,4 +29,6 @@ COPY --from=builder /fileship/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
 EXPOSE 3000
 
-CMD ["pnpm", "--filter", "dashboard", "preview"]
+WORKDIR /fileship/apps/dashboard
+
+CMD ["sh", "-c", "pnpm db:deploy && exec node -r ./scripts/fixPrisma.js .output/server/index.mjs"]

@@ -1,39 +1,44 @@
 import { hash } from 'argon2';
 import { defu } from 'defu';
-import sharp from 'sharp';
+import sharp, { type Metadata, type Sharp } from 'sharp';
 import { z } from 'zod';
 
 import { update } from '@orama/orama';
 
 import { UserPermission } from '#shared/prisma/enums';
-import themes from '~~/app/styles/themes.json';
 
 const validationSchema = z
     .object({
         username: z
             .string()
-            .min(3, 'Username must be at least 3 characters')
-            .max(24, 'Username must be at most 24 characters')
+            .min(3, 'errorsUsers.usernameMin')
+            .max(24, 'errorsUsers.usernameMax')
             .optional(),
         avatar: z.string().nullish(),
         password: z
             .string()
-            .min(8, 'Password must be at least 8 characters')
-            .max(48, 'Password must be at most 48 characters')
+            .min(8, 'errorsUsers.passwordMin')
+            .max(48, 'errorsUsers.passwordMax')
             .optional(),
         permissions: z.array(z.enum(UserPermission)).optional(),
         limits: z
             .object({
-                backupLimit: z.number().min(-1, 'Backup limit must be at least -1').optional(),
-                usableSpace: z.number().min(-1, 'Usable space must be at least -1').optional(),
+                backupLimit: z
+                    .number()
+                    .int('errorsUsers.backupLimitInt')
+                    .min(-1, 'errorsUsers.backupLimitMin')
+                    .optional(),
+                usableSpace: z
+                    .number()
+                    .int('errorsUsers.usableSpaceInt')
+                    .min(-1, 'errorsUsers.usableSpaceMin')
+                    .optional(),
             })
             .optional(),
         superAdmin: z.boolean().optional(),
         verificationData: z.any().nullish(),
-        theme: z
-            .string()
-            .refine((theme) => theme in themes, 'Invalid theme')
-            .optional(),
+        theme: z.enum(Object.keys(accents) as [Accent]).optional(),
+        language: z.enum(['en', 'tr']).nullable().optional(),
     })
     .strict();
 
@@ -44,7 +49,7 @@ export default defineEventHandler(async (event) => {
     const userId = getRouterParam(event, 'id');
 
     if (userId !== currentUser.id && !isAdmin(currentUser)) {
-        throw forbiddenError;
+        throw forbiddenError();
     }
 
     const findUserById = await prisma.user.findUnique({
@@ -54,47 +59,31 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findUserById) {
-        throw createError({
-            statusCode: 404,
-            message: 'User not found',
-        });
+        throw apiError(404, 'errorsUsers.userNotFound');
     }
 
     if (findUserById.superAdmin && !currentUser.superAdmin) {
-        throw createError({
-            statusCode: 403,
-            message: 'You cannot update a super admin',
-        });
+        throw apiError(403, 'errorsUsers.cannotUpdateSuperAdmin');
     }
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
     if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     if (
         !isAdmin(currentUser) &&
         ('permissions' in body.data || 'limits' in body.data || 'superAdmin' in body.data)
     ) {
-        throw forbiddenError;
+        throw forbiddenError();
     }
 
     if ('superAdmin' in body.data && body.data.superAdmin && !currentUser.superAdmin) {
-        throw createError({
-            statusCode: 403,
-            message: 'You cannot grant super admin rights',
-        });
+        throw apiError(403, 'errorsUsers.cannotGrantSuperAdmin');
     }
 
     if (body.data.permissions && !body.data.permissions.length && !body.data.superAdmin) {
-        throw createError({
-            statusCode: 400,
-            message: 'Permissions must be provided if user is not a super admin',
-        });
+        throw apiError(400, 'errorsUsers.permissionsRequired');
     }
 
     if (body.data.username) {
@@ -106,14 +95,10 @@ export default defineEventHandler(async (event) => {
         });
 
         if (findUserByUsername) {
-            throw createError({
-                statusCode: 409,
-                message: 'Username already taken',
-                data: {
-                    formErrors: {
-                        username: {
-                            _errors: ['Username already taken'],
-                        },
+            throw apiError(409, 'errorsUsers.usernameTaken', undefined, {
+                formErrors: {
+                    username: {
+                        _errors: [translate('errorsUsers.usernameTaken')],
                     },
                 },
             });
@@ -122,43 +107,38 @@ export default defineEventHandler(async (event) => {
 
     if (body.data.superAdmin) body.data.permissions = [UserPermission.Admin];
 
+    const grantsAdmin =
+        (body.data.superAdmin && !findUserById.superAdmin) ||
+        (body.data.permissions?.includes(UserPermission.Admin) &&
+            !findUserById.permissions.includes(UserPermission.Admin));
+
+    if (grantsAdmin) await verifySession(event, body.data.verificationData);
+
     if (body.data.avatar) {
         const buffer = Buffer.from(body.data.avatar, 'base64');
 
-        const avatarMaxSize = +(process.env.AVATAR_MAX_SIZE || 4);
+        const { avatarMaxSize } = await getSettings();
 
         if (buffer.length > avatarMaxSize * 1024 * 1024) {
-            throw createError({
-                statusCode: 400,
-                message: `Avatar must be less than ${avatarMaxSize}MB`,
-            });
+            throw apiError(400, 'errorsUsers.avatarTooLarge', { size: avatarMaxSize });
         }
 
-        let image: sharp.Sharp;
-        let metadata: sharp.Metadata;
+        let image: Sharp;
+        let metadata: Metadata;
 
         try {
             image = sharp(buffer);
             metadata = await image.metadata();
         } catch {
-            throw createError({
-                statusCode: 400,
-                message: 'Invalid avatar image',
-            });
+            throw apiError(400, 'errorsUsers.invalidAvatarImage');
         }
 
         if (!metadata.width || !metadata.height) {
-            throw createError({
-                statusCode: 400,
-                message: 'Invalid avatar',
-            });
+            throw apiError(400, 'errorsUsers.invalidAvatar');
         }
 
         if (metadata.width < 64 || metadata.height < 64) {
-            throw createError({
-                statusCode: 400,
-                message: 'Avatar must be at least 64x64',
-            });
+            throw apiError(400, 'errorsUsers.avatarTooSmall');
         }
 
         try {
@@ -170,10 +150,7 @@ export default defineEventHandler(async (event) => {
 
             body.data.avatar = `data:image/png;base64,${resizedAvatar.toString('base64')}`;
         } catch {
-            throw createError({
-                statusCode: 400,
-                message: 'Failed to process avatar',
-            });
+            throw apiError(400, 'errorsUsers.avatarProcessFailed');
         }
     }
 
@@ -191,21 +168,26 @@ export default defineEventHandler(async (event) => {
             },
         });
 
-        await sendByFilter(
-            (user) =>
-                user.id === userId
-                    ? userId === currentUser.id
-                        ? user.currentSessionId !== currentUser.currentSessionId
-                        : true
-                    : false,
-            'logout',
-            null,
+        await logoutSockets((user) =>
+            user.id === userId
+                ? userId === currentUser.id
+                    ? user.currentSessionId !== currentUser.currentSessionId
+                    : true
+                : false,
         );
 
         sendToUser(userId!, 'session:deleteAll', null);
     } else delete body.data.password;
 
     delete body.data.verificationData;
+
+    if (body.data.limits) {
+        body.data.limits = defu(
+            body.data.limits,
+            findUserById.limits as Partial<IUserLimits>,
+            defaultUserLimits,
+        );
+    }
 
     const _updatedUser = await prisma.$transaction(async (tx) => {
         const superAdminsCount = await tx.user.count({
@@ -219,11 +201,7 @@ export default defineEventHandler(async (event) => {
             !body.data.superAdmin &&
             superAdminsCount <= 1
         ) {
-            throw createError({
-                statusCode: 403,
-                message:
-                    'You cannot remove super admin from yourself if you are the only super admin',
-            });
+            throw apiError(403, 'errorsUsers.lastSuperAdmin');
         }
 
         return await tx.user.update({
@@ -239,9 +217,10 @@ export default defineEventHandler(async (event) => {
                 limits: true,
                 superAdmin: true,
                 theme: true,
+                language: true,
                 aiSettings: true,
                 _count: {
-                    select: { files: true, folders: true, notes: true },
+                    select: userCountSelect,
                 },
             },
         });
@@ -263,6 +242,11 @@ export default defineEventHandler(async (event) => {
     await createLog(event, {
         action: 'Update User',
         message: `Updated user ${updatedUser.username}`,
+    });
+
+    await refreshSocketUser(updatedUser.id, {
+        permissions: updatedUser.permissions,
+        superAdmin: updatedUser.superAdmin,
     });
 
     await sendByFilter(isAdmin, 'user:update', { ...updatedUser, aiSettings: undefined });

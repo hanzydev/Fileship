@@ -1,9 +1,3 @@
-import { rm } from 'node:fs/promises';
-
-import { join } from 'pathe';
-
-import { remove } from '@orama/orama';
-
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
@@ -14,44 +8,29 @@ export default defineEventHandler(async (event) => {
         where: {
             id: fileId,
             authorId: currentUser.id,
+            deletedAt: null,
         },
     });
 
     if (!findFileById) {
-        throw createError({
-            statusCode: 404,
-            message: 'File not found',
-        });
+        throw apiError(404, 'errorsFiles.fileNotFound');
     }
 
-    await rm(join(dataDirectory, 'uploads', findFileById.fileName), {
-        force: true,
-    }).catch(() => null);
+    const isTrashed = await isTrashEnabled();
 
-    if (findFileById.mimeType.startsWith('video/')) {
-        await rm(join(dataDirectory, 'thumbnails', `${findFileById.id}.jpeg`), {
-            force: true,
-        }).catch(() => null);
+    if (isTrashed) {
+        await prisma.file.update({ where: { id: fileId }, data: { deletedAt: new Date() } });
+    } else {
+        await deleteFilesForever([findFileById]);
     }
-
-    await prisma.view.deleteMany({
-        where: {
-            fileId,
-        },
-    });
-
-    await prisma.file.delete({
-        where: {
-            id: fileId,
-        },
-    });
-
-    await remove(fileSearchDb, fileId!);
 
     await createLog(event, {
         action: 'Delete File',
-        message: `Deleted file ${findFileById.fileName}`,
+        message: isTrashed
+            ? `Moved file ${findFileById.fileName} to trash`
+            : `Deleted file ${findFileById.fileName}`,
     });
 
     sendToUser(currentUser.id, 'file:delete', fileId);
+    sendToUser(currentUser.id, 'trash:update', null);
 });

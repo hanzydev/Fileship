@@ -1,139 +1,160 @@
 <template>
     <Head>
-        <Title>Notes</Title>
+        <Title>{{ $t('notes.title') }}</Title>
     </Head>
 
-    <ModalsTakeNote v-model="takeNotesModalOpen" />
-
-    <DashboardContent>
-        <template #header>
-            <h2 lt-md="text-2xl!">Notes</h2>
-        </template>
-
-        <UiSearchBar
-            v-model="searchQuery"
-            v-model:loading="isSearching"
-            placeholder="Search notes..."
-        />
-        <div grid="~ gap6 lg:cols-3 md:cols-2 xl:cols-4 2xl:cols-5">
-            <New h100px @action="takeNotesModalOpen = true" />
-
-            <template v-if="isLoading">
-                <UiSkeletonCard
-                    v-for="i in randomNumber(3, 7)"
-                    :key="i"
-                    h100px
-                    flex="~ col gap4 justify-between"
-                >
-                    <UiSkeletonLine
-                        h5
-                        :style="{
-                            width: `${randomNumber(30, 70)}%`,
-                        }"
+    <div class="flex flex-1 gap-4 p-4 pt-0">
+        <UiCard
+            :class="cn('w-full shrink-0 gap-4 md:flex md:w-80', isEditorOpen ? 'hidden' : 'flex')"
+        >
+            <UiCardHeader>
+                <UiCardTitle>{{ $t('notes.title') }}</UiCardTitle>
+                <UiCardDescription>
+                    {{ isLoading ? $t('common.loading') : $t('notes.count', total) }}
+                </UiCardDescription>
+                <UiCardAction>
+                    <UiButton size="sm" as-child>
+                        <NuxtLink to="/dashboard/notes/new">
+                            <ISquarePen />
+                            {{ $t('notes.new') }}
+                        </NuxtLink>
+                    </UiButton>
+                </UiCardAction>
+            </UiCardHeader>
+            <UiCardContent class="flex flex-1 flex-col gap-3">
+                <UiInputGroup>
+                    <UiInputGroupAddon>
+                        <UiSpinner v-if="!!search && isFetching" />
+                        <ISearch v-else />
+                    </UiInputGroupAddon>
+                    <UiInputGroupInput
+                        v-model="search"
+                        :placeholder="$t('notes.searchPlaceholder')"
                     />
-                    <UiSkeletonLine h4 w40 text-fs-muted-2 />
-                </UiSkeletonCard>
-            </template>
-            <TransitionGroup
-                v-else
-                :css="false"
-                @enter="(el, done) => (isAnimating ? done() : enter(el, done))"
-                @leave="(el, done) => (isAnimating ? done() : leave(el, done))"
-            >
-                <div v-for="note in calculatedNotes" :key="note.id" op0 class="noteCard">
-                    <NoteCard :data="note" />
+                </UiInputGroup>
+
+                <div v-if="isLoading" class="flex flex-col gap-2">
+                    <ListCardSkeleton v-for="i in 5" :key="i" />
                 </div>
-            </TransitionGroup>
+
+                <EmptyState
+                    v-else-if="isError"
+                    :icon="ICircleAlert"
+                    :title="$t('notes.loadFailed')"
+                    :description="$t('notes.loadFailedDescription')"
+                >
+                    <UiButton variant="outline" @click="refresh">
+                        {{ $t('notes.tryAgain') }}
+                    </UiButton>
+                </EmptyState>
+
+                <EmptyState
+                    v-else-if="!notes.length"
+                    :icon="search ? ISearchX : IBookmark"
+                    :title="search ? $t('notes.noMatches') : $t('notes.empty')"
+                    :description="
+                        search ? $t('notes.noMatchesDescription') : $t('notes.emptyDescription')
+                    "
+                />
+
+                <VirtualList
+                    v-else
+                    :items="notes"
+                    :item-key="(n) => n.id"
+                    :estimate-size="66"
+                    :gap="8"
+                    :loading="isLoadingMore"
+                    @reach-end="loadMore"
+                >
+                    <template #skeleton>
+                        <ListCardSkeleton />
+                    </template>
+                    <template #default="{ item }">
+                        <UiContextMenu>
+                            <UiContextMenuTrigger as-child>
+                                <NuxtLink :to="`/dashboard/notes/${item.id}`" class="block">
+                                    <UiCard
+                                        size="sm"
+                                        :class="activeId === item.id && 'ring-2 ring-primary!'"
+                                    >
+                                        <UiCardContent class="flex flex-col gap-0.5">
+                                            <div class="flex items-center gap-2">
+                                                <TextBlock variant="small" class="flex-1 truncate">
+                                                    {{ item.title }}
+                                                </TextBlock>
+                                                <IGlobe
+                                                    v-if="item.public"
+                                                    class="size-3.5 text-muted-foreground"
+                                                />
+                                                <UiDropdownMenu>
+                                                    <UiDropdownMenuTrigger as-child>
+                                                        <UiButton
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                            class="-my-1.5"
+                                                            @click.prevent.stop
+                                                        >
+                                                            <IEllipsis />
+                                                        </UiButton>
+                                                    </UiDropdownMenuTrigger>
+                                                    <UiDropdownMenuContent align="end" class="w-56">
+                                                        <NoteMenuItems
+                                                            :note="item"
+                                                            type="dropdown"
+                                                        />
+                                                    </UiDropdownMenuContent>
+                                                </UiDropdownMenu>
+                                            </div>
+                                            <TextBlock variant="muted" class="truncate text-xs">
+                                                {{ date(item.createdAt).fromNow() }} ·
+                                                {{
+                                                    item.content
+                                                        .replace(/[#*_`>\-\n]+/g, ' ')
+                                                        .trim()
+                                                }}
+                                            </TextBlock>
+                                        </UiCardContent>
+                                    </UiCard>
+                                </NuxtLink>
+                            </UiContextMenuTrigger>
+                            <UiContextMenuContent class="w-56">
+                                <NoteMenuItems :note="item" type="context" />
+                            </UiContextMenuContent>
+                        </UiContextMenu>
+                    </template>
+                </VirtualList>
+            </UiCardContent>
+        </UiCard>
+
+        <div :class="cn('min-w-0 flex-1 md:flex', isEditorOpen ? 'flex' : 'hidden')">
+            <NuxtPage />
         </div>
-        <UiPagination v-model="currentPage" :item-count="filtered.length" :items-per-page="19" />
-    </DashboardContent>
+    </div>
 </template>
 
 <script setup lang="ts">
-const notes = useNotes();
-const currentUser = useAuthUser();
+import { IBookmark, ICircleAlert, ISearchX } from '#components';
 
-const currentPage = ref(1);
-const searchQuery = ref('');
-const searched = ref<string[]>([]);
+import type { NoteData } from '~/types/notes';
 
-const takeNotesModalOpen = ref(false);
+const route = useRoute();
+const date = useDate();
 
-const filtered = computed(() =>
-    notes.value.filter((n) =>
-        !isSearching.value && searchQuery.value.length ? searched.value.includes(n.id) : true,
-    ),
-);
+const search = ref('');
 
-const calculatedNotes = computed(() => {
-    const start = (currentPage.value - 1) * 19;
-    const end = start + 19;
-    return filtered.value.slice(start, end);
-});
+const {
+    items: notes,
+    total,
+    isLoading,
+    isError,
+    isFetching,
+    isLoadingMore,
+    loadMore,
+    refresh,
+} = usePaginatedList<NoteData>('notes', '/api/notes', () => ({ q: search.value.trim() }));
 
-const isAnimating = ref(false);
-const isSearching = ref(false);
-const isLoading = ref(notes.value.length !== currentUser.value!.stats.notes);
-
-const { all, enter, leave } = animateCards();
-
-onMounted(async () => {
-    if (isLoading.value) {
-        const data = await $fetch('/api/notes');
-
-        notes.value = data.map((n) => ({
-            ...n,
-            createdAt: new Date(n.createdAt),
-        }));
-
-        isLoading.value = false;
-        await nextTick();
-    }
-
-    all('notes', '.noteCard');
-});
-
-let searchTimeout: NodeJS.Timeout;
-
-watch(currentPage, () => {
-    isAnimating.value = true;
-    nextTick(() => {
-        all('notes', '.noteCard', () => {
-            isAnimating.value = false;
-        });
-    });
-});
-
-watch(searchQuery, (query) => {
-    clearTimeout(searchTimeout);
-
-    if (query.length) {
-        isSearching.value = true;
-
-        searchTimeout = setTimeout(async () => {
-            isAnimating.value = true;
-
-            try {
-                searched.value = await $fetch<string[]>('/api/notes/search', {
-                    method: 'POST',
-                    body: { query },
-                });
-            } catch {
-                searched.value = [];
-            }
-
-            isSearching.value = false;
-
-            nextTick(() => {
-                all('notes', '.noteCard', () => {
-                    isAnimating.value = false;
-                });
-            });
-        }, 750);
-    } else {
-        searched.value = [];
-    }
-});
+const activeId = computed(() => (route.params as any).id as string | undefined);
+const isEditorOpen = computed(() => !!activeId.value);
 
 definePageMeta({
     layout: 'dashboard',

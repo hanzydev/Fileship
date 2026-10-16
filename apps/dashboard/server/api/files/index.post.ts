@@ -1,32 +1,33 @@
 import { randomUUID } from 'node:crypto';
-import { existsSync, promises as fsp } from 'node:fs';
 
-import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
-import { basename, extname, join } from 'pathe';
-import sharp from 'sharp';
+import { basename, extname } from 'pathe';
 import { z } from 'zod';
 
-import { insert } from '@orama/orama';
-
-import { AIJobType } from '#shared/prisma/enums';
-
 const validationSchema = z.object({
-    uploadId: z.string().optional(),
-    totalChunks: z.number().min(1, 'Total chunks must be at least 1').optional(),
-    currentChunk: z.number().min(1, 'Current chunk must be at least 1').optional(),
-    chunkOffset: z.number().int().min(0, 'Chunk offset must be at least 0').optional(),
+    uploadId: z
+        .string()
+        .regex(/^[\w-]{1,64}$/, 'errorsFiles.invalidUploadId')
+        .optional(),
+    totalChunks: z
+        .number()
+        .int()
+        .min(1, 'errorsFiles.totalChunksMin')
+        .max(10000, 'errorsFiles.tooManyChunks')
+        .optional(),
+    currentChunk: z.number().int().min(1, 'errorsFiles.currentChunkMin').optional(),
+    chunkOffset: z.number().int().min(0, 'errorsFiles.chunkOffsetMin').optional(),
     fileNameType: z
         .union([z.literal('Random'), z.literal('UUID'), z.literal('Original')])
         .nullish(),
     compression: z
         .number()
-        .min(0, 'Compression must be at least 0')
-        .max(100, 'Compression must be at most 100')
+        .min(0, 'errorsFiles.compressionMin')
+        .max(100, 'errorsFiles.compressionMax')
         .optional(),
-    password: z.string().max(48, 'Password must be at most 48 characters').nullish(),
-    maxViews: z.number().min(0, 'Max views must be at least 0').nullish(),
-    expiration: z.number().min(0, 'Expiration must be at least 0').nullish(),
+    password: z.string().max(48, 'errorsFiles.passwordMax').nullish(),
+    maxViews: z.number().int().min(0, 'errorsFiles.maxViewsMin').nullish(),
+    expiration: z.number().int().min(0, 'errorsFiles.expirationMin').nullish(),
     folderId: z.string().nullish(),
 });
 
@@ -38,17 +39,11 @@ export default defineEventHandler(async (event) => {
 
     const file = formData.get('file');
     if (!file) {
-        throw createError({
-            statusCode: 400,
-            message: 'Missing file',
-        });
+        throw apiError(400, 'errorsFiles.missingFile');
     }
 
     if (typeof file === 'string') {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid file',
-        });
+        throw apiError(400, 'errorsFiles.invalidFile');
     }
 
     const chunkOffset = formData.get('chunkOffset');
@@ -67,163 +62,106 @@ export default defineEventHandler(async (event) => {
         folderId: formData.get('folderId') as string,
     });
 
-    if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
-    const isProcessableImage =
-        file.type.startsWith('image/') && !['image/gif', 'image/svg+xml'].includes(file.type);
+    const isCompressible = isProcessableImage(file.type) && !!body.data.compression;
+    const extensionName = isCompressible ? '.jpeg' : safeExtension(file.name);
 
-    const isCompressible = isProcessableImage && !!body.data.compression;
-    const extensionName = isCompressible ? '.jpeg' : extname(file.name);
+    const assertFolder = async () => {
+        if (!body.data.folderId) return;
 
-    let fileName = `${basename(file.name.replace(/[^a-zA-Z0-9-_.]/g, ''), extname(file.name))}${
-        extensionName
-    }`;
-
-    if (body.data.fileNameType === 'Random') {
-        fileName = `${nanoid(8)}${extensionName}`;
-    } else if (body.data.fileNameType === 'UUID') {
-        fileName = `${randomUUID()}${extensionName}`;
-    }
-
-    const findFileByFileName = await prisma.file.findUnique({
-        where: {
-            fileName,
-        },
-    });
-
-    if (findFileByFileName) {
-        throw createError({
-            statusCode: 409,
-            message: 'A file with that name already exists',
-        });
-    }
-
-    if (body.data.folderId) {
         const findFolderById = await prisma.folder.findUnique({
             where: {
                 id: body.data.folderId,
                 authorId: currentUser.id,
+                deletedAt: null,
             },
         });
 
         if (!findFolderById) {
-            throw createError({
-                statusCode: 404,
-                message: 'Folder not found',
-            });
+            throw apiError(404, 'errorsFiles.folderNotFound');
         }
-    }
+    };
 
-    const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9-_.]/g, '');
-    const uploadSessionId = body.data.uploadId ?? nanoid(8);
-  
-    const tempPath = join(
-        dataDirectory,
-        'temp',
-        currentUser.id,
-        `${uploadSessionId}_${sanitizedOriginalName}`,
+    const _upload = await receiveUpload(
+        currentUser,
+        {
+            kind: 'file',
+            uploadId: body.data.uploadId ?? nanoid(8),
+            part: body.data.currentChunk!,
+            offset: body.data.chunkOffset ?? 0,
+            total: body.data.totalChunks!,
+            data: new Uint8Array(await file.arrayBuffer()),
+            mimeType: file.type,
+            compression: body.data.compression,
+        },
+        async () => {
+            let fileName = `${fileNameBase(file.name) || nanoid(8)}${extensionName}`;
+
+            if (body.data.fileNameType === 'Random') {
+                fileName = `${nanoid(8)}${extensionName}`;
+            } else if (body.data.fileNameType === 'UUID') {
+                fileName = `${randomUUID()}${extensionName}`;
+            } else {
+                assertFileNameAllowed(fileName);
+            }
+
+            const findFileByFileName = await prisma.file.findUnique({
+                where: {
+                    fileName,
+                },
+            });
+
+            if (findFileByFileName) {
+                throw apiError(
+                    409,
+                    findFileByFileName.deletedAt
+                        ? 'errorsFiles.nameInTrash'
+                        : 'errorsFiles.nameExists',
+                );
+            }
+
+            await assertFolder();
+
+            return fileName;
+        },
+        async (data) => {
+            await assertFolder();
+
+            return prisma.file.create({
+                data: {
+                    ...data,
+                    name: toDisplayName(
+                        `${basename(file.name, extname(file.name))}${isCompressible ? '.jpeg' : extname(file.name)}`,
+                        data.fileName,
+                    ),
+                    mimeType: isCompressible ? 'image/jpeg' : file.type,
+                    password: body.data.password || null,
+                    maxViews: body.data.maxViews || 0,
+                    expiresAt: body.data.expiration
+                        ? new Date(Date.now() + body.data.expiration)
+                        : null,
+                    authorId: currentUser.id,
+                    folderId: body.data.folderId || null,
+                },
+                include: {
+                    views: true,
+                },
+                omit: {
+                    embedding: true,
+                    textEmbedding: true,
+                    ocrText: true,
+                },
+            });
+        },
     );
 
-    await fsp.mkdir(join(dataDirectory, 'temp', currentUser.id), { recursive: true });
-
-    const buffer = new Uint8Array(await file.arrayBuffer());
-    const removeExifData = (process.env.REMOVE_EXIF_DATA || 'true') === 'true';
-    const isLastChunk = body.data.currentChunk === body.data.totalChunks;
-
-    if (body.data.chunkOffset !== undefined) {
-        await writeUploadChunk(tempPath, buffer, body.data.chunkOffset, isLastChunk);
-    } else {
-        await fsp.writeFile(tempPath, buffer);
-    }
-
-    if (isLastChunk) {
-        if (isProcessableImage) {
-            try {
-                const temp2Path = join(
-                    dataDirectory,
-                    'temp',
-                    currentUser.id,
-                    `${nanoid(8)}${extensionName}`,
-                );
-
-                let imagePipeline = sharp(tempPath).rotate();
-
-                if (body.data.compression) {
-                    imagePipeline = imagePipeline.jpeg({
-                        quality: Math.min(100, Math.max(1, 100 - body.data.compression)),
-                    });
-                }
-
-                if (!removeExifData) imagePipeline = imagePipeline.keepExif();
-
-                await imagePipeline.toFile(temp2Path);
-                await fsp.rename(temp2Path, tempPath);
-            } catch {
-                //
-            }
-        }
-
-        const fileSize = (await fsp.stat(tempPath)).size;
-        const totalSize = await prisma.file.aggregate({
-            where: {
-                authorId: currentUser.id,
-            },
-            _sum: {
-                size: true,
-            },
-        });
-
-        if (
-            !isAdmin(currentUser) &&
-            currentUser.limits.usableSpace > -1 &&
-            (totalSize._sum.size ?? 0n) + BigInt(fileSize) >
-                BigInt(currentUser.limits.usableSpace * 1024 * 1024)
-        ) {
-            await fsp.rm(tempPath).catch(() => {});
-            throw createError({
-                statusCode: 400,
-                message: 'Storage limit reached',
-            });
-        }
-
-        const filePath = join(dataDirectory, 'uploads', fileName);
-
-        await moveFileRobust(tempPath, filePath);
-
-        const _upload = await prisma.file.create({
-            data: {
-                fileName,
-                mimeType: isCompressible ? 'image/jpeg' : file.type,
-                size: fileSize,
-                password: body.data.password || null,
-                maxViews: body.data.maxViews || 0,
-                expiresAt: body.data.expiration
-                    ? new Date(Date.now() + body.data.expiration)
-                    : null,
-                authorId: currentUser.id,
-                folderId: body.data.folderId || null,
-            },
-            include: {
-                views: true,
-            },
-            omit: {
-                embedding: true,
-                textEmbedding: true,
-                ocrText: true,
-            },
-        });
-
+    if (_upload) {
         const upload = {
             ..._upload,
             size: {
                 raw: _upload.size.toString(),
-                formatted: filesize(_upload.size),
+                formatted: formatSize(_upload.size),
             },
             views: {
                 total: _upload.views.length,
@@ -239,83 +177,14 @@ export default defineEventHandler(async (event) => {
             },
             directUrl: buildPublicUrl(event, currentUser.domains, `/u/${_upload.fileName}`),
             embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${_upload.fileName}`),
-            thumbnailUrl: undefined as string | null | undefined,
+            thumbnailUrl: getThumbnailUrl(event, currentUser.domains, _upload),
         };
 
-        if (file.type.startsWith('video/')) {
-            const thumbnailPath = join(dataDirectory, 'thumbnails', `${upload.id}.jpeg`);
-
-            await createVideoThumbnail(filePath, thumbnailPath);
-
-            upload.thumbnailUrl = existsSync(thumbnailPath)
-                ? buildPublicUrl(event, currentUser.domains, `/u/${_upload.fileName}/thumbnail`)
-                : null;
-        }
-
-        const aiEnabled = currentUser.aiSettings?.enabled ?? true;
-        if (aiEnabled) {
-            if (ai.IMAGE_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
-                event.waitUntil(
-                    Promise.all([
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.GenerateClipEmbedding,
-                        }),
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.GenerateOcrText,
-                        }),
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.GenerateImageCaption,
-                        }),
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.DetectPII,
-                        }),
-                    ]),
-                );
-            } else if (ai.VIDEO_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
-                event.waitUntil(
-                    Promise.all([
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.GenerateVideoEmbedding,
-                        }),
-                    ]),
-                );
-            } else if (ai.TEXT_EMBEDDING_SUPPORTED_EXTENSIONS.includes(extensionName)) {
-                event.waitUntil(
-                    Promise.all([
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.GenerateTextEmbedding,
-                        }),
-                        enqueueAIJob({
-                            userId: currentUser.id,
-                            fileId: upload.id,
-                            type: AIJobType.DetectPII,
-                        }),
-                    ]),
-                );
-            }
-        }
-
-        await insert(fileSearchDb, {
-            id: upload.id,
-            fileName: upload.fileName,
-            mimeType: upload.mimeType,
-        });
+        await indexCreatedFile(event, currentUser, upload);
 
         await createLog(event, {
             action: 'Upload File',
-            message: `Uploaded file ${fileName}`,
+            message: `Uploaded file ${_upload.fileName}`,
         });
 
         sendToUser(currentUser.id, 'file:create', upload);

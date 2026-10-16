@@ -1,59 +1,38 @@
 <template>
-    <NuxtLoadingIndicator
-        color="linear-gradient(
-            to right,
-            color-mix(in srgb, var(--fs-accent) 80%, white),
-            var(--fs-accent)
-        )"
-        :throttle="0"
-    />
-    <Toaster position="top-center" theme="dark" />
+    <NuxtLoadingIndicator color="var(--primary)" :height="2" />
+    <AppToaster />
 
     <Head>
-        <Title>{{ runtimeConfig.public.site.name }}</Title>
+        <Title>{{ publicSettings.siteName }}</Title>
     </Head>
-    <Body hfull wfull bg-fs-background text-white antialiased>
-        <NuxtLayout>
-            <NuxtPage />
-        </NuxtLayout>
-    </Body>
+    <NuxtLayout>
+        <NuxtPage />
+    </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-import relativeTime from 'dayjs/plugin/relativeTime';
-
-dayjs.extend(duration);
-dayjs.extend(relativeTime);
-
-const runtimeConfig = useRuntimeConfig();
-const currentTheme = useTheme();
+const publicSettings = usePublicSettings();
 const currentUser = useAuthUser();
+const currentTheme = useTheme();
+const { locale } = useI18n();
 
-onMounted(() => {
-    window!.theme = currentTheme.value;
-    initSocket();
-});
+onMounted(initSocket);
 
 watch(currentUser, (value) => {
-    const adminSessionId = useCookie('adminSessionId');
-    if (!adminSessionId.value) {
-        if (!value) closeSocket();
-        else if (!getSocket()) initSocket();
-    }
-});
-
-watch(currentTheme, (value) => {
-    if (window) window!.theme = value;
+    if (!value) closeSocket();
+    else if (!getSocket()) initSocket();
 });
 
 useHead({
+    htmlAttrs: {
+        lang: locale,
+        'data-accent': currentTheme,
+    },
     titleTemplate: (title) =>
         title
-            ? title === runtimeConfig.public.site.name || title.match(/\.|:/)
+            ? title === publicSettings.value.siteName || title.match(/\.|:/)
                 ? title
-                : `${title} · ${runtimeConfig.public.site.name}`
-            : runtimeConfig.public.site.name,
+                : `${title} · ${publicSettings.value.siteName}`
+            : publicSettings.value.siteName,
 });
 </script>

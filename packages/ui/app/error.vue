@@ -1,0 +1,34 @@
+<template>
+    <Head>
+        <Title>{{ title }} · {{ error?.status }}</Title>
+    </Head>
+
+    <Centered>
+        <EmptyState
+            :icon="error?.status === 404 ? ISearchX : ICircleAlert"
+            :title="`${error?.status} · ${title}`"
+            :description="error?.message"
+        >
+            <UiButton @click="canHistoryComeBack ? router.back() : router.push(home.path)">
+                {{ canHistoryComeBack ? $t('error.goBack') : $t(home.label) }}
+                <IArrowRight />
+            </UiButton>
+        </EmptyState>
+    </Centered>
+</template>
+
+<script setup lang="ts">
+import { ICircleAlert, ISearchX } from '#components';
+
+const error = useError();
+const router = useRouter();
+const { home } = useAppConfig();
+const { t, te } = useI18n();
+
+const title = computed(() => {
+    const key = `error.${error.value!.status}`;
+    return te(key) ? t(key) : t('error.default');
+});
+
+const canHistoryComeBack = computed(() => import.meta.client && !!window.history.state?.back);
+</script>

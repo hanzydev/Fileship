@@ -1,148 +1,133 @@
 <template>
-    <UiDropdown v-model="isOpen" placement="top" pb0.5="!">
-        <slot />
-        <template #content>
-            <div
-                relative
-                top-6
-                h64
-                w56
-                overflow-y-auto
-                rounded-xl
-                bg-fs-overlay-2
-                p1
-                space-y-2
-                ring="1 fs-overlay-4"
-            >
-                <UiSearchBar
-                    v-model="searchQuery"
-                    v-model:loading="isSearching"
-                    placeholder="Search folders..."
-                    h10="!"
-                    rounded-lg="!"
-                    input-class="!bg-fs-overlay-3 !rounded-lg"
+    <UiPopover v-model:open="isOpen">
+        <UiPopoverTrigger as-child>
+            <UiButton variant="outline" class="w-full justify-between" :disabled="disabled">
+                <span class="flex items-center gap-2 truncate">
+                    <IFolder />
+                    {{ (folder && selectedName) || $t('folders.select.none') }}
+                </span>
+                <IChevronsUpDown class="opacity-50" />
+            </UiButton>
+        </UiPopoverTrigger>
+        <UiPopoverContent class="w-(--reka-popover-trigger-width) p-0" align="start">
+            <UiCommand>
+                <UiCommandInput
+                    :placeholder="$t('folders.select.searchPlaceholder')"
+                    @update:model-value="query = $event"
                 />
-
-                <p
-                    v-if="!filtered.length && !searchQuery"
-                    mx4
-                    translate-y-16
-                    text-center
-                    text-fs-muted-2
-                >
-                    There are no folders to display.
-                </p>
-
-                <div space-y-1>
-                    <UiButton
-                        v-if="searchQuery && !filtered.find((f) => f.name === searchQuery.trim())"
-                        wfull
-                        break-all
-                        :disabled="isCreating"
-                        @click="handleCreate(searchQuery.trim())"
-                    >
-                        Create folder "{{ searchQuery }}"
-                    </UiButton>
-
-                    <UiButton
-                        v-for="(option, index) in filtered"
-                        :key="index"
-                        :icon="option.id === folder.value ? 'lucide:check' : 'solar:folder-bold'"
-                        :variant="option.id === folder.value ? 'accent' : 'onOverlay'"
-                        icon-size="20"
-                        wfull
-                        gap2
-                        break-all
-                        :disabled="isCreating"
-                        @click="
-                            folder =
-                                folder.value === option.id
-                                    ? defaultValue
-                                    : { label: option.name, value: option.id };
-                            isOpen = false;
-                        "
-                    >
-                        {{ option.name }}
-                    </UiButton>
-                </div>
-            </div>
-        </template>
-    </UiDropdown>
+                <UiCommandList class="mb-1">
+                    <UiCommandGroup class="px-1 pb-0">
+                        <UiCommandItem
+                            value="none"
+                            :data-checked="!folder"
+                            @select="handleSelect(null)"
+                        >
+                            <IFolderX />
+                            {{ $t('folders.select.none') }}
+                        </UiCommandItem>
+                        <VirtualList
+                            :items="folders"
+                            :item-key="(f) => f.id"
+                            :estimate-size="36"
+                            :gap="0"
+                            contained
+                            @reach-end="loadMore"
+                        >
+                            <template #default="{ item }">
+                                <UiCommandItem
+                                    :value="item.id"
+                                    :data-checked="folder === item.id"
+                                    @select="handleSelect(item)"
+                                >
+                                    <IFolder />
+                                    <span class="truncate">{{ item.name }}</span>
+                                </UiCommandItem>
+                            </template>
+                        </VirtualList>
+                    </UiCommandGroup>
+                    <UiCommandGroup v-if="canCreate" class="px-1 pb-0">
+                        <UiCommandItem
+                            :key="query"
+                            :value="`create:${query}`"
+                            :disabled="isCreating"
+                            @select="handleCreate"
+                        >
+                            <UiSpinner v-if="isCreating" />
+                            <IFolderPlus v-else />
+                            {{ $t('folders.select.create', { name: query.trim() }) }}
+                        </UiCommandItem>
+                    </UiCommandGroup>
+                </UiCommandList>
+            </UiCommand>
+        </UiPopoverContent>
+    </UiPopover>
 </template>
 
 <script setup lang="ts">
-const folder = defineModel<{
-    label: string;
-    value: string | null;
-}>({
-    required: true,
-});
+import type { FolderData } from '~/types/folders';
 
-const folders = useFolders();
+const { disabled } = defineProps<{
+    disabled?: boolean;
+}>();
+
+const folder = defineModel<string | null>({ required: true });
+
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 
-const searchQuery = ref('');
-const searched = ref<string[]>([]);
-
+const query = ref('');
 const isOpen = ref(false);
 const isCreating = ref(false);
-const isSearching = ref(false);
+const selectedName = ref<string>();
 
-const defaultValue = {
-    label: 'None',
-    value: null,
-};
-
-const filtered = computed(() =>
-    folders.value.filter((f) =>
-        !isSearching.value && searchQuery.value.length ? searched.value.includes(f.id) : true,
-    ),
+const { items: folders, loadMore } = usePaginatedList<FolderData>(
+    'folders',
+    '/api/folders',
+    () => ({ q: query.value.trim() }),
+    { limit: 30, enabled: isOpen },
 );
 
-const handleCreate = async (name: string) => {
+const canCreate = computed(
+    () =>
+        !!query.value.trim() &&
+        !folders.value.some((f) => f.name.toLowerCase() === query.value.trim().toLowerCase()),
+);
+
+const handleSelect = (selected: { id: string; name: string } | null) => {
+    selectedName.value = selected?.name;
+    folder.value = selected?.id ?? null;
+    isOpen.value = false;
+};
+
+const handleCreate = async () => {
     isCreating.value = true;
 
     try {
         const created = await $fetch('/api/folders', {
             method: 'POST',
-            body: { name },
+            body: { name: query.value.trim() },
         });
 
-        folder.value = { label: created.name, value: created.id };
-        searchQuery.value = '';
-        isOpen.value = false;
-
-        $toast.success('Folder created and selected');
+        handleSelect(created);
+        $toast.success(t('folders.select.created'));
     } catch (error: any) {
-        if (error.data.data) $toast.error(error.data.data.name._errors[0]);
-        else $toast.error(error.data.message);
+        $toast.error(error.data?.data?.formErrors?.name?._errors[0] || getErrorMessage(error));
     }
 
     isCreating.value = false;
 };
 
-let searchTimeout: NodeJS.Timeout;
+watch(
+    folder,
+    async (value) => {
+        if (!value) return;
 
-watch(searchQuery, (query) => {
-    clearTimeout(searchTimeout);
+        selectedName.value =
+            folders.value.find((f) => f.id === value)?.name ??
+            (await $fetch(`/api/folders/${value}`).catch(() => null))?.name;
+    },
+    { immediate: true },
+);
 
-    if (query.length) {
-        isSearching.value = true;
-
-        searchTimeout = setTimeout(async () => {
-            try {
-                searched.value = await $fetch<string[]>('/api/folders/search', {
-                    method: 'POST',
-                    body: { query },
-                });
-            } catch {
-                searched.value = [];
-            }
-
-            isSearching.value = false;
-        }, 750);
-    } else {
-        searched.value = [];
-    }
-});
+watch(isOpen, (value) => value && (query.value = ''));
 </script>

@@ -1,12 +1,16 @@
 {
     "$schema": "https://turborepo.com/schema.json",
+    "agentGuidance": false,
     "tasks": {
         "build": {
             "dependsOn": ["^build"],
             "inputs": ["$TURBO_DEFAULT$", ".env*"],
-            "outputs": [".nuxt/**", ".output/**", "dist/**"]
+            "outputs": [".nuxt/**", ".output/**", "dist/**", "dist-electron/**"]
         },
         "lint": {},
+        "lint:types": {
+            "dependsOn": ["^build"]
+        },
         "dev": {
             "cache": false,
             "persistent": true,

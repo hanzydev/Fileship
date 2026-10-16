@@ -1,38 +1,30 @@
-export const getDevice = async (headers: Record<string, string>, ip: string) => {
-    const userAgent = headers['user-agent'];
+export const getDevice = (userAgent: string) => {
+    if (/FileshipDesktop\//.test(userAgent)) {
+        return { os: 'Desktop', platform: 'Fileship for Windows' };
+    }
 
     const oss = ['Android', 'iPhone', 'Windows', 'Macintosh', 'Linux'];
     const platforms = ['OPR', 'Edge', 'Chrome', 'Firefox', 'Safari'];
 
-    let os = oss.find((o) => userAgent?.includes(o)) || 'Unknown';
+    let os = oss.find((o) => userAgent.includes(o)) || 'Unknown';
 
     if (os === 'iPhone' || os === 'Android') os = 'Mobile';
     if (os === 'Windows' || os === 'Macintosh' || os === 'Linux') os = 'Desktop';
 
-    const platform = platforms.find((p) => userAgent?.includes(p)) || 'Unknown';
+    const platform = platforms.find((p) => userAgent.includes(p)) || 'Unknown';
 
-    let ipInfo = {
-        city: 'Unknown',
-        regionName: 'Unknown',
-        country: 'Unknown',
-    };
+    return { os, platform };
+};
 
-    try {
-        const res = await $fetch<{
-            status: 'success';
-            city: string;
-            regionName: string;
-            country: string;
-        }>(`http://ip-api.com/json/${ip}`, { ignoreResponseError: true });
+export const getLocation = async (ip: string) => {
+    const res = await $fetch<{
+        status: 'success' | 'fail';
+        city: string;
+        regionName: string;
+        country: string;
+    }>(`http://ip-api.com/json/${ip}`, { ignoreResponseError: true }).catch(() => null);
 
-        if (res.status === 'success') ipInfo = res;
-    } catch {
-        //
-    }
-
-    return {
-        os,
-        platform,
-        location: `${ipInfo.city}, ${ipInfo.regionName}, ${ipInfo.country}`,
-    };
+    return res?.status === 'success'
+        ? `${res.city}, ${res.regionName}, ${res.country}`
+        : 'Unknown, Unknown, Unknown';
 };

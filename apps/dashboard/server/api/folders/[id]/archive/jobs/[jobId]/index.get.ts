@@ -11,13 +11,11 @@ export default defineEventHandler(async (event) => {
     }>(`folderArchiveStatus:${folderId}:${jobId}`);
 
     if (!archiveStatus) {
-        throw createError({
-            statusCode: 404,
-            message: 'Job not found',
-        });
+        throw apiError(404, 'errorsContent.jobNotFound');
     }
 
-    if (archiveStatus.isPrivate && archiveStatus.authorId !== currentUser?.id) throw forbiddenError;
+    if (archiveStatus.isPrivate && archiveStatus.authorId !== currentUser?.id)
+        throw forbiddenError();
 
     return { isDone: archiveStatus.isDone };
 });

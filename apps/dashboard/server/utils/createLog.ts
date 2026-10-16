@@ -11,19 +11,48 @@ type CreateLogData = {
     system?: boolean;
 };
 
-const AllowedActions = ['Login', 'Create User', 'Update User', 'Delete User'];
+const AllowedActions = [
+    'Login',
+    'Register',
+    'TOTP',
+    'Add Passkey',
+    'Delete Passkey',
+    'Revoke Session',
+    'Impersonate',
+    'Regenerate Upload Token',
+    'Create User',
+    'Update User',
+    'Delete User',
+    'Update Settings',
+    'Create Backup',
+    'Upload Backup',
+    'Load Backup',
+    'Load Backup Failed',
+    'Delete Backup',
+    'Delete From Trash',
+    'Empty Trash',
+    'Restore From Trash',
+    'Create Storage',
+    'Update Storage',
+    'Delete Storage',
+    'Import Files',
+    'Retry AI Jobs',
+    'Reset AI Data',
+    'Update Fileship',
+    'Flush Logs',
+];
 
 export const createLog = async (
     event: H3Event | null,
     { action, message, system }: CreateLogData,
 ) => {
-    const logLevel = +(process.env.LOG_LEVEL ?? 2);
+    const { logLevel } = await getSettings();
     if (logLevel === 0 || (!AllowedActions.includes(action) && logLevel !== 2)) {
         return;
     }
 
     const currentUser = event?.context?.user;
-    const ip = event ? getRequestIP(event, { xForwardedFor: true }) || 'Unknown' : '::1';
+    const ip = event ? getClientIp(event) : '::1';
 
     if (system || !currentUser) {
         consola.info(

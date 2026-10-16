@@ -1,29 +1,14 @@
-import { createReadStream, existsSync, promises as fsp } from 'node:fs';
-
-import { join } from 'pathe';
-
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
-    const backupId = getRouterParam(event, 'id');
-    const backupPath = join(dataDirectory, 'backups', event.context.user!.id, `${backupId}.tgz`);
-
-    if (!existsSync(backupPath)) {
-        throw createError({
-            statusCode: 404,
-            message: 'Backup not found',
-        });
-    }
-
-    const backupStat = await fsp.stat(backupPath);
+    const backup = await findBackup(event.context.user!.id, getRouterParam(event, 'id')!);
+    const stream = await (await getStorage(backup.storageId)).read(backupKey(backup));
 
     setResponseHeaders(event, {
         'Content-Type': 'application/gzip',
-        'Content-Length': backupStat.size.toString(),
-        'Accept-Ranges': 'bytes',
+        'Content-Length': backup.size.toString(),
+        'Content-Disposition': `attachment; filename="${backup.id}.tgz"`,
     });
 
-    setResponseHeader(event, 'Content-Disposition', `attachment; filename="${backupId}.tgz"`);
-
-    return sendStream(event, createReadStream(backupPath));
+    return sendStream(event, stream);
 });

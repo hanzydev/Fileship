@@ -12,13 +12,7 @@ export default defineEventHandler(async (event) => {
     const currentUser = event.context.user!;
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
-    if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
-    }
+    if (!body.success) throw invalidBodyError(body.error);
 
     await verifySession(event, body.data?.verificationData);
 
@@ -31,11 +25,14 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    await sendByFilter(
+    await logoutSockets(
         (user) =>
             user.id === currentUser.id && user.currentSessionId !== currentUser.currentSessionId,
-        'logout',
-        null,
     );
+    await createLog(event, {
+        action: 'Revoke Session',
+        message: 'Revoked all other sessions',
+    });
+
     sendToUser(currentUser.id, 'session:deleteAll', null);
 });

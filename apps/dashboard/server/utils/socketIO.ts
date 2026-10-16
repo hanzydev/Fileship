@@ -1,18 +1,6 @@
 import type { UserModel } from '#shared/prisma/models';
 import { getIO } from '~~/server/plugins/socketIO';
 
-export const sendToSession = async (
-    userId: string,
-    sessionId: string,
-    event: string,
-    data: any,
-) => {
-    const clients = await getIO().in(userId).fetchSockets();
-    const client = clients.find((client) => client.data.user.currentSessionId === sessionId);
-
-    return client?.emit(event, data);
-};
-
 export const sendToUser = (userId: string, event: string, data: any) =>
     getIO().to(userId).emit(event, data);
 
@@ -27,4 +15,18 @@ export const sendByFilter = async (
     const filteredClients = clients.filter((client) => filter(client.data.user));
 
     return filteredClients.map((client) => client.emit(event, data));
+};
+
+export const logoutSockets = async (
+    filter: (user: UserModel & { currentSessionId: string }) => boolean,
+) => {
+    const clients = (await getIO().fetchSockets()).filter((client) => filter(client.data.user));
+
+    clients.forEach((client) => client.emit('logout', null));
+    setTimeout(() => clients.forEach((client) => client.disconnect(true)), 1_000);
+};
+
+export const refreshSocketUser = async (userId: string, data: Partial<UserModel>) => {
+    const clients = await getIO().in(userId).fetchSockets();
+    clients.forEach((client) => Object.assign(client.data.user, data));
 };

@@ -1,4 +1,4 @@
-import { cp, mkdir, readdir, rm } from 'node:fs/promises';
+import { mkdir, rm } from 'node:fs/promises';
 
 import { nanoid } from 'nanoid';
 import { join } from 'pathe';
@@ -12,35 +12,54 @@ export default defineEventHandler(async (event) => {
     const findFolderById = await prisma.folder.findUnique({
         where: {
             id: folderId,
+            deletedAt: null,
         },
         include: {
             files: {
+                where: {
+                    deletedAt: null,
+                },
                 orderBy: {
                     createdAt: 'desc',
                 },
                 select: {
+                    id: true,
                     fileName: true,
                     password: true,
+                    storageId: true,
                 },
             },
+            author: { select: { aiSettings: true } },
         },
     });
 
     if (!findFolderById) {
-        throw createError({
-            statusCode: 404,
-            message: 'Folder not found',
-        });
+        throw apiError(404, 'errorsContent.folderNotFound');
     }
 
     let isPrivate = true;
 
     if (findFolderById.authorId !== currentUser?.id) {
         if (!findFolderById.public) {
-            throw forbiddenError;
+            throw forbiddenError();
         } else {
             isPrivate = false;
-            findFolderById.files = findFolderById.files.filter((f) => !f.password);
+
+            await rateLimit(`folderArchive:${getClientIp(event)}`, 5, 10 * 60_000);
+
+            const visible = await prisma.file.findMany({
+                where: {
+                    folderId: findFolderById.id,
+                    deletedAt: null,
+                    password: null,
+                    ...(await visitorFileWhere(findFolderById.author)),
+                },
+                select: { id: true },
+            });
+
+            findFolderById.files = findFolderById.files.filter((file) =>
+                visible.some((other) => other.id === file.id),
+            );
         }
     }
 
@@ -49,17 +68,11 @@ export default defineEventHandler(async (event) => {
 
     const isAnyJobRunning = items.some((item) => item.value && !item.value.isDone);
     if (isAnyJobRunning) {
-        throw createError({
-            statusCode: 400,
-            message: 'An archive job is already running for this folder',
-        });
+        throw apiError(400, 'errorsContent.archiveRunning');
     }
 
     if (!findFolderById.files.length) {
-        throw createError({
-            statusCode: 400,
-            message: 'No files to archive in this folder',
-        });
+        throw apiError(400, 'errorsContent.nothingToArchive');
     }
 
     const jobId = nanoid();
@@ -72,18 +85,23 @@ export default defineEventHandler(async (event) => {
 
     const tempPath = join(dataDirectory, 'temp', jobId);
     const archiveUploadsPath = join(tempPath, 'uploads');
-    const uploadsPath = join(dataDirectory, 'uploads');
 
     await mkdir(tempPath);
     await mkdir(archiveUploadsPath);
 
-    const userUploads = (await readdir(uploadsPath)).filter((file) =>
-        findFolderById.files.some((upload) => upload.fileName === file),
+    const downloads = await Promise.allSettled(
+        findFolderById.files.map(async (file) => {
+            await (
+                await getStorage(file.storageId)
+            ).download(uploadKey(file.fileName), join(archiveUploadsPath, file.fileName));
+
+            return file.fileName;
+        }),
     );
 
-    await Promise.all(
-        userUploads.map((file) => cp(join(uploadsPath, file), join(archiveUploadsPath, file))),
-    );
+    const userUploads = downloads
+        .filter((download) => download.status === 'fulfilled')
+        .map((download) => download.value);
 
     const archiveCompressedPath = join(tempPath, 'archive.tgz');
 
@@ -105,15 +123,6 @@ export default defineEventHandler(async (event) => {
                     isDone: true,
                     authorId: findFolderById.authorId,
                 });
-
-                if (findFolderById.authorId === currentUser?.id) {
-                    await sendToSession(
-                        currentUser.id,
-                        currentUser.currentSessionId,
-                        'folder:archiveReady',
-                        folderId,
-                    );
-                }
             })
             .catch(() => storage.removeItem(`folderArchiveStatus:${folderId}:${jobId}`)),
     );

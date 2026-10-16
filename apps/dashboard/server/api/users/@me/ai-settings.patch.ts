@@ -15,11 +15,7 @@ export default defineEventHandler(async (event) => {
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
     if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     const aiSettings = defu(body.data, currentUser.aiSettings, defaultUserAiSettings);
@@ -30,6 +26,9 @@ export default defineEventHandler(async (event) => {
     });
 
     sendToUser(currentUser.id, 'currentUser:update', { aiSettings });
+
+    if (aiSettings.enabled && !(currentUser.aiSettings?.enabled ?? true))
+        runTask('ai:syncJobs', { payload: { userId: currentUser.id } }).catch(() => null);
 
     return aiSettings as IUserAiSettings;
 });

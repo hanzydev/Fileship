@@ -1,99 +1,89 @@
-import { existsSync } from 'node:fs';
-
 import { defu } from 'defu';
-import { filesize } from 'filesize';
-import { join } from 'pathe';
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
 
-    const fileNameOrId = getRouterParam(event, 'id');
+    const fileNameOrId = getRouterParam(event, 'id')!;
     const query = getQuery(event);
 
-    const findFileById = await prisma.file.findFirst({
-        where: {
-            OR: [
-                {
-                    id: fileNameOrId,
-                },
-                {
-                    fileName: fileNameOrId,
-                },
-            ],
-        },
-        include: {
-            views: true,
-            folder: {
-                select: {
-                    public: true,
-                },
-            },
-            author: {
-                select: {
-                    embed: true,
-                    domains: true,
-                },
-            },
-        },
-        omit: {
-            embedding: true,
-            textEmbedding: true,
-            ocrText: true,
-        },
-    });
+    let findFileById = null;
 
-    if (!findFileById) {
-        throw createError({
-            statusCode: 404,
-            message: 'File not found',
+    for (const lookup of fileLookups(fileNameOrId)) {
+        findFileById = await prisma.file.findFirst({
+            where: {
+                ...lookup,
+                deletedAt: null,
+            },
+            include: {
+                _count: { select: { views: true } },
+                folder: {
+                    select: {
+                        public: true,
+                    },
+                },
+                author: {
+                    select: {
+                        embed: true,
+                        domains: true,
+                    },
+                },
+            },
+            omit: {
+                embedding: true,
+                textEmbedding: true,
+                ocrText: true,
+            },
         });
+
+        if (findFileById) break;
+    }
+
+    if (
+        !findFileById ||
+        (findFileById.authorId !== currentUser?.id && isHiddenFromVisitors(findFileById))
+    ) {
+        throw apiError(404, 'errorsFiles.fileNotFound');
     }
 
     if (findFileById.authorId !== currentUser?.id) {
         if (findFileById.folder?.public === false) {
-            throw createError({
-                statusCode: 403,
-                message: 'You do not have permission to access this page',
-            });
+            throw apiError(403, 'errorsFiles.noAccess');
         }
 
         if (findFileById.password) {
             if (!query.password) {
-                throw createError({
-                    statusCode: 400,
-                    message: 'Verification is required',
-                });
+                throw apiError(400, 'errorsFiles.verificationRequired');
             }
 
-            if (query.password !== findFileById.password) {
-                throw createError({
-                    statusCode: 401,
-                    message: 'Invalid password',
-                });
+            if (
+                !(await limitPasswordAttempts(
+                    event,
+                    findFileById.id,
+                    query.password === findFileById.password,
+                ))
+            ) {
+                throw apiError(401, 'errorsFiles.invalidPassword');
             }
         }
     }
 
+    const isOwner = findFileById.authorId === currentUser?.id;
+    const todayViews = await getTodayViews([findFileById.id]);
+
     return {
         ...findFileById,
+        _count: undefined,
         password: undefined,
         author: undefined,
         folder: undefined,
+        ...(isOwner ? {} : visitorFileFields),
         size: {
             raw: findFileById.size.toString(),
-            formatted: filesize(findFileById.size),
+            formatted: formatSize(findFileById.size),
         },
         views: {
-            total: findFileById.views.length,
-            today: findFileById.views.filter((view) => {
-                const now = new Date();
-
-                return (
-                    view.createdAt.getDate() === now.getDate() &&
-                    view.createdAt.getMonth() === now.getMonth() &&
-                    view.createdAt.getFullYear() === now.getFullYear()
-                );
-            }).length,
+            total: findFileById._count.views,
+            today: todayViews.get(findFileById.id) ?? 0,
         },
         embed: defu(findFileById.author.embed, defaultEmbed) as IEmbed,
         directUrl: buildPublicUrl(
@@ -106,14 +96,6 @@ export default defineEventHandler(async (event) => {
             findFileById.author.domains,
             `/view/${findFileById.fileName}`,
         ),
-        thumbnailUrl:
-            findFileById.mimeType.startsWith('video/') &&
-            existsSync(join(dataDirectory, 'thumbnails', `${findFileById.id}.jpeg`))
-                ? buildPublicUrl(
-                      event,
-                      findFileById.author.domains,
-                      `/u/${findFileById.fileName}/thumbnail`,
-                  )
-                : null,
+        thumbnailUrl: getThumbnailUrl(event, findFileById.author.domains, findFileById),
     };
 });

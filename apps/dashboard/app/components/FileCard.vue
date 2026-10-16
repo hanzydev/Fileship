@@ -1,490 +1,204 @@
 <template>
-    <ModalsEditFile v-if="currentUser?.id === data.authorId" v-model="editModalOpen" :data />
-
-    <UiDropdown v-model="ctxOpen" as-ctx-menu placement="bottom" trigger-class="hfull">
-        <div
-            relative
-            motion-safe:transition-shadow
-            ring="1 fs-overlay-4"
-            :class="[
-                'group',
-                selected && selectable && '!ring-2 !ring-fs-accent',
-                !selectable && (ctxOpen || (!canBeViewed && !isText))
-                    ? 'cursor-default'
-                    : 'cursor-pointer hover:(ring-1 ring-fs-accent)',
-                rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl',
-            ]"
-            @click="
-                selectable
-                    ? (selected = !selected)
-                    : isText
-                      ? handleViewTextFile()
-                      : canBeViewed && emit('viewFile', data)
-            "
-        >
-            <Transition
-                enter-active-class="motion-safe:(animate-in fade-in)"
-                leave-active-class="motion-safe:(animate-out fade-out)"
+    <UiContextMenu>
+        <UiContextMenuTrigger as-child :disabled="pickable">
+            <UiCard
+                v-bind="$attrs"
+                size="sm"
+                class="group"
+                tabindex="0"
+                @click="emit('click', $event)"
+                @keydown.enter.self="emit('click', $event)"
             >
-                <div
-                    v-if="selected && selectable"
-                    flex="~ items-center justify-center"
-                    absolute
-                    z10
-                    hfull
-                    wfull
-                    cursor-pointer
-                    :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
-                    backdrop-blur-sm
-                    bg="[color-mix(in_srgb,_var(--fs-accent),_transparent_90%)]"
-                >
-                    <Icon name="lucide:check" size="56" />
-                </div>
-            </Transition>
-            <Transition
-                enter-active-class="motion-safe:(animate-in fade-in)"
-                leave-active-class="motion-safe:(animate-out fade-out)"
-            >
-                <div
-                    v-if="
-                        data.piiDetected &&
-                        !selected &&
-                        !ctxOpen &&
-                        isImage &&
-                        currentUser?.aiSettings?.suppressPii &&
-                        runtimeConfig.public.aiEnabled
-                    "
-                    flex="~ items-center justify-center col gap-2"
-                    absolute
-                    z10
-                    hfull
-                    wfull
-                    :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
-                    text-center
-                    backdrop-blur-3xl
-                    transition-all
-                    group-hover="op0 pointer-events-none scale-95"
-                    bg="[color-mix(in_srgb,_var(--fs-accent),_transparent_90%)]"
-                >
-                    <div flex="~ items-center justify-center" size-14 rounded-full bg-fs-overlay-1>
-                        <Icon name="solar:shield-warning-bold" size="36" text-red-500 />
-                    </div>
-
-                    <h5>Sensitive Content Detected</h5>
-                    <p text-sm text-fs-muted-1>Hover to reveal original preview.</p>
-                </div>
-            </Transition>
-            <Icon
-                v-if="isVideo && !selected"
-                name="solar:play-bold"
-                size="64"
-                absolute
-                z10
-                top="1/2"
-                left="1/2"
-                translate-y-="1/2"
-                translate-x-="1/2"
-                op75
-            />
-            <div
-                v-if="isImage || isVideo"
-                relative
-                h208px
-                wfull
-                flex="~ col items-center justify-center gap2"
-                overflow-hidden
-                :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
-                bg-fs-overlay-2
-                p4
-                text-center
-            >
-                <img
-                    v-if="isImage"
-                    :src="data.directUrl"
-                    :alt="data.fileName"
-                    :class="!selectable && 'hover:scale-105'"
-                    absolute
-                    hfull
-                    wfull
-                    object-contain
-                    motion-safe:transition-transform
-                />
-                <video
-                    v-if="isVideo"
-                    :src="data.directUrl"
-                    :alt="data.fileName"
-                    :class="!selectable && 'hover:scale-105'"
-                    :poster="data.thumbnailUrl !== null ? data.thumbnailUrl : undefined"
-                    absolute
-                    hfull
-                    wfull
-                    object-contain
-                    motion-safe:transition-transform
-                />
-            </div>
-            <div
-                v-else
-                h208px
-                wfull
-                bg-fs-overlay-2
-                p8
-                space-y-8
-                :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
-            >
-                <div flex="~ items-center justify-between gap-2">
-                    <h5 line-clamp-1 break-words text-fs-muted-3>
-                        {{ data.fileName }}
-                    </h5>
-                    <Icon
-                        v-if="data.piiDetected && currentUser?.aiSettings?.suppressPii"
-                        name="solar:shield-warning-bold"
-                        size="24"
-                        text-red-500
-                    />
-                </div>
-
-                <div flex="~ col justify-between gap2" text-fs-muted-2 font-medium>
-                    <div flex="~ gap2 items-center">
-                        <Icon name="solar:eye-bold" size="20" />
-                        <span>{{ data.views.today }} today</span>
-                    </div>
-
-                    <div flex="~ gap2 items-center">
-                        <Icon name="solar:diskette-bold" size="20" />
-                        <span>{{ data.size.formatted }}</span>
-                    </div>
-
-                    <div flex="~ gap2 items-center">
-                        <Icon name="solar:calendar-bold" size="20" />
-                        <span>
-                            {{ dayjs(data.createdAt).format('MMM D, YYYY h:mm A') }}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <template #content>
-            <div
-                w48
-                bg-fs-overlay-2
-                p1
-                space-y-1
-                ring="1 fs-overlay-4"
-                :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
-            >
-                <UiButton
-                    v-if="!selectable"
-                    variant="onOverlay"
-                    icon="solar:eye-bold"
-                    icon-size="20"
-                    wfull
-                    gap2
-                    :href="selectable ? undefined : data.embedUrl"
-                    :target="selectable ? undefined : '_blank'"
-                    :class="rounded === '2xl' && 'rounded-xl!'"
-                    @click="
-                        if (selectable) {
-                            ctxOpen = false;
-                            emit('viewFile', data);
-                        }
-                    "
-                >
-                    Open
-                </UiButton>
-                <UiButton
-                    variant="onOverlay"
-                    icon="solar:clipboard-bold"
-                    icon-size="20"
-                    wfull
-                    gap2
-                    :class="rounded === '2xl' && 'rounded-xl!'"
-                    @click="handleCopy"
-                >
-                    Copy Link
-                </UiButton>
-                <UiButton
-                    variant="onOverlay"
-                    icon="solar:download-minimalistic-bold"
-                    icon-size="20"
-                    wfull
-                    gap2
-                    :class="rounded === '2xl' && 'rounded-xl!'"
-                    @click="downloadFile(`${data.directUrl}?download`)"
-                >
-                    Download
-                </UiButton>
-                <UiButton
-                    v-if="currentUser?.id === data.authorId"
-                    variant="onOverlay"
-                    icon="solar:pen-2-bold"
-                    icon-size="20"
-                    wfull
-                    gap2
-                    :class="rounded === '2xl' && 'rounded-xl!'"
-                    @click="
-                        ctxOpen = false;
-                        editModalOpen = true;
-                    "
-                >
-                    Edit
-                </UiButton>
-                <UiButton
-                    v-if="currentUser?.id === data.authorId && data.folderId && !selectable"
-                    variant="onOverlay"
-                    icon="solar:remove-folder-bold"
-                    icon-size="20"
-                    wfull
-                    gap2
-                    :disabled="updating"
-                    :class="rounded === '2xl' && 'rounded-xl!'"
-                    @click="handleMoveFile(null)"
-                >
-                    Take Out
-                </UiButton>
-                <UiDropdown
-                    v-if="currentUser?.id === data.authorId && !selectable"
-                    placement="right"
-                    hover
-                >
-                    <UiButton
-                        icon="solar:add-folder-bold"
-                        icon-size="20"
-                        wfull
-                        gap2
-                        variant="onOverlay"
-                        :class="rounded === '2xl' && 'rounded-xl!'"
-                        :disabled="updating"
+                <UiCardContent>
+                    <div
+                        :class="
+                            cn(
+                                'relative aspect-4/3 overflow-hidden rounded-2xl bg-muted ring-primary transition-shadow',
+                                selected && 'ring-2',
+                            )
+                        "
                     >
-                        {{ data.folderId ? 'Move' : 'Add to Folder' }}
-                    </UiButton>
-                    <template #content>
-                        <div
-                            h64
-                            w64
-                            overflow-y-auto
-                            bg-fs-overlay-2
-                            p1
-                            ring="1 fs-overlay-4"
-                            space-y-2
-                            :class="rounded === '2xl' ? 'rounded-2xl' : 'rounded-xl'"
-                        >
-                            <UiSearchBar
-                                v-model="addToFolderSearchQuery"
-                                v-model:loading="isSearchingFolders"
-                                placeholder="Search folders..."
-                                h10="!"
-                                :class="rounded === '2xl' ? 'rounded-xl!' : 'rounded-lg!'"
-                                :input-class="[
-                                    '!bg-fs-overlay-3',
-                                    rounded === '2xl' ? 'rounded-xl!' : 'rounded-lg!',
-                                ]"
-                            />
-
-                            <p
-                                v-if="!filteredFolders.length && !addToFolderSearchQuery"
-                                mx4
-                                translate-y-16
-                                text-center
-                                text-fs-muted-2
-                            >
-                                There are no folders to display.
-                            </p>
-
-                            <div space-y-1>
-                                <UiButton
-                                    v-if="
-                                        addToFolderSearchQuery &&
-                                        !filteredFolders.find(
-                                            (f) => f.name === addToFolderSearchQuery.trim(),
-                                        )
-                                    "
-                                    :disabled="updating"
-                                    wfull
-                                    break-all
-                                    :class="rounded === '2xl' && 'rounded-xl!'"
-                                    @click="handleCreateFolderWithFile"
-                                >
-                                    Create folder "{{ addToFolderSearchQuery }}"
-                                </UiButton>
-
-                                <UiButton
-                                    v-for="(folder, index) in filteredFolders"
-                                    :key="index"
-                                    :disabled="updating"
-                                    variant="onOverlay"
-                                    wfull
-                                    gap2
-                                    break-all
-                                    icon="solar:folder-bold"
-                                    icon-size="20"
-                                    :class="rounded === '2xl' && 'rounded-xl!'"
-                                    @click="handleMoveFile(folder.id)"
-                                >
-                                    {{ folder.name }}
-                                </UiButton>
-                            </div>
+                        <img
+                            v-if="isImage"
+                            ref="media"
+                            :src="file.thumbnailUrl || file.directUrl"
+                            :alt="file.name"
+                            loading="lazy"
+                            decoding="async"
+                            :class="
+                                cn(
+                                    'size-full object-cover transition-[filter,scale] duration-300 group-hover:scale-105',
+                                    isSensitive && 'blur-2xl group-hover:blur-none',
+                                )
+                            "
+                            @load="isLoaded = true"
+                            @error="isLoaded = true"
+                        />
+                        <img
+                            v-else-if="isVideo && file.thumbnailUrl"
+                            ref="media"
+                            :src="file.thumbnailUrl"
+                            :alt="file.name"
+                            loading="lazy"
+                            class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            @load="isLoaded = true"
+                            @error="isLoaded = true"
+                        />
+                        <div v-else class="flex size-full items-center justify-center">
+                            <component :is="fileIcon" class="size-10 text-muted-foreground" />
                         </div>
-                    </template>
-                </UiDropdown>
-                <UiButton
-                    v-if="currentUser?.id === data.authorId"
-                    variant="onOverlay"
-                    icon="solar:trash-bin-minimalistic-bold"
-                    icon-size="20"
-                    wfull
-                    gap2
-                    text-red-500
-                    :class="rounded === '2xl' && 'rounded-xl!'"
-                    :disabled="deleting"
-                    @click="handleDelete"
-                >
-                    Delete
-                </UiButton>
-            </div>
-        </template>
-    </UiDropdown>
+                        <UiSkeleton v-if="hasMedia && !isLoaded" class="absolute inset-0" />
+
+                        <div
+                            v-if="isVideo"
+                            class="absolute inset-0 flex items-center justify-center bg-black/10"
+                        >
+                            <IPlay class="size-8 fill-white text-white drop-shadow" />
+                        </div>
+
+                        <div
+                            v-if="isSensitive"
+                            class="absolute inset-0 flex flex-col items-center justify-center gap-1 transition-opacity group-hover:opacity-0"
+                        >
+                            <IShieldAlert class="size-6 text-destructive" />
+                            <TextBlock variant="small">
+                                {{ $t('files.sensitiveContent') }}
+                            </TextBlock>
+                        </div>
+
+                        <div
+                            :class="
+                                cn(
+                                    'absolute top-2 left-2 transition-opacity',
+                                    chipClass,
+                                    !selected &&
+                                        !selectionMode &&
+                                        'opacity-0 group-hover:opacity-100',
+                                )
+                            "
+                            @click.stop="emit('toggle', $event)"
+                        >
+                            <UiCheckbox :model-value="selected" />
+                        </div>
+
+                        <div
+                            v-if="!pickable"
+                            :class="
+                                cn(
+                                    'absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100',
+                                    chipClass,
+                                )
+                            "
+                        >
+                            <UiDropdownMenu>
+                                <UiDropdownMenuTrigger as-child>
+                                    <UiButton
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        :aria-label="$t('common.more')"
+                                        @click.stop
+                                    >
+                                        <IEllipsis />
+                                    </UiButton>
+                                </UiDropdownMenuTrigger>
+                                <UiDropdownMenuContent align="end" class="w-56" @click.stop>
+                                    <FileMenuItems
+                                        :file="file"
+                                        type="dropdown"
+                                        @view="emit('view')"
+                                        @edit="emit('edit')"
+                                        @move="emit('move')"
+                                    />
+                                </UiDropdownMenuContent>
+                            </UiDropdownMenu>
+                        </div>
+                    </div>
+                </UiCardContent>
+                <UiCardFooter class="gap-2">
+                    <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <div class="flex w-full items-center gap-1.5">
+                            <ILock
+                                v-if="file.password"
+                                class="size-3.5 shrink-0 text-muted-foreground"
+                            />
+                            <TextBlock variant="small" class="truncate">{{ file.name }}</TextBlock>
+                        </div>
+                        <TextBlock variant="muted" class="truncate text-xs">
+                            {{ filesize(+file.size.raw, { locale }) }} ·
+                            {{ date(file.createdAt).fromNow() }}
+                        </TextBlock>
+                    </div>
+                    <UiTooltip v-if="file.piiDetected">
+                        <UiTooltipTrigger as-child>
+                            <UiBadge variant="destructive" :aria-label="$t('files.sensitive')">
+                                <IShieldAlert />
+                            </UiBadge>
+                        </UiTooltipTrigger>
+                        <UiTooltipContent>{{ $t('files.sensitiveHidden') }}</UiTooltipContent>
+                    </UiTooltip>
+                </UiCardFooter>
+            </UiCard>
+        </UiContextMenuTrigger>
+        <UiContextMenuContent v-if="!pickable" class="w-56">
+            <FileMenuItems
+                :file="file"
+                type="context"
+                @view="emit('view')"
+                @edit="emit('edit')"
+                @move="emit('move')"
+            />
+        </UiContextMenuContent>
+    </UiContextMenu>
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
+import { filesize } from 'filesize';
 
-const { data, rounded } = defineProps<{
-    data: FileData;
-    selectable?: boolean;
-    rounded?: '2xl' | 'xl';
+import type { FileData } from '~/types/files';
+
+defineOptions({ inheritAttrs: false });
+
+const { file } = defineProps<{
+    file: FileData;
+    selected?: boolean;
+    selectionMode?: boolean;
+    pickable?: boolean;
 }>();
 
-const selected = defineModel<boolean>('selected', {
-    required: false,
-    default: false,
-});
+const chipClass =
+    'flex size-8 items-center justify-center rounded-full bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_20%)]/90 backdrop-blur-md';
 
 const emit = defineEmits<{
-    viewFile: [FileData];
+    click: [event: MouseEvent | KeyboardEvent];
+    toggle: [event: MouseEvent];
+    view: [];
+    edit: [];
+    move: [];
 }>();
 
+const { locale } = useI18n();
+const date = useDate();
 const currentUser = useAuthUser();
-const folders = useFolders();
-const embed = useEmbed();
-const runtimeConfig = useRuntimeConfig();
-const { $toast } = useNuxtApp();
+const publicSettings = usePublicSettings();
 
-const addToFolderSearchQuery = ref('');
-const searchedFolders = ref<string[] | null>(null);
-const isSearchingFolders = ref(false);
+const isImage = computed(() => file.mimeType.startsWith('image/'));
+const isVideo = computed(() => file.mimeType.startsWith('video/'));
+const hasMedia = computed(() => isImage.value || (isVideo.value && !!file.thumbnailUrl));
 
-const filteredFolders = computed(() =>
-    folders.value.filter((f) => {
-        const isSearchMatch =
-            searchedFolders.value === null ? true : searchedFolders.value.includes(f.id);
-        const isNotCurrentFolder = data.folderId ? f.id !== data.folderId : true;
+const media = useTemplateRef<HTMLImageElement>('media');
+const isLoaded = ref(false);
 
-        return isSearchMatch && isNotCurrentFolder;
-    }),
+const isSensitive = computed(
+    () =>
+        isImage.value &&
+        file.piiDetected &&
+        currentUser.value!.aiSettings.suppressPii &&
+        publicSettings.value.aiEnabled,
 );
 
-const isImage = computed(() => data.mimeType.startsWith('image/'));
-const isVideo = computed(() => data.mimeType.startsWith('video/'));
-const isAudio = computed(() => data.mimeType.startsWith('audio/'));
-const isText = computed(() =>
-    TEXT_FILE_TYPES.some((type) => type.extension === getExtname(data.fileName ?? '').slice(1)),
-);
+const fileIcon = computed(() => getFileIcon(file));
 
-const canBeViewed = computed(() => isImage.value || isVideo.value || isAudio.value);
-
-const editModalOpen = ref(false);
-
-const ctxOpen = ref(false);
-const deleting = ref(false);
-const updating = ref(false);
-
-const handleViewTextFile = () => window.open(`/view/${data.fileName}`, '_blank');
-
-const handleDelete = async () => {
-    deleting.value = true;
-
-    try {
-        await $fetch(`/api/files/${data.id}`, { method: 'DELETE' });
-        $toast.success('File deleted successfully');
-    } catch (error: any) {
-        $toast.error(error.data.message);
-    }
-
-    deleting.value = false;
-};
-
-const handleCopy = () => {
-    useClipboard({ legacy: true }).copy(
-        embed.value.enabled || isText.value ? data.embedUrl : data.directUrl,
-    );
-    ctxOpen.value = false;
-
-    $toast.success('Link copied to clipboard');
-};
-
-const handleMoveFile = async (folderId: string | null) => {
-    updating.value = true;
-
-    try {
-        await $fetch(`/api/files/${data.id}`, {
-            method: 'PATCH',
-            body: {
-                folderId,
-            },
-        });
-        $toast.success(
-            folderId === null ? 'File removed from folder successfully' : 'File moved successfully',
-        );
-    } catch (error: any) {
-        $toast.error(error.data.message);
-    }
-
-    updating.value = false;
-};
-
-const handleCreateFolderWithFile = async () => {
-    updating.value = true;
-
-    try {
-        await $fetch('/api/folders', {
-            method: 'POST',
-            body: {
-                name: addToFolderSearchQuery.value.trim(),
-                files: [data.id],
-            },
-        });
-
-        $toast.success('Folder created and file added successfully');
-    } catch (error: any) {
-        if (error.data.data) $toast.error(error.data.data.name._errors[0]);
-        else $toast.error(error.data.message);
-    }
-
-    updating.value = false;
-};
-
-let searchTimeout: NodeJS.Timeout;
-
-watch(addToFolderSearchQuery, (query) => {
-    clearTimeout(searchTimeout);
-
-    if (query.length) {
-        isSearchingFolders.value = true;
-
-        searchTimeout = setTimeout(async () => {
-            try {
-                searchedFolders.value = await $fetch<string[]>('/api/folders/search', {
-                    method: 'POST',
-                    body: { query },
-                });
-            } catch {
-                searchedFolders.value = [];
-            }
-
-            isSearchingFolders.value = false;
-        }, 750);
-    } else {
-        searchedFolders.value = null;
-    }
+onMounted(() => {
+    if (media.value?.complete) isLoaded.value = true;
 });
 </script>

@@ -1,58 +1,12 @@
-import simpleImportSort from 'eslint-plugin-simple-import-sort';
-
-import unocss from '@unocss/eslint-config/flat';
+import i18n from '@fileship/eslint-config/i18n';
+import nuxt from '@fileship/eslint-config/nuxt';
 
 import withNuxt from './.nuxt/eslint.config.mjs';
 
-export default withNuxt([
-    unocss,
-    {
-        rules: {
-            '@typescript-eslint/no-explicit-any': 'off',
-
-            'vue/multi-word-component-names': 'off',
-            'vue/max-attributes-per-line': 'off',
-            'vue/require-default-prop': 'off',
-            'vue/html-self-closing': 'off',
-            'vue/html-closing-bracket-newline': 'off',
-            'vue/first-attribute-linebreak': 'off',
-            'vue/no-v-html': 'off',
-            'vue/require-valid-default-prop': 'off',
-            'vue/no-multiple-template-root': 'off',
-
-            'no-shadow-restricted-names': 'off',
-        },
-    },
-    {
-        plugins: {
-            'simple-import-sort': simpleImportSort,
-        },
-        rules: {
-            'simple-import-sort/imports': [
-                'error',
-                {
-                    groups: [
-                        // Side effect imports.
-                        ['^\\u0000'],
-
-                        // Node.js builtins prefixed with `node:`.
-                        ['^node:'],
-
-                        // Packages.
-                        ['^\\w'],
-
-                        // Packages prefixed with `@`.
-                        ['^@\\w'],
-
-                        // Nuxt
-                        ['^~~\\w'],
-
-                        // Relative imports.
-                        ['^\\.'],
-                    ],
-                },
-            ],
-            'simple-import-sort/exports': 'error',
-        },
-    },
-]);
+export default withNuxt(
+    nuxt,
+    i18n([
+        { pattern: './i18n/locales/*.json', localeKey: 'file' },
+        { pattern: '../../packages/ui/i18n/locales/*.json', localeKey: 'file' },
+    ]),
+);

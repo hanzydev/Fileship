@@ -1,40 +1,62 @@
+import type { Prisma } from '~~/generated/prisma/client';
+
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
     const currentUser = event.context.user!;
+    const query = await readListQuery(event);
+    const searchIds = query.q
+        ? await searchDbIds(folderSearchDb, query.q, currentUser.id)
+        : undefined;
+
+    const where: Prisma.FolderWhereInput = {
+        authorId: currentUser.id,
+        deletedAt: null,
+        ...(searchIds ? { id: { in: searchIds } } : {}),
+    };
+
+    const relevance = await findRelevancePage(query, searchIds, () =>
+        prisma.folder.findMany({ where, select: { id: true } }),
+    );
+
+    if (relevance) {
+        const folders = await prisma.folder.findMany({
+            where: { id: { in: relevance.ids } },
+            include: folderInclude,
+        });
+
+        return {
+            items: sortByIds(folders, relevance.ids).map((folder) =>
+                serializeFolder(event, folder),
+            ),
+            total: relevance.total,
+        };
+    }
+
+    const { field, dir } = parseSort(query.sort, ['createdAt', 'name', 'files'], 'createdAt:desc');
+
+    const [inbox, total] = await Promise.all([
+        prisma.folder.findFirst({
+            where: { ...where, inbox: { isNot: null } },
+            include: folderInclude,
+        }),
+        prisma.folder.count({ where }),
+    ]);
+
+    const showInbox = inbox && !query.offset;
 
     const folders = await prisma.folder.findMany({
-        where: {
-            authorId: currentUser.id,
-        },
-        orderBy: {
-            createdAt: 'desc',
-        },
-        include: {
-            files: {
-                select: {
-                    id: true,
-                    createdAt: true,
-                },
-                orderBy: {
-                    createdAt: 'desc',
-                },
-            },
-            inbox: true,
-        },
+        where: { ...where, inbox: { is: null } },
+        include: folderInclude,
+        orderBy: [field === 'files' ? { files: { _count: dir } } : { [field]: dir }, { id: 'asc' }],
+        skip: inbox && query.offset ? query.offset - 1 : query.offset,
+        take: showInbox ? query.limit - 1 : query.limit,
     });
 
-    return folders
-        .map((folder) => ({
-            ...folder,
-            inbox: undefined,
-            files: folder.files
-                .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-                .map((file) => file.id),
-            publicUrl: folder.public
-                ? buildPublicUrl(event, currentUser.domains, `/folder/${folder.id}`)
-                : undefined,
-            isInbox: !!folder.inbox,
-        }))
-        .sort((a, b) => +b.isInbox - +a.isInbox);
+    return {
+        items: (showInbox ? [inbox, ...folders] : folders).map((folder) =>
+            serializeFolder(event, folder),
+        ),
+        total,
+    };
 });

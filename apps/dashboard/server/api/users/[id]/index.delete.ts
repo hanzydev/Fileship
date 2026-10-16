@@ -18,10 +18,7 @@ export default defineEventHandler(async (event) => {
     const userId = getRouterParam(event, 'id');
 
     if (userId === currentUser.id) {
-        throw createError({
-            statusCode: 403,
-            message: 'You cannot delete yourself',
-        });
+        throw apiError(403, 'errorsUsers.cannotDeleteSelf');
     }
 
     const findUserById = await prisma.user.findUnique({
@@ -31,32 +28,22 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findUserById) {
-        throw createError({
-            statusCode: 404,
-            message: 'User not found',
-        });
+        throw apiError(404, 'errorsUsers.userNotFound');
     }
 
     if (findUserById.superAdmin && !currentUser.superAdmin) {
-        throw createError({
-            statusCode: 403,
-            message: 'You cannot delete a super admin',
-        });
+        throw apiError(403, 'errorsUsers.cannotDeleteSuperAdmin');
     }
 
     const body = await readValidatedBody(event, validationSchema.safeParse);
 
     if (!body.success) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid body',
-            data: { formErrors: body.error.format() },
-        });
+        throw invalidBodyError(body.error);
     }
 
     await verifySession(event, body.data?.verificationData);
 
-    const [userFiles, userFolders, userNotes] = await prisma.$transaction([
+    const [userFiles, userFolders, userNotes, userBackups] = await prisma.$transaction([
         prisma.file.findMany({
             where: {
                 authorId: userId,
@@ -64,6 +51,7 @@ export default defineEventHandler(async (event) => {
             select: {
                 id: true,
                 fileName: true,
+                storageId: true,
             },
         }),
         prisma.folder.findMany({
@@ -82,13 +70,17 @@ export default defineEventHandler(async (event) => {
                 id: true,
             },
         }),
+        prisma.backup.findMany({
+            where: {
+                userId,
+            },
+        }),
     ]);
 
-    const uploadsPath = join(dataDirectory, 'uploads');
-
-    for (const { fileName } of userFiles) {
-        await rm(join(uploadsPath, fileName), { force: true }).catch(() => null);
-    }
+    await removeFileData(userFiles);
+    await removeBackupData(userBackups);
+    await abortUploadSessions(join(dataDirectory, 'temp', userId!));
+    await rm(join(dataDirectory, 'temp', userId!), { recursive: true, force: true });
 
     await prisma.$transaction([
         prisma.view.deleteMany({
@@ -133,11 +125,6 @@ export default defineEventHandler(async (event) => {
     await remove(userSearchDb, userId!);
 
     await removeMultiple(
-        fileSearchDb,
-        userFiles.map((f) => f.id),
-    );
-
-    await removeMultiple(
         folderSearchDb,
         userFolders.map((f) => f.id),
     );
@@ -154,5 +141,5 @@ export default defineEventHandler(async (event) => {
 
     await sendByFilter(isAdmin, 'user:delete', userId);
 
-    sendToUser(findUserById.id, 'logout', null);
+    await logoutSockets((user) => user.id === findUserById.id);
 });

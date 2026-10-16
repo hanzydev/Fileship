@@ -1,27 +1,16 @@
-import { existsSync, promises as fsp } from 'node:fs';
-
-import { join } from 'pathe';
-
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
     const currentUser = event.context.user!;
-    const backupId = getRouterParam(event, 'id');
-    const backupPath = join(dataDirectory, 'backups', currentUser.id, `${backupId}.tgz`);
+    const backup = await findBackup(currentUser.id, getRouterParam(event, 'id')!);
 
-    if (!existsSync(backupPath)) {
-        throw createError({
-            statusCode: 404,
-            message: 'Backup not found',
-        });
-    }
-
-    await fsp.rm(backupPath, { force: true });
+    await (await getStorage(backup.storageId)).remove(backupKey(backup));
+    await prisma.backup.delete({ where: { id: backup.id } });
 
     await createLog(event, {
         action: 'Delete Backup',
-        message: `Deleted backup ${backupId}`,
+        message: `Deleted backup ${backup.id}`,
     });
 
-    sendToUser(currentUser.id, 'backup:delete', backupId);
+    sendToUser(currentUser.id, 'backup:delete', backup.id);
 });

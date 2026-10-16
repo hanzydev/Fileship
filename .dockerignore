@@ -1,13 +1,12 @@
 .turbo/
 node_modules/
 **/node_modules/
-pnpm-lock.yaml
 
 .nuxt/
 .output/
 dist/
 
-.env
+**/.env
 
 .git/
 .github/

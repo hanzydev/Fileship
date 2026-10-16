@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
     const findNoteById = await prisma.note.findUnique({
         where: {
             id: noteId,
+            deletedAt: null,
         },
         include: {
             author: {
@@ -19,17 +20,11 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!findNoteById) {
-        throw createError({
-            statusCode: 404,
-            message: 'Note not found',
-        });
+        throw apiError(404, 'errorsContent.noteNotFound');
     }
 
     if (!findNoteById.public && findNoteById.authorId !== user?.id) {
-        throw createError({
-            statusCode: 403,
-            message: 'You do not have permission to access this page',
-        });
+        throw apiError(403, 'errorsContent.notePageForbidden');
     }
 
     const embed = defu(findNoteById.author.embed, defaultEmbed) as IEmbed;
@@ -37,6 +32,7 @@ export default defineEventHandler(async (event) => {
     return {
         ...findNoteById,
         author: undefined,
+        authorId: findNoteById.authorId === user?.id ? findNoteById.authorId : undefined,
         publicUrl: findNoteById.public
             ? buildPublicUrl(event, findNoteById.author.domains, `/note/${findNoteById.id}`)
             : undefined,

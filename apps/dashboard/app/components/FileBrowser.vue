@@ -1,0 +1,525 @@
+<template>
+    <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-2 xl:flex-row xl:items-center">
+            <SmartSearchInput
+                ref="searchInput"
+                v-model="searchInputValue"
+                v-model:ai="aiSearch"
+                class="xl:flex-1"
+                :placeholder="$t('files.searchPlaceholder')"
+                :loading="
+                    !!searchInputValue.trim() && (isFetching || searchInputValue.trim() !== query)
+                "
+                :ai-available="canUseAi"
+            />
+
+            <div class="flex flex-wrap items-center gap-2">
+                <UiDropdownMenu v-if="!folderId">
+                    <UiDropdownMenuTrigger as-child>
+                        <UiButton variant="outline" class="max-w-52">
+                            <IFolder />
+                            <span class="truncate">{{ folderLabel }}</span>
+                            <IChevronDown class="opacity-50" />
+                        </UiButton>
+                    </UiDropdownMenuTrigger>
+                    <UiDropdownMenuContent align="start" class="w-56">
+                        <UiDropdownMenuLabel>{{ $t('files.folder') }}</UiDropdownMenuLabel>
+                        <UiDropdownMenuRadioGroup v-model="folderFilter">
+                            <UiDropdownMenuRadioItem value="all">
+                                {{ $t('files.allFiles') }}
+                            </UiDropdownMenuRadioItem>
+                            <UiDropdownMenuRadioItem value="none">
+                                {{ $t('files.notInFolder') }}
+                            </UiDropdownMenuRadioItem>
+                            <template v-if="folders.length">
+                                <UiDropdownMenuSeparator />
+                                <VirtualList
+                                    :items="folders"
+                                    :item-key="(folder) => folder.id"
+                                    :estimate-size="36"
+                                    :gap="0"
+                                    contained
+                                    @reach-end="folderList?.loadMore()"
+                                >
+                                    <template #default="{ item }">
+                                        <UiDropdownMenuRadioItem :value="item.id">
+                                            <span class="truncate">{{ item.name }}</span>
+                                        </UiDropdownMenuRadioItem>
+                                    </template>
+                                </VirtualList>
+                            </template>
+                        </UiDropdownMenuRadioGroup>
+                    </UiDropdownMenuContent>
+                </UiDropdownMenu>
+
+                <UiDropdownMenu>
+                    <UiDropdownMenuTrigger as-child>
+                        <UiButton variant="outline">
+                            <IListFilter />
+                            {{ $t('files.type') }}
+                            <UiBadge v-if="typeFilter.length" variant="secondary">
+                                {{ typeFilter.length }}
+                            </UiBadge>
+                            <IChevronDown class="opacity-50" />
+                        </UiButton>
+                    </UiDropdownMenuTrigger>
+                    <UiDropdownMenuContent align="start" class="w-56">
+                        <UiDropdownMenuLabel>{{ $t('files.fileType') }}</UiDropdownMenuLabel>
+                        <UiDropdownMenuCheckboxItem
+                            v-for="(category, key) in FILE_CATEGORIES"
+                            :key="key"
+                            :model-value="typeFilter.includes(key)"
+                            @update:model-value="toggleType(key)"
+                            @select.prevent
+                        >
+                            <component :is="category.icon" />
+                            {{ $t(category.label) }}
+                            <UiDropdownMenuShortcut>
+                                {{ summary?.categories[key] }}
+                            </UiDropdownMenuShortcut>
+                        </UiDropdownMenuCheckboxItem>
+                        <template v-if="typeFilter.length">
+                            <UiDropdownMenuSeparator />
+                            <UiDropdownMenuItem @select="typeFilter = []">
+                                <IX />
+                                {{ $t('files.clearFilter') }}
+                            </UiDropdownMenuItem>
+                        </template>
+                    </UiDropdownMenuContent>
+                </UiDropdownMenu>
+
+                <UiDropdownMenu>
+                    <UiDropdownMenuTrigger as-child>
+                        <UiButton variant="outline">
+                            <IArrowDownUp />
+                            {{ sortOptions.find((option) => option.value === sortValue)?.label }}
+                            <IChevronDown class="opacity-50" />
+                        </UiButton>
+                    </UiDropdownMenuTrigger>
+                    <UiDropdownMenuContent align="start" class="w-56">
+                        <UiDropdownMenuLabel>{{ $t('files.sortBy') }}</UiDropdownMenuLabel>
+                        <UiDropdownMenuRadioGroup v-model="sortValue">
+                            <UiDropdownMenuRadioItem
+                                v-for="option in sortOptions"
+                                :key="option.value"
+                                :value="option.value"
+                            >
+                                {{ option.label }}
+                            </UiDropdownMenuRadioItem>
+                        </UiDropdownMenuRadioGroup>
+                    </UiDropdownMenuContent>
+                </UiDropdownMenu>
+
+                <UiToggleGroup
+                    type="single"
+                    variant="outline"
+                    class="ml-auto"
+                    :model-value="view"
+                    @update:model-value="$event && (view = $event as never)"
+                >
+                    <UiToggleGroupItem value="grid" :aria-label="$t('files.gridView')">
+                        <ILayoutGrid />
+                    </UiToggleGroupItem>
+                    <UiToggleGroupItem value="list" :aria-label="$t('files.listView')">
+                        <IList />
+                    </UiToggleGroupItem>
+                </UiToggleGroup>
+            </div>
+        </div>
+
+        <div
+            v-if="isLoading && view === 'grid'"
+            class="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4"
+        >
+            <FileCardSkeleton v-for="i in 8" :key="i" />
+        </div>
+
+        <EmptyState
+            v-else-if="isError"
+            :icon="ICircleAlert"
+            :title="$t('files.loadFailed')"
+            :description="$t('files.loadFailedDescription')"
+        >
+            <UiButton variant="outline" @click="refresh">{{ $t('files.tryAgain') }}</UiButton>
+        </EmptyState>
+
+        <EmptyState
+            v-else-if="!isLoading && !files.length && !isFiltered"
+            :icon="IFiles"
+            :title="emptyTitle || $t('files.empty')"
+            :description="$t('files.emptyDescription')"
+        >
+            <UiButton @click="uploadSheetOpen = true">
+                <IUpload />
+                {{ $t('files.uploadFiles') }}
+            </UiButton>
+        </EmptyState>
+
+        <EmptyState
+            v-else-if="!isLoading && !files.length"
+            :icon="ISearchX"
+            :title="$t('files.noMatches')"
+            :description="$t('files.noMatchesDescription')"
+        >
+            <UiButton variant="outline" @click="handleClearFilters">
+                {{ $t('files.clearFilters') }}
+            </UiButton>
+        </EmptyState>
+
+        <VirtualList
+            v-else-if="view === 'grid'"
+            :items="files"
+            :item-key="(f) => f.id"
+            :min-item-width="220"
+            :estimate-size="270"
+            :gap="16"
+            :loading="isLoadingMore"
+            @reach-end="loadMore"
+        >
+            <template #skeleton>
+                <FileCardSkeleton />
+            </template>
+            <template #default="{ item }">
+                <FileCard
+                    :file="item"
+                    :selected="selected.includes(item.id)"
+                    :selection-mode="!!selected.length"
+                    @click="handleClick(item, $event)"
+                    @toggle="handleToggle(item, $event)"
+                    @view="openSheet(item)"
+                    @edit="openSheet(item, 'edit')"
+                    @move="moveTargets = [item]"
+                />
+            </template>
+        </VirtualList>
+
+        <DataTable
+            v-else
+            v-model:sort="tableSort"
+            :items="files"
+            :item-key="(f) => f.id"
+            :columns="columns"
+            :selected="selected"
+            :loading="isLoading"
+            :loading-more="isLoadingMore"
+            @row-click="handleClick"
+            @reach-end="loadMore"
+        >
+            <template #cell-select="{ item }">
+                <UiCheckbox
+                    :model-value="selected.includes(item.id)"
+                    @click.stop="handleToggle(item, $event)"
+                />
+            </template>
+            <template #cell-name="{ item }">
+                <div class="flex min-w-0 items-center gap-3">
+                    <div
+                        class="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted"
+                    >
+                        <FileThumbnail :file="item" />
+                    </div>
+                    <span class="truncate font-medium">{{ item.name }}</span>
+                    <ILock v-if="item.password" class="size-3.5 shrink-0 text-muted-foreground" />
+                </div>
+            </template>
+            <template #cell-type="{ item }">
+                <UiBadge variant="secondary">
+                    {{ $t(FILE_CATEGORIES[getFileCategory(item)].label) }}
+                </UiBadge>
+            </template>
+            <template #cell-size="{ item }">
+                <span class="block truncate">{{ filesize(+item.size.raw, { locale }) }}</span>
+            </template>
+            <template #cell-views="{ item }">{{ item.views.total }}</template>
+            <template #cell-folder="{ item }">
+                <span class="block truncate text-muted-foreground">
+                    {{ item.folder?.name || '—' }}
+                </span>
+            </template>
+            <template #cell-createdAt="{ item }">
+                <span class="block truncate text-muted-foreground">
+                    {{ date(item.createdAt).fromNow() }}
+                </span>
+            </template>
+            <template #cell-actions="{ item }">
+                <div class="flex justify-end">
+                    <UiDropdownMenu>
+                        <UiDropdownMenuTrigger as-child>
+                            <UiButton variant="ghost" size="icon-sm" @click.stop>
+                                <IEllipsis />
+                            </UiButton>
+                        </UiDropdownMenuTrigger>
+                        <UiDropdownMenuContent align="end" class="w-56">
+                            <FileMenuItems
+                                :file="item"
+                                type="dropdown"
+                                @view="openSheet(item)"
+                                @edit="openSheet(item, 'edit')"
+                                @move="moveTargets = [item]"
+                            />
+                        </UiDropdownMenuContent>
+                    </UiDropdownMenu>
+                </div>
+            </template>
+            <template #card-skeleton>
+                <ListCardSkeleton media="size-12 rounded-xl" />
+            </template>
+            <template #card="{ item }">
+                <UiCard
+                    size="sm"
+                    tabindex="0"
+                    @click="handleClick(item, $event)"
+                    @keydown.enter.self="handleClick(item, $event)"
+                >
+                    <UiCardContent class="flex items-center gap-3">
+                        <div
+                            class="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted"
+                        >
+                            <FileThumbnail :file="item" />
+                        </div>
+                        <div class="flex min-w-0 flex-1 flex-col">
+                            <TextBlock variant="small" class="truncate">
+                                {{ item.name }}
+                            </TextBlock>
+                            <TextBlock variant="muted" class="truncate text-xs">
+                                {{ filesize(+item.size.raw, { locale }) }} ·
+                                {{ date(item.createdAt).fromNow() }}
+                            </TextBlock>
+                        </div>
+                        <UiCheckbox
+                            :model-value="selected.includes(item.id)"
+                            @click.stop="handleToggle(item, $event)"
+                        />
+                    </UiCardContent>
+                </UiCard>
+            </template>
+        </DataTable>
+
+        <FileBulkBar v-model="selected" :items="files" :total="total" :query="listQuery" />
+
+        <FileMoveDialog v-model="moveTargets" />
+
+        <FileViewer
+            v-model:file-id="sheetFileId"
+            v-model:tab="sheetTab"
+            :files="files"
+            :total="total"
+            :has-more="hasMore"
+            :load-more="loadMore"
+        />
+    </div>
+</template>
+
+<script setup lang="ts">
+import { filesize } from 'filesize';
+
+import { ICircleAlert, IFiles, ISearchX } from '#components';
+
+import type { FileData, FileSummary } from '~/types/files';
+import type { FolderData } from '~/types/folders';
+
+const { folderId, emptyTitle } = defineProps<{
+    folderId?: string;
+    emptyTitle?: string;
+}>();
+
+const { t, locale } = useI18n();
+const date = useDate();
+
+const summary = defineModel<FileSummary>('summary');
+
+const currentUser = useAuthUser();
+const publicSettings = usePublicSettings();
+const uploadSheetOpen = useUploadSheet();
+
+const query = useQueryState('q', '');
+const typeQuery = useQueryState('type', '');
+const sort = useQueryState('sort', '');
+const view = useCookie<'grid' | 'list'>('fileView', {
+    default: () => 'grid',
+    maxAge: 60 * 60 * 24 * 400,
+    sameSite: 'lax',
+});
+const folderFilter = useQueryState('folder', 'all');
+const sheetFileId = useQueryState('file', '');
+
+const searchInput = useTemplateRef('searchInput');
+const searchInputValue = ref(query.value);
+const aiSearch = ref(false);
+
+const selected = ref<string[]>([]);
+const lastSelected = ref<string | null>(null);
+
+const sheetTab = ref('details');
+const moveTargets = ref<Pick<FileData, 'id' | 'folderId'>[]>([]);
+
+const canUseAi = computed(
+    () => publicSettings.value.aiEnabled && currentUser.value!.aiSettings.enabled,
+);
+
+const sortOptions = computed(() => [
+    ...(query.value ? [{ label: t('files.sort.relevance'), value: 'relevance' }] : []),
+    { label: t('files.sort.newest'), value: 'createdAt:desc' },
+    { label: t('files.sort.oldest'), value: 'createdAt:asc' },
+    { label: t('files.sort.nameAsc'), value: 'name:asc' },
+    { label: t('files.sort.nameDesc'), value: 'name:desc' },
+    { label: t('files.sort.largest'), value: 'size:desc' },
+    { label: t('files.sort.smallest'), value: 'size:asc' },
+    { label: t('files.sort.mostViewed'), value: 'views:desc' },
+    { label: t('files.sort.leastViewed'), value: 'views:asc' },
+]);
+
+const columns = computed(() => [
+    { key: 'select', label: '', class: 'w-10' },
+    { key: 'name', label: t('files.columns.name'), sortable: true },
+    { key: 'type', label: t('files.columns.type'), class: 'hidden w-32 lg:table-cell' },
+    { key: 'size', label: t('files.columns.size'), sortable: true, descFirst: true, class: 'w-28' },
+    {
+        key: 'views',
+        label: t('files.columns.views'),
+        sortable: true,
+        descFirst: true,
+        class: 'hidden w-24 lg:table-cell',
+    },
+    { key: 'folder', label: t('files.columns.folder'), class: 'hidden w-44 xl:table-cell' },
+    {
+        key: 'createdAt',
+        label: t('files.columns.uploaded'),
+        sortable: true,
+        descFirst: true,
+        class: 'hidden w-36 lg:table-cell',
+    },
+    { key: 'actions', label: '', class: 'w-16' },
+]);
+
+const typeFilter = computed<FileCategory[]>({
+    get: () => (typeQuery.value ? (typeQuery.value.split(',') as FileCategory[]) : []),
+    set: (value) => (typeQuery.value = value.join(',')),
+});
+
+const folderLabel = computed(() =>
+    folderFilter.value === 'all'
+        ? t('files.allFiles')
+        : folderFilter.value === 'none'
+          ? t('files.notInFolder')
+          : folders.value.find((folder) => folder.id === folderFilter.value)?.name ||
+            t('files.folder'),
+);
+
+const sortValue = computed({
+    get: () =>
+        (sort.value === 'relevance' && !query.value ? '' : sort.value) ||
+        (query.value ? 'relevance' : 'createdAt:desc'),
+    set: (value) => (sort.value = value),
+});
+
+const tableSort = computed({
+    get: () => {
+        const [key, dir] = sortValue.value.split(':');
+        return { key: key!, desc: dir === 'desc' };
+    },
+    set: (value) => (sort.value = `${value!.key}:${value!.desc ? 'desc' : 'asc'}`),
+});
+
+const isFiltered = computed(
+    () => !!query.value || !!typeFilter.value.length || (!folderId && folderFilter.value !== 'all'),
+);
+
+const {
+    items: files,
+    total,
+    summary: listSummary,
+    query: listQuery,
+    isLoading,
+    isError,
+    isFetching,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+    refresh,
+} = usePaginatedList<FileData, FileSummary>('files', '/api/files', () => ({
+    q: query.value,
+    mode: query.value && aiSearch.value ? 'vector' : undefined,
+    sort: sortValue.value === 'relevance' ? undefined : sortValue.value,
+    folder: folderId ?? folderFilter.value,
+    type: typeFilter.value,
+    summary: true,
+}));
+
+const folderList = folderId ? null : usePaginatedList<FolderData>('folders', '/api/folders');
+
+const folders = computed(() => folderList?.items.value ?? []);
+
+const toggleType = (type: FileCategory) => {
+    typeFilter.value = typeFilter.value.includes(type)
+        ? typeFilter.value.filter((t) => t !== type)
+        : [...typeFilter.value, type];
+};
+
+const openSheet = (file: FileData, tab = 'details') => {
+    sheetTab.value = tab;
+    sheetFileId.value = file.id;
+};
+
+const handleToggle = (file: FileData, event: MouseEvent | KeyboardEvent) => {
+    const ids = files.value.map((f) => f.id);
+    const anchor = lastSelected.value ? ids.indexOf(lastSelected.value) : -1;
+
+    if (event.shiftKey && anchor > -1) {
+        const [start, end] = [anchor, ids.indexOf(file.id)].sort((a, b) => a - b);
+
+        selected.value = [...new Set([...selected.value, ...ids.slice(start!, end! + 1)])];
+    } else {
+        selected.value = selected.value.includes(file.id)
+            ? selected.value.filter((id) => id !== file.id)
+            : [...selected.value, file.id];
+    }
+
+    lastSelected.value = file.id;
+};
+
+const handleClick = (file: FileData, event: MouseEvent | KeyboardEvent) => {
+    if (selected.value.length || event.shiftKey || event.ctrlKey || event.metaKey) {
+        handleToggle(file, event);
+    } else {
+        openSheet(file);
+    }
+};
+
+const handleClearFilters = () => {
+    searchInputValue.value = '';
+    typeFilter.value = [];
+    folderFilter.value = 'all';
+};
+
+let searchTimer: ReturnType<typeof setTimeout> | undefined;
+
+watch(searchInputValue, (value) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => (query.value = value.trim()), 400);
+});
+
+watch(query, (value) => {
+    if (value !== searchInputValue.value.trim()) searchInputValue.value = value;
+});
+
+onBeforeUnmount(() => clearTimeout(searchTimer));
+
+watch(listSummary, (value) => (summary.value = value));
+
+watch(
+    () => JSON.stringify(listQuery.value),
+    () => (selected.value = []),
+);
+
+onKeyStroke('/', (event) => {
+    if (document.activeElement?.closest('input, textarea, [contenteditable="true"]')) return;
+
+    event.preventDefault();
+    searchInput.value!.focus();
+});
+
+onKeyStroke('Escape', () => {
+    if (!sheetFileId.value && !moveTargets.value.length) selected.value = [];
+});
+</script>

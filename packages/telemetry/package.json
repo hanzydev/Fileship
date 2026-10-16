@@ -17,13 +17,15 @@
     },
     "devDependencies": {
         "@fileship/eslint-config": "workspace:*",
-        "@types/node": "^26.0.0",
-        "eslint": "^10.7.0",
-        "tsdown": "^0.22.3"
+        "@types/node": "^26.6.5",
+        "eslint": "^10.12.0",
+        "tsdown": "^0.23.0",
+        "typescript": "^6.0.3"
     },
     "dependencies": {
         "check-disk-space": "^3.4.0",
         "is-docker": "^4.0.0",
-        "ofetch": "^1.5.1"
+        "ofetch": "^1.5.1",
+        "zod": "^4.6.5"
     }
 }
