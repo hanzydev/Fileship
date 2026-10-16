@@ -20,10 +20,12 @@ export default defineEventHandler(async (event) => {
 
     await verifySession(event, body.data?.verificationData);
 
-    if (storageMigration.progress) {
+    if (storageMigration.progress || storageImport.progress) {
         throw createError({
             status: 400,
-            message: 'A migration is already running',
+            message: storageMigration.progress
+                ? 'A migration is already running'
+                : 'Wait for the import to finish',
         });
     }
 

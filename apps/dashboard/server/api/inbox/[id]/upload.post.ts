@@ -173,10 +173,7 @@ export default defineEventHandler(async (event) => {
             thumbnailUrl: getThumbnailUrl(event, findInboxById.user.domains, _upload),
         };
 
-        const aiEnabled = (findInboxById.user.aiSettings as any)?.enabled ?? true;
-        if (aiEnabled) event.waitUntil(enqueueFileAnalysis(upload));
-
-        await upsertFileSearchEntry(upload.id);
+        await indexCreatedFile(event, findInboxById.user, upload);
 
         await createLog(event, {
             action: 'Inbox File Upload',

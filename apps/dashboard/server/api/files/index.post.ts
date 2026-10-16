@@ -196,10 +196,7 @@ export default defineEventHandler(async (event) => {
             thumbnailUrl: getThumbnailUrl(event, currentUser.domains, _upload),
         };
 
-        const aiEnabled = currentUser.aiSettings?.enabled ?? true;
-        if (aiEnabled) event.waitUntil(enqueueFileAnalysis(upload));
-
-        await upsertFileSearchEntry(upload.id);
+        await indexCreatedFile(event, currentUser, upload);
 
         await createLog(event, {
             action: 'Upload File',

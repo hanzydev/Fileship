@@ -341,11 +341,7 @@ export default defineEventHandler(async (event) => {
 
                         created.thumbnailUrl = getThumbnailUrl(event, currentUser.domains, created);
 
-                        const aiEnabled = currentUser.aiSettings?.enabled ?? true;
-
-                        if (aiEnabled) event.waitUntil(enqueueFileAnalysis(created));
-
-                        await upsertFileSearchEntry(created.id);
+                        await indexCreatedFile(event, currentUser, created);
                     }
                     break;
                 case 'folder':

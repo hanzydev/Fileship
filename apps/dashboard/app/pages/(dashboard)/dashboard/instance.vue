@@ -261,7 +261,8 @@
                 <UiCardTitle>Storage</UiCardTitle>
                 <UiCardDescription>
                     Where uploads and backups are kept. New ones go to the active storage, existing
-                    ones stay where they were written.
+                    ones stay where they were written. Already have files on a storage? Add it here
+                    and use Import files to bring them into Fileship.
                 </UiCardDescription>
                 <UiCardAction>
                     <UiButton @click="handleOpenStorage()">
@@ -280,6 +281,33 @@
                     </div>
                     <UiProgress :model-value="(migration.done / (migration.total || 1)) * 100" />
                 </div>
+
+                <div v-if="storageImport" class="flex flex-col gap-2 pb-2">
+                    <div class="flex items-center justify-between gap-2">
+                        <TextBlock variant="small">
+                            Importing files from {{ storageName(storageImport.storageId) }}
+                        </TextBlock>
+                        <TextBlock variant="muted" class="text-xs">
+                            {{ storageImport.done }} / {{ storageImport.total }}
+                        </TextBlock>
+                    </div>
+                    <UiProgress
+                        :model-value="(storageImport.done / (storageImport.total || 1)) * 100"
+                    />
+                </div>
+
+                <UiAlert v-else-if="importResult" class="mb-2">
+                    <IFolderInput />
+                    <UiAlertTitle>
+                        Imported {{ pluralize(importResult.imported, 'file') }} from
+                        {{ storageName(importResult.storageId) }}
+                    </UiAlertTitle>
+                    <UiAlertDescription>
+                        {{ importResult.skipped }} skipped, {{ importResult.failed }} failed. Files
+                        the user already had or that did not fit their storage limit are skipped;
+                        the Logs page has the details.
+                    </UiAlertDescription>
+                </UiAlert>
 
                 <UiCard v-for="storage in storageRows" :key="storage.id ?? 'local'" size="sm">
                     <UiCardContent class="flex min-h-8 items-center gap-3">
@@ -321,30 +349,39 @@
                         >
                             Move everything here
                         </UiButton>
-                        <UiDropdownMenu v-if="storage.id">
+                        <UiDropdownMenu>
                             <UiDropdownMenuTrigger as-child>
                                 <UiButton variant="ghost" size="icon-sm">
                                     <IEllipsis />
                                 </UiButton>
                             </UiDropdownMenuTrigger>
                             <UiDropdownMenuContent align="end" class="w-56">
-                                <UiDropdownMenuItem @select="handleOpenStorage(storage)">
-                                    <IPencil />
-                                    Edit
-                                </UiDropdownMenuItem>
-                                <UiDropdownMenuSeparator />
                                 <UiDropdownMenuItem
-                                    variant="destructive"
-                                    :disabled="
-                                        storage.id === storages!.activeStorageId ||
-                                        !!storage.files ||
-                                        !!storage.backups
-                                    "
-                                    @select="handleDeleteStorage(storage)"
+                                    :disabled="!!migration || !!storageImport"
+                                    @select="handleOpenImport(storage)"
                                 >
-                                    <ITrash2 />
-                                    Delete
+                                    <IFolderInput />
+                                    Import files
                                 </UiDropdownMenuItem>
+                                <template v-if="storage.id">
+                                    <UiDropdownMenuItem @select="handleOpenStorage(storage)">
+                                        <IPencil />
+                                        Edit
+                                    </UiDropdownMenuItem>
+                                    <UiDropdownMenuSeparator />
+                                    <UiDropdownMenuItem
+                                        variant="destructive"
+                                        :disabled="
+                                            storage.id === storages!.activeStorageId ||
+                                            !!storage.files ||
+                                            !!storage.backups
+                                        "
+                                        @select="handleDeleteStorage(storage)"
+                                    >
+                                        <ITrash2 />
+                                        Delete
+                                    </UiDropdownMenuItem>
+                                </template>
                             </UiDropdownMenuContent>
                         </UiDropdownMenu>
                     </UiCardContent>
@@ -352,6 +389,160 @@
             </UiCardContent>
         </UiCard>
     </div>
+
+    <UiDialog v-model:open="importDialog.open">
+        <UiDialogContent class="sm:max-w-lg">
+            <UiDialogHeader>
+                <UiDialogTitle>Import files from {{ importDialog.storage?.name }}</UiDialogTitle>
+                <UiDialogDescription>
+                    Brings files that Fileship has no record of into a user's account.
+                </UiDialogDescription>
+            </UiDialogHeader>
+
+            <div class="flex flex-col gap-3">
+                <TextBlock variant="small">How import works</TextBlock>
+                <template v-if="!importDialog.storage?.id">
+                    <TextBlock variant="muted" class="text-sm">
+                        Put the files you want to import in this folder on the server. Files in
+                        <code>uploads</code>
+                        that Fileship has no record of are imported too.
+                    </TextBlock>
+                    <UiInputGroup v-if="importPreview?.importPath">
+                        <UiInputGroupInput
+                            :model-value="importPreview.importPath"
+                            aria-label="Import folder"
+                            readonly
+                        />
+                        <UiInputGroupAddon align="inline-end">
+                            <UiInputGroupButton
+                                size="icon-xs"
+                                type="button"
+                                aria-label="Copy the path"
+                                @click="handleCopyImportPath"
+                            >
+                                <ICopy />
+                            </UiInputGroupButton>
+                        </UiInputGroupAddon>
+                    </UiInputGroup>
+                </template>
+                <TextBlock v-else variant="muted" class="text-sm">
+                    Every file on this storage that Fileship has no record of is imported, except
+                    Fileship's own
+                    <code>backups</code>
+                    folder.
+                </TextBlock>
+                <ul class="flex list-disc flex-col gap-1 pl-5 text-sm text-muted-foreground">
+                    <li>
+                        Files are moved into
+                        <code>uploads</code>
+                        on this storage, so their old paths stop working.
+                    </li>
+                    <li>
+                        The first folder of each path becomes a Fileship folder. Deeper folders are
+                        merged into it.
+                    </li>
+                    <li>
+                        Files the user already has with the same name and size are skipped, so
+                        running it again is safe.
+                    </li>
+                    <li>Files changed in the last 15 minutes are left for the next run.</li>
+                    <li>The user's storage limit applies.</li>
+                </ul>
+            </div>
+
+            <div
+                v-if="importDialog.isLoading"
+                class="flex items-center gap-2 text-sm text-muted-foreground"
+            >
+                <UiSpinner />
+                Looking for files...
+            </div>
+
+            <EmptyState
+                v-else-if="importDialog.error"
+                :icon="ICircleAlert"
+                title="Couldn't read the storage"
+                :description="importDialog.error"
+            >
+                <UiButton variant="outline" @click="loadImportPreview">Try again</UiButton>
+            </EmptyState>
+
+            <EmptyState
+                v-else-if="importPreview && !importPreview.count"
+                :icon="IFolderSearch"
+                title="Nothing to import"
+                :description="
+                    importDialog.storage?.id
+                        ? 'Every file on this storage is already in Fileship.'
+                        : 'Put files in the folder above, then check again.'
+                "
+            >
+                <UiButton variant="outline" @click="loadImportPreview">Check again</UiButton>
+            </EmptyState>
+
+            <UiField v-else-if="importPreview">
+                <UiFieldLabel for="import-user">Import into</UiFieldLabel>
+                <UiPopover v-model:open="isUserPickerOpen">
+                    <UiPopoverTrigger as-child>
+                        <UiButton id="import-user" variant="outline" class="w-full justify-between">
+                            <span class="flex items-center gap-2 truncate">
+                                <IUser />
+                                {{ importDialog.user?.username ?? 'Choose a user' }}
+                            </span>
+                            <IChevronsUpDown class="opacity-50" />
+                        </UiButton>
+                    </UiPopoverTrigger>
+                    <UiPopoverContent class="w-(--reka-popover-trigger-width) p-0" align="start">
+                        <UiCommand>
+                            <UiCommandInput
+                                placeholder="Search users..."
+                                @update:model-value="userQuery = $event"
+                            />
+                            <UiCommandList class="mb-1">
+                                <UiCommandGroup class="px-1 pb-0">
+                                    <VirtualList
+                                        :items="users"
+                                        :item-key="(user) => user.id"
+                                        :estimate-size="36"
+                                        :gap="0"
+                                        contained
+                                        @reach-end="loadMoreUsers"
+                                    >
+                                        <template #default="{ item }">
+                                            <UiCommandItem
+                                                :value="item.id"
+                                                :data-checked="importDialog.user?.id === item.id"
+                                                @select="handleSelectImportUser(item)"
+                                            >
+                                                <IUser />
+                                                <span class="truncate">{{ item.username }}</span>
+                                            </UiCommandItem>
+                                        </template>
+                                    </VirtualList>
+                                </UiCommandGroup>
+                            </UiCommandList>
+                        </UiCommand>
+                    </UiPopoverContent>
+                </UiPopover>
+                <UiFieldDescription>
+                    Found {{ pluralize(importPreview.count, 'file') }} ({{
+                        filesize(importPreview.size)
+                    }}).
+                </UiFieldDescription>
+            </UiField>
+
+            <UiDialogFooter>
+                <UiButton variant="outline" @click="importDialog.open = false">Cancel</UiButton>
+                <UiButton
+                    :disabled="!importPreview?.count || !importDialog.user || isStartingImport"
+                    @click="handleStartImport"
+                >
+                    <UiSpinner v-if="isStartingImport" />
+                    Import
+                </UiButton>
+            </UiDialogFooter>
+        </UiDialogContent>
+    </UiDialog>
 
     <UiDialog v-model:open="storageDialog.open">
         <UiDialogContent class="sm:max-w-lg">
@@ -506,8 +697,10 @@
 <script setup lang="ts">
 import { filesize } from 'filesize';
 
-import { ICloud, IHardDrive, IServer } from '#components';
+import { ICircleAlert, ICloud, IFolderSearch, IHardDrive, IServer } from '#components';
 import { StorageType } from '#shared/prisma/enums';
+
+import type { UserData } from '~/types/users';
 
 type FieldType = 'text' | 'secret' | 'number' | 'switch' | 'select' | 'permissions';
 
@@ -858,6 +1051,18 @@ watch(migration, (value, oldValue) => {
     if (!value && oldValue) refreshStorages();
 });
 
+const storageImport = useStorageImport();
+const importResult = ref<StorageImportProgress | null>(null);
+
+storageImport.value = storages.value?.import ?? null;
+
+watch(storageImport, (value, oldValue) => {
+    if (value || !oldValue) return;
+
+    importResult.value = oldValue;
+    refreshStorages();
+});
+
 type StorageRow = NonNullable<typeof storages.value>['items'][number];
 
 const storageRows = computed(() => [
@@ -1114,6 +1319,98 @@ const handleMigrateStorage = async (storage: { name: string }) => {
         },
     });
 };
+
+const storageName = (storageId: string | null) =>
+    storageRows.value.find((storage) => storage.id === storageId)?.name ?? 'a storage';
+
+const currentUser = useAuthUser();
+const { copy } = useClipboard({ legacy: true });
+
+const importDialog = reactive({
+    open: false,
+    storage: null as { id: string | null; name: string } | null,
+    user: null as { id: string; username: string } | null,
+    isLoading: false,
+    error: '',
+});
+
+const importPreview = ref<{ count: number; size: number; importPath: string | null } | null>(null);
+const isStartingImport = ref(false);
+const isUserPickerOpen = ref(false);
+const userQuery = ref('');
+
+const { items: users, loadMore: loadMoreUsers } = usePaginatedList<UserData>(
+    'users',
+    '/api/users',
+    () => ({ q: userQuery.value.trim() }),
+    { limit: 30, enabled: isUserPickerOpen },
+);
+
+const loadImportPreview = async () => {
+    importDialog.isLoading = true;
+    importDialog.error = '';
+
+    try {
+        importPreview.value = await $fetch('/api/storages/import/preview', {
+            method: 'POST',
+            body: { storageId: importDialog.storage!.id },
+        });
+    } catch (error) {
+        importDialog.error = getErrorMessage(error);
+    }
+
+    importDialog.isLoading = false;
+};
+
+const handleOpenImport = (storage: { id: string | null; name: string }) => {
+    importDialog.storage = storage;
+    importDialog.user = currentUser.value
+        ? { id: currentUser.value.id, username: currentUser.value.username }
+        : null;
+    importDialog.open = true;
+    importPreview.value = null;
+
+    loadImportPreview();
+};
+
+const handleSelectImportUser = (user: { id: string; username: string }) => {
+    importDialog.user = { id: user.id, username: user.username };
+    isUserPickerOpen.value = false;
+};
+
+const handleCopyImportPath = async () => {
+    await copy(importPreview.value!.importPath!);
+    $toast.success('Path copied');
+};
+
+const handleStartImport = async () => {
+    isStartingImport.value = true;
+
+    try {
+        const result = await withVerification((verificationData) =>
+            $fetch('/api/storages/import', {
+                method: 'POST',
+                body: {
+                    storageId: importDialog.storage!.id,
+                    userId: importDialog.user!.id,
+                    verificationData,
+                },
+            }),
+        );
+
+        if (result) {
+            importResult.value = null;
+            importDialog.open = false;
+            $toast.success('Importing files in the background');
+        }
+    } catch (error) {
+        $toast.error(getErrorMessage(error));
+    }
+
+    isStartingImport.value = false;
+};
+
+watch(isUserPickerOpen, (value) => value && (userQuery.value = ''));
 
 const handleDeleteStorage = async (storage: StorageRow) => {
     await askConfirmation({

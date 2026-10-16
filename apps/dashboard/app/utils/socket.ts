@@ -31,6 +31,7 @@ export const initSocket = () => {
     const currentUser = useAuthUser();
     const currentTheme = useTheme();
     const storageMigration = useStorageMigration();
+    const storageImport = useStorageImport();
 
     const route = useRoute();
 
@@ -155,6 +156,10 @@ export const initSocket = () => {
 
         socket.on('storage:migrate', (data) => {
             storageMigration.value = data;
+        });
+
+        socket.on('storage:import', (data) => {
+            storageImport.value = data;
         });
 
         socket.on('passkey:create', (data) => {

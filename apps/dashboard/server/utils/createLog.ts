@@ -35,6 +35,7 @@ const AllowedActions = [
     'Create Storage',
     'Update Storage',
     'Delete Storage',
+    'Import Files',
     'Retry AI Jobs',
     'Reset AI Data',
     'Update Fileship',

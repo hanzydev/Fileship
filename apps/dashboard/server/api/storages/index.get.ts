@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
     return {
         activeStorageId: await getActiveStorageId(),
         migration: storageMigration.progress,
+        import: storageImport.progress,
         local: { files, backups },
         items: await Promise.all(
             storages.map(async ({ _count, ...storage }) => ({
