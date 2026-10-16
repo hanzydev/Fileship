@@ -5,13 +5,13 @@
                 <UiCardHeader>
                     <UiCardTitle class="flex items-center gap-2">
                         <ILock class="size-4" />
-                        {{ title }}
+                        {{ title ?? $t('view.passwordProtected') }}
                     </UiCardTitle>
-                    <UiCardDescription>Enter the password to continue.</UiCardDescription>
+                    <UiCardDescription>{{ $t('view.enterPassword') }}</UiCardDescription>
                 </UiCardHeader>
                 <UiCardContent>
                     <UiField :data-invalid="!!error">
-                        <UiFieldLabel for="gate-password">Password</UiFieldLabel>
+                        <UiFieldLabel for="gate-password">{{ $t('view.password') }}</UiFieldLabel>
                         <PasswordInput
                             id="gate-password"
                             v-model="password"
@@ -24,7 +24,7 @@
                 <UiCardFooter>
                     <UiButton type="submit" class="w-full" :disabled="!password || disabled">
                         <UiSpinner v-if="disabled" />
-                        Continue
+                        {{ $t('common.continue') }}
                     </UiButton>
                 </UiCardFooter>
             </form>
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-const { title = 'Password protected' } = defineProps<{
+defineProps<{
     title?: string;
     error?: string;
     disabled?: boolean;

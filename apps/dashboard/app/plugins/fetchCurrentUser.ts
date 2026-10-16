@@ -11,5 +11,7 @@ export default defineNuxtPlugin(async () => {
         };
 
         currentTheme.value = data.value.theme;
+
+        if (data.value.language) await applyLanguage(data.value.language);
     }
 });

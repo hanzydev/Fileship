@@ -2,32 +2,32 @@
     <component :is="Item" v-if="!inFolder" as-child>
         <NuxtLink :to="`/dashboard/folders/${folder.id}`">
             <IFolderOpen />
-            Open
+            {{ $t('folders.menu.open') }}
         </NuxtLink>
     </component>
     <component :is="Item" v-if="folder.public" @select="copyLink(folder)">
         <ILink />
-        Copy public link
+        {{ $t('folders.menu.copyPublicLink') }}
     </component>
     <component :is="Item" @select="togglePublic(folder)">
         <IGlobe v-if="!folder.public" />
         <IGlobeLock v-else />
-        {{ folder.public ? 'Make private' : 'Make public' }}
+        {{ folder.public ? $t('folders.menu.makePrivate') : $t('folders.menu.makePublic') }}
     </component>
     <component :is="Item" :disabled="!folder.fileCount" @select="download(folder)">
         <IDownload />
-        Download as archive
+        {{ $t('folders.menu.download') }}
     </component>
     <component :is="Separator" />
     <component :is="Item" @select="emit('edit')">
         <IPencil />
-        Edit
+        {{ $t('folders.menu.edit') }}
     </component>
     <template v-if="!folder.isInbox">
         <component :is="Separator" />
         <component :is="Item" variant="destructive" @select="remove(folder)">
             <ITrash2 />
-            Delete
+            {{ $t('folders.menu.delete') }}
         </component>
     </template>
 </template>

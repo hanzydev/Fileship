@@ -1,0 +1,45 @@
+{
+    "upload": {
+        "title": "Upload",
+        "description": "Upload files or create a text file. You can keep working while it uploads.",
+        "tabFiles": "Files",
+        "tabText": "Text",
+        "pasteHint": "You can also paste images anywhere.",
+        "remove": "Remove",
+        "fileName": "File name",
+        "fileNamePlaceholder": "notes",
+        "type": "Type",
+        "plainText": "Plain text",
+        "content": "Content",
+        "options": "Options",
+        "folder": "Folder",
+        "fileNameType": {
+            "random": "Random",
+            "uuid": "UUID",
+            "original": "Original"
+        },
+        "expiration": "Expiration",
+        "compression": "Compression",
+        "maxViews": "Max views",
+        "maxViewsDescription": "0 means unlimited.",
+        "password": "Password",
+        "optional": "Optional",
+        "createTextFile": "Create text file",
+        "uploadCount": "Upload | Upload | Upload {n} files",
+        "someFailed": "Some files could not be uploaded",
+        "textCreated": "Text file created",
+        "uploadComplete": "Upload complete",
+        "dropped": "File uploaded | {n} files uploaded",
+        "pasted": "Pasted content uploaded",
+        "urlCopied": "URL copied to clipboard | URLs copied to clipboard",
+        "urlCopyOnReturn": "The URL is copied when you come back | The URLs are copied when you come back",
+        "errors": {
+            "invalidResponse": "Upload failed with an invalid server response ({status})",
+            "failedStatus": "Upload failed ({status})",
+            "network": "Network error during upload",
+            "timeout": "Upload request timed out",
+            "aborted": "Upload request was aborted",
+            "failed": "Upload failed"
+        }
+    }
+}

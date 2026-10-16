@@ -12,6 +12,7 @@ const { content } = defineProps<{
 }>();
 
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 const { copy } = useClipboard({ legacy: true });
 
 const copyIcon =
@@ -49,7 +50,7 @@ const marked = new Marked(markedKatex({ throwOnError: false }), {
             const language = hljs.getLanguage(lang || '') ? lang! : 'plaintext';
             const highlighted = hljs.highlight(text, { language }).value;
 
-            return `<pre><button type="button" data-copy aria-label="Copy code">${copyIcon}</button><code class="hljs language-${language}">${highlighted}</code></pre>`;
+            return `<pre><button type="button" data-copy aria-label="${escapeHtml(t('view.copyCode'))}">${copyIcon}</button><code class="hljs language-${language}">${highlighted}</code></pre>`;
         },
     },
 });
@@ -61,7 +62,7 @@ const handleClick = (event: MouseEvent) => {
     if (!button) return;
 
     copy(button.nextElementSibling!.textContent!);
-    $toast.success('Code copied to clipboard');
+    $toast.success(t('view.codeCopied'));
 };
 </script>
 

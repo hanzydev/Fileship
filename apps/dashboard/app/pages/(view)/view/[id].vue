@@ -1,7 +1,7 @@
 <template>
     <div class="flex min-h-svh flex-col">
         <Head>
-            <Title v-if="!data.id">Verify Password</Title>
+            <Title v-if="!data.id">{{ $t('view.verifyPassword') }}</Title>
             <Title v-else>{{ data.name }}</Title>
 
             <template v-if="data?.embed?.enabled">
@@ -76,7 +76,12 @@
         <template v-else>
             <ViewHeader
                 :title="data.name!"
-                :subtitle="`${data.size!.formatted} · ${dayjs(data.createdAt).format('MMM D, YYYY')}`"
+                :subtitle="
+                    $t('view.fileSubtitle', {
+                        size: filesize(Number(data.size!.raw), { locale }),
+                        date: date(data.createdAt).format('ll'),
+                    })
+                "
                 content-class="max-w-5xl"
             >
                 <UiToggleGroup
@@ -87,21 +92,21 @@
                     :model-value="previewMode ? 'preview' : 'raw'"
                     @update:model-value="$event && (previewMode = $event === 'preview')"
                 >
-                    <UiToggleGroupItem value="preview" aria-label="Preview">
+                    <UiToggleGroupItem value="preview" :aria-label="$t('view.preview')">
                         <IEye />
                     </UiToggleGroupItem>
-                    <UiToggleGroupItem value="raw" aria-label="Raw">
+                    <UiToggleGroupItem value="raw" :aria-label="$t('view.raw')">
                         <ICode />
                     </UiToggleGroupItem>
                 </UiToggleGroup>
                 <UiButton variant="outline" size="sm" @click="handleCopy">
                     <ICopy />
-                    <span class="hidden sm:inline">Copy</span>
+                    <span class="hidden sm:inline">{{ $t('view.copy') }}</span>
                 </UiButton>
                 <UiButton size="sm" as-child>
                     <a :href="downloadUrl" download>
                         <IDownload />
-                        <span class="hidden sm:inline">Download</span>
+                        <span class="hidden sm:inline">{{ $t('view.download') }}</span>
                     </a>
                 </UiButton>
             </ViewHeader>
@@ -162,13 +167,13 @@
                     <UiCardContent>
                         <EmptyState
                             :icon="getFileIcon(data as FileData)"
-                            title="No preview available"
-                            description="This file type can't be previewed, but you can download it."
+                            :title="$t('view.noPreview')"
+                            :description="$t('view.noPreviewDescription')"
                         >
                             <UiButton as-child>
                                 <a :href="downloadUrl" download>
                                     <IDownload />
-                                    Download
+                                    {{ $t('view.download') }}
                                 </a>
                             </UiButton>
                         </EmptyState>
@@ -180,12 +185,14 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
+import { filesize } from 'filesize';
 
 import type { FileData } from '~/types/files';
 
 const route = useRoute();
 const { $toast } = useNuxtApp();
+const { t, locale } = useI18n();
+const date = useDate();
 const { copy } = useClipboard({ legacy: true });
 
 const id = (route.params as any).id as string;
@@ -198,11 +205,11 @@ const { data: _data, error } = await useFetch<FileData & { embed: IEmbed }>(
 );
 
 if (error.value?.status === 404) {
-    throw createError({ status: 404, message: 'File not found' });
+    throw createError({ status: 404, message: t('view.fileNotFound') });
 } else if (error.value?.status === 403) {
     throw createError({
         status: 403,
-        message: 'You do not have permission to access this page',
+        message: t('view.noPermission'),
     });
 }
 
@@ -240,14 +247,12 @@ const renderedContent = computed(() =>
 );
 
 const replaceString = (str: string) => {
-    const dateFormat = 'MMMM D, YYYY [at] h:mm A';
-
     const params = {
         '{fileName}': data.value.fileName,
         '{mimeType}': data.value.mimeType,
         '{size}': data.value.size!.formatted,
-        '{createdAt}': dayjs(data.value.createdAt).format(dateFormat),
-        '{now}': dayjs().format(dateFormat),
+        '{createdAt}': date(data.value.createdAt).format('LLL'),
+        '{now}': date().format('LLL'),
     };
 
     return str.replace(
@@ -276,10 +281,10 @@ const handlePassword = async (password: string) => {
 const handleCopy = () => {
     if (isText.value) {
         copy(fileContent.value || '');
-        $toast.success('Content copied to clipboard');
+        $toast.success(t('view.contentCopied'));
     } else {
         copy(window.location.href);
-        $toast.success('Link copied to clipboard');
+        $toast.success(t('view.linkCopied'));
     }
 };
 

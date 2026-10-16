@@ -2,13 +2,13 @@
     <UiCard class="flex-1 justify-center">
         <EmptyState
             :icon="IBookmark"
-            title="Select a note"
-            description="Pick a note from the list or start a new one."
+            :title="$t('notes.select')"
+            :description="$t('notes.selectDescription')"
         >
             <UiButton as-child>
                 <NuxtLink to="/dashboard/notes/new">
                     <ISquarePen />
-                    New note
+                    {{ $t('notes.newNote') }}
                 </NuxtLink>
             </UiButton>
         </EmptyState>

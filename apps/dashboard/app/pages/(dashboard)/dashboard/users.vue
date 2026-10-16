@@ -1,16 +1,16 @@
 <template>
     <Head>
-        <Title>Users</Title>
+        <Title>{{ $t('users.title') }}</Title>
     </Head>
 
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <PageHeader
-            title="Users"
-            :description="isLoading ? 'Loading...' : pluralize(total, 'user')"
+            :title="$t('users.title')"
+            :description="isLoading ? $t('common.loading') : $t('users.userCount', total)"
         >
             <UiButton @click="openSheet(null)">
                 <IUserPlus />
-                New user
+                {{ $t('users.newUser') }}
             </UiButton>
         </PageHeader>
 
@@ -20,7 +20,7 @@
                     <UiSpinner v-if="!!search && isFetching" />
                     <ISearch v-else />
                 </UiInputGroupAddon>
-                <UiInputGroupInput v-model="search" placeholder="Search users..." />
+                <UiInputGroupInput v-model="search" :placeholder="$t('users.searchPlaceholder')" />
             </UiInputGroup>
 
             <UiDropdownMenu>
@@ -32,7 +32,7 @@
                     </UiButton>
                 </UiDropdownMenuTrigger>
                 <UiDropdownMenuContent align="end" class="w-56">
-                    <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
+                    <UiDropdownMenuLabel>{{ $t('users.sortBy') }}</UiDropdownMenuLabel>
                     <UiDropdownMenuRadioGroup v-model="sortValue">
                         <UiDropdownMenuRadioItem
                             v-for="option in sortOptions"
@@ -49,19 +49,21 @@
         <EmptyState
             v-if="isError"
             :icon="ICircleAlert"
-            title="Couldn't load users"
-            description="Something went wrong. Check your connection and try again."
+            :title="$t('users.loadError')"
+            :description="$t('users.loadErrorDescription')"
         >
-            <UiButton variant="outline" @click="refresh">Try again</UiButton>
+            <UiButton variant="outline" @click="refresh">{{ $t('users.tryAgain') }}</UiButton>
         </EmptyState>
 
         <EmptyState
             v-else-if="!isLoading && !users.length"
             :icon="ISearchX"
-            title="No matching users"
-            description="Try a different username."
+            :title="$t('users.noMatches')"
+            :description="$t('users.noMatchesDescription')"
         >
-            <UiButton variant="outline" @click="search = ''">Clear search</UiButton>
+            <UiButton variant="outline" @click="search = ''">
+                {{ $t('users.clearSearch') }}
+            </UiButton>
         </EmptyState>
 
         <DataTable
@@ -84,7 +86,9 @@
                         </UiAvatarFallback>
                     </UiAvatar>
                     <span class="truncate font-medium">{{ item.username }}</span>
-                    <UiBadge v-if="item.id === currentUser!.id" variant="secondary">You</UiBadge>
+                    <UiBadge v-if="item.id === currentUser!.id" variant="secondary">
+                        {{ $t('users.you') }}
+                    </UiBadge>
                 </div>
             </template>
             <template #cell-role="{ item }">
@@ -100,14 +104,14 @@
                 <span class="block truncate text-muted-foreground">
                     {{
                         item.limits.usableSpace === -1
-                            ? 'Unlimited'
-                            : `${item.limits.usableSpace} MB`
+                            ? $t('users.unlimited')
+                            : $t('users.sizeMb', { size: item.limits.usableSpace })
                     }}
                 </span>
             </template>
             <template #cell-createdAt="{ item }">
                 <span class="block truncate text-muted-foreground">
-                    {{ dayjs(item.createdAt).format('MMM D, YYYY') }}
+                    {{ date(item.createdAt).format('ll') }}
                 </span>
             </template>
             <template #cell-actions="{ item }">
@@ -135,7 +139,7 @@
                             </TextBlock>
                             <TextBlock variant="muted" class="truncate text-xs">
                                 {{ getRoles(item).join(', ') }} ·
-                                {{ pluralize(item.stats.files, 'file') }}
+                                {{ $t('users.fileCount', item.stats.files) }}
                             </TextBlock>
                         </div>
                         <UserMenu
@@ -154,13 +158,17 @@
                 <form class="flex flex-1 flex-col overflow-hidden" @submit.prevent="handleSubmit">
                     <UiSheetHeader>
                         <UiSheetTitle>
-                            {{ editingUser ? `Edit ${editingUser.username}` : 'New user' }}
+                            {{
+                                editingUser
+                                    ? $t('users.editTitle', { username: editingUser.username })
+                                    : $t('users.newUser')
+                            }}
                         </UiSheetTitle>
                         <UiSheetDescription>
                             {{
                                 editingUser
-                                    ? 'Update account details, permissions and limits.'
-                                    : 'Create an account for someone else.'
+                                    ? $t('users.editDescription')
+                                    : $t('users.createDescription')
                             }}
                         </UiSheetDescription>
                     </UiSheetHeader>
@@ -168,7 +176,9 @@
                     <div class="flex flex-1 flex-col gap-6 overflow-y-auto px-6 pb-6">
                         <UiFieldGroup>
                             <UiField :data-invalid="!!formErrors?.username">
-                                <UiFieldLabel for="user-username">Username</UiFieldLabel>
+                                <UiFieldLabel for="user-username">
+                                    {{ $t('users.username') }}
+                                </UiFieldLabel>
                                 <UiInput
                                     id="user-username"
                                     v-model="form.username"
@@ -180,13 +190,15 @@
                                 />
                             </UiField>
                             <UiField :data-invalid="!!formErrors?.password">
-                                <UiFieldLabel for="user-password">Password</UiFieldLabel>
+                                <UiFieldLabel for="user-password">
+                                    {{ $t('users.password') }}
+                                </UiFieldLabel>
                                 <PasswordInput
                                     id="user-password"
                                     v-model="form.password"
                                     autocomplete="new-password"
                                     :placeholder="
-                                        editingUser ? 'Leave empty to keep the current one' : ''
+                                        editingUser ? $t('users.passwordKeepPlaceholder') : ''
                                     "
                                 />
                                 <UiFieldError
@@ -197,7 +209,7 @@
                         </UiFieldGroup>
 
                         <UiFieldSet v-if="!form.superAdmin">
-                            <UiFieldLegend>Permissions</UiFieldLegend>
+                            <UiFieldLegend>{{ $t('users.permissions') }}</UiFieldLegend>
                             <UiFieldGroup class="gap-3">
                                 <UiField
                                     v-for="permission in Object.values(UserPermission)"
@@ -214,7 +226,7 @@
                                         @update:model-value="togglePermission(permission)"
                                     />
                                     <UiFieldLabel :for="`permission-${permission}`">
-                                        {{ titleCase(permission) }}
+                                        {{ $t(`users.permission.${permission}`) }}
                                     </UiFieldLabel>
                                 </UiField>
                             </UiFieldGroup>
@@ -225,11 +237,13 @@
                         </UiFieldSet>
 
                         <UiFieldSet>
-                            <UiFieldLegend>Limits</UiFieldLegend>
-                            <UiFieldDescription>Use -1 for unlimited.</UiFieldDescription>
+                            <UiFieldLegend>{{ $t('users.limits') }}</UiFieldLegend>
+                            <UiFieldDescription>
+                                {{ $t('users.limitsDescription') }}
+                            </UiFieldDescription>
                             <div class="grid grid-cols-2 gap-4">
                                 <UiField>
-                                    <UiFieldLabel>Backups</UiFieldLabel>
+                                    <UiFieldLabel>{{ $t('users.backups') }}</UiFieldLabel>
                                     <UiNumberField v-model="form.limits.backupLimit" :min="-1">
                                         <UiNumberFieldContent>
                                             <UiNumberFieldDecrement />
@@ -239,7 +253,7 @@
                                     </UiNumberField>
                                 </UiField>
                                 <UiField>
-                                    <UiFieldLabel>Storage (MB)</UiFieldLabel>
+                                    <UiFieldLabel>{{ $t('users.storageMb') }}</UiFieldLabel>
                                     <UiNumberField v-model="form.limits.usableSpace" :min="-1">
                                         <UiNumberFieldContent>
                                             <UiNumberFieldDecrement />
@@ -253,9 +267,11 @@
 
                         <UiField v-if="currentUser!.superAdmin" orientation="horizontal">
                             <UiFieldContent>
-                                <UiFieldLabel for="user-super-admin">Super admin</UiFieldLabel>
+                                <UiFieldLabel for="user-super-admin">
+                                    {{ $t('users.superAdmin') }}
+                                </UiFieldLabel>
                                 <UiFieldDescription>
-                                    Full access, including managing other admins.
+                                    {{ $t('users.superAdminDescription') }}
                                 </UiFieldDescription>
                             </UiFieldContent>
                             <UiSwitch id="user-super-admin" v-model="form.superAdmin" />
@@ -265,10 +281,12 @@
                     <UiSheetFooter>
                         <UiButton type="submit" :disabled="isSaving">
                             <UiSpinner v-if="isSaving" />
-                            {{ editingUser ? 'Save changes' : 'Create user' }}
+                            {{ editingUser ? $t('users.saveChanges') : $t('users.createUser') }}
                         </UiButton>
                         <UiSheetClose as-child>
-                            <UiButton type="button" variant="outline">Cancel</UiButton>
+                            <UiButton type="button" variant="outline">
+                                {{ $t('common.cancel') }}
+                            </UiButton>
                         </UiSheetClose>
                     </UiSheetFooter>
                 </form>
@@ -278,9 +296,6 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
-import { titleCase } from 'scule';
-
 import { ICircleAlert, ISearchX } from '#components';
 import { UserPermission } from '#shared/prisma/enums';
 
@@ -288,6 +303,8 @@ import type { UserData } from '~/types/users';
 
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
+const date = useDate();
 const { impersonate } = useImpersonation();
 
 const search = ref('');
@@ -310,36 +327,42 @@ const {
     sort: `${sort.value.key}:${sort.value.desc ? 'desc' : 'asc'}`,
 }));
 
-const columns = [
-    { key: 'username', label: 'User', sortable: true },
-    { key: 'role', label: 'Role', class: 'hidden w-44 lg:table-cell' },
+const columns = computed(() => [
+    { key: 'username', label: t('users.column.user'), sortable: true },
+    { key: 'role', label: t('users.column.role'), class: 'hidden w-44 lg:table-cell' },
     {
         key: 'files',
-        label: 'Files',
+        label: t('users.column.files'),
         sortable: true,
         descFirst: true,
         class: 'hidden w-24 lg:table-cell',
     },
     {
         key: 'notes',
-        label: 'Notes',
+        label: t('users.column.notes'),
         sortable: true,
         descFirst: true,
         class: 'hidden w-24 xl:table-cell',
     },
-    { key: 'storage', label: 'Storage limit', class: 'hidden w-36 xl:table-cell' },
-    { key: 'createdAt', label: 'Joined', sortable: true, descFirst: true, class: 'w-32' },
+    { key: 'storage', label: t('users.column.storage'), class: 'hidden w-36 xl:table-cell' },
+    {
+        key: 'createdAt',
+        label: t('users.column.joined'),
+        sortable: true,
+        descFirst: true,
+        class: 'w-32',
+    },
     { key: 'actions', label: '', class: 'w-16' },
-];
+]);
 
-const sortOptions = [
-    { label: 'Newest', value: 'createdAt:desc' },
-    { label: 'Oldest', value: 'createdAt:asc' },
-    { label: 'Name A–Z', value: 'username:asc' },
-    { label: 'Name Z–A', value: 'username:desc' },
-    { label: 'Most files', value: 'files:desc' },
-    { label: 'Most notes', value: 'notes:desc' },
-];
+const sortOptions = computed(() => [
+    { label: t('users.sort.newest'), value: 'createdAt:desc' },
+    { label: t('users.sort.oldest'), value: 'createdAt:asc' },
+    { label: t('users.sort.nameAsc'), value: 'username:asc' },
+    { label: t('users.sort.nameDesc'), value: 'username:desc' },
+    { label: t('users.sort.mostFiles'), value: 'files:desc' },
+    { label: t('users.sort.mostNotes'), value: 'notes:desc' },
+]);
 
 const sortValue = computed({
     get: () => `${sort.value.key}:${sort.value.desc ? 'desc' : 'asc'}`,
@@ -393,7 +416,7 @@ const handleSubmit = async () => {
 
         if (result) {
             sheetOpen.value = false;
-            $toast.success(user ? 'User updated' : 'User created');
+            $toast.success(user ? t('users.updated') : t('users.created'));
         }
     } catch (error: any) {
         formErrors.value = error.data?.data?.formErrors;
@@ -418,10 +441,10 @@ watch(sheetOpen, (value) => {
 
 const getRoles = (user: UserData) =>
     user.superAdmin
-        ? ['Super admin']
+        ? [t('users.superAdmin')]
         : user.permissions.includes(UserPermission.Admin)
-          ? ['Admin']
-          : user.permissions.map((p) => titleCase(p));
+          ? [t('users.permission.Admin')]
+          : user.permissions.map((p) => t(`users.permission.${p}`));
 
 const openSheet = (user: UserData | null) => {
     editingUser.value = user;
@@ -438,10 +461,9 @@ const handleImpersonate = async (user: UserData) => {
 
 const handleDelete = async (user: UserData) => {
     await askConfirmation({
-        title: `Delete ${user.username}?`,
-        description:
-            'Their files, folders, notes and short links will be deleted too. This cannot be undone.',
-        confirmText: 'Delete',
+        title: t('users.deleteTitle', { username: user.username }),
+        description: t('users.deleteDescription'),
+        confirmText: t('users.delete'),
         destructive: true,
         action: async () => {
             try {
@@ -452,7 +474,7 @@ const handleDelete = async (user: UserData) => {
                     }),
                 );
 
-                if (result) $toast.success('User deleted');
+                if (result) $toast.success(t('users.deleted'));
             } catch (error: any) {
                 $toast.error(getErrorMessage(error));
             }

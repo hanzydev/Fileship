@@ -2,10 +2,8 @@
     <UiSheet v-model:open="open">
         <UiSheetContent class="data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
             <UiSheetHeader>
-                <UiSheetTitle>Upload</UiSheetTitle>
-                <UiSheetDescription>
-                    Upload files or create a text file. You can keep working while it uploads.
-                </UiSheetDescription>
+                <UiSheetTitle>{{ $t('upload.title') }}</UiSheetTitle>
+                <UiSheetDescription>{{ $t('upload.description') }}</UiSheetDescription>
             </UiSheetHeader>
 
             <div class="flex flex-1 flex-col gap-6 overflow-y-auto px-6">
@@ -13,19 +11,16 @@
                     <UiTabsList class="w-full">
                         <UiTabsTrigger value="files">
                             <IImages />
-                            Files
+                            {{ $t('upload.tabFiles') }}
                         </UiTabsTrigger>
                         <UiTabsTrigger value="text">
                             <IFileText />
-                            Text
+                            {{ $t('upload.tabText') }}
                         </UiTabsTrigger>
                     </UiTabsList>
 
                     <UiTabsContent value="files" class="flex flex-col gap-3">
-                        <DropZone
-                            description="You can also paste images anywhere."
-                            @files="addFiles"
-                        />
+                        <DropZone :description="$t('upload.pasteHint')" @files="addFiles" />
 
                         <div v-if="files.length" class="flex flex-col gap-2">
                             <UiItem
@@ -41,13 +36,15 @@
                                     <UiItemTitle class="max-w-full">
                                         <span class="truncate">{{ file.name }}</span>
                                     </UiItemTitle>
-                                    <UiItemDescription>{{ filesize(file.size) }}</UiItemDescription>
+                                    <UiItemDescription>
+                                        {{ filesize(file.size, { locale }) }}
+                                    </UiItemDescription>
                                 </UiItemContent>
                                 <UiItemActions>
                                     <UiButton
                                         variant="ghost"
                                         size="icon-sm"
-                                        aria-label="Remove"
+                                        :aria-label="$t('upload.remove')"
                                         @click="files.splice(index, 1)"
                                     >
                                         <IX />
@@ -61,15 +58,17 @@
                         <UiFieldGroup>
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_10rem]">
                                 <UiField>
-                                    <UiFieldLabel for="text-file-name">File name</UiFieldLabel>
+                                    <UiFieldLabel for="text-file-name">
+                                        {{ $t('upload.fileName') }}
+                                    </UiFieldLabel>
                                     <UiInput
                                         id="text-file-name"
                                         v-model="text.fileName"
-                                        placeholder="notes"
+                                        :placeholder="$t('upload.fileNamePlaceholder')"
                                     />
                                 </UiField>
                                 <UiField>
-                                    <UiFieldLabel>Type</UiFieldLabel>
+                                    <UiFieldLabel>{{ $t('upload.type') }}</UiFieldLabel>
                                     <UiSelect v-model="text.extension">
                                         <UiSelectTrigger class="w-full">
                                             <UiSelectValue />
@@ -80,14 +79,20 @@
                                                 :key="type.extension"
                                                 :value="type.extension"
                                             >
-                                                {{ type.label }}
+                                                {{
+                                                    type.extension === 'txt'
+                                                        ? $t('upload.plainText')
+                                                        : type.label
+                                                }}
                                             </UiSelectItem>
                                         </UiSelectContent>
                                     </UiSelect>
                                 </UiField>
                             </div>
                             <UiField>
-                                <UiFieldLabel for="text-content">Content</UiFieldLabel>
+                                <UiFieldLabel for="text-content">
+                                    {{ $t('upload.content') }}
+                                </UiFieldLabel>
                                 <UiTextarea
                                     id="text-content"
                                     v-model="text.content"
@@ -101,7 +106,7 @@
                 <UiCollapsible v-model:open="optionsOpen">
                     <UiCollapsibleTrigger as-child>
                         <UiButton variant="ghost" class="w-full justify-between">
-                            Options
+                            {{ $t('upload.options') }}
                             <IChevronDown
                                 :class="cn('transition-transform', optionsOpen && 'rotate-180')"
                             />
@@ -110,12 +115,12 @@
                     <UiCollapsibleContent>
                         <UiFieldGroup class="pt-4">
                             <UiField>
-                                <UiFieldLabel>Folder</UiFieldLabel>
+                                <UiFieldLabel>{{ $t('upload.folder') }}</UiFieldLabel>
                                 <FolderPicker v-model="settings.folder" />
                             </UiField>
 
                             <UiField v-if="tab === 'files'">
-                                <UiFieldLabel>File name</UiFieldLabel>
+                                <UiFieldLabel>{{ $t('upload.fileName') }}</UiFieldLabel>
                                 <UiTabs v-model="settings.fileNameType">
                                     <UiTabsList class="w-full">
                                         <UiTabsTrigger
@@ -123,7 +128,7 @@
                                             :key="type"
                                             :value="type"
                                         >
-                                            {{ type }}
+                                            {{ $t(`upload.fileNameType.${type.toLowerCase()}`) }}
                                         </UiTabsTrigger>
                                     </UiTabsList>
                                 </UiTabs>
@@ -131,7 +136,7 @@
 
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <UiField>
-                                    <UiFieldLabel>Expiration</UiFieldLabel>
+                                    <UiFieldLabel>{{ $t('upload.expiration') }}</UiFieldLabel>
                                     <UiSelect v-model="expiration">
                                         <UiSelectTrigger class="w-full">
                                             <UiSelectValue />
@@ -142,14 +147,14 @@
                                                 :key="option.label"
                                                 :value="option.label"
                                             >
-                                                {{ option.label }}
+                                                {{ $t(option.label) }}
                                             </UiSelectItem>
                                         </UiSelectContent>
                                     </UiSelect>
                                 </UiField>
 
                                 <UiField v-if="tab === 'files'">
-                                    <UiFieldLabel>Compression</UiFieldLabel>
+                                    <UiFieldLabel>{{ $t('upload.compression') }}</UiFieldLabel>
                                     <UiSelect v-model="settings.compression">
                                         <UiSelectTrigger class="w-full">
                                             <UiSelectValue />
@@ -160,14 +165,14 @@
                                                 :key="option.value"
                                                 :value="option.value"
                                             >
-                                                {{ option.label }}
+                                                {{ $t(option.label) }}
                                             </UiSelectItem>
                                         </UiSelectContent>
                                     </UiSelect>
                                 </UiField>
 
                                 <UiField>
-                                    <UiFieldLabel>Max views</UiFieldLabel>
+                                    <UiFieldLabel>{{ $t('upload.maxViews') }}</UiFieldLabel>
                                     <UiNumberField v-model="settings.maxViews" :min="0">
                                         <UiNumberFieldContent>
                                             <UiNumberFieldDecrement />
@@ -175,15 +180,19 @@
                                             <UiNumberFieldIncrement />
                                         </UiNumberFieldContent>
                                     </UiNumberField>
-                                    <UiFieldDescription>0 means unlimited.</UiFieldDescription>
+                                    <UiFieldDescription>
+                                        {{ $t('upload.maxViewsDescription') }}
+                                    </UiFieldDescription>
                                 </UiField>
 
                                 <UiField :class="tab === 'text' && 'sm:col-span-2'">
-                                    <UiFieldLabel for="upload-password">Password</UiFieldLabel>
+                                    <UiFieldLabel for="upload-password">
+                                        {{ $t('upload.password') }}
+                                    </UiFieldLabel>
                                     <PasswordInput
                                         id="upload-password"
                                         v-model="settings.password"
-                                        placeholder="Optional"
+                                        :placeholder="$t('upload.optional')"
                                     />
                                 </UiField>
                             </div>
@@ -198,7 +207,7 @@
                     {{ uploadLabel }}
                 </UiButton>
                 <UiSheetClose as-child>
-                    <UiButton variant="outline">Cancel</UiButton>
+                    <UiButton variant="outline">{{ $t('common.cancel') }}</UiButton>
                 </UiSheetClose>
             </UiSheetFooter>
         </UiSheetContent>
@@ -211,11 +220,12 @@ import { filesize } from 'filesize';
 const open = useUploadSheet();
 const { currentFolder, upload, copyUrls } = useUploader();
 const { $toast } = useNuxtApp();
+const { t, locale } = useI18n();
 
 const tab = ref<'files' | 'text'>('files');
 const optionsOpen = ref(false);
 const files = ref<File[]>([]);
-const expiration = ref('Never');
+const expiration = ref('labels.expiration.never');
 
 const fileNameTypes = ['Random', 'UUID', 'Original'] as const;
 
@@ -238,11 +248,7 @@ const canUpload = computed(() =>
 );
 
 const uploadLabel = computed(() =>
-    tab.value === 'text'
-        ? 'Create text file'
-        : files.value.length > 1
-          ? `Upload ${files.value.length} files`
-          : 'Upload',
+    tab.value === 'text' ? t('upload.createTextFile') : t('upload.uploadCount', files.value.length),
 );
 
 const addFiles = (newFiles: File[] | null) => {
@@ -278,8 +284,8 @@ const handleUpload = async () => {
 
     const { urls, failed } = await upload(uploadFiles, uploadSettings);
 
-    if (failed) $toast.error('Some files could not be uploaded');
-    else await copyUrls(urls, isText ? 'Text file created.' : 'Upload complete.');
+    if (failed) $toast.error(t('upload.someFailed'));
+    else await copyUrls(urls, t(isText ? 'upload.textCreated' : 'upload.uploadComplete'));
 };
 
 watch(open, (value) => {

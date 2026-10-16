@@ -5,7 +5,7 @@ export default defineNuxtRouteMiddleware(() => {
     if (!canUploadFiles(user)) {
         return abortNavigation({
             status: 403,
-            message: 'You do not have permission to access this page',
+            message: useNuxtApp().$i18n.t('auth.noPermission'),
         });
     }
 });

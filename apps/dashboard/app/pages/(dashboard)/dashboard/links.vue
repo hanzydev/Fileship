@@ -1,16 +1,16 @@
 <template>
     <Head>
-        <Title>Links</Title>
+        <Title>{{ $t('links.title') }}</Title>
     </Head>
 
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <PageHeader
-            title="Links"
-            :description="isLoading ? 'Loading...' : pluralize(total, 'short link')"
+            :title="$t('links.title')"
+            :description="isLoading ? $t('common.loading') : $t('links.count', total)"
         >
             <UiButton @click="handleOpen()">
                 <IPlus />
-                Shorten link
+                {{ $t('links.shorten') }}
             </UiButton>
         </PageHeader>
 
@@ -19,29 +19,27 @@
                 <UiSpinner v-if="!!search && isFetching" />
                 <ISearch v-else />
             </UiInputGroupAddon>
-            <UiInputGroupInput v-model="search" placeholder="Search links..." />
+            <UiInputGroupInput v-model="search" :placeholder="$t('links.searchPlaceholder')" />
         </UiInputGroup>
 
         <EmptyState
             v-if="isError"
             :icon="ICircleAlert"
-            title="Couldn't load short links"
-            description="Something went wrong. Check your connection and try again."
+            :title="$t('links.loadFailed')"
+            :description="$t('links.loadFailedDescription')"
         >
-            <UiButton variant="outline" @click="refresh">Try again</UiButton>
+            <UiButton variant="outline" @click="refresh">{{ $t('links.tryAgain') }}</UiButton>
         </EmptyState>
 
         <EmptyState
             v-else-if="!isLoading && !links.length"
             :icon="ILink"
-            :title="search ? 'No matching links' : 'No short links yet'"
-            :description="
-                search ? 'Try a different search.' : 'Shorten a link to share it with a short URL.'
-            "
+            :title="search ? $t('links.noMatches') : $t('links.empty')"
+            :description="search ? $t('links.noMatchesDescription') : $t('links.emptyDescription')"
         >
             <UiButton v-if="!search" @click="handleOpen()">
                 <IPlus />
-                Shorten link
+                {{ $t('links.shorten') }}
             </UiButton>
         </EmptyState>
 
@@ -58,7 +56,9 @@
         >
             <template #cell-code="{ item }">
                 <div class="flex min-w-0 items-center gap-2">
-                    <span class="truncate font-medium">/s/{{ item.code }}</span>
+                    <span class="truncate font-medium">
+                        {{ $t('links.codePrefix') }}{{ item.code }}
+                    </span>
                     <ILock v-if="item.password" class="size-3.5 shrink-0 text-muted-foreground" />
                 </div>
             </template>
@@ -72,12 +72,12 @@
             </template>
             <template #cell-expiresAt="{ item }">
                 <span class="block truncate text-muted-foreground">
-                    {{ item.expiresAt ? dayjs(item.expiresAt).fromNow() : 'Never' }}
+                    {{ item.expiresAt ? date(item.expiresAt).fromNow() : $t('links.never') }}
                 </span>
             </template>
             <template #cell-createdAt="{ item }">
                 <span class="block truncate text-muted-foreground">
-                    {{ dayjs(item.createdAt).fromNow() }}
+                    {{ date(item.createdAt).fromNow() }}
                 </span>
             </template>
             <template #cell-actions="{ item }">
@@ -85,14 +85,18 @@
                     <UiButton
                         variant="ghost"
                         size="icon-sm"
-                        aria-label="Copy link"
+                        :aria-label="$t('links.copy')"
                         @click="handleCopy(item)"
                     >
                         <ICopy />
                     </UiButton>
                     <UiDropdownMenu>
                         <UiDropdownMenuTrigger as-child>
-                            <UiButton variant="ghost" size="icon-sm">
+                            <UiButton
+                                variant="ghost"
+                                size="icon-sm"
+                                :aria-label="$t('common.more')"
+                            >
                                 <IEllipsis />
                             </UiButton>
                         </UiDropdownMenuTrigger>
@@ -100,17 +104,17 @@
                             <UiDropdownMenuItem as-child>
                                 <a :href="item.url" target="_blank" rel="noopener noreferrer">
                                     <IExternalLink />
-                                    Open target
+                                    {{ $t('links.openTarget') }}
                                 </a>
                             </UiDropdownMenuItem>
                             <UiDropdownMenuItem @select="handleOpen(item)">
                                 <IPencil />
-                                Edit
+                                {{ $t('links.edit') }}
                             </UiDropdownMenuItem>
                             <UiDropdownMenuSeparator />
                             <UiDropdownMenuItem variant="destructive" @select="handleDelete(item)">
                                 <ITrash2 />
-                                Delete
+                                {{ $t('links.delete') }}
                             </UiDropdownMenuItem>
                         </UiDropdownMenuContent>
                     </UiDropdownMenu>
@@ -125,16 +129,16 @@
                         <ILink class="size-4 shrink-0 text-muted-foreground" />
                         <div class="flex min-w-0 flex-1 flex-col">
                             <TextBlock variant="small" class="truncate">
-                                /s/{{ item.code }}
+                                {{ $t('links.codePrefix') }}{{ item.code }}
                             </TextBlock>
                             <TextBlock variant="muted" class="truncate text-xs">
-                                {{ pluralize(item.clicks, 'click') }} · {{ item.url }}
+                                {{ $t('links.clickCount', item.clicks) }} · {{ item.url }}
                             </TextBlock>
                         </div>
                         <UiButton
                             variant="ghost"
                             size="icon-sm"
-                            aria-label="Copy link"
+                            :aria-label="$t('links.copy')"
                             @click="handleCopy(item)"
                         >
                             <ICopy />
@@ -142,7 +146,7 @@
                         <UiButton
                             variant="ghost"
                             size="icon-sm"
-                            aria-label="Edit link"
+                            :aria-label="$t('links.editLink')"
                             @click="handleOpen(item)"
                         >
                             <IPencil />
@@ -157,55 +161,59 @@
         <UiDialogContent class="sm:max-w-md">
             <form class="flex flex-col gap-6" @submit.prevent="handleSave">
                 <UiDialogHeader>
-                    <UiDialogTitle>{{ dialog.link ? 'Edit link' : 'Shorten link' }}</UiDialogTitle>
+                    <UiDialogTitle>
+                        {{ dialog.link ? $t('links.editLink') : $t('links.shorten') }}
+                    </UiDialogTitle>
                     <UiDialogDescription>
                         {{
                             dialog.link
-                                ? 'Changes apply to the short link right away.'
-                                : 'The short link is copied to your clipboard when it is created.'
+                                ? $t('links.editDescription')
+                                : $t('links.createDescription')
                         }}
                     </UiDialogDescription>
                 </UiDialogHeader>
 
                 <UiFieldGroup class="grid gap-x-4 sm:grid-cols-2">
                     <UiField class="sm:col-span-2" :data-invalid="!!formErrors?.url">
-                        <UiFieldLabel for="link-url">URL</UiFieldLabel>
+                        <UiFieldLabel for="link-url">{{ $t('links.url') }}</UiFieldLabel>
                         <UiInput
                             id="link-url"
                             v-model="form.url"
-                            placeholder="https://example.com/a/very/long/link"
+                            :placeholder="$t('links.urlPlaceholder')"
                             autofocus
                         />
                         <UiFieldError v-if="formErrors?.url" :errors="formErrors.url._errors" />
                     </UiField>
 
                     <UiField class="sm:col-span-2" :data-invalid="!!formErrors?.code">
-                        <UiFieldLabel for="link-code">Short link</UiFieldLabel>
+                        <UiFieldLabel for="link-code">{{ $t('links.shortLink') }}</UiFieldLabel>
                         <UiInputGroup>
                             <UiInputGroupAddon>
-                                <UiInputGroupText>/s/</UiInputGroupText>
+                                <UiInputGroupText>{{ $t('links.codePrefix') }}</UiInputGroupText>
                             </UiInputGroupAddon>
                             <UiInputGroupInput
                                 id="link-code"
                                 v-model="form.code"
-                                placeholder="Random"
+                                :placeholder="$t('links.random')"
                             />
                         </UiInputGroup>
                         <UiFieldError v-if="formErrors?.code" :errors="formErrors.code._errors" />
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel for="link-password">Password</UiFieldLabel>
+                        <UiFieldLabel for="link-password">{{ $t('links.password') }}</UiFieldLabel>
                         <PasswordInput
                             id="link-password"
                             v-model="form.password"
-                            placeholder="Optional"
+                            :placeholder="$t('links.optional')"
                             autocomplete="off"
                         />
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel for="link-max-clicks">Max clicks</UiFieldLabel>
+                        <UiFieldLabel for="link-max-clicks">
+                            {{ $t('links.maxClicks') }}
+                        </UiFieldLabel>
                         <UiNumberField id="link-max-clicks" v-model="form.maxClicks" :min="0">
                             <UiNumberFieldContent>
                                 <UiNumberFieldDecrement />
@@ -216,7 +224,7 @@
                     </UiField>
 
                     <UiField class="sm:col-span-2">
-                        <UiFieldLabel>Expiration</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('links.expiration') }}</UiFieldLabel>
                         <UiSelect v-model="form.expiration">
                             <UiSelectTrigger class="w-full">
                                 <UiSelectValue />
@@ -227,24 +235,23 @@
                                     :key="option.label"
                                     :value="option.label"
                                 >
-                                    {{ option.label }}
+                                    {{ $t(option.label) }}
                                 </UiSelectItem>
                             </UiSelectContent>
                         </UiSelect>
                         <UiFieldDescription>
-                            The link stops working after this time or once it reaches its max
-                            clicks.
+                            {{ $t('links.expirationDescription') }}
                         </UiFieldDescription>
                     </UiField>
                 </UiFieldGroup>
 
                 <UiDialogFooter>
                     <UiButton type="button" variant="outline" @click="dialog.open = false">
-                        Cancel
+                        {{ $t('common.cancel') }}
                     </UiButton>
                     <UiButton type="submit" :disabled="isSaving || !form.url">
                         <UiSpinner v-if="isSaving" />
-                        {{ dialog.link ? 'Save' : 'Shorten' }}
+                        {{ dialog.link ? $t('links.save') : $t('links.shortenSubmit') }}
                     </UiButton>
                 </UiDialogFooter>
             </form>
@@ -253,13 +260,13 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
-
 import { ICircleAlert, ILink } from '#components';
 
 import type { LinkData } from '~/types/links';
 
 const route = useRoute();
+const { t } = useI18n();
+const date = useDate();
 const { $toast } = useNuxtApp();
 const { copy } = useClipboard({ legacy: true });
 
@@ -275,23 +282,23 @@ const form = reactive({
     code: '',
     password: '',
     maxClicks: 0,
-    expiration: 'Never',
+    expiration: 'labels.expiration.never',
 });
 
-const columns = [
-    { key: 'code', label: 'Short link', sortable: true, class: 'w-48' },
-    { key: 'url', label: 'Target' },
-    { key: 'clicks', label: 'Clicks', sortable: true, descFirst: true, class: 'w-24' },
-    { key: 'expiresAt', label: 'Expires', class: 'hidden w-32 lg:table-cell' },
+const columns = computed(() => [
+    { key: 'code', label: t('links.shortLink'), sortable: true, class: 'w-48' },
+    { key: 'url', label: t('links.target') },
+    { key: 'clicks', label: t('links.clicks'), sortable: true, descFirst: true, class: 'w-24' },
+    { key: 'expiresAt', label: t('links.expires'), class: 'hidden w-32 lg:table-cell' },
     {
         key: 'createdAt',
-        label: 'Created',
+        label: t('links.created'),
         sortable: true,
         descFirst: true,
         class: 'hidden w-32 xl:table-cell',
     },
     { key: 'actions', label: '', class: 'w-24' },
-];
+]);
 
 const {
     items: links,
@@ -309,7 +316,7 @@ const {
 
 const handleCopy = (link: LinkData) => {
     copy(link.shortUrl);
-    $toast.success('Link copied to clipboard');
+    $toast.success(t('links.copied'));
 };
 
 const handleOpen = (link?: LinkData) => {
@@ -349,10 +356,10 @@ const handleSave = async () => {
         dialog.open = false;
 
         if (dialog.link) {
-            $toast.success('Link saved');
+            $toast.success(t('links.saved'));
         } else {
             copy(link.shortUrl);
-            $toast.success('Short link copied to clipboard');
+            $toast.success(t('links.shortCopied'));
         }
     } catch (error: any) {
         formErrors.value = error.data?.data?.formErrors;
@@ -364,14 +371,14 @@ const handleSave = async () => {
 
 const handleDelete = async (link: LinkData) => {
     await askConfirmation({
-        title: `Delete /s/${link.code}?`,
-        description: 'The short link stops working right away.',
-        confirmText: 'Delete',
+        title: t('links.deleteTitle', { code: link.code }),
+        description: t('links.deleteDescription'),
+        confirmText: t('links.delete'),
         destructive: true,
         action: async () => {
             try {
                 await $fetch(`/api/links/${link.id}`, { method: 'DELETE' });
-                $toast.success('Link deleted');
+                $toast.success(t('links.deleted'));
             } catch (error: any) {
                 $toast.error(getErrorMessage(error));
                 return false;

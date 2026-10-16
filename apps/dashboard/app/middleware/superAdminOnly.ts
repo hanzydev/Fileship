@@ -5,7 +5,7 @@ export default defineNuxtRouteMiddleware(() => {
     if (!user.value.superAdmin) {
         return abortNavigation({
             status: 403,
-            message: 'You do not have permission to access this page',
+            message: useNuxtApp().$i18n.t('auth.noPermission'),
         });
     }
 });

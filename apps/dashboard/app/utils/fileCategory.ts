@@ -1,13 +1,13 @@
 import { IFile, IFileArchive, IFileCode, IFileText, IImage, IMusic, IVideo } from '#components';
 
 export const FILE_CATEGORIES = {
-    image: { label: 'Images', icon: IImage },
-    video: { label: 'Videos', icon: IVideo },
-    audio: { label: 'Audio', icon: IMusic },
-    document: { label: 'Documents', icon: IFileText },
-    archive: { label: 'Archives', icon: IFileArchive },
-    code: { label: 'Code', icon: IFileCode },
-    other: { label: 'Other', icon: IFile },
+    image: { label: 'labels.category.image', icon: IImage },
+    video: { label: 'labels.category.video', icon: IVideo },
+    audio: { label: 'labels.category.audio', icon: IMusic },
+    document: { label: 'labels.category.document', icon: IFileText },
+    archive: { label: 'labels.category.archive', icon: IFileArchive },
+    code: { label: 'labels.category.code', icon: IFileCode },
+    other: { label: 'labels.category.other', icon: IFile },
 };
 
 export type FileCategory = keyof typeof FILE_CATEGORIES;

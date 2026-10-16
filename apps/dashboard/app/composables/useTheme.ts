@@ -5,7 +5,7 @@ export const useTheme = () => {
 export const updateTheme = async (theme: Accent) => {
     const currentTheme = useTheme();
     const currentUser = useAuthUser();
-    const { $toast } = useNuxtApp();
+    const { $toast, $i18n } = useNuxtApp();
 
     const previousTheme = currentTheme.value;
     if (previousTheme === theme) return;
@@ -19,6 +19,6 @@ export const updateTheme = async (theme: Accent) => {
         });
     } catch {
         currentTheme.value = previousTheme;
-        $toast.error('Failed to update theme');
+        $toast.error($i18n.t('actions.themeFailed'));
     }
 };

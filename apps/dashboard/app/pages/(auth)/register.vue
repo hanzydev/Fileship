@@ -1,26 +1,28 @@
 <template>
     <div>
         <Head>
-            <Title>Sign up</Title>
+            <Title>{{ $t('auth.register.title') }}</Title>
         </Head>
         <Centered>
             <UiCard class="w-full max-w-sm">
                 <UiCardHeader>
-                    <UiCardTitle>Create an account</UiCardTitle>
+                    <UiCardTitle>{{ $t('auth.register.heading') }}</UiCardTitle>
                     <UiCardDescription>
-                        Enter your details below to create your account.
+                        {{ $t('auth.register.description') }}
                     </UiCardDescription>
                 </UiCardHeader>
                 <UiCardContent>
                     <form @submit.prevent="handleSubmit">
                         <UiFieldGroup>
                             <UiField>
-                                <UiFieldLabel for="username">Username</UiFieldLabel>
+                                <UiFieldLabel for="username">
+                                    {{ $t('auth.username') }}
+                                </UiFieldLabel>
                                 <UiInput
                                     id="username"
                                     v-model="form.username"
                                     type="text"
-                                    placeholder="username"
+                                    :placeholder="$t('auth.usernamePlaceholder')"
                                     autocomplete="username"
                                     autofocus
                                 />
@@ -30,7 +32,9 @@
                                 />
                             </UiField>
                             <UiField>
-                                <UiFieldLabel for="password">Password</UiFieldLabel>
+                                <UiFieldLabel for="password">
+                                    {{ $t('auth.password') }}
+                                </UiFieldLabel>
                                 <PasswordInput
                                     id="password"
                                     v-model="form.password"
@@ -41,11 +45,13 @@
                                     :errors="formErrors.password._errors"
                                 />
                                 <UiFieldDescription v-else>
-                                    Must be at least 8 characters long.
+                                    {{ $t('auth.register.passwordHint') }}
                                 </UiFieldDescription>
                             </UiField>
                             <UiField>
-                                <UiFieldLabel for="confirm-password">Confirm password</UiFieldLabel>
+                                <UiFieldLabel for="confirm-password">
+                                    {{ $t('auth.register.confirmPassword') }}
+                                </UiFieldLabel>
                                 <PasswordInput
                                     id="confirm-password"
                                     v-model="form.confirm"
@@ -66,11 +72,11 @@
                             <UiField>
                                 <UiButton type="submit" :disabled="isRegistering">
                                     <UiSpinner v-if="isRegistering" />
-                                    Create account
+                                    {{ $t('auth.register.submit') }}
                                 </UiButton>
                                 <UiFieldDescription class="text-center">
-                                    Already have an account?
-                                    <NuxtLink to="/login">Login</NuxtLink>
+                                    {{ $t('auth.register.haveAccount') }}
+                                    <NuxtLink to="/login">{{ $t('auth.register.logIn') }}</NuxtLink>
                                 </UiFieldDescription>
                             </UiField>
                         </UiFieldGroup>
@@ -88,6 +94,7 @@ const isRegistering = ref(false);
 
 const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 
 const currentUser = useAuthUser();
 const currentTheme = useTheme();
@@ -108,7 +115,7 @@ const handleSubmit = async () => {
     formErrors.value = {};
 
     if (form.password !== form.confirm) {
-        formErrors.value = { confirm: { _errors: ['Passwords do not match'] } };
+        formErrors.value = { confirm: { _errors: [t('auth.register.passwordMismatch')] } };
         return;
     }
 
@@ -134,7 +141,7 @@ const handleSubmit = async () => {
 
         await navigateTo('/dashboard');
 
-        $toast.success('Account created');
+        $toast.success(t('auth.register.success'));
     } catch (error: any) {
         formErrors.value = error.data?.data?.formErrors;
         if (!formErrors.value) $toast.error(getErrorMessage(error));

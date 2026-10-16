@@ -11,7 +11,7 @@
 
         <ViewHeader
             :title="data!.title"
-            :subtitle="dayjs(data!.createdAt).format('MMM D, YYYY')"
+            :subtitle="date(data!.createdAt).format('ll')"
             content-class="max-w-3xl"
         >
             <UiToggleGroup
@@ -21,16 +21,16 @@
                 :model-value="previewMode ? 'preview' : 'raw'"
                 @update:model-value="$event && (previewMode = $event === 'preview')"
             >
-                <UiToggleGroupItem value="preview" aria-label="Preview">
+                <UiToggleGroupItem value="preview" :aria-label="$t('view.preview')">
                     <IEye />
                 </UiToggleGroupItem>
-                <UiToggleGroupItem value="raw" aria-label="Raw">
+                <UiToggleGroupItem value="raw" :aria-label="$t('view.raw')">
                     <ICode />
                 </UiToggleGroupItem>
             </UiToggleGroup>
             <UiButton size="sm" @click="handleCopy">
                 <ICopy />
-                <span class="hidden sm:inline">Copy</span>
+                <span class="hidden sm:inline">{{ $t('view.copy') }}</span>
             </UiButton>
         </ViewHeader>
 
@@ -48,12 +48,12 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
-
 import type { NoteData } from '~/types/notes';
 
 const route = useRoute();
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
+const date = useDate();
 const { copy } = useClipboard({ legacy: true });
 
 const { data, error } = await useFetch<NoteData & { embed: Pick<IEmbed, 'enabled' | 'color'> }>(
@@ -61,11 +61,11 @@ const { data, error } = await useFetch<NoteData & { embed: Pick<IEmbed, 'enabled
 );
 
 if (error.value?.status === 404) {
-    throw createError({ status: 404, message: 'Note not found' });
+    throw createError({ status: 404, message: t('view.noteNotFound') });
 } else if (error.value?.status === 403) {
     throw createError({
         status: 403,
-        message: 'You do not have permission to access this page',
+        message: t('view.noPermission'),
     });
 }
 
@@ -73,6 +73,6 @@ const previewMode = ref(true);
 
 const handleCopy = () => {
     copy(data.value!.content);
-    $toast.success('Note copied to clipboard');
+    $toast.success(t('view.noteCopied'));
 };
 </script>

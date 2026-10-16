@@ -1,18 +1,20 @@
 <template>
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>AI</UiCardTitle>
+            <UiCardTitle>{{ $t('settings.ai.title') }}</UiCardTitle>
             <UiCardDescription>
-                Captions, smart search and sensitive content detection for your files.
+                {{ $t('settings.ai.description') }}
             </UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
             <UiFieldGroup>
                 <UiField orientation="horizontal">
                     <UiFieldContent>
-                        <UiFieldLabel for="ai-enabled">AI features</UiFieldLabel>
+                        <UiFieldLabel for="ai-enabled">
+                            {{ $t('settings.ai.enabled') }}
+                        </UiFieldLabel>
                         <UiFieldDescription>
-                            Analyze uploads to enable captions and smart search.
+                            {{ $t('settings.ai.enabledDescription') }}
                         </UiFieldDescription>
                     </UiFieldContent>
                     <UiSwitch
@@ -25,9 +27,11 @@
                 <UiFieldSeparator />
                 <UiField orientation="horizontal">
                     <UiFieldContent>
-                        <UiFieldLabel for="ai-pii">Hide sensitive previews</UiFieldLabel>
+                        <UiFieldLabel for="ai-pii">
+                            {{ $t('settings.ai.suppressPii') }}
+                        </UiFieldLabel>
                         <UiFieldDescription>
-                            Blur image previews that may contain personal information.
+                            {{ $t('settings.ai.suppressPiiDescription') }}
                         </UiFieldDescription>
                     </UiFieldContent>
                     <UiSwitch
@@ -43,6 +47,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n();
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
 
@@ -55,7 +60,7 @@ const handleUpdate = async (body: { enabled?: boolean; suppressPii?: boolean }) 
 
     try {
         await $fetch('/api/users/@me/ai-settings', { method: 'PATCH', body });
-        $toast.success('AI settings saved');
+        $toast.success(t('settings.ai.saved'));
     } catch (error: any) {
         currentUser.value!.aiSettings = previous;
         $toast.error(getErrorMessage(error));

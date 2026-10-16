@@ -1,18 +1,19 @@
 import type { FolderData } from '~/types/folders';
 
 export const useFolderActions = () => {
-    const { $toast } = useNuxtApp();
+    const { $toast, $i18n } = useNuxtApp();
+    const { t } = $i18n;
     const { copy } = useClipboard({ legacy: true });
     const { isEnabled, deleteConfirmation, notifyDeleted } = useTrash();
 
     const copyLink = (folder: FolderData) => {
         copy(folder.publicUrl!);
-        $toast.success('Link copied to clipboard');
+        $toast.success(t('actions.linkCopied'));
     };
 
     const togglePublic = async (folder: FolderData) => {
         const id = $toast.loading(
-            folder.public ? 'Making folder private...' : 'Making folder public...',
+            t(folder.public ? 'actions.folder.makingPrivate' : 'actions.folder.makingPublic'),
         );
 
         try {
@@ -21,9 +22,10 @@ export const useFolderActions = () => {
                 body: { public: !folder.public },
             });
 
-            $toast.success(folder.public ? 'Folder is now private' : 'Folder is now public', {
-                id,
-            });
+            $toast.success(
+                t(folder.public ? 'actions.folder.nowPrivate' : 'actions.folder.nowPublic'),
+                { id },
+            );
         } catch (error: any) {
             $toast.error(getErrorMessage(error), { id });
         }
@@ -31,9 +33,11 @@ export const useFolderActions = () => {
 
     const remove = async (folder: FolderData) => {
         const option = reactive({
-            label: isEnabled.value
-                ? 'Also move the files inside to trash'
-                : 'Also delete the files inside',
+            label: t(
+                isEnabled.value
+                    ? 'actions.folder.alsoTrashFiles'
+                    : 'actions.folder.alsoDeleteFiles',
+            ),
             value: true,
         });
 
@@ -47,9 +51,12 @@ export const useFolderActions = () => {
                         body: { deleteFilesToo: option.value },
                     });
 
-                    notifyDeleted(option.value ? 'Folder and its files' : 'Folder', {
-                        folders: [folder.id],
-                    });
+                    notifyDeleted(
+                        t(option.value ? 'actions.folder.labelWithFiles' : 'actions.folder.label'),
+                        {
+                            folders: [folder.id],
+                        },
+                    );
                 } catch (error: any) {
                     $toast.error(getErrorMessage(error));
                     return false;

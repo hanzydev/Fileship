@@ -1,8 +1,8 @@
 import type { FolderData } from '~/types/folders';
 
 export const downloadFolder = async (folder: FolderData) => {
-    const { $toast } = useNuxtApp();
-    const id = $toast.loading('Preparing archive...');
+    const { $toast, $i18n } = useNuxtApp();
+    const id = $toast.loading($i18n.t('actions.folder.preparingArchive'));
 
     try {
         const { jobId } = await $fetch(`/api/folders/${folder.id}/archive`, {
@@ -11,7 +11,7 @@ export const downloadFolder = async (folder: FolderData) => {
 
         const handleDownload = () => {
             downloadFile(`/api/folders/${folder.id}/archive/jobs/${jobId}/download`);
-            $toast.success('Archive ready, downloading', { id });
+            $toast.success($i18n.t('actions.folder.archiveReady'), { id });
         };
 
         const interval = setInterval(async () => {

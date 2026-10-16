@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs';
 import { copyFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
@@ -10,6 +11,11 @@ const aiWorkerPath = join(
     dirname(createRequire(import.meta.url).resolve('@fileship/ai/package.json')),
     'dist/worker.mjs',
 );
+
+const localeFiles = (locale: string) =>
+    readdirSync(new URL(`./i18n/locales/${locale}`, import.meta.url)).map(
+        (file) => `${locale}/${file}`,
+    );
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -42,6 +48,21 @@ export default defineNuxtConfig({
         'highlight.js/styles/tokyo-night-dark.css',
     ],
 
+    i18n: {
+        locales: [
+            { code: 'en', language: 'en-US', name: 'English', files: localeFiles('en') },
+            { code: 'tr', language: 'tr-TR', name: 'Türkçe', files: localeFiles('tr') },
+        ],
+        detectBrowserLanguage: {
+            useCookie: true,
+            cookieKey: 'fileship_locale',
+            fallbackLocale: 'en',
+        },
+        experimental: {
+            localeDetector: 'localeDetector.ts',
+        },
+    },
+
     imports: {
         autoImport: true,
     },
@@ -58,6 +79,7 @@ export default defineNuxtConfig({
         experimental: {
             websocket: true,
             tasks: true,
+            asyncContext: true,
         },
         esbuild: {
             options: {
@@ -146,9 +168,6 @@ export default defineNuxtConfig({
         },
         head: {
             title: 'Fileship',
-            htmlAttrs: {
-                lang: 'en',
-            },
             link: [
                 {
                     rel: 'icon',
@@ -183,7 +202,9 @@ export default defineNuxtConfig({
             include: [
                 '@unovis/vue',
                 'dayjs', // CJS
+                'dayjs/locale/tr', // CJS
                 'dayjs/plugin/duration', // CJS
+                'dayjs/plugin/localizedFormat', // CJS
                 'dayjs/plugin/relativeTime', // CJS
                 'filesize',
                 'highlight.js',

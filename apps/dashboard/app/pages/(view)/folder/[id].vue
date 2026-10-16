@@ -14,10 +14,14 @@
                     >
                         <UiSpinner v-if="isDownloading" />
                         <IDownload v-else />
-                        <span class="hidden sm:inline">Download all</span>
+                        <span class="hidden sm:inline">
+                            {{ $t('publicPages.folder.downloadAll') }}
+                        </span>
                     </UiButton>
                 </UiTooltipTrigger>
-                <UiTooltipContent>Locked files are not included</UiTooltipContent>
+                <UiTooltipContent>
+                    {{ $t('publicPages.folder.lockedNotIncluded') }}
+                </UiTooltipContent>
             </UiTooltip>
         </ViewHeader>
 
@@ -27,7 +31,7 @@
                     v-model="search"
                     v-model:ai="aiSearch"
                     class="lg:flex-1"
-                    placeholder="Search files..."
+                    :placeholder="$t('publicPages.folder.searchPlaceholder')"
                     :loading="!!search && isFetching"
                     :ai-available="!!data!.authorId"
                 />
@@ -36,7 +40,7 @@
                         <UiDropdownMenuTrigger as-child>
                             <UiButton variant="outline">
                                 <IListFilter />
-                                Type
+                                {{ $t('publicPages.folder.type') }}
                                 <UiBadge v-if="typeFilter.length" variant="secondary">
                                     {{ typeFilter.length }}
                                 </UiBadge>
@@ -44,7 +48,9 @@
                             </UiButton>
                         </UiDropdownMenuTrigger>
                         <UiDropdownMenuContent align="start" class="w-56">
-                            <UiDropdownMenuLabel>File type</UiDropdownMenuLabel>
+                            <UiDropdownMenuLabel>
+                                {{ $t('publicPages.folder.fileType') }}
+                            </UiDropdownMenuLabel>
                             <UiDropdownMenuCheckboxItem
                                 v-for="(category, key) in FILE_CATEGORIES"
                                 :key="key"
@@ -53,13 +59,13 @@
                                 @select.prevent
                             >
                                 <component :is="category.icon" />
-                                {{ category.label }}
+                                {{ $t(category.label) }}
                             </UiDropdownMenuCheckboxItem>
                             <template v-if="typeFilter.length">
                                 <UiDropdownMenuSeparator />
                                 <UiDropdownMenuItem @select="typeFilter = []">
                                     <IX />
-                                    Clear filter
+                                    {{ $t('publicPages.folder.clearFilter') }}
                                 </UiDropdownMenuItem>
                             </template>
                         </UiDropdownMenuContent>
@@ -76,7 +82,9 @@
                             </UiButton>
                         </UiDropdownMenuTrigger>
                         <UiDropdownMenuContent align="start" class="w-56">
-                            <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
+                            <UiDropdownMenuLabel>
+                                {{ $t('publicPages.folder.sortBy') }}
+                            </UiDropdownMenuLabel>
                             <UiDropdownMenuRadioGroup v-model="sortValue">
                                 <UiDropdownMenuRadioItem
                                     v-for="option in sortOptions"
@@ -101,25 +109,29 @@
             <EmptyState
                 v-else-if="isError"
                 :icon="ICircleAlert"
-                title="Couldn't load files"
-                description="Something went wrong. Check your connection and try again."
+                :title="$t('publicPages.folder.loadFailed')"
+                :description="$t('publicPages.folder.loadFailedDescription')"
             >
-                <UiButton variant="outline" @click="refresh">Try again</UiButton>
+                <UiButton variant="outline" @click="refresh">
+                    {{ $t('publicPages.folder.tryAgain') }}
+                </UiButton>
             </EmptyState>
 
             <EmptyState
                 v-else-if="!files.length && !isFiltered"
                 :icon="IFolderOpen"
-                title="This folder is empty"
+                :title="$t('publicPages.folder.empty')"
             />
 
             <EmptyState
                 v-else-if="!files.length"
                 :icon="ISearchX"
-                title="No matching files"
-                description="Try a different search or clear your filters."
+                :title="$t('publicPages.folder.noMatches')"
+                :description="$t('publicPages.folder.noMatchesDescription')"
             >
-                <UiButton variant="outline" @click="handleClearFilters">Clear filters</UiButton>
+                <UiButton variant="outline" @click="handleClearFilters">
+                    {{ $t('publicPages.folder.clearFilters') }}
+                </UiButton>
             </EmptyState>
 
             <VirtualList
@@ -151,7 +163,7 @@
                                 >
                                     <ILock class="size-8" />
                                     <TextBlock variant="muted" class="text-xs">
-                                        Password protected
+                                        {{ $t('publicPages.folder.passwordProtected') }}
                                     </TextBlock>
                                 </div>
                                 <img
@@ -262,13 +274,13 @@
                     <UiButton variant="outline" as-child>
                         <a :href="withPassword(shownFile, shownFile.embedUrl)" target="_blank">
                             <IExternalLink />
-                            Open
+                            {{ $t('publicPages.folder.open') }}
                         </a>
                     </UiButton>
                     <UiButton as-child>
                         <a :href="withPassword(shownFile, shownFile.directUrl, true)" download>
                             <IDownload />
-                            Download
+                            {{ $t('publicPages.folder.download') }}
                         </a>
                     </UiButton>
                 </UiDialogFooter>
@@ -284,11 +296,13 @@
                             <span class="truncate">{{ shownUnlock.name }}</span>
                         </UiDialogTitle>
                         <UiDialogDescription>
-                            This file is password protected. Enter the password to open it.
+                            {{ $t('publicPages.folder.unlockDescription') }}
                         </UiDialogDescription>
                     </UiDialogHeader>
                     <UiField :data-invalid="!!unlockError">
-                        <UiFieldLabel for="unlock-password">Password</UiFieldLabel>
+                        <UiFieldLabel for="unlock-password">
+                            {{ $t('publicPages.folder.password') }}
+                        </UiFieldLabel>
                         <PasswordInput
                             id="unlock-password"
                             v-model="unlockPassword"
@@ -299,11 +313,11 @@
                     </UiField>
                     <UiDialogFooter>
                         <UiButton type="button" variant="outline" @click="unlockTarget = null">
-                            Cancel
+                            {{ $t('common.cancel') }}
                         </UiButton>
                         <UiButton type="submit" :disabled="!unlockPassword || isUnlocking">
                             <UiSpinner v-if="isUnlocking" />
-                            Open
+                            {{ $t('publicPages.folder.open') }}
                         </UiButton>
                     </UiDialogFooter>
                 </form>
@@ -319,6 +333,7 @@ import type { FileData } from '~/types/files';
 import type { FolderData } from '~/types/folders';
 
 const route = useRoute();
+const { t } = useI18n();
 
 type PublicFile = FileData & { isLocked: boolean };
 
@@ -330,7 +345,7 @@ const { data, error } = await useFetch<FolderData & { embed: IEmbed; lockedCount
 );
 
 if (error.value) {
-    throw createError({ status: 404, message: 'Folder not found' });
+    throw createError({ status: 404, message: t('publicPages.folder.notFound') });
 }
 
 const search = ref('');
@@ -347,20 +362,24 @@ const unlockPassword = ref('');
 const unlockError = ref('');
 const isUnlocking = ref(false);
 
-const subtitle = computed(() =>
-    data.value!.lockedCount
-        ? `${pluralize(data.value!.fileCount, 'file')} · ${data.value!.lockedCount} locked`
-        : pluralize(data.value!.fileCount, 'file'),
-);
+const subtitle = computed(() => {
+    const files = t('publicPages.folder.fileCount', data.value!.fileCount);
+
+    return data.value!.lockedCount
+        ? t('publicPages.folder.summaryLocked', { files, locked: data.value!.lockedCount })
+        : files;
+});
 
 const sortOptions = computed(() => [
-    ...(search.value.trim() ? [{ label: 'Relevance', value: 'relevance' }] : []),
-    { label: 'Newest', value: 'createdAt:desc' },
-    { label: 'Oldest', value: 'createdAt:asc' },
-    { label: 'Name A–Z', value: 'name:asc' },
-    { label: 'Name Z–A', value: 'name:desc' },
-    { label: 'Largest', value: 'size:desc' },
-    { label: 'Smallest', value: 'size:asc' },
+    ...(search.value.trim()
+        ? [{ label: t('publicPages.folder.sort.relevance'), value: 'relevance' }]
+        : []),
+    { label: t('publicPages.folder.sort.newest'), value: 'createdAt:desc' },
+    { label: t('publicPages.folder.sort.oldest'), value: 'createdAt:asc' },
+    { label: t('publicPages.folder.sort.nameAsc'), value: 'name:asc' },
+    { label: t('publicPages.folder.sort.nameDesc'), value: 'name:desc' },
+    { label: t('publicPages.folder.sort.largest'), value: 'size:desc' },
+    { label: t('publicPages.folder.sort.smallest'), value: 'size:asc' },
 ]);
 
 const sortValue = computed({

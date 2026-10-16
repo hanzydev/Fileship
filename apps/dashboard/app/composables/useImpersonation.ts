@@ -3,7 +3,7 @@ export const useImpersonation = () => {
     const domains = useDomains();
     const currentUser = useAuthUser();
     const currentTheme = useTheme();
-    const { $toast } = useNuxtApp();
+    const { $toast, $i18n } = useNuxtApp();
 
     const loadAccountData = async () => {
         [embed.value, domains.value] = await Promise.all([
@@ -23,7 +23,7 @@ export const useImpersonation = () => {
         if (!result) return;
 
         const { user, session } = result as any;
-        const id = $toast.loading(`Signing in as ${user.username}...`);
+        const id = $toast.loading($i18n.t('actions.signingInAs', { username: user.username }));
 
         currentUser.value = {
             ...user,
@@ -32,6 +32,7 @@ export const useImpersonation = () => {
             createdAt: new Date(user.createdAt),
         };
         currentTheme.value = user.theme;
+        await applyLanguage(user.language);
 
         clearStates(true);
 
@@ -56,6 +57,7 @@ export const useImpersonation = () => {
 
         currentUser.value = { ...user, createdAt: new Date(user.createdAt) };
         currentTheme.value = user.theme;
+        await applyLanguage(user.language);
 
         clearStates(true);
 

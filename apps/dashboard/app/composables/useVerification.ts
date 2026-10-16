@@ -29,6 +29,8 @@ export const withVerification = async <T>(action: (verificationData?: unknown) =
 
         verificationState.value?.cancel();
 
+        const { $i18n } = useNuxtApp();
+
         return new Promise<NonNullable<T> | null>((resolve, reject) => {
             verificationState.value = {
                 methods,
@@ -49,7 +51,7 @@ export const withVerification = async <T>(action: (verificationData?: unknown) =
                         }
 
                         verificationState.value!.error =
-                            error.data?.message || 'Verification failed';
+                            error.data?.message || $i18n.t('actions.verificationFailed');
                         verificationState.value!.isSubmitting = false;
                     }
                 },

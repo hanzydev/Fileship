@@ -6,7 +6,7 @@
                 v-model="searchInputValue"
                 v-model:ai="aiSearch"
                 class="xl:flex-1"
-                placeholder="Search files..."
+                :placeholder="$t('files.searchPlaceholder')"
                 :loading="
                     !!searchInputValue.trim() && (isFetching || searchInputValue.trim() !== query)
                 "
@@ -23,11 +23,13 @@
                         </UiButton>
                     </UiDropdownMenuTrigger>
                     <UiDropdownMenuContent align="start" class="w-56">
-                        <UiDropdownMenuLabel>Folder</UiDropdownMenuLabel>
+                        <UiDropdownMenuLabel>{{ $t('files.folder') }}</UiDropdownMenuLabel>
                         <UiDropdownMenuRadioGroup v-model="folderFilter">
-                            <UiDropdownMenuRadioItem value="all">All files</UiDropdownMenuRadioItem>
+                            <UiDropdownMenuRadioItem value="all">
+                                {{ $t('files.allFiles') }}
+                            </UiDropdownMenuRadioItem>
                             <UiDropdownMenuRadioItem value="none">
-                                Not in a folder
+                                {{ $t('files.notInFolder') }}
                             </UiDropdownMenuRadioItem>
                             <template v-if="folders.length">
                                 <UiDropdownMenuSeparator />
@@ -54,7 +56,7 @@
                     <UiDropdownMenuTrigger as-child>
                         <UiButton variant="outline">
                             <IListFilter />
-                            Type
+                            {{ $t('files.type') }}
                             <UiBadge v-if="typeFilter.length" variant="secondary">
                                 {{ typeFilter.length }}
                             </UiBadge>
@@ -62,7 +64,7 @@
                         </UiButton>
                     </UiDropdownMenuTrigger>
                     <UiDropdownMenuContent align="start" class="w-56">
-                        <UiDropdownMenuLabel>File type</UiDropdownMenuLabel>
+                        <UiDropdownMenuLabel>{{ $t('files.fileType') }}</UiDropdownMenuLabel>
                         <UiDropdownMenuCheckboxItem
                             v-for="(category, key) in FILE_CATEGORIES"
                             :key="key"
@@ -71,7 +73,7 @@
                             @select.prevent
                         >
                             <component :is="category.icon" />
-                            {{ category.label }}
+                            {{ $t(category.label) }}
                             <UiDropdownMenuShortcut>
                                 {{ summary?.categories[key] }}
                             </UiDropdownMenuShortcut>
@@ -80,7 +82,7 @@
                             <UiDropdownMenuSeparator />
                             <UiDropdownMenuItem @select="typeFilter = []">
                                 <IX />
-                                Clear filter
+                                {{ $t('files.clearFilter') }}
                             </UiDropdownMenuItem>
                         </template>
                     </UiDropdownMenuContent>
@@ -95,7 +97,7 @@
                         </UiButton>
                     </UiDropdownMenuTrigger>
                     <UiDropdownMenuContent align="start" class="w-56">
-                        <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
+                        <UiDropdownMenuLabel>{{ $t('files.sortBy') }}</UiDropdownMenuLabel>
                         <UiDropdownMenuRadioGroup v-model="sortValue">
                             <UiDropdownMenuRadioItem
                                 v-for="option in sortOptions"
@@ -115,10 +117,10 @@
                     :model-value="view"
                     @update:model-value="$event && (view = $event as never)"
                 >
-                    <UiToggleGroupItem value="grid" aria-label="Grid view">
+                    <UiToggleGroupItem value="grid" :aria-label="$t('files.gridView')">
                         <ILayoutGrid />
                     </UiToggleGroupItem>
-                    <UiToggleGroupItem value="list" aria-label="List view">
+                    <UiToggleGroupItem value="list" :aria-label="$t('files.listView')">
                         <IList />
                     </UiToggleGroupItem>
                 </UiToggleGroup>
@@ -135,31 +137,33 @@
         <EmptyState
             v-else-if="isError"
             :icon="ICircleAlert"
-            title="Couldn't load files"
-            description="Something went wrong. Check your connection and try again."
+            :title="$t('files.loadFailed')"
+            :description="$t('files.loadFailedDescription')"
         >
-            <UiButton variant="outline" @click="refresh">Try again</UiButton>
+            <UiButton variant="outline" @click="refresh">{{ $t('files.tryAgain') }}</UiButton>
         </EmptyState>
 
         <EmptyState
             v-else-if="!isLoading && !files.length && !isFiltered"
             :icon="IFiles"
-            :title="emptyTitle"
-            description="Upload files with the button above, drop them anywhere or paste an image."
+            :title="emptyTitle || $t('files.empty')"
+            :description="$t('files.emptyDescription')"
         >
             <UiButton @click="uploadSheetOpen = true">
                 <IUpload />
-                Upload files
+                {{ $t('files.uploadFiles') }}
             </UiButton>
         </EmptyState>
 
         <EmptyState
             v-else-if="!isLoading && !files.length"
             :icon="ISearchX"
-            title="No matching files"
-            description="Try a different search or clear your filters."
+            :title="$t('files.noMatches')"
+            :description="$t('files.noMatchesDescription')"
         >
-            <UiButton variant="outline" @click="handleClearFilters">Clear filters</UiButton>
+            <UiButton variant="outline" @click="handleClearFilters">
+                {{ $t('files.clearFilters') }}
+            </UiButton>
         </EmptyState>
 
         <VirtualList
@@ -220,11 +224,11 @@
             </template>
             <template #cell-type="{ item }">
                 <UiBadge variant="secondary">
-                    {{ FILE_CATEGORIES[getFileCategory(item)].label }}
+                    {{ $t(FILE_CATEGORIES[getFileCategory(item)].label) }}
                 </UiBadge>
             </template>
             <template #cell-size="{ item }">
-                <span class="block truncate">{{ item.size.formatted }}</span>
+                <span class="block truncate">{{ filesize(+item.size.raw, { locale }) }}</span>
             </template>
             <template #cell-views="{ item }">{{ item.views.total }}</template>
             <template #cell-folder="{ item }">
@@ -234,7 +238,7 @@
             </template>
             <template #cell-createdAt="{ item }">
                 <span class="block truncate text-muted-foreground">
-                    {{ dayjs(item.createdAt).fromNow() }}
+                    {{ date(item.createdAt).fromNow() }}
                 </span>
             </template>
             <template #cell-actions="{ item }">
@@ -278,7 +282,8 @@
                                 {{ item.name }}
                             </TextBlock>
                             <TextBlock variant="muted" class="truncate text-xs">
-                                {{ item.size.formatted }} · {{ dayjs(item.createdAt).fromNow() }}
+                                {{ filesize(+item.size.raw, { locale }) }} ·
+                                {{ date(item.createdAt).fromNow() }}
                             </TextBlock>
                         </div>
                         <UiCheckbox
@@ -306,17 +311,20 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
+import { filesize } from 'filesize';
 
 import { ICircleAlert, IFiles, ISearchX } from '#components';
 
 import type { FileData, FileSummary } from '~/types/files';
 import type { FolderData } from '~/types/folders';
 
-const { folderId, emptyTitle = 'No files yet' } = defineProps<{
+const { folderId, emptyTitle } = defineProps<{
     folderId?: string;
     emptyTitle?: string;
 }>();
+
+const { t, locale } = useI18n();
+const date = useDate();
 
 const summary = defineModel<FileSummary>('summary');
 
@@ -350,39 +358,39 @@ const canUseAi = computed(
 );
 
 const sortOptions = computed(() => [
-    ...(query.value ? [{ label: 'Relevance', value: 'relevance' }] : []),
-    { label: 'Newest', value: 'createdAt:desc' },
-    { label: 'Oldest', value: 'createdAt:asc' },
-    { label: 'Name A–Z', value: 'name:asc' },
-    { label: 'Name Z–A', value: 'name:desc' },
-    { label: 'Largest', value: 'size:desc' },
-    { label: 'Smallest', value: 'size:asc' },
-    { label: 'Most viewed', value: 'views:desc' },
-    { label: 'Least viewed', value: 'views:asc' },
+    ...(query.value ? [{ label: t('files.sort.relevance'), value: 'relevance' }] : []),
+    { label: t('files.sort.newest'), value: 'createdAt:desc' },
+    { label: t('files.sort.oldest'), value: 'createdAt:asc' },
+    { label: t('files.sort.nameAsc'), value: 'name:asc' },
+    { label: t('files.sort.nameDesc'), value: 'name:desc' },
+    { label: t('files.sort.largest'), value: 'size:desc' },
+    { label: t('files.sort.smallest'), value: 'size:asc' },
+    { label: t('files.sort.mostViewed'), value: 'views:desc' },
+    { label: t('files.sort.leastViewed'), value: 'views:asc' },
 ]);
 
-const columns = [
+const columns = computed(() => [
     { key: 'select', label: '', class: 'w-10' },
-    { key: 'name', label: 'Name', sortable: true },
-    { key: 'type', label: 'Type', class: 'hidden w-32 lg:table-cell' },
-    { key: 'size', label: 'Size', sortable: true, descFirst: true, class: 'w-28' },
+    { key: 'name', label: t('files.columns.name'), sortable: true },
+    { key: 'type', label: t('files.columns.type'), class: 'hidden w-32 lg:table-cell' },
+    { key: 'size', label: t('files.columns.size'), sortable: true, descFirst: true, class: 'w-28' },
     {
         key: 'views',
-        label: 'Views',
+        label: t('files.columns.views'),
         sortable: true,
         descFirst: true,
         class: 'hidden w-24 lg:table-cell',
     },
-    { key: 'folder', label: 'Folder', class: 'hidden w-44 xl:table-cell' },
+    { key: 'folder', label: t('files.columns.folder'), class: 'hidden w-44 xl:table-cell' },
     {
         key: 'createdAt',
-        label: 'Uploaded',
+        label: t('files.columns.uploaded'),
         sortable: true,
         descFirst: true,
         class: 'hidden w-36 lg:table-cell',
     },
     { key: 'actions', label: '', class: 'w-16' },
-];
+]);
 
 const typeFilter = computed<FileCategory[]>({
     get: () => (typeQuery.value ? (typeQuery.value.split(',') as FileCategory[]) : []),
@@ -391,10 +399,11 @@ const typeFilter = computed<FileCategory[]>({
 
 const folderLabel = computed(() =>
     folderFilter.value === 'all'
-        ? 'All files'
+        ? t('files.allFiles')
         : folderFilter.value === 'none'
-          ? 'Not in a folder'
-          : folders.value.find((folder) => folder.id === folderFilter.value)?.name || 'Folder',
+          ? t('files.notInFolder')
+          : folders.value.find((folder) => folder.id === folderFilter.value)?.name ||
+            t('files.folder'),
 );
 
 const sortValue = computed({

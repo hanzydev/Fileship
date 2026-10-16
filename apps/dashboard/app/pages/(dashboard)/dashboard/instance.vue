@@ -1,13 +1,10 @@
 <template>
     <Head>
-        <Title>Instance</Title>
+        <Title>{{ $t('instance.title') }}</Title>
     </Head>
 
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <PageHeader
-            title="Instance"
-            description="Settings for everyone on this Fileship instance. Values set here override the environment."
-        />
+        <PageHeader :title="$t('instance.title')" :description="$t('instance.description')" />
 
         <div class="grid items-start gap-4 lg:grid-cols-2">
             <template v-if="!data">
@@ -30,11 +27,15 @@
                     :key="columnIndex"
                     class="flex flex-col gap-4"
                 >
-                    <UiCard v-for="section in column" :key="section.title">
+                    <UiCard v-for="section in column" :key="section.id">
                         <form class="contents" @submit.prevent="handleSave(section)">
                             <UiCardHeader>
-                                <UiCardTitle>{{ section.title }}</UiCardTitle>
-                                <UiCardDescription>{{ section.description }}</UiCardDescription>
+                                <UiCardTitle>
+                                    {{ $t(`instance.sections.${section.id}.title`) }}
+                                </UiCardTitle>
+                                <UiCardDescription>
+                                    {{ $t(`instance.sections.${section.id}.description`) }}
+                                </UiCardDescription>
                             </UiCardHeader>
                             <UiCardContent>
                                 <UiFieldGroup class="grid gap-x-4 sm:grid-cols-2">
@@ -54,13 +55,17 @@
                                         >
                                             <UiFieldContent>
                                                 <UiFieldLabel :for="field.key">
-                                                    {{ field.label }}
+                                                    {{ $t(field.label) }}
                                                 </UiFieldLabel>
                                                 <UiFieldDescription>
-                                                    {{ field.description }}
+                                                    {{ $t(field.description!) }}
                                                 </UiFieldDescription>
                                                 <UiFieldDescription v-if="isOverridden(field.key)">
-                                                    Default: {{ formatDefault(field) }}
+                                                    {{
+                                                        $t('instance.default', {
+                                                            value: formatDefault(field),
+                                                        })
+                                                    }}
                                                 </UiFieldDescription>
                                             </UiFieldContent>
                                             <UiButton
@@ -68,7 +73,7 @@
                                                 type="button"
                                                 variant="ghost"
                                                 size="icon-sm"
-                                                aria-label="Reset to default"
+                                                :aria-label="$t('instance.resetToDefault')"
                                                 :disabled="resettingKey === field.key"
                                                 @click="handleReset(field.key)"
                                             >
@@ -84,7 +89,7 @@
                                         <UiField v-else :class="!field.half && 'sm:col-span-2'">
                                             <div class="flex items-center justify-between gap-2">
                                                 <UiFieldLabel :for="field.key">
-                                                    {{ field.label }}
+                                                    {{ $t(field.label) }}
                                                 </UiFieldLabel>
                                                 <UiTooltip v-if="isOverridden(field.key)">
                                                     <UiTooltipTrigger as-child>
@@ -92,7 +97,9 @@
                                                             type="button"
                                                             variant="ghost"
                                                             size="icon-xs"
-                                                            aria-label="Reset to default"
+                                                            :aria-label="
+                                                                $t('instance.resetToDefault')
+                                                            "
                                                             :disabled="resettingKey === field.key"
                                                             @click="handleReset(field.key)"
                                                         >
@@ -103,7 +110,11 @@
                                                         </UiButton>
                                                     </UiTooltipTrigger>
                                                     <UiTooltipContent>
-                                                        Reset to {{ formatDefault(field) }}
+                                                        {{
+                                                            $t('instance.resetTo', {
+                                                                value: formatDefault(field),
+                                                            })
+                                                        }}
                                                     </UiTooltipContent>
                                                 </UiTooltip>
                                             </div>
@@ -121,7 +132,7 @@
                                                 autocomplete="off"
                                                 :placeholder="
                                                     data.turnstileSecretKeySet
-                                                        ? 'Leave empty to keep'
+                                                        ? $t('instance.leaveEmptyToKeep')
                                                         : ''
                                                 "
                                             />
@@ -156,7 +167,7 @@
                                                         :key="option.value"
                                                         :value="option.value"
                                                     >
-                                                        {{ option.label }}
+                                                        {{ $t(option.label) }}
                                                     </UiSelectItem>
                                                 </UiSelectContent>
                                             </UiSelect>
@@ -184,13 +195,13 @@
                                                     <UiFieldLabel
                                                         :for="`permission-${permission.value}`"
                                                     >
-                                                        {{ permission.label }}
+                                                        {{ $t(permission.label) }}
                                                     </UiFieldLabel>
                                                 </UiField>
                                             </div>
 
                                             <UiFieldDescription v-if="field.description">
-                                                {{ field.description }}
+                                                {{ $t(field.description!) }}
                                             </UiFieldDescription>
                                             <UiFieldError
                                                 v-if="formErrors?.[field.key]?._errors?.length"
@@ -199,19 +210,30 @@
                                         </UiField>
                                     </template>
 
-                                    <template v-if="section.title === 'AI' && aiStatus">
+                                    <template v-if="section.id === 'ai' && aiStatus">
                                         <UiFieldSeparator class="sm:col-span-2" />
                                         <UiField
                                             orientation="horizontal"
                                             class="has-[>[data-slot=field-content]]:items-center sm:col-span-2"
                                         >
                                             <UiFieldContent>
-                                                <UiFieldLabel>Queue</UiFieldLabel>
+                                                <UiFieldLabel>
+                                                    {{ $t('instance.ai.queue') }}
+                                                </UiFieldLabel>
                                                 <UiFieldDescription>
-                                                    {{ aiStatus.pending }} waiting ·
-                                                    {{ aiStatus.processing }} running ·
-                                                    {{ aiStatus.failed }} failed · models use
-                                                    {{ filesize(aiStatus.modelCacheSize) }}
+                                                    {{
+                                                        $t('instance.ai.queueStatus', {
+                                                            pending: aiStatus.pending,
+                                                            processing: aiStatus.processing,
+                                                            failed: aiStatus.failed,
+                                                            size: filesize(
+                                                                aiStatus.modelCacheSize,
+                                                                {
+                                                                    locale,
+                                                                },
+                                                            ),
+                                                        })
+                                                    }}
                                                 </UiFieldDescription>
                                             </UiFieldContent>
                                             <div class="flex flex-wrap justify-end gap-2">
@@ -225,7 +247,7 @@
                                                 >
                                                     <UiSpinner v-if="isRetryingAi" />
                                                     <IRotateCcw v-else />
-                                                    Retry failed
+                                                    {{ $t('instance.ai.retryFailed') }}
                                                 </UiButton>
                                                 <UiButton
                                                     type="button"
@@ -234,7 +256,7 @@
                                                     @click="handleResetAi"
                                                 >
                                                     <ITrash2 />
-                                                    Reset AI data
+                                                    {{ $t('instance.ai.resetData') }}
                                                 </UiButton>
                                             </div>
                                         </UiField>
@@ -244,10 +266,10 @@
                             <UiCardFooter class="justify-end">
                                 <UiButton
                                     type="submit"
-                                    :disabled="!isDirty(section) || savingSection === section.title"
+                                    :disabled="!isDirty(section) || savingSection === section.id"
                                 >
-                                    <UiSpinner v-if="savingSection === section.title" />
-                                    Save
+                                    <UiSpinner v-if="savingSection === section.id" />
+                                    {{ $t('instance.save') }}
                                 </UiButton>
                             </UiCardFooter>
                         </form>
@@ -258,23 +280,21 @@
 
         <UiCard>
             <UiCardHeader>
-                <UiCardTitle>Storage</UiCardTitle>
+                <UiCardTitle>{{ $t('instance.storage.title') }}</UiCardTitle>
                 <UiCardDescription>
-                    Where uploads and backups are kept. New ones go to the active storage, existing
-                    ones stay where they were written. Already have files on a storage? Add it here
-                    and use Import files to bring them into Fileship.
+                    {{ $t('instance.storage.description') }}
                 </UiCardDescription>
                 <UiCardAction>
                     <UiButton @click="handleOpenStorage()">
                         <IPlus />
-                        Add storage
+                        {{ $t('instance.storage.add') }}
                     </UiButton>
                 </UiCardAction>
             </UiCardHeader>
             <UiCardContent class="flex flex-col gap-2">
                 <div v-if="migration" class="flex flex-col gap-2 pb-2">
                     <div class="flex items-center justify-between gap-2">
-                        <TextBlock variant="small">Moving files and backups</TextBlock>
+                        <TextBlock variant="small">{{ $t('instance.storage.moving') }}</TextBlock>
                         <TextBlock variant="muted" class="text-xs">
                             {{ migration.done }} / {{ migration.total }}
                         </TextBlock>
@@ -285,7 +305,11 @@
                 <div v-if="storageImport" class="flex flex-col gap-2 pb-2">
                     <div class="flex items-center justify-between gap-2">
                         <TextBlock variant="small">
-                            Importing files from {{ storageName(storageImport.storageId) }}
+                            {{
+                                $t('instance.storage.importing', {
+                                    name: storageName(storageImport.storageId),
+                                })
+                            }}
                         </TextBlock>
                         <TextBlock variant="muted" class="text-xs">
                             {{ storageImport.done }} / {{ storageImport.total }}
@@ -299,13 +323,24 @@
                 <UiAlert v-else-if="importResult" class="mb-2">
                     <IFolderInput />
                     <UiAlertTitle>
-                        Imported {{ pluralize(importResult.imported, 'file') }} from
-                        {{ storageName(importResult.storageId) }}
+                        {{
+                            $t(
+                                'instance.storage.importedTitle',
+                                {
+                                    n: importResult.imported,
+                                    name: storageName(importResult.storageId),
+                                },
+                                importResult.imported,
+                            )
+                        }}
                     </UiAlertTitle>
                     <UiAlertDescription>
-                        {{ importResult.skipped }} skipped, {{ importResult.failed }} failed. Files
-                        the user already had or that did not fit their storage limit are skipped;
-                        the Logs page has the details.
+                        {{
+                            $t('instance.storage.importedDescription', {
+                                skipped: importResult.skipped,
+                                failed: importResult.failed,
+                            })
+                        }}
                     </UiAlertDescription>
                 </UiAlert>
 
@@ -324,11 +359,19 @@
                                     {{ storageTypeLabels[storage.type] }}
                                 </UiBadge>
                                 <UiBadge v-if="storage.id === storages!.activeStorageId">
-                                    Active
+                                    {{ $t('instance.storage.active') }}
                                 </UiBadge>
                             </div>
                             <TextBlock variant="muted" class="text-xs">
-                                {{ storage.files }} files, {{ storage.backups }} backups
+                                {{
+                                    $t('instance.storage.counts', {
+                                        files: $t('instance.storage.fileCount', storage.files),
+                                        backups: $t(
+                                            'instance.storage.backupCount',
+                                            storage.backups,
+                                        ),
+                                    })
+                                }}
                             </TextBlock>
                         </div>
                         <UiButton
@@ -339,7 +382,7 @@
                             @click="handleActivateStorage(storage)"
                         >
                             <UiSpinner v-if="activatingStorage === (storage.id ?? 'local')" />
-                            Set active
+                            {{ $t('instance.storage.setActive') }}
                         </UiButton>
                         <UiButton
                             v-else-if="hasDataElsewhere && !migration"
@@ -347,11 +390,15 @@
                             size="sm"
                             @click="handleMigrateStorage(storage)"
                         >
-                            Move everything here
+                            {{ $t('instance.storage.moveHere') }}
                         </UiButton>
                         <UiDropdownMenu>
                             <UiDropdownMenuTrigger as-child>
-                                <UiButton variant="ghost" size="icon-sm">
+                                <UiButton
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    :aria-label="$t('instance.storage.actions')"
+                                >
                                     <IEllipsis />
                                 </UiButton>
                             </UiDropdownMenuTrigger>
@@ -361,12 +408,12 @@
                                     @select="handleOpenImport(storage)"
                                 >
                                     <IFolderInput />
-                                    Import files
+                                    {{ $t('instance.storage.importFiles') }}
                                 </UiDropdownMenuItem>
                                 <template v-if="storage.id">
                                     <UiDropdownMenuItem @select="handleOpenStorage(storage)">
                                         <IPencil />
-                                        Edit
+                                        {{ $t('instance.storage.edit') }}
                                     </UiDropdownMenuItem>
                                     <UiDropdownMenuSeparator />
                                     <UiDropdownMenuItem
@@ -379,7 +426,7 @@
                                         @select="handleDeleteStorage(storage)"
                                     >
                                         <ITrash2 />
-                                        Delete
+                                        {{ $t('instance.storage.delete') }}
                                     </UiDropdownMenuItem>
                                 </template>
                             </UiDropdownMenuContent>
@@ -393,31 +440,35 @@
     <UiDialog v-model:open="importDialog.open">
         <UiDialogContent class="sm:max-w-lg">
             <UiDialogHeader>
-                <UiDialogTitle>Import files from {{ importDialog.storage?.name }}</UiDialogTitle>
+                <UiDialogTitle>
+                    {{ $t('instance.import.title', { name: importDialog.storage?.name }) }}
+                </UiDialogTitle>
                 <UiDialogDescription>
-                    Brings files that Fileship has no record of into a user's account.
+                    {{ $t('instance.import.description') }}
                 </UiDialogDescription>
             </UiDialogHeader>
 
             <div class="flex flex-col gap-3">
-                <TextBlock variant="small">How import works</TextBlock>
+                <TextBlock variant="small">{{ $t('instance.import.howItWorks') }}</TextBlock>
                 <template v-if="!importDialog.storage?.id">
                     <TextBlock variant="muted" class="text-sm">
-                        Put the files you want to import in this folder on the server. Files in
-                        <code>uploads</code>
-                        that Fileship has no record of are imported too.
+                        <i18n-t keypath="instance.import.localHint" scope="global">
+                            <template #folder>
+                                <code>{{ UPLOADS_FOLDER }}</code>
+                            </template>
+                        </i18n-t>
                     </TextBlock>
                     <UiInputGroup v-if="importPreview?.importPath">
                         <UiInputGroupInput
                             :model-value="importPreview.importPath"
-                            aria-label="Import folder"
+                            :aria-label="$t('instance.import.folderLabel')"
                             readonly
                         />
                         <UiInputGroupAddon align="inline-end">
                             <UiInputGroupButton
                                 size="icon-xs"
                                 type="button"
-                                aria-label="Copy the path"
+                                :aria-label="$t('instance.import.copyPath')"
                                 @click="handleCopyImportPath"
                             >
                                 <ICopy />
@@ -426,27 +477,22 @@
                     </UiInputGroup>
                 </template>
                 <TextBlock v-else variant="muted" class="text-sm">
-                    Every file on this storage that Fileship has no record of is imported, except
-                    Fileship's own
-                    <code>backups</code>
-                    folder.
+                    <i18n-t keypath="instance.import.storageHint" scope="global">
+                        <template #folder>
+                            <code>{{ BACKUPS_FOLDER }}</code>
+                        </template>
+                    </i18n-t>
                 </TextBlock>
                 <ul class="flex list-disc flex-col gap-1 pl-5 text-sm text-muted-foreground">
-                    <li>
-                        Files are moved into
-                        <code>uploads</code>
-                        on this storage, so their old paths stop working.
-                    </li>
-                    <li>
-                        The first folder of each path becomes a Fileship folder. Deeper folders are
-                        merged into it.
-                    </li>
-                    <li>
-                        Files the user already has with the same name and size are skipped, so
-                        running it again is safe.
-                    </li>
-                    <li>Files changed in the last 15 minutes are left for the next run.</li>
-                    <li>The user's storage limit applies.</li>
+                    <i18n-t keypath="instance.import.ruleMoved" tag="li" scope="global">
+                        <template #folder>
+                            <code>{{ UPLOADS_FOLDER }}</code>
+                        </template>
+                    </i18n-t>
+                    <li>{{ $t('instance.import.ruleFolders') }}</li>
+                    <li>{{ $t('instance.import.ruleDuplicates') }}</li>
+                    <li>{{ $t('instance.import.ruleRecent') }}</li>
+                    <li>{{ $t('instance.import.ruleQuota') }}</li>
                 </ul>
             </div>
 
@@ -455,39 +501,45 @@
                 class="flex items-center gap-2 text-sm text-muted-foreground"
             >
                 <UiSpinner />
-                Looking for files...
+                {{ $t('instance.import.searching') }}
             </div>
 
             <EmptyState
                 v-else-if="importDialog.error"
                 :icon="ICircleAlert"
-                title="Couldn't read the storage"
+                :title="$t('instance.import.readFailed')"
                 :description="importDialog.error"
             >
-                <UiButton variant="outline" @click="loadImportPreview">Try again</UiButton>
+                <UiButton variant="outline" @click="loadImportPreview">
+                    {{ $t('instance.import.tryAgain') }}
+                </UiButton>
             </EmptyState>
 
             <EmptyState
                 v-else-if="importPreview && !importPreview.count"
                 :icon="IFolderSearch"
-                title="Nothing to import"
+                :title="$t('instance.import.nothingTitle')"
                 :description="
                     importDialog.storage?.id
-                        ? 'Every file on this storage is already in Fileship.'
-                        : 'Put files in the folder above, then check again.'
+                        ? $t('instance.import.nothingStorage')
+                        : $t('instance.import.nothingLocal')
                 "
             >
-                <UiButton variant="outline" @click="loadImportPreview">Check again</UiButton>
+                <UiButton variant="outline" @click="loadImportPreview">
+                    {{ $t('instance.import.checkAgain') }}
+                </UiButton>
             </EmptyState>
 
             <UiField v-else-if="importPreview">
-                <UiFieldLabel for="import-user">Import into</UiFieldLabel>
+                <UiFieldLabel for="import-user">{{ $t('instance.import.into') }}</UiFieldLabel>
                 <UiPopover v-model:open="isUserPickerOpen">
                     <UiPopoverTrigger as-child>
                         <UiButton id="import-user" variant="outline" class="w-full justify-between">
                             <span class="flex items-center gap-2 truncate">
                                 <IUser />
-                                {{ importDialog.user?.username ?? 'Choose a user' }}
+                                {{
+                                    importDialog.user?.username ?? $t('instance.import.chooseUser')
+                                }}
                             </span>
                             <IChevronsUpDown class="opacity-50" />
                         </UiButton>
@@ -495,7 +547,7 @@
                     <UiPopoverContent class="w-(--reka-popover-trigger-width) p-0" align="start">
                         <UiCommand>
                             <UiCommandInput
-                                placeholder="Search users..."
+                                :placeholder="$t('instance.import.searchUsers')"
                                 @update:model-value="userQuery = $event"
                             />
                             <UiCommandList class="mb-1">
@@ -525,20 +577,29 @@
                     </UiPopoverContent>
                 </UiPopover>
                 <UiFieldDescription>
-                    Found {{ pluralize(importPreview.count, 'file') }} ({{
-                        filesize(importPreview.size)
-                    }}).
+                    {{
+                        $t(
+                            'instance.import.found',
+                            {
+                                n: importPreview.count,
+                                size: filesize(importPreview.size, { locale }),
+                            },
+                            importPreview.count,
+                        )
+                    }}
                 </UiFieldDescription>
             </UiField>
 
             <UiDialogFooter>
-                <UiButton variant="outline" @click="importDialog.open = false">Cancel</UiButton>
+                <UiButton variant="outline" @click="importDialog.open = false">
+                    {{ $t('common.cancel') }}
+                </UiButton>
                 <UiButton
                     :disabled="!importPreview?.count || !importDialog.user || isStartingImport"
                     @click="handleStartImport"
                 >
                     <UiSpinner v-if="isStartingImport" />
-                    Import
+                    {{ $t('instance.import.start') }}
                 </UiButton>
             </UiDialogFooter>
         </UiDialogContent>
@@ -549,20 +610,26 @@
             <form class="flex flex-col gap-6" @submit.prevent="handleSaveStorage">
                 <UiDialogHeader>
                     <UiDialogTitle>
-                        {{ storageDialog.id ? 'Edit storage' : 'Add storage' }}
+                        {{
+                            storageDialog.id
+                                ? $t('instance.storageDialog.editTitle')
+                                : $t('instance.storageDialog.addTitle')
+                        }}
                     </UiDialogTitle>
                     <UiDialogDescription>
-                        The connection is tested before saving. Secrets are stored encrypted.
+                        {{ $t('instance.storageDialog.description') }}
                     </UiDialogDescription>
                 </UiDialogHeader>
 
                 <UiFieldGroup class="grid gap-x-4 sm:grid-cols-2">
                     <UiField :data-invalid="!!storageErrors?.name">
-                        <UiFieldLabel for="storage-name">Name</UiFieldLabel>
+                        <UiFieldLabel for="storage-name">
+                            {{ $t('instance.storageDialog.name') }}
+                        </UiFieldLabel>
                         <UiInput
                             id="storage-name"
                             v-model="storageForm.name"
-                            placeholder="Media bucket"
+                            :placeholder="$t('instance.storageDialog.namePlaceholder')"
                         />
                         <UiFieldError
                             v-if="storageErrors?.name"
@@ -571,7 +638,9 @@
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel for="storage-type">Type</UiFieldLabel>
+                        <UiFieldLabel for="storage-type">
+                            {{ $t('instance.storageDialog.type') }}
+                        </UiFieldLabel>
                         <UiSelect
                             :model-value="storageForm.type"
                             :disabled="!!storageDialog.id"
@@ -600,9 +669,11 @@
                         >
                             <UiFieldContent>
                                 <UiFieldLabel :for="`storage-${field.key}`">
-                                    {{ field.label }}
+                                    {{ $t(field.label) }}
                                 </UiFieldLabel>
-                                <UiFieldDescription>{{ field.description }}</UiFieldDescription>
+                                <UiFieldDescription>
+                                    {{ $t(field.description!) }}
+                                </UiFieldDescription>
                             </UiFieldContent>
                             <UiSwitch
                                 :id="`storage-${field.key}`"
@@ -616,7 +687,7 @@
                             :data-invalid="!!storageErrors?.config?.[field.key]"
                         >
                             <UiFieldLabel :for="`storage-${field.key}`">
-                                {{ field.label }}
+                                {{ $t(field.label) }}
                             </UiFieldLabel>
 
                             <PasswordInput
@@ -625,7 +696,9 @@
                                 v-model="storageForm.config[field.key]"
                                 autocomplete="off"
                                 :placeholder="
-                                    storageDialog.secrets[field.key] ? 'Leave empty to keep' : ''
+                                    storageDialog.secrets[field.key]
+                                        ? $t('instance.leaveEmptyToKeep')
+                                        : ''
                                 "
                             />
 
@@ -636,7 +709,7 @@
                                 class="max-h-32 font-mono text-xs"
                                 :placeholder="
                                     storageDialog.secrets[field.key]
-                                        ? 'Leave empty to keep'
+                                        ? $t('instance.leaveEmptyToKeep')
                                         : '-----BEGIN OPENSSH PRIVATE KEY-----'
                                 "
                             />
@@ -664,7 +737,7 @@
                             />
 
                             <UiFieldDescription v-if="field.description">
-                                {{ field.description }}
+                                {{ $t(field.description!) }}
                             </UiFieldDescription>
                             <UiFieldError
                                 v-if="storageErrors?.config?.[field.key]?._errors?.length"
@@ -682,11 +755,11 @@
                         @click="handleTestStorage"
                     >
                         <UiSpinner v-if="isTestingStorage" />
-                        Test connection
+                        {{ $t('instance.storageDialog.test') }}
                     </UiButton>
                     <UiButton type="submit" :disabled="isSavingStorage">
                         <UiSpinner v-if="isSavingStorage" />
-                        Save
+                        {{ $t('instance.save') }}
                     </UiButton>
                 </UiDialogFooter>
             </form>
@@ -716,8 +789,7 @@ type SettingField = {
 };
 
 type SettingSection = {
-    title: string;
-    description: string;
+    id: string;
     fields: SettingField[];
 };
 
@@ -730,7 +802,11 @@ type StorageField = {
     half?: boolean;
 };
 
+const UPLOADS_FOLDER = 'uploads';
+const BACKUPS_FOLDER = 'backups';
+
 const { $toast } = useNuxtApp();
+const { t, locale } = useI18n();
 
 const formErrors = ref();
 const savingSection = ref<string>();
@@ -755,46 +831,44 @@ watch(
 );
 
 const registrablePermissions = [
-    { value: 'UploadFiles', label: 'Upload files' },
-    { value: 'TakeNotes', label: 'Take notes' },
-    { value: 'ShortenLinks', label: 'Shorten links' },
+    { value: 'UploadFiles', label: 'instance.permissions.UploadFiles' },
+    { value: 'TakeNotes', label: 'instance.permissions.TakeNotes' },
+    { value: 'ShortenLinks', label: 'instance.permissions.ShortenLinks' },
 ] as const;
 
 const sections: SettingSection[] = [
     {
-        title: 'General',
-        description: 'How this instance presents itself.',
+        id: 'general',
         fields: [
-            { key: 'siteName', label: 'Site name', type: 'text' },
+            { key: 'siteName', label: 'instance.fields.siteName', type: 'text' },
             {
                 key: 'returnHttps',
-                label: 'Link protocol',
+                label: 'instance.fields.returnHttps',
                 type: 'select',
-                description: 'Protocol used in the links Fileship generates.',
+                description: 'instance.fields.returnHttpsDescription',
                 options: [
-                    { value: 'auto', label: 'Same as the request' },
-                    { value: 'true', label: 'Always HTTPS' },
-                    { value: 'false', label: 'Always HTTP' },
+                    { value: 'auto', label: 'instance.fields.returnHttpsAuto' },
+                    { value: 'true', label: 'instance.fields.returnHttpsTrue' },
+                    { value: 'false', label: 'instance.fields.returnHttpsFalse' },
                 ],
             },
         ],
     },
     {
-        title: 'Uploads',
-        description: 'Limits and processing for uploaded files.',
+        id: 'uploads',
         fields: [
             {
                 key: 'fileChunkSize',
-                label: 'Chunk size (MB)',
+                label: 'instance.fields.fileChunkSize',
                 type: 'number',
                 min: 5,
                 max: 100,
-                description: 'Large files are uploaded in pieces of this size.',
+                description: 'instance.fields.fileChunkSizeDescription',
                 half: true,
             },
             {
                 key: 'avatarMaxSize',
-                label: 'Avatar size limit (MB)',
+                label: 'instance.fields.avatarMaxSize',
                 type: 'number',
                 min: 1,
                 max: 100,
@@ -802,80 +876,78 @@ const sections: SettingSection[] = [
             },
             {
                 key: 'trashRetentionDays',
-                label: 'Trash retention (days)',
+                label: 'instance.fields.trashRetentionDays',
                 type: 'number',
                 min: 0,
                 max: 365,
-                description:
-                    'Deleted items stay in the trash this long. 0 deletes them immediately.',
+                description: 'instance.fields.trashRetentionDaysDescription',
             },
             {
                 key: 'removeExifData',
-                label: 'Remove EXIF data',
+                label: 'instance.fields.removeExifData',
                 type: 'switch',
-                description: 'Strip location and camera details from uploaded images.',
+                description: 'instance.fields.removeExifDataDescription',
             },
         ],
     },
     {
-        title: 'Registration',
-        description: 'Let people create their own accounts from the login page.',
+        id: 'registration',
         fields: [
             {
                 key: 'registrationEnabled',
-                label: 'Allow registration',
+                label: 'instance.fields.registrationEnabled',
                 type: 'switch',
-                description: 'Show a sign up link on the login page.',
+                description: 'instance.fields.registrationEnabledDescription',
             },
-            { key: 'registrationPermissions', label: 'Permissions', type: 'permissions' },
+            {
+                key: 'registrationPermissions',
+                label: 'instance.fields.registrationPermissions',
+                type: 'permissions',
+            },
             {
                 key: 'registrationUsableSpace',
-                label: 'Storage limit (MB)',
+                label: 'instance.fields.registrationUsableSpace',
                 type: 'number',
                 min: -1,
-                description: '-1 means unlimited.',
+                description: 'instance.fields.registrationUsableSpaceDescription',
             },
         ],
     },
     {
-        title: 'Turnstile',
-        description: 'Cloudflare Turnstile protects the login and sign up forms from bots.',
+        id: 'turnstile',
         fields: [
-            { key: 'turnstileSiteKey', label: 'Site key', type: 'text' },
+            { key: 'turnstileSiteKey', label: 'instance.fields.turnstileSiteKey', type: 'text' },
             {
                 key: 'turnstileSecretKey',
-                label: 'Secret key',
+                label: 'instance.fields.turnstileSecretKey',
                 type: 'secret',
-                description:
-                    'Turnstile only turns on when both keys are set. A wrong secret blocks every login.',
+                description: 'instance.fields.turnstileSecretKeyDescription',
             },
         ],
     },
     {
-        title: 'AI',
-        description: 'Captions, smart search and sensitive content detection.',
+        id: 'ai',
         fields: [
             {
                 key: 'aiEnabled',
-                label: 'AI features',
+                label: 'instance.fields.aiEnabled',
                 type: 'switch',
-                description: 'Process uploads with the local AI models.',
+                description: 'instance.fields.aiEnabledDescription',
             },
             {
                 key: 'aiPreset',
-                label: 'Preset',
+                label: 'instance.fields.aiPreset',
                 type: 'select',
                 options: [
-                    { value: 'low', label: 'Low (4 GB RAM)' },
-                    { value: 'medium', label: 'Medium (6 GB RAM)' },
-                    { value: 'high', label: 'High (8 GB RAM)' },
+                    { value: 'low', label: 'instance.fields.aiPresetLow' },
+                    { value: 'medium', label: 'instance.fields.aiPresetMedium' },
+                    { value: 'high', label: 'instance.fields.aiPresetHigh' },
                 ],
-                description:
-                    'Larger presets use more accurate models. Changing it analyzes every file again in the background.',
+                description: 'instance.fields.aiPresetDescription',
             },
             {
                 key: 'aiQueueConcurrency',
-                label: 'Parallel jobs',
+                label: 'instance.fields.aiQueueConcurrency',
                 type: 'number',
                 min: 1,
                 max: 8,
@@ -883,7 +955,7 @@ const sections: SettingSection[] = [
             },
             {
                 key: 'aiInferenceThreads',
-                label: 'Threads per job',
+                label: 'instance.fields.aiInferenceThreads',
                 type: 'number',
                 min: 1,
                 max: 64,
@@ -891,33 +963,31 @@ const sections: SettingSection[] = [
             },
             {
                 key: 'aiJobLeaseMs',
-                label: 'Job heartbeat timeout (ms)',
+                label: 'instance.fields.aiJobLeaseMs',
                 type: 'number',
                 min: 60_000,
-                description:
-                    'A job whose server stops responding for this long is picked up again.',
+                description: 'instance.fields.aiJobLeaseMsDescription',
             },
         ],
     },
     {
-        title: 'Logs and telemetry',
-        description: 'What Fileship records and shares.',
+        id: 'logs',
         fields: [
             {
                 key: 'logLevel',
-                label: 'Log level',
+                label: 'instance.fields.logLevel',
                 type: 'select',
                 options: [
-                    { value: '0', label: 'Nothing' },
-                    { value: '1', label: 'Important actions' },
-                    { value: '2', label: 'Everything' },
+                    { value: '0', label: 'instance.fields.logLevelNothing' },
+                    { value: '1', label: 'instance.fields.logLevelImportant' },
+                    { value: '2', label: 'instance.fields.logLevelEverything' },
                 ],
             },
             {
                 key: 'telemetryEnabled',
-                label: 'Anonymous telemetry',
+                label: 'instance.fields.telemetryEnabled',
                 type: 'switch',
-                description: 'Share anonymous usage statistics to help improve Fileship.',
+                description: 'instance.fields.telemetryEnabledDescription',
             },
         ],
     },
@@ -928,12 +998,12 @@ const columns = [
     [sections[4]!, sections[3]!, sections[5]!],
 ];
 
-const storageTypeLabels = {
-    Local: 'Local',
+const storageTypeLabels = computed(() => ({
+    Local: t('instance.storage.local'),
     [StorageType.S3]: 'S3',
     [StorageType.SFTP]: 'SFTP',
     [StorageType.FTP]: 'FTP',
-};
+}));
 
 const storageIcons = {
     Local: IHardDrive,
@@ -946,53 +1016,79 @@ const storageFields: Record<StorageType, StorageField[]> = {
     [StorageType.S3]: [
         {
             key: 'endpoint',
-            label: 'Endpoint',
+            label: 'instance.storageFields.endpoint',
             type: 'text',
             placeholder: 'https://<account>.r2.cloudflarestorage.com',
-            description: 'Leave empty for AWS. Needed for R2, MinIO and other S3 services.',
+            description: 'instance.storageFields.endpointDescription',
         },
-        { key: 'region', label: 'Region', type: 'text', placeholder: 'us-east-1', half: true },
-        { key: 'bucket', label: 'Bucket', type: 'text', half: true },
-        { key: 'accessKeyId', label: 'Access key ID', type: 'text', half: true },
-        { key: 'secretAccessKey', label: 'Secret access key', type: 'secret', half: true },
+        {
+            key: 'region',
+            label: 'instance.storageFields.region',
+            type: 'text',
+            placeholder: 'us-east-1',
+            half: true,
+        },
+        { key: 'bucket', label: 'instance.storageFields.bucket', type: 'text', half: true },
+        {
+            key: 'accessKeyId',
+            label: 'instance.storageFields.accessKeyId',
+            type: 'text',
+            half: true,
+        },
+        {
+            key: 'secretAccessKey',
+            label: 'instance.storageFields.secretAccessKey',
+            type: 'secret',
+            half: true,
+        },
         {
             key: 'prefix',
-            label: 'Prefix',
+            label: 'instance.storageFields.prefix',
             type: 'text',
             placeholder: 'fileship',
-            description: 'Optional folder inside the bucket.',
+            description: 'instance.storageFields.prefixDescription',
         },
         {
             key: 'forcePathStyle',
-            label: 'Path-style URLs',
+            label: 'instance.storageFields.forcePathStyle',
             type: 'switch',
-            description: 'Needed by MinIO and some self-hosted S3 services.',
+            description: 'instance.storageFields.forcePathStyleDescription',
         },
     ],
     [StorageType.SFTP]: [
-        { key: 'host', label: 'Host', type: 'text', half: true },
-        { key: 'port', label: 'Port', type: 'number', half: true },
-        { key: 'username', label: 'Username', type: 'text', half: true },
-        { key: 'password', label: 'Password', type: 'secret', half: true },
+        { key: 'host', label: 'instance.storageFields.host', type: 'text', half: true },
+        { key: 'port', label: 'instance.storageFields.port', type: 'number', half: true },
+        { key: 'username', label: 'instance.storageFields.username', type: 'text', half: true },
+        { key: 'password', label: 'instance.storageFields.password', type: 'secret', half: true },
         {
             key: 'privateKey',
-            label: 'Private key',
+            label: 'instance.storageFields.privateKey',
             type: 'key',
-            description: 'Use a password, a private key or both.',
+            description: 'instance.storageFields.privateKeyDescription',
         },
-        { key: 'root', label: 'Folder', type: 'text', placeholder: '/srv/fileship' },
+        {
+            key: 'root',
+            label: 'instance.storageFields.root',
+            type: 'text',
+            placeholder: '/srv/fileship',
+        },
     ],
     [StorageType.FTP]: [
-        { key: 'host', label: 'Host', type: 'text', half: true },
-        { key: 'port', label: 'Port', type: 'number', half: true },
-        { key: 'user', label: 'Username', type: 'text', half: true },
-        { key: 'password', label: 'Password', type: 'secret', half: true },
-        { key: 'root', label: 'Folder', type: 'text', placeholder: '/fileship' },
+        { key: 'host', label: 'instance.storageFields.host', type: 'text', half: true },
+        { key: 'port', label: 'instance.storageFields.port', type: 'number', half: true },
+        { key: 'user', label: 'instance.storageFields.username', type: 'text', half: true },
+        { key: 'password', label: 'instance.storageFields.password', type: 'secret', half: true },
+        {
+            key: 'root',
+            label: 'instance.storageFields.root',
+            type: 'text',
+            placeholder: '/fileship',
+        },
         {
             key: 'secure',
-            label: 'Use TLS',
+            label: 'instance.storageFields.secure',
             type: 'switch',
-            description: 'Connect with explicit FTPS.',
+            description: 'instance.storageFields.secureDescription',
         },
     ],
 };
@@ -1066,7 +1162,12 @@ watch(storageImport, (value, oldValue) => {
 type StorageRow = NonNullable<typeof storages.value>['items'][number];
 
 const storageRows = computed(() => [
-    { id: null, name: 'Data directory', type: 'Local' as const, ...storages.value!.local },
+    {
+        id: null,
+        name: t('instance.storage.dataDirectory'),
+        type: 'Local' as const,
+        ...storages.value!.local,
+    },
     ...storages.value!.items,
 ]);
 
@@ -1082,12 +1183,18 @@ const isOverridden = (key: InstanceSettingKey) => !!data.value?.overridden.inclu
 const formatDefault = (field: SettingField) => {
     const value = data.value!.defaults[field.key];
 
-    if (field.type === 'secret') return 'none';
-    if (typeof value === 'boolean') return value ? 'On' : 'Off';
-    if (field.options) return field.options.find((o) => o.value === String(value))?.label;
-    if (Array.isArray(value)) return value.length ? value.join(', ') : 'none';
+    if (field.type === 'secret') return t('instance.values.none');
+    if (typeof value === 'boolean')
+        return value ? t('instance.values.on') : t('instance.values.off');
+    if (field.options) return t(field.options.find((o) => o.value === String(value))!.label);
+    if (Array.isArray(value)) {
+        return value.length
+            ? value.map((permission) => t(`instance.permissions.${permission}`)).join(', ')
+            : t('instance.values.none');
+    }
+    if (typeof value === 'number') return new Intl.NumberFormat(locale.value).format(value);
 
-    return String(value || 'empty');
+    return String(value || t('instance.values.empty'));
 };
 
 const getChanges = (section: SettingSection) => {
@@ -1119,7 +1226,7 @@ const handleTogglePermission = (permission: string) => {
 };
 
 const handleSave = async (section: SettingSection) => {
-    savingSection.value = section.title;
+    savingSection.value = section.id;
     formErrors.value = null;
 
     try {
@@ -1132,7 +1239,7 @@ const handleSave = async (section: SettingSection) => {
 
         if (result) {
             await refresh();
-            $toast.success(`${section.title} settings saved`);
+            $toast.success(t(`instance.sections.${section.id}.saved`));
         }
     } catch (error: any) {
         formErrors.value = error.data?.data?.formErrors;
@@ -1148,7 +1255,7 @@ const handleRetryAi = async () => {
     try {
         const { retried } = await $fetch('/api/settings/ai-retry', { method: 'POST' });
         await refreshAiStatus();
-        $toast.success(`Retrying ${pluralize(retried, 'file')}`);
+        $toast.success(t('instance.ai.retrying', retried));
     } catch (error: any) {
         $toast.error(getErrorMessage(error));
     }
@@ -1158,10 +1265,9 @@ const handleRetryAi = async () => {
 
 const handleResetAi = () =>
     askConfirmation({
-        title: 'Reset all AI data?',
-        description:
-            'Captions, OCR text, search data and sensitive content flags of every file are deleted and every file is analyzed again in the background. Choices made with Not sensitive or Mark as sensitive are kept.',
-        confirmText: 'Reset',
+        title: t('instance.ai.resetTitle'),
+        description: t('instance.ai.resetDescription'),
+        confirmText: t('instance.ai.resetConfirm'),
         destructive: true,
         action: async () => {
             try {
@@ -1174,7 +1280,7 @@ const handleResetAi = () =>
 
                 if (result) {
                     await refreshAiStatus();
-                    $toast.success(`Analyzing ${pluralize(result.files, 'file')} again`);
+                    $toast.success(t('instance.ai.analyzingAgain', result.files));
                 }
             } catch (error: any) {
                 $toast.error(getErrorMessage(error));
@@ -1196,7 +1302,7 @@ const handleReset = async (key: InstanceSettingKey) => {
 
         if (result) {
             await refresh();
-            $toast.success('Reset to default');
+            $toast.success(t('instance.resetDone'));
         }
     } catch (error) {
         $toast.error(getErrorMessage(error));
@@ -1232,7 +1338,7 @@ const handleTestStorage = async () => {
             }),
         );
 
-        if (result) $toast.success('Connection works');
+        if (result) $toast.success(t('instance.storage.connectionWorks'));
     } catch (error: any) {
         storageErrors.value = error.data?.data?.formErrors;
         if (!storageErrors.value) $toast.error(getErrorMessage(error));
@@ -1265,7 +1371,7 @@ const handleSaveStorage = async () => {
         if (result) {
             storageDialog.open = false;
             await refreshStorages();
-            $toast.success('Storage saved');
+            $toast.success(t('instance.storage.saved'));
         }
     } catch (error: any) {
         storageErrors.value = error.data?.data?.formErrors;
@@ -1288,7 +1394,7 @@ const handleActivateStorage = async (storage: { id: string | null; name: string 
 
         if (result) {
             await refreshStorages();
-            $toast.success(`New files now go to ${storage.name}`);
+            $toast.success(t('instance.storage.activated', { name: storage.name }));
         }
     } catch (error) {
         $toast.error(getErrorMessage(error));
@@ -1299,10 +1405,9 @@ const handleActivateStorage = async (storage: { id: string | null; name: string 
 
 const handleMigrateStorage = async (storage: { name: string }) => {
     await askConfirmation({
-        title: `Move everything to ${storage.name}?`,
-        description:
-            'Every file and backup on other storages is copied here and then removed from where it was. This can take a while.',
-        confirmText: 'Move',
+        title: t('instance.storage.migrateTitle', { name: storage.name }),
+        description: t('instance.storage.migrateDescription'),
+        confirmText: t('instance.storage.migrateConfirm'),
         action: async () => {
             try {
                 const result = await withVerification((verificationData) =>
@@ -1312,7 +1417,7 @@ const handleMigrateStorage = async (storage: { name: string }) => {
                     }),
                 );
 
-                if (result) $toast.success('Moving files in the background');
+                if (result) $toast.success(t('instance.storage.migrating'));
             } catch (error) {
                 $toast.error(getErrorMessage(error));
             }
@@ -1321,7 +1426,8 @@ const handleMigrateStorage = async (storage: { name: string }) => {
 };
 
 const storageName = (storageId: string | null) =>
-    storageRows.value.find((storage) => storage.id === storageId)?.name ?? 'a storage';
+    storageRows.value.find((storage) => storage.id === storageId)?.name ??
+    t('instance.storage.unknown');
 
 const currentUser = useAuthUser();
 const { copy } = useClipboard({ legacy: true });
@@ -1380,7 +1486,7 @@ const handleSelectImportUser = (user: { id: string; username: string }) => {
 
 const handleCopyImportPath = async () => {
     await copy(importPreview.value!.importPath!);
-    $toast.success('Path copied');
+    $toast.success(t('instance.import.pathCopied'));
 };
 
 const handleStartImport = async () => {
@@ -1401,7 +1507,7 @@ const handleStartImport = async () => {
         if (result) {
             importResult.value = null;
             importDialog.open = false;
-            $toast.success('Importing files in the background');
+            $toast.success(t('instance.import.started'));
         }
     } catch (error) {
         $toast.error(getErrorMessage(error));
@@ -1414,9 +1520,9 @@ watch(isUserPickerOpen, (value) => value && (userQuery.value = ''));
 
 const handleDeleteStorage = async (storage: StorageRow) => {
     await askConfirmation({
-        title: `Delete ${storage.name}?`,
-        description: 'Fileship forgets this storage. Nothing is deleted from the storage itself.',
-        confirmText: 'Delete',
+        title: t('instance.storage.deleteTitle', { name: storage.name }),
+        description: t('instance.storage.deleteDescription'),
+        confirmText: t('instance.storage.delete'),
         destructive: true,
         action: async () => {
             try {
@@ -1429,7 +1535,7 @@ const handleDeleteStorage = async (storage: StorageRow) => {
 
                 if (result) {
                     await refreshStorages();
-                    $toast.success('Storage deleted');
+                    $toast.success(t('instance.storage.deleted'));
                 }
             } catch (error) {
                 $toast.error(getErrorMessage(error));

@@ -1,12 +1,12 @@
 <template>
     <Head>
-        <Title>Trash</Title>
+        <Title>{{ $t('trash.title') }}</Title>
     </Head>
 
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <PageHeader
-            title="Trash"
-            :description="`Items are deleted forever after ${pluralize(retentionDays, 'day')}. They still count toward your storage until then.`"
+            :title="$t('trash.title')"
+            :description="$t('trash.description', retentionDays)"
         >
             <template v-if="selected.length">
                 <UiButton
@@ -16,16 +16,16 @@
                 >
                     <UiSpinner v-if="restoring.length" />
                     <IRotateCcw v-else />
-                    Restore {{ selected.length }}
+                    {{ $t('trash.restoreCount', { n: selected.length }) }}
                 </UiButton>
                 <UiButton variant="outline" @click="handleDeleteForever(selected)">
                     <ITrash2 />
-                    Delete forever
+                    {{ $t('trash.deleteForever') }}
                 </UiButton>
             </template>
             <UiButton v-else variant="outline" @click="handleEmpty">
                 <ITrash2 />
-                Empty trash
+                {{ $t('trash.emptyTrash') }}
             </UiButton>
         </PageHeader>
 
@@ -42,27 +42,25 @@
                     <UiSpinner v-if="!!search && isFetching" />
                     <ISearch v-else />
                 </UiInputGroupAddon>
-                <UiInputGroupInput v-model="search" placeholder="Search trash..." />
+                <UiInputGroupInput v-model="search" :placeholder="$t('trash.searchPlaceholder')" />
             </UiInputGroup>
         </div>
 
         <EmptyState
             v-if="isError"
             :icon="ICircleAlert"
-            title="Couldn't load the trash"
-            description="Something went wrong. Check your connection and try again."
+            :title="$t('trash.loadFailed')"
+            :description="$t('trash.loadFailedDescription')"
         >
-            <UiButton variant="outline" @click="refresh">Try again</UiButton>
+            <UiButton variant="outline" @click="refresh">{{ $t('trash.tryAgain') }}</UiButton>
         </EmptyState>
 
         <EmptyState
             v-else-if="!isLoading && !isSwitching && !items.length"
             :icon="ITrash2"
-            :title="search ? 'No matching items' : 'Nothing here'"
+            :title="search ? $t('trash.noMatches') : $t('trash.empty')"
             :description="
-                search
-                    ? 'Try a different search.'
-                    : `Deleted ${kind} show up here until they are deleted forever.`
+                search ? $t('trash.noMatchesDescription') : $t(`trash.emptyDescription.${kind}`)
             "
         />
 
@@ -105,7 +103,7 @@
             </template>
             <template #cell-type="{ item }">
                 <UiBadge v-if="item.mimeType" variant="secondary">
-                    {{ FILE_CATEGORIES[getFileCategory(item as any)].label }}
+                    {{ $t(FILE_CATEGORIES[getFileCategory(item as any)].label) }}
                 </UiBadge>
             </template>
             <template #cell-details="{ item }">
@@ -115,17 +113,17 @@
                 <UiTooltip>
                     <UiTooltipTrigger as-child>
                         <span class="block truncate text-muted-foreground">
-                            {{ dayjs(item.deletedAt).fromNow() }}
+                            {{ date(item.deletedAt).fromNow() }}
                         </span>
                     </UiTooltipTrigger>
                     <UiTooltipContent>
-                        {{ dayjs(item.deletedAt).format('MMM D, YYYY HH:mm') }}
+                        {{ date(item.deletedAt).format('lll') }}
                     </UiTooltipContent>
                 </UiTooltip>
             </template>
             <template #cell-purgeAt="{ item }">
                 <span class="block truncate text-muted-foreground">
-                    {{ dayjs(item.purgeAt).fromNow() }}
+                    {{ date(item.purgeAt).fromNow() }}
                 </span>
             </template>
             <template #cell-actions="{ item }">
@@ -139,7 +137,7 @@
                         <UiDropdownMenuContent align="end" class="w-56">
                             <UiDropdownMenuItem @select="handleRestore([item.id])">
                                 <IRotateCcw />
-                                Restore
+                                {{ $t('trash.restore') }}
                             </UiDropdownMenuItem>
                             <UiDropdownMenuSeparator />
                             <UiDropdownMenuItem
@@ -147,7 +145,7 @@
                                 @select="handleDeleteForever([item.id])"
                             >
                                 <ITrash2 />
-                                Delete forever
+                                {{ $t('trash.deleteForever') }}
                             </UiDropdownMenuItem>
                         </UiDropdownMenuContent>
                     </UiDropdownMenu>
@@ -178,7 +176,7 @@
                         <div class="flex min-w-0 flex-1 flex-col">
                             <TextBlock variant="small" class="truncate">{{ item.name }}</TextBlock>
                             <TextBlock variant="muted" class="truncate text-xs">
-                                Deleted forever {{ dayjs(item.purgeAt).fromNow() }}
+                                {{ $t('trash.purgesAt', { time: date(item.purgeAt).fromNow() }) }}
                             </TextBlock>
                         </div>
                         <UiButton
@@ -214,8 +212,6 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
-
 import { IBookmark, ICircleAlert, IFolder, ITrash2 } from '#components';
 
 import type { FileData } from '~/types/files';
@@ -233,6 +229,8 @@ type TrashItem = {
 };
 
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
+const date = useDate();
 const { retentionDays, restore } = useTrash();
 
 const kind = useQueryState<TrashKind>('kind', 'files');
@@ -242,29 +240,40 @@ const selected = ref<string[]>([]);
 const viewerFileId = ref<string | null>(null);
 const restoring = ref<string[]>([]);
 
-const tabs = [
-    { label: 'Files', value: 'files' },
-    { label: 'Folders', value: 'folders' },
-    { label: 'Notes', value: 'notes' },
-];
+const tabs = computed(() => [
+    { label: t('trash.tabs.files'), value: 'files' },
+    { label: t('trash.tabs.folders'), value: 'folders' },
+    { label: t('trash.tabs.notes'), value: 'notes' },
+]);
 
 const columns = computed(() => [
     { key: 'select', label: '', class: 'w-10' },
-    { key: 'name', label: 'Name', sortable: true },
+    { key: 'name', label: t('trash.columns.name'), sortable: true },
     ...(kind.value === 'files'
-        ? [{ key: 'type', label: 'Type', class: 'hidden w-32 lg:table-cell' }]
+        ? [{ key: 'type', label: t('trash.columns.type'), class: 'hidden w-32 lg:table-cell' }]
         : []),
     ...(kind.value === 'notes'
         ? []
         : [
               {
                   key: 'details',
-                  label: kind.value === 'files' ? 'Size' : 'Files',
+                  label:
+                      kind.value === 'files' ? t('trash.columns.size') : t('trash.columns.files'),
                   class: 'hidden w-28 md:table-cell',
               },
           ]),
-    { key: 'deletedAt', label: 'Deleted', sortable: true, descFirst: true, class: 'w-36' },
-    { key: 'purgeAt', label: 'Deleted forever', class: 'hidden w-36 md:table-cell' },
+    {
+        key: 'deletedAt',
+        label: t('trash.columns.deleted'),
+        sortable: true,
+        descFirst: true,
+        class: 'w-36',
+    },
+    {
+        key: 'purgeAt',
+        label: t('trash.columns.deletedForever'),
+        class: 'hidden w-36 md:table-cell',
+    },
     { key: 'actions', label: '', class: 'w-16' },
 ]);
 
@@ -307,7 +316,7 @@ const getIcon = (item: TrashItem) =>
           : IFolder;
 
 const getDetails = (item: TrashItem) =>
-    item.size?.formatted ?? pluralize(item.fileCount ?? 0, 'file');
+    item.size?.formatted ?? t('trash.fileCount', item.fileCount ?? 0);
 
 const trashedFiles = computed(() =>
     kind.value === 'files' && !isSwitching.value ? (items.value as unknown as FileData[]) : [],
@@ -333,9 +342,9 @@ const handleRestore = async (ids: string[]) => {
 
 const handleDeleteForever = async (ids: string[]) => {
     await askConfirmation({
-        title: `Delete ${ids.length > 1 ? pluralize(ids.length, 'item') : 'this item'} forever?`,
-        description: 'This action cannot be undone.',
-        confirmText: 'Delete forever',
+        title: t('trash.deleteForeverTitle', ids.length),
+        description: t('trash.cannotUndo'),
+        confirmText: t('trash.deleteForever'),
         destructive: true,
         action: async () => {
             try {
@@ -345,7 +354,7 @@ const handleDeleteForever = async (ids: string[]) => {
                 });
 
                 selected.value = [];
-                $toast.success('Deleted forever');
+                $toast.success(t('trash.deletedForever'));
             } catch (error: any) {
                 $toast.error(getErrorMessage(error));
                 return false;
@@ -356,9 +365,9 @@ const handleDeleteForever = async (ids: string[]) => {
 
 const handleEmpty = async () => {
     await askConfirmation({
-        title: 'Empty the trash?',
-        description: 'Every file, folder and note in the trash will be deleted forever.',
-        confirmText: 'Empty trash',
+        title: t('trash.emptyTitle'),
+        description: t('trash.emptyTrashDescription'),
+        confirmText: t('trash.emptyTrash'),
         destructive: true,
         action: async () => {
             try {
@@ -366,7 +375,7 @@ const handleEmpty = async () => {
                     $fetch('/api/trash', { method: 'DELETE', body: { verificationData } }),
                 );
 
-                if (result) $toast.success('Trash emptied');
+                if (result) $toast.success(t('trash.emptied'));
             } catch (error: any) {
                 $toast.error(getErrorMessage(error));
             }

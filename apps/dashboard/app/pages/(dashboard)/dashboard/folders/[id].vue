@@ -1,17 +1,17 @@
 <template>
     <Head>
-        <Title>{{ folder?.name || 'Folder' }}</Title>
+        <Title>{{ folder?.name || $t('folders.folder') }}</Title>
     </Head>
 
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <EmptyState
             v-if="!folder && !isLoading"
             :icon="IFolderX"
-            title="Folder not found"
-            description="It may have been deleted."
+            :title="$t('folders.detail.notFound')"
+            :description="$t('folders.detail.notFoundDescription')"
         >
             <UiButton variant="outline" as-child>
-                <NuxtLink to="/dashboard/folders">Back to folders</NuxtLink>
+                <NuxtLink to="/dashboard/folders">{{ $t('folders.detail.back') }}</NuxtLink>
             </UiButton>
         </EmptyState>
 
@@ -19,11 +19,11 @@
             <PageHeader :title="folder.name" :description="description">
                 <UiButton variant="outline" @click="pickerOpen = true">
                     <IFilePlus />
-                    Manage files
+                    {{ $t('folders.detail.manageFiles') }}
                 </UiButton>
                 <UiButton v-if="folder.public" variant="outline" @click="copyLink(folder)">
                     <ILink />
-                    Copy link
+                    {{ $t('folders.detail.copyLink') }}
                 </UiButton>
                 <UiDropdownMenu>
                     <UiDropdownMenuTrigger as-child>
@@ -44,11 +44,11 @@
 
             <UiAlert v-if="folder.isInbox">
                 <IInbox />
-                <UiAlertTitle>This is your inbox</UiAlertTitle>
+                <UiAlertTitle>{{ $t('folders.detail.inboxTitle') }}</UiAlertTitle>
                 <UiAlertDescription>
-                    Files that other people send you through your inbox link land here.
+                    {{ $t('folders.detail.inboxDescription') }}
                     <NuxtLink to="/dashboard/settings/inbox" class="underline underline-offset-4">
-                        Manage inbox settings
+                        {{ $t('folders.detail.inboxSettings') }}
                     </NuxtLink>
                 </UiAlertDescription>
             </UiAlert>
@@ -56,7 +56,7 @@
             <FileBrowser
                 v-model:summary="summary"
                 :folder-id="folder.id"
-                empty-title="This folder is empty"
+                :empty-title="$t('folders.detail.empty')"
             />
 
             <FolderFormDialog v-model:open="formOpen" :folder="folder" />
@@ -64,10 +64,11 @@
             <UiDialog v-model:open="pickerOpen">
                 <UiDialogContent class="flex h-[min(85svh,52rem)] flex-col sm:max-w-4xl">
                     <UiDialogHeader>
-                        <UiDialogTitle>Files in {{ folder.name }}</UiDialogTitle>
+                        <UiDialogTitle>
+                            {{ $t('folders.picker.title', { name: folder.name }) }}
+                        </UiDialogTitle>
                         <UiDialogDescription>
-                            Select the files that belong in this folder. Files from other folders
-                            are moved here.
+                            {{ $t('folders.picker.description') }}
                         </UiDialogDescription>
                     </UiDialogHeader>
 
@@ -90,7 +91,7 @@
                             </UiInputGroupAddon>
                             <UiInputGroupInput
                                 v-model="pickerSearch"
-                                placeholder="Search files..."
+                                :placeholder="$t('folders.picker.searchPlaceholder')"
                             />
                         </UiInputGroup>
                     </div>
@@ -99,16 +100,18 @@
                         <EmptyState
                             v-if="isPickerError"
                             :icon="ICircleAlert"
-                            title="Couldn't load files"
-                            description="Something went wrong. Check your connection and try again."
+                            :title="$t('folders.picker.loadFailed')"
+                            :description="$t('folders.connectionError')"
                         >
-                            <UiButton variant="outline" @click="refreshPicker">Try again</UiButton>
+                            <UiButton variant="outline" @click="refreshPicker">
+                                {{ $t('folders.tryAgain') }}
+                            </UiButton>
                         </EmptyState>
                         <EmptyState
                             v-else-if="!isPickerLoading && !pickerFiles.length"
                             :icon="IFiles"
-                            title="No files here"
-                            description="Try another filter or search."
+                            :title="$t('folders.picker.empty')"
+                            :description="$t('folders.picker.emptyDescription')"
                         />
                         <div
                             v-else-if="isPickerLoading"
@@ -151,13 +154,15 @@
 
                     <UiDialogFooter class="items-center">
                         <TextBlock variant="muted" class="mr-auto">{{ pickerChanges }}</TextBlock>
-                        <UiButton variant="outline" @click="pickerOpen = false">Cancel</UiButton>
+                        <UiButton variant="outline" @click="pickerOpen = false">
+                            {{ $t('common.cancel') }}
+                        </UiButton>
                         <UiButton
                             :disabled="(!added.length && !removed.length) || isSaving"
                             @click="handleSavePicker"
                         >
                             <UiSpinner v-if="isSaving" />
-                            Save
+                            {{ $t('folders.picker.save') }}
                         </UiButton>
                     </UiDialogFooter>
                 </UiDialogContent>
@@ -175,6 +180,7 @@ import type { FolderData } from '~/types/folders';
 const route = useRoute();
 const labels = useBreadcrumbLabels();
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 const { copyLink } = useFolderActions();
 
 const formOpen = ref(false);
@@ -186,11 +192,11 @@ const removed = ref<string[]>([]);
 const isSaving = ref(false);
 const summary = ref<FileSummary>();
 
-const pickerFilters = [
-    { label: 'All files', value: 'all' },
-    { label: 'In this folder', value: 'in' },
-    { label: 'Not in this folder', value: 'out' },
-];
+const pickerFilters = computed(() => [
+    { label: t('folders.picker.all'), value: 'all' },
+    { label: t('folders.picker.in'), value: 'in' },
+    { label: t('folders.picker.out'), value: 'out' },
+]);
 
 const folderId = computed(() => (route.params as any).id as string);
 
@@ -224,15 +230,19 @@ const {
     { limit: 40, enabled: pickerOpen },
 );
 
-const description = computed(
-    () =>
-        `${pluralize(summary.value?.count ?? folder.value!.fileCount, 'file')} · ${folder.value!.public ? 'Public' : 'Private'}`,
+const description = computed(() =>
+    t(
+        folder.value!.public
+            ? 'folders.detail.publicDescription'
+            : 'folders.detail.privateDescription',
+        summary.value?.count ?? folder.value!.fileCount,
+    ),
 );
 
 const pickerChanges = computed(() =>
     added.value.length || removed.value.length
-        ? `${added.value.length} to add · ${removed.value.length} to remove`
-        : 'No changes',
+        ? t('folders.picker.changes', { added: added.value.length, removed: removed.value.length })
+        : t('folders.picker.noChanges'),
 );
 
 const isInFolder = (file: FileData) => file.folderId === folderId.value;
@@ -264,7 +274,7 @@ const handleSavePicker = async () => {
         await moveFiles(added.value, folderId.value);
         await moveFiles(removed.value, null);
 
-        $toast.success('Folder updated');
+        $toast.success(t('folders.detail.updated'));
         pickerOpen.value = false;
     } catch (error: any) {
         $toast.error(getErrorMessage(error));

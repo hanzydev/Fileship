@@ -1,7 +1,7 @@
 <template>
     <UiDropdownMenu>
         <UiDropdownMenuTrigger as-child>
-            <UiButton variant="ghost" size="icon-sm">
+            <UiButton variant="ghost" size="icon-sm" :aria-label="$t('layout.userMenu.actions')">
                 <IEllipsis />
             </UiButton>
         </UiDropdownMenuTrigger>
@@ -11,19 +11,19 @@
                 @select="emit('edit')"
             >
                 <IPencil />
-                Edit
+                {{ $t('layout.userMenu.edit') }}
             </UiDropdownMenuItem>
             <template
                 v-if="user.id !== currentUser!.id && (!user.superAdmin || currentUser!.superAdmin)"
             >
                 <UiDropdownMenuItem @select="emit('impersonate')">
                     <IVenetianMask />
-                    Impersonate
+                    {{ $t('layout.userMenu.impersonate') }}
                 </UiDropdownMenuItem>
                 <UiDropdownMenuSeparator />
                 <UiDropdownMenuItem variant="destructive" @select="emit('delete')">
                     <ITrash2 />
-                    Delete
+                    {{ $t('layout.userMenu.delete') }}
                 </UiDropdownMenuItem>
             </template>
         </UiDropdownMenuContent>

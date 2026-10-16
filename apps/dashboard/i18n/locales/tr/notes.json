@@ -1,0 +1,41 @@
+{
+    "notes": {
+        "title": "Notlar",
+        "count": "{n} not",
+        "new": "Yeni",
+        "newNote": "Yeni not",
+        "searchPlaceholder": "Notlarda ara...",
+        "loadFailed": "Notlar yüklenemedi",
+        "loadFailedDescription": "Bir sorun oluştu. İnternet bağlantını kontrol edip tekrar dene.",
+        "tryAgain": "Tekrar dene",
+        "noMatches": "Eşleşen not yok",
+        "noMatchesDescription": "Başka bir arama dene.",
+        "empty": "Henüz not yok",
+        "emptyDescription": "İlk notunu yaz.",
+        "select": "Bir not seç",
+        "selectDescription": "Listeden bir not seç ya da yeni bir not yaz.",
+        "notFound": "Not bulunamadı",
+        "notFoundDescription": "Silinmiş olabilir.",
+        "backToNotes": "Notlara dön",
+        "saving": "Kaydediliyor...",
+        "notSaved": "Kaydedilmedi",
+        "invalidHint": "Kaydetmek için başlık (en az 3 karakter) ve içerik ekle",
+        "saved": "Kaydedildi",
+        "mode": {
+            "edit": "Düzenle",
+            "split": "Yan yana",
+            "preview": "Önizleme"
+        },
+        "titlePlaceholder": "Adsız not",
+        "contentPlaceholder": "Markdown ile yaz...",
+        "emptyPreview": "Henüz önizlenecek bir şey yok.",
+        "menu": {
+            "open": "Aç",
+            "copyLink": "Herkese açık bağlantıyı kopyala",
+            "copyContent": "İçeriği kopyala",
+            "makePrivate": "Gizli yap",
+            "makePublic": "Herkese açık yap",
+            "delete": "Sil"
+        }
+    }
+}

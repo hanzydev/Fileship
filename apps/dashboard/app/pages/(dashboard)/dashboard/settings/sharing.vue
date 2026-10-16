@@ -2,36 +2,39 @@
     <UiCard>
         <form class="contents" @submit.prevent="handleSaveEmbed">
             <UiCardHeader>
-                <UiCardTitle>Embeds</UiCardTitle>
-                <UiCardDescription>
-                    How your links look when shared on Discord, Twitter and other platforms.
-                </UiCardDescription>
+                <UiCardTitle>{{ $t('sharing.embeds') }}</UiCardTitle>
+                <UiCardDescription>{{ $t('sharing.embedsDescription') }}</UiCardDescription>
                 <UiCardAction>
-                    <UiSwitch v-model="embedForm.enabled" aria-label="Enable embeds" />
+                    <UiSwitch
+                        v-model="embedForm.enabled"
+                        :aria-label="$t('sharing.enableEmbeds')"
+                    />
                 </UiCardAction>
             </UiCardHeader>
             <UiCardContent class="grid gap-6 md:grid-cols-2">
                 <UiFieldGroup>
                     <UiField>
-                        <UiFieldLabel for="embed-title">Title</UiFieldLabel>
+                        <UiFieldLabel for="embed-title">{{ $t('sharing.title') }}</UiFieldLabel>
                         <UiInput id="embed-title" v-model="embedForm.title" />
                     </UiField>
                     <UiField>
-                        <UiFieldLabel for="embed-description">Description</UiFieldLabel>
+                        <UiFieldLabel for="embed-description">
+                            {{ $t('sharing.description') }}
+                        </UiFieldLabel>
                         <UiTextarea id="embed-description" v-model="embedForm.description" />
                     </UiField>
                     <UiField>
-                        <UiFieldLabel for="embed-site">Site name</UiFieldLabel>
+                        <UiFieldLabel for="embed-site">{{ $t('sharing.siteName') }}</UiFieldLabel>
                         <UiInput id="embed-site" v-model="embedForm.siteName" />
                     </UiField>
                     <UiField>
-                        <UiFieldLabel for="embed-color">Color</UiFieldLabel>
+                        <UiFieldLabel for="embed-color">{{ $t('sharing.color') }}</UiFieldLabel>
                         <UiInputGroup>
                             <UiInputGroupAddon>
                                 <input
                                     v-model="embedForm.color"
                                     type="color"
-                                    aria-label="Pick a color"
+                                    :aria-label="$t('sharing.pickColor')"
                                     class="size-5 rounded-full border-0 bg-transparent p-0"
                                 />
                             </UiInputGroupAddon>
@@ -39,12 +42,12 @@
                         </UiInputGroup>
                     </UiField>
                     <UiFieldDescription>
-                        You can use {fileName}, {mimeType}, {size}, {createdAt} and {now}.
+                        {{ $t('sharing.placeholders', PLACEHOLDERS) }}
                     </UiFieldDescription>
                 </UiFieldGroup>
 
                 <div class="flex flex-col gap-2">
-                    <TextBlock variant="small">Preview</TextBlock>
+                    <TextBlock variant="small">{{ $t('sharing.preview') }}</TextBlock>
                     <div
                         :class="
                             cn(
@@ -59,7 +62,7 @@
                                 {{ fillPlaceholders(embedForm.siteName) }}
                             </span>
                             <span class="font-semibold break-words text-primary">
-                                {{ fillPlaceholders(embedForm.title) || 'Untitled' }}
+                                {{ fillPlaceholders(embedForm.title) || $t('sharing.untitled') }}
                             </span>
                             <span
                                 v-if="embedForm.description"
@@ -79,7 +82,7 @@
             <UiCardFooter class="justify-end">
                 <UiButton type="submit" :disabled="isSavingEmbed || !isEmbedDirty">
                     <UiSpinner v-if="isSavingEmbed" />
-                    Save
+                    {{ $t('sharing.save') }}
                 </UiButton>
             </UiCardFooter>
         </form>
@@ -87,17 +90,15 @@
 
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>Domains</UiCardTitle>
-            <UiCardDescription>
-                Custom domains used when building links to your files. One is picked at random.
-            </UiCardDescription>
+            <UiCardTitle>{{ $t('sharing.domains') }}</UiCardTitle>
+            <UiCardDescription>{{ $t('sharing.domainsDescription') }}</UiCardDescription>
         </UiCardHeader>
         <UiCardContent class="flex flex-col gap-3">
             <form class="flex gap-2" @submit.prevent="handleAddDomain">
-                <UiInput v-model="newDomain" placeholder="i.example.com" />
+                <UiInput v-model="newDomain" :placeholder="$t('sharing.domainPlaceholder')" />
                 <UiButton type="submit" variant="outline" :disabled="!newDomain.trim()">
                     <IPlus />
-                    Add
+                    {{ $t('sharing.add') }}
                 </UiButton>
             </form>
             <UiCard v-for="domain in domainsForm" :key="domain" size="sm">
@@ -107,6 +108,7 @@
                     <UiButton
                         variant="ghost"
                         size="icon-sm"
+                        :aria-label="$t('sharing.removeDomain', { domain })"
                         @click="domainsForm = domainsForm.filter((d) => d !== domain)"
                     >
                         <IX />
@@ -116,27 +118,37 @@
             <EmptyState
                 v-if="!domainsForm.length"
                 :icon="IGlobe"
-                title="No custom domains"
-                description="Links use the current domain."
+                :title="$t('sharing.noDomains')"
+                :description="$t('sharing.noDomainsDescription')"
             />
         </UiCardContent>
         <UiCardFooter class="justify-end">
             <UiButton :disabled="isSavingDomains || !isDomainsDirty" @click="handleSaveDomains">
                 <UiSpinner v-if="isSavingDomains" />
-                Save
+                {{ $t('sharing.save') }}
             </UiButton>
         </UiCardFooter>
     </UiCard>
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
+import { filesize } from 'filesize';
 
 import { IGlobe } from '#components';
 
 const embed = useEmbed();
 const domains = useDomains();
 const { $toast } = useNuxtApp();
+const { t, locale } = useI18n();
+const date = useDate();
+
+const PLACEHOLDERS = {
+    fileName: '{fileName}',
+    mimeType: '{mimeType}',
+    size: '{size}',
+    createdAt: '{createdAt}',
+    now: '{now}',
+};
 
 const embedForm = reactive({ ...embed.value });
 const domainsForm = ref([...domains.value]);
@@ -151,16 +163,16 @@ const fillPlaceholders = (text: string) =>
     text
         .replaceAll('{fileName}', 'holiday.png')
         .replaceAll('{mimeType}', 'image/png')
-        .replaceAll('{size}', '2.4 MB')
-        .replaceAll('{createdAt}', dayjs().format('MMM D, YYYY'))
-        .replaceAll('{now}', dayjs().format('MMM D, YYYY HH:mm'));
+        .replaceAll('{size}', filesize(2_400_000, { locale: locale.value }))
+        .replaceAll('{createdAt}', date().format('ll'))
+        .replaceAll('{now}', date().format('lll'));
 
 const handleSaveEmbed = async () => {
     isSavingEmbed.value = true;
 
     try {
         await $fetch('/api/users/@me/embed', { method: 'PATCH', body: embedForm });
-        $toast.success('Embed settings saved');
+        $toast.success(t('sharing.embedSaved'));
     } catch (error: any) {
         $toast.error(error.data?.data?.formErrors?.color?._errors[0] || getErrorMessage(error));
     }
@@ -183,7 +195,7 @@ const handleSaveDomains = async () => {
 
     try {
         await $fetch('/api/users/@me/domains', { method: 'PUT', body: domainsForm.value });
-        $toast.success('Domains saved');
+        $toast.success(t('sharing.domainsSaved'));
     } catch (error: any) {
         $toast.error(getErrorMessage(error));
     }

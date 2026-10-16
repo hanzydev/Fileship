@@ -1,12 +1,12 @@
 <template>
     <Head>
-        <Title>Logs</Title>
+        <Title>{{ $t('logs.title') }}</Title>
     </Head>
 
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <PageHeader
-            title="Logs"
-            :description="isLoading ? 'Loading...' : pluralize(total, 'entry', 'entries')"
+            :title="$t('logs.title')"
+            :description="isLoading ? $t('common.loading') : $t('logs.entryCount', total)"
         >
             <UiButton
                 v-if="currentUser!.superAdmin"
@@ -15,7 +15,7 @@
                 @click="handleClear"
             >
                 <ITrash2 />
-                Clear logs
+                {{ $t('logs.clear') }}
             </UiButton>
         </PageHeader>
 
@@ -25,29 +25,35 @@
                     <UiSpinner v-if="!!search && isFetching" />
                     <ISearch v-else />
                 </UiInputGroupAddon>
-                <UiInputGroupInput v-model="search" placeholder="Search logs..." />
+                <UiInputGroupInput v-model="search" :placeholder="$t('logs.searchPlaceholder')" />
             </UiInputGroup>
             <UiDropdownMenu @update:open="$event && refreshActions()">
                 <UiDropdownMenuTrigger as-child>
                     <UiButton variant="outline" class="max-w-52">
                         <IListFilter />
                         <span class="truncate">
-                            {{ actionFilter === 'all' ? 'All actions' : actionFilter }}
+                            {{
+                                actionFilter === 'all'
+                                    ? $t('logs.allActions')
+                                    : actionLabel(actionFilter)
+                            }}
                         </span>
                         <IChevronDown class="opacity-50" />
                     </UiButton>
                 </UiDropdownMenuTrigger>
                 <UiDropdownMenuContent align="start" class="w-56">
-                    <UiDropdownMenuLabel>Action</UiDropdownMenuLabel>
+                    <UiDropdownMenuLabel>{{ $t('logs.action') }}</UiDropdownMenuLabel>
                     <UiDropdownMenuRadioGroup v-model="actionFilter">
-                        <UiDropdownMenuRadioItem value="all">All actions</UiDropdownMenuRadioItem>
+                        <UiDropdownMenuRadioItem value="all">
+                            {{ $t('logs.allActions') }}
+                        </UiDropdownMenuRadioItem>
                         <UiDropdownMenuSeparator />
                         <UiDropdownMenuRadioItem
                             v-for="action in actions"
                             :key="action"
                             :value="action"
                         >
-                            {{ action }}
+                            {{ actionLabel(action) }}
                         </UiDropdownMenuRadioItem>
                     </UiDropdownMenuRadioGroup>
                 </UiDropdownMenuContent>
@@ -61,7 +67,7 @@
                     </UiButton>
                 </UiDropdownMenuTrigger>
                 <UiDropdownMenuContent align="end" class="w-56">
-                    <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
+                    <UiDropdownMenuLabel>{{ $t('logs.sortBy') }}</UiDropdownMenuLabel>
                     <UiDropdownMenuRadioGroup v-model="sortValue">
                         <UiDropdownMenuRadioItem
                             v-for="option in sortOptions"
@@ -78,22 +84,22 @@
         <EmptyState
             v-if="isError"
             :icon="ICircleAlert"
-            title="Couldn't load logs"
-            description="Something went wrong. Check your connection and try again."
+            :title="$t('logs.loadFailed')"
+            :description="$t('logs.loadFailedDescription')"
         >
-            <UiButton variant="outline" @click="refresh">Try again</UiButton>
+            <UiButton variant="outline" @click="refresh">{{ $t('logs.tryAgain') }}</UiButton>
         </EmptyState>
 
         <EmptyState
             v-else-if="!isLoading && !logs.length"
             :icon="IClipboardList"
-            :title="isFiltered ? 'No matching entries' : 'No logs yet'"
+            :title="isFiltered ? $t('logs.noMatches') : $t('logs.empty')"
             :description="
-                isFiltered ? 'Try a different search or filter.' : 'Activity will show up here.'
+                isFiltered ? $t('logs.noMatchesDescription') : $t('logs.emptyDescription')
             "
         >
             <UiButton v-if="isFiltered" variant="outline" @click="handleClearFilters">
-                Clear filters
+                {{ $t('logs.clearFilters') }}
             </UiButton>
         </EmptyState>
 
@@ -120,13 +126,13 @@
                         <span class="truncate">{{ item.user!.username }}</span>
                     </template>
                     <UiBadge v-else variant="secondary">
-                        {{ item.system ? 'System' : 'Unknown' }}
+                        {{ item.system ? $t('logs.system') : $t('logs.unknown') }}
                     </UiBadge>
                 </div>
             </template>
             <template #cell-action="{ item }">
                 <UiBadge variant="outline" class="max-w-full">
-                    <span class="truncate">{{ item.action }}</span>
+                    <span class="truncate">{{ actionLabel(item.action) }}</span>
                 </UiBadge>
             </template>
             <template #cell-message="{ item }">
@@ -139,11 +145,11 @@
                 <UiTooltip>
                     <UiTooltipTrigger as-child>
                         <span class="block truncate text-muted-foreground">
-                            {{ dayjs(item.createdAt).fromNow() }}
+                            {{ date(item.createdAt).fromNow() }}
                         </span>
                     </UiTooltipTrigger>
                     <UiTooltipContent>
-                        {{ dayjs(item.createdAt).format('MMM D, YYYY HH:mm:ss') }}
+                        {{ date(item.createdAt).format('LL LTS') }}
                     </UiTooltipContent>
                 </UiTooltip>
             </template>
@@ -173,16 +179,16 @@
                 <UiCard size="sm">
                     <UiCardContent class="flex flex-col gap-1">
                         <div class="flex items-center gap-2">
-                            <UiBadge variant="outline">{{ item.action }}</UiBadge>
+                            <UiBadge variant="outline">{{ actionLabel(item.action) }}</UiBadge>
                             <TextBlock variant="muted" class="ml-auto text-xs">
-                                {{ dayjs(item.createdAt).fromNow() }}
+                                {{ date(item.createdAt).fromNow() }}
                             </TextBlock>
                         </div>
                         <TextBlock variant="small" class="line-clamp-2">
                             {{ item.message }}
                         </TextBlock>
                         <TextBlock variant="muted" class="text-xs">
-                            {{ item.user?.username || 'System' }} · {{ item.ip }}
+                            {{ item.user?.username || $t('logs.system') }} · {{ item.ip }}
                         </TextBlock>
                     </UiCardContent>
                 </UiCard>
@@ -192,33 +198,49 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
-
 import { ICircleAlert, IClipboardList } from '#components';
 
 import type { LogData } from '~/types/logs';
 
 const { $toast } = useNuxtApp();
+const { t, te } = useI18n();
+const date = useDate();
 const currentUser = useAuthUser();
 
 const search = ref('');
 const actionFilter = ref('all');
 const sort = ref({ key: 'createdAt', desc: true });
 
-const columns = [
-    { key: 'user', label: 'User', sortable: true, class: 'w-40' },
-    { key: 'action', label: 'Action', sortable: true, class: 'hidden w-48 lg:table-cell' },
-    { key: 'message', label: 'Message' },
-    { key: 'ip', label: 'IP', class: 'hidden w-40 xl:table-cell' },
-    { key: 'createdAt', label: 'When', sortable: true, descFirst: true, class: 'w-32' },
-];
+const actionKey = (action: string) =>
+    `logs.actions.${action.toLowerCase().replace(/ (\w)/g, (_, letter) => letter.toUpperCase())}`;
 
-const sortOptions = [
-    { label: 'Newest', value: 'createdAt:desc' },
-    { label: 'Oldest', value: 'createdAt:asc' },
-    { label: 'Action A–Z', value: 'action:asc' },
-    { label: 'User A–Z', value: 'user:asc' },
-];
+const actionLabel = (action: string) => (te(actionKey(action)) ? t(actionKey(action)) : action);
+
+const columns = computed(() => [
+    { key: 'user', label: t('logs.columns.user'), sortable: true, class: 'w-40' },
+    {
+        key: 'action',
+        label: t('logs.columns.action'),
+        sortable: true,
+        class: 'hidden w-48 lg:table-cell',
+    },
+    { key: 'message', label: t('logs.columns.message') },
+    { key: 'ip', label: 'IP', class: 'hidden w-40 xl:table-cell' },
+    {
+        key: 'createdAt',
+        label: t('logs.columns.when'),
+        sortable: true,
+        descFirst: true,
+        class: 'w-32',
+    },
+]);
+
+const sortOptions = computed(() => [
+    { label: t('logs.sort.newest'), value: 'createdAt:desc' },
+    { label: t('logs.sort.oldest'), value: 'createdAt:asc' },
+    { label: t('logs.sort.action'), value: 'action:asc' },
+    { label: t('logs.sort.user'), value: 'user:asc' },
+]);
 
 const sortValue = computed({
     get: () => `${sort.value.key}:${sort.value.desc ? 'desc' : 'asc'}`,
@@ -258,9 +280,9 @@ const { data: actions, refresh: refreshActions } = useLazyAsyncData(
 
 const handleClear = async () => {
     await askConfirmation({
-        title: 'Clear all logs?',
-        description: 'Every log entry will be permanently deleted.',
-        confirmText: 'Clear',
+        title: t('logs.clearConfirm.title'),
+        description: t('logs.clearConfirm.description'),
+        confirmText: t('logs.clearConfirm.confirm'),
         destructive: true,
         action: async () => {
             try {
@@ -268,7 +290,7 @@ const handleClear = async () => {
                     $fetch('/api/logs', { method: 'DELETE', body: { verificationData } }),
                 );
 
-                if (result) $toast.success('Logs cleared');
+                if (result) $toast.success(t('logs.cleared'));
             } catch (error: any) {
                 $toast.error(getErrorMessage(error));
             }

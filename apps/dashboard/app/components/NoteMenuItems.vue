@@ -2,26 +2,26 @@
     <component :is="Item" v-if="!inNote" as-child>
         <NuxtLink :to="`/dashboard/notes/${note.id}`">
             <IBookOpen />
-            Open
+            {{ $t('notes.menu.open') }}
         </NuxtLink>
     </component>
     <component :is="Item" v-if="note.public && note.publicUrl" @select="copyLink(note)">
         <ILink />
-        Copy public link
+        {{ $t('notes.menu.copyLink') }}
     </component>
     <component :is="Item" @select="copyContent(note)">
         <ICopy />
-        Copy content
+        {{ $t('notes.menu.copyContent') }}
     </component>
     <component :is="Item" @select="togglePublic(note)">
         <IGlobe v-if="!note.public" />
         <IGlobeLock v-else />
-        {{ note.public ? 'Make private' : 'Make public' }}
+        {{ note.public ? $t('notes.menu.makePrivate') : $t('notes.menu.makePublic') }}
     </component>
     <component :is="Separator" />
     <component :is="Item" variant="destructive" @select="remove(note)">
         <ITrash2 />
-        Delete
+        {{ $t('notes.menu.delete') }}
     </component>
 </template>
 

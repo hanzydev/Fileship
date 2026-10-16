@@ -1,11 +1,11 @@
 <template>
     <div class="flex min-h-svh flex-col">
         <Head>
-            <Title>Verify Password</Title>
+            <Title>{{ $t('view.verifyPassword') }}</Title>
         </Head>
 
         <PasswordGate
-            title="Protected link"
+            :title="$t('view.protectedLink')"
             :disabled="isVerifying"
             :error="passwordError"
             @submit="handlePassword"

@@ -1,0 +1,24 @@
+{
+    "view": {
+        "verifyPassword": "Verify password",
+        "passwordProtected": "Password protected",
+        "protectedLink": "Protected link",
+        "enterPassword": "Enter the password to continue.",
+        "password": "Password",
+        "preview": "Preview",
+        "raw": "Raw",
+        "copy": "Copy",
+        "download": "Download",
+        "copyCode": "Copy code",
+        "fileSubtitle": "{size} · {date}",
+        "noPreview": "No preview available",
+        "noPreviewDescription": "This file type can't be previewed, but you can download it.",
+        "fileNotFound": "File not found",
+        "noteNotFound": "Note not found",
+        "noPermission": "You do not have permission to access this page",
+        "contentCopied": "Content copied to clipboard",
+        "linkCopied": "Link copied to clipboard",
+        "noteCopied": "Note copied to clipboard",
+        "codeCopied": "Code copied to clipboard"
+    }
+}

@@ -10,7 +10,11 @@
                 <UiInputGroupInput
                     ref="input"
                     v-model="query"
-                    :placeholder="ai ? 'Describe what you are looking for...' : placeholder"
+                    :placeholder="
+                        ai
+                            ? $t('files.smartSearchPlaceholder')
+                            : placeholder || $t('files.searchDefault')
+                    "
                 />
                 <UiInputGroupAddon v-if="aiAvailable" align="inline-end">
                     <UiTooltip>
@@ -18,14 +22,14 @@
                             <UiInputGroupButton
                                 size="icon-xs"
                                 :variant="ai ? 'default' : 'ghost'"
-                                aria-label="Smart search"
+                                :aria-label="$t('files.smartSearch')"
                                 @click="ai = !ai"
                             >
                                 <ISparkles />
                             </UiInputGroupButton>
                         </UiTooltipTrigger>
                         <UiTooltipContent>
-                            {{ ai ? 'Turn off smart search' : 'Smart search' }}
+                            {{ ai ? $t('files.turnOffSmartSearch') : $t('files.smartSearch') }}
                         </UiTooltipContent>
                     </UiTooltip>
                 </UiInputGroupAddon>
@@ -35,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-const { placeholder = 'Search...' } = defineProps<{
+const { placeholder } = defineProps<{
     placeholder?: string;
     loading?: boolean;
     aiAvailable?: boolean;

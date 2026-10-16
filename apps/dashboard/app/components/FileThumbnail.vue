@@ -2,7 +2,7 @@
     <img
         v-if="src"
         :src="src"
-        alt=""
+        :alt="''"
         loading="lazy"
         decoding="async"
         draggable="false"

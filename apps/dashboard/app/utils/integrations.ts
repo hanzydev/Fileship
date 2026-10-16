@@ -65,7 +65,7 @@ const platforms = {
             '    elif command -v spectacle >/dev/null; then',
             '        spectacle -rbno "$file"',
             '    else',
-            "        echo 'Install grim and slurp, flameshot, maim, gnome-screenshot or spectacle.' >&2",
+            '        echo "$missing_tool" >&2',
             '        exit 1',
             '    fi',
         ],
@@ -86,6 +86,7 @@ export const buildUnixScript = (
     platform: keyof typeof platforms,
     { url, linkUrl, token, fields }: IntegrationOptions,
 ) => {
+    const { t } = useNuxtApp().$i18n;
     const { capture, copy, notify } = platforms[platform];
 
     return [
@@ -94,6 +95,12 @@ export const buildUnixScript = (
         '',
         `url=${shellQuote(url)}`,
         `token=${shellQuote(token)}`,
+        ...(platform === 'linux'
+            ? [`missing_tool=${shellQuote(t('sweepApp.scriptMissingTool'))}`]
+            : []),
+        `upload_failed=${shellQuote(t('sweepApp.scriptUploadFailed'))}`,
+        `link_copied=${shellQuote(t('sweepApp.scriptLinkCopied'))}`,
+        ...(linkUrl ? [`shorten_failed=${shellQuote(t('sweepApp.scriptShortenFailed'))}`] : []),
         '',
         'copy() {',
         `    ${copy}`,
@@ -109,13 +116,13 @@ export const buildUnixScript = (
                   '    response=$(curl -fsS -H "Authorization: Bearer $token" \\',
                   '        -H "Content-Type: application/json" \\',
                   `        -d "{\\"url\\":\\"$2\\"}" ${shellQuote(linkUrl)}) || {`,
-                  '        notify "Shortening failed"',
+                  '        notify "$shorten_failed"',
                   '        exit 1',
                   '    }',
                   `    link=$(printf %s "$response" | sed -n 's/.*"shortUrl": *"\\([^"]*\\)".*/\\1/p')`,
                   '    echo "$link"',
                   '    copy "$link"',
-                  '    notify "Link copied to clipboard"',
+                  '    notify "$link_copied"',
                   '    exit 0',
                   'fi',
                   '',
@@ -137,7 +144,7 @@ export const buildUnixScript = (
             ([key, value]) => `        --form-string ${shellQuote(`${key}=${value}`)} \\`,
         ),
         '        -F "file=@$file;type=$(file --mime-type -b "$file")" "$url") || {',
-        '        notify "Upload failed"',
+        '        notify "$upload_failed"',
         '        exit 1',
         '    }',
         `    link=$(printf %s "$response" | sed -n 's/.*"url": *"\\([^"]*\\)".*/\\1/p')`,
@@ -146,7 +153,7 @@ export const buildUnixScript = (
         'done',
         '',
         'copy "$links"',
-        'notify "Link copied to clipboard"',
+        'notify "$link_copied"',
         '',
     ].join('\n');
 };

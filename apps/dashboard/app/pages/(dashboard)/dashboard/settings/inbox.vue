@@ -1,15 +1,15 @@
 <template>
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>Inbox</UiCardTitle>
+            <UiCardTitle>{{ $t('inboxSettings.title') }}</UiCardTitle>
             <UiCardDescription>
-                A personal drop zone where anyone with the link can send you files.
+                {{ $t('inboxSettings.description') }}
             </UiCardDescription>
             <UiCardAction>
                 <UiSwitch
                     :model-value="inbox?.enabled"
                     :disabled="!inbox || isToggling"
-                    aria-label="Enable inbox"
+                    :aria-label="$t('inboxSettings.enable')"
                     @update:model-value="handleToggle"
                 />
             </UiCardAction>
@@ -17,7 +17,7 @@
         <UiCardContent v-if="inbox" class="flex flex-col gap-6">
             <form class="flex flex-col gap-3" @submit.prevent="handleSaveSlug">
                 <UiField :data-invalid="!!slugError">
-                    <UiFieldLabel for="inbox-slug">Inbox link</UiFieldLabel>
+                    <UiFieldLabel for="inbox-slug">{{ $t('inboxSettings.link') }}</UiFieldLabel>
                     <UiInputGroup>
                         <UiInputGroupAddon class="hidden sm:flex">
                             {{ inboxBaseUrl }}
@@ -37,20 +37,24 @@
                     :disabled="isSavingSlug || slug === (inbox.slug || inbox.id)"
                 >
                     <UiSpinner v-if="isSavingSlug" />
-                    Save link
+                    {{ $t('inboxSettings.saveLink') }}
                 </UiButton>
             </form>
 
             <form class="flex flex-col gap-3" @submit.prevent="handleSavePassword">
                 <UiField>
-                    <UiFieldLabel for="inbox-password">Password</UiFieldLabel>
+                    <UiFieldLabel for="inbox-password">
+                        {{ $t('inboxSettings.password') }}
+                    </UiFieldLabel>
                     <PasswordInput
                         id="inbox-password"
                         v-model="password"
-                        placeholder="No password"
+                        :placeholder="$t('inboxSettings.noPassword')"
                         autocomplete="new-password"
                     />
-                    <UiFieldDescription>Leave empty to let anyone send files.</UiFieldDescription>
+                    <UiFieldDescription>
+                        {{ $t('inboxSettings.passwordDescription') }}
+                    </UiFieldDescription>
                 </UiField>
                 <UiButton
                     type="submit"
@@ -58,7 +62,7 @@
                     :disabled="isSavingPassword || password === (inbox.password || '')"
                 >
                     <UiSpinner v-if="isSavingPassword" />
-                    Save password
+                    {{ $t('inboxSettings.savePassword') }}
                 </UiButton>
             </form>
         </UiCardContent>
@@ -73,7 +77,7 @@
             <UiButton variant="ghost" as-child>
                 <NuxtLink :to="`/dashboard/folders/${inbox.folderId}`">
                     <IInbox />
-                    Open inbox folder
+                    {{ $t('inboxSettings.openFolder') }}
                     <IArrowRight />
                 </NuxtLink>
             </UiButton>
@@ -83,6 +87,7 @@
 
 <script setup lang="ts">
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 const { copy } = useClipboard({ legacy: true });
 
 const { data: inbox, refresh } = useFetch('/api/users/@me/inbox', { server: false });
@@ -106,7 +111,7 @@ const handleToggle = async (enabled: boolean) => {
 
     try {
         await update({ enabled });
-        $toast.success(enabled ? 'Inbox enabled' : 'Inbox disabled');
+        $toast.success(enabled ? t('inboxSettings.enabled') : t('inboxSettings.disabled'));
     } catch (error: any) {
         $toast.error(getErrorMessage(error));
     }
@@ -120,7 +125,7 @@ const handleSaveSlug = async () => {
 
     try {
         await update({ slug: slug.value || null });
-        $toast.success('Inbox link updated');
+        $toast.success(t('inboxSettings.linkUpdated'));
     } catch (error: any) {
         slugError.value = getErrorMessage(error);
     }
@@ -133,7 +138,7 @@ const handleSavePassword = async () => {
 
     try {
         await update({ password: password.value || null });
-        $toast.success('Inbox password updated');
+        $toast.success(t('inboxSettings.passwordUpdated'));
     } catch (error: any) {
         $toast.error(getErrorMessage(error));
     }
@@ -143,7 +148,7 @@ const handleSavePassword = async () => {
 
 const handleCopy = () => {
     copy(getPublicUrl(`/inbox/${inbox.value!.slug || inbox.value!.id}`));
-    $toast.success('Inbox link copied to clipboard');
+    $toast.success(t('inboxSettings.linkCopied'));
 };
 
 watch(inbox, (value) => {

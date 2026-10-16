@@ -1,23 +1,20 @@
 <template>
     <Head>
-        <Title>Dashboard</Title>
+        <Title>{{ $t('home.title') }}</Title>
     </Head>
 
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <PageHeader
-            :title="`${greeting}, ${upperFirst(currentUser!.username)}`"
-            :description="today"
-        >
+        <PageHeader :title="greeting" :description="today">
             <UiButton v-if="canUpload" variant="outline" as-child>
                 <NuxtLink to="/dashboard/folders?new=1">
                     <IFolderPlus />
-                    New folder
+                    {{ $t('home.newFolder') }}
                 </NuxtLink>
             </UiButton>
             <UiButton v-if="canNote" variant="outline" as-child>
                 <NuxtLink to="/dashboard/notes/new">
                     <ISquarePen />
-                    New note
+                    {{ $t('home.newNote') }}
                 </NuxtLink>
             </UiButton>
         </PageHeader>
@@ -29,12 +26,12 @@
         <div v-if="canUpload" class="grid flex-1 gap-4 xl:grid-cols-3">
             <UiCard class="min-w-0 xl:col-span-2">
                 <UiCardHeader>
-                    <UiCardTitle>Recent files</UiCardTitle>
-                    <UiCardDescription>Your latest uploads</UiCardDescription>
+                    <UiCardTitle>{{ $t('home.recentFiles') }}</UiCardTitle>
+                    <UiCardDescription>{{ $t('home.recentFilesDescription') }}</UiCardDescription>
                     <UiCardAction>
                         <UiButton variant="ghost" size="sm" as-child>
                             <NuxtLink to="/dashboard/files">
-                                View all
+                                {{ $t('home.viewAll') }}
                                 <IArrowRight />
                             </NuxtLink>
                         </UiButton>
@@ -44,12 +41,12 @@
                     <EmptyState
                         v-if="!isFilesLoading && !recentFiles.length"
                         :icon="IFiles"
-                        title="No files yet"
-                        description="Drop files anywhere, paste an image or use the upload button."
+                        :title="$t('home.noFiles')"
+                        :description="$t('home.noFilesDescription')"
                     >
                         <UiButton @click="uploadSheetOpen = true">
                             <IUpload />
-                            Upload files
+                            {{ $t('home.uploadFiles') }}
                         </UiButton>
                     </EmptyState>
                     <div
@@ -84,17 +81,17 @@
 
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
                 <StatsDonut
-                    title="File types"
-                    description="Files by type"
-                    value-label="Files"
+                    :title="$t('home.fileTypes')"
+                    :description="$t('home.fileTypesDescription')"
+                    :value-label="$t('home.files')"
                     :is-loading="!stats && !statsFailed"
                     :items="filesByType"
                     compact
                 />
                 <StatsDonut
-                    title="Storage"
-                    description="Storage used by file type"
-                    value-label="Size"
+                    :title="$t('home.storage')"
+                    :description="$t('home.storageDescription')"
+                    :value-label="$t('home.size')"
                     :is-loading="!stats && !statsFailed"
                     :items="storageByType"
                     compact
@@ -118,7 +115,6 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
 import { upperFirst } from 'scule';
 
 import { IBookmark, IBox, IEye, IFiles, IFolder, ILink, IUsers } from '#components';
@@ -126,12 +122,13 @@ import { IBookmark, IBox, IEye, IFiles, IFolder, ILink, IUsers } from '#componen
 import type { FileData } from '~/types/files';
 
 const { $toast } = useNuxtApp();
+const { t, locale } = useI18n();
 const stats = useStats();
 const statsFailed = ref(false);
 const currentUser = useAuthUser();
 const uploadSheetOpen = useUploadSheet();
 
-const greeting = ref('Welcome back');
+const greetingKey = ref('welcomeBack');
 const today = ref('');
 const sheetFileId = useQueryState('file', '');
 const sheetTab = ref('details');
@@ -141,6 +138,10 @@ const moveTargets = ref<Pick<FileData, 'id' | 'folderId'>[]>([]);
 const canUpload = computed(() => canUploadFiles(currentUser.value));
 const canNote = computed(() => canTakeNotes(currentUser.value));
 const canShorten = computed(() => canShortenLinks(currentUser.value));
+
+const greeting = computed(() =>
+    t(`home.greeting.${greetingKey.value}`, { name: upperFirst(currentUser.value!.username) }),
+);
 
 const {
     items: recentFiles,
@@ -163,14 +164,14 @@ const recentItemClass = (index: number) =>
 
 const filesByType = computed(() =>
     (stats.value?.byType ?? []).map((category) => ({
-        label: FILE_CATEGORIES[category.type as FileCategory].label,
+        label: t(FILE_CATEGORIES[category.type as FileCategory].label),
         value: category.count,
     })),
 );
 
 const storageByType = computed(() =>
     (stats.value?.byType ?? []).map((category) => ({
-        label: FILE_CATEGORIES[category.type as FileCategory].label,
+        label: t(FILE_CATEGORIES[category.type as FileCategory].label),
         value: +category.size,
         formatted: category.formatted,
     })),
@@ -179,53 +180,55 @@ const storageByType = computed(() =>
 const statCards = computed(() =>
     [
         {
-            title: 'Files',
-            legend: 'uploaded files',
+            title: t('home.cards.files'),
+            legend: t('home.cards.filesLegend'),
             icon: IFiles,
             data: stats.value?.files.count,
             growth: stats.value?.files.growth,
         },
         {
-            title: 'Views',
-            legend: 'total file views',
+            title: t('home.cards.views'),
+            legend: t('home.cards.viewsLegend'),
             icon: IEye,
             data: stats.value?.views.count,
             growth: stats.value?.views.growth,
         },
         {
-            title: 'Storage',
+            title: t('home.cards.storage'),
             legend: +(stats.value?.storageUsed.trashed?.raw ?? 0)
-                ? `used storage, ${stats.value!.storageUsed.trashed.formatted} in trash`
-                : 'used storage',
+                ? t('home.cards.storageLegendTrashed', {
+                      size: stats.value!.storageUsed.trashed.formatted,
+                  })
+                : t('home.cards.storageLegend'),
             icon: IBox,
             data: stats.value?.storageUsed.size,
             growth: stats.value?.storageUsed.growth,
         },
         isAdmin(currentUser.value)
             ? {
-                  title: 'Users',
-                  legend: 'total users',
+                  title: t('home.cards.users'),
+                  legend: t('home.cards.usersLegend'),
                   icon: IUsers,
                   data: stats.value?.users.count,
                   growth: stats.value?.users.growth,
               }
             : canNote.value
               ? {
-                    title: 'Notes',
-                    legend: 'saved notes',
+                    title: t('home.cards.notes'),
+                    legend: t('home.cards.notesLegend'),
                     icon: IBookmark,
                     data: stats.value?.notes.count,
                 }
               : canShorten.value && !canUpload.value
                 ? {
-                      title: 'Short links',
-                      legend: 'short links',
+                      title: t('home.cards.links'),
+                      legend: t('home.cards.linksLegend'),
                       icon: ILink,
                       data: stats.value?.links.count,
                   }
                 : {
-                      title: 'Folders',
-                      legend: 'created folders',
+                      title: t('home.cards.folders'),
+                      legend: t('home.cards.foldersLegend'),
                       icon: IFolder,
                       data: stats.value?.folders.count,
                   },
@@ -251,16 +254,20 @@ const openEdit = (file: FileData) => {
 onMounted(async () => {
     const hour = new Date().getHours();
 
-    today.value = dayjs().format('dddd, MMMM D');
+    today.value = new Intl.DateTimeFormat(locale.value, {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+    }).format(new Date());
 
-    greeting.value =
+    greetingKey.value =
         hour >= 5 && hour < 12
-            ? 'Good morning'
+            ? 'morning'
             : hour >= 12 && hour < 17
-              ? 'Good afternoon'
+              ? 'afternoon'
               : hour >= 17 && hour < 22
-                ? 'Good evening'
-                : 'Good night';
+                ? 'evening'
+                : 'night';
 
     await $fetch('/api/users/@me/stats')
         .then((data) => (stats.value = data))

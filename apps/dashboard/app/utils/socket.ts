@@ -44,6 +44,8 @@ export const initSocket = () => {
 
         socket.on('currentUser:update', (data) => {
             if (data.theme) currentTheme.value = data.theme;
+            if ('language' in data && data.language !== currentUser.value?.language)
+                applyLanguage(data.language);
 
             currentUser.value = {
                 ...currentUser.value,

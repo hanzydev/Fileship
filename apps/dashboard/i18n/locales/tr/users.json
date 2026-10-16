@@ -1,0 +1,62 @@
+{
+    "users": {
+        "title": "Kullanıcılar",
+        "userCount": "{n} kullanıcı",
+        "fileCount": "{n} dosya",
+        "newUser": "Yeni kullanıcı",
+        "searchPlaceholder": "Kullanıcı ara…",
+        "sortBy": "Sırala",
+        "loadError": "Kullanıcılar yüklenemedi",
+        "loadErrorDescription": "Bir sorun oluştu. İnternet bağlantını kontrol edip tekrar dene.",
+        "tryAgain": "Tekrar dene",
+        "noMatches": "Eşleşen kullanıcı yok",
+        "noMatchesDescription": "Başka bir kullanıcı adı dene.",
+        "clearSearch": "Aramayı temizle",
+        "you": "Sen",
+        "unlimited": "Sınırsız",
+        "sizeMb": "{size} MB",
+        "editTitle": "{username} adlı kullanıcıyı düzenle",
+        "editDescription": "Hesap bilgilerini, yetkileri ve sınırları güncelle.",
+        "createDescription": "Başka biri için hesap oluştur.",
+        "username": "Kullanıcı adı",
+        "password": "Şifre",
+        "passwordKeepPlaceholder": "Değiştirmemek için boş bırak",
+        "permissions": "Yetkiler",
+        "limits": "Sınırlar",
+        "limitsDescription": "Sınırsız için -1 gir.",
+        "backups": "Yedekler",
+        "storageMb": "Kullanılabilir alan (MB)",
+        "superAdmin": "Süper yönetici",
+        "superAdminDescription": "Diğer yöneticileri yönetmek de dahil her şeye erişebilir.",
+        "saveChanges": "Değişiklikleri kaydet",
+        "createUser": "Kullanıcı oluştur",
+        "updated": "Kullanıcı güncellendi",
+        "created": "Kullanıcı oluşturuldu",
+        "deleted": "Kullanıcı silindi",
+        "deleteTitle": "{username} silinsin mi?",
+        "deleteDescription": "Kullanıcının dosyaları, klasörleri, notları ve kısa bağlantıları da silinir. Bu işlem geri alınamaz.",
+        "delete": "Sil",
+        "permission": {
+            "Admin": "Yönetici",
+            "UploadFiles": "Dosya yükleme",
+            "TakeNotes": "Not alma",
+            "ShortenLinks": "Bağlantı kısaltma"
+        },
+        "column": {
+            "user": "Kullanıcı",
+            "role": "Rol",
+            "files": "Dosyalar",
+            "notes": "Notlar",
+            "storage": "Kullanılabilir alan",
+            "joined": "Katılma tarihi"
+        },
+        "sort": {
+            "newest": "En yeni",
+            "oldest": "En eski",
+            "nameAsc": "Ad (A–Z)",
+            "nameDesc": "Ad (Z–A)",
+            "mostFiles": "En çok dosya",
+            "mostNotes": "En çok not"
+        }
+    }
+}

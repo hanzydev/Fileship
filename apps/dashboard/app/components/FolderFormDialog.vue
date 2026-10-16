@@ -3,23 +3,25 @@
         <UiDialogContent class="sm:max-w-md">
             <form class="flex flex-col gap-6" @submit.prevent="handleSubmit">
                 <UiDialogHeader>
-                    <UiDialogTitle>{{ folder ? 'Edit folder' : 'New folder' }}</UiDialogTitle>
+                    <UiDialogTitle>
+                        {{ folder ? $t('folders.form.editTitle') : $t('folders.form.newTitle') }}
+                    </UiDialogTitle>
                     <UiDialogDescription>
                         {{
                             folder
-                                ? 'Rename the folder or change who can see it.'
-                                : 'Group files together and share them with a single link.'
+                                ? $t('folders.form.editDescription')
+                                : $t('folders.form.newDescription')
                         }}
                     </UiDialogDescription>
                 </UiDialogHeader>
 
                 <UiFieldGroup>
                     <UiField :data-invalid="!!formErrors?.name">
-                        <UiFieldLabel for="folder-name">Name</UiFieldLabel>
+                        <UiFieldLabel for="folder-name">{{ $t('folders.form.name') }}</UiFieldLabel>
                         <UiInput
                             id="folder-name"
                             v-model="form.name"
-                            placeholder="Holiday photos"
+                            :placeholder="$t('folders.form.namePlaceholder')"
                         />
                         <UiFieldError v-if="formErrors?.name" :errors="formErrors.name._errors" />
                     </UiField>
@@ -28,9 +30,11 @@
                         class="has-[>[data-slot=field-content]]:items-center"
                     >
                         <UiFieldContent>
-                            <UiFieldLabel for="folder-public">Public</UiFieldLabel>
+                            <UiFieldLabel for="folder-public">
+                                {{ $t('folders.form.public') }}
+                            </UiFieldLabel>
                             <UiFieldDescription>
-                                Anyone with the link can view the files in this folder.
+                                {{ $t('folders.form.publicDescription') }}
                             </UiFieldDescription>
                         </UiFieldContent>
                         <UiSwitch id="folder-public" v-model="form.public" />
@@ -39,11 +43,11 @@
 
                 <UiDialogFooter>
                     <UiButton type="button" variant="outline" @click="open = false">
-                        Cancel
+                        {{ $t('common.cancel') }}
                     </UiButton>
                     <UiButton type="submit" :disabled="isSaving || !form.name.trim()">
                         <UiSpinner v-if="isSaving" />
-                        {{ folder ? 'Save' : 'Create' }}
+                        {{ folder ? $t('folders.form.save') : $t('folders.form.create') }}
                     </UiButton>
                 </UiDialogFooter>
             </form>
@@ -61,6 +65,7 @@ const { folder } = defineProps<{
 const open = defineModel<boolean>('open', { required: true });
 
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 
 const isSaving = ref(false);
 const formErrors = ref();
@@ -73,10 +78,10 @@ const handleSubmit = async () => {
     try {
         if (folder) {
             await $fetch(`/api/folders/${folder.id}`, { method: 'PATCH', body: form });
-            $toast.success('Folder updated');
+            $toast.success(t('folders.form.updated'));
         } else {
             const created = await $fetch('/api/folders', { method: 'POST', body: form });
-            $toast.success('Folder created');
+            $toast.success(t('folders.form.created'));
             navigateTo(`/dashboard/folders/${created.id}`);
         }
 

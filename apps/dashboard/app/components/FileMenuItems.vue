@@ -1,32 +1,32 @@
 <template>
     <component :is="Item" @select="emit('view')">
         <IPanelRight />
-        View details
+        {{ $t('files.viewDetails') }}
     </component>
     <component :is="Item" @select="openFile(file)">
         <IExternalLink />
-        Open
+        {{ $t('files.open') }}
     </component>
     <component :is="Item" @select="copyLink(file)">
         <ILink />
-        Copy link
+        {{ $t('files.copyLink') }}
     </component>
     <component :is="Item" @select="download([file])">
         <IDownload />
-        Download
+        {{ $t('files.download') }}
     </component>
     <component :is="Separator" />
     <component :is="Item" @select="emit('edit')">
         <IPencil />
-        Edit
+        {{ $t('files.edit') }}
     </component>
     <component :is="Item" @select="emit('move')">
         <IFolderInput />
-        {{ file.folderId ? 'Move to another folder' : 'Add to folder' }}
+        {{ file.folderId ? $t('files.moveToAnotherFolder') : $t('files.addToFolder') }}
     </component>
     <component :is="Item" v-if="file.folderId" @select="move([file], null)">
         <IFolderMinus />
-        Remove from folder
+        {{ $t('files.removeFromFolder') }}
     </component>
     <component
         :is="Item"
@@ -35,12 +35,12 @@
     >
         <IShieldCheck v-if="file.piiDetected" />
         <IShieldAlert v-else />
-        {{ file.piiDetected ? 'Not sensitive' : 'Mark as sensitive' }}
+        {{ file.piiDetected ? $t('files.notSensitive') : $t('files.markSensitive') }}
     </component>
     <component :is="Separator" />
     <component :is="Item" variant="destructive" @select="remove([file])">
         <ITrash2 />
-        Delete
+        {{ $t('files.delete') }}
     </component>
 </template>
 

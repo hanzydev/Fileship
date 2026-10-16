@@ -1,9 +1,9 @@
 <template>
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>Avatar</UiCardTitle>
+            <UiCardTitle>{{ $t('settings.profile.avatar') }}</UiCardTitle>
             <UiCardDescription>
-                A square image of at least 64×64 pixels works best.
+                {{ $t('settings.profile.avatarDescription') }}
             </UiCardDescription>
         </UiCardHeader>
         <UiCardContent class="flex items-center gap-4">
@@ -17,7 +17,7 @@
                 <UiButton :disabled="isUpdatingAvatar" @click="avatarInput!.click()">
                     <UiSpinner v-if="isUpdatingAvatar" />
                     <IUpload v-else />
-                    Upload
+                    {{ $t('settings.profile.upload') }}
                 </UiButton>
                 <UiButton
                     v-if="currentUser!.avatar"
@@ -26,7 +26,7 @@
                     @click="updateAvatar(null)"
                 >
                     <ITrash2 />
-                    Remove
+                    {{ $t('settings.profile.remove') }}
                 </UiButton>
             </div>
             <input
@@ -42,12 +42,16 @@
     <UiCard>
         <form class="contents" @submit.prevent="handleSave">
             <UiCardHeader>
-                <UiCardTitle>Account</UiCardTitle>
-                <UiCardDescription>Your public username.</UiCardDescription>
+                <UiCardTitle>{{ $t('settings.profile.account') }}</UiCardTitle>
+                <UiCardDescription>
+                    {{ $t('settings.profile.accountDescription') }}
+                </UiCardDescription>
             </UiCardHeader>
             <UiCardContent>
                 <UiField :data-invalid="!!formErrors?.username">
-                    <UiFieldLabel for="username">Username</UiFieldLabel>
+                    <UiFieldLabel for="username">
+                        {{ $t('settings.profile.username') }}
+                    </UiFieldLabel>
                     <UiInput id="username" v-model="username" autocomplete="username" />
                     <UiFieldError
                         v-if="formErrors?.username"
@@ -58,7 +62,7 @@
             <UiCardFooter class="justify-end">
                 <UiButton type="submit" :disabled="isSaving || username === currentUser!.username">
                     <UiSpinner v-if="isSaving" />
-                    Save
+                    {{ $t('settings.profile.save') }}
                 </UiButton>
             </UiCardFooter>
         </form>
@@ -66,6 +70,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n();
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
 
@@ -85,7 +90,9 @@ const updateAvatar = async (avatar: string | null) => {
             body: { avatar },
         });
 
-        $toast.success(avatar ? 'Avatar updated' : 'Avatar removed');
+        $toast.success(
+            avatar ? t('settings.profile.avatarUpdated') : t('settings.profile.avatarRemoved'),
+        );
     } catch (error: any) {
         $toast.error(getErrorMessage(error));
     }
@@ -113,7 +120,7 @@ const handleSave = async () => {
             body: { username: username.value },
         });
 
-        $toast.success('Username updated');
+        $toast.success(t('settings.profile.usernameUpdated'));
     } catch (error: any) {
         formErrors.value = error.data?.data?.formErrors;
         if (!formErrors.value) $toast.error(getErrorMessage(error));

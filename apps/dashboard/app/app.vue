@@ -11,16 +11,10 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-import relativeTime from 'dayjs/plugin/relativeTime';
-
-dayjs.extend(duration);
-dayjs.extend(relativeTime);
-
 const publicSettings = usePublicSettings();
 const currentUser = useAuthUser();
 const currentTheme = useTheme();
+const { locale } = useI18n();
 
 onMounted(initSocket);
 
@@ -31,6 +25,7 @@ watch(currentUser, (value) => {
 
 useHead({
     htmlAttrs: {
+        lang: locale,
         'data-accent': currentTheme,
     },
     titleTemplate: (title) =>

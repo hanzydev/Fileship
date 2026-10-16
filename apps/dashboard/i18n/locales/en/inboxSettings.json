@@ -1,0 +1,19 @@
+{
+    "inboxSettings": {
+        "title": "Inbox",
+        "description": "A personal drop zone where anyone with the link can send you files.",
+        "enable": "Enable inbox",
+        "link": "Inbox link",
+        "saveLink": "Save link",
+        "password": "Password",
+        "noPassword": "No password",
+        "passwordDescription": "Leave empty to let anyone send files.",
+        "savePassword": "Save password",
+        "openFolder": "Open inbox folder",
+        "enabled": "Inbox enabled",
+        "disabled": "Inbox disabled",
+        "linkUpdated": "Inbox link updated",
+        "passwordUpdated": "Inbox password updated",
+        "linkCopied": "Inbox link copied to clipboard"
+    }
+}

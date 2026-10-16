@@ -1,0 +1,61 @@
+{
+    "settings": {
+        "appearance": {
+            "theme": "Theme",
+            "themeDescription": "Light, dark or follow your system.",
+            "light": "Light",
+            "dark": "Dark",
+            "system": "System",
+            "language": "Language",
+            "languageDescription": "Synced across all your devices. System follows your browser.",
+            "languageFailed": "Failed to update language",
+            "accent": "Accent color",
+            "accentDescription": "Synced across all your devices.",
+            "accents": {
+                "Fileship": "Fileship",
+                "Blue": "Blue",
+                "Purple": "Purple",
+                "Red": "Red",
+                "Orange": "Orange",
+                "Pink": "Pink",
+                "Green": "Green",
+                "Yellow": "Yellow"
+            }
+        },
+        "nav": {
+            "title": "Settings",
+            "description": "Manage your account and preferences.",
+            "profile": "Profile",
+            "security": "Security",
+            "sessions": "Sessions",
+            "backups": "Backups",
+            "sharing": "Sharing",
+            "inbox": "Inbox",
+            "integrations": "Integrations",
+            "ai": "AI",
+            "appearance": "Appearance"
+        },
+        "profile": {
+            "avatar": "Avatar",
+            "avatarDescription": "A square image of at least 64×64 pixels works best.",
+            "upload": "Upload",
+            "remove": "Remove",
+            "avatarUpdated": "Avatar updated",
+            "avatarRemoved": "Avatar removed",
+            "account": "Account",
+            "accountDescription": "Your public username.",
+            "username": "Username",
+            "save": "Save",
+            "usernameUpdated": "Username updated"
+        },
+        "ai": {
+            "title": "AI",
+            "description": "Captions, smart search and sensitive content detection for your files.",
+            "enabled": "AI features",
+            "enabledDescription": "Analyze uploads to enable captions and smart search.",
+            "suppressPii": "Hide sensitive previews",
+            "suppressPiiDescription": "Blur image previews that may contain personal information.",
+            "saved": "AI settings saved"
+        }
+    }
+}

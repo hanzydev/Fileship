@@ -2,7 +2,8 @@ export type TrashSelection = { files?: string[]; folders?: string[]; notes?: str
 
 export const useTrash = () => {
     const publicSettings = usePublicSettings();
-    const { $toast } = useNuxtApp();
+    const { $toast, $i18n } = useNuxtApp();
+    const { t } = $i18n;
 
     const retentionDays = computed(() => publicSettings.value.trashRetentionDays);
     const isEnabled = computed(() => retentionDays.value > 0);
@@ -10,24 +11,24 @@ export const useTrash = () => {
     const deleteConfirmation = (label: string) =>
         isEnabled.value
             ? {
-                  title: `Move ${label} to trash?`,
-                  description: `You can restore it from the trash for ${pluralize(retentionDays.value, 'day')}.`,
-                  confirmText: 'Move to trash',
+                  title: t('trash.moveTitle', { label }),
+                  description: t('trash.moveDescription', retentionDays.value),
+                  confirmText: t('trash.moveToTrash'),
                   destructive: true,
               }
             : {
-                  title: `Delete ${label}?`,
-                  description: 'This action cannot be undone.',
-                  confirmText: 'Delete',
+                  title: t('trash.deleteTitle', { label }),
+                  description: t('trash.cannotUndo'),
+                  confirmText: t('trash.delete'),
                   destructive: true,
               };
 
     const restore = async (selection: TrashSelection) => {
-        const id = $toast.loading('Restoring...');
+        const id = $toast.loading(t('trash.restoring'));
 
         try {
             await $fetch('/api/trash/restore', { method: 'POST', body: selection });
-            $toast.success('Restored', { id });
+            $toast.success(t('trash.restored'), { id });
 
             return true;
         } catch (error: any) {
@@ -37,10 +38,10 @@ export const useTrash = () => {
     };
 
     const notifyDeleted = (label: string, selection: TrashSelection) => {
-        if (!isEnabled.value) return $toast.success(`${label} deleted`);
+        if (!isEnabled.value) return $toast.success(t('trash.deleted', { label }));
 
-        $toast.success(`${label} moved to trash`, {
-            action: { label: 'Undo', onClick: () => restore(selection) },
+        $toast.success(t('trash.movedToTrash', { label }), {
+            action: { label: t('trash.undo'), onClick: () => restore(selection) },
         });
     };
 

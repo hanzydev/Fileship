@@ -64,7 +64,7 @@
                         <component :is="getFileIcon(file)" class="size-12 text-muted-foreground" />
                         <UiButton variant="outline" @click="handleOpenFile">
                             <IExternalLink />
-                            Open in new tab
+                            {{ $t('fileViewer.openInNewTab') }}
                         </UiButton>
                     </div>
 
@@ -73,9 +73,11 @@
                         class="absolute inset-0 flex flex-col items-center justify-center gap-2"
                     >
                         <IShieldAlert class="size-8 text-destructive" />
-                        <TextBlock variant="small">Sensitive content detected</TextBlock>
+                        <TextBlock variant="small">
+                            {{ $t('fileViewer.sensitiveContent') }}
+                        </TextBlock>
                         <UiButton variant="secondary" size="sm" @click="isRevealed = true">
-                            Reveal
+                            {{ $t('fileViewer.reveal') }}
                         </UiButton>
                     </div>
 
@@ -85,7 +87,7 @@
                             variant="outline"
                             size="icon-sm"
                             :class="cn('absolute inset-y-0 left-3 my-auto', overlayClass)"
-                            aria-label="Previous file"
+                            :aria-label="$t('fileViewer.previousFile')"
                             @click="fileId = prev.id"
                         >
                             <IChevronLeft />
@@ -95,7 +97,7 @@
                             variant="outline"
                             size="icon-sm"
                             :class="cn('absolute inset-y-0 right-3 my-auto', overlayClass)"
-                            aria-label="Next file"
+                            :aria-label="$t('fileViewer.nextFile')"
                             @click="goNext"
                         >
                             <IChevronRight />
@@ -147,9 +149,13 @@
                     <UiDialogHeader class="min-w-0 flex-1">
                         <UiDialogTitle class="truncate">{{ file.name }}</UiDialogTitle>
                         <UiDialogDescription>
-                            {{ file.size.formatted }} ·
-                            {{ dayjs(file.createdAt).format('MMM D, YYYY HH:mm') }} ·
-                            {{ pluralize(file.views.total, 'view') }}
+                            {{
+                                $t('fileViewer.summary', {
+                                    size: formatSize(file),
+                                    date: date(file.createdAt).format('lll'),
+                                    views: $t('fileViewer.viewCount', file.views.total),
+                                })
+                            }}
                         </UiDialogDescription>
                     </UiDialogHeader>
                     <UiDialogClose as-child>
@@ -157,7 +163,7 @@
                             ref="closeButton"
                             variant="ghost"
                             size="icon-sm"
-                            aria-label="Close"
+                            :aria-label="$t('common.close')"
                         >
                             <IX />
                         </UiButton>
@@ -173,11 +179,11 @@
                     >
                         <UiSpinner v-if="isRestoring" />
                         <IRotateCcw v-else />
-                        Restore
+                        {{ $t('fileViewer.restore') }}
                     </UiButton>
                     <UiButton v-else class="flex-1" @click="copyLink(file)">
                         <ILink />
-                        Copy link
+                        {{ $t('fileViewer.copyLink') }}
                     </UiButton>
                     <UiTooltip v-for="action in footerActions" :key="action.label">
                         <UiTooltipTrigger as-child>
@@ -199,11 +205,15 @@
                 <div class="min-h-0 flex-1 overflow-y-auto px-6 pb-6">
                     <UiTabs v-model="activeTab">
                         <UiTabsList v-if="!trash || hasInsights" class="w-full">
-                            <UiTabsTrigger value="details">Details</UiTabsTrigger>
-                            <UiTabsTrigger v-if="!trash" value="edit">Edit</UiTabsTrigger>
+                            <UiTabsTrigger value="details">
+                                {{ $t('fileViewer.details') }}
+                            </UiTabsTrigger>
+                            <UiTabsTrigger v-if="!trash" value="edit">
+                                {{ $t('fileViewer.edit') }}
+                            </UiTabsTrigger>
                             <UiTabsTrigger v-if="hasInsights" value="insights">
                                 <ISparkles />
-                                Insights
+                                {{ $t('fileViewer.insights') }}
                             </UiTabsTrigger>
                         </UiTabsList>
 
@@ -220,7 +230,9 @@
                             <form class="py-2" @submit.prevent="handleSave">
                                 <UiFieldGroup>
                                     <UiField :data-invalid="!!formErrors?.name">
-                                        <UiFieldLabel for="edit-name">Name</UiFieldLabel>
+                                        <UiFieldLabel for="edit-name">
+                                            {{ $t('fileViewer.name') }}
+                                        </UiFieldLabel>
                                         <UiInput id="edit-name" v-model="editData.name" />
                                         <UiFieldError
                                             v-if="formErrors?.name"
@@ -228,7 +240,9 @@
                                         />
                                     </UiField>
                                     <UiField :data-invalid="!!formErrors?.fileName">
-                                        <UiFieldLabel for="edit-file-name">Link name</UiFieldLabel>
+                                        <UiFieldLabel for="edit-file-name">
+                                            {{ $t('fileViewer.linkName') }}
+                                        </UiFieldLabel>
                                         <UiInputGroup>
                                             <UiInputGroupInput
                                                 id="edit-file-name"
@@ -244,12 +258,14 @@
                                         />
                                     </UiField>
                                     <UiField>
-                                        <UiFieldLabel>Folder</UiFieldLabel>
+                                        <UiFieldLabel>{{ $t('fileViewer.folder') }}</UiFieldLabel>
                                         <FolderPicker v-model="editData.folderId" />
                                     </UiField>
                                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <UiField>
-                                            <UiFieldLabel>Expiration</UiFieldLabel>
+                                            <UiFieldLabel>
+                                                {{ $t('fileViewer.expiration') }}
+                                            </UiFieldLabel>
                                             <UiSelect v-model="editData.expiration">
                                                 <UiSelectTrigger class="w-full">
                                                     <UiSelectValue />
@@ -260,13 +276,15 @@
                                                         :key="option.label"
                                                         :value="option.label"
                                                     >
-                                                        {{ option.label }}
+                                                        {{ $t(option.label) }}
                                                     </UiSelectItem>
                                                 </UiSelectContent>
                                             </UiSelect>
                                         </UiField>
                                         <UiField>
-                                            <UiFieldLabel>Max views</UiFieldLabel>
+                                            <UiFieldLabel>
+                                                {{ $t('fileViewer.maxViews') }}
+                                            </UiFieldLabel>
                                             <UiNumberField v-model="editData.maxViews" :min="0">
                                                 <UiNumberFieldContent>
                                                     <UiNumberFieldDecrement />
@@ -278,12 +296,12 @@
                                     </div>
                                     <UiField :data-invalid="!!formErrors?.password">
                                         <UiFieldLabel for="edit-file-password">
-                                            Password
+                                            {{ $t('fileViewer.password') }}
                                         </UiFieldLabel>
                                         <PasswordInput
                                             id="edit-file-password"
                                             v-model="editData.password"
-                                            placeholder="No password"
+                                            :placeholder="$t('fileViewer.noPassword')"
                                         />
                                         <UiFieldError
                                             v-if="formErrors?.password"
@@ -292,7 +310,7 @@
                                     </UiField>
                                     <UiButton type="submit" class="self-end" :disabled="isSaving">
                                         <UiSpinner v-if="isSaving" />
-                                        Save changes
+                                        {{ $t('fileViewer.saveChanges') }}
                                     </UiButton>
                                 </UiFieldGroup>
                             </form>
@@ -305,10 +323,14 @@
                                     class="flex items-center gap-2 text-muted-foreground"
                                 >
                                     <UiSpinner />
-                                    <TextBlock variant="muted">Analyzing this file...</TextBlock>
+                                    <TextBlock variant="muted">
+                                        {{ $t('fileViewer.analyzing') }}
+                                    </TextBlock>
                                 </div>
                                 <div v-if="file.caption" class="flex flex-col gap-1">
-                                    <TextBlock variant="small">Caption</TextBlock>
+                                    <TextBlock variant="small">
+                                        {{ $t('fileViewer.caption') }}
+                                    </TextBlock>
                                     <TextBlock variant="muted">{{ file.caption }}</TextBlock>
                                 </div>
                                 <div v-if="file.piiDetected" class="flex flex-col gap-2">
@@ -317,8 +339,8 @@
                                         <UiAlertTitle>
                                             {{
                                                 file.piiOverride
-                                                    ? 'Marked as sensitive'
-                                                    : 'Sensitive information detected'
+                                                    ? $t('fileViewer.markedSensitive')
+                                                    : $t('fileViewer.sensitiveDetected')
                                             }}
                                         </UiAlertTitle>
                                         <UiAlertDescription>
@@ -327,10 +349,14 @@
                                                 class="list-disc pl-4"
                                             >
                                                 <li v-for="reason in file.piiReasons" :key="reason">
-                                                    {{ PII_REASONS[reason] ?? reason }}
+                                                    {{
+                                                        PII_REASONS[reason]
+                                                            ? $t(PII_REASONS[reason])
+                                                            : reason
+                                                    }}
                                                 </li>
                                             </ul>
-                                            <p>It is hidden from public folders.</p>
+                                            <p>{{ $t('fileViewer.hiddenFromPublic') }}</p>
                                         </UiAlertDescription>
                                     </UiAlert>
                                     <UiButton
@@ -343,7 +369,7 @@
                                     >
                                         <UiSpinner v-if="isMarking" />
                                         <IShieldCheck v-else />
-                                        Not sensitive
+                                        {{ $t('fileViewer.notSensitive') }}
                                     </UiButton>
                                 </div>
                             </div>
@@ -356,7 +382,7 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
+import { filesize } from 'filesize';
 
 import { useVirtualizer } from '@tanstack/vue-virtual';
 
@@ -378,6 +404,8 @@ const tab = defineModel<string>('tab', { default: 'details' });
 const currentUser = useAuthUser();
 const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
+const { t, locale } = useI18n();
+const date = useDate();
 const { openFile, copyLink, download, move, remove, setSensitive } = useFileActions();
 const { restore } = useTrash();
 
@@ -460,9 +488,9 @@ const handleAction = async (action: { label: string; run: () => unknown }) => {
 
 const handleDeleteForever = () =>
     askConfirmation({
-        title: `Delete ${file.value!.name} forever?`,
-        description: 'This action cannot be undone.',
-        confirmText: 'Delete forever',
+        title: t('fileViewer.deleteForeverTitle', { name: file.value!.name }),
+        description: t('fileViewer.deleteForeverDescription'),
+        confirmText: t('fileViewer.deleteForever'),
         destructive: true,
         action: async () => {
             try {
@@ -471,7 +499,7 @@ const handleDeleteForever = () =>
                     body: { files: [file.value!.id] },
                 });
 
-                $toast.success('Deleted forever');
+                $toast.success(t('fileViewer.deletedForever'));
             } catch (error: any) {
                 $toast.error(getErrorMessage(error));
                 return false;
@@ -484,28 +512,40 @@ const footerActions = computed(() =>
         ? []
         : trash
           ? [
-                { label: 'Download', icon: IDownload, run: () => download([file.value!]) },
                 {
-                    label: 'Delete forever',
+                    label: t('fileViewer.download'),
+                    icon: IDownload,
+                    run: () => download([file.value!]),
+                },
+                {
+                    label: t('fileViewer.deleteForever'),
                     icon: ITrash2,
                     destructive: true,
                     run: handleDeleteForever,
                 },
             ]
           : [
-                { label: 'Open', icon: IExternalLink, run: () => openFile(file.value!) },
-                { label: 'Download', icon: IDownload, run: () => download([file.value!]) },
+                {
+                    label: t('fileViewer.open'),
+                    icon: IExternalLink,
+                    run: () => openFile(file.value!),
+                },
+                {
+                    label: t('fileViewer.download'),
+                    icon: IDownload,
+                    run: () => download([file.value!]),
+                },
                 ...(file.value.folderId
                     ? [
                           {
-                              label: 'Remove from folder',
+                              label: t('fileViewer.removeFromFolder'),
                               icon: IFolderMinus,
                               run: () => move([file.value!], null),
                           },
                       ]
                     : []),
                 {
-                    label: 'Delete',
+                    label: t('fileViewer.delete'),
                     icon: ITrash2,
                     destructive: true,
                     run: () => remove([file.value!]),
@@ -564,18 +604,24 @@ const details = computed(() => {
     const f = file.value!;
 
     return [
-        { label: 'Type', value: f.mimeType },
-        { label: 'Size', value: f.size.formatted },
+        { label: t('fileViewer.type'), value: f.mimeType },
+        { label: t('fileViewer.size'), value: formatSize(f) },
         ...metadata.value,
-        { label: 'Folder', value: f.folder?.name || 'None' },
-        { label: 'Views', value: `${f.views.total} total · ${f.views.today} today` },
-        { label: 'Max views', value: f.maxViews || 'Unlimited' },
-        { label: 'Password', value: f.password ? 'Protected' : 'None' },
+        { label: t('fileViewer.folder'), value: f.folder?.name || t('fileViewer.none') },
         {
-            label: 'Expires',
-            value: f.expiresAt ? dayjs(f.expiresAt).format('MMM D, YYYY HH:mm') : 'Never',
+            label: t('fileViewer.views'),
+            value: t('fileViewer.viewsValue', { total: f.views.total, today: f.views.today }),
         },
-        { label: 'Uploaded', value: dayjs(f.createdAt).format('MMM D, YYYY HH:mm') },
+        { label: t('fileViewer.maxViews'), value: f.maxViews || t('fileViewer.unlimited') },
+        {
+            label: t('fileViewer.password'),
+            value: f.password ? t('fileViewer.protected') : t('fileViewer.none'),
+        },
+        {
+            label: t('fileViewer.expires'),
+            value: f.expiresAt ? date(f.expiresAt).format('lll') : t('fileViewer.never'),
+        },
+        { label: t('fileViewer.uploaded'), value: date(f.createdAt).format('lll') },
     ];
 });
 
@@ -594,7 +640,17 @@ const CODECS: Record<string, string> = {
     pcm_s24le: 'PCM 24-bit',
 };
 
-const CHANNELS: Record<number, string> = { 1: 'Mono', 2: 'Stereo', 6: '5.1', 8: '7.1' };
+const CHANNELS: Record<number, string> = {
+    1: 'fileViewer.mono',
+    2: 'fileViewer.stereo',
+    6: 'fileViewer.surround51',
+    8: 'fileViewer.surround71',
+};
+
+const formatSize = (f: FileData) => filesize(Number(f.size.raw), { locale: locale.value });
+
+const formatNumber = (value: number, digits = 0) =>
+    new Intl.NumberFormat(locale.value, { maximumFractionDigits: digits }).format(value);
 
 const formatDuration = (seconds: number) =>
     [Math.floor(seconds / 3600), Math.floor((seconds % 3600) / 60), Math.floor(seconds % 60)]
@@ -603,40 +659,44 @@ const formatDuration = (seconds: number) =>
         .join(':');
 
 const formatBitrate = (bps: number) =>
-    bps >= 1e6 ? `${(bps / 1e6).toFixed(1)} Mbps` : `${Math.round(bps / 1e3)} kbps`;
+    bps >= 1e6 ? `${formatNumber(bps / 1e6, 1)} Mbps` : `${formatNumber(bps / 1e3)} kbps`;
 
 const metadata = computed(() => {
     const m = file.value!.metadata;
     if (!m) return [];
 
     return [
-        { label: 'Resolution', value: m.width && `${m.width} × ${m.height}` },
-        { label: 'Duration', value: m.duration && formatDuration(m.duration) },
-        { label: 'Frame rate', value: m.fps && `${m.fps} fps` },
-        { label: 'Bitrate', value: m.bitrate && formatBitrate(m.bitrate) },
+        { label: t('fileViewer.resolution'), value: m.width && `${m.width} × ${m.height}` },
+        { label: t('fileViewer.duration'), value: m.duration && formatDuration(m.duration) },
+        { label: t('fileViewer.frameRate'), value: m.fps && `${formatNumber(m.fps, 2)} fps` },
+        { label: t('fileViewer.bitrate'), value: m.bitrate && formatBitrate(m.bitrate) },
         {
-            label: 'Codec',
+            label: t('fileViewer.codec'),
             value: [m.videoCodec, m.audioCodec]
                 .filter(Boolean)
                 .map((codec) => CODECS[codec!] ?? codec!.toUpperCase())
                 .join(' · '),
         },
         {
-            label: 'Audio',
+            label: t('fileViewer.audio'),
             value:
                 m.sampleRate &&
-                `${m.sampleRate / 1000} kHz · ${CHANNELS[m.channels!] ?? `${m.channels} channels`}`,
+                `${formatNumber(m.sampleRate / 1000, 1)} kHz · ${CHANNELS[m.channels!] ? t(CHANNELS[m.channels!]!) : t('fileViewer.channelCount', m.channels!)}`,
         },
-        { label: 'Format', value: m.format },
+        { label: t('fileViewer.format'), value: m.format },
         {
-            label: 'Color',
+            label: t('fileViewer.color'),
             value:
                 m.colorSpace &&
-                [m.colorSpace, m.bitDepth && `${m.bitDepth}-bit`, m.hasAlpha && 'Alpha']
+                [
+                    m.colorSpace,
+                    m.bitDepth && t('fileViewer.bitDepth', { n: m.bitDepth }),
+                    m.hasAlpha && t('fileViewer.alpha'),
+                ]
                     .filter(Boolean)
                     .join(' · '),
         },
-        { label: 'Frames', value: m.frames },
+        { label: t('fileViewer.frames'), value: m.frames },
     ].filter((row) => row.value);
 });
 
@@ -644,7 +704,7 @@ const editData = reactive({
     name: '',
     fileName: '',
     folderId: null as string | null,
-    expiration: 'Never',
+    expiration: 'labels.expiration.never',
     maxViews: 0,
     password: '',
 });
@@ -686,7 +746,7 @@ const handleSave = async () => {
             },
         });
 
-        $toast.success('File updated');
+        $toast.success(t('fileViewer.fileUpdated'));
         tab.value = 'details';
     } catch (error: any) {
         formErrors.value = error.data?.data?.formErrors;

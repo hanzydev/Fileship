@@ -1,12 +1,12 @@
 <template>
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>Sessions</UiCardTitle>
-            <UiCardDescription>Devices that are signed in to your account.</UiCardDescription>
+            <UiCardTitle>{{ $t('sessions.title') }}</UiCardTitle>
+            <UiCardDescription>{{ $t('sessions.description') }}</UiCardDescription>
             <UiCardAction>
                 <UiButton variant="outline" :disabled="total < 2" @click="handleRevokeAll">
                     <ILogOut />
-                    <span class="hidden sm:inline">Sign out others</span>
+                    <span class="hidden sm:inline">{{ $t('sessions.signOutOthers') }}</span>
                 </UiButton>
             </UiCardAction>
         </UiCardHeader>
@@ -17,10 +17,12 @@
             <EmptyState
                 v-else-if="isError"
                 :icon="ICircleAlert"
-                title="Couldn't load sessions"
-                description="Something went wrong. Check your connection and try again."
+                :title="$t('sessions.loadFailed')"
+                :description="$t('sessions.loadFailedDescription')"
             >
-                <UiButton variant="outline" @click="refresh">Try again</UiButton>
+                <UiButton variant="outline" @click="refresh">
+                    {{ $t('sessions.tryAgain') }}
+                </UiButton>
             </EmptyState>
             <VirtualList
                 v-else
@@ -48,18 +50,18 @@
                             <div class="flex min-w-0 flex-1 flex-col">
                                 <div class="flex items-center gap-2">
                                     <TextBlock variant="small" class="truncate">
-                                        {{ item.os }} · {{ item.platform }}
+                                        {{ deviceLabel(item.os) }} · {{ deviceLabel(item.platform) }}
                                     </TextBlock>
                                     <UiBadge
                                         v-if="item.id === currentUser!.currentSessionId"
                                         variant="secondary"
                                     >
-                                        This device
+                                        {{ $t('sessions.thisDevice') }}
                                     </UiBadge>
                                 </div>
                                 <TextBlock variant="muted" class="truncate text-xs">
-                                    {{ item.ip }} · {{ item.location }} ·
-                                    {{ dayjs(item.lastSeen).fromNow() }}
+                                    {{ item.ip }} · {{ locationLabel(item.location) }} ·
+                                    {{ date(item.lastSeen).fromNow() }}
                                 </TextBlock>
                             </div>
                             <UiButton
@@ -71,7 +73,7 @@
                             >
                                 <UiSpinner v-if="revokingId === item.id" />
                                 <ILogOut v-else />
-                                Sign out
+                                {{ $t('sessions.signOut') }}
                             </UiButton>
                         </UiCardContent>
                     </UiCard>
@@ -82,15 +84,24 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
-
 import { ICircleAlert } from '#components';
 
 import type { SessionData } from '~/types/sessions';
 
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
+const { t, te } = useI18n();
+const date = useDate();
 const revokingId = ref<string | null>(null);
+
+const deviceLabel = (value: string) =>
+    te(`sessions.device.${value}`) ? t(`sessions.device.${value}`) : value;
+
+const locationLabel = (value: string) =>
+    value
+        .split(', ')
+        .map((part) => (part === 'Unknown' ? t('sessions.device.Unknown') : part))
+        .join(', ');
 
 const {
     items: sessions,
@@ -122,7 +133,7 @@ const handleRevoke = async (session: SessionData) => {
             }),
         );
 
-        if (result) $toast.success('Session signed out');
+        if (result) $toast.success(t('sessions.signedOut'));
     } catch (error: any) {
         $toast.error(getErrorMessage(error));
     }
@@ -132,9 +143,9 @@ const handleRevoke = async (session: SessionData) => {
 
 const handleRevokeAll = async () => {
     await askConfirmation({
-        title: 'Sign out all other devices?',
-        description: 'Every session except this one will be signed out.',
-        confirmText: 'Sign out',
+        title: t('sessions.signOutOthersTitle'),
+        description: t('sessions.signOutOthersDescription'),
+        confirmText: t('sessions.signOut'),
         action: async () => {
             try {
                 const result = await withVerification((verificationData) =>
@@ -144,7 +155,7 @@ const handleRevokeAll = async () => {
                     }),
                 );
 
-                if (result) $toast.success('Other sessions signed out');
+                if (result) $toast.success(t('sessions.othersSignedOut'));
             } catch (error: any) {
                 $toast.error(getErrorMessage(error));
             }

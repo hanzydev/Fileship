@@ -2,15 +2,17 @@
     <UiCard>
         <form class="contents" @submit.prevent="handlePasswordChange">
             <UiCardHeader>
-                <UiCardTitle>Password</UiCardTitle>
+                <UiCardTitle>{{ $t('security.password') }}</UiCardTitle>
                 <UiCardDescription>
-                    Changing your password signs you out on every other device.
+                    {{ $t('security.passwordDescription') }}
                 </UiCardDescription>
             </UiCardHeader>
             <UiCardContent>
                 <UiFieldGroup>
                     <UiField :data-invalid="!!passwordError">
-                        <UiFieldLabel for="new-password">New password</UiFieldLabel>
+                        <UiFieldLabel for="new-password">
+                            {{ $t('security.newPassword') }}
+                        </UiFieldLabel>
                         <PasswordInput
                             id="new-password"
                             v-model="password.value"
@@ -18,7 +20,9 @@
                         />
                     </UiField>
                     <UiField :data-invalid="!!passwordError">
-                        <UiFieldLabel for="confirm-password">Confirm password</UiFieldLabel>
+                        <UiFieldLabel for="confirm-password">
+                            {{ $t('security.confirmPassword') }}
+                        </UiFieldLabel>
                         <PasswordInput
                             id="confirm-password"
                             v-model="password.confirm"
@@ -31,7 +35,7 @@
             <UiCardFooter class="justify-end">
                 <UiButton type="submit" :disabled="isChangingPassword || !password.value">
                     <UiSpinner v-if="isChangingPassword" />
-                    Change password
+                    {{ $t('security.changePassword') }}
                 </UiButton>
             </UiCardFooter>
         </form>
@@ -40,13 +44,15 @@
     <UiCard>
         <UiCardHeader>
             <UiCardTitle class="flex items-center gap-2">
-                Authenticator app
+                {{ $t('security.authenticatorApp') }}
                 <UiBadge :variant="currentUser!.totpEnabled ? 'default' : 'secondary'">
-                    {{ currentUser!.totpEnabled ? 'Enabled' : 'Disabled' }}
+                    {{
+                        currentUser!.totpEnabled ? $t('security.enabled') : $t('security.disabled')
+                    }}
                 </UiBadge>
             </UiCardTitle>
             <UiCardDescription>
-                Use a code from an authenticator app when signing in and for sensitive actions.
+                {{ $t('security.authenticatorAppDescription') }}
             </UiCardDescription>
             <UiCardAction class="self-center">
                 <UiButton
@@ -57,7 +63,7 @@
                     <UiSpinner v-if="isUpdatingTotp" />
                     <IShieldOff v-else-if="currentUser!.totpEnabled" />
                     <IShieldCheck v-else />
-                    {{ currentUser!.totpEnabled ? 'Disable' : 'Enable' }}
+                    {{ currentUser!.totpEnabled ? $t('security.disable') : $t('security.enable') }}
                 </UiButton>
             </UiCardAction>
         </UiCardHeader>
@@ -65,9 +71,9 @@
 
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>Passkeys</UiCardTitle>
+            <UiCardTitle>{{ $t('security.passkeys') }}</UiCardTitle>
             <UiCardDescription>
-                Sign in with your fingerprint, face or a security key.
+                {{ $t('security.passkeysDescription') }}
             </UiCardDescription>
             <UiCardAction>
                 <UiButton
@@ -76,14 +82,14 @@
                 >
                     <UiSpinner v-if="isRegisteringPasskey" />
                     <IPlus v-else />
-                    Add passkey
+                    {{ $t('security.addPasskey') }}
                 </UiButton>
             </UiCardAction>
         </UiCardHeader>
         <UiCardContent class="flex flex-col gap-2">
             <UiAlert v-if="!supportsPasskeys">
                 <IInfo />
-                <UiAlertTitle>Your browser does not support passkeys.</UiAlertTitle>
+                <UiAlertTitle>{{ $t('security.passkeysUnsupported') }}</UiAlertTitle>
             </UiAlert>
             <template v-if="isLoadingPasskeys">
                 <ListCardSkeleton v-for="i in 2" :key="i" media="size-4" />
@@ -91,8 +97,8 @@
             <EmptyState
                 v-else-if="!passkeys.length && supportsPasskeys"
                 :icon="IKeyRound"
-                title="No passkeys yet"
-                description="Add one to sign in without a password."
+                :title="$t('security.noPasskeys')"
+                :description="$t('security.noPasskeysDescription')"
             />
             <UiCard v-for="passkey in passkeys" v-else :key="passkey.id" size="sm">
                 <UiCardContent class="flex min-h-8 items-center gap-3">
@@ -100,7 +106,11 @@
                     <div class="flex min-w-0 flex-1 flex-col">
                         <TextBlock variant="small" class="truncate">{{ passkey.name }}</TextBlock>
                         <TextBlock variant="muted" class="text-xs">
-                            Added {{ dayjs(passkey.createdAt).fromNow() }}
+                            {{
+                                $t('security.passkeyAdded', {
+                                    time: date(passkey.createdAt).fromNow(),
+                                })
+                            }}
                         </TextBlock>
                     </div>
                     <UiDropdownMenu>
@@ -112,7 +122,7 @@
                         <UiDropdownMenuContent align="end" class="w-56">
                             <UiDropdownMenuItem @select="openRename(passkey)">
                                 <IPencil />
-                                Rename
+                                {{ $t('security.rename') }}
                             </UiDropdownMenuItem>
                             <UiDropdownMenuSeparator />
                             <UiDropdownMenuItem
@@ -120,7 +130,7 @@
                                 @select="handleDeletePasskey(passkey)"
                             >
                                 <ITrash2 />
-                                Delete
+                                {{ $t('security.delete') }}
                             </UiDropdownMenuItem>
                         </UiDropdownMenuContent>
                     </UiDropdownMenu>
@@ -133,15 +143,15 @@
         <UiDialogContent class="sm:max-w-sm">
             <form class="flex flex-col gap-6" @submit.prevent="handleEnableTotp">
                 <UiDialogHeader>
-                    <UiDialogTitle>Set up authenticator app</UiDialogTitle>
+                    <UiDialogTitle>{{ $t('security.setupTitle') }}</UiDialogTitle>
                     <UiDialogDescription>
-                        Scan the QR code with your authenticator app, then enter the 6-digit code.
+                        {{ $t('security.setupDescription') }}
                     </UiDialogDescription>
                 </UiDialogHeader>
                 <img
                     v-if="totpDialog.qrCode"
                     :src="totpDialog.qrCode"
-                    alt="Authenticator QR code"
+                    :alt="$t('security.qrCode')"
                     class="mx-auto size-48 rounded-2xl bg-white p-2"
                 />
                 <UiSkeleton v-else class="mx-auto size-48" />
@@ -151,14 +161,14 @@
                 </UiField>
                 <UiDialogFooter>
                     <UiButton type="button" variant="outline" @click="totpDialog.open = false">
-                        Cancel
+                        {{ $t('common.cancel') }}
                     </UiButton>
                     <UiButton
                         type="submit"
                         :disabled="totpDialog.code.length !== 6 || isUpdatingTotp"
                     >
                         <UiSpinner v-if="isUpdatingTotp" />
-                        Enable
+                        {{ $t('security.enable') }}
                     </UiButton>
                 </UiDialogFooter>
             </form>
@@ -169,22 +179,22 @@
         <UiDialogContent class="sm:max-w-sm">
             <form class="flex flex-col gap-6" @submit.prevent="handleRenamePasskey">
                 <UiDialogHeader>
-                    <UiDialogTitle>Rename passkey</UiDialogTitle>
+                    <UiDialogTitle>{{ $t('security.renameTitle') }}</UiDialogTitle>
                     <UiDialogDescription>
-                        Pick a name that tells you which device it belongs to.
+                        {{ $t('security.renameDescription') }}
                     </UiDialogDescription>
                 </UiDialogHeader>
                 <UiField>
-                    <UiFieldLabel for="passkey-name">Name</UiFieldLabel>
+                    <UiFieldLabel for="passkey-name">{{ $t('security.name') }}</UiFieldLabel>
                     <UiInput id="passkey-name" v-model="renameValue" maxlength="32" />
                 </UiField>
                 <UiDialogFooter>
                     <UiButton type="button" variant="outline" @click="renaming = null">
-                        Cancel
+                        {{ $t('common.cancel') }}
                     </UiButton>
                     <UiButton type="submit" :disabled="!renameValue.trim() || isRenaming">
                         <UiSpinner v-if="isRenaming" />
-                        Save
+                        {{ $t('security.save') }}
                     </UiButton>
                 </UiDialogFooter>
             </form>
@@ -193,8 +203,6 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
-
 import {
     browserSupportsWebAuthn,
     bufferToBase64URLString,
@@ -210,6 +218,8 @@ const isLoadingPasskeys = ref(!passkeys.value.length);
 const isRenaming = ref(false);
 const currentUser = useAuthUser();
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
+const date = useDate();
 
 const supportsPasskeys = ref(true);
 const isChangingPassword = ref(false);
@@ -231,7 +241,7 @@ const handlePasswordChange = async () => {
     passwordError.value = undefined;
 
     if (password.value !== password.confirm) {
-        passwordError.value = 'Passwords do not match';
+        passwordError.value = t('security.passwordMismatch');
         return;
     }
 
@@ -247,7 +257,7 @@ const handlePasswordChange = async () => {
 
         if (result) {
             Object.assign(password, { value: '', confirm: '' });
-            $toast.success('Password changed');
+            $toast.success(t('security.passwordChanged'));
         }
     } catch (error: any) {
         passwordError.value =
@@ -292,7 +302,7 @@ const handleEnableTotp = async () => {
         });
 
         totpDialog.open = false;
-        $toast.success('Authenticator app enabled');
+        $toast.success(t('security.totpEnabled'));
     } catch (error: any) {
         totpDialog.error = getErrorMessage(error);
         totpDialog.code = '';
@@ -312,7 +322,7 @@ const handleDisableTotp = async () => {
             }),
         );
 
-        if (result) $toast.success('Authenticator app disabled');
+        if (result) $toast.success(t('security.totpDisabled'));
     } catch (error: any) {
         $toast.error(getErrorMessage(error));
     }
@@ -348,10 +358,10 @@ const handleRegisterPasskey = async () => {
             return verified;
         });
 
-        if (result) $toast.success('Passkey added');
-        else if (result === false) $toast.error('Passkey could not be verified');
+        if (result) $toast.success(t('security.passkeyAddedToast'));
+        else if (result === false) $toast.error(t('security.passkeyNotVerified'));
     } catch (error: any) {
-        $toast.error(error.data?.message || 'Failed to register passkey');
+        $toast.error(error.data?.message || t('security.passkeyAddFailed'));
     }
 
     isRegisteringPasskey.value = false;
@@ -376,7 +386,7 @@ const handleRenamePasskey = async () => {
 
         if (result) {
             renaming.value = null;
-            $toast.success('Passkey renamed');
+            $toast.success(t('security.passkeyRenamed'));
         }
     } catch (error: any) {
         $toast.error(error.data?.data?.formErrors?.name?._errors[0] || getErrorMessage(error));
@@ -387,9 +397,9 @@ const handleRenamePasskey = async () => {
 
 const handleDeletePasskey = async (passkey: PasskeyData) => {
     await askConfirmation({
-        title: `Delete ${passkey.name}?`,
-        description: 'You will no longer be able to sign in with this passkey.',
-        confirmText: 'Delete',
+        title: t('security.deleteTitle', { name: passkey.name }),
+        description: t('security.deleteDescription'),
+        confirmText: t('security.delete'),
         destructive: true,
         action: async () => {
             try {
@@ -400,7 +410,7 @@ const handleDeletePasskey = async (passkey: PasskeyData) => {
                     }),
                 );
 
-                if (result) $toast.success('Passkey deleted');
+                if (result) $toast.success(t('security.passkeyDeleted'));
             } catch (error: any) {
                 $toast.error(getErrorMessage(error));
             }

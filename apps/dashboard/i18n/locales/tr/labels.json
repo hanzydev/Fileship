@@ -1,0 +1,53 @@
+{
+    "labels": {
+        "category": {
+            "image": "Görseller",
+            "video": "Videolar",
+            "audio": "Ses",
+            "document": "Belgeler",
+            "archive": "Arşivler",
+            "code": "Kod",
+            "other": "Diğer"
+        },
+        "pii": {
+            "EMAIL": "E-posta adresi",
+            "PHONE": "Telefon numarası",
+            "ADDRESS": "Ev veya posta adresi",
+            "ACCOUNT_NUMBER": "Hesap veya kimlik numarası",
+            "PAYMENT_CARD": "Ödeme kartı",
+            "IBAN": "Banka hesap numarası (IBAN)",
+            "ID_DOCUMENT": "Kimlik belgesi",
+            "SECRET": "Şifre veya gizli anahtar",
+            "PERSON_NAME": "Kişi adı",
+            "PRIVATE_DATE": "Kişisel tarih"
+        },
+        "expiration": {
+            "never": "Süresiz",
+            "5m": "5 dakika",
+            "15m": "15 dakika",
+            "30m": "30 dakika",
+            "1h": "1 saat",
+            "6h": "6 saat",
+            "12h": "12 saat",
+            "1d": "1 gün",
+            "1w": "1 hafta",
+            "2w": "2 hafta",
+            "1mo": "1 ay",
+            "3mo": "3 ay",
+            "6mo": "6 ay",
+            "1y": "1 yıl"
+        },
+        "compression": {
+            "none": "Yok",
+            "low": "Düşük (%25)",
+            "medium": "Orta (%50)",
+            "high": "Yüksek (%75)",
+            "maximum": "En yüksek (%100)"
+        },
+        "language": {
+            "system": "Sistem",
+            "en": "English",
+            "tr": "Türkçe"
+        }
+    }
+}

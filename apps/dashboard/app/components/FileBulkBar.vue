@@ -14,13 +14,13 @@
             "
         >
             <TextBlock variant="small" class="whitespace-nowrap">
-                {{ selected.length }} selected
+                {{ $t('files.selectedCount', { count: selected.length }) }}
             </TextBlock>
             <UiButtonGroup>
                 <UiButton
                     variant="outline"
                     size="sm"
-                    :aria-label="isAllSelected ? 'Deselect all' : 'Select all'"
+                    :aria-label="isAllSelected ? $t('files.deselectAll') : $t('files.selectAll')"
                     :disabled="!!busyAction"
                     @click="handleSelectAll"
                 >
@@ -28,46 +28,46 @@
                     <IListX v-else-if="isAllSelected" />
                     <IListChecks v-else />
                     <span class="hidden sm:inline">
-                        {{ isAllSelected ? 'Deselect all' : 'Select all' }}
+                        {{ isAllSelected ? $t('files.deselectAll') : $t('files.selectAll') }}
                     </span>
                 </UiButton>
                 <UiButton
                     variant="outline"
                     size="sm"
-                    aria-label="Move"
+                    :aria-label="$t('files.move')"
                     :disabled="!!busyAction"
                     @click="handleMove"
                 >
                     <IFolderInput />
-                    <span class="hidden sm:inline">Move</span>
+                    <span class="hidden sm:inline">{{ $t('files.move') }}</span>
                 </UiButton>
                 <UiButton
                     variant="outline"
                     size="sm"
-                    aria-label="Download"
+                    :aria-label="$t('files.download')"
                     :disabled="!!busyAction"
                     @click="handleDownload"
                 >
                     <UiSpinner v-if="busyAction === 'download'" />
                     <IDownload v-else />
-                    <span class="hidden sm:inline">Download</span>
+                    <span class="hidden sm:inline">{{ $t('files.download') }}</span>
                 </UiButton>
                 <UiButton
                     variant="outline"
                     size="sm"
                     class="text-destructive hover:text-destructive"
-                    aria-label="Delete"
+                    :aria-label="$t('files.delete')"
                     :disabled="!!busyAction"
                     @click="handleDelete"
                 >
                     <ITrash2 />
-                    <span class="hidden sm:inline">Delete</span>
+                    <span class="hidden sm:inline">{{ $t('files.delete') }}</span>
                 </UiButton>
             </UiButtonGroup>
             <UiButton
                 variant="ghost"
                 size="icon-sm"
-                aria-label="Clear selection"
+                :aria-label="$t('files.clearSelection')"
                 @click="selected = []"
             >
                 <IX />
@@ -91,6 +91,7 @@ const selected = defineModel<string[]>({ required: true });
 
 const uploadingFiles = useUploadingFiles();
 
+const { t } = useI18n();
 const { $toast } = useNuxtApp();
 const { download, remove } = useFileActions();
 
@@ -157,7 +158,7 @@ const handleDownload = async () => {
 
 const handleDelete = async () => {
     const files = selected.value.map(
-        (id) => items.find((file) => file.id === id) ?? { id, name: 'file' },
+        (id) => items.find((file) => file.id === id) ?? { id, name: t('files.fallbackName') },
     );
 
     if (await remove(files)) selected.value = [];

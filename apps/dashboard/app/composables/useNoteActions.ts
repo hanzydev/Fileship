@@ -2,22 +2,25 @@ import type { NoteData } from '~/types/notes';
 
 export const useNoteActions = () => {
     const route = useRoute();
-    const { $toast } = useNuxtApp();
+    const { $toast, $i18n } = useNuxtApp();
+    const { t } = $i18n;
     const { copy } = useClipboard({ legacy: true });
     const { deleteConfirmation, notifyDeleted } = useTrash();
 
     const copyLink = (note: NoteData) => {
         copy(note.publicUrl!);
-        $toast.success('Link copied to clipboard');
+        $toast.success(t('actions.linkCopied'));
     };
 
     const copyContent = (note: NoteData) => {
         copy(note.content);
-        $toast.success('Content copied to clipboard');
+        $toast.success(t('actions.contentCopied'));
     };
 
     const togglePublic = async (note: NoteData) => {
-        const id = $toast.loading(note.public ? 'Making note private...' : 'Making note public...');
+        const id = $toast.loading(
+            t(note.public ? 'actions.note.makingPrivate' : 'actions.note.makingPublic'),
+        );
 
         try {
             await $fetch(`/api/notes/${note.id}`, {
@@ -25,7 +28,9 @@ export const useNoteActions = () => {
                 body: { public: !note.public },
             });
 
-            $toast.success(note.public ? 'Note is now private' : 'Note is now public', { id });
+            $toast.success(t(note.public ? 'actions.note.nowPrivate' : 'actions.note.nowPublic'), {
+                id,
+            });
         } catch (error: any) {
             $toast.error(getErrorMessage(error), { id });
         }
@@ -37,7 +42,7 @@ export const useNoteActions = () => {
             action: async () => {
                 try {
                     await $fetch(`/api/notes/${note.id}`, { method: 'DELETE' });
-                    notifyDeleted('Note', { notes: [note.id] });
+                    notifyDeleted(t('actions.note.label'), { notes: [note.id] });
 
                     if ((route.params as any).id === note.id) navigateTo('/dashboard/notes');
                 } catch (error: any) {

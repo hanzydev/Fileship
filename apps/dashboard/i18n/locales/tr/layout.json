@@ -1,0 +1,83 @@
+{
+    "layout": {
+        "goToDashboard": "Panele dön",
+        "pages": {
+            "home": "Ana sayfa",
+            "files": "Dosyalar",
+            "folders": "Klasörler",
+            "notes": "Notlar",
+            "links": "Bağlantılar",
+            "trash": "Çöp kutusu",
+            "stats": "İstatistikler",
+            "users": "Kullanıcılar",
+            "logs": "Kayıtlar",
+            "instance": "Sunucu",
+            "settings": "Ayarlar",
+            "newNote": "Yeni not"
+        },
+        "restore": {
+            "title": "Yedeğin geri yükleniyor",
+            "extracting": "Arşiv açılıyor, bu biraz sürebilir...",
+            "deletingPreviousData": "Eski veriler siliniyor...",
+            "restoringData": "Veriler geri yükleniyor..."
+        },
+        "impersonation": {
+            "signedInAs": "{username} olarak giriş yaptın",
+            "return": "Hesabıma dön"
+        },
+        "upload": "Yükle",
+        "search": "Ara...",
+        "palette": {
+            "title": "Ara",
+            "description": "Ara ya da bir komut çalıştır",
+            "placeholder": "Dosya, klasör, not, bağlantı ya da komut ara...",
+            "empty": "Sonuç bulunamadı.",
+            "actions": "İşlemler",
+            "goTo": "Sayfalar",
+            "uploadFiles": "Dosya yükle",
+            "newFolder": "Yeni klasör",
+            "newNote": "Yeni not",
+            "shortenLink": "Bağlantı kısalt",
+            "lightMode": "Açık temaya geç",
+            "darkMode": "Koyu temaya geç"
+        },
+        "verify": {
+            "title": "Kimliğini doğrula",
+            "description": "Bu işlem için ek doğrulama gerekiyor.",
+            "passkey": "Geçiş anahtarı",
+            "code": "Kod",
+            "password": "Şifre",
+            "passkeyHint": "Parmak izi, yüz tanıma ya da güvenlik anahtarıyla doğrula.",
+            "authenticatorCode": "Doğrulama kodu",
+            "usePasskey": "Geçiş anahtarı kullan",
+            "submit": "Doğrula",
+            "passkeyFailed": "Geçiş anahtarı doğrulanamadı"
+        },
+        "queue": {
+            "uploading": "{n} dosya yükleniyor",
+            "failed": "{n} dosya yüklenemedi",
+            "collapse": "Daralt",
+            "expand": "Genişlet",
+            "waiting": "Bekliyor...",
+            "progress": "{speed}/sn · {eta} kaldı",
+            "uploaded": "Yüklendi",
+            "retry": "Tekrar dene",
+            "dismiss": "Kapat"
+        },
+        "drop": {
+            "title": "Yüklemek için dosyaları bırak",
+            "toFolder": "Dosyalar şu klasöre eklenir: {folder}.",
+            "copyLinks": "Yükleme bitince bağlantılar panoya kopyalanır."
+        },
+        "dropZone": {
+            "title": "Dosyaları sürükleyip bırak",
+            "browse": "Dosya seç"
+        },
+        "userMenu": {
+            "actions": "Kullanıcı işlemleri",
+            "edit": "Düzenle",
+            "impersonate": "Kullanıcı olarak gir",
+            "delete": "Sil"
+        }
+    }
+}

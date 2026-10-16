@@ -1,10 +1,13 @@
 <template>
     <Head>
-        <Title>Settings</Title>
+        <Title>{{ $t('settings.nav.title') }}</Title>
     </Head>
 
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <PageHeader title="Settings" description="Manage your account and preferences." />
+        <PageHeader
+            :title="$t('settings.nav.title')"
+            :description="$t('settings.nav.description')"
+        />
 
         <div class="flex flex-col gap-4 lg:flex-row">
             <UiCard size="sm" class="hidden w-56 shrink-0 self-start lg:flex">
@@ -62,26 +65,37 @@ import {
     IUser,
 } from '#components';
 
+const { t } = useI18n();
 const route = useRoute();
 const currentUser = useAuthUser();
 const publicSettings = usePublicSettings();
 
 const sections = computed(() => [
-    { label: 'Profile', path: '/dashboard/settings/profile', icon: IUser },
-    { label: 'Security', path: '/dashboard/settings/security', icon: IShieldCheck },
-    { label: 'Sessions', path: '/dashboard/settings/sessions', icon: IMonitorSmartphone },
-    { label: 'Backups', path: '/dashboard/settings/backups', icon: IArchive },
-    { label: 'Sharing', path: '/dashboard/settings/sharing', icon: IShare2 },
+    { label: t('settings.nav.profile'), path: '/dashboard/settings/profile', icon: IUser },
+    { label: t('settings.nav.security'), path: '/dashboard/settings/security', icon: IShieldCheck },
+    {
+        label: t('settings.nav.sessions'),
+        path: '/dashboard/settings/sessions',
+        icon: IMonitorSmartphone,
+    },
+    { label: t('settings.nav.backups'), path: '/dashboard/settings/backups', icon: IArchive },
+    { label: t('settings.nav.sharing'), path: '/dashboard/settings/sharing', icon: IShare2 },
     ...(canUploadFiles(currentUser.value)
-        ? [{ label: 'Inbox', path: '/dashboard/settings/inbox', icon: IInbox }]
+        ? [{ label: t('settings.nav.inbox'), path: '/dashboard/settings/inbox', icon: IInbox }]
         : []),
     ...(canUploadFiles(currentUser.value) || canShortenLinks(currentUser.value)
-        ? [{ label: 'Integrations', path: '/dashboard/settings/integrations', icon: IPlug }]
+        ? [
+              {
+                  label: t('settings.nav.integrations'),
+                  path: '/dashboard/settings/integrations',
+                  icon: IPlug,
+              },
+          ]
         : []),
     ...(publicSettings.value.aiEnabled && canUploadFiles(currentUser.value)
-        ? [{ label: 'AI', path: '/dashboard/settings/ai', icon: IBrain }]
+        ? [{ label: t('settings.nav.ai'), path: '/dashboard/settings/ai', icon: IBrain }]
         : []),
-    { label: 'Appearance', path: '/dashboard/settings/appearance', icon: IPalette },
+    { label: t('settings.nav.appearance'), path: '/dashboard/settings/appearance', icon: IPalette },
 ]);
 
 definePageMeta({

@@ -1,0 +1,84 @@
+{
+    "folders": {
+        "title": "Folders",
+        "folder": "Folder",
+        "count": "{n} folder | {n} folders",
+        "fileCount": "{n} file | {n} files",
+        "newFolder": "New folder",
+        "searchPlaceholder": "Search folders...",
+        "sortBy": "Sort by",
+        "sort": {
+            "newest": "Newest",
+            "oldest": "Oldest",
+            "nameAsc": "Name A–Z",
+            "nameDesc": "Name Z–A",
+            "mostFiles": "Most files"
+        },
+        "tryAgain": "Try again",
+        "connectionError": "Something went wrong. Check your connection and try again.",
+        "loadFailed": "Couldn't load folders",
+        "noMatches": "No matching folders",
+        "noMatchesDescription": "Try a different name.",
+        "empty": "No folders yet",
+        "emptyDescription": "Create a folder to group files and share them with one link.",
+        "inbox": "Inbox",
+        "public": "Public",
+        "detail": {
+            "notFound": "Folder not found",
+            "notFoundDescription": "It may have been deleted.",
+            "back": "Back to folders",
+            "manageFiles": "Manage files",
+            "copyLink": "Copy link",
+            "publicDescription": "{n} file · Public | {n} files · Public",
+            "privateDescription": "{n} file · Private | {n} files · Private",
+            "inboxTitle": "This is your inbox",
+            "inboxDescription": "Files that other people send you through your inbox link land here.",
+            "inboxSettings": "Manage inbox settings",
+            "empty": "This folder is empty",
+            "updated": "Folder updated"
+        },
+        "picker": {
+            "title": "Files in {name}",
+            "description": "Select the files that belong in this folder. Files from other folders are moved here.",
+            "all": "All files",
+            "in": "In this folder",
+            "out": "Not in this folder",
+            "searchPlaceholder": "Search files...",
+            "loadFailed": "Couldn't load files",
+            "empty": "No files here",
+            "emptyDescription": "Try another filter or search.",
+            "changes": "{added} to add · {removed} to remove",
+            "noChanges": "No changes",
+            "save": "Save"
+        },
+        "form": {
+            "editTitle": "Edit folder",
+            "newTitle": "New folder",
+            "editDescription": "Rename the folder or change who can see it.",
+            "newDescription": "Group files together and share them with a single link.",
+            "name": "Name",
+            "namePlaceholder": "Holiday photos",
+            "public": "Public",
+            "publicDescription": "Anyone with the link can view the files in this folder.",
+            "save": "Save",
+            "create": "Create",
+            "updated": "Folder updated",
+            "created": "Folder created"
+        },
+        "menu": {
+            "open": "Open",
+            "copyPublicLink": "Copy public link",
+            "makePrivate": "Make private",
+            "makePublic": "Make public",
+            "download": "Download as archive",
+            "edit": "Edit",
+            "delete": "Delete"
+        },
+        "select": {
+            "none": "No folder",
+            "searchPlaceholder": "Search or create a folder...",
+            "create": "Create \"{name}\"",
+            "created": "Folder created and selected"
+        }
+    }
+}

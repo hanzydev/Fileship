@@ -4,7 +4,7 @@
             <UiButton variant="outline" class="w-full justify-between" :disabled="disabled">
                 <span class="flex items-center gap-2 truncate">
                     <IFolder />
-                    {{ (folder && selectedName) || 'No folder' }}
+                    {{ (folder && selectedName) || $t('folders.select.none') }}
                 </span>
                 <IChevronsUpDown class="opacity-50" />
             </UiButton>
@@ -12,7 +12,7 @@
         <UiPopoverContent class="w-(--reka-popover-trigger-width) p-0" align="start">
             <UiCommand>
                 <UiCommandInput
-                    placeholder="Search or create a folder..."
+                    :placeholder="$t('folders.select.searchPlaceholder')"
                     @update:model-value="query = $event"
                 />
                 <UiCommandList class="mb-1">
@@ -23,7 +23,7 @@
                             @select="handleSelect(null)"
                         >
                             <IFolderX />
-                            No folder
+                            {{ $t('folders.select.none') }}
                         </UiCommandItem>
                         <VirtualList
                             :items="folders"
@@ -54,7 +54,7 @@
                         >
                             <UiSpinner v-if="isCreating" />
                             <IFolderPlus v-else />
-                            Create "{{ query.trim() }}"
+                            {{ $t('folders.select.create', { name: query.trim() }) }}
                         </UiCommandItem>
                     </UiCommandGroup>
                 </UiCommandList>
@@ -73,6 +73,7 @@ const { disabled } = defineProps<{
 const folder = defineModel<string | null>({ required: true });
 
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 
 const query = ref('');
 const isOpen = ref(false);
@@ -108,7 +109,7 @@ const handleCreate = async () => {
         });
 
         handleSelect(created);
-        $toast.success('Folder created and selected');
+        $toast.success(t('folders.select.created'));
     } catch (error: any) {
         $toast.error(error.data?.data?.formErrors?.name?._errors[0] || getErrorMessage(error));
     }

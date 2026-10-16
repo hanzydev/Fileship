@@ -1,15 +1,14 @@
 <template>
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>Upload token</UiCardTitle>
+            <UiCardTitle>{{ $t('integrations.uploadToken') }}</UiCardTitle>
             <UiCardDescription>
-                Used by ShareX and the upload scripts. It can only upload files and shorten links,
-                but keep it private.
+                {{ $t('integrations.uploadTokenDescription') }}
             </UiCardDescription>
             <UiCardAction>
                 <UiButton variant="outline" @click="handleRegenerate">
                     <IRefreshCw />
-                    Regenerate
+                    {{ $t('integrations.regenerate') }}
                 </UiButton>
             </UiCardAction>
         </UiCardHeader>
@@ -17,13 +16,13 @@
             <PasswordInput
                 :model-value="uploadToken?.token"
                 readonly
-                aria-label="Upload token"
+                :aria-label="$t('integrations.uploadToken')"
                 class="font-mono"
             />
             <UiButton
                 variant="outline"
                 size="icon"
-                aria-label="Copy token"
+                :aria-label="$t('integrations.copyToken')"
                 :disabled="!uploadToken"
                 @click="handleCopy"
             >
@@ -34,30 +33,30 @@
 
     <UiCard v-if="canUpload">
         <UiCardHeader>
-            <UiCardTitle>Upload options</UiCardTitle>
+            <UiCardTitle>{{ $t('integrations.uploadOptions') }}</UiCardTitle>
             <UiCardDescription>
-                Applied to every config and script you download below.
+                {{ $t('integrations.uploadOptionsDescription') }}
             </UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
             <UiFieldGroup>
                 <UiField>
-                    <UiFieldLabel>File name</UiFieldLabel>
+                    <UiFieldLabel>{{ $t('integrations.fileName') }}</UiFieldLabel>
                     <UiTabs v-model="settings.fileNameType">
                         <UiTabsList class="w-full">
                             <UiTabsTrigger
-                                v-for="type in ['Random', 'UUID', 'Original']"
+                                v-for="(label, type) in FILE_NAME_TYPES"
                                 :key="type"
                                 :value="type"
                             >
-                                {{ type }}
+                                {{ $t(label) }}
                             </UiTabsTrigger>
                         </UiTabsList>
                     </UiTabs>
                 </UiField>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <UiField>
-                        <UiFieldLabel>Expiration</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('integrations.expiration') }}</UiFieldLabel>
                         <UiSelect v-model="settings.expiration">
                             <UiSelectTrigger class="w-full">
                                 <UiSelectValue />
@@ -68,13 +67,13 @@
                                     :key="option.label"
                                     :value="option.label"
                                 >
-                                    {{ option.label }}
+                                    {{ $t(option.label) }}
                                 </UiSelectItem>
                             </UiSelectContent>
                         </UiSelect>
                     </UiField>
                     <UiField>
-                        <UiFieldLabel>Compression</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('integrations.compression') }}</UiFieldLabel>
                         <UiSelect v-model="settings.compression">
                             <UiSelectTrigger class="w-full">
                                 <UiSelectValue />
@@ -85,13 +84,13 @@
                                     :key="option.value"
                                     :value="option.value"
                                 >
-                                    {{ option.label }}
+                                    {{ $t(option.label) }}
                                 </UiSelectItem>
                             </UiSelectContent>
                         </UiSelect>
                     </UiField>
                     <UiField>
-                        <UiFieldLabel>Max views</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('integrations.maxViews') }}</UiFieldLabel>
                         <UiNumberField v-model="settings.maxViews" :min="0">
                             <UiNumberFieldContent>
                                 <UiNumberFieldDecrement />
@@ -101,16 +100,18 @@
                         </UiNumberField>
                     </UiField>
                     <UiField>
-                        <UiFieldLabel for="upload-password">Password</UiFieldLabel>
+                        <UiFieldLabel for="upload-password">
+                            {{ $t('integrations.password') }}
+                        </UiFieldLabel>
                         <PasswordInput
                             id="upload-password"
                             v-model="settings.password"
-                            placeholder="Optional"
+                            :placeholder="$t('integrations.optional')"
                         />
                     </UiField>
                 </div>
                 <UiField>
-                    <UiFieldLabel>Folder</UiFieldLabel>
+                    <UiFieldLabel>{{ $t('integrations.folder') }}</UiFieldLabel>
                     <FolderPicker v-model="settings.folderId" />
                 </UiField>
             </UiFieldGroup>
@@ -128,7 +129,7 @@
                     @click="handleDownload(integration)"
                 >
                     <IDownload />
-                    Download
+                    {{ $t('integrations.download') }}
                 </UiButton>
             </UiCardAction>
         </UiCardHeader>
@@ -145,37 +146,39 @@ const publicSettings = usePublicSettings();
 const authUser = useAuthUser();
 const requestUrl = useRequestURL();
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 const { copy } = useClipboard({ legacy: true });
 
 const { data: uploadToken } = useFetch('/api/users/@me/upload-token', { server: false });
 
 const settings = reactive({
     fileNameType: 'Random',
-    expiration: 'Never',
+    expiration: 'labels.expiration.never',
     compression: 0,
     maxViews: 0,
     password: '',
     folderId: null as string | null,
 });
 
+const FILE_NAME_TYPES = {
+    Random: 'integrations.fileNameTypes.random',
+    UUID: 'integrations.fileNameTypes.uuid',
+    Original: 'integrations.fileNameTypes.original',
+};
+
 const canUpload = computed(() => canUploadFiles(authUser.value));
 const canShorten = computed(() => canShortenLinks(authUser.value));
 
-const linkStep = computed(() =>
-    canShorten.value ? ['Run it with --link and a URL to shorten the link.'] : [],
-);
+const linkStep = computed(() => (canShorten.value ? [t('integrations.steps.link')] : []));
 
 const integrations = computed(() => [
     ...(canUpload.value
         ? [
               {
                   name: 'ShareX',
-                  description: 'A custom uploader for ShareX on Windows.',
+                  description: t('integrations.sharex.description'),
                   fileName: 'fileship.sxcu',
-                  steps: [
-                      'Download the config and open it, ShareX imports it as a custom uploader.',
-                      'In ShareX, set Destinations → Image, Text and File uploader to Custom uploader.',
-                  ],
+                  steps: [t('integrations.sharex.import'), t('integrations.sharex.destinations')],
                   build: buildShareXConfig,
               },
           ]
@@ -183,12 +186,12 @@ const integrations = computed(() => [
     ...(canShorten.value
         ? [
               {
-                  name: 'ShareX URL shortener',
-                  description: 'Shortens links from ShareX with your short links.',
+                  name: t('integrations.shortener.name'),
+                  description: t('integrations.shortener.description'),
                   fileName: 'fileship-shortener.sxcu',
                   steps: [
-                      'Download the config and open it, ShareX imports it as a custom URL shortener.',
-                      'In ShareX, set Destinations → URL shortener to Custom URL shortener.',
+                      t('integrations.shortener.import'),
+                      t('integrations.shortener.destinations'),
                   ],
                   build: buildShareXShortenerConfig,
               },
@@ -198,26 +201,24 @@ const integrations = computed(() => [
         ? [
               {
                   name: 'macOS',
-                  description:
-                      'A shell script that uploads a screenshot or files and copies the link.',
+                  description: t('integrations.script.description'),
                   fileName: 'fileship.sh',
                   steps: [
-                      'Download the script and make it executable with chmod +x fileship.sh.',
-                      'Run it without arguments to capture a region, or pass files to upload them.',
+                      t('integrations.steps.chmod'),
+                      t('integrations.steps.run'),
                       ...linkStep.value,
-                      'For a keyboard shortcut, run it from a Shortcuts "Run Shell Script" action and allow screen recording when asked.',
+                      t('integrations.steps.macosShortcut'),
                   ],
                   build: (options: IntegrationOptions) => buildUnixScript('macos', options),
               },
               {
                   name: 'Linux',
-                  description:
-                      'A shell script that uploads a screenshot or files and copies the link.',
+                  description: t('integrations.script.description'),
                   fileName: 'fileship.sh',
                   steps: [
-                      'Install curl, a screenshot tool (grim and slurp, flameshot, maim, gnome-screenshot or spectacle) and wl-clipboard or xclip.',
-                      'Download the script and make it executable with chmod +x fileship.sh.',
-                      'Run it without arguments to capture a region, or pass files to upload them. Bind it to a shortcut in your desktop settings.',
+                      t('integrations.steps.linuxInstall'),
+                      t('integrations.steps.chmod'),
+                      t('integrations.steps.linuxRun'),
                       ...linkStep.value,
                   ],
                   build: (options: IntegrationOptions) => buildUnixScript('linux', options),
@@ -256,14 +257,14 @@ const handleDownload = (integration: (typeof integrations.value)[number]) => {
 
 const handleCopy = () => {
     copy(uploadToken.value!.token);
-    $toast.success('Upload token copied to clipboard');
+    $toast.success(t('integrations.tokenCopied'));
 };
 
 const handleRegenerate = () =>
     askConfirmation({
-        title: 'Regenerate upload token?',
-        description: 'Configs and scripts that use the current token will stop working.',
-        confirmText: 'Regenerate',
+        title: t('integrations.regenerateTitle'),
+        description: t('integrations.regenerateDescription'),
+        confirmText: t('integrations.regenerate'),
         action: async () => {
             try {
                 const result = await withVerification((verificationData) =>
@@ -275,7 +276,7 @@ const handleRegenerate = () =>
 
                 if (result) {
                     uploadToken.value = result;
-                    $toast.success('Upload token regenerated');
+                    $toast.success(t('integrations.tokenRegenerated'));
                 }
             } catch (error: any) {
                 $toast.error(getErrorMessage(error));
@@ -291,7 +292,7 @@ definePageMeta({
             if (!canUploadFiles(user) && !canShortenLinks(user)) {
                 return abortNavigation({
                     status: 403,
-                    message: 'You do not have permission to access this page',
+                    message: useNuxtApp().$i18n.t('auth.noPermission'),
                 });
             }
         },

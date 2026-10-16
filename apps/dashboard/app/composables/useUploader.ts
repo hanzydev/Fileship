@@ -2,7 +2,8 @@ export const useUploader = () => {
     const route = useRoute();
     const uploading = useIsUploading();
     const uploadingFiles = useUploadingFiles();
-    const { $toast } = useNuxtApp();
+    const { $toast, $i18n } = useNuxtApp();
+    const { t } = $i18n;
     const { copy } = useClipboard({ legacy: true });
 
     const currentFolder = computed(() =>
@@ -51,15 +52,13 @@ export const useUploader = () => {
     };
 
     const copyUrls = async (urls: string[], message: string) => {
-        const urlText = urls.length > 1 ? 'URLs' : 'URL';
-
         if (document.hasFocus()) {
             await copy(urls.join('\n'));
-            $toast.success(`${message} ${urlText} copied to clipboard!`);
+            $toast.success(message, { description: t('upload.urlCopied', urls.length) });
             return;
         }
 
-        $toast.success(`${message} ${urlText} will copy when you return.`);
+        $toast.success(message, { description: t('upload.urlCopyOnReturn', urls.length) });
 
         let settled = false;
         const cleanupEvents: (() => void)[] = [];
@@ -72,7 +71,7 @@ export const useUploader = () => {
 
                 settled = true;
                 cleanupEvents.forEach((cleanup) => cleanup());
-                $toast.success(`${urlText} copied to clipboard!`);
+                $toast.success(t('upload.urlCopied', urls.length));
             } catch {
                 //
             }
@@ -88,17 +87,13 @@ export const useUploader = () => {
         const { urls, failed } = await upload(files, { folder: currentFolder.value });
 
         if (failed) {
-            $toast.error('Some files could not be uploaded');
+            $toast.error(t('upload.someFailed'));
             return;
         }
 
-        const filesText = files.length > 1 ? `${files.length} files` : 'File';
-
         await copyUrls(
             urls,
-            source === 'drag-drop'
-                ? `${filesText} dropped and uploaded successfully.`
-                : 'Pasted content uploaded successfully.',
+            source === 'drag-drop' ? t('upload.dropped', files.length) : t('upload.pasted'),
         );
     };
 

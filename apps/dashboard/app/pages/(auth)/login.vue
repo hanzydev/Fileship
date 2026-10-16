@@ -1,27 +1,27 @@
 <template>
     <div>
         <Head>
-            <Title>Login</Title>
+            <Title>{{ $t('auth.login.title') }}</Title>
         </Head>
         <Centered>
             <UiCard class="w-full max-w-sm">
                 <template v-if="currentView === 'main'">
                     <UiCardHeader>
-                        <UiCardTitle>Login to your account</UiCardTitle>
+                        <UiCardTitle>{{ $t('auth.login.heading') }}</UiCardTitle>
                         <UiCardDescription>
-                            Enter your username below to login to your account.
+                            {{ $t('auth.login.description') }}
                         </UiCardDescription>
                     </UiCardHeader>
                     <UiCardContent>
                         <form @submit.prevent="handleSubmit">
                             <UiFieldGroup>
                                 <UiField>
-                                    <UiFieldLabel for="username">Username</UiFieldLabel>
+                                    <UiFieldLabel for="username">{{ $t('auth.username') }}</UiFieldLabel>
                                     <UiInput
                                         id="username"
                                         v-model="auth.username"
                                         type="text"
-                                        placeholder="username"
+                                        :placeholder="$t('auth.usernamePlaceholder')"
                                         autocomplete="username webauthn"
                                         autofocus
                                     />
@@ -31,7 +31,7 @@
                                     />
                                 </UiField>
                                 <UiField>
-                                    <UiFieldLabel for="password">Password</UiFieldLabel>
+                                    <UiFieldLabel for="password">{{ $t('auth.password') }}</UiFieldLabel>
                                     <PasswordInput
                                         id="password"
                                         v-model="auth.password"
@@ -53,7 +53,7 @@
                                 <UiField>
                                     <UiButton type="submit" :disabled="loggingIn">
                                         <UiSpinner v-if="loggingIn" />
-                                        Login
+                                        {{ $t('auth.login.submit') }}
                                     </UiButton>
                                     <ClientOnly>
                                         <UiButton
@@ -65,15 +65,15 @@
                                         >
                                             <UiSpinner v-if="passkeyLoggingIn" />
                                             <IFingerprintPattern v-else />
-                                            Login with passkey
+                                            {{ $t('auth.login.passkey') }}
                                         </UiButton>
                                     </ClientOnly>
                                     <UiFieldDescription
                                         v-if="publicSettings.registrationEnabled"
                                         class="text-center"
                                     >
-                                        Don't have an account?
-                                        <NuxtLink to="/register">Sign up</NuxtLink>
+                                        {{ $t('auth.login.noAccount') }}
+                                        <NuxtLink to="/register">{{ $t('auth.login.signUp') }}</NuxtLink>
                                     </UiFieldDescription>
                                 </UiField>
                             </UiFieldGroup>
@@ -83,16 +83,16 @@
 
                 <template v-else>
                     <UiCardHeader>
-                        <UiCardTitle>Two-factor authentication</UiCardTitle>
+                        <UiCardTitle>{{ $t('auth.totp.title') }}</UiCardTitle>
                         <UiCardDescription>
-                            Enter the 6-digit code from your authenticator app to continue.
+                            {{ $t('auth.totp.description') }}
                         </UiCardDescription>
                     </UiCardHeader>
                     <UiCardContent>
                         <form @submit.prevent="handleSubmit">
                             <UiFieldGroup>
                                 <UiField>
-                                    <UiFieldLabel for="totp">Authenticator code</UiFieldLabel>
+                                    <UiFieldLabel for="totp">{{ $t('auth.totp.code') }}</UiFieldLabel>
                                     <OtpInput id="totp" v-model="auth.totp" />
                                     <UiFieldError
                                         v-if="formErrors?.totp?._errors?.length"
@@ -109,7 +109,7 @@
                                 <UiField>
                                     <UiButton type="submit" :disabled="loggingIn">
                                         <UiSpinner v-if="loggingIn" />
-                                        Verify
+                                        {{ $t('auth.totp.verify') }}
                                     </UiButton>
                                     <UiButton
                                         variant="outline"
@@ -118,7 +118,7 @@
                                         @click="handleBack"
                                     >
                                         <IArrowLeft />
-                                        Back
+                                        {{ $t('auth.totp.back') }}
                                     </UiButton>
                                 </UiField>
                             </UiFieldGroup>
@@ -146,6 +146,7 @@ const passkeyLoggingIn = ref(false);
 
 const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 
 const auth = reactive({
     username: '',
@@ -161,7 +162,7 @@ const currentUser = useAuthUser();
 const currentTheme = useTheme();
 const colorMode = useColorMode();
 
-const handleLoggedIn = async (user: any, session: any, message: string) => {
+const handleLoggedIn = async (user: any, session: any, messageKey: string) => {
     currentUser.value = {
         ...user,
         currentSessionId: session.id,
@@ -169,6 +170,7 @@ const handleLoggedIn = async (user: any, session: any, message: string) => {
     };
 
     currentTheme.value = user.theme;
+    await applyLanguage(user.language);
 
     const redirectTo = route.query.redirectTo;
 
@@ -178,7 +180,7 @@ const handleLoggedIn = async (user: any, session: any, message: string) => {
             : '/dashboard',
     );
 
-    $toast.success(message);
+    $toast.success(t(messageKey));
 };
 
 const handleSubmit = async () => {
@@ -191,9 +193,9 @@ const handleSubmit = async () => {
             body: { ...auth, totp: auth.totp || undefined },
         });
 
-        await handleLoggedIn(user, session, 'Logged in successfully');
+        await handleLoggedIn(user, session, 'auth.login.success');
     } catch (error: any) {
-        if (getErrorMessage(error) === 'Missing TOTP') {
+        if (error.data?.data?.totpRequired) {
             currentView.value = 'totp';
             await nextTick();
             document.querySelector<HTMLInputElement>('#totp input, input#totp')?.focus();
@@ -237,7 +239,7 @@ const handlePasskeyLogin = async () => {
                     body: { verify: true, ticket, authenticationResponse },
                 })) as any;
 
-                await handleLoggedIn(user, session, 'Logged in successfully with passkey');
+                await handleLoggedIn(user, session, 'auth.login.passkeySuccess');
             } catch (error: any) {
                 if (error.data?.data?.unknownCredential) {
                     await sendSignal({

@@ -4,12 +4,12 @@
             <UiEmptyMedia variant="icon">
                 <IUpload />
             </UiEmptyMedia>
-            <UiEmptyTitle>Drag and drop files</UiEmptyTitle>
+            <UiEmptyTitle>{{ $t('layout.dropZone.title') }}</UiEmptyTitle>
             <UiEmptyDescription v-if="description">{{ description }}</UiEmptyDescription>
         </UiEmptyHeader>
         <UiEmptyContent>
             <UiButton variant="outline" size="sm" :disabled @click="input?.click()">
-                Browse files
+                {{ $t('layout.dropZone.browse') }}
             </UiButton>
         </UiEmptyContent>
         <input

@@ -8,7 +8,9 @@
                         class="group-data-[collapsible=icon]:justify-center"
                         size="lg"
                         :tooltip="
-                            updaterStatus ? `Fileship - v${updaterStatus?.version}` : 'Fileship'
+                            updaterStatus
+                                ? $t('sidebar.versionTooltip', { version: updaterStatus.version })
+                                : 'Fileship'
                         "
                     >
                         <a
@@ -28,7 +30,11 @@
                                     leave-active-class="animate-out fade-out slide-out-to-top-2 zoom-out-95 duration-200"
                                 >
                                     <TextBlock v-if="updaterStatus" variant="muted">
-                                        v{{ updaterStatus?.version }}
+                                        {{
+                                            $t('sidebar.version', {
+                                                version: updaterStatus.version,
+                                            })
+                                        }}
                                     </TextBlock>
                                 </Transition>
                             </div>
@@ -64,15 +70,20 @@
                     <UiCardHeader>
                         <UiCardTitle class="flex items-center gap-2">
                             <ISparkles class="size-4 text-primary" />
-                            Update available
+                            {{ $t('sidebar.updateAvailable') }}
                         </UiCardTitle>
                         <UiCardDescription>
-                            v{{ updaterStatus.version }} → v{{ updaterStatus.latestVersion }}
+                            {{
+                                $t('sidebar.versionChange', {
+                                    current: updaterStatus.version,
+                                    latest: updaterStatus.latestVersion,
+                                })
+                            }}
                         </UiCardDescription>
                     </UiCardHeader>
                     <UiCardFooter class="gap-2">
                         <UiButton v-if="canUpdate" size="sm" class="flex-1" @click="handleUpdate">
-                            Update
+                            {{ $t('sidebar.update') }}
                         </UiButton>
                         <UiButton
                             size="sm"
@@ -81,7 +92,7 @@
                             as-child
                         >
                             <a :href="updaterStatus.url" target="_blank" rel="noopener noreferrer">
-                                Changelog
+                                {{ $t('sidebar.changelog') }}
                             </a>
                         </UiButton>
                     </UiCardFooter>
@@ -106,14 +117,18 @@
                                 class="size-8 text-primary"
                             />
                             <ICircleX v-else class="size-8 text-destructive" />
-                            <UiDialogTitle>Updating Fileship</UiDialogTitle>
+                            <UiDialogTitle>{{ $t('sidebar.updating') }}</UiDialogTitle>
                             <UiDialogDescription>
-                                {{ updateStates[updateState] || updateState }}
+                                {{
+                                    updateStates.includes(updateState)
+                                        ? $t(`sidebar.updateStates.${updateState}`)
+                                        : updateState
+                                }}
                             </UiDialogDescription>
                         </UiDialogHeader>
                         <UiDialogFooter v-if="updateState === 'Error'">
                             <UiButton variant="outline" class="w-full" @click="isUpdating = false">
-                                Close
+                                {{ $t('common.close') }}
                             </UiButton>
                         </UiDialogFooter>
                     </UiDialogContent>
@@ -124,7 +139,7 @@
                     <UiSidebarMenuButton
                         size="lg"
                         :is-active="isActive('/dashboard/settings')"
-                        tooltip="Account"
+                        :tooltip="$t('sidebar.account')"
                     >
                         <UiAvatar class="size-8">
                             <UiAvatarImage
@@ -170,16 +185,16 @@
                     <UiDropdownMenuItem as-child>
                         <NuxtLink to="/dashboard/settings/profile">
                             <ISettings />
-                            Settings
+                            {{ $t('sidebar.settings') }}
                         </NuxtLink>
                     </UiDropdownMenuItem>
                     <UiDropdownMenuSub>
                         <UiDropdownMenuSubTrigger>
                             <IPalette />
-                            Appearance
+                            {{ $t('sidebar.appearance') }}
                         </UiDropdownMenuSubTrigger>
                         <UiDropdownMenuSubContent>
-                            <UiDropdownMenuLabel>Mode</UiDropdownMenuLabel>
+                            <UiDropdownMenuLabel>{{ $t('sidebar.mode') }}</UiDropdownMenuLabel>
                             <UiDropdownMenuRadioGroup v-model="colorMode.preference">
                                 <UiDropdownMenuRadioItem
                                     v-for="mode in colorModes"
@@ -188,11 +203,11 @@
                                     @select.prevent
                                 >
                                     <component :is="mode.icon" />
-                                    {{ mode.label }}
+                                    {{ $t(mode.label) }}
                                 </UiDropdownMenuRadioItem>
                             </UiDropdownMenuRadioGroup>
                             <UiDropdownMenuSeparator />
-                            <UiDropdownMenuLabel>Accent</UiDropdownMenuLabel>
+                            <UiDropdownMenuLabel>{{ $t('sidebar.accent') }}</UiDropdownMenuLabel>
                             <UiDropdownMenuRadioGroup
                                 :model-value="currentTheme in accents ? currentTheme : 'Fileship'"
                                 @update:model-value="updateTheme($event as Accent)"
@@ -207,7 +222,7 @@
                                         class="size-3 rounded-full"
                                         :style="{ background: color }"
                                     />
-                                    {{ accent }}
+                                    {{ $t(`sidebar.accents.${accent}`) }}
                                 </UiDropdownMenuRadioItem>
                             </UiDropdownMenuRadioGroup>
                         </UiDropdownMenuSubContent>
@@ -220,7 +235,7 @@
                     >
                         <UiSpinner v-if="isLoggingOut" />
                         <ILogOut v-else />
-                        Logout
+                        {{ $t('sidebar.logout') }}
                     </UiDropdownMenuItem>
                 </UiDropdownMenuContent>
             </UiDropdownMenu>
@@ -253,6 +268,7 @@ const currentTheme = useTheme();
 const colorMode = useColorMode();
 const route = useRoute();
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 const { setOpenMobile } = useSidebar();
 const trash = useTrash();
 const isLoggingOut = ref(false);
@@ -260,7 +276,13 @@ const isLoggingOut = ref(false);
 const userInitials = computed(() => authUser.value!.username.slice(0, 2).toUpperCase());
 
 const roleLabel = computed(() =>
-    authUser.value!.superAdmin ? 'Super admin' : isAdmin(authUser.value) ? 'Admin' : 'Member',
+    t(
+        authUser.value!.superAdmin
+            ? 'sidebar.superAdmin'
+            : isAdmin(authUser.value)
+              ? 'sidebar.admin'
+              : 'sidebar.member',
+    ),
 );
 
 const updaterStatus = ref<{
@@ -278,22 +300,16 @@ const canUpdate = computed(
 const isUpdating = ref(false);
 const updateState = ref('Pulling');
 
-const updateStates: Record<string, string> = {
-    Pulling: 'Downloading the new version...',
-    Starting: 'Starting the new version next to the current one...',
-    Switching: 'Moving traffic to the new version...',
-    Success: 'Update completed, reloading...',
-    Error: 'Update failed, the current version keeps running.',
-};
+const updateStates = ['Pulling', 'Starting', 'Switching', 'Success', 'Error'];
 
 const finishUpdate = (success: boolean) => {
     updateState.value = success ? 'Success' : 'Error';
 
     if (success) {
-        $toast.success('Fileship updated successfully!');
+        $toast.success(t('sidebar.updated'));
         setTimeout(() => window.location.reload(), 2_000);
     } else {
-        $toast.error('An unknown error occurred while updating Fileship');
+        $toast.error(t('sidebar.updateFailed'));
     }
 };
 
@@ -310,9 +326,9 @@ const waitForNewVersion = async () => {
 
 const handleUpdate = async () => {
     const confirmed = await askConfirmation({
-        title: `Update to v${updaterStatus.value!.latestVersion}?`,
-        description: 'The new version starts next to the current one, so Fileship stays online.',
-        confirmText: 'Update',
+        title: t('sidebar.updateConfirmTitle', { version: updaterStatus.value!.latestVersion }),
+        description: t('sidebar.updateConfirmDescription'),
+        confirmText: t('sidebar.update'),
     });
 
     if (!confirmed) return;
@@ -361,9 +377,9 @@ const handleUpdate = async () => {
 };
 
 const colorModes = [
-    { label: 'Light', value: 'light', icon: ISun },
-    { label: 'Dark', value: 'dark', icon: IMoon },
-    { label: 'System', value: 'system', icon: IMonitor },
+    { label: 'sidebar.light', value: 'light', icon: ISun },
+    { label: 'sidebar.dark', value: 'dark', icon: IMoon },
+    { label: 'sidebar.system', value: 'system', icon: IMonitor },
 ];
 
 watch(
@@ -377,39 +393,55 @@ const isActive = (url: string) =>
 const items = computed(() => {
     const categories = [
         {
-            title: 'Main menu',
-            children: [{ title: 'Home', url: '/dashboard', icon: IHome }],
+            title: t('sidebar.mainMenu'),
+            children: [{ title: t('sidebar.home'), url: '/dashboard', icon: IHome }],
         },
     ];
 
     if (canUploadFiles(authUser.value)) {
         categories[0]!.children.push(
-            { title: 'Files', url: '/dashboard/files', icon: IFiles },
-            { title: 'Folders', url: '/dashboard/folders', icon: IFolder },
+            { title: t('sidebar.files'), url: '/dashboard/files', icon: IFiles },
+            { title: t('sidebar.folders'), url: '/dashboard/folders', icon: IFolder },
         );
     }
 
     if (canTakeNotes(authUser.value)) {
-        categories[0]!.children.push({ title: 'Notes', url: '/dashboard/notes', icon: IBookmark });
+        categories[0]!.children.push({
+            title: t('sidebar.notes'),
+            url: '/dashboard/notes',
+            icon: IBookmark,
+        });
     }
 
     if (canShortenLinks(authUser.value)) {
-        categories[0]!.children.push({ title: 'Links', url: '/dashboard/links', icon: ILink });
+        categories[0]!.children.push({
+            title: t('sidebar.links'),
+            url: '/dashboard/links',
+            icon: ILink,
+        });
     }
 
     if (trash.isEnabled.value && (canUploadFiles(authUser.value) || canTakeNotes(authUser.value))) {
-        categories[0]!.children.push({ title: 'Trash', url: '/dashboard/trash', icon: ITrash2 });
+        categories[0]!.children.push({
+            title: t('sidebar.trash'),
+            url: '/dashboard/trash',
+            icon: ITrash2,
+        });
     }
 
     if (isAdmin(authUser.value)) {
         categories.push({
-            title: 'Administration',
+            title: t('sidebar.administration'),
             children: [
-                { title: 'Statistics', url: '/dashboard/stats', icon: IChartNoAxesColumn },
-                { title: 'Users', url: '/dashboard/users', icon: IUsers },
-                { title: 'Logs', url: '/dashboard/logs', icon: IClipboardList },
+                {
+                    title: t('sidebar.statistics'),
+                    url: '/dashboard/stats',
+                    icon: IChartNoAxesColumn,
+                },
+                { title: t('sidebar.users'), url: '/dashboard/users', icon: IUsers },
+                { title: t('sidebar.logs'), url: '/dashboard/logs', icon: IClipboardList },
                 ...(authUser.value!.superAdmin
-                    ? [{ title: 'Instance', url: '/dashboard/instance', icon: IServer }]
+                    ? [{ title: t('sidebar.instance'), url: '/dashboard/instance', icon: IServer }]
                     : []),
             ],
         });
@@ -426,7 +458,7 @@ const handleLogout = async () => {
 
         clearStates(true, true);
 
-        $toast.success('Logged out successfully');
+        $toast.success(t('sidebar.loggedOut'));
         await navigateTo('/login');
     } catch (error: any) {
         $toast.error(getErrorMessage(error));

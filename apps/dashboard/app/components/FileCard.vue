@@ -61,7 +61,9 @@
                             class="absolute inset-0 flex flex-col items-center justify-center gap-1 transition-opacity group-hover:opacity-0"
                         >
                             <IShieldAlert class="size-6 text-destructive" />
-                            <TextBlock variant="small">Sensitive content</TextBlock>
+                            <TextBlock variant="small">
+                                {{ $t('files.sensitiveContent') }}
+                            </TextBlock>
                         </div>
 
                         <div
@@ -93,7 +95,7 @@
                                     <UiButton
                                         variant="ghost"
                                         size="icon-sm"
-                                        aria-label="More"
+                                        :aria-label="$t('common.more')"
                                         @click.stop
                                     >
                                         <IEllipsis />
@@ -122,16 +124,17 @@
                             <TextBlock variant="small" class="truncate">{{ file.name }}</TextBlock>
                         </div>
                         <TextBlock variant="muted" class="truncate text-xs">
-                            {{ file.size.formatted }} · {{ dayjs(file.createdAt).fromNow() }}
+                            {{ filesize(+file.size.raw, { locale }) }} ·
+                            {{ date(file.createdAt).fromNow() }}
                         </TextBlock>
                     </div>
                     <UiTooltip v-if="file.piiDetected">
                         <UiTooltipTrigger as-child>
-                            <UiBadge variant="destructive" aria-label="Sensitive">
+                            <UiBadge variant="destructive" :aria-label="$t('files.sensitive')">
                                 <IShieldAlert />
                             </UiBadge>
                         </UiTooltipTrigger>
-                        <UiTooltipContent>Sensitive · hidden from visitors</UiTooltipContent>
+                        <UiTooltipContent>{{ $t('files.sensitiveHidden') }}</UiTooltipContent>
                     </UiTooltip>
                 </UiCardFooter>
             </UiCard>
@@ -149,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
+import { filesize } from 'filesize';
 
 import type { FileData } from '~/types/files';
 
@@ -173,6 +176,8 @@ const emit = defineEmits<{
     move: [];
 }>();
 
+const { locale } = useI18n();
+const date = useDate();
 const currentUser = useAuthUser();
 const publicSettings = usePublicSettings();
 

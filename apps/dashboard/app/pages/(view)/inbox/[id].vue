@@ -1,13 +1,13 @@
 <template>
     <div class="flex min-h-svh flex-col">
         <Head>
-            <Title v-if="!data.id">Verify Password</Title>
-            <Title v-else>{{ upperFirst(data.user!.username) }}'s Inbox</Title>
+            <Title v-if="!data.id">{{ $t('publicPages.inbox.verifyPassword') }}</Title>
+            <Title v-else>{{ title }}</Title>
         </Head>
 
         <PasswordGate
             v-if="!data.id"
-            title="This inbox is password protected"
+            :title="$t('publicPages.inbox.passwordProtected')"
             :disabled="isVerifying"
             :error="passwordError"
             @submit="handlePassword"
@@ -15,8 +15,8 @@
 
         <template v-else>
             <ViewHeader
-                :title="`${upperFirst(data.user!.username)}'s Inbox`"
-                subtitle="Send files directly to their account"
+                :title="title"
+                :subtitle="$t('publicPages.inbox.subtitle')"
                 content-class="max-w-lg"
             />
 
@@ -31,10 +31,13 @@
                                 </UiAvatarFallback>
                             </UiAvatar>
                             <div class="flex flex-col">
-                                <UiCardTitle>Send files</UiCardTitle>
+                                <UiCardTitle>{{ $t('publicPages.inbox.sendFiles') }}</UiCardTitle>
                                 <UiCardDescription>
-                                    Files you upload go straight to
-                                    {{ upperFirst(data.user!.username) }}'s inbox.
+                                    {{
+                                        $t('publicPages.inbox.sendFilesDescription', {
+                                            name: upperFirst(data.user!.username),
+                                        })
+                                    }}
                                 </UiCardDescription>
                             </div>
                         </div>
@@ -62,7 +65,7 @@
                                     <UiItemDescription
                                         :class="file.status?.error && 'text-destructive'"
                                     >
-                                        {{ file.status?.error || filesize(file.size) }}
+                                        {{ file.status?.error || filesize(file.size, { locale }) }}
                                     </UiItemDescription>
                                 </UiItemContent>
                                 <UiItemActions>
@@ -70,7 +73,7 @@
                                         v-if="!file.status?.started"
                                         variant="ghost"
                                         size="icon-sm"
-                                        aria-label="Remove"
+                                        :aria-label="$t('publicPages.inbox.remove')"
                                         @click="uploadingFiles.splice(index, 1)"
                                     >
                                         <IX />
@@ -80,7 +83,11 @@
                                         class="size-4 text-primary"
                                     />
                                     <UiItemDescription v-else-if="!file.status.error">
-                                        {{ file.status.progress.percent }}%
+                                        {{
+                                            $t('publicPages.inbox.percent', {
+                                                percent: file.status.progress.percent,
+                                            })
+                                        }}
                                     </UiItemDescription>
                                 </UiItemActions>
                                 <UiItemFooter
@@ -100,9 +107,13 @@
 
                         <UiAlert v-if="isDone">
                             <ICircleCheck />
-                            <UiAlertTitle>Files sent</UiAlertTitle>
+                            <UiAlertTitle>{{ $t('publicPages.inbox.filesSent') }}</UiAlertTitle>
                             <UiAlertDescription>
-                                {{ upperFirst(data.user!.username) }} has received your files.
+                                {{
+                                    $t('publicPages.inbox.filesReceived', {
+                                        name: upperFirst(data.user!.username),
+                                    })
+                                }}
                             </UiAlertDescription>
                         </UiAlert>
                     </UiCardContent>
@@ -116,10 +127,10 @@
                             <ISend v-else />
                             {{
                                 uploading
-                                    ? `Uploading (${progress}%)`
+                                    ? $t('publicPages.inbox.uploading', { progress })
                                     : uploadingFiles.length
-                                      ? `Send ${pluralize(uploadingFiles.length, 'file')}`
-                                      : 'Send files'
+                                      ? $t('publicPages.inbox.sendCount', uploadingFiles.length)
+                                      : $t('publicPages.inbox.sendFiles')
                             }}
                         </UiButton>
                     </UiCardFooter>
@@ -137,6 +148,7 @@ const route = useRoute();
 const uploading = useIsUploading();
 const uploadingFiles = useUploadingFiles();
 const { $toast } = useNuxtApp();
+const { t, locale } = useI18n();
 
 const id = (route.params as any).id as string;
 const { data: _data, error } = await useFetch(
@@ -144,13 +156,17 @@ const { data: _data, error } = await useFetch(
 );
 
 if (error.value?.status === 404) {
-    throw createError({ status: 404, message: 'Inbox not found' });
+    throw createError({ status: 404, message: t('publicPages.inbox.notFound') });
 }
 
 const data = ref<any>({
     ..._data.value,
     password: route.query.password || null,
 });
+
+const title = computed(() =>
+    t('publicPages.inbox.title', { name: upperFirst(data.value.user!.username) }),
+);
 
 const passwordError = ref<string>();
 const isVerifying = ref(false);
@@ -207,10 +223,10 @@ const handleUpload = async () => {
     uploading.value = false;
 
     if (uploadingFiles.value.length) {
-        $toast.error('Some files could not be uploaded');
+        $toast.error(t('publicPages.inbox.someFailed'));
     } else {
         isDone.value = true;
-        $toast.success('All files uploaded successfully');
+        $toast.success(t('publicPages.inbox.allUploaded'));
     }
 };
 

@@ -1,6 +1,6 @@
 <template>
     <Head>
-        <Title>Notes</Title>
+        <Title>{{ $t('notes.title') }}</Title>
     </Head>
 
     <div class="flex flex-1 gap-4 p-4 pt-0">
@@ -8,15 +8,15 @@
             :class="cn('w-full shrink-0 gap-4 md:flex md:w-80', isEditorOpen ? 'hidden' : 'flex')"
         >
             <UiCardHeader>
-                <UiCardTitle>Notes</UiCardTitle>
+                <UiCardTitle>{{ $t('notes.title') }}</UiCardTitle>
                 <UiCardDescription>
-                    {{ isLoading ? 'Loading...' : pluralize(total, 'note') }}
+                    {{ isLoading ? $t('common.loading') : $t('notes.count', total) }}
                 </UiCardDescription>
                 <UiCardAction>
                     <UiButton size="sm" as-child>
                         <NuxtLink to="/dashboard/notes/new">
                             <ISquarePen />
-                            New
+                            {{ $t('notes.new') }}
                         </NuxtLink>
                     </UiButton>
                 </UiCardAction>
@@ -27,7 +27,10 @@
                         <UiSpinner v-if="!!search && isFetching" />
                         <ISearch v-else />
                     </UiInputGroupAddon>
-                    <UiInputGroupInput v-model="search" placeholder="Search notes..." />
+                    <UiInputGroupInput
+                        v-model="search"
+                        :placeholder="$t('notes.searchPlaceholder')"
+                    />
                 </UiInputGroup>
 
                 <div v-if="isLoading" class="flex flex-col gap-2">
@@ -37,17 +40,21 @@
                 <EmptyState
                     v-else-if="isError"
                     :icon="ICircleAlert"
-                    title="Couldn't load notes"
-                    description="Something went wrong. Check your connection and try again."
+                    :title="$t('notes.loadFailed')"
+                    :description="$t('notes.loadFailedDescription')"
                 >
-                    <UiButton variant="outline" @click="refresh">Try again</UiButton>
+                    <UiButton variant="outline" @click="refresh">
+                        {{ $t('notes.tryAgain') }}
+                    </UiButton>
                 </EmptyState>
 
                 <EmptyState
                     v-else-if="!notes.length"
                     :icon="search ? ISearchX : IBookmark"
-                    :title="search ? 'No matching notes' : 'No notes yet'"
-                    :description="search ? 'Try a different search.' : 'Write your first note.'"
+                    :title="search ? $t('notes.noMatches') : $t('notes.empty')"
+                    :description="
+                        search ? $t('notes.noMatchesDescription') : $t('notes.emptyDescription')
+                    "
                 />
 
                 <VirtualList
@@ -99,7 +106,7 @@
                                                 </UiDropdownMenu>
                                             </div>
                                             <TextBlock variant="muted" class="truncate text-xs">
-                                                {{ dayjs(item.createdAt).fromNow() }} ·
+                                                {{ date(item.createdAt).fromNow() }} ·
                                                 {{
                                                     item.content
                                                         .replace(/[#*_`>\-\n]+/g, ' ')
@@ -126,13 +133,12 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
-
 import { IBookmark, ICircleAlert, ISearchX } from '#components';
 
 import type { NoteData } from '~/types/notes';
 
 const route = useRoute();
+const date = useDate();
 
 const search = ref('');
 

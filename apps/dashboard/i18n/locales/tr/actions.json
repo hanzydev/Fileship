@@ -1,0 +1,40 @@
+{
+    "actions": {
+        "linkCopied": "Bağlantı panoya kopyalandı",
+        "contentCopied": "İçerik panoya kopyalandı",
+        "file": {
+            "moving": "Dosya taşınıyor... | {n} dosya taşınıyor...",
+            "removingFromFolder": "Klasörden çıkarılıyor...",
+            "moved": "Dosya taşındı | {n} dosya taşındı",
+            "removedFromFolder": "Dosya klasörden çıkarıldı | {n} dosya klasörden çıkarıldı",
+            "count": "{n} dosya",
+            "label": "Dosya | {n} dosya",
+            "markingSensitive": "Hassas olarak işaretleniyor...",
+            "markingNotSensitive": "Hassas işareti kaldırılıyor...",
+            "markedSensitive": "Hassas olarak işaretlendi",
+            "markedNotSensitive": "Hassas işareti kaldırıldı"
+        },
+        "folder": {
+            "makingPrivate": "Klasör gizleniyor...",
+            "makingPublic": "Klasör herkese açılıyor...",
+            "nowPrivate": "Klasör artık gizli",
+            "nowPublic": "Klasör artık herkese açık",
+            "alsoTrashFiles": "İçindeki dosyaları da çöpe taşı",
+            "alsoDeleteFiles": "İçindeki dosyaları da sil",
+            "label": "Klasör",
+            "labelWithFiles": "Klasör ve içindeki dosyalar",
+            "preparingArchive": "Arşiv hazırlanıyor...",
+            "archiveReady": "Arşiv hazır, indiriliyor"
+        },
+        "note": {
+            "makingPrivate": "Not gizleniyor...",
+            "makingPublic": "Not herkese açılıyor...",
+            "nowPrivate": "Not artık gizli",
+            "nowPublic": "Not artık herkese açık",
+            "label": "Not"
+        },
+        "signingInAs": "{username} hesabına giriliyor...",
+        "verificationFailed": "Doğrulanamadı",
+        "themeFailed": "Tema güncellenemedi"
+    }
+}

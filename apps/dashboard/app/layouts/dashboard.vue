@@ -5,9 +5,9 @@
                 <UiCard class="w-full max-w-sm">
                     <UiCardHeader class="items-center text-center">
                         <UiSpinner class="mx-auto size-8" />
-                        <UiCardTitle>Restoring your backup</UiCardTitle>
+                        <UiCardTitle>{{ $t('layout.restore.title') }}</UiCardTitle>
                         <UiCardDescription>
-                            {{ restoreStates[currentUser.backupRestoreState] }}
+                            {{ $t(restoreStates[currentUser.backupRestoreState]) }}
                         </UiCardDescription>
                     </UiCardHeader>
                 </UiCard>
@@ -22,8 +22,11 @@
                     >
                         <span class="flex items-center gap-2">
                             <IVenetianMask class="size-4" />
-                            You are signed in as
-                            <strong>{{ currentUser.username }}</strong>
+                            <i18n-t keypath="layout.impersonation.signedInAs" tag="span">
+                                <template #username>
+                                    <strong>{{ currentUser.username }}</strong>
+                                </template>
+                            </i18n-t>
                         </span>
                         <UiButton
                             size="xs"
@@ -32,13 +35,13 @@
                             @click="handleStopImpersonating"
                         >
                             <UiSpinner v-if="isReturning" />
-                            Return to my account
+                            {{ $t('layout.impersonation.return') }}
                         </UiButton>
                     </div>
                     <AppHeader :labels="breadcrumbLabels">
                         <UiButton v-if="canUpload" @click="uploadSheetOpen = true">
                             <IUpload />
-                            <span class="hidden sm:inline">Upload</span>
+                            <span class="hidden sm:inline">{{ $t('layout.upload') }}</span>
                         </UiButton>
                         <UiButton
                             variant="outline"
@@ -46,16 +49,18 @@
                             @click="commandPaletteOpen = true"
                         >
                             <ISearch class="text-muted-foreground" />
-                            <span class="font-normal text-muted-foreground">Search...</span>
+                            <span class="font-normal text-muted-foreground">
+                                {{ $t('layout.search') }}
+                            </span>
                             <UiKbdGroup class="ml-auto">
-                                <UiKbd>{{ isMac ? '⌘' : 'Ctrl' }}</UiKbd>
-                                <UiKbd>K</UiKbd>
+                                <UiKbd v-for="key in paletteShortcut" :key>{{ key }}</UiKbd>
                             </UiKbdGroup>
                         </UiButton>
                         <UiButton
                             variant="ghost"
                             size="icon"
                             class="sm:hidden"
+                            :aria-label="$t('layout.palette.title')"
                             @click="commandPaletteOpen = true"
                         >
                             <ISearch />
@@ -68,20 +73,20 @@
 
             <UiCommandDialog
                 v-model:open="commandPaletteOpen"
-                title="Search"
-                description="Search or run a command"
+                :title="$t('layout.palette.title')"
+                :description="$t('layout.palette.description')"
             >
                 <UiCommandInput
-                    placeholder="Search files, folders, notes, links or commands..."
+                    :placeholder="$t('layout.palette.placeholder')"
                     @update:model-value="paletteQuery = $event"
                 />
                 <UiCommandList class="mb-1">
-                    <UiCommandEmpty>No results found.</UiCommandEmpty>
+                    <UiCommandEmpty>{{ $t('layout.palette.empty') }}</UiCommandEmpty>
 
                     <UiCommandGroup
                         v-if="paletteTerm && matchedFiles.length"
                         class="px-1 pb-0"
-                        heading="Files"
+                        :heading="$t('layout.pages.files')"
                     >
                         <UiCommandItem
                             v-for="file in matchedFiles"
@@ -98,7 +103,7 @@
                     <UiCommandGroup
                         v-if="paletteTerm && matchedFolders.length"
                         class="px-1 pb-0"
-                        heading="Folders"
+                        :heading="$t('layout.pages.folders')"
                     >
                         <UiCommandItem
                             v-for="folder in matchedFolders"
@@ -114,7 +119,7 @@
                     <UiCommandGroup
                         v-if="paletteTerm && matchedNotes.length"
                         class="px-1 pb-0"
-                        heading="Notes"
+                        :heading="$t('layout.pages.notes')"
                     >
                         <UiCommandItem
                             v-for="note in matchedNotes"
@@ -130,7 +135,7 @@
                     <UiCommandGroup
                         v-if="paletteTerm && matchedLinks.length"
                         class="px-1 pb-0"
-                        heading="Links"
+                        :heading="$t('layout.pages.links')"
                     >
                         <UiCommandItem
                             v-for="link in matchedLinks"
@@ -153,7 +158,7 @@
                     <UiCommandGroup
                         v-if="paletteTerm && matchedUsers.length"
                         class="px-1 pb-0"
-                        heading="Users"
+                        :heading="$t('layout.pages.users')"
                     >
                         <UiCommandItem
                             v-for="user in matchedUsers"
@@ -166,7 +171,7 @@
                         </UiCommandItem>
                     </UiCommandGroup>
 
-                    <UiCommandGroup class="px-1 pb-0" heading="Actions">
+                    <UiCommandGroup class="px-1 pb-0" :heading="$t('layout.palette.actions')">
                         <UiCommandItem
                             v-for="action in paletteActions"
                             :key="action.label"
@@ -183,7 +188,7 @@
 
                     <UiCommandSeparator />
 
-                    <UiCommandGroup class="px-1 pb-0" heading="Go to">
+                    <UiCommandGroup class="px-1 pb-0" :heading="$t('layout.palette.goTo')">
                         <UiCommandItem
                             v-for="page in palettePages"
                             :key="page.url"
@@ -205,9 +210,9 @@
                 >
                     <form class="flex flex-col gap-6" @submit.prevent="handleVerify">
                         <UiDialogHeader>
-                            <UiDialogTitle>Confirm it's you</UiDialogTitle>
+                            <UiDialogTitle>{{ $t('layout.verify.title') }}</UiDialogTitle>
                             <UiDialogDescription>
-                                This action needs an extra verification step.
+                                {{ $t('layout.verify.description') }}
                             </UiDialogDescription>
                         </UiDialogHeader>
 
@@ -218,22 +223,24 @@
                                     :key="m.type"
                                     :value="m.type"
                                 >
-                                    {{ verifyLabels[m.type] }}
+                                    {{ $t(verifyLabels[m.type]) }}
                                 </UiTabsTrigger>
                             </UiTabsList>
                         </UiTabs>
 
                         <TextBlock v-if="verifyMethod === 'passkey'" variant="muted">
-                            Confirm with your fingerprint, face or security key.
+                            {{ $t('layout.verify.passkeyHint') }}
                         </TextBlock>
 
                         <UiField v-else-if="verifyMethod === 'totp'">
-                            <UiFieldLabel>Authenticator code</UiFieldLabel>
+                            <UiFieldLabel>{{ $t('layout.verify.authenticatorCode') }}</UiFieldLabel>
                             <OtpInput v-model="verifyTotp" @complete="handleVerify" />
                         </UiField>
 
                         <UiField v-else>
-                            <UiFieldLabel for="verify-password">Password</UiFieldLabel>
+                            <UiFieldLabel for="verify-password">
+                                {{ $t('layout.verify.password') }}
+                            </UiFieldLabel>
                             <PasswordInput
                                 id="verify-password"
                                 v-model="verifyPassword"
@@ -252,7 +259,7 @@
                                 variant="outline"
                                 @click="currentVerification.cancel()"
                             >
-                                Cancel
+                                {{ $t('common.cancel') }}
                             </UiButton>
                             <UiButton
                                 v-if="verifyMethod === 'passkey'"
@@ -262,7 +269,7 @@
                             >
                                 <UiSpinner v-if="currentVerification.isSubmitting" />
                                 <IFingerprint v-else />
-                                Use a passkey
+                                {{ $t('layout.verify.usePasskey') }}
                             </UiButton>
                             <UiButton
                                 v-else
@@ -270,7 +277,7 @@
                                 :disabled="currentVerification.isSubmitting || !canVerify"
                             >
                                 <UiSpinner v-if="currentVerification.isSubmitting" />
-                                Verify
+                                {{ $t('layout.verify.submit') }}
                             </UiButton>
                         </UiDialogFooter>
                     </form>
@@ -298,7 +305,11 @@
                                     <UiButton
                                         variant="ghost"
                                         size="icon-sm"
-                                        :aria-label="isQueueExpanded ? 'Collapse' : 'Expand'"
+                                        :aria-label="
+                                            isQueueExpanded
+                                                ? $t('layout.queue.collapse')
+                                                : $t('layout.queue.expand')
+                                        "
                                     >
                                         <IChevronDown
                                             :class="
@@ -336,13 +347,22 @@
                                                 {{ file.status!.error }}
                                             </template>
                                             <template v-else-if="!file.status!.started">
-                                                Waiting...
+                                                {{ $t('layout.queue.waiting') }}
                                             </template>
                                             <template v-else-if="!file.status!.completed">
-                                                {{ filesize(file.status!.progress.speed) }}/s ·
-                                                {{ formatEta(file.status!.progress.eta) }} left
+                                                {{
+                                                    $t('layout.queue.progress', {
+                                                        speed: filesize(
+                                                            file.status!.progress.speed,
+                                                            { locale },
+                                                        ),
+                                                        eta: formatEta(file.status!.progress.eta),
+                                                    })
+                                                }}
                                             </template>
-                                            <template v-else>Uploaded</template>
+                                            <template v-else>
+                                                {{ $t('layout.queue.uploaded') }}
+                                            </template>
                                         </UiItemDescription>
                                     </UiItemContent>
                                     <UiItemActions>
@@ -350,7 +370,7 @@
                                             <UiButton
                                                 variant="ghost"
                                                 size="icon-sm"
-                                                aria-label="Retry"
+                                                :aria-label="$t('layout.queue.retry')"
                                                 @click="retry(file)"
                                             >
                                                 <IRotateCw />
@@ -358,7 +378,7 @@
                                             <UiButton
                                                 variant="ghost"
                                                 size="icon-sm"
-                                                aria-label="Dismiss"
+                                                :aria-label="$t('layout.queue.dismiss')"
                                                 @click="dismiss(file)"
                                             >
                                                 <IX />
@@ -402,12 +422,14 @@
                                     <UiEmptyMedia variant="icon">
                                         <IUpload />
                                     </UiEmptyMedia>
-                                    <UiEmptyTitle>Drop files to upload</UiEmptyTitle>
+                                    <UiEmptyTitle>{{ $t('layout.drop.title') }}</UiEmptyTitle>
                                     <UiEmptyDescription>
                                         {{
                                             currentFolderName
-                                                ? `They will be added to ${currentFolderName}.`
-                                                : 'Links are copied to your clipboard when done.'
+                                                ? $t('layout.drop.toFolder', {
+                                                      folder: currentFolderName,
+                                                  })
+                                                : $t('layout.drop.copyLinks')
                                         }}
                                     </UiEmptyDescription>
                                 </UiEmptyHeader>
@@ -456,6 +478,7 @@ const domains = useDomains();
 const currentUser = useAuthUser();
 const route = useRoute();
 const { $toast } = useNuxtApp();
+const { t, locale } = useI18n();
 const router = useRouter();
 const uploadSheetOpen = useUploadSheet();
 const uploadingFiles = useUploadingFiles();
@@ -465,25 +488,39 @@ const verification = useVerification();
 const uploadSheet = useTemplateRef('uploadSheet');
 const commandPaletteOpen = ref(false);
 const isMac = ref(false);
+
+const paletteShortcut = computed(() => [isMac.value ? '⌘' : 'Ctrl', 'K']);
 const isReturning = ref(false);
 const { stopImpersonating } = useImpersonation();
 
 const restoreStates = {
-    Extracting: 'Extracting the archive, this may take a while...',
-    DeletingPreviousData: 'Deleting previous data...',
-    RestoringData: 'Restoring data...',
+    Extracting: 'layout.restore.extracting',
+    DeletingPreviousData: 'layout.restore.deletingPreviousData',
+    RestoringData: 'layout.restore.restoringData',
 };
 
 const breadcrumbLabels = {
-    dashboard: 'Home',
-    ai: 'AI',
-    files: 'Files',
-    folders: 'Folders',
-    logs: 'Logs',
-    notes: 'Notes',
-    settings: 'Settings',
-    stats: 'Statistics',
-    users: 'Users',
+    dashboard: 'layout.pages.home',
+    files: 'layout.pages.files',
+    folders: 'layout.pages.folders',
+    notes: 'layout.pages.notes',
+    new: 'layout.pages.newNote',
+    links: 'layout.pages.links',
+    trash: 'layout.pages.trash',
+    stats: 'layout.pages.stats',
+    users: 'layout.pages.users',
+    logs: 'layout.pages.logs',
+    instance: 'layout.pages.instance',
+    settings: 'layout.pages.settings',
+    profile: 'settings.nav.profile',
+    security: 'settings.nav.security',
+    sessions: 'settings.nav.sessions',
+    backups: 'settings.nav.backups',
+    sharing: 'settings.nav.sharing',
+    inbox: 'settings.nav.inbox',
+    integrations: 'settings.nav.integrations',
+    ai: 'settings.nav.ai',
+    appearance: 'settings.nav.appearance',
 };
 
 const breadcrumbItems = useBreadcrumbs(breadcrumbLabels);
@@ -595,66 +632,81 @@ const matchedLinks = useMatches<LinkData>('links', '/api/links', () =>
 const matchedUsers = useMatches<UserData>('users', '/api/users', () => isAdmin(currentUser.value));
 
 const palettePages = computed(() => [
-    { label: 'Home', url: '/dashboard', icon: IHome },
+    { label: t('layout.pages.home'), url: '/dashboard', icon: IHome },
     ...(canUploadFiles(currentUser.value)
         ? [
-              { label: 'Files', url: '/dashboard/files', icon: IFiles },
-              { label: 'Folders', url: '/dashboard/folders', icon: IFolder },
+              { label: t('layout.pages.files'), url: '/dashboard/files', icon: IFiles },
+              { label: t('layout.pages.folders'), url: '/dashboard/folders', icon: IFolder },
           ]
         : []),
     ...(canTakeNotes(currentUser.value)
-        ? [{ label: 'Notes', url: '/dashboard/notes', icon: IBookmark }]
+        ? [{ label: t('layout.pages.notes'), url: '/dashboard/notes', icon: IBookmark }]
         : []),
     ...(canShortenLinks(currentUser.value)
-        ? [{ label: 'Links', url: '/dashboard/links', icon: ILink }]
+        ? [{ label: t('layout.pages.links'), url: '/dashboard/links', icon: ILink }]
         : []),
     ...(trash.isEnabled.value &&
     (canUploadFiles(currentUser.value) || canTakeNotes(currentUser.value))
-        ? [{ label: 'Trash', url: '/dashboard/trash', icon: ITrash2 }]
+        ? [{ label: t('layout.pages.trash'), url: '/dashboard/trash', icon: ITrash2 }]
         : []),
     ...(isAdmin(currentUser.value)
         ? [
-              { label: 'Statistics', url: '/dashboard/stats', icon: IChartNoAxesColumn },
-              { label: 'Users', url: '/dashboard/users', icon: IUsers },
-              { label: 'Logs', url: '/dashboard/logs', icon: IClipboardList },
+              { label: t('layout.pages.stats'), url: '/dashboard/stats', icon: IChartNoAxesColumn },
+              { label: t('layout.pages.users'), url: '/dashboard/users', icon: IUsers },
+              { label: t('layout.pages.logs'), url: '/dashboard/logs', icon: IClipboardList },
               ...(currentUser.value?.superAdmin
-                  ? [{ label: 'Instance', url: '/dashboard/instance', icon: IServer }]
+                  ? [
+                        {
+                            label: t('layout.pages.instance'),
+                            url: '/dashboard/instance',
+                            icon: IServer,
+                        },
+                    ]
                   : []),
           ]
         : []),
-    { label: 'Settings', url: '/dashboard/settings/profile', icon: ISettings },
+    { label: t('layout.pages.settings'), url: '/dashboard/settings/profile', icon: ISettings },
 ]);
 
 const paletteActions = computed(() => [
     ...(canUploadFiles(currentUser.value)
         ? [
               {
-                  label: 'Upload files',
+                  label: t('layout.palette.uploadFiles'),
                   icon: IUpload,
                   shortcut: 'U',
                   run: () => (uploadSheetOpen.value = true),
               },
               {
-                  label: 'New folder',
+                  label: t('layout.palette.newFolder'),
                   icon: IFolderPlus,
                   run: () => navigateTo('/dashboard/folders?new=1'),
               },
           ]
         : []),
     ...(canTakeNotes(currentUser.value)
-        ? [{ label: 'New note', icon: ISquarePen, run: () => navigateTo('/dashboard/notes/new') }]
+        ? [
+              {
+                  label: t('layout.palette.newNote'),
+                  icon: ISquarePen,
+                  run: () => navigateTo('/dashboard/notes/new'),
+              },
+          ]
         : []),
     ...(canShortenLinks(currentUser.value)
         ? [
               {
-                  label: 'Shorten link',
+                  label: t('layout.palette.shortenLink'),
                   icon: ILink,
                   run: () => navigateTo('/dashboard/links?new=1'),
               },
           ]
         : []),
     {
-        label: colorMode.value === 'dark' ? 'Switch to light mode' : 'Switch to dark mode',
+        label:
+            colorMode.value === 'dark'
+                ? t('layout.palette.lightMode')
+                : t('layout.palette.darkMode'),
         icon: colorMode.value === 'dark' ? ISun : IMoon,
         run: () => (colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'),
     },
@@ -682,7 +734,11 @@ onKeyStroke(['k', 'K'], (event) => {
 const currentVerification = ref(verification.value);
 const verifyOpenCount = ref(0);
 
-const verifyLabels = { passkey: 'Passkey', totp: 'Code', password: 'Password' };
+const verifyLabels = {
+    passkey: 'layout.verify.passkey',
+    totp: 'layout.verify.code',
+    password: 'layout.verify.password',
+};
 
 const verifyMethod = ref<VerificationMethod['type']>('password');
 const verifyTotp = ref('');
@@ -718,7 +774,7 @@ const handleVerifyPasskey = async () => {
         verification.value!.submit({ type: 'passkey', data: { ticket, authenticationResponse } });
     } catch {
         currentVerification.value!.isSubmitting = false;
-        $toast.error('Failed to verify passkey');
+        $toast.error(t('layout.verify.passkeyFailed'));
     }
 };
 
@@ -753,11 +809,12 @@ const failedUploads = computed(() => uploadingFiles.value.length - activeUploads
 
 const queueTitle = computed(() =>
     activeUploads.value
-        ? `Uploading ${activeUploads.value} file${activeUploads.value > 1 ? 's' : ''}`
-        : `${failedUploads.value} upload${failedUploads.value > 1 ? 's' : ''} failed`,
+        ? t('layout.queue.uploading', activeUploads.value)
+        : t('layout.queue.failed', failedUploads.value),
 );
 
-const formatEta = (seconds: number) => dayjs.duration(seconds, 'seconds').humanize();
+const formatEta = (seconds: number) =>
+    dayjs.duration(seconds, 'seconds').locale(locale.value).humanize();
 
 onMounted(async () => {
     isMac.value = /Mac|iPhone|iPad/.test(navigator.userAgent);

@@ -53,6 +53,7 @@ export const uploadFile = async (
     uploadEndpoint = '/api/files',
 ) => {
     const uploadingFiles = useUploadingFiles();
+    const { t } = useNuxtApp().$i18n;
 
     const fileChunkSize = usePublicSettings().value.fileChunkSize * 1024 * 1024;
 
@@ -145,7 +146,9 @@ export const uploadFile = async (
                             settle({
                                 ok: false,
                                 retryable: req.status >= 500 && canRetry(),
-                                error: `Upload failed with an invalid server response (${req.status})`,
+                                error: t('upload.errors.invalidResponse', {
+                                    status: req.status,
+                                }),
                             });
                             return;
                         }
@@ -155,7 +158,9 @@ export const uploadFile = async (
                         settle({
                             ok: false,
                             retryable: (req.status === 0 || req.status >= 500) && canRetry(),
-                            error: response.message || `Upload failed (${req.status})`,
+                            error:
+                                response.message ||
+                                t('upload.errors.failedStatus', { status: req.status }),
                         });
                         return;
                     }
@@ -166,21 +171,21 @@ export const uploadFile = async (
                     settle({
                         ok: false,
                         retryable: canRetry(),
-                        error: 'Network error during upload',
+                        error: t('upload.errors.network'),
                     }),
                 );
                 req.addEventListener('timeout', () =>
                     settle({
                         ok: false,
                         retryable: canRetry(),
-                        error: 'Upload request timed out',
+                        error: t('upload.errors.timeout'),
                     }),
                 );
                 req.addEventListener('abort', () =>
                     settle({
                         ok: false,
                         retryable: canRetry(),
-                        error: 'Upload request was aborted',
+                        error: t('upload.errors.aborted'),
                     }),
                 );
 
@@ -193,7 +198,7 @@ export const uploadFile = async (
         }
 
         if (!result.ok) {
-            uploadingFile.status!.error = result.error || 'Upload failed';
+            uploadingFile.status!.error = result.error || t('upload.errors.failed');
             return false;
         }
 

@@ -1,0 +1,25 @@
+{
+    "sharing": {
+        "embeds": "Yerleştirme önizlemesi",
+        "embedsDescription": "Bağlantılarının Discord, Twitter ve diğer platformlarda paylaşılınca nasıl görüneceği.",
+        "enableEmbeds": "Yerleştirme önizlemesini aç",
+        "title": "Başlık",
+        "description": "Açıklama",
+        "siteName": "Site adı",
+        "color": "Renk",
+        "pickColor": "Renk seç",
+        "placeholders": "Şu değişkenleri kullanabilirsin: {fileName}, {mimeType}, {size}, {createdAt} ve {now}.",
+        "preview": "Önizleme",
+        "untitled": "Başlıksız",
+        "save": "Kaydet",
+        "embedSaved": "Yerleştirme ayarları kaydedildi",
+        "domains": "Alan adları",
+        "domainsDescription": "Dosya bağlantılarında kullanılan özel alan adları. Her bağlantıda biri rastgele seçilir.",
+        "domainPlaceholder": "i.example.com",
+        "add": "Ekle",
+        "removeDomain": "Kaldır: {domain}",
+        "noDomains": "Özel alan adı yok",
+        "noDomainsDescription": "Bağlantılar geçerli alan adını kullanır.",
+        "domainsSaved": "Alan adları kaydedildi"
+    }
+}

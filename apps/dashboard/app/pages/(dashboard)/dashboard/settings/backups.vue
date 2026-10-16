@@ -1,9 +1,9 @@
 <template>
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>Backups</UiCardTitle>
+            <UiCardTitle>{{ $t('backups.title') }}</UiCardTitle>
             <UiCardDescription>
-                Export everything you have or restore a previous backup.
+                {{ $t('backups.description') }}
             </UiCardDescription>
             <UiCardAction class="flex gap-2">
                 <UiButton
@@ -12,12 +12,12 @@
                     @click="backupInput!.click()"
                 >
                     <IUpload />
-                    <span class="hidden sm:inline">Upload</span>
+                    <span class="hidden sm:inline">{{ $t('backups.upload') }}</span>
                 </UiButton>
                 <UiButton :disabled="isCreating" @click="handleCreate">
                     <UiSpinner v-if="isCreating" />
                     <IPlus v-else />
-                    <span class="hidden sm:inline">Create</span>
+                    <span class="hidden sm:inline">{{ $t('backups.create') }}</span>
                 </UiButton>
             </UiCardAction>
         </UiCardHeader>
@@ -33,8 +33,10 @@
             <UiCard v-if="uploadProgress !== null" size="sm">
                 <UiCardContent class="flex flex-col gap-2">
                     <div class="flex items-center justify-between">
-                        <TextBlock variant="small">Uploading backup...</TextBlock>
-                        <TextBlock variant="muted">{{ uploadProgress }}%</TextBlock>
+                        <TextBlock variant="small">{{ $t('backups.uploading') }}</TextBlock>
+                        <TextBlock variant="muted">
+                            {{ $t('backups.progress', { progress: uploadProgress }) }}
+                        </TextBlock>
                     </div>
                     <UiProgress :model-value="uploadProgress" />
                 </UiCardContent>
@@ -47,17 +49,17 @@
             <EmptyState
                 v-else-if="isError"
                 :icon="ICircleAlert"
-                title="Couldn't load backups"
-                description="Something went wrong. Check your connection and try again."
+                :title="$t('backups.loadFailed')"
+                :description="$t('backups.loadFailedDescription')"
             >
-                <UiButton variant="outline" @click="refresh">Try again</UiButton>
+                <UiButton variant="outline" @click="refresh">{{ $t('backups.tryAgain') }}</UiButton>
             </EmptyState>
 
             <EmptyState
                 v-else-if="!backups.length"
                 :icon="IArchive"
-                title="No backups yet"
-                description="Create one to export all of your files, folders, notes and short links."
+                :title="$t('backups.empty')"
+                :description="$t('backups.emptyDescription')"
             />
 
             <VirtualList
@@ -77,15 +79,15 @@
                             <IArchive class="size-5 shrink-0 text-muted-foreground" />
                             <div class="flex min-w-0 flex-1 flex-col">
                                 <TextBlock variant="small">
-                                    {{ dayjs(item.createdAt).format('MMM D, YYYY HH:mm') }}
+                                    {{ date(item.createdAt).format('lll') }}
                                 </TextBlock>
                                 <TextBlock variant="muted" class="text-xs">
-                                    {{ item.size.formatted }}
+                                    {{ filesize(Number(item.size.raw), { locale }) }}
                                 </TextBlock>
                             </div>
                             <UiButton variant="outline" size="sm" @click="handleRestore(item)">
                                 <IHistory />
-                                Restore
+                                {{ $t('backups.restore') }}
                             </UiButton>
                             <UiDropdownMenu>
                                 <UiDropdownMenuTrigger as-child>
@@ -98,14 +100,14 @@
                                         @select="downloadFile(`/api/users/@me/backups/${item.id}`)"
                                     >
                                         <IDownload />
-                                        Download
+                                        {{ $t('backups.download') }}
                                     </UiDropdownMenuItem>
                                     <UiDropdownMenuItem
                                         variant="destructive"
                                         @select="handleDelete(item)"
                                     >
                                         <ITrash2 />
-                                        Delete
+                                        {{ $t('backups.delete') }}
                                     </UiDropdownMenuItem>
                                 </UiDropdownMenuContent>
                             </UiDropdownMenu>
@@ -118,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
+import { filesize } from 'filesize';
 import { nanoid } from 'nanoid';
 
 import { IArchive, ICircleAlert } from '#components';
@@ -127,6 +129,8 @@ import type { BackupData } from '~/types/backups';
 
 const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
+const { t, locale } = useI18n();
+const date = useDate();
 
 const backupInput = useTemplateRef('backupInput');
 
@@ -147,7 +151,7 @@ const handleCreate = async () => {
 
     try {
         await $fetch('/api/users/@me/backups', { method: 'POST' });
-        $toast.success('Backup is being created, this may take a while');
+        $toast.success(t('backups.creating'));
     } catch (error: any) {
         $toast.error(getErrorMessage(error));
     }
@@ -161,7 +165,7 @@ const handleUpload = async (event: Event) => {
     input.value = '';
 
     if (!file.name.endsWith('.tgz')) {
-        $toast.error('Invalid backup file');
+        $toast.error(t('backups.invalidFile'));
         return;
     }
 
@@ -195,7 +199,7 @@ const handleUpload = async (event: Event) => {
             uploadProgress.value = Math.round((end / file.size) * 100);
         }
 
-        $toast.success('Backup uploaded, you can now restore it');
+        $toast.success(t('backups.uploaded'));
     } catch (error: any) {
         $toast.error(getErrorMessage(error));
     }
@@ -205,9 +209,9 @@ const handleUpload = async (event: Event) => {
 
 const handleRestore = async (backup: BackupData) => {
     await askConfirmation({
-        title: 'Restore this backup?',
-        description: 'Your current data will be deleted and replaced with the backup data.',
-        confirmText: 'Restore',
+        title: t('backups.restoreTitle'),
+        description: t('backups.restoreDescription'),
+        confirmText: t('backups.restore'),
         destructive: true,
         action: async () => {
             try {
@@ -218,7 +222,7 @@ const handleRestore = async (backup: BackupData) => {
                     }),
                 );
 
-                if (result) $toast.success('Backup is being restored, this may take a while');
+                if (result) $toast.success(t('backups.restoring'));
             } catch (error: any) {
                 $toast.error(getErrorMessage(error));
             }
@@ -228,14 +232,14 @@ const handleRestore = async (backup: BackupData) => {
 
 const handleDelete = async (backup: BackupData) => {
     await askConfirmation({
-        title: 'Delete this backup?',
-        description: 'This action cannot be undone.',
-        confirmText: 'Delete',
+        title: t('backups.deleteTitle'),
+        description: t('backups.deleteDescription'),
+        confirmText: t('backups.delete'),
         destructive: true,
         action: async () => {
             try {
                 await $fetch(`/api/users/@me/backups/${backup.id}`, { method: 'DELETE' });
-                $toast.success('Backup deleted');
+                $toast.success(t('backups.deleted'));
             } catch (error: any) {
                 $toast.error(getErrorMessage(error));
             }

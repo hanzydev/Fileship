@@ -1,22 +1,19 @@
 <template>
     <Head>
-        <Title>Statistics</Title>
+        <Title>{{ $t('stats.title') }}</Title>
     </Head>
 
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <PageHeader
-            title="Statistics"
-            description="Instance-wide usage, refreshed every 30 minutes."
-        />
+        <PageHeader :title="$t('stats.title')" :description="$t('stats.description')" />
 
         <div class="grid auto-rows-min gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <StatCard v-for="card in statCards" :key="card.title" v-bind="card" />
         </div>
 
         <TrendChart
-            title="Views"
-            description="File views over the last 12 months"
-            value-label="Views"
+            :title="$t('stats.views')"
+            :description="$t('stats.viewsDescription')"
+            :value-label="$t('stats.views')"
             :points="viewsPoints"
             :num-ticks="12"
             :is-loading="!stats && !statsFailed"
@@ -25,23 +22,23 @@
 
         <div class="grid gap-4 lg:grid-cols-3">
             <StatsDonut
-                title="Top uploaders"
-                description="Files uploaded per user"
-                value-label="Files"
+                :title="$t('stats.topUploaders')"
+                :description="$t('stats.topUploadersDescription')"
+                :value-label="$t('stats.files')"
                 :is-loading="!stats && !statsFailed"
                 :items="topUploaders"
             />
             <StatsDonut
-                title="Storage"
-                description="Storage used per user"
-                value-label="Size"
+                :title="$t('stats.storage')"
+                :description="$t('stats.storageDescription')"
+                :value-label="$t('stats.size')"
                 :is-loading="!stats && !statsFailed"
                 :items="storageByUser"
             />
             <StatsDonut
-                title="File types"
-                description="Most uploaded file types"
-                value-label="Files"
+                :title="$t('stats.fileTypes')"
+                :description="$t('stats.fileTypesDescription')"
+                :value-label="$t('stats.files')"
                 :is-loading="!stats && !statsFailed"
                 :items="topTypes"
             />
@@ -53,6 +50,8 @@
 import { IBox, IEye, IFiles, IUsers } from '#components';
 
 const { $toast } = useNuxtApp();
+const { t, locale } = useI18n();
+const date = useDate();
 const stats = ref<any>(null);
 const statsFailed = ref(false);
 
@@ -60,11 +59,20 @@ const findUser = (userId: string) => stats.value.users.all.find((u: any) => u.id
 
 const viewsPoints = computed(() =>
     stats.value
-        ? stats.value.views.byMonth.labels.map((month: string, index: number) => ({
-              label: month,
-              tick: month.slice(0, 3),
-              value: stats.value.views.byMonth.data[index],
-          }))
+        ? stats.value.views.byMonth.data.map((value: number, index: number) => {
+              const month = date()
+                  .subtract(11 - index, 'month')
+                  .toDate();
+
+              return {
+                  label: new Intl.DateTimeFormat(locale.value, {
+                      month: 'long',
+                      year: 'numeric',
+                  }).format(month),
+                  tick: new Intl.DateTimeFormat(locale.value, { month: 'short' }).format(month),
+                  value,
+              };
+          })
         : [],
 );
 
@@ -96,31 +104,33 @@ const topTypes = computed(() =>
 const statCards = computed(() =>
     [
         {
-            title: 'Users',
-            legend: 'registered users',
+            title: t('stats.cards.users'),
+            legend: t('stats.cards.usersLegend'),
             icon: IUsers,
             data: stats.value?.users.count,
             growth: stats.value?.users.growth,
         },
         {
-            title: 'Files',
-            legend: 'files on this instance',
+            title: t('stats.cards.files'),
+            legend: t('stats.cards.filesLegend'),
             icon: IFiles,
             data: stats.value?.files.count,
             growth: stats.value?.files.growth,
         },
         {
-            title: 'Storage',
+            title: t('stats.cards.storage'),
             legend: +(stats.value?.storageUsed.trashed?.raw ?? 0)
-                ? `total storage used, ${stats.value.storageUsed.trashed.formatted} in trash`
-                : 'total storage used',
+                ? t('stats.cards.storageLegendTrashed', {
+                      size: stats.value.storageUsed.trashed.formatted,
+                  })
+                : t('stats.cards.storageLegend'),
             icon: IBox,
             data: stats.value?.storageUsed.size,
             growth: stats.value?.storageUsed.growth,
         },
         {
-            title: 'Views',
-            legend: 'total file views',
+            title: t('stats.cards.views'),
+            legend: t('stats.cards.viewsLegend'),
             icon: IEye,
             data: stats.value?.views.count,
             growth: stats.value?.views.growth,

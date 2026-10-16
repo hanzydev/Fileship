@@ -3,16 +3,16 @@
         <UiDialogContent class="sm:max-w-md">
             <UiDialogHeader>
                 <UiDialogTitle>
-                    Move {{ files.length > 1 ? `${files.length} files` : 'file' }}
+                    {{ $t('files.moveTitle', files.length) }}
                 </UiDialogTitle>
-                <UiDialogDescription>Choose a folder or create a new one.</UiDialogDescription>
+                <UiDialogDescription>{{ $t('files.moveDescription') }}</UiDialogDescription>
             </UiDialogHeader>
             <FolderPicker v-model="folderId" />
             <UiDialogFooter>
-                <UiButton variant="outline" @click="files = []">Cancel</UiButton>
+                <UiButton variant="outline" @click="files = []">{{ $t('common.cancel') }}</UiButton>
                 <UiButton :disabled="isMoving" @click="handleMove">
                     <UiSpinner v-if="isMoving" />
-                    Move
+                    {{ $t('files.move') }}
                 </UiButton>
             </UiDialogFooter>
         </UiDialogContent>

@@ -1,12 +1,16 @@
 <template>
     <Head>
-        <Title>{{ draft.title || 'New note' }}</Title>
+        <Title>{{ draft.title || $t('notes.newNote') }}</Title>
     </Head>
 
     <UiCard v-if="!isNew && !note && !isLoading && loadedId !== id" class="flex-1 justify-center">
-        <EmptyState :icon="IFileX" title="Note not found" description="It may have been deleted.">
+        <EmptyState
+            :icon="IFileX"
+            :title="$t('notes.notFound')"
+            :description="$t('notes.notFoundDescription')"
+        >
             <UiButton variant="outline" as-child>
-                <NuxtLink to="/dashboard/notes">Back to notes</NuxtLink>
+                <NuxtLink to="/dashboard/notes">{{ $t('notes.backToNotes') }}</NuxtLink>
             </UiButton>
         </EmptyState>
     </UiCard>
@@ -35,18 +39,18 @@
             <TextBlock variant="muted" class="mr-auto flex items-center gap-1.5 text-xs">
                 <template v-if="saveState === 'saving'">
                     <UiSpinner class="size-3" />
-                    Saving...
+                    {{ $t('notes.saving') }}
                 </template>
                 <template v-else-if="saveState === 'error'">
                     <ICircleAlert class="size-3.5 text-destructive" />
-                    Not saved
+                    {{ $t('notes.notSaved') }}
                 </template>
                 <template v-else-if="!isValid">
-                    Add a title (3+ characters) and some content to save
+                    {{ $t('notes.invalidHint') }}
                 </template>
                 <template v-else-if="!isNew">
                     <ICheck class="size-3.5" />
-                    Saved
+                    {{ $t('notes.saved') }}
                 </template>
             </TextBlock>
 
@@ -57,13 +61,17 @@
                 :model-value="mode"
                 @update:model-value="$event && (mode = $event as never)"
             >
-                <UiToggleGroupItem value="edit" aria-label="Edit">
+                <UiToggleGroupItem value="edit" :aria-label="$t('notes.mode.edit')">
                     <IPencil />
                 </UiToggleGroupItem>
-                <UiToggleGroupItem value="split" aria-label="Split" class="hidden lg:flex">
+                <UiToggleGroupItem
+                    value="split"
+                    :aria-label="$t('notes.mode.split')"
+                    class="hidden lg:flex"
+                >
                     <IColumns2 />
                 </UiToggleGroupItem>
-                <UiToggleGroupItem value="preview" aria-label="Preview">
+                <UiToggleGroupItem value="preview" :aria-label="$t('notes.mode.preview')">
                     <IEye />
                 </UiToggleGroupItem>
             </UiToggleGroup>
@@ -83,7 +91,7 @@
         <UiCardContent class="flex flex-1 flex-col gap-4">
             <input
                 v-model="draft.title"
-                placeholder="Untitled note"
+                :placeholder="$t('notes.titlePlaceholder')"
                 maxlength="48"
                 class="w-full bg-transparent text-2xl font-semibold tracking-tight outline-none placeholder:text-muted-foreground"
             />
@@ -92,12 +100,12 @@
                 <UiTextarea
                     v-if="mode !== 'preview'"
                     v-model="draft.content"
-                    placeholder="Write in Markdown..."
+                    :placeholder="$t('notes.contentPlaceholder')"
                     class="min-h-[60vh] resize-none font-mono"
                 />
                 <MarkdownRenderer
                     v-if="mode !== 'edit'"
-                    :content="draft.content || '*Nothing to preview yet.*'"
+                    :content="draft.content || `*${$t('notes.emptyPreview')}*`"
                     class="min-w-0"
                 />
             </div>

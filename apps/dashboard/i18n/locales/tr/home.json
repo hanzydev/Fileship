@@ -1,0 +1,43 @@
+{
+    "home": {
+        "title": "Panel",
+        "greeting": {
+            "welcomeBack": "Tekrar hoş geldin, {name}",
+            "morning": "Günaydın, {name}",
+            "afternoon": "İyi günler, {name}",
+            "evening": "İyi akşamlar, {name}",
+            "night": "Merhaba, {name}"
+        },
+        "newFolder": "Yeni klasör",
+        "newNote": "Yeni not",
+        "recentFiles": "Son dosyalar",
+        "recentFilesDescription": "En son yüklediklerin",
+        "viewAll": "Tümünü gör",
+        "noFiles": "Henüz dosya yok",
+        "noFilesDescription": "Dosyaları istediğin yere bırak, görsel yapıştır ya da yükle düğmesini kullan.",
+        "uploadFiles": "Dosya yükle",
+        "fileTypes": "Dosya türleri",
+        "fileTypesDescription": "Türe göre dosyalar",
+        "files": "Dosya",
+        "storage": "Depolama",
+        "storageDescription": "Dosya türüne göre kullanılan alan",
+        "size": "Boyut",
+        "cards": {
+            "files": "Dosyalar",
+            "filesLegend": "yüklenen dosya",
+            "views": "Görüntülenme",
+            "viewsLegend": "toplam görüntülenme",
+            "storage": "Depolama",
+            "storageLegend": "kullanılan alan",
+            "storageLegendTrashed": "kullanılan alan, çöp kutusunda {size}",
+            "users": "Kullanıcılar",
+            "usersLegend": "toplam kullanıcı",
+            "notes": "Notlar",
+            "notesLegend": "kayıtlı not",
+            "links": "Kısa bağlantılar",
+            "linksLegend": "oluşturulan kısa bağlantı",
+            "folders": "Klasörler",
+            "foldersLegend": "oluşturulan klasör"
+        }
+    }
+}

@@ -1,16 +1,16 @@
 <template>
     <Head>
-        <Title>Folders</Title>
+        <Title>{{ $t('folders.title') }}</Title>
     </Head>
 
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <PageHeader
-            title="Folders"
-            :description="isLoading ? 'Loading...' : pluralize(total, 'folder')"
+            :title="$t('folders.title')"
+            :description="isLoading ? $t('common.loading') : $t('folders.count', total)"
         >
             <UiButton @click="openForm(null)">
                 <IFolderPlus />
-                New folder
+                {{ $t('folders.newFolder') }}
             </UiButton>
         </PageHeader>
 
@@ -20,7 +20,10 @@
                     <UiSpinner v-if="!!search && isFetching" />
                     <ISearch v-else />
                 </UiInputGroupAddon>
-                <UiInputGroupInput v-model="search" placeholder="Search folders..." />
+                <UiInputGroupInput
+                    v-model="search"
+                    :placeholder="$t('folders.searchPlaceholder')"
+                />
             </UiInputGroup>
 
             <UiDropdownMenu>
@@ -32,7 +35,7 @@
                     </UiButton>
                 </UiDropdownMenuTrigger>
                 <UiDropdownMenuContent align="end" class="w-56">
-                    <UiDropdownMenuLabel>Sort by</UiDropdownMenuLabel>
+                    <UiDropdownMenuLabel>{{ $t('folders.sortBy') }}</UiDropdownMenuLabel>
                     <UiDropdownMenuRadioGroup v-model="sort">
                         <UiDropdownMenuRadioItem
                             v-for="option in sortOptions"
@@ -53,25 +56,23 @@
         <EmptyState
             v-else-if="isError"
             :icon="ICircleAlert"
-            title="Couldn't load folders"
-            description="Something went wrong. Check your connection and try again."
+            :title="$t('folders.loadFailed')"
+            :description="$t('folders.connectionError')"
         >
-            <UiButton variant="outline" @click="refresh">Try again</UiButton>
+            <UiButton variant="outline" @click="refresh">{{ $t('folders.tryAgain') }}</UiButton>
         </EmptyState>
 
         <EmptyState
             v-else-if="!folders.length"
             :icon="search ? ISearchX : IFolder"
-            :title="search ? 'No matching folders' : 'No folders yet'"
+            :title="search ? $t('folders.noMatches') : $t('folders.empty')"
             :description="
-                search
-                    ? 'Try a different name.'
-                    : 'Create a folder to group files and share them with one link.'
+                search ? $t('folders.noMatchesDescription') : $t('folders.emptyDescription')
             "
         >
             <UiButton v-if="!search" @click="openForm(null)">
                 <IFolderPlus />
-                New folder
+                {{ $t('folders.newFolder') }}
             </UiButton>
         </EmptyState>
 
@@ -146,13 +147,15 @@
                                             {{ item.name }}
                                         </TextBlock>
                                         <TextBlock variant="muted" class="text-xs">
-                                            {{ pluralize(item.fileCount, 'file') }}
+                                            {{ $t('folders.fileCount', item.fileCount) }}
                                         </TextBlock>
                                     </div>
-                                    <UiBadge v-if="item.isInbox" variant="secondary">Inbox</UiBadge>
+                                    <UiBadge v-if="item.isInbox" variant="secondary">
+                                        {{ $t('folders.inbox') }}
+                                    </UiBadge>
                                     <UiBadge v-if="item.public" variant="outline">
                                         <IGlobe />
-                                        Public
+                                        {{ $t('folders.public') }}
                                     </UiBadge>
                                     <UiDropdownMenu>
                                         <UiDropdownMenuTrigger as-child>
@@ -194,17 +197,18 @@ import type { FolderData } from '~/types/folders';
 
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 
 const search = ref('');
 const sort = useQueryState('sort', 'createdAt:desc');
 
-const sortOptions = [
-    { label: 'Newest', value: 'createdAt:desc' },
-    { label: 'Oldest', value: 'createdAt:asc' },
-    { label: 'Name A–Z', value: 'name:asc' },
-    { label: 'Name Z–A', value: 'name:desc' },
-    { label: 'Most files', value: 'files:desc' },
-];
+const sortOptions = computed(() => [
+    { label: t('folders.sort.newest'), value: 'createdAt:desc' },
+    { label: t('folders.sort.oldest'), value: 'createdAt:asc' },
+    { label: t('folders.sort.nameAsc'), value: 'name:asc' },
+    { label: t('folders.sort.nameDesc'), value: 'name:desc' },
+    { label: t('folders.sort.mostFiles'), value: 'files:desc' },
+]);
 const formOpen = ref(false);
 const editingFolder = ref<FolderData | null>(null);
 

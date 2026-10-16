@@ -1,0 +1,40 @@
+{
+    "actions": {
+        "linkCopied": "Link copied to clipboard",
+        "contentCopied": "Content copied to clipboard",
+        "file": {
+            "moving": "Moving file... | Moving {n} files...",
+            "removingFromFolder": "Removing from folder...",
+            "moved": "File moved | {n} files moved",
+            "removedFromFolder": "File removed from folder | {n} files removed from folder",
+            "count": "{n} file | {n} files",
+            "label": "File | {n} files",
+            "markingSensitive": "Marking as sensitive...",
+            "markingNotSensitive": "Marking as not sensitive...",
+            "markedSensitive": "Marked as sensitive",
+            "markedNotSensitive": "Marked as not sensitive"
+        },
+        "folder": {
+            "makingPrivate": "Making folder private...",
+            "makingPublic": "Making folder public...",
+            "nowPrivate": "Folder is now private",
+            "nowPublic": "Folder is now public",
+            "alsoTrashFiles": "Also move the files inside to trash",
+            "alsoDeleteFiles": "Also delete the files inside",
+            "label": "Folder",
+            "labelWithFiles": "Folder and its files",
+            "preparingArchive": "Preparing archive...",
+            "archiveReady": "Archive ready, downloading"
+        },
+        "note": {
+            "makingPrivate": "Making note private...",
+            "makingPublic": "Making note public...",
+            "nowPrivate": "Note is now private",
+            "nowPublic": "Note is now public",
+            "label": "Note"
+        },
+        "signingInAs": "Signing in as {username}...",
+        "verificationFailed": "Verification failed",
+        "themeFailed": "Failed to update theme"
+    }
+}

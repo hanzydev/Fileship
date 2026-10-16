@@ -1,0 +1,61 @@
+{
+    "settings": {
+        "appearance": {
+            "theme": "Tema",
+            "themeDescription": "Açık, koyu ya da sistemle aynı.",
+            "light": "Açık",
+            "dark": "Koyu",
+            "system": "Sistem",
+            "language": "Dil",
+            "languageDescription": "Tüm cihazlarda aynı kalır. Sistem seçeneği tarayıcının dilini kullanır.",
+            "languageFailed": "Dil değiştirilemedi",
+            "accent": "Vurgu rengi",
+            "accentDescription": "Tüm cihazlarda aynı kalır.",
+            "accents": {
+                "Fileship": "Fileship",
+                "Blue": "Mavi",
+                "Purple": "Mor",
+                "Red": "Kırmızı",
+                "Orange": "Turuncu",
+                "Pink": "Pembe",
+                "Green": "Yeşil",
+                "Yellow": "Sarı"
+            }
+        },
+        "nav": {
+            "title": "Ayarlar",
+            "description": "Hesabını ve tercihlerini yönet.",
+            "profile": "Profil",
+            "security": "Güvenlik",
+            "sessions": "Oturumlar",
+            "backups": "Yedekler",
+            "sharing": "Paylaşım",
+            "inbox": "Gelen kutusu",
+            "integrations": "Entegrasyonlar",
+            "ai": "Yapay zekâ",
+            "appearance": "Görünüm"
+        },
+        "profile": {
+            "avatar": "Profil fotoğrafı",
+            "avatarDescription": "En iyi sonuç için en az 64×64 piksellik kare bir görsel kullan.",
+            "upload": "Yükle",
+            "remove": "Kaldır",
+            "avatarUpdated": "Profil fotoğrafı güncellendi",
+            "avatarRemoved": "Profil fotoğrafı kaldırıldı",
+            "account": "Hesap",
+            "accountDescription": "Herkesin gördüğü kullanıcı adın.",
+            "username": "Kullanıcı adı",
+            "save": "Kaydet",
+            "usernameUpdated": "Kullanıcı adı güncellendi"
+        },
+        "ai": {
+            "title": "Yapay zekâ",
+            "description": "Dosyaların için açıklamalar, akıllı arama ve hassas içerik tespiti.",
+            "enabled": "Yapay zekâ özellikleri",
+            "enabledDescription": "Açıklamalar ve akıllı arama için yüklenen dosyalar analiz edilir.",
+            "suppressPii": "Hassas önizlemeleri gizle",
+            "suppressPiiDescription": "Kişisel bilgi içerebilecek görsellerin önizlemeleri bulanıklaştırılır.",
+            "saved": "Yapay zekâ ayarları kaydedildi"
+        }
+    }
+}

@@ -1,5 +1,5 @@
 export const predictExpiration = (date: Date | string | null) => {
-    if (!date) return 'Never';
+    if (!date) return 'labels.expiration.never';
 
     const diff = new Date(date).getTime() - Date.now();
 

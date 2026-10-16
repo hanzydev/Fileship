@@ -1,0 +1,21 @@
+{
+    "sessions": {
+        "title": "Sessions",
+        "description": "Devices that are signed in to your account.",
+        "signOutOthers": "Sign out others",
+        "loadFailed": "Couldn't load sessions",
+        "loadFailedDescription": "Something went wrong. Check your connection and try again.",
+        "tryAgain": "Try again",
+        "thisDevice": "This device",
+        "signOut": "Sign out",
+        "signedOut": "Session signed out",
+        "signOutOthersTitle": "Sign out all other devices?",
+        "signOutOthersDescription": "Every session except this one will be signed out.",
+        "othersSignedOut": "Other sessions signed out",
+        "device": {
+            "Desktop": "Desktop",
+            "Mobile": "Mobile",
+            "Unknown": "Unknown"
+        }
+    }
+}

@@ -2,7 +2,8 @@ import type { FileData } from '~/types/files';
 
 export const useFileActions = () => {
     const embed = useEmbed();
-    const { $toast } = useNuxtApp();
+    const { $toast, $i18n } = useNuxtApp();
+    const { t } = $i18n;
     const { copy } = useClipboard({ legacy: true });
     const { deleteConfirmation, notifyDeleted } = useTrash();
 
@@ -11,7 +12,7 @@ export const useFileActions = () => {
 
     const copyLink = (file: FileData) => {
         copy(embed.value.enabled || isTextFile(file) ? file.embedUrl : file.directUrl);
-        $toast.success('Link copied to clipboard');
+        $toast.success(t('actions.linkCopied'));
     };
 
     const openFile = (file: FileData) => window.open(file.embedUrl, '_blank');
@@ -20,9 +21,10 @@ export const useFileActions = () => {
         files.forEach((file) => downloadFile(`${file.directUrl}?download`));
 
     const move = async (files: Pick<FileData, 'id'>[], folderId: string | null) => {
-        const filesText = files.length > 1 ? `${files.length} files` : 'File';
         const id = $toast.loading(
-            folderId ? `Moving ${filesText.toLowerCase()}...` : 'Removing from folder...',
+            folderId
+                ? t('actions.file.moving', files.length)
+                : t('actions.file.removingFromFolder'),
         );
 
         try {
@@ -40,9 +42,10 @@ export const useFileActions = () => {
                 });
             }
 
-            $toast.success(folderId ? `${filesText} moved` : `${filesText} removed from folder`, {
-                id,
-            });
+            $toast.success(
+                t(folderId ? 'actions.file.moved' : 'actions.file.removedFromFolder', files.length),
+                { id },
+            );
 
             return true;
         } catch (error: any) {
@@ -52,7 +55,7 @@ export const useFileActions = () => {
     };
 
     const remove = async (files: Pick<FileData, 'id' | 'name'>[]) => {
-        const filesText = files.length > 1 ? `${files.length} files` : files[0]!.name;
+        const filesText = files.length > 1 ? t('actions.file.count', files.length) : files[0]!.name;
 
         return askConfirmation({
             ...deleteConfirmation(filesText),
@@ -69,7 +72,7 @@ export const useFileActions = () => {
                         await $fetch(`/api/files/${files[0]!.id}`, { method: 'DELETE' });
                     }
 
-                    notifyDeleted(files.length > 1 ? `${files.length} files` : 'File', {
+                    notifyDeleted(t('actions.file.label', files.length), {
                         files: files.map((file) => file.id),
                     });
                 } catch (error: any) {
@@ -82,12 +85,15 @@ export const useFileActions = () => {
 
     const setSensitive = async (file: Pick<FileData, 'id'>, sensitive: boolean) => {
         const id = $toast.loading(
-            sensitive ? 'Marking as sensitive...' : 'Marking as not sensitive...',
+            t(sensitive ? 'actions.file.markingSensitive' : 'actions.file.markingNotSensitive'),
         );
 
         try {
             await $fetch(`/api/files/${file.id}`, { method: 'PATCH', body: { sensitive } });
-            $toast.success(sensitive ? 'Marked as sensitive' : 'Marked as not sensitive', { id });
+            $toast.success(
+                t(sensitive ? 'actions.file.markedSensitive' : 'actions.file.markedNotSensitive'),
+                { id },
+            );
             return true;
         } catch (error: any) {
             $toast.error(getErrorMessage(error), { id });
