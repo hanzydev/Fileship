@@ -1,1 +1,3 @@
 @AGENTS.md
+@MEMORY.md
+@PLAN.md

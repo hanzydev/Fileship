@@ -62,6 +62,7 @@ Fileship is a pnpm and Turborepo monorepo:
 - `apps/updater-agent`: the service that performs zero-downtime updates
 - `packages/ui`: the shared Nuxt layer with the design system, used by both Nuxt apps
 - `packages/telemetry`: the telemetry report schema and client
+- `packages/ai`: the AI models, run on a worker thread by the dashboard
 - `packages/eslint-config`: the shared ESLint configuration
 
 [AGENTS.md](AGENTS.md) documents the architecture, the shared building blocks and the code conventions in detail. Please read it before making larger changes.
