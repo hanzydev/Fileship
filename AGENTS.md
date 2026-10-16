@@ -8,15 +8,15 @@ Also read [MEMORY.md](MEMORY.md) (decisions, release facts and known traps), [PL
 
 pnpm + Turborepo monorepo (`pnpm@11`, workspaces `apps/*` and `packages/*`). pnpm uses its default isolated linker, so every workspace declares the packages it imports.
 
-| Path                     | What it is                                                                                                                              |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/dashboard`         | Nuxt 4 app: the UI and the Nitro API. Prisma/Postgres, socket.io, Orama search, local AI queue.                                         |
-| `apps/updater-agent`     | Small h3 service (`src/index.ts`) that performs blue/green updates by driving `docker compose`.                                         |
-| `apps/desktop`           | Fileship for Windows: an Electron app that captures, records and uploads to Fileship 6.0+, with a Nuxt renderer on the ui layer.        |
-| `apps/telemetry`         | Nuxt 4 telemetry panel: receives the anonymous reports and shows the statistics. Admin only. Not part of the user-facing stack.         |
-| `packages/ui`            | `@fileship/ui`, the shared Nuxt layer: shadcn-vue components, theme tokens, generic app components and the shared Nuxt modules.         |
-| `packages/telemetry`     | `@fileship/telemetry`, the report schema (zod) and the client that collects runtime info and sends reports.                             |
-| `packages/ai`            | `@fileship/ai`, the AI models (SigLIP, Florence-2, text embeddings, PaddleOCR, privacy filter) running on a worker thread.              |
+| Path                     | What it is                                                                                                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `apps/dashboard`         | Nuxt 4 app: the UI and the Nitro API. Prisma/Postgres, socket.io, Orama search, local AI queue.                                                                          |
+| `apps/updater-agent`     | Small h3 service (`src/index.ts`) that performs blue/green updates by driving `docker compose`.                                                                          |
+| `apps/desktop`           | Fileship for Windows: an Electron app that captures, records and uploads to Fileship 6.0+, with a Nuxt renderer on the ui layer.                                         |
+| `apps/telemetry`         | Nuxt 4 telemetry panel: receives the anonymous reports and shows the statistics. Admin only. Not part of the user-facing stack.                                          |
+| `packages/ui`            | `@fileship/ui`, the shared Nuxt layer: shadcn-vue components, theme tokens, generic app components and the shared Nuxt modules.                                          |
+| `packages/telemetry`     | `@fileship/telemetry`, the report schema (zod) and the client that collects runtime info and sends reports.                                                              |
+| `packages/ai`            | `@fileship/ai`, the AI models (SigLIP, Florence-2, text embeddings, PaddleOCR, privacy filter) running on a worker thread.                                               |
 | `packages/eslint-config` | `@fileship/eslint-config`: `.` for plain TypeScript packages, `./nuxt` for the rules the Nuxt apps and the ui layer pass to `withNuxt`, `./i18n` for the vue-i18n rules. |
 
 ## Commands

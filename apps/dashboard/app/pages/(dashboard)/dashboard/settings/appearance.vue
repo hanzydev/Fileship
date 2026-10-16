@@ -67,7 +67,9 @@
                 >
                     <UiField orientation="horizontal">
                         <span class="size-4 shrink-0 rounded-full" :style="{ background: color }" />
-                        <UiFieldTitle>{{ $t(`settings.appearance.accents.${accent}`) }}</UiFieldTitle>
+                        <UiFieldTitle>
+                            {{ $t(`settings.appearance.accents.${accent}`) }}
+                        </UiFieldTitle>
                         <UiRadioGroupItem :id="`accent-${accent}`" :value="accent" />
                     </UiField>
                 </UiFieldLabel>

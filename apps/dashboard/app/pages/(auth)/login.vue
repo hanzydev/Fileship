@@ -16,7 +16,9 @@
                         <form @submit.prevent="handleSubmit">
                             <UiFieldGroup>
                                 <UiField>
-                                    <UiFieldLabel for="username">{{ $t('auth.username') }}</UiFieldLabel>
+                                    <UiFieldLabel for="username">
+                                        {{ $t('auth.username') }}
+                                    </UiFieldLabel>
                                     <UiInput
                                         id="username"
                                         v-model="auth.username"
@@ -31,7 +33,9 @@
                                     />
                                 </UiField>
                                 <UiField>
-                                    <UiFieldLabel for="password">{{ $t('auth.password') }}</UiFieldLabel>
+                                    <UiFieldLabel for="password">
+                                        {{ $t('auth.password') }}
+                                    </UiFieldLabel>
                                     <PasswordInput
                                         id="password"
                                         v-model="auth.password"
@@ -73,7 +77,9 @@
                                         class="text-center"
                                     >
                                         {{ $t('auth.login.noAccount') }}
-                                        <NuxtLink to="/register">{{ $t('auth.login.signUp') }}</NuxtLink>
+                                        <NuxtLink to="/register">
+                                            {{ $t('auth.login.signUp') }}
+                                        </NuxtLink>
                                     </UiFieldDescription>
                                 </UiField>
                             </UiFieldGroup>
@@ -92,7 +98,9 @@
                         <form @submit.prevent="handleSubmit">
                             <UiFieldGroup>
                                 <UiField>
-                                    <UiFieldLabel for="totp">{{ $t('auth.totp.code') }}</UiFieldLabel>
+                                    <UiFieldLabel for="totp">
+                                        {{ $t('auth.totp.code') }}
+                                    </UiFieldLabel>
                                     <OtpInput id="totp" v-model="auth.totp" />
                                     <UiFieldError
                                         v-if="formErrors?.totp?._errors?.length"

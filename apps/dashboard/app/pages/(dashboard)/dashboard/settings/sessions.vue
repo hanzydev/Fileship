@@ -50,7 +50,8 @@
                             <div class="flex min-w-0 flex-1 flex-col">
                                 <div class="flex items-center gap-2">
                                     <TextBlock variant="small" class="truncate">
-                                        {{ deviceLabel(item.os) }} · {{ deviceLabel(item.platform) }}
+                                        {{ deviceLabel(item.os) }} ·
+                                        {{ deviceLabel(item.platform) }}
                                     </TextBlock>
                                     <UiBadge
                                         v-if="item.id === currentUser!.currentSessionId"
