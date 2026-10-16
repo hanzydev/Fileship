@@ -1,0 +1,29 @@
+{
+    "home": {
+        "welcome": "Hoş geldin, {username}",
+        "connectedTo": "Bağlı sunucu: {siteName}.",
+        "upload": "Yükle",
+        "capture": "Yakala",
+        "emptyTitle": "Henüz yakalama yok",
+        "emptyWithHotkey": "Bölge yakalamak için {hotkey} kısayolunu kullan ya da yüklenecek dosyaları buraya bırak.",
+        "emptyWithTray": "Bildirim alanındaki simgeden bölge yakala ya da yüklenecek dosyaları buraya bırak.",
+        "captureCount": "{n} yakalama",
+        "clearHistory": "Geçmişi temizle",
+        "actions": "İşlemler",
+        "copyLink": "Bağlantıyı kopyala",
+        "openLink": "Bağlantıyı aç",
+        "edit": "Düzenle",
+        "showInFolder": "Klasörde göster",
+        "removeFromHistory": "Geçmişten kaldır",
+        "dropTitle": "Yüklemek için bırak",
+        "dropDescription": "Dosyalar yükleme ayarlarınla Fileship'e yüklenir.",
+        "justNow": "az önce",
+        "uploadedMeta": "{time} · {size}",
+        "savedMeta": "{time} · Bu bilgisayarda kayıtlı",
+        "notUploadedMeta": "{time} · Yüklenmedi",
+        "linkCopied": "Bağlantı kopyalandı",
+        "clearTitle": "Geçmiş temizlensin mi?",
+        "clearDescription": "Yüklenen dosyalar Fileship'te, kaydedilen dosyalar bu bilgisayarda kalır.",
+        "clear": "Temizle"
+    }
+}

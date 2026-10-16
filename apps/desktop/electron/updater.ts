@@ -3,6 +3,7 @@ import log from 'electron-log/main';
 import electronUpdater from 'electron-updater';
 
 import type { UpdateStatus } from '../shared/ipc';
+import { t } from './i18n';
 import { refreshTray } from './tray';
 import { broadcast, markQuitting, notify } from './windows';
 
@@ -19,12 +20,12 @@ let retryTimer: NodeJS.Timeout | null = null;
 const describeError = (error: any) => {
     const message = String(error?.message ?? '');
 
-    if (/^404\b/.test(message)) return 'No releases are published yet';
+    if (/^404\b/.test(message)) return t('updater.noReleases');
     if (/ENOTFOUND|ECONNREFUSED|ETIMEDOUT|net::ERR_/.test(message)) {
-        return 'Could not reach the update server';
+        return t('updater.unreachable');
     }
 
-    return message.split('\n')[0]!.slice(0, 200) || 'Update check failed';
+    return message.split('\n')[0]!.slice(0, 200) || t('updater.checkFailed');
 };
 
 const setStatus = (next: UpdateStatus) => {
@@ -102,8 +103,8 @@ export const startUpdater = () => {
         setStatus({ state: 'ready', version: info.version });
 
         notify(
-            `Fileship ${info.version} is ready`,
-            'Click to restart and update now, or it installs when you quit.',
+            t('updater.readyTitle', { version: info.version }),
+            t('updater.readyBody'),
             installUpdate,
         );
     });

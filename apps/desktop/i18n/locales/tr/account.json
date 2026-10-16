@@ -1,0 +1,15 @@
+{
+    "account": {
+        "server": "Sunucu",
+        "serverDescription": "Bu bilgisayarın yükleme yaptığı Fileship sunucusu.",
+        "name": "Ad",
+        "address": "Adres",
+        "user": "Kullanıcı",
+        "session": "Oturum",
+        "sessionDescription": "Bu bilgisayar oturum listende \"Fileship for Windows\" olarak görünür. Oturumu oradan sonlandırabilirsin.",
+        "manageSessions": "Oturumları yönet",
+        "logOut": "Çıkış yap",
+        "logOutTitle": "Fileship'ten çıkış yapılsın mı?",
+        "logOutDescription": "Yeniden giriş yapana kadar kısayollar yükleme yapmaz."
+    }
+}

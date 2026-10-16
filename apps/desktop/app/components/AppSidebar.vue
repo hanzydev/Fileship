@@ -12,7 +12,7 @@
                         <NuxtLink to="/home" class="flex items-center gap-4">
                             <img
                                 src="/fileship.png"
-                                alt=""
+                                :alt="''"
                                 class="size-10 group-data-[collapsible=icon]:size-4"
                             />
                             <div class="flex flex-col group-data-[collapsible=icon]:hidden">
@@ -20,7 +20,7 @@
                                 <TextBlock variant="muted" class="truncate">
                                     {{
                                         account?.siteName === 'Fileship'
-                                            ? 'for Windows'
+                                            ? $t('nav.forWindows')
                                             : account?.siteName
                                     }}
                                 </TextBlock>
@@ -39,18 +39,21 @@
                             <UiSidebarMenuButton
                                 as-child
                                 :is-active="isActive(item.url)"
-                                :tooltip="item.title"
+                                :tooltip="$t(item.title)"
                             >
                                 <NuxtLink :to="item.url">
                                     <component :is="item.icon" />
-                                    <span>{{ item.title }}</span>
+                                    <span>{{ $t(item.title) }}</span>
                                 </NuxtLink>
                             </UiSidebarMenuButton>
                         </UiSidebarMenuItem>
                         <UiSidebarMenuItem>
-                            <UiSidebarMenuButton tooltip="Dashboard" @click="handleOpenDashboard">
+                            <UiSidebarMenuButton
+                                :tooltip="$t('nav.dashboard')"
+                                @click="handleOpenDashboard"
+                            >
                                 <IExternalLink />
-                                <span>Dashboard</span>
+                                <span>{{ $t('nav.dashboard') }}</span>
                             </UiSidebarMenuButton>
                         </UiSidebarMenuItem>
                     </UiSidebarMenu>
@@ -64,7 +67,7 @@
                         as-child
                         size="lg"
                         :is-active="isActive('/settings/account')"
-                        tooltip="Account"
+                        :tooltip="$t('nav.account')"
                     >
                         <NuxtLink to="/settings/account">
                             <UiAvatar class="size-8">
@@ -97,14 +100,17 @@ import { useSidebar } from '#layers/ui/app/components/ui/sidebar';
 
 const account = useAccount();
 const route = useRoute();
+const { locale } = useI18n();
 const { setOpenMobile } = useSidebar();
 
 const items = [
-    { title: 'Home', url: '/home', icon: IHome },
-    { title: 'Settings', url: '/settings', icon: ISettings },
+    { title: 'nav.home', url: '/home', icon: IHome },
+    { title: 'nav.settings', url: '/settings', icon: ISettings },
 ];
 
-const initials = computed(() => account.value?.user.username.slice(0, 2).toUpperCase() ?? '');
+const initials = computed(
+    () => account.value?.user.username.slice(0, 2).toLocaleUpperCase(locale.value) ?? '',
+);
 
 const host = computed(() => (account.value ? new URL(account.value.instanceUrl).host : ''));
 

@@ -1,0 +1,29 @@
+{
+    "tasks": {
+        "uploaded": "Yüklendi",
+        "uploadedLinkCopied": "Yüklendi, bağlantı kopyalandı",
+        "uploadFailed": "Dosya yüklenemedi",
+        "pngImage": "PNG görüntüsü",
+        "imageSaved": "Görüntü kaydedildi",
+        "imageCopied": "Görüntü kopyalandı",
+        "pasteAnywhere": "İstediğin yere yapıştırabilirsin.",
+        "screenshotCopied": "Ekran görüntüsü kopyalandı",
+        "uploadsOff": "Yükleme, \"Yakaladıktan sonra\" ayarlarında kapalı.",
+        "recordingKept": "Kayıt yüklenemedi, bilgisayara kaydedildi",
+        "recordingSaved": "Ekran kaydı kaydedildi",
+        "onlyLocalEditable": "Yalnızca bu bilgisayarda kayıtlı ekran görüntüleri düzenlenebilir.",
+        "screenshotNotOpened": "Kayıtlı ekran görüntüsü açılamadı.",
+        "textCaptureOff": "Metin yakalama kapalı",
+        "aiOff": "Fileship sunucunda yapay zekâ özellikleri kapalı.",
+        "textCaptureUnavailable": "Metin yakalama kullanılamıyor",
+        "updateFileship": "Metin yakalamak için Fileship sunucunu güncelle.",
+        "tooManyTextCaptures": "Metin yakalama sınırına ulaşıldı",
+        "waitAMinute": "Biraz bekleyip tekrar dene.",
+        "noTextFound": "Metin bulunamadı",
+        "selectLargerArea": "Daha büyük bir alan seçmeyi dene.",
+        "textCopied": "Metin kopyalandı",
+        "textCaptureFailed": "Metin yakalanamadı",
+        "noLink": "Sunucu bağlantı göndermedi",
+        "logInToUpload": "Yüklemek için Fileship'e giriş yap"
+    }
+}

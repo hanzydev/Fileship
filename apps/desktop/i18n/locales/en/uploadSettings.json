@@ -1,0 +1,29 @@
+{
+    "uploadSettings": {
+        "title": "Upload options",
+        "description": "Used for screenshots, recordings and files uploaded from this computer.",
+        "folder": "Folder",
+        "noFolder": "No folder",
+        "unknownFolder": "Unknown folder",
+        "fileName": "File name",
+        "fileNameTypes": {
+            "Random": "Random",
+            "UUID": "UUID",
+            "Original": "Original"
+        },
+        "expiration": "Expiration",
+        "compression": "Compression",
+        "maxViews": "Max views",
+        "maxViewsDescription": "0 means unlimited.",
+        "password": "Password",
+        "optional": "Optional",
+        "savedFiles": "Saved files",
+        "savedFilesDescription": "Where captures go when saving to this computer is on in the capture settings.",
+        "saveFolderPlaceholder": "Pictures\\Fileship",
+        "reset": "Reset",
+        "browse": "Browse",
+        "pattern": "File name pattern",
+        "patternDescription": "{preview}.png · %yyyy year, %mo month, %d day, %h hour, %mi minute, %s second, %ms millisecond, %pn window title, %ra random",
+        "sampleWindow": "Window"
+    }
+}

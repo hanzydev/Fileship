@@ -19,6 +19,7 @@ import {
     registerHotkeys,
     setSnippingToolKey,
 } from './hotkeys';
+import { getLanguage, t, updateLanguage } from './i18n';
 import { finishRegionCapture, markOverlayLoaded, markOverlayReady } from './overlay';
 import { downloadFfmpeg, getFfmpegStatus, resetFfmpegProbe } from './recording/ffmpeg';
 import {
@@ -35,7 +36,7 @@ import { editHistoryImage } from './tasks';
 import { refreshTray } from './tray';
 import { checkForUpdates, getUpdateStatus, installUpdate } from './updater';
 import { getUploadProgress, resetUploadSettings } from './upload';
-import { isAppUrl, notify, openWebUrl, setWindowTheme } from './windows';
+import { broadcast, isAppUrl, notify, openWebUrl, setWindowTheme } from './windows';
 
 type Handlers = {
     [K in keyof IpcInvoke]: (
@@ -59,7 +60,7 @@ const watchHotkeyPause = (sender: Electron.WebContents) => {
 const runInBackground = (label: string, task: () => Promise<unknown>) => {
     task().catch((error) => {
         log.error(`${label} failed`, error);
-        notify('Something went wrong', error.message);
+        notify(t('app.somethingWentWrong'), error.message);
     });
 };
 
@@ -68,6 +69,11 @@ const applySettings = () => {
 
     if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: startAtLogin, args: ['--hidden'] });
     nativeTheme.themeSource = theme;
+
+    if (updateLanguage()) {
+        refreshTray();
+        broadcast('app:language', getLanguage());
+    }
 };
 
 const handlers: Handlers = {
@@ -106,6 +112,7 @@ const handlers: Handlers = {
         return settings;
     },
     'app:info': () => ({ version: app.getVersion(), isPackaged: app.isPackaged }),
+    'app:language': () => getLanguage(),
     'app:openDashboard': (route) => openDashboard(route),
     'window:theme': (isDark) => setWindowTheme(isDark),
     'updates:get': () => getUpdateStatus(),
@@ -165,7 +172,7 @@ const handlers: Handlers = {
     },
     'dialog:pickFfmpeg': async () => {
         const result = await dialog.showOpenDialog({
-            title: 'Choose ffmpeg.exe',
+            title: t('app.chooseFfmpeg'),
             properties: ['openFile'],
             filters: [{ name: 'ffmpeg', extensions: ['exe'] }],
         });
@@ -195,7 +202,7 @@ const handlers: Handlers = {
         if (folder && resolve(folder) === resolve(driveRoot())) return getDriveStatus();
 
         if (folder && existsSync(folder) && readdirSync(folder).length > 0) {
-            throw new Error('Choose an empty folder. The drive keeps only Fileship files in it.');
+            throw new Error(t('app.driveFolderNotEmpty'));
         }
 
         await stopDrive({ remove: true });

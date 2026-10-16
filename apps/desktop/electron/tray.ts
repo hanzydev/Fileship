@@ -3,6 +3,7 @@ import { app, Menu, nativeImage, Tray } from 'electron';
 import { runAction } from './actions';
 import { openDashboard } from './dashboard';
 import { openDrive } from './drive';
+import { t } from './i18n';
 import {
     abortRecording,
     getRecorderState,
@@ -27,19 +28,22 @@ const buildMenu = () => {
     const recordingItems: Electron.MenuItemConstructorOptions[] = isRecording
         ? [
               {
-                  label: recorder.kind === 'gif' ? 'Stop GIF recording' : 'Stop recording',
+                  label:
+                      recorder.kind === 'gif'
+                          ? t('tray.stopGifRecording')
+                          : t('tray.stopRecording'),
                   enabled: recorder.phase !== 'processing',
                   click: () => stopRecording(),
               },
               recorder.phase === 'paused'
-                  ? { label: 'Resume', click: () => resumeRecording() }
+                  ? { label: t('tray.resume'), click: () => resumeRecording() }
                   : {
-                        label: 'Pause',
+                        label: t('tray.pause'),
                         enabled: recorder.phase === 'recording',
                         click: () => pauseRecording(),
                     },
               {
-                  label: 'Discard recording',
+                  label: t('tray.discardRecording'),
                   enabled: recorder.phase !== 'processing',
                   click: () => abortRecording(),
               },
@@ -50,57 +54,60 @@ const buildMenu = () => {
     return Menu.buildFromTemplate([
         ...recordingItems,
         {
-            label: 'Capture',
+            label: t('tray.capture'),
             submenu: [
-                { label: 'Region', click: () => runAction('captureRegion') },
-                { label: 'Entire screen', click: () => runAction('captureFullscreen') },
-                { label: 'Active window', click: () => runAction('captureWindow') },
-                { label: 'Active monitor', click: () => runAction('captureMonitor') },
-                { label: 'Last region', click: () => runAction('captureLastRegion') },
+                { label: t('tray.region'), click: () => runAction('captureRegion') },
+                { label: t('tray.entireScreen'), click: () => runAction('captureFullscreen') },
+                { label: t('tray.activeWindow'), click: () => runAction('captureWindow') },
+                { label: t('tray.activeMonitor'), click: () => runAction('captureMonitor') },
+                { label: t('tray.lastRegion'), click: () => runAction('captureLastRegion') },
                 { type: 'separator' },
-                { label: 'Text from region (OCR)', click: () => runAction('captureText') },
+                { label: t('tray.textFromRegion'), click: () => runAction('captureText') },
             ],
         },
         {
-            label: 'Record',
+            label: t('tray.record'),
             enabled: !isRecording,
             submenu: [
-                { label: 'Screen recording', click: () => runAction('recordVideo') },
-                { label: 'GIF', click: () => runAction('recordGif') },
+                { label: t('tray.screenRecording'), click: () => runAction('recordVideo') },
+                { label: t('tray.gif'), click: () => runAction('recordGif') },
             ],
         },
         {
-            label: 'Upload',
+            label: t('tray.upload'),
             enabled: isConnected,
             submenu: [
-                { label: 'File...', click: () => runAction('uploadFile') },
-                { label: 'From clipboard', click: () => runAction('uploadClipboard') },
+                { label: t('tray.file'), click: () => runAction('uploadFile') },
+                { label: t('tray.fromClipboard'), click: () => runAction('uploadClipboard') },
                 {
-                    label: 'Shorten link from clipboard',
+                    label: t('tray.shortenFromClipboard'),
                     click: () => runAction('shortenClipboard'),
                 },
             ],
         },
         { type: 'separator' },
-        { label: 'Open Fileship', click: () => showMainWindow() },
+        { label: t('tray.openFileship'), click: () => showMainWindow() },
         {
-            label: 'Open Fileship drive',
+            label: t('tray.openDrive'),
             enabled: isConnected && getSettings().drive.enabled,
             click: () => openDrive(),
         },
         {
-            label: 'Open dashboard',
+            label: t('tray.openDashboard'),
             enabled: isConnected,
             click: () => openDashboard(),
         },
         { type: 'separator' },
         update.state === 'ready'
-            ? { label: `Restart to update to ${update.version}`, click: installUpdate }
-            : { label: 'Check for updates', click: () => checkForUpdates() },
-        { label: 'Settings', click: () => showMainWindow('/settings/general') },
+            ? {
+                  label: t('tray.restartToUpdate', { version: update.version! }),
+                  click: installUpdate,
+              }
+            : { label: t('tray.checkForUpdates'), click: () => checkForUpdates() },
+        { label: t('tray.settings'), click: () => showMainWindow('/settings/general') },
         { type: 'separator' },
         {
-            label: 'Quit Fileship',
+            label: t('tray.quit'),
             click: () => {
                 markQuitting();
                 app.quit();
@@ -117,12 +124,11 @@ export const refreshTray = () => {
     const uploads = getUploadSummary();
     const tooltip = getStore().user ? `Fileship · ${getStore().siteName}` : 'Fileship';
 
-    if (getRecorderState().phase !== 'idle')
-        return tray.setToolTip('Fileship · Recording, click to stop');
+    if (getRecorderState().phase !== 'idle') return tray.setToolTip(t('tray.recordingTooltip'));
 
     tray.setToolTip(
         uploads
-            ? `Fileship · Uploading ${uploads.count === 1 ? '1 file' : `${uploads.count} files`}, ${uploads.progress}%`
+            ? t('tray.uploadingTooltip', { count: uploads.count, progress: uploads.progress })
             : tooltip,
     );
 };

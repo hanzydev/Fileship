@@ -1,0 +1,33 @@
+{
+    "annotate": {
+        "tools": {
+            "select": "Seç",
+            "rectangle": "Dikdörtgen",
+            "ellipse": "Elips",
+            "arrow": "Ok",
+            "line": "Çizgi",
+            "freehand": "Kalem",
+            "highlight": "Vurgulayıcı",
+            "text": "Metin",
+            "step": "Adım numarası",
+            "blur": "Bulanıklaştır",
+            "pixelate": "Pikselleştir",
+            "eraser": "Akıllı silgi",
+            "emoji": "Emoji"
+        },
+        "color": "Renk",
+        "customColor": "Özel renk",
+        "emoji": "Emoji",
+        "options": "Seçenekler",
+        "size": "Boyut",
+        "radius": "Yarıçap",
+        "strength": "Yoğunluk",
+        "thickness": "Kalınlık",
+        "fill": "Dolgu",
+        "background": "Arka plan",
+        "shadow": "Gölge",
+        "undo": "Geri al",
+        "redo": "Yinele",
+        "delete": "Sil"
+    }
+}

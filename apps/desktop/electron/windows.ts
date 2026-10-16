@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { app, BrowserWindow, nativeTheme, Notification, shell } from 'electron';
 
 import type { IpcEvents } from '../shared/ipc';
+import { t } from './i18n';
 
 const DARK = '#0a0a0a';
 const LIGHT = '#ffffff';
@@ -93,10 +94,7 @@ const createMainWindow = (route = '/') => {
         if (isQuitting || hasShownTrayHint || !Notification.isSupported()) return;
 
         hasShownTrayHint = true;
-        notify(
-            'Fileship is still running',
-            'Use the tray icon or your hotkeys to capture. Right click it to quit.',
-        );
+        notify(t('app.stillRunning'), t('app.stillRunningDescription'));
     });
 
     window.on('closed', () => {

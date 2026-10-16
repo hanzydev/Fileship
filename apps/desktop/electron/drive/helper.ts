@@ -7,6 +7,8 @@ import { createInterface } from 'node:readline';
 import { app } from 'electron';
 import log from 'electron-log/main';
 
+import { t } from '../i18n';
+
 export type ScanItem = {
     path: string;
     isFolder: boolean;
@@ -59,7 +61,7 @@ export class DriveHelper extends EventEmitter<{ event: [HelperEvent]; exit: [num
         child.on('exit', (code) => {
             for (const pending of this.pending.values()) {
                 clearTimeout(pending.timer);
-                pending.reject(new Error('The drive helper stopped'));
+                pending.reject(new Error(t('drive.helperStopped')));
             }
 
             this.pending.clear();
@@ -78,14 +80,14 @@ export class DriveHelper extends EventEmitter<{ event: [HelperEvent]; exit: [num
         timeout = 120_000,
     ) {
         const child = this.child;
-        if (!child) return Promise.reject(new Error('The drive helper is not running'));
+        if (!child) return Promise.reject(new Error(t('drive.helperNotRunning')));
 
         const id = this.nextId++;
 
         return new Promise<T>((resolve, reject) => {
             const timer = setTimeout(() => {
                 this.pending.delete(id);
-                reject(new Error(`The drive helper did not answer ${type}`));
+                reject(new Error(t('drive.helperNoAnswer', { request: type })));
             }, timeout);
 
             this.pending.set(id, { resolve, reject, timer });
@@ -130,7 +132,7 @@ export class DriveHelper extends EventEmitter<{ event: [HelperEvent]; exit: [num
         if (message.ok) {
             pending.resolve(message);
         } else {
-            pending.reject(new Error(message.error || 'The drive helper failed'));
+            pending.reject(new Error(message.error || t('drive.helperFailed')));
         }
     }
 }

@@ -1,22 +1,26 @@
 <template>
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>FFmpeg</UiCardTitle>
+            <UiCardTitle>{{ $t('recordingSettings.ffmpeg') }}</UiCardTitle>
             <UiCardDescription>
-                Fileship records with FFmpeg. Download the tested build or point to your own.
+                {{ $t('recordingSettings.ffmpegDescription') }}
             </UiCardDescription>
         </UiCardHeader>
         <UiCardContent class="flex flex-col gap-4">
             <UiAlert v-if="ffmpeg?.download?.error" variant="destructive">
                 <ICircleAlert />
-                <UiAlertTitle>Download failed</UiAlertTitle>
+                <UiAlertTitle>{{ $t('recordingSettings.downloadFailed') }}</UiAlertTitle>
                 <UiAlertDescription>{{ ffmpeg.download.error }}</UiAlertDescription>
             </UiAlert>
 
             <div v-if="isDownloading" class="flex flex-col gap-2">
                 <TextBlock variant="small">
-                    Downloading FFmpeg {{ ffmpeg?.managedVersion }}...
-                    {{ ffmpeg?.download?.progress }}%
+                    {{
+                        $t('recordingSettings.downloading', {
+                            version: ffmpeg?.managedVersion,
+                            progress: ffmpeg?.download?.progress,
+                        })
+                    }}
                 </TextBlock>
                 <UiProgress :model-value="ffmpeg?.download?.progress ?? 0" />
             </div>
@@ -25,30 +29,40 @@
                 v-else-if="ffmpeg?.isInstalled"
                 class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm"
             >
-                <dt class="text-muted-foreground">Version</dt>
+                <dt class="text-muted-foreground">{{ $t('recordingSettings.version') }}</dt>
                 <dd class="truncate text-right">{{ ffmpeg.version }}</dd>
-                <dt class="text-muted-foreground">Location</dt>
+                <dt class="text-muted-foreground">{{ $t('recordingSettings.location') }}</dt>
                 <dd class="truncate text-right" :title="ffmpeg.path ?? ''">
-                    {{ ffmpeg.isManaged ? 'Downloaded by Fileship' : ffmpeg.path }}
+                    {{
+                        ffmpeg.isManaged
+                            ? $t('recordingSettings.downloadedByFileship')
+                            : ffmpeg.path
+                    }}
                 </dd>
-                <dt class="text-muted-foreground">Capture</dt>
+                <dt class="text-muted-foreground">{{ $t('recordingSettings.capture') }}</dt>
                 <dd class="text-right">
-                    {{ ffmpeg.ddagrab ? 'Desktop Duplication and GDI' : 'GDI only' }}
+                    {{
+                        ffmpeg.ddagrab
+                            ? $t('recordingSettings.captureBoth')
+                            : $t('recordingSettings.captureGdiOnly')
+                    }}
                 </dd>
-                <dt class="text-muted-foreground">GPU encoders</dt>
+                <dt class="text-muted-foreground">{{ $t('recordingSettings.gpuEncoders') }}</dt>
                 <dd class="flex flex-wrap justify-end gap-1">
                     <UiBadge v-for="encoder in gpuEncoders" :key="encoder" variant="secondary">
                         {{ encoder }}
                     </UiBadge>
-                    <span v-if="!gpuEncoders.length" class="text-muted-foreground">None</span>
+                    <span v-if="!gpuEncoders.length" class="text-muted-foreground">
+                        {{ $t('recordingSettings.none') }}
+                    </span>
                 </dd>
             </dl>
 
             <UiAlert v-else>
                 <IInfo />
-                <UiAlertTitle>FFmpeg is not installed</UiAlertTitle>
+                <UiAlertTitle>{{ $t('recordingSettings.notInstalled') }}</UiAlertTitle>
                 <UiAlertDescription>
-                    Screen and GIF recording need it. The download is about 110 MB.
+                    {{ $t('recordingSettings.notInstalledDescription') }}
                 </UiAlertDescription>
             </UiAlert>
         </UiCardContent>
@@ -57,13 +71,15 @@
                 <IDownload />
                 {{
                     ffmpeg?.isInstalled
-                        ? 'Download again'
-                        : `Download FFmpeg ${ffmpeg?.managedVersion ?? ''}`
+                        ? $t('recordingSettings.downloadAgain')
+                        : $t('recordingSettings.downloadVersion', {
+                              version: ffmpeg?.managedVersion ?? '',
+                          })
                 }}
             </UiButton>
             <UiButton variant="outline" :disabled="isDownloading" @click="handlePickFfmpeg">
                 <IFolderOpen />
-                Use my own ffmpeg.exe
+                {{ $t('recordingSettings.useOwn') }}
             </UiButton>
             <UiButton
                 v-if="!ffmpeg?.isManaged"
@@ -71,21 +87,21 @@
                 @click="updateSection('recording', { ffmpegPath: '' })"
             >
                 <IRotateCcw />
-                Use the downloaded one
+                {{ $t('recordingSettings.useDownloaded') }}
             </UiButton>
         </UiCardFooter>
     </UiCard>
 
     <UiCard v-if="settings">
         <UiCardHeader>
-            <UiCardTitle>Video</UiCardTitle>
-            <UiCardDescription>How screen recordings are captured and encoded.</UiCardDescription>
+            <UiCardTitle>{{ $t('recordingSettings.video') }}</UiCardTitle>
+            <UiCardDescription>{{ $t('recordingSettings.videoDescription') }}</UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
             <UiFieldGroup>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <UiField>
-                        <UiFieldLabel>Encoder</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.encoder') }}</UiFieldLabel>
                         <UiSelect
                             :model-value="recording.codec"
                             @update:model-value="handleCodec($event as VideoCodec)"
@@ -107,7 +123,7 @@
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel>Preset</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.preset') }}</UiFieldLabel>
                         <UiSelect
                             :model-value="recording.preset || DEFAULT_OPTION"
                             @update:model-value="
@@ -118,12 +134,21 @@
                         >
                             <UiSelectTrigger class="w-full">
                                 <UiSelectValue>
-                                    {{ recording.preset || `Default (${presets.fallback})` }}
+                                    {{
+                                        recording.preset ||
+                                        $t('recordingSettings.defaultPreset', {
+                                            preset: presets.fallback,
+                                        })
+                                    }}
                                 </UiSelectValue>
                             </UiSelectTrigger>
                             <UiSelectContent>
                                 <UiSelectItem :value="DEFAULT_OPTION">
-                                    Default ({{ presets.fallback }})
+                                    {{
+                                        $t('recordingSettings.defaultPreset', {
+                                            preset: presets.fallback,
+                                        })
+                                    }}
                                 </UiSelectItem>
                                 <UiSelectItem
                                     v-for="preset in presets.options"
@@ -134,11 +159,13 @@
                                 </UiSelectItem>
                             </UiSelectContent>
                         </UiSelect>
-                        <UiFieldDescription>{{ presets.description }}</UiFieldDescription>
+                        <UiFieldDescription v-if="presets.description">
+                            {{ $t(presets.description) }}
+                        </UiFieldDescription>
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel>Rate control</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.rateControl') }}</UiFieldLabel>
                         <UiTabs
                             :model-value="recording.rateControl"
                             @update:model-value="
@@ -148,14 +175,18 @@
                             "
                         >
                             <UiTabsList class="w-full">
-                                <UiTabsTrigger value="quality">Quality</UiTabsTrigger>
-                                <UiTabsTrigger value="bitrate">Bitrate</UiTabsTrigger>
+                                <UiTabsTrigger value="quality">
+                                    {{ $t('recordingSettings.quality') }}
+                                </UiTabsTrigger>
+                                <UiTabsTrigger value="bitrate">
+                                    {{ $t('recordingSettings.bitrate') }}
+                                </UiTabsTrigger>
                             </UiTabsList>
                         </UiTabs>
                     </UiField>
 
                     <UiField v-if="recording.rateControl === 'quality'">
-                        <UiFieldLabel>{{ qualityLabel }}</UiFieldLabel>
+                        <UiFieldLabel>{{ $t(qualityLabel) }}</UiFieldLabel>
                         <UiNumberField
                             :model-value="recording.quality"
                             :min="0"
@@ -168,11 +199,13 @@
                                 <UiNumberFieldIncrement />
                             </UiNumberFieldContent>
                         </UiNumberField>
-                        <UiFieldDescription>Lower is sharper and bigger.</UiFieldDescription>
+                        <UiFieldDescription>
+                            {{ $t('recordingSettings.qualityDescription') }}
+                        </UiFieldDescription>
                     </UiField>
 
                     <UiField v-else>
-                        <UiFieldLabel>Bitrate (kbps)</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.bitrateKbps') }}</UiFieldLabel>
                         <UiNumberField
                             :model-value="recording.bitrate"
                             :min="100"
@@ -189,7 +222,7 @@
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel>Frame rate</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.frameRate') }}</UiFieldLabel>
                         <UiNumberField
                             :model-value="recording.fps"
                             :min="1"
@@ -205,7 +238,7 @@
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel>Container</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.container') }}</UiFieldLabel>
                         <UiTabs
                             :model-value="recording.container"
                             @update:model-value="
@@ -224,11 +257,13 @@
                                 </UiTabsTrigger>
                             </UiTabsList>
                         </UiTabs>
-                        <UiFieldError v-if="containerError">{{ containerError }}</UiFieldError>
+                        <UiFieldError v-if="containerError">
+                            {{ $t('recordingSettings.webmVideo') }}
+                        </UiFieldError>
                     </UiField>
 
                     <UiField class="sm:col-span-2">
-                        <UiFieldLabel>Capture method</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.captureMethod') }}</UiFieldLabel>
                         <UiSelect
                             :model-value="recording.source"
                             @update:model-value="
@@ -246,18 +281,17 @@
                                     :key="source"
                                     :value="source"
                                 >
-                                    {{ SOURCE_LABELS[source] }}
+                                    {{ $t(SOURCE_LABELS[source]) }}
                                 </UiSelectItem>
                             </UiSelectContent>
                         </UiSelect>
                         <UiFieldDescription>
-                            Desktop Duplication runs on the GPU and keeps up with high frame rates.
-                            Areas that span several monitors always use GDI.
+                            {{ $t('recordingSettings.captureMethodDescription') }}
                         </UiFieldDescription>
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel>Start delay (seconds)</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.startDelay') }}</UiFieldLabel>
                         <UiNumberField
                             :model-value="recording.startDelay"
                             :min="0"
@@ -273,7 +307,7 @@
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel>Stop after (seconds)</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.stopAfter') }}</UiFieldLabel>
                         <UiNumberField
                             :model-value="recording.maxDuration"
                             :min="0"
@@ -288,7 +322,9 @@
                                 <UiNumberFieldIncrement />
                             </UiNumberFieldContent>
                         </UiNumberField>
-                        <UiFieldDescription>0 records until you stop.</UiFieldDescription>
+                        <UiFieldDescription>
+                            {{ $t('recordingSettings.stopAfterDescription') }}
+                        </UiFieldDescription>
                     </UiField>
                 </div>
 
@@ -302,9 +338,9 @@
                 >
                     <UiFieldContent>
                         <UiFieldLabel :for="`recording-${field.key}`">
-                            {{ field.label }}
+                            {{ $t(field.label) }}
                         </UiFieldLabel>
-                        <UiFieldDescription>{{ field.description }}</UiFieldDescription>
+                        <UiFieldDescription>{{ $t(field.description) }}</UiFieldDescription>
                     </UiFieldContent>
                     <UiSwitch
                         :id="`recording-${field.key}`"
@@ -318,9 +354,9 @@
 
     <UiCard v-if="settings">
         <UiCardHeader>
-            <UiCardTitle>Audio</UiCardTitle>
+            <UiCardTitle>{{ $t('recordingSettings.audio') }}</UiCardTitle>
             <UiCardDescription>
-                Record your microphone, the sound your computer plays, or both at once.
+                {{ $t('recordingSettings.audioDescription') }}
             </UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
@@ -330,9 +366,11 @@
                     class="has-[>[data-slot=field-content]]:items-center"
                 >
                     <UiFieldContent>
-                        <UiFieldLabel for="audio-microphone">Microphone</UiFieldLabel>
+                        <UiFieldLabel for="audio-microphone">
+                            {{ $t('recordingSettings.microphone') }}
+                        </UiFieldLabel>
                         <UiFieldDescription>
-                            Your voice or any other input device.
+                            {{ $t('recordingSettings.microphoneDescription') }}
                         </UiFieldDescription>
                     </UiFieldContent>
                     <UiSwitch
@@ -345,7 +383,7 @@
                 <template v-if="audio.microphone">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <UiField>
-                            <UiFieldLabel>Device</UiFieldLabel>
+                            <UiFieldLabel>{{ $t('recordingSettings.device') }}</UiFieldLabel>
                             <UiSelect
                                 :model-value="audio.microphoneId || DEFAULT_OPTION"
                                 @update:model-value="
@@ -360,21 +398,26 @@
                                 </UiSelectTrigger>
                                 <UiSelectContent>
                                     <UiSelectItem :value="DEFAULT_OPTION">
-                                        Windows default
+                                        {{ $t('recordingSettings.windowsDefault') }}
                                     </UiSelectItem>
                                     <UiSelectItem
                                         v-for="device in microphones"
                                         :key="device.deviceId"
                                         :value="device.deviceId"
                                     >
-                                        {{ device.label || 'Unnamed microphone' }}
+                                        {{
+                                            device.label ||
+                                            $t('recordingSettings.unnamedMicrophone')
+                                        }}
                                     </UiSelectItem>
                                 </UiSelectContent>
                             </UiSelect>
                         </UiField>
 
                         <UiField>
-                            <UiFieldLabel>Volume · {{ volumes.microphone }}%</UiFieldLabel>
+                            <UiFieldLabel>
+                                {{ $t('recordingSettings.volume', { value: volumes.microphone }) }}
+                            </UiFieldLabel>
                             <UiSlider
                                 :model-value="[volumes.microphone]"
                                 :min="0"
@@ -397,9 +440,9 @@
                     >
                         <UiFieldContent>
                             <UiFieldLabel :for="`audio-${field.key}`">
-                                {{ field.label }}
+                                {{ $t(field.label) }}
                             </UiFieldLabel>
-                            <UiFieldDescription>{{ field.description }}</UiFieldDescription>
+                            <UiFieldDescription>{{ $t(field.description) }}</UiFieldDescription>
                         </UiFieldContent>
                         <UiSwitch
                             :id="`audio-${field.key}`"
@@ -416,9 +459,11 @@
                     class="has-[>[data-slot=field-content]]:items-center"
                 >
                     <UiFieldContent>
-                        <UiFieldLabel for="audio-system">System audio</UiFieldLabel>
+                        <UiFieldLabel for="audio-system">
+                            {{ $t('recordingSettings.systemAudio') }}
+                        </UiFieldLabel>
                         <UiFieldDescription>
-                            Everything you hear: videos, games, calls and notifications.
+                            {{ $t('recordingSettings.systemAudioDescription') }}
                         </UiFieldDescription>
                     </UiFieldContent>
                     <UiSwitch
@@ -429,7 +474,9 @@
                 </UiField>
 
                 <UiField v-if="audio.system">
-                    <UiFieldLabel>Volume · {{ volumes.system }}%</UiFieldLabel>
+                    <UiFieldLabel>
+                        {{ $t('recordingSettings.volume', { value: volumes.system }) }}
+                    </UiFieldLabel>
                     <UiSlider
                         :model-value="[volumes.system]"
                         :min="0"
@@ -445,7 +492,7 @@
                     <UiFieldSeparator />
 
                     <UiField>
-                        <UiFieldLabel>Audio tracks</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.audioTracks') }}</UiFieldLabel>
                         <UiTabs
                             :model-value="audio.tracks"
                             @update:model-value="
@@ -456,22 +503,22 @@
                         >
                             <UiTabsList class="w-full">
                                 <UiTabsTrigger value="mixed" :disabled="!hasBothSources">
-                                    Mixed
+                                    {{ $t('recordingSettings.mixed') }}
                                 </UiTabsTrigger>
                                 <UiTabsTrigger value="separate" :disabled="!hasBothSources">
-                                    Separate
+                                    {{ $t('recordingSettings.separate') }}
                                 </UiTabsTrigger>
                                 <UiTabsTrigger value="both" :disabled="!hasBothSources">
-                                    Both
+                                    {{ $t('recordingSettings.both') }}
                                 </UiTabsTrigger>
                             </UiTabsList>
                         </UiTabs>
-                        <UiFieldDescription>{{ trackDescription }}</UiFieldDescription>
+                        <UiFieldDescription>{{ $t(trackDescription) }}</UiFieldDescription>
                     </UiField>
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <UiField>
-                            <UiFieldLabel>Codec</UiFieldLabel>
+                            <UiFieldLabel>{{ $t('recordingSettings.codec') }}</UiFieldLabel>
                             <UiSelect
                                 :model-value="audio.codec"
                                 :disabled="recording.container === 'webm'"
@@ -495,12 +542,12 @@
                                 </UiSelectContent>
                             </UiSelect>
                             <UiFieldDescription v-if="recording.container === 'webm'">
-                                WebM always uses Opus.
+                                {{ $t('recordingSettings.webmOpus') }}
                             </UiFieldDescription>
                         </UiField>
 
                         <UiField>
-                            <UiFieldLabel>Bitrate</UiFieldLabel>
+                            <UiFieldLabel>{{ $t('recordingSettings.bitrate') }}</UiFieldLabel>
                             <UiSelect
                                 :model-value="audio.bitrate"
                                 @update:model-value="
@@ -516,14 +563,14 @@
                                         :key="bitrate"
                                         :value="bitrate"
                                     >
-                                        {{ bitrate }} kbps
+                                        {{ $t('recordingSettings.kbps', { value: bitrate }) }}
                                     </UiSelectItem>
                                 </UiSelectContent>
                             </UiSelect>
                         </UiField>
 
                         <UiField>
-                            <UiFieldLabel>Sync offset (ms)</UiFieldLabel>
+                            <UiFieldLabel>{{ $t('recordingSettings.syncOffset') }}</UiFieldLabel>
                             <UiNumberField
                                 :model-value="audio.delay"
                                 :min="-2000"
@@ -538,7 +585,7 @@
                                 </UiNumberFieldContent>
                             </UiNumberField>
                             <UiFieldDescription>
-                                Positive values delay the sound.
+                                {{ $t('recordingSettings.syncOffsetDescription') }}
                             </UiFieldDescription>
                         </UiField>
                     </div>
@@ -551,14 +598,14 @@
         <UiCardHeader>
             <UiCardTitle>GIF</UiCardTitle>
             <UiCardDescription>
-                GIFs are recorded losslessly first, then converted with an optimized palette.
+                {{ $t('recordingSettings.gifDescription') }}
             </UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
             <UiFieldGroup>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <UiField>
-                        <UiFieldLabel>Frame rate</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.frameRate') }}</UiFieldLabel>
                         <UiNumberField
                             :model-value="gif.fps"
                             :min="1"
@@ -574,7 +621,7 @@
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel>Maximum width</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.maxWidth') }}</UiFieldLabel>
                         <UiNumberField
                             :model-value="gif.maxWidth"
                             :min="0"
@@ -588,11 +635,13 @@
                                 <UiNumberFieldIncrement />
                             </UiNumberFieldContent>
                         </UiNumberField>
-                        <UiFieldDescription>0 keeps the recorded size.</UiFieldDescription>
+                        <UiFieldDescription>
+                            {{ $t('recordingSettings.maxWidthDescription') }}
+                        </UiFieldDescription>
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel>Dithering</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.dithering') }}</UiFieldLabel>
                         <UiSelect
                             :model-value="gif.dither"
                             @update:model-value="
@@ -610,14 +659,14 @@
                                     :key="dither"
                                     :value="dither"
                                 >
-                                    {{ DITHER_LABELS[dither] }}
+                                    {{ $t(DITHER_LABELS[dither]) }}
                                 </UiSelectItem>
                             </UiSelectContent>
                         </UiSelect>
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel>Palette</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('recordingSettings.palette') }}</UiFieldLabel>
                         <UiTabs
                             :model-value="gif.statsMode"
                             @update:model-value="
@@ -625,8 +674,12 @@
                             "
                         >
                             <UiTabsList class="w-full">
-                                <UiTabsTrigger value="diff">Moving parts</UiTabsTrigger>
-                                <UiTabsTrigger value="full">Whole frame</UiTabsTrigger>
+                                <UiTabsTrigger value="diff">
+                                    {{ $t('recordingSettings.movingParts') }}
+                                </UiTabsTrigger>
+                                <UiTabsTrigger value="full">
+                                    {{ $t('recordingSettings.wholeFrame') }}
+                                </UiTabsTrigger>
                             </UiTabsList>
                         </UiTabs>
                     </UiField>
@@ -637,7 +690,9 @@
                     class="has-[>[data-slot=field-content]]:items-center"
                 >
                     <UiFieldContent>
-                        <UiFieldLabel for="gif-loop">Loop forever</UiFieldLabel>
+                        <UiFieldLabel for="gif-loop">
+                            {{ $t('recordingSettings.loopForever') }}
+                        </UiFieldLabel>
                     </UiFieldContent>
                     <UiSwitch
                         id="gif-loop"
@@ -651,36 +706,42 @@
 
     <UiCard v-if="settings">
         <UiCardHeader>
-            <UiCardTitle>Advanced</UiCardTitle>
-            <UiCardDescription>Extra FFmpeg arguments and the full command.</UiCardDescription>
+            <UiCardTitle>{{ $t('recordingSettings.advanced') }}</UiCardTitle>
+            <UiCardDescription>{{ $t('recordingSettings.advancedDescription') }}</UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
             <UiFieldGroup>
                 <UiField>
-                    <UiFieldLabel for="recording-input-args">Input arguments</UiFieldLabel>
+                    <UiFieldLabel for="recording-input-args">
+                        {{ $t('recordingSettings.inputArgs') }}
+                    </UiFieldLabel>
                     <UiInput
                         id="recording-input-args"
                         v-model="inputArgs"
                         class="font-mono"
-                        placeholder="-rtbufsize 512M"
+                        :placeholder="INPUT_ARGS_PLACEHOLDER"
                         @change="updateSection('recording', { inputArgs })"
                     />
                 </UiField>
                 <UiField>
-                    <UiFieldLabel for="recording-output-args">Output arguments</UiFieldLabel>
+                    <UiFieldLabel for="recording-output-args">
+                        {{ $t('recordingSettings.outputArgs') }}
+                    </UiFieldLabel>
                     <UiInput
                         id="recording-output-args"
                         v-model="outputArgs"
                         class="font-mono"
-                        placeholder="-g 120 -bf 0"
+                        :placeholder="OUTPUT_ARGS_PLACEHOLDER"
                         @change="updateSection('recording', { outputArgs })"
                     />
                     <UiFieldDescription>
-                        Added before the output file of every recording.
+                        {{ $t('recordingSettings.outputArgsDescription') }}
                     </UiFieldDescription>
                 </UiField>
                 <UiField>
-                    <UiFieldLabel for="recording-command">Command</UiFieldLabel>
+                    <UiFieldLabel for="recording-command">
+                        {{ $t('recordingSettings.command') }}
+                    </UiFieldLabel>
                     <UiTextarea
                         id="recording-command"
                         :model-value="preview"
@@ -688,7 +749,7 @@
                         class="min-h-32 font-mono text-xs"
                     />
                     <UiFieldDescription>
-                        Recorded for the primary monitor with your current settings.
+                        {{ $t('recordingSettings.commandDescription') }}
                     </UiFieldDescription>
                 </UiField>
             </UiFieldGroup>
@@ -712,15 +773,16 @@ type NumberSection = 'recording' | 'audio' | 'gif';
 
 const DEFAULT_OPTION = 'default';
 const AUDIO_BITRATES = [64, 96, 128, 160, 192, 256, 320];
+const INPUT_ARGS_PLACEHOLDER = '-rtbufsize 512M';
+const OUTPUT_ARGS_PLACEHOLDER = '-g 120 -bf 0';
 
 const SOURCE_LABELS: Record<(typeof VIDEO_SOURCES)[number], string> = {
-    auto: 'Automatic',
-    ddagrab: 'Desktop Duplication',
-    gdigrab: 'GDI',
+    auto: 'recordingSettings.automatic',
+    ddagrab: 'recordingSettings.ddagrab',
+    gdigrab: 'recordingSettings.gdigrab',
 };
 
-const CODEC_LABELS: Record<VideoCodec, string> = {
-    auto: 'Automatic',
+const CODEC_LABELS: Record<Exclude<VideoCodec, 'auto'>, string> = {
     libx264: 'H.264 · x264 (CPU)',
     libx265: 'HEVC · x265 (CPU)',
     h264_nvenc: 'H.264 · NVIDIA NVENC',
@@ -743,40 +805,40 @@ const AUDIO_CODEC_LABELS: Record<(typeof AUDIO_CODECS)[number], string> = {
 };
 
 const DITHER_LABELS: Record<(typeof GIF_DITHERS)[number], string> = {
-    sierra2_4a: 'Sierra (smooth)',
-    floyd_steinberg: 'Floyd-Steinberg',
-    bayer: 'Bayer (small files)',
-    none: 'None',
+    sierra2_4a: 'recordingSettings.ditherSierra',
+    floyd_steinberg: 'recordingSettings.ditherFloydSteinberg',
+    bayer: 'recordingSettings.ditherBayer',
+    none: 'recordingSettings.none',
 };
 
 const VIDEO_SWITCHES = [
     {
         key: 'showCursor',
-        label: 'Record the mouse cursor',
-        description: 'Draw the cursor into recordings.',
+        label: 'recordingSettings.showCursor',
+        description: 'recordingSettings.showCursorDescription',
     },
     {
         key: 'showBorder',
-        label: 'Show a border around the area',
-        description: 'The border and the controls never appear in the recording.',
+        label: 'recordingSettings.showBorder',
+        description: 'recordingSettings.showBorderDescription',
     },
 ] as const;
 
 const MICROPHONE_SWITCHES = [
     {
         key: 'noiseSuppression',
-        label: 'Noise suppression',
-        description: 'Filter out fans, keyboards and background hum.',
+        label: 'recordingSettings.noiseSuppression',
+        description: 'recordingSettings.noiseSuppressionDescription',
     },
     {
         key: 'echoCancellation',
-        label: 'Echo cancellation',
-        description: 'Remove your speakers from the microphone when you do not use headphones.',
+        label: 'recordingSettings.echoCancellation',
+        description: 'recordingSettings.echoCancellationDescription',
     },
     {
         key: 'autoGainControl',
-        label: 'Automatic gain',
-        description: 'Keep your voice at a steady level.',
+        label: 'recordingSettings.autoGainControl',
+        description: 'recordingSettings.autoGainControlDescription',
     },
 ] as const;
 
@@ -784,32 +846,32 @@ const PRESETS: { match: RegExp; options: string[]; description: string }[] = [
     {
         match: /^libx26[45]$/,
         options: ['ultrafast', 'superfast', 'veryfast', 'faster', 'fast', 'medium', 'slow'],
-        description: 'Faster presets use less CPU and make bigger files.',
+        description: 'recordingSettings.presetX26x',
     },
     {
         match: /_nvenc$/,
         options: ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'],
-        description: 'p1 is the fastest, p7 the best quality.',
+        description: 'recordingSettings.presetNvenc',
     },
     {
         match: /_amf$/,
         options: ['speed', 'balanced', 'quality'],
-        description: 'How much the GPU works for quality.',
+        description: 'recordingSettings.presetAmf',
     },
     {
         match: /_qsv$/,
         options: ['veryfast', 'faster', 'fast', 'medium', 'slow', 'slower', 'veryslow'],
-        description: 'Faster presets keep the GPU free for other work.',
+        description: 'recordingSettings.presetQsv',
     },
     {
         match: /^libvpx-vp9$/,
         options: ['5', '6', '7', '8'],
-        description: 'CPU usage level. Higher is faster.',
+        description: 'recordingSettings.presetVp9',
     },
     {
         match: /^libsvtav1$/,
         options: ['8', '9', '10', '11', '12', '13'],
-        description: 'Higher is faster.',
+        description: 'recordingSettings.presetSvtAv1',
     },
 ];
 
@@ -825,6 +887,7 @@ const DEFAULT_PRESETS: Record<string, string> = {
 
 const settings = useSettings();
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 
 const ffmpeg = ref<FfmpegStatus | null>(null);
 const preview = ref('');
@@ -863,39 +926,39 @@ const presets = computed(() => {
     return {
         options: family?.options ?? [],
         description: family?.description ?? '',
-        fallback: DEFAULT_PRESETS[codec] ?? DEFAULT_PRESETS[key] ?? 'none',
+        fallback: DEFAULT_PRESETS[codec] ?? DEFAULT_PRESETS[key] ?? t('recordingSettings.none'),
     };
 });
 
 const qualityLabel = computed(() => {
     const codec = effectiveCodec.value;
-    if (codec.endsWith('_nvenc')) return 'Constant quality (CQ)';
-    if (codec.endsWith('_amf')) return 'Quantizer (QP)';
-    if (codec.endsWith('_qsv')) return 'Global quality';
-    return 'Constant rate factor (CRF)';
+    if (codec.endsWith('_nvenc')) return 'recordingSettings.constantQuality';
+    if (codec.endsWith('_amf')) return 'recordingSettings.quantizer';
+    if (codec.endsWith('_qsv')) return 'recordingSettings.globalQuality';
+    return 'recordingSettings.constantRateFactor';
 });
 
 const containerError = computed(() => {
-    if (recording.value.container !== 'webm') return null;
+    if (recording.value.container !== 'webm') return false;
 
     const codec = effectiveCodec.value;
-    if (codec === 'libvpx-vp9' || codec === 'libsvtav1' || codec.startsWith('av1')) return null;
-    return 'WebM only holds VP9 or AV1 video. Pick one of those encoders.';
+    return !(codec === 'libvpx-vp9' || codec === 'libsvtav1' || codec.startsWith('av1'));
 });
 
 const trackDescription = computed(() => {
-    if (!hasBothSources.value) return 'One track with the source you turned on.';
-    if (audio.value.tracks === 'mixed')
-        return 'One track with your microphone and system audio together.';
-    if (audio.value.tracks === 'separate') {
-        return 'Your microphone and system audio in their own tracks, so you can edit them apart.';
-    }
+    if (!hasBothSources.value) return 'recordingSettings.tracksSingle';
+    if (audio.value.tracks === 'mixed') return 'recordingSettings.tracksMixed';
+    if (audio.value.tracks === 'separate') return 'recordingSettings.tracksSeparate';
 
-    return 'A mixed track for playback, plus one track per source for editing.';
+    return 'recordingSettings.tracksBoth';
 });
 
 const codecLabel = (codec: VideoCodec) =>
-    codec === 'auto' ? `Automatic (${CODEC_LABELS[effectiveCodec.value]})` : CODEC_LABELS[codec];
+    codec === 'auto'
+        ? t('recordingSettings.automaticCodec', {
+              codec: CODEC_LABELS[effectiveCodec.value as Exclude<VideoCodec, 'auto'>],
+          })
+        : CODEC_LABELS[codec];
 
 const isAvailable = (codec: VideoCodec) =>
     codec === 'auto' || !ffmpeg.value?.isInstalled || ffmpeg.value.encoders.includes(codec);
@@ -922,8 +985,8 @@ const loadMicrophones = async () => {
         microphones.value = devices.filter(
             (device) => device.kind === 'audioinput' && device.deviceId !== 'default',
         );
-    } catch (error: any) {
-        $toast.error(error.message);
+    } catch {
+        $toast.error(t('recordingSettings.microphonesFailed'));
     }
 };
 

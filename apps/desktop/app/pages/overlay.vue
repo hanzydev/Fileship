@@ -35,7 +35,7 @@
                         <UiButton
                             variant="ghost"
                             size="icon-sm"
-                            aria-label="Move the toolbar"
+                            :aria-label="$t('overlay.moveToolbar')"
                             class="cursor-grab touch-none active:cursor-grabbing"
                             @pointerdown="handleToolbarDragStart"
                             @pointermove="handleToolbarDragMove"
@@ -52,7 +52,7 @@
                                 <UiButton
                                     :variant="!annotator.tool.value ? 'secondary' : 'ghost'"
                                     size="icon-sm"
-                                    aria-label="Region"
+                                    :aria-label="$t('overlay.region')"
                                     :aria-pressed="!annotator.tool.value"
                                     @click="annotator.setTool(null)"
                                 >
@@ -60,8 +60,8 @@
                                 </UiButton>
                             </UiTooltipTrigger>
                             <UiTooltipContent :side="toolbarSide">
-                                Region
-                                <UiKbd class="ml-1">C</UiKbd>
+                                {{ $t('overlay.region') }}
+                                <UiKbd class="ml-1">{{ KEYS.region }}</UiKbd>
                             </UiTooltipContent>
                         </UiTooltip>
                     </template>
@@ -71,15 +71,15 @@
                                 <UiButton
                                     size="icon-sm"
                                     variant="ghost"
-                                    aria-label="Cancel"
+                                    :aria-label="$t('common.cancel')"
                                     @click="handleCancel"
                                 >
                                     <IX />
                                 </UiButton>
                             </UiTooltipTrigger>
                             <UiTooltipContent :side="toolbarSide">
-                                Cancel
-                                <UiKbd class="ml-1">Esc</UiKbd>
+                                {{ $t('common.cancel') }}
+                                <UiKbd class="ml-1">{{ KEYS.cancel }}</UiKbd>
                             </UiTooltipContent>
                         </UiTooltip>
                     </template>
@@ -99,6 +99,8 @@ type LocalWindow = LocalRect & { controls: LocalRect[] };
 type Mode = 'idle' | 'pending' | 'drawing';
 type ToolbarEdge = 'top' | 'bottom' | 'left' | 'right' | null;
 type ToolbarPlacement = { display: number | null; edge: ToolbarEdge; cx: number; cy: number };
+
+const KEYS = { region: 'C', cancel: 'Esc' };
 
 const DRAG_THRESHOLD = 3;
 const MAGNIFIER_PIXELS = 15;

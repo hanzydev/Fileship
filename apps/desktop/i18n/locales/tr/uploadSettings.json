@@ -1,0 +1,29 @@
+{
+    "uploadSettings": {
+        "title": "Yükleme seçenekleri",
+        "description": "Bu bilgisayardan yüklenen ekran görüntüleri, kayıtlar ve dosyalar için kullanılır.",
+        "folder": "Klasör",
+        "noFolder": "Klasör yok",
+        "unknownFolder": "Bilinmeyen klasör",
+        "fileName": "Dosya adı",
+        "fileNameTypes": {
+            "Random": "Rastgele",
+            "UUID": "UUID",
+            "Original": "Orijinal"
+        },
+        "expiration": "Son kullanma",
+        "compression": "Sıkıştırma",
+        "maxViews": "En fazla görüntülenme",
+        "maxViewsDescription": "0 sınırsız demektir.",
+        "password": "Şifre",
+        "optional": "İsteğe bağlı",
+        "savedFiles": "Kaydedilen dosyalar",
+        "savedFilesDescription": "Yakalama ayarlarında bilgisayara kaydetme açıksa yakalamalar bu klasöre kaydedilir.",
+        "saveFolderPlaceholder": "Resimler\\Fileship",
+        "reset": "Sıfırla",
+        "browse": "Göz at",
+        "pattern": "Dosya adı şablonu",
+        "patternDescription": "{preview}.png · %yyyy yıl, %mo ay, %d gün, %h saat, %mi dakika, %s saniye, %ms milisaniye, %pn pencere başlığı, %ra rastgele",
+        "sampleWindow": "Pencere"
+    }
+}

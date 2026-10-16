@@ -1,6 +1,6 @@
 <template>
     <Head>
-        <Title>Edit</Title>
+        <Title>{{ $t('editor.title') }}</Title>
     </Head>
 
     <div class="flex h-dvh flex-col bg-background text-foreground">
@@ -11,7 +11,7 @@
                 <UiButton
                     variant="ghost"
                     size="icon-sm"
-                    aria-label="Zoom out"
+                    :aria-label="$t('editor.zoomOut')"
                     @click="handleZoom(-1)"
                 >
                     <IZoomOut />
@@ -22,12 +22,12 @@
                     class="min-w-16 tabular-nums"
                     @click="handleFit"
                 >
-                    {{ Math.round(zoom * 100) }}%
+                    {{ $t('editor.zoomValue', { value: Math.round(zoom * 100) }) }}
                 </UiButton>
                 <UiButton
                     variant="ghost"
                     size="icon-sm"
-                    aria-label="Zoom in"
+                    :aria-label="$t('editor.zoomIn')"
                     @click="handleZoom(1)"
                 >
                     <IZoomIn />
@@ -41,7 +41,7 @@
                     :disabled="!image"
                     @click="handleFinish('cancel')"
                 >
-                    Cancel
+                    {{ $t('common.cancel') }}
                 </UiButton>
                 <UiButton
                     variant="outline"
@@ -50,7 +50,7 @@
                     @click="handleFinish('copy')"
                 >
                     <ICopy />
-                    Copy
+                    {{ $t('editor.copy') }}
                 </UiButton>
                 <UiButton
                     variant="outline"
@@ -59,12 +59,12 @@
                     @click="handleFinish('save')"
                 >
                     <ISave />
-                    Save as
+                    {{ $t('editor.saveAs') }}
                 </UiButton>
                 <UiButton size="sm" :disabled="!image" @click="handleFinish('continue')">
                     <IUpload v-if="image?.continueLabel === 'Upload'" />
                     <ICheck v-else />
-                    {{ image?.continueLabel ?? 'Done' }}
+                    {{ continueLabel }}
                 </UiButton>
             </div>
         </header>
@@ -88,7 +88,14 @@ import type { EditorFinish, EditorImage } from '../../shared/ipc';
 
 const ZOOM_STEPS = [0.1, 0.25, 0.33, 0.5, 0.67, 0.75, 1, 1.25, 1.5, 2, 3, 4];
 
+const CONTINUE_LABELS: Record<string, string> = {
+    Upload: 'editor.upload',
+    Save: 'editor.save',
+    Copy: 'editor.copy',
+};
+
 const route = useRoute();
+const { t } = useI18n();
 const { $toast } = useNuxtApp();
 
 const id = String(route.query.id ?? '');
@@ -100,6 +107,12 @@ const annotator = useAnnotator(annotationLayer);
 const image = shallowRef<EditorImage | null>(null);
 const size = reactive({ width: 0, height: 0 });
 const zoom = ref(1);
+
+const continueLabel = computed(() => {
+    const label = image.value?.continueLabel;
+    if (!label) return t('editor.done');
+    return CONTINUE_LABELS[label] ? t(CONTINUE_LABELS[label]) : label;
+});
 let isFinishing = false;
 
 const setZoom = (value: number) => {

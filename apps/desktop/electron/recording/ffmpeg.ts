@@ -12,6 +12,7 @@ import log from 'electron-log/main';
 
 import type { FfmpegStatus } from '../../shared/ipc';
 import { HARDWARE_CODECS, VIDEO_CODECS } from '../../shared/settings';
+import { t } from '../i18n';
 import { getSettings, getStore, updateStore } from '../store';
 import { broadcast } from '../windows';
 
@@ -164,7 +165,8 @@ export const downloadFfmpeg = async () => {
 
     try {
         const response = await net.fetch(BUILD.url);
-        if (!response.ok || !response.body) throw new Error(`Download failed (${response.status})`);
+        if (!response.ok || !response.body)
+            throw new Error(t('recording.downloadFailed', { status: response.status }));
 
         const total = Number(response.headers.get('content-length')) || 0;
         const hash = createHash('sha256');
@@ -206,7 +208,7 @@ export const downloadFfmpeg = async () => {
         }
 
         if (hash.digest('hex') !== BUILD.sha256) {
-            throw new Error('The download is damaged. Try again.');
+            throw new Error(t('recording.downloadDamaged'));
         }
 
         await mkdir(extracted, { recursive: true });
@@ -221,8 +223,7 @@ export const downloadFfmpeg = async () => {
         ]);
 
         const binary = join(extracted, 'ffmpeg.exe');
-        if (!(await stat(binary)).isFile())
-            throw new Error('ffmpeg.exe is missing in the download');
+        if (!(await stat(binary)).isFile()) throw new Error(t('recording.ffmpegNotInDownload'));
 
         await mkdir(folder, { recursive: true });
         await rm(managedPath(), { force: true });

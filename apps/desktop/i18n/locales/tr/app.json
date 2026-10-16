@@ -1,0 +1,32 @@
+{
+    "app": {
+        "somethingWentWrong": "Bir sorun oluştu",
+        "stillRunning": "Fileship çalışmaya devam ediyor",
+        "stillRunningDescription": "Ekran görüntüsü almak için bildirim alanındaki simgeyi ya da kısayolları kullan. Çıkmak için simgeye sağ tıkla.",
+        "nothingToUpload": "Yüklenecek bir şey yok",
+        "nothingToUploadDescription": "Önce bir görüntü, dosya ya da metin kopyala.",
+        "uploadDialogTitle": "Fileship'e yükle",
+        "noLinkToShorten": "Kısaltılacak bağlantı yok",
+        "noLinkToShortenDescription": "Önce http ya da https ile başlayan bir bağlantı kopyala.",
+        "linkShortened": "Bağlantı kısaltıldı ve kopyalandı",
+        "shortenFailed": "Bağlantı kısaltılamadı",
+        "nothingToCapture": "Yakalanacak bir şey yok",
+        "noActiveWindow": "Etkin pencere yok.",
+        "chooseFfmpeg": "ffmpeg.exe dosyasını seç",
+        "driveFolderNotEmpty": "Boş bir klasör seç. Sürücü bu klasörde yalnızca Fileship dosyalarını tutar.",
+        "invalidAddress": "Geçerli bir adres gir, örneğin files.example.com",
+        "serverStarting": "Bu Fileship sunucusu hâlâ açılıyor, birazdan tekrar dene",
+        "serverNotFound": "Bu adreste Fileship sunucusu bulunamadı: {url}",
+        "serverTooOld": "Bu sunucuda Fileship {version} çalışıyor. Windows için Fileship en az {minVersion} sürümünü gerektirir.",
+        "loginTitle": "Giriş yap · {siteName}",
+        "loginCancelled": "Giriş iptal edildi",
+        "noUploadPermission": "Hesabının bu sunucuda dosya yükleme ya da bağlantı kısaltma yetkisi yok.",
+        "editorTitle": "Düzenle · Fileship",
+        "editorClosed": "Düzenleyici kapatıldı.",
+        "overlayFailed": "Yakalama katmanı yüklenemedi",
+        "requestFailed": "İstek tamamlanamadı ({status})",
+        "serverTimeout": "Sunucu zamanında yanıt vermedi",
+        "serverUnreachable": "Sunucuya ulaşılamadı: {url}",
+        "notConnected": "Bir Fileship sunucusuna bağlı değilsin"
+    }
+}

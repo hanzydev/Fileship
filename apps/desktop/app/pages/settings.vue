@@ -1,10 +1,10 @@
 <template>
     <Head>
-        <Title>Settings</Title>
+        <Title>{{ $t('settings.title') }}</Title>
     </Head>
 
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <PageHeader title="Settings" description="How Fileship behaves on this computer." />
+        <PageHeader :title="$t('settings.title')" :description="$t('settings.description')" />
 
         <div class="flex flex-col gap-4 lg:flex-row">
             <UiCard size="sm" class="hidden w-56 shrink-0 self-start lg:flex">
@@ -19,7 +19,7 @@
                         >
                             <NuxtLink :to="section.path">
                                 <component :is="section.icon" />
-                                {{ section.label }}
+                                {{ $t(section.label) }}
                             </NuxtLink>
                         </UiButton>
                     </nav>
@@ -37,7 +37,7 @@
                         :value="section.path"
                     >
                         <component :is="section.icon" />
-                        {{ section.label }}
+                        {{ $t(section.label) }}
                     </UiSelectItem>
                 </UiSelectContent>
             </UiSelect>
@@ -64,14 +64,14 @@ import {
 const route = useRoute();
 
 const sections = [
-    { label: 'General', path: '/settings/general', icon: ISlidersHorizontal },
-    { label: 'Hotkeys', path: '/settings/hotkeys', icon: IKeyboard },
-    { label: 'Capture', path: '/settings/capture', icon: ICamera },
-    { label: 'Recording', path: '/settings/recording', icon: IVideo },
-    { label: 'Upload', path: '/settings/upload', icon: IUpload },
-    { label: 'Drive', path: '/settings/drive', icon: IHardDrive },
-    { label: 'Account', path: '/settings/account', icon: IUser },
-    { label: 'Updates', path: '/settings/updates', icon: IDownload },
+    { label: 'settings.general', path: '/settings/general', icon: ISlidersHorizontal },
+    { label: 'settings.hotkeys', path: '/settings/hotkeys', icon: IKeyboard },
+    { label: 'settings.capture', path: '/settings/capture', icon: ICamera },
+    { label: 'settings.recording', path: '/settings/recording', icon: IVideo },
+    { label: 'settings.upload', path: '/settings/upload', icon: IUpload },
+    { label: 'settings.drive', path: '/settings/drive', icon: IHardDrive },
+    { label: 'settings.account', path: '/settings/account', icon: IUser },
+    { label: 'settings.updates', path: '/settings/updates', icon: IDownload },
 ];
 
 definePageMeta({

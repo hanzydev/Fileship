@@ -1,20 +1,20 @@
 <template>
     <Head>
-        <Title>Home</Title>
+        <Title>{{ $t('nav.home') }}</Title>
     </Head>
 
     <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
         <PageHeader
-            :title="`Welcome, ${account?.user.username}`"
-            :description="`Connected to ${account?.siteName}.`"
+            :title="$t('home.welcome', { username: account?.user.username })"
+            :description="$t('home.connectedTo', { siteName: account?.siteName })"
         >
             <UiButton variant="outline" @click="handleRun('uploadFile')">
                 <IUpload />
-                Upload
+                {{ $t('home.upload') }}
             </UiButton>
             <UiButton @click="handleRun('captureRegion')">
                 <IScanLine />
-                Capture
+                {{ $t('home.capture') }}
             </UiButton>
         </PageHeader>
 
@@ -22,7 +22,7 @@
             <UiCardContent class="flex flex-1">
                 <EmptyState
                     :icon="IImage"
-                    title="No captures yet"
+                    :title="$t('home.emptyTitle')"
                     :description="emptyDescription"
                     class="flex-1"
                 />
@@ -31,10 +31,10 @@
 
         <template v-else>
             <div class="flex items-center justify-between gap-2">
-                <TextBlock variant="muted">{{ pluralize(total, 'capture') }}</TextBlock>
+                <TextBlock variant="muted">{{ $t('home.captureCount', total) }}</TextBlock>
                 <UiButton v-if="items.length" variant="ghost" size="sm" @click="handleClear">
                     <ITrash2 />
-                    Clear history
+                    {{ $t('home.clearHistory') }}
                 </UiButton>
             </div>
 
@@ -73,7 +73,7 @@
                                             <UiButton
                                                 variant="secondary"
                                                 size="icon-sm"
-                                                aria-label="Actions"
+                                                :aria-label="$t('home.actions')"
                                             >
                                                 <IEllipsis />
                                             </UiButton>
@@ -84,13 +84,13 @@
                                                     @click="handleItem('history:copy', item)"
                                                 >
                                                     <ICopy />
-                                                    Copy link
+                                                    {{ $t('home.copyLink') }}
                                                 </UiDropdownMenuItem>
                                                 <UiDropdownMenuItem
                                                     @click="handleItem('history:open', item)"
                                                 >
                                                     <IExternalLink />
-                                                    Open link
+                                                    {{ $t('home.openLink') }}
                                                 </UiDropdownMenuItem>
                                             </template>
                                             <UiDropdownMenuItem
@@ -98,14 +98,14 @@
                                                 @click="handleItem('history:edit', item)"
                                             >
                                                 <IPencil />
-                                                Edit
+                                                {{ $t('home.edit') }}
                                             </UiDropdownMenuItem>
                                             <UiDropdownMenuItem
                                                 v-if="item.localPath"
                                                 @click="handleItem('history:showFile', item)"
                                             >
                                                 <IFolderOpen />
-                                                Show in folder
+                                                {{ $t('home.showInFolder') }}
                                             </UiDropdownMenuItem>
                                             <UiDropdownMenuSeparator
                                                 v-if="item.url || item.localPath"
@@ -115,7 +115,7 @@
                                                 @click="handleItem('history:remove', item)"
                                             >
                                                 <ITrash2 />
-                                                Remove from history
+                                                {{ $t('home.removeFromHistory') }}
                                             </UiDropdownMenuItem>
                                         </UiDropdownMenuContent>
                                     </UiDropdownMenu>
@@ -156,8 +156,8 @@
         >
             <EmptyState
                 :icon="IUpload"
-                title="Drop to upload"
-                description="Files go to Fileship with your upload settings."
+                :title="$t('home.dropTitle')"
+                :description="$t('home.dropDescription')"
             />
         </div>
     </div>
@@ -167,14 +167,21 @@
 import { filesize } from 'filesize';
 import type { Component } from 'vue';
 
-import { formatTimeAgo } from '@vueuse/core';
-
 import { IFile, IFilm, IImage, IImagePlay, IUpload } from '#components';
 
 import type { HistoryItem, HistoryKind, UploadProgress } from '../../shared/ipc';
 import type { HotkeyAction } from '../../shared/settings';
 
 const PAGE_SIZE = 60;
+
+const TIME_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
+    ['year', 31_536_000],
+    ['month', 2_592_000],
+    ['week', 604_800],
+    ['day', 86_400],
+    ['hour', 3600],
+    ['minute', 60],
+];
 
 const KIND_ICONS: Record<HistoryKind, Component> = {
     screenshot: IImage,
@@ -185,6 +192,7 @@ const KIND_ICONS: Record<HistoryKind, Component> = {
 
 const account = useAccount();
 const { $toast } = useNuxtApp();
+const { t, locale } = useI18n();
 
 const items = ref<HistoryItem[]>([]);
 const total = ref(0);
@@ -194,19 +202,33 @@ const progress = ref<Record<string, UploadProgress>>({});
 const settings = ref<{ hotkey: string } | null>(null);
 const now = useNow({ scheduler: (callback) => useIntervalFn(callback, 30_000) });
 
+const relativeTime = computed(() => new Intl.RelativeTimeFormat(locale.value, { numeric: 'auto' }));
+
 const emptyDescription = computed(() =>
     settings.value?.hotkey
-        ? `Press ${settings.value.hotkey.replaceAll('+', ' + ')} to capture a region, or drop files here to upload them.`
-        : 'Capture a region from the tray icon, or drop files here to upload them.',
+        ? t('home.emptyWithHotkey', { hotkey: settings.value.hotkey.replaceAll('+', ' + ') })
+        : t('home.emptyWithTray'),
 );
 
+const timeAgo = (value: number) => {
+    const seconds = (value - now.value.getTime()) / 1000;
+    const unit = TIME_UNITS.find(([, size]) => Math.abs(seconds) >= size);
+
+    if (!unit) return t('home.justNow');
+    return relativeTime.value.format(Math.round(seconds / unit[1]), unit[0]);
+};
+
 const describe = (item: HistoryItem) => {
-    const time = formatTimeAgo(new Date(item.createdAt), {}, now.value);
+    const time = timeAgo(item.createdAt);
 
     if (item.error) return item.error;
-    if (item.shortUrl ?? item.url) return `${time} · ${filesize(item.size)}`;
-    if (item.localPath) return `${time} · Saved on this computer`;
-    return `${time} · Not uploaded`;
+    if (item.shortUrl ?? item.url)
+        return t('home.uploadedMeta', {
+            time,
+            size: filesize(item.size, { locale: locale.value }),
+        });
+    if (item.localPath) return t('home.savedMeta', { time });
+    return t('home.notUploadedMeta', { time });
 };
 
 const load = async (offset: number, limit: number) => {
@@ -241,7 +263,7 @@ const handleItem = async (
 ) => {
     try {
         await desktop(channel, item.id);
-        if (channel === 'history:copy') $toast.success('Link copied');
+        if (channel === 'history:copy') $toast.success(t('home.linkCopied'));
     } catch (error: any) {
         $toast.error(error.message);
     }
@@ -249,9 +271,9 @@ const handleItem = async (
 
 const handleClear = () =>
     askConfirmation({
-        title: 'Clear history?',
-        description: 'Uploaded files stay on Fileship and saved files stay on this computer.',
-        confirmText: 'Clear',
+        title: t('home.clearTitle'),
+        description: t('home.clearDescription'),
+        confirmText: t('home.clear'),
         destructive: true,
         action: () => desktop('history:clear'),
     });

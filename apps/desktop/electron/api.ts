@@ -1,5 +1,6 @@
 import { app } from 'electron';
 
+import { getLanguage, t } from './i18n';
 import { getStore, getToken } from './store';
 
 export class ApiError extends Error {
@@ -22,7 +23,9 @@ export const normalizeInstanceUrl = (input: string) => {
 
 const readError = async (response: Response) => {
     const body = await response.json().catch(() => null);
-    return (body?.message as string | undefined) || `Request failed (${response.status})`;
+    return (
+        (body?.message as string | undefined) || t('app.requestFailed', { status: response.status })
+    );
 };
 
 export const request = async <T>(
@@ -39,6 +42,7 @@ export const request = async <T>(
             ...rest,
             headers: {
                 'User-Agent': desktopUserAgent(),
+                'Accept-Language': getLanguage(),
                 ...(token && { Authorization: `Bearer ${token}` }),
                 ...headers,
             },
@@ -47,8 +51,8 @@ export const request = async <T>(
     } catch (error: any) {
         throw new ApiError(
             error?.name === 'TimeoutError'
-                ? 'The server took too long to respond'
-                : `Could not reach ${baseUrl}`,
+                ? t('app.serverTimeout')
+                : t('app.serverUnreachable', { url: baseUrl }),
             0,
         );
     }
@@ -61,7 +65,7 @@ export const request = async <T>(
 
 export const api = <T>(path: string, init: RequestInit & { timeout?: number } = {}) => {
     const { instanceUrl } = getStore();
-    if (!instanceUrl) throw new ApiError('Not connected to a Fileship server', 401);
+    if (!instanceUrl) throw new ApiError(t('app.notConnected'), 401);
 
     return request<T>(instanceUrl, path, { ...init, token: getToken() });
 };

@@ -5,6 +5,7 @@ import { BrowserWindow, screen } from 'electron';
 
 import type { EditorFinish, EditorImage } from '../shared/ipc';
 import { type Bitmap, bitmapFromRgba } from './capture';
+import { t } from './i18n';
 import {
     hardenWebContents,
     iconPath,
@@ -52,7 +53,7 @@ export const openEditor = (
             minWidth: 720,
             minHeight: 480,
             show: false,
-            title: 'Edit · Fileship',
+            title: t('app.editorTitle'),
             icon: iconPath(),
             autoHideMenuBar: true,
             backgroundColor: themeBackground(),
@@ -80,7 +81,7 @@ export const openEditor = (
 
 export const getEditorImage = (id: string) => {
     const session = sessions.get(id);
-    if (!session) throw new Error('This editor was closed.');
+    if (!session) throw new Error(t('app.editorClosed'));
     return session.image;
 };
 

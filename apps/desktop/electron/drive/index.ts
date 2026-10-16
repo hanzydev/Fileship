@@ -9,6 +9,7 @@ import { io, type Socket } from 'socket.io-client';
 import type { DriveStatus } from '../../shared/ipc';
 import { handleUnauthorized } from '../account';
 import { api, ApiError, desktopUserAgent } from '../api';
+import { t } from '../i18n';
 import { mimeTypeOf } from '../mime';
 import { getSettings, getStore, getToken, updateStore } from '../store';
 import { refreshTray } from '../tray';
@@ -777,7 +778,7 @@ const launch = async () => {
 
         if (!isStopping) {
             log.warn('The drive helper stopped', code);
-            scheduleRetry('The drive stopped. It restarts in a few seconds.');
+            scheduleRetry(t('drive.restarting'));
         }
     });
 
@@ -805,7 +806,7 @@ const launch = async () => {
             await shutDown(current);
             setStatus({
                 state: 'error',
-                error: `${root} is not empty. Choose an empty folder for the drive.`,
+                error: t('drive.notEmpty', { root }),
             });
             return false;
         }
@@ -828,7 +829,7 @@ export const startDrive = () =>
         if (!isAllowed() || (helper && isSynced)) return;
 
         if (!isHelperAvailable()) {
-            setStatus({ state: 'error', error: 'The drive helper is missing from this build.' });
+            setStatus({ state: 'error', error: t('drive.helperMissing') });
             return;
         }
 

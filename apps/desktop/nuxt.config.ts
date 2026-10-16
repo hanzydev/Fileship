@@ -16,6 +16,13 @@ export default defineNuxtConfig({
 
     css: ['~/styles/tailwind.css'],
 
+    i18n: {
+        locales: [
+            { code: 'en', language: 'en-US', name: 'English' },
+            { code: 'tr', language: 'tr-TR', name: 'Türkçe' },
+        ],
+    },
+
     colorMode: {
         storage: 'localStorage',
     },
@@ -35,9 +42,6 @@ export default defineNuxtConfig({
         },
         head: {
             title: 'Fileship',
-            htmlAttrs: {
-                lang: 'en',
-            },
         },
     },
 

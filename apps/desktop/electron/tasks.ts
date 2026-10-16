@@ -10,6 +10,7 @@ import { type Bitmap, bitmapFromImage, encodePng, encodeThumbnail, playUploaded 
 import { writeImage, writeText } from './clipboard';
 import { openEditor } from './editor';
 import { addHistory, getHistory, updateHistory } from './history';
+import { t } from './i18n';
 import { getSettings } from './store';
 import { shortenUrl, uploadFile, type UploadSource } from './upload';
 import { notify, openWebUrl } from './windows';
@@ -71,7 +72,7 @@ export const finishUpload = async (historyId: string, file: { url: string; id: s
     if (afterUpload.openUrl) openWebUrl(url);
 
     if (afterUpload.notify) {
-        notify(afterUpload.copyUrl ? 'Uploaded, link copied' : 'Uploaded', url, () =>
+        notify(t(afterUpload.copyUrl ? 'tasks.uploadedLinkCopied' : 'tasks.uploaded'), url, () =>
             openWebUrl(url),
         );
     }
@@ -82,7 +83,7 @@ export const finishUpload = async (historyId: string, file: { url: string; id: s
 export const uploadAndFinish = async (
     historyId: string,
     file: UploadSource,
-    onFailure: (message: string) => unknown = (message) => notify('Upload failed', message),
+    onFailure: (message: string) => unknown = (message) => notify(t('tasks.uploadFailed'), message),
 ) => {
     try {
         const uploaded = await uploadFile({ ...file, id: historyId });
@@ -105,13 +106,13 @@ const continueLabel = () => {
 const saveImageAs = async (png: Buffer, name: string) => {
     const result = await dialog.showSaveDialog({
         defaultPath: join(saveFolder(), name),
-        filters: [{ name: 'PNG image', extensions: ['png'] }],
+        filters: [{ name: t('tasks.pngImage'), extensions: ['png'] }],
     });
 
     if (result.canceled || !result.filePath) return;
 
     await writeFile(result.filePath, png);
-    notify('Image saved', result.filePath);
+    notify(t('tasks.imageSaved'), result.filePath);
 };
 
 const runEditor = async (image: Bitmap, name: string) => {
@@ -122,7 +123,7 @@ const runEditor = async (image: Bitmap, name: string) => {
 
     if (result.action === 'copy') {
         await writeImage(await encodePng(result.image));
-        notify('Image copied', 'Paste it anywhere.');
+        notify(t('tasks.imageCopied'), t('tasks.pasteAnywhere'));
     } else if (result.action === 'save') {
         await saveImageAs(await encodePng(result.image), name);
     }
@@ -167,7 +168,7 @@ export const handleImage = async (
         await uploadAndFinish(entry.id, { name, mimeType: 'image/png', data: png });
     } else if (!afterCapture.copyImage && !afterCapture.saveToFile) {
         await writeImage(png);
-        notify('Screenshot copied', 'Uploading is turned off in the after capture settings.');
+        notify(t('tasks.screenshotCopied'), t('tasks.uploadsOff'));
     }
 
     return entry;
@@ -200,10 +201,10 @@ const keepRecording = async (historyId: string, path: string, name: string, mess
         await moveFile(path, kept);
 
         updateHistory(historyId, { localPath: kept });
-        notify('Upload failed, recording saved', kept, () => shell.showItemInFolder(kept));
+        notify(t('tasks.recordingKept'), kept, () => shell.showItemInFolder(kept));
     } catch (error) {
         log.warn('Could not keep the recording', error);
-        notify('Upload failed', message);
+        notify(t('tasks.uploadFailed'), message);
     }
 };
 
@@ -232,7 +233,7 @@ export const handleRecording = async (file: {
                 : (message) => keepRecording(entry.id, file.path, file.name, message),
         );
     } else {
-        notify('Recording saved', file.path, () => shell.showItemInFolder(file.path));
+        notify(t('tasks.recordingSaved'), file.path, () => shell.showItemInFolder(file.path));
     }
 
     return entry;
@@ -240,10 +241,10 @@ export const handleRecording = async (file: {
 
 export const editHistoryImage = async (id: string) => {
     const item = getHistory(id);
-    if (!item?.localPath) throw new Error('Only screenshots saved on this computer can be edited.');
+    if (!item?.localPath) throw new Error(t('tasks.onlyLocalEditable'));
 
     const image = bitmapFromImage(nativeImage.createFromPath(item.localPath));
-    if (!image) throw new Error('The saved screenshot could not be opened.');
+    if (!image) throw new Error(t('tasks.screenshotNotOpened'));
 
     const edited = await runEditor(image, item.name);
     if (edited) await handleImage(edited, { isEdited: true });

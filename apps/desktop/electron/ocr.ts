@@ -4,13 +4,14 @@ import { handleUnauthorized } from './account';
 import { api, ApiError } from './api';
 import { type Bitmap, encodePng } from './capture';
 import { writeText } from './clipboard';
+import { t } from './i18n';
 import { openRegionCapture } from './overlay';
 import { notify } from './windows';
 
 const OCR_ERRORS: Record<number, [string, string]> = {
-    403: ['Text capture is off', 'AI features are turned off on your Fileship.'],
-    404: ['Text capture is not available', 'Update your Fileship to capture text.'],
-    429: ['Too many text captures', 'Wait a minute and try again.'],
+    403: ['tasks.textCaptureOff', 'tasks.aiOff'],
+    404: ['tasks.textCaptureUnavailable', 'tasks.updateFileship'],
+    429: ['tasks.tooManyTextCaptures', 'tasks.waitAMinute'],
 };
 
 const recognize = async (image: Bitmap) => {
@@ -28,18 +29,18 @@ const recognize = async (image: Bitmap) => {
             timeout: 120_000,
         });
 
-        if (!text.trim()) return notify('No text found', 'Try selecting a larger area.');
+        if (!text.trim()) return notify(t('tasks.noTextFound'), t('tasks.selectLargerArea'));
 
         await writeText(text);
-        notify('Text copied', text.length > 200 ? `${text.slice(0, 200)}…` : text);
+        notify(t('tasks.textCopied'), text.length > 200 ? `${text.slice(0, 200)}…` : text);
     } catch (error: any) {
         if (error instanceof ApiError && error.status === 401) return handleUnauthorized();
 
         const known = error instanceof ApiError ? OCR_ERRORS[error.status] : undefined;
-        if (known) return notify(...known);
+        if (known) return notify(t(known[0]), t(known[1]));
 
         log.warn('Text capture failed', error);
-        notify('Could not capture text', error.message);
+        notify(t('tasks.textCaptureFailed'), error.message);
     }
 };
 

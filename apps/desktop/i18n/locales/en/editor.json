@@ -1,0 +1,13 @@
+{
+    "editor": {
+        "title": "Edit",
+        "zoomOut": "Zoom out",
+        "zoomIn": "Zoom in",
+        "zoomValue": "{value}%",
+        "copy": "Copy",
+        "saveAs": "Save as",
+        "upload": "Upload",
+        "save": "Save",
+        "done": "Done"
+    }
+}

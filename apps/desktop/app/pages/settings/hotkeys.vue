@@ -1,16 +1,13 @@
 <template>
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>Hotkeys</UiCardTitle>
-            <UiCardDescription>
-                Work everywhere in Windows while Fileship runs in the tray. Click a shortcut to
-                change it.
-            </UiCardDescription>
+            <UiCardTitle>{{ $t('hotkeys.title') }}</UiCardTitle>
+            <UiCardDescription>{{ $t('hotkeys.description') }}</UiCardDescription>
             <UiCardAction>
                 <UiSwitch
                     :model-value="settings?.hotkeysEnabled"
                     :disabled="!settings"
-                    aria-label="Enable hotkeys"
+                    :aria-label="$t('hotkeys.enable')"
                     @update:model-value="handleToggle"
                 />
             </UiCardAction>
@@ -19,21 +16,21 @@
             <UiItemGroup :class="cn('gap-2', !settings?.hotkeysEnabled && 'opacity-50')">
                 <UiItem v-for="action in HOTKEY_ACTIONS" :key="action" variant="muted" size="sm">
                     <UiItemContent class="min-w-0">
-                        <UiItemTitle>{{ HOTKEY_LABELS[action] }}</UiItemTitle>
+                        <UiItemTitle>{{ $t(`hotkeys.actions.${action}`) }}</UiItemTitle>
                         <UiItemDescription v-if="duplicates.has(action)" class="text-destructive">
-                            Another action uses this shortcut.
+                            {{ $t('hotkeys.duplicate') }}
                         </UiItemDescription>
                         <UiItemDescription
                             v-else-if="status[action] === 'conflict'"
                             class="text-destructive"
                         >
-                            Another app already uses this shortcut.
+                            {{ $t('hotkeys.conflict') }}
                         </UiItemDescription>
                         <UiItemDescription
                             v-else-if="status[action] === 'invalid'"
                             class="text-destructive"
                         >
-                            Windows does not accept this shortcut.
+                            {{ $t('hotkeys.invalid') }}
                         </UiItemDescription>
                     </UiItemContent>
                     <UiItemActions>
@@ -44,7 +41,9 @@
                             :disabled="!settings?.hotkeysEnabled"
                             @click="handleRecord(action)"
                         >
-                            <template v-if="recording === action">Press a shortcut...</template>
+                            <template v-if="recording === action">
+                                {{ $t('hotkeys.recording') }}
+                            </template>
                             <UiKbdGroup v-else-if="settings?.hotkeys[action]">
                                 <UiKbd
                                     v-for="key in settings.hotkeys[action]!.split('+')"
@@ -53,12 +52,14 @@
                                     {{ KEY_LABELS[key] ?? key }}
                                 </UiKbd>
                             </UiKbdGroup>
-                            <span v-else class="text-muted-foreground">Not set</span>
+                            <span v-else class="text-muted-foreground">
+                                {{ $t('hotkeys.notSet') }}
+                            </span>
                         </UiButton>
                         <UiButton
                             variant="ghost"
                             size="icon-sm"
-                            aria-label="Clear shortcut"
+                            :aria-label="$t('hotkeys.clear')"
                             :disabled="!settings?.hotkeysEnabled || !settings?.hotkeys[action]"
                             @click="handleSet(action, '')"
                         >
@@ -71,23 +72,20 @@
         <UiCardFooter>
             <UiButton variant="outline" :disabled="!settings" @click="handleReset">
                 <IRotateCcw />
-                Reset to defaults
+                {{ $t('hotkeys.reset') }}
             </UiButton>
         </UiCardFooter>
     </UiCard>
 
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>Print Screen key</UiCardTitle>
-            <UiCardDescription>
-                Windows opens Snipping Tool when you press Print Screen. Turn this on so the key
-                captures with Fileship instead.
-            </UiCardDescription>
+            <UiCardTitle>{{ $t('hotkeys.printScreen') }}</UiCardTitle>
+            <UiCardDescription>{{ $t('hotkeys.printScreenDescription') }}</UiCardDescription>
             <UiCardAction>
                 <UiSwitch
                     :model-value="!isSnippingToolEnabled"
                     :disabled="isSnippingToolEnabled === null"
-                    aria-label="Use Print Screen for Fileship"
+                    :aria-label="$t('hotkeys.usePrintScreen')"
                     @update:model-value="handleSnippingTool"
                 />
             </UiCardAction>
@@ -97,12 +95,7 @@
 
 <script setup lang="ts">
 import type { HotkeyStatus } from '../../../shared/ipc';
-import {
-    DEFAULT_HOTKEYS,
-    HOTKEY_ACTIONS,
-    HOTKEY_LABELS,
-    type HotkeyAction,
-} from '../../../shared/settings';
+import { DEFAULT_HOTKEYS, HOTKEY_ACTIONS, type HotkeyAction } from '../../../shared/settings';
 
 const KEY_LABELS: Record<string, string> = {
     Control: 'Ctrl',

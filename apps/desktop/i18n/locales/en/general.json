@@ -1,0 +1,14 @@
+{
+    "general": {
+        "startup": "Startup",
+        "startupDescription": "Fileship starts in the tray, so your hotkeys work right after you sign in to Windows.",
+        "startAtLogin": "Start Fileship with Windows",
+        "language": "Language",
+        "languageDescription": "The language of the app, the tray menu and notifications.",
+        "theme": "Theme",
+        "themeDescription": "Light, dark or follow Windows.",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+    }
+}

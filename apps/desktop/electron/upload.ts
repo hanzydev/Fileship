@@ -5,6 +5,7 @@ import type { UploadProgress } from '../shared/ipc';
 import type { Settings } from '../shared/settings';
 import { handleUnauthorized } from './account';
 import { api, ApiError } from './api';
+import { t } from './i18n';
 import { getSettings, getStore } from './store';
 import { refreshTray } from './tray';
 import { notifyIdle } from './updater';
@@ -177,7 +178,7 @@ const runJob = async (job: Job) => {
 
     if (failure) throw failure;
 
-    if (!result?.url) throw new Error('The server did not return a link');
+    if (!result?.url) throw new Error(t('tasks.noLink'));
     return result;
 };
 
@@ -199,7 +200,7 @@ const pump = () => {
 };
 
 export const uploadFile = (file: UploadSource & { id?: string }) => {
-    if (!getStore().token) return Promise.reject(new Error('Log in to Fileship to upload'));
+    if (!getStore().token) return Promise.reject(new Error(t('tasks.logInToUpload')));
 
     const id = file.id ?? randomBytes(8).toString('hex');
 

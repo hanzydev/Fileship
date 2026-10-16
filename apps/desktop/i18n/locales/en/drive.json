@@ -1,0 +1,11 @@
+{
+    "drive": {
+        "helperStopped": "The drive helper stopped",
+        "helperNotRunning": "The drive helper is not running",
+        "helperNoAnswer": "The drive helper did not answer ({request})",
+        "helperFailed": "The drive helper failed",
+        "restarting": "The drive stopped. It restarts in a few seconds.",
+        "notEmpty": "{root} is not empty. Choose an empty folder for the drive.",
+        "helperMissing": "The drive helper is missing from this build."
+    }
+}

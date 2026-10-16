@@ -1,0 +1,9 @@
+{
+    "updater": {
+        "noReleases": "No releases are published yet",
+        "unreachable": "Could not reach the update server",
+        "checkFailed": "Update check failed",
+        "readyTitle": "Fileship {version} is ready",
+        "readyBody": "Click to restart and update now, or it installs when you quit."
+    }
+}

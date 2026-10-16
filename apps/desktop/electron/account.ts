@@ -10,6 +10,7 @@ import {
 } from '../shared/ipc';
 import { ApiError, desktopUserAgent, normalizeInstanceUrl, request } from './api';
 import { stopDrive } from './drive';
+import { getLanguage, t } from './i18n';
 import { clearSession, getStore, getToken, setSession } from './store';
 import { refreshTray } from './tray';
 import {
@@ -32,26 +33,22 @@ export const checkInstance = async (input: string): Promise<InstanceInfo> => {
     try {
         url = normalizeInstanceUrl(input);
     } catch {
-        throw new Error('Enter a valid address, for example files.example.com');
+        throw new Error(t('app.invalidAddress'));
     }
 
     const health = await request<{ version?: string }>(url, '/api/healthz', {
         timeout: 10_000,
     }).catch((error: ApiError) => {
         throw new Error(
-            error.status === 503
-                ? 'This Fileship server is still starting, try again in a moment'
-                : `No Fileship server was found at ${url}`,
+            error.status === 503 ? t('app.serverStarting') : t('app.serverNotFound', { url }),
         );
     });
 
     const version = semver.coerce(health?.version)?.version;
-    if (!version) throw new Error(`No Fileship server was found at ${url}`);
+    if (!version) throw new Error(t('app.serverNotFound', { url }));
 
     if (semver.lt(version, MIN_FILESHIP_VERSION)) {
-        throw new Error(
-            `This server runs Fileship ${version}. Fileship for Windows needs ${MIN_FILESHIP_VERSION} or later.`,
-        );
+        throw new Error(t('app.serverTooOld', { version, minVersion: MIN_FILESHIP_VERSION }));
     }
 
     const settings = await request<{ siteName?: string }>(url, '/api/settings/public').catch(
@@ -108,7 +105,7 @@ export const login = async (input: string): Promise<Account> => {
     const instance = await checkedInstance(input);
     const windowSession = session.fromPartition(`login-${Date.now()}`);
 
-    windowSession.setUserAgent(`${app.userAgentFallback} ${desktopUserAgent()}`);
+    windowSession.setUserAgent(`${app.userAgentFallback} ${desktopUserAgent()}`, getLanguage());
     restrictPermissions(windowSession);
 
     const loginWindow = new BrowserWindow({
@@ -116,7 +113,7 @@ export const login = async (input: string): Promise<Account> => {
         height: 720,
         parent: getMainWindow() ?? undefined,
         modal: !!getMainWindow(),
-        title: `Log in to ${instance.siteName}`,
+        title: t('app.loginTitle', { siteName: instance.siteName }),
         icon: iconPath(),
         backgroundColor: themeBackground(),
         autoHideMenuBar: true,
@@ -147,7 +144,7 @@ export const login = async (input: string): Promise<Account> => {
         loginWindow.webContents.on('did-navigate-in-page', handleNavigate);
 
         loginWindow.on('closed', () => {
-            if (!isDone) reject(new Error('Login was cancelled'));
+            if (!isDone) reject(new Error(t('app.loginCancelled')));
         });
 
         loginWindow.loadURL(`${instance.url}/login`);
@@ -165,7 +162,7 @@ export const login = async (input: string): Promise<Account> => {
             () => null,
         );
 
-        throw new Error('Your account cannot upload files or shorten links on this server.');
+        throw new Error(t('app.noUploadPermission'));
     }
 
     setSession({ instanceUrl: instance.url, siteName: instance.siteName, token, user });

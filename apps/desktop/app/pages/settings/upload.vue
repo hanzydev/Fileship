@@ -1,15 +1,13 @@
 <template>
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>Upload options</UiCardTitle>
-            <UiCardDescription>
-                Used for screenshots, recordings and files uploaded from this computer.
-            </UiCardDescription>
+            <UiCardTitle>{{ $t('uploadSettings.title') }}</UiCardTitle>
+            <UiCardDescription>{{ $t('uploadSettings.description') }}</UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
             <UiFieldGroup v-if="upload">
                 <UiField>
-                    <UiFieldLabel>Folder</UiFieldLabel>
+                    <UiFieldLabel>{{ $t('uploadSettings.folder') }}</UiFieldLabel>
                     <UiSelect
                         :model-value="upload.folderId ?? NO_FOLDER"
                         @update:model-value="
@@ -22,7 +20,9 @@
                             <UiSelectValue />
                         </UiSelectTrigger>
                         <UiSelectContent>
-                            <UiSelectItem :value="NO_FOLDER">No folder</UiSelectItem>
+                            <UiSelectItem :value="NO_FOLDER">
+                                {{ $t('uploadSettings.noFolder') }}
+                            </UiSelectItem>
                             <UiSelectItem
                                 v-for="folder in folderOptions"
                                 :key="folder.id"
@@ -35,7 +35,7 @@
                 </UiField>
 
                 <UiField>
-                    <UiFieldLabel>File name</UiFieldLabel>
+                    <UiFieldLabel>{{ $t('uploadSettings.fileName') }}</UiFieldLabel>
                     <UiTabs
                         :model-value="upload.fileNameType"
                         @update:model-value="
@@ -48,7 +48,7 @@
                                 :key="type"
                                 :value="type"
                             >
-                                {{ type }}
+                                {{ $t(`uploadSettings.fileNameTypes.${type}`) }}
                             </UiTabsTrigger>
                         </UiTabsList>
                     </UiTabs>
@@ -56,7 +56,7 @@
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <UiField>
-                        <UiFieldLabel>Expiration</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('uploadSettings.expiration') }}</UiFieldLabel>
                         <UiSelect
                             :model-value="upload.expiration"
                             @update:model-value="
@@ -72,14 +72,14 @@
                                     :key="option.value"
                                     :value="option.value"
                                 >
-                                    {{ option.label }}
+                                    {{ $t(option.label) }}
                                 </UiSelectItem>
                             </UiSelectContent>
                         </UiSelect>
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel>Compression</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('uploadSettings.compression') }}</UiFieldLabel>
                         <UiSelect
                             :model-value="upload.compression"
                             @update:model-value="
@@ -95,14 +95,14 @@
                                     :key="option.value"
                                     :value="option.value"
                                 >
-                                    {{ option.label }}
+                                    {{ $t(option.label) }}
                                 </UiSelectItem>
                             </UiSelectContent>
                         </UiSelect>
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel>Max views</UiFieldLabel>
+                        <UiFieldLabel>{{ $t('uploadSettings.maxViews') }}</UiFieldLabel>
                         <UiNumberField
                             :model-value="upload.maxViews"
                             :min="0"
@@ -116,15 +116,19 @@
                                 <UiNumberFieldIncrement />
                             </UiNumberFieldContent>
                         </UiNumberField>
-                        <UiFieldDescription>0 means unlimited.</UiFieldDescription>
+                        <UiFieldDescription>
+                            {{ $t('uploadSettings.maxViewsDescription') }}
+                        </UiFieldDescription>
                     </UiField>
 
                     <UiField>
-                        <UiFieldLabel for="upload-password">Password</UiFieldLabel>
+                        <UiFieldLabel for="upload-password">
+                            {{ $t('uploadSettings.password') }}
+                        </UiFieldLabel>
                         <PasswordInput
                             id="upload-password"
                             v-model="password"
-                            placeholder="Optional"
+                            :placeholder="$t('uploadSettings.optional')"
                             maxlength="48"
                             @change="updateSection('upload', { password })"
                         />
@@ -136,35 +140,35 @@
 
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>Saved files</UiCardTitle>
-            <UiCardDescription>
-                Where captures go when saving to this computer is on in the capture settings.
-            </UiCardDescription>
+            <UiCardTitle>{{ $t('uploadSettings.savedFiles') }}</UiCardTitle>
+            <UiCardDescription>{{ $t('uploadSettings.savedFilesDescription') }}</UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
             <UiFieldGroup v-if="save">
                 <UiField>
-                    <UiFieldLabel for="save-folder">Folder</UiFieldLabel>
+                    <UiFieldLabel for="save-folder">{{ $t('uploadSettings.folder') }}</UiFieldLabel>
                     <UiInputGroup>
                         <UiInputGroupInput
                             id="save-folder"
                             :model-value="save.folder"
-                            placeholder="Pictures\Fileship"
+                            :placeholder="$t('uploadSettings.saveFolderPlaceholder')"
                             readonly
                         />
                         <UiInputGroupAddon align="inline-end">
                             <UiInputGroupButton v-if="save.folder" @click="handleResetFolder">
-                                Reset
+                                {{ $t('uploadSettings.reset') }}
                             </UiInputGroupButton>
                             <UiInputGroupButton @click="handlePickFolder">
-                                Browse
+                                {{ $t('uploadSettings.browse') }}
                             </UiInputGroupButton>
                         </UiInputGroupAddon>
                     </UiInputGroup>
                 </UiField>
 
                 <UiField>
-                    <UiFieldLabel for="save-pattern">File name pattern</UiFieldLabel>
+                    <UiFieldLabel for="save-pattern">
+                        {{ $t('uploadSettings.pattern') }}
+                    </UiFieldLabel>
                     <UiInput
                         id="save-pattern"
                         v-model="pattern"
@@ -172,8 +176,7 @@
                         @change="handlePattern"
                     />
                     <UiFieldDescription>
-                        {{ preview }}.png · %yyyy year, %mo month, %d day, %h hour, %mi minute, %s
-                        second, %ms millisecond, %pn window title, %ra random
+                        {{ $t('uploadSettings.patternDescription', { preview }) }}
                     </UiFieldDescription>
                 </UiField>
             </UiFieldGroup>
@@ -192,6 +195,7 @@ const DEFAULT_PATTERN = '%yyyy-%mo-%d_%h-%mi-%s';
 
 const settings = useSettings();
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 
 const folders = ref<Folder[]>([]);
 const password = ref(settings.value?.upload.password ?? '');
@@ -203,7 +207,7 @@ const save = computed(() => settings.value?.save);
 const folderOptions = computed(() => {
     const current = upload.value?.folderId;
     if (!current || folders.value.some((folder) => folder.id === current)) return folders.value;
-    return [...folders.value, { id: current, name: 'Unknown folder' }];
+    return [...folders.value, { id: current, name: t('uploadSettings.unknownFolder') }];
 });
 
 const preview = computed(() => {
@@ -218,7 +222,7 @@ const preview = computed(() => {
         .replaceAll('%mi', pad(now.getMinutes()))
         .replaceAll('%ms', String(now.getMilliseconds()).padStart(3, '0'))
         .replaceAll('%s', pad(now.getSeconds()))
-        .replaceAll('%pn', 'Window')
+        .replaceAll('%pn', t('uploadSettings.sampleWindow'))
         .replaceAll('%ra', 'a1b2c3d4e5')
         .replace(/[\\/:*?"<>|]/g, '');
 });

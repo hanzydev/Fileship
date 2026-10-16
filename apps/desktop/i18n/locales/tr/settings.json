@@ -1,0 +1,14 @@
+{
+    "settings": {
+        "title": "Ayarlar",
+        "description": "Fileship'in bu bilgisayardaki davranışı.",
+        "general": "Genel",
+        "hotkeys": "Kısayollar",
+        "capture": "Yakalama",
+        "recording": "Kayıt",
+        "upload": "Yükleme",
+        "drive": "Sürücü",
+        "account": "Hesap",
+        "updates": "Güncellemeler"
+    }
+}

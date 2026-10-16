@@ -1,0 +1,31 @@
+{
+    "hotkeys": {
+        "title": "Hotkeys",
+        "description": "Work everywhere in Windows while Fileship runs in the tray. Click a shortcut to change it.",
+        "enable": "Enable hotkeys",
+        "duplicate": "Another action uses this shortcut.",
+        "conflict": "Another app already uses this shortcut.",
+        "invalid": "Windows does not accept this shortcut.",
+        "recording": "Press a shortcut...",
+        "notSet": "Not set",
+        "clear": "Clear shortcut",
+        "reset": "Reset to defaults",
+        "printScreen": "Print Screen key",
+        "printScreenDescription": "Windows opens Snipping Tool when you press Print Screen. Turn this on so the key captures with Fileship instead.",
+        "usePrintScreen": "Use Print Screen for Fileship",
+        "actions": {
+            "captureMonitor": "Capture active monitor",
+            "captureRegion": "Capture region",
+            "captureWindow": "Capture active window",
+            "captureText": "Copy text from region (OCR)",
+            "recordVideo": "Start or stop screen recording",
+            "recordGif": "Start or stop GIF recording",
+            "captureFullscreen": "Capture entire screen",
+            "captureLastRegion": "Capture last region",
+            "uploadClipboard": "Upload from clipboard",
+            "uploadFile": "Upload file",
+            "shortenClipboard": "Shorten URL from clipboard",
+            "openMain": "Open Fileship"
+        }
+    }
+}

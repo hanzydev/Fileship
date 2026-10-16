@@ -1,0 +1,32 @@
+{
+    "tray": {
+        "stopGifRecording": "GIF kaydını durdur",
+        "stopRecording": "Kaydı durdur",
+        "resume": "Sürdür",
+        "pause": "Duraklat",
+        "discardRecording": "Kaydı iptal et",
+        "capture": "Ekran görüntüsü al",
+        "region": "Bölge",
+        "entireScreen": "Tüm ekran",
+        "activeWindow": "Etkin pencere",
+        "activeMonitor": "Etkin ekran",
+        "lastRegion": "Son bölge",
+        "textFromRegion": "Bölgedeki metin (OCR)",
+        "record": "Ekranı kaydet",
+        "screenRecording": "Ekran kaydı",
+        "gif": "GIF",
+        "upload": "Yükle",
+        "file": "Dosya...",
+        "fromClipboard": "Panodan",
+        "shortenFromClipboard": "Panodaki bağlantıyı kısalt",
+        "openFileship": "Fileship'i aç",
+        "openDrive": "Fileship sürücüsünü aç",
+        "openDashboard": "Paneli aç",
+        "restartToUpdate": "Güncellemek için yeniden başlat ({version})",
+        "checkForUpdates": "Güncellemeleri denetle",
+        "settings": "Ayarlar",
+        "quit": "Fileship'ten çık",
+        "recordingTooltip": "Fileship · Kaydediliyor, durdurmak için tıkla",
+        "uploadingTooltip": "Fileship · {count} dosya yükleniyor, %{progress}"
+    }
+}

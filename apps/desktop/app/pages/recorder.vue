@@ -29,7 +29,9 @@
                 :key="source"
                 variant="ghost"
                 size="icon-sm"
-                :aria-label="source === 'microphone' ? 'Microphone' : 'System audio'"
+                :aria-label="
+                    source === 'microphone' ? $t('recorder.microphone') : $t('recorder.systemAudio')
+                "
                 :aria-pressed="!state.muted.includes(source)"
                 :disabled="isBusy"
                 @click="handleMute(source, !state.muted.includes(source))"
@@ -47,7 +49,9 @@
             <UiButton
                 variant="ghost"
                 size="icon-sm"
-                :aria-label="state.phase === 'paused' ? 'Resume' : 'Pause'"
+                :aria-label="
+                    state.phase === 'paused' ? $t('recorder.resume') : $t('recorder.pause')
+                "
                 :disabled="state.phase !== 'recording' && state.phase !== 'paused'"
                 @click="handleControl(state.phase === 'paused' ? 'resume' : 'pause')"
             >
@@ -57,7 +61,7 @@
             <UiButton
                 variant="ghost"
                 size="icon-sm"
-                aria-label="Discard"
+                :aria-label="$t('recorder.discard')"
                 :disabled="state.phase === 'processing'"
                 @click="handleControl('abort')"
             >
@@ -70,7 +74,7 @@
                 @click="handleControl('stop')"
             >
                 <ISquare class="fill-current" />
-                Stop
+                {{ $t('recorder.stop') }}
             </UiButton>
         </div>
     </div>
@@ -112,7 +116,13 @@ class FileshipPcm extends AudioWorkletProcessor {
 registerProcessor('fileship-pcm', FileshipPcm);
 `;
 
+const SOURCE_ERRORS: Record<AudioSourceId, string> = {
+    microphone: 'recorder.microphoneUnavailable',
+    system: 'recorder.systemAudioUnavailable',
+};
+
 const route = useRoute();
+const { t } = useI18n();
 const isBorder = route.query.view === 'border';
 const sides = typeof route.query.sides === 'string' ? route.query.sides : 'trbl';
 
@@ -150,9 +160,9 @@ const formatTime = (milliseconds: number) => {
 const label = computed(() => {
     const { phase, countdown, elapsed, since, maxDuration } = state.value;
 
-    if (phase === 'preparing') return 'Starting...';
-    if (phase === 'countdown') return `Starting in ${countdown}`;
-    if (phase === 'processing') return 'Processing...';
+    if (phase === 'preparing') return t('recorder.starting');
+    if (phase === 'countdown') return t('recorder.startingIn', { count: countdown });
+    if (phase === 'processing') return t('recorder.processing');
 
     const time = formatTime(elapsed + (since ? now.value.getTime() - since : 0));
     return maxDuration ? `${time} / ${formatTime(maxDuration)}` : time;
@@ -197,7 +207,7 @@ const openSystemAudio = async () => {
     });
 
     for (const track of stream.getVideoTracks()) track.stop();
-    if (!stream.getAudioTracks().length) throw new Error('System audio is not available.');
+    if (!stream.getAudioTracks().length) throw new Error();
 
     return stream;
 };
@@ -220,8 +230,11 @@ const startAudio = async () => {
     };
 
     for (const source of needed) {
-        const stream =
-            source === 'microphone' ? await openMicrophone(audio) : await openSystemAudio();
+        const stream = await (
+            source === 'microphone' ? openMicrophone(audio) : openSystemAudio()
+        ).catch(() => {
+            throw new Error(t(SOURCE_ERRORS[source]));
+        });
 
         streams.push(stream);
 
@@ -292,7 +305,10 @@ onMounted(async () => {
         await startAudio();
         await desktop('recorder:ready', null);
     } catch (error: any) {
-        await desktop('recorder:ready', error.message || 'Could not open the audio devices.');
+        await desktop(
+            'recorder:ready',
+            error instanceof DOMException ? t('recorder.audioDevicesFailed') : error.message,
+        );
     }
 });
 

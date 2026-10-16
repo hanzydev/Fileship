@@ -1,0 +1,72 @@
+{
+    "captureSettings": {
+        "capture": {
+            "title": "Bölge yakalama",
+            "description": "Alan seçerken ekranda görünenler.",
+            "detectWindows": {
+                "label": "Pencereleri algıla",
+                "description": "Farenin altındaki pencere vurgulanır, tek tıklamayla yakalanır."
+            },
+            "detectControls": {
+                "label": "Denetimleri algıla",
+                "description": "Pencerelerin içindeki düğmeler, paneller ve diğer parçalar da vurgulanır."
+            },
+            "showMagnifier": {
+                "label": "Büyüteç",
+                "description": "Piksel hassasiyetinde seçim için farenin yanında yakınlaştırılmış görünüm gösterilir."
+            },
+            "showCursor": {
+                "label": "Fare imlecini ekle",
+                "description": "İmleç ekran görüntüsüne dahil edilir."
+            },
+            "playSound": {
+                "label": "Deklanşör sesi",
+                "description": "Ekran görüntüsü alınınca deklanşör sesi çalar."
+            }
+        },
+        "afterCapture": {
+            "title": "Yakaladıktan sonra",
+            "description": "Ekran görüntüsü alındıktan sonra yapılacaklar.",
+            "upload": {
+                "label": "Fileship'e yükle",
+                "description": "Ekran görüntüsü yükleme ayarlarına göre yüklenir."
+            },
+            "annotate": {
+                "label": "Düzenleyiciyi aç",
+                "description": "Sonraki adımlardan önce çizebilir, bulanıklaştırabilir ve metin ekleyebilirsin. Bölge yakalamada düzenleme seçim sırasında yapılır."
+            },
+            "copyImage": {
+                "label": "Görüntüyü kopyala",
+                "description": "Görüntünün kendisi panoya kopyalanır."
+            },
+            "saveToFile": {
+                "label": "Bu bilgisayara kaydet",
+                "description": "Yükleme ayarlarındaki klasöre bir kopyası kaydedilir."
+            }
+        },
+        "afterUpload": {
+            "title": "Yükledikten sonra",
+            "description": "Dosya Fileship'e yüklendikten sonra yapılacaklar.",
+            "copyUrl": {
+                "label": "Bağlantıyı kopyala",
+                "description": "Bağlantı panoya kopyalanır."
+            },
+            "shortenUrl": {
+                "label": "Bağlantıyı kısalt",
+                "description": "Kısa bağlantı oluşturulur ve onun yerine kullanılır."
+            },
+            "openUrl": {
+                "label": "Bağlantıyı aç",
+                "description": "Bağlantı tarayıcıda açılır."
+            },
+            "notify": {
+                "label": "Bildirim göster",
+                "description": "Bildirime tıklayınca bağlantı açılır."
+            },
+            "playSound": {
+                "label": "Yükleme sesi",
+                "description": "Yükleme bitince kısa bir ses çalar."
+            }
+        }
+    }
+}

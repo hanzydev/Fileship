@@ -1,0 +1,33 @@
+{
+    "annotate": {
+        "tools": {
+            "select": "Select",
+            "rectangle": "Rectangle",
+            "ellipse": "Ellipse",
+            "arrow": "Arrow",
+            "line": "Line",
+            "freehand": "Pen",
+            "highlight": "Highlighter",
+            "text": "Text",
+            "step": "Step number",
+            "blur": "Blur",
+            "pixelate": "Pixelate",
+            "eraser": "Smart eraser",
+            "emoji": "Emoji"
+        },
+        "color": "Color",
+        "customColor": "Custom color",
+        "emoji": "Emoji",
+        "options": "Options",
+        "size": "Size",
+        "radius": "Radius",
+        "strength": "Strength",
+        "thickness": "Thickness",
+        "fill": "Fill",
+        "background": "Background",
+        "shadow": "Shadow",
+        "undo": "Undo",
+        "redo": "Redo",
+        "delete": "Delete"
+    }
+}

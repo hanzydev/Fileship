@@ -1,15 +1,13 @@
 <template>
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>Fileship drive</UiCardTitle>
-            <UiCardDescription>
-                Your files and folders in File Explorer. Files download when you open them.
-            </UiCardDescription>
+            <UiCardTitle>{{ $t('driveSettings.title') }}</UiCardTitle>
+            <UiCardDescription>{{ $t('driveSettings.description') }}</UiCardDescription>
             <UiCardAction>
                 <UiSwitch
                     :model-value="settings?.drive.enabled"
                     :disabled="!settings || isBusy"
-                    aria-label="Enable the Fileship drive"
+                    :aria-label="$t('driveSettings.enable')"
                     @update:model-value="handleToggle"
                 />
             </UiCardAction>
@@ -17,30 +15,34 @@
         <UiCardContent class="flex flex-col gap-4">
             <UiAlert v-if="status.error" variant="destructive">
                 <ICircleAlert />
-                <UiAlertTitle>The drive has a problem</UiAlertTitle>
+                <UiAlertTitle>{{ $t('driveSettings.problem') }}</UiAlertTitle>
                 <UiAlertDescription>{{ status.error }}</UiAlertDescription>
             </UiAlert>
 
             <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
-                <dt class="text-muted-foreground">Status</dt>
+                <dt class="text-muted-foreground">{{ $t('driveSettings.status') }}</dt>
                 <dd class="flex items-center justify-end gap-2">
                     <UiSpinner v-if="status.state === 'starting' || status.state === 'syncing'" />
-                    {{ STATE_LABELS[status.state] }}
+                    {{ $t(`driveSettings.states.${status.state}`) }}
                 </dd>
-                <dt class="text-muted-foreground">Content</dt>
+                <dt class="text-muted-foreground">{{ $t('driveSettings.content') }}</dt>
                 <dd class="text-right">
-                    {{ pluralize(status.files, 'file') }} in
-                    {{ pluralize(status.folders, 'folder') }}
+                    {{
+                        $t('driveSettings.contentSummary', {
+                            files: $t('driveSettings.fileCount', status.files),
+                            folders: $t('driveSettings.folderCount', status.folders),
+                        })
+                    }}
                 </dd>
             </dl>
 
             <UiField>
-                <UiFieldLabel for="drive-folder">Location</UiFieldLabel>
+                <UiFieldLabel for="drive-folder">{{ $t('driveSettings.location') }}</UiFieldLabel>
                 <UiInputGroup>
                     <UiInputGroupInput
                         id="drive-folder"
                         :model-value="settings?.drive.folder || status.root"
-                        placeholder="C:\Users\you\Fileship"
+                        :placeholder="$t('driveSettings.locationPlaceholder')"
                         readonly
                     />
                     <UiInputGroupAddon align="inline-end">
@@ -49,15 +51,15 @@
                             :disabled="isBusy"
                             @click="handleFolder('')"
                         >
-                            Reset
+                            {{ $t('driveSettings.reset') }}
                         </UiInputGroupButton>
                         <UiInputGroupButton :disabled="isBusy" @click="handlePickFolder">
-                            Browse
+                            {{ $t('driveSettings.browse') }}
                         </UiInputGroupButton>
                     </UiInputGroupAddon>
                 </UiInputGroup>
                 <UiFieldDescription>
-                    Moving the drive takes your synced files out of the old folder.
+                    {{ $t('driveSettings.locationDescription') }}
                 </UiFieldDescription>
             </UiField>
         </UiCardContent>
@@ -68,14 +70,14 @@
                 @click="desktop('drive:open')"
             >
                 <IFolderOpen />
-                Open in File Explorer
+                {{ $t('driveSettings.openInExplorer') }}
             </UiButton>
         </UiCardFooter>
     </UiCard>
 
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>How it works</UiCardTitle>
+            <UiCardTitle>{{ $t('driveSettings.howItWorks') }}</UiCardTitle>
         </UiCardHeader>
         <UiCardContent>
             <UiItemGroup class="gap-2">
@@ -84,8 +86,8 @@
                         <component :is="item.icon" />
                     </UiItemMedia>
                     <UiItemContent>
-                        <UiItemTitle>{{ item.title }}</UiItemTitle>
-                        <UiItemDescription>{{ item.description }}</UiItemDescription>
+                        <UiItemTitle>{{ $t(item.title) }}</UiItemTitle>
+                        <UiItemDescription>{{ $t(item.description) }}</UiItemDescription>
                     </UiItemContent>
                 </UiItem>
             </UiItemGroup>
@@ -98,36 +100,26 @@ import { ICloud, ICloudDownload, IFilePen, ITrash2 } from '#components';
 
 import type { DriveStatus } from '../../../shared/ipc';
 
-const STATE_LABELS: Record<DriveStatus['state'], string> = {
-    off: 'Off',
-    starting: 'Starting',
-    syncing: 'Syncing',
-    ready: 'Up to date',
-    error: 'Needs attention',
-};
-
 const TIPS = [
     {
         icon: ICloud,
-        title: 'Files stay online',
-        description: 'They take no space until you open them.',
+        title: 'driveSettings.tips.online',
+        description: 'driveSettings.tips.onlineDescription',
     },
     {
         icon: ICloudDownload,
-        title: 'Keep files offline',
-        description:
-            'Right click and choose "Always keep on this device", or "Free up space" to download them again later.',
+        title: 'driveSettings.tips.offline',
+        description: 'driveSettings.tips.offlineDescription',
     },
     {
         icon: IFilePen,
-        title: 'Edits upload a new file',
-        description: 'Saving a changed file uploads it again, so its link changes.',
+        title: 'driveSettings.tips.edits',
+        description: 'driveSettings.tips.editsDescription',
     },
     {
         icon: ITrash2,
-        title: 'Deleting moves to the trash',
-        description:
-            'Files you move to the Recycle Bin go to the Fileship trash. When Windows deletes a file for good, with Shift + Delete or because it was online only, it is deleted from Fileship too.',
+        title: 'driveSettings.tips.delete',
+        description: 'driveSettings.tips.deleteDescription',
     },
 ];
 

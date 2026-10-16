@@ -14,6 +14,7 @@ import {
     virtualScreen,
     windowHandle,
 } from './capture';
+import { t } from './i18n';
 import { native, type Rect } from './native';
 import { getSettings } from './store';
 import { handleImage } from './tasks';
@@ -123,7 +124,7 @@ const ensureOverlay = async () => {
         destroyOverlay();
     }
 
-    throw new Error('The capture overlay did not load');
+    throw new Error(t('app.overlayFailed'));
 };
 
 const placeOverlay = (window: BrowserWindow, bounds: Rect) => {

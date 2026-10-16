@@ -1,6 +1,7 @@
 import { app, BrowserWindow, session } from 'electron';
 
 import { desktopUserAgent } from './api';
+import { getLanguage } from './i18n';
 import { getStore, getToken } from './store';
 import {
     iconPath,
@@ -20,7 +21,7 @@ const dashboardSession = () => session.fromPartition(PARTITION);
 const signIn = async (instanceUrl: string, token: string) => {
     const windowSession = dashboardSession();
 
-    windowSession.setUserAgent(`${app.userAgentFallback} ${desktopUserAgent()}`);
+    windowSession.setUserAgent(`${app.userAgentFallback} ${desktopUserAgent()}`, getLanguage());
     restrictPermissions(windowSession);
 
     await windowSession.cookies.set({

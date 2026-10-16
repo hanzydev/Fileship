@@ -17,21 +17,6 @@ export const HOTKEY_ACTIONS = [
 
 export type HotkeyAction = (typeof HOTKEY_ACTIONS)[number];
 
-export const HOTKEY_LABELS: Record<HotkeyAction, string> = {
-    captureMonitor: 'Capture active monitor',
-    captureRegion: 'Capture region',
-    captureWindow: 'Capture active window',
-    captureText: 'Copy text from region (OCR)',
-    recordVideo: 'Start or stop screen recording',
-    recordGif: 'Start or stop GIF recording',
-    captureFullscreen: 'Capture entire screen',
-    captureLastRegion: 'Capture last region',
-    uploadClipboard: 'Upload from clipboard',
-    uploadFile: 'Upload file',
-    shortenClipboard: 'Shorten URL from clipboard',
-    openMain: 'Open Fileship',
-};
-
 export const DEFAULT_HOTKEYS: Record<HotkeyAction, string> = {
     captureMonitor: 'PrintScreen',
     captureRegion: 'Control+PrintScreen',
@@ -50,28 +35,28 @@ export const DEFAULT_HOTKEYS: Record<HotkeyAction, string> = {
 export const FILE_NAME_TYPES = ['Random', 'UUID', 'Original'] as const;
 
 export const EXPIRATIONS = [
-    { label: 'Never', value: 0 },
-    { label: '5 Minutes', value: 300_000 },
-    { label: '15 Minutes', value: 900_000 },
-    { label: '30 Minutes', value: 1_800_000 },
-    { label: '1 Hour', value: 3_600_000 },
-    { label: '6 Hours', value: 21_600_000 },
-    { label: '12 Hours', value: 43_200_000 },
-    { label: '1 Day', value: 86_400_000 },
-    { label: '1 Week', value: 604_800_000 },
-    { label: '2 Weeks', value: 1_209_600_000 },
-    { label: '1 Month', value: 2_592_000_000 },
-    { label: '3 Months', value: 7_776_000_000 },
-    { label: '6 Months', value: 15_552_000_000 },
-    { label: '1 Year', value: 31_536_000_000 },
+    { label: 'labels.expiration.never', value: 0 },
+    { label: 'labels.expiration.5m', value: 300_000 },
+    { label: 'labels.expiration.15m', value: 900_000 },
+    { label: 'labels.expiration.30m', value: 1_800_000 },
+    { label: 'labels.expiration.1h', value: 3_600_000 },
+    { label: 'labels.expiration.6h', value: 21_600_000 },
+    { label: 'labels.expiration.12h', value: 43_200_000 },
+    { label: 'labels.expiration.1d', value: 86_400_000 },
+    { label: 'labels.expiration.1w', value: 604_800_000 },
+    { label: 'labels.expiration.2w', value: 1_209_600_000 },
+    { label: 'labels.expiration.1mo', value: 2_592_000_000 },
+    { label: 'labels.expiration.3mo', value: 7_776_000_000 },
+    { label: 'labels.expiration.6mo', value: 15_552_000_000 },
+    { label: 'labels.expiration.1y', value: 31_536_000_000 },
 ];
 
 export const COMPRESSIONS = [
-    { label: 'None', value: 0 },
-    { label: 'Low (25%)', value: 25 },
-    { label: 'Medium (50%)', value: 50 },
-    { label: 'High (75%)', value: 75 },
-    { label: 'Maximum (100%)', value: 100 },
+    { label: 'labels.compression.none', value: 0 },
+    { label: 'labels.compression.low', value: 25 },
+    { label: 'labels.compression.medium', value: 50 },
+    { label: 'labels.compression.high', value: 75 },
+    { label: 'labels.compression.maximum', value: 100 },
 ];
 
 export const VIDEO_SOURCES = ['auto', 'ddagrab', 'gdigrab'] as const;
@@ -108,6 +93,7 @@ export type VideoCodec = (typeof VIDEO_CODECS)[number];
 export const settingsSchema = z.object({
     startAtLogin: z.boolean().default(true),
     theme: z.enum(['system', 'light', 'dark']).default('system'),
+    language: z.enum(['system', 'en', 'tr']).default('system'),
     hotkeys: z
         .partialRecord(z.enum(HOTKEY_ACTIONS), z.string().max(64))
         .default({})

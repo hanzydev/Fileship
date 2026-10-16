@@ -1,0 +1,14 @@
+{
+    "general": {
+        "startup": "Başlangıç",
+        "startupDescription": "Fileship bildirim alanında başlar; Windows'a giriş yapılır yapılmaz kısayollar çalışır.",
+        "startAtLogin": "Fileship'i Windows ile başlat",
+        "language": "Dil",
+        "languageDescription": "Uygulamanın, bildirim alanı menüsünün ve bildirimlerin dili.",
+        "theme": "Tema",
+        "themeDescription": "Açık, koyu ya da Windows ile aynı.",
+        "light": "Açık",
+        "dark": "Koyu",
+        "system": "Sistem"
+    }
+}

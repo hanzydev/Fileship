@@ -1,0 +1,12 @@
+{
+    "connect": {
+        "title": "Bağlan",
+        "heading": "Fileship'e bağlan",
+        "description": "Fileship sunucunun adresini gir. Fileship {version} veya daha yeni bir sürüm gerekir.",
+        "serverAddress": "Sunucu adresi",
+        "addressPlaceholder": "files.example.com",
+        "checking": "Sunucu kontrol ediliyor...",
+        "loggingIn": "Giriş yapılıyor: {siteName}...",
+        "loginHint": "Açılan pencereden giriş yap. Vazgeçmek için pencereyi kapat."
+    }
+}

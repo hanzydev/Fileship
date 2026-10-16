@@ -1,0 +1,23 @@
+{
+    "recording": {
+        "microphone": "Mikrofon",
+        "systemAudio": "Sistem sesi",
+        "mixedAudio": "Mikrofon ve sistem sesi",
+        "webmCodec": "WebM yalnızca VP9 ya da AV1 video taşıyabilir. Bu kodlayıcılardan birini ya da başka bir dosya biçimi seç.",
+        "downloadFailed": "İndirilemedi ({status})",
+        "downloadDamaged": "İndirilen dosya bozuk. Tekrar dene.",
+        "ffmpegNotInDownload": "İndirilen dosyada ffmpeg.exe yok",
+        "stopped": "Kayıt durdu",
+        "ffmpegExited": "FFmpeg kapandı (çıkış kodu {code})",
+        "nothingRecorded": "Hiçbir şey kaydedilmedi.",
+        "finishFailed": "Kayıt tamamlanamadı",
+        "resumeFailed": "Kayda devam edilemedi",
+        "ffmpegFailed": "FFmpeg çalıştırılamadı",
+        "checkFfmpeg": "Kayıt ayarlarından FFmpeg'i kontrol et.",
+        "encoderUnavailable": "Kodlayıcı kullanılamıyor",
+        "encoderUnsupported": "{codec} bu bilgisayarda çalışmıyor. Başka bir kodlayıcı seç.",
+        "cannotRecord": "Kayıt yapılamıyor",
+        "notStartedInTime": "Kaydedici zamanında başlayamadı.",
+        "startFailed": "Kayıt başlatılamadı"
+    }
+}

@@ -8,7 +8,7 @@
                     <UiButton
                         :variant="annotator.tool.value === tool.value ? 'secondary' : 'ghost'"
                         size="icon-sm"
-                        :aria-label="tool.label"
+                        :aria-label="$t(tool.label)"
                         :aria-pressed="annotator.tool.value === tool.value"
                         @click="annotator.setTool(tool.value)"
                     >
@@ -16,7 +16,7 @@
                     </UiButton>
                 </UiTooltipTrigger>
                 <UiTooltipContent :side="side">
-                    {{ tool.label }}
+                    {{ $t(tool.label) }}
                     <UiKbd class="ml-1">
                         {{ ANNOTATION_SHORTCUTS[tool.value].toUpperCase() }}
                     </UiKbd>
@@ -27,7 +27,7 @@
 
             <UiPopover v-if="isColored">
                 <UiPopoverTrigger as-child>
-                    <UiButton variant="ghost" size="icon-sm" aria-label="Color">
+                    <UiButton variant="ghost" size="icon-sm" :aria-label="$t('annotate.color')">
                         <span
                             class="size-4 rounded-full border border-border"
                             :style="{ background: annotator.current.value.color }"
@@ -53,7 +53,7 @@
                         />
                         <label
                             class="relative flex size-7 items-center justify-center overflow-hidden rounded-full border border-border bg-muted"
-                            aria-label="Custom color"
+                            :aria-label="$t('annotate.customColor')"
                         >
                             <IPipette class="size-3.5" />
                             <input
@@ -69,7 +69,7 @@
 
             <UiPopover v-if="annotator.activeTool.value === 'emoji'">
                 <UiPopoverTrigger as-child>
-                    <UiButton variant="ghost" size="icon-sm" aria-label="Emoji">
+                    <UiButton variant="ghost" size="icon-sm" :aria-label="$t('annotate.emoji')">
                         <span class="text-base leading-none">
                             {{ annotator.options.value.emoji }}
                         </span>
@@ -93,7 +93,7 @@
 
             <UiPopover v-if="range || hasToggles">
                 <UiPopoverTrigger as-child>
-                    <UiButton variant="ghost" size="icon-sm" aria-label="Options">
+                    <UiButton variant="ghost" size="icon-sm" :aria-label="$t('annotate.options')">
                         <ISlidersHorizontal />
                     </UiButton>
                 </UiPopoverTrigger>
@@ -101,7 +101,7 @@
                     <UiFieldGroup>
                         <UiField v-if="range">
                             <UiFieldLabel>
-                                {{ sizeLabel }} · {{ annotator.current.value.size }}
+                                {{ $t(sizeLabel) }} · {{ annotator.current.value.size }}
                             </UiFieldLabel>
                             <UiSlider
                                 :model-value="[annotator.current.value.size]"
@@ -119,7 +119,7 @@
                         >
                             <UiFieldContent>
                                 <UiFieldLabel :for="`annotation-${toggle.key}`">
-                                    {{ toggle.label }}
+                                    {{ $t(toggle.label) }}
                                 </UiFieldLabel>
                             </UiFieldContent>
                             <UiSwitch
@@ -137,7 +137,7 @@
                     <UiButton
                         variant="ghost"
                         size="icon-sm"
-                        aria-label="Undo"
+                        :aria-label="$t('annotate.undo')"
                         :disabled="!annotator.canUndo.value"
                         @click="annotator.undo"
                     >
@@ -145,8 +145,8 @@
                     </UiButton>
                 </UiTooltipTrigger>
                 <UiTooltipContent :side="side">
-                    Undo
-                    <UiKbd class="ml-1">Ctrl Z</UiKbd>
+                    {{ $t('annotate.undo') }}
+                    <UiKbd class="ml-1">{{ KEYS.undo }}</UiKbd>
                 </UiTooltipContent>
             </UiTooltip>
             <UiTooltip>
@@ -154,7 +154,7 @@
                     <UiButton
                         variant="ghost"
                         size="icon-sm"
-                        aria-label="Redo"
+                        :aria-label="$t('annotate.redo')"
                         :disabled="!annotator.canRedo.value"
                         @click="annotator.redo"
                     >
@@ -162,8 +162,8 @@
                     </UiButton>
                 </UiTooltipTrigger>
                 <UiTooltipContent :side="side">
-                    Redo
-                    <UiKbd class="ml-1">Ctrl Y</UiKbd>
+                    {{ $t('annotate.redo') }}
+                    <UiKbd class="ml-1">{{ KEYS.redo }}</UiKbd>
                 </UiTooltipContent>
             </UiTooltip>
             <UiTooltip>
@@ -171,7 +171,7 @@
                     <UiButton
                         variant="ghost"
                         size="icon-sm"
-                        aria-label="Delete"
+                        :aria-label="$t('annotate.delete')"
                         :disabled="!annotator.selectedId.value"
                         @click="annotator.removeSelected"
                     >
@@ -179,8 +179,8 @@
                     </UiButton>
                 </UiTooltipTrigger>
                 <UiTooltipContent :side="side">
-                    Delete
-                    <UiKbd class="ml-1">Del</UiKbd>
+                    {{ $t('annotate.delete') }}
+                    <UiKbd class="ml-1">{{ KEYS.delete }}</UiKbd>
                 </UiTooltipContent>
             </UiTooltip>
 
@@ -215,6 +215,8 @@ const { annotator, side = 'bottom' } = defineProps<{
     annotator: Annotator;
     side?: 'top' | 'bottom' | 'left' | 'right';
 }>();
+
+const KEYS = { undo: 'Ctrl Z', redo: 'Ctrl Y', delete: 'Del' };
 
 const COLORS = [
     '#ef4444',
@@ -264,23 +266,27 @@ const EMOJIS = [
     '🤝',
 ];
 
-const TOOL_META: Record<AnnotationTool, { label: string; icon: Component }> = {
-    select: { label: 'Select', icon: IMousePointer2 },
-    rectangle: { label: 'Rectangle', icon: ISquare },
-    ellipse: { label: 'Ellipse', icon: ICircle },
-    arrow: { label: 'Arrow', icon: IMoveUpRight },
-    line: { label: 'Line', icon: IMinus },
-    freehand: { label: 'Pen', icon: IPencil },
-    highlight: { label: 'Highlighter', icon: IHighlighter },
-    text: { label: 'Text', icon: IType },
-    step: { label: 'Step number', icon: IListOrdered },
-    blur: { label: 'Blur', icon: IDroplets },
-    pixelate: { label: 'Pixelate', icon: IGrid3x3 },
-    eraser: { label: 'Smart eraser', icon: IEraser },
-    emoji: { label: 'Emoji', icon: ISmile },
+const TOOL_ICONS: Record<AnnotationTool, Component> = {
+    select: IMousePointer2,
+    rectangle: ISquare,
+    ellipse: ICircle,
+    arrow: IMoveUpRight,
+    line: IMinus,
+    freehand: IPencil,
+    highlight: IHighlighter,
+    text: IType,
+    step: IListOrdered,
+    blur: IDroplets,
+    pixelate: IGrid3x3,
+    eraser: IEraser,
+    emoji: ISmile,
 };
 
-const tools = ANNOTATION_TOOLS.map((value) => ({ value, ...TOOL_META[value] }));
+const tools = ANNOTATION_TOOLS.map((value) => ({
+    value,
+    label: `annotate.tools.${value}`,
+    icon: TOOL_ICONS[value],
+}));
 
 const isColored = computed(() => COLORED_TOOLS.includes(annotator.activeTool.value));
 
@@ -288,21 +294,22 @@ const range = computed(() => SIZE_RANGES[annotator.activeTool.value]);
 
 const sizeLabel = computed(() => {
     const tool = annotator.activeTool.value;
-    if (tool === 'text' || tool === 'emoji') return 'Size';
-    if (tool === 'step') return 'Radius';
-    if (tool === 'blur' || tool === 'pixelate') return 'Strength';
-    return 'Thickness';
+    if (tool === 'text' || tool === 'emoji') return 'annotate.size';
+    if (tool === 'step') return 'annotate.radius';
+    if (tool === 'blur' || tool === 'pixelate') return 'annotate.strength';
+    return 'annotate.thickness';
 });
 
 const toggles = computed(() => {
     const tool = annotator.activeTool.value;
     const result: { key: 'fill' | 'background' | 'shadow'; label: string }[] = [];
 
-    if (tool === 'rectangle' || tool === 'ellipse') result.push({ key: 'fill', label: 'Fill' });
-    if (tool === 'text') result.push({ key: 'background', label: 'Background' });
+    if (tool === 'rectangle' || tool === 'ellipse')
+        result.push({ key: 'fill', label: 'annotate.fill' });
+    if (tool === 'text') result.push({ key: 'background', label: 'annotate.background' });
 
     if (['rectangle', 'ellipse', 'arrow', 'line', 'freehand', 'text', 'step'].includes(tool)) {
-        result.push({ key: 'shadow', label: 'Shadow' });
+        result.push({ key: 'shadow', label: 'annotate.shadow' });
     }
 
     return result;

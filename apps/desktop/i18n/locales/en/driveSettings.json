@@ -1,0 +1,37 @@
+{
+    "driveSettings": {
+        "title": "Fileship drive",
+        "description": "Your files and folders in File Explorer. Files download when you open them.",
+        "enable": "Enable the Fileship drive",
+        "problem": "The drive has a problem",
+        "status": "Status",
+        "states": {
+            "off": "Off",
+            "starting": "Starting",
+            "syncing": "Syncing",
+            "ready": "Up to date",
+            "error": "Needs attention"
+        },
+        "content": "Content",
+        "contentSummary": "{files} in {folders}",
+        "fileCount": "{n} file | {n} files",
+        "folderCount": "{n} folder | {n} folders",
+        "location": "Location",
+        "locationPlaceholder": "C:\\Users\\you\\Fileship",
+        "reset": "Reset",
+        "browse": "Browse",
+        "locationDescription": "Moving the drive takes your synced files out of the old folder.",
+        "openInExplorer": "Open in File Explorer",
+        "howItWorks": "How it works",
+        "tips": {
+            "online": "Files stay online",
+            "onlineDescription": "They take no space until you open them.",
+            "offline": "Keep files offline",
+            "offlineDescription": "Right click and choose \"Always keep on this device\", or \"Free up space\" to download them again later.",
+            "edits": "Edits upload a new file",
+            "editsDescription": "Saving a changed file uploads it again, so its link changes.",
+            "delete": "Deleting moves to the trash",
+            "deleteDescription": "Files you move to the Recycle Bin go to the Fileship trash. When Windows deletes a file for good, with Shift + Delete or because it was online only, it is deleted from Fileship too."
+        }
+    }
+}

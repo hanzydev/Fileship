@@ -1,0 +1,32 @@
+{
+    "labels": {
+        "expiration": {
+            "never": "Süresiz",
+            "5m": "5 dakika",
+            "15m": "15 dakika",
+            "30m": "30 dakika",
+            "1h": "1 saat",
+            "6h": "6 saat",
+            "12h": "12 saat",
+            "1d": "1 gün",
+            "1w": "1 hafta",
+            "2w": "2 hafta",
+            "1mo": "1 ay",
+            "3mo": "3 ay",
+            "6mo": "6 ay",
+            "1y": "1 yıl"
+        },
+        "compression": {
+            "none": "Yok",
+            "low": "Düşük (%25)",
+            "medium": "Orta (%50)",
+            "high": "Yüksek (%75)",
+            "maximum": "En yüksek (%100)"
+        },
+        "language": {
+            "system": "Windows ile aynı",
+            "en": "English",
+            "tr": "Türkçe"
+        }
+    }
+}

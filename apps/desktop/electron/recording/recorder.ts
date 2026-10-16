@@ -24,6 +24,7 @@ import type {
 } from '../../shared/ipc';
 import type { Settings, VideoCodec } from '../../shared/settings';
 import { physicalBounds } from '../capture';
+import { t } from '../i18n';
 import { mimeTypeOf } from '../mime';
 import { native, type Rect } from '../native';
 import { openRegionCapture } from '../overlay';
@@ -370,7 +371,10 @@ const startSegment = async (recording: Recording) => {
         if (segment.isStopping || current !== recording) return;
 
         log.error('ffmpeg stopped while recording', code, stderr);
-        notify('Recording stopped', lastLine(stderr) || `FFmpeg exited with code ${code}`);
+        notify(
+            t('recording.stopped'),
+            lastLine(stderr) || t('recording.ffmpegExited', { code: String(code) }),
+        );
         stopRecording();
     });
 };
@@ -441,7 +445,7 @@ const produce = async (recording: Recording) => {
         if (size > 1024) segments.push(segment);
     }
 
-    if (!segments.length) throw new Error('Nothing was recorded.');
+    if (!segments.length) throw new Error(t('recording.nothingRecorded'));
 
     const list = join(recording.folder, 'segments.txt');
     await writeFile(
@@ -498,7 +502,7 @@ export const stopRecording = async () => {
         result = await produce(recording);
     } catch (error: any) {
         log.error('Could not finish the recording', error);
-        notify('Could not finish the recording', error.message);
+        notify(t('recording.finishFailed'), error.message);
     }
 
     finish(recording);
@@ -547,7 +551,7 @@ export const resumeRecording = async () => {
     try {
         await startSegment(recording);
     } catch (error: any) {
-        notify('Could not resume the recording', error.message);
+        notify(t('recording.resumeFailed'), error.message);
         stopRecording();
     }
 };
@@ -624,7 +628,7 @@ const begin = async (kind: RecordingKind, rect: Rect) => {
     const ffmpeg = await getFfmpeg();
 
     if (!ffmpeg) {
-        notify('Could not run FFmpeg', 'Check FFmpeg in the recording settings.');
+        notify(t('recording.ffmpegFailed'), t('recording.checkFfmpeg'));
         showMainWindow('/settings/recording?ffmpeg=missing');
         return;
     }
@@ -638,10 +642,7 @@ const begin = async (kind: RecordingKind, rect: Rect) => {
               : settings.recording.codec;
 
     if (!ffmpeg.encoders.includes(codec)) {
-        notify(
-            'Encoder not available',
-            `${codec} does not work on this computer. Pick another one.`,
-        );
+        notify(t('recording.encoderUnavailable'), t('recording.encoderUnsupported', { codec }));
         showMainWindow('/settings/recording');
         return;
     }
@@ -649,7 +650,7 @@ const begin = async (kind: RecordingKind, rect: Rect) => {
     const problem = kind === 'video' ? containerProblem(settings.recording.container, codec) : null;
 
     if (problem) {
-        notify('Cannot record', problem);
+        notify(t('recording.cannotRecord'), problem);
         showMainWindow('/settings/recording');
         return;
     }
@@ -689,7 +690,7 @@ const begin = async (kind: RecordingKind, rect: Rect) => {
             resolve(error);
         };
 
-        setTimeout(() => recording.markReady?.('The recorder did not start in time.'), 15_000);
+        setTimeout(() => recording.markReady?.(t('recording.notStartedInTime')), 15_000);
     });
 
     createWindows(recording);
@@ -698,7 +699,7 @@ const begin = async (kind: RecordingKind, rect: Rect) => {
     if (current !== recording) return;
 
     if (error) {
-        notify('Could not start recording', error);
+        notify(t('recording.startFailed'), error);
         return abortRecording();
     }
 
@@ -712,7 +713,7 @@ const begin = async (kind: RecordingKind, rect: Rect) => {
         await startSegment(recording);
     } catch (startError: any) {
         log.error('Could not start ffmpeg', startError);
-        notify('Could not start recording', startError.message);
+        notify(t('recording.startFailed'), startError.message);
         return abortRecording();
     }
 
@@ -737,7 +738,7 @@ export const toggleRecording = async (kind: RecordingKind) => {
     openRegionCapture(kind, (rect) => {
         begin(kind, rect).catch((error) => {
             log.error('Could not start recording', error);
-            notify('Could not start recording', error.message);
+            notify(t('recording.startFailed'), error.message);
             abortRecording();
         });
     });

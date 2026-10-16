@@ -7,6 +7,7 @@ import log from 'electron-log/main';
 import type { HotkeyAction } from '../shared/settings';
 import { captureActiveMonitor, captureActiveWindow, captureFullscreen, type Shot } from './capture';
 import { readFilePath, readImage, readText, writeText } from './clipboard';
+import { t } from './i18n';
 import { mimeTypeOf } from './mime';
 import { captureText } from './ocr';
 import { captureLastRegion, openRegionCapture } from './overlay';
@@ -37,8 +38,7 @@ const uploadClipboard = async () => {
     if (image) return handleImage(image, { kind: 'screenshot' });
 
     const text = await readText();
-    if (!text.trim())
-        return notify('Nothing to upload', 'Copy an image, a file or some text first.');
+    if (!text.trim()) return notify(t('app.nothingToUpload'), t('app.nothingToUploadDescription'));
 
     return handleFile({
         name: 'clipboard.txt',
@@ -49,7 +49,7 @@ const uploadClipboard = async () => {
 
 const uploadFromDialog = async () => {
     const result = await dialog.showOpenDialog({
-        title: 'Upload to Fileship',
+        title: t('app.uploadDialogTitle'),
         properties: ['openFile', 'multiSelections'],
     });
 
@@ -60,21 +60,21 @@ const shortenClipboard = async () => {
     const text = (await readText()).trim();
 
     if (!/^https?:\/\/\S+$/i.test(text)) {
-        return notify('No link to shorten', 'Copy an http or https link first.');
+        return notify(t('app.noLinkToShorten'), t('app.noLinkToShortenDescription'));
     }
 
     try {
         const shortUrl = await shortenUrl(text);
         await writeText(shortUrl);
-        notify('Link shortened, copied', shortUrl);
+        notify(t('app.linkShortened'), shortUrl);
     } catch (error: any) {
-        notify('Could not shorten the link', error.message);
+        notify(t('app.shortenFailed'), error.message);
     }
 };
 
 const withShot = async (capture: Promise<Shot | null>) => {
     const shot = await capture;
-    if (!shot) return notify('Nothing to capture', 'No window is active.');
+    if (!shot) return notify(t('app.nothingToCapture'), t('app.noActiveWindow'));
     await handleImage(shot.image, { title: shot.title });
 };
 
@@ -119,6 +119,6 @@ export const runAction = async (action: HotkeyAction) => {
         await handlers[action]();
     } catch (error: any) {
         log.error(`Action ${action} failed`, error);
-        notify('Something went wrong', error.message);
+        notify(t('app.somethingWentWrong'), error.message);
     }
 };

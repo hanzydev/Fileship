@@ -1,5 +1,6 @@
 import type { AudioSourceId, AudioTrack, RecordingKind } from '../../shared/ipc';
 import type { Settings, VideoCodec } from '../../shared/settings';
+import { t } from '../i18n';
 import type { Rect } from '../native';
 
 export const SAMPLE_RATE = 48_000;
@@ -11,8 +12,8 @@ export const PRIMING_SECONDS = 0.1;
 export const FIRST_FRAME_MARKER = 'Parsed_showinfo';
 
 const SOURCE_TITLES: Record<AudioSourceId, string> = {
-    microphone: 'Microphone',
-    system: 'System audio',
+    microphone: 'recording.microphone',
+    system: 'recording.systemAudio',
 };
 
 export const splitArgs = (value: string) =>
@@ -26,13 +27,13 @@ export const audioTracks = (audio: Settings['audio']): AudioTrack[] => {
 
     const separate = sources.map((source) => ({
         id: source,
-        title: SOURCE_TITLES[source],
+        title: t(SOURCE_TITLES[source]),
         sources: [source],
     }));
 
     if (sources.length === 1 || audio.tracks === 'separate') return separate;
 
-    const mixed: AudioTrack = { id: 'mixed', title: 'Microphone and system audio', sources };
+    const mixed: AudioTrack = { id: 'mixed', title: t('recording.mixedAudio'), sources };
     return audio.tracks === 'both' ? [mixed, ...separate] : [mixed];
 };
 
@@ -122,7 +123,7 @@ export const videoCodecArgs = (
 export const containerProblem = (container: string, codec: string) => {
     if (container !== 'webm') return null;
     if (codec === 'libvpx-vp9' || codec.startsWith('av1') || codec === 'libsvtav1') return null;
-    return 'WebM only holds VP9 or AV1 video. Pick one of those codecs or another container.';
+    return t('recording.webmCodec');
 };
 
 export type RecordTarget = {

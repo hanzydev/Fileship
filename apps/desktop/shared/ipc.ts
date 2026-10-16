@@ -1,3 +1,4 @@
+import type { Language } from '../i18n/messages';
 import type { HotkeyAction, Settings } from './settings';
 
 export type { Settings, Theme } from './settings';
@@ -148,6 +149,7 @@ export type IpcInvoke = {
     'settings:get': () => Settings;
     'settings:set': (patch: Partial<Settings>) => Settings;
     'app:info': () => AppInfo;
+    'app:language': () => Language;
     'app:openDashboard': (route?: string) => void;
     'window:theme': (isDark: boolean) => void;
     'updates:get': () => UpdateStatus;
@@ -191,6 +193,7 @@ export type IpcInvoke = {
 
 export type IpcEvents = {
     'app:navigate': string;
+    'app:language': Language;
     'account:changed': Account | null;
     'updates:status': UpdateStatus;
     'overlay:open': OverlayPayload;
@@ -210,6 +213,7 @@ export const INVOKE_CHANNELS = [
     'settings:get',
     'settings:set',
     'app:info',
+    'app:language',
     'app:openDashboard',
     'window:theme',
     'updates:get',
@@ -253,6 +257,7 @@ export const INVOKE_CHANNELS = [
 
 export const EVENT_CHANNELS = [
     'app:navigate',
+    'app:language',
     'account:changed',
     'updates:status',
     'overlay:open',
