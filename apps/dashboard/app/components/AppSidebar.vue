@@ -227,6 +227,27 @@
                             </UiDropdownMenuRadioGroup>
                         </UiDropdownMenuSubContent>
                     </UiDropdownMenuSub>
+                    <UiDropdownMenuSub>
+                        <UiDropdownMenuSubTrigger>
+                            <ILanguages />
+                            {{ $t('sidebar.language') }}
+                        </UiDropdownMenuSubTrigger>
+                        <UiDropdownMenuSubContent>
+                            <UiDropdownMenuRadioGroup
+                                :model-value="authUser!.language ?? 'system'"
+                                @update:model-value="handleLanguageChange"
+                            >
+                                <UiDropdownMenuRadioItem
+                                    v-for="language in ['system', ...LANGUAGES]"
+                                    :key="language"
+                                    :value="language"
+                                    @select.prevent
+                                >
+                                    {{ $t(`labels.language.${language}`) }}
+                                </UiDropdownMenuRadioItem>
+                            </UiDropdownMenuRadioGroup>
+                        </UiDropdownMenuSubContent>
+                    </UiDropdownMenuSub>
                     <UiDropdownMenuSeparator />
                     <UiDropdownMenuItem
                         variant="destructive"
@@ -449,6 +470,9 @@ const items = computed(() => {
 
     return categories;
 });
+
+const handleLanguageChange = (value: any) =>
+    updateLanguage(value === 'system' ? null : (value as Language));
 
 const handleLogout = async () => {
     isLoggingOut.value = true;

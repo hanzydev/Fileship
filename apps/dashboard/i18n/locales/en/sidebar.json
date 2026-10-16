@@ -52,6 +52,7 @@
             "Yellow": "Yellow"
         },
         "logout": "Log out",
-        "loggedOut": "Logged out"
+        "loggedOut": "Logged out",
+        "language": "Language"
     }
 }

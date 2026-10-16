@@ -129,7 +129,17 @@ const currentUser = useAuthUser();
 const uploadSheetOpen = useUploadSheet();
 
 const greetingKey = ref('welcomeBack');
-const today = ref('');
+const now = ref<Date | null>(null);
+
+const today = computed(() =>
+    now.value
+        ? new Intl.DateTimeFormat(locale.value, {
+              weekday: 'long',
+              month: 'long',
+              day: 'numeric',
+          }).format(now.value)
+        : '',
+);
 const sheetFileId = useQueryState('file', '');
 const sheetTab = ref('details');
 const selected = ref<string[]>([]);
@@ -252,13 +262,8 @@ const openEdit = (file: FileData) => {
 };
 
 onMounted(async () => {
-    const hour = new Date().getHours();
-
-    today.value = new Intl.DateTimeFormat(locale.value, {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-    }).format(new Date());
+    now.value = new Date();
+    const hour = now.value.getHours();
 
     greetingKey.value =
         hour >= 5 && hour < 12

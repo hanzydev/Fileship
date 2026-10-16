@@ -52,6 +52,7 @@
             "Yellow": "Sarı"
         },
         "logout": "Çıkış yap",
-        "loggedOut": "Çıkış yapıldı"
+        "loggedOut": "Çıkış yapıldı",
+        "language": "Dil"
     }
 }
