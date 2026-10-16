@@ -6,11 +6,7 @@ import withNuxt from './.nuxt/eslint.config.mjs';
 export default withNuxt(
     nuxt,
     i18n([
-        {
-            pattern: './i18n/locales/*/*.json',
-            localeKey: 'path',
-            localePattern: /^.*\/(?<locale>[a-z]+)\/[^/]+\.json$/,
-        },
+        { pattern: './i18n/locales/*.json', localeKey: 'file' },
         { pattern: '../../packages/ui/i18n/locales/*.json', localeKey: 'file' },
     ]),
     { ignores: ['dist-electron/**', 'release/**'] },

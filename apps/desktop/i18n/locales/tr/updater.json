@@ -1,9 +1,0 @@
-{
-    "updater": {
-        "noReleases": "Henüz yayımlanmış sürüm yok",
-        "unreachable": "Güncelleme sunucusuna ulaşılamadı",
-        "checkFailed": "Güncellemeler denetlenemedi",
-        "readyTitle": "Fileship {version} hazır",
-        "readyBody": "Yeniden başlatıp güncellemek için tıkla. Tıklamazsan uygulamadan çıkınca kurulur."
-    }
-}

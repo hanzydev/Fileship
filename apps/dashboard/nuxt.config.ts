@@ -1,4 +1,3 @@
-import { readdirSync } from 'node:fs';
 import { copyFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
@@ -11,11 +10,6 @@ const aiWorkerPath = join(
     dirname(createRequire(import.meta.url).resolve('@fileship/ai/package.json')),
     'dist/worker.mjs',
 );
-
-const localeFiles = (locale: string) =>
-    readdirSync(new URL(`./i18n/locales/${locale}`, import.meta.url)).map(
-        (file) => `${locale}/${file}`,
-    );
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -50,8 +44,8 @@ export default defineNuxtConfig({
 
     i18n: {
         locales: [
-            { code: 'en', language: 'en-US', name: 'English', files: localeFiles('en') },
-            { code: 'tr', language: 'tr-TR', name: 'Türkçe', files: localeFiles('tr') },
+            { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+            { code: 'tr', language: 'tr-TR', name: 'Türkçe', file: 'tr.json' },
         ],
         detectBrowserLanguage: {
             useCookie: true,
