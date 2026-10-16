@@ -596,7 +596,7 @@
 
     <UiCard v-if="settings">
         <UiCardHeader>
-            <UiCardTitle>GIF</UiCardTitle>
+            <UiCardTitle>{{ $t('recordingSettings.gifTitle') }}</UiCardTitle>
             <UiCardDescription>
                 {{ $t('recordingSettings.gifDescription') }}
             </UiCardDescription>

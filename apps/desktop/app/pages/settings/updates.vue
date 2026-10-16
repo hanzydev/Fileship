@@ -44,7 +44,11 @@ const isWorking = computed(() => ['checking', 'downloading'].includes(updateStat
 const statusText = computed(() => {
     const { state, version, progress, error } = updateStatus.value;
 
-    return t(`updates.status.${state}`, { version, progress: progress ?? 0, error });
+    return t(`updates.status.${state}`, {
+        version,
+        progress: progress ?? 0,
+        error: error?.replace(/\.$/, ''),
+    });
 });
 
 const handleCheck = () => desktop('updates:check');

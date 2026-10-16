@@ -26,14 +26,23 @@
             <UiSeparator :orientation="separatorOrientation" :class="separatorClass" />
 
             <UiPopover v-if="isColored">
-                <UiPopoverTrigger as-child>
-                    <UiButton variant="ghost" size="icon-sm" :aria-label="$t('annotate.color')">
-                        <span
-                            class="size-4 rounded-full border border-border"
-                            :style="{ background: annotator.current.value.color }"
-                        />
-                    </UiButton>
-                </UiPopoverTrigger>
+                <UiTooltip>
+                    <UiTooltipTrigger as-child>
+                        <UiPopoverTrigger as-child>
+                            <UiButton
+                                variant="ghost"
+                                size="icon-sm"
+                                :aria-label="$t('annotate.color')"
+                            >
+                                <span
+                                    class="size-4 rounded-full border border-border"
+                                    :style="{ background: annotator.current.value.color }"
+                                />
+                            </UiButton>
+                        </UiPopoverTrigger>
+                    </UiTooltipTrigger>
+                    <UiTooltipContent :side="side">{{ $t('annotate.color') }}</UiTooltipContent>
+                </UiTooltip>
                 <UiPopoverContent class="w-auto" align="center" :side="side">
                     <div class="grid grid-cols-5 gap-2">
                         <button
@@ -68,13 +77,22 @@
             </UiPopover>
 
             <UiPopover v-if="annotator.activeTool.value === 'emoji'">
-                <UiPopoverTrigger as-child>
-                    <UiButton variant="ghost" size="icon-sm" :aria-label="$t('annotate.emoji')">
-                        <span class="text-base leading-none">
-                            {{ annotator.options.value.emoji }}
-                        </span>
-                    </UiButton>
-                </UiPopoverTrigger>
+                <UiTooltip>
+                    <UiTooltipTrigger as-child>
+                        <UiPopoverTrigger as-child>
+                            <UiButton
+                                variant="ghost"
+                                size="icon-sm"
+                                :aria-label="$t('annotate.emoji')"
+                            >
+                                <span class="text-base leading-none">
+                                    {{ annotator.options.value.emoji }}
+                                </span>
+                            </UiButton>
+                        </UiPopoverTrigger>
+                    </UiTooltipTrigger>
+                    <UiTooltipContent :side="side">{{ $t('annotate.emoji') }}</UiTooltipContent>
+                </UiTooltip>
                 <UiPopoverContent class="w-72" align="center" :side="side">
                     <div class="grid grid-cols-8 gap-1">
                         <UiButton
@@ -92,11 +110,20 @@
             </UiPopover>
 
             <UiPopover v-if="range || hasToggles">
-                <UiPopoverTrigger as-child>
-                    <UiButton variant="ghost" size="icon-sm" :aria-label="$t('annotate.options')">
-                        <ISlidersHorizontal />
-                    </UiButton>
-                </UiPopoverTrigger>
+                <UiTooltip>
+                    <UiTooltipTrigger as-child>
+                        <UiPopoverTrigger as-child>
+                            <UiButton
+                                variant="ghost"
+                                size="icon-sm"
+                                :aria-label="$t('annotate.options')"
+                            >
+                                <ISlidersHorizontal />
+                            </UiButton>
+                        </UiPopoverTrigger>
+                    </UiTooltipTrigger>
+                    <UiTooltipContent :side="side">{{ $t('annotate.options') }}</UiTooltipContent>
+                </UiTooltip>
                 <UiPopoverContent class="w-64" align="center" :side="side">
                     <UiFieldGroup>
                         <UiField v-if="range">

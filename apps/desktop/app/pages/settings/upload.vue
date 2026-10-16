@@ -155,10 +155,14 @@
                             readonly
                         />
                         <UiInputGroupAddon align="inline-end">
-                            <UiInputGroupButton v-if="save.folder" @click="handleResetFolder">
+                            <UiInputGroupButton
+                                v-if="save.folder"
+                                :disabled="isPicking"
+                                @click="handleResetFolder"
+                            >
                                 {{ $t('uploadSettings.reset') }}
                             </UiInputGroupButton>
-                            <UiInputGroupButton @click="handlePickFolder">
+                            <UiInputGroupButton :disabled="isPicking" @click="handlePickFolder">
                                 {{ $t('uploadSettings.browse') }}
                             </UiInputGroupButton>
                         </UiInputGroupAddon>
@@ -198,6 +202,7 @@ const { $toast } = useNuxtApp();
 const { t } = useI18n();
 
 const folders = ref<Folder[]>([]);
+const isPicking = ref(false);
 const password = ref(settings.value?.upload.password ?? '');
 const pattern = ref(settings.value?.save.pattern ?? DEFAULT_PATTERN);
 
@@ -232,12 +237,22 @@ const handlePattern = () => {
     updateSection('save', { pattern: pattern.value });
 };
 
-const handlePickFolder = async () => {
-    const folder = await desktop('dialog:pickFolder');
-    if (folder) updateSection('save', { folder });
+const handleFolder = async (pick: () => Promise<string | null>) => {
+    isPicking.value = true;
+
+    try {
+        const folder = await pick();
+        if (folder !== null) await updateSection('save', { folder });
+    } catch (error: any) {
+        $toast.error(error.message);
+    } finally {
+        isPicking.value = false;
+    }
 };
 
-const handleResetFolder = () => updateSection('save', { folder: '' });
+const handlePickFolder = () => handleFolder(() => desktop('dialog:pickFolder'));
+
+const handleResetFolder = () => handleFolder(async () => '');
 
 onMounted(async () => {
     try {

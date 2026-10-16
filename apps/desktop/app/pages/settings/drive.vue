@@ -78,6 +78,7 @@
     <UiCard>
         <UiCardHeader>
             <UiCardTitle>{{ $t('driveSettings.howItWorks') }}</UiCardTitle>
+            <UiCardDescription>{{ $t('driveSettings.howItWorksDescription') }}</UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
             <UiItemGroup class="gap-2">
