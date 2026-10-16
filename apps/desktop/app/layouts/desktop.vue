@@ -5,7 +5,10 @@
             <UiSidebarInset>
                 <AppHeader :labels="breadcrumbLabels" />
 
-                <UiAlert v-if="updateStatus.state === 'ready'" class="mx-4 mb-4 w-auto">
+                <UiAlert
+                    v-if="updateStatus.state === 'ready'"
+                    class="mx-4 mb-4 w-auto has-data-[slot=alert-action]:pr-48"
+                >
                     <IDownload />
                     <UiAlertTitle>
                         {{ $t('nav.updateReady', { version: updateStatus.version }) }}
@@ -13,7 +16,7 @@
                     <UiAlertDescription>
                         {{ $t('nav.updateReadyDescription') }}
                     </UiAlertDescription>
-                    <UiAlertAction>
+                    <UiAlertAction class="top-1/2 -translate-y-1/2">
                         <UiButton size="sm" @click="handleInstall">
                             {{ $t('nav.restartNow') }}
                         </UiButton>
