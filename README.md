@@ -7,6 +7,8 @@
     An open-source, self-hosted file and media management platform.
     <br />
     <br />
+    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Download for Windows</a>
+    ·
     <a href="https://github.com/hanzydev/Fileship/issues/new?template=bug-report.yml">Report a bug</a>
     ·
     <a href="https://github.com/hanzydev/Fileship/issues/new?template=feature-request.yml">Request a feature</a>
@@ -75,6 +77,51 @@
 - Uploads and backups on the local disk, any S3 compatible service, SFTP or FTP
 - Zero-downtime updates, one click or on a schedule
 - Installable as a Progressive Web App
+
+## 🖥️ Fileship for Windows
+
+Fileship for Windows captures, records and uploads to your Fileship from the system tray, ShareX style, and shows your files in File Explorer.
+
+**[Download the latest version](https://github.com/hanzydev/fileship-desktop/releases/latest)** (`Fileship-Setup-<version>.exe`)
+
+**Capture and record**
+
+- Screenshots of the active monitor, the active window, the entire screen, a region or the last region, with hotkeys you can change: Print Screen captures the active monitor and Ctrl + Print Screen opens the region picker
+- One region picker across every monitor that highlights windows and controls under the mouse, with a magnifier for pixel exact selections
+- Annotations while you pick the region: shapes, arrows, pen, highlighter, text, step numbers, emoji, blur and pixelate
+- Text capture: select a region and its text is copied to the clipboard, using your Fileship's OCR
+- Screen and GIF recording with microphone and system audio, pause and resume, hardware encoders and a choice of codecs and containers ([FFmpeg](https://ffmpeg.org/) is downloaded for you)
+
+**Upload and share**
+
+- Captures and recordings upload with your upload settings (file name style, expiry, view limit, compression, password, folder), and the link is copied to the clipboard
+- Upload files from the tray, the clipboard or by dropping them on the app, and shorten links from the clipboard
+- A history of everything you captured and uploaded, with links and saved files
+- Optional copies on this computer, and a screenshot whose upload fails is saved there instead of being lost
+
+**Fileship drive**
+
+- Your files and folders appear in File Explorer and download only when you open them
+- Files you add are uploaded, renames and moves are synced, and deleted files go to the Fileship trash
+
+**App**
+
+- Starts with Windows and stays in the tray
+- English and Turkish
+- Updates itself in the background and installs them when you restart or quit
+
+### Requirements
+
+- Windows 10 or 11, 64-bit
+- A Fileship 6.0 server or newer
+
+### Getting started
+
+1. Download and run `Fileship-Setup-<version>.exe`. The installer is not code signed yet, so Windows SmartScreen may warn you: choose **More info → Run anyway**.
+2. Enter your Fileship server's address and log in with your Fileship account in the window that opens.
+3. Press Print Screen, or use the tray icon, to take your first capture.
+
+The app signs in as a normal session, shown as **Fileship for Windows** in **Settings → Sessions**, where you can revoke it. Hotkeys, capture, recording, upload and drive settings are in the app's **Settings**.
 
 ## 🌐 Browser Compatibility
 
