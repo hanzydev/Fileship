@@ -2,7 +2,6 @@ import { app, globalShortcut } from 'electron';
 import log from 'electron-log/main';
 
 import { startDrive, stopDrive } from './drive';
-import { isEditing } from './editor';
 import { registerHotkeys } from './hotkeys';
 import { updateLanguage } from './i18n';
 import { registerIpc } from './ipc';
@@ -57,9 +56,7 @@ app.whenReady().then(() => {
     createTray();
     watchDisplays();
     registerHotkeys();
-    setBusyCheck(
-        () => isUploading() || isRecording() || isWorking() || isEditing() || isCapturing(),
-    );
+    setBusyCheck(() => isUploading() || isRecording() || isWorking() || isCapturing());
     startUpdater();
     setTimeout(() => getFfmpeg(), 5000);
     startDrive();

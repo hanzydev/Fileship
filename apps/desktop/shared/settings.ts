@@ -112,7 +112,6 @@ export const settingsSchema = z.object({
         .object({
             copyImage: z.boolean().default(false),
             saveToFile: z.boolean().default(false),
-            annotate: z.boolean().default(false),
             upload: z.boolean().default(true),
         })
         .prefault({}),

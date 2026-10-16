@@ -94,13 +94,6 @@
                                                 </UiDropdownMenuItem>
                                             </template>
                                             <UiDropdownMenuItem
-                                                v-if="item.localPath && item.kind === 'screenshot'"
-                                                @click="handleItem('history:edit', item)"
-                                            >
-                                                <IPencil />
-                                                {{ $t('home.edit') }}
-                                            </UiDropdownMenuItem>
-                                            <UiDropdownMenuItem
                                                 v-if="item.localPath"
                                                 @click="handleItem('history:showFile', item)"
                                             >
@@ -259,8 +252,7 @@ const handleLoadMore = async () => {
 const handleRun = (action: HotkeyAction) => desktop('capture:run', action);
 
 const handleItem = async (
-    channel:
-        'history:copy' | 'history:open' | 'history:showFile' | 'history:remove' | 'history:edit',
+    channel: 'history:copy' | 'history:open' | 'history:showFile' | 'history:remove',
     item: HistoryItem,
 ) => {
     try {

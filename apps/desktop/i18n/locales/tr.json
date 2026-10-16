@@ -65,8 +65,6 @@
         "loginTitle": "Giriş yap · {siteName}",
         "loginCancelled": "Giriş iptal edildi",
         "noUploadPermission": "Hesabının bu sunucuda dosya yükleme ya da bağlantı kısaltma yetkisi yok.",
-        "editorTitle": "Düzenle · Fileship",
-        "editorClosed": "Düzenleyici kapatıldı.",
         "overlayFailed": "Yakalama katmanı yüklenemedi",
         "requestFailed": "İstek tamamlanamadı ({status})",
         "serverTimeout": "Sunucu zamanında yanıt vermedi",
@@ -106,10 +104,6 @@
             "upload": {
                 "label": "Fileship'e yükle",
                 "description": "Ekran görüntüleri ve kayıtlar yükleme ayarlarına göre yüklenir."
-            },
-            "annotate": {
-                "label": "Düzenleyiciyi aç",
-                "description": "Etkin ekran, pencere, tüm ekran ve son bölge yakalamalarından sonra düzenleyici açılır. Bölge yakalamada düzenleme seçim sırasında yapılır."
             },
             "copyImage": {
                 "label": "Görüntüyü kopyala",
@@ -200,16 +194,6 @@
         },
         "howItWorksDescription": "Dosya Gezgini'ndeki dosyaların nasıl davrandığı."
     },
-    "editor": {
-        "title": "Düzenle",
-        "zoomOut": "Uzaklaştır",
-        "zoomIn": "Yakınlaştır",
-        "zoomValue": "%{value}",
-        "copy": "Kopyala",
-        "saveAs": "Farklı kaydet",
-        "upload": "Yükle",
-        "save": "Kaydet"
-    },
     "general": {
         "startup": "Başlangıç",
         "startupDescription": "Fileship bildirim alanında başlar; Windows'a giriş yapılır yapılmaz kısayollar çalışır.",
@@ -235,7 +219,6 @@
         "actions": "İşlemler",
         "copyLink": "Bağlantıyı kopyala",
         "openLink": "Bağlantıyı aç",
-        "edit": "Düzenle",
         "showInFolder": "Klasörde göster",
         "removeFromHistory": "Geçmişten kaldır",
         "dropTitle": "Yüklemek için bırak",
@@ -488,16 +471,11 @@
         "uploaded": "Yüklendi",
         "uploadedLinkCopied": "Yüklendi, bağlantı kopyalandı",
         "uploadFailed": "Dosya yüklenemedi",
-        "pngImage": "PNG görüntüsü",
         "imageSaved": "Görüntü kaydedildi",
-        "imageCopied": "Görüntü kopyalandı",
-        "pasteAnywhere": "İstediğin yere yapıştırabilirsin.",
         "screenshotCopied": "Ekran görüntüsü kopyalandı",
         "uploadsOff": "Yükleme, \"Yakaladıktan sonra\" ayarlarında kapalı.",
         "recordingKept": "Kayıt yüklenemedi, bilgisayara kaydedildi",
         "recordingSaved": "Ekran kaydı kaydedildi",
-        "onlyLocalEditable": "Yalnızca bu bilgisayarda kayıtlı ekran görüntüleri düzenlenebilir.",
-        "screenshotNotOpened": "Kayıtlı ekran görüntüsü açılamadı.",
         "textCaptureOff": "Metin yakalama kapalı",
         "aiOff": "Fileship sunucunda yapay zekâ özellikleri kapalı.",
         "textCaptureUnavailable": "Metin yakalama kullanılamıyor",

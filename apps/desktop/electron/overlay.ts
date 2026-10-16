@@ -260,9 +260,7 @@ export const finishRegionCapture = async (result: OverlayFinish) => {
     lastRegion = intersectRects(result.rect, virtualScreen()) ?? lastRegion;
     playShutter();
 
-    return handleImage(bitmapFromRgba(result.rgba, result.width, result.height), {
-        isEdited: true,
-    });
+    return handleImage(bitmapFromRgba(result.rgba, result.width, result.height));
 };
 
 export const captureLastRegion = async () => {

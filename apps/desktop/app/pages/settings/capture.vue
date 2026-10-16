@@ -45,7 +45,7 @@ const sections: { key: SectionKey; fields: string[] }[] = [
         key: 'capture',
         fields: ['detectWindows', 'detectControls', 'showMagnifier', 'showCursor', 'playSound'],
     },
-    { key: 'afterCapture', fields: ['upload', 'annotate', 'copyImage', 'saveToFile'] },
+    { key: 'afterCapture', fields: ['upload', 'copyImage', 'saveToFile'] },
     { key: 'afterUpload', fields: ['copyUrl', 'shortenUrl', 'openUrl', 'notify', 'playSound'] },
 ];
 

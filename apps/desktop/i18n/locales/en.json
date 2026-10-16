@@ -65,8 +65,6 @@
         "loginTitle": "Log in to {siteName}",
         "loginCancelled": "Login was cancelled",
         "noUploadPermission": "Your account cannot upload files or shorten links on this server.",
-        "editorTitle": "Edit · Fileship",
-        "editorClosed": "This editor was closed.",
         "overlayFailed": "The capture overlay did not load",
         "requestFailed": "Request failed ({status})",
         "serverTimeout": "The server took too long to respond",
@@ -106,10 +104,6 @@
             "upload": {
                 "label": "Upload to Fileship",
                 "description": "Upload screenshots and recordings with your upload settings."
-            },
-            "annotate": {
-                "label": "Open the editor",
-                "description": "Opens after active monitor, window, entire screen and last region captures. Region captures are edited while you select."
             },
             "copyImage": {
                 "label": "Copy image",
@@ -200,16 +194,6 @@
         },
         "howItWorksDescription": "What to expect from your files in File Explorer."
     },
-    "editor": {
-        "title": "Edit",
-        "zoomOut": "Zoom out",
-        "zoomIn": "Zoom in",
-        "zoomValue": "{value}%",
-        "copy": "Copy",
-        "saveAs": "Save as",
-        "upload": "Upload",
-        "save": "Save"
-    },
     "general": {
         "startup": "Startup",
         "startupDescription": "Fileship starts in the tray, so your hotkeys work right after you sign in to Windows.",
@@ -235,7 +219,6 @@
         "actions": "Actions",
         "copyLink": "Copy link",
         "openLink": "Open link",
-        "edit": "Edit",
         "showInFolder": "Show in folder",
         "removeFromHistory": "Remove from history",
         "dropTitle": "Drop to upload",
@@ -488,16 +471,11 @@
         "uploaded": "Uploaded",
         "uploadedLinkCopied": "Uploaded, link copied",
         "uploadFailed": "Upload failed",
-        "pngImage": "PNG image",
         "imageSaved": "Image saved",
-        "imageCopied": "Image copied",
-        "pasteAnywhere": "Paste it anywhere.",
         "screenshotCopied": "Screenshot copied",
         "uploadsOff": "Uploading is turned off in the after capture settings.",
         "recordingKept": "Upload failed, recording saved",
         "recordingSaved": "Recording saved",
-        "onlyLocalEditable": "Only screenshots saved on this computer can be edited.",
-        "screenshotNotOpened": "The saved screenshot could not be opened.",
         "textCaptureOff": "Text capture is off",
         "aiOff": "AI features are turned off on your Fileship.",
         "textCaptureUnavailable": "Text capture is not available",

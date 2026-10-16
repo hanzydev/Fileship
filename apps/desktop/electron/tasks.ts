@@ -2,14 +2,13 @@ import { existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { copyFile, mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 
-import { app, dialog, nativeImage, shell } from 'electron';
+import { app, nativeImage, shell } from 'electron';
 import log from 'electron-log/main';
 
-import type { EditorContinue, HistoryKind } from '../shared/ipc';
+import type { HistoryKind } from '../shared/ipc';
 import { type Bitmap, bitmapFromImage, encodePng, encodeThumbnail, playUploaded } from './capture';
 import { writeImage, writeText } from './clipboard';
-import { openEditor } from './editor';
-import { addHistory, getHistory, updateHistory } from './history';
+import { addHistory, updateHistory } from './history';
 import { t } from './i18n';
 import { getSettings } from './store';
 import { notifyIdle } from './updater';
@@ -112,56 +111,8 @@ export const uploadAndFinish = async (
     }
 };
 
-const continueAction = (): EditorContinue => {
-    const { afterCapture } = getSettings();
-    if (afterCapture.upload) return 'upload';
-    if (afterCapture.saveToFile) return 'save';
-    return 'copy';
-};
-
 const notifySaved = (path: string) =>
     notify(t('tasks.imageSaved'), path, () => shell.showItemInFolder(path));
-
-const saveImageAs = async (png: Buffer, name: string) => {
-    const result = await dialog.showSaveDialog({
-        defaultPath: join(saveFolder(), name),
-        filters: [{ name: t('tasks.pngImage'), extensions: ['png'] }],
-    });
-
-    if (result.canceled || !result.filePath) return null;
-
-    await writeFile(result.filePath, png);
-    notifySaved(result.filePath);
-    return result.filePath;
-};
-
-const runEditor = async (image: Bitmap, name: string) => {
-    const result = await openEditor(
-        { png: await encodePng(image), width: image.width, height: image.height },
-        { name, continueAction: continueAction() },
-    );
-
-    if (result.action === 'cancel') return null;
-    if (result.action === 'continue') return result.image;
-
-    const [png, thumbnail] = await Promise.all([
-        encodePng(result.image),
-        encodeThumbnail(result.image),
-    ]);
-
-    if (result.action === 'copy') {
-        await writeImage(png);
-        addHistory({ kind: 'screenshot', name, size: png.length, thumbnail });
-        notify(t('tasks.imageCopied'), t('tasks.pasteAnywhere'));
-        return null;
-    }
-
-    const localPath = await saveImageAs(png, name);
-    if (!localPath) return result.image;
-
-    addHistory({ kind: 'screenshot', name, size: png.length, localPath, thumbnail });
-    return null;
-};
 
 const keepImage = async (historyId: string, png: Buffer, name: string, message: string) => {
     try {
@@ -180,16 +131,11 @@ const keepImage = async (historyId: string, png: Buffer, name: string, message: 
 };
 
 const processImage = async (
-    captured: Bitmap,
-    options: { title?: string; kind?: HistoryKind; isEdited?: boolean } = {},
+    image: Bitmap,
+    options: { title?: string; kind?: HistoryKind } = {},
 ) => {
     const { afterCapture, save } = getSettings();
     const name = `${formatFileName(save.pattern, options.title) || 'capture'}.png`;
-
-    const image =
-        afterCapture.annotate && !options.isEdited ? await runEditor(captured, name) : captured;
-
-    if (!image) return null;
 
     const [png, thumbnail] = await Promise.all([encodePng(image), encodeThumbnail(image)]);
 
@@ -309,17 +255,6 @@ const processRecording = async (file: {
     }
 
     return entry;
-};
-
-export const editHistoryImage = async (id: string) => {
-    const item = getHistory(id);
-    if (!item?.localPath) throw new Error(t('tasks.onlyLocalEditable'));
-
-    const image = bitmapFromImage(nativeImage.createFromPath(item.localPath));
-    if (!image) throw new Error(t('tasks.screenshotNotOpened'));
-
-    const edited = await runEditor(image, item.name);
-    if (edited) await handleImage(edited, { isEdited: true });
 };
 
 export const handleImage = (...args: Parameters<typeof processImage>) =>

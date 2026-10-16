@@ -16,6 +16,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - shadcn-vue components are used as documented and never restyled; lists use virtual scroll, never pagination; no `cursor-pointer` anywhere.
 - Telemetry panel: admin only (one password), default Fileship colors only, instances silent for `NUXT_INSTANCE_RETENTION_DAYS` (default 90) are deleted while daily totals stay. The legacy import from the old panel is done and was removed on purpose; do not bring it back.
 - Translations: English is the source and fallback, Turkish is the second language. The telemetry panel is not translated on purpose (it gets the layer's English messages only and keeps `pluralize`). Turkish copy is written as native product text in the "sen" form, never word by word; see [I18N.md](I18N.md).
+- The desktop app has no separate image editor. It was removed on purpose because the region overlay already annotates while selecting; do not bring it back.
 - Desktop capture follows ShareX: Print Screen captures the active monitor, Ctrl+Print Screen opens the region overlay, a selection finishes on mouse release, annotations can be drawn before choosing the region, and one toolbar serves every monitor.
 
 ## Releasing
