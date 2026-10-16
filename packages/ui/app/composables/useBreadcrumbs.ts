@@ -3,6 +3,7 @@ import { upperFirst } from 'scule';
 export const useBreadcrumbs = (staticLabels: Record<string, string>) => {
     const route = useRoute();
     const labels = useBreadcrumbLabels();
+    const { t } = useI18n();
 
     return computed(() => {
         const segments = route.path.split('/').filter(Boolean);
@@ -13,7 +14,7 @@ export const useBreadcrumbs = (staticLabels: Record<string, string>) => {
 
             const label =
                 labels.value[segment] ||
-                staticLabels[segment] ||
+                (staticLabels[segment] && t(staticLabels[segment])) ||
                 upperFirst(segment.replace(/[-_]/g, ' '));
 
             return { to: path, label };

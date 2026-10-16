@@ -14,8 +14,6 @@ const props = withDefaults(defineProps<DialogRootProps & {
   class?: HTMLAttributes['class']
   showCloseButton?: boolean
 }>(), {
-  title: 'Command Palette',
-  description: 'Search for a command to run...',
   showCloseButton: false,
 })
 const emits = defineEmits<DialogRootEmits>()
@@ -30,8 +28,8 @@ const forwarded = useForwardPropsEmits(props, emits)
       :show-close-button="showCloseButton"
     >
       <DialogHeader class="sr-only">
-        <DialogTitle>{{ title }}</DialogTitle>
-        <DialogDescription>{{ description }}</DialogDescription>
+        <DialogTitle>{{ title ?? $t('common.commandPalette') }}</DialogTitle>
+        <DialogDescription>{{ description ?? $t('common.commandPaletteDescription') }}</DialogDescription>
       </DialogHeader>
       <Command>
         <slot v-bind="slotProps" />

@@ -22,7 +22,7 @@
             </UiField>
             <UiDialogFooter>
                 <UiButton variant="outline" :disabled="isRunning" @click="handleClose(false)">
-                    Cancel
+                    {{ $t('common.cancel') }}
                 </UiButton>
                 <UiButton
                     :variant="options.destructive ? 'destructive' : 'default'"
@@ -30,7 +30,7 @@
                     @click="handleConfirm"
                 >
                     <UiSpinner v-if="isRunning" />
-                    {{ options.confirmText || 'Continue' }}
+                    {{ options.confirmText || $t('common.continue') }}
                 </UiButton>
             </UiDialogFooter>
         </UiDialogContent>

@@ -16,6 +16,7 @@
         "@nuxt/eslint": "^1.17.0",
         "@nuxt/fonts": "^0.14.0",
         "@nuxtjs/color-mode": "^4.0.1",
+        "@nuxtjs/i18n": "^10.6.0",
         "@tailwindcss/vite": "^4.3.3",
         "@tanstack/vue-virtual": "^3.13.40",
         "@unovis/ts": "^1.7.1",

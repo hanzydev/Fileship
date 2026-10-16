@@ -1,0 +1,30 @@
+{
+    "common": {
+        "cancel": "Vazgeç",
+        "continue": "Devam et",
+        "close": "Kapat",
+        "more": "Diğer",
+        "breadcrumb": "Sayfa yolu",
+        "loading": "Yükleniyor",
+        "sidebar": "Kenar çubuğu",
+        "mobileSidebar": "Mobil kenar çubuğunu gösterir.",
+        "toggleSidebar": "Kenar çubuğunu aç veya kapat",
+        "toggleTheme": "Temayı değiştir",
+        "showPassword": "Şifreyi göster",
+        "hidePassword": "Şifreyi gizle",
+        "commandPalette": "Komut paleti",
+        "commandPaletteDescription": "Çalıştırılacak komutu ara",
+        "somethingWentWrong": "Bir sorun oluştu",
+        "noData": "Henüz veri yok",
+        "loadFailed": "Veriler yüklenemedi",
+        "goHome": "Ana sayfaya dön"
+    },
+    "error": {
+        "goBack": "Geri dön",
+        "401": "Giriş yapılmamış",
+        "403": "Erişim yok",
+        "404": "Sayfa bulunamadı",
+        "500": "Bir sorun oluştu",
+        "default": "Hata"
+    }
+}

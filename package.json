@@ -7,11 +7,13 @@
         "build": "turbo run build",
         "dev": "turbo run dev --filter=dashboard",
         "preinstall": "npx -y only-allow pnpm",
-        "lint": "turbo run lint && prettier --write .",
+        "lint": "pnpm lint:i18n && turbo run lint && prettier --write .",
         "lint:types": "turbo run lint:types",
-        "check": "pnpm build && pnpm lint && pnpm lint:types"
+        "check": "pnpm build && pnpm lint && pnpm lint:types",
+        "lint:i18n": "node scripts/check-i18n.mjs"
     },
     "devDependencies": {
+        "@intlify/message-compiler": "^11.4.14",
         "prettier": "^3.9.10",
         "turbo": "^2.11.7"
     },

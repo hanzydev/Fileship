@@ -10,7 +10,7 @@
             :description="error?.message"
         >
             <UiButton @click="canHistoryComeBack ? router.back() : router.push(home.path)">
-                {{ canHistoryComeBack ? 'Go back' : home.label }}
+                {{ canHistoryComeBack ? $t('error.goBack') : $t(home.label) }}
                 <IArrowRight />
             </UiButton>
         </EmptyState>
@@ -23,16 +23,12 @@ import { ICircleAlert, ISearchX } from '#components';
 const error = useError();
 const router = useRouter();
 const { home } = useAppConfig();
+const { t, te } = useI18n();
 
-const title = computed(
-    () =>
-        ({
-            401: 'Unauthorized',
-            403: 'Access denied',
-            404: 'Page not found',
-            500: 'Something went wrong',
-        })[error.value!.status!] || 'Error',
-);
+const title = computed(() => {
+    const key = `error.${error.value!.status}`;
+    return te(key) ? t(key) : t('error.default');
+});
 
 const canHistoryComeBack = computed(() => import.meta.client && !!window.history.state?.back);
 </script>

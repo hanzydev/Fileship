@@ -8,7 +8,7 @@
         <UiInputGroupAddon align="inline-end">
             <UiInputGroupButton
                 size="icon-xs"
-                :aria-label="isVisible ? 'Hide password' : 'Show password'"
+                :aria-label="isVisible ? $t('common.hidePassword') : $t('common.showPassword')"
                 :aria-pressed="isVisible"
                 @click="isVisible = !isVisible"
             >

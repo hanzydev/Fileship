@@ -12,7 +12,7 @@
                 <UiBadge v-if="!isLoading && growth" variant="outline">
                     <ITrendingUp v-if="growth! > 0" />
                     <ITrendingDown v-else />
-                    {{ growth! > 0 ? '+' : '' }}{{ growth }}%
+                    {{ percentFormat.format(growth! / 100) }}
                 </UiBadge>
                 <component :is="icon" v-else class="size-5 text-muted-foreground" />
             </UiCardAction>
@@ -32,7 +32,17 @@ const { data } = defineProps<{
     data?: number | string;
 }>();
 
-const numberFormat = new Intl.NumberFormat('en-US');
+const { locale } = useI18n();
+
+const numberFormat = computed(() => new Intl.NumberFormat(locale.value));
+const percentFormat = computed(
+    () =>
+        new Intl.NumberFormat(locale.value, {
+            style: 'percent',
+            signDisplay: 'exceptZero',
+            maximumFractionDigits: 2,
+        }),
+);
 
 const isLoading = computed(() => data === undefined);
 </script>

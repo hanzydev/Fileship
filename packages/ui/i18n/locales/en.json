@@ -1,0 +1,30 @@
+{
+    "common": {
+        "cancel": "Cancel",
+        "continue": "Continue",
+        "close": "Close",
+        "more": "More",
+        "breadcrumb": "Breadcrumb",
+        "loading": "Loading",
+        "sidebar": "Sidebar",
+        "mobileSidebar": "Displays the mobile sidebar.",
+        "toggleSidebar": "Toggle sidebar",
+        "toggleTheme": "Toggle theme",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password",
+        "commandPalette": "Command palette",
+        "commandPaletteDescription": "Search for a command to run",
+        "somethingWentWrong": "Something went wrong",
+        "noData": "No data yet",
+        "loadFailed": "Couldn't load the data",
+        "goHome": "Go home"
+    },
+    "error": {
+        "goBack": "Go back",
+        "401": "Unauthorized",
+        "403": "Access denied",
+        "404": "Page not found",
+        "500": "Something went wrong",
+        "default": "Error"
+    }
+}

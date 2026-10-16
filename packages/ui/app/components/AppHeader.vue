@@ -34,7 +34,7 @@
             <UiButton
                 variant="ghost"
                 size="icon"
-                aria-label="Toggle theme"
+                :aria-label="$t('common.toggleTheme')"
                 @click="handleToggleColorMode"
             >
                 <ISun class="hidden dark:block" />

@@ -8,14 +8,14 @@
             <EmptyState
                 v-if="isError"
                 :icon="ICircleAlert"
-                title="Couldn't load the data"
+                :title="$t('common.loadFailed')"
                 class="h-56 py-0"
             />
             <UiSkeleton v-else-if="isLoading" class="h-56 w-full" />
             <EmptyState
                 v-else-if="!data.length"
                 :icon="IChartArea"
-                title="No data yet"
+                :title="$t('common.noData')"
                 class="h-56 py-0"
             />
             <UiChartContainer v-else :config="config" class="aspect-auto h-56" cursor>
@@ -66,7 +66,9 @@ export type TrendPoint = { label: string; value: number; tick?: string };
 
 type Datum = { index: number; label: string; tick: string; value: number };
 
-const numberFormat = new Intl.NumberFormat('en-US');
+const { locale } = useI18n();
+
+const numberFormat = computed(() => new Intl.NumberFormat(locale.value));
 
 const {
     points,
@@ -86,7 +88,7 @@ const {
     isError?: boolean;
 }>();
 
-const formatValue = (value: number) => (format ?? numberFormat.format)(value);
+const formatValue = (value: number) => (format ?? numberFormat.value.format)(value);
 
 const data = computed<Datum[]>(() =>
     points.map((point, index) => ({

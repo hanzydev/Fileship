@@ -1,2 +1,2 @@
 export const getErrorMessage = (error: any) =>
-    error?.data?.message || error?.statusText || 'Something went wrong';
+    error?.data?.message || useNuxtApp().$i18n.t('common.somethingWentWrong');

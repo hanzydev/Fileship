@@ -16,6 +16,7 @@ export default defineNuxtConfig({
         '@nuxtjs/color-mode',
         'vue-sonner/nuxt',
         'nuxt-lucide-icons',
+        '@nuxtjs/i18n',
     ],
 
     components: [
@@ -40,6 +41,13 @@ export default defineNuxtConfig({
         preference: 'system',
         fallback: 'dark',
         storage: 'cookie',
+    },
+
+    i18n: {
+        strategy: 'no_prefix',
+        defaultLocale: 'en',
+        locales: [{ code: 'en', language: 'en-US', name: 'English' }],
+        detectBrowserLanguage: false,
     },
 
     lucide: {

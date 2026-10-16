@@ -10,7 +10,7 @@
             <EmptyState
                 v-if="!isLoading && !items.length"
                 :icon="IChartPie"
-                title="No data yet"
+                :title="$t('common.noData')"
                 class="py-0"
             />
             <template v-else>
