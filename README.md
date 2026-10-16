@@ -67,11 +67,7 @@ Upgrading from 5.x? Follow [Upgrading to 6.0](docs/upgrading.md).
 - [Updating](docs/updating.md): how updates work and how to schedule them
 - [AI features](docs/ai.md): presets, models, smart search and sensitive content
 - [Fileship for Windows](docs/desktop.md)
-- [Telemetry](docs/telemetry.md)
-
-## 📊 Telemetry
-
-Fileship sends anonymous usage statistics (counts, sizes and versions, never files, names or URLs) to guide development. Turn it off with **Anonymous telemetry** in **Administration → Instance**. [What is collected](docs/telemetry.md)
+- [Telemetry](docs/telemetry.md): what is collected and how to turn it off
 
 ## 🧰 Built With
 
