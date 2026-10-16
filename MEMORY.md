@@ -73,3 +73,4 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - Agents never touch real accounts, real drive folders, `.env` files or secrets, and never run destructive database commands. Test accounts and test data are created for the task and removed afterwards.
 - Parallel agents in one checkout must own separate files, stage only their own paths (`git add <paths>`, never `-A`) and re-read a file before editing it. Files that many tasks touch (`overlay.vue`, `useAnnotator.ts`, `nuxt.config.ts`) belong to one agent at a time.
 - Keep AGENTS.md accurate: when a change alters a documented behaviour, update the paragraph in the same commit.
+- Keep the README short on purpose. It once grew to about 450 lines and nobody read it; user-facing details belong in `docs/`.
