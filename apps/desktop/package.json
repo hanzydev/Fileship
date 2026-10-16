@@ -2,7 +2,7 @@
     "name": "desktop",
     "productName": "Fileship",
     "description": "Capture, record and upload to your Fileship, and browse it from Explorer.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "author": "Hànzy <contact@hanzy.dev>",
     "license": "MIT",
     "private": true,
