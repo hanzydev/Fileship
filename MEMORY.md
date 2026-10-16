@@ -4,9 +4,10 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 
 ## Branches and versions
 
-- `main` is the released line (5.4.x). `v6-nextgen` is the v6 rewrite, several hundred commits ahead; it becomes `main` when v6 ships.
-- The root `package.json` (`6.0.0`) is the Fileship version that `/api/healthz` reports. The desktop app requires Fileship 6.0.0 or newer (`MIN_FILESHIP_VERSION`).
-- The desktop app has its own version in `apps/desktop/package.json`. It stays at `0.0.x` while v6 is in development and becomes `1.0.0` when v6 ships. Auto-update never moves to a lower version, so a local 1.0.0 build has to be replaced by hand with a 0.0.x one.
+- `main` is the released line, 6.x since v6.0.0. Every major version also keeps a branch named after it (`v1` … `v5`, `v6`); the v6 rewrite was developed on `v6-nextgen`, which became `v6` when 6.0.0 shipped.
+- The root `package.json` is the Fileship version that `/api/healthz` reports. The desktop app requires Fileship 6.0.0 or newer (`MIN_FILESHIP_VERSION`).
+- The desktop app has its own version in `apps/desktop/package.json` (1.0.0 shipped with Fileship 6.0.0). Auto-update never moves to a lower version.
+- 5.x installations with the auto-updater on update themselves to the latest release, because the 5.x updater pulls `:latest` whenever the newest GitHub release is a higher version. A release must therefore always migrate a 5.x database and `data` folder; the 5.4.4 → 6.0.0 path was tested in Docker.
 
 ## Decisions
 
