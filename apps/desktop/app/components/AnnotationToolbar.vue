@@ -1,6 +1,6 @@
 <template>
     <div :class="cn('flex items-center gap-1', isVertical ? 'flex-col' : 'flex-wrap')">
-        <UiTooltipProvider :delay-duration="300">
+        <UiTooltipProvider disable-hoverable-content>
             <slot name="start" />
 
             <UiTooltip v-for="tool in tools" :key="tool.value">

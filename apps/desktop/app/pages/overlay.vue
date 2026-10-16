@@ -23,7 +23,6 @@
             class="absolute cursor-default"
             :style="captureToolbarStyle"
             @pointerdown.stop
-            @pointermove.stop
             @pointerup.stop
             @contextmenu.stop.prevent
         >
@@ -606,7 +605,7 @@ const handlePointerDown = (event: PointerEvent) => {
 };
 
 const handlePointerMove = (event: PointerEvent) => {
-    if (!payload.value) return;
+    if (!payload.value || (!regionDrag && isOnToolbar(event))) return;
 
     const point = pointFrom(event);
     pointer = point;
