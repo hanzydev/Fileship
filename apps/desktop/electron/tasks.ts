@@ -5,15 +5,31 @@ import { extname, join } from 'node:path';
 import { app, dialog, nativeImage, shell } from 'electron';
 import log from 'electron-log/main';
 
-import type { HistoryKind } from '../shared/ipc';
+import type { EditorContinue, HistoryKind } from '../shared/ipc';
 import { type Bitmap, bitmapFromImage, encodePng, encodeThumbnail, playUploaded } from './capture';
 import { writeImage, writeText } from './clipboard';
 import { openEditor } from './editor';
 import { addHistory, getHistory, updateHistory } from './history';
 import { t } from './i18n';
 import { getSettings } from './store';
+import { notifyIdle } from './updater';
 import { shortenUrl, uploadFile, type UploadSource } from './upload';
 import { notify, openWebUrl } from './windows';
+
+let activeTasks = 0;
+
+export const isWorking = () => activeTasks > 0;
+
+export const track = async <T>(task: () => Promise<T>) => {
+    activeTasks++;
+
+    try {
+        return await task();
+    } finally {
+        activeTasks--;
+        notifyIdle();
+    }
+};
 
 const pad = (value: number) => String(value).padStart(2, '0');
 
@@ -96,12 +112,15 @@ export const uploadAndFinish = async (
     }
 };
 
-const continueLabel = () => {
+const continueAction = (): EditorContinue => {
     const { afterCapture } = getSettings();
-    if (afterCapture.upload) return 'Upload';
-    if (afterCapture.saveToFile) return 'Save';
-    return 'Copy';
+    if (afterCapture.upload) return 'upload';
+    if (afterCapture.saveToFile) return 'save';
+    return 'copy';
 };
+
+const notifySaved = (path: string) =>
+    notify(t('tasks.imageSaved'), path, () => shell.showItemInFolder(path));
 
 const saveImageAs = async (png: Buffer, name: string) => {
     const result = await dialog.showSaveDialog({
@@ -109,29 +128,58 @@ const saveImageAs = async (png: Buffer, name: string) => {
         filters: [{ name: t('tasks.pngImage'), extensions: ['png'] }],
     });
 
-    if (result.canceled || !result.filePath) return;
+    if (result.canceled || !result.filePath) return null;
 
     await writeFile(result.filePath, png);
-    notify(t('tasks.imageSaved'), result.filePath);
+    notifySaved(result.filePath);
+    return result.filePath;
 };
 
 const runEditor = async (image: Bitmap, name: string) => {
     const result = await openEditor(
         { png: await encodePng(image), width: image.width, height: image.height },
-        { name, continueLabel: continueLabel() },
+        { name, continueAction: continueAction() },
     );
 
+    if (result.action === 'cancel') return null;
+    if (result.action === 'continue') return result.image;
+
+    const [png, thumbnail] = await Promise.all([
+        encodePng(result.image),
+        encodeThumbnail(result.image),
+    ]);
+
     if (result.action === 'copy') {
-        await writeImage(await encodePng(result.image));
+        await writeImage(png);
+        addHistory({ kind: 'screenshot', name, size: png.length, thumbnail });
         notify(t('tasks.imageCopied'), t('tasks.pasteAnywhere'));
-    } else if (result.action === 'save') {
-        await saveImageAs(await encodePng(result.image), name);
+        return null;
     }
 
-    return result.action === 'continue' ? result.image : null;
+    const localPath = await saveImageAs(png, name);
+    if (!localPath) return result.image;
+
+    addHistory({ kind: 'screenshot', name, size: png.length, localPath, thumbnail });
+    return null;
 };
 
-export const handleImage = async (
+const keepImage = async (historyId: string, png: Buffer, name: string, message: string) => {
+    try {
+        const folder = saveFolder();
+        await mkdir(folder, { recursive: true });
+
+        const kept = uniquePath(folder, name);
+        await writeFile(kept, png);
+
+        updateHistory(historyId, { localPath: kept });
+        notify(t('tasks.imageKept'), kept, () => shell.showItemInFolder(kept));
+    } catch (error) {
+        log.warn('Could not keep the screenshot', error);
+        notify(t('tasks.uploadFailed'), message);
+    }
+};
+
+const processImage = async (
     captured: Bitmap,
     options: { title?: string; kind?: HistoryKind; isEdited?: boolean } = {},
 ) => {
@@ -165,18 +213,42 @@ export const handleImage = async (
     });
 
     if (afterCapture.upload) {
-        await uploadAndFinish(entry.id, { name, mimeType: 'image/png', data: png });
-    } else if (!afterCapture.copyImage && !afterCapture.saveToFile) {
-        await writeImage(png);
+        await uploadAndFinish(
+            entry.id,
+            { name, mimeType: 'image/png', data: png },
+            localPath ? undefined : (message) => keepImage(entry.id, png, name, message),
+        );
+    } else if (localPath) {
+        notifySaved(localPath);
+    } else {
+        if (!afterCapture.copyImage) await writeImage(png);
         notify(t('tasks.screenshotCopied'), t('tasks.uploadsOff'));
     }
 
     return entry;
 };
 
-export const handleFile = async (file: UploadSource) => {
+const fileThumbnail = async (file: UploadSource) => {
+    if (!file.mimeType.startsWith('image/')) return null;
+
+    const image = bitmapFromImage(
+        file.data
+            ? nativeImage.createFromBuffer(file.data)
+            : nativeImage.createFromPath(file.path!),
+    );
+
+    return image ? encodeThumbnail(image) : null;
+};
+
+const processFile = async (file: UploadSource) => {
     const size = file.data ? file.data.length : statSync(file.path!).size;
-    const entry = addHistory({ kind: 'file', name: file.name, size });
+    const entry = addHistory({
+        kind: 'file',
+        name: file.name,
+        size,
+        localPath: file.path ?? null,
+        thumbnail: await fileThumbnail(file).catch(() => null),
+    });
     await uploadAndFinish(entry.id, file);
     return entry;
 };
@@ -208,7 +280,7 @@ const keepRecording = async (historyId: string, path: string, name: string, mess
     }
 };
 
-export const handleRecording = async (file: {
+const processRecording = async (file: {
     kind: HistoryKind;
     path: string;
     name: string;
@@ -249,3 +321,12 @@ export const editHistoryImage = async (id: string) => {
     const edited = await runEditor(image, item.name);
     if (edited) await handleImage(edited, { isEdited: true });
 };
+
+export const handleImage = (...args: Parameters<typeof processImage>) =>
+    track(() => processImage(...args));
+
+export const handleFile = (...args: Parameters<typeof processFile>) =>
+    track(() => processFile(...args));
+
+export const handleRecording = (...args: Parameters<typeof processRecording>) =>
+    track(() => processRecording(...args));

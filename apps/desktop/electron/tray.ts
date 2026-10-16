@@ -1,6 +1,7 @@
 import { app, Menu, nativeImage, Tray } from 'electron';
 
-import { runAction } from './actions';
+import type { RecorderPhase } from '../shared/ipc';
+import { isConnected, runAction } from './actions';
 import { openDashboard } from './dashboard';
 import { openDrive } from './drive';
 import { t } from './i18n';
@@ -18,8 +19,16 @@ import { iconPath, markQuitting, showMainWindow } from './windows';
 
 let tray: Tray | null = null;
 
+const RECORDING_TOOLTIPS: Record<Exclude<RecorderPhase, 'idle'>, string> = {
+    preparing: 'tray.startingTooltip',
+    countdown: 'tray.startingTooltip',
+    recording: 'tray.recordingTooltip',
+    paused: 'tray.pausedTooltip',
+    processing: 'tray.processingTooltip',
+};
+
 const buildMenu = () => {
-    const isConnected = !!getStore().user;
+    const connected = isConnected();
     const update = getUpdateStatus();
 
     const recorder = getRecorderState();
@@ -62,7 +71,11 @@ const buildMenu = () => {
                 { label: t('tray.activeMonitor'), click: () => runAction('captureMonitor') },
                 { label: t('tray.lastRegion'), click: () => runAction('captureLastRegion') },
                 { type: 'separator' },
-                { label: t('tray.textFromRegion'), click: () => runAction('captureText') },
+                {
+                    label: t('tray.textFromRegion'),
+                    enabled: connected,
+                    click: () => runAction('captureText'),
+                },
             ],
         },
         {
@@ -75,7 +88,7 @@ const buildMenu = () => {
         },
         {
             label: t('tray.upload'),
-            enabled: isConnected,
+            enabled: connected,
             submenu: [
                 { label: t('tray.file'), click: () => runAction('uploadFile') },
                 { label: t('tray.fromClipboard'), click: () => runAction('uploadClipboard') },
@@ -89,12 +102,12 @@ const buildMenu = () => {
         { label: t('tray.openFileship'), click: () => showMainWindow() },
         {
             label: t('tray.openDrive'),
-            enabled: isConnected && getSettings().drive.enabled,
+            enabled: connected && getSettings().drive.enabled,
             click: () => openDrive(),
         },
         {
             label: t('tray.openDashboard'),
-            enabled: isConnected,
+            enabled: connected,
             click: () => openDashboard(),
         },
         { type: 'separator' },
@@ -124,7 +137,8 @@ export const refreshTray = () => {
     const uploads = getUploadSummary();
     const tooltip = getStore().user ? `Fileship · ${getStore().siteName}` : 'Fileship';
 
-    if (getRecorderState().phase !== 'idle') return tray.setToolTip(t('tray.recordingTooltip'));
+    const { phase } = getRecorderState();
+    if (phase !== 'idle') return tray.setToolTip(t(RECORDING_TOOLTIPS[phase]));
 
     tray.setToolTip(
         uploads

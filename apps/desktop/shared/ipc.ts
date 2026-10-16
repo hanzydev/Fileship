@@ -37,7 +37,7 @@ export type UpdateStatus = {
     error?: string;
 };
 
-export type HistoryKind = 'screenshot' | 'recording' | 'gif' | 'file';
+export type HistoryKind = 'screenshot' | 'recording' | 'gif' | 'file' | 'link';
 
 export type HistoryItem = {
     id: string;
@@ -130,7 +130,9 @@ export type DriveStatus = {
     error: string | null;
 };
 
-export type EditorImage = { png: Uint8Array; name: string; continueLabel: string };
+export type EditorContinue = 'upload' | 'save' | 'copy';
+
+export type EditorImage = { png: Uint8Array; name: string; continueAction: EditorContinue };
 
 export type EditorFinish =
     | { action: 'cancel' }

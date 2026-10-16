@@ -6,7 +6,7 @@ import log from 'electron-log/main';
 
 import { type Folder, INVOKE_CHANNELS, type IpcInvoke } from '../shared/ipc';
 import { checkInstance, getAccount, login, logout } from './account';
-import { runAction, uploadPath } from './actions';
+import { runAction, uploadPaths } from './actions';
 import { api } from './api';
 import { writeText } from './clipboard';
 import { closeDashboard, openDashboard } from './dashboard';
@@ -149,7 +149,7 @@ const handlers: Handlers = {
     'editor:finish': (id, result) => finishEditor(id, result),
     'history:clear': () => clearHistory(),
     'uploads:paths': (paths) => {
-        for (const path of paths) uploadPath(path);
+        uploadPaths(paths);
     },
     'uploads:progress': () => getUploadProgress(),
     'hotkeys:status': () => getHotkeyStatus(),

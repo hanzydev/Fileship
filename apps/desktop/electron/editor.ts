@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { BrowserWindow, screen } from 'electron';
 
-import type { EditorFinish, EditorImage } from '../shared/ipc';
+import type { EditorContinue, EditorFinish, EditorImage } from '../shared/ipc';
 import { type Bitmap, bitmapFromRgba } from './capture';
 import { t } from './i18n';
 import {
@@ -25,6 +25,8 @@ type Session = {
 
 const sessions = new Map<string, Session>();
 
+export const isEditing = () => sessions.size > 0;
+
 const settle = (id: string, result: EditorResult) => {
     const session = sessions.get(id);
     if (!session) return;
@@ -36,7 +38,7 @@ const settle = (id: string, result: EditorResult) => {
 
 export const openEditor = (
     image: { png: Buffer; width: number; height: number },
-    options: { name: string; continueLabel: string },
+    options: { name: string; continueAction: EditorContinue },
 ) =>
     new Promise<EditorResult>((resolve) => {
         const id = randomUUID();
@@ -64,7 +66,7 @@ export const openEditor = (
             image: {
                 png: new Uint8Array(image.png),
                 name: options.name,
-                continueLabel: options.continueLabel,
+                continueAction: options.continueAction,
             },
             window,
             resolve,

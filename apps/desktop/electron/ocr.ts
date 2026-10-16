@@ -6,6 +6,7 @@ import { type Bitmap, encodePng } from './capture';
 import { writeText } from './clipboard';
 import { t } from './i18n';
 import { openRegionCapture } from './overlay';
+import { track } from './tasks';
 import { notify } from './windows';
 
 const OCR_ERRORS: Record<number, [string, string]> = {
@@ -34,7 +35,7 @@ const recognize = async (image: Bitmap) => {
         await writeText(text);
         notify(t('tasks.textCopied'), text.length > 200 ? `${text.slice(0, 200)}…` : text);
     } catch (error: any) {
-        if (error instanceof ApiError && error.status === 401) return handleUnauthorized();
+        if (error instanceof ApiError && error.status === 401) handleUnauthorized();
 
         const known = error instanceof ApiError ? OCR_ERRORS[error.status] : undefined;
         if (known) return notify(t(known[0]), t(known[1]));
@@ -46,5 +47,5 @@ const recognize = async (image: Bitmap) => {
 
 export const captureText = () =>
     openRegionCapture('ocr', null, (image) => {
-        recognize(image);
+        track(() => recognize(image));
     });

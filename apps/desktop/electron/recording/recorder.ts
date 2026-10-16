@@ -23,7 +23,7 @@ import type {
     RecordingKind,
 } from '../../shared/ipc';
 import type { Settings, VideoCodec } from '../../shared/settings';
-import { physicalBounds } from '../capture';
+import { physicalBounds, playShutter } from '../capture';
 import { t } from '../i18n';
 import { mimeTypeOf } from '../mime';
 import { native, type Rect } from '../native';
@@ -500,6 +500,7 @@ export const stopRecording = async () => {
 
     try {
         result = await produce(recording);
+        playShutter();
     } catch (error: any) {
         log.error('Could not finish the recording', error);
         notify(t('recording.finishFailed'), error.message);
@@ -519,7 +520,10 @@ export const stopRecording = async () => {
         : null;
 
     notifyIdle();
-    await handled?.catch((error) => log.error('Could not handle the recording', error));
+    await handled?.catch((error) => {
+        log.error('Could not handle the recording', error);
+        notify(t('app.somethingWentWrong'), error.message);
+    });
     await rm(recording.folder, { recursive: true, force: true }).catch(() => {});
 };
 
@@ -724,11 +728,17 @@ const begin = async (kind: RecordingKind, rect: Rect) => {
 };
 
 export const toggleRecording = async (kind: RecordingKind) => {
+    if (state.phase !== 'idle' && state.kind !== kind) {
+        notify(t('recording.alreadyRecording'), t('recording.alreadyRecordingDescription'));
+        return;
+    }
+
     if (state.phase === 'recording' || state.phase === 'paused') return stopRecording();
     if (state.phase === 'preparing' || state.phase === 'countdown') return abortRecording();
     if (state.phase !== 'idle') return;
 
     if (!ffmpegPath()) {
+        notify(t('recording.ffmpegFailed'), t('recording.checkFfmpeg'));
         showMainWindow('/settings/recording?ffmpeg=missing');
         return;
     }

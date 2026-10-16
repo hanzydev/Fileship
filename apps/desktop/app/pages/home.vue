@@ -167,7 +167,7 @@
 import { filesize } from 'filesize';
 import type { Component } from 'vue';
 
-import { IFile, IFilm, IImage, IImagePlay, IUpload } from '#components';
+import { IFile, IFilm, IImage, IImagePlay, ILink, IUpload } from '#components';
 
 import type { HistoryItem, HistoryKind, UploadProgress } from '../../shared/ipc';
 import type { HotkeyAction } from '../../shared/settings';
@@ -188,6 +188,7 @@ const KIND_ICONS: Record<HistoryKind, Component> = {
     recording: IFilm,
     gif: IImagePlay,
     file: IFile,
+    link: ILink,
 };
 
 const account = useAccount();
@@ -222,6 +223,7 @@ const describe = (item: HistoryItem) => {
     const time = timeAgo(item.createdAt);
 
     if (item.error) return item.error;
+    if (item.kind === 'link') return t('home.shortenedMeta', { time });
     if (item.shortUrl ?? item.url)
         return t('home.uploadedMeta', {
             time,

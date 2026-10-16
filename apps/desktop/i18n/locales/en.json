@@ -61,7 +61,7 @@
         "invalidAddress": "Enter a valid address, for example files.example.com",
         "serverStarting": "This Fileship server is still starting, try again in a moment",
         "serverNotFound": "No Fileship server was found at {url}",
-        "serverTooOld": "This server runs Fileship {version}. Fileship for Windows needs {minVersion} or later.",
+        "serverTooOld": "This server runs Fileship v{version}. Fileship for Windows needs v{minVersion} or later.",
         "loginTitle": "Log in to {siteName}",
         "loginCancelled": "Login was cancelled",
         "noUploadPermission": "Your account cannot upload files or shorten links on this server.",
@@ -71,7 +71,9 @@
         "requestFailed": "Request failed ({status})",
         "serverTimeout": "The server took too long to respond",
         "serverUnreachable": "Could not reach {url}",
-        "notConnected": "Not connected to a Fileship server"
+        "notConnected": "Not connected to a Fileship server",
+        "tryAgain": "Try again in a moment.",
+        "linkShortenedOnly": "Link shortened"
     },
     "captureSettings": {
         "capture": {
@@ -91,23 +93,23 @@
             },
             "showCursor": {
                 "label": "Include the mouse cursor",
-                "description": "Draw the cursor into screenshots."
+                "description": "Draw the cursor into active monitor, window, entire screen and last region captures."
             },
             "playSound": {
                 "label": "Shutter sound",
-                "description": "Play a camera shutter sound when a screenshot is taken."
+                "description": "Play a camera shutter sound when a screenshot is taken, text is captured or a recording finishes."
             }
         },
         "afterCapture": {
             "title": "After capture",
-            "description": "What happens to a screenshot once it is taken.",
+            "description": "What happens to screenshots and recordings once they are taken.",
             "upload": {
                 "label": "Upload to Fileship",
-                "description": "Upload the screenshot with your upload settings."
+                "description": "Upload screenshots and recordings with your upload settings."
             },
             "annotate": {
                 "label": "Open the editor",
-                "description": "Draw, blur and add text before the next steps. Region captures are edited while you select."
+                "description": "Opens after active monitor, window, entire screen and last region captures. Region captures are edited while you select."
             },
             "copyImage": {
                 "label": "Copy image",
@@ -115,7 +117,7 @@
             },
             "saveToFile": {
                 "label": "Save to this computer",
-                "description": "Keep a copy in the folder from the upload settings."
+                "description": "Keep a copy in the folder from the upload settings. Recordings are always kept there while uploading is off."
             }
         },
         "afterUpload": {
@@ -146,11 +148,11 @@
     "connect": {
         "title": "Connect",
         "heading": "Connect to Fileship",
-        "description": "Enter the address of your Fileship server. It needs Fileship {version} or later.",
+        "description": "Enter the address of your Fileship server. It needs Fileship v{version} or later.",
         "serverAddress": "Server address",
         "addressPlaceholder": "files.example.com",
-        "checking": "Checking server...",
-        "loggingIn": "Logging in to {siteName}...",
+        "checking": "Checking server…",
+        "loggingIn": "Logging in to {siteName}…",
         "loginHint": "Log in in the window that opened. Close it to cancel."
     },
     "drive": {
@@ -195,7 +197,8 @@
             "editsDescription": "Saving a changed file uploads it again, so its link changes.",
             "delete": "Deleting moves to the trash",
             "deleteDescription": "Files you move to the Recycle Bin go to the Fileship trash. When Windows deletes a file for good, with Shift + Delete or because it was online only, it is deleted from Fileship too."
-        }
+        },
+        "howItWorksDescription": "What to expect from your files in File Explorer."
     },
     "editor": {
         "title": "Edit",
@@ -205,8 +208,7 @@
         "copy": "Copy",
         "saveAs": "Save as",
         "upload": "Upload",
-        "save": "Save",
-        "done": "Done"
+        "save": "Save"
     },
     "general": {
         "startup": "Startup",
@@ -245,7 +247,8 @@
         "linkCopied": "Link copied",
         "clearTitle": "Clear history?",
         "clearDescription": "Uploaded files stay on Fileship and saved files stay on this computer.",
-        "clear": "Clear"
+        "clear": "Clear",
+        "shortenedMeta": "{time} · Short link"
     },
     "hotkeys": {
         "title": "Hotkeys",
@@ -254,7 +257,7 @@
         "duplicate": "Another action uses this shortcut.",
         "conflict": "Another app already uses this shortcut.",
         "invalid": "Windows does not accept this shortcut.",
-        "recording": "Press a shortcut...",
+        "recording": "Press a shortcut…",
         "notSet": "Not set",
         "clear": "Clear shortcut",
         "reset": "Reset to defaults",
@@ -272,7 +275,7 @@
             "captureLastRegion": "Capture last region",
             "uploadClipboard": "Upload from clipboard",
             "uploadFile": "Upload file",
-            "shortenClipboard": "Shorten URL from clipboard",
+            "shortenClipboard": "Shorten link from clipboard",
             "openMain": "Open Fileship"
         }
     },
@@ -319,7 +322,7 @@
         "upload": "Upload",
         "drive": "Drive",
         "updates": "Updates",
-        "updateReady": "Fileship {version} is ready",
+        "updateReady": "Fileship v{version} is ready",
         "updateReadyDescription": "Restart to update now, or it installs the next time you quit.",
         "restartNow": "Restart now"
     },
@@ -334,9 +337,9 @@
         "resume": "Resume",
         "discard": "Discard",
         "stop": "Stop",
-        "starting": "Starting...",
+        "starting": "Starting…",
         "startingIn": "Starting in {count}",
-        "processing": "Processing...",
+        "processing": "Processing…",
         "systemAudioUnavailable": "Could not capture system audio.",
         "audioDevicesFailed": "Could not open the audio devices.",
         "microphoneUnavailable": "Could not open the microphone."
@@ -360,13 +363,15 @@
         "encoderUnsupported": "{codec} does not work on this computer. Pick another one.",
         "cannotRecord": "Cannot record",
         "notStartedInTime": "The recorder did not start in time.",
-        "startFailed": "Could not start recording"
+        "startFailed": "Could not start recording",
+        "alreadyRecording": "A recording is already running",
+        "alreadyRecordingDescription": "Stop it before starting another one."
     },
     "recordingSettings": {
         "ffmpeg": "FFmpeg",
         "ffmpegDescription": "Fileship records with FFmpeg. Download the tested build or point to your own.",
         "downloadFailed": "Download failed",
-        "downloading": "Downloading FFmpeg {version}... {progress}%",
+        "downloading": "Downloading FFmpeg {version}… {progress}%",
         "version": "Version",
         "location": "Location",
         "downloadedByFileship": "Downloaded by Fileship",
@@ -404,7 +409,7 @@
         "showCursor": "Record the mouse cursor",
         "showCursorDescription": "Draw the cursor into recordings.",
         "showBorder": "Show a border around the area",
-        "showBorderDescription": "The border and the controls never appear in the recording.",
+        "showBorderDescription": "The border and the toolbar never appear in the recording.",
         "constantQuality": "Constant quality (CQ)",
         "quantizer": "Quantizer (QP)",
         "globalQuality": "Global quality",
@@ -464,7 +469,8 @@
         "outputArgsDescription": "Added before the output file of every recording.",
         "command": "Command",
         "commandDescription": "Recorded for the primary monitor with your current settings.",
-        "microphonesFailed": "Could not list the microphones"
+        "microphonesFailed": "Could not list the microphones",
+        "gifTitle": "GIF"
     },
     "settings": {
         "title": "Settings",
@@ -503,7 +509,8 @@
         "textCopied": "Text copied",
         "textCaptureFailed": "Could not capture text",
         "noLink": "The server did not return a link",
-        "logInToUpload": "Log in to Fileship to upload"
+        "logInToUpload": "Log in to Fileship to upload",
+        "imageKept": "Upload failed, screenshot saved"
     },
     "tray": {
         "stopGifRecording": "Stop GIF recording",
@@ -522,37 +529,40 @@
         "screenRecording": "Screen recording",
         "gif": "GIF",
         "upload": "Upload",
-        "file": "File...",
+        "file": "File…",
         "fromClipboard": "From clipboard",
         "shortenFromClipboard": "Shorten link from clipboard",
         "openFileship": "Open Fileship",
         "openDrive": "Open Fileship drive",
         "openDashboard": "Open dashboard",
-        "restartToUpdate": "Restart to update to {version}",
+        "restartToUpdate": "Restart to update to v{version}",
         "checkForUpdates": "Check for updates",
         "settings": "Settings",
         "quit": "Quit Fileship",
         "recordingTooltip": "Fileship · Recording, click to stop",
-        "uploadingTooltip": "Fileship · Uploading {count} file, {progress}% | Fileship · Uploading {count} files, {progress}%"
+        "uploadingTooltip": "Fileship · Uploading {count} file, {progress}% | Fileship · Uploading {count} files, {progress}%",
+        "startingTooltip": "Fileship · Recording is starting, click to cancel",
+        "pausedTooltip": "Fileship · Recording paused, click to stop",
+        "processingTooltip": "Fileship · Finishing the recording"
     },
     "updater": {
         "noReleases": "No releases are published yet",
         "unreachable": "Could not reach the update server",
         "checkFailed": "Update check failed",
-        "readyTitle": "Fileship {version} is ready",
+        "readyTitle": "Fileship v{version} is ready",
         "readyBody": "Click to restart and update now, or it installs when you quit."
     },
     "updates": {
         "title": "Updates",
-        "description": "Fileship {version}. Updates download in the background and install when you restart.",
+        "description": "Fileship v{version}. Updates download in the background and install when you restart or quit.",
         "restartNow": "Restart now",
         "check": "Check for updates",
         "status": {
             "idle": "Updates are checked when Fileship starts and every few hours.",
-            "checking": "Checking for updates...",
+            "checking": "Checking for updates…",
             "latest": "You have the latest version.",
-            "downloading": "Downloading Fileship {version}... {progress}%",
-            "ready": "Fileship {version} is ready to install.",
+            "downloading": "Downloading Fileship v{version}… {progress}%",
+            "ready": "Fileship v{version} is ready to install.",
             "error": "The last check failed: {error}. Fileship tries again later.",
             "unsupported": "Updates are only available in the installed app."
         }
@@ -576,7 +586,7 @@
         "password": "Password",
         "optional": "Optional",
         "savedFiles": "Saved files",
-        "savedFilesDescription": "Where captures go when saving to this computer is on in the capture settings.",
+        "savedFilesDescription": "Where screenshots and recordings are saved when saving to this computer is on, and where recordings go while uploading is off.",
         "saveFolderPlaceholder": "Pictures\\Fileship",
         "reset": "Reset",
         "browse": "Browse",

@@ -18,7 +18,7 @@ import { t } from './i18n';
 import { native, type Rect } from './native';
 import { getSettings } from './store';
 import { handleImage } from './tasks';
-import { hardenWebContents, rendererUrl, webPreferences } from './windows';
+import { hardenWebContents, notify, rendererUrl, webPreferences } from './windows';
 
 const OVERLAY_IDLE_MS = 2 * 60 * 1000;
 const OVERLAY_LOAD_TIMEOUT_MS = 5000;
@@ -107,6 +107,8 @@ const clearPending = () => {
     if (pendingReveal) clearTimeout(pendingReveal.timer);
     pendingReveal = null;
 };
+
+export const isCapturing = () => isOpen;
 
 const resetOverlay = () => {
     destroyOverlay();
@@ -225,6 +227,7 @@ export const openRegionCapture = async (
     } catch (error) {
         log.error('Could not open region capture', error);
         hideOverlay();
+        notify(t('app.overlayFailed'), t('app.tryAgain'));
     }
 };
 
@@ -247,7 +250,10 @@ const finishImage = (result: OverlayFinish) => {
 export const finishRegionCapture = async (result: OverlayFinish) => {
     hideOverlay();
 
-    if (purpose === 'ocr') return finishImage(result);
+    if (purpose === 'ocr') {
+        if (result.type === 'region') playShutter();
+        return finishImage(result);
+    }
     if (purpose !== 'capture') return finishArea(result);
     if (result.type !== 'region') return;
 

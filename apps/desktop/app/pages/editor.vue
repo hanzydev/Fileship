@@ -8,30 +8,42 @@
             <AnnotationToolbar :annotator="annotator" />
 
             <div class="ml-auto flex shrink-0 items-center gap-1">
-                <UiButton
-                    variant="ghost"
-                    size="icon-sm"
-                    :aria-label="$t('editor.zoomOut')"
-                    @click="handleZoom(-1)"
-                >
-                    <IZoomOut />
-                </UiButton>
-                <UiButton
-                    variant="ghost"
-                    size="sm"
-                    class="min-w-16 tabular-nums"
-                    @click="handleFit"
-                >
-                    {{ $t('editor.zoomValue', { value: Math.round(zoom * 100) }) }}
-                </UiButton>
-                <UiButton
-                    variant="ghost"
-                    size="icon-sm"
-                    :aria-label="$t('editor.zoomIn')"
-                    @click="handleZoom(1)"
-                >
-                    <IZoomIn />
-                </UiButton>
+                <UiTooltipProvider disable-hoverable-content>
+                    <UiTooltip>
+                        <UiTooltipTrigger as-child>
+                            <UiButton
+                                variant="ghost"
+                                size="icon-sm"
+                                :aria-label="$t('editor.zoomOut')"
+                                @click="handleZoom(-1)"
+                            >
+                                <IZoomOut />
+                            </UiButton>
+                        </UiTooltipTrigger>
+                        <UiTooltipContent>{{ $t('editor.zoomOut') }}</UiTooltipContent>
+                    </UiTooltip>
+                    <UiButton
+                        variant="ghost"
+                        size="sm"
+                        class="min-w-16 tabular-nums"
+                        @click="handleFit"
+                    >
+                        {{ $t('editor.zoomValue', { value: Math.round(zoom * 100) }) }}
+                    </UiButton>
+                    <UiTooltip>
+                        <UiTooltipTrigger as-child>
+                            <UiButton
+                                variant="ghost"
+                                size="icon-sm"
+                                :aria-label="$t('editor.zoomIn')"
+                                @click="handleZoom(1)"
+                            >
+                                <IZoomIn />
+                            </UiButton>
+                        </UiTooltipTrigger>
+                        <UiTooltipContent>{{ $t('editor.zoomIn') }}</UiTooltipContent>
+                    </UiTooltip>
+                </UiTooltipProvider>
 
                 <UiSeparator orientation="vertical" class="mx-1 h-6" />
 
@@ -62,9 +74,8 @@
                     {{ $t('editor.saveAs') }}
                 </UiButton>
                 <UiButton size="sm" :disabled="!image" @click="handleFinish('continue')">
-                    <IUpload v-if="image?.continueLabel === 'Upload'" />
-                    <ICheck v-else />
-                    {{ continueLabel }}
+                    <component :is="CONTINUE_ACTIONS[image?.continueAction ?? 'copy'].icon" />
+                    {{ $t(CONTINUE_ACTIONS[image?.continueAction ?? 'copy'].label) }}
                 </UiButton>
             </div>
         </header>
@@ -84,18 +95,21 @@
 </template>
 
 <script setup lang="ts">
-import type { EditorFinish, EditorImage } from '../../shared/ipc';
+import type { Component } from 'vue';
+
+import { ICopy, ISave, IUpload } from '#components';
+
+import type { EditorContinue, EditorFinish, EditorImage } from '../../shared/ipc';
 
 const ZOOM_STEPS = [0.1, 0.25, 0.33, 0.5, 0.67, 0.75, 1, 1.25, 1.5, 2, 3, 4];
 
-const CONTINUE_LABELS: Record<string, string> = {
-    Upload: 'editor.upload',
-    Save: 'editor.save',
-    Copy: 'editor.copy',
+const CONTINUE_ACTIONS: Record<EditorContinue, { label: string; icon: Component }> = {
+    upload: { label: 'editor.upload', icon: IUpload },
+    save: { label: 'editor.save', icon: ISave },
+    copy: { label: 'editor.copy', icon: ICopy },
 };
 
 const route = useRoute();
-const { t } = useI18n();
 const { $toast } = useNuxtApp();
 
 const id = String(route.query.id ?? '');
@@ -108,11 +122,6 @@ const image = shallowRef<EditorImage | null>(null);
 const size = reactive({ width: 0, height: 0 });
 const zoom = ref(1);
 
-const continueLabel = computed(() => {
-    const label = image.value?.continueLabel;
-    if (!label) return t('editor.done');
-    return CONTINUE_LABELS[label] ? t(CONTINUE_LABELS[label]) : label;
-});
 let isFinishing = false;
 
 const setZoom = (value: number) => {

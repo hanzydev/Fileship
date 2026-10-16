@@ -5,17 +5,25 @@ import { dialog } from 'electron';
 import log from 'electron-log/main';
 
 import type { HotkeyAction } from '../shared/settings';
-import { captureActiveMonitor, captureActiveWindow, captureFullscreen, type Shot } from './capture';
+import {
+    captureActiveMonitor,
+    captureActiveWindow,
+    captureFullscreen,
+    encodePng,
+    playUploaded,
+    type Shot,
+} from './capture';
 import { readFilePath, readImage, readText, writeText } from './clipboard';
+import { addHistory, updateHistory } from './history';
 import { t } from './i18n';
 import { mimeTypeOf } from './mime';
 import { captureText } from './ocr';
 import { captureLastRegion, openRegionCapture } from './overlay';
 import { toggleRecording } from './recording/recorder';
-import { getStore } from './store';
-import { handleFile, handleImage } from './tasks';
+import { getSettings, getStore } from './store';
+import { formatFileName, handleFile, handleImage } from './tasks';
 import { shortenUrl } from './upload';
-import { notify, showMainWindow } from './windows';
+import { notify, openWebUrl, showMainWindow } from './windows';
 
 export const uploadPath = (path: string) =>
     handleFile({ name: basename(path), mimeType: mimeTypeOf(path), path });
@@ -35,7 +43,10 @@ const uploadClipboard = async () => {
     if (path) return uploadPath(path);
 
     const image = await readImage();
-    if (image) return handleImage(image, { kind: 'screenshot' });
+    if (image) {
+        const name = `${formatFileName(getSettings().save.pattern) || 'clipboard'}.png`;
+        return handleFile({ name, mimeType: 'image/png', data: await encodePng(image) });
+    }
 
     const text = await readText();
     if (!text.trim()) return notify(t('app.nothingToUpload'), t('app.nothingToUploadDescription'));
@@ -63,11 +74,27 @@ const shortenClipboard = async () => {
         return notify(t('app.noLinkToShorten'), t('app.noLinkToShortenDescription'));
     }
 
+    const entry = addHistory({ kind: 'link', name: text, size: 0 });
+
     try {
         const shortUrl = await shortenUrl(text);
-        await writeText(shortUrl);
-        notify(t('app.linkShortened'), shortUrl);
+        const { afterUpload } = getSettings();
+
+        updateHistory(entry.id, { url: shortUrl });
+
+        if (afterUpload.copyUrl) await writeText(shortUrl);
+        playUploaded();
+        if (afterUpload.openUrl) openWebUrl(shortUrl);
+
+        if (afterUpload.notify) {
+            notify(
+                t(afterUpload.copyUrl ? 'app.linkShortened' : 'app.linkShortenedOnly'),
+                shortUrl,
+                () => openWebUrl(shortUrl),
+            );
+        }
     } catch (error: any) {
+        updateHistory(entry.id, { error: error.message });
         notify(t('app.shortenFailed'), error.message);
     }
 };
@@ -103,6 +130,22 @@ const NEEDS_ACCOUNT: HotkeyAction[] = [
 const REPEAT_WINDOW_MS = 400;
 const lastRuns = new Map<HotkeyAction, number>();
 
+export const isConnected = () => !!getStore().token;
+
+const runGuarded = async (name: string, needsAccount: boolean, task: () => unknown) => {
+    if (needsAccount && !isConnected()) {
+        showMainWindow('/connect');
+        return;
+    }
+
+    try {
+        await task();
+    } catch (error: any) {
+        log.error(`${name} failed`, error);
+        notify(t('app.somethingWentWrong'), error.message);
+    }
+};
+
 export const runAction = async (action: HotkeyAction) => {
     const now = Date.now();
     const last = lastRuns.get(action);
@@ -110,15 +153,8 @@ export const runAction = async (action: HotkeyAction) => {
     lastRuns.set(action, now);
     if (last && now - last < REPEAT_WINDOW_MS) return;
 
-    if (NEEDS_ACCOUNT.includes(action) && !getStore().token) {
-        showMainWindow('/connect');
-        return;
-    }
-
-    try {
-        await handlers[action]();
-    } catch (error: any) {
-        log.error(`Action ${action} failed`, error);
-        notify(t('app.somethingWentWrong'), error.message);
-    }
+    await runGuarded(`Action ${action}`, NEEDS_ACCOUNT.includes(action), handlers[action]);
 };
+
+export const uploadPaths = (paths: string[]) =>
+    runGuarded('Upload', true, () => Promise.all(paths.map(uploadPath)));

@@ -190,4 +190,5 @@ export const handleUnauthorized = () => {
     stopDrive({ remove: true, forget: true });
     clearSession();
     broadcast('account:changed', null);
+    refreshTray();
 };
