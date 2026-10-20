@@ -48,100 +48,84 @@
                 @reach-end="handleLoadMore"
             >
                 <template #default="{ item }">
-                    <UiCard size="sm" class="group">
-                        <UiCardContent class="flex flex-col gap-3">
-                            <div
-                                class="relative flex aspect-video items-center justify-center overflow-hidden rounded-2xl bg-muted"
-                            >
-                                <img
-                                    v-if="item.thumbnail"
-                                    :src="item.thumbnail"
-                                    :alt="item.name"
-                                    class="size-full object-cover"
-                                />
-                                <component
-                                    :is="KIND_ICONS[item.kind]"
-                                    v-else
-                                    class="size-10 text-muted-foreground"
-                                />
+                    <UiContextMenu>
+                        <UiContextMenuTrigger as-child>
+                            <UiCard size="sm" class="group">
+                                <UiCardContent class="flex flex-col gap-3">
+                                    <div
+                                        class="relative flex aspect-video items-center justify-center overflow-hidden rounded-2xl bg-muted"
+                                    >
+                                        <img
+                                            v-if="item.thumbnail"
+                                            :src="item.thumbnail"
+                                            :alt="item.name"
+                                            class="size-full object-cover"
+                                        />
+                                        <component
+                                            :is="KIND_ICONS[item.kind]"
+                                            v-else
+                                            class="size-10 text-muted-foreground"
+                                        />
 
-                                <div
-                                    class="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100 has-data-[state=open]:opacity-100 pointer-coarse:opacity-100"
-                                >
-                                    <UiDropdownMenu>
-                                        <UiDropdownMenuTrigger as-child>
-                                            <UiButton
-                                                variant="secondary"
-                                                size="icon-sm"
-                                                :aria-label="$t('home.actions')"
-                                            >
-                                                <IEllipsis />
-                                            </UiButton>
-                                        </UiDropdownMenuTrigger>
-                                        <UiDropdownMenuContent align="end">
-                                            <template v-if="item.url">
-                                                <UiDropdownMenuItem
-                                                    @click="handleItem('history:copy', item)"
-                                                >
-                                                    <ICopy />
-                                                    {{ $t('home.copyLink') }}
-                                                </UiDropdownMenuItem>
-                                                <UiDropdownMenuItem
-                                                    @click="handleItem('history:open', item)"
-                                                >
-                                                    <IExternalLink />
-                                                    {{ $t('home.openLink') }}
-                                                </UiDropdownMenuItem>
-                                            </template>
-                                            <UiDropdownMenuItem
-                                                v-if="item.localPath"
-                                                @click="handleItem('history:showFile', item)"
-                                            >
-                                                <IFolderOpen />
-                                                {{ $t('home.showInFolder') }}
-                                            </UiDropdownMenuItem>
-                                            <UiDropdownMenuItem
-                                                v-if="harborState === 'ready' && item.fileId"
-                                                @click="handleItem('history:showInHarbor', item)"
-                                            >
-                                                <IAnchor />
-                                                {{ $t('home.showInHarbor') }}
-                                            </UiDropdownMenuItem>
-                                            <UiDropdownMenuSeparator
-                                                v-if="item.url || item.localPath"
-                                            />
-                                            <UiDropdownMenuItem
-                                                variant="destructive"
-                                                @click="handleItem('history:remove', item)"
-                                            >
-                                                <ITrash2 />
-                                                {{ $t('home.removeFromHistory') }}
-                                            </UiDropdownMenuItem>
-                                        </UiDropdownMenuContent>
-                                    </UiDropdownMenu>
-                                </div>
-                            </div>
+                                        <div
+                                            class="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100 has-data-[state=open]:opacity-100 pointer-coarse:opacity-100"
+                                        >
+                                            <UiDropdownMenu>
+                                                <UiDropdownMenuTrigger as-child>
+                                                    <UiButton
+                                                        variant="secondary"
+                                                        size="icon-sm"
+                                                        :aria-label="$t('home.actions')"
+                                                    >
+                                                        <IEllipsis />
+                                                    </UiButton>
+                                                </UiDropdownMenuTrigger>
+                                                <UiDropdownMenuContent align="end">
+                                                    <HistoryMenuItems
+                                                        :item="item"
+                                                        type="dropdown"
+                                                        :is-harbor-ready="harborState === 'ready'"
+                                                        @select="handleItem($event, item)"
+                                                        @view="handleView(item)"
+                                                    />
+                                                </UiDropdownMenuContent>
+                                            </UiDropdownMenu>
+                                        </div>
+                                    </div>
 
-                            <div class="flex min-w-0 flex-col gap-1">
-                                <TextBlock variant="small" class="truncate">
-                                    {{ item.name }}
-                                </TextBlock>
+                                    <div class="flex min-w-0 flex-col gap-1">
+                                        <TextBlock variant="small" class="truncate">
+                                            {{ item.name }}
+                                        </TextBlock>
 
-                                <UiProgress
-                                    v-if="progress[item.id]"
-                                    :model-value="progress[item.id]!.progress"
-                                    class="my-1.5"
-                                />
-                                <TextBlock
-                                    v-else
-                                    variant="muted"
-                                    :class="cn('truncate', item.error && 'text-destructive')"
-                                >
-                                    {{ describe(item) }}
-                                </TextBlock>
-                            </div>
-                        </UiCardContent>
-                    </UiCard>
+                                        <UiProgress
+                                            v-if="progress[item.id]"
+                                            :model-value="progress[item.id]!.progress"
+                                            class="my-1.5"
+                                        />
+                                        <TextBlock
+                                            v-else
+                                            variant="muted"
+                                            :class="
+                                                cn('truncate', item.error && 'text-destructive')
+                                            "
+                                        >
+                                            {{ describe(item) }}
+                                        </TextBlock>
+                                    </div>
+                                </UiCardContent>
+                            </UiCard>
+                        </UiContextMenuTrigger>
+                        <UiContextMenuContent class="w-56">
+                            <HistoryMenuItems
+                                :item="item"
+                                type="context"
+                                :is-harbor-ready="harborState === 'ready'"
+                                @select="handleItem($event, item)"
+                                @view="handleView(item)"
+                            />
+                        </UiContextMenuContent>
+                    </UiContextMenu>
                 </template>
 
                 <template #skeleton>
@@ -176,6 +160,8 @@ import { IFile, IFilm, IImage, IImagePlay, ILink, IUpload } from '#components';
 
 import type { HarborStatus, HistoryItem, HistoryKind, UploadProgress } from '../../shared/ipc';
 import type { HotkeyAction } from '../../shared/settings';
+
+import type { HistoryChannel } from '~/components/HistoryMenuItems.vue';
 
 const PAGE_SIZE = 60;
 
@@ -264,15 +250,7 @@ const handleLoadMore = async () => {
 
 const handleRun = (action: HotkeyAction) => desktop('capture:run', action);
 
-const handleItem = async (
-    channel:
-        | 'history:copy'
-        | 'history:open'
-        | 'history:showFile'
-        | 'history:showInHarbor'
-        | 'history:remove',
-    item: HistoryItem,
-) => {
+const handleItem = async (channel: HistoryChannel, item: HistoryItem) => {
     try {
         await desktop(channel, item.id);
         if (channel === 'history:copy') $toast.success(t('home.linkCopied'));
@@ -280,6 +258,9 @@ const handleItem = async (
         $toast.error(error.message);
     }
 };
+
+const handleView = (item: HistoryItem) =>
+    desktop('app:openDashboard', `/dashboard/files?file=${item.fileId}`);
 
 const handleClear = () =>
     askConfirmation({
