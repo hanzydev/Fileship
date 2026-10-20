@@ -23,6 +23,10 @@ Desktop:
 - [ ] Check a recording that spans two monitors end to end (border windows on both, gdigrab output size).
 - [ ] Ask testers for the real-mouse feel of the new overlay; automated tests used CDP input only.
 - [ ] Install 1.0.0 on a clean Windows machine and run through login, capture, upload, OCR, recording and Harbor.
+- [ ] Check Harbor in a real Explorer (only scripted COM and registry tests ran): thumbnails of online-only images and videos, with the app running and closed (`-Embedding` start), the state columns, Share, the Windows 11 status flyout, the context menu verbs and whether Explorer needs a restart after the first start.
+- [ ] Check the Explorer context menu "Upload to Fileship" with several selected files in a packaged build (one upload batch).
+- [ ] Check the tray: a single click opens the region capture after the double-click time, a double click only opens the window.
+- [ ] Check the 1.0.1 → next upgrade keeps the Harbor folder (`drive` / `driveRoot` store migration).
 
 Dashboard and infrastructure:
 
