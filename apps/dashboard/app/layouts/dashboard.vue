@@ -408,34 +408,22 @@
             </Transition>
 
             <Transition
-                enter-active-class="animate-in fade-in-0 duration-100 *:animate-in *:zoom-in-95 *:duration-100"
-                leave-active-class="animate-out fade-out-0 duration-100 *:animate-out *:zoom-out-95 *:duration-100"
+                enter-active-class="animate-in fade-in-0 duration-100"
+                leave-active-class="animate-out fade-out-0 duration-100"
             >
                 <div
                     v-if="isOverDropZone && canUpload && !uploadSheetOpen"
-                    class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 supports-backdrop-filter:backdrop-blur-sm"
+                    class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
                 >
-                    <UiCard class="w-full max-w-sm">
-                        <UiCardContent>
-                            <UiEmpty class="border border-dashed">
-                                <UiEmptyHeader>
-                                    <UiEmptyMedia variant="icon">
-                                        <IUpload />
-                                    </UiEmptyMedia>
-                                    <UiEmptyTitle>{{ $t('layout.drop.title') }}</UiEmptyTitle>
-                                    <UiEmptyDescription>
-                                        {{
-                                            currentFolderName
-                                                ? $t('layout.drop.toFolder', {
-                                                      folder: currentFolderName,
-                                                  })
-                                                : $t('layout.drop.copyLinks')
-                                        }}
-                                    </UiEmptyDescription>
-                                </UiEmptyHeader>
-                            </UiEmpty>
-                        </UiCardContent>
-                    </UiCard>
+                    <EmptyState
+                        :icon="IUpload"
+                        :title="$t('layout.drop.title')"
+                        :description="
+                            currentFolderName
+                                ? $t('layout.drop.toFolder', { folder: currentFolderName })
+                                : $t('layout.drop.copyLinks')
+                        "
+                    />
                 </div>
             </Transition>
         </div>
