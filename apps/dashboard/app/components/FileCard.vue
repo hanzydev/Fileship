@@ -73,7 +73,7 @@
                                     chipClass,
                                     !selected &&
                                         !selectionMode &&
-                                        'opacity-0 group-hover:opacity-100',
+                                        'opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100',
                                 )
                             "
                             @click.stop="emit('toggle', $event)"
@@ -85,7 +85,7 @@
                             v-if="!pickable"
                             :class="
                                 cn(
-                                    'absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100',
+                                    'absolute top-2 right-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100',
                                     chipClass,
                                 )
                             "
