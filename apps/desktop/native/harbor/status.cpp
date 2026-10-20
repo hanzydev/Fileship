@@ -4,10 +4,14 @@
 #include <shellapi.h>
 
 #include <winrt/Windows.Storage.Provider.h>
+#include <winrt/Windows.UI.ViewManagement.h>
+
+#include <filesystem>
 
 using namespace winrt;
 using namespace Windows::Foundation;
 using namespace Windows::Storage::Provider;
+using namespace Windows::UI::ViewManagement;
 
 namespace harbor {
 
@@ -21,22 +25,31 @@ std::mutex stateMutex;
 std::wstring currentState;
 std::vector<weak_ref<Source>> sources;
 
+Uri iconUri(std::wstring const& name) {
+    auto foreground = UISettings().GetColorValue(UIColorType::Foreground);
+    auto theme = foreground.R > 128 ? L"dark" : L"light";
+    auto path = std::filesystem::path(executablePath()).parent_path() / L"icons" / theme / (name + L".svg");
+    return Uri(hstring(path.wstring()));
+}
+
 struct Command : implements<Command, IStorageProviderUICommand> {
     hstring label;
+    Uri icon;
     std::function<void()> action;
 
-    Command(hstring text, std::function<void()> run) : label(std::move(text)), action(std::move(run)) {}
+    Command(hstring text, Uri image, std::function<void()> run)
+        : label(std::move(text)), icon(std::move(image)), action(std::move(run)) {}
 
     hstring Label() {
         return label;
     }
 
     hstring Description() {
-        return {};
+        return label;
     }
 
     Uri Icon() {
-        return nullptr;
+        return icon;
     }
 
     StorageProviderUICommandState State() {
@@ -77,9 +90,10 @@ struct Source : implements<Source, IStorageProviderStatusUISource> {
         StorageProviderStatusUI ui;
         ui.ProviderState(providerState);
         ui.ProviderStateLabel(text);
-        ui.ProviderPrimaryCommand(make<Command>(hstring(label(L"viewOnline")), [dashboard] { openUrl(dashboard); }));
-        ui.ProviderSecondaryCommands(single_threaded_vector<IStorageProviderUICommand>(
-            {make<Command>(hstring(label(L"settings")), [] { requestAction(L"settings", {}); })}));
+        ui.ProviderPrimaryCommand(
+            make<Command>(hstring(label(L"viewOnline")), iconUri(L"globe"), [dashboard] { openUrl(dashboard); }));
+        ui.ProviderSecondaryCommands(single_threaded_vector<IStorageProviderUICommand>({make<Command>(
+            hstring(label(L"settings")), iconUri(L"settings"), [] { requestAction(L"settings", {}); })}));
         return ui;
     }
 

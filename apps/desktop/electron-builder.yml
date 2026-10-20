@@ -17,6 +17,8 @@ extraResources:
       to: native/fileship-native.node
     - from: build/harbor/fileship-harbor.exe
       to: harbor/fileship-harbor.exe
+    - from: build/harbor/icons
+      to: harbor/icons
 
 electronFuses:
     runAsNode: false

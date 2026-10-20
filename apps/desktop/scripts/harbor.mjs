@@ -1,4 +1,4 @@
-import { mkdirSync } from 'node:fs';
+import { cpSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { moveAsideLocked, root, runWithMsvc, sourceFiles, writeVersionResource } from './msvc.mjs';
@@ -16,6 +16,7 @@ const resource = join(output, 'harbor.rc');
 const compiledResource = join(output, 'harbor.res');
 
 mkdirSync(objects, { recursive: true });
+cpSync(join(source, 'icons'), join(output, 'icons'), { recursive: true });
 moveAsideLocked(output, 'fileship-harbor.exe');
 
 writeVersionResource(resource, {
