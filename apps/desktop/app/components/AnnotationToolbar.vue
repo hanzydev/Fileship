@@ -75,18 +75,24 @@
                         </span>
                     </UiButton>
                 </UiPopoverTrigger>
-                <UiPopoverContent class="w-72" align="center" :side="side">
-                    <div class="grid grid-cols-8 gap-1">
-                        <UiButton
+                <UiPopoverContent
+                    class="w-72 shadow-md data-closed:zoom-out-100! data-open:zoom-in-100! data-[side=bottom]:slide-in-from-top-0! data-[side=left]:slide-in-from-right-0! data-[side=right]:slide-in-from-left-0! data-[side=top]:slide-in-from-bottom-0!"
+                    align="center"
+                    :side="side"
+                >
+                    <div
+                        class="grid grid-cols-8 gap-1 font-['Segoe_UI_Emoji','Apple_Color_Emoji',sans-serif]"
+                    >
+                        <button
                             v-for="emoji in EMOJIS"
                             :key="emoji"
-                            variant="ghost"
-                            size="icon-sm"
-                            class="text-lg"
+                            type="button"
+                            :aria-pressed="annotator.options.value.emoji === emoji"
+                            class="flex size-8 items-center justify-center rounded-full text-lg leading-none transition-colors outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/30 aria-pressed:bg-muted"
                             @click="annotator.setOption('emoji', emoji)"
                         >
                             {{ emoji }}
-                        </UiButton>
+                        </button>
                     </div>
                 </UiPopoverContent>
             </UiPopover>
