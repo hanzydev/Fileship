@@ -176,6 +176,11 @@ void handle(JsonObject const& request) {
             resolveAck(static_cast<uint64_t>(request.GetNamedNumber(L"requestId")),
                        request.GetNamedBoolean(L"ok"));
             return;
+        } else if (type == L"syncStatus") {
+            auto error = request.GetNamedValue(L"error", JsonValue::CreateNullValue());
+            reportSyncStatus(error.ValueType() == winrt::Windows::Data::Json::JsonValueType::String
+                                 ? std::optional<std::wstring>(error.GetString())
+                                 : std::nullopt);
         } else if (type == L"unregister") {
             revokeClassObjects();
             stopWatcher();

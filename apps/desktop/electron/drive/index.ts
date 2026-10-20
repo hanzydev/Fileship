@@ -88,12 +88,22 @@ const isEmptyFolder = (path: string) => {
 
 export const driveRoot = () => getSettings().drive.folder || join(app.getPath('home'), 'Fileship');
 
+const reportSyncStatus = (error: string | null) => {
+    if (!helper?.isRunning) return;
+
+    helper
+        .request('syncStatus', { error })
+        .catch((failure) => log.warn('Could not report the drive status', failure));
+};
+
 const setStatus = (patch: Partial<DriveStatus>) => {
     const isChanged = !!patch.state && patch.state !== status.state;
+    const isErrorChanged = patch.error !== undefined && patch.error !== status.error;
 
     status = { ...status, ...patch, files: files.size, folders: folders.size };
     broadcast('drive:status', status);
     if (isChanged) refreshTray();
+    if (isErrorChanged) reportSyncStatus(status.error);
 };
 
 export const getDriveStatus = () => status;

@@ -16,6 +16,8 @@ namespace drive {
 
 namespace {
 
+constexpr guid PROVIDER_ID{0x6f1c2b7e, 0x3d4a, 0x4e8b, {0x9a, 0x51, 0x2c, 0x7d, 0x80, 0xe4, 0x13, 0x5f}};
+
 CF_CONNECTION_KEY currentKey{};
 bool isConnected = false;
 
@@ -126,6 +128,8 @@ void registerSyncRoot() {
     info.ShowSiblingsAsGroup(false);
     info.AllowPinning(true);
     info.Version(settings.version);
+    info.ProviderId(PROVIDER_ID);
+    info.RecycleBinUri(Windows::Foundation::Uri(settings.instanceUrl + L"/dashboard/trash"));
     info.Context(CryptographicBuffer::ConvertStringToBinary(syncRootId(), BinaryStringEncoding::Utf8));
 
     StorageProviderSyncRootManager::Register(info);
@@ -164,6 +168,24 @@ void disconnectSyncRoot() {
 
     CfDisconnectSyncRoot(currentKey);
     isConnected = false;
+}
+
+void reportSyncStatus(std::optional<std::wstring> const& error) {
+    if (!error) {
+        check_hresult(CfReportSyncStatus(config().root.c_str(), nullptr));
+        return;
+    }
+
+    auto size = static_cast<ULONG>((error->size() + 1) * sizeof(wchar_t));
+    std::vector<BYTE> buffer(sizeof(CF_SYNC_STATUS) + size);
+    auto status = reinterpret_cast<CF_SYNC_STATUS*>(buffer.data());
+    status->StructSize = static_cast<ULONG>(buffer.size());
+    status->Code = 1;
+    status->DescriptionOffset = sizeof(CF_SYNC_STATUS);
+    status->DescriptionLength = size;
+    memcpy(buffer.data() + sizeof(CF_SYNC_STATUS), error->c_str(), size);
+
+    check_hresult(CfReportSyncStatus(config().root.c_str(), status));
 }
 
 }

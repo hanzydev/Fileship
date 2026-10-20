@@ -71,6 +71,7 @@ void unregisterSyncRoot(std::wstring const& id);
 void unregisterAll();
 void connectSyncRoot();
 void disconnectSyncRoot();
+void reportSyncStatus(std::optional<std::wstring> const& error);
 CF_CONNECTION_KEY connectionKey();
 
 void createPlaceholders(std::vector<PlaceholderItem> const& items);
