@@ -68,6 +68,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - `fileship-drive.exe --unregister-all` removes every Fileship sync root that Windows lists (the uninstaller runs it).
 - Shell handlers (thumbnails, and later custom states, verbs, sharing) are COM classes hosted by the helper itself (`native/drive/com.cpp`): per user under `HKCU\Software\Classes\CLSID\{clsid}\LocalServer32`, and named in the sync root key (`ThumbnailProvider` = `{clsid}`, written after every `Register()`; `Unregister()` deletes the whole key with our values). When Fileship is closed, COM starts `fileship-drive.exe -Embedding`, which reads `%LOCALAPPDATA%\Fileship\harbor.json` (token DPAPI protected) and exits after 30 s idle. Whether an already running Explorer picks up a new `ThumbnailProvider` without a restart is not verified yet.
 - `RecycleBinUri` is stored as `RecycleBinUrl` in the sync root key; `ProviderId` does not show up there.
+- `attrib +P` on a folder does not pin its children, and the watcher never sees the placeholders the helper creates itself. The helper pins the children of a pinned folder (`pinChildren`) and pins and hydrates new placeholders in a pinned folder (`inheritPin`).
 - Processes started from Claude Code's shell get `REGDB_E_CLASSNOTREG` for every per-user `LocalServer32`, so COM never launches the helper from there and Shell.Application sees no Explorer windows. Test `-Embedding` by starting it by hand and connecting with `CoCreateInstance`.
 
 ## Working with AI agents

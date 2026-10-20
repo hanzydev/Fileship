@@ -64,6 +64,23 @@ void retryLater(std::wstring const& relative) {
     changes[relative] = Clock::now();
 }
 
+void pinChildren(std::wstring const& folder) {
+    std::error_code error;
+
+    for (auto const& entry : std::filesystem::directory_iterator(folder, error)) {
+        auto path = entry.path().wstring();
+        CF_PIN_STATE pin = CF_PIN_STATE_UNSPECIFIED;
+        if (!placeholderIdentity(path, &pin, nullptr)) continue;
+        if (pin != CF_PIN_STATE_UNSPECIFIED && pin != CF_PIN_STATE_INHERIT) continue;
+
+        try {
+            setPinState(path, CF_PIN_STATE_PINNED);
+        } catch (hresult_error const& failure) {
+            log(L"Could not pin " + path + L": " + std::wstring(failure.message()));
+        }
+    }
+}
+
 void inspect(std::wstring const& relative) {
     auto absolute = fullPath(relative);
     auto name = std::filesystem::path(absolute).filename().wstring();
@@ -92,7 +109,10 @@ void inspect(std::wstring const& relative) {
         return;
     }
 
-    if (isFolder) return;
+    if (isFolder) {
+        if (pin == CF_PIN_STATE_PINNED) pinChildren(absolute);
+        return;
+    }
 
     if (isHydrated && isModified(absolute)) {
         if (!isClosed(absolute)) return retryLater(relative);

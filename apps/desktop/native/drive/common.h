@@ -88,6 +88,7 @@ JsonArray scanRoot();
 std::optional<std::wstring> placeholderIdentity(std::wstring const& absolute, CF_PIN_STATE* pin,
                                                 CF_IN_SYNC_STATE* sync);
 void hydratePath(std::wstring const& absolute);
+void setPinState(std::wstring const& absolute, CF_PIN_STATE pin);
 void dehydratePath(std::wstring const& absolute);
 
 void fetchData(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters);

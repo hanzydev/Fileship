@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include <thread>
+
 using namespace winrt;
 
 namespace drive {
@@ -98,6 +100,22 @@ void requireDirectory(std::wstring const& path) {
     if (!isDirectory(path)) throw_hresult(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND));
 }
 
+void inheritPin(std::wstring const& parent, std::wstring const& path) {
+    CF_PIN_STATE pin = CF_PIN_STATE_UNSPECIFIED;
+    if (!readIdentity(parent, &pin, nullptr) || pin != CF_PIN_STATE_PINNED) return;
+
+    setPinState(path, CF_PIN_STATE_PINNED);
+    if (isDirectory(path)) return;
+
+    std::thread([path] {
+        try {
+            hydratePath(path);
+        } catch (hresult_error const& error) {
+            log(L"Could not hydrate " + path + L": " + std::wstring(error.message()));
+        }
+    }).detach();
+}
+
 }
 
 void createPlaceholders(std::vector<PlaceholderItem> const& items) {
@@ -134,6 +152,7 @@ void createPlaceholders(std::vector<PlaceholderItem> const& items) {
 
         check_hresult(result);
         check_hresult(info.Result);
+        inheritPin(parent, absolute.wstring());
     }
 }
 
@@ -316,6 +335,11 @@ void hydratePath(std::wstring const& absolute) {
     LARGE_INTEGER length{};
     length.QuadPart = -1;
     check_hresult(CfHydratePlaceholder(handle.value, offset, length, CF_HYDRATE_FLAG_NONE, nullptr));
+}
+
+void setPinState(std::wstring const& absolute, CF_PIN_STATE pin) {
+    Handle handle(absolute, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES);
+    check_hresult(CfSetPinState(handle.value, pin, CF_SET_PIN_FLAG_NONE, nullptr));
 }
 
 void dehydratePath(std::wstring const& absolute) {
