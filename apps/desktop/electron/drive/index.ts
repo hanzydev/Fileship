@@ -996,3 +996,8 @@ export const stopDrive = (options: { remove?: boolean; forget?: boolean } = {}) 
     });
 
 export const openDrive = () => shell.openPath(driveRoot());
+
+export const drivePathFor = (fileId: string) => {
+    const entry = local.get(fileIdentity(fileId));
+    return status.state === 'ready' && entry && !entry.isFolder ? join(root, entry.path) : null;
+};
