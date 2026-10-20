@@ -156,7 +156,21 @@
         "helperFailed": "Harbor 辅助程序出错",
         "restarting": "Fileship Harbor 已停止，将在几秒后重新启动。",
         "notEmpty": "{root} 不是空文件夹。请为 Fileship Harbor 选择一个空文件夹。",
-        "helperMissing": "此版本缺少 Harbor 辅助程序。"
+        "helperMissing": "此版本缺少 Harbor 辅助程序。",
+        "locked": "受密码保护",
+        "expires": "过期时间",
+        "sensitive": "敏感内容",
+        "expiresOn": "过期时间：{date}",
+        "expiresAfterViews": "浏览 {count} 次后删除",
+        "upToDate": "已是最新",
+        "syncing": "正在同步…",
+        "syncError": "同步出错",
+        "offline": "Fileship 未运行",
+        "viewOnline": "在线查看",
+        "linkCopied": "链接已复制 | 已复制 {count} 个链接",
+        "linkFailed": "无法获取链接",
+        "notOnFileship": "尚未上传到 Fileship",
+        "notOnFileshipDescription": "等文件上传完成后再试一次。"
     },
     "driveSettings": {
         "title": "Fileship Harbor",
@@ -477,7 +491,10 @@
         "updates": "更新"
     },
     "shell": {
-        "upload": "上传到 Fileship"
+        "upload": "上传到 Fileship",
+        "copyLink": "复制 Fileship 链接",
+        "openInBrowser": "在浏览器中打开",
+        "showInFileship": "在 Fileship 中显示"
     },
     "tasks": {
         "uploaded": "已上传",

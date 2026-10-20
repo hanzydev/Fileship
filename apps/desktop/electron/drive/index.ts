@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, rmdirSync, rmSync, statSync } from 'node:fs';
-import { basename, join } from 'node:path';
+import { basename, join, relative } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 import { app, shell } from 'electron';
@@ -10,12 +10,15 @@ import { io, type Socket } from 'socket.io-client';
 import type { DriveStatus } from '../../shared/ipc';
 import { handleUnauthorized } from '../account';
 import { api, ApiError, desktopUserAgent } from '../api';
-import { t } from '../i18n';
+import { writeText } from '../clipboard';
+import { openDashboard } from '../dashboard';
+import { getLanguage, t } from '../i18n';
 import { mimeTypeOf } from '../mime';
+import { setHarborRoot } from '../shell';
 import { getSettings, getStore, getToken, updateStore } from '../store';
 import { refreshTray } from '../tray';
 import { resetUploadSettings, uploadFile } from '../upload';
-import { broadcast } from '../windows';
+import { broadcast, notify, openWebUrl, showMainWindow } from '../windows';
 import {
     DriveHelper,
     harborSessionPath,
@@ -40,6 +43,17 @@ type ApiFile = {
     size?: { raw: string } | string | number;
     createdAt: string;
     deletedAt?: string | null;
+    password?: string | null;
+    expiresAt?: string | null;
+    maxViews?: number;
+    piiDetected?: boolean;
+};
+
+type ApiFileLinks = {
+    mimeType: string;
+    directUrl: string;
+    embedUrl: string;
+    embed: { enabled: boolean };
 };
 
 type ApiFolder = { id: string; name: string; createdAt: string; deletedAt?: string | null };
@@ -52,6 +66,8 @@ const RETRY_DELAY_MS = 2000;
 const REPLACE_WINDOW_MS = 3000;
 const RETRY_DELAYS_MS = [5000, 15_000, 60_000];
 const FINISH_ATTEMPTS = 3;
+const STATES_BATCH = 100;
+const PROPERTY = { locked: 1, expires: 2, sensitive: 3 };
 
 let helper: DriveHelper | null = null;
 let socket: Socket | null = null;
@@ -64,6 +80,7 @@ let isSynced = false;
 let lifecycle: Promise<unknown> = Promise.resolve();
 let retryTimer: NodeJS.Timeout | null = null;
 let retries = 0;
+let statesQueue: Promise<unknown> = Promise.resolve();
 
 const folders = new Map<string, RemoteFolder>();
 const files = new Map<string, RemoteFile>();
@@ -72,6 +89,7 @@ const pendingPaths = new Set<string>();
 const hiddenFiles = new Set<string>();
 const cancelledUploads = new Set<string>();
 const uploadRetries = new Map<string, number>();
+const sentStates = new Map<string, string>();
 
 const isPendingIdentity = (identity: string) => identity.startsWith('p:');
 
@@ -88,11 +106,11 @@ const isEmptyFolder = (path: string) => {
 
 export const driveRoot = () => getSettings().drive.folder || join(app.getPath('home'), 'Fileship');
 
-const reportSyncStatus = (error: string | null) => {
+const reportSyncStatus = () => {
     if (!helper?.isRunning) return;
 
     helper
-        .request('syncStatus', { error })
+        .request('syncStatus', { state: status.state, error: status.error })
         .catch((failure) => log.warn('Could not report the drive status', failure));
 };
 
@@ -103,7 +121,7 @@ const setStatus = (patch: Partial<DriveStatus>) => {
     status = { ...status, ...patch, files: files.size, folders: folders.size };
     broadcast('drive:status', status);
     if (isChanged) refreshTray();
-    if (isErrorChanged) reportSyncStatus(status.error);
+    if (isChanged || isErrorChanged) reportSyncStatus();
 };
 
 export const getDriveStatus = () => status;
@@ -134,6 +152,15 @@ const toRemoteFile = (file: ApiFile, previous?: RemoteFile): RemoteFile => ({
     folderId: file.folderId !== undefined ? file.folderId : (previous?.folderId ?? null),
     size: file.size !== undefined ? toSize(file.size) : (previous?.size ?? 0),
     createdAt: file.createdAt ? new Date(file.createdAt).getTime() : (previous?.createdAt ?? 0),
+    isLocked: file.password !== undefined ? !!file.password : (previous?.isLocked ?? false),
+    expiresAt:
+        file.expiresAt !== undefined
+            ? file.expiresAt
+                ? new Date(file.expiresAt).getTime()
+                : null
+            : (previous?.expiresAt ?? null),
+    maxViews: file.maxViews ?? previous?.maxViews ?? 0,
+    isSensitive: file.piiDetected ?? previous?.isSensitive ?? false,
 });
 
 const toRemoteFolder = (folder: ApiFolder): RemoteFolder => ({
@@ -219,9 +246,66 @@ const placeEntry = async (entry: LayoutEntry) => {
         }
     } else {
         await helper!.request('create', { items: [entry] });
+        sentStates.set(entry.identity, '[]');
     }
 
     local.set(entry.identity, { path: entry.path, isFolder: entry.isFolder });
+};
+
+const formatDate = (time: number) =>
+    new Intl.DateTimeFormat(getLanguage(), { dateStyle: 'medium', timeStyle: 'short' }).format(
+        time,
+    );
+
+const expiryOf = (file: RemoteFile) => {
+    if (file.expiresAt) return t('drive.expiresOn', { date: formatDate(file.expiresAt) });
+    return file.maxViews ? t('drive.expiresAfterViews', { count: file.maxViews }) : null;
+};
+
+const propertiesOf = (file: RemoteFile) => {
+    const expiry = expiryOf(file);
+
+    return [
+        ...(file.isLocked ? [{ id: PROPERTY.locked, value: t('drive.locked') }] : []),
+        ...(expiry ? [{ id: PROPERTY.expires, value: expiry }] : []),
+        ...(file.isSensitive ? [{ id: PROPERTY.sensitive, value: t('drive.sensitive') }] : []),
+    ];
+};
+
+const sendStates = (entries: LayoutEntry[]) => {
+    const items = [];
+
+    for (const entry of entries) {
+        const file = files.get(entry.identity.slice(2));
+        if (entry.isFolder || !file || local.get(entry.identity)?.path !== entry.path) continue;
+
+        const properties = propertiesOf(file);
+        const key = JSON.stringify(properties);
+        if (sentStates.get(entry.identity) === key) continue;
+
+        sentStates.set(entry.identity, key);
+        items.push({ identity: entry.identity, path: entry.path, properties });
+    }
+
+    for (let index = 0; index < items.length; index += STATES_BATCH) {
+        const batch = items.slice(index, index + STATES_BATCH);
+        const current = helper!;
+
+        statesQueue = statesQueue
+            .then(() =>
+                current.request<{ failed: string[] }>('setStates', {
+                    items: batch.map(({ path, properties }) => ({ path, properties })),
+                }),
+            )
+            .then(({ failed }) => {
+                for (const item of batch)
+                    if (failed.includes(item.path)) sentStates.delete(item.identity);
+            })
+            .catch((error) => {
+                for (const item of batch) sentStates.delete(item.identity);
+                log.warn('Could not set the drive states', error);
+            });
+    }
 };
 
 const apply = async () => {
@@ -259,6 +343,7 @@ const apply = async () => {
             .catch((error) => log.warn('Could not remove', item.path, error));
     }
 
+    sendStates(entries);
     setStatus({ state: pendingPaths.size ? 'syncing' : 'ready', error: null });
 };
 
@@ -277,6 +362,7 @@ const reload = () =>
 
         const { items } = await helper!.request<{ items: ScanItem[] }>('scan');
         local.clear();
+        sentStates.clear();
 
         const unsynced: ScanItem[] = [];
 
@@ -518,7 +604,18 @@ const uploadLocal = async (path: string, folderId: string | null) => {
     });
 
     await reported;
-    return { id: uploaded.id, name: uploaded.name, folderId, size, createdAt: Date.now() };
+
+    return {
+        id: uploaded.id,
+        name: uploaded.name,
+        folderId,
+        size,
+        createdAt: Date.now(),
+        isLocked: false,
+        expiresAt: null,
+        maxViews: 0,
+        isSensitive: false,
+    };
 };
 
 const finishUpload = async (file: RemoteFile, finish: (file: RemoteFile) => Promise<void>) => {
@@ -707,7 +804,7 @@ const handleLocalModified = async (event: Extract<HelperEvent, { type: 'localMod
     );
 };
 
-const runHelperEvent = (event: Exclude<HelperEvent, { type: 'rescan' }>) => {
+const runHelperEvent = (event: Exclude<HelperEvent, { type: 'rescan' | 'action' }>) => {
     if (event.type === 'delete') return handleDelete(event);
     if (event.type === 'rename') return handleRename(event);
     if (event.type === 'localNew') return handleLocalNew(event);
@@ -721,6 +818,11 @@ const runHelperEvent = (event: Exclude<HelperEvent, { type: 'rescan' }>) => {
 const handleHelperEvent = (event: HelperEvent) => {
     if (event.type === 'rescan') {
         resync();
+        return;
+    }
+
+    if (event.type === 'action') {
+        runDriveAction(event.action, event.paths);
         return;
     }
 
@@ -748,15 +850,11 @@ const connectSocket = () => {
         scheduleApply();
     });
 
-    socket.on('file:update', (file: Partial<ApiFile> & { id: string }) => {
+    socket.on('file:update', (file: ApiFile) => {
         const previous = files.get(file.id);
         if (!previous) return;
 
-        files.set(file.id, {
-            ...previous,
-            ...(file.name ? { name: file.name } : {}),
-            ...('folderId' in file ? { folderId: file.folderId ?? null } : {}),
-        });
+        files.set(file.id, toRemoteFile(file, previous));
         scheduleApply();
     });
 
@@ -886,6 +984,21 @@ const launch = async () => {
             instanceUrl,
             userAgent: desktopUserAgent(),
             token: getToken(),
+            appPath: app.isPackaged ? process.execPath : '',
+            properties: [
+                { id: PROPERTY.locked, name: t('drive.locked') },
+                { id: PROPERTY.expires, name: t('drive.expires') },
+                { id: PROPERTY.sensitive, name: t('drive.sensitive') },
+            ],
+            labels: {
+                copyLink: t('shell.copyLink'),
+                upToDate: t('drive.upToDate'),
+                syncing: t('drive.syncing'),
+                error: t('drive.syncError'),
+                offline: t('drive.offline'),
+                viewOnline: t('drive.viewOnline'),
+                settings: t('tray.settings'),
+            },
         });
 
         if (isUnknownRoot && !(await holdsDrive(current))) {
@@ -900,6 +1013,7 @@ const launch = async () => {
 
         updateStore({ driveRoot: root });
         current.on('event', handleHelperEvent);
+        setHarborRoot(root);
         return true;
     } catch (error: any) {
         log.error('Could not start the drive', error);
@@ -937,6 +1051,8 @@ export const stopDrive = (options: { remove?: boolean; forget?: boolean } = {}) 
     serialize(async () => {
         clearRetry();
         retries = 0;
+
+        if (options.remove) setHarborRoot(null);
 
         if (options.forget) {
             updateStore({ driveRoot: null });
@@ -995,6 +1111,7 @@ export const stopDrive = (options: { remove?: boolean; forget?: boolean } = {}) 
         await current.stop();
         helper = null;
         local.clear();
+        sentStates.clear();
         files.clear();
         folders.clear();
 
@@ -1010,6 +1127,64 @@ export const stopDrive = (options: { remove?: boolean; forget?: boolean } = {}) 
     });
 
 export const openDrive = () => shell.openPath(driveRoot());
+
+const fileIdAt = (path: string) => {
+    if (!root) return null;
+
+    const target = relative(root, path).toLowerCase();
+
+    for (const [identity, item] of local) {
+        if (identity.startsWith('f:') && item.path.toLowerCase() === target)
+            return identity.slice(2);
+    }
+
+    return null;
+};
+
+const linksOf = async (id: string) => {
+    const file = await driveApi<ApiFileLinks>(`/api/files/${id}`);
+    const isPage = file.embed.enabled || file.mimeType.startsWith('text/');
+    return { copy: isPage ? file.embedUrl : file.directUrl, open: file.embedUrl };
+};
+
+export const runDriveAction = async (action: string, paths: string[]) => {
+    if (action === 'settings') {
+        showMainWindow('/settings/drive');
+        return;
+    }
+
+    await startDrive();
+
+    const ids = paths.map(fileIdAt).filter((id) => id !== null);
+
+    if (!ids.length) {
+        notify(t('drive.notOnFileship'), t('drive.notOnFileshipDescription'));
+        return;
+    }
+
+    if (action === 'show') {
+        await openDashboard(`/dashboard/files?file=${ids[0]}`);
+        return;
+    }
+
+    try {
+        const links = await Promise.all(ids.map(linksOf));
+
+        if (action === 'open') {
+            for (const link of links) openWebUrl(link.open);
+            return;
+        }
+
+        await writeText(links.map((link) => link.copy).join('\n'));
+        notify(
+            t('drive.linkCopied', { count: links.length }),
+            links.map((link) => link.copy).join('\n'),
+        );
+    } catch (error: any) {
+        log.warn(`Drive ${action} failed`, error);
+        notify(t('drive.linkFailed'), error.message);
+    }
+};
 
 export const drivePathFor = (fileId: string) => {
     const entry = local.get(fileIdentity(fileId));

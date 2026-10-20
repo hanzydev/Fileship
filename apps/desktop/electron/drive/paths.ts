@@ -6,6 +6,10 @@ export type RemoteFile = {
     folderId: string | null;
     size: number;
     createdAt: number;
+    isLocked: boolean;
+    expiresAt: number | null;
+    maxViews: number;
+    isSensitive: boolean;
 };
 
 export type LayoutEntry = {

@@ -156,7 +156,21 @@
         "helperFailed": "Harbor yardımcısında bir sorun oluştu",
         "restarting": "Fileship Harbor durdu. Birkaç saniye içinde yeniden başlar.",
         "notEmpty": "{root} boş değil. Fileship Harbor için boş bir klasör seç.",
-        "helperMissing": "Bu sürümde Harbor yardımcısı yok."
+        "helperMissing": "Bu sürümde Harbor yardımcısı yok.",
+        "locked": "Şifre korumalı",
+        "expires": "Son kullanma",
+        "sensitive": "Hassas içerik",
+        "expiresOn": "Sona erer: {date}",
+        "expiresAfterViews": "{count} görüntülenmeden sonra silinir",
+        "upToDate": "Güncel",
+        "syncing": "Eşitleniyor…",
+        "syncError": "Eşitleme sorunu",
+        "offline": "Fileship çalışmıyor",
+        "viewOnline": "Çevrimiçi görüntüle",
+        "linkCopied": "Bağlantı kopyalandı | {count} bağlantı kopyalandı",
+        "linkFailed": "Bağlantı alınamadı",
+        "notOnFileship": "Henüz Fileship'te değil",
+        "notOnFileshipDescription": "Dosya yüklendikten sonra tekrar dene."
     },
     "driveSettings": {
         "title": "Fileship Harbor",
@@ -477,7 +491,10 @@
         "updates": "Güncellemeler"
     },
     "shell": {
-        "upload": "Fileship'e yükle"
+        "upload": "Fileship'e yükle",
+        "copyLink": "Fileship bağlantısını kopyala",
+        "openInBrowser": "Tarayıcıda aç",
+        "showInFileship": "Fileship'te göster"
     },
     "tasks": {
         "uploaded": "Yüklendi",

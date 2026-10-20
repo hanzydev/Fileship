@@ -156,7 +156,21 @@
         "helperFailed": "Fehler im Harbor-Hilfsprogramm",
         "restarting": "Fileship Harbor wurde beendet und startet in wenigen Sekunden neu.",
         "notEmpty": "{root} ist nicht leer. Wähle einen leeren Ordner für Fileship Harbor.",
-        "helperMissing": "Das Harbor-Hilfsprogramm fehlt in dieser Version."
+        "helperMissing": "Das Harbor-Hilfsprogramm fehlt in dieser Version.",
+        "locked": "Passwortgeschützt",
+        "expires": "Ablauf",
+        "sensitive": "Sensible Inhalte",
+        "expiresOn": "Läuft ab: {date}",
+        "expiresAfterViews": "Wird nach {count} Aufruf gelöscht | Wird nach {count} Aufrufen gelöscht",
+        "upToDate": "Auf dem neuesten Stand",
+        "syncing": "Wird synchronisiert…",
+        "syncError": "Synchronisierungsfehler",
+        "offline": "Fileship läuft nicht",
+        "viewOnline": "Online ansehen",
+        "linkCopied": "Link kopiert | {count} Links kopiert",
+        "linkFailed": "Link konnte nicht abgerufen werden",
+        "notOnFileship": "Noch nicht auf Fileship",
+        "notOnFileshipDescription": "Warte, bis die Datei hochgeladen ist, und versuch es dann noch einmal."
     },
     "driveSettings": {
         "title": "Fileship Harbor",
@@ -477,7 +491,10 @@
         "updates": "Updates"
     },
     "shell": {
-        "upload": "Auf Fileship hochladen"
+        "upload": "Auf Fileship hochladen",
+        "copyLink": "Fileship-Link kopieren",
+        "openInBrowser": "Im Browser öffnen",
+        "showInFileship": "In Fileship anzeigen"
     },
     "tasks": {
         "uploaded": "Hochgeladen",

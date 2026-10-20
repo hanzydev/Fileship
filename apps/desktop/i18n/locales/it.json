@@ -156,7 +156,21 @@
         "helperFailed": "Errore nel processo di Harbor",
         "restarting": "Fileship Harbor si è arrestato. Si riavvia tra qualche secondo.",
         "notEmpty": "La cartella {root} non è vuota. Scegli una cartella vuota per Fileship Harbor.",
-        "helperMissing": "Il processo di Harbor non è incluso in questa build."
+        "helperMissing": "Il processo di Harbor non è incluso in questa build.",
+        "locked": "Protetto da password",
+        "expires": "Scadenza",
+        "sensitive": "Contenuto sensibile",
+        "expiresOn": "Scade il {date}",
+        "expiresAfterViews": "Eliminato dopo {count} visualizzazione | Eliminato dopo {count} visualizzazioni",
+        "upToDate": "Aggiornato",
+        "syncing": "Sincronizzazione…",
+        "syncError": "Errore di sincronizzazione",
+        "offline": "Fileship non è in esecuzione",
+        "viewOnline": "Visualizza online",
+        "linkCopied": "Link copiato | {count} link copiati",
+        "linkFailed": "Impossibile ottenere il link",
+        "notOnFileship": "Non ancora su Fileship",
+        "notOnFileshipDescription": "Attendi che il file venga caricato e riprova."
     },
     "driveSettings": {
         "title": "Fileship Harbor",
@@ -477,7 +491,10 @@
         "updates": "Aggiornamenti"
     },
     "shell": {
-        "upload": "Carica su Fileship"
+        "upload": "Carica su Fileship",
+        "copyLink": "Copia link Fileship",
+        "openInBrowser": "Apri nel browser",
+        "showInFileship": "Mostra in Fileship"
     },
     "tasks": {
         "uploaded": "Caricato",

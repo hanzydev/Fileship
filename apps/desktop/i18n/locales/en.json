@@ -156,7 +156,21 @@
         "helperFailed": "The Harbor helper failed",
         "restarting": "Fileship Harbor stopped. It restarts in a few seconds.",
         "notEmpty": "{root} is not empty. Choose an empty folder for Fileship Harbor.",
-        "helperMissing": "The Harbor helper is missing from this build."
+        "helperMissing": "The Harbor helper is missing from this build.",
+        "locked": "Password protected",
+        "expires": "Expires",
+        "sensitive": "Sensitive content",
+        "expiresOn": "Expires {date}",
+        "expiresAfterViews": "Deleted after {count} view | Deleted after {count} views",
+        "upToDate": "Up to date",
+        "syncing": "Syncing…",
+        "syncError": "Sync error",
+        "offline": "Fileship is not running",
+        "viewOnline": "View online",
+        "linkCopied": "Link copied | {count} links copied",
+        "linkFailed": "Could not get the link",
+        "notOnFileship": "Not on Fileship yet",
+        "notOnFileshipDescription": "Wait until the file is uploaded, then try again."
     },
     "driveSettings": {
         "title": "Fileship Harbor",
@@ -477,7 +491,10 @@
         "updates": "Updates"
     },
     "shell": {
-        "upload": "Upload to Fileship"
+        "upload": "Upload to Fileship",
+        "copyLink": "Copy Fileship link",
+        "openInBrowser": "Open in browser",
+        "showInFileship": "Show in Fileship"
     },
     "tasks": {
         "uploaded": "Uploaded",

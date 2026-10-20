@@ -156,7 +156,21 @@
         "helperFailed": "Le processus Harbor a rencontré une erreur",
         "restarting": "Fileship Harbor s'est arrêté. Il redémarre dans quelques secondes.",
         "notEmpty": "{root} n'est pas vide. Choisissez un dossier vide pour Fileship Harbor.",
-        "helperMissing": "Le processus Harbor est absent de cette version."
+        "helperMissing": "Le processus Harbor est absent de cette version.",
+        "locked": "Protégé par mot de passe",
+        "expires": "Expiration",
+        "sensitive": "Contenu sensible",
+        "expiresOn": "Expire le {date}",
+        "expiresAfterViews": "Supprimé après {count} vue | Supprimé après {count} vues",
+        "upToDate": "À jour",
+        "syncing": "Synchronisation…",
+        "syncError": "Erreur de synchronisation",
+        "offline": "Fileship n'est pas lancé",
+        "viewOnline": "Afficher en ligne",
+        "linkCopied": "Lien copié | {count} liens copiés",
+        "linkFailed": "Impossible d'obtenir le lien",
+        "notOnFileship": "Pas encore sur Fileship",
+        "notOnFileshipDescription": "Attendez la fin de l'importation du fichier, puis réessayez."
     },
     "driveSettings": {
         "title": "Fileship Harbor",
@@ -477,7 +491,10 @@
         "updates": "Mises à jour"
     },
     "shell": {
-        "upload": "Importer dans Fileship"
+        "upload": "Importer dans Fileship",
+        "copyLink": "Copier le lien Fileship",
+        "openInBrowser": "Ouvrir dans le navigateur",
+        "showInFileship": "Afficher dans Fileship"
     },
     "tasks": {
         "uploaded": "Importé",
