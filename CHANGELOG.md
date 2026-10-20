@@ -1,5 +1,83 @@
 # Changelog
 
+## v6.1.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v6.0.0...v6.1.0)
+
+Fileship 6.1 speaks seven more languages, lets you skip the trash, and comes with Fileship for Windows 1.1, whose File Explorer integration is now called Fileship Harbor.
+
+### ✨ Highlights
+
+- **Seven new languages.** The dashboard and the Windows app are now available in German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese, next to English and Turkish, including API errors.
+- **Delete forever.** The delete confirmation has a **Delete forever** button next to **Move to trash**, so files, folders and notes can skip the trash.
+- **Touch friendly.** File selection, card menus and the code copy button show without hovering on phones and tablets.
+- **Same drop screen everywhere.** Dragging files over the dashboard shows the same overlay as the Windows app.
+- **Fileship for Windows 1.1** ([fileship-desktop](https://github.com/hanzydev/fileship-desktop)):
+    - The File Explorer integration is now **Fileship Harbor**, with an explanation on its settings page. Your Harbor folder and settings are kept when you update.
+    - Harbor shows thumbnails of images and videos without downloading them, adds Password, Expires and Sensitive status columns, a Share entry, the Windows 11 status flyout, and **Copy Fileship link**, **Open in browser** and **Show in Fileship** in the context menu.
+    - Fixed files that stayed on the sync icon instead of the green check after an operation finished, and folders that never turned green.
+    - **Upload to Fileship** in the Explorer context menu of any file.
+    - Recent files get a right-click menu, **View in Fileship** (opens the file in the dashboard) and **Show in Fileship Harbor**.
+    - A double click on the tray icon opens only the app; a single click still starts a region capture.
+    - The emoji picker in the capture toolbar opens without stuttering.
+
+### 🚀 Enhancements
+
+- **desktop:** Add a context menu and View in Fileship to recent files ([b9fb884b](https://github.com/hanzydev/Fileship/commit/b9fb884b))
+- Add Azerbaijani, Japanese and Korean ([2bed4284](https://github.com/hanzydev/Fileship/commit/2bed4284))
+- **desktop:** Show Fileship Harbor file states and link actions in Explorer ([a7bdb13a](https://github.com/hanzydev/Fileship/commit/a7bdb13a))
+- **desktop:** Add custom states, a share handler and the status flyout to the Harbor helper ([95ef16f4](https://github.com/hanzydev/Fileship/commit/95ef16f4))
+- **desktop:** Keep Fileship Harbor items in pinned folders on the device ([619e5204](https://github.com/hanzydev/Fileship/commit/619e5204))
+- **desktop:** Report Fileship Harbor sync errors and the trash to Explorer ([3db5fd69](https://github.com/hanzydev/Fileship/commit/3db5fd69))
+- **desktop:** Host Fileship Harbor shell handlers in the drive helper ([ab60fb7f](https://github.com/hanzydev/Fileship/commit/ab60fb7f))
+- **desktop:** Show Explorer thumbnails for Fileship Harbor files ([19b905ca](https://github.com/hanzydev/Fileship/commit/19b905ca))
+- Add Simplified Chinese, German, French and Italian ([ffa767a7](https://github.com/hanzydev/Fileship/commit/ffa767a7))
+- **desktop:** Call the drive Fileship Harbor and explain it in the settings ([6aa35e53](https://github.com/hanzydev/Fileship/commit/6aa35e53))
+- **desktop:** Find the Fileship Harbor path of an uploaded file ([6bdaf5b7](https://github.com/hanzydev/Fileship/commit/6bdaf5b7))
+- Delete files, folders and notes forever from the confirmation ([b5b5308c](https://github.com/hanzydev/Fileship/commit/b5b5308c))
+- **ui:** Add a secondary action to the confirmation dialog ([4b5f7121](https://github.com/hanzydev/Fileship/commit/4b5f7121))
+- **desktop:** Show uploaded files in Fileship Harbor ([6712030e](https://github.com/hanzydev/Fileship/commit/6712030e))
+- **desktop:** Upload files from the Explorer context menu ([06da9f4f](https://github.com/hanzydev/Fileship/commit/06da9f4f))
+
+### 🩹 Fixes
+
+- **desktop:** Use an anchor icon for Fileship Harbor ([b2cc989f](https://github.com/hanzydev/Fileship/commit/b2cc989f))
+- **desktop:** Keep the Harbor helper alive while Explorer holds a thumbnail provider ([a2859f14](https://github.com/hanzydev/Fileship/commit/a2859f14))
+- **ui:** Make move to trash the primary action next to delete forever ([7593c56c](https://github.com/hanzydev/Fileship/commit/7593c56c))
+- **desktop:** Keep Fileship drive items and folders marked in sync ([b820bf3c](https://github.com/hanzydev/Fileship/commit/b820bf3c))
+- **desktop:** Animate the drop overlay and show card menus on touch ([a0b2fc1b](https://github.com/hanzydev/Fileship/commit/a0b2fc1b))
+- **ui:** Show the code copy button on touch devices ([9fc8d9f4](https://github.com/hanzydev/Fileship/commit/9fc8d9f4))
+- **ui:** Show file selection on touch devices ([5a8f532c](https://github.com/hanzydev/Fileship/commit/5a8f532c))
+- **ui:** Match the dashboard drop overlay to the desktop app ([8a0923e5](https://github.com/hanzydev/Fileship/commit/8a0923e5))
+- **desktop:** Open only the main window on a tray double click ([cef15311](https://github.com/hanzydev/Fileship/commit/cef15311))
+
+### 🔥 Performance
+
+- **desktop:** Open the emoji picker without stutter ([042255bd](https://github.com/hanzydev/Fileship/commit/042255bd))
+
+### 💅 Refactors
+
+- **desktop:** Rename the drive to Harbor in code, files and settings ([de9fb14d](https://github.com/hanzydev/Fileship/commit/de9fb14d))
+- **desktop:** Share the drive helper's HTTP client ([973984ea](https://github.com/hanzydev/Fileship/commit/973984ea))
+
+### 📖 Documentation
+
+- List the manual checks for the new Windows app features ([6944c8e3](https://github.com/hanzydev/Fileship/commit/6944c8e3))
+- Call the Explorer integration Harbor everywhere ([94effce9](https://github.com/hanzydev/Fileship/commit/94effce9))
+- Call the Windows drive Fileship Harbor ([3397c9e0](https://github.com/hanzydev/Fileship/commit/3397c9e0))
+- Link telemetry only from the documentation list ([8e818f76](https://github.com/hanzydev/Fileship/commit/8e818f76))
+- Keep the README short and move the details to docs/ ([1c89c986](https://github.com/hanzydev/Fileship/commit/1c89c986))
+- Add Fileship for Windows to the README ([e867bed9](https://github.com/hanzydev/Fileship/commit/e867bed9))
+
+### 🏡 Chore
+
+- List Simplified Chinese after the other Asian languages ([7c357efa](https://github.com/hanzydev/Fileship/commit/7c357efa))
+- **desktop:** Pass extra arguments from the dev script to Electron ([bd096a3d](https://github.com/hanzydev/Fileship/commit/bd096a3d))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v6.0.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v5.4.4...v6.0.0)
