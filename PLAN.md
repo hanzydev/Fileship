@@ -10,7 +10,7 @@ Shipped in 6.0.0 (and the Windows app 1.0.0):
 - AI analysis on a worker thread (`packages/ai`): image and text embeddings, captions, OCR, sensitive-content detection, and smart search with calibrated cutoffs; fulltext search works for every script.
 - English, Turkish, Simplified Chinese, German, French, Italian, Azerbaijani, Japanese and Korean for the dashboard (UI and API errors) and the Windows app.
 - Telemetry panel (`apps/telemetry`) and the anonymous report schema (`packages/telemetry`).
-- Fileship for Windows (`apps/desktop`): ShareX-style capture across monitors with annotations, OCR, screen and GIF recording, uploads with history, the File Explorer drive, auto-updates from `hanzydev/fileship-desktop`.
+- Fileship for Windows (`apps/desktop`): ShareX-style capture across monitors with annotations, OCR, screen and GIF recording, uploads with history, Fileship Harbor in File Explorer, auto-updates from `hanzydev/fileship-desktop`.
 - The upgrade from 5.4.4 was tested in Docker: migrations, files, folders, notes and passwords are kept; the steps are in the 6.0.0 section of `CHANGELOG.md`.
 
 ## Open gaps
@@ -22,7 +22,7 @@ Desktop:
 - [ ] Recording border: when the monitors have different heights and the area runs past the shorter one, the edge inside the area on that monitor has no border line.
 - [ ] Check a recording that spans two monitors end to end (border windows on both, gdigrab output size).
 - [ ] Ask testers for the real-mouse feel of the new overlay; automated tests used CDP input only.
-- [ ] Install 1.0.0 on a clean Windows machine and run through login, capture, upload, OCR, recording and the drive.
+- [ ] Install 1.0.0 on a clean Windows machine and run through login, capture, upload, OCR, recording and Harbor.
 
 Dashboard and infrastructure:
 

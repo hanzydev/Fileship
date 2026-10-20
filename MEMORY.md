@@ -19,7 +19,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - Translations: English is the source and fallback; Turkish, Simplified Chinese, German, French, Italian, Azerbaijani, Japanese and Korean follow it. The telemetry panel is not translated on purpose (it gets the layer's English messages only and keeps `pluralize`). Turkish copy is written as native product text in the "sen" form, never word by word; see [I18N.md](I18N.md).
 - The desktop app has no separate image editor. It was removed on purpose because the region overlay already annotates while selecting; do not bring it back.
 - Desktop capture follows ShareX: Print Screen captures the active monitor, Ctrl+Print Screen opens the region overlay, a selection finishes on mouse release, annotations can be drawn before choosing the region, and one toolbar serves every monitor.
-- The drive is called **Fileship Harbor** ("Harbor" for short) in the UI and the docs, in every language. Internal names stay `drive` (code, settings keys, `/settings/drive`, i18n keys, `fileship-drive.exe`, sync root ids) so existing installs keep working.
+- The Explorer integration is called **Fileship Harbor** ("Harbor" for short) in the UI and the docs, in every language, and `harbor` everywhere in the project (code, settings keys, `/settings/harbor`, i18n keys, IPC channels, `--harbor-action`, `fileship-harbor.exe`). 1.0.1 stored `settings.drive` and `driveRoot`; `migrateHarbor` in `electron/store.ts` moves them over when the store loads.
 
 ## Releasing
 
@@ -55,18 +55,18 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 ## Testing the desktop app safely
 
 - The dev app and the installed app share one profile (`%APPDATA%\Fileship`) and a single-instance lock. Run a test instance with its own `--user-data-dir`, for example: start `pnpm exec nuxt dev --port 3020` and `npx tsdown` in `apps/desktop`, then run Electron from `apps/desktop` with `DESKTOP_RENDERER_URL=http://localhost:3020` and `npx electron . --user-data-dir=<scratch folder> --remote-debugging-port=<port>`.
-- In a test profile, turn global hotkeys off (`hotkeysEnabled: false`), or the test instance takes Print Screen away from the real app. Keep the drive off, and turn uploads off (`afterCapture.upload`) unless the test needs them.
+- In a test profile, turn global hotkeys off (`hotkeysEnabled: false`), or the test instance takes Print Screen away from the real app. Keep Harbor off, and turn uploads off (`afterCapture.upload`) unless the test needs them.
 - Log test instances in with a dedicated test account on a local dashboard, never with a real account.
 - Packaged builds refuse `--remote-debugging-port` and close DevTools. Use CDP against a dev instance.
 - The capture overlay covers every monitor, so the real mouse moving or clicking during an automated test cancels synthetic drags or captures a window. Keep visible tests short and always close the overlay with Escape.
-- Never point a test drive at `%USERPROFILE%\Fileship` or another real folder. Note that Windows does not report sync roots under `%TEMP%` through `GetCurrentSyncRoots` or `GetSyncRootInformationForFolder`, even though registering them works.
+- Never point a test Harbor at `%USERPROFILE%\Fileship` or another real folder. Note that Windows does not report sync roots under `%TEMP%` through `GetCurrentSyncRoots` or `GetSyncRootInformationForFolder`, even though registering them works.
 
-## Drive (Cloud Files API) facts
+## Harbor (Cloud Files API) facts
 
 - Each account registers its own sync root `Fileship!<SID>!<account key>` (the key is a hash of the instance URL and user id). A folder can belong to only one sync root; registering it again under another id fails with `Access is denied`. The helper therefore unregisters a stale Fileship root of the same Windows user on the same folder before registering.
 - A failed registration can leave an empty key under `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SyncRootManager`; it is harmless and is filled in by the next successful registration.
-- `fileship-drive.exe --unregister-all` removes every Fileship sync root that Windows lists (the uninstaller runs it).
-- Shell handlers (thumbnails, `ShareHandler`, the status flyout) are COM classes hosted by the helper itself (`native/drive/com.cpp`): per user under `HKCU\Software\Classes\CLSID\{clsid}\LocalServer32`, and named in the sync root key (`ThumbnailProvider` = `{clsid}`, written after every `Register()`; `Unregister()` deletes the whole key with our values). When Fileship is closed, COM starts `fileship-drive.exe -Embedding`, which reads `%LOCALAPPDATA%\Fileship\harbor.json` (token DPAPI protected) and exits after 30 s idle. Whether an already running Explorer picks up a new `ThumbnailProvider` without a restart is not verified yet.
+- `fileship-harbor.exe --unregister-all` removes every Fileship sync root that Windows lists (the uninstaller runs it).
+- Shell handlers (thumbnails, `ShareHandler`, the status flyout) are COM classes hosted by the helper itself (`native/harbor/com.cpp`): per user under `HKCU\Software\Classes\CLSID\{clsid}\LocalServer32`, and named in the sync root key (`ThumbnailProvider` = `{clsid}`, written after every `Register()`; `Unregister()` deletes the whole key with our values). When Fileship is closed, COM starts `fileship-harbor.exe -Embedding`, which reads `%LOCALAPPDATA%\Fileship\harbor.json` (token DPAPI protected) and exits after 30 s idle. Whether an already running Explorer picks up a new `ThumbnailProvider` without a restart is not verified yet.
 - `RecycleBinUri` is stored as `RecycleBinUrl` in the sync root key; `ProviderId` does not show up there.
 - `attrib +P` on a folder does not pin its children, and the watcher never sees the placeholders the helper creates itself. The helper pins the children of a pinned folder (`pinChildren`) and pins and hydrates new placeholders in a pinned folder (`inheritPin`).
 - Processes started from Claude Code's shell get `REGDB_E_CLASSNOTREG` for every per-user `LocalServer32`, so COM never launches the helper from there and Shell.Application sees no Explorer windows. Test `-Embedding` by starting it by hand and connecting with `CoCreateInstance`.
@@ -78,7 +78,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 
 - `CLAUDE.md` imports `AGENTS.md`, `MEMORY.md` and `PLAN.md`; other tools read `AGENTS.md`, which points here.
 - Agents commit with conventional commits, one topic per commit, and do not push, tag or publish unless asked. A tag push publishes a public desktop release, so treat it like a release.
-- Agents never touch real accounts, real drive folders, `.env` files or secrets, and never run destructive database commands. Test accounts and test data are created for the task and removed afterwards.
+- Agents never touch real accounts, real Harbor folders, `.env` files or secrets, and never run destructive database commands. Test accounts and test data are created for the task and removed afterwards.
 - Parallel agents in one checkout must own separate files, stage only their own paths (`git add <paths>`, never `-A`) and re-read a file before editing it. Files that many tasks touch (`overlay.vue`, `useAnnotator.ts`, `nuxt.config.ts`) belong to one agent at a time.
 - Keep AGENTS.md accurate: when a change alters a documented behaviour, update the paragraph in the same commit.
 - Keep the README short on purpose. It once grew to about 450 lines and nobody read it; user-facing details belong in `docs/`.
