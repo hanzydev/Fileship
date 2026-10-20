@@ -33,9 +33,10 @@ let electron = null;
 let restartTimer = null;
 
 const startElectron = () => {
-    const args = process.env.DESKTOP_DEBUG_PORT
-        ? ['.', `--remote-debugging-port=${process.env.DESKTOP_DEBUG_PORT}`]
-        : ['.'];
+    const args = ['.', ...process.argv.slice(2).filter((arg) => arg !== '--')];
+    if (process.env.DESKTOP_DEBUG_PORT) {
+        args.push(`--remote-debugging-port=${process.env.DESKTOP_DEBUG_PORT}`);
+    }
 
     electron = spawn(electronPath, args, {
         stdio: 'inherit',
