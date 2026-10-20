@@ -854,7 +854,11 @@
         "language": {
             "system": "Sistem",
             "en": "English",
-            "tr": "Türkçe"
+            "tr": "Türkçe",
+            "zh": "简体中文",
+            "de": "Deutsch",
+            "fr": "Français",
+            "it": "Italiano"
         }
     },
     "layout": {

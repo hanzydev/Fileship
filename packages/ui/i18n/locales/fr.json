@@ -1,0 +1,30 @@
+{
+    "common": {
+        "cancel": "Annuler",
+        "continue": "Continuer",
+        "close": "Fermer",
+        "more": "Plus",
+        "breadcrumb": "Fil d'Ariane",
+        "loading": "Chargement",
+        "sidebar": "Barre latérale",
+        "mobileSidebar": "Affiche la barre latérale mobile.",
+        "toggleSidebar": "Afficher ou masquer la barre latérale",
+        "toggleTheme": "Changer de thème",
+        "showPassword": "Afficher le mot de passe",
+        "hidePassword": "Masquer le mot de passe",
+        "commandPalette": "Palette de commandes",
+        "commandPaletteDescription": "Rechercher une commande à exécuter",
+        "somethingWentWrong": "Un problème est survenu",
+        "noData": "Aucune donnée pour le moment",
+        "loadFailed": "Impossible de charger les données",
+        "goHome": "Retour à l'accueil"
+    },
+    "error": {
+        "401": "Non autorisé",
+        "403": "Accès refusé",
+        "404": "Page introuvable",
+        "500": "Un problème est survenu",
+        "goBack": "Retour",
+        "default": "Erreur"
+    }
+}

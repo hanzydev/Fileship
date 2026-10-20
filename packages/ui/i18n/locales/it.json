@@ -1,0 +1,30 @@
+{
+    "common": {
+        "cancel": "Annulla",
+        "continue": "Continua",
+        "close": "Chiudi",
+        "more": "Altro",
+        "breadcrumb": "Percorso",
+        "loading": "Caricamento",
+        "sidebar": "Barra laterale",
+        "mobileSidebar": "Mostra la barra laterale per dispositivi mobili.",
+        "toggleSidebar": "Mostra o nascondi la barra laterale",
+        "toggleTheme": "Cambia tema",
+        "showPassword": "Mostra password",
+        "hidePassword": "Nascondi password",
+        "commandPalette": "Palette dei comandi",
+        "commandPaletteDescription": "Cerca un comando da eseguire",
+        "somethingWentWrong": "Si è verificato un problema",
+        "noData": "Ancora nessun dato",
+        "loadFailed": "Impossibile caricare i dati",
+        "goHome": "Torna alla home"
+    },
+    "error": {
+        "401": "Accesso non effettuato",
+        "403": "Accesso negato",
+        "404": "Pagina non trovata",
+        "500": "Si è verificato un problema",
+        "goBack": "Torna indietro",
+        "default": "Errore"
+    }
+}

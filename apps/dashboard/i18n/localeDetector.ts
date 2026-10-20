@@ -1,8 +1,8 @@
-const LOCALES = ['en', 'tr'];
+import { type Language, LANGUAGES } from '../shared/utils/languages';
 
 const pick = (value?: string | null) => {
     const language = value?.split('-')[0]?.toLowerCase();
-    return language && LOCALES.includes(language) ? language : undefined;
+    return language && LANGUAGES.includes(language as Language) ? language : undefined;
 };
 
 export default defineI18nLocaleDetector((event, config) => {

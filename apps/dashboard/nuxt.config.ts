@@ -46,6 +46,10 @@ export default defineNuxtConfig({
         locales: [
             { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
             { code: 'tr', language: 'tr-TR', name: 'Türkçe', file: 'tr.json' },
+            { code: 'zh', language: 'zh-CN', name: '简体中文', file: 'zh.json' },
+            { code: 'de', language: 'de-DE', name: 'Deutsch', file: 'de.json' },
+            { code: 'fr', language: 'fr-FR', name: 'Français', file: 'fr.json' },
+            { code: 'it', language: 'it-IT', name: 'Italiano', file: 'it.json' },
         ],
         detectBrowserLanguage: {
             useCookie: true,
@@ -196,7 +200,11 @@ export default defineNuxtConfig({
             include: [
                 '@unovis/vue',
                 'dayjs', // CJS
+                'dayjs/locale/de', // CJS
+                'dayjs/locale/fr', // CJS
+                'dayjs/locale/it', // CJS
                 'dayjs/locale/tr', // CJS
+                'dayjs/locale/zh', // CJS
                 'dayjs/plugin/duration', // CJS
                 'dayjs/plugin/localizedFormat', // CJS
                 'dayjs/plugin/relativeTime', // CJS

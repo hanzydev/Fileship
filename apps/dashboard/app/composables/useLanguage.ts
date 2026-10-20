@@ -1,7 +1,3 @@
-export const LANGUAGES = ['en', 'tr'] as const;
-
-export type Language = (typeof LANGUAGES)[number];
-
 export const applyLanguage = async (language?: string | null) => {
     const { $i18n } = useNuxtApp();
     const browserLocale = $i18n.getBrowserLocale();

@@ -38,7 +38,7 @@ const validationSchema = z
         superAdmin: z.boolean().optional(),
         verificationData: z.any().nullish(),
         theme: z.enum(Object.keys(accents) as [Accent]).optional(),
-        language: z.enum(['en', 'tr']).nullable().optional(),
+        language: z.enum(LANGUAGES).nullable().optional(),
     })
     .strict();
 

@@ -1,0 +1,30 @@
+{
+    "common": {
+        "cancel": "取消",
+        "continue": "继续",
+        "close": "关闭",
+        "more": "更多",
+        "breadcrumb": "页面路径",
+        "loading": "加载中",
+        "sidebar": "侧边栏",
+        "mobileSidebar": "显示移动端侧边栏。",
+        "toggleSidebar": "展开或收起侧边栏",
+        "toggleTheme": "切换主题",
+        "showPassword": "显示密码",
+        "hidePassword": "隐藏密码",
+        "commandPalette": "命令面板",
+        "commandPaletteDescription": "搜索要执行的命令",
+        "somethingWentWrong": "出了点问题",
+        "noData": "暂无数据",
+        "loadFailed": "无法加载数据",
+        "goHome": "返回首页"
+    },
+    "error": {
+        "401": "未登录",
+        "403": "无权访问",
+        "404": "找不到页面",
+        "500": "出了点问题",
+        "goBack": "返回",
+        "default": "错误"
+    }
+}

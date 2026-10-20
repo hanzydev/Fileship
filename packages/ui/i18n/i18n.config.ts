@@ -1,9 +1,17 @@
+import de from './locales/de.json';
 import en from './locales/en.json';
+import fr from './locales/fr.json';
+import it from './locales/it.json';
 import tr from './locales/tr.json';
+import zh from './locales/zh.json';
 
 export default defineI18nConfig(() => ({
     fallbackLocale: 'en',
     missingWarn: false,
     fallbackWarn: false,
-    messages: { en, tr },
+    messages: { en, tr, zh, de, fr, it },
+    pluralRules: {
+        fr: (choice: number, choicesLength: number) =>
+            choicesLength === 2 ? Number(Math.abs(choice) > 1) : Math.min(Math.abs(choice), 2),
+    },
 }));

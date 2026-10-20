@@ -34,7 +34,7 @@
 - Multiple users with permissions and storage limits, passkeys and two-factor authentication
 - Zero-downtime updates, one click or on a schedule
 - ShareX, macOS and Linux upload integrations, and the [Windows app](docs/desktop.md)
-- English and Turkish
+- English, Turkish, Simplified Chinese, German, French and Italian
 
 ## 🖥️ Fileship for Windows
 

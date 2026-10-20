@@ -1,0 +1,30 @@
+{
+    "common": {
+        "cancel": "Abbrechen",
+        "continue": "Weiter",
+        "close": "Schließen",
+        "more": "Mehr",
+        "breadcrumb": "Navigationspfad",
+        "loading": "Wird geladen",
+        "sidebar": "Seitenleiste",
+        "mobileSidebar": "Zeigt die mobile Seitenleiste an.",
+        "toggleSidebar": "Seitenleiste ein- oder ausblenden",
+        "toggleTheme": "Design wechseln",
+        "showPassword": "Passwort anzeigen",
+        "hidePassword": "Passwort ausblenden",
+        "commandPalette": "Befehlspalette",
+        "commandPaletteDescription": "Nach einem Befehl suchen",
+        "somethingWentWrong": "Etwas ist schiefgelaufen",
+        "noData": "Noch keine Daten",
+        "loadFailed": "Daten konnten nicht geladen werden",
+        "goHome": "Zur Startseite"
+    },
+    "error": {
+        "401": "Nicht angemeldet",
+        "403": "Zugriff verweigert",
+        "404": "Seite nicht gefunden",
+        "500": "Etwas ist schiefgelaufen",
+        "goBack": "Zurück",
+        "default": "Fehler"
+    }
+}
