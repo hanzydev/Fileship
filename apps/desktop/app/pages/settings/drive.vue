@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ICloud, ICloudDownload, IFilePen, ITrash2 } from '#components';
+import { ICloud, ICloudDownload, IFilePen, IFolderSync, IFolderTree, ITrash2 } from '#components';
 
 import type { DriveStatus } from '../../../shared/ipc';
 
@@ -113,6 +113,11 @@ const TIPS = [
         description: 'driveSettings.tips.offlineDescription',
     },
     {
+        icon: IFolderSync,
+        title: 'driveSettings.tips.sync',
+        description: 'driveSettings.tips.syncDescription',
+    },
+    {
         icon: IFilePen,
         title: 'driveSettings.tips.edits',
         description: 'driveSettings.tips.editsDescription',
@@ -121,6 +126,11 @@ const TIPS = [
         icon: ITrash2,
         title: 'driveSettings.tips.delete',
         description: 'driveSettings.tips.deleteDescription',
+    },
+    {
+        icon: IFolderTree,
+        title: 'driveSettings.tips.folders',
+        description: 'driveSettings.tips.foldersDescription',
     },
 ];
 
