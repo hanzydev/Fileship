@@ -50,6 +50,9 @@ export default defineNuxtConfig({
             { code: 'de', language: 'de-DE', name: 'Deutsch', file: 'de.json' },
             { code: 'fr', language: 'fr-FR', name: 'Français', file: 'fr.json' },
             { code: 'it', language: 'it-IT', name: 'Italiano', file: 'it.json' },
+            { code: 'az', language: 'az-AZ', name: 'Azərbaycanca', file: 'az.json' },
+            { code: 'ja', language: 'ja-JP', name: '日本語', file: 'ja.json' },
+            { code: 'ko', language: 'ko-KR', name: '한국어', file: 'ko.json' },
         ],
         detectBrowserLanguage: {
             useCookie: true,
@@ -203,6 +206,9 @@ export default defineNuxtConfig({
                 'dayjs/locale/de', // CJS
                 'dayjs/locale/fr', // CJS
                 'dayjs/locale/it', // CJS
+                'dayjs/locale/az', // CJS
+                'dayjs/locale/ja', // CJS
+                'dayjs/locale/ko', // CJS
                 'dayjs/locale/tr', // CJS
                 'dayjs/locale/zh', // CJS
                 'dayjs/plugin/duration', // CJS

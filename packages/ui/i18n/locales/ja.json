@@ -1,0 +1,30 @@
+{
+    "common": {
+        "cancel": "キャンセル",
+        "continue": "続行",
+        "close": "閉じる",
+        "more": "その他",
+        "breadcrumb": "パンくずリスト",
+        "loading": "読み込み中",
+        "sidebar": "サイドバー",
+        "mobileSidebar": "モバイル用のサイドバーを表示します。",
+        "toggleSidebar": "サイドバーの表示を切り替え",
+        "toggleTheme": "テーマを切り替え",
+        "showPassword": "パスワードを表示",
+        "hidePassword": "パスワードを非表示",
+        "commandPalette": "コマンドパレット",
+        "commandPaletteDescription": "実行するコマンドを検索",
+        "somethingWentWrong": "問題が発生しました",
+        "noData": "データはまだありません",
+        "loadFailed": "データを読み込めませんでした",
+        "goHome": "ホームに戻る"
+    },
+    "error": {
+        "401": "ログインが必要です",
+        "403": "アクセスが拒否されました",
+        "404": "ページが見つかりません",
+        "500": "問題が発生しました",
+        "goBack": "戻る",
+        "default": "エラー"
+    }
+}

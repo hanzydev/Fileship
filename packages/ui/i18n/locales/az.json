@@ -1,0 +1,30 @@
+{
+    "common": {
+        "cancel": "Ləğv et",
+        "continue": "Davam et",
+        "close": "Bağla",
+        "more": "Digər",
+        "breadcrumb": "Səhifə yolu",
+        "loading": "Yüklənir",
+        "sidebar": "Yan panel",
+        "mobileSidebar": "Mobil yan paneli göstərir.",
+        "toggleSidebar": "Yan paneli aç və ya bağla",
+        "toggleTheme": "Temanı dəyiş",
+        "showPassword": "Şifrəni göstər",
+        "hidePassword": "Şifrəni gizlət",
+        "commandPalette": "Əmr paleti",
+        "commandPaletteDescription": "İcra ediləcək əmri axtar",
+        "somethingWentWrong": "Xəta baş verdi",
+        "noData": "Hələ məlumat yoxdur",
+        "loadFailed": "Məlumatlar yüklənmədi",
+        "goHome": "Ana səhifəyə qayıt"
+    },
+    "error": {
+        "401": "Daxil olmamısan",
+        "403": "Giriş qadağandır",
+        "404": "Səhifə tapılmadı",
+        "500": "Xəta baş verdi",
+        "goBack": "Geri qayıt",
+        "default": "Xəta"
+    }
+}
