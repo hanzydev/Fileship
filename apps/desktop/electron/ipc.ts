@@ -30,6 +30,7 @@ import {
     showRecorderWindow,
     writeRecordingAudio,
 } from './recording/recorder';
+import { registerShellMenu } from './shell';
 import { getSettings, updateSettings } from './store';
 import { refreshTray } from './tray';
 import { checkForUpdates, getUpdateStatus, installUpdate } from './updater';
@@ -70,6 +71,7 @@ const applySettings = () => {
 
     if (updateLanguage()) {
         refreshTray();
+        registerShellMenu();
         broadcast('app:language', getLanguage());
     }
 };

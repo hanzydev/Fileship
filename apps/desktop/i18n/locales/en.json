@@ -467,6 +467,9 @@
         "account": "Account",
         "updates": "Updates"
     },
+    "shell": {
+        "upload": "Upload to Fileship"
+    },
     "tasks": {
         "uploaded": "Uploaded",
         "uploadedLinkCopied": "Uploaded, link copied",

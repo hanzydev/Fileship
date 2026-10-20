@@ -9,6 +9,7 @@ import { isCapturing, watchDisplays } from './overlay';
 import { handleAppProtocol, registerAppScheme } from './protocol';
 import { getFfmpeg } from './recording/ffmpeg';
 import { isRecording, quitRecorder, registerRecorder } from './recording/recorder';
+import { handleLaunch, registerShellMenu } from './shell';
 import { isWorking } from './tasks';
 import { createTray } from './tray';
 import { setBusyCheck, startUpdater } from './updater';
@@ -31,7 +32,9 @@ if (!app.requestSingleInstanceLock()) {
 app.setAppUserModelId(app.isPackaged ? 'dev.hanzy.fileship' : 'dev.hanzy.fileship.dev');
 registerAppScheme();
 
-app.on('second-instance', () => showMainWindow());
+app.on('second-instance', (_, argv, workingDirectory) => {
+    if (!handleLaunch(argv, workingDirectory)) showMainWindow();
+});
 
 app.on('window-all-closed', () => {});
 
@@ -49,10 +52,11 @@ app.whenReady().then(() => {
     if (!process.env.DESKTOP_RENDERER_URL) handleAppProtocol();
 
     updateLanguage();
+    registerShellMenu();
 
     registerIpc();
     registerRecorder();
-    if (!process.argv.includes('--hidden')) showMainWindow();
+    if (!handleLaunch(process.argv) && !process.argv.includes('--hidden')) showMainWindow();
     createTray();
     watchDisplays();
     registerHotkeys();

@@ -467,6 +467,9 @@
         "account": "Hesap",
         "updates": "Güncellemeler"
     },
+    "shell": {
+        "upload": "Fileship'e yükle"
+    },
     "tasks": {
         "uploaded": "Yüklendi",
         "uploadedLinkCopied": "Yüklendi, bağlantı kopyalandı",
