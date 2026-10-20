@@ -5,6 +5,7 @@ export type ConfirmOptions = {
     destructive?: boolean;
     option?: { label: string; value: boolean };
     action?: () => Promise<unknown>;
+    secondary?: { text: string; destructive?: boolean; action: () => Promise<unknown> };
 };
 
 const confirmState = ref<(ConfirmOptions & { resolve: (value: boolean) => void }) | null>(null);
