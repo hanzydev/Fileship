@@ -8,19 +8,29 @@ export const useTrash = () => {
     const retentionDays = computed(() => publicSettings.value.trashRetentionDays);
     const isEnabled = computed(() => retentionDays.value > 0);
 
-    const deleteConfirmation = (label: string) =>
+    const deleteConfirmation = (
+        label: string,
+        remove: (permanent: boolean) => Promise<unknown>,
+    ): ConfirmOptions =>
         isEnabled.value
             ? {
                   title: t('trash.moveTitle', { label }),
                   description: t('trash.moveDescription', retentionDays.value),
                   confirmText: t('trash.moveToTrash'),
                   destructive: true,
+                  action: () => remove(false),
+                  secondary: {
+                      text: t('trash.deleteForever'),
+                      destructive: true,
+                      action: () => remove(true),
+                  },
               }
             : {
                   title: t('trash.deleteTitle', { label }),
                   description: t('trash.cannotUndo'),
                   confirmText: t('trash.delete'),
                   destructive: true,
+                  action: () => remove(true),
               };
 
     const restore = async (selection: TrashSelection) => {
@@ -37,8 +47,8 @@ export const useTrash = () => {
         }
     };
 
-    const notifyDeleted = (label: string, selection: TrashSelection) => {
-        if (!isEnabled.value) return $toast.success(t('trash.deleted', { label }));
+    const notifyDeleted = (label: string, selection: TrashSelection, permanent: boolean) => {
+        if (permanent) return $toast.success(t('trash.deleted', { label }));
 
         $toast.success(t('trash.movedToTrash', { label }), {
             action: { label: t('trash.undo'), onClick: () => restore(selection) },

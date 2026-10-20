@@ -19,7 +19,6 @@
             "makingPublic": "Making folder public…",
             "nowPrivate": "Folder is now private",
             "nowPublic": "Folder is now public",
-            "alsoTrashFiles": "Also move the files inside to trash",
             "alsoDeleteFiles": "Also delete the files inside",
             "label": "Folder",
             "labelWithFiles": "Folder and its files",

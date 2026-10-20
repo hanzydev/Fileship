@@ -37,19 +37,21 @@ export const useNoteActions = () => {
     };
 
     const remove = async (note: NoteData) => {
-        await askConfirmation({
-            ...deleteConfirmation(note.title),
-            action: async () => {
+        await askConfirmation(
+            deleteConfirmation(note.title, async (permanent) => {
                 try {
-                    await $fetch(`/api/notes/${note.id}`, { method: 'DELETE' });
-                    notifyDeleted(t('actions.note.label'), { notes: [note.id] });
+                    await $fetch(`/api/notes/${note.id}`, {
+                        method: 'DELETE',
+                        body: { permanent },
+                    });
+                    notifyDeleted(t('actions.note.label'), { notes: [note.id] }, permanent);
 
                     if ((route.params as any).id === note.id) navigateTo('/dashboard/notes');
                 } catch (error: any) {
                     $toast.error(getErrorMessage(error));
                 }
-            },
-        });
+            }),
+        );
     };
 
     return { copyLink, copyContent, togglePublic, remove };

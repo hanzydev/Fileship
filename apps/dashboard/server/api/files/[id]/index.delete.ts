@@ -1,8 +1,21 @@
+import z from 'zod';
+
+const validationSchema = z
+    .object({
+        permanent: z.boolean().optional(),
+    })
+    .default({});
+
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
     const currentUser = event.context.user!;
     const fileId = getRouterParam(event, 'id');
+    const body = await readValidatedBody(event, validationSchema.safeParse);
+
+    if (!body.success) {
+        throw invalidBodyError(body.error);
+    }
 
     const findFileById = await prisma.file.findUnique({
         where: {
@@ -16,7 +29,7 @@ export default defineEventHandler(async (event) => {
         throw apiError(404, 'errorsFiles.fileNotFound');
     }
 
-    const isTrashed = await isTrashEnabled();
+    const isTrashed = !body.data.permanent && (await isTrashEnabled());
 
     if (isTrashed) {
         await prisma.file.update({ where: { id: fileId }, data: { deletedAt: new Date() } });

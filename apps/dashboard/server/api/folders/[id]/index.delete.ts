@@ -2,6 +2,7 @@ import z from 'zod';
 
 const validationSchema = z.object({
     deleteFilesToo: z.boolean().optional(),
+    permanent: z.boolean().optional(),
 });
 
 export default defineEventHandler(async (event) => {
@@ -35,7 +36,7 @@ export default defineEventHandler(async (event) => {
         throw apiError(400, 'errorsContent.inboxFolderDelete');
     }
 
-    const isTrashed = await isTrashEnabled();
+    const isTrashed = !body.data.permanent && (await isTrashEnabled());
 
     if (isTrashed) {
         const deletedAt = new Date();

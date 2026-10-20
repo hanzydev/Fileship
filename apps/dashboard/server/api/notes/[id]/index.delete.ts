@@ -1,8 +1,21 @@
+import z from 'zod';
+
+const validationSchema = z
+    .object({
+        permanent: z.boolean().optional(),
+    })
+    .default({});
+
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
     const currentUser = event.context.user!;
     const noteId = getRouterParam(event, 'id');
+    const body = await readValidatedBody(event, validationSchema.safeParse);
+
+    if (!body.success) {
+        throw invalidBodyError(body.error);
+    }
 
     const findNoteById = await prisma.note.findUnique({
         where: {
@@ -16,7 +29,7 @@ export default defineEventHandler(async (event) => {
         throw apiError(404, 'errorsContent.noteNotFound');
     }
 
-    const isTrashed = await isTrashEnabled();
+    const isTrashed = !body.data.permanent && (await isTrashEnabled());
 
     if (isTrashed) {
         await prisma.note.update({ where: { id: noteId }, data: { deletedAt: new Date() } });

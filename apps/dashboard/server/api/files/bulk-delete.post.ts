@@ -2,6 +2,7 @@ import z from 'zod';
 
 const validationSchema = z.object({
     files: z.array(z.uuid()).min(1).max(5000),
+    permanent: z.boolean().optional(),
 });
 
 export default defineEventHandler(async (event) => {
@@ -31,7 +32,7 @@ export default defineEventHandler(async (event) => {
 
     const fileIds = filesToBeDeleted.map((file) => file.id);
 
-    const isTrashed = await isTrashEnabled();
+    const isTrashed = !body.data.permanent && (await isTrashEnabled());
 
     if (isTrashed) {
         await prisma.file.updateMany({

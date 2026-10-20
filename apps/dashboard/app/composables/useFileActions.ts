@@ -57,30 +57,34 @@ export const useFileActions = () => {
     const remove = async (files: Pick<FileData, 'id' | 'name'>[]) => {
         const filesText = files.length > 1 ? t('actions.file.count', files.length) : files[0]!.name;
 
-        return askConfirmation({
-            ...deleteConfirmation(filesText),
-            action: async () => {
+        return askConfirmation(
+            deleteConfirmation(filesText, async (permanent) => {
                 try {
                     if (files.length > 1) {
                         for (const chunk of chunkIds(files.map((file) => file.id))) {
                             await $fetch('/api/files/bulk-delete', {
                                 method: 'POST',
-                                body: { files: chunk },
+                                body: { files: chunk, permanent },
                             });
                         }
                     } else {
-                        await $fetch(`/api/files/${files[0]!.id}`, { method: 'DELETE' });
+                        await $fetch(`/api/files/${files[0]!.id}`, {
+                            method: 'DELETE',
+                            body: { permanent },
+                        });
                     }
 
-                    notifyDeleted(t('actions.file.label', files.length), {
-                        files: files.map((file) => file.id),
-                    });
+                    notifyDeleted(
+                        t('actions.file.label', files.length),
+                        { files: files.map((file) => file.id) },
+                        permanent,
+                    );
                 } catch (error: any) {
                     $toast.error(getErrorMessage(error));
                     return false;
                 }
-            },
-        });
+            }),
+        );
     };
 
     const setSensitive = async (file: Pick<FileData, 'id'>, sensitive: boolean) => {
