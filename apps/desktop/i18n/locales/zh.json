@@ -238,6 +238,7 @@
         "copyLink": "复制链接",
         "openLink": "打开链接",
         "showInFolder": "在文件夹中显示",
+        "viewInFileship": "在 Fileship 中查看",
         "showInHarbor": "在 Fileship Harbor 中显示",
         "removeFromHistory": "从历史记录中移除",
         "dropTitle": "松开即可上传",
@@ -309,13 +310,13 @@
             "system": "跟随 Windows",
             "en": "English",
             "tr": "Türkçe",
-            "zh": "简体中文",
             "de": "Deutsch",
             "fr": "Français",
             "it": "Italiano",
             "az": "Azərbaycanca",
             "ja": "日本語",
-            "ko": "한국어"
+            "ko": "한국어",
+            "zh": "简体中文"
         }
     },
     "nav": {

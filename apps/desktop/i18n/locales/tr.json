@@ -238,6 +238,7 @@
         "copyLink": "Bağlantıyı kopyala",
         "openLink": "Bağlantıyı aç",
         "showInFolder": "Klasörde göster",
+        "viewInFileship": "Fileship'te görüntüle",
         "showInHarbor": "Fileship Harbor'da göster",
         "removeFromHistory": "Geçmişten kaldır",
         "dropTitle": "Yüklemek için bırak",
@@ -309,13 +310,13 @@
             "system": "Windows ile aynı",
             "en": "English",
             "tr": "Türkçe",
-            "zh": "简体中文",
             "de": "Deutsch",
             "fr": "Français",
             "it": "Italiano",
             "az": "Azərbaycanca",
             "ja": "日本語",
-            "ko": "한국어"
+            "ko": "한국어",
+            "zh": "简体中文"
         }
     },
     "nav": {

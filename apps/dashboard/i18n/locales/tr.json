@@ -855,13 +855,13 @@
             "system": "Sistem",
             "en": "English",
             "tr": "Türkçe",
-            "zh": "简体中文",
             "de": "Deutsch",
             "fr": "Français",
             "it": "Italiano",
             "az": "Azərbaycanca",
             "ja": "日本語",
-            "ko": "한국어"
+            "ko": "한국어",
+            "zh": "简体中文"
         }
     },
     "layout": {

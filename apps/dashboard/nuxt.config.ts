@@ -46,13 +46,13 @@ export default defineNuxtConfig({
         locales: [
             { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
             { code: 'tr', language: 'tr-TR', name: 'Türkçe', file: 'tr.json' },
-            { code: 'zh', language: 'zh-CN', name: '简体中文', file: 'zh.json' },
             { code: 'de', language: 'de-DE', name: 'Deutsch', file: 'de.json' },
             { code: 'fr', language: 'fr-FR', name: 'Français', file: 'fr.json' },
             { code: 'it', language: 'it-IT', name: 'Italiano', file: 'it.json' },
             { code: 'az', language: 'az-AZ', name: 'Azərbaycanca', file: 'az.json' },
             { code: 'ja', language: 'ja-JP', name: '日本語', file: 'ja.json' },
             { code: 'ko', language: 'ko-KR', name: '한국어', file: 'ko.json' },
+            { code: 'zh', language: 'zh-CN', name: '简体中文', file: 'zh.json' },
         ],
         detectBrowserLanguage: {
             useCookie: true,

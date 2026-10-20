@@ -1,3 +1,3 @@
-export const LANGUAGES = ['en', 'tr', 'zh', 'de', 'fr', 'it', 'az', 'ja', 'ko'] as const;
+export const LANGUAGES = ['en', 'tr', 'de', 'fr', 'it', 'az', 'ja', 'ko', 'zh'] as const;
 
 export type Language = (typeof LANGUAGES)[number];

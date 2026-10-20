@@ -8,7 +8,7 @@ Shipped in 6.0.0 (and the Windows app 1.0.0):
 
 - Dashboard rebuilt on shadcn-vue and the shared `packages/ui` layer, with the trash, storages (local, S3, SFTP, FTP), short links, inbox, backups, passkeys, TOTP and server-side sessions.
 - AI analysis on a worker thread (`packages/ai`): image and text embeddings, captions, OCR, sensitive-content detection, and smart search with calibrated cutoffs; fulltext search works for every script.
-- English, Turkish, Simplified Chinese, German, French, Italian, Azerbaijani, Japanese and Korean for the dashboard (UI and API errors) and the Windows app.
+- English, Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese for the dashboard (UI and API errors) and the Windows app.
 - Telemetry panel (`apps/telemetry`) and the anonymous report schema (`packages/telemetry`).
 - Fileship for Windows (`apps/desktop`): ShareX-style capture across monitors with annotations, OCR, screen and GIF recording, uploads with history, Fileship Harbor in File Explorer, auto-updates from `hanzydev/fileship-desktop`.
 - The upgrade from 5.4.4 was tested in Docker: migrations, files, folders, notes and passwords are kept; the steps are in the 6.0.0 section of `CHANGELOG.md`.

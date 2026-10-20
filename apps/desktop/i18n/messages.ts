@@ -8,8 +8,8 @@ import ko from './locales/ko.json';
 import tr from './locales/tr.json';
 import zh from './locales/zh.json';
 
-export const LANGUAGES = ['en', 'tr', 'zh', 'de', 'fr', 'it', 'az', 'ja', 'ko'] as const;
+export const LANGUAGES = ['en', 'tr', 'de', 'fr', 'it', 'az', 'ja', 'ko', 'zh'] as const;
 
 export type Language = (typeof LANGUAGES)[number];
 
-export const messages = { en, tr, zh, de, fr, it, az, ja, ko };
+export const messages = { en, tr, de, fr, it, az, ja, ko, zh };

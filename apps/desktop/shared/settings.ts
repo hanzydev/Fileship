@@ -94,7 +94,7 @@ export const settingsSchema = z.object({
     startAtLogin: z.boolean().default(true),
     theme: z.enum(['system', 'light', 'dark']).default('system'),
     language: z
-        .enum(['system', 'en', 'tr', 'zh', 'de', 'fr', 'it', 'az', 'ja', 'ko'])
+        .enum(['system', 'en', 'tr', 'de', 'fr', 'it', 'az', 'ja', 'ko', 'zh'])
         .default('system'),
     hotkeys: z
         .partialRecord(z.enum(HOTKEY_ACTIONS), z.string().max(64))

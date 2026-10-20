@@ -238,6 +238,7 @@
         "copyLink": "リンクをコピー",
         "openLink": "リンクを開く",
         "showInFolder": "フォルダーで表示",
+        "viewInFileship": "Fileship で表示",
         "showInHarbor": "Fileship Harbor で表示",
         "removeFromHistory": "履歴から削除",
         "dropTitle": "ドロップしてアップロード",
@@ -309,13 +310,13 @@
             "system": "Windows と同じ",
             "en": "English",
             "tr": "Türkçe",
-            "zh": "简体中文",
             "de": "Deutsch",
             "fr": "Français",
             "it": "Italiano",
             "az": "Azərbaycanca",
             "ja": "日本語",
-            "ko": "한국어"
+            "ko": "한국어",
+            "zh": "简体中文"
         }
     },
     "nav": {

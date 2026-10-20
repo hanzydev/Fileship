@@ -238,6 +238,7 @@
         "copyLink": "Copy link",
         "openLink": "Open link",
         "showInFolder": "Show in folder",
+        "viewInFileship": "View in Fileship",
         "showInHarbor": "Show in Fileship Harbor",
         "removeFromHistory": "Remove from history",
         "dropTitle": "Drop to upload",
@@ -309,13 +310,13 @@
             "system": "Same as Windows",
             "en": "English",
             "tr": "Türkçe",
-            "zh": "简体中文",
             "de": "Deutsch",
             "fr": "Français",
             "it": "Italiano",
             "az": "Azərbaycanca",
             "ja": "日本語",
-            "ko": "한국어"
+            "ko": "한국어",
+            "zh": "简体中文"
         }
     },
     "nav": {
