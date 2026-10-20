@@ -1,4 +1,5 @@
 #include "com.h"
+#include "status.h"
 
 #include <algorithm>
 #include <iostream>
@@ -96,6 +97,7 @@ std::vector<std::wstring> readPaths(JsonObject const& request) {
 
 void hostShellHandlers() {
     try {
+        setHosted();
         writeShellRegistration();
         saveSession();
         registerClassObjects();
@@ -119,6 +121,15 @@ void handle(JsonObject const& request) {
             currentConfig.version = request.GetNamedString(L"version");
             currentConfig.instanceUrl = request.GetNamedString(L"instanceUrl");
             currentConfig.userAgent = request.GetNamedString(L"userAgent");
+            currentConfig.appPath = request.GetNamedString(L"appPath", L"");
+            currentConfig.labels = request.GetNamedObject(L"labels", JsonObject());
+            currentConfig.properties.clear();
+
+            for (auto const& value : request.GetNamedArray(L"properties", JsonArray())) {
+                auto property = value.GetObject();
+                currentConfig.properties.emplace_back(static_cast<int32_t>(property.GetNamedNumber(L"id")),
+                                                      std::wstring(property.GetNamedString(L"name")));
+            }
             setToken(std::wstring(request.GetNamedString(L"token")));
 
             std::filesystem::create_directories(currentConfig.root);
@@ -170,6 +181,8 @@ void handle(JsonObject const& request) {
             reportProgress(std::wstring(request.GetNamedString(L"path")),
                            static_cast<int64_t>(request.GetNamedNumber(L"total")),
                            static_cast<int64_t>(request.GetNamedNumber(L"completed")));
+        } else if (type == L"setStates") {
+            response.SetNamedValue(L"failed", setStates(request.GetNamedArray(L"items")));
         } else if (type == L"scan") {
             response.SetNamedValue(L"items", scanRoot());
         } else if (type == L"ack") {
@@ -178,6 +191,7 @@ void handle(JsonObject const& request) {
             return;
         } else if (type == L"syncStatus") {
             auto error = request.GetNamedValue(L"error", JsonValue::CreateNullValue());
+            setDriveState(std::wstring(request.GetNamedString(L"state", L"")));
             reportSyncStatus(error.ValueType() == winrt::Windows::Data::Json::JsonValueType::String
                                  ? std::optional<std::wstring>(error.GetString())
                                  : std::nullopt);
@@ -222,6 +236,10 @@ std::wstring token() {
 void setToken(std::wstring const& value) {
     std::lock_guard lock(tokenMutex);
     currentToken = value;
+}
+
+std::wstring label(std::wstring const& key) {
+    return std::wstring(currentConfig.labels.GetNamedString(key, key));
 }
 
 void send(JsonObject const& message) {

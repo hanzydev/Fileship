@@ -1,5 +1,7 @@
 #include "com.h"
 
+#include "share.h"
+#include "status.h"
 #include "thumbnails.h"
 
 #include <shlobj.h>
@@ -28,11 +30,14 @@ struct ShellClass {
 std::vector<ShellClass> const& shellClasses() {
     static std::vector<ShellClass> const classes{
         {CLSID_FileshipThumbnails, L"ThumbnailProvider", thumbnailFactory},
+        {CLSID_FileshipShare, L"ShareHandler", shareFactory},
+        {CLSID_FileshipStatus, L"StorageProviderStatusUISourceFactory", statusFactory},
     };
     return classes;
 }
 
 std::atomic<long> locks = 0;
+std::atomic<bool> hosted = false;
 std::atomic<Clock::rep> lastActivity = Clock::now().time_since_epoch().count();
 std::mutex cookiesMutex;
 std::vector<DWORD> cookies;
@@ -70,16 +75,6 @@ std::wstring classKey(GUID const& clsid) {
 void setString(HKEY root, std::wstring const& key, wchar_t const* name, std::wstring const& value) {
     check_win32(RegSetKeyValueW(root, key.c_str(), name, REG_SZ, value.c_str(),
                                 static_cast<DWORD>((value.size() + 1) * sizeof(wchar_t))));
-}
-
-std::wstring executablePath() {
-    std::wstring path(MAX_PATH, L'\0');
-
-    for (;;) {
-        DWORD length = GetModuleFileNameW(nullptr, path.data(), static_cast<DWORD>(path.size()));
-        if (length < path.size()) return path.substr(0, length);
-        path.resize(path.size() * 2);
-    }
 }
 
 std::filesystem::path sessionPath() {
@@ -130,6 +125,16 @@ std::wstring unprotect(std::wstring const& encoded) {
     return toWide(text);
 }
 
+}
+
+std::wstring executablePath() {
+    std::wstring path(MAX_PATH, L'\0');
+
+    for (;;) {
+        DWORD length = GetModuleFileNameW(nullptr, path.data(), static_cast<DWORD>(path.size()));
+        if (length < path.size()) return path.substr(0, length);
+        path.resize(path.size() * 2);
+    }
 }
 
 void serverAddRef() {
@@ -197,6 +202,41 @@ void waitUntilIdle() {
     }
 }
 
+void setHosted() {
+    hosted = true;
+}
+
+void requestAction(std::wstring const& action, std::vector<std::wstring> const& paths) {
+    if (hosted) {
+        JsonArray items;
+        for (auto const& path : paths) items.Append(JsonValue::CreateStringValue(path));
+
+        JsonObject message;
+        message.SetNamedValue(L"action", JsonValue::CreateStringValue(action));
+        message.SetNamedValue(L"paths", items);
+        sendEvent(L"action", message);
+        return;
+    }
+
+    auto const& app = config().appPath;
+    if (app.empty()) return;
+
+    auto command = L"\"" + app + L"\" --drive-action " + action;
+    for (auto const& path : paths) command += L" \"" + path + L"\"";
+
+    STARTUPINFOW startup{sizeof(startup)};
+    PROCESS_INFORMATION process{};
+
+    if (!CreateProcessW(app.c_str(), command.data(), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startup,
+                        &process)) {
+        log(L"Could not start Fileship: " + std::to_wstring(GetLastError()));
+        return;
+    }
+
+    CloseHandle(process.hThread);
+    CloseHandle(process.hProcess);
+}
+
 void saveSession() {
     auto const& settings = config();
 
@@ -205,6 +245,8 @@ void saveSession() {
     session.SetNamedValue(L"root", JsonValue::CreateStringValue(settings.root));
     session.SetNamedValue(L"syncRootId", JsonValue::CreateStringValue(settings.syncRootId));
     session.SetNamedValue(L"userAgent", JsonValue::CreateStringValue(settings.userAgent));
+    session.SetNamedValue(L"appPath", JsonValue::CreateStringValue(settings.appPath));
+    session.SetNamedValue(L"labels", settings.labels);
     session.SetNamedValue(L"token", JsonValue::CreateStringValue(protect(token())));
 
     auto path = sessionPath();
@@ -238,6 +280,8 @@ bool loadSession() {
         settings.root = session.GetNamedString(L"root");
         settings.syncRootId = session.GetNamedString(L"syncRootId");
         settings.userAgent = session.GetNamedString(L"userAgent");
+        settings.appPath = session.GetNamedString(L"appPath", L"");
+        settings.labels = session.GetNamedObject(L"labels", JsonObject());
         setToken(unprotect(std::wstring(session.GetNamedString(L"token"))));
         return true;
     } catch (hresult_error const& error) {

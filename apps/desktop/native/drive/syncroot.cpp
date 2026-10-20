@@ -132,6 +132,13 @@ void registerSyncRoot() {
     info.RecycleBinUri(Windows::Foundation::Uri(settings.instanceUrl + L"/dashboard/trash"));
     info.Context(CryptographicBuffer::ConvertStringToBinary(syncRootId(), BinaryStringEncoding::Utf8));
 
+    for (auto const& [id, name] : settings.properties) {
+        StorageProviderItemPropertyDefinition definition;
+        definition.Id(id);
+        definition.DisplayNameResource(name);
+        info.StorageProviderItemPropertyDefinitions().Append(definition);
+    }
+
     StorageProviderSyncRootManager::Register(info);
 }
 

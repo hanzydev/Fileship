@@ -39,6 +39,9 @@ struct Config {
     std::wstring version;
     std::wstring instanceUrl;
     std::wstring userAgent;
+    std::wstring appPath;
+    JsonObject labels;
+    std::vector<std::pair<int32_t, std::wstring>> properties;
 };
 
 struct PlaceholderItem {
@@ -72,6 +75,8 @@ void unregisterAll();
 void connectSyncRoot();
 void disconnectSyncRoot();
 void reportSyncStatus(std::optional<std::wstring> const& error);
+std::wstring label(std::wstring const& key);
+JsonArray setStates(JsonArray const& items);
 CF_CONNECTION_KEY connectionKey();
 
 void createPlaceholders(std::vector<PlaceholderItem> const& items);

@@ -43,11 +43,16 @@ winrt::com_ptr<IClassFactory> classFactory() {
     return winrt::make<ClassFactory<T>>().template as<IClassFactory>();
 }
 
+std::wstring executablePath();
+
 void registerClassObjects();
 void revokeClassObjects();
 void writeShellRegistration();
 void removeShellRegistration();
 void waitUntilIdle();
+
+void setHosted();
+void requestAction(std::wstring const& action, std::vector<std::wstring> const& paths);
 
 void saveSession();
 bool loadSession();
