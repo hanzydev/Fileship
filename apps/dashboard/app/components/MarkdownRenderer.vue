@@ -122,7 +122,7 @@ const handleClick = (event: MouseEvent) => {
 }
 
 .markdown :deep(pre [data-copy]) {
-    @apply absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-background/70 text-muted-foreground opacity-0 transition-opacity hover:text-foreground;
+    @apply absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-background/70 text-muted-foreground opacity-0 transition-opacity pointer-coarse:opacity-100 hover:text-foreground;
 }
 
 .markdown :deep(pre:hover [data-copy]) {
