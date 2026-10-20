@@ -1,6 +1,4 @@
-#include "common.h"
-
-#include <winhttp.h>
+#include "http.h"
 
 #include <map>
 #include <memory>
@@ -27,25 +25,6 @@ struct Fetch {
 
 std::mutex fetchMutex;
 std::map<int64_t, std::shared_ptr<std::atomic<bool>>> activeFetches;
-
-HINTERNET session() {
-    static HINTERNET handle = [] {
-        HINTERNET opened = WinHttpOpen(config().userAgent.c_str(), WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY,
-                                       WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
-        WinHttpSetTimeouts(opened, 15000, 15000, 30000, 60000);
-        return opened;
-    }();
-
-    return handle;
-}
-
-struct Internet {
-    HINTERNET value = nullptr;
-    explicit Internet(HINTERNET handle) : value(handle) {}
-    ~Internet() {
-        if (value) WinHttpCloseHandle(value);
-    }
-};
 
 void transfer(Fetch const& fetch, NTSTATUS status, void const* buffer, int64_t offset, int64_t length) {
     CF_OPERATION_INFO info{};
@@ -79,48 +58,15 @@ std::wstring fileIdOf(std::wstring const& identity) {
 }
 
 void download(Fetch fetch) {
-    URL_COMPONENTS url{};
-    url.dwStructSize = sizeof(url);
-    wchar_t host[256]{};
-    wchar_t path[2048]{};
-    url.lpszHostName = host;
-    url.dwHostNameLength = static_cast<DWORD>(std::size(host));
-    url.lpszUrlPath = path;
-    url.dwUrlPathLength = static_cast<DWORD>(std::size(path));
-
-    std::wstring base = config().instanceUrl;
-    if (!WinHttpCrackUrl(base.c_str(), 0, 0, &url)) throw_last_error();
-
-    std::wstring requestPath = std::wstring(path);
-    while (!requestPath.empty() && requestPath.back() == L'/') requestPath.pop_back();
-    requestPath += L"/u/" + fileIdOf(fetch.identity);
-
-    Internet connection(WinHttpConnect(session(), host, url.nPort, 0));
-    if (!connection.value) throw_last_error();
-
-    DWORD flags = url.nScheme == INTERNET_SCHEME_HTTPS ? WINHTTP_FLAG_SECURE : 0;
-    Internet request(WinHttpOpenRequest(connection.value, L"GET", requestPath.c_str(), nullptr,
-                                        WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, flags));
-    if (!request.value) throw_last_error();
-
     int64_t end = fetch.offset + fetch.length - 1;
-    std::wstring headers = L"Authorization: Bearer " + token() + L"\r\nRange: bytes=" +
-                           std::to_wstring(fetch.offset) + L"-" + std::to_wstring(end) + L"\r\n";
+    HttpStream stream(L"/u/" + fileIdOf(fetch.identity),
+                      L"Range: bytes=" + std::to_wstring(fetch.offset) + L"-" + std::to_wstring(end) + L"\r\n");
 
-    if (!WinHttpSendRequest(request.value, headers.c_str(), static_cast<DWORD>(headers.size()),
-                            WINHTTP_NO_REQUEST_DATA, 0, 0, 0) ||
-        !WinHttpReceiveResponse(request.value, nullptr)) {
-        throw_last_error();
+    if (stream.status != 200 && stream.status != 206) {
+        throw std::runtime_error("HTTP " + std::to_string(stream.status));
     }
 
-    DWORD status = 0;
-    DWORD size = sizeof(status);
-    WinHttpQueryHeaders(request.value, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
-                        WINHTTP_HEADER_NAME_BY_INDEX, &status, &size, WINHTTP_NO_HEADER_INDEX);
-
-    if (status != 200 && status != 206) throw std::runtime_error("HTTP " + std::to_string(status));
-
-    int64_t skip = status == 200 ? fetch.offset : 0;
+    int64_t skip = stream.status == 200 ? fetch.offset : 0;
     int64_t position = fetch.offset;
     int64_t remaining = fetch.length;
     std::vector<char> chunk;
@@ -130,10 +76,7 @@ void download(Fetch fetch) {
     while (remaining > 0) {
         if (*fetch.isCancelled) return;
 
-        DWORD read = 0;
-        if (!WinHttpReadData(request.value, buffer.data(), static_cast<DWORD>(buffer.size()), &read)) {
-            throw_last_error();
-        }
+        DWORD read = stream.read(buffer.data(), static_cast<DWORD>(buffer.size()));
         if (read == 0) break;
 
         int64_t start = 0;
