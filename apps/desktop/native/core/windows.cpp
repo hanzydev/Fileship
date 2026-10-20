@@ -189,12 +189,17 @@ Napi::Value forceForeground(Napi::CallbackInfo const& info) {
     return env.Undefined();
 }
 
+Napi::Value doubleClickTime(Napi::CallbackInfo const& info) {
+    return Napi::Number::New(info.Env(), GetDoubleClickTime());
+}
+
 }
 
 void registerWindows(Napi::Env env, Napi::Object exports) {
     exports.Set("listWindows", Napi::Function::New(env, listWindows));
     exports.Set("foregroundWindow", Napi::Function::New(env, foregroundWindow));
     exports.Set("forceForeground", Napi::Function::New(env, forceForeground));
+    exports.Set("doubleClickTime", Napi::Function::New(env, doubleClickTime));
 }
 
 }

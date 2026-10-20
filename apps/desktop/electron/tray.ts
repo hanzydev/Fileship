@@ -5,6 +5,7 @@ import { isConnected, runAction } from './actions';
 import { openDashboard } from './dashboard';
 import { openDrive } from './drive';
 import { t } from './i18n';
+import { native } from './native';
 import {
     abortRecording,
     getRecorderState,
@@ -18,6 +19,7 @@ import { getUploadSummary } from './upload';
 import { iconPath, markQuitting, showMainWindow } from './windows';
 
 let tray: Tray | null = null;
+let clickTimer: NodeJS.Timeout | undefined;
 
 const RECORDING_TOOLTIPS: Record<Exclude<RecorderPhase, 'idle'>, string> = {
     preparing: 'tray.startingTooltip',
@@ -151,11 +153,17 @@ export const createTray = () => {
     tray = new Tray(nativeImage.createFromPath(iconPath()).resize({ width: 16, height: 16 }));
 
     tray.on('click', () => {
-        if (getRecorderState().phase === 'idle') return runAction('captureRegion');
-        stopRecording();
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => {
+            if (getRecorderState().phase === 'idle') return runAction('captureRegion');
+            stopRecording();
+        }, native.doubleClickTime());
     });
     tray.on('middle-click', () => runAction('uploadClipboard'));
-    tray.on('double-click', () => showMainWindow());
+    tray.on('double-click', () => {
+        clearTimeout(clickTimer);
+        showMainWindow();
+    });
     refreshTray();
 
     return tray;

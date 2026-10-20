@@ -22,6 +22,7 @@ type NativeCore = {
     listWindows: (ignored: bigint[], options: { controls?: boolean }) => Promise<WindowRect[]>;
     foregroundWindow: (ignored: bigint[]) => (Rect & { title: string }) | null;
     forceForeground: (handle: bigint) => void;
+    doubleClickTime: () => number;
     listOutputs: () => DisplayOutput[];
     encodeImage: (
         pixels: Buffer,
