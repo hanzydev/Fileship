@@ -38,7 +38,7 @@
 
 ## 🖥️ Fileship for Windows
 
-Capture, record and upload to your Fileship from the system tray, ShareX style, and browse your files in File Explorer. Needs Windows 10 or 11 (64-bit) and a Fileship 6.0 server.
+Capture, record and upload to your Fileship from the system tray, ShareX style, and browse your files in File Explorer with Fileship Harbor. Needs Windows 10 or 11 (64-bit) and a Fileship 6.0 server.
 
 **[Download the latest version](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Features and setup](docs/desktop.md)
 

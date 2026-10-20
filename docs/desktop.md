@@ -1,6 +1,6 @@
 # Fileship for Windows
 
-Fileship for Windows captures, records and uploads to your Fileship from the system tray, ShareX style, and shows your files in File Explorer.
+Fileship for Windows captures, records and uploads to your Fileship from the system tray, ShareX style, and shows your files in File Explorer with Fileship Harbor.
 
 **[Download the latest version](https://github.com/hanzydev/fileship-desktop/releases/latest)** (`Fileship-Setup-<version>.exe`)
 
@@ -21,10 +21,14 @@ Fileship for Windows captures, records and uploads to your Fileship from the sys
 - A history of everything you captured and uploaded, with links and saved files
 - Optional copies on this computer, and a screenshot whose upload fails is saved there instead of being lost
 
-**Fileship drive**
+**Fileship Harbor**
 
-- Your files and folders appear in File Explorer and download only when you open them
+Fileship Harbor puts your Fileship files and folders in File Explorer. Turn it on in **Settings → Harbor**.
+
+- Files download only when you open them, and thumbnails show without downloading
 - Files you add are uploaded, renames and moves are synced, and deleted files go to the Fileship trash
+- Right click and choose **Always keep on this device** to keep a copy offline
+- It needs an empty folder, and folders inside folders are not synced, because Fileship folders are flat
 
 **App**
 
@@ -43,4 +47,4 @@ Fileship for Windows captures, records and uploads to your Fileship from the sys
 2. Enter your Fileship server's address and log in with your Fileship account in the window that opens.
 3. Press Print Screen, or use the tray icon, to take your first capture.
 
-The app signs in as a normal session, shown as **Fileship for Windows** in **Settings → Sessions**, where you can revoke it. Hotkeys, capture, recording, upload and drive settings are in the app's **Settings**.
+The app signs in as a normal session, shown as **Fileship for Windows** in **Settings → Sessions**, where you can revoke it. Hotkeys, capture, recording, upload and Harbor settings are in the app's **Settings**.

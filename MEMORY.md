@@ -19,6 +19,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - Translations: English is the source and fallback, Turkish is the second language. The telemetry panel is not translated on purpose (it gets the layer's English messages only and keeps `pluralize`). Turkish copy is written as native product text in the "sen" form, never word by word; see [I18N.md](I18N.md).
 - The desktop app has no separate image editor. It was removed on purpose because the region overlay already annotates while selecting; do not bring it back.
 - Desktop capture follows ShareX: Print Screen captures the active monitor, Ctrl+Print Screen opens the region overlay, a selection finishes on mouse release, annotations can be drawn before choosing the region, and one toolbar serves every monitor.
+- The drive is called **Fileship Harbor** ("Harbor" for short) in the UI and the docs, in every language. Internal names stay `drive` (code, settings keys, `/settings/drive`, i18n keys, `fileship-drive.exe`, sync root ids) so existing installs keep working.
 
 ## Releasing
 
