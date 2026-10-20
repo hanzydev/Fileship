@@ -157,6 +157,7 @@ export type IpcInvoke = {
     'history:copy': (id: string) => void;
     'history:open': (id: string) => void;
     'history:showFile': (id: string) => void;
+    'history:showInDrive': (id: string) => void;
     'history:remove': (id: string) => void;
     'history:clear': () => void;
     'uploads:paths': (paths: string[]) => void;
@@ -218,6 +219,7 @@ export const INVOKE_CHANNELS = [
     'history:copy',
     'history:open',
     'history:showFile',
+    'history:showInDrive',
     'history:remove',
     'history:clear',
     'uploads:paths',

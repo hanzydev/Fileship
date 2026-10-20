@@ -220,6 +220,7 @@
         "copyLink": "Copy link",
         "openLink": "Open link",
         "showInFolder": "Show in folder",
+        "showInHarbor": "Show in Fileship Harbor",
         "removeFromHistory": "Remove from history",
         "dropTitle": "Drop to upload",
         "dropDescription": "Files go to Fileship with your upload settings.",

@@ -10,7 +10,7 @@ import { runAction, uploadPaths } from './actions';
 import { api } from './api';
 import { writeText } from './clipboard';
 import { closeDashboard, openDashboard } from './dashboard';
-import { driveRoot, getDriveStatus, openDrive, startDrive, stopDrive } from './drive';
+import { drivePathFor, driveRoot, getDriveStatus, openDrive, startDrive, stopDrive } from './drive';
 import { clearHistory, getHistory, listHistory, removeHistory } from './history';
 import {
     getHotkeyStatus,
@@ -142,6 +142,13 @@ const handlers: Handlers = {
     'history:showFile': (id) => {
         const item = getHistory(id);
         if (item?.localPath) shell.showItemInFolder(item.localPath);
+    },
+    'history:showInDrive': (id) => {
+        const fileId = getHistory(id)?.fileId;
+        const path = fileId && drivePathFor(fileId);
+
+        if (path) shell.showItemInFolder(path);
+        else openDrive();
     },
     'history:remove': (id) => removeHistory(id),
     'history:clear': () => clearHistory(),
