@@ -57,6 +57,8 @@ void log(std::wstring const& text);
 
 std::wstring fullPath(std::wstring const& relative);
 std::optional<std::wstring> relativePath(std::wstring const& absolute);
+std::wstring parentOf(std::wstring const& relative);
+int depthOf(std::wstring const& relative);
 std::wstring identityOf(CF_CALLBACK_INFO const* info);
 bool isOwnProcess(CF_CALLBACK_INFO const* info);
 bool isIgnoredName(std::wstring const& name);
@@ -74,6 +76,7 @@ void movePlaceholder(std::wstring const& from, std::wstring const& to);
 void updatePlaceholder(std::wstring const& path, std::optional<std::wstring> const& identity,
                        bool resetBaseline = false);
 bool isModified(std::wstring const& absolute);
+bool markInSync(std::wstring const& path);
 void removePath(std::wstring const& path);
 void adoptPath(std::wstring const& path, std::wstring const& identity);
 std::wstring preparePath(std::wstring const& path, std::wstring const& identity);
@@ -89,9 +92,12 @@ void cancelFetch(CF_CALLBACK_INFO const* info);
 
 void startWatcher();
 void stopWatcher();
+void settle(std::wstring const& folder);
+void settleItem(std::wstring const& path);
 
 void reportDeleted(CF_CALLBACK_INFO const* info);
 void askRename(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters);
+void renamed(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters);
 void resolveAck(uint64_t requestId, bool ok);
 
 std::wstring toWide(std::string const& text);

@@ -1,5 +1,6 @@
 #include "common.h"
 
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <thread>
@@ -18,25 +19,7 @@ std::mutex outputMutex;
 struct PendingAck {
     CF_TRANSFER_KEY transferKey;
     CF_REQUEST_KEY requestKey;
-    std::optional<std::wstring> target;
 };
-
-void markInSyncWhenMoved(std::wstring const& path) {
-    std::thread([path] {
-        for (int attempt = 0; attempt < 50; attempt++) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            if (GetFileAttributesW(fullPath(path).c_str()) == INVALID_FILE_ATTRIBUTES) continue;
-
-            try {
-                updatePlaceholder(path, std::nullopt);
-            } catch (winrt::hresult_error const& error) {
-                log(L"Could not mark " + path + L" in sync: " + std::wstring(error.message()));
-            }
-
-            return;
-        }
-    }).detach();
-}
 
 std::mutex pendingMutex;
 std::map<uint64_t, PendingAck> pendingAcks;
@@ -56,17 +39,14 @@ void executeAck(PendingAck const& pending, bool ok) {
 
     HRESULT result = CfExecute(&info, &parameters);
     if (FAILED(result)) log(L"CfExecute ack failed: " + std::to_wstring(result));
-
-    if (ok && pending.target) markInSyncWhenMoved(*pending.target);
 }
 
-void acknowledgeLater(CF_CALLBACK_INFO const* info, JsonObject message,
-                      std::optional<std::wstring> target) {
+void acknowledgeLater(CF_CALLBACK_INFO const* info, JsonObject message) {
     uint64_t requestId = nextRequestId++;
 
     {
         std::lock_guard lock(pendingMutex);
-        pendingAcks[requestId] = PendingAck{info->TransferKey, info->RequestKey, target};
+        pendingAcks[requestId] = PendingAck{info->TransferKey, info->RequestKey};
     }
 
     message.SetNamedValue(L"requestId", JsonValue::CreateNumberValue(static_cast<double>(requestId)));
@@ -108,6 +88,12 @@ std::vector<PlaceholderItem> readItems(JsonObject const& request) {
     return items;
 }
 
+std::vector<std::wstring> readPaths(JsonObject const& request) {
+    std::vector<std::wstring> paths;
+    for (auto const& value : request.GetNamedArray(L"paths")) paths.emplace_back(value.GetString());
+    return paths;
+}
+
 void handle(JsonObject const& request) {
     std::wstring type(request.GetNamedString(L"type"));
     auto response = reply(request, true);
@@ -128,19 +114,41 @@ void handle(JsonObject const& request) {
             connectSyncRoot();
             startWatcher();
         } else if (type == L"create") {
-            createPlaceholders(readItems(request));
+            auto items = readItems(request);
+            createPlaceholders(items);
+            for (auto const& item : items) settle(item.isFolder ? item.path : parentOf(item.path));
         } else if (type == L"move") {
-            movePlaceholder(std::wstring(request.GetNamedString(L"from")),
-                            std::wstring(request.GetNamedString(L"to")));
+            std::wstring from(request.GetNamedString(L"from"));
+            std::wstring to(request.GetNamedString(L"to"));
+            movePlaceholder(from, to);
+            settle(parentOf(from));
+            settleItem(to);
         } else if (type == L"update") {
+            std::wstring path(request.GetNamedString(L"path"));
             std::optional<std::wstring> identity;
             if (request.HasKey(L"identity")) identity = request.GetNamedString(L"identity");
-            updatePlaceholder(std::wstring(request.GetNamedString(L"path")), identity, true);
+            updatePlaceholder(path, identity, true);
+            settle(parentOf(path));
         } else if (type == L"remove") {
-            removePath(std::wstring(request.GetNamedString(L"path")));
+            std::wstring path(request.GetNamedString(L"path"));
+            removePath(path);
+            settle(parentOf(path));
         } else if (type == L"adopt") {
-            adoptPath(std::wstring(request.GetNamedString(L"path")),
-                      std::wstring(request.GetNamedString(L"identity")));
+            std::wstring path(request.GetNamedString(L"path"));
+            adoptPath(path, std::wstring(request.GetNamedString(L"identity")));
+            settleItem(path);
+        } else if (type == L"markInSync") {
+            auto paths = readPaths(request);
+            std::ranges::sort(paths, std::greater{}, depthOf);
+            JsonArray marked;
+
+            for (auto const& path : paths) {
+                if (markInSync(path)) marked.Append(JsonValue::CreateStringValue(path));
+                settleItem(path);
+            }
+
+            settle(L"");
+            response.SetNamedValue(L"marked", marked);
         } else if (type == L"prepare") {
             auto identity = preparePath(std::wstring(request.GetNamedString(L"path")),
                                         std::wstring(request.GetNamedString(L"identity")));
@@ -233,6 +241,14 @@ std::wstring fullPath(std::wstring const& relative) {
     return (std::filesystem::path(currentConfig.root) / relative).wstring();
 }
 
+std::wstring parentOf(std::wstring const& relative) {
+    return std::filesystem::path(relative).parent_path().wstring();
+}
+
+int depthOf(std::wstring const& relative) {
+    return relative.empty() ? -1 : static_cast<int>(std::ranges::count(relative, L'\\'));
+}
+
 std::optional<std::wstring> relativePath(std::wstring const& absolute) {
     auto root = std::filesystem::path(currentConfig.root).lexically_normal().wstring();
     auto path = std::filesystem::path(absolute).lexically_normal().wstring();
@@ -284,7 +300,7 @@ void reportDeleted(CF_CALLBACK_INFO const* info) {
 
 void askRename(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters) {
     if (isOwnProcess(info)) {
-        executeAck(PendingAck{info->TransferKey, info->RequestKey, std::nullopt}, true);
+        executeAck(PendingAck{info->TransferKey, info->RequestKey}, true);
         return;
     }
 
@@ -302,7 +318,22 @@ void askRename(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* param
     message.SetNamedValue(L"isFolder", JsonValue::CreateBooleanValue(
         (parameters->Rename.Flags & CF_CALLBACK_RENAME_FLAG_IS_DIRECTORY) != 0));
 
-    acknowledgeLater(info, message, isTargetInScope ? relativePath(target) : std::nullopt);
+    acknowledgeLater(info, message);
+}
+
+void renamed(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters) {
+    std::wstring volume(info->VolumeDosName);
+    auto target = relativePath(volume + info->NormalizedPath);
+    auto source = relativePath(volume + parameters->RenameCompletion.SourcePath);
+
+    std::thread([target, source] {
+        if (target) {
+            markInSync(*target);
+            settleItem(*target);
+        }
+
+        if (source) settle(parentOf(*source));
+    }).detach();
 }
 
 void resolveAck(uint64_t requestId, bool ok) {

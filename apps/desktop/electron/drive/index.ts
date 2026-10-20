@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, rmdirSync, statSync } from 'node:fs';
 import { basename, join } from 'node:path';
+import { setTimeout as sleep } from 'node:timers/promises';
 
 import { app, shell } from 'electron';
 import log from 'electron-log/main';
@@ -42,11 +43,14 @@ type ApiFile = {
 
 type ApiFolder = { id: string; name: string; createdAt: string; deletedAt?: string | null };
 
+type UploadEvent = Extract<HelperEvent, { type: 'localNew' | 'localModified' }>;
+
 const PAGE_SIZE = 200;
 const APPLY_DELAY_MS = 300;
 const RETRY_DELAY_MS = 2000;
 const REPLACE_WINDOW_MS = 3000;
 const RETRY_DELAYS_MS = [5000, 15_000, 60_000];
+const FINISH_ATTEMPTS = 3;
 
 let helper: DriveHelper | null = null;
 let socket: Socket | null = null;
@@ -66,8 +70,12 @@ const local = new Map<string, { path: string; isFolder: boolean }>();
 const pendingPaths = new Set<string>();
 const hiddenFiles = new Set<string>();
 const cancelledUploads = new Set<string>();
+const uploadRetries = new Map<string, number>();
 
 const isPendingIdentity = (identity: string) => identity.startsWith('p:');
+
+const isKnown = (identity: string) =>
+    identity.startsWith('f:') ? files.has(identity.slice(2)) : folders.has(identity.slice(2));
 
 const isEmptyFolder = (path: string) => {
     try {
@@ -218,7 +226,14 @@ const apply = async () => {
         await placeEntry(entry).catch((error) => log.warn('Could not place', entry.path, error));
     }
 
+    const placed = new Set(
+        [...local.values()].filter((item) => item.isFolder).map((item) => item.path),
+    );
+
     for (const entry of entries.filter((item) => !item.isFolder)) {
+        const separator = entry.path.indexOf('\\');
+        if (separator !== -1 && !placed.has(entry.path.slice(0, separator))) continue;
+
         await placeEntry(entry).catch((error) => log.warn('Could not place', entry.path, error));
     }
 
@@ -268,6 +283,21 @@ const reload = () =>
         }
 
         await apply();
+
+        const stuck = items.filter(
+            (item) =>
+                !item.inSync &&
+                item.identity &&
+                !isPendingIdentity(item.identity) &&
+                !item.modified &&
+                !pendingPaths.has(item.path) &&
+                local.get(item.identity)?.path === item.path &&
+                isKnown(item.identity),
+        );
+
+        await helper!
+            .request('markInSync', { paths: stuck.map((item) => item.path) })
+            .catch((error) => log.warn('Could not mark the drive in sync', error));
 
         for (const item of unsynced) {
             const event: HelperEvent = item.identity
@@ -457,11 +487,15 @@ const reportProgress = (path: string, sent: number, total: number) =>
 const uploadLocal = async (path: string, folderId: string | null) => {
     const absolute = join(root, path);
     const size = statSync(absolute).size;
+    let reported: Promise<unknown> = Promise.resolve();
+
     const uploaded = await uploadFile({
         name: basename(path),
         mimeType: mimeTypeOf(path),
         path: absolute,
-        onProgress: (sent, total) => reportProgress(path, sent, total),
+        onProgress: (sent, total) => {
+            reported = reported.then(() => reportProgress(path, sent, total));
+        },
         options: {
             folderId,
             fileNameType: 'Random',
@@ -472,36 +506,77 @@ const uploadLocal = async (path: string, folderId: string | null) => {
         },
     });
 
+    await reported;
     return { id: uploaded.id, name: uploaded.name, folderId, size, createdAt: Date.now() };
 };
 
+const finishUpload = async (file: RemoteFile, finish: (file: RemoteFile) => Promise<void>) => {
+    for (let attempt = 1; ; attempt++) {
+        try {
+            return await enqueue(async () => {
+                files.set(file.id, file);
+                if (helper?.isRunning) await finish(file);
+            });
+        } catch (error) {
+            if (attempt >= FINISH_ATTEMPTS || isUnauthorized(error)) throw error;
+            await sleep(RETRY_DELAY_MS);
+        }
+    }
+};
+
 const startUpload = (
-    path: string,
+    event: UploadEvent,
     folderId: string | null,
     finish: (file: RemoteFile) => Promise<void>,
     cleanup: () => void,
+    isCancelled = () => false,
 ) => {
-    uploadLocal(path, folderId)
-        .then((file) =>
-            enqueue(async () => {
-                files.set(file.id, file);
-                if (helper?.isRunning) await finish(file);
-            }),
-        )
-        .then(
-            () => {
-                pendingPaths.delete(path);
-                cleanup();
+    const { path } = event;
+
+    const release = () => {
+        pendingPaths.delete(path);
+        cleanup();
+    };
+
+    const fail = (error: Error) => {
+        uploadRetries.delete(path);
+        release();
+        log.warn('Could not upload', path, error);
+        setStatus({ state: 'error', error: error.message });
+    };
+
+    uploadLocal(path, folderId).then(
+        (file) =>
+            finishUpload(file, finish).then(() => {
+                uploadRetries.delete(path);
+                release();
                 setStatus({});
                 scheduleApply();
-            },
-            (error) => {
-                pendingPaths.delete(path);
-                cleanup();
-                log.warn('Could not upload', path, error);
-                setStatus({ state: 'error', error: error.message });
-            },
-        );
+            }, fail),
+        (error) => {
+            const attempt = uploadRetries.get(path) ?? 0;
+
+            if (
+                attempt >= RETRY_DELAYS_MS.length ||
+                isUnauthorized(error) ||
+                isCancelled() ||
+                !helper?.isRunning ||
+                !existsSync(join(root, path))
+            ) {
+                fail(error);
+                return;
+            }
+
+            uploadRetries.set(path, attempt + 1);
+            release();
+            log.warn('Could not upload, trying again', path, error);
+
+            setTimeout(() => {
+                if (helper?.isRunning) handleHelperEvent(event);
+                else uploadRetries.delete(path);
+            }, RETRY_DELAYS_MS[attempt]);
+        },
+    );
 };
 
 const handleLocalNew = async (event: Extract<HelperEvent, { type: 'localNew' }>) => {
@@ -573,7 +648,7 @@ const handleLocalNew = async (event: Extract<HelperEvent, { type: 'localNew' }>)
         prepared?.identity && isPendingIdentity(prepared.identity) ? prepared.identity : generated;
 
     startUpload(
-        event.path,
+        event,
         folderId,
         async (file) => {
             if (cancelledUploads.has(pending)) {
@@ -585,6 +660,7 @@ const handleLocalNew = async (event: Extract<HelperEvent, { type: 'localNew' }>)
             local.set(fileIdentity(file.id), { path: event.path, isFolder: false });
         },
         () => cancelledUploads.delete(pending),
+        () => cancelledUploads.has(pending),
     );
 };
 
@@ -603,7 +679,7 @@ const handleLocalModified = async (event: Extract<HelperEvent, { type: 'localMod
         .catch((error) => log.warn('Could not prepare', event.path, error));
 
     startUpload(
-        event.path,
+        event,
         previous?.folderId ?? null,
         async (file) => {
             await driveApi(`/api/files/${previousId}`, { method: 'DELETE' }).catch((error) => {

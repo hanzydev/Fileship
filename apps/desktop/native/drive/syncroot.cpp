@@ -60,11 +60,16 @@ void CALLBACK onNotifyRename(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETER
     askRename(info, parameters);
 }
 
+void CALLBACK onNotifyRenameCompletion(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters) {
+    renamed(info, parameters);
+}
+
 CF_CALLBACK_REGISTRATION callbacks[] = {
     {CF_CALLBACK_TYPE_FETCH_DATA, onFetchData},
     {CF_CALLBACK_TYPE_CANCEL_FETCH_DATA, onCancelFetchData},
     {CF_CALLBACK_TYPE_NOTIFY_DELETE_COMPLETION, onNotifyDeleteCompletion},
     {CF_CALLBACK_TYPE_NOTIFY_RENAME, onNotifyRename},
+    {CF_CALLBACK_TYPE_NOTIFY_RENAME_COMPLETION, onNotifyRenameCompletion},
     CF_CALLBACK_REGISTRATION_END,
 };
 

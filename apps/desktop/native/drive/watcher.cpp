@@ -1,5 +1,6 @@
 #include "common.h"
 
+#include <algorithm>
 #include <chrono>
 #include <map>
 #include <string_view>
@@ -22,6 +23,9 @@ std::thread workerThread;
 std::mutex changesMutex;
 std::map<std::wstring, Clock::time_point> changes;
 std::map<std::wstring, std::wstring> reported;
+
+std::mutex settleMutex;
+std::map<std::wstring, Clock::time_point> settling;
 
 bool isClosed(std::wstring const& absolute) {
     HANDLE handle = CreateFileW(absolute.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING,
@@ -111,6 +115,26 @@ void inspect(std::wstring const& relative) {
     }
 }
 
+void markSettled(Clock::time_point now) {
+    std::vector<std::wstring> folders;
+
+    {
+        std::lock_guard lock(settleMutex);
+
+        for (auto iterator = settling.begin(); iterator != settling.end();) {
+            if (now - iterator->second >= SETTLE_TIME) {
+                folders.push_back(iterator->first);
+                iterator = settling.erase(iterator);
+            } else {
+                ++iterator;
+            }
+        }
+    }
+
+    std::ranges::sort(folders, std::greater{}, depthOf);
+    for (auto const& folder : folders) markInSync(folder);
+}
+
 void processChanges() {
     while (isWatching) {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -140,6 +164,8 @@ void processChanges() {
                 log(L"Could not inspect " + relative + L": " + std::wstring(error.message()));
             }
         }
+
+        markSettled(now);
     }
 }
 
@@ -173,6 +199,8 @@ void readChanges() {
 
         for (;;) {
             std::wstring relative(entry->FileName, entry->FileNameLength / sizeof(wchar_t));
+            settle(parentOf(relative));
+
             if (entry->Action == FILE_ACTION_REMOVED || entry->Action == FILE_ACTION_RENAMED_OLD_NAME) {
                 forget(relative);
             } else {
@@ -199,6 +227,22 @@ void startWatcher() {
     isWatching = true;
     readerThread = std::thread(readChanges);
     workerThread = std::thread(processChanges);
+}
+
+void settle(std::wstring const& folder) {
+    auto now = Clock::now();
+    std::lock_guard lock(settleMutex);
+
+    for (auto path = std::filesystem::path(folder);; path = path.parent_path()) {
+        settling[path.wstring()] = now;
+        if (path.empty()) break;
+    }
+}
+
+void settleItem(std::wstring const& path) {
+    DWORD attributes = GetFileAttributesW(fullPath(path).c_str());
+    bool isFolder = attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY);
+    settle(isFolder ? path : parentOf(path));
 }
 
 void stopWatcher() {

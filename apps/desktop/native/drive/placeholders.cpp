@@ -56,6 +56,48 @@ std::optional<std::wstring> readIdentity(std::wstring const& path, CF_PIN_STATE*
                         info->FileIdentityLength / sizeof(wchar_t));
 }
 
+bool childrenInSync(std::wstring const& directory) {
+    WIN32_FIND_DATAW data{};
+    HANDLE find = FindFirstFileExW((directory + L"\\*").c_str(), FindExInfoBasic, &data, FindExSearchNameMatch,
+                                   nullptr, FIND_FIRST_EX_LARGE_FETCH);
+    if (find == INVALID_HANDLE_VALUE) return GetLastError() == ERROR_FILE_NOT_FOUND;
+
+    bool inSync = true;
+
+    do {
+        std::wstring name(data.cFileName);
+        if (name == L"." || name == L".." || isIgnoredName(name)) continue;
+
+        CF_IN_SYNC_STATE sync = CF_IN_SYNC_STATE_NOT_IN_SYNC;
+        auto identity = readIdentity(directory + L"\\" + name, nullptr, &sync);
+        inSync = identity && !identity->empty() && !identity->starts_with(L"p:") &&
+                 sync == CF_IN_SYNC_STATE_IN_SYNC;
+    } while (inSync && FindNextFileW(find, &data));
+
+    FindClose(find);
+    return inSync;
+}
+
+void claimExisting(PlaceholderItem const& item, std::wstring const& absolute) {
+    auto existing = readIdentity(absolute, nullptr, nullptr);
+
+    if (existing == item.identity) {
+        markInSync(item.path);
+        return;
+    }
+
+    if (item.isFolder && !existing && isDirectory(absolute)) {
+        adoptPath(item.path, item.identity);
+        return;
+    }
+
+    throw_hresult(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS));
+}
+
+void requireDirectory(std::wstring const& path) {
+    if (!isDirectory(path)) throw_hresult(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND));
+}
+
 }
 
 void createPlaceholders(std::vector<PlaceholderItem> const& items) {
@@ -64,7 +106,7 @@ void createPlaceholders(std::vector<PlaceholderItem> const& items) {
         auto parent = absolute.parent_path().wstring();
         auto name = absolute.filename().wstring();
 
-        std::filesystem::create_directories(parent);
+        requireDirectory(parent);
 
         CF_PLACEHOLDER_CREATE_INFO info{};
         info.RelativeFileName = name.c_str();
@@ -86,6 +128,7 @@ void createPlaceholders(std::vector<PlaceholderItem> const& items) {
         if (result == HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS) ||
             info.Result == HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS) ||
             info.Result == HRESULT_FROM_WIN32(ERROR_FILE_EXISTS)) {
+            claimExisting(item, absolute.wstring());
             continue;
         }
 
@@ -96,10 +139,10 @@ void createPlaceholders(std::vector<PlaceholderItem> const& items) {
 
 void movePlaceholder(std::wstring const& from, std::wstring const& to) {
     auto target = std::filesystem::path(fullPath(to));
-    std::filesystem::create_directories(target.parent_path());
+    requireDirectory(target.parent_path().wstring());
 
     if (!MoveFileExW(fullPath(from).c_str(), target.c_str(), MOVEFILE_WRITE_THROUGH)) throw_last_error();
-    updatePlaceholder(to, std::nullopt);
+    markInSync(to);
 }
 
 std::optional<CF_FS_METADATA> baselineOf(HANDLE handle) {
@@ -151,8 +194,7 @@ void adoptPath(std::wstring const& path, std::wstring const& identity) {
 
     Handle handle(absolute, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES);
 
-    CF_CONVERT_FLAGS flags = CF_CONVERT_FLAG_MARK_IN_SYNC;
-    if (directory) flags |= CF_CONVERT_FLAG_ALWAYS_FULL;
+    CF_CONVERT_FLAGS flags = directory ? CF_CONVERT_FLAG_ALWAYS_FULL : CF_CONVERT_FLAG_MARK_IN_SYNC;
 
     check_hresult(CfConvertToPlaceholder(handle.value, identity.c_str(),
                                          static_cast<DWORD>(identity.size() * sizeof(wchar_t)), flags,
@@ -176,6 +218,26 @@ std::wstring preparePath(std::wstring const& path, std::wstring const& identity)
                                          static_cast<DWORD>(identity.size() * sizeof(wchar_t)),
                                          CF_CONVERT_FLAG_NONE, nullptr, nullptr));
     return identity;
+}
+
+bool markInSync(std::wstring const& path) {
+    try {
+        auto absolute = path.empty() ? config().root : fullPath(path);
+        CF_IN_SYNC_STATE sync = CF_IN_SYNC_STATE_NOT_IN_SYNC;
+        auto identity = readIdentity(absolute, nullptr, &sync);
+
+        if (!identity || identity->starts_with(L"p:")) return false;
+        if (isDirectory(absolute) ? !childrenInSync(absolute) : identity->empty() || isModified(absolute)) {
+            return false;
+        }
+        if (sync == CF_IN_SYNC_STATE_IN_SYNC) return true;
+
+        Handle handle(absolute, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES);
+        return SUCCEEDED(
+            CfSetInSyncState(handle.value, CF_IN_SYNC_STATE_IN_SYNC, CF_SET_IN_SYNC_FLAG_NONE, nullptr));
+    } catch (...) {
+        return false;
+    }
 }
 
 void reportProgress(std::wstring const& path, int64_t total, int64_t completed) {
