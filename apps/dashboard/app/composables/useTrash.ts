@@ -17,7 +17,6 @@ export const useTrash = () => {
                   title: t('trash.moveTitle', { label }),
                   description: t('trash.moveDescription', retentionDays.value),
                   confirmText: t('trash.moveToTrash'),
-                  destructive: true,
                   action: () => remove(false),
                   secondary: {
                       text: t('trash.deleteForever'),
