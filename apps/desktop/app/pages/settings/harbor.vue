@@ -1,13 +1,13 @@
 <template>
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>{{ $t('driveSettings.title') }}</UiCardTitle>
-            <UiCardDescription>{{ $t('driveSettings.description') }}</UiCardDescription>
+            <UiCardTitle>{{ $t('harborSettings.title') }}</UiCardTitle>
+            <UiCardDescription>{{ $t('harborSettings.description') }}</UiCardDescription>
             <UiCardAction>
                 <UiSwitch
-                    :model-value="settings?.drive.enabled"
+                    :model-value="settings?.harbor.enabled"
                     :disabled="!settings || isBusy"
-                    :aria-label="$t('driveSettings.enable')"
+                    :aria-label="$t('harborSettings.enable')"
                     @update:model-value="handleToggle"
                 />
             </UiCardAction>
@@ -15,51 +15,51 @@
         <UiCardContent class="flex flex-col gap-4">
             <UiAlert v-if="status.error" variant="destructive">
                 <ICircleAlert />
-                <UiAlertTitle>{{ $t('driveSettings.problem') }}</UiAlertTitle>
+                <UiAlertTitle>{{ $t('harborSettings.problem') }}</UiAlertTitle>
                 <UiAlertDescription>{{ status.error }}</UiAlertDescription>
             </UiAlert>
 
             <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
-                <dt class="text-muted-foreground">{{ $t('driveSettings.status') }}</dt>
+                <dt class="text-muted-foreground">{{ $t('harborSettings.status') }}</dt>
                 <dd class="flex items-center justify-end gap-2">
                     <UiSpinner v-if="status.state === 'starting' || status.state === 'syncing'" />
-                    {{ $t(`driveSettings.states.${status.state}`) }}
+                    {{ $t(`harborSettings.states.${status.state}`) }}
                 </dd>
-                <dt class="text-muted-foreground">{{ $t('driveSettings.content') }}</dt>
+                <dt class="text-muted-foreground">{{ $t('harborSettings.content') }}</dt>
                 <dd class="text-right">
                     {{
-                        $t('driveSettings.contentSummary', {
-                            files: $t('driveSettings.fileCount', status.files),
-                            folders: $t('driveSettings.folderCount', status.folders),
+                        $t('harborSettings.contentSummary', {
+                            files: $t('harborSettings.fileCount', status.files),
+                            folders: $t('harborSettings.folderCount', status.folders),
                         })
                     }}
                 </dd>
             </dl>
 
             <UiField>
-                <UiFieldLabel for="drive-folder">{{ $t('driveSettings.location') }}</UiFieldLabel>
+                <UiFieldLabel for="harbor-folder">{{ $t('harborSettings.location') }}</UiFieldLabel>
                 <UiInputGroup>
                     <UiInputGroupInput
-                        id="drive-folder"
-                        :model-value="settings?.drive.folder || status.root"
-                        :placeholder="$t('driveSettings.locationPlaceholder')"
+                        id="harbor-folder"
+                        :model-value="settings?.harbor.folder || status.root"
+                        :placeholder="$t('harborSettings.locationPlaceholder')"
                         readonly
                     />
                     <UiInputGroupAddon align="inline-end">
                         <UiInputGroupButton
-                            v-if="settings?.drive.folder"
+                            v-if="settings?.harbor.folder"
                             :disabled="isBusy"
                             @click="handleFolder('')"
                         >
-                            {{ $t('driveSettings.reset') }}
+                            {{ $t('harborSettings.reset') }}
                         </UiInputGroupButton>
                         <UiInputGroupButton :disabled="isBusy" @click="handlePickFolder">
-                            {{ $t('driveSettings.browse') }}
+                            {{ $t('harborSettings.browse') }}
                         </UiInputGroupButton>
                     </UiInputGroupAddon>
                 </UiInputGroup>
                 <UiFieldDescription>
-                    {{ $t('driveSettings.locationDescription') }}
+                    {{ $t('harborSettings.locationDescription') }}
                 </UiFieldDescription>
             </UiField>
         </UiCardContent>
@@ -67,18 +67,18 @@
             <UiButton
                 variant="outline"
                 :disabled="status.state === 'off'"
-                @click="desktop('drive:open')"
+                @click="desktop('harbor:open')"
             >
                 <IFolderOpen />
-                {{ $t('driveSettings.openInExplorer') }}
+                {{ $t('harborSettings.openInExplorer') }}
             </UiButton>
         </UiCardFooter>
     </UiCard>
 
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle>{{ $t('driveSettings.howItWorks') }}</UiCardTitle>
-            <UiCardDescription>{{ $t('driveSettings.howItWorksDescription') }}</UiCardDescription>
+            <UiCardTitle>{{ $t('harborSettings.howItWorks') }}</UiCardTitle>
+            <UiCardDescription>{{ $t('harborSettings.howItWorksDescription') }}</UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
             <UiItemGroup class="gap-2">
@@ -99,57 +99,57 @@
 <script setup lang="ts">
 import { ICloud, ICloudDownload, IFilePen, IFolderSync, IFolderTree, ITrash2 } from '#components';
 
-import type { DriveStatus } from '../../../shared/ipc';
+import type { HarborStatus } from '../../../shared/ipc';
 
 const TIPS = [
     {
         icon: ICloud,
-        title: 'driveSettings.tips.online',
-        description: 'driveSettings.tips.onlineDescription',
+        title: 'harborSettings.tips.online',
+        description: 'harborSettings.tips.onlineDescription',
     },
     {
         icon: ICloudDownload,
-        title: 'driveSettings.tips.offline',
-        description: 'driveSettings.tips.offlineDescription',
+        title: 'harborSettings.tips.offline',
+        description: 'harborSettings.tips.offlineDescription',
     },
     {
         icon: IFolderSync,
-        title: 'driveSettings.tips.sync',
-        description: 'driveSettings.tips.syncDescription',
+        title: 'harborSettings.tips.sync',
+        description: 'harborSettings.tips.syncDescription',
     },
     {
         icon: IFilePen,
-        title: 'driveSettings.tips.edits',
-        description: 'driveSettings.tips.editsDescription',
+        title: 'harborSettings.tips.edits',
+        description: 'harborSettings.tips.editsDescription',
     },
     {
         icon: ITrash2,
-        title: 'driveSettings.tips.delete',
-        description: 'driveSettings.tips.deleteDescription',
+        title: 'harborSettings.tips.delete',
+        description: 'harborSettings.tips.deleteDescription',
     },
     {
         icon: IFolderTree,
-        title: 'driveSettings.tips.folders',
-        description: 'driveSettings.tips.foldersDescription',
+        title: 'harborSettings.tips.folders',
+        description: 'harborSettings.tips.foldersDescription',
     },
 ];
 
 const settings = useSettings();
 const { $toast } = useNuxtApp();
 
-const status = ref<DriveStatus>({ state: 'off', root: '', files: 0, folders: 0, error: null });
+const status = ref<HarborStatus>({ state: 'off', root: '', files: 0, folders: 0, error: null });
 const isBusy = ref(false);
 
 const handleToggle = async (enabled: boolean) => {
     if (!settings.value) return;
-    await updateSettings({ drive: { ...settings.value.drive, enabled } });
+    await updateSettings({ harbor: { ...settings.value.harbor, enabled } });
 };
 
 const handleFolder = async (folder: string) => {
     isBusy.value = true;
 
     try {
-        status.value = await desktop('drive:setFolder', folder);
+        status.value = await desktop('harbor:setFolder', folder);
         settings.value = await desktop('settings:get');
     } catch (error: any) {
         $toast.error(error.message);
@@ -164,12 +164,12 @@ const handlePickFolder = async () => {
 };
 
 onMounted(async () => {
-    const off = window.fileship.on('drive:status', (value) => {
+    const off = window.fileship.on('harbor:status', (value) => {
         status.value = value;
     });
 
     onBeforeUnmount(off);
 
-    status.value = await desktop('drive:status');
+    status.value = await desktop('harbor:status');
 });
 </script>

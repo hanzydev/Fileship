@@ -42,14 +42,14 @@ type Pending = {
 
 export const helperPath = () =>
     app.isPackaged
-        ? join(process.resourcesPath, 'drive', 'fileship-drive.exe')
-        : join(app.getAppPath(), 'build', 'drive', 'fileship-drive.exe');
+        ? join(process.resourcesPath, 'harbor', 'fileship-harbor.exe')
+        : join(app.getAppPath(), 'build', 'harbor', 'fileship-harbor.exe');
 
 export const isHelperAvailable = () => existsSync(helperPath());
 
 export const harborSessionPath = () => join(process.env.LOCALAPPDATA!, 'Fileship', 'harbor.json');
 
-export class DriveHelper extends EventEmitter<{ event: [HelperEvent]; exit: [number | null] }> {
+export class HarborHelper extends EventEmitter<{ event: [HelperEvent]; exit: [number | null] }> {
     private child: ChildProcessWithoutNullStreams | null = null;
     private nextId = 1;
     private pending = new Map<number, Pending>();
@@ -59,12 +59,12 @@ export class DriveHelper extends EventEmitter<{ event: [HelperEvent]; exit: [num
         this.child = child;
 
         createInterface({ input: child.stdout }).on('line', (line) => this.handleLine(line));
-        createInterface({ input: child.stderr }).on('line', (line) => log.warn('[drive]', line));
+        createInterface({ input: child.stderr }).on('line', (line) => log.warn('[harbor]', line));
 
         child.on('exit', (code) => {
             for (const pending of this.pending.values()) {
                 clearTimeout(pending.timer);
-                pending.reject(new Error(t('drive.helperStopped')));
+                pending.reject(new Error(t('harbor.helperStopped')));
             }
 
             this.pending.clear();
@@ -83,14 +83,14 @@ export class DriveHelper extends EventEmitter<{ event: [HelperEvent]; exit: [num
         timeout = 120_000,
     ) {
         const child = this.child;
-        if (!child) return Promise.reject(new Error(t('drive.helperNotRunning')));
+        if (!child) return Promise.reject(new Error(t('harbor.helperNotRunning')));
 
         const id = this.nextId++;
 
         return new Promise<T>((resolve, reject) => {
             const timer = setTimeout(() => {
                 this.pending.delete(id);
-                reject(new Error(t('drive.helperNoAnswer', { request: type })));
+                reject(new Error(t('harbor.helperNoAnswer', { request: type })));
             }, timeout);
 
             this.pending.set(id, { resolve, reject, timer });
@@ -117,7 +117,7 @@ export class DriveHelper extends EventEmitter<{ event: [HelperEvent]; exit: [num
         try {
             message = JSON.parse(line);
         } catch {
-            log.warn('[drive] invalid message', line);
+            log.warn('[harbor] invalid message', line);
             return;
         }
 
@@ -135,7 +135,7 @@ export class DriveHelper extends EventEmitter<{ event: [HelperEvent]; exit: [num
         if (message.ok) {
             pending.resolve(message);
         } else {
-            pending.reject(new Error(message.error || t('drive.helperFailed')));
+            pending.reject(new Error(message.error || t('harbor.helperFailed')));
         }
     }
 }

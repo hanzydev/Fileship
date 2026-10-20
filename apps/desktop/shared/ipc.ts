@@ -122,7 +122,7 @@ export type OverlayFinish =
 
 export type Folder = { id: string; name: string };
 
-export type DriveStatus = {
+export type HarborStatus = {
     state: 'off' | 'starting' | 'syncing' | 'ready' | 'error';
     root: string;
     files: number;
@@ -157,7 +157,7 @@ export type IpcInvoke = {
     'history:copy': (id: string) => void;
     'history:open': (id: string) => void;
     'history:showFile': (id: string) => void;
-    'history:showInDrive': (id: string) => void;
+    'history:showInHarbor': (id: string) => void;
     'history:remove': (id: string) => void;
     'history:clear': () => void;
     'uploads:paths': (paths: string[]) => void;
@@ -178,9 +178,9 @@ export type IpcInvoke = {
     'recorder:control': (action: RecorderControl) => void;
     'recorder:mute': (source: AudioSourceId, muted: boolean) => void;
     'recorder:visible': (view: 'toolbar' | 'border') => void;
-    'drive:status': () => DriveStatus;
-    'drive:open': () => void;
-    'drive:setFolder': (folder: string) => DriveStatus;
+    'harbor:status': () => HarborStatus;
+    'harbor:open': () => void;
+    'harbor:setFolder': (folder: string) => HarborStatus;
 };
 
 export type IpcEvents = {
@@ -194,7 +194,7 @@ export type IpcEvents = {
     'uploads:progress': UploadProgress[];
     'ffmpeg:status': FfmpegStatus;
     'recorder:state': RecorderState;
-    'drive:status': DriveStatus;
+    'harbor:status': HarborStatus;
 };
 
 export const INVOKE_CHANNELS = [
@@ -219,7 +219,7 @@ export const INVOKE_CHANNELS = [
     'history:copy',
     'history:open',
     'history:showFile',
-    'history:showInDrive',
+    'history:showInHarbor',
     'history:remove',
     'history:clear',
     'uploads:paths',
@@ -240,9 +240,9 @@ export const INVOKE_CHANNELS = [
     'recorder:control',
     'recorder:mute',
     'recorder:visible',
-    'drive:status',
-    'drive:open',
-    'drive:setFolder',
+    'harbor:status',
+    'harbor:open',
+    'harbor:setFolder',
 ] as const satisfies (keyof IpcInvoke)[];
 
 export const EVENT_CHANNELS = [
@@ -256,7 +256,7 @@ export const EVENT_CHANNELS = [
     'uploads:progress',
     'ffmpeg:status',
     'recorder:state',
-    'drive:status',
+    'harbor:status',
 ] as const satisfies (keyof IpcEvents)[];
 
 export type DesktopBridge = {

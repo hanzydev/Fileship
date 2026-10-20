@@ -5,10 +5,10 @@
 
 #include <string>
 
-namespace drive {
+namespace harbor {
 
 extern CLSID const CLSID_FileshipStatus;
 winrt::com_ptr<IClassFactory> statusFactory();
-void setDriveState(std::wstring const& state);
+void setHarborState(std::wstring const& state);
 
 }

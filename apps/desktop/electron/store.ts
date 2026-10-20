@@ -22,7 +22,7 @@ const storeSchema = z.object({
     uploadPassword: z.string().nullable().default(null),
     user: userSchema.nullable().default(null),
     settings: settingsSchema.prefault({}),
-    driveRoot: z.string().nullable().default(null),
+    harborRoot: z.string().nullable().default(null),
     ffmpegProbe: z
         .object({
             key: z.string(),
@@ -67,11 +67,17 @@ const migratePassword = (stored: StoreData) => {
     return true;
 };
 
+const migrateHarbor = (stored: any) => ({
+    harborRoot: stored.driveRoot,
+    ...stored,
+    settings: { harbor: stored.settings?.drive, ...stored.settings },
+});
+
 const load = (): StoreData => {
     if (data) return data;
 
     try {
-        data = storeSchema.parse(JSON.parse(readFileSync(storePath(), 'utf-8')));
+        data = storeSchema.parse(migrateHarbor(JSON.parse(readFileSync(storePath(), 'utf-8'))));
     } catch {
         data = storeSchema.parse({});
     }

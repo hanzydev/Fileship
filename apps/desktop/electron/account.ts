@@ -9,7 +9,7 @@ import {
     MIN_FILESHIP_VERSION,
 } from '../shared/ipc';
 import { ApiError, desktopUserAgent, normalizeInstanceUrl, request } from './api';
-import { stopDrive } from './drive';
+import { stopHarbor } from './harbor';
 import { getLanguage, t } from './i18n';
 import { clearSession, getStore, getToken, setSession } from './store';
 import { refreshTray } from './tray';
@@ -187,7 +187,7 @@ export const logout = async () => {
 };
 
 export const handleUnauthorized = () => {
-    stopDrive({ remove: true, forget: true });
+    stopHarbor({ remove: true, forget: true });
     clearSession();
     broadcast('account:changed', null);
     refreshTray();

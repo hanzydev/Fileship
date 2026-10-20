@@ -4,24 +4,24 @@ import { join } from 'node:path';
 import { moveAsideLocked, root, runWithMsvc, sourceFiles, writeVersionResource } from './msvc.mjs';
 
 if (process.platform !== 'win32') {
-    console.log('Skipping the drive helper build, it needs Windows and MSVC.');
+    console.log('Skipping the Harbor helper build, it needs Windows and MSVC.');
     process.exit(0);
 }
 
-const source = join(root, 'native', 'drive');
-const output = join(root, 'build', 'drive');
+const source = join(root, 'native', 'harbor');
+const output = join(root, 'build', 'harbor');
 const objects = join(output, 'obj');
-const executable = join(output, 'fileship-drive.exe');
-const resource = join(output, 'drive.rc');
-const compiledResource = join(output, 'drive.res');
+const executable = join(output, 'fileship-harbor.exe');
+const resource = join(output, 'harbor.rc');
+const compiledResource = join(output, 'harbor.res');
 
 mkdirSync(objects, { recursive: true });
-moveAsideLocked(output, 'fileship-drive.exe');
+moveAsideLocked(output, 'fileship-harbor.exe');
 
 writeVersionResource(resource, {
     description: 'Fileship Harbor',
-    name: 'fileship-drive',
-    fileName: 'fileship-drive.exe',
+    name: 'fileship-harbor',
+    fileName: 'fileship-harbor.exe',
     type: 'VFT_APP',
 });
 

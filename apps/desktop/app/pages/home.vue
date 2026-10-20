@@ -101,8 +101,8 @@
                                                 {{ $t('home.showInFolder') }}
                                             </UiDropdownMenuItem>
                                             <UiDropdownMenuItem
-                                                v-if="driveState === 'ready' && item.fileId"
-                                                @click="handleItem('history:showInDrive', item)"
+                                                v-if="harborState === 'ready' && item.fileId"
+                                                @click="handleItem('history:showInHarbor', item)"
                                             >
                                                 <IHardDrive />
                                                 {{ $t('home.showInHarbor') }}
@@ -174,7 +174,7 @@ import type { Component } from 'vue';
 
 import { IFile, IFilm, IImage, IImagePlay, ILink, IUpload } from '#components';
 
-import type { DriveStatus, HistoryItem, HistoryKind, UploadProgress } from '../../shared/ipc';
+import type { HarborStatus, HistoryItem, HistoryKind, UploadProgress } from '../../shared/ipc';
 import type { HotkeyAction } from '../../shared/settings';
 
 const PAGE_SIZE = 60;
@@ -206,7 +206,7 @@ const isLoading = ref(false);
 const isLoaded = ref(false);
 const progress = ref<Record<string, UploadProgress>>({});
 const settings = ref<{ hotkey: string } | null>(null);
-const driveState = ref<DriveStatus['state']>('off');
+const harborState = ref<HarborStatus['state']>('off');
 const now = useNow({ scheduler: (callback) => useIntervalFn(callback, 30_000) });
 
 const relativeTime = computed(() => new Intl.RelativeTimeFormat(locale.value, { numeric: 'auto' }));
@@ -269,7 +269,7 @@ const handleItem = async (
         | 'history:copy'
         | 'history:open'
         | 'history:showFile'
-        | 'history:showInDrive'
+        | 'history:showInHarbor'
         | 'history:remove',
     item: HistoryItem,
 ) => {
@@ -308,25 +308,25 @@ const { isOverDropZone } = useDropZone(import.meta.client ? document.body : unde
 onMounted(async () => {
     const offHistory = window.fileship.on('history:changed', handleRefresh);
     const offProgress = window.fileship.on('uploads:progress', setProgress);
-    const offDrive = window.fileship.on('drive:status', (value) => {
-        driveState.value = value.state;
+    const offHarbor = window.fileship.on('harbor:status', (value) => {
+        harborState.value = value.state;
     });
 
     onBeforeUnmount(() => {
         offHistory();
         offProgress();
-        offDrive();
+        offHarbor();
     });
 
-    const [current, savedSettings, drive] = await Promise.all([
+    const [current, savedSettings, harbor] = await Promise.all([
         desktop('uploads:progress'),
         desktop('settings:get'),
-        desktop('drive:status'),
+        desktop('harbor:status'),
         handleRefresh(),
     ]);
 
     setProgress(current);
-    driveState.value = drive.state;
+    harborState.value = harbor.state;
     settings.value = {
         hotkey: savedSettings.hotkeysEnabled ? savedSettings.hotkeys.captureRegion : '',
     };

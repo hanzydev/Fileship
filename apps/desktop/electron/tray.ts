@@ -3,7 +3,7 @@ import { app, Menu, nativeImage, Tray } from 'electron';
 import type { RecorderPhase } from '../shared/ipc';
 import { isConnected, runAction } from './actions';
 import { openDashboard } from './dashboard';
-import { openDrive } from './drive';
+import { openHarbor } from './harbor';
 import { t } from './i18n';
 import { native } from './native';
 import {
@@ -103,9 +103,9 @@ const buildMenu = () => {
         { type: 'separator' },
         { label: t('tray.openFileship'), click: () => showMainWindow() },
         {
-            label: t('tray.openDrive'),
-            enabled: connected && getSettings().drive.enabled,
-            click: () => openDrive(),
+            label: t('tray.openHarbor'),
+            enabled: connected && getSettings().harbor.enabled,
+            click: () => openHarbor(),
         },
         {
             label: t('tray.openDashboard'),

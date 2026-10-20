@@ -9,7 +9,7 @@ using namespace winrt;
 using namespace Windows::Foundation;
 using namespace Windows::Storage::Provider;
 
-namespace drive {
+namespace harbor {
 
 CLSID const CLSID_FileshipStatus{0x5c54a548, 0x3a15, 0x4569, {0xb3, 0xcc, 0x9d, 0x14, 0x72, 0xcc, 0x86, 0x72}};
 
@@ -114,7 +114,7 @@ com_ptr<IClassFactory> statusFactory() {
     return classFactory<Factory>();
 }
 
-void setDriveState(std::wstring const& state) {
+void setHarborState(std::wstring const& state) {
     std::vector<com_ptr<Source>> live;
 
     {

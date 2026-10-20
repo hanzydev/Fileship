@@ -15,8 +15,8 @@ files:
 extraResources:
     - from: build/native/fileship-native.node
       to: native/fileship-native.node
-    - from: build/drive/fileship-drive.exe
-      to: drive/fileship-drive.exe
+    - from: build/harbor/fileship-harbor.exe
+      to: harbor/fileship-harbor.exe
 
 electronFuses:
     runAsNode: false

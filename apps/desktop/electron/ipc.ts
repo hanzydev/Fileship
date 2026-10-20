@@ -10,7 +10,14 @@ import { runAction, uploadPaths } from './actions';
 import { api } from './api';
 import { writeText } from './clipboard';
 import { closeDashboard, openDashboard } from './dashboard';
-import { drivePathFor, driveRoot, getDriveStatus, openDrive, startDrive, stopDrive } from './drive';
+import {
+    getHarborStatus,
+    harborPathFor,
+    harborRoot,
+    openHarbor,
+    startHarbor,
+    stopHarbor,
+} from './harbor';
 import { clearHistory, getHistory, listHistory, removeHistory } from './history';
 import {
     getHotkeyStatus,
@@ -87,12 +94,12 @@ const handlers: Handlers = {
         const account = await login(url);
         resetUploadSettings();
         refreshTray();
-        startDrive();
+        startHarbor();
         return account;
     },
     'account:logout': async () => {
         await closeDashboard();
-        await stopDrive({ remove: true, forget: true });
+        await stopHarbor({ remove: true, forget: true });
         await logout();
         refreshTray();
     },
@@ -102,9 +109,9 @@ const handlers: Handlers = {
         const previousPath = previous.recording.ffmpegPath;
         const settings = updateSettings(patch);
 
-        if (settings.drive.enabled !== previous.drive.enabled) {
-            if (settings.drive.enabled) startDrive();
-            else await stopDrive({ remove: true });
+        if (settings.harbor.enabled !== previous.harbor.enabled) {
+            if (settings.harbor.enabled) startHarbor();
+            else await stopHarbor({ remove: true });
         }
         if (settings.recording.ffmpegPath !== previousPath) resetFfmpegProbe();
         applySettings();
@@ -143,12 +150,12 @@ const handlers: Handlers = {
         const item = getHistory(id);
         if (item?.localPath) shell.showItemInFolder(item.localPath);
     },
-    'history:showInDrive': (id) => {
+    'history:showInHarbor': (id) => {
         const fileId = getHistory(id)?.fileId;
-        const path = fileId && drivePathFor(fileId);
+        const path = fileId && harborPathFor(fileId);
 
         if (path) shell.showItemInFolder(path);
-        else openDrive();
+        else openHarbor();
     },
     'history:remove': (id) => removeHistory(id),
     'history:clear': () => clearHistory(),
@@ -198,21 +205,21 @@ const handlers: Handlers = {
     'recorder:visible': function () {
         showRecorderWindow(this.sender);
     },
-    'drive:status': () => getDriveStatus(),
-    'drive:open': () => {
-        openDrive();
+    'harbor:status': () => getHarborStatus(),
+    'harbor:open': () => {
+        openHarbor();
     },
-    'drive:setFolder': async (folder) => {
-        if (folder && resolve(folder) === resolve(driveRoot())) return getDriveStatus();
+    'harbor:setFolder': async (folder) => {
+        if (folder && resolve(folder) === resolve(harborRoot())) return getHarborStatus();
 
         if (folder && existsSync(folder) && readdirSync(folder).length > 0) {
-            throw new Error(t('app.driveFolderNotEmpty'));
+            throw new Error(t('app.harborFolderNotEmpty'));
         }
 
-        await stopDrive({ remove: true });
-        updateSettings({ drive: { ...getSettings().drive, folder } });
-        await startDrive();
-        return getDriveStatus();
+        await stopHarbor({ remove: true });
+        updateSettings({ harbor: { ...getSettings().harbor, folder } });
+        await startHarbor();
+        return getHarborStatus();
     },
 };
 

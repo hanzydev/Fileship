@@ -57,7 +57,7 @@
         "nothingToCapture": "没有可截取的内容",
         "noActiveWindow": "当前没有活动窗口。",
         "chooseFfmpeg": "选择 ffmpeg.exe",
-        "driveFolderNotEmpty": "请选择一个空文件夹。Fileship Harbor 只在其中存放 Fileship 文件。",
+        "harborFolderNotEmpty": "请选择一个空文件夹。Fileship Harbor 只在其中存放 Fileship 文件。",
         "invalidAddress": "请输入有效的地址，例如 files.example.com",
         "serverStarting": "这台 Fileship 服务器仍在启动，请稍后再试",
         "serverNotFound": "在 {url} 未找到 Fileship 服务器",
@@ -149,7 +149,7 @@
         "loggingIn": "正在登录 {siteName}…",
         "loginHint": "请在打开的窗口中登录。关闭该窗口即可取消。"
     },
-    "drive": {
+    "harbor": {
         "helperStopped": "Harbor 辅助程序已停止",
         "helperNotRunning": "Harbor 辅助程序未运行",
         "helperNoAnswer": "Harbor 辅助程序没有响应（{request}）",
@@ -172,7 +172,7 @@
         "notOnFileship": "尚未上传到 Fileship",
         "notOnFileshipDescription": "等文件上传完成后再试一次。"
     },
-    "driveSettings": {
+    "harborSettings": {
         "title": "Fileship Harbor",
         "description": "Fileship Harbor 会将你的 Fileship 文件和文件夹放进文件资源管理器。文件仅在你打开时才会下载。",
         "enable": "启用 Fileship Harbor",
@@ -329,7 +329,7 @@
         "capture": "截图",
         "recording": "录制",
         "upload": "上传",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "updates": "更新",
         "updateReady": "Fileship v{version} 已就绪",
         "updateReadyDescription": "立即重启以完成更新，或在下次退出时自动安装。",
@@ -489,7 +489,7 @@
         "capture": "截图",
         "recording": "录制",
         "upload": "上传",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "account": "账户",
         "updates": "更新"
     },
@@ -543,7 +543,7 @@
         "fromClipboard": "从剪贴板",
         "shortenFromClipboard": "缩短剪贴板中的链接",
         "openFileship": "打开 Fileship",
-        "openDrive": "打开 Fileship Harbor",
+        "openHarbor": "打开 Fileship Harbor",
         "openDashboard": "打开控制台",
         "restartToUpdate": "重启以更新到 v{version}",
         "checkForUpdates": "检查更新",

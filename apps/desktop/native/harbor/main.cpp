@@ -8,7 +8,7 @@
 
 using namespace winrt;
 
-namespace drive {
+namespace harbor {
 
 namespace {
 
@@ -191,7 +191,7 @@ void handle(JsonObject const& request) {
             return;
         } else if (type == L"syncStatus") {
             auto error = request.GetNamedValue(L"error", JsonValue::CreateNullValue());
-            setDriveState(std::wstring(request.GetNamedString(L"state", L"")));
+            setHarborState(std::wstring(request.GetNamedString(L"state", L"")));
             reportSyncStatus(error.ValueType() == winrt::Windows::Data::Json::JsonValueType::String
                                  ? std::optional<std::wstring>(error.GetString())
                                  : std::nullopt);
@@ -399,38 +399,38 @@ int wmain(int argc, wchar_t** argv) {
     std::wstring command = argc > 1 ? argv[1] : L"";
 
     if (command == L"--unregister-all") {
-        drive::unregisterAll();
-        drive::removeShellRegistration();
-        drive::removeSession();
+        harbor::unregisterAll();
+        harbor::removeShellRegistration();
+        harbor::removeSession();
         return 0;
     }
 
     if (_wcsicmp(command.c_str(), L"-Embedding") == 0 || _wcsicmp(command.c_str(), L"/Embedding") == 0) {
-        drive::loadSession();
-        drive::registerClassObjects();
-        drive::waitUntilIdle();
-        drive::revokeClassObjects();
+        harbor::loadSession();
+        harbor::registerClassObjects();
+        harbor::waitUntilIdle();
+        harbor::revokeClassObjects();
         return 0;
     }
 
     std::string line;
 
     while (std::getline(std::cin, line)) {
-        auto text = drive::trimLine(drive::toWide(line));
+        auto text = harbor::trimLine(harbor::toWide(line));
         if (text.empty()) continue;
 
-        drive::JsonObject request;
+        harbor::JsonObject request;
 
-        if (!drive::JsonObject::TryParse(text, request)) {
-            drive::log(L"Invalid message: " + text);
+        if (!harbor::JsonObject::TryParse(text, request)) {
+            harbor::log(L"Invalid message: " + text);
             continue;
         }
 
-        std::thread([request] { drive::handle(request); }).detach();
+        std::thread([request] { harbor::handle(request); }).detach();
     }
 
-    drive::revokeClassObjects();
-    drive::stopWatcher();
-    drive::disconnectSyncRoot();
+    harbor::revokeClassObjects();
+    harbor::stopWatcher();
+    harbor::disconnectSyncRoot();
     return 0;
 }

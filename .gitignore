@@ -25,7 +25,7 @@ node_modules
 # Desktop app
 apps/desktop/dist-electron
 apps/desktop/release
-apps/desktop/build/drive
+apps/desktop/build/harbor
 apps/desktop/build/native
 
 # Turbo

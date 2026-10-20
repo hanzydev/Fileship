@@ -57,7 +57,7 @@
         "nothingToCapture": "Nichts zum Aufnehmen",
         "noActiveWindow": "Kein Fenster ist aktiv.",
         "chooseFfmpeg": "ffmpeg.exe auswählen",
-        "driveFolderNotEmpty": "Wähle einen leeren Ordner. Fileship Harbor legt darin nur Fileship-Dateien ab.",
+        "harborFolderNotEmpty": "Wähle einen leeren Ordner. Fileship Harbor legt darin nur Fileship-Dateien ab.",
         "invalidAddress": "Gib eine gültige Adresse ein, zum Beispiel files.example.com",
         "serverStarting": "Dieser Fileship-Server startet noch, versuch es gleich noch einmal",
         "serverNotFound": "Unter {url} wurde kein Fileship-Server gefunden",
@@ -149,7 +149,7 @@
         "loggingIn": "Anmeldung bei {siteName}…",
         "loginHint": "Melde dich im geöffneten Fenster an. Schließe es, um abzubrechen."
     },
-    "drive": {
+    "harbor": {
         "helperStopped": "Das Harbor-Hilfsprogramm wurde beendet",
         "helperNotRunning": "Das Harbor-Hilfsprogramm läuft nicht",
         "helperNoAnswer": "Das Harbor-Hilfsprogramm hat nicht geantwortet ({request})",
@@ -172,7 +172,7 @@
         "notOnFileship": "Noch nicht auf Fileship",
         "notOnFileshipDescription": "Warte, bis die Datei hochgeladen ist, und versuch es dann noch einmal."
     },
-    "driveSettings": {
+    "harborSettings": {
         "title": "Fileship Harbor",
         "description": "Fileship Harbor zeigt deine Fileship-Dateien und -Ordner im Explorer an. Dateien werden erst heruntergeladen, wenn du sie öffnest.",
         "enable": "Fileship Harbor aktivieren",
@@ -329,7 +329,7 @@
         "capture": "Screenshots",
         "recording": "Bildschirmaufnahme",
         "upload": "Upload",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "updates": "Updates",
         "updateReady": "Fileship v{version} ist bereit",
         "updateReadyDescription": "Starte jetzt neu, um zu aktualisieren. Sonst wird das Update beim nächsten Beenden installiert.",
@@ -489,7 +489,7 @@
         "capture": "Screenshots",
         "recording": "Bildschirmaufnahme",
         "upload": "Upload",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "account": "Konto",
         "updates": "Updates"
     },
@@ -543,7 +543,7 @@
         "fromClipboard": "Aus Zwischenablage",
         "shortenFromClipboard": "Link aus Zwischenablage kürzen",
         "openFileship": "Fileship öffnen",
-        "openDrive": "Fileship Harbor öffnen",
+        "openHarbor": "Fileship Harbor öffnen",
         "openDashboard": "Dashboard öffnen",
         "restartToUpdate": "Neu starten und auf v{version} aktualisieren",
         "checkForUpdates": "Nach Updates suchen",

@@ -7,7 +7,7 @@ import { app, shell } from 'electron';
 import log from 'electron-log/main';
 import { io, type Socket } from 'socket.io-client';
 
-import type { DriveStatus } from '../../shared/ipc';
+import type { HarborStatus } from '../../shared/ipc';
 import { handleUnauthorized } from '../account';
 import { api, ApiError, desktopUserAgent } from '../api';
 import { writeText } from '../clipboard';
@@ -20,7 +20,7 @@ import { refreshTray } from '../tray';
 import { resetUploadSettings, uploadFile } from '../upload';
 import { broadcast, notify, openWebUrl, showMainWindow } from '../windows';
 import {
-    DriveHelper,
+    HarborHelper,
     harborSessionPath,
     type HelperEvent,
     helperPath,
@@ -69,10 +69,10 @@ const FINISH_ATTEMPTS = 3;
 const STATES_BATCH = 100;
 const PROPERTY = { locked: 1, expires: 2, sensitive: 3 };
 
-let helper: DriveHelper | null = null;
+let helper: HarborHelper | null = null;
 let socket: Socket | null = null;
 let root = '';
-let status: DriveStatus = { state: 'off', root: '', files: 0, folders: 0, error: null };
+let status: HarborStatus = { state: 'off', root: '', files: 0, folders: 0, error: null };
 let queue: Promise<unknown> = Promise.resolve();
 let applyTimer: NodeJS.Timeout | null = null;
 let isStopping = false;
@@ -104,37 +104,38 @@ const isEmptyFolder = (path: string) => {
     }
 };
 
-export const driveRoot = () => getSettings().drive.folder || join(app.getPath('home'), 'Fileship');
+export const harborRoot = () =>
+    getSettings().harbor.folder || join(app.getPath('home'), 'Fileship');
 
 const reportSyncStatus = () => {
     if (!helper?.isRunning) return;
 
     helper
         .request('syncStatus', { state: status.state, error: status.error })
-        .catch((failure) => log.warn('Could not report the drive status', failure));
+        .catch((failure) => log.warn('Could not report the Harbor status', failure));
 };
 
-const setStatus = (patch: Partial<DriveStatus>) => {
+const setStatus = (patch: Partial<HarborStatus>) => {
     const isChanged = !!patch.state && patch.state !== status.state;
     const isErrorChanged = patch.error !== undefined && patch.error !== status.error;
 
     status = { ...status, ...patch, files: files.size, folders: folders.size };
-    broadcast('drive:status', status);
+    broadcast('harbor:status', status);
     if (isChanged) refreshTray();
     if (isChanged || isErrorChanged) reportSyncStatus();
 };
 
-export const getDriveStatus = () => status;
+export const getHarborStatus = () => status;
 
 const enqueue = <T>(task: () => Promise<T>) => {
     const run = queue.then(task, task);
-    queue = run.catch((error) => log.error('Drive task failed', error));
+    queue = run.catch((error) => log.error('Harbor task failed', error));
     return run;
 };
 
 const isUnauthorized = (error: unknown) => error instanceof ApiError && error.status === 401;
 
-const driveApi = async <T>(path: string, init?: Parameters<typeof api>[1]) => {
+const harborApi = async <T>(path: string, init?: Parameters<typeof api>[1]) => {
     try {
         return await api<T>(path, init);
     } catch (error) {
@@ -174,7 +175,7 @@ const loadAll = async <T>(path: string) => {
 
     for (let offset = 0; ; offset += PAGE_SIZE) {
         const separator = path.includes('?') ? '&' : '?';
-        const page = await driveApi<{ items: T[]; total: number }>(
+        const page = await harborApi<{ items: T[]; total: number }>(
             `${path}${separator}limit=${PAGE_SIZE}&offset=${offset}`,
         );
 
@@ -258,17 +259,17 @@ const formatDate = (time: number) =>
     );
 
 const expiryOf = (file: RemoteFile) => {
-    if (file.expiresAt) return t('drive.expiresOn', { date: formatDate(file.expiresAt) });
-    return file.maxViews ? t('drive.expiresAfterViews', { count: file.maxViews }) : null;
+    if (file.expiresAt) return t('harbor.expiresOn', { date: formatDate(file.expiresAt) });
+    return file.maxViews ? t('harbor.expiresAfterViews', { count: file.maxViews }) : null;
 };
 
 const propertiesOf = (file: RemoteFile) => {
     const expiry = expiryOf(file);
 
     return [
-        ...(file.isLocked ? [{ id: PROPERTY.locked, value: t('drive.locked') }] : []),
+        ...(file.isLocked ? [{ id: PROPERTY.locked, value: t('harbor.locked') }] : []),
         ...(expiry ? [{ id: PROPERTY.expires, value: expiry }] : []),
-        ...(file.isSensitive ? [{ id: PROPERTY.sensitive, value: t('drive.sensitive') }] : []),
+        ...(file.isSensitive ? [{ id: PROPERTY.sensitive, value: t('harbor.sensitive') }] : []),
     ];
 };
 
@@ -303,7 +304,7 @@ const sendStates = (entries: LayoutEntry[]) => {
             })
             .catch((error) => {
                 for (const item of batch) sentStates.delete(item.identity);
-                log.warn('Could not set the drive states', error);
+                log.warn('Could not set the Harbor states', error);
             });
     }
 };
@@ -394,7 +395,7 @@ const reload = () =>
 
         await helper!
             .request('markInSync', { paths: stuck.map((item) => item.path) })
-            .catch((error) => log.warn('Could not mark the drive in sync', error));
+            .catch((error) => log.warn('Could not mark Harbor in sync', error));
 
         for (const item of unsynced) {
             const event: HelperEvent = item.identity
@@ -412,7 +413,7 @@ const reload = () =>
 
 const resync = () =>
     reload().catch((error) => {
-        log.warn('Could not reload the drive', error);
+        log.warn('Could not reload Harbor', error);
         isSynced = false;
         if (!isUnauthorized(error)) scheduleRetry(error.message);
     });
@@ -425,9 +426,9 @@ const deleteRemote = async (identity: string, isPermanent = false) => {
 
     try {
         if (isFile) {
-            await driveApi(`/api/files/${id}`, { method: 'DELETE' });
+            await harborApi(`/api/files/${id}`, { method: 'DELETE' });
         } else {
-            await driveApi(`/api/folders/${id}`, {
+            await harborApi(`/api/folders/${id}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ deleteFilesToo: true }),
@@ -438,7 +439,7 @@ const deleteRemote = async (identity: string, isPermanent = false) => {
     }
 
     if (isPermanent) {
-        await driveApi('/api/trash/delete', {
+        await harborApi('/api/trash/delete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -507,7 +508,7 @@ const handleDelete = async (event: Extract<HelperEvent, { type: 'delete' }>) => 
 
 const renameFolder = async (identity: string, from: string, to: string) => {
     const id = identity.slice(2);
-    const updated = await driveApi<ApiFolder>(`/api/folders/${id}`, {
+    const updated = await harborApi<ApiFolder>(`/api/folders/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: to.slice(0, 32) }),
@@ -539,7 +540,7 @@ const moveFile = async (identity: string, to: string) => {
     if (folderId !== (file?.folderId ?? null)) body.folderId = folderId;
 
     if (Object.keys(body).length) {
-        const updated = await driveApi<ApiFile>(`/api/files/${id}`, {
+        const updated = await harborApi<ApiFile>(`/api/files/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
@@ -697,7 +698,7 @@ const handleLocalNew = async (event: Extract<HelperEvent, { type: 'localNew' }>)
         pendingPaths.add(event.path);
 
         try {
-            const folder = await driveApi<ApiFolder>('/api/folders', {
+            const folder = await harborApi<ApiFolder>('/api/folders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: event.path.slice(0, 32) }),
@@ -790,7 +791,7 @@ const handleLocalModified = async (event: Extract<HelperEvent, { type: 'localMod
         event,
         previous?.folderId ?? null,
         async (file) => {
-            await driveApi(`/api/files/${previousId}`, { method: 'DELETE' }).catch((error) => {
+            await harborApi(`/api/files/${previousId}`, { method: 'DELETE' }).catch((error) => {
                 if (!isMissing(error)) throw error;
             });
 
@@ -822,12 +823,12 @@ const handleHelperEvent = (event: HelperEvent) => {
     }
 
     if (event.type === 'action') {
-        runDriveAction(event.action, event.paths);
+        runHarborAction(event.action, event.paths);
         return;
     }
 
     enqueue(() => runHelperEvent(event)).catch((error) => {
-        log.warn(`Drive ${event.type} failed`, error);
+        log.warn(`Harbor ${event.type} failed`, error);
         setStatus({ state: 'error', error: error.message });
     });
 };
@@ -903,14 +904,14 @@ const syncRootKey = () => {
     return createHash('sha256').update(`${instanceUrl}|${user?.id}`).digest('hex').slice(0, 16);
 };
 
-const holdsDrive = async (current: DriveHelper) => {
+const holdsHarbor = async (current: HarborHelper) => {
     const { items } = await current.request<{ items: ScanItem[] }>('scan');
     return items.some((item) => item.identity && !isPendingIdentity(item.identity));
 };
 
 const isAllowed = () => {
     const { user, instanceUrl } = getStore();
-    return getSettings().drive.enabled && !!user && !!instanceUrl && !!getToken();
+    return getSettings().harbor.enabled && !!user && !!instanceUrl && !!getToken();
 };
 
 const clearRetry = () => {
@@ -926,7 +927,7 @@ const scheduleRetry = (error: string) => {
     retries++;
     retryTimer = setTimeout(() => {
         retryTimer = null;
-        startDrive();
+        startHarbor();
     }, delay);
 };
 
@@ -936,7 +937,7 @@ const serialize = <T>(task: () => Promise<T>) => {
     return run;
 };
 
-const shutDown = async (current: DriveHelper) => {
+const shutDown = async (current: HarborHelper) => {
     isStopping = true;
     isSynced = false;
     socket?.disconnect();
@@ -947,9 +948,9 @@ const shutDown = async (current: DriveHelper) => {
 
 const launch = async () => {
     const { instanceUrl, siteName } = getStore();
-    const current = new DriveHelper();
+    const current = new HarborHelper();
 
-    root = driveRoot();
+    root = harborRoot();
     isStopping = false;
     setStatus({ state: 'starting', root, error: null });
 
@@ -962,14 +963,14 @@ const launch = async () => {
         socket = null;
 
         if (!isStopping) {
-            log.warn('The drive helper stopped', code);
-            scheduleRetry(t('drive.restarting'));
+            log.warn('The Harbor helper stopped', code);
+            scheduleRetry(t('harbor.restarting'));
         }
     });
 
     try {
         const isUnknownRoot =
-            getStore().driveRoot !== root && existsSync(root) && !isEmptyFolder(root);
+            getStore().harborRoot !== root && existsSync(root) && !isEmptyFolder(root);
 
         mkdirSync(root, { recursive: true });
         helper = current;
@@ -986,51 +987,51 @@ const launch = async () => {
             token: getToken(),
             appPath: app.isPackaged ? process.execPath : '',
             properties: [
-                { id: PROPERTY.locked, name: t('drive.locked') },
-                { id: PROPERTY.expires, name: t('drive.expires') },
-                { id: PROPERTY.sensitive, name: t('drive.sensitive') },
+                { id: PROPERTY.locked, name: t('harbor.locked') },
+                { id: PROPERTY.expires, name: t('harbor.expires') },
+                { id: PROPERTY.sensitive, name: t('harbor.sensitive') },
             ],
             labels: {
                 copyLink: t('shell.copyLink'),
-                upToDate: t('drive.upToDate'),
-                syncing: t('drive.syncing'),
-                error: t('drive.syncError'),
-                offline: t('drive.offline'),
-                viewOnline: t('drive.viewOnline'),
+                upToDate: t('harbor.upToDate'),
+                syncing: t('harbor.syncing'),
+                error: t('harbor.syncError'),
+                offline: t('harbor.offline'),
+                viewOnline: t('harbor.viewOnline'),
                 settings: t('tray.settings'),
             },
         });
 
-        if (isUnknownRoot && !(await holdsDrive(current))) {
+        if (isUnknownRoot && !(await holdsHarbor(current))) {
             await current.request('unregister').catch(() => null);
             await shutDown(current);
             setStatus({
                 state: 'error',
-                error: t('drive.notEmpty', { root }),
+                error: t('harbor.notEmpty', { root }),
             });
             return false;
         }
 
-        updateStore({ driveRoot: root });
+        updateStore({ harborRoot: root });
         current.on('event', handleHelperEvent);
         setHarborRoot(root);
         return true;
     } catch (error: any) {
-        log.error('Could not start the drive', error);
+        log.error('Could not start Harbor', error);
         await shutDown(current);
         scheduleRetry(error.message);
         return false;
     }
 };
 
-export const startDrive = () =>
+export const startHarbor = () =>
     serialize(async () => {
         clearRetry();
 
         if (!isAllowed() || (helper && isSynced)) return;
 
         if (!isHelperAvailable()) {
-            setStatus({ state: 'error', error: t('drive.helperMissing') });
+            setStatus({ state: 'error', error: t('harbor.helperMissing') });
             return;
         }
 
@@ -1042,12 +1043,12 @@ export const startDrive = () =>
             isSynced = true;
             retries = 0;
         } catch (error: any) {
-            log.error('Could not load the drive', error);
+            log.error('Could not load Harbor', error);
             if (!isUnauthorized(error)) scheduleRetry(error.message);
         }
     });
 
-export const stopDrive = (options: { remove?: boolean; forget?: boolean } = {}) =>
+export const stopHarbor = (options: { remove?: boolean; forget?: boolean } = {}) =>
     serialize(async () => {
         clearRetry();
         retries = 0;
@@ -1055,7 +1056,7 @@ export const stopDrive = (options: { remove?: boolean; forget?: boolean } = {}) 
         if (options.remove) setHarborRoot(null);
 
         if (options.forget) {
-            updateStore({ driveRoot: null });
+            updateStore({ harborRoot: null });
             rmSync(harborSessionPath(), { force: true });
         }
 
@@ -1119,14 +1120,14 @@ export const stopDrive = (options: { remove?: boolean; forget?: boolean } = {}) 
             try {
                 if (!readdirSync(root).length) rmdirSync(root);
             } catch {
-                log.warn('Could not remove the drive folder', root);
+                log.warn('Could not remove the Harbor folder', root);
             }
         }
 
         setStatus({ state: 'off', error: null });
     });
 
-export const openDrive = () => shell.openPath(driveRoot());
+export const openHarbor = () => shell.openPath(harborRoot());
 
 const fileIdAt = (path: string) => {
     if (!root) return null;
@@ -1142,23 +1143,23 @@ const fileIdAt = (path: string) => {
 };
 
 const linksOf = async (id: string) => {
-    const file = await driveApi<ApiFileLinks>(`/api/files/${id}`);
+    const file = await harborApi<ApiFileLinks>(`/api/files/${id}`);
     const isPage = file.embed.enabled || file.mimeType.startsWith('text/');
     return { copy: isPage ? file.embedUrl : file.directUrl, open: file.embedUrl };
 };
 
-export const runDriveAction = async (action: string, paths: string[]) => {
+export const runHarborAction = async (action: string, paths: string[]) => {
     if (action === 'settings') {
-        showMainWindow('/settings/drive');
+        showMainWindow('/settings/harbor');
         return;
     }
 
-    await startDrive();
+    await startHarbor();
 
     const ids = paths.map(fileIdAt).filter((id) => id !== null);
 
     if (!ids.length) {
-        notify(t('drive.notOnFileship'), t('drive.notOnFileshipDescription'));
+        notify(t('harbor.notOnFileship'), t('harbor.notOnFileshipDescription'));
         return;
     }
 
@@ -1177,16 +1178,16 @@ export const runDriveAction = async (action: string, paths: string[]) => {
 
         await writeText(links.map((link) => link.copy).join('\n'));
         notify(
-            t('drive.linkCopied', { count: links.length }),
+            t('harbor.linkCopied', { count: links.length }),
             links.map((link) => link.copy).join('\n'),
         );
     } catch (error: any) {
-        log.warn(`Drive ${action} failed`, error);
-        notify(t('drive.linkFailed'), error.message);
+        log.warn(`Harbor ${action} failed`, error);
+        notify(t('harbor.linkFailed'), error.message);
     }
 };
 
-export const drivePathFor = (fileId: string) => {
+export const harborPathFor = (fileId: string) => {
     const entry = local.get(fileIdentity(fileId));
     return status.state === 'ready' && entry && !entry.isFolder ? join(root, entry.path) : null;
 };

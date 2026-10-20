@@ -42,7 +42,7 @@ const breadcrumbLabels = {
     capture: 'nav.capture',
     recording: 'nav.recording',
     upload: 'nav.upload',
-    drive: 'nav.drive',
+    harbor: 'nav.harbor',
     account: 'nav.account',
     updates: 'nav.updates',
 };

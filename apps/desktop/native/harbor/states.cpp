@@ -7,7 +7,7 @@ using namespace winrt;
 using namespace Windows::Storage;
 using namespace Windows::Storage::Provider;
 
-namespace drive {
+namespace harbor {
 
 namespace {
 

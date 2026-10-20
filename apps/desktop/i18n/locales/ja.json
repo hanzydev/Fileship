@@ -57,7 +57,7 @@
         "nothingToCapture": "キャプチャする対象がありません",
         "noActiveWindow": "アクティブなウィンドウがありません。",
         "chooseFfmpeg": "ffmpeg.exe を選択",
-        "driveFolderNotEmpty": "空のフォルダーを選択してください。Fileship Harbor のフォルダーには Fileship のファイルだけが置かれます。",
+        "harborFolderNotEmpty": "空のフォルダーを選択してください。Fileship Harbor のフォルダーには Fileship のファイルだけが置かれます。",
         "invalidAddress": "有効なアドレスを入力してください（例：files.example.com）",
         "serverStarting": "この Fileship サーバーはまだ起動中です。少し待ってからもう一度お試しください",
         "serverNotFound": "{url} に Fileship サーバーが見つかりませんでした",
@@ -149,7 +149,7 @@
         "loggingIn": "{siteName} にログインしています…",
         "loginHint": "開いたウィンドウでログインしてください。キャンセルするにはウィンドウを閉じます。"
     },
-    "drive": {
+    "harbor": {
         "helperStopped": "Harbor ヘルパーが停止しました",
         "helperNotRunning": "Harbor ヘルパーが実行されていません",
         "helperNoAnswer": "Harbor ヘルパーから応答がありません（{request}）",
@@ -172,7 +172,7 @@
         "notOnFileship": "まだ Fileship にアップロードされていません",
         "notOnFileshipDescription": "ファイルのアップロードが完了してから、もう一度お試しください。"
     },
-    "driveSettings": {
+    "harborSettings": {
         "title": "Fileship Harbor",
         "description": "Fileship Harbor を使うと、Fileship のファイルとフォルダーがエクスプローラーに表示されます。ファイルは開いたときにだけダウンロードされます。",
         "enable": "Fileship Harbor を有効にする",
@@ -329,7 +329,7 @@
         "capture": "キャプチャ",
         "recording": "録画",
         "upload": "アップロード",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "updates": "アップデート",
         "updateReady": "Fileship v{version} の準備ができました",
         "updateReadyDescription": "再起動するとすぐに更新されます。再起動しない場合は、次回の終了時にインストールされます。",
@@ -489,7 +489,7 @@
         "capture": "キャプチャ",
         "recording": "録画",
         "upload": "アップロード",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "account": "アカウント",
         "updates": "アップデート"
     },
@@ -543,7 +543,7 @@
         "fromClipboard": "クリップボードから",
         "shortenFromClipboard": "クリップボードのリンクを短縮",
         "openFileship": "Fileship を開く",
-        "openDrive": "Fileship Harbor を開く",
+        "openHarbor": "Fileship Harbor を開く",
         "openDashboard": "ダッシュボードを開く",
         "restartToUpdate": "再起動して v{version} に更新",
         "checkForUpdates": "アップデートを確認",

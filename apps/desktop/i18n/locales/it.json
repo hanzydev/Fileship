@@ -57,7 +57,7 @@
         "nothingToCapture": "Niente da acquisire",
         "noActiveWindow": "Nessuna finestra attiva.",
         "chooseFfmpeg": "Scegli ffmpeg.exe",
-        "driveFolderNotEmpty": "Scegli una cartella vuota. Fileship Harbor vi tiene solo i file di Fileship.",
+        "harborFolderNotEmpty": "Scegli una cartella vuota. Fileship Harbor vi tiene solo i file di Fileship.",
         "invalidAddress": "Inserisci un indirizzo valido, ad esempio files.example.com",
         "serverStarting": "Questo server Fileship si sta ancora avviando, riprova tra poco",
         "serverNotFound": "Nessun server Fileship trovato su {url}",
@@ -149,7 +149,7 @@
         "loggingIn": "Accesso a {siteName}…",
         "loginHint": "Accedi nella finestra che si è aperta. Chiudila per annullare."
     },
-    "drive": {
+    "harbor": {
         "helperStopped": "Il processo di Harbor si è arrestato",
         "helperNotRunning": "Il processo di Harbor non è in esecuzione",
         "helperNoAnswer": "Il processo di Harbor non ha risposto ({request})",
@@ -172,7 +172,7 @@
         "notOnFileship": "Non ancora su Fileship",
         "notOnFileshipDescription": "Attendi che il file venga caricato e riprova."
     },
-    "driveSettings": {
+    "harborSettings": {
         "title": "Fileship Harbor",
         "description": "Fileship Harbor porta i tuoi file e le tue cartelle di Fileship in Esplora file. I file vengono scaricati solo quando li apri.",
         "enable": "Attiva Fileship Harbor",
@@ -329,7 +329,7 @@
         "capture": "Acquisizione",
         "recording": "Registrazione",
         "upload": "Caricamento",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "updates": "Aggiornamenti",
         "updateReady": "Fileship v{version} è pronto",
         "updateReadyDescription": "Riavvia per aggiornare ora, altrimenti l'aggiornamento verrà installato alla prossima chiusura.",
@@ -489,7 +489,7 @@
         "capture": "Acquisizione",
         "recording": "Registrazione",
         "upload": "Caricamento",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "account": "Account",
         "updates": "Aggiornamenti"
     },
@@ -543,7 +543,7 @@
         "fromClipboard": "Dagli appunti",
         "shortenFromClipboard": "Abbrevia link dagli appunti",
         "openFileship": "Apri Fileship",
-        "openDrive": "Apri Fileship Harbor",
+        "openHarbor": "Apri Fileship Harbor",
         "openDashboard": "Apri dashboard",
         "restartToUpdate": "Riavvia per aggiornare alla v{version}",
         "checkForUpdates": "Controlla aggiornamenti",

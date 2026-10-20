@@ -57,7 +57,7 @@
         "nothingToCapture": "Nothing to capture",
         "noActiveWindow": "No window is active.",
         "chooseFfmpeg": "Choose ffmpeg.exe",
-        "driveFolderNotEmpty": "Choose an empty folder. Fileship Harbor keeps only Fileship files in it.",
+        "harborFolderNotEmpty": "Choose an empty folder. Fileship Harbor keeps only Fileship files in it.",
         "invalidAddress": "Enter a valid address, for example files.example.com",
         "serverStarting": "This Fileship server is still starting, try again in a moment",
         "serverNotFound": "No Fileship server was found at {url}",
@@ -149,7 +149,7 @@
         "loggingIn": "Logging in to {siteName}…",
         "loginHint": "Log in in the window that opened. Close it to cancel."
     },
-    "drive": {
+    "harbor": {
         "helperStopped": "The Harbor helper stopped",
         "helperNotRunning": "The Harbor helper is not running",
         "helperNoAnswer": "The Harbor helper did not answer ({request})",
@@ -172,7 +172,7 @@
         "notOnFileship": "Not on Fileship yet",
         "notOnFileshipDescription": "Wait until the file is uploaded, then try again."
     },
-    "driveSettings": {
+    "harborSettings": {
         "title": "Fileship Harbor",
         "description": "Fileship Harbor puts your Fileship files and folders in File Explorer. Files download only when you open them.",
         "enable": "Enable Fileship Harbor",
@@ -329,7 +329,7 @@
         "capture": "Capture",
         "recording": "Recording",
         "upload": "Upload",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "updates": "Updates",
         "updateReady": "Fileship v{version} is ready",
         "updateReadyDescription": "Restart to update now, or it installs the next time you quit.",
@@ -489,7 +489,7 @@
         "capture": "Capture",
         "recording": "Recording",
         "upload": "Upload",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "account": "Account",
         "updates": "Updates"
     },
@@ -543,7 +543,7 @@
         "fromClipboard": "From clipboard",
         "shortenFromClipboard": "Shorten link from clipboard",
         "openFileship": "Open Fileship",
-        "openDrive": "Open Fileship Harbor",
+        "openHarbor": "Open Fileship Harbor",
         "openDashboard": "Open dashboard",
         "restartToUpdate": "Restart to update to v{version}",
         "checkForUpdates": "Check for updates",

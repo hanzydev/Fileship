@@ -69,7 +69,7 @@ const sections = [
     { label: 'settings.capture', path: '/settings/capture', icon: ICamera },
     { label: 'settings.recording', path: '/settings/recording', icon: IVideo },
     { label: 'settings.upload', path: '/settings/upload', icon: IUpload },
-    { label: 'settings.drive', path: '/settings/drive', icon: IHardDrive },
+    { label: 'settings.harbor', path: '/settings/harbor', icon: IHardDrive },
     { label: 'settings.account', path: '/settings/account', icon: IUser },
     { label: 'settings.updates', path: '/settings/updates', icon: IDownload },
 ];

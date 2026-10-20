@@ -57,7 +57,7 @@
         "nothingToCapture": "Çəkmək üçün heç nə yoxdur",
         "noActiveWindow": "Aktiv pəncərə yoxdur.",
         "chooseFfmpeg": "ffmpeg.exe faylını seç",
-        "driveFolderNotEmpty": "Boş qovluq seç. Fileship Harbor orada yalnız Fileship fayllarını saxlayır.",
+        "harborFolderNotEmpty": "Boş qovluq seç. Fileship Harbor orada yalnız Fileship fayllarını saxlayır.",
         "invalidAddress": "Düzgün ünvan daxil et, məsələn files.example.com",
         "serverStarting": "Bu Fileship serveri hələ işə düşür, bir az sonra yenidən cəhd et",
         "serverNotFound": "Bu ünvanda Fileship serveri tapılmadı: {url}",
@@ -149,7 +149,7 @@
         "loggingIn": "Daxil olunur: {siteName}…",
         "loginHint": "Açılan pəncərədə daxil ol. Ləğv etmək üçün pəncərəni bağla."
     },
-    "drive": {
+    "harbor": {
         "helperStopped": "Harbor köməkçisi dayandı",
         "helperNotRunning": "Harbor köməkçisi işləmir",
         "helperNoAnswer": "Harbor köməkçisi cavab vermədi ({request})",
@@ -172,7 +172,7 @@
         "notOnFileship": "Hələ Fileship-də deyil",
         "notOnFileshipDescription": "Fayl yüklənənə qədər gözlə, sonra yenidən cəhd et."
     },
-    "driveSettings": {
+    "harborSettings": {
         "title": "Fileship Harbor",
         "description": "Fileship Harbor Fileship fayllarını və qovluqlarını Fayl Bələdçisinə gətirir. Fayllar yalnız onları açanda endirilir.",
         "enable": "Fileship Harbor-u aktiv et",
@@ -329,7 +329,7 @@
         "capture": "Çəkiliş",
         "recording": "Qeydə alma",
         "upload": "Yükləmə",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "updates": "Yeniləmələr",
         "updateReady": "Fileship v{version} hazırdır",
         "updateReadyDescription": "İndi yeniləmək üçün yenidən başlat. Başlatmasan, yeniləmə tətbiqdən çıxanda quraşdırılacaq.",
@@ -489,7 +489,7 @@
         "capture": "Çəkiliş",
         "recording": "Qeydə alma",
         "upload": "Yükləmə",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "account": "Hesab",
         "updates": "Yeniləmələr"
     },
@@ -543,7 +543,7 @@
         "fromClipboard": "Mübadilə buferindən",
         "shortenFromClipboard": "Mübadilə buferindəki keçidi qısalt",
         "openFileship": "Fileship-i aç",
-        "openDrive": "Fileship Harbor-u aç",
+        "openHarbor": "Fileship Harbor-u aç",
         "openDashboard": "İdarə panelini aç",
         "restartToUpdate": "Yeniləmək üçün yenidən başlat (v{version})",
         "checkForUpdates": "Yeniləmələri yoxla",

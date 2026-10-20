@@ -6,7 +6,7 @@ import { app } from 'electron';
 import log from 'electron-log/main';
 
 import { uploadPaths } from './actions';
-import { runDriveAction } from './drive';
+import { runHarborAction } from './harbor';
 import { t } from './i18n';
 
 const run = promisify(execFile);
@@ -43,7 +43,7 @@ const writeHarborVerbs = async (exe: string, root: string) => {
         await setValue(key, 'Icon', exe);
         await setValue(key, 'AppliesTo', insideRoot(root));
         await setValue(key, 'MultiSelectModel', verb.many ? 'Player' : 'Single');
-        await setValue(`${key}\\command`, null, `"${exe}" --drive-action ${verb.action} "%1"`);
+        await setValue(`${key}\\command`, null, `"${exe}" --harbor-action ${verb.action} "%1"`);
     }
 };
 
@@ -96,7 +96,7 @@ const queueUploads = (paths: string[]) => {
     }, BATCH_MS);
 };
 
-const queueDriveAction = (action: string, paths: string[]) => {
+const queueHarborAction = (action: string, paths: string[]) => {
     pendingActions.set(action, [...(pendingActions.get(action) ?? []), ...paths]);
     clearTimeout(actionTimers.get(action));
 
@@ -106,7 +106,7 @@ const queueDriveAction = (action: string, paths: string[]) => {
             const paths = pendingActions.get(action)!;
             pendingActions.delete(action);
             actionTimers.delete(action);
-            runDriveAction(action, paths);
+            runHarborAction(action, paths);
         }, BATCH_MS),
     );
 };
@@ -116,10 +116,10 @@ export const handleLaunch = (argv: string[], cwd = process.cwd()) => {
     const resolvePaths = (args: string[]) =>
         args.map((arg) => resolve(cwd, arg)).filter((path) => !ignored.includes(path));
 
-    const [action, ...targets] = launchArgs(argv, '--drive-action') ?? [];
+    const [action, ...targets] = launchArgs(argv, '--harbor-action') ?? [];
 
     if (action) {
-        queueDriveAction(action, resolvePaths(targets));
+        queueHarborAction(action, resolvePaths(targets));
         return true;
     }
 

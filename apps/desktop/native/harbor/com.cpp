@@ -15,7 +15,7 @@
 using namespace winrt;
 using Clock = std::chrono::steady_clock;
 
-namespace drive {
+namespace harbor {
 
 namespace {
 
@@ -221,7 +221,7 @@ void requestAction(std::wstring const& action, std::vector<std::wstring> const& 
     auto const& app = config().appPath;
     if (app.empty()) return;
 
-    auto command = L"\"" + app + L"\" --drive-action " + action;
+    auto command = L"\"" + app + L"\" --harbor-action " + action;
     for (auto const& path : paths) command += L" \"" + path + L"\"";
 
     STARTUPINFOW startup{sizeof(startup)};

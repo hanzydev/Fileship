@@ -57,7 +57,7 @@
         "nothingToCapture": "Rien à capturer",
         "noActiveWindow": "Aucune fenêtre n'est active.",
         "chooseFfmpeg": "Choisir ffmpeg.exe",
-        "driveFolderNotEmpty": "Choisissez un dossier vide. Fileship Harbor n'y conserve que des fichiers Fileship.",
+        "harborFolderNotEmpty": "Choisissez un dossier vide. Fileship Harbor n'y conserve que des fichiers Fileship.",
         "invalidAddress": "Saisissez une adresse valide, par exemple files.example.com",
         "serverStarting": "Ce serveur Fileship est encore en train de démarrer, réessayez dans un instant",
         "serverNotFound": "Aucun serveur Fileship n'a été trouvé à l'adresse {url}",
@@ -149,7 +149,7 @@
         "loggingIn": "Connexion à {siteName}…",
         "loginHint": "Connectez-vous dans la fenêtre qui s'est ouverte. Fermez-la pour annuler."
     },
-    "drive": {
+    "harbor": {
         "helperStopped": "Le processus Harbor s'est arrêté",
         "helperNotRunning": "Le processus Harbor n'est pas en cours d'exécution",
         "helperNoAnswer": "Le processus Harbor n'a pas répondu ({request})",
@@ -172,7 +172,7 @@
         "notOnFileship": "Pas encore sur Fileship",
         "notOnFileshipDescription": "Attendez la fin de l'importation du fichier, puis réessayez."
     },
-    "driveSettings": {
+    "harborSettings": {
         "title": "Fileship Harbor",
         "description": "Fileship Harbor affiche vos fichiers et dossiers Fileship dans l'Explorateur de fichiers. Les fichiers ne sont téléchargés que lorsque vous les ouvrez.",
         "enable": "Activer Fileship Harbor",
@@ -329,7 +329,7 @@
         "capture": "Capture",
         "recording": "Enregistrement",
         "upload": "Importation",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "updates": "Mises à jour",
         "updateReady": "Fileship v{version} est prêt",
         "updateReadyDescription": "Redémarrez pour mettre à jour maintenant, sinon la mise à jour s'installera la prochaine fois que vous quitterez l'application.",
@@ -489,7 +489,7 @@
         "capture": "Capture",
         "recording": "Enregistrement",
         "upload": "Importation",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "account": "Compte",
         "updates": "Mises à jour"
     },
@@ -543,7 +543,7 @@
         "fromClipboard": "Depuis le presse-papiers",
         "shortenFromClipboard": "Raccourcir le lien du presse-papiers",
         "openFileship": "Ouvrir Fileship",
-        "openDrive": "Ouvrir Fileship Harbor",
+        "openHarbor": "Ouvrir Fileship Harbor",
         "openDashboard": "Ouvrir le tableau de bord",
         "restartToUpdate": "Redémarrer pour passer à la v{version}",
         "checkForUpdates": "Rechercher des mises à jour",

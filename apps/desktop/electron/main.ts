@@ -1,7 +1,7 @@
 import { app, globalShortcut } from 'electron';
 import log from 'electron-log/main';
 
-import { startDrive, stopDrive } from './drive';
+import { startHarbor, stopHarbor } from './harbor';
 import { registerHotkeys } from './hotkeys';
 import { updateLanguage } from './i18n';
 import { registerIpc } from './ipc';
@@ -45,7 +45,7 @@ app.on('web-contents-created', (_, contents) => {
 app.on('will-quit', () => {
     globalShortcut.unregisterAll();
     quitRecorder();
-    stopDrive();
+    stopHarbor();
 });
 
 app.whenReady().then(() => {
@@ -63,5 +63,5 @@ app.whenReady().then(() => {
     setBusyCheck(() => isUploading() || isRecording() || isWorking() || isCapturing());
     startUpdater();
     setTimeout(() => getFfmpeg(), 5000);
-    startDrive();
+    startHarbor();
 });

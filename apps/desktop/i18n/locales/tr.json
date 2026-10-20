@@ -57,7 +57,7 @@
         "nothingToCapture": "Yakalanacak bir şey yok",
         "noActiveWindow": "Etkin pencere yok.",
         "chooseFfmpeg": "ffmpeg.exe dosyasını seç",
-        "driveFolderNotEmpty": "Boş bir klasör seç. Fileship Harbor bu klasörde yalnızca Fileship dosyalarını tutar.",
+        "harborFolderNotEmpty": "Boş bir klasör seç. Fileship Harbor bu klasörde yalnızca Fileship dosyalarını tutar.",
         "invalidAddress": "Geçerli bir adres gir, örneğin files.example.com",
         "serverStarting": "Bu Fileship sunucusu hâlâ açılıyor, birazdan tekrar dene",
         "serverNotFound": "Bu adreste Fileship sunucusu bulunamadı: {url}",
@@ -149,7 +149,7 @@
         "loggingIn": "Giriş yapılıyor: {siteName}…",
         "loginHint": "Açılan pencereden giriş yap. Vazgeçmek için pencereyi kapat."
     },
-    "drive": {
+    "harbor": {
         "helperStopped": "Harbor yardımcısı durdu",
         "helperNotRunning": "Harbor yardımcısı çalışmıyor",
         "helperNoAnswer": "Harbor yardımcısı yanıt vermedi ({request})",
@@ -172,7 +172,7 @@
         "notOnFileship": "Henüz Fileship'te değil",
         "notOnFileshipDescription": "Dosya yüklendikten sonra tekrar dene."
     },
-    "driveSettings": {
+    "harborSettings": {
         "title": "Fileship Harbor",
         "description": "Fileship Harbor, Fileship dosyalarını ve klasörlerini Dosya Gezgini'ne getirir. Dosyalar yalnızca açtığında indirilir.",
         "enable": "Fileship Harbor'ı aç",
@@ -329,7 +329,7 @@
         "capture": "Yakalama",
         "recording": "Kayıt",
         "upload": "Yükleme",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "updates": "Güncellemeler",
         "updateReady": "Fileship v{version} hazır",
         "updateReadyDescription": "Şimdi güncellemek için yeniden başlat. Başlatmazsan güncelleme, uygulamadan çıktığında kurulur.",
@@ -489,7 +489,7 @@
         "capture": "Yakalama",
         "recording": "Kayıt",
         "upload": "Yükleme",
-        "drive": "Harbor",
+        "harbor": "Harbor",
         "account": "Hesap",
         "updates": "Güncellemeler"
     },
@@ -543,7 +543,7 @@
         "fromClipboard": "Panodan",
         "shortenFromClipboard": "Panodaki bağlantıyı kısalt",
         "openFileship": "Fileship'i aç",
-        "openDrive": "Fileship Harbor'ı aç",
+        "openHarbor": "Fileship Harbor'ı aç",
         "openDashboard": "Paneli aç",
         "restartToUpdate": "Güncellemek için yeniden başlat (v{version})",
         "checkForUpdates": "Güncellemeleri denetle",
