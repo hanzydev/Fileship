@@ -66,7 +66,7 @@
                                 />
 
                                 <div
-                                    class="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100 has-data-[state=open]:opacity-100"
+                                    class="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100 has-data-[state=open]:opacity-100 pointer-coarse:opacity-100"
                                 >
                                     <UiDropdownMenu>
                                         <UiDropdownMenuTrigger as-child>
@@ -150,16 +150,21 @@
             </VirtualList>
         </template>
 
-        <div
-            v-if="isOverDropZone"
-            class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+        <Transition
+            enter-active-class="animate-in fade-in-0 duration-100"
+            leave-active-class="animate-out fade-out-0 duration-100"
         >
-            <EmptyState
-                :icon="IUpload"
-                :title="$t('home.dropTitle')"
-                :description="$t('home.dropDescription')"
-            />
-        </div>
+            <div
+                v-if="isOverDropZone"
+                class="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+            >
+                <EmptyState
+                    :icon="IUpload"
+                    :title="$t('home.dropTitle')"
+                    :description="$t('home.dropDescription')"
+                />
+            </div>
+        </Transition>
     </div>
 </template>
 
