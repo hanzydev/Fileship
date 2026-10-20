@@ -104,7 +104,7 @@
                                                 v-if="harborState === 'ready' && item.fileId"
                                                 @click="handleItem('history:showInHarbor', item)"
                                             >
-                                                <IHardDrive />
+                                                <IAnchor />
                                                 {{ $t('home.showInHarbor') }}
                                             </UiDropdownMenuItem>
                                             <UiDropdownMenuSeparator
