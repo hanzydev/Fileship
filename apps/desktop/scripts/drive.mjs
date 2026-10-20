@@ -19,7 +19,7 @@ mkdirSync(objects, { recursive: true });
 moveAsideLocked(output, 'fileship-drive.exe');
 
 writeVersionResource(resource, {
-    description: 'Fileship drive',
+    description: 'Fileship Harbor',
     name: 'fileship-drive',
     fileName: 'fileship-drive.exe',
     type: 'VFT_APP',
@@ -33,6 +33,8 @@ runWithMsvc(join(output, 'build.cmd'), [
         `/Fo"${objects}\\\\" /Fe"${executable}"`,
         ...sourceFiles(source),
         `"${compiledResource}"`,
-        '/link cldapi.lib windowsapp.lib winhttp.lib advapi32.lib ole32.lib shell32.lib',
+        '/link /SUBSYSTEM:WINDOWS /ENTRY:wmainCRTStartup',
+        'cldapi.lib windowsapp.lib winhttp.lib advapi32.lib ole32.lib shell32.lib crypt32.lib',
+        'windowscodecs.lib shlwapi.lib gdi32.lib',
     ].join(' '),
 ]);

@@ -5,6 +5,8 @@
 #include <winternl.h>
 #undef WIN32_NO_STATUS
 
+#include <unknwn.h>
+
 #include <ntstatus.h>
 #include <cfapi.h>
 

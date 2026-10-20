@@ -1,4 +1,4 @@
-#include "common.h"
+#include "com.h"
 
 #include <algorithm>
 #include <iostream>
@@ -94,6 +94,18 @@ std::vector<std::wstring> readPaths(JsonObject const& request) {
     return paths;
 }
 
+void hostShellHandlers() {
+    try {
+        writeShellRegistration();
+        saveSession();
+        registerClassObjects();
+    } catch (winrt::hresult_error const& error) {
+        log(L"Could not host the shell handlers: " + std::wstring(error.message()));
+    } catch (std::exception const& error) {
+        log(L"Could not host the shell handlers: " + toWide(error.what()));
+    }
+}
+
 void handle(JsonObject const& request) {
     std::wstring type(request.GetNamedString(L"type"));
     auto response = reply(request, true);
@@ -111,6 +123,7 @@ void handle(JsonObject const& request) {
 
             std::filesystem::create_directories(currentConfig.root);
             registerSyncRoot();
+            hostShellHandlers();
             connectSyncRoot();
             startWatcher();
         } else if (type == L"create") {
@@ -164,10 +177,14 @@ void handle(JsonObject const& request) {
                        request.GetNamedBoolean(L"ok"));
             return;
         } else if (type == L"unregister") {
+            revokeClassObjects();
             stopWatcher();
             disconnectSyncRoot();
             unregisterSyncRoot(syncRootId());
+            removeShellRegistration();
+            removeSession();
         } else if (type == L"stop") {
+            revokeClassObjects();
             stopWatcher();
             disconnectSyncRoot();
             send(response);
@@ -356,8 +373,20 @@ int wmain(int argc, wchar_t** argv) {
     winrt::init_apartment();
     SetConsoleOutputCP(CP_UTF8);
 
-    if (argc > 1 && std::wstring(argv[1]) == L"--unregister-all") {
+    std::wstring command = argc > 1 ? argv[1] : L"";
+
+    if (command == L"--unregister-all") {
         drive::unregisterAll();
+        drive::removeShellRegistration();
+        drive::removeSession();
+        return 0;
+    }
+
+    if (_wcsicmp(command.c_str(), L"-Embedding") == 0 || _wcsicmp(command.c_str(), L"/Embedding") == 0) {
+        drive::loadSession();
+        drive::registerClassObjects();
+        drive::waitUntilIdle();
+        drive::revokeClassObjects();
         return 0;
     }
 
@@ -377,6 +406,7 @@ int wmain(int argc, wchar_t** argv) {
         std::thread([request] { drive::handle(request); }).detach();
     }
 
+    drive::revokeClassObjects();
     drive::stopWatcher();
     drive::disconnectSyncRoot();
     return 0;

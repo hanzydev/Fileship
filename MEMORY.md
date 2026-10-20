@@ -66,6 +66,8 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - Each account registers its own sync root `Fileship!<SID>!<account key>` (the key is a hash of the instance URL and user id). A folder can belong to only one sync root; registering it again under another id fails with `Access is denied`. The helper therefore unregisters a stale Fileship root of the same Windows user on the same folder before registering.
 - A failed registration can leave an empty key under `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SyncRootManager`; it is harmless and is filled in by the next successful registration.
 - `fileship-drive.exe --unregister-all` removes every Fileship sync root that Windows lists (the uninstaller runs it).
+- Shell handlers (thumbnails, and later custom states, verbs, sharing) are COM classes hosted by the helper itself (`native/drive/com.cpp`): per user under `HKCU\Software\Classes\CLSID\{clsid}\LocalServer32`, and named in the sync root key (`ThumbnailProvider` = `{clsid}`, written after every `Register()`; `Unregister()` deletes the whole key with our values). When Fileship is closed, COM starts `fileship-drive.exe -Embedding`, which reads `%LOCALAPPDATA%\Fileship\harbor.json` (token DPAPI protected) and exits after 30 s idle. Whether an already running Explorer picks up a new `ThumbnailProvider` without a restart is not verified yet.
+- Processes started from Claude Code's shell get `REGDB_E_CLASSNOTREG` for every per-user `LocalServer32`, so COM never launches the helper from there and Shell.Application sees no Explorer windows. Test `-Embedding` by starting it by hand and connecting with `CoCreateInstance`.
 
 ## Working with AI agents
 

@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, readdirSync, rmdirSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, rmdirSync, rmSync, statSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 
@@ -18,6 +18,7 @@ import { resetUploadSettings, uploadFile } from '../upload';
 import { broadcast } from '../windows';
 import {
     DriveHelper,
+    harborSessionPath,
     type HelperEvent,
     helperPath,
     isHelperAvailable,
@@ -927,7 +928,10 @@ export const stopDrive = (options: { remove?: boolean; forget?: boolean } = {}) 
         clearRetry();
         retries = 0;
 
-        if (options.forget) updateStore({ driveRoot: null });
+        if (options.forget) {
+            updateStore({ driveRoot: null });
+            rmSync(harborSessionPath(), { force: true });
+        }
 
         const current = helper;
 

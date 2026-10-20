@@ -46,6 +46,8 @@ export const helperPath = () =>
 
 export const isHelperAvailable = () => existsSync(helperPath());
 
+export const harborSessionPath = () => join(process.env.LOCALAPPDATA!, 'Fileship', 'harbor.json');
+
 export class DriveHelper extends EventEmitter<{ event: [HelperEvent]; exit: [number | null] }> {
     private child: ChildProcessWithoutNullStreams | null = null;
     private nextId = 1;
