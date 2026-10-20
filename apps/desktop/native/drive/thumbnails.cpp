@@ -3,6 +3,7 @@
 #undef WIN32_NO_STATUS
 #include <unknwn.h>
 
+#include "com.h"
 #include "http.h"
 #include "thumbnails.h"
 
@@ -180,6 +181,7 @@ HBITMAP fromServer(std::wstring const& fileId, UINT size) {
 }
 
 struct Thumbnails : implements<Thumbnails, IInitializeWithItem, IThumbnailProvider> {
+    ServerLock lock;
     std::wstring path;
 
     HRESULT __stdcall Initialize(IShellItem* item, DWORD) noexcept final {
@@ -217,27 +219,10 @@ struct Thumbnails : implements<Thumbnails, IInitializeWithItem, IThumbnailProvid
     }
 };
 
-struct Factory : implements<Factory, IClassFactory> {
-    HRESULT __stdcall CreateInstance(IUnknown* outer, REFIID iid, void** result) noexcept final {
-        *result = nullptr;
-        if (outer) return CLASS_E_NOAGGREGATION;
-
-        try {
-            return make<Thumbnails>()->QueryInterface(iid, result);
-        } catch (...) {
-            return to_hresult();
-        }
-    }
-
-    HRESULT __stdcall LockServer(BOOL) noexcept final {
-        return S_OK;
-    }
-};
-
 }
 
 com_ptr<IClassFactory> thumbnailFactory() {
-    return make<Factory>().as<IClassFactory>();
+    return classFactory<Thumbnails>();
 }
 
 }
