@@ -397,7 +397,9 @@
         "format": "Format",
         "color": "Rəng",
         "frames": "Kadr sayı",
-        "fileUpdated": "Fayl yeniləndi"
+        "fileUpdated": "Fayl yeniləndi",
+        "pages": "Səhifə sayı",
+        "page": "Səhifə {page}"
     },
     "files": {
         "title": "Fayllar",
@@ -1582,7 +1584,14 @@
             "failed": "Fayl yüklənmədi"
         },
         "notEnoughSpace": "Kifayət qədər yer yoxdur",
-        "notEnoughSpaceDescription": "Bu fayllara {needed} lazımdır, {left} yerin qalıb. Sığmayan fayllar yüklənməyəcək."
+        "notEnoughSpaceDescription": "Bu fayllara {needed} lazımdır, {left} yerin qalıb. Sığmayan fayllar yüklənməyəcək.",
+        "duplicateTitle": "Bu fayl artıq səndə var | Bu fayllardan {n} dənəsi artıq səndə var",
+        "duplicateDescription": "{name} faylının məzmunu {original} ilə eynidir.",
+        "duplicatesDescription": "Onların məzmunu əvvəl yüklədiyin fayllarla eynidir.",
+        "uploadAnyway": "Yenə də yüklə",
+        "skipDuplicates": "Təkrarları ötür",
+        "duplicateUploaded": "Bu fayl artıq səndə var idi",
+        "showOriginal": "Göstər"
     },
     "users": {
         "title": "İstifadəçilər",
@@ -1686,6 +1695,18 @@
         "almostFullDescription": "Yer açmaq üçün zibil qutusunu boşalt və ya böyük faylları sil.",
         "full": "Yaddaşın doldu",
         "fullDescription": "Fayl sil və ya zibil qutusunu boşalt, sonra yenidən cəhd et.",
-        "manage": "Yaddaşı idarə et"
+        "manage": "Yaddaşı idarə et",
+        "duplicates": "Təkrar fayllar",
+        "duplicatesDescription": "Məzmunu eyni olan fayllar. Birini saxla, qalanlarını zibil qutusuna at.",
+        "canFree": "{size} boşaldıla bilər",
+        "duplicatesFailed": "Təkrar fayllar yüklənmədi",
+        "duplicatesFailedDescription": "Bağlantını yoxla və yenidən cəhd et.",
+        "noDuplicates": "Təkrar fayl yoxdur",
+        "noDuplicatesDescription": "Məzmunu eyni olan fayllar burada görünür.",
+        "copies": "{count} nüsxə, hər biri {size}",
+        "keepOldest": "Ən köhnəni saxla",
+        "fileInFolder": "{date} · {folder}",
+        "openFile": "Aç",
+        "moveToTrash": "Zibil qutusuna at"
     }
 }

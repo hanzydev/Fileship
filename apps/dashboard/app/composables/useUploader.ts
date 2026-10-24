@@ -1,3 +1,6 @@
+const DUPLICATE_CHECK_BATCH = 100;
+const DUPLICATE_HASH_MAX_SIZE = 256 * 1024 * 1024;
+
 export const useUploader = () => {
     const route = useRoute();
     const uploading = useIsUploading();
@@ -29,13 +32,85 @@ export const useUploader = () => {
         });
     };
 
-    const upload = async (files: File[], settings: FileSettings = {}) => {
-        warnAboutSpace(files);
+    const hashContent = async (file: File) =>
+        Array.from(
+            new Uint8Array(await crypto.subtle.digest('SHA-256', await file.arrayBuffer())),
+            (byte) => byte.toString(16).padStart(2, '0'),
+        ).join('');
+
+    const checkDuplicates = (files: { size: number; hash?: string }[]) =>
+        $fetch('/api/files/duplicates', { method: 'POST', body: { files } }).then(
+            (data) => data.files,
+        );
+
+    const findDuplicates = async (files: File[]) => {
+        const originals = new Map<File, { id: string; name: string }>();
+        const unchecked = new Set<File>();
+        const comparable = files.filter((file) => !isProcessableImage(file.type));
+
+        for (let i = 0; i < comparable.length; i += DUPLICATE_CHECK_BATCH) {
+            const batch = comparable.slice(i, i + DUPLICATE_CHECK_BATCH);
+            const sizes = await checkDuplicates(batch.map((file) => ({ size: file.size })));
+            const candidates = batch.filter((_, index) => sizes[index]!.needsHash);
+            const hashable = candidates.filter(
+                (file) => window.isSecureContext && file.size <= DUPLICATE_HASH_MAX_SIZE,
+            );
+
+            candidates
+                .filter((file) => !hashable.includes(file))
+                .forEach((file) => unchecked.add(file));
+
+            if (!hashable.length) continue;
+
+            const hashes: string[] = [];
+            for (const file of hashable) hashes.push(await hashContent(file));
+
+            const results = await checkDuplicates(
+                hashable.map((file, index) => ({ size: file.size, hash: hashes[index] })),
+            );
+
+            results.forEach(
+                (result, index) =>
+                    result.original && originals.set(hashable[index]!, result.original),
+            );
+        }
+
+        return { originals, unchecked };
+    };
+
+    const confirmDuplicates = async (
+        files: File[],
+        originals: Map<File, { id: string; name: string }>,
+    ) => {
+        if (!originals.size) return files;
+
+        const [file, original] = [...originals][0]!;
+        const fresh = files.filter((f) => !originals.has(f));
+        let selected = files;
+
+        const isConfirmed = await askConfirmation({
+            title: t('upload.duplicateTitle', originals.size),
+            description:
+                originals.size > 1
+                    ? t('upload.duplicatesDescription')
+                    : t('upload.duplicateDescription', {
+                          name: file.name,
+                          original: original.name,
+                      }),
+            confirmText: t('upload.uploadAnyway'),
+            secondary: fresh.length
+                ? { text: t('upload.skipDuplicates'), action: async () => (selected = fresh) }
+                : undefined,
+        });
+
+        return isConfirmed ? selected : [];
+    };
+
+    const start = async (newFiles: UploadingFileData[]) => {
+        warnAboutSpace(newFiles);
         uploading.value = true;
 
-        const newFiles = files as UploadingFileData[];
         newFiles.forEach((file) => {
-            file.settings = settings;
             file.status = reactive({
                 started: false,
                 completed: false,
@@ -54,7 +129,7 @@ export const useUploader = () => {
                 fileNameType: 'Random',
                 maxViews: 0,
                 compression: 0,
-                ...settings,
+                ...file.settings,
             });
 
             if (typeof res === 'string') {
@@ -71,7 +146,26 @@ export const useUploader = () => {
         return { urls, failed: newFiles.length - successfulFiles.size };
     };
 
+    const upload = async (files: File[], settings: FileSettings = {}) => {
+        const { originals, unchecked } = await findDuplicates(files).catch(() => ({
+            originals: new Map(),
+            unchecked: new Set<File>(),
+        }));
+        const selected = (await confirmDuplicates(files, originals)) as UploadingFileData[];
+
+        selected.forEach((file) => {
+            file.settings = {
+                ...settings,
+                reportDuplicate: isProcessableImage(file.type) || unchecked.has(file),
+            };
+        });
+
+        return start(selected);
+    };
+
     const copyUrls = async (urls: string[], message: string) => {
+        if (!urls.length) return;
+
         if (document.hasFocus()) {
             await copy(urls.join('\n'));
             $toast.success(message, { description: t('upload.urlCopied', urls.length) });
@@ -113,13 +207,13 @@ export const useUploader = () => {
 
         await copyUrls(
             urls,
-            source === 'drag-drop' ? t('upload.dropped', files.length) : t('upload.pasted'),
+            source === 'drag-drop' ? t('upload.dropped', urls.length) : t('upload.pasted'),
         );
     };
 
     const retry = (file: UploadingFileData) => {
         uploadingFiles.value = uploadingFiles.value.filter((f) => f !== file);
-        return upload([file], file.settings);
+        return start([file]);
     };
 
     const dismiss = (file: UploadingFileData) => {

@@ -397,7 +397,9 @@
         "format": "Format",
         "color": "Couleur",
         "frames": "Images",
-        "fileUpdated": "Fichier mis à jour"
+        "fileUpdated": "Fichier mis à jour",
+        "pages": "Pages",
+        "page": "Page {page}"
     },
     "files": {
         "title": "Fichiers",
@@ -1582,7 +1584,14 @@
             "failed": "Impossible d'importer le fichier"
         },
         "notEnoughSpace": "Pas assez d'espace",
-        "notEnoughSpaceDescription": "Ces fichiers nécessitent {needed}, mais il ne reste que {left}. Les fichiers qui ne rentrent pas échoueront."
+        "notEnoughSpaceDescription": "Ces fichiers nécessitent {needed}, mais il ne reste que {left}. Les fichiers qui ne rentrent pas échoueront.",
+        "duplicateTitle": "Vous avez déjà ce fichier | Vous avez déjà {n} de ces fichiers",
+        "duplicateDescription": "{name} a le même contenu que {original}.",
+        "duplicatesDescription": "Ils ont le même contenu que des fichiers que vous avez déjà importés.",
+        "uploadAnyway": "Importer quand même",
+        "skipDuplicates": "Ignorer les doublons",
+        "duplicateUploaded": "Vous aviez déjà ce fichier",
+        "showOriginal": "Afficher"
     },
     "users": {
         "title": "Utilisateurs",
@@ -1686,6 +1695,18 @@
         "almostFullDescription": "Videz la corbeille ou supprimez des fichiers volumineux pour faire de la place.",
         "full": "Votre espace de stockage est plein",
         "fullDescription": "Supprimez des fichiers ou videz la corbeille, puis réessayez.",
-        "manage": "Gérer le stockage"
+        "manage": "Gérer le stockage",
+        "duplicates": "Doublons",
+        "duplicatesDescription": "Fichiers au contenu identique. Gardez une copie et placez les autres dans la corbeille.",
+        "canFree": "{size} récupérables",
+        "duplicatesFailed": "Impossible de charger les doublons",
+        "duplicatesFailedDescription": "Vérifiez votre connexion et réessayez.",
+        "noDuplicates": "Aucun doublon",
+        "noDuplicatesDescription": "Les fichiers au contenu identique apparaissent ici.",
+        "copies": "{count} copies, {size} chacune",
+        "keepOldest": "Garder le plus ancien",
+        "fileInFolder": "{date} · {folder}",
+        "openFile": "Ouvrir",
+        "moveToTrash": "Placer dans la corbeille"
     }
 }

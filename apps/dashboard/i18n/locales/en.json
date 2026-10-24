@@ -397,7 +397,9 @@
         "format": "Format",
         "color": "Color",
         "frames": "Frames",
-        "fileUpdated": "File updated"
+        "fileUpdated": "File updated",
+        "pages": "Pages",
+        "page": "Page {page}"
     },
     "files": {
         "title": "Files",
@@ -1582,7 +1584,14 @@
             "failed": "Upload failed"
         },
         "notEnoughSpace": "Not enough space",
-        "notEnoughSpaceDescription": "These files need {needed}, but {left} is left. Files that do not fit will fail."
+        "notEnoughSpaceDescription": "These files need {needed}, but {left} is left. Files that do not fit will fail.",
+        "duplicateTitle": "You already have this file | You already have {n} of these files",
+        "duplicateDescription": "{name} has the same content as {original}.",
+        "duplicatesDescription": "They have the same content as files you already uploaded.",
+        "uploadAnyway": "Upload anyway",
+        "skipDuplicates": "Skip duplicates",
+        "duplicateUploaded": "You already had this file",
+        "showOriginal": "Show"
     },
     "users": {
         "title": "Users",
@@ -1686,6 +1695,18 @@
         "almostFullDescription": "Empty the trash or delete large files to make room.",
         "full": "Your storage is full",
         "fullDescription": "Delete files or empty the trash, then try again.",
-        "manage": "Manage storage"
+        "manage": "Manage storage",
+        "duplicates": "Duplicates",
+        "duplicatesDescription": "Files with the same content. Keep one copy and move the others to the trash.",
+        "canFree": "{size} can be freed",
+        "duplicatesFailed": "Could not load duplicates",
+        "duplicatesFailedDescription": "Check your connection and try again.",
+        "noDuplicates": "No duplicates",
+        "noDuplicatesDescription": "Files with the same content show up here.",
+        "copies": "{count} copies, {size} each",
+        "keepOldest": "Keep oldest",
+        "fileInFolder": "{date} · {folder}",
+        "openFile": "Open",
+        "moveToTrash": "Move to trash"
     }
 }

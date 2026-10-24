@@ -185,3 +185,8 @@ export const ARCHIVE_FILE_MIME_TYPES = [
     'application/x-compress',
     'application/x-compressed',
 ];
+
+export const isPdf = (mimeType: string) => mimeType === 'application/pdf';
+
+export const isProcessableImage = (mimeType: string) =>
+    mimeType.startsWith('image/') && !['image/gif', 'image/svg+xml'].includes(mimeType);

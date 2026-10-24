@@ -222,7 +222,12 @@
                                     :src="withPassword(item, item.thumbnailUrl || item.directUrl)"
                                     :alt="item.name"
                                     loading="lazy"
-                                    class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                    :class="
+                                        cn(
+                                            'size-full object-cover transition-transform duration-300 group-hover:scale-105',
+                                            isPdf(item.mimeType) && 'object-top',
+                                        )
+                                    "
                                 />
                                 <div v-else class="flex size-full items-center justify-center">
                                     <component

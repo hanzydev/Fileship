@@ -397,7 +397,9 @@
         "format": "形式",
         "color": "色",
         "frames": "フレーム数",
-        "fileUpdated": "ファイルを更新しました"
+        "fileUpdated": "ファイルを更新しました",
+        "pages": "ページ数",
+        "page": "{page} ページ"
     },
     "files": {
         "title": "ファイル",
@@ -1582,7 +1584,14 @@
             "failed": "アップロードできませんでした"
         },
         "notEnoughSpace": "空き容量が足りません",
-        "notEnoughSpaceDescription": "これらのファイルには {needed} が必要ですが、残りは {left} です。入りきらないファイルはアップロードに失敗します。"
+        "notEnoughSpaceDescription": "これらのファイルには {needed} が必要ですが、残りは {left} です。入りきらないファイルはアップロードに失敗します。",
+        "duplicateTitle": "このファイルはすでにあります | このうち {n} 個のファイルはすでにあります",
+        "duplicateDescription": "{name} は {original} と同じ内容です。",
+        "duplicatesDescription": "アップロード済みのファイルと同じ内容です。",
+        "uploadAnyway": "このままアップロード",
+        "skipDuplicates": "重複をスキップ",
+        "duplicateUploaded": "このファイルはすでにありました",
+        "showOriginal": "表示"
     },
     "users": {
         "title": "ユーザー",
@@ -1686,6 +1695,18 @@
         "almostFullDescription": "ゴミ箱を空にするか、大きなファイルを削除して空き容量を作ってください。",
         "full": "ストレージがいっぱいです",
         "fullDescription": "ファイルを削除するかゴミ箱を空にしてから、もう一度お試しください。",
-        "manage": "ストレージを管理"
+        "manage": "ストレージを管理",
+        "duplicates": "重複ファイル",
+        "duplicatesDescription": "同じ内容のファイルです。1 つを残して、ほかはゴミ箱に移動できます。",
+        "canFree": "{size} を解放できます",
+        "duplicatesFailed": "重複ファイルを読み込めませんでした",
+        "duplicatesFailedDescription": "接続を確認して、もう一度お試しください。",
+        "noDuplicates": "重複ファイルはありません",
+        "noDuplicatesDescription": "同じ内容のファイルがここに表示されます。",
+        "copies": "{count} 個のコピー（各 {size}）",
+        "keepOldest": "最も古いものを残す",
+        "fileInFolder": "{date} · {folder}",
+        "openFile": "開く",
+        "moveToTrash": "ゴミ箱に移動"
     }
 }

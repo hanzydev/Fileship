@@ -20,6 +20,8 @@ Fileship keeps uploads and backups in its data directory by default. In **Admini
 
 Uploads stream to the storage chunk by chunk. Thumbnails and temporary files always stay in the data directory. Storage credentials are encrypted with `data/secret.key`, so keep that file together with your data.
 
+To find duplicates (**Settings → Storage → Duplicates**), Fileship reads a file back once and stores its SHA-256 hash, but only when another file of the same user has exactly the same size. On S3, SFTP and FTP this read counts as a download from the storage.
+
 On every start, Fileship removes files and backups whose data is missing from their storage. A storage that cannot be reached or looks empty is skipped, so a misconfigured storage never deletes anything.
 
 ## Trash

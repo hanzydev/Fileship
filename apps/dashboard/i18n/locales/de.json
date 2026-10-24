@@ -397,7 +397,9 @@
         "format": "Format",
         "color": "Farbe",
         "frames": "Einzelbilder",
-        "fileUpdated": "Datei aktualisiert"
+        "fileUpdated": "Datei aktualisiert",
+        "pages": "Seiten",
+        "page": "Seite {page}"
     },
     "files": {
         "title": "Dateien",
@@ -1582,7 +1584,14 @@
             "failed": "Upload fehlgeschlagen"
         },
         "notEnoughSpace": "Nicht genug Speicher",
-        "notEnoughSpaceDescription": "Diese Dateien brauchen {needed}, frei sind noch {left}. Dateien, die nicht passen, schlagen fehl."
+        "notEnoughSpaceDescription": "Diese Dateien brauchen {needed}, frei sind noch {left}. Dateien, die nicht passen, schlagen fehl.",
+        "duplicateTitle": "Diese Datei hast du schon | {n} dieser Dateien hast du schon",
+        "duplicateDescription": "{name} hat denselben Inhalt wie {original}.",
+        "duplicatesDescription": "Sie haben denselben Inhalt wie Dateien, die du schon hochgeladen hast.",
+        "uploadAnyway": "Trotzdem hochladen",
+        "skipDuplicates": "Duplikate überspringen",
+        "duplicateUploaded": "Diese Datei hattest du schon",
+        "showOriginal": "Anzeigen"
     },
     "users": {
         "title": "Benutzer",
@@ -1686,6 +1695,18 @@
         "almostFullDescription": "Leere den Papierkorb oder lösche große Dateien, um Platz zu schaffen.",
         "full": "Dein Speicher ist voll",
         "fullDescription": "Lösche Dateien oder leere den Papierkorb und versuche es dann erneut.",
-        "manage": "Speicher verwalten"
+        "manage": "Speicher verwalten",
+        "duplicates": "Duplikate",
+        "duplicatesDescription": "Dateien mit demselben Inhalt. Behalte eine Kopie und verschiebe die anderen in den Papierkorb.",
+        "canFree": "{size} lassen sich freigeben",
+        "duplicatesFailed": "Duplikate konnten nicht geladen werden",
+        "duplicatesFailedDescription": "Prüfe deine Verbindung und versuche es erneut.",
+        "noDuplicates": "Keine Duplikate",
+        "noDuplicatesDescription": "Dateien mit demselben Inhalt erscheinen hier.",
+        "copies": "{count} Kopien, je {size}",
+        "keepOldest": "Älteste behalten",
+        "fileInFolder": "{date} · {folder}",
+        "openFile": "Öffnen",
+        "moveToTrash": "In den Papierkorb verschieben"
     }
 }

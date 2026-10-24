@@ -6,10 +6,21 @@ import ffprobe from '@ffprobe-installer/ffprobe';
 
 import pkg from '../../package.json' with { type: 'json' };
 
+const packageRequire = createRequire(import.meta.url);
+
 const aiWorkerPath = join(
-    dirname(createRequire(import.meta.url).resolve('@fileship/ai/package.json')),
+    dirname(packageRequire.resolve('@fileship/ai/package.json')),
     'dist/worker.mjs',
 );
+
+const pdfPackagePath = dirname(packageRequire.resolve('@fileship/pdf/package.json'));
+const pdfWorkerPath = join(pdfPackagePath, 'dist/pdf-worker.mjs');
+const pdfiumPath = createRequire(join(pdfPackagePath, 'package.json')).resolve(
+    '@embedpdf/pdfium/pdfium.wasm',
+);
+
+const pdfjsPath = dirname(packageRequire.resolve('pdfjs-dist/package.json'));
+const pdfjsVersion = packageRequire('pdfjs-dist/package.json').version;
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -106,15 +117,22 @@ export default defineNuxtConfig({
             autoImport: true,
         },
         externals: {
-            traceInclude: [ffprobe.path, aiWorkerPath],
+            traceInclude: [ffprobe.path, aiWorkerPath, pdfWorkerPath, pdfiumPath],
         },
+        publicAssets: ['cmaps', 'iccs', 'standard_fonts', 'wasm'].map((dir) => ({
+            baseURL: `_pdfjs/${pdfjsVersion}/${dir}`,
+            dir: join(pdfjsPath, dir),
+            maxAge: 60 * 60 * 24 * 365,
+        })),
         hooks: {
             compiled: async (nitro) => {
-                if (!nitro.options.dev)
-                    await copyFile(
-                        aiWorkerPath,
-                        join(nitro.options.output.serverDir, 'worker.mjs'),
-                    );
+                if (nitro.options.dev) return;
+
+                await copyFile(aiWorkerPath, join(nitro.options.output.serverDir, 'worker.mjs'));
+                await copyFile(
+                    pdfWorkerPath,
+                    join(nitro.options.output.serverDir, 'pdf-worker.mjs'),
+                );
             },
         },
     },

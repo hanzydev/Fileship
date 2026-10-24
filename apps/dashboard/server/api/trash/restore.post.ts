@@ -90,6 +90,8 @@ export default defineEventHandler(async (event) => {
 
     for (const userId of audience) sendToUser(userId, 'trash:restore', null);
 
+    if (counts.files) event.waitUntil(syncContentHashes());
+
     if (counts.files && (await isAiEnabled()))
         runTask('ai:syncJobs', { payload: { userId: currentUser.id } }).catch(() => null);
 

@@ -28,6 +28,7 @@ export const indexCreatedFile = async (
     file: { id: string; authorId: string; fileName: string },
 ) => {
     if ((owner.aiSettings as any)?.enabled ?? true) event.waitUntil(enqueueFileAnalysis(file));
+    event.waitUntil(syncContentHashes());
 
     await upsertFileSearchEntry(file.id);
 };

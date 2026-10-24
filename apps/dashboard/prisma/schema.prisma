@@ -134,10 +134,13 @@ model File {
   storage            Storage?  @relation(fields: [storageId], references: [id], onDelete: Restrict)
   storageId          String?
   deletedAt          DateTime?
+  contentHash        String?
 
   aiJobs AIJob[]
 
   @@index([authorId, deletedAt])
+  @@index([authorId, size])
+  @@index([authorId, contentHash])
 }
 
 model Storage {

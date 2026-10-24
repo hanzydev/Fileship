@@ -397,7 +397,9 @@
         "format": "형식",
         "color": "색상",
         "frames": "프레임 수",
-        "fileUpdated": "파일을 업데이트했어요"
+        "fileUpdated": "파일을 업데이트했어요",
+        "pages": "페이지 수",
+        "page": "{page}페이지"
     },
     "files": {
         "title": "파일",
@@ -1582,7 +1584,14 @@
             "failed": "업로드하지 못했어요"
         },
         "notEnoughSpace": "공간이 부족해요",
-        "notEnoughSpaceDescription": "이 파일들에는 {needed}가 필요하지만 남은 공간은 {left}예요. 들어가지 않는 파일은 업로드에 실패해요."
+        "notEnoughSpaceDescription": "이 파일들에는 {needed}가 필요하지만 남은 공간은 {left}예요. 들어가지 않는 파일은 업로드에 실패해요.",
+        "duplicateTitle": "이미 있는 파일이에요 | 이 중 {n}개 파일은 이미 있어요",
+        "duplicateDescription": "{name} 파일은 {original} 파일과 내용이 같아요.",
+        "duplicatesDescription": "이미 업로드한 파일과 내용이 같아요.",
+        "uploadAnyway": "그래도 업로드",
+        "skipDuplicates": "중복 건너뛰기",
+        "duplicateUploaded": "이미 있던 파일이에요",
+        "showOriginal": "보기"
     },
     "users": {
         "title": "사용자",
@@ -1686,6 +1695,18 @@
         "almostFullDescription": "휴지통을 비우거나 큰 파일을 삭제해 공간을 확보해 주세요.",
         "full": "저장 공간이 가득 찼어요",
         "fullDescription": "파일을 삭제하거나 휴지통을 비운 뒤 다시 시도해 주세요.",
-        "manage": "저장 공간 관리"
+        "manage": "저장 공간 관리",
+        "duplicates": "중복 파일",
+        "duplicatesDescription": "내용이 같은 파일이에요. 하나만 남기고 나머지는 휴지통으로 이동할 수 있어요.",
+        "canFree": "{size} 확보 가능",
+        "duplicatesFailed": "중복 파일을 불러올 수 없어요",
+        "duplicatesFailedDescription": "연결을 확인하고 다시 시도해 주세요.",
+        "noDuplicates": "중복 파일 없음",
+        "noDuplicatesDescription": "내용이 같은 파일이 여기에 표시돼요.",
+        "copies": "사본 {count}개, 각 {size}",
+        "keepOldest": "가장 오래된 파일 남기기",
+        "fileInFolder": "{date} · {folder}",
+        "openFile": "열기",
+        "moveToTrash": "휴지통으로 이동"
     }
 }

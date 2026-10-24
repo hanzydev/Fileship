@@ -38,9 +38,6 @@ interface UploadedFile {
     metadata: any;
 }
 
-export const isProcessableImage = (mimeType: string) =>
-    mimeType.startsWith('image/') && !['image/gif', 'image/svg+xml'].includes(mimeType);
-
 export const usableSpaceOf = (owner: UploadOwner) => {
     const usableSpace = owner.limits?.usableSpace ?? -1;
     return isAdmin(owner) || usableSpace < 0 ? null : BigInt(usableSpace * 1024 * 1024);

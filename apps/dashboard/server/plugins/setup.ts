@@ -9,6 +9,7 @@ export default defineNitroPlugin(async () => {
     await runTask('storage:sync');
 
     runTask('media:sync');
+    runTask('files:hash');
 
     await runTask('search:addToOrama');
 

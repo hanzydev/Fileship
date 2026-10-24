@@ -12,9 +12,12 @@ export default defineTask({
         while (true) {
             const files = await prisma.file.findMany({
                 where: {
-                    OR: ['image/', 'video/', 'audio/'].map((type) => ({
-                        mimeType: { startsWith: type },
-                    })),
+                    OR: [
+                        { mimeType: 'application/pdf' },
+                        ...['image/', 'video/', 'audio/'].map((type) => ({
+                            mimeType: { startsWith: type },
+                        })),
+                    ],
                 },
                 select: {
                     id: true,
