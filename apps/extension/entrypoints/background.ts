@@ -199,10 +199,10 @@ export default defineBackground(() => {
         if (message.type === 'uploadFiles')
             for (const file of message.files)
                 runTask('file', file.name, async (onProgress) => {
-                    const blob = await takeFile(file.id);
+                    const blob = await readFile(file.id);
                     if (!blob) throw new ExtensionError('errors.fileMissing');
 
-                    return upload(blob, file.name, onProgress);
+                    return upload(blob, file.name, onProgress).finally(() => removeFile(file.id));
                 });
 
         if (message.type === 'shortenPage')
