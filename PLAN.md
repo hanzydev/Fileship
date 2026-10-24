@@ -31,6 +31,14 @@ Desktop:
 - [ ] Check the tray: a single click opens the region capture after the double-click time, a double click only opens the window.
 - [ ] Check the 1.0.1 → next upgrade keeps the Harbor folder (`drive` / `driveRoot` store migration).
 
+Browser extension:
+
+- [ ] Run it in Firefox: the upload tab, copying links from the background page, the context menus, the area picker and the permission prompts. Only `web-ext lint` ran on the Firefox build.
+- [ ] Check the host permission prompt from the context menu for an image on another site, in Chrome and Firefox (automated tests cannot click it, so they ran with the permission already granted).
+- [ ] Check the file picker in the Chrome toolbar popup on macOS and Linux (Windows behaviour is assumed, not tested; the popup was only tested as a page).
+- [ ] Test against a real dashboard. The end-to-end run used headless Chrome and a mock server that follows the upload, link and health endpoints.
+- [ ] Publish to the Chrome Web Store, Edge Add-ons and addons.mozilla.org (store listings, screenshots, privacy answers that match the declared data collection).
+
 Dashboard and infrastructure:
 
 - [ ] The Docker image is 5.6 GB because the runner copies the whole workspace `node_modules`. Deploy only the dashboard's production dependencies.

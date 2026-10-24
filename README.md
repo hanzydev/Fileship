@@ -34,6 +34,7 @@
 - Multiple users with permissions and storage limits, passkeys and two-factor authentication
 - Zero-downtime updates, one click or on a schedule
 - ShareX, macOS and Linux upload integrations, and the [Windows app](docs/desktop.md)
+- A [browser extension](docs/browser-extension.md) for Chrome, Edge and Firefox that uploads files, images and screenshots and shortens links
 - English, Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese
 
 ## 🖥️ Fileship for Windows

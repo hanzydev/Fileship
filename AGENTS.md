@@ -13,6 +13,7 @@ pnpm + Turborepo monorepo (`pnpm@11`, workspaces `apps/*` and `packages/*`). pnp
 | `apps/dashboard`         | Nuxt 4 app: the UI and the Nitro API. Prisma/Postgres, socket.io, Orama search, local AI queue.                                                                          |
 | `apps/updater-agent`     | Small h3 service (`src/index.ts`) that performs blue/green updates by driving `docker compose`.                                                                          |
 | `apps/desktop`           | Fileship for Windows: an Electron app that captures, records and uploads to Fileship 6.0+, with a Nuxt renderer on the ui layer.                                         |
+| `apps/extension`         | The browser extension (Manifest V3 for Chrome, Edge and Firefox, built with WXT and Vue): uploads, screenshots and short links with an upload token.                     |
 | `apps/telemetry`         | Nuxt 4 telemetry panel: receives the anonymous reports and shows the statistics. Admin only. Not part of the user-facing stack.                                          |
 | `packages/ui`            | `@fileship/ui`, the shared Nuxt layer: shadcn-vue components, theme tokens, generic app components and the shared Nuxt modules.                                          |
 | `packages/telemetry`     | `@fileship/telemetry`, the report schema (zod) and the client that collects runtime info and sends reports.                                                              |
@@ -27,7 +28,7 @@ Run from the repository root unless noted.
 - `pnpm dev`: run the dashboard in dev mode through Turbo. It generates the Prisma client and applies migrations first. The telemetry panel needs its own `.env` and runs with `pnpm --filter telemetry dev`.
 - `pnpm build`: build every workspace.
 - `pnpm lint`: `lint:i18n` (`scripts/check-i18n.mjs`: `en` and `tr` catalogs have the same keys and every message compiles), ESLint in every workspace, then `prettier --write .`.
-- `pnpm lint:types`: `nuxt typecheck` in the dashboard, the telemetry panel and the ui layer, plus `nuxt typecheck` and `tsc` for the main process in the desktop app. It must report zero errors.
+- `pnpm lint:types`: `nuxt typecheck` in the dashboard, the telemetry panel and the ui layer, `nuxt typecheck` and `tsc` for the main process in the desktop app, and `vue-tsc` in the browser extension. It must report zero errors.
 - `pnpm check`: build + lint + lint:types, which is what CI runs (`.github/workflows/check.yml`, on Linux, where the desktop build skips the native addon and the Harbor helper).
 
 Dashboard only (`pnpm --filter dashboard <script>`):
@@ -38,6 +39,8 @@ Dashboard only (`pnpm --filter dashboard <script>`):
 Desktop app only (`pnpm --filter desktop <script>`): `dev` (Nuxt on port 3020 plus Electron, restarts on main process changes) and `package` (builds `release/Fileship-Setup-<version>.exe` locally).
 
 Telemetry panel only (`pnpm --filter telemetry <script>`): `dev` (port 3002), `db:generate`, `db:deploy`, `db:migrate` (create-only) and `db:studio`.
+
+Browser extension only (`pnpm --filter extension <script>`): `dev` and `dev:firefox` (WXT starts a browser with the extension and reloads it), `build` (`.output/chrome-mv3` and `.output/firefox-mv3`), `package` (the store zips and the sources zip for addons.mozilla.org) and `test` (vitest for the API and upload client).
 
 Turborepo behaviour can differ between versions. Before changing `turbo.json`, read the docs bundled with the installed package (`node_modules/turbo/docs`).
 
@@ -55,13 +58,14 @@ Turborepo behaviour can differ between versions. Before changing `turbo.json`, r
 
 ## Translations
 
-The dashboard and the desktop app are translated into English (source and fallback), Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese; the telemetry panel is English only. [I18N.md](I18N.md) has the catalog layout, the code rules, the style guides and the glossaries.
+The dashboard, the desktop app and the browser extension are translated into English (source and fallback), Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese; the telemetry panel is English only. [I18N.md](I18N.md) has the catalog layout, the code rules, the style guides and the glossaries.
 
 - Every user-visible string is a key, in both `en` and `tr`. ESLint rejects raw template text and unknown keys, and `pnpm lint:i18n` rejects catalogs that differ.
 - The ui layer registers `@nuxtjs/i18n` (`no_prefix`, so URLs never change) with its own `common` and `error` messages in `packages/ui/i18n`. Each app adds its locales from `i18n/locales/<code>.json` (`en`, `tr`, `de`, `fr`, `it`, `az`, `ja`, `ko`, `zh`; the list is `LANGUAGES` in `apps/dashboard/shared/utils/languages.ts` and `apps/desktop/i18n/messages.ts`): the dashboard loads them as locale files, the desktop app bundles them through `i18n/messages.ts`.
 - Dashboard: the language is `User.language` (`null` follows the browser), changed on the appearance page (`updateLanguage`), applied during SSR in `fetchCurrentUser` and synced over `currentUser:update`; guests use the `fileship_locale` cookie or `Accept-Language`. `i18n/localeDetector.ts` resolves the same order on the server, `server/middleware/0.i18n.ts` stores `event.context.t` (refreshed in `auth.ts` once the user is known), and API errors are thrown with `apiError(status, key)` / `invalidBodyError(error)` from `server/utils/i18n.ts`. Clients never compare error messages; the API adds flags to `data` instead. Logs stay English.
 - Dates use `useDate()` (dayjs with the active locale and localized formats), numbers `Intl` with the active locale.
 - Desktop: the `language` setting (`system` follows Windows) is resolved in `electron/i18n.ts`, whose `t()` translates the tray, notifications and dialogs; a change refreshes the tray and broadcasts `app:language` to every window (`app/plugins/language.client.ts`). API requests send `Accept-Language`, so server errors arrive translated.
+- Browser extension: there is no language setting; `t()` in `utils/i18n.ts` follows the browser's UI language (`i18n.getUILanguage()`) and is also the `$t` of its Vue pages. Its catalogs (`apps/extension/i18n/locales`) are merged with the ui layer's in `i18n/messages.ts`, and the build writes `manifest.description` to `_locales/<code>/messages.json` for the manifest. API requests send `Accept-Language`.
 
 ## Deployment model
 
@@ -75,7 +79,7 @@ The dashboard and the desktop app are translated into English (source and fallba
 
 ## Shared UI layer (`packages/ui`)
 
-- A Nuxt layer shipped as source. The dashboard and the telemetry panel use it through `extends: ['@fileship/ui']`, and its `components`, `composables`, `utils`, `layouts` and `plugins` are auto-imported there.
+- A Nuxt layer shipped as source. The dashboard and the telemetry panel use it through `extends: ['@fileship/ui']`, and its `components`, `composables`, `utils`, `layouts` and `plugins` are auto-imported there. The browser extension uses its components, theme tokens and catalogs without Nuxt (see [Browser extension](#browser-extension-appsextension)), so keep the shadcn-vue components free of Nuxt-only APIs.
 - `app/components/ui`: shadcn-vue components (style `reka-luma`, see `packages/ui/components.json`). Run `shadcn-vue add` from `packages/ui`.
 - Generic components: `AppHeader` (sidebar trigger, breadcrumbs, theme toggle), `PageHeader`, `TextBlock`, `EmptyState`, `Centered`, `StatCard`, `StatsDonut`, `TrendChart`, `DataTable`, `VirtualList`, `ListCardSkeleton`, `PasswordInput`, `ConfirmDialog` and `AppToaster` (the Sonner toaster every app renders: `rounded-3xl` toasts with `buttonVariants` action and cancel buttons; `tailwind.css` releases vue-sonner's unlayered radius and button styles with `revert-layer` so those classes apply). Composables: `useConfirm`, `useQueryState`, `useBreadcrumbs`, `useBreadcrumbLabels`. Utils: `cn`, `pluralize`, `clamp`, `getErrorMessage`.
 - `app/error.vue` is the error page of every app. Its home button leads to the `home` app config (`{ path, label }`), which each app sets in its own `app/app.config.ts`.
@@ -167,6 +171,18 @@ Reuse these instead of writing new versions.
 - **Clipboard:** Electron 44's clipboard is async. Use the helpers in `electron/clipboard.ts`.
 - **Windows:** the main window exists only while it is open: `showMainWindow` creates it, closing destroys it, and the app keeps running in the tray. A `--hidden` start creates no window. Fileship starts with Windows (`--hidden`) and keeps a single instance.
 
+## Browser extension (`apps/extension`)
+
+- **Tooling:** [WXT](https://wxt.dev) builds Manifest V3 for Chrome/Edge and Firefox from one codebase (`wxt.config.ts`, `manifestVersion: 3`; WXT would build Firefox as MV2 otherwise). Entrypoints live in `entrypoints/`, and WXT auto-imports `utils/` and `composables/` like Nuxt. Nuxt is not used; Vue comes through `@wxt-dev/module-vue`.
+- **Design system:** the pages reuse the ui layer without Nuxt: the `#layers/ui` alias points at `packages/ui`, `cn` is an auto-import, the stylesheet imports the layer's `tailwind.css`, and unplugin-vue-components registers the layer's components with Nuxt names (`UiButton`, `UiCardHeader`, `EmptyState`, `TextBlock`, `PasswordInput`) and lucide icons as `<IName />`. The layer's other app components need Nuxt and are excluded in `globsExclude`; add one to `UI_APP_COMPONENTS` only if it works without Nuxt. Pages follow the system theme by toggling `.dark` (`mountApp` in `utils/app.ts`), and Geist comes from `@fontsource-variable/geist`.
+- **Entrypoints:** `background.ts` (context menus, messages, notifications, and every upload and short link), `popup` (toolbar), `options` (connection and upload options), `upload` (a tab with a drop zone; the Firefox popup opens it because Firefox closes popups when a file picker opens), `offscreen` (Chrome only: copies to the clipboard with `execCommand`, since a service worker cannot; Firefox writes the clipboard from its background page) and `area.ts` (the area picker, injected on demand with `scripting.executeScript`).
+- **Connection:** `local:settings` (`utils/settings.ts`) holds the instance URL, the upload token, the last connection test (`connection`: site name, version, `canUpload`, `canShorten`) and the upload options (`fileNameType`, `expiration`). The token never leaves `storage.local` except as `Authorization: Bearer` to the instance, and is never logged. Requests use `credentials: 'omit'`. `testConnection` (`utils/api.ts`) reads `/api/healthz` (6.0.0 or newer) and probes `POST /api/files` with an empty form and `POST /api/links` with `{}`: 401 is an invalid token, 403 a missing permission, anything else means allowed, and nothing is created.
+- **Permissions:** no host permission at install. The options page requests the instance origin (`optional_host_permissions`) inside the click handler, before any `await`, and removes the old origin when the address changes or on **Disconnect**. Images from another origin than their page request that origin from the context menu click (synchronously, in the same handler); same-origin and `blob:` images are fetched inside the page with `activeTab` + `scripting`. `activeTab` also covers `captureVisibleTab` and the area picker, so the popup and the menus are the only ways in.
+- **Uploads:** `uploadBlob` (`utils/upload.ts`) mirrors the desktop client: chunk size and parallel requests come from `/api/settings/public` (cached 5 minutes per instance), chunks carry `uploadId`, `currentChunk`, `totalChunks`, `chunkOffset`, `fileNameType` and `expiration`, and 0/5xx responses are retried up to three times. Errors become translated text in `describeError` (`utils/errors.ts`): `data.quotaExceeded`, 401, 403, timeouts and `ExtensionError` keys.
+- **Tasks:** the background runs everything through `runTask`, which keeps the list in `session:tasks` (the popup and the upload page watch it with `useTasks`), copies the link, shows a notification (clicking it opens the link) and calls an extension API every 20 seconds so Chrome keeps the service worker alive during long uploads. Tasks still running when the worker starts again are marked as interrupted. Files picked in the popup are handed to the background through IndexedDB (`utils/files.ts`), because extension messages cannot carry `File` objects in Chrome.
+- **Area picker:** a closed shadow root over the page, styled with inline styles (page CSP cannot block them); a drag selects, a click takes the visible page, Esc or a right click cancels. It removes itself and waits two frames before sending `areaSelected`, and the background crops the `captureVisibleTab` image by `image width / innerWidth`, which covers device pixel ratio and zoom.
+- **Packages:** `pnpm --filter extension package` writes `fileship-<version>-chrome.zip`, `-firefox.zip` and `-sources.zip` to `.output`. The sources zip is taken from the repository root (`zip.sourcesRoot`) with only the extension, `packages/ui`, `packages/eslint-config`, the root manifests and `docs/browser-extension.md`. The Firefox manifest has the gecko id `fileship@hanzy.dev`, `strict_min_version` 142 and declares `websiteContent` and `browsingActivity` as data it sends; the Chrome manifest sets `minimum_chrome_version` 116.
+
 ## Conventions
 
 - Code style: no comments, `handle*` names for event handlers, `<template>` before `<script setup>`, `definePageMeta` last, non-null `!` and `as any` are fine where the type is known.
@@ -175,7 +191,7 @@ Reuse these instead of writing new versions.
 - Errors: `createError({ status, statusText?, message, data? })`. `statusCode` and `statusMessage` are deprecated.
 - Long lists use virtual scroll with `reachEnd`, never pagination controls.
 - Commits: conventional commits (`feat`, `fix(ui)`, `fix(api)`, `chore`, `docs`, ...), one topic per commit.
-- User documentation lives in `docs/` (installation, configuration, updating, upgrading, AI, the Windows app, telemetry). `README.md` stays short: what Fileship is, the features in one line each, a quick start and links into `docs/`. Put details in the matching `docs/` page, not in the README.
+- User documentation lives in `docs/` (installation, configuration, updating, upgrading, AI, the Windows app, the browser extension, telemetry). `README.md` stays short: what Fileship is, the features in one line each, a quick start and links into `docs/`. Put details in the matching `docs/` page, not in the README.
 
 ## UI rules
 

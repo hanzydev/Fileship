@@ -1,0 +1,124 @@
+{
+    "manifest": {
+        "description": "Upload files, screenshots and images to your Fileship and shorten links."
+    },
+    "menu": {
+        "uploadImage": "Upload image to Fileship",
+        "shortenLink": "Shorten link with Fileship",
+        "shortenPage": "Shorten page link with Fileship"
+    },
+    "popup": {
+        "settings": "Settings",
+        "uploadFiles": "Upload files",
+        "uploadFilesDescription": "Choose files from this computer",
+        "shortenPage": "Shorten this page",
+        "shortenPageDescription": "Create a short link to the current tab",
+        "captureVisible": "Capture visible area",
+        "captureVisibleDescription": "Upload a screenshot of what you see",
+        "captureArea": "Capture an area",
+        "captureAreaDescription": "Drag over the page to choose what to capture",
+        "connectTitle": "Connect your Fileship",
+        "connectDescription": "Add your server address and upload token to start uploading.",
+        "openSettings": "Open settings"
+    },
+    "upload": {
+        "title": "Upload to Fileship",
+        "description": "Files are uploaded with the upload options from the settings.",
+        "dropTitle": "Drop files here",
+        "dropDescription": "Or choose them from this computer.",
+        "choose": "Choose files"
+    },
+    "tasks": {
+        "title": "Recent",
+        "clear": "Clear",
+        "empty": "Uploads and short links show up here.",
+        "uploading": "Uploading… {progress}%",
+        "shortening": "Shortening…",
+        "copyLink": "Copy link",
+        "openLink": "Open link",
+        "linkCopied": "Link copied"
+    },
+    "options": {
+        "title": "Fileship settings",
+        "description": "Upload files, screenshots and images from this browser and shorten links.",
+        "connection": "Connection",
+        "connectionDescription": "The Fileship server this browser uploads to.",
+        "serverAddress": "Server address",
+        "serverAddressPlaceholder": "files.example.com",
+        "uploadToken": "Upload token",
+        "uploadTokenDescription": "Copy it from Settings → Integrations on your Fileship. It can only upload files and shorten links, and it is kept in this browser only.",
+        "test": "Test connection",
+        "save": "Save",
+        "disconnect": "Disconnect",
+        "saved": "Connection saved",
+        "disconnected": "Disconnected",
+        "connected": "Connected to {siteName} · Fileship v{version}",
+        "canUploadAndShorten": "This token can upload files and shorten links.",
+        "canUploadOnly": "This token can upload files but cannot shorten links.",
+        "canShortenOnly": "This token can shorten links but cannot upload files.",
+        "connectionFailed": "Could not connect",
+        "uploadOptions": "Upload options",
+        "uploadOptionsDescription": "Used for files, images and screenshots uploaded from this browser.",
+        "fileName": "File name",
+        "expiration": "Expiration"
+    },
+    "labels": {
+        "fileNameTypes": {
+            "Random": "Random",
+            "UUID": "UUID",
+            "Original": "Original"
+        },
+        "expiration": {
+            "never": "Never",
+            "5m": "5 minutes",
+            "15m": "15 minutes",
+            "30m": "30 minutes",
+            "1h": "1 hour",
+            "6h": "6 hours",
+            "12h": "12 hours",
+            "1d": "1 day",
+            "1w": "1 week",
+            "2w": "2 weeks",
+            "1mo": "1 month",
+            "3mo": "3 months",
+            "6mo": "6 months",
+            "1y": "1 year"
+        }
+    },
+    "area": {
+        "hint": "Drag to choose an area, click to capture the visible page, press Esc to cancel"
+    },
+    "notify": {
+        "uploadedCopied": "Uploaded, link copied",
+        "uploaded": "Uploaded",
+        "shortenedCopied": "Link shortened, copied",
+        "shortened": "Link shortened",
+        "uploadFailed": "Upload failed",
+        "shortenFailed": "Could not shorten the link"
+    },
+    "errors": {
+        "notConfigured": "Connect your Fileship in the settings first.",
+        "invalidAddress": "Enter a valid server address.",
+        "tokenRequired": "Enter your upload token.",
+        "permissionDenied": "Fileship needs access to {origin} to upload there.",
+        "hostPermissionMissing": "The extension can no longer reach {origin}. Save the connection again in the settings.",
+        "unreachable": "Could not reach your Fileship server.",
+        "timeout": "The server took too long to respond.",
+        "notFileship": "No Fileship server was found at {url}.",
+        "serverStarting": "This Fileship server is still starting, try again in a moment.",
+        "serverTooOld": "This server runs Fileship v{version}. The extension needs v{minVersion} or later.",
+        "invalidToken": "The upload token is not valid. Copy it again from Settings → Integrations.",
+        "noPermission": "Your account cannot upload files or shorten links on this server.",
+        "cannotUpload": "Your account cannot upload files on this server.",
+        "cannotShorten": "Your account cannot shorten links on this server.",
+        "storageFull": "Your storage is full.",
+        "requestFailed": "Request failed ({status}).",
+        "noLink": "The server did not return a link.",
+        "imageAccessDenied": "Fileship needs access to {origin} to download this image.",
+        "imageDownloadFailed": "Could not download the image.",
+        "pageNotSupported": "Only http and https pages can be shortened.",
+        "captureNotAllowed": "This page cannot be captured.",
+        "interrupted": "The browser stopped this task. Try again.",
+        "fileMissing": "The file is no longer available. Choose it again."
+    }
+}

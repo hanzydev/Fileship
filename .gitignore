@@ -42,3 +42,6 @@ data/
 # Prisma
 apps/dashboard/generated/prisma
 apps/telemetry/generated/prisma
+
+# Browser extension
+apps/extension/.wxt

@@ -1,0 +1,124 @@
+{
+    "manifest": {
+        "description": "Lade Dateien, Screenshots und Bilder in dein Fileship hoch und kürze Links."
+    },
+    "menu": {
+        "uploadImage": "Bild zu Fileship hochladen",
+        "shortenLink": "Link mit Fileship kürzen",
+        "shortenPage": "Seitenlink mit Fileship kürzen"
+    },
+    "popup": {
+        "settings": "Einstellungen",
+        "uploadFiles": "Dateien hochladen",
+        "uploadFilesDescription": "Dateien auf diesem Computer auswählen",
+        "shortenPage": "Diese Seite kürzen",
+        "shortenPageDescription": "Kurzlink zum aktuellen Tab erstellen",
+        "captureVisible": "Sichtbaren Bereich aufnehmen",
+        "captureVisibleDescription": "Screenshot von dem hochladen, was du siehst",
+        "captureArea": "Bereich aufnehmen",
+        "captureAreaDescription": "Zieh über die Seite, um den Bereich zu wählen",
+        "connectTitle": "Verbinde dein Fileship",
+        "connectDescription": "Füge deine Serveradresse und dein Upload-Token hinzu, um mit dem Hochladen zu beginnen.",
+        "openSettings": "Einstellungen öffnen"
+    },
+    "upload": {
+        "title": "Zu Fileship hochladen",
+        "description": "Dateien werden mit den Upload-Optionen aus den Einstellungen hochgeladen.",
+        "dropTitle": "Dateien hier ablegen",
+        "dropDescription": "Oder wähle sie auf diesem Computer aus.",
+        "choose": "Dateien auswählen"
+    },
+    "tasks": {
+        "title": "Zuletzt",
+        "clear": "Leeren",
+        "empty": "Uploads und Kurzlinks erscheinen hier.",
+        "uploading": "Wird hochgeladen… {progress} %",
+        "shortening": "Wird gekürzt…",
+        "copyLink": "Link kopieren",
+        "openLink": "Link öffnen",
+        "linkCopied": "Link kopiert"
+    },
+    "options": {
+        "title": "Fileship-Einstellungen",
+        "description": "Lade Dateien, Screenshots und Bilder aus diesem Browser hoch und kürze Links.",
+        "connection": "Verbindung",
+        "connectionDescription": "Der Fileship-Server, auf den dieser Browser hochlädt.",
+        "serverAddress": "Serveradresse",
+        "serverAddressPlaceholder": "files.example.com",
+        "uploadToken": "Upload-Token",
+        "uploadTokenDescription": "Kopiere es in deinem Fileship unter Einstellungen → Integrationen. Es kann nur Dateien hochladen und Links kürzen und wird nur in diesem Browser gespeichert.",
+        "test": "Verbindung testen",
+        "save": "Speichern",
+        "disconnect": "Trennen",
+        "saved": "Verbindung gespeichert",
+        "disconnected": "Getrennt",
+        "connected": "Verbunden mit {siteName} · Fileship v{version}",
+        "canUploadAndShorten": "Dieses Token kann Dateien hochladen und Links kürzen.",
+        "canUploadOnly": "Dieses Token kann Dateien hochladen, aber keine Links kürzen.",
+        "canShortenOnly": "Dieses Token kann Links kürzen, aber keine Dateien hochladen.",
+        "connectionFailed": "Verbindung fehlgeschlagen",
+        "uploadOptions": "Upload-Optionen",
+        "uploadOptionsDescription": "Gilt für Dateien, Bilder und Screenshots, die du aus diesem Browser hochlädst.",
+        "fileName": "Dateiname",
+        "expiration": "Ablauf"
+    },
+    "labels": {
+        "fileNameTypes": {
+            "Random": "Zufällig",
+            "UUID": "UUID",
+            "Original": "Original"
+        },
+        "expiration": {
+            "never": "Nie",
+            "5m": "5 Minuten",
+            "15m": "15 Minuten",
+            "30m": "30 Minuten",
+            "1h": "1 Stunde",
+            "6h": "6 Stunden",
+            "12h": "12 Stunden",
+            "1d": "1 Tag",
+            "1w": "1 Woche",
+            "2w": "2 Wochen",
+            "1mo": "1 Monat",
+            "3mo": "3 Monate",
+            "6mo": "6 Monate",
+            "1y": "1 Jahr"
+        }
+    },
+    "area": {
+        "hint": "Zieh, um einen Bereich zu wählen, klick für die sichtbare Seite, Esc zum Abbrechen"
+    },
+    "notify": {
+        "uploadedCopied": "Hochgeladen, Link kopiert",
+        "uploaded": "Hochgeladen",
+        "shortenedCopied": "Link gekürzt und kopiert",
+        "shortened": "Link gekürzt",
+        "uploadFailed": "Upload fehlgeschlagen",
+        "shortenFailed": "Link konnte nicht gekürzt werden"
+    },
+    "errors": {
+        "notConfigured": "Verbinde zuerst dein Fileship in den Einstellungen.",
+        "invalidAddress": "Gib eine gültige Serveradresse ein.",
+        "tokenRequired": "Gib dein Upload-Token ein.",
+        "permissionDenied": "Die Erweiterung braucht Zugriff auf {origin}, um dorthin hochzuladen.",
+        "hostPermissionMissing": "Die Erweiterung kann {origin} nicht mehr erreichen. Speichere die Verbindung in den Einstellungen erneut.",
+        "unreachable": "Dein Fileship-Server ist nicht erreichbar.",
+        "timeout": "Der Server hat nicht rechtzeitig geantwortet.",
+        "notFileship": "Unter {url} wurde kein Fileship-Server gefunden.",
+        "serverStarting": "Dieser Fileship-Server startet noch, versuch es gleich noch einmal.",
+        "serverTooOld": "Auf diesem Server läuft Fileship v{version}. Die Erweiterung benötigt v{minVersion} oder neuer.",
+        "invalidToken": "Das Upload-Token ist ungültig. Kopiere es erneut unter Einstellungen → Integrationen.",
+        "noPermission": "Dein Konto darf auf diesem Server keine Dateien hochladen und keine Links kürzen.",
+        "cannotUpload": "Dein Konto darf auf diesem Server keine Dateien hochladen.",
+        "cannotShorten": "Dein Konto darf auf diesem Server keine Links kürzen.",
+        "storageFull": "Dein Speicher ist voll.",
+        "requestFailed": "Anfrage fehlgeschlagen ({status}).",
+        "noLink": "Der Server hat keinen Link zurückgegeben.",
+        "imageAccessDenied": "Die Erweiterung braucht Zugriff auf {origin}, um dieses Bild herunterzuladen.",
+        "imageDownloadFailed": "Das Bild konnte nicht heruntergeladen werden.",
+        "pageNotSupported": "Nur http- und https-Seiten können gekürzt werden.",
+        "captureNotAllowed": "Diese Seite kann nicht aufgenommen werden.",
+        "interrupted": "Der Browser hat diese Aufgabe beendet. Versuch es noch einmal.",
+        "fileMissing": "Die Datei ist nicht mehr verfügbar. Wähle sie erneut aus."
+    }
+}
