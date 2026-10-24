@@ -170,7 +170,37 @@
         "linkCopied": "Lien copié | {count} liens copiés",
         "linkFailed": "Impossible d'obtenir le lien",
         "notOnFileship": "Pas encore sur Fileship",
-        "notOnFileshipDescription": "Attendez la fin de l'importation du fichier, puis réessayez."
+        "notOnFileshipDescription": "Attendez la fin de l'importation du fichier, puis réessayez.",
+        "paused": "En pause",
+        "offlineMessage": "Ouvrez Fileship pour garder vos fichiers synchronisés.",
+        "upload": "Importer des fichiers",
+        "pause": "Suspendre la synchronisation",
+        "resume": "Reprendre la synchronisation",
+        "retry": "Réessayer",
+        "freeUpSpace": "Libérer de l'espace",
+        "trash": "Corbeille",
+        "manageStorage": "Gérer le stockage",
+        "pausedMessage": "La synchronisation est suspendue. Les fichiers nouveaux et modifiés seront importés à la reprise.",
+        "uploading": "Importation de {count} fichier | Importation de {count} fichiers",
+        "almostFull": "Votre espace de stockage est presque plein.",
+        "quotaUsed": "{used} utilisés sur {total}",
+        "quotaUnlimited": "{used} utilisés sur ∞",
+        "summary": "{content} · {local} sur cet appareil · Synchronisé {time}",
+        "views": "Vues",
+        "freedSpace": "{size} libérés",
+        "makeFolderPublic": "Rendre ce dossier public ?",
+        "makeFolderPublicDescription": "Toute personne disposant du lien pourra voir le dossier et ses fichiers. Les fichiers protégés par mot de passe restent verrouillés.",
+        "makePublic": "Rendre public",
+        "cancel": "Annuler",
+        "folderLinkCopied": "Lien du dossier copié",
+        "inboxLinkCopied": "Lien de la boîte de dépôt copié",
+        "notInbox": "Ce dossier n'est pas votre boîte de dépôt",
+        "notInboxDescription": "Choisissez ce dossier et activez la boîte de dépôt dans ses paramètres sur Fileship.",
+        "notesFolder": "Notes",
+        "linksFolder": "Liens",
+        "notesOnlyText": "Seuls les fichiers Markdown et texte peuvent devenir des notes.",
+        "makeNotePublic": "Rendre cette note publique ?",
+        "makeNotePublicDescription": "Toute personne disposant du lien pourra lire la note."
     },
     "harborSettings": {
         "title": "Fileship Harbor",
@@ -183,7 +213,8 @@
             "starting": "Démarrage",
             "syncing": "Synchronisation",
             "ready": "À jour",
-            "error": "Action requise"
+            "error": "Action requise",
+            "paused": "En pause"
         },
         "content": "Contenu",
         "contentSummary": "{files} dans {folders}",
@@ -208,9 +239,47 @@
             "delete": "Les fichiers supprimés vont dans la corbeille",
             "deleteDescription": "Les fichiers que vous placez dans la Corbeille de Windows vont dans la corbeille Fileship. Lorsque Windows supprime définitivement un fichier, avec Maj + Suppr ou parce qu'il était disponible uniquement en ligne, il est aussi supprimé de Fileship.",
             "folders": "Un seul niveau de dossiers",
-            "foldersDescription": "Les dossiers Fileship ne peuvent pas contenir d'autres dossiers : un dossier créé à l'intérieur d'un autre n'est donc pas synchronisé."
+            "foldersDescription": "Les dossiers Fileship ne peuvent pas contenir d'autres dossiers : un dossier créé à l'intérieur d'un autre n'est donc pas synchronisé.",
+            "pause": "Suspendre au besoin",
+            "pauseDescription": "Pendant la pause, les importations et les modifications venant de Fileship attendent. Les renommages, déplacements et suppressions restent synchronisés, et les fichiers que vous ouvrez sont toujours téléchargés.",
+            "notes": "Notes et liens courts",
+            "notesDescription": "Vos notes sont des fichiers Markdown dans le dossier Notes, et l'enregistrement d'un fichier met à jour la note. Les liens courts sont des raccourcis dans le dossier Liens."
         },
-        "howItWorksDescription": "Le comportement de vos fichiers dans l'Explorateur de fichiers."
+        "howItWorksDescription": "Le comportement de vos fichiers dans l'Explorateur de fichiers.",
+        "lastSynced": "Dernière synchronisation",
+        "onThisDevice": "Sur cet appareil",
+        "storage": "Stockage",
+        "storageUsed": "{used} utilisés sur {limit} ({percent})",
+        "storageUnlimited": "{used} utilisés sur {infinity}",
+        "unlimited": "Illimité",
+        "categories": {
+            "image": "Images",
+            "video": "Vidéos",
+            "audio": "Audio",
+            "document": "Documents",
+            "archive": "Archives",
+            "code": "Code",
+            "other": "Autres"
+        },
+        "copyLinkOnUpload": "Copier le lien des fichiers importés",
+        "copyLinkOnUploadDescription": "Quand un fichier ajouté à Fileship Harbor a fini d'être importé, son lien est copié et une notification s'affiche.",
+        "activity": {
+            "title": "Activité récente",
+            "description": "Ce que Fileship Harbor a synchronisé depuis le lancement de Fileship.",
+            "emptyTitle": "Aucune activité pour l'instant",
+            "emptyDescription": "Les fichiers que vous ajoutez, renommez ou supprimez dans Fileship Harbor apparaissent ici.",
+            "meta": "{what} · {time}",
+            "upload": "Importé",
+            "update": "Fichier modifié importé",
+            "folder": "Dossier créé",
+            "rename": "Renommé",
+            "move": "Déplacé",
+            "trash": "Placé dans la corbeille",
+            "delete": "Supprimé définitivement",
+            "freeUp": "Espace libéré",
+            "error": "Échec",
+            "note": "Note enregistrée"
+        }
     },
     "general": {
         "startup": "Démarrage",
@@ -498,7 +567,9 @@
         "upload": "Importer dans Fileship",
         "copyLink": "Copier le lien Fileship",
         "openInBrowser": "Ouvrir dans le navigateur",
-        "showInFileship": "Afficher dans Fileship"
+        "showInFileship": "Afficher dans Fileship",
+        "copyFolderLink": "Copier le lien du dossier Fileship",
+        "copyInboxLink": "Copier le lien de la boîte de dépôt Fileship"
     },
     "tasks": {
         "uploaded": "Importé",
@@ -521,7 +592,8 @@
         "textCaptureFailed": "Impossible de capturer le texte",
         "noLink": "Le serveur n'a renvoyé aucun lien",
         "logInToUpload": "Connectez-vous à Fileship pour importer",
-        "imageKept": "Échec de l'importation, capture d'écran conservée sur cet ordinateur"
+        "imageKept": "Échec de l'importation, capture d'écran conservée sur cet ordinateur",
+        "storageFull": "Votre espace de stockage est plein"
     },
     "tray": {
         "stopGifRecording": "Arrêter l'enregistrement GIF",
@@ -554,7 +626,8 @@
         "uploadingTooltip": "Fileship · Importation de {count} fichier, {progress} % | Fileship · Importation de {count} fichiers, {progress} %",
         "startingTooltip": "Fileship · Démarrage de l'enregistrement, cliquez pour annuler",
         "pausedTooltip": "Fileship · Enregistrement en pause, cliquez pour arrêter",
-        "processingTooltip": "Fileship · Finalisation de l'enregistrement"
+        "processingTooltip": "Fileship · Finalisation de l'enregistrement",
+        "harbor": "Fileship Harbor"
     },
     "updater": {
         "noReleases": "Aucune version n'a encore été publiée",

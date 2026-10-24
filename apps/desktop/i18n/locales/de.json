@@ -170,7 +170,37 @@
         "linkCopied": "Link kopiert | {count} Links kopiert",
         "linkFailed": "Link konnte nicht abgerufen werden",
         "notOnFileship": "Noch nicht auf Fileship",
-        "notOnFileshipDescription": "Warte, bis die Datei hochgeladen ist, und versuch es dann noch einmal."
+        "notOnFileshipDescription": "Warte, bis die Datei hochgeladen ist, und versuch es dann noch einmal.",
+        "paused": "Pausiert",
+        "offlineMessage": "Öffne Fileship, damit deine Dateien synchronisiert bleiben.",
+        "upload": "Dateien hochladen",
+        "pause": "Synchronisierung pausieren",
+        "resume": "Synchronisierung fortsetzen",
+        "retry": "Erneut versuchen",
+        "freeUpSpace": "Speicherplatz freigeben",
+        "trash": "Papierkorb",
+        "manageStorage": "Speicher verwalten",
+        "pausedMessage": "Die Synchronisierung ist pausiert. Neue und geänderte Dateien werden hochgeladen, sobald du sie fortsetzt.",
+        "uploading": "{count} Datei wird hochgeladen | {count} Dateien werden hochgeladen",
+        "almostFull": "Dein Speicher ist fast voll.",
+        "quotaUsed": "{used} von {total} belegt",
+        "quotaUnlimited": "{used} von ∞ belegt",
+        "summary": "{content} · {local} auf diesem Gerät · Synchronisiert {time}",
+        "views": "Aufrufe",
+        "freedSpace": "{size} freigegeben",
+        "makeFolderPublic": "Diesen Ordner öffentlich machen?",
+        "makeFolderPublicDescription": "Alle mit dem Link sehen den Ordner und seine Dateien. Passwortgeschützte Dateien bleiben gesperrt.",
+        "makePublic": "Öffentlich machen",
+        "cancel": "Abbrechen",
+        "folderLinkCopied": "Ordnerlink kopiert",
+        "inboxLinkCopied": "Posteingang-Link kopiert",
+        "notInbox": "Dieser Ordner ist nicht dein Posteingang",
+        "notInboxDescription": "Wähle diesen Ordner in den Posteingang-Einstellungen von Fileship und schalte den Posteingang ein.",
+        "notesFolder": "Notizen",
+        "linksFolder": "Links",
+        "notesOnlyText": "Nur Markdown- und Textdateien können zu Notizen werden.",
+        "makeNotePublic": "Diese Notiz öffentlich machen?",
+        "makeNotePublicDescription": "Alle mit dem Link können die Notiz lesen."
     },
     "harborSettings": {
         "title": "Fileship Harbor",
@@ -183,7 +213,8 @@
             "starting": "Wird gestartet",
             "syncing": "Wird synchronisiert",
             "ready": "Aktuell",
-            "error": "Problem erkannt"
+            "error": "Problem erkannt",
+            "paused": "Pausiert"
         },
         "content": "Inhalt",
         "contentSummary": "{files} in {folders}",
@@ -208,9 +239,47 @@
             "delete": "Gelöschtes landet im Papierkorb",
             "deleteDescription": "Dateien, die du in den Windows-Papierkorb verschiebst, landen im Fileship-Papierkorb. Löscht Windows eine Datei endgültig, mit Umschalt + Entf oder weil sie nur online verfügbar war, wird sie auch in Fileship gelöscht.",
             "folders": "Nur eine Ordnerebene",
-            "foldersDescription": "Fileship-Ordner können keine Unterordner enthalten. Ein Ordner, den du in einem anderen erstellst, wird daher nicht synchronisiert."
+            "foldersDescription": "Fileship-Ordner können keine Unterordner enthalten. Ein Ordner, den du in einem anderen erstellst, wird daher nicht synchronisiert.",
+            "pause": "Pausieren, wenn nötig",
+            "pauseDescription": "Beim Pausieren warten Uploads und Änderungen von Fileship. Umbenennen, Verschieben und Löschen werden weiter synchronisiert, und geöffnete Dateien werden weiter heruntergeladen.",
+            "notes": "Notizen und Kurzlinks",
+            "notesDescription": "Deine Notizen liegen als Markdown-Dateien im Ordner Notizen, und Speichern aktualisiert die Notiz. Kurzlinks sind Verknüpfungen im Ordner Links."
         },
-        "howItWorksDescription": "Was du von deinen Dateien im Explorer erwarten kannst."
+        "howItWorksDescription": "Was du von deinen Dateien im Explorer erwarten kannst.",
+        "lastSynced": "Zuletzt synchronisiert",
+        "onThisDevice": "Auf diesem Gerät",
+        "storage": "Speicher",
+        "storageUsed": "{used} von {limit} belegt ({percent})",
+        "storageUnlimited": "{used} von {infinity} belegt",
+        "unlimited": "Unbegrenzt",
+        "categories": {
+            "image": "Bilder",
+            "video": "Videos",
+            "audio": "Audio",
+            "document": "Dokumente",
+            "archive": "Archive",
+            "code": "Code",
+            "other": "Sonstiges"
+        },
+        "copyLinkOnUpload": "Links hochgeladener Dateien kopieren",
+        "copyLinkOnUploadDescription": "Wenn eine Datei, die du zu Fileship Harbor hinzufügst, fertig hochgeladen ist, wird ihr Link kopiert und eine Benachrichtigung angezeigt.",
+        "activity": {
+            "title": "Letzte Aktivität",
+            "description": "Was Fileship Harbor seit dem Start von Fileship synchronisiert hat.",
+            "emptyTitle": "Noch keine Aktivität",
+            "emptyDescription": "Dateien, die du in Fileship Harbor hinzufügst, umbenennst oder löschst, erscheinen hier.",
+            "meta": "{what} · {time}",
+            "upload": "Hochgeladen",
+            "update": "Geänderte Datei hochgeladen",
+            "folder": "Ordner erstellt",
+            "rename": "Umbenannt",
+            "move": "Verschoben",
+            "trash": "In den Papierkorb verschoben",
+            "delete": "Endgültig gelöscht",
+            "freeUp": "Speicherplatz freigegeben",
+            "error": "Fehlgeschlagen",
+            "note": "Notiz gespeichert"
+        }
     },
     "general": {
         "startup": "Autostart",
@@ -498,7 +567,9 @@
         "upload": "Auf Fileship hochladen",
         "copyLink": "Fileship-Link kopieren",
         "openInBrowser": "Im Browser öffnen",
-        "showInFileship": "In Fileship anzeigen"
+        "showInFileship": "In Fileship anzeigen",
+        "copyFolderLink": "Fileship-Ordnerlink kopieren",
+        "copyInboxLink": "Fileship-Posteingang-Link kopieren"
     },
     "tasks": {
         "uploaded": "Hochgeladen",
@@ -521,7 +592,8 @@
         "textCaptureFailed": "Text konnte nicht erfasst werden",
         "noLink": "Der Server hat keinen Link zurückgegeben",
         "logInToUpload": "Melde dich bei Fileship an, um hochzuladen",
-        "imageKept": "Upload fehlgeschlagen, Screenshot gespeichert"
+        "imageKept": "Upload fehlgeschlagen, Screenshot gespeichert",
+        "storageFull": "Dein Speicher ist voll"
     },
     "tray": {
         "stopGifRecording": "GIF-Aufnahme beenden",
@@ -554,7 +626,8 @@
         "uploadingTooltip": "Fileship · {count} Datei wird hochgeladen, {progress} % | Fileship · {count} Dateien werden hochgeladen, {progress} %",
         "startingTooltip": "Fileship · Aufnahme startet, zum Abbrechen klicken",
         "pausedTooltip": "Fileship · Aufnahme pausiert, zum Beenden klicken",
-        "processingTooltip": "Fileship · Aufnahme wird abgeschlossen"
+        "processingTooltip": "Fileship · Aufnahme wird abgeschlossen",
+        "harbor": "Fileship Harbor"
     },
     "updater": {
         "noReleases": "Noch keine Versionen veröffentlicht",

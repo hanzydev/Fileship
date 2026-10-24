@@ -10,7 +10,20 @@ export type RemoteFile = {
     expiresAt: number | null;
     maxViews: number;
     isSensitive: boolean;
+    views: number;
 };
+
+export type RemoteNote = {
+    id: string;
+    title: string;
+    size: number;
+    hash: string;
+    createdAt: number;
+};
+
+export type RemoteLink = { id: string; code: string; shortUrl: string; createdAt: number };
+
+export type VirtualFolder<T> = { name: string; items: T[] };
 
 export type LayoutEntry = {
     identity: string;
@@ -23,8 +36,16 @@ export type LayoutEntry = {
 const INVALID_CHARACTERS = /[\\/:*?"<>|\p{Cc}]/gu;
 const RESERVED_NAMES = /^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/i;
 
+export const NOTES_FOLDER = 'v:notes';
+export const LINKS_FOLDER = 'v:links';
+
 export const folderIdentity = (id: string) => `d:${id}`;
 export const fileIdentity = (id: string) => `f:${id}`;
+export const noteIdentity = (id: string) => `n:${id}`;
+export const linkIdentity = (code: string) => `l:${code}`;
+
+export const linkShortcut = (instanceUrl: string, code: string) =>
+    `[InternetShortcut]\r\nURL=${instanceUrl}/s/${code}\r\n`;
 
 export const safeName = (name: string, fallback: string) => {
     let value = name
@@ -58,7 +79,38 @@ const uniqueName = (name: string, taken: Set<string>) => {
 const byAge = <T extends { id: string; createdAt: number }>(a: T, b: T) =>
     a.createdAt - b.createdAt || a.id.localeCompare(b.id);
 
-export const buildLayout = (folders: RemoteFolder[], files: RemoteFile[]) => {
+const addVirtualFolder = <T extends { id: string; createdAt: number }>(
+    layout: Map<string, LayoutEntry>,
+    rootNames: Set<string>,
+    identity: string,
+    folder: VirtualFolder<T> | null,
+    entryOf: (
+        item: T,
+        names: Set<string>,
+    ) => Omit<LayoutEntry, 'path' | 'isFolder'> & {
+        name: string;
+    },
+) => {
+    if (!folder) return;
+
+    const path = uniqueName(safeName(folder.name, 'Folder'), rootNames);
+    const names = new Set<string>();
+
+    layout.set(identity, { identity, path, isFolder: true, size: 0, created: Date.now() });
+
+    for (const item of [...folder.items].sort(byAge)) {
+        const { name, ...entry } = entryOf(item, names);
+        layout.set(entry.identity, { ...entry, path: `${path}\\${name}`, isFolder: false });
+    }
+};
+
+export const buildLayout = (
+    folders: RemoteFolder[],
+    files: RemoteFile[],
+    notes: VirtualFolder<RemoteNote> | null = null,
+    links: VirtualFolder<RemoteLink> | null = null,
+    instanceUrl = '',
+) => {
     const layout = new Map<string, LayoutEntry>();
     const rootNames = new Set<string>();
     const folderNames = new Map<string, Set<string>>();
@@ -91,6 +143,20 @@ export const buildLayout = (folders: RemoteFolder[], files: RemoteFile[]) => {
             created: file.createdAt,
         });
     }
+
+    addVirtualFolder(layout, rootNames, NOTES_FOLDER, notes, (note, names) => ({
+        identity: noteIdentity(note.id),
+        name: uniqueName(`${safeName(note.title, 'Note')}.md`, names),
+        size: note.size,
+        created: note.createdAt,
+    }));
+
+    addVirtualFolder(layout, rootNames, LINKS_FOLDER, links, (link, names) => ({
+        identity: linkIdentity(link.code),
+        name: uniqueName(`${safeName(link.code, 'Link')}.url`, names),
+        size: Buffer.byteLength(linkShortcut(instanceUrl, link.code)),
+        created: link.createdAt,
+    }));
 
     return layout;
 };

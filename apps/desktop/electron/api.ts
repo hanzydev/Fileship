@@ -7,10 +7,14 @@ export class ApiError extends Error {
     public constructor(
         message: string,
         public status: number,
+        public data: Record<string, unknown> | null = null,
     ) {
         super(message);
     }
 }
+
+export const isQuotaExceeded = (error: unknown) =>
+    error instanceof ApiError && !!error.data?.quotaExceeded;
 
 export const desktopUserAgent = () => `FileshipDesktop/${app.getVersion()} (Windows)`;
 
@@ -23,8 +27,12 @@ export const normalizeInstanceUrl = (input: string) => {
 
 const readError = async (response: Response) => {
     const body = await response.json().catch(() => null);
-    return (
-        (body?.message as string | undefined) || t('app.requestFailed', { status: response.status })
+
+    return new ApiError(
+        (body?.message as string | undefined) ||
+            t('app.requestFailed', { status: response.status }),
+        response.status,
+        body?.data ?? null,
     );
 };
 
@@ -57,7 +65,7 @@ export const request = async <T>(
         );
     }
 
-    if (!response.ok) throw new ApiError(await readError(response), response.status);
+    if (!response.ok) throw await readError(response);
 
     const text = await response.text();
     return (text ? JSON.parse(text) : undefined) as T;

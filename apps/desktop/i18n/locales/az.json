@@ -170,7 +170,37 @@
         "linkCopied": "Keçid kopyalandı | {count} keçid kopyalandı",
         "linkFailed": "Keçidi almaq mümkün olmadı",
         "notOnFileship": "Hələ Fileship-də deyil",
-        "notOnFileshipDescription": "Fayl yüklənənə qədər gözlə, sonra yenidən cəhd et."
+        "notOnFileshipDescription": "Fayl yüklənənə qədər gözlə, sonra yenidən cəhd et.",
+        "paused": "Dayandırılıb",
+        "offlineMessage": "Faylların sinxron qalması üçün Fileship-i aç.",
+        "upload": "Fayl yüklə",
+        "pause": "Sinxronlaşdırmanı dayandır",
+        "resume": "Sinxronlaşdırmanı davam etdir",
+        "retry": "Yenidən cəhd et",
+        "freeUpSpace": "Yer boşalt",
+        "trash": "Zibil qutusu",
+        "manageStorage": "Yaddaşı idarə et",
+        "pausedMessage": "Sinxronlaşdırma dayandırılıb. Yeni və dəyişdirilmiş fayllar davam etdirəndə yüklənəcək.",
+        "uploading": "{count} fayl yüklənir",
+        "almostFull": "Yaddaşın dolmaq üzrədir.",
+        "quotaUsed": "{used} / {total} istifadə olunub",
+        "quotaUnlimited": "{used} / ∞ istifadə olunub",
+        "summary": "{content} · bu cihazda {local} · {time} sinxronlaşdırılıb",
+        "views": "Baxış",
+        "freedSpace": "{size} yer boşaldıldı",
+        "makeFolderPublic": "Bu qovluq hamıya açıq edilsin?",
+        "makeFolderPublicDescription": "Keçidi olan hər kəs qovluğu və içindəki faylları görə bilər. Şifrəli fayllar kilidli qalır.",
+        "makePublic": "Hamıya açıq et",
+        "cancel": "Ləğv et",
+        "folderLinkCopied": "Qovluq keçidi kopyalandı",
+        "inboxLinkCopied": "Gələnlər qutusu keçidi kopyalandı",
+        "notInbox": "Bu qovluq sənin gələnlər qutun deyil",
+        "notInboxDescription": "Fileship-dəki gələnlər qutusu ayarlarında bu qovluğu seç və gələnlər qutusunu aktivləşdir.",
+        "notesFolder": "Qeydlər",
+        "linksFolder": "Keçidlər",
+        "notesOnlyText": "Yalnız Markdown və mətn faylları qeyd ola bilər.",
+        "makeNotePublic": "Bu qeyd hamıya açıq edilsin?",
+        "makeNotePublicDescription": "Keçidi olan hər kəs qeydi oxuya bilər."
     },
     "harborSettings": {
         "title": "Fileship Harbor",
@@ -183,7 +213,8 @@
             "starting": "İşə düşür",
             "syncing": "Sinxronlaşdırılır",
             "ready": "Aktualdır",
-            "error": "Diqqət tələb edir"
+            "error": "Diqqət tələb edir",
+            "paused": "Dayandırılıb"
         },
         "content": "Məzmun",
         "contentSummary": "{folders} içində {files}",
@@ -208,9 +239,47 @@
             "delete": "Silinən fayllar zibil qutusuna düşür",
             "deleteDescription": "Windows Səbətinə atdığın fayllar Fileship zibil qutusuna düşür. Windows faylı Shift + Delete ilə və ya yalnız onlayn olduğu üçün birdəfəlik silərsə, fayl Fileship-dən də silinir.",
             "folders": "Qovluqlar bir səviyyəlidir",
-            "foldersDescription": "Fileship qovluqlarının içində qovluq ola bilməz, buna görə qovluğun içində yaratdığın qovluq sinxronlaşdırılmır."
+            "foldersDescription": "Fileship qovluqlarının içində qovluq ola bilməz, buna görə qovluğun içində yaratdığın qovluq sinxronlaşdırılmır.",
+            "pause": "Lazım olanda dayandır",
+            "pauseDescription": "Dayandıranda yükləmələr və Fileship-dəki dəyişikliklər gözləyir. Ad dəyişmə, köçürmə və silmə yenə sinxronlaşdırılır, açdığın fayllar yenə endirilir.",
+            "notes": "Qeydlər və qısa keçidlər",
+            "notesDescription": "Qeydlərin Qeydlər qovluğunda Markdown faylları kimi durur, birini yadda saxlayanda qeyd yenilənir. Qısa keçidlər Keçidlər qovluğunda qısayol kimi görünür."
         },
-        "howItWorksDescription": "Fayl Bələdçisindəki faylların necə davrandığı."
+        "howItWorksDescription": "Fayl Bələdçisindəki faylların necə davrandığı.",
+        "lastSynced": "Son sinxronlaşdırma",
+        "onThisDevice": "Bu cihazda",
+        "storage": "Yaddaş",
+        "storageUsed": "{used} / {limit} istifadə olunub ({percent})",
+        "storageUnlimited": "{used} / {infinity} istifadə olunub",
+        "unlimited": "Limitsiz",
+        "categories": {
+            "image": "Şəkillər",
+            "video": "Videolar",
+            "audio": "Audio",
+            "document": "Sənədlər",
+            "archive": "Arxivlər",
+            "code": "Kod",
+            "other": "Digər"
+        },
+        "copyLinkOnUpload": "Yüklənən faylların keçidini kopyala",
+        "copyLinkOnUploadDescription": "Fileship Harbor-a əlavə etdiyin fayl yüklənəndə keçidi kopyalanır və bildiriş göstərilir.",
+        "activity": {
+            "title": "Son fəaliyyət",
+            "description": "Fileship açılandan bəri Fileship Harbor-un sinxronlaşdırdıqları.",
+            "emptyTitle": "Hələ fəaliyyət yoxdur",
+            "emptyDescription": "Fileship Harbor-da əlavə etdiyin, adını dəyişdiyin və ya sildiyin fayllar burada görünür.",
+            "meta": "{what} · {time}",
+            "upload": "Yükləndi",
+            "update": "Dəyişdirilmiş fayl yükləndi",
+            "folder": "Qovluq yaradıldı",
+            "rename": "Adı dəyişdirildi",
+            "move": "Köçürüldü",
+            "trash": "Zibil qutusuna atıldı",
+            "delete": "Birdəfəlik silindi",
+            "freeUp": "Yer boşaldıldı",
+            "error": "Alınmadı",
+            "note": "Qeyd yadda saxlanıldı"
+        }
     },
     "general": {
         "startup": "Başlanğıc",
@@ -498,7 +567,9 @@
         "upload": "Fileship-ə yüklə",
         "copyLink": "Fileship keçidini kopyala",
         "openInBrowser": "Brauzerdə aç",
-        "showInFileship": "Fileship-də göstər"
+        "showInFileship": "Fileship-də göstər",
+        "copyFolderLink": "Fileship qovluq keçidini kopyala",
+        "copyInboxLink": "Fileship gələnlər qutusu keçidini kopyala"
     },
     "tasks": {
         "uploaded": "Yükləndi",
@@ -521,7 +592,8 @@
         "textCaptureFailed": "Mətni tanımaq mümkün olmadı",
         "noLink": "Server keçid qaytarmadı",
         "logInToUpload": "Yükləmək üçün Fileship-ə daxil ol",
-        "imageKept": "Ekran görüntüsü yüklənmədi, kompüterdə saxlanıldı"
+        "imageKept": "Ekran görüntüsü yüklənmədi, kompüterdə saxlanıldı",
+        "storageFull": "Yaddaşın doldu"
     },
     "tray": {
         "stopGifRecording": "GIF yazısını dayandır",
@@ -554,7 +626,8 @@
         "uploadingTooltip": "Fileship · {count} fayl yüklənir, {progress}%",
         "startingTooltip": "Fileship · Qeydə alma başlayır, ləğv etmək üçün kliklə",
         "pausedTooltip": "Fileship · Qeydə almaya fasilə verildi, dayandırmaq üçün kliklə",
-        "processingTooltip": "Fileship · Yazı hazırlanır"
+        "processingTooltip": "Fileship · Yazı hazırlanır",
+        "harbor": "Fileship Harbor"
     },
     "updater": {
         "noReleases": "Hələ dərc edilmiş versiya yoxdur",

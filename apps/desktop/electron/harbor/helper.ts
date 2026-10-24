@@ -32,6 +32,7 @@ export type HelperEvent =
     | { type: 'localNew'; path: string; isFolder: boolean; size: number }
     | { type: 'localModified'; path: string; identity: string; size: number }
     | { type: 'action'; action: string; paths: string[] }
+    | { type: 'statusRequested' }
     | { type: 'rescan' };
 
 type Pending = {

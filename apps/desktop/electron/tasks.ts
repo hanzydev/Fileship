@@ -6,8 +6,10 @@ import { app, nativeImage, shell } from 'electron';
 import log from 'electron-log/main';
 
 import type { HistoryKind } from '../shared/ipc';
+import { isQuotaExceeded } from './api';
 import { type Bitmap, bitmapFromImage, encodePng, encodeThumbnail, playUploaded } from './capture';
 import { writeImage, writeText } from './clipboard';
+import { openDashboard } from './dashboard';
 import { addHistory, updateHistory } from './history';
 import { t } from './i18n';
 import { getSettings } from './store';
@@ -95,10 +97,21 @@ export const finishUpload = async (historyId: string, file: { url: string; id: s
     return url;
 };
 
+const notifyUploadFailure = (error: Error) => {
+    if (!isQuotaExceeded(error)) {
+        notify(t('tasks.uploadFailed'), error.message);
+        return;
+    }
+
+    notify(t('tasks.storageFull'), error.message, () =>
+        openDashboard('/dashboard/settings/storage'),
+    );
+};
+
 export const uploadAndFinish = async (
     historyId: string,
     file: UploadSource,
-    onFailure: (message: string) => unknown = (message) => notify(t('tasks.uploadFailed'), message),
+    onFailure?: (message: string) => unknown,
 ) => {
     try {
         const uploaded = await uploadFile({ ...file, id: historyId });
@@ -106,7 +119,10 @@ export const uploadAndFinish = async (
     } catch (error: any) {
         log.warn('Upload failed', error);
         updateHistory(historyId, { error: error.message });
-        await onFailure(error.message);
+
+        if (onFailure) await onFailure(error.message);
+        else notifyUploadFailure(error);
+
         return null;
     }
 };

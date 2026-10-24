@@ -160,19 +160,11 @@ import { IFile, IFilm, IImage, IImagePlay, ILink, IUpload } from '#components';
 
 import type { HarborStatus, HistoryItem, HistoryKind, UploadProgress } from '../../shared/ipc';
 import type { HotkeyAction } from '../../shared/settings';
+import { relativeTime } from '../../shared/time';
 
 import type { HistoryChannel } from '~/components/HistoryMenuItems.vue';
 
 const PAGE_SIZE = 60;
-
-const TIME_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
-    ['year', 31_536_000],
-    ['month', 2_592_000],
-    ['week', 604_800],
-    ['day', 86_400],
-    ['hour', 3600],
-    ['minute', 60],
-];
 
 const KIND_ICONS: Record<HistoryKind, Component> = {
     screenshot: IImage,
@@ -195,21 +187,14 @@ const settings = ref<{ hotkey: string } | null>(null);
 const harborState = ref<HarborStatus['state']>('off');
 const now = useNow({ scheduler: (callback) => useIntervalFn(callback, 30_000) });
 
-const relativeTime = computed(() => new Intl.RelativeTimeFormat(locale.value, { numeric: 'auto' }));
-
 const emptyDescription = computed(() =>
     settings.value?.hotkey
         ? t('home.emptyWithHotkey', { hotkey: settings.value.hotkey.replaceAll('+', ' + ') })
         : t('home.emptyWithTray'),
 );
 
-const timeAgo = (value: number) => {
-    const seconds = (value - now.value.getTime()) / 1000;
-    const unit = TIME_UNITS.find(([, size]) => Math.abs(seconds) >= size);
-
-    if (!unit) return t('home.justNow');
-    return relativeTime.value.format(Math.round(seconds / unit[1]), unit[0]);
-};
+const timeAgo = (value: number) =>
+    relativeTime(locale.value, value, now.value.getTime(), t('home.justNow'));
 
 const describe = (item: HistoryItem) => {
     const time = timeAgo(item.createdAt);

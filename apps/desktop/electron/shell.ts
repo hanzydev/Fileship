@@ -12,13 +12,46 @@ import { t } from './i18n';
 const run = promisify(execFile);
 
 const SHELL_KEY = 'HKCU\\Software\\Classes\\*\\shell';
+const FOLDER_SHELL_KEY = 'HKCU\\Software\\Classes\\Directory\\shell';
 const UPLOAD_KEY = `${SHELL_KEY}\\FileshipUpload`;
 const BATCH_MS = 400;
 
 const HARBOR_VERBS = [
-    { name: 'FileshipHarborCopyLink', action: 'copyLink', label: 'shell.copyLink', many: true },
-    { name: 'FileshipHarborOpen', action: 'open', label: 'shell.openInBrowser', many: true },
-    { name: 'FileshipHarborShow', action: 'show', label: 'shell.showInFileship', many: false },
+    {
+        key: SHELL_KEY,
+        name: 'FileshipHarborCopyLink',
+        action: 'copyLink',
+        label: 'shell.copyLink',
+        many: true,
+    },
+    {
+        key: SHELL_KEY,
+        name: 'FileshipHarborOpen',
+        action: 'open',
+        label: 'shell.openInBrowser',
+        many: true,
+    },
+    {
+        key: SHELL_KEY,
+        name: 'FileshipHarborShow',
+        action: 'show',
+        label: 'shell.showInFileship',
+        many: false,
+    },
+    {
+        key: FOLDER_SHELL_KEY,
+        name: 'FileshipHarborFolderLink',
+        action: 'folderLink',
+        label: 'shell.copyFolderLink',
+        many: false,
+    },
+    {
+        key: FOLDER_SHELL_KEY,
+        name: 'FileshipHarborInboxLink',
+        action: 'inboxLink',
+        label: 'shell.copyInboxLink',
+        many: false,
+    },
 ];
 
 let harborRoot: string | null = null;
@@ -37,7 +70,7 @@ const insideRoot = (root: string) => `System.ItemPathDisplay:~<"${root.replace(/
 
 const writeHarborVerbs = async (exe: string, root: string) => {
     for (const verb of HARBOR_VERBS) {
-        const key = `${SHELL_KEY}\\${verb.name}`;
+        const key = `${verb.key}\\${verb.name}`;
 
         await setValue(key, 'MUIVerb', t(verb.label));
         await setValue(key, 'Icon', exe);
@@ -74,7 +107,7 @@ export const setHarborRoot = async (root: string | null) => {
     if (!app.isPackaged) return;
 
     if (!root) {
-        for (const verb of HARBOR_VERBS) await deleteKey(`${SHELL_KEY}\\${verb.name}`);
+        for (const verb of HARBOR_VERBS) await deleteKey(`${verb.key}\\${verb.name}`);
     }
 
     await registerShellMenu();
@@ -113,19 +146,24 @@ const queueHarborAction = (action: string, paths: string[]) => {
 
 export const handleLaunch = (argv: string[], cwd = process.cwd()) => {
     const ignored = [process.execPath, app.getAppPath()];
-    const resolvePaths = (args: string[]) =>
-        args.map((arg) => resolve(cwd, arg)).filter((path) => !ignored.includes(path));
+    const launchTargets = (name: string) =>
+        launchArgs(argv, name)
+            ?.map((arg) => [arg, resolve(cwd, arg)] as const)
+            .filter(([, path]) => !ignored.includes(path));
 
-    const [action, ...targets] = launchArgs(argv, '--harbor-action') ?? [];
+    const [action, ...targets] = launchTargets('--harbor-action') ?? [];
 
     if (action) {
-        queueHarborAction(action, resolvePaths(targets));
+        queueHarborAction(
+            action[0],
+            targets.map(([, path]) => path),
+        );
         return true;
     }
 
-    const upload = launchArgs(argv, '--upload');
+    const upload = launchTargets('--upload');
     if (!upload) return false;
 
-    queueUploads(resolvePaths(upload));
+    queueUploads(upload.map(([, path]) => path));
     return true;
 };

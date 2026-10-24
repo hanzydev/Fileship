@@ -170,7 +170,37 @@
         "linkCopied": "Link copiato | {count} link copiati",
         "linkFailed": "Impossibile ottenere il link",
         "notOnFileship": "Non ancora su Fileship",
-        "notOnFileshipDescription": "Attendi che il file venga caricato e riprova."
+        "notOnFileshipDescription": "Attendi che il file venga caricato e riprova.",
+        "paused": "In pausa",
+        "offlineMessage": "Apri Fileship per mantenere sincronizzati i tuoi file.",
+        "upload": "Carica file",
+        "pause": "Sospendi sincronizzazione",
+        "resume": "Riprendi sincronizzazione",
+        "retry": "Riprova",
+        "freeUpSpace": "Libera spazio",
+        "trash": "Cestino",
+        "manageStorage": "Gestisci archiviazione",
+        "pausedMessage": "La sincronizzazione è in pausa. I file nuovi e modificati verranno caricati quando la riprendi.",
+        "uploading": "Caricamento di {count} file | Caricamento di {count} file",
+        "almostFull": "Il tuo spazio è quasi pieno.",
+        "quotaUsed": "{used} di {total} utilizzati",
+        "quotaUnlimited": "{used} di ∞ utilizzati",
+        "summary": "{content} · {local} su questo dispositivo · Sincronizzato {time}",
+        "views": "Visualizzazioni",
+        "freedSpace": "{size} liberati",
+        "makeFolderPublic": "Rendere pubblica questa cartella?",
+        "makeFolderPublicDescription": "Chiunque abbia il link potrà vedere la cartella e i suoi file. I file protetti da password restano bloccati.",
+        "makePublic": "Rendi pubblica",
+        "cancel": "Annulla",
+        "folderLinkCopied": "Link della cartella copiato",
+        "inboxLinkCopied": "Link della casella di ricezione copiato",
+        "notInbox": "Questa cartella non è la tua casella di ricezione",
+        "notInboxDescription": "Scegli questa cartella e attiva la casella di ricezione nelle sue impostazioni su Fileship.",
+        "notesFolder": "Note",
+        "linksFolder": "Link",
+        "notesOnlyText": "Solo i file Markdown e di testo possono diventare note.",
+        "makeNotePublic": "Rendere pubblica questa nota?",
+        "makeNotePublicDescription": "Chiunque abbia il link potrà leggere la nota."
     },
     "harborSettings": {
         "title": "Fileship Harbor",
@@ -183,7 +213,8 @@
             "starting": "Avvio",
             "syncing": "Sincronizzazione",
             "ready": "Aggiornato",
-            "error": "Richiede attenzione"
+            "error": "Richiede attenzione",
+            "paused": "In pausa"
         },
         "content": "Contenuto",
         "contentSummary": "{files} in {folders}",
@@ -208,9 +239,47 @@
             "delete": "Le eliminazioni finiscono nel cestino",
             "deleteDescription": "I file che sposti nel Cestino di Windows finiscono nel cestino di Fileship. Quando Windows elimina definitivamente un file, con Maiusc + Canc o perché era solo online, viene eliminato anche da Fileship.",
             "folders": "Le cartelle hanno un solo livello",
-            "foldersDescription": "Le cartelle di Fileship non possono contenere altre cartelle, quindi una cartella creata al loro interno non viene sincronizzata."
+            "foldersDescription": "Le cartelle di Fileship non possono contenere altre cartelle, quindi una cartella creata al loro interno non viene sincronizzata.",
+            "pause": "Metti in pausa quando serve",
+            "pauseDescription": "In pausa, i caricamenti e le modifiche da Fileship restano in attesa. Rinomine, spostamenti ed eliminazioni continuano a sincronizzarsi e i file che apri vengono comunque scaricati.",
+            "notes": "Note e link brevi",
+            "notesDescription": "Le tue note sono file Markdown nella cartella Note e salvarne una aggiorna la nota. I link brevi sono collegamenti nella cartella Link."
         },
-        "howItWorksDescription": "Cosa aspettarti dai tuoi file in Esplora file."
+        "howItWorksDescription": "Cosa aspettarti dai tuoi file in Esplora file.",
+        "lastSynced": "Ultima sincronizzazione",
+        "onThisDevice": "Su questo dispositivo",
+        "storage": "Archiviazione",
+        "storageUsed": "{used} di {limit} utilizzati ({percent})",
+        "storageUnlimited": "{used} di {infinity} utilizzati",
+        "unlimited": "Illimitato",
+        "categories": {
+            "image": "Immagini",
+            "video": "Video",
+            "audio": "Audio",
+            "document": "Documenti",
+            "archive": "Archivi",
+            "code": "Codice",
+            "other": "Altro"
+        },
+        "copyLinkOnUpload": "Copia i link dei file caricati",
+        "copyLinkOnUploadDescription": "Quando un file aggiunto a Fileship Harbor finisce di caricarsi, il suo link viene copiato e compare una notifica.",
+        "activity": {
+            "title": "Attività recente",
+            "description": "Cosa ha sincronizzato Fileship Harbor dall'avvio di Fileship.",
+            "emptyTitle": "Ancora nessuna attività",
+            "emptyDescription": "I file che aggiungi, rinomini o elimini in Fileship Harbor compaiono qui.",
+            "meta": "{what} · {time}",
+            "upload": "Caricato",
+            "update": "File modificato caricato",
+            "folder": "Cartella creata",
+            "rename": "Rinominato",
+            "move": "Spostato",
+            "trash": "Spostato nel cestino",
+            "delete": "Eliminato definitivamente",
+            "freeUp": "Spazio liberato",
+            "error": "Non riuscito",
+            "note": "Nota salvata"
+        }
     },
     "general": {
         "startup": "Avvio",
@@ -498,7 +567,9 @@
         "upload": "Carica su Fileship",
         "copyLink": "Copia link Fileship",
         "openInBrowser": "Apri nel browser",
-        "showInFileship": "Mostra in Fileship"
+        "showInFileship": "Mostra in Fileship",
+        "copyFolderLink": "Copia link cartella Fileship",
+        "copyInboxLink": "Copia link casella di ricezione Fileship"
     },
     "tasks": {
         "uploaded": "Caricato",
@@ -521,7 +592,8 @@
         "textCaptureFailed": "Impossibile acquisire il testo",
         "noLink": "Il server non ha restituito un link",
         "logInToUpload": "Accedi a Fileship per caricare",
-        "imageKept": "Caricamento non riuscito, screenshot salvato"
+        "imageKept": "Caricamento non riuscito, screenshot salvato",
+        "storageFull": "Il tuo spazio è pieno"
     },
     "tray": {
         "stopGifRecording": "Interrompi registrazione GIF",
@@ -554,7 +626,8 @@
         "uploadingTooltip": "Fileship · Caricamento di {count} file, {progress}% | Fileship · Caricamento di {count} file, {progress}%",
         "startingTooltip": "Fileship · Avvio della registrazione, fai clic per annullare",
         "pausedTooltip": "Fileship · Registrazione in pausa, fai clic per interrompere",
-        "processingTooltip": "Fileship · Completamento della registrazione"
+        "processingTooltip": "Fileship · Completamento della registrazione",
+        "harbor": "Fileship Harbor"
     },
     "updater": {
         "noReleases": "Non è ancora stata pubblicata nessuna versione",

@@ -170,7 +170,37 @@
         "linkCopied": "Bağlantı kopyalandı | {count} bağlantı kopyalandı",
         "linkFailed": "Bağlantı alınamadı",
         "notOnFileship": "Henüz Fileship'te değil",
-        "notOnFileshipDescription": "Dosya yüklendikten sonra tekrar dene."
+        "notOnFileshipDescription": "Dosya yüklendikten sonra tekrar dene.",
+        "paused": "Duraklatıldı",
+        "offlineMessage": "Dosyalarının eşitlenmesi için Fileship'i aç.",
+        "upload": "Dosya yükle",
+        "pause": "Eşitlemeyi duraklat",
+        "resume": "Eşitlemeyi sürdür",
+        "retry": "Tekrar dene",
+        "freeUpSpace": "Yer aç",
+        "trash": "Çöp kutusu",
+        "manageStorage": "Depolamayı yönet",
+        "pausedMessage": "Eşitleme duraklatıldı. Yeni ve değişen dosyalar sürdürünce yüklenir.",
+        "uploading": "{count} dosya yükleniyor",
+        "almostFull": "Depolama alanın dolmak üzere.",
+        "quotaUsed": "{used} / {total} kullanıldı",
+        "quotaUnlimited": "{used} / ∞ kullanıldı",
+        "summary": "{content} · bu cihazda {local} · {time} eşitlendi",
+        "views": "Görüntülenme",
+        "freedSpace": "{size} yer açıldı",
+        "makeFolderPublic": "Bu klasör herkese açık yapılsın mı?",
+        "makeFolderPublicDescription": "Bağlantıya sahip herkes klasörü ve içindeki dosyaları görebilir. Şifreli dosyalar kilitli kalır.",
+        "makePublic": "Herkese açık yap",
+        "cancel": "Vazgeç",
+        "folderLinkCopied": "Klasör bağlantısı kopyalandı",
+        "inboxLinkCopied": "Gelen kutusu bağlantısı kopyalandı",
+        "notInbox": "Bu klasör gelen kutun değil",
+        "notInboxDescription": "Fileship'teki gelen kutusu ayarlarından bu klasörü seç ve gelen kutusunu aç.",
+        "notesFolder": "Notlar",
+        "linksFolder": "Bağlantılar",
+        "notesOnlyText": "Yalnızca Markdown ve metin dosyaları not olabilir.",
+        "makeNotePublic": "Bu not herkese açık yapılsın mı?",
+        "makeNotePublicDescription": "Bağlantıya sahip herkes notu okuyabilir."
     },
     "harborSettings": {
         "title": "Fileship Harbor",
@@ -183,7 +213,8 @@
             "starting": "Başlatılıyor",
             "syncing": "Eşitleniyor",
             "ready": "Güncel",
-            "error": "Sorun var"
+            "error": "Sorun var",
+            "paused": "Duraklatıldı"
         },
         "content": "İçerik",
         "contentSummary": "{folders} içinde {files}",
@@ -208,9 +239,47 @@
             "delete": "Silinen dosyalar çöp kutusuna gider",
             "deleteDescription": "Geri Dönüşüm Kutusu'na taşıdığın dosyalar Fileship çöp kutusuna gider. Windows bir dosyayı Shift + Delete ile ya da yalnızca çevrimiçi olduğu için kalıcı olarak silerse dosya Fileship'ten de silinir.",
             "folders": "Klasörler tek seviyelidir",
-            "foldersDescription": "Fileship klasörlerinin içinde klasör olmaz, bu yüzden bir klasörün içinde oluşturduğun klasör eşitlenmez."
+            "foldersDescription": "Fileship klasörlerinin içinde klasör olmaz, bu yüzden bir klasörün içinde oluşturduğun klasör eşitlenmez.",
+            "pause": "Gerektiğinde duraklat",
+            "pauseDescription": "Duraklatınca yüklemeler ve Fileship'teki değişiklikler bekler. Yeniden adlandırma, taşıma ve silme yine eşitlenir, açtığın dosyalar yine iner.",
+            "notes": "Notlar ve kısa bağlantılar",
+            "notesDescription": "Notların Notlar klasöründe Markdown dosyası olarak durur, birini kaydedince not güncellenir. Kısa bağlantılar Bağlantılar klasöründe kısayol olarak görünür."
         },
-        "howItWorksDescription": "Dosya Gezgini'ndeki dosyaların nasıl davrandığı."
+        "howItWorksDescription": "Dosya Gezgini'ndeki dosyaların nasıl davrandığı.",
+        "lastSynced": "Son eşitleme",
+        "onThisDevice": "Bu cihazda",
+        "storage": "Depolama",
+        "storageUsed": "{used} / {limit} kullanıldı ({percent})",
+        "storageUnlimited": "{used} / {infinity} kullanıldı",
+        "unlimited": "Sınırsız",
+        "categories": {
+            "image": "Görseller",
+            "video": "Videolar",
+            "audio": "Ses",
+            "document": "Belgeler",
+            "archive": "Arşivler",
+            "code": "Kod",
+            "other": "Diğer"
+        },
+        "copyLinkOnUpload": "Yüklenen dosyaların bağlantısını kopyala",
+        "copyLinkOnUploadDescription": "Fileship Harbor'a eklediğin bir dosya yüklenince bağlantısı kopyalanır ve bildirim gösterilir.",
+        "activity": {
+            "title": "Son etkinlik",
+            "description": "Fileship açıldığından beri Fileship Harbor'ın eşitledikleri.",
+            "emptyTitle": "Henüz etkinlik yok",
+            "emptyDescription": "Fileship Harbor'da eklediğin, yeniden adlandırdığın veya sildiğin dosyalar burada görünür.",
+            "meta": "{what} · {time}",
+            "upload": "Yüklendi",
+            "update": "Değişen dosya yüklendi",
+            "folder": "Klasör oluşturuldu",
+            "rename": "Yeniden adlandırıldı",
+            "move": "Taşındı",
+            "trash": "Çöpe taşındı",
+            "delete": "Kalıcı olarak silindi",
+            "freeUp": "Yer açıldı",
+            "error": "Başarısız oldu",
+            "note": "Not kaydedildi"
+        }
     },
     "general": {
         "startup": "Başlangıç",
@@ -498,7 +567,9 @@
         "upload": "Fileship'e yükle",
         "copyLink": "Fileship bağlantısını kopyala",
         "openInBrowser": "Tarayıcıda aç",
-        "showInFileship": "Fileship'te göster"
+        "showInFileship": "Fileship'te göster",
+        "copyFolderLink": "Fileship klasör bağlantısını kopyala",
+        "copyInboxLink": "Fileship gelen kutusu bağlantısını kopyala"
     },
     "tasks": {
         "uploaded": "Yüklendi",
@@ -521,7 +592,8 @@
         "textCaptureFailed": "Metin yakalanamadı",
         "noLink": "Sunucu bağlantı göndermedi",
         "logInToUpload": "Yüklemek için Fileship'e giriş yap",
-        "imageKept": "Ekran görüntüsü yüklenemedi, bilgisayara kaydedildi"
+        "imageKept": "Ekran görüntüsü yüklenemedi, bilgisayara kaydedildi",
+        "storageFull": "Depolama alanın doldu"
     },
     "tray": {
         "stopGifRecording": "GIF kaydını durdur",
@@ -554,7 +626,8 @@
         "uploadingTooltip": "Fileship · {count} dosya yükleniyor, %{progress}",
         "startingTooltip": "Fileship · Kayıt başlıyor, iptal etmek için tıkla",
         "pausedTooltip": "Fileship · Kayıt duraklatıldı, durdurmak için tıkla",
-        "processingTooltip": "Fileship · Kayıt hazırlanıyor"
+        "processingTooltip": "Fileship · Kayıt hazırlanıyor",
+        "harbor": "Fileship Harbor"
     },
     "updater": {
         "noReleases": "Henüz yayımlanmış sürüm yok",

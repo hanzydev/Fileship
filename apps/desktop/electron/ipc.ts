@@ -11,10 +11,13 @@ import { api } from './api';
 import { writeText } from './clipboard';
 import { closeDashboard, openDashboard } from './dashboard';
 import {
+    freeUpHarborSpace,
+    getHarborActivity,
     getHarborStatus,
     harborPathFor,
     harborRoot,
     openHarbor,
+    pauseHarbor,
     startHarbor,
     stopHarbor,
 } from './harbor';
@@ -220,6 +223,16 @@ const handlers: Handlers = {
         updateSettings({ harbor: { ...getSettings().harbor, folder } });
         await startHarbor();
         return getHarborStatus();
+    },
+    'harbor:pause': (paused) => pauseHarbor(paused),
+    'harbor:freeUpSpace': () => freeUpHarborSpace(),
+    'harbor:activity': () => getHarborActivity(),
+    'harbor:breakdown': async () => {
+        const { byType } = await api<{ byType: { type: string; size: string }[] }>(
+            '/api/users/@me/stats',
+        );
+
+        return byType.map(({ type, size }) => ({ type, size: Number(size) }));
     },
 };
 

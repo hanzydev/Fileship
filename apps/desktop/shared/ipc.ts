@@ -122,13 +122,40 @@ export type OverlayFinish =
 
 export type Folder = { id: string; name: string };
 
+export type HarborStorage = { used: number; limit: number | null };
+
 export type HarborStatus = {
-    state: 'off' | 'starting' | 'syncing' | 'ready' | 'error';
+    state: 'off' | 'starting' | 'syncing' | 'ready' | 'paused' | 'error';
     root: string;
     files: number;
     folders: number;
     error: string | null;
+    storage: HarborStorage | null;
+    localSize: number | null;
+    lastSyncedAt: number | null;
 };
+
+export type HarborActivityKind =
+    | 'upload'
+    | 'update'
+    | 'note'
+    | 'folder'
+    | 'rename'
+    | 'move'
+    | 'trash'
+    | 'delete'
+    | 'freeUp'
+    | 'error';
+
+export type HarborActivity = {
+    id: string;
+    kind: HarborActivityKind;
+    name: string;
+    detail: string | null;
+    at: number;
+};
+
+export type HarborBreakdown = { type: string; size: number };
 
 export type AppInfo = {
     version: string;
@@ -181,6 +208,10 @@ export type IpcInvoke = {
     'harbor:status': () => HarborStatus;
     'harbor:open': () => void;
     'harbor:setFolder': (folder: string) => HarborStatus;
+    'harbor:pause': (paused: boolean) => HarborStatus;
+    'harbor:freeUpSpace': () => number;
+    'harbor:activity': () => HarborActivity[];
+    'harbor:breakdown': () => HarborBreakdown[];
 };
 
 export type IpcEvents = {
@@ -195,6 +226,7 @@ export type IpcEvents = {
     'ffmpeg:status': FfmpegStatus;
     'recorder:state': RecorderState;
     'harbor:status': HarborStatus;
+    'harbor:activity': HarborActivity[];
 };
 
 export const INVOKE_CHANNELS = [
@@ -243,6 +275,10 @@ export const INVOKE_CHANNELS = [
     'harbor:status',
     'harbor:open',
     'harbor:setFolder',
+    'harbor:pause',
+    'harbor:freeUpSpace',
+    'harbor:activity',
+    'harbor:breakdown',
 ] as const satisfies (keyof IpcInvoke)[];
 
 export const EVENT_CHANNELS = [
@@ -257,6 +293,7 @@ export const EVENT_CHANNELS = [
     'ffmpeg:status',
     'recorder:state',
     'harbor:status',
+    'harbor:activity',
 ] as const satisfies (keyof IpcEvents)[];
 
 export type DesktopBridge = {

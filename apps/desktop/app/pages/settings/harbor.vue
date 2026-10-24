@@ -34,7 +34,79 @@
                         })
                     }}
                 </dd>
+                <template v-if="status.lastSyncedAt">
+                    <dt class="text-muted-foreground">{{ $t('harborSettings.lastSynced') }}</dt>
+                    <dd class="text-right">{{ timeAgo(status.lastSyncedAt) }}</dd>
+                </template>
+                <template v-if="status.localSize !== null">
+                    <dt class="text-muted-foreground">{{ $t('harborSettings.onThisDevice') }}</dt>
+                    <dd class="text-right">{{ formatSize(status.localSize) }}</dd>
+                </template>
+                <template v-if="status.storage">
+                    <dt class="text-muted-foreground">{{ $t('harborSettings.storage') }}</dt>
+                    <dd class="flex items-center justify-end">
+                        <i18n-t
+                            v-if="status.storage.limit === null"
+                            keypath="harborSettings.storageUnlimited"
+                            tag="span"
+                            class="inline-flex items-center gap-1"
+                        >
+                            <template #used>{{ formatSize(status.storage.used) }}</template>
+                            <template #infinity>
+                                <IInfinity
+                                    class="size-4"
+                                    :aria-label="$t('harborSettings.unlimited')"
+                                />
+                            </template>
+                        </i18n-t>
+                        <template v-else>
+                            {{
+                                $t('harborSettings.storageUsed', {
+                                    used: formatSize(status.storage.used),
+                                    limit: formatSize(status.storage.limit!),
+                                    percent: percentFormat.format(storageRatio),
+                                })
+                            }}
+                        </template>
+                    </dd>
+                    <UiProgress
+                        v-if="status.storage.limit !== null"
+                        :model-value="Math.min(storageRatio, 1) * 100"
+                        :aria-label="$t('harborSettings.storage')"
+                        :class="
+                            cn(
+                                'col-span-2 h-1.5',
+                                storageRatio >= 0.9 &&
+                                    '*:data-[slot=progress-indicator]:bg-destructive',
+                            )
+                        "
+                    />
+                </template>
             </dl>
+
+            <div v-if="breakdown.length" class="flex flex-col gap-2">
+                <div class="flex h-2 w-full overflow-hidden rounded-full bg-muted">
+                    <div
+                        v-for="item in breakdown"
+                        :key="item.type"
+                        class="h-full"
+                        :style="{ width: `${item.share * 100}%`, background: item.color }"
+                    />
+                </div>
+                <ul class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <li
+                        v-for="item in breakdown"
+                        :key="item.type"
+                        class="flex items-center gap-1.5"
+                    >
+                        <span class="size-2 rounded-full" :style="{ background: item.color }" />
+                        {{ $t(`harborSettings.categories.${item.type}`) }}
+                        <span class="text-foreground tabular-nums">
+                            {{ formatSize(item.size) }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
 
             <UiField>
                 <UiFieldLabel for="harbor-folder">{{ $t('harborSettings.location') }}</UiFieldLabel>
@@ -62,8 +134,25 @@
                     {{ $t('harborSettings.locationDescription') }}
                 </UiFieldDescription>
             </UiField>
+
+            <UiField orientation="horizontal" class="has-[>[data-slot=field-content]]:items-center">
+                <UiFieldContent>
+                    <UiFieldLabel for="harbor-copy-link">
+                        {{ $t('harborSettings.copyLinkOnUpload') }}
+                    </UiFieldLabel>
+                    <UiFieldDescription>
+                        {{ $t('harborSettings.copyLinkOnUploadDescription') }}
+                    </UiFieldDescription>
+                </UiFieldContent>
+                <UiSwitch
+                    id="harbor-copy-link"
+                    :model-value="settings?.harbor.copyLinkOnUpload"
+                    :disabled="!settings"
+                    @update:model-value="updateSection('harbor', { copyLinkOnUpload: $event })"
+                />
+            </UiField>
         </UiCardContent>
-        <UiCardFooter>
+        <UiCardFooter class="flex-wrap gap-2">
             <UiButton
                 variant="outline"
                 :disabled="status.state === 'off'"
@@ -72,7 +161,69 @@
                 <IFolderOpen />
                 {{ $t('harborSettings.openInExplorer') }}
             </UiButton>
+            <UiButton
+                v-if="status.state === 'paused'"
+                variant="outline"
+                @click="handlePause(false)"
+            >
+                <IPlay />
+                {{ $t('harbor.resume') }}
+            </UiButton>
+            <UiButton
+                v-else
+                variant="outline"
+                :disabled="status.state !== 'ready' && status.state !== 'syncing'"
+                @click="handlePause(true)"
+            >
+                <IPause />
+                {{ $t('harbor.pause') }}
+            </UiButton>
+            <UiButton
+                variant="outline"
+                :disabled="!status.localSize || isFreeing || status.state === 'off'"
+                @click="handleFreeUpSpace"
+            >
+                <UiSpinner v-if="isFreeing" />
+                <IHardDriveDownload v-else />
+                {{ $t('harbor.freeUpSpace') }}
+            </UiButton>
         </UiCardFooter>
+    </UiCard>
+
+    <UiCard>
+        <UiCardHeader>
+            <UiCardTitle>{{ $t('harborSettings.activity.title') }}</UiCardTitle>
+            <UiCardDescription>{{ $t('harborSettings.activity.description') }}</UiCardDescription>
+        </UiCardHeader>
+        <UiCardContent>
+            <EmptyState
+                v-if="!activity.length"
+                :icon="IHistory"
+                :title="$t('harborSettings.activity.emptyTitle')"
+                :description="$t('harborSettings.activity.emptyDescription')"
+            />
+            <UiItemGroup v-else class="gap-2">
+                <UiItem v-for="item in activity" :key="item.id" variant="muted" size="sm">
+                    <UiItemMedia variant="icon">
+                        <component
+                            :is="ACTIVITY_ICONS[item.kind]"
+                            :class="item.kind === 'error' && 'text-destructive'"
+                        />
+                    </UiItemMedia>
+                    <UiItemContent class="min-w-0">
+                        <UiItemTitle class="w-full truncate">{{ item.name }}</UiItemTitle>
+                        <UiItemDescription class="truncate">
+                            {{
+                                $t('harborSettings.activity.meta', {
+                                    what: item.detail ?? $t(`harborSettings.activity.${item.kind}`),
+                                    time: timeAgo(item.at),
+                                })
+                            }}
+                        </UiItemDescription>
+                    </UiItemContent>
+                </UiItem>
+            </UiItemGroup>
+        </UiCardContent>
     </UiCard>
 
     <UiCard>
@@ -97,9 +248,35 @@
 </template>
 
 <script setup lang="ts">
-import { ICloud, ICloudDownload, IFilePen, IFolderSync, IFolderTree, ITrash2 } from '#components';
+import type { Component } from 'vue';
 
-import type { HarborStatus } from '../../../shared/ipc';
+import {
+    ICircleAlert,
+    ICloud,
+    ICloudDownload,
+    IFilePen,
+    IFileX,
+    IFolderInput,
+    IFolderPlus,
+    IFolderSync,
+    IFolderTree,
+    IHardDriveDownload,
+    IHistory,
+    INotebookPen,
+    IPause,
+    IPencil,
+    ITrash2,
+    IUpload,
+} from '#components';
+
+import type {
+    HarborActivity,
+    HarborActivityKind,
+    HarborBreakdown,
+    HarborStatus,
+} from '../../../shared/ipc';
+import { formatStorageSize } from '../../../shared/size';
+import { relativeTime } from '../../../shared/time';
 
 const TIPS = [
     {
@@ -132,13 +309,76 @@ const TIPS = [
         title: 'harborSettings.tips.folders',
         description: 'harborSettings.tips.foldersDescription',
     },
+    {
+        icon: INotebookPen,
+        title: 'harborSettings.tips.notes',
+        description: 'harborSettings.tips.notesDescription',
+    },
+    {
+        icon: IPause,
+        title: 'harborSettings.tips.pause',
+        description: 'harborSettings.tips.pauseDescription',
+    },
 ];
+
+const ACTIVITY_ICONS: Record<HarborActivityKind, Component> = {
+    upload: IUpload,
+    update: IFilePen,
+    note: INotebookPen,
+    folder: IFolderPlus,
+    rename: IPencil,
+    move: IFolderInput,
+    trash: ITrash2,
+    delete: IFileX,
+    freeUp: IHardDriveDownload,
+    error: ICircleAlert,
+};
 
 const settings = useSettings();
 const { $toast } = useNuxtApp();
+const { t, locale } = useI18n();
+const now = useNow({ scheduler: (callback) => useIntervalFn(callback, 30_000) });
 
-const status = ref<HarborStatus>({ state: 'off', root: '', files: 0, folders: 0, error: null });
+const status = ref<HarborStatus>({
+    state: 'off',
+    root: '',
+    files: 0,
+    folders: 0,
+    error: null,
+    storage: null,
+    localSize: null,
+    lastSyncedAt: null,
+});
+const activity = ref<HarborActivity[]>([]);
+const sizes = ref<HarborBreakdown[]>([]);
 const isBusy = ref(false);
+const isFreeing = ref(false);
+
+const percentFormat = computed(
+    () => new Intl.NumberFormat(locale.value, { style: 'percent', maximumFractionDigits: 0 }),
+);
+
+const storageRatio = computed(() =>
+    status.value.storage?.limit ? status.value.storage.used / status.value.storage.limit : 1,
+);
+
+const breakdown = computed(() => {
+    const total = sizes.value.reduce((sum, item) => sum + item.size, 0);
+    if (!total) return [];
+
+    return sizes.value
+        .filter((item) => item.size)
+        .map((item, index) => ({
+            ...item,
+            share: item.size / total,
+            color: `var(--chart-${(index % 5) + 1})`,
+        }));
+});
+
+const formatSize = (bytes: number) => formatStorageSize(bytes, locale.value);
+
+const timeAgo = (value: number) =>
+    relativeTime(locale.value, value, now.value.getTime(), t('home.justNow'));
 
 const handleToggle = async (enabled: boolean) => {
     if (!settings.value) return;
@@ -163,13 +403,43 @@ const handlePickFolder = async () => {
     if (folder) await handleFolder(folder);
 };
 
+const handlePause = async (paused: boolean) => {
+    status.value = await desktop('harbor:pause', paused);
+};
+
+const handleFreeUpSpace = async () => {
+    isFreeing.value = true;
+
+    try {
+        const freed = await desktop('harbor:freeUpSpace');
+        $toast.success(t('harbor.freedSpace', { size: formatSize(freed) }));
+    } catch (error: any) {
+        $toast.error(error.message);
+    } finally {
+        isFreeing.value = false;
+    }
+};
+
 onMounted(async () => {
-    const off = window.fileship.on('harbor:status', (value) => {
+    const offStatus = window.fileship.on('harbor:status', (value) => {
         status.value = value;
     });
+    const offActivity = window.fileship.on('harbor:activity', (value) => {
+        activity.value = value;
+    });
 
-    onBeforeUnmount(off);
+    onBeforeUnmount(() => {
+        offStatus();
+        offActivity();
+    });
 
-    status.value = await desktop('harbor:status');
+    [status.value, activity.value] = await Promise.all([
+        desktop('harbor:status'),
+        desktop('harbor:activity'),
+    ]);
+
+    if (status.value.state !== 'off') {
+        sizes.value = await desktop('harbor:breakdown').catch(() => []);
+    }
 });
 </script>

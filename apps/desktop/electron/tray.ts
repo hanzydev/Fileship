@@ -3,7 +3,7 @@ import { app, Menu, nativeImage, Tray } from 'electron';
 import type { RecorderPhase } from '../shared/ipc';
 import { isConnected, runAction } from './actions';
 import { openDashboard } from './dashboard';
-import { openHarbor } from './harbor';
+import { getHarborStatus, getHarborStorageLabel, openHarbor, pauseHarbor } from './harbor';
 import { t } from './i18n';
 import { native } from './native';
 import {
@@ -27,6 +27,33 @@ const RECORDING_TOOLTIPS: Record<Exclude<RecorderPhase, 'idle'>, string> = {
     recording: 'tray.recordingTooltip',
     paused: 'tray.pausedTooltip',
     processing: 'tray.processingTooltip',
+};
+
+const harborMenu = (connected: boolean): Electron.MenuItemConstructorOptions => {
+    const { state } = getHarborStatus();
+
+    if (!connected || !getSettings().harbor.enabled || state === 'off') {
+        return { label: t('tray.openHarbor'), enabled: false };
+    }
+
+    const storage = getHarborStorageLabel();
+
+    return {
+        label: t('tray.harbor'),
+        submenu: [
+            { label: t(`harborSettings.states.${state}`), enabled: false },
+            ...(storage ? [{ label: storage, enabled: false }] : []),
+            { type: 'separator' },
+            { label: t('tray.openHarbor'), click: () => openHarbor() },
+            state === 'paused'
+                ? { label: t('harbor.resume'), click: () => pauseHarbor(false) }
+                : {
+                      label: t('harbor.pause'),
+                      enabled: state === 'ready' || state === 'syncing',
+                      click: () => pauseHarbor(true),
+                  },
+        ],
+    };
 };
 
 const buildMenu = () => {
@@ -102,11 +129,7 @@ const buildMenu = () => {
         },
         { type: 'separator' },
         { label: t('tray.openFileship'), click: () => showMainWindow() },
-        {
-            label: t('tray.openHarbor'),
-            enabled: connected && getSettings().harbor.enabled,
-            click: () => openHarbor(),
-        },
+        harborMenu(connected),
         {
             label: t('tray.openDashboard'),
             enabled: connected,

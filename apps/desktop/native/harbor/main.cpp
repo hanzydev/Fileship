@@ -189,9 +189,18 @@ void handle(JsonObject const& request) {
             resolveAck(static_cast<uint64_t>(request.GetNamedNumber(L"requestId")),
                        request.GetNamedBoolean(L"ok"));
             return;
+        } else if (type == L"refresh") {
+            std::wstring path(request.GetNamedString(L"path"));
+            bool refreshed = refreshPlaceholder(path, static_cast<int64_t>(request.GetNamedNumber(L"size")));
+            response.SetNamedValue(L"refreshed", JsonValue::CreateBooleanValue(refreshed));
+            if (refreshed) settleItem(path);
+        } else if (type == L"usage") {
+            response.SetNamedValue(L"local", JsonValue::CreateNumberValue(static_cast<double>(localSize())));
+        } else if (type == L"freeUpSpace") {
+            response.SetNamedValue(L"freed", JsonValue::CreateNumberValue(static_cast<double>(freeUpSpace())));
         } else if (type == L"syncStatus") {
             auto error = request.GetNamedValue(L"error", JsonValue::CreateNullValue());
-            setHarborState(std::wstring(request.GetNamedString(L"state", L"")));
+            setHarborStatus(request.GetNamedObject(L"status"));
             reportSyncStatus(error.ValueType() == winrt::Windows::Data::Json::JsonValueType::String
                                  ? std::optional<std::wstring>(error.GetString())
                                  : std::nullopt);

@@ -196,6 +196,31 @@ void updatePlaceholder(std::wstring const& path, std::optional<std::wstring> con
         nullptr));
 }
 
+bool refreshPlaceholder(std::wstring const& path, int64_t size) {
+    auto absolute = fullPath(path);
+    CF_PIN_STATE pin = CF_PIN_STATE_UNSPECIFIED;
+    if (!readIdentity(absolute, &pin, nullptr) || isModified(absolute)) return false;
+
+    if (pin == CF_PIN_STATE_PINNED) setPinState(absolute, CF_PIN_STATE_UNSPECIFIED);
+
+    {
+        Handle handle(absolute, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES | WRITE_DAC);
+        FILE_BASIC_INFO basic{};
+        if (!GetFileInformationByHandleEx(handle.value, FileBasicInfo, &basic, sizeof(basic))) throw_last_error();
+
+        CF_FS_METADATA metadata{};
+        metadata.BasicInfo = basic;
+        metadata.BasicInfo.LastWriteTime = basic.CreationTime;
+        metadata.FileSize.QuadPart = size;
+
+        check_hresult(CfUpdatePlaceholder(handle.value, &metadata, nullptr, 0, nullptr, 0,
+                                          CF_UPDATE_FLAG_MARK_IN_SYNC | CF_UPDATE_FLAG_DEHYDRATE, nullptr, nullptr));
+    }
+
+    if (pin == CF_PIN_STATE_PINNED) setPinState(absolute, CF_PIN_STATE_PINNED);
+    return true;
+}
+
 void removePath(std::wstring const& path) {
     std::error_code error;
     std::filesystem::remove_all(fullPath(path), error);
@@ -322,6 +347,55 @@ JsonArray scanRoot() {
     }
 
     return items;
+}
+
+namespace {
+
+template <typename Visit>
+void forEachLocalFile(Visit const& visit) {
+    std::error_code error;
+    auto options = std::filesystem::directory_options::skip_permission_denied;
+
+    for (auto iterator = std::filesystem::recursive_directory_iterator(config().root, options, error);
+         iterator != std::filesystem::recursive_directory_iterator(); iterator.increment(error)) {
+        if (error) break;
+
+        WIN32_FILE_ATTRIBUTE_DATA data{};
+        if (!GetFileAttributesExW(iterator->path().c_str(), GetFileExInfoStandard, &data)) continue;
+        if (data.dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS)) continue;
+
+        visit(iterator->path().wstring(), (static_cast<int64_t>(data.nFileSizeHigh) << 32) | data.nFileSizeLow);
+    }
+}
+
+}
+
+int64_t localSize() {
+    int64_t total = 0;
+    forEachLocalFile([&](std::wstring const&, int64_t size) { total += size; });
+    return total;
+}
+
+int64_t freeUpSpace() {
+    int64_t freed = 0;
+
+    forEachLocalFile([&](std::wstring const& absolute, int64_t size) {
+        CF_PIN_STATE pin = CF_PIN_STATE_UNSPECIFIED;
+        CF_IN_SYNC_STATE sync = CF_IN_SYNC_STATE_NOT_IN_SYNC;
+        auto identity = readIdentity(absolute, &pin, &sync);
+
+        if (!identity || !(identity->starts_with(L"f:") || identity->starts_with(L"n:"))) return;
+        if (sync != CF_IN_SYNC_STATE_IN_SYNC || pin == CF_PIN_STATE_PINNED || isModified(absolute)) return;
+
+        try {
+            dehydratePath(absolute);
+            freed += size;
+        } catch (hresult_error const& error) {
+            log(L"Could not free up " + absolute + L": " + std::wstring(error.message()));
+        }
+    });
+
+    return freed;
 }
 
 std::optional<std::wstring> placeholderIdentity(std::wstring const& absolute, CF_PIN_STATE* pin,

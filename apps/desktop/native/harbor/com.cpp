@@ -237,6 +237,10 @@ void requestAction(std::wstring const& action, std::vector<std::wstring> const& 
     CloseHandle(process.hProcess);
 }
 
+void requestStatus() {
+    if (hosted) sendEvent(L"statusRequested", JsonObject());
+}
+
 void saveSession() {
     auto const& settings = config();
 

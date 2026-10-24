@@ -170,7 +170,37 @@
         "linkCopied": "リンクをコピーしました | {count} 件のリンクをコピーしました",
         "linkFailed": "リンクを取得できませんでした",
         "notOnFileship": "まだ Fileship にアップロードされていません",
-        "notOnFileshipDescription": "ファイルのアップロードが完了してから、もう一度お試しください。"
+        "notOnFileshipDescription": "ファイルのアップロードが完了してから、もう一度お試しください。",
+        "paused": "一時停止中",
+        "offlineMessage": "ファイルを同期するには Fileship を開いてください。",
+        "upload": "ファイルをアップロード",
+        "pause": "同期を一時停止",
+        "resume": "同期を再開",
+        "retry": "再試行",
+        "freeUpSpace": "空き容量を増やす",
+        "trash": "ゴミ箱",
+        "manageStorage": "ストレージを管理",
+        "pausedMessage": "同期は一時停止中です。新しいファイルと変更されたファイルは、再開するとアップロードされます。",
+        "uploading": "{count} 個のファイルをアップロード中",
+        "almostFull": "ストレージの空きがほとんどありません。",
+        "quotaUsed": "{total} 中 {used} を使用",
+        "quotaUnlimited": "∞ 中 {used} を使用",
+        "summary": "{content}・このデバイスに {local}・最終同期：{time}",
+        "views": "閲覧数",
+        "freedSpace": "{size} の空き容量を確保しました",
+        "makeFolderPublic": "このフォルダーを公開しますか？",
+        "makeFolderPublicDescription": "リンクを知っている人は誰でもフォルダーとファイルを表示できます。パスワードで保護されたファイルはロックされたままです。",
+        "makePublic": "公開",
+        "cancel": "キャンセル",
+        "folderLinkCopied": "フォルダーのリンクをコピーしました",
+        "inboxLinkCopied": "受信ボックスのリンクをコピーしました",
+        "notInbox": "このフォルダーは受信ボックスではありません",
+        "notInboxDescription": "Fileship の受信ボックス設定でこのフォルダーを選び、受信ボックスをオンにしてください。",
+        "notesFolder": "ノート",
+        "linksFolder": "リンク",
+        "notesOnlyText": "ノートにできるのは Markdown ファイルとテキストファイルだけです。",
+        "makeNotePublic": "このノートを公開しますか？",
+        "makeNotePublicDescription": "リンクを知っている人は誰でもノートを読めます。"
     },
     "harborSettings": {
         "title": "Fileship Harbor",
@@ -183,7 +213,8 @@
             "starting": "起動中",
             "syncing": "同期中",
             "ready": "最新の状態",
-            "error": "要対応"
+            "error": "要対応",
+            "paused": "一時停止中"
         },
         "content": "内容",
         "contentSummary": "{folders}に {files}",
@@ -208,9 +239,47 @@
             "delete": "削除すると Fileship のゴミ箱に移動",
             "deleteDescription": "Windows のごみ箱に移動したファイルは、Fileship のゴミ箱に入ります。Shift + Delete キーで削除した場合や、オンライン専用のファイルだった場合など、Windows がファイルを完全に削除すると Fileship からも削除されます。",
             "folders": "フォルダーは 1 階層のみ",
-            "foldersDescription": "Fileship のフォルダーにはフォルダーを入れられないため、フォルダー内に作成したフォルダーは同期されません。"
+            "foldersDescription": "Fileship のフォルダーにはフォルダーを入れられないため、フォルダー内に作成したフォルダーは同期されません。",
+            "pause": "必要なときは一時停止",
+            "pauseDescription": "一時停止中は、アップロードと Fileship からの変更が保留されます。名前の変更、移動、削除は引き続き同期され、開いたファイルもダウンロードされます。",
+            "notes": "ノートと短縮リンク",
+            "notesDescription": "ノートは「ノート」フォルダーに Markdown ファイルとして保存され、保存するとノートが更新されます。短縮リンクは「リンク」フォルダーにショートカットとして表示されます。"
         },
-        "howItWorksDescription": "エクスプローラーでのファイルの扱いについて説明します。"
+        "howItWorksDescription": "エクスプローラーでのファイルの扱いについて説明します。",
+        "lastSynced": "最終同期",
+        "onThisDevice": "このデバイス上",
+        "storage": "ストレージ",
+        "storageUsed": "{limit} 中 {used} を使用（{percent}）",
+        "storageUnlimited": "{infinity} 中 {used} を使用",
+        "unlimited": "無制限",
+        "categories": {
+            "image": "画像",
+            "video": "動画",
+            "audio": "オーディオ",
+            "document": "ドキュメント",
+            "archive": "アーカイブ",
+            "code": "コード",
+            "other": "その他"
+        },
+        "copyLinkOnUpload": "アップロードしたファイルのリンクをコピー",
+        "copyLinkOnUploadDescription": "Fileship Harbor に追加したファイルのアップロードが終わると、リンクがコピーされ通知が表示されます。",
+        "activity": {
+            "title": "最近のアクティビティ",
+            "description": "Fileship の起動後に Fileship Harbor が同期した内容です。",
+            "emptyTitle": "アクティビティはまだありません",
+            "emptyDescription": "Fileship Harbor で追加、名前変更、削除したファイルがここに表示されます。",
+            "meta": "{what}・{time}",
+            "upload": "アップロード済み",
+            "update": "変更したファイルをアップロード済み",
+            "folder": "フォルダーを作成",
+            "rename": "名前を変更",
+            "move": "移動",
+            "trash": "ゴミ箱に移動",
+            "delete": "完全に削除",
+            "freeUp": "空き容量を確保",
+            "error": "失敗",
+            "note": "ノートを保存"
+        }
     },
     "general": {
         "startup": "スタートアップ",
@@ -498,7 +567,9 @@
         "upload": "Fileship にアップロード",
         "copyLink": "Fileship のリンクをコピー",
         "openInBrowser": "ブラウザーで開く",
-        "showInFileship": "Fileship で表示"
+        "showInFileship": "Fileship で表示",
+        "copyFolderLink": "Fileship のフォルダーリンクをコピー",
+        "copyInboxLink": "Fileship の受信ボックスリンクをコピー"
     },
     "tasks": {
         "uploaded": "アップロードしました",
@@ -521,7 +592,8 @@
         "textCaptureFailed": "テキストをキャプチャできませんでした",
         "noLink": "サーバーからリンクが返されませんでした",
         "logInToUpload": "アップロードするには Fileship にログインしてください",
-        "imageKept": "アップロードできなかったため、スクリーンショットを保存しました"
+        "imageKept": "アップロードできなかったため、スクリーンショットを保存しました",
+        "storageFull": "ストレージがいっぱいです"
     },
     "tray": {
         "stopGifRecording": "GIF 録画を停止",
@@ -554,7 +626,8 @@
         "uploadingTooltip": "Fileship · {count} 個のファイルをアップロード中（{progress}%）",
         "startingTooltip": "Fileship · 録画を開始しています（クリックでキャンセル）",
         "pausedTooltip": "Fileship · 録画を一時停止中（クリックで停止）",
-        "processingTooltip": "Fileship · 録画を仕上げています"
+        "processingTooltip": "Fileship · 録画を仕上げています",
+        "harbor": "Fileship Harbor"
     },
     "updater": {
         "noReleases": "公開されたリリースはまだありません",

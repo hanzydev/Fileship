@@ -140,6 +140,7 @@ export const settingsSchema = z.object({
         .object({
             enabled: z.boolean().default(true),
             folder: z.string().max(1024).default(''),
+            copyLinkOnUpload: z.boolean().default(false),
         })
         .prefault({}),
     save: z

@@ -170,7 +170,37 @@
         "linkCopied": "링크를 복사했어요 | 링크 {count}개를 복사했어요",
         "linkFailed": "링크를 가져올 수 없어요",
         "notOnFileship": "아직 Fileship에 없어요",
-        "notOnFileshipDescription": "파일 업로드가 끝나면 다시 시도하세요."
+        "notOnFileshipDescription": "파일 업로드가 끝나면 다시 시도하세요.",
+        "paused": "일시 중지됨",
+        "offlineMessage": "파일을 동기화하려면 Fileship을 열어 주세요.",
+        "upload": "파일 업로드",
+        "pause": "동기화 일시 중지",
+        "resume": "동기화 다시 시작",
+        "retry": "다시 시도",
+        "freeUpSpace": "공간 확보",
+        "trash": "휴지통",
+        "manageStorage": "저장소 관리",
+        "pausedMessage": "동기화가 일시 중지됐어요. 새 파일과 변경된 파일은 다시 시작하면 업로드돼요.",
+        "uploading": "파일 {count}개 업로드 중",
+        "almostFull": "저장소가 거의 가득 찼어요.",
+        "quotaUsed": "{total} 중 {used} 사용",
+        "quotaUnlimited": "∞ 중 {used} 사용",
+        "summary": "{content} · 이 기기에 {local} · 마지막 동기화: {time}",
+        "views": "조회수",
+        "freedSpace": "공간 확보됨: {size}",
+        "makeFolderPublic": "이 폴더를 공개할까요?",
+        "makeFolderPublicDescription": "링크가 있는 누구나 폴더와 파일을 볼 수 있어요. 비밀번호로 보호된 파일은 잠긴 상태로 유지돼요.",
+        "makePublic": "공개",
+        "cancel": "취소",
+        "folderLinkCopied": "폴더 링크를 복사했어요",
+        "inboxLinkCopied": "받은 파일함 링크를 복사했어요",
+        "notInbox": "이 폴더는 받은 파일함이 아니에요",
+        "notInboxDescription": "Fileship의 받은 파일함 설정에서 이 폴더를 선택하고 받은 파일함을 켜 주세요.",
+        "notesFolder": "노트",
+        "linksFolder": "링크",
+        "notesOnlyText": "Markdown 파일과 텍스트 파일만 노트로 만들 수 있어요.",
+        "makeNotePublic": "이 노트를 공개할까요?",
+        "makeNotePublicDescription": "링크가 있는 누구나 노트를 읽을 수 있어요."
     },
     "harborSettings": {
         "title": "Fileship Harbor",
@@ -183,7 +213,8 @@
             "starting": "시작 중",
             "syncing": "동기화 중",
             "ready": "최신 상태",
-            "error": "확인 필요"
+            "error": "확인 필요",
+            "paused": "일시 중지됨"
         },
         "content": "내용",
         "contentSummary": "{folders}에 {files}",
@@ -208,9 +239,47 @@
             "delete": "삭제하면 휴지통으로 이동해요",
             "deleteDescription": "Windows 휴지통으로 옮긴 파일은 Fileship 휴지통으로 이동해요. Shift + Delete를 누르거나 온라인 전용 파일이라서 Windows가 파일을 완전히 삭제하면 Fileship에서도 삭제돼요.",
             "folders": "폴더는 한 단계까지만 지원해요",
-            "foldersDescription": "Fileship 폴더에는 다른 폴더를 넣을 수 없으므로, 폴더 안에 만든 폴더는 동기화되지 않아요."
+            "foldersDescription": "Fileship 폴더에는 다른 폴더를 넣을 수 없으므로, 폴더 안에 만든 폴더는 동기화되지 않아요.",
+            "pause": "필요할 때 일시 중지",
+            "pauseDescription": "일시 중지하면 업로드와 Fileship의 변경 사항이 대기해요. 이름 변경, 이동, 삭제는 계속 동기화되고 연 파일도 계속 다운로드돼요.",
+            "notes": "노트와 단축 링크",
+            "notesDescription": "노트는 노트 폴더에 Markdown 파일로 있고, 저장하면 노트가 업데이트돼요. 단축 링크는 링크 폴더에 바로 가기로 표시돼요."
         },
-        "howItWorksDescription": "파일 탐색기에서 파일이 어떻게 동작하는지 알려 드려요."
+        "howItWorksDescription": "파일 탐색기에서 파일이 어떻게 동작하는지 알려 드려요.",
+        "lastSynced": "마지막 동기화",
+        "onThisDevice": "이 기기에 저장됨",
+        "storage": "저장소",
+        "storageUsed": "{limit} 중 {used} 사용 ({percent})",
+        "storageUnlimited": "{infinity} 중 {used} 사용",
+        "unlimited": "무제한",
+        "categories": {
+            "image": "이미지",
+            "video": "동영상",
+            "audio": "오디오",
+            "document": "문서",
+            "archive": "압축 파일",
+            "code": "코드",
+            "other": "기타"
+        },
+        "copyLinkOnUpload": "업로드한 파일의 링크 복사",
+        "copyLinkOnUploadDescription": "Fileship Harbor에 추가한 파일의 업로드가 끝나면 링크가 복사되고 알림이 표시돼요.",
+        "activity": {
+            "title": "최근 활동",
+            "description": "Fileship이 시작된 뒤 Fileship Harbor가 동기화한 내용이에요.",
+            "emptyTitle": "아직 활동이 없어요",
+            "emptyDescription": "Fileship Harbor에서 추가하거나 이름을 바꾸거나 삭제한 파일이 여기에 표시돼요.",
+            "meta": "{what} · {time}",
+            "upload": "업로드됨",
+            "update": "변경된 파일 업로드됨",
+            "folder": "폴더 만듦",
+            "rename": "이름 바꿈",
+            "move": "이동됨",
+            "trash": "휴지통으로 이동됨",
+            "delete": "영구 삭제됨",
+            "freeUp": "공간 확보됨",
+            "error": "실패",
+            "note": "노트 저장됨"
+        }
     },
     "general": {
         "startup": "시작",
@@ -498,7 +567,9 @@
         "upload": "Fileship에 업로드",
         "copyLink": "Fileship 링크 복사",
         "openInBrowser": "브라우저에서 열기",
-        "showInFileship": "Fileship에서 보기"
+        "showInFileship": "Fileship에서 보기",
+        "copyFolderLink": "Fileship 폴더 링크 복사",
+        "copyInboxLink": "Fileship 받은 파일함 링크 복사"
     },
     "tasks": {
         "uploaded": "업로드했어요",
@@ -521,7 +592,8 @@
         "textCaptureFailed": "텍스트를 캡처할 수 없어요",
         "noLink": "서버가 링크를 반환하지 않았어요",
         "logInToUpload": "업로드하려면 Fileship에 로그인하세요",
-        "imageKept": "업로드하지 못해 스크린샷을 저장했어요"
+        "imageKept": "업로드하지 못해 스크린샷을 저장했어요",
+        "storageFull": "저장소가 가득 찼어요"
     },
     "tray": {
         "stopGifRecording": "GIF 녹화 중지",
@@ -554,7 +626,8 @@
         "uploadingTooltip": "Fileship · 파일 {count}개 업로드 중, {progress}%",
         "startingTooltip": "Fileship · 녹화 시작 중, 클릭하여 취소",
         "pausedTooltip": "Fileship · 녹화 일시 중지됨, 클릭하여 중지",
-        "processingTooltip": "Fileship · 녹화 마무리 중"
+        "processingTooltip": "Fileship · 녹화 마무리 중",
+        "harbor": "Fileship Harbor"
     },
     "updater": {
         "noReleases": "아직 게시된 릴리스가 없어요",

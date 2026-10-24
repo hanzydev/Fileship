@@ -170,7 +170,37 @@
         "linkCopied": "Link copied | {count} links copied",
         "linkFailed": "Could not get the link",
         "notOnFileship": "Not on Fileship yet",
-        "notOnFileshipDescription": "Wait until the file is uploaded, then try again."
+        "notOnFileshipDescription": "Wait until the file is uploaded, then try again.",
+        "paused": "Paused",
+        "offlineMessage": "Open Fileship to keep your files in sync.",
+        "upload": "Upload files",
+        "pause": "Pause syncing",
+        "resume": "Resume syncing",
+        "retry": "Try again",
+        "freeUpSpace": "Free up space",
+        "trash": "Trash",
+        "manageStorage": "Manage storage",
+        "pausedMessage": "Syncing is paused. New and edited files upload when you resume.",
+        "uploading": "Uploading {count} file | Uploading {count} files",
+        "almostFull": "Your storage is almost full.",
+        "quotaUsed": "{used} of {total} used",
+        "quotaUnlimited": "{used} of ∞ used",
+        "summary": "{content} · {local} on this device · Synced {time}",
+        "views": "Views",
+        "freedSpace": "{size} freed",
+        "makeFolderPublic": "Make this folder public?",
+        "makeFolderPublicDescription": "Anyone with the link can see the folder and its files. Password protected files stay locked.",
+        "makePublic": "Make public",
+        "cancel": "Cancel",
+        "folderLinkCopied": "Folder link copied",
+        "inboxLinkCopied": "Inbox link copied",
+        "notInbox": "This folder is not your inbox",
+        "notInboxDescription": "Choose this folder and turn the inbox on in the inbox settings on Fileship.",
+        "notesFolder": "Notes",
+        "linksFolder": "Links",
+        "notesOnlyText": "Only Markdown and text files can become notes.",
+        "makeNotePublic": "Make this note public?",
+        "makeNotePublicDescription": "Anyone with the link can read the note."
     },
     "harborSettings": {
         "title": "Fileship Harbor",
@@ -183,7 +213,8 @@
             "starting": "Starting",
             "syncing": "Syncing",
             "ready": "Up to date",
-            "error": "Needs attention"
+            "error": "Needs attention",
+            "paused": "Paused"
         },
         "content": "Content",
         "contentSummary": "{files} in {folders}",
@@ -208,9 +239,47 @@
             "delete": "Deleting moves to the trash",
             "deleteDescription": "Files you move to the Recycle Bin go to the Fileship trash. When Windows deletes a file for good, with Shift + Delete or because it was online only, it is deleted from Fileship too.",
             "folders": "Folders stay one level deep",
-            "foldersDescription": "Fileship folders cannot hold other folders, so a folder made inside one is not synced."
+            "foldersDescription": "Fileship folders cannot hold other folders, so a folder made inside one is not synced.",
+            "pause": "Pause when you need to",
+            "pauseDescription": "Pausing holds uploads and changes from Fileship. Renames, moves and deletes still sync, and files you open still download.",
+            "notes": "Notes and short links",
+            "notesDescription": "Your notes are Markdown files in the Notes folder, and saving one updates the note. Short links are shortcuts in the Links folder."
         },
-        "howItWorksDescription": "What to expect from your files in File Explorer."
+        "howItWorksDescription": "What to expect from your files in File Explorer.",
+        "lastSynced": "Last synced",
+        "onThisDevice": "On this device",
+        "storage": "Storage",
+        "storageUsed": "{used} of {limit} used ({percent})",
+        "storageUnlimited": "{used} of {infinity} used",
+        "unlimited": "Unlimited",
+        "categories": {
+            "image": "Images",
+            "video": "Videos",
+            "audio": "Audio",
+            "document": "Documents",
+            "archive": "Archives",
+            "code": "Code",
+            "other": "Other"
+        },
+        "copyLinkOnUpload": "Copy links of uploaded files",
+        "copyLinkOnUploadDescription": "When a file you add to Fileship Harbor finishes uploading, its link is copied and a notification shows.",
+        "activity": {
+            "title": "Recent activity",
+            "description": "What Fileship Harbor synced since Fileship started.",
+            "emptyTitle": "No activity yet",
+            "emptyDescription": "Files you add, rename or delete in Fileship Harbor show up here.",
+            "meta": "{what} · {time}",
+            "upload": "Uploaded",
+            "update": "Edited file uploaded",
+            "folder": "Folder created",
+            "rename": "Renamed",
+            "move": "Moved",
+            "trash": "Moved to the trash",
+            "delete": "Deleted forever",
+            "freeUp": "Space freed",
+            "error": "Failed",
+            "note": "Note saved"
+        }
     },
     "general": {
         "startup": "Startup",
@@ -498,7 +567,9 @@
         "upload": "Upload to Fileship",
         "copyLink": "Copy Fileship link",
         "openInBrowser": "Open in browser",
-        "showInFileship": "Show in Fileship"
+        "showInFileship": "Show in Fileship",
+        "copyFolderLink": "Copy Fileship folder link",
+        "copyInboxLink": "Copy Fileship inbox link"
     },
     "tasks": {
         "uploaded": "Uploaded",
@@ -521,7 +592,8 @@
         "textCaptureFailed": "Could not capture text",
         "noLink": "The server did not return a link",
         "logInToUpload": "Log in to Fileship to upload",
-        "imageKept": "Upload failed, screenshot saved"
+        "imageKept": "Upload failed, screenshot saved",
+        "storageFull": "Your storage is full"
     },
     "tray": {
         "stopGifRecording": "Stop GIF recording",
@@ -554,7 +626,8 @@
         "uploadingTooltip": "Fileship · Uploading {count} file, {progress}% | Fileship · Uploading {count} files, {progress}%",
         "startingTooltip": "Fileship · Recording is starting, click to cancel",
         "pausedTooltip": "Fileship · Recording paused, click to stop",
-        "processingTooltip": "Fileship · Finishing the recording"
+        "processingTooltip": "Fileship · Finishing the recording",
+        "harbor": "Fileship Harbor"
     },
     "updater": {
         "noReleases": "No releases are published yet",

@@ -105,6 +105,29 @@ void download(Fetch fetch) {
     if (remaining > 0) throw std::runtime_error("The download ended early");
 }
 
+std::string contentOf(std::wstring const& identity) {
+    if (identity.starts_with(L"l:")) {
+        return toUtf8(L"[InternetShortcut]\r\nURL=" + config().instanceUrl + L"/s/" + identity.substr(2) + L"\r\n");
+    }
+
+    if (!identity.starts_with(L"n:")) throw std::runtime_error("Not a note or a link");
+
+    auto response = httpGet(L"/api/notes/" + identity.substr(2));
+    if (response.status != 200) throw std::runtime_error("HTTP " + std::to_string(response.status));
+
+    auto note = JsonObject::Parse(toWide(std::string(response.body.begin(), response.body.end())));
+    return toUtf8(std::wstring(note.GetNamedString(L"content")));
+}
+
+void serveContent(Fetch const& fetch) {
+    auto content = contentOf(fetch.identity);
+    if (static_cast<int64_t>(content.size()) < fetch.offset + fetch.length) {
+        throw std::runtime_error("The content is shorter than the placeholder");
+    }
+
+    transfer(fetch, STATUS_SUCCESS, content.data() + fetch.offset, fetch.offset, fetch.length);
+}
+
 }
 
 void fetchData(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters) {
@@ -128,7 +151,8 @@ void fetchData(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* param
 
     std::thread([fetch] {
         try {
-            download(fetch);
+            if (fetch.identity.starts_with(L"f:")) download(fetch);
+            else serveContent(fetch);
         } catch (hresult_error const& error) {
             log(L"Download failed: " + std::wstring(error.message()));
             fail(fetch);

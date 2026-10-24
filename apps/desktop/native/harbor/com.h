@@ -53,6 +53,7 @@ void waitUntilIdle();
 
 void setHosted();
 void requestAction(std::wstring const& action, std::vector<std::wstring> const& paths);
+void requestStatus();
 
 void saveSession();
 bool loadSession();

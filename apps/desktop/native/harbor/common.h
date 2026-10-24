@@ -84,12 +84,15 @@ void movePlaceholder(std::wstring const& from, std::wstring const& to);
 void updatePlaceholder(std::wstring const& path, std::optional<std::wstring> const& identity,
                        bool resetBaseline = false);
 bool isModified(std::wstring const& absolute);
+bool refreshPlaceholder(std::wstring const& path, int64_t size);
 bool markInSync(std::wstring const& path);
 void removePath(std::wstring const& path);
 void adoptPath(std::wstring const& path, std::wstring const& identity);
 std::wstring preparePath(std::wstring const& path, std::wstring const& identity);
 void reportProgress(std::wstring const& path, int64_t total, int64_t completed);
 JsonArray scanRoot();
+int64_t localSize();
+int64_t freeUpSpace();
 std::optional<std::wstring> placeholderIdentity(std::wstring const& absolute, CF_PIN_STATE* pin,
                                                 CF_IN_SYNC_STATE* sync);
 void hydratePath(std::wstring const& absolute);
