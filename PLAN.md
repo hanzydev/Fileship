@@ -33,10 +33,9 @@ Desktop:
 
 Browser extension:
 
-- [ ] Run it in Firefox: the upload tab, copying links from the background page, the context menus, the area picker and the permission prompts. Only `web-ext lint` ran on the Firefox build.
+- [ ] Run it in Firefox: the upload tab, copying links from the background page, notifications, the context menus, `captureVisibleTab`, the area picker, the permission prompts and long uploads on the event page. Firefox was not installed on the test machine, so only `web-ext lint` ran on the Firefox build; every flow was tested in headless Chrome, against a mock server and against a local 6.1.0 dashboard.
 - [ ] Check the host permission prompt from the context menu for an image on another site, in Chrome and Firefox (automated tests cannot click it, so they ran with the permission already granted).
 - [ ] Check the file picker in the Chrome toolbar popup on macOS and Linux (Windows behaviour is assumed, not tested; the popup was only tested as a page).
-- [ ] Test against a real dashboard. The end-to-end run used headless Chrome and a mock server that follows the upload, link and health endpoints.
 - [ ] Publish to the Chrome Web Store, Edge Add-ons and addons.mozilla.org (store listings, screenshots, privacy answers that match the declared data collection).
 
 Dashboard and infrastructure:

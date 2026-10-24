@@ -78,7 +78,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - Keep that profile path short (for example `%TEMP%\fsx`): in a long scratchpad path, extension storage fails with `IO error: .../LOCK: File not found` because of the Windows path limit.
 - Permission prompts cannot be clicked from CDP. Test with a copy of the built manifest that adds `host_permissions`, and check the prompts by hand.
 - `chrome.contextMenus.onClicked.dispatch(info, tab)`, evaluated in the service worker, runs the context menu handlers; `Input.dispatchMouseEvent` on the page drives the area picker.
-- A mock server that follows `/api/healthz`, `/api/settings/public`, `POST /api/files` (chunks) and `POST /api/links` is enough for the flows; ask the parent session or the user for a real instance and a test upload token before testing against one.
+- A mock server that follows `/api/healthz`, `/api/settings/public`, `POST /api/files` (chunks) and `POST /api/links` is enough for the flows. For a live test, ask for a dedicated database, pass `DATABASE_URL` inline (never in a `.env`), build `@fileship/ai` and `@fileship/telemetry`, run `db:generate` and `db:deploy`, start `nuxt dev` with `NUXT_PUBLIC_AI_ENABLED=false` and a scratch `NUXT_DATA_DIRECTORY`, then create test users through the API as `admin` (`POST /api/users`, then `POST /api/users/@me/upload-token` as each user, both with `verificationData: { type: 'password', data }`) and delete them afterwards. A user with a 1 MB `usableSpace` and no `ShortenLinks` covers the quota and permission errors, and `fileChunkSize: 5` makes a 12 MB upload use three chunks.
 
 ## Harbor (Cloud Files API) facts
 
