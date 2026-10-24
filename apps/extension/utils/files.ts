@@ -33,10 +33,9 @@ export const stashFiles = (files: File[]) =>
         }),
     );
 
-export const takeFile = async (id: string) => {
-    const file = await transact<File | undefined>('readonly', (store) => store.get(id));
-    await transact('readwrite', (store) => store.delete(id));
-    return file;
-};
+export const readFile = (id: string) =>
+    transact<File | undefined>('readonly', (store) => store.get(id));
+
+export const removeFile = (id: string) => transact('readwrite', (store) => store.delete(id));
 
 export const clearFiles = () => transact('readwrite', (store) => store.clear());
