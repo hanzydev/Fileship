@@ -36,7 +36,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - Workspace packages (`packages/ai`, `packages/telemetry`) are built with tsdown. `pnpm dev` builds them first through Turbo (`^build`); after changing one by hand, run `pnpm --filter @fileship/ai build`.
 - **Packaging the desktop app:** run `pnpm build` right before electron-builder. A stale `dist-electron` (for example from a `tsdown --watch` dev process) gets packaged otherwise.
 - On Windows, files in `apps/desktop/release` can be locked by Explorer, an editor or an AI desktop app that has the folder open, and electron-builder then fails with `EBUSY`. Build into a folder outside the repo with `--config.directories.output=<path>` and copy the result.
-- In Git Bash, `node -e` and heredocs mangle template literals (`${...}`) and backticks. Write a script file instead.
+- In Git Bash, `node -e` and heredocs mangle template literals (`${...}`), backticks and backslashes (double backslashes can arrive halved). Write a script file instead, or edit such lines with an editor tool.
 - `LF will be replaced by CRLF` warnings are harmless.
 - Run prettier only on the files you changed; `pnpm lint` formats the whole repository.
 
@@ -50,10 +50,13 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - **Orama:** the default English splitter drops every non-Latin character. Every index uses `createSearchTokenizer`; never create an Orama index without it.
 - **Hydration:** `TextBlock` renders a `<p>`. Wrapping block content in it (for example `UiSkeleton`, a `<div>`) causes hydration mismatches; use `custom-tag="div"`.
 - **Dialog exit animations:** if a dialog's content is rendered with `v-if` on the same state that closes it, the content disappears at once and the close animation never plays. Keep a copy of the last item and render from that (see `layouts/dashboard.vue` and the public folder page).
+- **Two copies of Vue in dev:** when Vite re-optimizes dependencies while a page is open, the page can load Vue twice (different `?v=` hashes on `runtime-core`) and fail with `Cannot read properties of null (reading 'ce')` in `renderSlot`. Reload the page; it is not a code bug.
+- **Cookies ignore ports.** Several dashboards on `localhost` (parallel agents, other checkouts) overwrite each other's `token` cookie in a shared browser, which looks like a random logout (a sudden 401 on `/api/users/@me`). Test APIs with `Authorization: Bearer` tokens and log in again when the browser session drops.
 - **Client IPs in development:** the dev server has no proxy, so the peer address is empty and `getClientIp` trusts the forwarding headers. Test scripts can send `X-Fileship-Client-IP: 10.x.y.z` with a different private address per run to avoid the login rate limit (10 attempts per 15 minutes per IP and username).
 
 ## Testing the desktop app safely
 
+- Agents cannot close the installed Fileship themselves: the tray app ignores `taskkill` without `/F`, and force-closing it is blocked as interfering with the user's work. A Harbor test needs the user to quit Fileship from the tray first.
 - The dev app and the installed app share one profile (`%APPDATA%\Fileship`) and a single-instance lock. Run a test instance with its own `--user-data-dir`, for example: start `pnpm exec nuxt dev --port 3020` and `npx tsdown` in `apps/desktop`, then run Electron from `apps/desktop` with `DESKTOP_RENDERER_URL=http://localhost:3020` and `npx electron . --user-data-dir=<scratch folder> --remote-debugging-port=<port>`.
 - In a test profile, turn global hotkeys off (`hotkeysEnabled: false`), or the test instance takes Print Screen away from the real app. Keep Harbor off, and turn uploads off (`afterCapture.upload`) unless the test needs them.
 - Log test instances in with a dedicated test account on a local dashboard, never with a real account.
@@ -64,7 +67,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - `node scripts/dev.mjs --user-data-dir=<profile>` with `DESKTOP_DEBUG_PORT=<port>` runs a dev instance with CDP; its electron-log output goes to the script's stdout, not `%APPDATA%\Fileship\logs`. The renderer drives IPC (`window.fileship.invoke`), and `npx electron . --user-data-dir=<same profile> --harbor-action <action> <path>` reaches the running instance like an Explorer verb. Chromium moves switches before positional arguments, so in dev the app path `.` comes right after `--harbor-action`; `handleLaunch` skips it.
 - The flyout can be read and its commands invoked from a small C++/WinRT client: `create_instance<IStorageProviderStatusUISourceFactory>(CLSID_FileshipStatus, CLSCTX_LOCAL_SERVER)`, then `GetStatusUISource(L"").GetStatusUI()`.
 - On an empty local database `db:createDefaultUser` creates the seed super admin `admin` / `password`; it can create test users through `POST /api/users`.
-- `nuxt typecheck` in the dashboard fails on `@fileship/ai` and `@fileship/telemetry` until they are built (`pnpm --filter @fileship/ai --filter @fileship/telemetry build`).
+- `nuxt typecheck` in the dashboard fails on `@fileship/ai` and `@fileship/telemetry` until they are built (`pnpm --filter @fileship/ai --filter @fileship/telemetry build`). In a fresh checkout the telemetry panel also needs its Prisma client (`pnpm --filter telemetry db:generate`), or `pnpm lint:types` reports `unknown` types in its pages.
 - Editing catalogs while the dashboard dev server runs rebuilds Nitro, which can crash the process with `0xC0000409` while the AI worker is being stopped. Restart it; it is not caused by the change.
 
 ## Harbor (Cloud Files API) facts
