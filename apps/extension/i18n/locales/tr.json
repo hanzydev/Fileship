@@ -1,0 +1,124 @@
+{
+    "manifest": {
+        "description": "Dosyaları, ekran görüntülerini ve resimleri Fileship'e yükle, bağlantıları kısalt."
+    },
+    "menu": {
+        "uploadImage": "Resmi Fileship'e yükle",
+        "shortenLink": "Bağlantıyı Fileship ile kısalt",
+        "shortenPage": "Sayfa bağlantısını Fileship ile kısalt"
+    },
+    "popup": {
+        "settings": "Ayarlar",
+        "uploadFiles": "Dosya yükle",
+        "uploadFilesDescription": "Bu bilgisayardan dosya seç",
+        "shortenPage": "Bu sayfayı kısalt",
+        "shortenPageDescription": "Açık sekme için kısa bağlantı oluştur",
+        "captureVisible": "Görünen alanı yakala",
+        "captureVisibleDescription": "Ekranda gördüğünün görüntüsünü yükle",
+        "captureArea": "Bir bölge yakala",
+        "captureAreaDescription": "Yakalanacak yeri seçmek için sayfada sürükle",
+        "connectTitle": "Fileship'ini bağla",
+        "connectDescription": "Yüklemeye başlamak için sunucu adresini ve yükleme anahtarını ekle.",
+        "openSettings": "Ayarları aç"
+    },
+    "upload": {
+        "title": "Fileship'e yükle",
+        "description": "Dosyalar ayarlardaki yükleme seçenekleriyle yüklenir.",
+        "dropTitle": "Dosyaları buraya bırak",
+        "dropDescription": "Ya da bu bilgisayardan seç.",
+        "choose": "Dosya seç"
+    },
+    "tasks": {
+        "title": "Son işlemler",
+        "clear": "Temizle",
+        "empty": "Yüklemeler ve kısa bağlantılar burada görünür.",
+        "uploading": "Yükleniyor… %{progress}",
+        "shortening": "Kısaltılıyor…",
+        "copyLink": "Bağlantıyı kopyala",
+        "openLink": "Bağlantıyı aç",
+        "linkCopied": "Bağlantı kopyalandı"
+    },
+    "options": {
+        "title": "Fileship ayarları",
+        "description": "Bu tarayıcıdan dosya, ekran görüntüsü ve resim yükle, bağlantıları kısalt.",
+        "connection": "Sunucu",
+        "connectionDescription": "Bu tarayıcının yükleme yaptığı Fileship sunucusu.",
+        "serverAddress": "Sunucu adresi",
+        "serverAddressPlaceholder": "files.example.com",
+        "uploadToken": "Yükleme anahtarı",
+        "uploadTokenDescription": "Fileship'inde Ayarlar → Entegrasyonlar sayfasından kopyala. Yalnızca dosya yükleyip bağlantı kısaltabilir ve sadece bu tarayıcıda saklanır.",
+        "test": "Bağlantıyı test et",
+        "save": "Kaydet",
+        "disconnect": "Bağlantıyı kes",
+        "saved": "Bağlantı kaydedildi",
+        "disconnected": "Bağlantı kesildi",
+        "connected": "Bağlandı: {siteName} · Fileship v{version}",
+        "canUploadAndShorten": "Bu anahtar dosya yükleyebilir ve bağlantı kısaltabilir.",
+        "canUploadOnly": "Bu anahtar dosya yükleyebilir ama bağlantı kısaltamaz.",
+        "canShortenOnly": "Bu anahtar bağlantı kısaltabilir ama dosya yükleyemez.",
+        "connectionFailed": "Bağlanılamadı",
+        "uploadOptions": "Yükleme seçenekleri",
+        "uploadOptionsDescription": "Bu tarayıcıdan yüklenen dosya, resim ve ekran görüntüleri için kullanılır.",
+        "fileName": "Dosya adı",
+        "expiration": "Son kullanma"
+    },
+    "labels": {
+        "fileNameTypes": {
+            "Random": "Rastgele",
+            "UUID": "UUID",
+            "Original": "Orijinal"
+        },
+        "expiration": {
+            "never": "Süresiz",
+            "5m": "5 dakika",
+            "15m": "15 dakika",
+            "30m": "30 dakika",
+            "1h": "1 saat",
+            "6h": "6 saat",
+            "12h": "12 saat",
+            "1d": "1 gün",
+            "1w": "1 hafta",
+            "2w": "2 hafta",
+            "1mo": "1 ay",
+            "3mo": "3 ay",
+            "6mo": "6 ay",
+            "1y": "1 yıl"
+        }
+    },
+    "area": {
+        "hint": "Bölge seçmek için sürükle, görünen sayfayı yakalamak için tıkla, vazgeçmek için Esc'ye bas"
+    },
+    "notify": {
+        "uploadedCopied": "Yüklendi, bağlantı kopyalandı",
+        "uploaded": "Yüklendi",
+        "shortenedCopied": "Bağlantı kısaltıldı ve kopyalandı",
+        "shortened": "Bağlantı kısaltıldı",
+        "uploadFailed": "Yüklenemedi",
+        "shortenFailed": "Bağlantı kısaltılamadı"
+    },
+    "errors": {
+        "notConfigured": "Önce ayarlardan Fileship'ini bağla.",
+        "invalidAddress": "Geçerli bir sunucu adresi gir.",
+        "tokenRequired": "Yükleme anahtarını gir.",
+        "permissionDenied": "Yükleme yapabilmesi için uzantının {origin} adresine erişmesi gerekiyor.",
+        "hostPermissionMissing": "Uzantı artık {origin} adresine erişemiyor. Bağlantıyı ayarlardan yeniden kaydet.",
+        "unreachable": "Fileship sunucuna ulaşılamadı.",
+        "timeout": "Sunucu zamanında yanıt vermedi.",
+        "notFileship": "Bu adreste Fileship sunucusu bulunamadı: {url}",
+        "serverStarting": "Bu Fileship sunucusu hâlâ açılıyor, birazdan tekrar dene.",
+        "serverTooOld": "Bu sunucuda Fileship v{version} çalışıyor. Uzantı en az v{minVersion} sürümünü gerektirir.",
+        "invalidToken": "Yükleme anahtarı geçersiz. Ayarlar → Entegrasyonlar sayfasından yeniden kopyala.",
+        "noPermission": "Hesabının bu sunucuda dosya yükleme ya da bağlantı kısaltma yetkisi yok.",
+        "cannotUpload": "Hesabının bu sunucuda dosya yükleme yetkisi yok.",
+        "cannotShorten": "Hesabının bu sunucuda bağlantı kısaltma yetkisi yok.",
+        "storageFull": "Depolama alanın doldu.",
+        "requestFailed": "İstek tamamlanamadı ({status}).",
+        "noLink": "Sunucu bağlantı göndermedi.",
+        "imageAccessDenied": "Bu resmi indirmek için uzantının {origin} adresine erişmesi gerekiyor.",
+        "imageDownloadFailed": "Resim indirilemedi.",
+        "pageNotSupported": "Yalnızca http ve https sayfaları kısaltılabilir.",
+        "captureNotAllowed": "Bu sayfa yakalanamıyor.",
+        "interrupted": "Tarayıcı bu işlemi durdurdu. Tekrar dene.",
+        "fileMissing": "Dosyaya artık ulaşılamıyor. Yeniden seç."
+    }
+}

@@ -1,0 +1,124 @@
+{
+    "manifest": {
+        "description": "ファイル、スクリーンショット、画像を Fileship にアップロードし、リンクを短縮します。"
+    },
+    "menu": {
+        "uploadImage": "画像を Fileship にアップロード",
+        "shortenLink": "Fileship でリンクを短縮",
+        "shortenPage": "Fileship でページのリンクを短縮"
+    },
+    "popup": {
+        "settings": "設定",
+        "uploadFiles": "ファイルをアップロード",
+        "uploadFilesDescription": "このコンピューターからファイルを選択",
+        "shortenPage": "このページを短縮",
+        "shortenPageDescription": "現在のタブの短縮リンクを作成",
+        "captureVisible": "表示範囲をキャプチャ",
+        "captureVisibleDescription": "表示中の画面のスクリーンショットをアップロード",
+        "captureArea": "範囲をキャプチャ",
+        "captureAreaDescription": "ページ上をドラッグしてキャプチャする範囲を選択",
+        "connectTitle": "Fileship に接続",
+        "connectDescription": "アップロードを始めるには、サーバーのアドレスとアップロードトークンを追加してください。",
+        "openSettings": "設定を開く"
+    },
+    "upload": {
+        "title": "Fileship にアップロード",
+        "description": "ファイルは設定のアップロードオプションでアップロードされます。",
+        "dropTitle": "ここにファイルをドロップ",
+        "dropDescription": "またはこのコンピューターから選択してください。",
+        "choose": "ファイルを選択"
+    },
+    "tasks": {
+        "title": "最近の項目",
+        "clear": "クリア",
+        "empty": "アップロードと短縮リンクがここに表示されます。",
+        "uploading": "アップロード中… {progress}%",
+        "shortening": "短縮中…",
+        "copyLink": "リンクをコピー",
+        "openLink": "リンクを開く",
+        "linkCopied": "リンクをコピーしました"
+    },
+    "options": {
+        "title": "Fileship の設定",
+        "description": "このブラウザーからファイル、スクリーンショット、画像をアップロードし、リンクを短縮します。",
+        "connection": "接続",
+        "connectionDescription": "このブラウザーのアップロード先の Fileship サーバーです。",
+        "serverAddress": "サーバーのアドレス",
+        "serverAddressPlaceholder": "files.example.com",
+        "uploadToken": "アップロードトークン",
+        "uploadTokenDescription": "Fileship の「設定」→「連携」からコピーしてください。ファイルのアップロードとリンクの短縮のみに使え、このブラウザーにだけ保存されます。",
+        "test": "接続をテスト",
+        "save": "保存",
+        "disconnect": "接続を解除",
+        "saved": "接続を保存しました",
+        "disconnected": "接続を解除しました",
+        "connected": "{siteName} に接続済み · Fileship v{version}",
+        "canUploadAndShorten": "このトークンでファイルのアップロードとリンクの短縮ができます。",
+        "canUploadOnly": "このトークンでファイルはアップロードできますが、リンクは短縮できません。",
+        "canShortenOnly": "このトークンでリンクは短縮できますが、ファイルはアップロードできません。",
+        "connectionFailed": "接続できませんでした",
+        "uploadOptions": "アップロードオプション",
+        "uploadOptionsDescription": "このブラウザーからアップロードするファイル、画像、スクリーンショットに使用されます。",
+        "fileName": "ファイル名",
+        "expiration": "有効期限"
+    },
+    "labels": {
+        "fileNameTypes": {
+            "Random": "ランダム",
+            "UUID": "UUID",
+            "Original": "元のファイル名"
+        },
+        "expiration": {
+            "never": "無期限",
+            "5m": "5 分",
+            "15m": "15 分",
+            "30m": "30 分",
+            "1h": "1 時間",
+            "6h": "6 時間",
+            "12h": "12 時間",
+            "1d": "1 日",
+            "1w": "1 週間",
+            "2w": "2 週間",
+            "1mo": "1 か月",
+            "3mo": "3 か月",
+            "6mo": "6 か月",
+            "1y": "1 年"
+        }
+    },
+    "area": {
+        "hint": "ドラッグで範囲を選択、クリックで表示中のページをキャプチャ、Esc でキャンセル"
+    },
+    "notify": {
+        "uploadedCopied": "アップロードしてリンクをコピーしました",
+        "uploaded": "アップロードしました",
+        "shortenedCopied": "リンクを短縮してコピーしました",
+        "shortened": "リンクを短縮しました",
+        "uploadFailed": "アップロードできませんでした",
+        "shortenFailed": "リンクを短縮できませんでした"
+    },
+    "errors": {
+        "notConfigured": "先に設定で Fileship に接続してください。",
+        "invalidAddress": "有効なサーバーのアドレスを入力してください。",
+        "tokenRequired": "アップロードトークンを入力してください。",
+        "permissionDenied": "アップロードするには、拡張機能に {origin} へのアクセスを許可する必要があります。",
+        "hostPermissionMissing": "拡張機能が {origin} にアクセスできなくなりました。設定で接続をもう一度保存してください。",
+        "unreachable": "Fileship サーバーに接続できませんでした。",
+        "timeout": "サーバーの応答がタイムアウトしました。",
+        "notFileship": "{url} に Fileship サーバーが見つかりませんでした。",
+        "serverStarting": "この Fileship サーバーはまだ起動中です。少し待ってからもう一度お試しください。",
+        "serverTooOld": "このサーバーは Fileship v{version} で動作しています。拡張機能には v{minVersion} 以降が必要です。",
+        "invalidToken": "アップロードトークンが無効です。「設定」→「連携」からもう一度コピーしてください。",
+        "noPermission": "このアカウントには、このサーバーでファイルをアップロードしたりリンクを短縮したりする権限がありません。",
+        "cannotUpload": "このアカウントには、このサーバーでファイルをアップロードする権限がありません。",
+        "cannotShorten": "このアカウントには、このサーバーでリンクを短縮する権限がありません。",
+        "storageFull": "ストレージがいっぱいです。",
+        "requestFailed": "リクエストに失敗しました（{status}）。",
+        "noLink": "サーバーからリンクが返されませんでした。",
+        "imageAccessDenied": "この画像をダウンロードするには、拡張機能に {origin} へのアクセスを許可する必要があります。",
+        "imageDownloadFailed": "画像をダウンロードできませんでした。",
+        "pageNotSupported": "短縮できるのは http と https のページだけです。",
+        "captureNotAllowed": "このページはキャプチャできません。",
+        "interrupted": "ブラウザーがこの処理を停止しました。もう一度お試しください。",
+        "fileMissing": "ファイルが見つかりません。もう一度選択してください。"
+    }
+}

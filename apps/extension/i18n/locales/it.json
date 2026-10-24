@@ -1,0 +1,124 @@
+{
+    "manifest": {
+        "description": "Carica file, screenshot e immagini sul tuo Fileship e abbrevia i link."
+    },
+    "menu": {
+        "uploadImage": "Carica immagine su Fileship",
+        "shortenLink": "Abbrevia link con Fileship",
+        "shortenPage": "Abbrevia link della pagina con Fileship"
+    },
+    "popup": {
+        "settings": "Impostazioni",
+        "uploadFiles": "Carica file",
+        "uploadFilesDescription": "Scegli i file da questo computer",
+        "shortenPage": "Abbrevia questa pagina",
+        "shortenPageDescription": "Crea un link breve alla scheda corrente",
+        "captureVisible": "Acquisisci l'area visibile",
+        "captureVisibleDescription": "Carica uno screenshot di ciò che vedi",
+        "captureArea": "Acquisisci un'area",
+        "captureAreaDescription": "Trascina sulla pagina per scegliere cosa acquisire",
+        "connectTitle": "Collega il tuo Fileship",
+        "connectDescription": "Aggiungi l'indirizzo del server e il token di caricamento per iniziare a caricare.",
+        "openSettings": "Apri impostazioni"
+    },
+    "upload": {
+        "title": "Carica su Fileship",
+        "description": "I file vengono caricati con le opzioni di caricamento delle impostazioni.",
+        "dropTitle": "Trascina qui i file",
+        "dropDescription": "Oppure sceglili da questo computer.",
+        "choose": "Scegli file"
+    },
+    "tasks": {
+        "title": "Recenti",
+        "clear": "Cancella",
+        "empty": "I caricamenti e i link brevi compaiono qui.",
+        "uploading": "Caricamento… {progress}%",
+        "shortening": "Abbreviazione…",
+        "copyLink": "Copia link",
+        "openLink": "Apri link",
+        "linkCopied": "Link copiato"
+    },
+    "options": {
+        "title": "Impostazioni di Fileship",
+        "description": "Carica file, screenshot e immagini da questo browser e abbrevia i link.",
+        "connection": "Connessione",
+        "connectionDescription": "Il server Fileship su cui carica questo browser.",
+        "serverAddress": "Indirizzo del server",
+        "serverAddressPlaceholder": "files.example.com",
+        "uploadToken": "Token di caricamento",
+        "uploadTokenDescription": "Copialo da Impostazioni → Integrazioni sul tuo Fileship. Può solo caricare file e abbreviare link, ed è salvato solo in questo browser.",
+        "test": "Prova connessione",
+        "save": "Salva",
+        "disconnect": "Disconnetti",
+        "saved": "Connessione salvata",
+        "disconnected": "Disconnesso",
+        "connected": "Connesso a {siteName} · Fileship v{version}",
+        "canUploadAndShorten": "Questo token può caricare file e abbreviare link.",
+        "canUploadOnly": "Questo token può caricare file ma non abbreviare link.",
+        "canShortenOnly": "Questo token può abbreviare link ma non caricare file.",
+        "connectionFailed": "Impossibile connettersi",
+        "uploadOptions": "Opzioni di caricamento",
+        "uploadOptionsDescription": "Usate per file, immagini e screenshot caricati da questo browser.",
+        "fileName": "Nome file",
+        "expiration": "Scadenza"
+    },
+    "labels": {
+        "fileNameTypes": {
+            "Random": "Casuale",
+            "UUID": "UUID",
+            "Original": "Originale"
+        },
+        "expiration": {
+            "never": "Mai",
+            "5m": "5 minuti",
+            "15m": "15 minuti",
+            "30m": "30 minuti",
+            "1h": "1 ora",
+            "6h": "6 ore",
+            "12h": "12 ore",
+            "1d": "1 giorno",
+            "1w": "1 settimana",
+            "2w": "2 settimane",
+            "1mo": "1 mese",
+            "3mo": "3 mesi",
+            "6mo": "6 mesi",
+            "1y": "1 anno"
+        }
+    },
+    "area": {
+        "hint": "Trascina per scegliere un'area, fai clic per acquisire la pagina visibile, premi Esc per annullare"
+    },
+    "notify": {
+        "uploadedCopied": "Caricato, link copiato",
+        "uploaded": "Caricato",
+        "shortenedCopied": "Link abbreviato e copiato",
+        "shortened": "Link abbreviato",
+        "uploadFailed": "Caricamento non riuscito",
+        "shortenFailed": "Impossibile abbreviare il link"
+    },
+    "errors": {
+        "notConfigured": "Prima collega il tuo Fileship nelle impostazioni.",
+        "invalidAddress": "Inserisci un indirizzo del server valido.",
+        "tokenRequired": "Inserisci il token di caricamento.",
+        "permissionDenied": "L'estensione deve poter accedere a {origin} per caricare lì.",
+        "hostPermissionMissing": "L'estensione non riesce più a raggiungere {origin}. Salva di nuovo la connessione nelle impostazioni.",
+        "unreachable": "Impossibile raggiungere il tuo server Fileship.",
+        "timeout": "Il server ha impiegato troppo tempo a rispondere.",
+        "notFileship": "Nessun server Fileship trovato su {url}.",
+        "serverStarting": "Questo server Fileship si sta ancora avviando, riprova tra poco.",
+        "serverTooOld": "Su questo server è installato Fileship v{version}. L'estensione richiede la v{minVersion} o successiva.",
+        "invalidToken": "Il token di caricamento non è valido. Copialo di nuovo da Impostazioni → Integrazioni.",
+        "noPermission": "Il tuo account non può caricare file né abbreviare link su questo server.",
+        "cannotUpload": "Il tuo account non può caricare file su questo server.",
+        "cannotShorten": "Il tuo account non può abbreviare link su questo server.",
+        "storageFull": "Il tuo spazio è pieno.",
+        "requestFailed": "Richiesta non riuscita ({status}).",
+        "noLink": "Il server non ha restituito un link.",
+        "imageAccessDenied": "L'estensione deve poter accedere a {origin} per scaricare questa immagine.",
+        "imageDownloadFailed": "Impossibile scaricare l'immagine.",
+        "pageNotSupported": "Si possono abbreviare solo le pagine http e https.",
+        "captureNotAllowed": "Questa pagina non può essere acquisita.",
+        "interrupted": "Il browser ha interrotto questa operazione. Riprova.",
+        "fileMissing": "Il file non è più disponibile. Sceglilo di nuovo."
+    }
+}

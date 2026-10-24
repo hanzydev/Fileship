@@ -1,0 +1,124 @@
+{
+    "manifest": {
+        "description": "Faylları, ekran görüntülərini və şəkilləri Fileship-ə yüklə, keçidləri qısalt."
+    },
+    "menu": {
+        "uploadImage": "Şəkli Fileship-ə yüklə",
+        "shortenLink": "Keçidi Fileship ilə qısalt",
+        "shortenPage": "Səhifə keçidini Fileship ilə qısalt"
+    },
+    "popup": {
+        "settings": "Ayarlar",
+        "uploadFiles": "Fayl yüklə",
+        "uploadFilesDescription": "Bu kompüterdən fayl seç",
+        "shortenPage": "Bu səhifəni qısalt",
+        "shortenPageDescription": "Açıq tab üçün qısa keçid yarat",
+        "captureVisible": "Görünən sahəni çək",
+        "captureVisibleDescription": "Gördüyün hissənin ekran görüntüsünü yüklə",
+        "captureArea": "Sahə çək",
+        "captureAreaDescription": "Çəkiləcək yeri seçmək üçün səhifədə siçanı dart",
+        "connectTitle": "Fileship-ini qoş",
+        "connectDescription": "Yükləməyə başlamaq üçün server ünvanını və yükləmə açarını əlavə et.",
+        "openSettings": "Ayarları aç"
+    },
+    "upload": {
+        "title": "Fileship-ə yüklə",
+        "description": "Fayllar ayarlardakı yükləmə seçimləri ilə yüklənir.",
+        "dropTitle": "Faylları bura burax",
+        "dropDescription": "Və ya bu kompüterdən seç.",
+        "choose": "Fayl seç"
+    },
+    "tasks": {
+        "title": "Son əməliyyatlar",
+        "clear": "Təmizlə",
+        "empty": "Yükləmələr və qısa keçidlər burada görünür.",
+        "uploading": "Yüklənir… {progress}%",
+        "shortening": "Qısaldılır…",
+        "copyLink": "Keçidi kopyala",
+        "openLink": "Keçidi aç",
+        "linkCopied": "Keçid kopyalandı"
+    },
+    "options": {
+        "title": "Fileship ayarları",
+        "description": "Bu brauzerdən fayl, ekran görüntüsü və şəkil yüklə, keçidləri qısalt.",
+        "connection": "Server",
+        "connectionDescription": "Bu brauzerin yüklədiyi Fileship serveri.",
+        "serverAddress": "Server ünvanı",
+        "serverAddressPlaceholder": "files.example.com",
+        "uploadToken": "Yükləmə açarı",
+        "uploadTokenDescription": "Fileship-ində Ayarlar → İnteqrasiyalar səhifəsindən kopyala. O, yalnız fayl yükləyə və keçid qısalda bilər və yalnız bu brauzerdə saxlanılır.",
+        "test": "Bağlantını yoxla",
+        "save": "Yadda saxla",
+        "disconnect": "Bağlantını kəs",
+        "saved": "Bağlantı yadda saxlanıldı",
+        "disconnected": "Bağlantı kəsildi",
+        "connected": "Qoşuldu: {siteName} · Fileship v{version}",
+        "canUploadAndShorten": "Bu açar fayl yükləyə və keçid qısalda bilər.",
+        "canUploadOnly": "Bu açar fayl yükləyə bilər, amma keçid qısalda bilməz.",
+        "canShortenOnly": "Bu açar keçid qısalda bilər, amma fayl yükləyə bilməz.",
+        "connectionFailed": "Qoşulmaq mümkün olmadı",
+        "uploadOptions": "Yükləmə seçimləri",
+        "uploadOptionsDescription": "Bu brauzerdən yüklənən fayllar, şəkillər və ekran görüntüləri üçün istifadə olunur.",
+        "fileName": "Fayl adı",
+        "expiration": "Bitmə müddəti"
+    },
+    "labels": {
+        "fileNameTypes": {
+            "Random": "Təsadüfi",
+            "UUID": "UUID",
+            "Original": "Orijinal"
+        },
+        "expiration": {
+            "never": "Müddətsiz",
+            "5m": "5 dəqiqə",
+            "15m": "15 dəqiqə",
+            "30m": "30 dəqiqə",
+            "1h": "1 saat",
+            "6h": "6 saat",
+            "12h": "12 saat",
+            "1d": "1 gün",
+            "1w": "1 həftə",
+            "2w": "2 həftə",
+            "1mo": "1 ay",
+            "3mo": "3 ay",
+            "6mo": "6 ay",
+            "1y": "1 il"
+        }
+    },
+    "area": {
+        "hint": "Sahə seçmək üçün siçanı dart, görünən səhifəni çəkmək üçün klik et, ləğv etmək üçün Esc düyməsini bas"
+    },
+    "notify": {
+        "uploadedCopied": "Yükləndi, keçid kopyalandı",
+        "uploaded": "Yükləndi",
+        "shortenedCopied": "Keçid qısaldıldı və kopyalandı",
+        "shortened": "Keçid qısaldıldı",
+        "uploadFailed": "Yükləmək mümkün olmadı",
+        "shortenFailed": "Keçidi qısaltmaq mümkün olmadı"
+    },
+    "errors": {
+        "notConfigured": "Əvvəlcə ayarlardan Fileship-ini qoş.",
+        "invalidAddress": "Düzgün server ünvanı daxil et.",
+        "tokenRequired": "Yükləmə açarını daxil et.",
+        "permissionDenied": "Ora yükləmək üçün genişləndirmənin {origin} ünvanına girişi olmalıdır.",
+        "hostPermissionMissing": "Genişləndirmə artıq {origin} ünvanına qoşula bilmir. Bağlantını ayarlarda yenidən yadda saxla.",
+        "unreachable": "Fileship serverinə qoşulmaq mümkün olmadı.",
+        "timeout": "Server vaxtında cavab vermədi.",
+        "notFileship": "Bu ünvanda Fileship serveri tapılmadı: {url}",
+        "serverStarting": "Bu Fileship serveri hələ işə düşür, bir az sonra yenidən cəhd et.",
+        "serverTooOld": "Bu serverdə Fileship v{version} işləyir. Genişləndirmə ən azı v{minVersion} versiyasını tələb edir.",
+        "invalidToken": "Yükləmə açarı etibarsızdır. Onu Ayarlar → İnteqrasiyalar səhifəsindən yenidən kopyala.",
+        "noPermission": "Hesabının bu serverdə fayl yükləmək və ya keçid qısaltmaq icazəsi yoxdur.",
+        "cannotUpload": "Hesabının bu serverdə fayl yükləmək icazəsi yoxdur.",
+        "cannotShorten": "Hesabının bu serverdə keçid qısaltmaq icazəsi yoxdur.",
+        "storageFull": "Yaddaşın doldu.",
+        "requestFailed": "Sorğu uğursuz oldu ({status}).",
+        "noLink": "Server keçid qaytarmadı.",
+        "imageAccessDenied": "Bu şəkli endirmək üçün genişləndirmənin {origin} ünvanına girişi olmalıdır.",
+        "imageDownloadFailed": "Şəkli endirmək mümkün olmadı.",
+        "pageNotSupported": "Yalnız http və https səhifələri qısaldıla bilər.",
+        "captureNotAllowed": "Bu səhifəni çəkmək mümkün deyil.",
+        "interrupted": "Brauzer bu əməliyyatı dayandırdı. Yenidən cəhd et.",
+        "fileMissing": "Fayl artıq əlçatan deyil. Onu yenidən seç."
+    }
+}

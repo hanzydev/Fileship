@@ -1,0 +1,124 @@
+{
+    "manifest": {
+        "description": "파일, 스크린샷, 이미지를 Fileship에 업로드하고 링크를 단축해요."
+    },
+    "menu": {
+        "uploadImage": "Fileship에 이미지 업로드",
+        "shortenLink": "Fileship으로 링크 단축",
+        "shortenPage": "Fileship으로 페이지 링크 단축"
+    },
+    "popup": {
+        "settings": "설정",
+        "uploadFiles": "파일 업로드",
+        "uploadFilesDescription": "이 컴퓨터에서 파일 선택",
+        "shortenPage": "이 페이지 단축",
+        "shortenPageDescription": "현재 탭의 단축 링크 만들기",
+        "captureVisible": "보이는 영역 캡처",
+        "captureVisibleDescription": "지금 보이는 화면의 스크린샷 업로드",
+        "captureArea": "영역 캡처",
+        "captureAreaDescription": "페이지를 드래그해서 캡처할 영역 선택",
+        "connectTitle": "Fileship 연결하기",
+        "connectDescription": "업로드를 시작하려면 서버 주소와 업로드 토큰을 추가하세요.",
+        "openSettings": "설정 열기"
+    },
+    "upload": {
+        "title": "Fileship에 업로드",
+        "description": "파일은 설정의 업로드 옵션으로 업로드돼요.",
+        "dropTitle": "여기에 파일을 놓으세요",
+        "dropDescription": "또는 이 컴퓨터에서 선택하세요.",
+        "choose": "파일 선택"
+    },
+    "tasks": {
+        "title": "최근 항목",
+        "clear": "지우기",
+        "empty": "업로드와 단축 링크가 여기에 표시돼요.",
+        "uploading": "업로드 중… {progress}%",
+        "shortening": "단축 중…",
+        "copyLink": "링크 복사",
+        "openLink": "링크 열기",
+        "linkCopied": "링크를 복사했어요"
+    },
+    "options": {
+        "title": "Fileship 설정",
+        "description": "이 브라우저에서 파일, 스크린샷, 이미지를 업로드하고 링크를 단축해요.",
+        "connection": "연결",
+        "connectionDescription": "이 브라우저가 업로드하는 Fileship 서버예요.",
+        "serverAddress": "서버 주소",
+        "serverAddressPlaceholder": "files.example.com",
+        "uploadToken": "업로드 토큰",
+        "uploadTokenDescription": "Fileship의 설정 → 연동에서 복사하세요. 파일 업로드와 링크 단축만 할 수 있고, 이 브라우저에만 저장돼요.",
+        "test": "연결 테스트",
+        "save": "저장",
+        "disconnect": "연결 해제",
+        "saved": "연결을 저장했어요",
+        "disconnected": "연결을 해제했어요",
+        "connected": "연결됨: {siteName} · Fileship v{version}",
+        "canUploadAndShorten": "이 토큰으로 파일을 업로드하고 링크를 단축할 수 있어요.",
+        "canUploadOnly": "이 토큰으로 파일은 업로드할 수 있지만 링크는 단축할 수 없어요.",
+        "canShortenOnly": "이 토큰으로 링크는 단축할 수 있지만 파일은 업로드할 수 없어요.",
+        "connectionFailed": "연결할 수 없어요",
+        "uploadOptions": "업로드 옵션",
+        "uploadOptionsDescription": "이 브라우저에서 업로드하는 파일, 이미지, 스크린샷에 사용돼요.",
+        "fileName": "파일 이름",
+        "expiration": "만료"
+    },
+    "labels": {
+        "fileNameTypes": {
+            "Random": "무작위",
+            "UUID": "UUID",
+            "Original": "원래 이름"
+        },
+        "expiration": {
+            "never": "만료 없음",
+            "5m": "5분",
+            "15m": "15분",
+            "30m": "30분",
+            "1h": "1시간",
+            "6h": "6시간",
+            "12h": "12시간",
+            "1d": "1일",
+            "1w": "1주",
+            "2w": "2주",
+            "1mo": "1개월",
+            "3mo": "3개월",
+            "6mo": "6개월",
+            "1y": "1년"
+        }
+    },
+    "area": {
+        "hint": "드래그해서 영역 선택, 클릭하면 보이는 페이지 캡처, Esc를 누르면 취소"
+    },
+    "notify": {
+        "uploadedCopied": "업로드하고 링크를 복사했어요",
+        "uploaded": "업로드했어요",
+        "shortenedCopied": "링크를 단축하고 복사했어요",
+        "shortened": "링크를 단축했어요",
+        "uploadFailed": "업로드하지 못했어요",
+        "shortenFailed": "링크를 단축할 수 없어요"
+    },
+    "errors": {
+        "notConfigured": "먼저 설정에서 Fileship을 연결하세요.",
+        "invalidAddress": "올바른 서버 주소를 입력하세요.",
+        "tokenRequired": "업로드 토큰을 입력하세요.",
+        "permissionDenied": "업로드하려면 확장 프로그램이 다음 주소에 접근할 수 있어야 해요: {origin}",
+        "hostPermissionMissing": "확장 프로그램이 더 이상 다음 주소에 연결할 수 없어요: {origin}. 설정에서 연결을 다시 저장하세요.",
+        "unreachable": "Fileship 서버에 연결할 수 없어요.",
+        "timeout": "서버가 응답하는 데 너무 오래 걸렸어요.",
+        "notFileship": "다음 주소에서 Fileship 서버를 찾을 수 없어요: {url}",
+        "serverStarting": "이 Fileship 서버는 아직 시작하는 중이에요. 잠시 후 다시 시도하세요.",
+        "serverTooOld": "이 서버는 Fileship v{version} 버전을 사용하고 있어요. 확장 프로그램에는 v{minVersion} 이상이 필요해요.",
+        "invalidToken": "업로드 토큰이 올바르지 않아요. 설정 → 연동에서 다시 복사하세요.",
+        "noPermission": "이 서버에서 이 계정은 파일을 업로드하거나 링크를 단축할 권한이 없어요.",
+        "cannotUpload": "이 서버에서 이 계정은 파일을 업로드할 권한이 없어요.",
+        "cannotShorten": "이 서버에서 이 계정은 링크를 단축할 권한이 없어요.",
+        "storageFull": "저장소가 가득 찼어요.",
+        "requestFailed": "요청에 실패했어요({status}).",
+        "noLink": "서버가 링크를 반환하지 않았어요.",
+        "imageAccessDenied": "이 이미지를 다운로드하려면 확장 프로그램이 다음 주소에 접근할 수 있어야 해요: {origin}",
+        "imageDownloadFailed": "이미지를 다운로드할 수 없어요.",
+        "pageNotSupported": "http와 https 페이지만 단축할 수 있어요.",
+        "captureNotAllowed": "이 페이지는 캡처할 수 없어요.",
+        "interrupted": "브라우저가 이 작업을 중단했어요. 다시 시도하세요.",
+        "fileMissing": "파일을 더 이상 사용할 수 없어요. 다시 선택하세요."
+    }
+}

@@ -1,0 +1,124 @@
+{
+    "manifest": {
+        "description": "将文件、截图和图片上传到你的 Fileship，并缩短链接。"
+    },
+    "menu": {
+        "uploadImage": "上传图片到 Fileship",
+        "shortenLink": "用 Fileship 缩短链接",
+        "shortenPage": "用 Fileship 缩短页面链接"
+    },
+    "popup": {
+        "settings": "设置",
+        "uploadFiles": "上传文件",
+        "uploadFilesDescription": "从这台电脑选择文件",
+        "shortenPage": "缩短此页面",
+        "shortenPageDescription": "为当前标签页创建短链接",
+        "captureVisible": "截取可见区域",
+        "captureVisibleDescription": "上传当前所见内容的截图",
+        "captureArea": "截取区域",
+        "captureAreaDescription": "在页面上拖动以选择要截取的区域",
+        "connectTitle": "连接你的 Fileship",
+        "connectDescription": "添加服务器地址和上传令牌即可开始上传。",
+        "openSettings": "打开设置"
+    },
+    "upload": {
+        "title": "上传到 Fileship",
+        "description": "文件将使用设置中的上传选项上传。",
+        "dropTitle": "将文件拖放到这里",
+        "dropDescription": "或从这台电脑中选择。",
+        "choose": "选择文件"
+    },
+    "tasks": {
+        "title": "最近",
+        "clear": "清除",
+        "empty": "上传的文件和短链接会显示在这里。",
+        "uploading": "正在上传… {progress}%",
+        "shortening": "正在缩短…",
+        "copyLink": "复制链接",
+        "openLink": "打开链接",
+        "linkCopied": "链接已复制"
+    },
+    "options": {
+        "title": "Fileship 设置",
+        "description": "从此浏览器上传文件、截图和图片，并缩短链接。",
+        "connection": "连接",
+        "connectionDescription": "此浏览器上传到的 Fileship 服务器。",
+        "serverAddress": "服务器地址",
+        "serverAddressPlaceholder": "files.example.com",
+        "uploadToken": "上传令牌",
+        "uploadTokenDescription": "在你的 Fileship 中，从“设置 → 集成”复制。它只能上传文件和缩短链接，并且只保存在此浏览器中。",
+        "test": "测试连接",
+        "save": "保存",
+        "disconnect": "断开连接",
+        "saved": "连接已保存",
+        "disconnected": "已断开连接",
+        "connected": "已连接到 {siteName} · Fileship v{version}",
+        "canUploadAndShorten": "此令牌可以上传文件和缩短链接。",
+        "canUploadOnly": "此令牌可以上传文件，但不能缩短链接。",
+        "canShortenOnly": "此令牌可以缩短链接，但不能上传文件。",
+        "connectionFailed": "无法连接",
+        "uploadOptions": "上传选项",
+        "uploadOptionsDescription": "用于从此浏览器上传的文件、图片和截图。",
+        "fileName": "文件名",
+        "expiration": "过期时间"
+    },
+    "labels": {
+        "fileNameTypes": {
+            "Random": "随机",
+            "UUID": "UUID",
+            "Original": "原始文件名"
+        },
+        "expiration": {
+            "never": "永不过期",
+            "5m": "5 分钟",
+            "15m": "15 分钟",
+            "30m": "30 分钟",
+            "1h": "1 小时",
+            "6h": "6 小时",
+            "12h": "12 小时",
+            "1d": "1 天",
+            "1w": "1 周",
+            "2w": "2 周",
+            "1mo": "1 个月",
+            "3mo": "3 个月",
+            "6mo": "6 个月",
+            "1y": "1 年"
+        }
+    },
+    "area": {
+        "hint": "拖动以选择区域，点击截取可见页面，按 Esc 取消"
+    },
+    "notify": {
+        "uploadedCopied": "已上传，链接已复制",
+        "uploaded": "已上传",
+        "shortenedCopied": "链接已缩短并复制",
+        "shortened": "链接已缩短",
+        "uploadFailed": "上传失败",
+        "shortenFailed": "无法缩短链接"
+    },
+    "errors": {
+        "notConfigured": "请先在设置中连接你的 Fileship。",
+        "invalidAddress": "请输入有效的服务器地址。",
+        "tokenRequired": "请输入你的上传令牌。",
+        "permissionDenied": "扩展需要访问 {origin} 才能上传到那里。",
+        "hostPermissionMissing": "扩展已无法访问 {origin}。请在设置中重新保存连接。",
+        "unreachable": "无法连接到你的 Fileship 服务器。",
+        "timeout": "服务器响应超时。",
+        "notFileship": "在 {url} 未找到 Fileship 服务器。",
+        "serverStarting": "这台 Fileship 服务器仍在启动，请稍后再试。",
+        "serverTooOld": "这台服务器运行的是 Fileship v{version}。扩展需要 v{minVersion} 或更高版本。",
+        "invalidToken": "上传令牌无效。请从“设置 → 集成”重新复制。",
+        "noPermission": "你的账户无权在这台服务器上上传文件或缩短链接。",
+        "cannotUpload": "你的账户无权在这台服务器上上传文件。",
+        "cannotShorten": "你的账户无权在这台服务器上缩短链接。",
+        "storageFull": "你的存储空间已满。",
+        "requestFailed": "请求失败（{status}）。",
+        "noLink": "服务器未返回链接。",
+        "imageAccessDenied": "扩展需要访问 {origin} 才能下载此图片。",
+        "imageDownloadFailed": "无法下载图片。",
+        "pageNotSupported": "只能缩短 http 和 https 页面。",
+        "captureNotAllowed": "无法截取此页面。",
+        "interrupted": "浏览器停止了此任务。请重试。",
+        "fileMissing": "文件已不可用。请重新选择。"
+    }
+}

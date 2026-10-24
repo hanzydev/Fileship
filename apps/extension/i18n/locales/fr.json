@@ -1,0 +1,124 @@
+{
+    "manifest": {
+        "description": "Importez des fichiers, des captures d'écran et des images dans votre Fileship et raccourcissez des liens."
+    },
+    "menu": {
+        "uploadImage": "Importer l'image dans Fileship",
+        "shortenLink": "Raccourcir le lien avec Fileship",
+        "shortenPage": "Raccourcir le lien de la page avec Fileship"
+    },
+    "popup": {
+        "settings": "Paramètres",
+        "uploadFiles": "Importer des fichiers",
+        "uploadFilesDescription": "Choisissez des fichiers sur cet ordinateur",
+        "shortenPage": "Raccourcir cette page",
+        "shortenPageDescription": "Créez un lien court vers l'onglet actuel",
+        "captureVisible": "Capturer la zone visible",
+        "captureVisibleDescription": "Importez une capture de ce que vous voyez",
+        "captureArea": "Capturer une zone",
+        "captureAreaDescription": "Faites glisser sur la page pour choisir la zone",
+        "connectTitle": "Connectez votre Fileship",
+        "connectDescription": "Ajoutez l'adresse de votre serveur et votre jeton d'importation pour commencer.",
+        "openSettings": "Ouvrir les paramètres"
+    },
+    "upload": {
+        "title": "Importer dans Fileship",
+        "description": "Les fichiers sont importés avec les options d'importation des paramètres.",
+        "dropTitle": "Déposez des fichiers ici",
+        "dropDescription": "Ou choisissez-les sur cet ordinateur.",
+        "choose": "Choisir des fichiers"
+    },
+    "tasks": {
+        "title": "Récents",
+        "clear": "Effacer",
+        "empty": "Les importations et les liens courts apparaissent ici.",
+        "uploading": "Importation… {progress} %",
+        "shortening": "Raccourcissement…",
+        "copyLink": "Copier le lien",
+        "openLink": "Ouvrir le lien",
+        "linkCopied": "Lien copié"
+    },
+    "options": {
+        "title": "Paramètres de Fileship",
+        "description": "Importez des fichiers, des captures d'écran et des images depuis ce navigateur et raccourcissez des liens.",
+        "connection": "Connexion",
+        "connectionDescription": "Le serveur Fileship sur lequel ce navigateur importe.",
+        "serverAddress": "Adresse du serveur",
+        "serverAddressPlaceholder": "files.example.com",
+        "uploadToken": "Jeton d'importation",
+        "uploadTokenDescription": "Copiez-le depuis Paramètres → Intégrations dans votre Fileship. Il permet uniquement d'importer des fichiers et de raccourcir des liens, et il n'est conservé que dans ce navigateur.",
+        "test": "Tester la connexion",
+        "save": "Enregistrer",
+        "disconnect": "Déconnecter",
+        "saved": "Connexion enregistrée",
+        "disconnected": "Déconnecté",
+        "connected": "Connecté à {siteName} · Fileship v{version}",
+        "canUploadAndShorten": "Ce jeton peut importer des fichiers et raccourcir des liens.",
+        "canUploadOnly": "Ce jeton peut importer des fichiers, mais pas raccourcir des liens.",
+        "canShortenOnly": "Ce jeton peut raccourcir des liens, mais pas importer des fichiers.",
+        "connectionFailed": "Connexion impossible",
+        "uploadOptions": "Options d'importation",
+        "uploadOptionsDescription": "Utilisées pour les fichiers, images et captures d'écran importés depuis ce navigateur.",
+        "fileName": "Nom du fichier",
+        "expiration": "Expiration"
+    },
+    "labels": {
+        "fileNameTypes": {
+            "Random": "Aléatoire",
+            "UUID": "UUID",
+            "Original": "Original"
+        },
+        "expiration": {
+            "never": "Jamais",
+            "5m": "5 minutes",
+            "15m": "15 minutes",
+            "30m": "30 minutes",
+            "1h": "1 heure",
+            "6h": "6 heures",
+            "12h": "12 heures",
+            "1d": "1 jour",
+            "1w": "1 semaine",
+            "2w": "2 semaines",
+            "1mo": "1 mois",
+            "3mo": "3 mois",
+            "6mo": "6 mois",
+            "1y": "1 an"
+        }
+    },
+    "area": {
+        "hint": "Faites glisser pour choisir une zone, cliquez pour capturer la page visible, appuyez sur Échap pour annuler"
+    },
+    "notify": {
+        "uploadedCopied": "Importé, lien copié",
+        "uploaded": "Importé",
+        "shortenedCopied": "Lien raccourci et copié",
+        "shortened": "Lien raccourci",
+        "uploadFailed": "Échec de l'importation",
+        "shortenFailed": "Impossible de raccourcir le lien"
+    },
+    "errors": {
+        "notConfigured": "Connectez d'abord votre Fileship dans les paramètres.",
+        "invalidAddress": "Saisissez une adresse de serveur valide.",
+        "tokenRequired": "Saisissez votre jeton d'importation.",
+        "permissionDenied": "L'extension doit pouvoir accéder à {origin} pour y importer des fichiers.",
+        "hostPermissionMissing": "L'extension ne peut plus joindre {origin}. Enregistrez à nouveau la connexion dans les paramètres.",
+        "unreachable": "Impossible de joindre votre serveur Fileship.",
+        "timeout": "Le serveur a mis trop de temps à répondre.",
+        "notFileship": "Aucun serveur Fileship n'a été trouvé à l'adresse {url}.",
+        "serverStarting": "Ce serveur Fileship est encore en train de démarrer, réessayez dans un instant.",
+        "serverTooOld": "Ce serveur exécute Fileship v{version}. L'extension nécessite la v{minVersion} ou une version ultérieure.",
+        "invalidToken": "Le jeton d'importation n'est pas valide. Copiez-le à nouveau depuis Paramètres → Intégrations.",
+        "noPermission": "Votre compte ne peut ni importer de fichiers ni raccourcir de liens sur ce serveur.",
+        "cannotUpload": "Votre compte ne peut pas importer de fichiers sur ce serveur.",
+        "cannotShorten": "Votre compte ne peut pas raccourcir de liens sur ce serveur.",
+        "storageFull": "Votre espace de stockage est plein.",
+        "requestFailed": "Échec de la requête ({status}).",
+        "noLink": "Le serveur n'a renvoyé aucun lien.",
+        "imageAccessDenied": "L'extension doit pouvoir accéder à {origin} pour télécharger cette image.",
+        "imageDownloadFailed": "Impossible de télécharger l'image.",
+        "pageNotSupported": "Seules les pages http et https peuvent être raccourcies.",
+        "captureNotAllowed": "Cette page ne peut pas être capturée.",
+        "interrupted": "Le navigateur a arrêté cette tâche. Réessayez.",
+        "fileMissing": "Le fichier n'est plus disponible. Choisissez-le à nouveau."
+    }
+}

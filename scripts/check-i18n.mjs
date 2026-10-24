@@ -7,6 +7,7 @@ const CATALOGS = [
     'packages/ui/i18n/locales',
     'apps/dashboard/i18n/locales',
     'apps/desktop/i18n/locales',
+    'apps/extension/i18n/locales',
 ];
 
 const errors = [];

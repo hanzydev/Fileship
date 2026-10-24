@@ -20,6 +20,8 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - The desktop app has no separate image editor. It was removed on purpose because the region overlay already annotates while selecting; do not bring it back.
 - Desktop capture follows ShareX: Print Screen captures the active monitor, Ctrl+Print Screen opens the region overlay, a selection finishes on mouse release, annotations can be drawn before choosing the region, and one toolbar serves every monitor.
 - PDF previews use PDFium (`@embedpdf/pdfium`, WebAssembly) on the server and pdf.js in the browser, chosen by measuring the first page rendered to 640 px: PDFium took 70-135 ms with 100-190 MB peak RSS and no native binary; pdf.js with `@napi-rs/canvas` took 180-380 ms with 120-370 MB and a 38 MB native addon. `mupdf` is AGPL and cannot be used. In the browser pdf.js wins because it streams with range requests and is far smaller than the PDFium wasm.
+- The browser extension is built with WXT rather than Vite plus a hand-written manifest step: one config writes the MV3 manifests for both browsers (service worker vs. background scripts, gecko id, data collection), zips both stores and the AMO sources zip, and reloads in dev. It is not a Nuxt app; it reuses the ui layer through Vite. It works only with the upload token, which cannot list folders, so it has no folder option on purpose.
+- The extension follows the browser's UI language instead of having a language setting, and uses the repository's JSON catalogs with a small `t()` (like the desktop main process), not `_locales` messages, so ESLint and `pnpm lint:i18n` cover it.
 - The Explorer integration is called **Fileship Harbor** ("Harbor" for short) in the UI and the docs, in every language, and `harbor` everywhere in the project (code, settings keys, `/settings/harbor`, i18n keys, IPC channels, `--harbor-action`, `fileship-harbor.exe`). 1.0.1 stored `settings.drive` and `driveRoot`; `migrateHarbor` in `electron/store.ts` moves them over when the store loads.
 
 ## Releasing
@@ -27,6 +29,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - **Desktop:** bump `apps/desktop/package.json`, push the branch, then push a tag `desktop-v<version>` that matches it exactly. `.github/workflows/desktop-release.yml` runs only on such tags (there is no "Run workflow" button until the file is on `main`). It creates a draft release in the public `hanzydev/fileship-desktop` repo, lets electron-builder upload into it and publishes it. The `DESKTOP_RELEASE_TOKEN` secret is a token with Contents read/write on `fileship-desktop`.
 - Do not let electron-builder 26 create the release itself: it creates one publisher per artifact before caching it, so the installer and its blockmap both try to create the release and the second fails with `422 Published releases must have a valid tag`. That is why the workflow makes the draft first.
 - electron-builder only uploads into an already published release within 2 hours of its publication. To redo an older release, delete the release and its tag in `fileship-desktop` and push the Fileship tag again on a commit with the current workflow (a re-run uses the workflow file of the tagged commit).
+- **Browser extension:** not published yet. The manifest version comes from `apps/extension/package.json`. `pnpm --filter extension package` writes the Chrome zip (Chrome Web Store and Edge Add-ons), the Firefox zip and the sources zip that addons.mozilla.org asks for.
 - **Docker images** (`docker-publish.yml`) are built for `fileship`, `fileship-updater-agent` and `fileship-telemetry` when a GitHub release is published in the Fileship repo.
 - CI (`check.yml`) runs `pnpm check` on `ubuntu-latest`. If the Ubuntu 26 image breaks something, pin `ubuntu-24.04`.
 
@@ -39,6 +42,8 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - On Windows, files in `apps/desktop/release` can be locked by Explorer, an editor or an AI desktop app that has the folder open, and electron-builder then fails with `EBUSY`. Build into a folder outside the repo with `--config.directories.output=<path>` and copy the result.
 - In Git Bash, `node -e` and heredocs mangle template literals (`${...}`), backticks and backslashes (double backslashes can arrive halved). Write a script file instead, or edit such lines with an editor tool.
 - **Package subpaths on the server need their extension.** Nitro keeps packages such as dayjs external, and Node's ESM resolver refuses extensionless subpaths, so `import utc from 'dayjs/plugin/utc'` works in `nuxt dev` but crashes the built server at startup. Server code writes `dayjs/plugin/utc.js`; check a production build (`nuxt build`, then `node .output/server/index.mjs`) after adding such an import.
+- **WXT** builds Firefox as MV2 unless `manifestVersion: 3` is set. While zipping sources it prints `Could not get stats of ...` warnings because it resolves the file list against the extension folder instead of `zip.sourcesRoot`; the sources zip itself is complete.
+- unplugin-vue-components treats `!` entries in `dirs` as folders to skip (it appends `/**/*.vue`); exclude single files with `globsExclude`.
 - `LF will be replaced by CRLF` warnings are harmless.
 - Run prettier only on the files you changed; `pnpm lint` formats the whole repository.
 
@@ -78,6 +83,14 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - On an empty local database `db:createDefaultUser` creates the seed super admin `admin` / `password`; it can create test users through `POST /api/users`.
 - `nuxt typecheck` in the dashboard fails on `@fileship/ai` and `@fileship/telemetry` until they are built (`pnpm --filter @fileship/ai --filter @fileship/telemetry build`). In a fresh checkout the telemetry panel also needs its Prisma client (`pnpm --filter telemetry db:generate`), or `pnpm lint:types` reports `unknown` types in its pages.
 - Editing catalogs while the dashboard dev server runs rebuilds Nitro, which can crash the process with `0xC0000409` while the AI worker is being stopped. Restart it; it is not caused by the change.
+
+## Testing the browser extension
+
+- Branded Chrome (137+) ignores `--load-extension`. Start it with `--headless=new --remote-debugging-pipe --enable-unsafe-extension-debugging --user-data-dir=<profile>` and load the unpacked build with the CDP command `Extensions.loadUnpacked` (the pipe sends NUL-terminated JSON on fds 3 and 4). It runs beside the real Chrome because the profile differs.
+- Keep that profile path short (for example `%TEMP%\fsx`): in a long scratchpad path, extension storage fails with `IO error: .../LOCK: File not found` because of the Windows path limit.
+- Permission prompts cannot be clicked from CDP. Test with a copy of the built manifest that adds `host_permissions`, and check the prompts by hand.
+- `chrome.contextMenus.onClicked.dispatch(info, tab)`, evaluated in the service worker, runs the context menu handlers; `Input.dispatchMouseEvent` on the page drives the area picker.
+- A mock server that follows `/api/healthz`, `/api/settings/public`, `POST /api/files` (chunks) and `POST /api/links` is enough for the flows. For a live test, ask for a dedicated database, pass `DATABASE_URL` inline (never in a `.env`), build `@fileship/ai` and `@fileship/telemetry`, run `db:generate` and `db:deploy`, start `nuxt dev` with `NUXT_PUBLIC_AI_ENABLED=false` and a scratch `NUXT_DATA_DIRECTORY`, then create test users through the API as `admin` (`POST /api/users`, then `POST /api/users/@me/upload-token` as each user, both with `verificationData: { type: 'password', data }`) and delete them afterwards. A user with a 1 MB `usableSpace` and no `ShortenLinks` covers the quota and permission errors, and `fileChunkSize: 5` makes a 12 MB upload use three chunks.
 
 ## Harbor (Cloud Files API) facts
 

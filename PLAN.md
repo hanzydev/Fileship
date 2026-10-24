@@ -32,6 +32,13 @@ Desktop:
 - [ ] Check the 1.0.1 → next upgrade keeps the Harbor folder (`drive` / `driveRoot` store migration).
 - [ ] Check nested folders in Harbor with a real Explorer (only the layout logic and the folder list were tested): folders several levels deep, creating, renaming and moving folders and files between levels, copying a folder tree in, deleting a tree, and moving into Notes or Links being refused.
 
+Browser extension:
+
+- [ ] Run it in Firefox: the upload tab, copying links from the background page, notifications, the context menus, `captureVisibleTab`, the area picker, the permission prompts and long uploads on the event page. Firefox was not installed on the test machine, so only `web-ext lint` ran on the Firefox build; every flow was tested in headless Chrome, against a mock server and against a local 6.1.0 dashboard.
+- [ ] Check the host permission prompt from the context menu for an image on another site, in Chrome and Firefox (automated tests cannot click it, so they ran with the permission already granted).
+- [ ] Check the file picker in the Chrome toolbar popup on macOS and Linux (Windows behaviour is assumed, not tested; the popup was only tested as a page).
+- [ ] Publish to the Chrome Web Store, Edge Add-ons and addons.mozilla.org (store listings, screenshots, privacy answers that match the declared data collection).
+
 Dashboard and infrastructure:
 
 - [ ] Check the emails in real clients (Gmail, Outlook, Apple Mail, a dark mode client); they were only read as raw HTML and text from a local SMTP catcher.
