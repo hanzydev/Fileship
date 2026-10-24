@@ -1498,7 +1498,14 @@
             "failed": "Impossibile caricare il file"
         },
         "notEnoughSpace": "Spazio insufficiente",
-        "notEnoughSpaceDescription": "Questi file richiedono {needed}, ma restano {left}. I file che non ci stanno non verranno caricati."
+        "notEnoughSpaceDescription": "Questi file richiedono {needed}, ma restano {left}. I file che non ci stanno non verranno caricati.",
+        "duplicateTitle": "Hai già questo file | Hai già {n} di questi file",
+        "duplicateDescription": "{name} ha lo stesso contenuto di {original}.",
+        "duplicatesDescription": "Hanno lo stesso contenuto di file che hai già caricato.",
+        "uploadAnyway": "Carica comunque",
+        "skipDuplicates": "Salta i duplicati",
+        "duplicateUploaded": "Avevi già questo file",
+        "showOriginal": "Mostra"
     },
     "users": {
         "title": "Utenti",
@@ -1602,6 +1609,18 @@
         "almostFullDescription": "Svuota il cestino o elimina file grandi per fare spazio.",
         "full": "Il tuo spazio è pieno",
         "fullDescription": "Elimina dei file o svuota il cestino, poi riprova.",
-        "manage": "Gestisci archiviazione"
+        "manage": "Gestisci archiviazione",
+        "duplicates": "Duplicati",
+        "duplicatesDescription": "File con lo stesso contenuto. Tienine una copia e sposta le altre nel cestino.",
+        "canFree": "{size} liberabili",
+        "duplicatesFailed": "Impossibile caricare i duplicati",
+        "duplicatesFailedDescription": "Controlla la connessione e riprova.",
+        "noDuplicates": "Nessun duplicato",
+        "noDuplicatesDescription": "Qui compaiono i file con lo stesso contenuto.",
+        "copies": "{count} copie, {size} ciascuna",
+        "keepOldest": "Tieni il più vecchio",
+        "fileInFolder": "{date} · {folder}",
+        "openFile": "Apri",
+        "moveToTrash": "Sposta nel cestino"
     }
 }

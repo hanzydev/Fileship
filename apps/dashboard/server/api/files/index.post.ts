@@ -182,6 +182,8 @@ export default defineEventHandler(async (event) => {
 
         await indexCreatedFile(event, currentUser, upload);
 
+        if (formData.get('reportDuplicate')) event.waitUntil(reportDuplicate(_upload));
+
         await createLog(event, {
             action: 'Upload File',
             message: `Uploaded file ${_upload.fileName}`,

@@ -1498,7 +1498,14 @@
             "failed": "上传失败"
         },
         "notEnoughSpace": "空间不足",
-        "notEnoughSpaceDescription": "这些文件需要 {needed}，但只剩 {left}。放不下的文件将上传失败。"
+        "notEnoughSpaceDescription": "这些文件需要 {needed}，但只剩 {left}。放不下的文件将上传失败。",
+        "duplicateTitle": "你已经有这个文件了 | 你已经有其中 {n} 个文件了",
+        "duplicateDescription": "{name} 与 {original} 的内容相同。",
+        "duplicatesDescription": "它们与你已上传的文件内容相同。",
+        "uploadAnyway": "仍然上传",
+        "skipDuplicates": "跳过重复文件",
+        "duplicateUploaded": "你已经有这个文件了",
+        "showOriginal": "查看"
     },
     "users": {
         "title": "用户",
@@ -1602,6 +1609,18 @@
         "almostFullDescription": "清空回收站或删除大文件以腾出空间。",
         "full": "你的存储空间已满",
         "fullDescription": "删除文件或清空回收站后再试。",
-        "manage": "管理存储"
+        "manage": "管理存储",
+        "duplicates": "重复文件",
+        "duplicatesDescription": "内容相同的文件。保留一份，其余移到回收站。",
+        "canFree": "可释放 {size}",
+        "duplicatesFailed": "无法加载重复文件",
+        "duplicatesFailedDescription": "请检查网络连接后重试。",
+        "noDuplicates": "没有重复文件",
+        "noDuplicatesDescription": "内容相同的文件会显示在这里。",
+        "copies": "{count} 个副本，每个 {size}",
+        "keepOldest": "保留最早的",
+        "fileInFolder": "{date} · {folder}",
+        "openFile": "打开",
+        "moveToTrash": "移到回收站"
     }
 }

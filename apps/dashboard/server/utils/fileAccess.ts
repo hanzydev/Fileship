@@ -20,4 +20,5 @@ export const visitorFileFields = {
     aiAnalyzedAt: undefined,
     embeddingModel: undefined,
     textEmbeddingModel: undefined,
+    contentHash: undefined,
 };

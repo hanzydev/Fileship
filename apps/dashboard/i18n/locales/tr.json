@@ -1498,7 +1498,14 @@
             "failed": "Dosya yüklenemedi"
         },
         "notEnoughSpace": "Yeterli alan yok",
-        "notEnoughSpaceDescription": "Bu dosyalar {needed} gerektiriyor, {left} yerin kaldı. Sığmayan dosyalar yüklenemez."
+        "notEnoughSpaceDescription": "Bu dosyalar {needed} gerektiriyor, {left} yerin kaldı. Sığmayan dosyalar yüklenemez.",
+        "duplicateTitle": "Bu dosya zaten var | Bu dosyalardan {n} tanesi zaten var",
+        "duplicateDescription": "{name}, {original} ile aynı içeriğe sahip.",
+        "duplicatesDescription": "Bunlar daha önce yüklediğin dosyalarla aynı içeriğe sahip.",
+        "uploadAnyway": "Yine de yükle",
+        "skipDuplicates": "Kopyaları atla",
+        "duplicateUploaded": "Bu dosya zaten vardı",
+        "showOriginal": "Göster"
     },
     "users": {
         "title": "Kullanıcılar",
@@ -1602,6 +1609,18 @@
         "almostFullDescription": "Yer açmak için çöp kutusunu boşalt veya büyük dosyaları sil.",
         "full": "Depolama alanın doldu",
         "fullDescription": "Dosya sil veya çöp kutusunu boşalt, sonra tekrar dene.",
-        "manage": "Depolamayı yönet"
+        "manage": "Depolamayı yönet",
+        "duplicates": "Yinelenen dosyalar",
+        "duplicatesDescription": "Aynı içeriğe sahip dosyalar. Birini tut, diğerlerini çöpe taşı.",
+        "canFree": "{size} boşaltılabilir",
+        "duplicatesFailed": "Yinelenen dosyalar yüklenemedi",
+        "duplicatesFailedDescription": "Bağlantını kontrol edip tekrar dene.",
+        "noDuplicates": "Yinelenen dosya yok",
+        "noDuplicatesDescription": "Aynı içeriğe sahip dosyalar burada görünür.",
+        "copies": "{count} kopya, her biri {size}",
+        "keepOldest": "En eskiyi tut",
+        "fileInFolder": "{date} · {folder}",
+        "openFile": "Aç",
+        "moveToTrash": "Çöpe taşı"
     }
 }

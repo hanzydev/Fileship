@@ -8,6 +8,7 @@ export interface FileSettings {
     compression?: number;
     folder?: string | null;
     inboxPassword?: string;
+    reportDuplicate?: boolean;
 }
 
 const CHUNK_REQUEST_TIMEOUT_MS = 120_000;
@@ -21,9 +22,9 @@ type ChunkResult = {
     isQuotaExceeded?: boolean;
 };
 
-export const uploadFilesWithConcurrency = async <T>(
-    files: File[],
-    upload: (file: File) => Promise<T>,
+export const uploadFilesWithConcurrency = async <F extends File, T>(
+    files: F[],
+    upload: (file: F) => Promise<T>,
     concurrency = 3,
 ) => {
     const results = new Array<T>(files.length);
@@ -105,6 +106,7 @@ export const uploadFile = async (
         if (settings.expiration) formData.append('expiration', settings.expiration.toString());
         if (settings.folder) formData.append('folderId', settings.folder);
         if (settings.inboxPassword) formData.append('inboxPassword', settings.inboxPassword);
+        if (settings.reportDuplicate) formData.append('reportDuplicate', 'true');
 
         let result: ChunkResult = { ok: false, retryable: true };
 

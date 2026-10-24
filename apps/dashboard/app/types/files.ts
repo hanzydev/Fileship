@@ -14,6 +14,18 @@ export type FileData = Omit<
     embed?: IEmbed;
 };
 
+export type DuplicateGroup = {
+    id: string;
+    size: string;
+    wasted: string;
+    files: FileData[];
+};
+
+export type DuplicateSummary = {
+    files: number;
+    wasted: string;
+};
+
 export type FileSummary = {
     count: number;
     size: string;

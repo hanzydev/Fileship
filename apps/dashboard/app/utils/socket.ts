@@ -33,6 +33,7 @@ export const initSocket = () => {
     const storageMigration = useStorageMigration();
     const storageImport = useStorageImport();
     const storageUsage = useStorageUsage();
+    const { $toast, $i18n } = useNuxtApp();
 
     const route = useRoute();
 
@@ -80,7 +81,7 @@ export const initSocket = () => {
 
         socket.on('deleteAll', () => {
             clearStates();
-            refreshLists('files', 'folders', 'notes', 'backups', 'links', 'trash');
+            refreshLists('files', 'folders', 'notes', 'backups', 'links', 'trash', 'duplicates');
         });
 
         socket.on('session:create', () => refreshLists('sessions'));
@@ -101,24 +102,40 @@ export const initSocket = () => {
 
         socket.on('file:update', (data) => {
             patchListItem('files', data);
-            if ('folderId' in data) refreshLists('files', 'folders');
+            if ('folderId' in data) refreshLists('files', 'folders', 'duplicates');
+            else if ('name' in data) refreshLists('duplicates');
         });
 
         socket.on('file:delete', (fileId) => {
             removeListItems('files', [fileId]);
-            refreshLists('files', 'folders');
+            refreshLists('files', 'folders', 'duplicates');
         });
 
         socket.on('file:bulkDelete', (fileIds: string[]) => {
             removeListItems('files', fileIds);
-            refreshLists('files', 'folders');
+            refreshLists('files', 'folders', 'duplicates');
         });
+
+        socket.on('file:duplicate', (data) => {
+            $toast.warning($i18n.t('upload.duplicateUploaded'), {
+                description: $i18n.t('upload.duplicateDescription', {
+                    name: data.name,
+                    original: data.original.name,
+                }),
+                action: {
+                    label: $i18n.t('upload.showOriginal'),
+                    onClick: () => navigateTo(`/dashboard/files?file=${data.original.id}`),
+                },
+            });
+        });
+
+        socket.on('duplicates:update', () => refreshLists('duplicates'));
 
         socket.on('file:bulkMove', ({ files, folder }) => {
             mapListItems('files', (item) =>
                 files.includes(item.id) ? { ...item, folderId: folder?.id ?? null, folder } : item,
             );
-            refreshLists('files', 'folders');
+            refreshLists('files', 'folders', 'duplicates');
         });
 
         socket.on('folder:create', () => refreshLists('folders', 'files'));
@@ -145,7 +162,7 @@ export const initSocket = () => {
         });
 
         socket.on('trash:update', () => refreshLists('trash'));
-        socket.on('trash:restore', () => refreshLists('files', 'folders', 'notes'));
+        socket.on('trash:restore', () => refreshLists('files', 'folders', 'notes', 'duplicates'));
 
         socket.on('backup:create', () => refreshLists('backups'));
         socket.on('backup:delete', (backupId) => {
