@@ -60,6 +60,7 @@ import {
 type ApiFile = {
     id: string;
     name: string;
+    authorId?: string;
     folderId?: string | null;
     size?: { raw: string } | string | number;
     createdAt: string;
@@ -87,6 +88,7 @@ type ApiFileLinks = {
 type ApiFolder = {
     id: string;
     name: string;
+    authorId?: string;
     parentId?: string | null;
     createdAt: string;
     deletedAt?: string | null;
@@ -1356,6 +1358,8 @@ const handleHelperEvent = (event: HelperEvent) => {
     });
 };
 
+const isOwn = (item: { authorId?: string }) => item.authorId === getStore().user?.id;
+
 const connectSocket = () => {
     const { instanceUrl } = getStore();
     const token = getToken();
@@ -1369,7 +1373,7 @@ const connectSocket = () => {
     });
 
     socket.on('file:create', (file: ApiFile) => {
-        if (file.deletedAt) return;
+        if (file.deletedAt || !isOwn(file)) return;
         files.set(file.id, toRemoteFile(file));
         scheduleApply();
     });
@@ -1404,11 +1408,13 @@ const connectSocket = () => {
     );
 
     socket.on('folder:create', (folder: ApiFolder) => {
+        if (!isOwn(folder)) return;
         folders.set(folder.id, toRemoteFolder(folder));
         scheduleApply();
     });
 
     socket.on('folder:update', (folder: ApiFolder) => {
+        if (!isOwn(folder)) return;
         if (folder.deletedAt) folders.delete(folder.id);
         else folders.set(folder.id, toRemoteFolder(folder, folders.get(folder.id)));
         scheduleApply();
@@ -1446,7 +1452,9 @@ const connectSocket = () => {
         scheduleApply();
     });
 
-    for (const event of ['folder:delete', 'trash:restore', 'currentUser:update', 'deleteAll']) {
+    socket.on('folder:delete', (id: string) => folders.has(id) && resync());
+
+    for (const event of ['trash:restore', 'currentUser:update', 'deleteAll']) {
         socket.on(event, () => resync());
     }
 
