@@ -95,7 +95,37 @@
         "restoring": "正在还原备份，可能需要一段时间",
         "deleteTitle": "要删除此备份吗？",
         "deleteDescription": "此操作无法撤销。",
-        "deleted": "备份已删除"
+        "deleted": "备份已删除",
+        "automatic": "自动",
+        "schedule": {
+            "title": "自动备份",
+            "description": "按计划备份你的账户。你自己创建或上传的备份永远不会被自动删除。",
+            "disabled": "此服务器已关闭自动备份",
+            "disabledDescription": "你的计划会被保留，管理员重新开启后将继续执行。",
+            "frequency": "频率",
+            "frequencies": {
+                "Off": "关闭",
+                "Daily": "每天",
+                "Weekly": "每周"
+            },
+            "weekday": "星期",
+            "time": "时间",
+            "timezone": "按你所在的时区（{timezone}）。",
+            "keep": "保留的备份数量",
+            "keepDescription": "每次创建新备份后，较旧的自动备份将被删除。",
+            "keepLimit": "每次创建新备份后，较旧的自动备份将被删除。你的账户最多可保留 {limit} 个备份。",
+            "nextRun": "下次备份",
+            "notScheduled": "未计划",
+            "lastRun": "上次备份",
+            "never": "尚未运行",
+            "status": {
+                "Created": "创建于 {date}",
+                "LimitReached": "已于 {date} 跳过，已达到备份数量上限",
+                "Failed": "{date} 创建失败"
+            },
+            "save": "保存",
+            "saved": "备份计划已保存"
+        }
     },
     "errorsAuth": {
         "totpRequired": "请输入双重验证码",
@@ -250,6 +280,7 @@
     },
     "errorsUsers": {
         "backupLimitReached": "已达到备份数量上限",
+        "backupKeepAboveLimit": "最多只能保留 {limit} 个备份",
         "invalidUploadId": "上传 ID 无效",
         "totalChunksMin": "分块总数至少为 1",
         "tooManyChunks": "分块过多",
@@ -633,6 +664,8 @@
             "trashRetentionDaysDescription": "已删除的项目在回收站中保留的天数。设为 0 则立即删除。",
             "removeExifData": "移除 EXIF 数据",
             "removeExifDataDescription": "去除上传图片中的位置和相机信息。",
+            "scheduledBackupsEnabled": "计划备份",
+            "scheduledBackupsEnabledDescription": "允许用户每天或每周自动备份其账户。",
             "registrationEnabled": "允许注册",
             "registrationEnabledDescription": "在登录页显示注册链接。",
             "registrationPermissions": "权限",
@@ -1041,6 +1074,7 @@
             "deleteUser": "删除用户",
             "updateSettings": "更新设置",
             "createBackup": "创建备份",
+            "createBackupFailed": "创建备份失败",
             "uploadBackup": "上传备份",
             "loadBackup": "还原备份",
             "loadBackupFailed": "还原备份失败",

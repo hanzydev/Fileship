@@ -28,6 +28,7 @@
 ## 📦 Features
 
 - Files, folders, Markdown notes, short links and inboxes, with a trash for anything you delete
+- Account backups you can download and restore, created by hand or on a schedule
 - Public sharing with passwords, expiry dates, view limits and rich embeds for Discord and other apps
 - [AI](docs/ai.md) that runs on your server: smart search in over 50 languages, captions, OCR and sensitive content detection, all optional
 - Uploads on the local disk, any S3 compatible service, SFTP or FTP

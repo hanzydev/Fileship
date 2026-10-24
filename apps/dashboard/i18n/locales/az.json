@@ -95,7 +95,37 @@
         "restoring": "Ehtiyat nüsxə bərpa edilir, bu bir az vaxt ala bilər",
         "deleteTitle": "Bu ehtiyat nüsxə silinsin?",
         "deleteDescription": "Bu əməliyyatı geri qaytarmaq olmaz.",
-        "deleted": "Ehtiyat nüsxə silindi"
+        "deleted": "Ehtiyat nüsxə silindi",
+        "automatic": "Avtomatik",
+        "schedule": {
+            "title": "Avtomatik ehtiyat nüsxələr",
+            "description": "Hesabın seçdiyin cədvəl üzrə ehtiyat nüsxəyə alınır. Özün yaratdığın və ya yüklədiyin ehtiyat nüsxələr heç vaxt avtomatik silinmir.",
+            "disabled": "Avtomatik ehtiyat nüsxələr bu serverdə söndürülüb",
+            "disabledDescription": "Cədvəlin saxlanılır və admin onları yenidən yandıranda davam edir.",
+            "frequency": "Tezlik",
+            "frequencies": {
+                "Off": "Söndürülüb",
+                "Daily": "Hər gün",
+                "Weekly": "Hər həftə"
+            },
+            "weekday": "Gün",
+            "time": "Saat",
+            "timezone": "Öz saat qurşağına görə ({timezone}).",
+            "keep": "Saxlanılacaq ehtiyat nüsxələr",
+            "keepDescription": "Hər yeni ehtiyat nüsxədən sonra köhnə avtomatik nüsxələr silinir.",
+            "keepLimit": "Hər yeni ehtiyat nüsxədən sonra köhnə avtomatik nüsxələr silinir. Hesabında cəmi ən çox {limit} ehtiyat nüsxə ola bilər.",
+            "nextRun": "Növbəti ehtiyat nüsxə",
+            "notScheduled": "Planlaşdırılmayıb",
+            "lastRun": "Son ehtiyat nüsxə",
+            "never": "Hələ işə düşməyib",
+            "status": {
+                "Created": "Yaradıldı: {date}",
+                "LimitReached": "Ötürüldü: {date}, ehtiyat nüsxə limitinə çatılıb",
+                "Failed": "Yaradılmadı: {date}"
+            },
+            "save": "Yadda saxla",
+            "saved": "Ehtiyat nüsxə cədvəli yadda saxlanıldı"
+        }
     },
     "errorsAuth": {
         "totpRequired": "İki addımlı doğrulama kodunu daxil et",
@@ -250,6 +280,7 @@
     },
     "errorsUsers": {
         "backupLimitReached": "Ehtiyat nüsxə limitinə çatılıb",
+        "backupKeepAboveLimit": "Ən çox {limit} ehtiyat nüsxə saxlaya bilərsən",
         "invalidUploadId": "Yükləmə identifikatoru etibarsızdır",
         "totalChunksMin": "Hissələrin sayı ən azı 1 olmalıdır",
         "tooManyChunks": "Hissələrin sayı həddindən çoxdur",
@@ -633,6 +664,8 @@
             "trashRetentionDaysDescription": "Silinən elementlər zibil qutusunda bu müddət qalır. 0 olarsa, dərhal silinir.",
             "removeExifData": "EXIF məlumatlarını sil",
             "removeExifDataDescription": "Yüklənən şəkillərdən məkan və kamera məlumatları silinir.",
+            "scheduledBackupsEnabled": "Planlı ehtiyat nüsxələr",
+            "scheduledBackupsEnabledDescription": "İstifadəçilər hesablarını hər gün və ya hər həftə avtomatik ehtiyat nüsxəyə ala bilər.",
             "registrationEnabled": "Qeydiyyata icazə ver",
             "registrationEnabledDescription": "Giriş səhifəsində qeydiyyat keçidi göstərilir.",
             "registrationPermissions": "İcazələr",
@@ -1041,6 +1074,7 @@
             "deleteUser": "İstifadəçi silmə",
             "updateSettings": "Ayarları yeniləmə",
             "createBackup": "Ehtiyat nüsxə yaratma",
+            "createBackupFailed": "Uğursuz ehtiyat nüsxə yaratma",
             "uploadBackup": "Ehtiyat nüsxə yükləmə",
             "loadBackup": "Ehtiyat nüsxəni bərpa etmə",
             "loadBackupFailed": "Uğursuz ehtiyat nüsxə bərpası",

@@ -95,7 +95,37 @@
         "restoring": "Restauration de la sauvegarde en cours, cela peut prendre un moment",
         "deleteTitle": "Supprimer cette sauvegarde ?",
         "deleteDescription": "Cette action est irréversible.",
-        "deleted": "Sauvegarde supprimée"
+        "deleted": "Sauvegarde supprimée",
+        "automatic": "Automatique",
+        "schedule": {
+            "title": "Sauvegardes automatiques",
+            "description": "Sauvegardez votre compte selon une planification. Les sauvegardes que vous créez ou importez vous-même ne sont jamais supprimées automatiquement.",
+            "disabled": "Les sauvegardes automatiques sont désactivées sur ce serveur",
+            "disabledDescription": "Votre planification est conservée et reprendra dès qu'un administrateur les réactivera.",
+            "frequency": "Fréquence",
+            "frequencies": {
+                "Off": "Désactivée",
+                "Daily": "Tous les jours",
+                "Weekly": "Toutes les semaines"
+            },
+            "weekday": "Jour",
+            "time": "Heure",
+            "timezone": "Dans votre fuseau horaire ({timezone}).",
+            "keep": "Sauvegardes à conserver",
+            "keepDescription": "Les anciennes sauvegardes automatiques sont supprimées après chaque nouvelle sauvegarde.",
+            "keepLimit": "Les anciennes sauvegardes automatiques sont supprimées après chaque nouvelle sauvegarde. Votre compte peut avoir jusqu'à {limit} sauvegardes au total.",
+            "nextRun": "Prochaine sauvegarde",
+            "notScheduled": "Non planifiée",
+            "lastRun": "Dernière sauvegarde",
+            "never": "Pas encore exécutée",
+            "status": {
+                "Created": "Créée le {date}",
+                "LimitReached": "Ignorée le {date}, limite de sauvegardes atteinte",
+                "Failed": "Échec le {date}"
+            },
+            "save": "Enregistrer",
+            "saved": "Planification des sauvegardes enregistrée"
+        }
     },
     "errorsAuth": {
         "totpRequired": "Saisissez votre code d'authentification à deux facteurs",
@@ -250,6 +280,7 @@
     },
     "errorsUsers": {
         "backupLimitReached": "Limite de sauvegardes atteinte",
+        "backupKeepAboveLimit": "Vous pouvez conserver jusqu'à {limit} sauvegardes",
         "invalidUploadId": "Identifiant d'importation non valide",
         "totalChunksMin": "Le nombre total de segments doit être supérieur ou égal à 1",
         "tooManyChunks": "Trop de segments",
@@ -633,6 +664,8 @@
             "trashRetentionDaysDescription": "Les éléments supprimés restent dans la corbeille pendant cette durée. 0 les supprime immédiatement.",
             "removeExifData": "Supprimer les données EXIF",
             "removeExifDataDescription": "Retirer la localisation et les informations de l'appareil photo des images importées.",
+            "scheduledBackupsEnabled": "Sauvegardes planifiées",
+            "scheduledBackupsEnabledDescription": "Permettre aux utilisateurs de sauvegarder automatiquement leur compte chaque jour ou chaque semaine.",
             "registrationEnabled": "Autoriser les inscriptions",
             "registrationEnabledDescription": "Afficher un lien d'inscription sur la page de connexion.",
             "registrationPermissions": "Autorisations",
@@ -1041,6 +1074,7 @@
             "deleteUser": "Suppression d'un utilisateur",
             "updateSettings": "Modification des paramètres",
             "createBackup": "Création d'une sauvegarde",
+            "createBackupFailed": "Échec de la création d'une sauvegarde",
             "uploadBackup": "Importation d'une sauvegarde",
             "loadBackup": "Restauration d'une sauvegarde",
             "loadBackupFailed": "Échec de la restauration d'une sauvegarde",

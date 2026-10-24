@@ -9,6 +9,7 @@ type CreateLogData = {
     action: string;
     message: string;
     system?: boolean;
+    user?: { id: string; username: string };
 };
 
 const AllowedActions = [
@@ -25,6 +26,7 @@ const AllowedActions = [
     'Delete User',
     'Update Settings',
     'Create Backup',
+    'Create Backup Failed',
     'Upload Backup',
     'Load Backup',
     'Load Backup Failed',
@@ -44,23 +46,22 @@ const AllowedActions = [
 
 export const createLog = async (
     event: H3Event | null,
-    { action, message, system }: CreateLogData,
+    { action, message, system, user }: CreateLogData,
 ) => {
     const { logLevel } = await getSettings();
     if (logLevel === 0 || (!AllowedActions.includes(action) && logLevel !== 2)) {
         return;
     }
 
-    const currentUser = event?.context?.user;
+    const currentUser = user ?? event?.context?.user;
     const ip = event ? getClientIp(event) : '::1';
+    const from = ip !== '::1' ? ` from ${ip}` : '';
 
     if (system || !currentUser) {
-        consola.info(
-            `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - ${message}${ip !== '::1' ? ` from ${ip}` : ''}`,
-        );
+        consola.info(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} - ${message}${from}`);
     } else {
         consola.info(
-            `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - User ${titleCase(currentUser!.username)}, ${lowerFirst(message)} from ${ip}`,
+            `${dayjs().format('YYYY-MM-DD HH:mm:ss')} - User ${titleCase(currentUser!.username)}, ${lowerFirst(message)}${from}`,
         );
     }
 

@@ -37,3 +37,4 @@ Dashboard and infrastructure:
 - [ ] In the Docker image the AI worker starts and loads its dependencies, but downloading and running the models inside a container has not been tested.
 - [ ] Review the Dependabot alerts and the open dependency updates.
 - [ ] `/api/healthz` of the 5.4.4 image reports 5.4.3; check that future images report their own version.
+- [ ] Scheduled backups were tested on the data directory with small accounts, with two production instances racing for the same schedules. Check a run on an S3 or SFTP active storage and with a large account.

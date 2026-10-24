@@ -95,7 +95,37 @@
         "restoring": "백업을 복원하고 있어요. 시간이 조금 걸릴 수 있어요",
         "deleteTitle": "이 백업을 삭제할까요?",
         "deleteDescription": "이 작업은 되돌릴 수 없어요.",
-        "deleted": "백업을 삭제했어요"
+        "deleted": "백업을 삭제했어요",
+        "automatic": "자동",
+        "schedule": {
+            "title": "자동 백업",
+            "description": "일정에 따라 계정을 백업해요. 직접 만들거나 업로드한 백업은 자동으로 삭제되지 않아요.",
+            "disabled": "이 서버에서 자동 백업이 꺼져 있어요",
+            "disabledDescription": "일정은 그대로 유지되고, 관리자가 다시 켜면 이어서 실행돼요.",
+            "frequency": "주기",
+            "frequencies": {
+                "Off": "끄기",
+                "Daily": "매일",
+                "Weekly": "매주"
+            },
+            "weekday": "요일",
+            "time": "시간",
+            "timezone": "내 시간대({timezone}) 기준이에요.",
+            "keep": "보관할 백업 수",
+            "keepDescription": "새 백업이 만들어질 때마다 오래된 자동 백업은 삭제돼요.",
+            "keepLimit": "새 백업이 만들어질 때마다 오래된 자동 백업은 삭제돼요. 이 계정은 백업을 최대 {limit}개까지 보관할 수 있어요.",
+            "nextRun": "다음 백업",
+            "notScheduled": "예약되지 않음",
+            "lastRun": "마지막 백업",
+            "never": "아직 실행되지 않음",
+            "status": {
+                "Created": "{date}에 생성됨",
+                "LimitReached": "{date}에 건너뜀 (백업 개수 한도 도달)",
+                "Failed": "{date}에 생성하지 못함"
+            },
+            "save": "저장",
+            "saved": "백업 일정을 저장했어요"
+        }
     },
     "errorsAuth": {
         "totpRequired": "2단계 인증 코드를 입력하세요",
@@ -250,6 +280,7 @@
     },
     "errorsUsers": {
         "backupLimitReached": "백업 개수 한도에 도달했어요",
+        "backupKeepAboveLimit": "백업은 최대 {limit}개까지 보관할 수 있어요",
         "invalidUploadId": "업로드 ID가 올바르지 않아요",
         "totalChunksMin": "청크 수는 1 이상이어야 해요",
         "tooManyChunks": "청크가 너무 많아요",
@@ -633,6 +664,8 @@
             "trashRetentionDaysDescription": "삭제한 항목은 이 기간 동안 휴지통에 남아 있어요. 0이면 바로 삭제돼요.",
             "removeExifData": "EXIF 데이터 제거",
             "removeExifDataDescription": "업로드한 이미지에서 위치와 카메라 정보를 지워요.",
+            "scheduledBackupsEnabled": "예약 백업",
+            "scheduledBackupsEnabledDescription": "사용자가 매일 또는 매주 계정을 자동으로 백업할 수 있어요.",
             "registrationEnabled": "가입 허용",
             "registrationEnabledDescription": "로그인 페이지에 가입 링크를 표시해요.",
             "registrationPermissions": "권한",
@@ -1041,6 +1074,7 @@
             "deleteUser": "사용자 삭제",
             "updateSettings": "설정 변경",
             "createBackup": "백업 생성",
+            "createBackupFailed": "백업 생성 실패",
             "uploadBackup": "백업 업로드",
             "loadBackup": "백업 복원",
             "loadBackupFailed": "백업 복원 실패",
