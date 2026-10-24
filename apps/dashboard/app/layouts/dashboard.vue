@@ -500,6 +500,7 @@ const breadcrumbLabels = {
     logs: 'layout.pages.logs',
     instance: 'layout.pages.instance',
     settings: 'layout.pages.settings',
+    share: 'layout.pages.share',
     profile: 'settings.nav.profile',
     security: 'settings.nav.security',
     sessions: 'settings.nav.sessions',
