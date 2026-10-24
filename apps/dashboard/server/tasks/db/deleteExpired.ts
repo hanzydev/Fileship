@@ -16,6 +16,13 @@ export default defineTask({
                 storageId: true,
                 authorId: true,
                 deletedAt: true,
+                name: true,
+                mimeType: true,
+                size: true,
+                password: true,
+                piiDetected: true,
+                aiAnalyzedAt: true,
+                folder: { select: { public: true } },
             },
         });
 
@@ -33,6 +40,9 @@ export default defineTask({
                 message: `Deleted file ${file.fileName} due to expiration`,
                 system: true,
             });
+
+            if (!file.deletedAt)
+                emitFilesDeleted(null, file.authorId, [{ ...file, expiresAt: null }], 'expired');
 
             sendToUser(file.authorId, 'file:delete', file.id);
             if (file.deletedAt) sendToUser(file.authorId, 'trash:update', null);

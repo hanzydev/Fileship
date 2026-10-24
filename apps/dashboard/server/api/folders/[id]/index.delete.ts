@@ -50,6 +50,7 @@ export default defineEventHandler(async (event) => {
 
     const files = await prisma.file.findMany({
         where: { folderId: { in: folderIds }, deletedAt: null },
+        include: { folder: { select: { public: true } } },
     });
 
     const isTrashed = !(isOwner && body.data.permanent) && (await isTrashEnabled());
@@ -77,6 +78,8 @@ export default defineEventHandler(async (event) => {
     }
 
     if (body.data.deleteFilesToo) {
+        emitFilesDeleted(event, findFolderById.authorId, files, isTrashed ? 'trashed' : 'deleted');
+
         const deletionPromises = files.map(async (file) => {
             await createLog(event, {
                 action: 'Delete File',

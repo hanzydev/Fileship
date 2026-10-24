@@ -24,6 +24,14 @@ export default defineEventHandler(async (event) => {
             storageId: true,
             authorId: true,
             folderId: true,
+            name: true,
+            mimeType: true,
+            size: true,
+            password: true,
+            piiDetected: true,
+            expiresAt: true,
+            aiAnalyzedAt: true,
+            folder: { select: { public: true } },
         },
     });
 
@@ -64,6 +72,8 @@ export default defineEventHandler(async (event) => {
 
     for (const ownerId of new Set(filesToBeDeleted.map((file) => file.authorId))) {
         const owned = filesToBeDeleted.filter((file) => file.authorId === ownerId);
+
+        emitFilesDeleted(event, ownerId, owned, isTrashed ? 'trashed' : 'deleted');
 
         await sendToFolder(
             ownerId,

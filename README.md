@@ -36,6 +36,7 @@
 - Zero-downtime updates, one click or on a schedule
 - ShareX, macOS and Linux upload integrations, the [Windows app](docs/desktop.md) and an [installable app for phones](docs/mobile.md) that Android apps can share to
 - A [browser extension](docs/browser-extension.md) for Chrome, Edge and Firefox that uploads files, images and screenshots and shortens links
+- [Webhooks](docs/webhooks.md) for Discord, Slack and your own services
 - English, Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese
 
 ## 🖥️ Fileship for Windows
@@ -70,6 +71,7 @@ Upgrading from 5.x? Follow [Upgrading to 6.0](docs/upgrading.md).
 - [AI features](docs/ai.md): presets, models, smart search and sensitive content
 - [Fileship for Windows](docs/desktop.md)
 - [Fileship on your phone](docs/mobile.md): installing the app and sharing from Android
+- [Webhooks](docs/webhooks.md): events, formats, delivery and signature verification
 - [Telemetry](docs/telemetry.md): what is collected and how to turn it off
 
 ## 🧰 Built With

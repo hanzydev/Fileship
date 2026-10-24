@@ -35,6 +35,7 @@ export const settingsSchema = z.object({
     smtpUser: z.string().trim().max(256),
     smtpPassword: z.string().max(256),
     smtpFrom: z.union([z.literal(''), z.email().max(256)]),
+    webhookPrivateTargets: z.boolean(),
     activeStorageId: z.string().nullable(),
 });
 

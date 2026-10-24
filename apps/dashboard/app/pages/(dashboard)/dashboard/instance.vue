@@ -1091,11 +1091,22 @@ const sections: SettingSection[] = [
             },
         ],
     },
+    {
+        id: 'webhooks',
+        fields: [
+            {
+                key: 'webhookPrivateTargets',
+                label: 'instance.fields.webhookPrivateTargets',
+                type: 'switch',
+                description: 'instance.fields.webhookPrivateTargetsDescription',
+            },
+        ],
+    },
 ];
 
 const columns = [
     [sections[0]!, sections[1]!, sections[2]!, sections[5]!],
-    [sections[4]!, sections[3]!, sections[6]!],
+    [sections[4]!, sections[3]!, sections[6]!, sections[7]!],
 ];
 
 const storageTypeLabels = computed(() => ({

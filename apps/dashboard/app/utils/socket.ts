@@ -34,6 +34,7 @@ export const initSocket = () => {
     const storageImport = useStorageImport();
     const storageUsage = useStorageUsage();
     const backupSchedule = useBackupSchedule();
+    const webhooks = useWebhooks();
     const { $toast, $i18n } = useNuxtApp();
 
     const route = useRoute();
@@ -203,6 +204,23 @@ export const initSocket = () => {
             if (index > -1) {
                 passkeys.value[index] = { ...passkeys.value[index], ...data };
             }
+        });
+
+        socket.on('webhook:create', (data) => {
+            if (webhooks.value && !webhooks.value.some((webhook) => webhook.id === data.id))
+                webhooks.value = [...webhooks.value, data];
+        });
+
+        socket.on('webhook:update', (data) => {
+            if (webhooks.value)
+                webhooks.value = webhooks.value.map((webhook) =>
+                    webhook.id === data.id ? data : webhook,
+                );
+        });
+
+        socket.on('webhook:delete', (webhookId) => {
+            if (webhooks.value)
+                webhooks.value = webhooks.value.filter((webhook) => webhook.id !== webhookId);
         });
 
         const refreshStorageUsage = useThrottleFn(

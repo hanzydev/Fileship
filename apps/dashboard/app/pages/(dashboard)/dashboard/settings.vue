@@ -93,7 +93,9 @@ const sections = computed(() => [
     ...(canUploadFiles(currentUser.value)
         ? [{ label: t('settings.nav.inbox'), path: '/dashboard/settings/inbox', icon: IInbox }]
         : []),
-    ...(canUploadFiles(currentUser.value) || canShortenLinks(currentUser.value)
+    ...(canUploadFiles(currentUser.value) ||
+    canShortenLinks(currentUser.value) ||
+    canTakeNotes(currentUser.value)
         ? [
               {
                   label: t('settings.nav.integrations'),

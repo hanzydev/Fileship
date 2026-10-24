@@ -22,6 +22,7 @@ export default defineEventHandler(async (event) => {
             id: fileId,
             deletedAt: null,
         },
+        include: { folder: { select: { public: true } } },
     });
 
     const access = findFileById && (await fileAccessOf(findFileById, currentUser.id));
@@ -46,6 +47,13 @@ export default defineEventHandler(async (event) => {
             ? `Moved file ${findFileById.fileName} to trash`
             : `Deleted file ${findFileById.fileName}`,
     });
+
+    emitFilesDeleted(
+        event,
+        findFileById.authorId,
+        [findFileById],
+        isTrashed ? 'trashed' : 'deleted',
+    );
 
     await sendToFolder(findFileById.authorId, [findFileById.folderId], 'file:delete', fileId);
     sendToUser(findFileById.authorId, 'trash:update', null);

@@ -45,6 +45,10 @@ const AllowedActions = [
     'Reset AI Data',
     'Update Fileship',
     'Flush Logs',
+    'Create Webhook',
+    'Update Webhook',
+    'Delete Webhook',
+    'Disable Webhook',
 ];
 
 export const createLog = async (

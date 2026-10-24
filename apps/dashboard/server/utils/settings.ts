@@ -66,6 +66,7 @@ export const getSettingDefaults = (): InstanceSettings => {
         smtpUser: parseDefault('smtpUser', config.smtp.user, ''),
         smtpPassword: parseDefault('smtpPassword', config.smtp.password, ''),
         smtpFrom: parseDefault('smtpFrom', config.smtp.from, ''),
+        webhookPrivateTargets: false,
         activeStorageId: null,
     };
 };
