@@ -101,7 +101,37 @@
         "restoring": "Backup wird wiederhergestellt, das kann etwas dauern",
         "deleteTitle": "Dieses Backup löschen?",
         "deleteDescription": "Das kann nicht rückgängig gemacht werden.",
-        "deleted": "Backup gelöscht"
+        "deleted": "Backup gelöscht",
+        "automatic": "Automatisch",
+        "schedule": {
+            "title": "Automatische Backups",
+            "description": "Sichere dein Konto nach Zeitplan. Backups, die du selbst erstellst oder hochlädst, werden nie automatisch gelöscht.",
+            "disabled": "Automatische Backups sind auf diesem Server deaktiviert",
+            "disabledDescription": "Dein Zeitplan bleibt erhalten und läuft weiter, sobald ein Administrator sie wieder aktiviert.",
+            "frequency": "Zeitplan",
+            "frequencies": {
+                "Off": "Aus",
+                "Daily": "Täglich",
+                "Weekly": "Wöchentlich"
+            },
+            "weekday": "Tag",
+            "time": "Uhrzeit",
+            "timezone": "In deiner Zeitzone ({timezone}).",
+            "keep": "Aufzubewahrende Backups",
+            "keepDescription": "Ältere automatische Backups werden nach jedem neuen gelöscht.",
+            "keepLimit": "Ältere automatische Backups werden nach jedem neuen gelöscht. Dein Konto kann insgesamt bis zu {limit} Backups haben.",
+            "nextRun": "Nächstes Backup",
+            "notScheduled": "Nicht geplant",
+            "lastRun": "Letztes Backup",
+            "never": "Noch nicht ausgeführt",
+            "status": {
+                "Created": "Erstellt am {date}",
+                "LimitReached": "Am {date} übersprungen, Backup-Limit erreicht",
+                "Failed": "Am {date} fehlgeschlagen"
+            },
+            "save": "Speichern",
+            "saved": "Backup-Zeitplan gespeichert"
+        }
     },
     "errorsAuth": {
         "totpRequired": "Gib deinen Code für die Zwei-Faktor-Authentifizierung ein",
@@ -262,6 +292,7 @@
     },
     "errorsUsers": {
         "backupLimitReached": "Backup-Limit erreicht",
+        "backupKeepAboveLimit": "Du kannst höchstens {limit} Backups aufbewahren",
         "invalidUploadId": "Ungültige Upload-ID",
         "totalChunksMin": "Die Gesamtzahl der Teile muss mindestens 1 sein",
         "tooManyChunks": "Zu viele Teile",
@@ -682,6 +713,8 @@
             "trashRetentionDaysDescription": "So lange bleiben gelöschte Elemente im Papierkorb. Bei 0 werden sie sofort gelöscht.",
             "removeExifData": "EXIF-Daten entfernen",
             "removeExifDataDescription": "Standort- und Kameradaten aus hochgeladenen Bildern entfernen.",
+            "scheduledBackupsEnabled": "Geplante Backups",
+            "scheduledBackupsEnabledDescription": "Benutzer können ihr Konto täglich oder wöchentlich automatisch sichern.",
             "registrationEnabled": "Registrierung erlauben",
             "registrationEnabledDescription": "Zeigt auf der Anmeldeseite einen Link zur Registrierung.",
             "registrationPermissions": "Berechtigungen",
@@ -1090,6 +1123,7 @@
             "deleteUser": "Benutzer gelöscht",
             "updateSettings": "Einstellungen aktualisiert",
             "createBackup": "Backup erstellt",
+            "createBackupFailed": "Backup-Erstellung fehlgeschlagen",
             "uploadBackup": "Backup hochgeladen",
             "loadBackup": "Backup wiederhergestellt",
             "loadBackupFailed": "Wiederherstellung fehlgeschlagen",

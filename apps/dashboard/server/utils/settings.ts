@@ -19,6 +19,11 @@ export const getSettingDefaults = (): InstanceSettings => {
         removeExifData: parseDefault('removeExifData', !!config.removeExifData, true),
         avatarMaxSize: parseDefault('avatarMaxSize', +config.avatarMaxSize, 4),
         trashRetentionDays: parseDefault('trashRetentionDays', +config.trashRetentionDays, 30),
+        scheduledBackupsEnabled: parseDefault(
+            'scheduledBackupsEnabled',
+            !!config.scheduledBackupsEnabled,
+            true,
+        ),
         registrationEnabled: parseDefault(
             'registrationEnabled',
             !!config.public.registrationEnabled,

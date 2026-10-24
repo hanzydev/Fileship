@@ -101,7 +101,37 @@
         "restoring": "Yedek geri yükleniyor, bu biraz sürebilir",
         "deleteTitle": "Bu yedek silinsin mi?",
         "deleteDescription": "Bu işlem geri alınamaz.",
-        "deleted": "Yedek silindi"
+        "deleted": "Yedek silindi",
+        "automatic": "Otomatik",
+        "schedule": {
+            "title": "Otomatik yedekler",
+            "description": "Hesabın belirlediğin aralıklarla yedeklenir. Kendi oluşturduğun veya yüklediğin yedekler asla otomatik olarak silinmez.",
+            "disabled": "Otomatik yedekler bu sunucuda kapalı",
+            "disabledDescription": "Planın saklanır, bir yönetici yeniden açtığında kaldığı yerden devam eder.",
+            "frequency": "Sıklık",
+            "frequencies": {
+                "Off": "Kapalı",
+                "Daily": "Her gün",
+                "Weekly": "Her hafta"
+            },
+            "weekday": "Gün",
+            "time": "Saat",
+            "timezone": "Kendi saat dilimine göre ({timezone}).",
+            "keep": "Saklanacak yedek",
+            "keepDescription": "Her yeni yedekten sonra eski otomatik yedekler silinir.",
+            "keepLimit": "Her yeni yedekten sonra eski otomatik yedekler silinir. Hesabında toplam en fazla {limit} yedek olabilir.",
+            "nextRun": "Sonraki yedek",
+            "notScheduled": "Planlanmadı",
+            "lastRun": "Son yedek",
+            "never": "Henüz çalışmadı",
+            "status": {
+                "Created": "{date} tarihinde oluşturuldu",
+                "LimitReached": "{date} tarihinde atlandı, yedek sınırına ulaşıldı",
+                "Failed": "{date} tarihinde oluşturulamadı"
+            },
+            "save": "Kaydet",
+            "saved": "Yedekleme planı kaydedildi"
+        }
     },
     "errorsAuth": {
         "totpRequired": "İki adımlı doğrulama kodunu gir",
@@ -262,6 +292,7 @@
     },
     "errorsUsers": {
         "backupLimitReached": "Yedek sınırına ulaşıldı",
+        "backupKeepAboveLimit": "En fazla {limit} yedek saklayabilirsin",
         "invalidUploadId": "Yükleme kimliği geçersiz",
         "totalChunksMin": "Parça sayısı en az 1 olmalı",
         "tooManyChunks": "Parça sayısı çok fazla",
@@ -682,6 +713,8 @@
             "trashRetentionDaysDescription": "Silinen öğeler çöp kutusunda bu süre boyunca kalır. 0 ise hemen silinir.",
             "removeExifData": "EXIF verilerini kaldır",
             "removeExifDataDescription": "Yüklenen görsellerdeki konum ve kamera bilgileri silinir.",
+            "scheduledBackupsEnabled": "Zamanlanmış yedekler",
+            "scheduledBackupsEnabledDescription": "Kullanıcılar hesaplarını her gün veya her hafta otomatik olarak yedekleyebilir.",
             "registrationEnabled": "Kaydolmaya izin ver",
             "registrationEnabledDescription": "Giriş sayfasında kaydolma bağlantısı gösterilir.",
             "registrationPermissions": "Yetkiler",
@@ -1090,6 +1123,7 @@
             "deleteUser": "Kullanıcı silme",
             "updateSettings": "Ayarları güncelleme",
             "createBackup": "Yedek oluşturma",
+            "createBackupFailed": "Yedek oluşturma hatası",
             "uploadBackup": "Yedek yükleme",
             "loadBackup": "Yedek geri yükleme",
             "loadBackupFailed": "Yedek geri yükleme hatası",

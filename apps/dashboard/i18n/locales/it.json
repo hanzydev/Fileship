@@ -101,7 +101,37 @@
         "restoring": "Ripristino del backup in corso, potrebbe volerci un po'",
         "deleteTitle": "Eliminare questo backup?",
         "deleteDescription": "Questa azione non può essere annullata.",
-        "deleted": "Backup eliminato"
+        "deleted": "Backup eliminato",
+        "automatic": "Automatico",
+        "schedule": {
+            "title": "Backup automatici",
+            "description": "Esegui il backup del tuo account secondo una pianificazione. I backup che crei o carichi tu non vengono mai eliminati automaticamente.",
+            "disabled": "I backup automatici sono disattivati su questo server",
+            "disabledDescription": "La tua pianificazione viene conservata e riprende quando un amministratore li riattiva.",
+            "frequency": "Frequenza",
+            "frequencies": {
+                "Off": "Disattivati",
+                "Daily": "Ogni giorno",
+                "Weekly": "Ogni settimana"
+            },
+            "weekday": "Giorno",
+            "time": "Ora",
+            "timezone": "Nel tuo fuso orario ({timezone}).",
+            "keep": "Backup da conservare",
+            "keepDescription": "I backup automatici più vecchi vengono eliminati dopo ogni nuovo backup.",
+            "keepLimit": "I backup automatici più vecchi vengono eliminati dopo ogni nuovo backup. Il tuo account può avere fino a {limit} backup in totale.",
+            "nextRun": "Prossimo backup",
+            "notScheduled": "Non pianificato",
+            "lastRun": "Ultimo backup",
+            "never": "Non ancora eseguito",
+            "status": {
+                "Created": "Creato il {date}",
+                "LimitReached": "Saltato il {date}, limite di backup raggiunto",
+                "Failed": "Non riuscito il {date}"
+            },
+            "save": "Salva",
+            "saved": "Pianificazione dei backup salvata"
+        }
     },
     "errorsAuth": {
         "totpRequired": "Inserisci il codice di autenticazione a due fattori",
@@ -262,6 +292,7 @@
     },
     "errorsUsers": {
         "backupLimitReached": "Limite di backup raggiunto",
+        "backupKeepAboveLimit": "Puoi conservare al massimo {limit} backup",
         "invalidUploadId": "ID di caricamento non valido",
         "totalChunksMin": "Il numero totale di blocchi deve essere almeno 1",
         "tooManyChunks": "Troppi blocchi",
@@ -682,6 +713,8 @@
             "trashRetentionDaysDescription": "Gli elementi eliminati restano nel cestino per questo numero di giorni. Con 0 vengono eliminati subito.",
             "removeExifData": "Rimuovi i dati EXIF",
             "removeExifDataDescription": "Elimina la posizione e i dettagli della fotocamera dalle immagini caricate.",
+            "scheduledBackupsEnabled": "Backup pianificati",
+            "scheduledBackupsEnabledDescription": "Consenti agli utenti di eseguire automaticamente il backup del proprio account ogni giorno o ogni settimana.",
             "registrationEnabled": "Consenti la registrazione",
             "registrationEnabledDescription": "Mostra un link di registrazione nella pagina di accesso.",
             "registrationPermissions": "Autorizzazioni",
@@ -1090,6 +1123,7 @@
             "deleteUser": "Eliminazione utente",
             "updateSettings": "Modifica impostazioni",
             "createBackup": "Creazione backup",
+            "createBackupFailed": "Creazione backup non riuscita",
             "uploadBackup": "Caricamento backup",
             "loadBackup": "Ripristino backup",
             "loadBackupFailed": "Ripristino backup non riuscito",

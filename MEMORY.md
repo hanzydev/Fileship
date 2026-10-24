@@ -37,6 +37,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - **Packaging the desktop app:** run `pnpm build` right before electron-builder. A stale `dist-electron` (for example from a `tsdown --watch` dev process) gets packaged otherwise.
 - On Windows, files in `apps/desktop/release` can be locked by Explorer, an editor or an AI desktop app that has the folder open, and electron-builder then fails with `EBUSY`. Build into a folder outside the repo with `--config.directories.output=<path>` and copy the result.
 - In Git Bash, `node -e` and heredocs mangle template literals (`${...}`), backticks and backslashes (double backslashes can arrive halved). Write a script file instead, or edit such lines with an editor tool.
+- **Package subpaths on the server need their extension.** Nitro keeps packages such as dayjs external, and Node's ESM resolver refuses extensionless subpaths, so `import utc from 'dayjs/plugin/utc'` works in `nuxt dev` but crashes the built server at startup. Server code writes `dayjs/plugin/utc.js`; check a production build (`nuxt build`, then `node .output/server/index.mjs`) after adding such an import.
 - `LF will be replaced by CRLF` warnings are harmless.
 - Run prettier only on the files you changed; `pnpm lint` formats the whole repository.
 

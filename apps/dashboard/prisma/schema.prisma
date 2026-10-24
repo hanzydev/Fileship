@@ -46,6 +46,18 @@ enum AIJobStatus {
   Failed
 }
 
+enum BackupFrequency {
+  Off
+  Daily
+  Weekly
+}
+
+enum BackupRunStatus {
+  Created
+  LimitReached
+  Failed
+}
+
 model User {
   id                     String              @id @unique @default(uuid())
   username               String              @unique
@@ -76,6 +88,7 @@ model User {
   aiJobs                 AIJob[]
   inbox                  Inbox?
   backups                Backup[]
+  backupSchedule         BackupSchedule?
   links                  Link[]
   folderMemberships      FolderMember[]
 }
@@ -144,9 +157,25 @@ model Backup {
   size      BigInt
   storageId String?
   storage   Storage? @relation(fields: [storageId], references: [id], onDelete: Restrict)
+  automatic Boolean  @default(false)
   createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
+}
+
+model BackupSchedule {
+  userId        String           @id
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  frequency     BackupFrequency
+  hour          Int
+  weekday       Int
+  timezone      String
+  keep          Int
+  nextRunAt     DateTime?
+  lastRunAt     DateTime?
+  lastRunStatus BackupRunStatus?
+
+  @@index([nextRunAt])
 }
 
 model AIJob {

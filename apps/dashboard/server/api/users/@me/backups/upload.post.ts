@@ -57,10 +57,8 @@ export default defineEventHandler(async (event) => {
             }
 
             if (
-                !isAdmin(currentUser) &&
-                currentUser.limits.backupLimit > -1 &&
                 (await prisma.backup.count({ where: { userId: currentUser.id } })) >=
-                    currentUser.limits.backupLimit
+                backupLimitOf(currentUser)
             ) {
                 throw apiError(400, 'errorsUsers.backupLimitReached');
             }

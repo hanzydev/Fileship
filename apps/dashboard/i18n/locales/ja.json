@@ -101,7 +101,37 @@
         "restoring": "バックアップを復元しています。しばらく時間がかかる場合があります",
         "deleteTitle": "このバックアップを削除しますか？",
         "deleteDescription": "この操作は元に戻せません。",
-        "deleted": "バックアップを削除しました"
+        "deleted": "バックアップを削除しました",
+        "automatic": "自動",
+        "schedule": {
+            "title": "自動バックアップ",
+            "description": "スケジュールに沿ってアカウントをバックアップします。自分で作成またはアップロードしたバックアップが自動的に削除されることはありません。",
+            "disabled": "このサーバーでは自動バックアップがオフになっています",
+            "disabledDescription": "スケジュールは保持され、管理者がオンにすると再開されます。",
+            "frequency": "頻度",
+            "frequencies": {
+                "Off": "オフ",
+                "Daily": "毎日",
+                "Weekly": "毎週"
+            },
+            "weekday": "曜日",
+            "time": "時刻",
+            "timezone": "現在のタイムゾーン（{timezone}）の時刻です。",
+            "keep": "保持するバックアップ数",
+            "keepDescription": "新しいバックアップが作成されるたびに、古い自動バックアップは削除されます。",
+            "keepLimit": "新しいバックアップが作成されるたびに、古い自動バックアップは削除されます。このアカウントで保持できるバックアップは合計 {limit} 個までです。",
+            "nextRun": "次回のバックアップ",
+            "notScheduled": "予定なし",
+            "lastRun": "前回のバックアップ",
+            "never": "まだ実行されていません",
+            "status": {
+                "Created": "{date} に作成しました",
+                "LimitReached": "{date} にスキップしました（バックアップの上限に達しています）",
+                "Failed": "{date} に作成できませんでした"
+            },
+            "save": "保存",
+            "saved": "バックアップのスケジュールを保存しました"
+        }
     },
     "errorsAuth": {
         "totpRequired": "2 段階認証のコードを入力してください",
@@ -262,6 +292,7 @@
     },
     "errorsUsers": {
         "backupLimitReached": "バックアップの上限に達しました",
+        "backupKeepAboveLimit": "保持できるバックアップは {limit} 個までです",
         "invalidUploadId": "アップロード ID が無効です",
         "totalChunksMin": "チャンクの総数は 1 以上にしてください",
         "tooManyChunks": "チャンクが多すぎます",
@@ -682,6 +713,8 @@
             "trashRetentionDaysDescription": "削除した項目はこの期間ゴミ箱に残ります。0 にするとすぐに削除されます。",
             "removeExifData": "EXIF データを削除",
             "removeExifDataDescription": "アップロードされた画像から位置情報やカメラの情報を削除します。",
+            "scheduledBackupsEnabled": "スケジュールバックアップ",
+            "scheduledBackupsEnabledDescription": "ユーザーがアカウントを毎日または毎週自動でバックアップできるようにします。",
             "registrationEnabled": "登録を許可",
             "registrationEnabledDescription": "ログインページに登録用のリンクを表示します。",
             "registrationPermissions": "権限",
@@ -1090,6 +1123,7 @@
             "deleteUser": "ユーザーを削除",
             "updateSettings": "設定を更新",
             "createBackup": "バックアップを作成",
+            "createBackupFailed": "バックアップの作成に失敗",
             "uploadBackup": "バックアップをアップロード",
             "loadBackup": "バックアップを復元",
             "loadBackupFailed": "バックアップの復元に失敗",

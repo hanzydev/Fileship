@@ -888,6 +888,12 @@ const sections: SettingSection[] = [
                 type: 'switch',
                 description: 'instance.fields.removeExifDataDescription',
             },
+            {
+                key: 'scheduledBackupsEnabled',
+                label: 'instance.fields.scheduledBackupsEnabled',
+                type: 'switch',
+                description: 'instance.fields.scheduledBackupsEnabledDescription',
+            },
         ],
     },
     {

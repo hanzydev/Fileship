@@ -101,7 +101,37 @@
         "restoring": "Backup is being restored, this may take a while",
         "deleteTitle": "Delete this backup?",
         "deleteDescription": "This action cannot be undone.",
-        "deleted": "Backup deleted"
+        "deleted": "Backup deleted",
+        "automatic": "Automatic",
+        "schedule": {
+            "title": "Automatic backups",
+            "description": "Back up your account on a schedule. Backups you create or upload yourself are never deleted automatically.",
+            "disabled": "Automatic backups are turned off on this server",
+            "disabledDescription": "Your schedule is kept and starts again when an administrator turns them back on.",
+            "frequency": "Schedule",
+            "frequencies": {
+                "Off": "Off",
+                "Daily": "Every day",
+                "Weekly": "Every week"
+            },
+            "weekday": "Day",
+            "time": "Time",
+            "timezone": "In your time zone ({timezone}).",
+            "keep": "Backups to keep",
+            "keepDescription": "Older automatic backups are deleted after each new one.",
+            "keepLimit": "Older automatic backups are deleted after each new one. Your account can have up to {limit} backups in total.",
+            "nextRun": "Next backup",
+            "notScheduled": "Not scheduled",
+            "lastRun": "Last backup",
+            "never": "Not run yet",
+            "status": {
+                "Created": "Created on {date}",
+                "LimitReached": "Skipped on {date} because the backup limit is reached",
+                "Failed": "Failed on {date}"
+            },
+            "save": "Save",
+            "saved": "Backup schedule saved"
+        }
     },
     "errorsAuth": {
         "totpRequired": "Enter your two-factor authentication code",
@@ -262,6 +292,7 @@
     },
     "errorsUsers": {
         "backupLimitReached": "Backup limit reached",
+        "backupKeepAboveLimit": "You can keep up to {limit} backups",
         "invalidUploadId": "Invalid upload id",
         "totalChunksMin": "Total chunks must be at least 1",
         "tooManyChunks": "Too many chunks",
@@ -682,6 +713,8 @@
             "trashRetentionDaysDescription": "Deleted items stay in the trash this long. 0 deletes them immediately.",
             "removeExifData": "Remove EXIF data",
             "removeExifDataDescription": "Strip location and camera details from uploaded images.",
+            "scheduledBackupsEnabled": "Scheduled backups",
+            "scheduledBackupsEnabledDescription": "Let users back up their account automatically every day or every week.",
             "registrationEnabled": "Allow registration",
             "registrationEnabledDescription": "Show a sign up link on the login page.",
             "registrationPermissions": "Permissions",
@@ -1090,6 +1123,7 @@
             "deleteUser": "Delete User",
             "updateSettings": "Update Settings",
             "createBackup": "Create Backup",
+            "createBackupFailed": "Create Backup Failed",
             "uploadBackup": "Upload Backup",
             "loadBackup": "Load Backup",
             "loadBackupFailed": "Load Backup Failed",

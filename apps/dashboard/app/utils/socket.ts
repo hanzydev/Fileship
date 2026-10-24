@@ -33,6 +33,7 @@ export const initSocket = () => {
     const storageMigration = useStorageMigration();
     const storageImport = useStorageImport();
     const storageUsage = useStorageUsage();
+    const backupSchedule = useBackupSchedule();
 
     const route = useRoute();
 
@@ -154,6 +155,10 @@ export const initSocket = () => {
         socket.on('backup:delete', (backupId) => {
             removeListItems('backups', [backupId]);
             refreshLists('backups');
+        });
+
+        socket.on('backupSchedule:update', (data) => {
+            backupSchedule.value = data;
         });
 
         socket.on('settings:update', (data) => {

@@ -93,6 +93,7 @@ export default defineNuxtConfig({
 
             '0 * * * *': 'dir:clearTemp',
             '30 * * * *': 'db:purgeTrash',
+            '*/15 * * * *': 'backups:run',
             '* * * * *': 'search:refresh',
             '15 4 * * *': 'ai:cleanup',
             '0 */6 * * *': 'telemetry:collect',
@@ -147,6 +148,7 @@ export default defineNuxtConfig({
         removeExifData: true,
         avatarMaxSize: 4,
         trashRetentionDays: 30,
+        scheduledBackupsEnabled: true,
         logLevel: 2,
         telemetryEnabled: true,
         telemetryUrl: '',
