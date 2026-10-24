@@ -33,7 +33,7 @@
 - Uploads on the local disk, any S3 compatible service, SFTP or FTP
 - Multiple users with permissions and storage limits, passkeys and two-factor authentication
 - Zero-downtime updates, one click or on a schedule
-- ShareX, macOS and Linux upload integrations, and the [Windows app](docs/desktop.md)
+- ShareX, macOS and Linux upload integrations, the [Windows app](docs/desktop.md) and an [installable app for phones](docs/mobile.md) that Android apps can share to
 - English, Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese
 
 ## 🖥️ Fileship for Windows
@@ -67,6 +67,7 @@ Upgrading from 5.x? Follow [Upgrading to 6.0](docs/upgrading.md).
 - [Updating](docs/updating.md): how updates work and how to schedule them
 - [AI features](docs/ai.md): presets, models, smart search and sensitive content
 - [Fileship for Windows](docs/desktop.md)
+- [Fileship on your phone](docs/mobile.md): installing the app and sharing from Android
 - [Telemetry](docs/telemetry.md): what is collected and how to turn it off
 
 ## 🧰 Built With

@@ -18,6 +18,8 @@ const corsHeaders = {
     'Access-Control-Expose-Headers': '*',
 };
 
+const pwaEnabled = (process.env.ENABLE_PWA || 'true') === 'true';
+
 export default defineNuxtConfig({
     extends: ['@fileship/ui'],
 
@@ -25,9 +27,57 @@ export default defineNuxtConfig({
         compatibilityVersion: 5,
     },
 
-    modules: ['@nuxtjs/turnstile'].concat(
-        (process.env.ENABLE_PWA || 'true') === 'true' ? ['@vite-pwa/nuxt'] : [],
-    ),
+    modules: ['@nuxtjs/turnstile'].concat(pwaEnabled ? ['@vite-pwa/nuxt'] : []),
+
+    pwa: {
+        manifestFilename: 'manifest.json',
+        manifest: {
+            name: 'Fileship',
+            short_name: 'Fileship',
+            description: 'An open-source, self-hosted file and media management platform.',
+            start_url: '/',
+            scope: '/',
+            display: 'standalone',
+            background_color: '#0a0a0a',
+            theme_color: '#0a0a0a',
+            orientation: 'portrait-primary',
+            icons: [
+                { src: '/fileship-192x192.png', sizes: '192x192', type: 'image/png' },
+                { src: '/fileship-512x512.png', sizes: '512x512', type: 'image/png' },
+            ],
+            screenshots: [
+                {
+                    src: '/previews/fileship-desktop.png',
+                    sizes: '1920x911',
+                    type: 'image/png',
+                    form_factor: 'wide',
+                    label: 'Fileship',
+                },
+                {
+                    src: '/previews/fileship-mobile.png',
+                    sizes: '437x911',
+                    type: 'image/png',
+                    form_factor: 'narrow',
+                    label: 'Fileship',
+                },
+            ],
+            share_target: {
+                action: '/dashboard/share',
+                method: 'POST',
+                enctype: 'multipart/form-data',
+                params: {
+                    title: 'title',
+                    text: 'text',
+                    url: 'url',
+                    files: [{ name: 'files', accept: ['*/*'] }],
+                },
+            },
+        },
+        workbox: {
+            navigateFallback: null,
+            importScripts: [`/share-target.js?v=${pkg.version}`],
+        },
+    },
 
     components: [
         {
@@ -178,10 +228,14 @@ export default defineNuxtConfig({
                     rel: 'apple-touch-icon',
                     href: '/apple-touch-icon.png',
                 },
-                {
-                    rel: 'manifest',
-                    href: '/manifest.json',
-                },
+                ...(pwaEnabled
+                    ? [
+                          {
+                              rel: 'manifest' as const,
+                              href: '/manifest.json',
+                          },
+                      ]
+                    : []),
             ],
         },
     },

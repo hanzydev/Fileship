@@ -49,7 +49,7 @@ export const useUploader = () => {
         const urls: string[] = [];
         const successfulFiles = new Set<File>();
 
-        await uploadFilesWithConcurrency(newFiles, async (file) => {
+        const results = await uploadFilesWithConcurrency(newFiles, async (file) => {
             const res = await uploadFile(file, {
                 fileNameType: 'Random',
                 maxViews: 0,
@@ -68,7 +68,7 @@ export const useUploader = () => {
         uploadingFiles.value = uploadingFiles.value.filter((f) => !successfulFiles.has(f));
         uploading.value = uploadingFiles.value.some((f) => !f.status!.error);
 
-        return { urls, failed: newFiles.length - successfulFiles.size };
+        return { urls, results, failed: newFiles.length - successfulFiles.size };
     };
 
     const copyUrls = async (urls: string[], message: string) => {

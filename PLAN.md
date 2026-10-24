@@ -37,3 +37,4 @@ Dashboard and infrastructure:
 - [ ] In the Docker image the AI worker starts and loads its dependencies, but downloading and running the models inside a container has not been tested.
 - [ ] Review the Dependabot alerts and the open dependency updates.
 - [ ] `/api/healthz` of the 5.4.4 image reports 5.4.3; check that future images report their own version.
+- [ ] Check the share target on a real Android phone (installed from Chrome, over HTTPS): Fileship shows up for photos, videos, PDFs and other files (`accept: */*`), links from Chrome and text from other apps, large videos arrive, the logged-out flow keeps the items, and an app installed before the update picks up the new manifest. Only the service worker path was tested, with a synthetic multipart POST in a desktop browser.

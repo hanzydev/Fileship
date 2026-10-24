@@ -37,7 +37,7 @@ A few settings can only be set through the environment, because they are needed 
 | `NUXT_UPDATER_URL` / `NUXT_UPDATER_SECRET`    | How the dashboard reaches the updater agent                                     |
 | `NUXT_TELEMETRY_URL`                          | Where anonymous telemetry reports are sent                                      |
 | `DELETE_EXPIRED_CRON` / `GENERATE_STATS_CRON` | Schedules for removing expired files and links, and for statistics (build time) |
-| `ENABLE_PWA`                                  | Progressive Web App support (build time)                                        |
+| `ENABLE_PWA`                                  | Installable app and the Android share target (build time)                       |
 
 Build time options only take effect when you build the image yourself, for example with `docker-compose.dev.yml`. The published image always uses their defaults.
 
