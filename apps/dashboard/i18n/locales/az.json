@@ -161,6 +161,13 @@
             "action": "Hesabını yarat",
             "expires": "Dəvət 7 gün etibarlıdır və yalnız bir dəfə işləyir.",
             "ignore": "Belə dəvət gözləmirdinsə, bu e-poçtu nəzərə alma."
+        },
+        "storageWarning": {
+            "subject": "Yaddaşın dolmaq üzrədir",
+            "heading": "Yaddaşın dolmaq üzrədir",
+            "body": "Salam {username}, {siteName} üzərində yaddaşın demək olar ki, doludur: {used} / {limit} ({percent}).",
+            "freeUp": "Yaddaş dolanda yükləmə işləməyəcək. Artıq lazım olmayan faylları sil və zibil qutusunu boşalt, çünki zibil qutusundakı fayllar da yer tutur. Ya da admindən daha çox yer istə.",
+            "action": "Yaddaşa bax"
         }
     },
     "errorsAuth": {

@@ -161,6 +161,13 @@
             "action": "Konto erstellen",
             "expires": "Die Einladung ist 7 Tage lang gültig und funktioniert nur einmal.",
             "ignore": "Wenn du keine Einladung erwartet hast, kannst du diese E-Mail ignorieren."
+        },
+        "storageWarning": {
+            "subject": "Dein Speicher ist fast voll",
+            "heading": "Dein Speicher ist fast voll",
+            "body": "Hallo {username}, du nutzt {used} von {limit} deines Speichers bei {siteName} ({percent}).",
+            "freeUp": "Sobald er voll ist, funktionieren Uploads nicht mehr. Lösche Dateien, die du nicht mehr brauchst, und leere den Papierkorb, denn Dateien im Papierkorb zählen weiterhin mit, oder bitte einen Administrator um mehr Speicher.",
+            "action": "Speicher ansehen"
         }
     },
     "errorsAuth": {

@@ -161,6 +161,13 @@
             "action": "Create your account",
             "expires": "The invitation expires in 7 days and works once.",
             "ignore": "If you weren't expecting it, you can ignore this email."
+        },
+        "storageWarning": {
+            "subject": "Your storage is almost full",
+            "heading": "Your storage is almost full",
+            "body": "Hi {username}, you're using {used} of the {limit} available to you on {siteName} ({percent}).",
+            "freeUp": "Uploads stop working once it's full. Delete files you no longer need and empty the trash, because files in the trash still count, or ask an admin for more space.",
+            "action": "Check your storage"
         }
     },
     "errorsAuth": {

@@ -40,6 +40,8 @@ Once email works, people can add an email address in **Settings → Profile**. F
 
 Admins can invite people from the **Users** page: **Invite** sends a link to create an account with the permissions and storage limit you choose, in the language you pick. The link works once, for seven days, even while self-registration is off, and the invited address becomes the account's confirmed email. Pending invites are listed above the users and can be withdrawn.
 
+When someone with a storage limit and a confirmed address passes 90% of it, Fileship emails them once, with a link to their storage page. Files in the trash count too. The warning is sent again only after their usage has dropped below 90%.
+
 ## Trash
 
 Deleted files, folders and notes move to the trash for 30 days by default. Set **Trash retention** in **Administration → Instance** (or `NUXT_TRASH_RETENTION_DAYS`) to change it; `0` deletes everything immediately. Items in the trash still count toward a user's storage limit until they are deleted for good. Expired files and files that reach their view limit are always deleted immediately.

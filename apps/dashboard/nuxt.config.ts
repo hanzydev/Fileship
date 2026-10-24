@@ -96,6 +96,7 @@ export default defineNuxtConfig({
             '* * * * *': 'search:refresh',
             '15 4 * * *': 'ai:cleanup',
             '0 */6 * * *': 'telemetry:collect',
+            '*/10 * * * *': 'email:storageWarnings',
         },
         framework: {
             name: pkg.name,

@@ -161,6 +161,13 @@
             "action": "创建账户",
             "expires": "邀请在 7 天内有效，且只能使用一次。",
             "ignore": "如果你没有预料到此邀请，可以忽略此邮件。"
+        },
+        "storageWarning": {
+            "subject": "你的存储空间快满了",
+            "heading": "你的存储空间快满了",
+            "body": "{username}，你好！你在 {siteName} 已使用 {used}，共 {limit}（{percent}）。",
+            "freeUp": "存储空间满了之后将无法上传。请删除不再需要的文件并清空回收站（回收站中的文件仍会占用空间），或请管理员为你增加空间。",
+            "action": "查看存储空间"
         }
     },
     "errorsAuth": {

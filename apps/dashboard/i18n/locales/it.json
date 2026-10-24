@@ -161,6 +161,13 @@
             "action": "Crea il tuo account",
             "expires": "L'invito scade tra 7 giorni e funziona una sola volta.",
             "ignore": "Se non te lo aspettavi, puoi ignorare questa email."
+        },
+        "storageWarning": {
+            "subject": "Il tuo spazio è quasi pieno",
+            "heading": "Il tuo spazio è quasi pieno",
+            "body": "Ciao {username}, stai usando {used} dei {limit} disponibili su {siteName} ({percent}).",
+            "freeUp": "Quando sarà pieno, i caricamenti non funzioneranno più. Elimina i file che non ti servono più e svuota il cestino, perché i file nel cestino occupano ancora spazio, oppure chiedi più spazio a un amministratore.",
+            "action": "Controlla lo spazio"
         }
     },
     "errorsAuth": {

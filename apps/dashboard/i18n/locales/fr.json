@@ -161,6 +161,13 @@
             "action": "Créer votre compte",
             "expires": "L'invitation expire dans 7 jours et ne fonctionne qu'une fois.",
             "ignore": "Si vous ne vous attendiez pas à cette invitation, vous pouvez ignorer cet e-mail."
+        },
+        "storageWarning": {
+            "subject": "Votre stockage est presque plein",
+            "heading": "Votre stockage est presque plein",
+            "body": "Bonjour {username}, vous utilisez {used} sur les {limit} dont vous disposez sur {siteName} ({percent}).",
+            "freeUp": "Une fois plein, les importations ne fonctionnent plus. Supprimez les fichiers dont vous n'avez plus besoin et videz la corbeille, car les fichiers qu'elle contient comptent toujours, ou demandez plus d'espace à un administrateur.",
+            "action": "Voir mon stockage"
         }
     },
     "errorsAuth": {

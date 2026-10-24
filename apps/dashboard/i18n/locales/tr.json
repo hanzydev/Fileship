@@ -161,6 +161,13 @@
             "action": "Hesabını oluştur",
             "expires": "Davet 7 gün geçerli ve yalnızca bir kez kullanılabilir.",
             "ignore": "Böyle bir davet beklemiyorsan bu e-postayı görmezden gelebilirsin."
+        },
+        "storageWarning": {
+            "subject": "Depolama alanın dolmak üzere",
+            "heading": "Depolama alanın dolmak üzere",
+            "body": "Merhaba {username}, {siteName} üzerindeki depolama alanın neredeyse dolu: {used} / {limit} ({percent}).",
+            "freeUp": "Alan dolduğunda yükleme yapamazsın. Artık ihtiyacın olmayan dosyaları sil ve çöp kutusunu boşalt, çünkü çöp kutusundaki dosyalar da yer kaplar. Ya da bir yöneticiden daha fazla alan iste.",
+            "action": "Depolama alanını gör"
         }
     },
     "errorsAuth": {

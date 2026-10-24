@@ -11,6 +11,7 @@ export type AuthUserData = Omit<
     | 'aiSettings'
     | 'limits'
     | 'backupRestoreStartedAt'
+    | 'storageWarnedAt'
 > & {
     currentSessionId: string;
     impersonator?: string | null;
