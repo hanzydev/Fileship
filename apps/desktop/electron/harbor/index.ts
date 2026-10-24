@@ -896,6 +896,7 @@ const connectSocket = () => {
     }
 
     socket.on('settings:update', () => resetUploadSettings());
+    socket.on('logout', () => handleUnauthorized());
     socket.io.on('reconnect', () => resync());
 };
 

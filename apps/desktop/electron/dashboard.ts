@@ -1,5 +1,6 @@
 import { app, BrowserWindow, session } from 'electron';
 
+import { getAccount } from './account';
 import { desktopUserAgent } from './api';
 import { getLanguage } from './i18n';
 import { getStore, getToken } from './store';
@@ -64,6 +65,13 @@ const createDashboard = async (url: string, siteName: string, token: string) => 
         event.preventDefault();
         openWebUrl(target);
     });
+
+    const handleNavigate = (_: unknown, target: string) => {
+        if (new URL(target).pathname.startsWith('/login')) getAccount();
+    };
+
+    window.webContents.on('did-navigate', handleNavigate);
+    window.webContents.on('did-navigate-in-page', handleNavigate);
 
     window.on('closed', () => {
         if (dashboardWindow === window) dashboardWindow = null;
