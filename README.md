@@ -34,6 +34,7 @@
 - Multiple users with permissions and storage limits, passkeys and two-factor authentication
 - Zero-downtime updates, one click or on a schedule
 - ShareX, macOS and Linux upload integrations, and the [Windows app](docs/desktop.md)
+- [Webhooks](docs/webhooks.md) for Discord, Slack and your own services
 - English, Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese
 
 ## 🖥️ Fileship for Windows
@@ -67,6 +68,7 @@ Upgrading from 5.x? Follow [Upgrading to 6.0](docs/upgrading.md).
 - [Updating](docs/updating.md): how updates work and how to schedule them
 - [AI features](docs/ai.md): presets, models, smart search and sensitive content
 - [Fileship for Windows](docs/desktop.md)
+- [Webhooks](docs/webhooks.md): events, formats, delivery and signature verification
 - [Telemetry](docs/telemetry.md): what is collected and how to turn it off
 
 ## 🧰 Built With

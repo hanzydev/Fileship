@@ -10,9 +10,10 @@ Super admins can configure Fileship from the dashboard in **Administration → I
 - **Turnstile:** site and secret keys
 - **AI:** features on or off, preset, parallel jobs, threads per job and job heartbeat timeout, plus the analysis queue with **Retry failed** and **Reset AI data**
 - **Logs and telemetry:** log level and anonymous telemetry
+- **Webhooks:** whether [webhooks](webhooks.md) may reach private and local addresses (off by default)
 - **Storage:** where uploads and backups are kept
 
-Each of these settings except Storage can also be given a default through an environment variable (see [`apps/dashboard/.env.example`](../apps/dashboard/.env.example)). A value outside the allowed range falls back to the built-in default. A value saved in the dashboard always overrides the environment, and every field can be reset to its default.
+Each of these settings except Webhooks and Storage can also be given a default through an environment variable (see [`apps/dashboard/.env.example`](../apps/dashboard/.env.example)). A value outside the allowed range falls back to the built-in default. A value saved in the dashboard always overrides the environment, and every field can be reset to its default.
 
 ## Storage
 
