@@ -17,11 +17,15 @@
 
         <template v-else-if="folder">
             <PageHeader :title="folder.name" :description="description">
-                <UiButton variant="outline" @click="newFolderOpen = true">
+                <UiButton
+                    v-if="isEditableItem(folder)"
+                    variant="outline"
+                    @click="newFolderOpen = true"
+                >
                     <IFolderPlus />
                     {{ $t('folders.newFolder') }}
                 </UiButton>
-                <UiButton variant="outline" @click="pickerOpen = true">
+                <UiButton v-if="isOwnedItem(folder)" variant="outline" @click="pickerOpen = true">
                     <IFilePlus />
                     {{ $t('folders.detail.manageFiles') }}
                 </UiButton>
@@ -40,8 +44,10 @@
                             :folder="folder"
                             type="dropdown"
                             in-folder
+                            :leavable="!isOwnedItem(folder) && !folder.ancestors!.length"
                             @edit="openForm(folder)"
                             @move="movingFolder = folder"
+                            @share="sharingFolder = folder"
                         />
                     </UiDropdownMenuContent>
                 </UiDropdownMenu>
@@ -79,6 +85,7 @@
                             :folder="item"
                             @edit="openForm(item)"
                             @move="movingFolder = item"
+                            @share="sharingFolder = item"
                         />
                     </template>
                 </VirtualList>
@@ -91,8 +98,9 @@
             />
 
             <FolderFormDialog v-model:open="formOpen" :folder="editingFolder" />
-            <FolderFormDialog v-model:open="newFolderOpen" :parent-id="folder.id" />
+            <FolderFormDialog v-model:open="newFolderOpen" :parent="folder" />
             <FolderMoveDialog v-model="movingFolder" />
+            <FolderShareDialog v-model="sharingFolder" />
 
             <UiDialog v-model:open="pickerOpen">
                 <UiDialogContent class="flex h-[min(85svh,52rem)] flex-col sm:max-w-4xl">
@@ -221,6 +229,7 @@ const formOpen = ref(false);
 const newFolderOpen = ref(false);
 const editingFolder = ref<FolderData | null>(null);
 const movingFolder = ref<FolderData | null>(null);
+const sharingFolder = ref<FolderData | null>(null);
 const pickerOpen = ref(false);
 const pickerSearch = ref('');
 const pickerFilter = ref<'all' | 'in' | 'out'>('all');
@@ -273,14 +282,23 @@ const {
     { limit: 40, enabled: pickerOpen },
 );
 
-const description = computed(() =>
-    t(
+const description = computed(() => {
+    const count = summary.value?.count ?? folder.value!.fileCount;
+
+    if (!isOwnedItem(folder.value!))
+        return t(
+            'folders.detail.sharedDescription',
+            { n: count, username: folder.value!.owner!.username },
+            count,
+        );
+
+    return t(
         folder.value!.public
             ? 'folders.detail.publicDescription'
             : 'folders.detail.privateDescription',
-        summary.value?.count ?? folder.value!.fileCount,
-    ),
-);
+        count,
+    );
+});
 
 const pickerChanges = computed(() =>
     added.value.length || removed.value.length

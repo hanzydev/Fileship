@@ -19,7 +19,13 @@ export default defineEventHandler(async (event) => {
         throw invalidBodyError(body.error);
     }
 
-    await assertFolderParent(currentUser.id, body.data.parentId);
+    const ownerId = body.data.parentId
+        ? (await findFolderWithAccess(body.data.parentId, currentUser.id, 'editor')).folder.authorId
+        : currentUser.id;
+
+    if (ownerId !== currentUser.id && body.data.public) throw forbiddenError();
+
+    await assertFolderParent(ownerId, body.data.parentId);
 
     if (body.data.files?.length) {
         const files = await prisma.file.findMany({
@@ -27,7 +33,7 @@ export default defineEventHandler(async (event) => {
                 id: {
                     in: body.data.files,
                 },
-                authorId: currentUser.id,
+                authorId: ownerId,
                 deletedAt: null,
             },
         });
@@ -45,7 +51,7 @@ export default defineEventHandler(async (event) => {
             files: {
                 connect: body.data.files?.map((file) => ({ id: file })),
             },
-            authorId: currentUser.id,
+            authorId: ownerId,
         },
         include: folderInclude,
     });
@@ -63,7 +69,7 @@ export default defineEventHandler(async (event) => {
         message: `Created folder ${folder.name}`,
     });
 
-    sendToUser(currentUser.id, 'folder:create', folder);
+    await sendToFolder(ownerId, [folder.id], 'folder:create', folder);
 
     return folder;
 });

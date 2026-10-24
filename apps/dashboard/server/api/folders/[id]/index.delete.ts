@@ -19,16 +19,30 @@ export default defineEventHandler(async (event) => {
     const findFolderById = await prisma.folder.findUnique({
         where: {
             id: folderId,
-            authorId: currentUser.id,
             deletedAt: null,
         },
     });
 
-    if (!findFolderById) {
-        throw apiError(404, 'errorsContent.folderNotFound');
+    const isOwner = findFolderById?.authorId === currentUser.id;
+    const canDelete =
+        isOwner ||
+        (!!findFolderById?.parentId &&
+            hasFolderAccess(
+                await folderAccessOf(
+                    { id: findFolderById.parentId, authorId: findFolderById.authorId },
+                    currentUser.id,
+                ),
+                'editor',
+            ));
+
+    if (!findFolderById || !canDelete) {
+        throw findFolderById && (await folderAccessOf(findFolderById, currentUser.id))
+            ? forbiddenError()
+            : apiError(404, 'errorsContent.folderNotFound');
     }
 
     const folderIds = (await folderSubtree([findFolderById.id])).map((folder) => folder.id);
+    const audience = await folderAudience(findFolderById.authorId, [findFolderById.id], folderIds);
 
     if (await prisma.inbox.findFirst({ where: { folderId: { in: folderIds } } })) {
         throw apiError(400, 'errorsContent.inboxFolderDelete');
@@ -38,7 +52,7 @@ export default defineEventHandler(async (event) => {
         where: { folderId: { in: folderIds }, deletedAt: null },
     });
 
-    const isTrashed = !body.data.permanent && (await isTrashEnabled());
+    const isTrashed = !(isOwner && body.data.permanent) && (await isTrashEnabled());
     const keptFiles = { folderId: findFolderById.parentId };
 
     if (isTrashed) {
@@ -71,7 +85,7 @@ export default defineEventHandler(async (event) => {
                     : `Deleted file ${file.fileName}`,
             });
 
-            sendToUser(currentUser.id, 'file:delete', file.id);
+            for (const userId of audience) sendToUser(userId, 'file:delete', file.id);
         });
 
         await Promise.allSettled(deletionPromises);
@@ -84,6 +98,9 @@ export default defineEventHandler(async (event) => {
             : `Deleted folder ${findFolderById.name}`,
     });
 
-    for (const id of folderIds) sendToUser(currentUser.id, 'folder:delete', id);
-    sendToUser(currentUser.id, 'trash:update', null);
+    for (const userId of audience) {
+        for (const id of folderIds) sendToUser(userId, 'folder:delete', id);
+    }
+
+    sendToUser(findFolderById.authorId, 'trash:update', null);
 });

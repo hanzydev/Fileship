@@ -13,11 +13,14 @@ export default defineEventHandler(async (event) => {
             inbox: { select: { id: true } },
             author: {
                 select: {
+                    username: true,
+                    avatar: true,
                     domains: true,
                     embed: true,
                     aiSettings: true,
                 },
             },
+            _count: { select: { members: true } },
         },
     });
 
@@ -25,7 +28,8 @@ export default defineEventHandler(async (event) => {
         throw apiError(404, 'errorsContent.folderNotFound');
     }
 
-    const isOwner = findFolderById.authorId === currentUser?.id;
+    const access = await folderAccessOf(findFolderById, currentUser?.id);
+    const isOwner = !!access;
 
     if (!isOwner && !findFolderById.public) throw forbiddenError();
 
@@ -48,14 +52,41 @@ export default defineEventHandler(async (event) => {
         folderAncestors(findFolderById.id),
     ]);
 
-    const visibleAncestors = isOwner
-        ? ancestors
-        : ancestors.slice(ancestors.findLastIndex((folder) => !folder.public) + 1);
+    const memberships =
+        access && access !== 'owner'
+            ? await prisma.folderMember.findMany({
+                  where: {
+                      userId: currentUser!.id,
+                      folderId: { in: ancestors.map((folder) => folder.id) },
+                  },
+                  select: { folderId: true },
+              })
+            : [];
+    const firstShared = ancestors.findIndex((folder) =>
+        memberships.some((membership) => membership.folderId === folder.id),
+    );
+
+    const visibleAncestors =
+        access === 'owner'
+            ? ancestors
+            : access
+              ? ancestors.slice(firstShared === -1 ? ancestors.length : firstShared)
+              : ancestors.slice(ancestors.findLastIndex((folder) => !folder.public) + 1);
 
     return {
         ...findFolderById,
         inbox: undefined,
         author: undefined,
+        _count: undefined,
+        access: access ?? undefined,
+        owner: isOwner
+            ? {
+                  id: findFolderById.authorId,
+                  username: findFolderById.author.username,
+                  avatar: findFolderById.author.avatar,
+              }
+            : undefined,
+        memberCount: access === 'owner' ? findFolderById._count.members : undefined,
         authorId: isOwner ? findFolderById.authorId : undefined,
         parentId: isOwner ? findFolderById.parentId : undefined,
         fileCount,

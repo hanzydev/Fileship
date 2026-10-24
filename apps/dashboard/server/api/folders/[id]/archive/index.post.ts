@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
         throw apiError(404, 'errorsContent.folderNotFound');
     }
 
-    const isPrivate = findFolderById.authorId === currentUser?.id;
+    const isPrivate = !!(await folderAccessOf(findFolderById, currentUser?.id));
 
     if (!isPrivate) {
         if (!findFolderById.public) throw forbiddenError();
@@ -93,7 +93,7 @@ export default defineEventHandler(async (event) => {
     await storage.setItem(`folderArchiveStatus:${folderId}:${jobId}`, {
         isPrivate,
         isDone: false,
-        authorId: findFolderById.authorId,
+        userId: currentUser?.id,
     });
 
     const tempPath = join(dataDirectory, 'temp', jobId);
@@ -135,7 +135,7 @@ export default defineEventHandler(async (event) => {
                 await storage.setItem(`folderArchiveStatus:${folderId}:${jobId}`, {
                     isPrivate,
                     isDone: true,
-                    authorId: findFolderById.authorId,
+                    userId: currentUser?.id,
                 });
             })
             .catch(() => storage.removeItem(`folderArchiveStatus:${folderId}:${jobId}`)),

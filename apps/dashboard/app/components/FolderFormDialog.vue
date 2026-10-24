@@ -26,6 +26,7 @@
                         <UiFieldError v-if="formErrors?.name" :errors="formErrors.name._errors" />
                     </UiField>
                     <UiField
+                        v-if="isOwner"
                         orientation="horizontal"
                         class="has-[>[data-slot=field-content]]:items-center"
                     >
@@ -58,9 +59,9 @@
 <script setup lang="ts">
 import type { FolderData } from '~/types/folders';
 
-const { folder, parentId } = defineProps<{
+const { folder, parent } = defineProps<{
     folder?: FolderData | null;
-    parentId?: string;
+    parent?: FolderData;
 }>();
 
 const open = defineModel<boolean>('open', { required: true });
@@ -72,18 +73,21 @@ const isSaving = ref(false);
 const formErrors = ref();
 const form = reactive({ name: '', public: false });
 
+const isOwner = computed(() => isOwnedItem(folder ?? parent ?? {}));
+const body = computed(() => (isOwner.value ? form : { name: form.name }));
+
 const handleSubmit = async () => {
     isSaving.value = true;
     formErrors.value = null;
 
     try {
         if (folder) {
-            await $fetch(`/api/folders/${folder.id}`, { method: 'PATCH', body: form });
+            await $fetch(`/api/folders/${folder.id}`, { method: 'PATCH', body: body.value });
             $toast.success(t('folders.form.updated'));
         } else {
             const created = await $fetch('/api/folders', {
                 method: 'POST',
-                body: { ...form, parentId },
+                body: { ...body.value, parentId: parent?.id },
             });
             $toast.success(t('folders.form.created'));
             navigateTo(`/dashboard/folders/${created.id}`);

@@ -251,15 +251,16 @@ export const receiveChunk = async (
 };
 
 export const receiveUpload = async <T extends UploadedFile>(
-    owner: UploadOwner,
+    uploader: UploadOwner,
     chunk: UploadChunk & { mimeType: string; compression?: number },
     getFileName: () => Promise<string>,
     create: (data: { fileName: string; size: number; storageId: string | null }) => Promise<T>,
+    owner: UploadOwner = uploader,
 ) => {
     const { removeExifData } = await getSettings();
 
     const upload = await receiveChunk(
-        owner.id,
+        uploader.id,
         chunk,
         async () => ({
             key: uploadKey(await getFileName()),

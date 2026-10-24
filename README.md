@@ -27,7 +27,7 @@
 
 ## 📦 Features
 
-- Files, folders, Markdown notes, short links and inboxes, with a trash for anything you delete
+- Files, nested folders you can share with other users, Markdown notes, short links and inboxes, with a trash for anything you delete
 - Public sharing with passwords, expiry dates, view limits and rich embeds for Discord and other apps
 - [AI](docs/ai.md) that runs on your server: smart search in over 50 languages, captions, OCR and sensitive content detection, all optional
 - Uploads on the local disk, any S3 compatible service, SFTP or FTP

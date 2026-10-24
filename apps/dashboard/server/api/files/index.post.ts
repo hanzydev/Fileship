@@ -67,21 +67,16 @@ export default defineEventHandler(async (event) => {
     const isCompressible = isProcessableImage(file.type) && !!body.data.compression;
     const extensionName = isCompressible ? '.jpeg' : safeExtension(file.name);
 
-    const assertFolder = async () => {
-        if (!body.data.folderId) return;
+    const assertFolder = async () =>
+        body.data.folderId
+            ? (await findFolderWithAccess(body.data.folderId, currentUser.id, 'editor')).folder
+            : null;
 
-        const findFolderById = await prisma.folder.findUnique({
-            where: {
-                id: body.data.folderId,
-                authorId: currentUser.id,
-                deletedAt: null,
-            },
-        });
-
-        if (!findFolderById) {
-            throw apiError(404, 'errorsFiles.folderNotFound');
-        }
-    };
+    const ownerId = (await assertFolder())?.authorId ?? currentUser.id;
+    const owner =
+        ownerId === currentUser.id
+            ? currentUser
+            : (await prisma.user.findUnique({ where: { id: ownerId } }))!;
 
     const _upload = await receiveUpload(
         currentUser,
@@ -141,7 +136,7 @@ export default defineEventHandler(async (event) => {
                     expiresAt: body.data.expiration
                         ? new Date(Date.now() + body.data.expiration)
                         : null,
-                    authorId: currentUser.id,
+                    authorId: ownerId,
                     folderId: body.data.folderId || null,
                 },
                 include: {
@@ -154,6 +149,7 @@ export default defineEventHandler(async (event) => {
                 },
             });
         },
+        owner,
     );
 
     if (_upload) {
@@ -175,19 +171,19 @@ export default defineEventHandler(async (event) => {
                     );
                 }).length,
             },
-            directUrl: buildPublicUrl(event, currentUser.domains, `/u/${_upload.fileName}`),
-            embedUrl: buildPublicUrl(event, currentUser.domains, `/view/${_upload.fileName}`),
-            thumbnailUrl: getThumbnailUrl(event, currentUser.domains, _upload),
+            directUrl: buildPublicUrl(event, owner.domains, `/u/${_upload.fileName}`),
+            embedUrl: buildPublicUrl(event, owner.domains, `/view/${_upload.fileName}`),
+            thumbnailUrl: getThumbnailUrl(event, owner.domains, _upload),
         };
 
-        await indexCreatedFile(event, currentUser, upload);
+        await indexCreatedFile(event, owner, upload);
 
         await createLog(event, {
             action: 'Upload File',
             message: `Uploaded file ${_upload.fileName}`,
         });
 
-        sendToUser(currentUser.id, 'file:create', upload);
+        await sendToFolder(ownerId, [upload.folderId], 'file:create', upload);
 
         const isText = TEXT_FILE_TYPES.some(
             (type) => type.extension === extname(upload.fileName).slice(1),
@@ -197,8 +193,8 @@ export default defineEventHandler(async (event) => {
             ...upload,
             url: buildPublicUrl(
                 event,
-                currentUser.domains,
-                `/${currentUser.embed.enabled || isText ? 'view' : 'u'}/${_upload.fileName}`,
+                owner.domains,
+                `/${(owner.embed as any).enabled || isText ? 'view' : 'u'}/${_upload.fileName}`,
             ),
         };
     }

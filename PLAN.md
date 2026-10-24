@@ -38,3 +38,4 @@ Dashboard and infrastructure:
 - [ ] In the Docker image the AI worker starts and loads its dependencies, but downloading and running the models inside a container has not been tested.
 - [ ] Review the Dependabot alerts and the open dependency updates.
 - [ ] `/api/healthz` of the 5.4.4 image reports 5.4.3; check that future images report their own version.
+- [ ] Team folders: editors cannot move files or folders yet (only the owner can), files do not record who uploaded them, and shared folders do not appear in Harbor.

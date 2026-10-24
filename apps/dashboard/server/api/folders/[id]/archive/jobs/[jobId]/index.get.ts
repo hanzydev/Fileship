@@ -7,15 +7,14 @@ export default defineEventHandler(async (event) => {
     const archiveStatus = await storage.getItem<{
         isPrivate: boolean;
         isDone: boolean;
-        authorId: string;
+        userId?: string;
     }>(`folderArchiveStatus:${folderId}:${jobId}`);
 
     if (!archiveStatus) {
         throw apiError(404, 'errorsContent.jobNotFound');
     }
 
-    if (archiveStatus.isPrivate && archiveStatus.authorId !== currentUser?.id)
-        throw forbiddenError();
+    if (archiveStatus.isPrivate && archiveStatus.userId !== currentUser?.id) throw forbiddenError();
 
     return { isDone: archiveStatus.isDone };
 });

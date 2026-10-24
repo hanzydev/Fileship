@@ -24,7 +24,7 @@ On every start, Fileship removes files and backups whose data is missing from th
 
 ## Trash
 
-Deleted files, folders and notes move to the trash for 30 days by default. Set **Trash retention** in **Administration → Instance** (or `NUXT_TRASH_RETENTION_DAYS`) to change it; `0` deletes everything immediately. Items in the trash still count toward a user's storage limit until they are deleted for good. Expired files and files that reach their view limit are always deleted immediately.
+Deleted files, folders and notes move to the trash for 30 days by default. Set **Trash retention** in **Administration → Instance** (or `NUXT_TRASH_RETENTION_DAYS`) to change it; `0` deletes everything immediately. Items in the trash still count toward a user's storage limit until they are deleted for good. Deleting a folder moves its subfolders to the trash with it, and anything deleted from a shared folder goes to the trash of the folder's owner. Files that members of a shared folder upload belong to the owner and count toward the owner's storage limit. Expired files and files that reach their view limit are always deleted immediately.
 
 ## Environment-only settings
 

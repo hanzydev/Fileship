@@ -13,18 +13,33 @@ export default defineEventHandler(async (event) => {
 
     if (!body.success) throw invalidBodyError(body.error);
 
-    const filesToBeDeleted = await prisma.file.findMany({
+    const candidates = await prisma.file.findMany({
         where: {
             id: { in: body.data.files },
-            authorId: currentUser.id,
             deletedAt: null,
         },
         select: {
             id: true,
             fileName: true,
             storageId: true,
+            authorId: true,
+            folderId: true,
         },
     });
+
+    const folderAccess = new Map<string, Promise<FolderAccess | null>>();
+    const canDelete = async (file: (typeof candidates)[number]) => {
+        if (file.authorId === currentUser.id) return true;
+        if (!file.folderId) return false;
+
+        if (!folderAccess.has(file.folderId))
+            folderAccess.set(file.folderId, fileAccessOf(file, currentUser.id));
+
+        return hasFolderAccess(await folderAccess.get(file.folderId)!, 'editor');
+    };
+
+    const allowed = await Promise.all(candidates.map(canDelete));
+    const filesToBeDeleted = candidates.filter((_, index) => allowed[index]);
 
     if (!filesToBeDeleted.length) {
         throw apiError(404, 'errorsFiles.noFilesToDelete');
@@ -32,7 +47,11 @@ export default defineEventHandler(async (event) => {
 
     const fileIds = filesToBeDeleted.map((file) => file.id);
 
-    const isTrashed = !body.data.permanent && (await isTrashEnabled());
+    const isTrashed =
+        !(
+            body.data.permanent &&
+            filesToBeDeleted.every((file) => file.authorId === currentUser.id)
+        ) && (await isTrashEnabled());
 
     if (isTrashed) {
         await prisma.file.updateMany({
@@ -43,8 +62,17 @@ export default defineEventHandler(async (event) => {
         await deleteFilesForever(filesToBeDeleted);
     }
 
-    sendToUser(currentUser.id, 'file:bulkDelete', fileIds);
-    sendToUser(currentUser.id, 'trash:update', null);
+    for (const ownerId of new Set(filesToBeDeleted.map((file) => file.authorId))) {
+        const owned = filesToBeDeleted.filter((file) => file.authorId === ownerId);
+
+        await sendToFolder(
+            ownerId,
+            [...new Set(owned.map((file) => file.folderId))],
+            'file:bulkDelete',
+            owned.map((file) => file.id),
+        );
+        sendToUser(ownerId, 'trash:update', null);
+    }
 
     await createLog(event, {
         action: 'Bulk Delete Files',

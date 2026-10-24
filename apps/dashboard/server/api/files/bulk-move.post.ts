@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
             authorId: currentUser.id,
             deletedAt: null,
         },
-        select: { id: true },
+        select: { id: true, folderId: true },
     });
 
     const { count } = await prisma.file.updateMany({
@@ -46,10 +46,12 @@ export default defineEventHandler(async (event) => {
         },
     });
 
-    sendToUser(currentUser.id, 'file:bulkMove', {
-        files: files.map((file) => file.id),
-        folder: findFolderById,
-    });
+    await sendToFolder(
+        currentUser.id,
+        [...new Set([body.data.folderId, ...files.map((file) => file.folderId)])],
+        'file:bulkMove',
+        { files: files.map((file) => file.id), folder: findFolderById },
+    );
 
     await createLog(event, {
         action: 'Bulk Move Files',

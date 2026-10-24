@@ -138,6 +138,8 @@ export const initSocket = () => {
             refreshLists('folders', 'files');
         });
 
+        socket.on('folder:share', () => refreshLists('folders', 'files'));
+
         socket.on('link:create', () => refreshLists('links'));
         socket.on('link:update', (data) => patchListItem('links', data));
         socket.on('link:delete', (linkId) => {

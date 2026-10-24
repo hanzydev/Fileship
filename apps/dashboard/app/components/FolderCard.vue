@@ -63,6 +63,10 @@
                             <IGlobe />
                             {{ $t('folders.public') }}
                         </UiBadge>
+                        <UiBadge v-if="folder.memberCount && isOwnedItem(folder)" variant="outline">
+                            <IUsers />
+                            {{ $t('folders.shared') }}
+                        </UiBadge>
                         <UiDropdownMenu>
                             <UiDropdownMenuTrigger as-child>
                                 <UiButton variant="ghost" size="icon-sm" @click.prevent.stop>
@@ -73,8 +77,10 @@
                                 <FolderMenuItems
                                     :folder="folder"
                                     type="dropdown"
+                                    :leavable="leavable"
                                     @edit="emit('edit')"
                                     @move="emit('move')"
+                                    @share="emit('share')"
                                 />
                             </UiDropdownMenuContent>
                         </UiDropdownMenu>
@@ -86,8 +92,10 @@
             <FolderMenuItems
                 :folder="folder"
                 type="context"
+                :leavable="leavable"
                 @edit="emit('edit')"
                 @move="emit('move')"
+                @share="emit('share')"
             />
         </UiContextMenuContent>
     </UiContextMenu>
@@ -96,14 +104,16 @@
 <script setup lang="ts">
 import type { FolderData } from '~/types/folders';
 
-const { folder, showParent } = defineProps<{
+const { folder, showParent, leavable } = defineProps<{
     folder: FolderData;
     showParent?: boolean;
+    leavable?: boolean;
 }>();
 
 const emit = defineEmits<{
     edit: [];
     move: [];
+    share: [];
 }>();
 
 const { t } = useI18n();
@@ -113,6 +123,8 @@ const details = computed(() => {
     const contents = folder.folderCount
         ? t('folders.contents', { files, folders: t('folders.count', folder.folderCount) })
         : files;
+
+    if (leavable) return t('folders.sharedBy', { contents, username: folder.owner!.username });
 
     return showParent && folder.parent
         ? t('folders.inParent', { contents, parent: folder.parent.name })

@@ -16,7 +16,8 @@ export default defineEventHandler(async (event) => {
         throw apiError(404, 'errorsContent.folderNotFound');
     }
 
-    const isOwner = findFolderById.authorId === currentUser?.id;
+    const access = await folderAccessOf(findFolderById, currentUser?.id);
+    const isOwner = !!access;
 
     if (!isOwner && !findFolderById.public) throw forbiddenError();
 
@@ -38,9 +39,17 @@ export default defineEventHandler(async (event) => {
 
     const [items, total] = await Promise.all([
         isOwner
-            ? prisma.folder
-                  .findMany({ ...page, include: folderInclude })
-                  .then((folders) => folders.map((folder) => serializeFolder(event, folder)))
+            ? prisma.folder.findMany({ ...page, include: folderInclude }).then((folders) =>
+                  Promise.all(
+                      folders.map(async (folder) => ({
+                          ...serializeFolder(event, folder),
+                          access:
+                              access === 'owner'
+                                  ? undefined
+                                  : await folderAccessOf(folder, currentUser!.id),
+                      })),
+                  ),
+              )
             : prisma.folder.findMany({
                   ...page,
                   select: { id: true, name: true, createdAt: true },

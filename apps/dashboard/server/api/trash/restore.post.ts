@@ -76,7 +76,19 @@ export default defineEventHandler(async (event) => {
     });
 
     sendToUser(currentUser.id, 'trash:update', null);
-    sendToUser(currentUser.id, 'trash:restore', null);
+
+    const audience = await folderAudience(
+        currentUser.id,
+        [
+            ...new Set([
+                ...folders.map((folder) => folder.id),
+                ...files.map((file) => file.folderId),
+            ]),
+        ],
+        folderIds,
+    );
+
+    for (const userId of audience) sendToUser(userId, 'trash:restore', null);
 
     if (counts.files && (await isAiEnabled()))
         runTask('ai:syncJobs', { payload: { userId: currentUser.id } }).catch(() => null);

@@ -15,7 +15,14 @@
         </PageHeader>
 
         <div class="flex flex-wrap items-center gap-2">
-            <UiInputGroup class="max-w-sm flex-1">
+            <UiTabs v-model="view">
+                <UiTabsList>
+                    <UiTabsTrigger value="mine">{{ $t('folders.tabs.mine') }}</UiTabsTrigger>
+                    <UiTabsTrigger value="shared">{{ $t('folders.tabs.shared') }}</UiTabsTrigger>
+                </UiTabsList>
+            </UiTabs>
+
+            <UiInputGroup class="max-w-sm min-w-48 flex-1">
                 <UiInputGroupAddon>
                     <UiSpinner v-if="!!search && isFetching" />
                     <ISearch v-else />
@@ -63,14 +70,26 @@
         </EmptyState>
 
         <EmptyState
+            v-else-if="!folders.length && search"
+            :icon="ISearchX"
+            :title="$t('folders.noMatches')"
+            :description="$t('folders.noMatchesDescription')"
+        />
+
+        <EmptyState
+            v-else-if="!folders.length && isShared"
+            :icon="IUsers"
+            :title="$t('folders.sharedEmpty')"
+            :description="$t('folders.sharedEmptyDescription')"
+        />
+
+        <EmptyState
             v-else-if="!folders.length"
-            :icon="search ? ISearchX : IFolder"
-            :title="search ? $t('folders.noMatches') : $t('folders.empty')"
-            :description="
-                search ? $t('folders.noMatchesDescription') : $t('folders.emptyDescription')
-            "
+            :icon="IFolder"
+            :title="$t('folders.empty')"
+            :description="$t('folders.emptyDescription')"
         >
-            <UiButton v-if="!search" @click="openForm(null)">
+            <UiButton @click="openForm(null)">
                 <IFolderPlus />
                 {{ $t('folders.newFolder') }}
             </UiButton>
@@ -93,19 +112,22 @@
                 <FolderCard
                     :folder="item"
                     :show-parent="!!search.trim()"
+                    :leavable="isShared"
                     @edit="openForm(item)"
                     @move="movingFolder = item"
+                    @share="sharingFolder = item"
                 />
             </template>
         </VirtualList>
 
         <FolderFormDialog v-model:open="formOpen" :folder="editingFolder" />
         <FolderMoveDialog v-model="movingFolder" />
+        <FolderShareDialog v-model="sharingFolder" />
     </div>
 </template>
 
 <script setup lang="ts">
-import { ICircleAlert, IFolder, ISearchX } from '#components';
+import { ICircleAlert, IFolder, ISearchX, IUsers } from '#components';
 
 import type { FolderData } from '~/types/folders';
 
@@ -115,6 +137,9 @@ const { t } = useI18n();
 
 const search = ref('');
 const sort = useQueryState('sort', 'createdAt:desc');
+const view = useQueryState('view', 'mine');
+
+const isShared = computed(() => view.value === 'shared');
 
 const sortOptions = computed(() => [
     { label: t('folders.sort.newest'), value: 'createdAt:desc' },
@@ -126,6 +151,7 @@ const sortOptions = computed(() => [
 const formOpen = ref(false);
 const editingFolder = ref<FolderData | null>(null);
 const movingFolder = ref<FolderData | null>(null);
+const sharingFolder = ref<FolderData | null>(null);
 
 const {
     items: folders,
@@ -139,7 +165,8 @@ const {
 } = usePaginatedList<FolderData>('folders', '/api/folders', () => ({
     q: search.value.trim(),
     sort: sort.value,
-    parent: search.value.trim() ? undefined : 'root',
+    parent: search.value.trim() || isShared.value ? undefined : 'root',
+    shared: isShared.value || undefined,
 }));
 
 const openForm = (folder: FolderData | null) => {

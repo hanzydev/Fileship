@@ -23,15 +23,17 @@ export default defineEventHandler(async (event) => {
         if (findFileById) break;
     }
 
+    const access = findFileById && (await fileAccessOf(findFileById, currentUser?.id));
+    const isVisitor = !(access === 'owner' || (access && !findFileById!.deletedAt));
+
     if (
         !findFileById ||
-        (findFileById.authorId !== currentUser?.id &&
-            (findFileById.deletedAt || isHiddenFromVisitors(findFileById)))
+        (isVisitor && (findFileById.deletedAt || isHiddenFromVisitors(findFileById)))
     ) {
         throw apiError(404, 'errorsFiles.fileNotFound');
     }
 
-    if (findFileById.authorId !== currentUser?.id) {
+    if (isVisitor) {
         if (findFileById.folder?.public === false) {
             throw apiError(403, 'errorsFiles.noAccess');
         }

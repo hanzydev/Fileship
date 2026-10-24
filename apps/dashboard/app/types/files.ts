@@ -12,6 +12,7 @@ export type FileData = Omit<
     metadata: IMediaMetadata | null;
     folder?: { id: string; name: string } | null;
     embed?: IEmbed;
+    access?: FolderAccess;
 };
 
 export type FileSummary = {

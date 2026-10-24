@@ -11,18 +11,24 @@ export const useTrash = () => {
     const deleteConfirmation = (
         label: string,
         remove: (permanent: boolean) => Promise<unknown>,
+        isShared = false,
     ): ConfirmOptions =>
         isEnabled.value
             ? {
                   title: t('trash.moveTitle', { label }),
-                  description: t('trash.moveDescription', retentionDays.value),
+                  description: t(
+                      isShared ? 'trash.moveSharedDescription' : 'trash.moveDescription',
+                      retentionDays.value,
+                  ),
                   confirmText: t('trash.moveToTrash'),
                   action: () => remove(false),
-                  secondary: {
-                      text: t('trash.deleteForever'),
-                      destructive: true,
-                      action: () => remove(true),
-                  },
+                  secondary: isShared
+                      ? undefined
+                      : {
+                            text: t('trash.deleteForever'),
+                            destructive: true,
+                            action: () => remove(true),
+                        },
               }
             : {
                   title: t('trash.deleteTitle', { label }),
@@ -46,8 +52,14 @@ export const useTrash = () => {
         }
     };
 
-    const notifyDeleted = (label: string, selection: TrashSelection, permanent: boolean) => {
+    const notifyDeleted = (
+        label: string,
+        selection: TrashSelection,
+        permanent: boolean,
+        isShared = false,
+    ) => {
         if (permanent) return $toast.success(t('trash.deleted', { label }));
+        if (isShared) return $toast.success(t('trash.movedToTrash', { label }));
 
         $toast.success(t('trash.movedToTrash', { label }), {
             action: { label: t('trash.undo'), onClick: () => restore(selection) },

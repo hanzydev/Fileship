@@ -183,12 +183,13 @@ export const fileOrderBy = (sort: string | undefined): Prisma.FileOrderByWithRel
 
 export const folderInclude = {
     inbox: { select: { id: true } },
-    author: { select: { domains: true } },
+    author: { select: { domains: true, username: true, avatar: true } },
     parent: { select: { id: true, name: true } },
     _count: {
         select: {
             files: { where: { deletedAt: null } },
             children: { where: { deletedAt: null } },
+            members: true,
         },
     },
     files: {
@@ -214,6 +215,8 @@ export const serializeFolder = (
     files: undefined,
     fileCount: folder._count.files,
     folderCount: folder._count.children,
+    memberCount: folder._count.members,
+    owner: { id: folder.authorId, username: folder.author.username, avatar: folder.author.avatar },
     covers: folder.files
         .filter((file) => file.mimeType.startsWith('image/') || hasThumbnail(file.id))
         .slice(0, 4)

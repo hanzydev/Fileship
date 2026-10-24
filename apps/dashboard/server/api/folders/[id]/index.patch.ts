@@ -29,16 +29,17 @@ export default defineEventHandler(async (event) => {
 
     const folderId = getRouterParam(event, 'id');
 
-    const findFolderById = await prisma.folder.findUnique({
-        where: {
-            id: folderId,
-            authorId: currentUser.id,
-            deletedAt: null,
-        },
-    });
+    const { folder: findFolderById, access } = await findFolderWithAccess(
+        folderId,
+        currentUser.id,
+        'editor',
+    );
 
-    if (!findFolderById) {
-        throw apiError(404, 'errorsContent.folderNotFound');
+    if (
+        access !== 'owner' &&
+        (body.data.public !== undefined || body.data.parentId !== undefined)
+    ) {
+        throw forbiddenError();
     }
 
     const isMoved =
@@ -71,8 +72,9 @@ export default defineEventHandler(async (event) => {
         message: `Updated folder ${findFolderById.name}`,
     });
 
-    sendToUser(
-        currentUser.id,
+    await sendToFolder(
+        findFolderById.authorId,
+        [findFolderById.id, isMoved ? findFolderById.parentId : null],
         'folder:update',
         isMoved ? updatedFolder : { ...updatedFolder, parentId: undefined, parent: undefined },
     );

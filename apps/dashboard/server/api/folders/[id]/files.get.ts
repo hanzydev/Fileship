@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
         throw apiError(404, 'errorsContent.folderNotFound');
     }
 
-    const isOwner = findFolderById.authorId === currentUser?.id;
+    const isOwner = !!(await folderAccessOf(findFolderById, currentUser?.id));
 
     if (!isOwner && !findFolderById.public) throw forbiddenError();
 
