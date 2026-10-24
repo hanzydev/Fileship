@@ -113,90 +113,16 @@
                         </UiButton>
                     </UiCollapsibleTrigger>
                     <UiCollapsibleContent>
-                        <UiFieldGroup class="pt-4">
-                            <UiField>
-                                <UiFieldLabel>{{ $t('upload.folder') }}</UiFieldLabel>
-                                <FolderPicker v-model="settings.folder" />
-                            </UiField>
-
-                            <UiField v-if="tab === 'files'">
-                                <UiFieldLabel>{{ $t('upload.fileName') }}</UiFieldLabel>
-                                <UiTabs v-model="settings.fileNameType">
-                                    <UiTabsList class="w-full">
-                                        <UiTabsTrigger
-                                            v-for="type in fileNameTypes"
-                                            :key="type"
-                                            :value="type"
-                                        >
-                                            {{ $t(`upload.fileNameType.${type.toLowerCase()}`) }}
-                                        </UiTabsTrigger>
-                                    </UiTabsList>
-                                </UiTabs>
-                            </UiField>
-
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <UiField>
-                                    <UiFieldLabel>{{ $t('upload.expiration') }}</UiFieldLabel>
-                                    <UiSelect v-model="expiration">
-                                        <UiSelectTrigger class="w-full">
-                                            <UiSelectValue />
-                                        </UiSelectTrigger>
-                                        <UiSelectContent>
-                                            <UiSelectItem
-                                                v-for="option in EXPIRATIONS"
-                                                :key="option.label"
-                                                :value="option.label"
-                                            >
-                                                {{ $t(option.label) }}
-                                            </UiSelectItem>
-                                        </UiSelectContent>
-                                    </UiSelect>
-                                </UiField>
-
-                                <UiField v-if="tab === 'files'">
-                                    <UiFieldLabel>{{ $t('upload.compression') }}</UiFieldLabel>
-                                    <UiSelect v-model="settings.compression">
-                                        <UiSelectTrigger class="w-full">
-                                            <UiSelectValue />
-                                        </UiSelectTrigger>
-                                        <UiSelectContent>
-                                            <UiSelectItem
-                                                v-for="option in COMPRESSIONS"
-                                                :key="option.value"
-                                                :value="option.value"
-                                            >
-                                                {{ $t(option.label) }}
-                                            </UiSelectItem>
-                                        </UiSelectContent>
-                                    </UiSelect>
-                                </UiField>
-
-                                <UiField>
-                                    <UiFieldLabel>{{ $t('upload.maxViews') }}</UiFieldLabel>
-                                    <UiNumberField v-model="settings.maxViews" :min="0">
-                                        <UiNumberFieldContent>
-                                            <UiNumberFieldDecrement />
-                                            <UiNumberFieldInput />
-                                            <UiNumberFieldIncrement />
-                                        </UiNumberFieldContent>
-                                    </UiNumberField>
-                                    <UiFieldDescription>
-                                        {{ $t('upload.maxViewsDescription') }}
-                                    </UiFieldDescription>
-                                </UiField>
-
-                                <UiField :class="tab === 'text' && 'sm:col-span-2'">
-                                    <UiFieldLabel for="upload-password">
-                                        {{ $t('upload.password') }}
-                                    </UiFieldLabel>
-                                    <PasswordInput
-                                        id="upload-password"
-                                        v-model="settings.password"
-                                        :placeholder="$t('upload.optional')"
-                                    />
-                                </UiField>
-                            </div>
-                        </UiFieldGroup>
+                        <UploadOptions
+                            v-model:folder="settings.folder"
+                            v-model:file-name-type="settings.fileNameType"
+                            v-model:expiration="expiration"
+                            v-model:compression="settings.compression"
+                            v-model:max-views="settings.maxViews"
+                            v-model:password="settings.password"
+                            :text="tab === 'text'"
+                            class="pt-4"
+                        />
                     </UiCollapsibleContent>
                 </UiCollapsible>
             </div>
@@ -227,8 +153,6 @@ const optionsOpen = ref(false);
 const files = ref<File[]>([]);
 const expiration = ref('labels.expiration.never');
 
-const fileNameTypes = ['Random', 'UUID', 'Original'] as const;
-
 const text = reactive({
     fileName: '',
     extension: 'txt',
@@ -236,7 +160,7 @@ const text = reactive({
 });
 
 const settings = reactive({
-    fileNameType: 'Random' as (typeof fileNameTypes)[number],
+    fileNameType: 'Random' as NonNullable<FileSettings['fileNameType']>,
     maxViews: 0,
     password: '',
     compression: 0,
