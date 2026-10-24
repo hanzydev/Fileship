@@ -97,6 +97,15 @@
         "deleteDescription": "Bu işlem geri alınamaz.",
         "deleted": "Yedek silindi"
     },
+    "emails": {
+        "copyLink": "Düğme çalışmazsa bu bağlantıyı tarayıcına kopyala:",
+        "footer": "Bu e-posta {siteName} tarafından gönderildi.",
+        "test": {
+            "subject": "{siteName} test e-postası",
+            "heading": "E-posta gönderimi çalışıyor",
+            "body": "Bu ayarlarla {siteName} e-posta gönderebiliyor."
+        }
+    },
     "errorsAuth": {
         "totpRequired": "İki adımlı doğrulama kodunu gir",
         "usernameMin": "Kullanıcı adı en az 3 karakter olmalı",
@@ -190,6 +199,9 @@
         "missingFile": "Dosya gönderilmedi",
         "invalidFile": "Dosya geçersiz",
         "fileNameTaken": "Bu adda bir dosya zaten var"
+    },
+    "errorsEmail": {
+        "testFailed": "Test e-postası gönderilemedi: {error}"
     },
     "errorsFiles": {
         "noFilesToDelete": "Silinecek dosya bulunamadı",
@@ -617,6 +629,11 @@
                 "title": "Kayıtlar ve telemetri",
                 "description": "Fileship'in neyi kaydettiği ve paylaştığı.",
                 "saved": "Kayıt ve telemetri ayarları kaydedildi"
+            },
+            "email": {
+                "title": "E-posta",
+                "description": "Şifre sıfırlama bağlantılarını, davetleri ve depolama uyarılarını e-postayla gönder. E-posta özellikleri panel adresi, SMTP sunucusu ve gönderen adresi girildiğinde görünür.",
+                "saved": "E-posta ayarları kaydedildi"
             }
         },
         "fields": {
@@ -657,7 +674,20 @@
             "logLevelImportant": "Önemli işlemler",
             "logLevelEverything": "Her şey",
             "telemetryEnabled": "Anonim telemetri",
-            "telemetryEnabledDescription": "Fileship'in gelişmesine yardımcı olmak için anonim kullanım istatistikleri paylaşılır."
+            "telemetryEnabledDescription": "Fileship'in gelişmesine yardımcı olmak için anonim kullanım istatistikleri paylaşılır.",
+            "siteUrl": "Panel adresi",
+            "siteUrlDescription": "E-postalardaki bağlantılar bu adrese gider.",
+            "smtpHost": "SMTP sunucusu",
+            "smtpPort": "Port",
+            "smtpSecurity": "Şifreleme",
+            "smtpSecurityDescription": "STARTTLS genelde 587, TLS ise 465 numaralı portu kullanır.",
+            "smtpSecurityStarttls": "STARTTLS",
+            "smtpSecurityTls": "TLS",
+            "smtpSecurityNone": "Yok",
+            "smtpUser": "Kullanıcı adı",
+            "smtpPassword": "Şifre",
+            "smtpFrom": "Gönderen adresi",
+            "smtpFromDescription": "E-postalar bu adresten, site adıyla gönderilir."
         },
         "ai": {
             "queue": "Kuyruk",
@@ -759,6 +789,14 @@
             "start": "İçe aktar",
             "pathCopied": "Yol kopyalandı",
             "started": "Dosyalar arka planda içe aktarılıyor"
+        },
+        "siteUrlInvalid": "https://files.example.com gibi bir adres gir",
+        "email": {
+            "test": "Test e-postası",
+            "sendTest": "Test e-postası gönder",
+            "testDescription": "Yukarıdaki ayarları, kaydetmeden önce de kullanır.",
+            "testSent": "Test e-postası gönderildi: {email}",
+            "hostRequired": "SMTP sunucusu gerekli"
         }
     },
     "integrations": {
@@ -1072,7 +1110,8 @@
             "deleteLink": "Bağlantı silme",
             "takeNote": "Not alma",
             "updateNote": "Not güncelleme",
-            "deleteNote": "Not silme"
+            "deleteNote": "Not silme",
+            "sendTestEmail": "Test e-postası gönderme"
         }
     },
     "notes": {

@@ -97,6 +97,15 @@
         "deleteDescription": "Cette action est irréversible.",
         "deleted": "Sauvegarde supprimée"
     },
+    "emails": {
+        "copyLink": "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
+        "footer": "Cet e-mail a été envoyé par {siteName}.",
+        "test": {
+            "subject": "E-mail de test de {siteName}",
+            "heading": "L'envoi d'e-mails fonctionne",
+            "body": "{siteName} peut envoyer des e-mails avec ces paramètres."
+        }
+    },
     "errorsAuth": {
         "totpRequired": "Saisissez votre code d'authentification à deux facteurs",
         "usernameMin": "Le nom d'utilisateur doit comporter au moins 3 caractères",
@@ -190,6 +199,9 @@
         "missingFile": "Fichier manquant",
         "invalidFile": "Fichier non valide",
         "fileNameTaken": "Un fichier portant ce nom existe déjà"
+    },
+    "errorsEmail": {
+        "testFailed": "Impossible d'envoyer l'e-mail de test : {error}"
     },
     "errorsFiles": {
         "noFilesToDelete": "Aucun fichier à supprimer",
@@ -617,6 +629,11 @@
                 "title": "Journal et télémétrie",
                 "description": "Ce que Fileship enregistre et partage.",
                 "saved": "Paramètres du journal et de la télémétrie enregistrés"
+            },
+            "email": {
+                "title": "E-mail",
+                "description": "Envoyez par e-mail les liens de réinitialisation du mot de passe, les invitations et les alertes de stockage. Les fonctions e-mail apparaissent une fois l'adresse du tableau de bord, le serveur SMTP et l'adresse d'expédition renseignés.",
+                "saved": "Paramètres e-mail enregistrés"
             }
         },
         "fields": {
@@ -657,7 +674,20 @@
             "logLevelImportant": "Actions importantes",
             "logLevelEverything": "Tout",
             "telemetryEnabled": "Télémétrie anonyme",
-            "telemetryEnabledDescription": "Partager des statistiques d'utilisation anonymes pour aider à améliorer Fileship."
+            "telemetryEnabledDescription": "Partager des statistiques d'utilisation anonymes pour aider à améliorer Fileship.",
+            "siteUrl": "Adresse du tableau de bord",
+            "siteUrlDescription": "Les liens des e-mails pointent vers cette adresse.",
+            "smtpHost": "Serveur SMTP",
+            "smtpPort": "Port",
+            "smtpSecurity": "Chiffrement",
+            "smtpSecurityDescription": "STARTTLS utilise généralement le port 587, TLS le port 465.",
+            "smtpSecurityStarttls": "STARTTLS",
+            "smtpSecurityTls": "TLS",
+            "smtpSecurityNone": "Aucun",
+            "smtpUser": "Nom d'utilisateur",
+            "smtpPassword": "Mot de passe",
+            "smtpFrom": "Adresse d'expédition",
+            "smtpFromDescription": "Les e-mails sont envoyés depuis cette adresse, au nom du site."
         },
         "ai": {
             "queue": "File d'attente",
@@ -759,6 +789,14 @@
             "start": "Récupérer",
             "pathCopied": "Chemin copié",
             "started": "Récupération des fichiers en arrière-plan"
+        },
+        "siteUrlInvalid": "Saisissez une adresse comme https://files.example.com",
+        "email": {
+            "test": "E-mail de test",
+            "sendTest": "Envoyer un e-mail de test",
+            "testDescription": "Utilise les paramètres ci-dessus, même avant leur enregistrement.",
+            "testSent": "E-mail de test envoyé à {email}",
+            "hostRequired": "Le serveur SMTP est requis"
         }
     },
     "integrations": {
@@ -1072,7 +1110,8 @@
             "deleteLink": "Suppression d'un lien",
             "takeNote": "Création d'une note",
             "updateNote": "Modification d'une note",
-            "deleteNote": "Suppression d'une note"
+            "deleteNote": "Suppression d'une note",
+            "sendTestEmail": "Envoi d'un e-mail de test"
         }
     },
     "notes": {

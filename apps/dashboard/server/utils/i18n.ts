@@ -24,6 +24,12 @@ export const translate = (key: string, params?: Record<string, unknown>) =>
 export const formatSize = (size: number | string | bigint) =>
     filesize(size, { locale: (currentEvent()?.context.i18n as any)?.locale || 'en' });
 
+export const requestLanguage = (event: H3Event) =>
+    toLanguage(event.context.user?.language) ||
+    toLanguage(tryCookieLocale(event, { lang: '', name: 'fileship_locale' })?.toString()) ||
+    toLanguage(tryHeaderLocale(event, { lang: '' })?.language) ||
+    'en';
+
 export const refreshTranslation = async (event: H3Event) => {
     event.context.t = await useTranslation(event);
 };

@@ -123,15 +123,16 @@
                                                 v-if="field.type === 'text'"
                                                 :id="field.key"
                                                 v-model="form[field.key] as string"
+                                                :placeholder="field.placeholder"
                                             />
 
                                             <PasswordInput
                                                 v-else-if="field.type === 'secret'"
                                                 :id="field.key"
-                                                v-model="secret"
+                                                v-model="secrets[field.key as SecretSettingKey]"
                                                 autocomplete="off"
                                                 :placeholder="
-                                                    data.turnstileSecretKeySet
+                                                    data.secretsSet[field.key as SecretSettingKey]
                                                         ? $t('instance.leaveEmptyToKeep')
                                                         : ''
                                                 "
@@ -143,6 +144,7 @@
                                                 v-model="form[field.key] as number"
                                                 :min="field.min"
                                                 :max="field.max"
+                                                :format-options="field.formatOptions"
                                             >
                                                 <UiNumberFieldContent>
                                                     <UiNumberFieldDecrement />
@@ -206,6 +208,41 @@
                                             <UiFieldError
                                                 v-if="formErrors?.[field.key]?._errors?.length"
                                                 :errors="formErrors[field.key]._errors"
+                                            />
+                                        </UiField>
+                                    </template>
+
+                                    <template v-if="section.id === 'email'">
+                                        <UiFieldSeparator class="sm:col-span-2" />
+                                        <UiField class="sm:col-span-2">
+                                            <UiFieldLabel for="test-email">
+                                                {{ $t('instance.email.test') }}
+                                            </UiFieldLabel>
+                                            <div class="flex gap-2">
+                                                <UiInput
+                                                    id="test-email"
+                                                    v-model="testEmail"
+                                                    type="email"
+                                                    autocomplete="email"
+                                                    @keydown.enter.prevent="handleSendTest"
+                                                />
+                                                <UiButton
+                                                    type="button"
+                                                    variant="outline"
+                                                    :disabled="!testEmail || isSendingTest"
+                                                    @click="handleSendTest"
+                                                >
+                                                    <UiSpinner v-if="isSendingTest" />
+                                                    <ISend v-else />
+                                                    {{ $t('instance.email.sendTest') }}
+                                                </UiButton>
+                                            </div>
+                                            <UiFieldDescription>
+                                                {{ $t('instance.email.testDescription') }}
+                                            </UiFieldDescription>
+                                            <UiFieldError
+                                                v-if="formErrors?.to?._errors?.length"
+                                                :errors="formErrors.to._errors"
                                             />
                                         </UiField>
                                     </template>
@@ -782,8 +819,10 @@ type SettingField = {
     label: string;
     type: FieldType;
     description?: string;
+    placeholder?: string;
     min?: number;
     max?: number;
+    formatOptions?: Intl.NumberFormatOptions;
     options?: { value: string; label: string }[];
     half?: boolean;
 };
@@ -811,7 +850,9 @@ const { t, locale } = useI18n();
 const formErrors = ref();
 const savingSection = ref<string>();
 const resettingKey = ref<InstanceSettingKey>();
-const secret = ref('');
+const secrets = reactive({} as Record<SecretSettingKey, string>);
+const testEmail = ref('');
+const isSendingTest = ref(false);
 
 const { data, refresh } = await useFetch('/api/settings');
 const { data: aiStatus, refresh: refreshAiStatus } = await useFetch('/api/settings/ai-status');
@@ -825,7 +866,7 @@ watch(
     data,
     (value) => {
         if (value) Object.assign(form, structuredClone(toRaw(value.values)));
-        secret.value = '';
+        for (const key of secretSettingKeys) secrets[key] = '';
     },
     { immediate: true },
 );
@@ -971,6 +1012,59 @@ const sections: SettingSection[] = [
         ],
     },
     {
+        id: 'email',
+        fields: [
+            {
+                key: 'siteUrl',
+                label: 'instance.fields.siteUrl',
+                type: 'text',
+                placeholder: 'https://files.example.com',
+                description: 'instance.fields.siteUrlDescription',
+            },
+            {
+                key: 'smtpHost',
+                label: 'instance.fields.smtpHost',
+                type: 'text',
+                placeholder: 'smtp.example.com',
+                half: true,
+            },
+            {
+                key: 'smtpPort',
+                label: 'instance.fields.smtpPort',
+                type: 'number',
+                min: 1,
+                max: 65535,
+                formatOptions: { useGrouping: false },
+                half: true,
+            },
+            {
+                key: 'smtpSecurity',
+                label: 'instance.fields.smtpSecurity',
+                type: 'select',
+                options: [
+                    { value: 'starttls', label: 'instance.fields.smtpSecurityStarttls' },
+                    { value: 'tls', label: 'instance.fields.smtpSecurityTls' },
+                    { value: 'none', label: 'instance.fields.smtpSecurityNone' },
+                ],
+                description: 'instance.fields.smtpSecurityDescription',
+            },
+            { key: 'smtpUser', label: 'instance.fields.smtpUser', type: 'text', half: true },
+            {
+                key: 'smtpPassword',
+                label: 'instance.fields.smtpPassword',
+                type: 'secret',
+                half: true,
+            },
+            {
+                key: 'smtpFrom',
+                label: 'instance.fields.smtpFrom',
+                type: 'text',
+                placeholder: 'fileship@example.com',
+                description: 'instance.fields.smtpFromDescription',
+            },
+        ],
+    },
+    {
         id: 'logs',
         fields: [
             {
@@ -994,8 +1088,8 @@ const sections: SettingSection[] = [
 ];
 
 const columns = [
-    [sections[0]!, sections[1]!, sections[2]!],
-    [sections[4]!, sections[3]!, sections[5]!],
+    [sections[0]!, sections[1]!, sections[2]!, sections[5]!],
+    [sections[4]!, sections[3]!, sections[6]!],
 ];
 
 const storageTypeLabels = computed(() => ({
@@ -1202,7 +1296,8 @@ const getChanges = (section: SettingSection) => {
 
     for (const field of section.fields) {
         if (field.type === 'secret') {
-            if (secret.value.trim()) changes[field.key] = secret.value.trim();
+            const value = secrets[field.key as SecretSettingKey].trim();
+            if (value) changes[field.key] = value;
         } else if (
             JSON.stringify(form[field.key]) !== JSON.stringify(data.value!.values[field.key])
         ) {
@@ -1247,6 +1342,36 @@ const handleSave = async (section: SettingSection) => {
     }
 
     savingSection.value = undefined;
+};
+
+const handleSendTest = async () => {
+    isSendingTest.value = true;
+    formErrors.value = null;
+
+    try {
+        const result = await withVerification((verificationData) =>
+            $fetch('/api/settings/email-test', {
+                method: 'POST',
+                body: {
+                    to: testEmail.value,
+                    smtpHost: form.smtpHost,
+                    smtpPort: form.smtpPort,
+                    smtpSecurity: form.smtpSecurity,
+                    smtpUser: form.smtpUser,
+                    smtpPassword: secrets.smtpPassword.trim(),
+                    smtpFrom: form.smtpFrom,
+                    verificationData,
+                },
+            }),
+        );
+
+        if (result) $toast.success(t('instance.email.testSent', { email: testEmail.value }));
+    } catch (error: any) {
+        formErrors.value = error.data?.data?.formErrors;
+        if (!formErrors.value) $toast.error(getErrorMessage(error));
+    }
+
+    isSendingTest.value = false;
 };
 
 const handleRetryAi = async () => {

@@ -97,6 +97,15 @@
         "deleteDescription": "此操作无法撤销。",
         "deleted": "备份已删除"
     },
+    "emails": {
+        "copyLink": "如果按钮无法使用，请将此链接复制到浏览器中：",
+        "footer": "此邮件由 {siteName} 发送。",
+        "test": {
+            "subject": "来自 {siteName} 的测试邮件",
+            "heading": "邮件发送正常",
+            "body": "{siteName} 可以使用这些设置发送邮件。"
+        }
+    },
     "errorsAuth": {
         "totpRequired": "请输入双重验证码",
         "usernameMin": "用户名至少需要 3 个字符",
@@ -190,6 +199,9 @@
         "missingFile": "缺少文件",
         "invalidFile": "文件无效",
         "fileNameTaken": "已存在同名文件"
+    },
+    "errorsEmail": {
+        "testFailed": "无法发送测试邮件：{error}"
     },
     "errorsFiles": {
         "noFilesToDelete": "没有可删除的文件",
@@ -617,6 +629,11 @@
                 "title": "日志与遥测",
                 "description": "Fileship 会记录和分享哪些内容。",
                 "saved": "日志与遥测设置已保存"
+            },
+            "email": {
+                "title": "邮件",
+                "description": "通过邮件发送密码重置链接、邀请和存储空间警告。设置控制台地址、SMTP 服务器和发件地址后，邮件功能才会显示。",
+                "saved": "邮件设置已保存"
             }
         },
         "fields": {
@@ -657,7 +674,20 @@
             "logLevelImportant": "重要操作",
             "logLevelEverything": "全部",
             "telemetryEnabled": "匿名遥测",
-            "telemetryEnabledDescription": "分享匿名使用统计，帮助改进 Fileship。"
+            "telemetryEnabledDescription": "分享匿名使用统计，帮助改进 Fileship。",
+            "siteUrl": "控制台地址",
+            "siteUrlDescription": "邮件中的链接指向此地址。",
+            "smtpHost": "SMTP 服务器",
+            "smtpPort": "端口",
+            "smtpSecurity": "加密方式",
+            "smtpSecurityDescription": "STARTTLS 通常使用 587 端口，TLS 使用 465 端口。",
+            "smtpSecurityStarttls": "STARTTLS",
+            "smtpSecurityTls": "TLS",
+            "smtpSecurityNone": "无",
+            "smtpUser": "用户名",
+            "smtpPassword": "密码",
+            "smtpFrom": "发件地址",
+            "smtpFromDescription": "邮件将以站点名称从此地址发出。"
         },
         "ai": {
             "queue": "队列",
@@ -759,6 +789,14 @@
             "start": "导入",
             "pathCopied": "路径已复制",
             "started": "正在后台导入文件"
+        },
+        "siteUrlInvalid": "请输入类似 https://files.example.com 的地址",
+        "email": {
+            "test": "测试邮件",
+            "sendTest": "发送测试邮件",
+            "testDescription": "使用上方的设置发送，无需先保存。",
+            "testSent": "测试邮件已发送至 {email}",
+            "hostRequired": "请输入 SMTP 服务器"
         }
     },
     "integrations": {
@@ -1072,7 +1110,8 @@
             "deleteLink": "删除链接",
             "takeNote": "新建笔记",
             "updateNote": "更新笔记",
-            "deleteNote": "删除笔记"
+            "deleteNote": "删除笔记",
+            "sendTestEmail": "发送测试邮件"
         }
     },
     "notes": {

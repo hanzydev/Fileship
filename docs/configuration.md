@@ -8,6 +8,7 @@ Super admins can configure Fileship from the dashboard in **Administration → I
 - **Uploads:** chunk size, avatar size limit, trash retention and EXIF removal
 - **Registration:** self-registration, default permissions (upload files, take notes, shorten links) and storage limit
 - **Turnstile:** site and secret keys
+- **Email:** dashboard address, SMTP server, encryption, credentials and sender address, plus **Send test email**
 - **AI:** features on or off, preset, parallel jobs, threads per job and job heartbeat timeout, plus the analysis queue with **Retry failed** and **Reset AI data**
 - **Logs and telemetry:** log level and anonymous telemetry
 - **Storage:** where uploads and backups are kept
@@ -21,6 +22,17 @@ Fileship keeps uploads and backups in its data directory by default. In **Admini
 Uploads stream to the storage chunk by chunk. Thumbnails and temporary files always stay in the data directory. Storage credentials are encrypted with `data/secret.key`, so keep that file together with your data.
 
 On every start, Fileship removes files and backups whose data is missing from their storage. A storage that cannot be reached or looks empty is skipped, so a misconfigured storage never deletes anything.
+
+## Email
+
+Fileship can send email: links to confirm an email address or reset a password, invites and storage warnings. Set it up in **Administration → Instance → Email**, or give the defaults with `NUXT_SITE_URL` and the `NUXT_SMTP_*` variables:
+
+- **Dashboard address:** the address people open Fileship at, for example `https://files.example.com`. Links in emails always use it, never the address a request came from.
+- **SMTP server, port and encryption:** STARTTLS (usually port 587), TLS (usually port 465) or none.
+- **Username and password:** leave them empty if the server accepts mail without signing in. The password is encrypted with `data/secret.key` and never shown again; leave the field empty to keep it.
+- **Sender address:** emails come from this address, with the site name as the sender name.
+
+**Send test email** uses the values in the form, so you can try them before saving. Until the dashboard address, the SMTP server and the sender address are set, every email feature stays hidden.
 
 ## Trash
 

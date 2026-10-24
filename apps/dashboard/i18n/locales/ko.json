@@ -97,6 +97,15 @@
         "deleteDescription": "이 작업은 되돌릴 수 없어요.",
         "deleted": "백업을 삭제했어요"
     },
+    "emails": {
+        "copyLink": "버튼이 작동하지 않으면 이 링크를 브라우저에 붙여 넣어 주세요:",
+        "footer": "이 이메일은 {siteName}에서 보냈어요.",
+        "test": {
+            "subject": "{siteName} 테스트 이메일",
+            "heading": "이메일을 보낼 수 있어요",
+            "body": "이 설정으로 {siteName}에서 이메일을 보낼 수 있어요."
+        }
+    },
     "errorsAuth": {
         "totpRequired": "2단계 인증 코드를 입력하세요",
         "usernameMin": "사용자 이름은 3자 이상이어야 해요",
@@ -190,6 +199,9 @@
         "missingFile": "파일이 없어요",
         "invalidFile": "파일이 올바르지 않아요",
         "fileNameTaken": "같은 이름의 파일이 이미 있어요"
+    },
+    "errorsEmail": {
+        "testFailed": "테스트 이메일을 보낼 수 없어요: {error}"
     },
     "errorsFiles": {
         "noFilesToDelete": "삭제할 파일이 없어요",
@@ -617,6 +629,11 @@
                 "title": "로그 및 원격 분석",
                 "description": "Fileship이 기록하고 공유하는 정보예요.",
                 "saved": "로그 및 원격 분석 설정을 저장했어요"
+            },
+            "email": {
+                "title": "이메일",
+                "description": "비밀번호 재설정 링크, 초대, 저장 공간 경고를 이메일로 보내요. 대시보드 주소, SMTP 서버, 보내는 주소를 설정하면 이메일 기능이 나타나요.",
+                "saved": "이메일 설정을 저장했어요"
             }
         },
         "fields": {
@@ -657,7 +674,20 @@
             "logLevelImportant": "중요한 작업",
             "logLevelEverything": "모두 기록",
             "telemetryEnabled": "익명 원격 분석",
-            "telemetryEnabledDescription": "익명 사용 통계를 공유해 Fileship 개선에 도움을 줘요."
+            "telemetryEnabledDescription": "익명 사용 통계를 공유해 Fileship 개선에 도움을 줘요.",
+            "siteUrl": "대시보드 주소",
+            "siteUrlDescription": "이메일의 링크는 이 주소로 연결돼요.",
+            "smtpHost": "SMTP 서버",
+            "smtpPort": "포트",
+            "smtpSecurity": "암호화",
+            "smtpSecurityDescription": "보통 STARTTLS는 587번, TLS는 465번 포트를 사용해요.",
+            "smtpSecurityStarttls": "STARTTLS",
+            "smtpSecurityTls": "TLS",
+            "smtpSecurityNone": "없음",
+            "smtpUser": "사용자 이름",
+            "smtpPassword": "비밀번호",
+            "smtpFrom": "보내는 주소",
+            "smtpFromDescription": "이메일은 사이트 이름으로 이 주소에서 보내져요."
         },
         "ai": {
             "queue": "대기열",
@@ -759,6 +789,14 @@
             "start": "가져오기",
             "pathCopied": "경로를 복사했어요",
             "started": "백그라운드에서 파일을 가져오는 중이에요"
+        },
+        "siteUrlInvalid": "https://files.example.com 같은 주소를 입력해 주세요",
+        "email": {
+            "test": "테스트 이메일",
+            "sendTest": "테스트 이메일 보내기",
+            "testDescription": "저장하기 전에도 위의 설정으로 보내요.",
+            "testSent": "테스트 이메일을 보냈어요: {email}",
+            "hostRequired": "SMTP 서버를 입력해 주세요"
         }
     },
     "integrations": {
@@ -1072,7 +1110,8 @@
             "deleteLink": "링크 삭제",
             "takeNote": "노트 작성",
             "updateNote": "노트 수정",
-            "deleteNote": "노트 삭제"
+            "deleteNote": "노트 삭제",
+            "sendTestEmail": "테스트 이메일 발송"
         }
     },
     "notes": {

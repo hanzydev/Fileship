@@ -97,6 +97,15 @@
         "deleteDescription": "This action cannot be undone.",
         "deleted": "Backup deleted"
     },
+    "emails": {
+        "copyLink": "If the button doesn't work, copy this link into your browser:",
+        "footer": "This email was sent by {siteName}.",
+        "test": {
+            "subject": "Test email from {siteName}",
+            "heading": "Email works",
+            "body": "{siteName} can send email with these settings."
+        }
+    },
     "errorsAuth": {
         "totpRequired": "Enter your two-factor authentication code",
         "usernameMin": "Username must be at least 3 characters",
@@ -190,6 +199,9 @@
         "missingFile": "Missing file",
         "invalidFile": "Invalid file",
         "fileNameTaken": "A file with that name already exists"
+    },
+    "errorsEmail": {
+        "testFailed": "Couldn't send the test email: {error}"
     },
     "errorsFiles": {
         "noFilesToDelete": "No files found to delete",
@@ -617,6 +629,11 @@
                 "title": "Logs and telemetry",
                 "description": "What Fileship records and shares.",
                 "saved": "Logs and telemetry settings saved"
+            },
+            "email": {
+                "title": "Email",
+                "description": "Send password reset links, invites and storage warnings by email. Email features appear once the dashboard address, SMTP server and sender address are set.",
+                "saved": "Email settings saved"
             }
         },
         "fields": {
@@ -657,7 +674,20 @@
             "logLevelImportant": "Important actions",
             "logLevelEverything": "Everything",
             "telemetryEnabled": "Anonymous telemetry",
-            "telemetryEnabledDescription": "Share anonymous usage statistics to help improve Fileship."
+            "telemetryEnabledDescription": "Share anonymous usage statistics to help improve Fileship.",
+            "siteUrl": "Dashboard address",
+            "siteUrlDescription": "Links in emails point to this address.",
+            "smtpHost": "SMTP server",
+            "smtpPort": "Port",
+            "smtpSecurity": "Encryption",
+            "smtpSecurityDescription": "STARTTLS usually uses port 587 and TLS port 465.",
+            "smtpSecurityStarttls": "STARTTLS",
+            "smtpSecurityTls": "TLS",
+            "smtpSecurityNone": "None",
+            "smtpUser": "Username",
+            "smtpPassword": "Password",
+            "smtpFrom": "Sender address",
+            "smtpFromDescription": "Emails are sent from this address under the site name."
         },
         "ai": {
             "queue": "Queue",
@@ -759,6 +789,14 @@
             "start": "Import",
             "pathCopied": "Path copied",
             "started": "Importing files in the background"
+        },
+        "siteUrlInvalid": "Enter an address such as https://files.example.com",
+        "email": {
+            "test": "Test email",
+            "sendTest": "Send test email",
+            "testDescription": "Uses the settings above, even before you save them.",
+            "testSent": "Test email sent to {email}",
+            "hostRequired": "SMTP server is required"
         }
     },
     "integrations": {
@@ -1072,7 +1110,8 @@
             "deleteLink": "Delete Link",
             "takeNote": "Take Note",
             "updateNote": "Update Note",
-            "deleteNote": "Delete Note"
+            "deleteNote": "Delete Note",
+            "sendTestEmail": "Send Test Email"
         }
     },
     "notes": {

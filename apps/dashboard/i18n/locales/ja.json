@@ -97,6 +97,15 @@
         "deleteDescription": "この操作は元に戻せません。",
         "deleted": "バックアップを削除しました"
     },
+    "emails": {
+        "copyLink": "ボタンが機能しない場合は、このリンクをブラウザーにコピーしてください：",
+        "footer": "このメールは {siteName} から送信されました。",
+        "test": {
+            "subject": "{siteName} からのテストメール",
+            "heading": "メールを送信できました",
+            "body": "この設定で {siteName} からメールを送信できます。"
+        }
+    },
     "errorsAuth": {
         "totpRequired": "2 段階認証のコードを入力してください",
         "usernameMin": "ユーザー名は 3 文字以上にしてください",
@@ -190,6 +199,9 @@
         "missingFile": "ファイルがありません",
         "invalidFile": "ファイルが無効です",
         "fileNameTaken": "同じ名前のファイルがすでに存在します"
+    },
+    "errorsEmail": {
+        "testFailed": "テストメールを送信できませんでした：{error}"
     },
     "errorsFiles": {
         "noFilesToDelete": "削除するファイルが見つかりません",
@@ -617,6 +629,11 @@
                 "title": "ログとテレメトリ",
                 "description": "Fileship が記録・共有する内容を設定します。",
                 "saved": "ログとテレメトリの設定を保存しました"
+            },
+            "email": {
+                "title": "メール",
+                "description": "パスワードのリセット用リンク、招待、ストレージの警告をメールで送信します。メール機能は、ダッシュボードのアドレス、SMTP サーバー、送信元アドレスを設定すると表示されます。",
+                "saved": "メールの設定を保存しました"
             }
         },
         "fields": {
@@ -657,7 +674,20 @@
             "logLevelImportant": "重要な操作",
             "logLevelEverything": "すべて",
             "telemetryEnabled": "匿名のテレメトリ",
-            "telemetryEnabledDescription": "Fileship の改善のため、匿名の使用統計を共有します。"
+            "telemetryEnabledDescription": "Fileship の改善のため、匿名の使用統計を共有します。",
+            "siteUrl": "ダッシュボードのアドレス",
+            "siteUrlDescription": "メール内のリンクはこのアドレスを指します。",
+            "smtpHost": "SMTP サーバー",
+            "smtpPort": "ポート",
+            "smtpSecurity": "暗号化",
+            "smtpSecurityDescription": "通常、STARTTLS はポート 587、TLS はポート 465 を使用します。",
+            "smtpSecurityStarttls": "STARTTLS",
+            "smtpSecurityTls": "TLS",
+            "smtpSecurityNone": "なし",
+            "smtpUser": "ユーザー名",
+            "smtpPassword": "パスワード",
+            "smtpFrom": "送信元アドレス",
+            "smtpFromDescription": "メールはサイト名を差出人として、このアドレスから送信されます。"
         },
         "ai": {
             "queue": "キュー",
@@ -759,6 +789,14 @@
             "start": "インポート",
             "pathCopied": "パスをコピーしました",
             "started": "バックグラウンドでファイルをインポートしています"
+        },
+        "siteUrlInvalid": "https://files.example.com のようなアドレスを入力してください",
+        "email": {
+            "test": "テストメール",
+            "sendTest": "テストメールを送信",
+            "testDescription": "保存する前でも、上の設定を使って送信します。",
+            "testSent": "{email} にテストメールを送信しました",
+            "hostRequired": "SMTP サーバーを入力してください"
         }
     },
     "integrations": {
@@ -1072,7 +1110,8 @@
             "deleteLink": "リンクを削除",
             "takeNote": "ノートを作成",
             "updateNote": "ノートを更新",
-            "deleteNote": "ノートを削除"
+            "deleteNote": "ノートを削除",
+            "sendTestEmail": "テストメールを送信"
         }
     },
     "notes": {

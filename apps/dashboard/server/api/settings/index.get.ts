@@ -1,3 +1,9 @@
+const hideSecrets = (settings: InstanceSettings) =>
+    ({
+        ...settings,
+        ...Object.fromEntries(secretSettingKeys.map((key) => [key, ''])),
+    }) as InstanceSettings;
+
 export default defineEventHandler(async (event) => {
     superAdminOnly(event);
 
@@ -6,9 +12,11 @@ export default defineEventHandler(async (event) => {
     const values = { ...defaults, ...overrides };
 
     return {
-        values: { ...values, turnstileSecretKey: '' },
-        defaults: { ...defaults, turnstileSecretKey: '' },
+        values: hideSecrets(values),
+        defaults: hideSecrets(defaults),
         overridden: Object.keys(overrides) as InstanceSettingKey[],
-        turnstileSecretKeySet: !!values.turnstileSecretKey,
+        secretsSet: Object.fromEntries(
+            secretSettingKeys.map((key) => [key, !!values[key]]),
+        ) as Record<SecretSettingKey, boolean>,
     };
 });

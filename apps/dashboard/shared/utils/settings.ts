@@ -23,11 +23,29 @@ export const settingsSchema = z.object({
     aiJobLeaseMs: z.number().int().min(60_000),
     logLevel: z.union([z.literal(0), z.literal(1), z.literal(2)]),
     telemetryEnabled: z.boolean(),
+    siteUrl: z
+        .string()
+        .trim()
+        .max(256)
+        .regex(/^(https?:\/\/[^\s/?#]+\/?)?$/i, 'instance.siteUrlInvalid'),
+    smtpHost: z.string().trim().max(256),
+    smtpPort: z.number().int().min(1).max(65535),
+    smtpSecurity: z.enum(['none', 'starttls', 'tls']),
+    smtpUser: z.string().trim().max(256),
+    smtpPassword: z.string().max(256),
+    smtpFrom: z.union([z.literal(''), z.email().max(256)]),
     activeStorageId: z.string().nullable(),
 });
 
 export type InstanceSettings = z.infer<typeof settingsSchema>;
 export type InstanceSettingKey = keyof InstanceSettings;
+
+export const secretSettingKeys = [
+    'turnstileSecretKey',
+    'smtpPassword',
+] as const satisfies InstanceSettingKey[];
+
+export type SecretSettingKey = (typeof secretSettingKeys)[number];
 
 export const publicSettingKeys = [
     'siteName',
@@ -41,4 +59,5 @@ export const publicSettingKeys = [
 
 export type PublicSettings = Pick<InstanceSettings, (typeof publicSettingKeys)[number]> & {
     uploadConcurrency: number;
+    emailEnabled: boolean;
 };

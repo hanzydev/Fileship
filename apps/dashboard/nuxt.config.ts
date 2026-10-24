@@ -150,6 +150,15 @@ export default defineNuxtConfig({
         logLevel: 2,
         telemetryEnabled: true,
         telemetryUrl: '',
+        siteUrl: '',
+        smtp: {
+            host: '',
+            port: 587,
+            security: 'starttls',
+            user: '',
+            password: '',
+            from: '',
+        },
         updater: {
             url: 'http://updater-agent:3001',
             secret: 'dev-secret-token',

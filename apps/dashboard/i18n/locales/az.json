@@ -97,6 +97,15 @@
         "deleteDescription": "Bu əməliyyatı geri qaytarmaq olmaz.",
         "deleted": "Ehtiyat nüsxə silindi"
     },
+    "emails": {
+        "copyLink": "Düymə işləməsə, bu keçidi brauzerinə köçür:",
+        "footer": "Bu e-poçt {siteName} tərəfindən göndərildi.",
+        "test": {
+            "subject": "{siteName} test e-poçtu",
+            "heading": "E-poçt göndərişi işləyir",
+            "body": "Bu ayarlarla {siteName} e-poçt göndərə bilir."
+        }
+    },
     "errorsAuth": {
         "totpRequired": "İki addımlı doğrulama kodunu daxil et",
         "usernameMin": "İstifadəçi adı ən azı 3 simvol olmalıdır",
@@ -190,6 +199,9 @@
         "missingFile": "Fayl göndərilməyib",
         "invalidFile": "Fayl etibarsızdır",
         "fileNameTaken": "Bu adda fayl artıq var"
+    },
+    "errorsEmail": {
+        "testFailed": "Test e-poçtunu göndərmək mümkün olmadı: {error}"
     },
     "errorsFiles": {
         "noFilesToDelete": "Silinəcək fayl tapılmadı",
@@ -617,6 +629,11 @@
                 "title": "Jurnal və telemetriya",
                 "description": "Fileship nələri qeydə alır və paylaşır.",
                 "saved": "Jurnal və telemetriya ayarları yadda saxlanıldı"
+            },
+            "email": {
+                "title": "E-poçt",
+                "description": "Şifrə sıfırlama keçidlərini, dəvətləri və yaddaş xəbərdarlıqlarını e-poçtla göndər. E-poçt funksiyaları idarə paneli ünvanı, SMTP serveri və göndərən ünvanı daxil edildikdən sonra görünür.",
+                "saved": "E-poçt ayarları yadda saxlanıldı"
             }
         },
         "fields": {
@@ -657,7 +674,20 @@
             "logLevelImportant": "Vacib əməliyyatlar",
             "logLevelEverything": "Hər şey",
             "telemetryEnabled": "Anonim telemetriya",
-            "telemetryEnabledDescription": "Fileship layihəsinin inkişafına kömək etmək üçün anonim istifadə statistikası paylaşılır."
+            "telemetryEnabledDescription": "Fileship layihəsinin inkişafına kömək etmək üçün anonim istifadə statistikası paylaşılır.",
+            "siteUrl": "İdarə paneli ünvanı",
+            "siteUrlDescription": "E-poçtlardakı keçidlər bu ünvana aparır.",
+            "smtpHost": "SMTP serveri",
+            "smtpPort": "Port",
+            "smtpSecurity": "Şifrələmə",
+            "smtpSecurityDescription": "STARTTLS adətən 587, TLS isə 465 nömrəli portdan istifadə edir.",
+            "smtpSecurityStarttls": "STARTTLS",
+            "smtpSecurityTls": "TLS",
+            "smtpSecurityNone": "Yoxdur",
+            "smtpUser": "İstifadəçi adı",
+            "smtpPassword": "Şifrə",
+            "smtpFrom": "Göndərən ünvanı",
+            "smtpFromDescription": "E-poçtlar bu ünvandan sayt adı ilə göndərilir."
         },
         "ai": {
             "queue": "Növbə",
@@ -759,6 +789,14 @@
             "start": "İdxal et",
             "pathCopied": "Yol kopyalandı",
             "started": "Fayllar arxa planda idxal olunur"
+        },
+        "siteUrlInvalid": "https://files.example.com kimi ünvan daxil et",
+        "email": {
+            "test": "Test e-poçtu",
+            "sendTest": "Test e-poçtu göndər",
+            "testDescription": "Yuxarıdakı ayarları yadda saxlamadan əvvəl də istifadə edir.",
+            "testSent": "Test e-poçtu göndərildi: {email}",
+            "hostRequired": "SMTP serveri tələb olunur"
         }
     },
     "integrations": {
@@ -1072,7 +1110,8 @@
             "deleteLink": "Keçid silmə",
             "takeNote": "Qeyd yazma",
             "updateNote": "Qeydi yeniləmə",
-            "deleteNote": "Qeyd silmə"
+            "deleteNote": "Qeyd silmə",
+            "sendTestEmail": "Test e-poçtu göndərmə"
         }
     },
     "notes": {
