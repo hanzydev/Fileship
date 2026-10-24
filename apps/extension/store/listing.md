@@ -71,18 +71,15 @@ Check all three certifications, and use the privacy policy URL from the table ab
 
 ### Test instructions tab
 
-```text
-Fileship is a self-hosted file server; the extension needs one to do anything. Test server:
+Leave **Username** and **Password** empty: the extension never logs in, and the password would let reviewers regenerate the token. **Additional instructions** takes at most 500 characters; this text is 489 with a 44-character token:
 
+```text
+No login needed, only this server and upload token:
 Server address: <SERVER_URL>
 Upload token: <UPLOAD_TOKEN>
-
-1. Click the Fileship toolbar button and choose "Open settings".
-2. Enter the server address and the upload token, choose "Test connection", then "Save", and allow access to the server when Chrome asks.
-3. From the toolbar button: "Upload files", "Shorten this page", "Capture visible area" and "Capture an area" (drag over the page).
-4. Right-click an image and choose "Upload image to Fileship", or a link and choose "Shorten link with Fileship".
-
-The link is copied to the clipboard and shown in a notification; open it to see the uploaded file. The test account can only upload files and shorten links and has a small storage limit.
+1. Toolbar button > Open settings. Enter both, click Test connection, then Save, and allow access to the server.
+2. Toolbar button: Upload files, Shorten this page, Capture visible area, Capture an area. Or right-click an image (Upload image to Fileship) or a link (Shorten link with Fileship).
+The link is copied and shown in a notification.
 ```
 
 ### Distribution tab
