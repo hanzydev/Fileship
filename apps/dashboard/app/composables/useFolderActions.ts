@@ -31,6 +31,20 @@ export const useFolderActions = () => {
         }
     };
 
+    const move = async (folder: FolderData, parentId: string | null) => {
+        const id = $toast.loading(t('actions.folder.moving'));
+
+        try {
+            await $fetch(`/api/folders/${folder.id}`, { method: 'PATCH', body: { parentId } });
+            $toast.success(t('actions.folder.moved'), { id });
+
+            return true;
+        } catch (error: any) {
+            $toast.error(getErrorMessage(error), { id });
+            return false;
+        }
+    };
+
     const remove = async (folder: FolderData) => {
         const option = reactive({ label: t('actions.folder.alsoDeleteFiles'), value: true });
 
@@ -56,5 +70,5 @@ export const useFolderActions = () => {
         });
     };
 
-    return { copyLink, togglePublic, download: downloadFolder, remove };
+    return { copyLink, togglePublic, download: downloadFolder, move, remove };
 };

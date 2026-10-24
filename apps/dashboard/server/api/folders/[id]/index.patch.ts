@@ -10,6 +10,10 @@ const validationSchema = z
             .max(32, 'errorsContent.folderNameMax')
             .optional(),
         public: z.boolean().optional(),
+        parentId: z
+            .string()
+            .nullish()
+            .transform((value) => (value === '' ? null : value)),
     })
     .strict();
 
@@ -37,6 +41,11 @@ export default defineEventHandler(async (event) => {
         throw apiError(404, 'errorsContent.folderNotFound');
     }
 
+    const isMoved =
+        body.data.parentId !== undefined && body.data.parentId !== findFolderById.parentId;
+
+    if (isMoved) await assertFolderParent(currentUser.id, body.data.parentId, findFolderById.id);
+
     const _updatedFolder = await prisma.folder.update({
         where: {
             id: folderId,
@@ -45,6 +54,7 @@ export default defineEventHandler(async (event) => {
         data: {
             name: body.data.name,
             public: body.data.public,
+            parentId: isMoved ? body.data.parentId : undefined,
         },
     });
 
@@ -61,7 +71,11 @@ export default defineEventHandler(async (event) => {
         message: `Updated folder ${findFolderById.name}`,
     });
 
-    sendToUser(currentUser.id, 'folder:update', updatedFolder);
+    sendToUser(
+        currentUser.id,
+        'folder:update',
+        isMoved ? updatedFolder : { ...updatedFolder, parentId: undefined, parent: undefined },
+    );
 
     return updatedFolder;
 });

@@ -58,8 +58,9 @@
 <script setup lang="ts">
 import type { FolderData } from '~/types/folders';
 
-const { folder } = defineProps<{
+const { folder, parentId } = defineProps<{
     folder?: FolderData | null;
+    parentId?: string;
 }>();
 
 const open = defineModel<boolean>('open', { required: true });
@@ -80,7 +81,10 @@ const handleSubmit = async () => {
             await $fetch(`/api/folders/${folder.id}`, { method: 'PATCH', body: form });
             $toast.success(t('folders.form.updated'));
         } else {
-            const created = await $fetch('/api/folders', { method: 'POST', body: form });
+            const created = await $fetch('/api/folders', {
+                method: 'POST',
+                body: { ...form, parentId },
+            });
             $toast.success(t('folders.form.created'));
             navigateTo(`/dashboard/folders/${created.id}`);
         }

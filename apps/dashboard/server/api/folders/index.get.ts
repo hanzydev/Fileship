@@ -1,10 +1,12 @@
+import { z } from 'zod';
+
 import type { Prisma } from '~~/generated/prisma/client';
 
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
     const currentUser = event.context.user!;
-    const query = await readListQuery(event);
+    const query = await readListQuery(event, { parent: z.literal('root').optional() });
     const searchIds = query.q
         ? await searchDbIds(folderSearchDb, query.q, currentUser.id)
         : undefined;
@@ -12,6 +14,7 @@ export default defineEventHandler(async (event) => {
     const where: Prisma.FolderWhereInput = {
         authorId: currentUser.id,
         deletedAt: null,
+        ...(query.parent ? { parentId: null } : {}),
         ...(searchIds ? { id: { in: searchIds } } : {}),
     };
 

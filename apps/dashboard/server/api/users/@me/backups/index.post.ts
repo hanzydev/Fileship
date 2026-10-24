@@ -45,6 +45,14 @@ export default defineEventHandler(async (event) => {
         }),
     ]);
 
+    const parents = new Map(folders.map((folder) => [folder.id, folder.parentId]));
+    const depthOf = (id: string | null, level = 0): number =>
+        id && parents.has(id) && level < MAX_FOLDER_DEPTH
+            ? depthOf(parents.get(id)!, level + 1)
+            : level;
+
+    folders.sort((a, b) => depthOf(a.id) - depthOf(b.id));
+
     const tempPath = join(dataDirectory, 'temp', nanoid());
     const backupUploadsPath = join(tempPath, 'uploads');
     const backupDatabasePath = join(tempPath, 'database');

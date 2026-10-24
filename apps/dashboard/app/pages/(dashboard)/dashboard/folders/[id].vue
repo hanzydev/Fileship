@@ -17,6 +17,10 @@
 
         <template v-else-if="folder">
             <PageHeader :title="folder.name" :description="description">
+                <UiButton variant="outline" @click="newFolderOpen = true">
+                    <IFolderPlus />
+                    {{ $t('folders.newFolder') }}
+                </UiButton>
                 <UiButton variant="outline" @click="pickerOpen = true">
                     <IFilePlus />
                     {{ $t('folders.detail.manageFiles') }}
@@ -36,7 +40,8 @@
                             :folder="folder"
                             type="dropdown"
                             in-folder
-                            @edit="formOpen = true"
+                            @edit="openForm(folder)"
+                            @move="movingFolder = folder"
                         />
                     </UiDropdownMenuContent>
                 </UiDropdownMenu>
@@ -53,13 +58,41 @@
                 </UiAlertDescription>
             </UiAlert>
 
+            <section v-if="subfolders.length" class="flex flex-col gap-3">
+                <TextBlock variant="large" custom-tag="h2">
+                    {{ $t('folders.detail.subfolders') }}
+                </TextBlock>
+                <VirtualList
+                    :items="subfolders"
+                    :item-key="(f) => f.id"
+                    :min-item-width="240"
+                    :estimate-size="230"
+                    :gap="16"
+                    :loading="isLoadingMoreSubfolders"
+                    @reach-end="loadMoreSubfolders"
+                >
+                    <template #skeleton>
+                        <FolderCardSkeleton />
+                    </template>
+                    <template #default="{ item }">
+                        <FolderCard
+                            :folder="item"
+                            @edit="openForm(item)"
+                            @move="movingFolder = item"
+                        />
+                    </template>
+                </VirtualList>
+            </section>
+
             <FileBrowser
                 v-model:summary="summary"
                 :folder-id="folder.id"
                 :empty-title="$t('folders.detail.empty')"
             />
 
-            <FolderFormDialog v-model:open="formOpen" :folder="folder" />
+            <FolderFormDialog v-model:open="formOpen" :folder="editingFolder" />
+            <FolderFormDialog v-model:open="newFolderOpen" :parent-id="folder.id" />
+            <FolderMoveDialog v-model="movingFolder" />
 
             <UiDialog v-model:open="pickerOpen">
                 <UiDialogContent class="flex h-[min(85svh,52rem)] flex-col sm:max-w-4xl">
@@ -179,11 +212,15 @@ import type { FolderData } from '~/types/folders';
 
 const route = useRoute();
 const labels = useBreadcrumbLabels();
+const trail = useBreadcrumbTrail();
 const { $toast } = useNuxtApp();
 const { t } = useI18n();
 const { copyLink } = useFolderActions();
 
 const formOpen = ref(false);
+const newFolderOpen = ref(false);
+const editingFolder = ref<FolderData | null>(null);
+const movingFolder = ref<FolderData | null>(null);
 const pickerOpen = ref(false);
 const pickerSearch = ref('');
 const pickerFilter = ref<'all' | 'in' | 'out'>('all');
@@ -211,6 +248,12 @@ const {
 );
 
 const isLoading = computed(() => status.value === 'pending' || status.value === 'idle');
+
+const {
+    items: subfolders,
+    isLoadingMore: isLoadingMoreSubfolders,
+    loadMore: loadMoreSubfolders,
+} = usePaginatedList<FolderData>('folders', () => `/api/folders/${folderId.value}/folders`);
 
 const {
     items: pickerFiles,
@@ -244,6 +287,11 @@ const pickerChanges = computed(() =>
         ? t('folders.picker.changes', { added: added.value.length, removed: removed.value.length })
         : t('folders.picker.noChanges'),
 );
+
+const openForm = (target: FolderData) => {
+    editingFolder.value = target;
+    formOpen.value = true;
+};
 
 const isInFolder = (file: FileData) => file.folderId === folderId.value;
 
@@ -290,7 +338,23 @@ useListHandle({
     remove: (ids) => ids.includes(folderId.value) && navigateTo('/dashboard/folders'),
 });
 
-watch(folder, (value) => value && (labels.value = { ...labels.value, [value.id]: value.name }));
+watch(folder, (value) => {
+    if (!value) return;
+
+    labels.value = { ...labels.value, [value.id]: value.name };
+    trail.value = {
+        path: route.path,
+        items: value.ancestors!.map((ancestor) => ({
+            to: `/dashboard/folders/${ancestor.id}`,
+            label: ancestor.name,
+        })),
+    };
+});
+
+watch(
+    () => folder.value?.parentId,
+    (value, previous) => previous !== undefined && value !== previous && refresh(),
+);
 
 watch(pickerOpen, (value) => {
     if (!value) return;

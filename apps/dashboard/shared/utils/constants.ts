@@ -42,3 +42,5 @@ export const COMPRESSIONS = [
     { label: 'labels.compression.high', value: 75 },
     { label: 'labels.compression.maximum', value: 100 },
 ];
+
+export const MAX_FOLDER_DEPTH = 10;

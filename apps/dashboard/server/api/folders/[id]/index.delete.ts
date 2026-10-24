@@ -22,39 +22,48 @@ export default defineEventHandler(async (event) => {
             authorId: currentUser.id,
             deletedAt: null,
         },
-        include: {
-            files: { where: { deletedAt: null } },
-            inbox: true,
-        },
     });
 
     if (!findFolderById) {
         throw apiError(404, 'errorsContent.folderNotFound');
     }
 
-    if (findFolderById.inbox) {
+    const folderIds = (await folderSubtree([findFolderById.id])).map((folder) => folder.id);
+
+    if (await prisma.inbox.findFirst({ where: { folderId: { in: folderIds } } })) {
         throw apiError(400, 'errorsContent.inboxFolderDelete');
     }
 
+    const files = await prisma.file.findMany({
+        where: { folderId: { in: folderIds }, deletedAt: null },
+    });
+
     const isTrashed = !body.data.permanent && (await isTrashEnabled());
+    const keptFiles = { folderId: findFolderById.parentId };
 
     if (isTrashed) {
         const deletedAt = new Date();
 
         await prisma.$transaction([
             prisma.file.updateMany({
-                where: { id: { in: findFolderById.files.map((file) => file.id) } },
-                data: body.data.deleteFilesToo ? { deletedAt } : { folderId: null },
+                where: { id: { in: files.map((file) => file.id) } },
+                data: body.data.deleteFilesToo ? { deletedAt } : keptFiles,
             }),
-            prisma.folder.update({ where: { id: folderId }, data: { deletedAt } }),
+            prisma.folder.updateMany({ where: { id: { in: folderIds } }, data: { deletedAt } }),
         ]);
     } else {
-        if (body.data.deleteFilesToo) await deleteFilesForever(findFolderById.files);
-        await deleteFoldersForever([folderId!]);
+        if (body.data.deleteFilesToo) await deleteFilesForever(files);
+        else
+            await prisma.file.updateMany({
+                where: { id: { in: files.map((file) => file.id) } },
+                data: keptFiles,
+            });
+
+        await deleteFoldersForever(folderIds);
     }
 
     if (body.data.deleteFilesToo) {
-        const deletionPromises = findFolderById.files.map(async (file) => {
+        const deletionPromises = files.map(async (file) => {
             await createLog(event, {
                 action: 'Delete File',
                 message: isTrashed
@@ -75,6 +84,6 @@ export default defineEventHandler(async (event) => {
             : `Deleted folder ${findFolderById.name}`,
     });
 
-    sendToUser(currentUser.id, 'folder:delete', folderId);
+    for (const id of folderIds) sendToUser(currentUser.id, 'folder:delete', id);
     sendToUser(currentUser.id, 'trash:update', null);
 });

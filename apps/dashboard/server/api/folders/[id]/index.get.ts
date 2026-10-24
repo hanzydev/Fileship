@@ -35,18 +35,33 @@ export default defineEventHandler(async (event) => {
         ...(isOwner ? {} : await visitorFileWhere(findFolderById.author)),
     };
 
-    const [fileCount, lockedCount] = await Promise.all([
+    const [fileCount, lockedCount, folderCount, ancestors] = await Promise.all([
         prisma.file.count({ where: visibleFiles }),
         isOwner ? 0 : prisma.file.count({ where: { ...visibleFiles, password: { not: null } } }),
+        prisma.folder.count({
+            where: {
+                parentId: findFolderById.id,
+                deletedAt: null,
+                ...(!isOwner && { public: true }),
+            },
+        }),
+        folderAncestors(findFolderById.id),
     ]);
+
+    const visibleAncestors = isOwner
+        ? ancestors
+        : ancestors.slice(ancestors.findLastIndex((folder) => !folder.public) + 1);
 
     return {
         ...findFolderById,
         inbox: undefined,
         author: undefined,
         authorId: isOwner ? findFolderById.authorId : undefined,
+        parentId: isOwner ? findFolderById.parentId : undefined,
         fileCount,
         lockedCount,
+        folderCount,
+        ancestors: visibleAncestors.map((folder) => ({ id: folder.id, name: folder.name })),
         isInbox: !!findFolderById.inbox,
         embed: defu(findFolderById.author.embed, defaultEmbed) as IEmbed,
         publicUrl: findFolderById.public

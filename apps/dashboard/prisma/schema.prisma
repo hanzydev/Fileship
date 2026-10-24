@@ -185,11 +185,15 @@ model Folder {
   createdAt DateTime  @default(now())
   author    User      @relation(fields: [authorId], references: [id])
   authorId  String
+  parent    Folder?   @relation("FolderTree", fields: [parentId], references: [id], onDelete: SetNull)
+  parentId  String?
+  children  Folder[]  @relation("FolderTree")
   files     File[]
   inbox     Inbox?
   deletedAt DateTime?
 
   @@index([authorId, deletedAt])
+  @@index([parentId])
 }
 
 model Log {

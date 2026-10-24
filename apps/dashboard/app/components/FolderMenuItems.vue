@@ -23,6 +23,10 @@
         <IPencil />
         {{ $t('folders.menu.edit') }}
     </component>
+    <component :is="Item" @select="emit('move')">
+        <IFolderInput />
+        {{ $t('folders.menu.move') }}
+    </component>
     <template v-if="!folder.isInbox">
         <component :is="Separator" />
         <component :is="Item" variant="destructive" @select="remove(folder)">
@@ -50,6 +54,7 @@ const { folder, type } = defineProps<{
 
 const emit = defineEmits<{
     edit: [];
+    move: [];
 }>();
 
 const { copyLink, togglePublic, download, remove } = useFolderActions();

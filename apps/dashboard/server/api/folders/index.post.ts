@@ -6,6 +6,7 @@ const validationSchema = z.object({
     name: z.string().min(1, 'errorsContent.folderNameMin').max(32, 'errorsContent.folderNameMax'),
     files: z.array(z.string()).max(5000).optional(),
     public: z.boolean().optional().default(false),
+    parentId: z.string().nullish(),
 });
 
 export default defineEventHandler(async (event) => {
@@ -17,6 +18,8 @@ export default defineEventHandler(async (event) => {
     if (!body.success) {
         throw invalidBodyError(body.error);
     }
+
+    await assertFolderParent(currentUser.id, body.data.parentId);
 
     if (body.data.files?.length) {
         const files = await prisma.file.findMany({
@@ -38,6 +41,7 @@ export default defineEventHandler(async (event) => {
         data: {
             name: body.data.name,
             public: body.data.public,
+            parentId: body.data.parentId || null,
             files: {
                 connect: body.data.files?.map((file) => ({ id: file })),
             },

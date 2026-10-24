@@ -125,6 +125,7 @@ export const initSocket = () => {
 
         socket.on('folder:update', (data) => {
             patchListItem('folders', data);
+            if ('parentId' in data) refreshLists('folders');
             mapListItems('files', (item) =>
                 item.folder?.id === data.id
                     ? { ...item, folder: { id: data.id, name: data.name } }
