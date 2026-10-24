@@ -1,8 +1,26 @@
 import { mkdir, rm } from 'node:fs/promises';
 
 import { nanoid } from 'nanoid';
-import { join } from 'pathe';
+import { dirname, join } from 'pathe';
 import { create } from 'tar';
+
+const INVALID_SEGMENT = /[\\/:*?"<>|\p{Cc}]/gu;
+
+const archiveSegment = (name: string, taken: Set<string>) => {
+    const base =
+        name
+            .replace(INVALID_SEGMENT, '')
+            .trim()
+            .replace(/^\.+|[. ]+$/g, '') || 'Folder';
+    let candidate = base;
+
+    for (let index = 2; taken.has(candidate.toLowerCase()); index++) {
+        candidate = `${base} (${index})`;
+    }
+
+    taken.add(candidate.toLowerCase());
+    return candidate;
+};
 
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
@@ -15,20 +33,6 @@ export default defineEventHandler(async (event) => {
             deletedAt: null,
         },
         include: {
-            files: {
-                where: {
-                    deletedAt: null,
-                },
-                orderBy: {
-                    createdAt: 'desc',
-                },
-                select: {
-                    id: true,
-                    fileName: true,
-                    password: true,
-                    storageId: true,
-                },
-            },
             author: { select: { aiSettings: true } },
         },
     });
@@ -37,31 +41,40 @@ export default defineEventHandler(async (event) => {
         throw apiError(404, 'errorsContent.folderNotFound');
     }
 
-    let isPrivate = true;
+    const isPrivate = !!(await folderAccessOf(findFolderById, currentUser?.id));
 
-    if (findFolderById.authorId !== currentUser?.id) {
-        if (!findFolderById.public) {
-            throw forbiddenError();
-        } else {
-            isPrivate = false;
+    if (!isPrivate) {
+        if (!findFolderById.public) throw forbiddenError();
 
-            await rateLimit(`folderArchive:${getClientIp(event)}`, 5, 10 * 60_000);
+        await rateLimit(`folderArchive:${getClientIp(event)}`, 5, 10 * 60_000);
+    }
 
-            const visible = await prisma.file.findMany({
-                where: {
-                    folderId: findFolderById.id,
-                    deletedAt: null,
+    const paths = new Map<string, string>([[findFolderById.id, '']]);
+    const names = new Map<string, Set<string>>();
+
+    for (const folder of await folderSubtree([findFolderById.id])) {
+        const parentPath = folder.parentId === null ? undefined : paths.get(folder.parentId);
+        if (!folder.level || parentPath === undefined || (!isPrivate && !folder.public)) continue;
+
+        const taken = names.get(folder.parentId!) ?? new Set();
+        names.set(folder.parentId!, taken);
+        paths.set(folder.id, join(parentPath, archiveSegment(folder.name, taken)));
+    }
+
+    const files = (
+        await prisma.file.findMany({
+            where: {
+                folderId: { in: [...paths.keys()] },
+                deletedAt: null,
+                ...(!isPrivate && {
                     password: null,
                     ...(await visitorFileWhere(findFolderById.author)),
-                },
-                select: { id: true },
-            });
-
-            findFolderById.files = findFolderById.files.filter((file) =>
-                visible.some((other) => other.id === file.id),
-            );
-        }
-    }
+                }),
+            },
+            orderBy: { createdAt: 'desc' },
+            select: { id: true, fileName: true, folderId: true, storageId: true },
+        })
+    ).map((file) => ({ ...file, path: join(paths.get(file.folderId!)!, file.fileName) }));
 
     const keys = await storage.getKeys(`folderArchiveStatus:${folderId}:`);
     const items = await storage.getItems<{ isDone: boolean }>(keys);
@@ -71,7 +84,7 @@ export default defineEventHandler(async (event) => {
         throw apiError(400, 'errorsContent.archiveRunning');
     }
 
-    if (!findFolderById.files.length) {
+    if (!files.length) {
         throw apiError(400, 'errorsContent.nothingToArchive');
     }
 
@@ -80,7 +93,7 @@ export default defineEventHandler(async (event) => {
     await storage.setItem(`folderArchiveStatus:${folderId}:${jobId}`, {
         isPrivate,
         isDone: false,
-        authorId: findFolderById.authorId,
+        userId: currentUser?.id,
     });
 
     const tempPath = join(dataDirectory, 'temp', jobId);
@@ -90,12 +103,13 @@ export default defineEventHandler(async (event) => {
     await mkdir(archiveUploadsPath);
 
     const downloads = await Promise.allSettled(
-        findFolderById.files.map(async (file) => {
+        files.map(async (file) => {
+            await mkdir(join(archiveUploadsPath, dirname(file.path)), { recursive: true });
             await (
                 await getStorage(file.storageId)
-            ).download(uploadKey(file.fileName), join(archiveUploadsPath, file.fileName));
+            ).download(uploadKey(file.fileName), join(archiveUploadsPath, file.path));
 
-            return file.fileName;
+            return file.path;
         }),
     );
 
@@ -121,7 +135,7 @@ export default defineEventHandler(async (event) => {
                 await storage.setItem(`folderArchiveStatus:${folderId}:${jobId}`, {
                     isPrivate,
                     isDone: true,
-                    authorId: findFolderById.authorId,
+                    userId: currentUser?.id,
                 });
             })
             .catch(() => storage.removeItem(`folderArchiveStatus:${folderId}:${jobId}`)),

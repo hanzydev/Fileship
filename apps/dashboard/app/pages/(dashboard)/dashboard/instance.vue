@@ -489,7 +489,7 @@
                             <code>{{ UPLOADS_FOLDER }}</code>
                         </template>
                     </i18n-t>
-                    <li>{{ $t('instance.import.ruleFolders') }}</li>
+                    <li>{{ $t('instance.import.ruleFolders', { max: MAX_FOLDER_DEPTH }) }}</li>
                     <li>{{ $t('instance.import.ruleDuplicates') }}</li>
                     <li>{{ $t('instance.import.ruleRecent') }}</li>
                     <li>{{ $t('instance.import.ruleQuota') }}</li>

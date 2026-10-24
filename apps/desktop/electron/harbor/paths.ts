@@ -1,4 +1,4 @@
-export type RemoteFolder = { id: string; name: string; createdAt: number };
+export type RemoteFolder = { id: string; name: string; parentId: string | null; createdAt: number };
 
 export type RemoteFile = {
     id: string;
@@ -115,20 +115,34 @@ export const buildLayout = (
     const rootNames = new Set<string>();
     const folderNames = new Map<string, Set<string>>();
     const folderPaths = new Map<string, string>();
+    const known = new Set(folders.map((folder) => folder.id));
+    const children = new Map<string | null, RemoteFolder[]>();
 
     for (const folder of [...folders].sort(byAge)) {
-        const path = uniqueName(safeName(folder.name, 'Folder'), rootNames);
-
-        folderPaths.set(folder.id, path);
-        folderNames.set(folder.id, new Set());
-        layout.set(folderIdentity(folder.id), {
-            identity: folderIdentity(folder.id),
-            path,
-            isFolder: true,
-            size: 0,
-            created: folder.createdAt,
-        });
+        const parentId = folder.parentId && known.has(folder.parentId) ? folder.parentId : null;
+        children.set(parentId, [...(children.get(parentId) ?? []), folder]);
     }
+
+    const addFolders = (parentId: string | null, parentPath: string, names: Set<string>) => {
+        for (const folder of children.get(parentId) ?? []) {
+            const name = uniqueName(safeName(folder.name, 'Folder'), names);
+            const path = parentPath ? `${parentPath}\\${name}` : name;
+
+            folderPaths.set(folder.id, path);
+            folderNames.set(folder.id, new Set());
+            layout.set(folderIdentity(folder.id), {
+                identity: folderIdentity(folder.id),
+                path,
+                isFolder: true,
+                size: 0,
+                created: folder.createdAt,
+            });
+
+            addFolders(folder.id, path, folderNames.get(folder.id)!);
+        }
+    };
+
+    addFolders(null, '', rootNames);
 
     for (const file of [...files].sort(byAge)) {
         const parent = file.folderId ? folderPaths.get(file.folderId) : undefined;

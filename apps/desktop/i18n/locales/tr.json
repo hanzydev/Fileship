@@ -199,6 +199,7 @@
         "notesFolder": "Notlar",
         "linksFolder": "Bağlantılar",
         "notesOnlyText": "Yalnızca Markdown ve metin dosyaları not olabilir.",
+        "onlyFileshipFolders": "Dosya ve klasörler yalnızca Fileship ile eşitlenen klasörlere taşınabilir.",
         "makeNotePublic": "Bu not herkese açık yapılsın mı?",
         "makeNotePublicDescription": "Bağlantıya sahip herkes notu okuyabilir."
     },
@@ -238,8 +239,6 @@
             "editsDescription": "Değiştirdiğin dosya kaydedilince yeni dosya olarak yüklenir, bu yüzden bağlantısı değişir.",
             "delete": "Silinen dosyalar çöp kutusuna gider",
             "deleteDescription": "Geri Dönüşüm Kutusu'na taşıdığın dosyalar Fileship çöp kutusuna gider. Windows bir dosyayı Shift + Delete ile ya da yalnızca çevrimiçi olduğu için kalıcı olarak silerse dosya Fileship'ten de silinir.",
-            "folders": "Klasörler tek seviyelidir",
-            "foldersDescription": "Fileship klasörlerinin içinde klasör olmaz, bu yüzden bir klasörün içinde oluşturduğun klasör eşitlenmez.",
             "pause": "Gerektiğinde duraklat",
             "pauseDescription": "Duraklatınca yüklemeler ve Fileship'teki değişiklikler bekler. Yeniden adlandırma, taşıma ve silme yine eşitlenir, açtığın dosyalar yine iner.",
             "notes": "Notlar ve kısa bağlantılar",

@@ -30,6 +30,7 @@ Desktop:
 - [ ] Check the tray's Fileship Harbor submenu (state, storage line, pause and resume).
 - [ ] Check the tray: a single click opens the region capture after the double-click time, a double click only opens the window.
 - [ ] Check the 1.0.1 → next upgrade keeps the Harbor folder (`drive` / `driveRoot` store migration).
+- [ ] Check nested folders in Harbor with a real Explorer (only the layout logic and the folder list were tested): folders several levels deep, creating, renaming and moving folders and files between levels, copying a folder tree in, deleting a tree, and moving into Notes or Links being refused.
 
 Dashboard and infrastructure:
 
@@ -37,3 +38,4 @@ Dashboard and infrastructure:
 - [ ] In the Docker image the AI worker starts and loads its dependencies, but downloading and running the models inside a container has not been tested.
 - [ ] Review the Dependabot alerts and the open dependency updates.
 - [ ] `/api/healthz` of the 5.4.4 image reports 5.4.3; check that future images report their own version.
+- [ ] Team folders: editors cannot move files or folders yet (only the owner can), files do not record who uploaded them, and shared folders do not appear in Harbor.

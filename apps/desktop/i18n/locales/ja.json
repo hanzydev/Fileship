@@ -199,6 +199,7 @@
         "notesFolder": "ノート",
         "linksFolder": "リンク",
         "notesOnlyText": "ノートにできるのは Markdown ファイルとテキストファイルだけです。",
+        "onlyFileshipFolders": "ファイルとフォルダーは、Fileship と同期しているフォルダーにのみ移動できます。",
         "makeNotePublic": "このノートを公開しますか？",
         "makeNotePublicDescription": "リンクを知っている人は誰でもノートを読めます。"
     },
@@ -238,8 +239,6 @@
             "editsDescription": "変更したファイルを保存すると再アップロードされるため、リンクが変わります。",
             "delete": "削除すると Fileship のゴミ箱に移動",
             "deleteDescription": "Windows のごみ箱に移動したファイルは、Fileship のゴミ箱に入ります。Shift + Delete キーで削除した場合や、オンライン専用のファイルだった場合など、Windows がファイルを完全に削除すると Fileship からも削除されます。",
-            "folders": "フォルダーは 1 階層のみ",
-            "foldersDescription": "Fileship のフォルダーにはフォルダーを入れられないため、フォルダー内に作成したフォルダーは同期されません。",
             "pause": "必要なときは一時停止",
             "pauseDescription": "一時停止中は、アップロードと Fileship からの変更が保留されます。名前の変更、移動、削除は引き続き同期され、開いたファイルもダウンロードされます。",
             "notes": "ノートと短縮リンク",

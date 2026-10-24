@@ -19,42 +19,65 @@ export default defineEventHandler(async (event) => {
     const findFolderById = await prisma.folder.findUnique({
         where: {
             id: folderId,
-            authorId: currentUser.id,
             deletedAt: null,
-        },
-        include: {
-            files: { where: { deletedAt: null } },
-            inbox: true,
         },
     });
 
-    if (!findFolderById) {
-        throw apiError(404, 'errorsContent.folderNotFound');
+    const isOwner = findFolderById?.authorId === currentUser.id;
+    const canDelete =
+        isOwner ||
+        (!!findFolderById?.parentId &&
+            hasFolderAccess(
+                await folderAccessOf(
+                    { id: findFolderById.parentId, authorId: findFolderById.authorId },
+                    currentUser.id,
+                ),
+                'editor',
+            ));
+
+    if (!findFolderById || !canDelete) {
+        throw findFolderById && (await folderAccessOf(findFolderById, currentUser.id))
+            ? forbiddenError()
+            : apiError(404, 'errorsContent.folderNotFound');
     }
 
-    if (findFolderById.inbox) {
+    const folderIds = (await folderSubtree([findFolderById.id])).map((folder) => folder.id);
+    const audience = await folderAudience(findFolderById.authorId, [findFolderById.id], folderIds);
+
+    if (await prisma.inbox.findFirst({ where: { folderId: { in: folderIds } } })) {
         throw apiError(400, 'errorsContent.inboxFolderDelete');
     }
 
-    const isTrashed = !body.data.permanent && (await isTrashEnabled());
+    const files = await prisma.file.findMany({
+        where: { folderId: { in: folderIds }, deletedAt: null },
+    });
+
+    const isTrashed = !(isOwner && body.data.permanent) && (await isTrashEnabled());
+    const keptFiles = { folderId: findFolderById.parentId };
 
     if (isTrashed) {
         const deletedAt = new Date();
 
         await prisma.$transaction([
             prisma.file.updateMany({
-                where: { id: { in: findFolderById.files.map((file) => file.id) } },
-                data: body.data.deleteFilesToo ? { deletedAt } : { folderId: null },
+                where: { id: { in: files.map((file) => file.id) } },
+                data: body.data.deleteFilesToo ? { deletedAt } : keptFiles,
             }),
-            prisma.folder.update({ where: { id: folderId }, data: { deletedAt } }),
+            prisma.folder.updateMany({ where: { id: { in: folderIds } }, data: { deletedAt } }),
         ]);
     } else {
-        if (body.data.deleteFilesToo) await deleteFilesForever(findFolderById.files);
-        await deleteFoldersForever([folderId!]);
+        if (body.data.deleteFilesToo) await deleteFilesForever(files);
+        else
+            await prisma.file.updateMany({
+                where: { id: { in: files.map((file) => file.id) } },
+                data: keptFiles,
+            });
+
+        await deleteFoldersForever(folderIds);
     }
 
     if (body.data.deleteFilesToo) {
-        const deletionPromises = findFolderById.files.map(async (file) => {
+        const deletionPromises = files.map(async (file) => {
             await createLog(event, {
                 action: 'Delete File',
                 message: isTrashed
@@ -62,7 +85,7 @@ export default defineEventHandler(async (event) => {
                     : `Deleted file ${file.fileName}`,
             });
 
-            sendToUser(currentUser.id, 'file:delete', file.id);
+            for (const userId of audience) sendToUser(userId, 'file:delete', file.id);
         });
 
         await Promise.allSettled(deletionPromises);
@@ -75,6 +98,9 @@ export default defineEventHandler(async (event) => {
             : `Deleted folder ${findFolderById.name}`,
     });
 
-    sendToUser(currentUser.id, 'folder:delete', folderId);
-    sendToUser(currentUser.id, 'trash:update', null);
+    for (const userId of audience) {
+        for (const id of folderIds) sendToUser(userId, 'folder:delete', id);
+    }
+
+    sendToUser(findFolderById.authorId, 'trash:update', null);
 });

@@ -20,16 +20,19 @@ export default defineEventHandler(async (event) => {
     const findFileById = await prisma.file.findUnique({
         where: {
             id: fileId,
-            authorId: currentUser.id,
             deletedAt: null,
         },
     });
 
-    if (!findFileById) {
+    const access = findFileById && (await fileAccessOf(findFileById, currentUser.id));
+
+    if (!findFileById || !access) {
         throw apiError(404, 'errorsFiles.fileNotFound');
     }
 
-    const isTrashed = !body.data.permanent && (await isTrashEnabled());
+    if (!hasFolderAccess(access, 'editor')) throw forbiddenError();
+
+    const isTrashed = !(access === 'owner' && body.data.permanent) && (await isTrashEnabled());
 
     if (isTrashed) {
         await prisma.file.update({ where: { id: fileId }, data: { deletedAt: new Date() } });
@@ -44,6 +47,6 @@ export default defineEventHandler(async (event) => {
             : `Deleted file ${findFileById.fileName}`,
     });
 
-    sendToUser(currentUser.id, 'file:delete', fileId);
-    sendToUser(currentUser.id, 'trash:update', null);
+    await sendToFolder(findFileById.authorId, [findFileById.folderId], 'file:delete', fileId);
+    sendToUser(findFileById.authorId, 'trash:update', null);
 });

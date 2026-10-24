@@ -199,6 +199,7 @@
         "notesFolder": "Qeydlər",
         "linksFolder": "Keçidlər",
         "notesOnlyText": "Yalnız Markdown və mətn faylları qeyd ola bilər.",
+        "onlyFileshipFolders": "Fayl və qovluqlar yalnız Fileship ilə sinxronlaşan qovluqlara köçürülə bilər.",
         "makeNotePublic": "Bu qeyd hamıya açıq edilsin?",
         "makeNotePublicDescription": "Keçidi olan hər kəs qeydi oxuya bilər."
     },
@@ -238,8 +239,6 @@
             "editsDescription": "Dəyişdirdiyin faylı yadda saxlayanda o, yeni fayl kimi yüklənir, buna görə keçidi dəyişir.",
             "delete": "Silinən fayllar zibil qutusuna düşür",
             "deleteDescription": "Windows Səbətinə atdığın fayllar Fileship zibil qutusuna düşür. Windows faylı Shift + Delete ilə və ya yalnız onlayn olduğu üçün birdəfəlik silərsə, fayl Fileship-dən də silinir.",
-            "folders": "Qovluqlar bir səviyyəlidir",
-            "foldersDescription": "Fileship qovluqlarının içində qovluq ola bilməz, buna görə qovluğun içində yaratdığın qovluq sinxronlaşdırılmır.",
             "pause": "Lazım olanda dayandır",
             "pauseDescription": "Dayandıranda yükləmələr və Fileship-dəki dəyişikliklər gözləyir. Ad dəyişmə, köçürmə və silmə yenə sinxronlaşdırılır, açdığın fayllar yenə endirilir.",
             "notes": "Qeydlər və qısa keçidlər",

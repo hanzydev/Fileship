@@ -125,6 +125,7 @@ export const initSocket = () => {
 
         socket.on('folder:update', (data) => {
             patchListItem('folders', data);
+            if ('parentId' in data) refreshLists('folders');
             mapListItems('files', (item) =>
                 item.folder?.id === data.id
                     ? { ...item, folder: { id: data.id, name: data.name } }
@@ -136,6 +137,8 @@ export const initSocket = () => {
             removeListItems('folders', [folderId]);
             refreshLists('folders', 'files');
         });
+
+        socket.on('folder:share', () => refreshLists('folders', 'files'));
 
         socket.on('link:create', () => refreshLists('links'));
         socket.on('link:update', (data) => patchListItem('links', data));

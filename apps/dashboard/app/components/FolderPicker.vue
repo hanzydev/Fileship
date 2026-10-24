@@ -4,7 +4,7 @@
             <UiButton variant="outline" class="w-full justify-between" :disabled="disabled">
                 <span class="flex items-center gap-2 truncate">
                     <IFolder />
-                    {{ (folder && selectedName) || $t('folders.select.none') }}
+                    {{ (folder && selectedName) || noneLabel || $t('folders.select.none') }}
                 </span>
                 <IChevronsUpDown class="opacity-50" />
             </UiButton>
@@ -23,10 +23,10 @@
                             @select="handleSelect(null)"
                         >
                             <IFolderX />
-                            {{ $t('folders.select.none') }}
+                            {{ noneLabel || $t('folders.select.none') }}
                         </UiCommandItem>
                         <VirtualList
-                            :items="folders"
+                            :items="choices"
                             :item-key="(f) => f.id"
                             :estimate-size="36"
                             :gap="0"
@@ -41,6 +41,12 @@
                                 >
                                     <IFolder />
                                     <span class="truncate">{{ item.name }}</span>
+                                    <span
+                                        v-if="item.parent"
+                                        class="ml-auto max-w-1/2 shrink-0 truncate text-xs text-muted-foreground"
+                                    >
+                                        {{ item.parent.name }}
+                                    </span>
                                 </UiCommandItem>
                             </template>
                         </VirtualList>
@@ -66,8 +72,10 @@
 <script setup lang="ts">
 import type { FolderData } from '~/types/folders';
 
-const { disabled } = defineProps<{
+const { disabled, exclude, noneLabel } = defineProps<{
     disabled?: boolean;
+    exclude?: string;
+    noneLabel?: string;
 }>();
 
 const folder = defineModel<string | null>({ required: true });
@@ -85,6 +93,12 @@ const { items: folders, loadMore } = usePaginatedList<FolderData>(
     '/api/folders',
     () => ({ q: query.value.trim() }),
     { limit: 30, enabled: isOpen },
+);
+
+const choices = computed(() =>
+    exclude
+        ? folders.value.filter((f) => f.id !== exclude && f.parent?.id !== exclude)
+        : folders.value,
 );
 
 const canCreate = computed(

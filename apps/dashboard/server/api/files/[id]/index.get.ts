@@ -38,14 +38,14 @@ export default defineEventHandler(async (event) => {
         if (findFileById) break;
     }
 
-    if (
-        !findFileById ||
-        (findFileById.authorId !== currentUser?.id && isHiddenFromVisitors(findFileById))
-    ) {
+    const access = findFileById && (await fileAccessOf(findFileById, currentUser?.id));
+    const isOwner = !!access;
+
+    if (!findFileById || (!isOwner && isHiddenFromVisitors(findFileById))) {
         throw apiError(404, 'errorsFiles.fileNotFound');
     }
 
-    if (findFileById.authorId !== currentUser?.id) {
+    if (!isOwner) {
         if (findFileById.folder?.public === false) {
             throw apiError(403, 'errorsFiles.noAccess');
         }
@@ -67,7 +67,6 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    const isOwner = findFileById.authorId === currentUser?.id;
     const todayViews = await getTodayViews([findFileById.id]);
 
     return {
@@ -77,6 +76,7 @@ export default defineEventHandler(async (event) => {
         author: undefined,
         folder: undefined,
         ...(isOwner ? {} : visitorFileFields),
+        access: access && access !== 'owner' ? access : undefined,
         size: {
             raw: findFileById.size.toString(),
             formatted: formatSize(findFileById.size),

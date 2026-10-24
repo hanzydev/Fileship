@@ -1,8 +1,10 @@
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
+    const currentUser = event.context.user!;
     const query = await readFileListQuery(event);
-    const { where } = await buildFileWhere(event.context.user!.id, query);
+    const shared = await sharedFolderOf(query.folder, currentUser.id);
+    const { where } = await buildFileWhere(shared?.authorId ?? currentUser.id, query);
 
     const files = await prisma.file.findMany({
         where,

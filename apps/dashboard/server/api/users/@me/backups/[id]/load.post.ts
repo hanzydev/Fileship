@@ -228,6 +228,7 @@ export default defineEventHandler(async (event) => {
         const fileNames = new Map<string, string>();
         const uploads = new Map<string, { path: string; size: number }>();
         const restoredIds = { folder: new Map<string, string>(), file: new Map<string, string>() };
+        const folderDepths = new Map<string, number>();
         const storageId = await getActiveStorageId();
         const storage = await getStorage(storageId);
 
@@ -275,6 +276,14 @@ export default defineEventHandler(async (event) => {
                     data.fileId = restoredIds.file.get(value.fileId) ?? null;
                     data.ownerId = currentUser.id;
                     break;
+                case 'folder': {
+                    const parentId = restoredIds.folder.get(value.parentId);
+
+                    data.authorId = currentUser.id;
+                    if (parentId && folderDepths.get(parentId)! < MAX_FOLDER_DEPTH)
+                        data.parentId = parentId;
+                    break;
+                }
                 case 'link':
                     data.authorId = currentUser.id;
                     if (
@@ -299,6 +308,12 @@ export default defineEventHandler(async (event) => {
 
             if ((database === 'folder' || database === 'file') && typeof value.id === 'string')
                 restoredIds[database].set(value.id, created.id);
+
+            if (database === 'folder')
+                folderDepths.set(
+                    created.id,
+                    created.parentId ? folderDepths.get(created.parentId)! + 1 : 1,
+                );
 
             switch (database) {
                 case 'file':

@@ -33,3 +33,5 @@ export interface IUserAiSettings {
     enabled: boolean;
     suppressPii: boolean;
 }
+
+export type FolderAccess = 'owner' | 'editor' | 'viewer';

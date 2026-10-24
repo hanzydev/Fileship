@@ -6,6 +6,7 @@ const validationSchema = z.object({
     name: z.string().min(1, 'errorsContent.folderNameMin').max(32, 'errorsContent.folderNameMax'),
     files: z.array(z.string()).max(5000).optional(),
     public: z.boolean().optional().default(false),
+    parentId: z.string().nullish(),
 });
 
 export default defineEventHandler(async (event) => {
@@ -18,13 +19,21 @@ export default defineEventHandler(async (event) => {
         throw invalidBodyError(body.error);
     }
 
+    const ownerId = body.data.parentId
+        ? (await findFolderWithAccess(body.data.parentId, currentUser.id, 'editor')).folder.authorId
+        : currentUser.id;
+
+    if (ownerId !== currentUser.id && body.data.public) throw forbiddenError();
+
+    await assertFolderParent(ownerId, body.data.parentId);
+
     if (body.data.files?.length) {
         const files = await prisma.file.findMany({
             where: {
                 id: {
                     in: body.data.files,
                 },
-                authorId: currentUser.id,
+                authorId: ownerId,
                 deletedAt: null,
             },
         });
@@ -38,10 +47,11 @@ export default defineEventHandler(async (event) => {
         data: {
             name: body.data.name,
             public: body.data.public,
+            parentId: body.data.parentId || null,
             files: {
                 connect: body.data.files?.map((file) => ({ id: file })),
             },
-            authorId: currentUser.id,
+            authorId: ownerId,
         },
         include: folderInclude,
     });
@@ -59,7 +69,7 @@ export default defineEventHandler(async (event) => {
         message: `Created folder ${folder.name}`,
     });
 
-    sendToUser(currentUser.id, 'folder:create', folder);
+    await sendToFolder(ownerId, [folder.id], 'folder:create', folder);
 
     return folder;
 });

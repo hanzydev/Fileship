@@ -32,6 +32,7 @@
                     </span>
                 </UiButton>
                 <UiButton
+                    v-if="isOwner"
                     variant="outline"
                     size="sm"
                     :aria-label="$t('files.move')"
@@ -53,6 +54,7 @@
                     <span class="hidden sm:inline">{{ $t('files.download') }}</span>
                 </UiButton>
                 <UiButton
+                    v-if="isEditable"
                     variant="outline"
                     size="sm"
                     class="text-destructive hover:text-destructive"
@@ -99,6 +101,8 @@ const busyAction = ref<'select' | 'download' | null>(null);
 const moveTargets = ref<Pick<FileData, 'id' | 'folderId'>[]>([]);
 
 const isAllSelected = computed(() => selected.value.length >= total);
+const isOwner = computed(() => items.every(isOwnedItem));
+const isEditable = computed(() => items.every(isEditableItem));
 
 const handleSelectAll = async () => {
     if (isAllSelected.value) {
@@ -144,7 +148,9 @@ const handleDownload = async () => {
 
         const pages = await Promise.all(
             chunks.map((ids) =>
-                $fetch('/api/files', { query: { ids: ids.join(','), limit: ids.length } }),
+                $fetch('/api/files', {
+                    query: { ids: ids.join(','), limit: ids.length, folder: query?.folder },
+                }),
             ),
         );
 
@@ -158,7 +164,12 @@ const handleDownload = async () => {
 
 const handleDelete = async () => {
     const files = selected.value.map(
-        (id) => items.find((file) => file.id === id) ?? { id, name: t('files.fallbackName') },
+        (id) =>
+            items.find((file) => file.id === id) ?? {
+                id,
+                name: t('files.fallbackName'),
+                access: items[0]?.access,
+            },
     );
 
     if (await remove(files)) selected.value = [];

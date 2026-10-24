@@ -208,7 +208,7 @@
                             <UiTabsTrigger value="details">
                                 {{ $t('fileViewer.details') }}
                             </UiTabsTrigger>
-                            <UiTabsTrigger v-if="!trash" value="edit">
+                            <UiTabsTrigger v-if="!trash && isEditable" value="edit">
                                 {{ $t('fileViewer.edit') }}
                             </UiTabsTrigger>
                             <UiTabsTrigger v-if="hasInsights" value="insights">
@@ -226,7 +226,7 @@
                             </dl>
                         </UiTabsContent>
 
-                        <UiTabsContent v-if="!trash" value="edit">
+                        <UiTabsContent v-if="!trash && isEditable" value="edit">
                             <form class="py-2" @submit.prevent="handleSave">
                                 <UiFieldGroup>
                                     <UiField :data-invalid="!!formErrors?.name">
@@ -239,7 +239,7 @@
                                             :errors="formErrors.name._errors"
                                         />
                                     </UiField>
-                                    <UiField :data-invalid="!!formErrors?.fileName">
+                                    <UiField v-if="isOwner" :data-invalid="!!formErrors?.fileName">
                                         <UiFieldLabel for="edit-file-name">
                                             {{ $t('fileViewer.linkName') }}
                                         </UiFieldLabel>
@@ -257,11 +257,14 @@
                                             :errors="formErrors.fileName._errors"
                                         />
                                     </UiField>
-                                    <UiField>
+                                    <UiField v-if="isOwner">
                                         <UiFieldLabel>{{ $t('fileViewer.folder') }}</UiFieldLabel>
                                         <FolderPicker v-model="editData.folderId" />
                                     </UiField>
-                                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div
+                                        v-if="isOwner"
+                                        class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                                    >
                                         <UiField>
                                             <UiFieldLabel>
                                                 {{ $t('fileViewer.expiration') }}
@@ -294,7 +297,7 @@
                                             </UiNumberField>
                                         </UiField>
                                     </div>
-                                    <UiField :data-invalid="!!formErrors?.password">
+                                    <UiField v-if="isOwner" :data-invalid="!!formErrors?.password">
                                         <UiFieldLabel for="edit-file-password">
                                             {{ $t('fileViewer.password') }}
                                         </UiFieldLabel>
@@ -360,7 +363,7 @@
                                         </UiAlertDescription>
                                     </UiAlert>
                                     <UiButton
-                                        v-if="!trash"
+                                        v-if="!trash && isOwner"
                                         variant="outline"
                                         size="sm"
                                         class="self-start"
@@ -429,6 +432,8 @@ const currentFile = computed(
         (fallbackFile.value?.id === fileId.value ? fallbackFile.value : undefined),
 );
 const file = ref<FileData>();
+const isOwner = computed(() => !!file.value && isOwnedItem(file.value));
+const isEditable = computed(() => !!file.value && isEditableItem(file.value));
 const index = computed(() => files.findIndex((f) => f.id === fileId.value));
 const prev = computed(() => files[index.value - 1]);
 const next = computed(() => files[index.value + 1]);
@@ -535,7 +540,7 @@ const footerActions = computed(() =>
                     icon: IDownload,
                     run: () => download([file.value!]),
                 },
-                ...(file.value.folderId
+                ...(file.value.folderId && isOwner.value
                     ? [
                           {
                               label: t('fileViewer.removeFromFolder'),
@@ -544,12 +549,16 @@ const footerActions = computed(() =>
                           },
                       ]
                     : []),
-                {
-                    label: t('fileViewer.delete'),
-                    icon: ITrash2,
-                    destructive: true,
-                    run: () => remove([file.value!]),
-                },
+                ...(isEditable.value
+                    ? [
+                          {
+                              label: t('fileViewer.delete'),
+                              icon: ITrash2,
+                              destructive: true,
+                              run: () => remove([file.value!]),
+                          },
+                      ]
+                    : []),
             ],
 );
 
@@ -734,16 +743,19 @@ const handleSave = async () => {
     try {
         await $fetch(`/api/files/${f.id}`, {
             method: 'PATCH',
-            body: {
-                name: editData.name,
-                fileName: `${editData.fileName}${getExtname(f.fileName)}`,
-                folderId: editData.folderId,
-                maxViews: editData.maxViews,
-                password: editData.password || null,
-                ...(editData.expiration !== expiration && {
-                    expiration: EXPIRATIONS.find((e) => e.label === editData.expiration)!.value,
-                }),
-            },
+            body: isOwner.value
+                ? {
+                      name: editData.name,
+                      fileName: `${editData.fileName}${getExtname(f.fileName)}`,
+                      folderId: editData.folderId,
+                      maxViews: editData.maxViews,
+                      password: editData.password || null,
+                      ...(editData.expiration !== expiration && {
+                          expiration: EXPIRATIONS.find((e) => e.label === editData.expiration)!
+                              .value,
+                      }),
+                  }
+                : { name: editData.name },
         });
 
         $toast.success(t('fileViewer.fileUpdated'));

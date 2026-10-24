@@ -199,6 +199,7 @@
         "notesFolder": "Note",
         "linksFolder": "Link",
         "notesOnlyText": "Solo i file Markdown e di testo possono diventare note.",
+        "onlyFileshipFolders": "File e cartelle possono andare solo in cartelle sincronizzate con Fileship.",
         "makeNotePublic": "Rendere pubblica questa nota?",
         "makeNotePublicDescription": "Chiunque abbia il link potrà leggere la nota."
     },
@@ -238,8 +239,6 @@
             "editsDescription": "Quando salvi un file modificato viene caricato di nuovo, quindi il suo link cambia.",
             "delete": "Le eliminazioni finiscono nel cestino",
             "deleteDescription": "I file che sposti nel Cestino di Windows finiscono nel cestino di Fileship. Quando Windows elimina definitivamente un file, con Maiusc + Canc o perché era solo online, viene eliminato anche da Fileship.",
-            "folders": "Le cartelle hanno un solo livello",
-            "foldersDescription": "Le cartelle di Fileship non possono contenere altre cartelle, quindi una cartella creata al loro interno non viene sincronizzata.",
             "pause": "Metti in pausa quando serve",
             "pauseDescription": "In pausa, i caricamenti e le modifiche da Fileship restano in attesa. Rinomine, spostamenti ed eliminazioni continuano a sincronizzarsi e i file che apri vengono comunque scaricati.",
             "notes": "Note e link brevi",

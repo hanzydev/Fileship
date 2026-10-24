@@ -32,7 +32,8 @@ export default defineEventHandler(async (event) => {
     const rangeHeader = getRequestHeader(event, 'range');
 
     const findFileById = await findFile(fileNameOrId);
-    const isVisitor = findFileById?.authorId !== currentUser?.id;
+    const access = findFileById && (await fileAccessOf(findFileById, currentUser?.id));
+    const isVisitor = !(access === 'owner' || (access && !findFileById!.deletedAt));
 
     if (
         !findFileById ||

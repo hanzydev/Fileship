@@ -163,6 +163,6 @@ export default defineEventHandler(async (event) => {
             message: `File ${_upload.fileName} uploaded to inbox`,
         });
 
-        sendToUser(findInboxById.user.id, 'file:create', upload);
+        await sendToFolder(findInboxById.user.id, [findInboxById.folderId], 'file:create', upload);
     }
 });

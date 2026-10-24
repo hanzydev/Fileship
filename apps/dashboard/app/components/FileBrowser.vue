@@ -44,6 +44,12 @@
                                     <template #default="{ item }">
                                         <UiDropdownMenuRadioItem :value="item.id">
                                             <span class="truncate">{{ item.name }}</span>
+                                            <span
+                                                v-if="item.parent"
+                                                class="ml-auto max-w-1/2 shrink-0 truncate text-xs text-muted-foreground"
+                                            >
+                                                {{ item.parent.name }}
+                                            </span>
                                         </UiDropdownMenuRadioItem>
                                     </template>
                                 </VirtualList>

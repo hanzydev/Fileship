@@ -29,21 +29,20 @@ export const filesTrashedWith = (folder: { id: string; deletedAt: Date | null })
 });
 
 export const deleteFoldersForever = async (folderIds: string[]) => {
-    const folders = await prisma.folder.findMany({
-        where: { id: { in: folderIds }, deletedAt: { not: null } },
-        select: { id: true, deletedAt: true },
-    });
+    const folders = await folderSubtree(folderIds);
+    const trashed = folders.filter((folder) => folder.deletedAt);
+    const ids = folders.map((folder) => folder.id);
 
-    if (folders.length)
+    if (trashed.length)
         await deleteFilesForever(
             await prisma.file.findMany({
-                where: { OR: folders.map(filesTrashedWith) },
+                where: { OR: trashed.map(filesTrashedWith) },
                 select: { id: true, fileName: true, storageId: true },
             }),
         );
 
-    await prisma.folder.deleteMany({ where: { id: { in: folderIds } } });
-    await removeMultiple(folderSearchDb, folderIds);
+    await prisma.folder.deleteMany({ where: { id: { in: ids } } });
+    await removeMultiple(folderSearchDb, ids);
 };
 
 export const deleteNotesForever = async (noteIds: string[]) => {

@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     const [folders, files] = await Promise.all([
         prisma.folder.findMany({
             where: { ...trashed, id: { in: body.data.folders } },
-            select: { id: true, deletedAt: true },
+            select: { id: true, parentId: true, parent: { select: { deletedAt: true } } },
         }),
         prisma.file.findMany({
             where: { ...trashed, id: { in: body.data.files } },
@@ -21,15 +21,23 @@ export default defineEventHandler(async (event) => {
         }),
     ]);
 
-    const folderIds = folders.map((folder) => folder.id);
+    const tree = await folderSubtree(folders.map((folder) => folder.id));
+    const folderIds = tree.map((folder) => folder.id);
     const isOrphan = (file: (typeof files)[number]) =>
         !!file.folder?.deletedAt && !folderIds.includes(file.folderId!);
+    const detached = folders.filter(
+        (folder) => folder.parent?.deletedAt && !folderIds.includes(folder.parentId!),
+    );
 
-    const [, restoredFiles, orphanFiles, restoredNotes, ...folderFiles] = await prisma.$transaction(
-        [
+    const [, , restoredFiles, orphanFiles, restoredNotes, ...folderFiles] =
+        await prisma.$transaction([
             prisma.folder.updateMany({
                 where: { id: { in: folderIds } },
                 data: { deletedAt: null },
+            }),
+            prisma.folder.updateMany({
+                where: { id: { in: detached.map((folder) => folder.id) } },
+                data: { parentId: null },
             }),
             prisma.file.updateMany({
                 where: {
@@ -45,14 +53,13 @@ export default defineEventHandler(async (event) => {
                 where: { ...trashed, id: { in: body.data.notes } },
                 data: { deletedAt: null },
             }),
-            ...folders.map((folder) =>
+            ...tree.map((folder) =>
                 prisma.file.updateMany({
                     where: filesTrashedWith(folder),
                     data: { deletedAt: null },
                 }),
             ),
-        ],
-    );
+        ]);
 
     const counts = {
         files: [restoredFiles, orphanFiles, ...folderFiles].reduce(
@@ -69,7 +76,19 @@ export default defineEventHandler(async (event) => {
     });
 
     sendToUser(currentUser.id, 'trash:update', null);
-    sendToUser(currentUser.id, 'trash:restore', null);
+
+    const audience = await folderAudience(
+        currentUser.id,
+        [
+            ...new Set([
+                ...folders.map((folder) => folder.id),
+                ...files.map((file) => file.folderId),
+            ]),
+        ],
+        folderIds,
+    );
+
+    for (const userId of audience) sendToUser(userId, 'trash:restore', null);
 
     if (counts.files && (await isAiEnabled()))
         runTask('ai:syncJobs', { payload: { userId: currentUser.id } }).catch(() => null);

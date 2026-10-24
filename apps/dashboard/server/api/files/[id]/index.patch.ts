@@ -45,13 +45,22 @@ export default defineEventHandler(async (event) => {
     const findFileById = await prisma.file.findUnique({
         where: {
             id: fileId,
-            authorId: currentUser.id,
             deletedAt: null,
         },
+        include: { author: { select: { domains: true } } },
     });
 
-    if (!findFileById) {
+    const access = findFileById && (await fileAccessOf(findFileById, currentUser.id));
+
+    if (!findFileById || !access) {
         throw apiError(404, 'errorsFiles.fileNotFound');
+    }
+
+    if (
+        access !== 'owner' &&
+        (access === 'viewer' || Object.keys(body.data).some((key) => key !== 'name'))
+    ) {
+        throw forbiddenError();
     }
 
     if ('expiration' in body.data) {
@@ -126,7 +135,7 @@ export default defineEventHandler(async (event) => {
     const updatedFile = serializeFile(
         event,
         _updatedFile,
-        currentUser.domains,
+        findFileById.author.domains,
         todayViews.get(_updatedFile.id),
     );
 
@@ -150,8 +159,9 @@ export default defineEventHandler(async (event) => {
         message: `Updated file ${updatedFile.fileName}`,
     });
 
-    sendToUser(
-        currentUser.id,
+    await sendToFolder(
+        findFileById.authorId,
+        [findFileById.folderId, updatedFile.folderId],
         'file:update',
         updatedFile.folderId === findFileById.folderId
             ? { ...updatedFile, folderId: undefined, folder: undefined }

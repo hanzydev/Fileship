@@ -32,7 +32,7 @@ Fileship Harbor puts your Fileship files and folders in File Explorer. Turn it o
 - The status button in File Explorer shows your storage use, what is syncing, how much is on this device and when it last synced, with buttons to open Fileship, upload, pause syncing, open the trash and free up space (storage use needs an up-to-date Fileship server)
 - Right click a folder to copy its public link or its inbox link, and turn on **Copy links of uploaded files** to get the link of every file you drop in
 - **Settings → Harbor** shows the same details, usage by type and the recent activity
-- It needs an empty folder, and folders inside folders are not synced, because Fileship folders are flat
+- It needs an empty folder. Folders inside folders sync too when your Fileship server supports nested folders
 
 **App**
 

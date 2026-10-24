@@ -34,6 +34,11 @@ enum StorageType {
   FTP
 }
 
+enum FolderRole {
+  Viewer
+  Editor
+}
+
 enum AIJobStatus {
   Pending
   Processing
@@ -72,6 +77,7 @@ model User {
   inbox                  Inbox?
   backups                Backup[]
   links                  Link[]
+  folderMemberships      FolderMember[]
 }
 
 model Credential {
@@ -185,11 +191,29 @@ model Folder {
   createdAt DateTime  @default(now())
   author    User      @relation(fields: [authorId], references: [id])
   authorId  String
+  parent    Folder?   @relation("FolderTree", fields: [parentId], references: [id], onDelete: SetNull)
+  parentId  String?
+  children  Folder[]  @relation("FolderTree")
   files     File[]
   inbox     Inbox?
+  members   FolderMember[]
   deletedAt DateTime?
 
   @@index([authorId, deletedAt])
+  @@index([parentId])
+}
+
+model FolderMember {
+  id        String     @id @default(uuid())
+  folder    Folder     @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  folderId  String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  role      FolderRole @default(Viewer)
+  createdAt DateTime   @default(now())
+
+  @@unique([folderId, userId])
+  @@index([userId])
 }
 
 model Log {

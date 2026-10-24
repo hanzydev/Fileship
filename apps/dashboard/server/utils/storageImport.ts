@@ -33,7 +33,7 @@ interface ImportableFile {
     size: number;
     modifiedAt: Date;
     name: string;
-    folderName: string | null;
+    folderPath: string[];
     isOrphanUpload: boolean;
 }
 
@@ -79,17 +79,20 @@ const toImportableFile = (
             : key;
     const segments = path.split('/');
     const isOrphanUpload = key.startsWith('uploads/') && segments.length === 2;
-    const folderName =
-        !isOrphanUpload && segments.length > 1
-            ? toDisplayName(segments[0]!, '').slice(0, FOLDER_NAME_LENGTH) || null
-            : null;
+    const folderPath = isOrphanUpload
+        ? []
+        : segments
+              .slice(0, -1)
+              .map((segment) => toDisplayName(segment, '').slice(0, FOLDER_NAME_LENGTH))
+              .filter(Boolean)
+              .slice(0, MAX_FOLDER_DEPTH);
 
     return {
         key,
         size: object.size,
         modifiedAt: object.modifiedAt,
         name: toDisplayName(basename(key), 'file'),
-        folderName,
+        folderPath,
         isOrphanUpload,
     };
 };
@@ -172,28 +175,33 @@ export const runStorageImport = async (event: H3Event, storageId: string | null,
         progress.total = files.length;
         report({ ...progress });
 
-        const findFolder = async (name: string) => {
-            const cached = folders.get(name);
+        const findFolder = async (path: string[]): Promise<string | null> => {
+            if (!path.length) return null;
+
+            const key = path.join('/');
+            const cached = folders.get(key);
             if (cached) return cached;
 
+            const name = path.at(-1)!;
+            const parentId = await findFolder(path.slice(0, -1));
             const existing = await prisma.folder.findFirst({
-                where: { authorId: owner.id, name, deletedAt: null },
+                where: { authorId: owner.id, name, parentId, deletedAt: null },
                 select: { id: true },
             });
 
             if (existing) {
-                folders.set(name, existing.id);
+                folders.set(key, existing.id);
                 return existing.id;
             }
 
             const created = await prisma.folder.create({
-                data: { name, public: false, authorId: owner.id },
+                data: { name, public: false, authorId: owner.id, parentId },
                 include: folderInclude,
             });
 
             await insert(folderSearchDb, { id: created.id, authorId: owner.id, name });
             sendToUser(owner.id, 'folder:create', serializeFolder(event, created));
-            folders.set(name, created.id);
+            folders.set(key, created.id);
 
             return created.id;
         };
@@ -227,7 +235,7 @@ export const runStorageImport = async (event: H3Event, storageId: string | null,
                         storageId,
                         mimeType: mime.getType(file.name) ?? 'application/octet-stream',
                         authorId: owner.id,
-                        folderId: file.folderName ? await findFolder(file.folderName) : null,
+                        folderId: await findFolder(file.folderPath),
                         ...(file.modifiedAt.getTime() > 0 && { createdAt: file.modifiedAt }),
                     },
                     include: { _count: { select: { views: true } } },

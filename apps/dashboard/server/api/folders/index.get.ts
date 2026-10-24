@@ -1,10 +1,48 @@
+import { z } from 'zod';
+
 import type { Prisma } from '~~/generated/prisma/client';
 
 export default defineEventHandler(async (event) => {
     userOnly(event);
 
     const currentUser = event.context.user!;
-    const query = await readListQuery(event);
+    const query = await readListQuery(event, {
+        parent: z.literal('root').optional(),
+        shared: z.stringbool().default(false),
+    });
+
+    if (query.shared) {
+        const where: Prisma.FolderWhereInput = {
+            deletedAt: null,
+            members: { some: { userId: currentUser.id } },
+            ...(query.q && { name: { contains: query.q, mode: 'insensitive' } }),
+        };
+        const { field, dir } = parseSort(query.sort, ['createdAt', 'name', 'files'], 'name:asc');
+
+        const [folders, total] = await Promise.all([
+            prisma.folder.findMany({
+                where,
+                include: folderInclude,
+                orderBy: [
+                    field === 'files' ? { files: { _count: dir } } : { [field]: dir },
+                    { id: 'asc' },
+                ],
+                skip: query.offset,
+                take: query.limit,
+            }),
+            prisma.folder.count({ where }),
+        ]);
+
+        return {
+            items: await Promise.all(
+                folders.map(async (folder) => ({
+                    ...serializeFolder(event, folder),
+                    access: await folderAccessOf(folder, currentUser.id),
+                })),
+            ),
+            total,
+        };
+    }
     const searchIds = query.q
         ? await searchDbIds(folderSearchDb, query.q, currentUser.id)
         : undefined;
@@ -12,6 +50,7 @@ export default defineEventHandler(async (event) => {
     const where: Prisma.FolderWhereInput = {
         authorId: currentUser.id,
         deletedAt: null,
+        ...(query.parent ? { parentId: null } : {}),
         ...(searchIds ? { id: { in: searchIds } } : {}),
     };
 

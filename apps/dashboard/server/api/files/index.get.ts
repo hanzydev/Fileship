@@ -22,7 +22,13 @@ export default defineEventHandler(async (event) => {
 
     const currentUser = event.context.user!;
     const query = await readFileListQuery(event);
-    const { base, where, searchIds } = await buildFileWhere(currentUser.id, query);
+
+    const shared = await sharedFolderOf(query.folder, currentUser.id);
+
+    const { base, where, searchIds } = await buildFileWhere(
+        shared?.authorId ?? currentUser.id,
+        query,
+    );
 
     const args = {
         include: {
@@ -62,9 +68,15 @@ export default defineEventHandler(async (event) => {
     const todayViews = await getTodayViews(items.map((file) => file.id));
 
     return {
-        items: items.map((file) =>
-            serializeFile(event, file, currentUser.domains, todayViews.get(file.id)),
-        ),
+        items: items.map((file) => ({
+            ...serializeFile(
+                event,
+                file,
+                shared?.author.domains ?? currentUser.domains,
+                todayViews.get(file.id),
+            ),
+            access: shared?.access,
+        })),
         total,
         summary: query.summary && !query.offset ? await getSummary(base) : undefined,
     };

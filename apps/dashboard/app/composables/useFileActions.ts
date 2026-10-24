@@ -54,36 +54,42 @@ export const useFileActions = () => {
         }
     };
 
-    const remove = async (files: Pick<FileData, 'id' | 'name'>[]) => {
+    const remove = async (files: Pick<FileData, 'id' | 'name' | 'access'>[]) => {
         const filesText = files.length > 1 ? t('actions.file.count', files.length) : files[0]!.name;
+        const isShared = files.some((file) => !isOwnedItem(file));
 
         return askConfirmation(
-            deleteConfirmation(filesText, async (permanent) => {
-                try {
-                    if (files.length > 1) {
-                        for (const chunk of chunkIds(files.map((file) => file.id))) {
-                            await $fetch('/api/files/bulk-delete', {
-                                method: 'POST',
-                                body: { files: chunk, permanent },
+            deleteConfirmation(
+                filesText,
+                async (permanent) => {
+                    try {
+                        if (files.length > 1) {
+                            for (const chunk of chunkIds(files.map((file) => file.id))) {
+                                await $fetch('/api/files/bulk-delete', {
+                                    method: 'POST',
+                                    body: { files: chunk, permanent },
+                                });
+                            }
+                        } else {
+                            await $fetch(`/api/files/${files[0]!.id}`, {
+                                method: 'DELETE',
+                                body: { permanent },
                             });
                         }
-                    } else {
-                        await $fetch(`/api/files/${files[0]!.id}`, {
-                            method: 'DELETE',
-                            body: { permanent },
-                        });
-                    }
 
-                    notifyDeleted(
-                        t('actions.file.label', files.length),
-                        { files: files.map((file) => file.id) },
-                        permanent,
-                    );
-                } catch (error: any) {
-                    $toast.error(getErrorMessage(error));
-                    return false;
-                }
-            }),
+                        notifyDeleted(
+                            t('actions.file.label', files.length),
+                            { files: files.map((file) => file.id) },
+                            permanent,
+                            isShared,
+                        );
+                    } catch (error: any) {
+                        $toast.error(getErrorMessage(error));
+                        return false;
+                    }
+                },
+                isShared,
+            ),
         );
     };
 

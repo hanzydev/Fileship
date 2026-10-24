@@ -60,6 +60,7 @@ import {
 type ApiFile = {
     id: string;
     name: string;
+    authorId?: string;
     folderId?: string | null;
     size?: { raw: string } | string | number;
     createdAt: string;
@@ -84,7 +85,14 @@ type ApiFileLinks = {
     embed: { enabled: boolean };
 };
 
-type ApiFolder = { id: string; name: string; createdAt: string; deletedAt?: string | null };
+type ApiFolder = {
+    id: string;
+    name: string;
+    authorId?: string;
+    parentId?: string | null;
+    createdAt: string;
+    deletedAt?: string | null;
+};
 
 type ApiNote = {
     id: string;
@@ -337,9 +345,10 @@ const toRemoteFile = (file: ApiFile, previous?: RemoteFile): RemoteFile => ({
     views: file.views?.total ?? previous?.views ?? 0,
 });
 
-const toRemoteFolder = (folder: ApiFolder): RemoteFolder => ({
+const toRemoteFolder = (folder: ApiFolder, previous?: RemoteFolder): RemoteFolder => ({
     id: folder.id,
     name: folder.name,
+    parentId: folder.parentId !== undefined ? folder.parentId : (previous?.parentId ?? null),
     createdAt: new Date(folder.createdAt).getTime(),
 });
 
@@ -402,6 +411,29 @@ const folderIdAt = (path: string) => {
     }
 
     return null;
+};
+
+const parentFolderIdOf = (path: string) => {
+    const parent = dirname(path);
+    if (parent === '.') return null;
+
+    const id = folderIdAt(parent);
+    if (!id) throw new Error(t('harbor.onlyFileshipFolders'));
+
+    return id;
+};
+
+const subtreeOf = (id: string) => {
+    const ids = new Set([id]);
+
+    for (let size = 0; size !== ids.size;) {
+        size = ids.size;
+        for (const folder of folders.values()) {
+            if (folder.parentId && ids.has(folder.parentId)) ids.add(folder.id);
+        }
+    }
+
+    return ids;
 };
 
 const occupantOf = (path: string) => {
@@ -579,8 +611,8 @@ const apply = async () => {
     );
 
     for (const entry of entries.filter((item) => !item.isFolder)) {
-        const separator = entry.path.indexOf('\\');
-        if (separator !== -1 && !placed.has(entry.path.slice(0, separator))) continue;
+        const parent = dirname(entry.path);
+        if (parent !== '.' && !placed.has(parent)) continue;
 
         await placeEntry(entry).catch((error) => log.warn('Could not place', entry.path, error));
     }
@@ -744,8 +776,12 @@ const deleteRemote = async (identity: string, isPermanent = false) => {
     if (identity.startsWith('f:')) {
         files.delete(id);
     } else {
-        folders.delete(id);
-        for (const file of [...files.values()]) if (file.folderId === id) files.delete(file.id);
+        const removed = subtreeOf(id);
+
+        for (const folderId of removed) folders.delete(folderId);
+        for (const file of [...files.values()]) {
+            if (file.folderId && removed.has(file.folderId)) files.delete(file.id);
+        }
     }
 
     const removed = local.get(identity);
@@ -910,13 +946,24 @@ const handleDelete = async (event: Extract<HelperEvent, { type: 'delete' }>) => 
 
 const renameFolder = async (identity: string, from: string, to: string) => {
     const id = identity.slice(2);
-    const updated = await harborApi<ApiFolder>(`/api/folders/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: to.slice(0, 32) }),
-    });
+    const folder = folders.get(id);
+    const parentId = parentFolderIdOf(to);
+    const name = basename(to).slice(0, 32);
+    const body: Record<string, unknown> = {};
 
-    folders.set(id, toRemoteFolder(updated));
+    if (name !== folder?.name) body.name = name;
+    if (parentId !== (folder?.parentId ?? null)) body.parentId = parentId;
+
+    if (Object.keys(body).length) {
+        const updated = await harborApi<ApiFolder>(`/api/folders/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+
+        folders.set(id, toRemoteFolder(updated, folder));
+    }
+
     local.set(identity, { path: to, isFolder: true });
 
     for (const [key, item] of local) {
@@ -927,15 +974,9 @@ const renameFolder = async (identity: string, from: string, to: string) => {
 
 const moveFile = async (identity: string, to: string) => {
     const id = identity.slice(2);
-    const parts = to.split('\\');
-    const folderId = parts.length === 2 ? folderIdAt(parts[0]!) : null;
-
-    if (parts.length > 2 || (parts.length === 2 && !folderId)) {
-        throw new Error('Fileship folders cannot contain other folders');
-    }
-
+    const folderId = parentFolderIdOf(to);
     const file = files.get(id);
-    const name = parts.at(-1)!;
+    const name = basename(to);
     const body: Record<string, unknown> = {};
 
     if (name !== file?.name) body.name = name;
@@ -986,9 +1027,11 @@ const handleRename = async (event: Extract<HelperEvent, { type: 'rename' }>) => 
             await renameNote(event.identity, event.to);
             addActivity('rename', basename(event.to));
         } else if (event.isFolder) {
-            if (event.to.includes('\\')) throw new Error('Fileship folders cannot be nested');
             await renameFolder(event.identity, event.from, event.to);
-            addActivity('rename', event.to);
+            addActivity(
+                dirname(event.to) === dirname(event.from) ? 'rename' : 'move',
+                basename(event.to),
+            );
         } else {
             await moveFile(event.identity, event.to);
             addActivity(
@@ -1156,8 +1199,17 @@ const handleLocalNew = async (event: Extract<HelperEvent, { type: 'localNew' }>)
     const parts = event.path.split('\\');
     if (pendingPaths.has(event.path) || parts.some((part) => part.includes('.fileship-'))) return;
 
+    const parent = dirname(event.path);
+    const parentIdentity = parent === '.' ? null : occupantOf(parent);
+    const folderId = parent === '.' ? null : folderIdAt(parent);
+
+    if (parent !== '.' && !folderId && !parentIdentity?.startsWith('v:')) {
+        if (pendingPaths.has(parent)) setTimeout(() => handleHelperEvent(event), RETRY_DELAY_MS);
+        return;
+    }
+
     if (event.isFolder) {
-        if (parts.length !== 1) return;
+        if (parentIdentity?.startsWith('v:')) return;
 
         pendingPaths.add(event.path);
 
@@ -1165,7 +1217,10 @@ const handleLocalNew = async (event: Extract<HelperEvent, { type: 'localNew' }>)
             const folder = await harborApi<ApiFolder>('/api/folders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: event.path.slice(0, 32) }),
+                body: JSON.stringify({
+                    name: basename(event.path).slice(0, 32),
+                    parentId: folderId,
+                }),
             });
 
             folders.set(folder.id, toRemoteFolder(folder));
@@ -1178,28 +1233,14 @@ const handleLocalNew = async (event: Extract<HelperEvent, { type: 'localNew' }>)
             pendingPaths.delete(event.path);
         }
 
-        addActivity('folder', event.path);
+        addActivity('folder', basename(event.path));
         setStatus({});
         scheduleApply();
         return;
     }
 
-    if (parts.length > 2) return;
-
-    const parent = parts.length === 2 ? occupantOf(parts[0]!) : null;
-
-    if (parent === LINKS_FOLDER) return;
-    if (parent === NOTES_FOLDER) return createNote(event);
-
-    const folderId = parts.length === 2 ? folderIdAt(parts[0]!) : null;
-
-    if (parts.length === 2 && !folderId) {
-        if (pendingPaths.has(parts[0]!)) {
-            setTimeout(() => handleHelperEvent(event), RETRY_DELAY_MS);
-        }
-
-        return;
-    }
+    if (parentIdentity === LINKS_FOLDER) return;
+    if (parentIdentity === NOTES_FOLDER) return createNote(event);
 
     const occupant = occupantOf(event.path);
 
@@ -1317,6 +1358,8 @@ const handleHelperEvent = (event: HelperEvent) => {
     });
 };
 
+const isOwn = (item: { authorId?: string }) => item.authorId === getStore().user?.id;
+
 const connectSocket = () => {
     const { instanceUrl } = getStore();
     const token = getToken();
@@ -1330,7 +1373,7 @@ const connectSocket = () => {
     });
 
     socket.on('file:create', (file: ApiFile) => {
-        if (file.deletedAt) return;
+        if (file.deletedAt || !isOwn(file)) return;
         files.set(file.id, toRemoteFile(file));
         scheduleApply();
     });
@@ -1365,13 +1408,15 @@ const connectSocket = () => {
     );
 
     socket.on('folder:create', (folder: ApiFolder) => {
+        if (!isOwn(folder)) return;
         folders.set(folder.id, toRemoteFolder(folder));
         scheduleApply();
     });
 
     socket.on('folder:update', (folder: ApiFolder) => {
+        if (!isOwn(folder)) return;
         if (folder.deletedAt) folders.delete(folder.id);
-        else folders.set(folder.id, toRemoteFolder(folder));
+        else folders.set(folder.id, toRemoteFolder(folder, folders.get(folder.id)));
         scheduleApply();
     });
 
@@ -1407,7 +1452,9 @@ const connectSocket = () => {
         scheduleApply();
     });
 
-    for (const event of ['folder:delete', 'trash:restore', 'currentUser:update', 'deleteAll']) {
+    socket.on('folder:delete', (id: string) => folders.has(id) && resync());
+
+    for (const event of ['trash:restore', 'currentUser:update', 'deleteAll']) {
         socket.on(event, () => resync());
     }
 

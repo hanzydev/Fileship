@@ -9,7 +9,7 @@
                 <UiTooltipTrigger as-child>
                     <UiButton
                         size="sm"
-                        :disabled="!data!.fileCount || isDownloading"
+                        :disabled="(!data!.fileCount && !data!.folderCount) || isDownloading"
                         @click="handleDownload"
                     >
                         <UiSpinner v-if="isDownloading" />
@@ -26,6 +26,55 @@
         </ViewHeader>
 
         <main class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 p-4">
+            <UiBreadcrumb v-if="data!.ancestors!.length">
+                <UiBreadcrumbList>
+                    <template v-for="ancestor in data!.ancestors" :key="ancestor.id">
+                        <UiBreadcrumbItem class="min-w-0">
+                            <UiBreadcrumbLink as-child>
+                                <NuxtLink :to="`/folder/${ancestor.id}`" class="truncate">
+                                    {{ ancestor.name }}
+                                </NuxtLink>
+                            </UiBreadcrumbLink>
+                        </UiBreadcrumbItem>
+                        <UiBreadcrumbSeparator />
+                    </template>
+                    <UiBreadcrumbItem class="min-w-0">
+                        <UiBreadcrumbPage class="truncate">{{ data!.name }}</UiBreadcrumbPage>
+                    </UiBreadcrumbItem>
+                </UiBreadcrumbList>
+            </UiBreadcrumb>
+
+            <VirtualList
+                v-if="subfolders.length"
+                :items="subfolders"
+                :item-key="(f) => f.id"
+                :min-item-width="220"
+                :estimate-size="64"
+                :gap="16"
+                :loading="isLoadingMoreSubfolders"
+                @reach-end="loadMoreSubfolders"
+            >
+                <template #skeleton>
+                    <ListCardSkeleton media="size-9 rounded-lg" />
+                </template>
+                <template #default="{ item }">
+                    <NuxtLink :to="`/folder/${item.id}`">
+                        <UiCard size="sm">
+                            <UiCardContent class="flex items-center gap-3">
+                                <div
+                                    class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted"
+                                >
+                                    <IFolder class="size-4 text-muted-foreground" />
+                                </div>
+                                <TextBlock variant="small" class="truncate">
+                                    {{ item.name }}
+                                </TextBlock>
+                            </UiCardContent>
+                        </UiCard>
+                    </NuxtLink>
+                </template>
+            </VirtualList>
+
             <div class="flex flex-col gap-2 lg:flex-row lg:items-center">
                 <SmartSearchInput
                     v-model="search"
@@ -118,7 +167,7 @@
             </EmptyState>
 
             <EmptyState
-                v-else-if="!files.length && !isFiltered"
+                v-else-if="!files.length && !isFiltered && !data!.folderCount"
                 :icon="IFolderOpen"
                 :title="$t('publicPages.folder.empty')"
             />
@@ -403,6 +452,17 @@ const {
     sort: sortValue.value === 'relevance' ? undefined : sortValue.value,
     type: typeFilter.value,
 }));
+
+const {
+    items: subfolders,
+    isLoadingMore: isLoadingMoreSubfolders,
+    loadMore: loadMoreSubfolders,
+} = usePaginatedList<Pick<FolderData, 'id' | 'name'>>(
+    'folders',
+    `/api/folders/${data.value!.id}/folders`,
+    {},
+    { enabled: !!data.value!.folderCount },
+);
 
 const isFiltered = computed(() => !!search.value.trim() || !!typeFilter.value.length);
 
