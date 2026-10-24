@@ -544,7 +544,9 @@
             "links": "Qısa keçidlər",
             "linksLegend": "yaradılmış qısa keçid",
             "folders": "Qovluqlar",
-            "foldersLegend": "yaradılmış qovluq"
+            "foldersLegend": "yaradılmış qovluq",
+            "storageQuota": "{limit} yerin {percent} hissəsi istifadə olunub",
+            "storageQuotaTrashed": "{limit} yerin {percent} hissəsi istifadə olunub, zibil qutusunda {size}"
         }
     },
     "inboxSettings": {
@@ -1258,7 +1260,8 @@
             "inbox": "Gələnlər qutusu",
             "integrations": "İnteqrasiyalar",
             "ai": "Süni intellekt",
-            "appearance": "Görünüş"
+            "appearance": "Görünüş",
+            "storage": "Yaddaş"
         },
         "profile": {
             "avatar": "Profil şəkli",
@@ -1385,7 +1388,9 @@
             "storageLegendTrashed": "ümumi istifadə olunan yer, zibil qutusunda {size}",
             "views": "Baxışlar",
             "viewsLegend": "fayllara ümumi baxış"
-        }
+        },
+        "nearQuota": "Limitinə yaxın olanlar",
+        "nearQuotaDescription": "İstifadə edilə bilən yerinin 80%-dən çoxunu istifadə edən istifadəçilər."
     },
     "sweepApp": {
         "hostRequired": "Server ünvanı tələb olunur",
@@ -1491,7 +1496,9 @@
             "timeout": "Yükləmənin vaxtı bitdi",
             "aborted": "Yükləmə ləğv edildi",
             "failed": "Fayl yüklənmədi"
-        }
+        },
+        "notEnoughSpace": "Kifayət qədər yer yoxdur",
+        "notEnoughSpaceDescription": "Bu fayllara {needed} lazımdır, {left} yerin qalıb. Sığmayan fayllar yüklənməyəcək."
     },
     "users": {
         "title": "İstifadəçilər",
@@ -1507,8 +1514,6 @@
         "noMatchesDescription": "Başqa istifadəçi adı yoxla.",
         "clearSearch": "Axtarışı təmizlə",
         "you": "Sən",
-        "unlimited": "Limitsiz",
-        "sizeMb": "{size} MB",
         "editTitle": "İstifadəçini redaktə et: {username}",
         "editDescription": "Hesab məlumatlarını, icazələri və limitləri yenilə.",
         "createDescription": "Başqası üçün hesab yarat.",
@@ -1541,7 +1546,7 @@
             "role": "Rol",
             "files": "Fayllar",
             "notes": "Qeydlər",
-            "storage": "İstifadə edilə bilən yer",
+            "storage": "Yaddaş",
             "joined": "Qoşulma tarixi"
         },
         "sort": {
@@ -1574,5 +1579,29 @@
         "linkCopied": "Keçid mübadilə buferinə kopyalandı",
         "noteCopied": "Qeyd mübadilə buferinə kopyalandı",
         "codeCopied": "Kod mübadilə buferinə kopyalandı"
+    },
+    "storage": {
+        "title": "Yaddaş",
+        "description": "Fayllarının nə qədər yer tutduğu. Zibil qutusundakı fayllar da sayılır.",
+        "used": "{used} / {limit} istifadə olunub",
+        "usedUnlimited": "{used} / {infinity} istifadə olunub",
+        "unlimited": "Limitsiz",
+        "limit": "Limit",
+        "inTrash": "Zibil qutusunda",
+        "files": "Fayllar",
+        "byType": "Növə görə istifadə",
+        "byTypeDescription": "Hər fayl növünün tutduğu yer.",
+        "largest": "Ən böyük fayllar",
+        "largestDescription": "Ən çox yer boşaltmaq üçün bunları sil və ya köçür.",
+        "largestFailed": "Fayllar yüklənmədi",
+        "largestFailedDescription": "Bağlantını yoxla və yenidən cəhd et.",
+        "tryAgain": "Yenidən cəhd et",
+        "noFiles": "Hələ fayl yoxdur",
+        "noFilesDescription": "Yüklədiyin fayllar burada ən böyükdən başlayaraq görünür.",
+        "almostFull": "Yaddaşın dolmaq üzrədir",
+        "almostFullDescription": "Yer açmaq üçün zibil qutusunu boşalt və ya böyük faylları sil.",
+        "full": "Yaddaşın doldu",
+        "fullDescription": "Fayl sil və ya zibil qutusunu boşalt, sonra yenidən cəhd et.",
+        "manage": "Yaddaşı idarə et"
     }
 }

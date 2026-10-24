@@ -246,11 +246,23 @@ export const userListSelect = {
     },
 } satisfies Prisma.UserSelect;
 
+export const storageUsedByUsers = async (userIds: string[]) => {
+    const rows = await prisma.file.groupBy({
+        by: ['authorId'],
+        where: { authorId: { in: userIds } },
+        _sum: { size: true },
+    });
+
+    return new Map(rows.map((row) => [row.authorId, (row._sum.size ?? 0n).toString()]));
+};
+
 export const serializeListUser = (
     user: Prisma.UserGetPayload<{ select: typeof userListSelect }>,
+    storageUsed: Map<string, string>,
 ) => ({
     ...user,
     _count: undefined,
     limits: defu(user.limits, defaultUserLimits) as IUserLimits,
     stats: user._count,
+    storageUsed: storageUsed.get(user.id) ?? '0',
 });

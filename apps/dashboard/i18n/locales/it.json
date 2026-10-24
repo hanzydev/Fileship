@@ -544,7 +544,9 @@
             "links": "Link brevi",
             "linksLegend": "link brevi",
             "folders": "Cartelle",
-            "foldersLegend": "cartelle create"
+            "foldersLegend": "cartelle create",
+            "storageQuota": "{percent} di {limit} utilizzato",
+            "storageQuotaTrashed": "{percent} di {limit} utilizzato, {size} nel cestino"
         }
     },
     "inboxSettings": {
@@ -1258,7 +1260,8 @@
             "inbox": "Casella di ricezione",
             "integrations": "Integrazioni",
             "ai": "IA",
-            "appearance": "Aspetto"
+            "appearance": "Aspetto",
+            "storage": "Archiviazione"
         },
         "profile": {
             "avatar": "Avatar",
@@ -1385,7 +1388,9 @@
             "storageLegendTrashed": "spazio totale usato, {size} nel cestino",
             "views": "Visualizzazioni",
             "viewsLegend": "visualizzazioni totali dei file"
-        }
+        },
+        "nearQuota": "Vicini al limite",
+        "nearQuotaDescription": "Utenti che hanno usato più dell'80% del loro spazio disponibile."
     },
     "sweepApp": {
         "hostRequired": "Inserisci l'host",
@@ -1491,7 +1496,9 @@
             "timeout": "Tempo scaduto per il caricamento",
             "aborted": "Caricamento interrotto",
             "failed": "Impossibile caricare il file"
-        }
+        },
+        "notEnoughSpace": "Spazio insufficiente",
+        "notEnoughSpaceDescription": "Questi file richiedono {needed}, ma restano {left}. I file che non ci stanno non verranno caricati."
     },
     "users": {
         "title": "Utenti",
@@ -1507,8 +1514,6 @@
         "noMatchesDescription": "Prova con un altro nome utente.",
         "clearSearch": "Cancella ricerca",
         "you": "Tu",
-        "unlimited": "Illimitato",
-        "sizeMb": "{size} MB",
         "editTitle": "Modifica {username}",
         "editDescription": "Aggiorna i dati dell'account, le autorizzazioni e i limiti.",
         "createDescription": "Crea un account per un'altra persona.",
@@ -1541,7 +1546,7 @@
             "role": "Ruolo",
             "files": "File",
             "notes": "Note",
-            "storage": "Limite di spazio",
+            "storage": "Archiviazione",
             "joined": "Data di registrazione"
         },
         "sort": {
@@ -1574,5 +1579,29 @@
         "linkCopied": "Link copiato negli appunti",
         "noteCopied": "Nota copiata negli appunti",
         "codeCopied": "Codice copiato negli appunti"
+    },
+    "storage": {
+        "title": "Archiviazione",
+        "description": "Quanto spazio occupano i tuoi file. Contano anche i file nel cestino.",
+        "used": "{used} di {limit} utilizzati",
+        "usedUnlimited": "{used} di {infinity} utilizzati",
+        "unlimited": "Illimitato",
+        "limit": "Limite",
+        "inTrash": "Nel cestino",
+        "files": "File",
+        "byType": "Utilizzo per tipo",
+        "byTypeDescription": "Lo spazio occupato da ogni tipo di file.",
+        "largest": "File più grandi",
+        "largestDescription": "Elimina o sposta questi file per liberare più spazio.",
+        "largestFailed": "Impossibile caricare i tuoi file",
+        "largestFailedDescription": "Controlla la connessione e riprova.",
+        "tryAgain": "Riprova",
+        "noFiles": "Ancora nessun file",
+        "noFilesDescription": "I file che carichi compaiono qui, dal più grande.",
+        "almostFull": "Il tuo spazio è quasi pieno",
+        "almostFullDescription": "Svuota il cestino o elimina file grandi per fare spazio.",
+        "full": "Il tuo spazio è pieno",
+        "fullDescription": "Elimina dei file o svuota il cestino, poi riprova.",
+        "manage": "Gestisci archiviazione"
     }
 }

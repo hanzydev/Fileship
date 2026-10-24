@@ -45,5 +45,7 @@ export default defineEventHandler(async (event) => {
               prisma.user.count({ where }),
           ]);
 
-    return { items: users.map(serializeListUser), total };
+    const storageUsed = await storageUsedByUsers(users.map((user) => user.id));
+
+    return { items: users.map((user) => serializeListUser(user, storageUsed)), total };
 });

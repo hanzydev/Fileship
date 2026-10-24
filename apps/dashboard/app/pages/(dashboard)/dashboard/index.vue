@@ -124,6 +124,7 @@ import type { FileData } from '~/types/files';
 const { $toast } = useNuxtApp();
 const { t, locale } = useI18n();
 const stats = useStats();
+const storageUsage = useStorageUsage();
 const statsFailed = ref(false);
 const currentUser = useAuthUser();
 const uploadSheetOpen = useUploadSheet();
@@ -187,6 +188,36 @@ const storageByType = computed(() =>
     })),
 );
 
+const storageRatio = computed(() =>
+    storageUsage.value?.limit
+        ? Number(storageUsage.value.used) / Number(storageUsage.value.limit)
+        : null,
+);
+
+const storageLegend = computed(() => {
+    const trashed = +(stats.value?.storageUsed.trashed?.raw ?? 0)
+        ? stats.value!.storageUsed.trashed.formatted
+        : null;
+
+    if (storageRatio.value === null) {
+        return trashed
+            ? t('home.cards.storageLegendTrashed', { size: trashed })
+            : t('home.cards.storageLegend');
+    }
+
+    const quota = {
+        percent: new Intl.NumberFormat(locale.value, {
+            style: 'percent',
+            maximumFractionDigits: 0,
+        }).format(storageRatio.value),
+        limit: formatStorageSize(Number(storageUsage.value!.limit), locale.value),
+    };
+
+    return trashed
+        ? t('home.cards.storageQuotaTrashed', { ...quota, size: trashed })
+        : t('home.cards.storageQuota', quota);
+});
+
 const statCards = computed(() =>
     [
         {
@@ -205,14 +236,11 @@ const statCards = computed(() =>
         },
         {
             title: t('home.cards.storage'),
-            legend: +(stats.value?.storageUsed.trashed?.raw ?? 0)
-                ? t('home.cards.storageLegendTrashed', {
-                      size: stats.value!.storageUsed.trashed.formatted,
-                  })
-                : t('home.cards.storageLegend'),
+            legend: storageLegend.value,
             icon: IBox,
             data: stats.value?.storageUsed.size,
             growth: stats.value?.storageUsed.growth,
+            progress: storageRatio.value === null ? undefined : storageRatio.value * 100,
         },
         isAdmin(currentUser.value)
             ? {

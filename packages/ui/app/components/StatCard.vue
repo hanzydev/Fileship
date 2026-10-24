@@ -17,7 +17,15 @@
                 <component :is="icon" v-else class="size-5 text-muted-foreground" />
             </UiCardAction>
         </UiCardHeader>
-        <UiCardFooter>
+        <UiCardFooter :class="progress !== undefined && 'flex-col items-stretch gap-2'">
+            <UiProgress
+                v-if="progress !== undefined"
+                :model-value="Math.min(progress, 100)"
+                :aria-label="title"
+                :class="
+                    cn('h-1.5', progress >= 90 && '*:data-[slot=progress-indicator]:bg-destructive')
+                "
+            />
             <TextBlock variant="muted">{{ legend }}</TextBlock>
         </UiCardFooter>
     </UiCard>
@@ -30,6 +38,7 @@ const { data } = defineProps<{
     icon: any;
     growth?: number;
     data?: number | string;
+    progress?: number;
 }>();
 
 const { locale } = useI18n();

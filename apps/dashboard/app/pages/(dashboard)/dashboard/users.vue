@@ -72,7 +72,7 @@
             :items="users"
             :item-key="(u) => u.id"
             :columns="columns"
-            :card-estimate-size="72"
+            :card-estimate-size="92"
             :loading="isLoading"
             :loading-more="isLoadingMore"
             @reach-end="loadMore"
@@ -101,13 +101,7 @@
             <template #cell-files="{ item }">{{ item.stats.files }}</template>
             <template #cell-notes="{ item }">{{ item.stats.notes }}</template>
             <template #cell-storage="{ item }">
-                <span class="block truncate text-muted-foreground">
-                    {{
-                        item.limits.usableSpace === -1
-                            ? $t('users.unlimited')
-                            : $t('users.sizeMb', { size: item.limits.usableSpace })
-                    }}
-                </span>
+                <StorageMeter :used="item.storageUsed" :limit="limitOf(item)" />
             </template>
             <template #cell-createdAt="{ item }">
                 <span class="block truncate text-muted-foreground">
@@ -141,6 +135,11 @@
                                 {{ getRoles(item).join(', ') }} ·
                                 {{ $t('users.fileCount', item.stats.files) }}
                             </TextBlock>
+                            <StorageMeter
+                                class="mt-1.5"
+                                :used="item.storageUsed"
+                                :limit="limitOf(item)"
+                            />
                         </div>
                         <UserMenu
                             :user="item"
@@ -438,6 +437,9 @@ watch(sheetOpen, (value) => {
         limits: { ...defaultUserLimits, ...(editingUser.value?.limits as any) },
     });
 });
+
+const limitOf = (user: UserData) =>
+    isAdmin(user) || user.limits.usableSpace < 0 ? null : user.limits.usableSpace * 1024 * 1024;
 
 const getRoles = (user: UserData) =>
     user.superAdmin

@@ -7,6 +7,7 @@ export const clearStates = (hard = false, clearUserAndTheme = false) => {
         clearNuxtState('domains');
         clearNuxtState('passkeys');
         clearNuxtState('embed');
+        clearNuxtState('storageUsage');
     }
 
     if (clearUserAndTheme) {

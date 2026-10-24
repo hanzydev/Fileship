@@ -43,6 +43,36 @@
                 :items="topTypes"
             />
         </div>
+
+        <UiCard v-if="stats?.nearQuota.length">
+            <UiCardHeader>
+                <UiCardTitle>{{ $t('stats.nearQuota') }}</UiCardTitle>
+                <UiCardDescription>{{ $t('stats.nearQuotaDescription') }}</UiCardDescription>
+            </UiCardHeader>
+            <UiCardContent>
+                <UiItemGroup class="gap-2">
+                    <UiItem
+                        v-for="user in stats.nearQuota"
+                        :key="user.id"
+                        variant="muted"
+                        size="sm"
+                    >
+                        <UiItemMedia>
+                            <UiAvatar class="size-8">
+                                <UiAvatarImage v-if="user.avatar" :src="user.avatar" />
+                                <UiAvatarFallback>
+                                    {{ user.username.slice(0, 2).toUpperCase() }}
+                                </UiAvatarFallback>
+                            </UiAvatar>
+                        </UiItemMedia>
+                        <UiItemContent class="min-w-0">
+                            <UiItemTitle>{{ user.username }}</UiItemTitle>
+                            <StorageMeter class="w-full" :used="user.used" :limit="user.limit" />
+                        </UiItemContent>
+                    </UiItem>
+                </UiItemGroup>
+            </UiCardContent>
+        </UiCard>
     </div>
 </template>
 

@@ -56,6 +56,7 @@
 import {
     IArchive,
     IBrain,
+    IHardDrive,
     IInbox,
     IMonitorSmartphone,
     IPalette,
@@ -78,6 +79,15 @@ const sections = computed(() => [
         path: '/dashboard/settings/sessions',
         icon: IMonitorSmartphone,
     },
+    ...(canUploadFiles(currentUser.value)
+        ? [
+              {
+                  label: t('settings.nav.storage'),
+                  path: '/dashboard/settings/storage',
+                  icon: IHardDrive,
+              },
+          ]
+        : []),
     { label: t('settings.nav.backups'), path: '/dashboard/settings/backups', icon: IArchive },
     { label: t('settings.nav.sharing'), path: '/dashboard/settings/sharing', icon: IShare2 },
     ...(canUploadFiles(currentUser.value)

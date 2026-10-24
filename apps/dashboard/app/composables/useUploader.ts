@@ -2,15 +2,35 @@ export const useUploader = () => {
     const route = useRoute();
     const uploading = useIsUploading();
     const uploadingFiles = useUploadingFiles();
+    const storageUsage = useStorageUsage();
     const { $toast, $i18n } = useNuxtApp();
-    const { t } = $i18n;
+    const { t, locale } = $i18n;
     const { copy } = useClipboard({ legacy: true });
 
     const currentFolder = computed(() =>
         route.path.startsWith('/dashboard/folders/') ? ((route.params as any).id as string) : null,
     );
 
+    const warnAboutSpace = (files: File[]) => {
+        if (!storageUsage.value?.limit) return;
+
+        const needed = files.reduce((sum, file) => sum + file.size, 0);
+        const left = Math.max(
+            0,
+            Number(storageUsage.value.limit) - Number(storageUsage.value.used),
+        );
+        if (needed <= left) return;
+
+        $toast.warning(t('upload.notEnoughSpace'), {
+            description: t('upload.notEnoughSpaceDescription', {
+                needed: formatStorageSize(needed, locale.value),
+                left: formatStorageSize(left, locale.value),
+            }),
+        });
+    };
+
     const upload = async (files: File[], settings: FileSettings = {}) => {
+        warnAboutSpace(files);
         uploading.value = true;
 
         const newFiles = files as UploadingFileData[];

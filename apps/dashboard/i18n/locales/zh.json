@@ -544,7 +544,9 @@
             "links": "短链接",
             "linksLegend": "已创建短链接",
             "folders": "文件夹",
-            "foldersLegend": "已创建文件夹"
+            "foldersLegend": "已创建文件夹",
+            "storageQuota": "已使用 {limit} 的 {percent}",
+            "storageQuotaTrashed": "已使用 {limit} 的 {percent}，回收站占 {size}"
         }
     },
     "inboxSettings": {
@@ -1258,7 +1260,8 @@
             "inbox": "收件箱",
             "integrations": "集成",
             "ai": "AI",
-            "appearance": "外观"
+            "appearance": "外观",
+            "storage": "存储"
         },
         "profile": {
             "avatar": "头像",
@@ -1385,7 +1388,9 @@
             "storageLegendTrashed": "已用存储空间总计，回收站占 {size}",
             "views": "浏览次数",
             "viewsLegend": "文件浏览总次数"
-        }
+        },
+        "nearQuota": "接近上限的用户",
+        "nearQuotaDescription": "已使用超过 80% 可用空间的用户。"
     },
     "sweepApp": {
         "hostRequired": "请填写主机地址",
@@ -1491,7 +1496,9 @@
             "timeout": "上传请求超时",
             "aborted": "上传请求已中止",
             "failed": "上传失败"
-        }
+        },
+        "notEnoughSpace": "空间不足",
+        "notEnoughSpaceDescription": "这些文件需要 {needed}，但只剩 {left}。放不下的文件将上传失败。"
     },
     "users": {
         "title": "用户",
@@ -1507,8 +1514,6 @@
         "noMatchesDescription": "换个用户名试试。",
         "clearSearch": "清除搜索",
         "you": "你",
-        "unlimited": "无限制",
-        "sizeMb": "{size} MB",
         "editTitle": "编辑 {username}",
         "editDescription": "更新账户信息、权限和限额。",
         "createDescription": "为其他人创建账户。",
@@ -1541,7 +1546,7 @@
             "role": "角色",
             "files": "文件",
             "notes": "笔记",
-            "storage": "存储空间上限",
+            "storage": "存储",
             "joined": "加入时间"
         },
         "sort": {
@@ -1574,5 +1579,29 @@
         "linkCopied": "链接已复制到剪贴板",
         "noteCopied": "笔记已复制到剪贴板",
         "codeCopied": "代码已复制到剪贴板"
+    },
+    "storage": {
+        "title": "存储",
+        "description": "你的文件占用的空间。回收站中的文件也会计入。",
+        "used": "已使用 {used}，共 {limit}",
+        "usedUnlimited": "已使用 {used}，共 {infinity}",
+        "unlimited": "无限制",
+        "limit": "上限",
+        "inTrash": "回收站中",
+        "files": "文件",
+        "byType": "按类型统计",
+        "byTypeDescription": "每种文件占用的空间。",
+        "largest": "最大的文件",
+        "largestDescription": "删除或移动这些文件可以释放最多空间。",
+        "largestFailed": "无法加载你的文件",
+        "largestFailedDescription": "请检查网络连接后重试。",
+        "tryAgain": "重试",
+        "noFiles": "还没有文件",
+        "noFilesDescription": "你上传的文件会按大小从大到小显示在这里。",
+        "almostFull": "你的存储空间快满了",
+        "almostFullDescription": "清空回收站或删除大文件以腾出空间。",
+        "full": "你的存储空间已满",
+        "fullDescription": "删除文件或清空回收站后再试。",
+        "manage": "管理存储"
     }
 }

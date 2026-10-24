@@ -21,6 +21,41 @@ export default defineEventHandler(async (event) => {
         `,
         ]);
 
+    const limitedUsers = (
+        await prisma.user.findMany({
+            select: {
+                id: true,
+                username: true,
+                avatar: true,
+                superAdmin: true,
+                permissions: true,
+                limits: true,
+            },
+        })
+    )
+        .map((user) => ({ user, limit: usableSpaceOf(user) }))
+        .filter((entry) => entry.limit !== null);
+
+    const usedByUser = await storageUsedByUsers(limitedUsers.map(({ user }) => user.id));
+
+    const nearQuota = limitedUsers
+        .map(({ user, limit }) => {
+            const used = usedByUser.get(user.id) ?? '0';
+
+            return {
+                id: user.id,
+                username: user.username,
+                avatar: user.avatar,
+                used,
+                limit: limit!.toString(),
+                ratio: Number(used) / Number(limit),
+            };
+        })
+        .filter((entry) => entry.ratio >= 0.8)
+        .sort((a, b) => b.ratio - a.ratio)
+        .slice(0, 10)
+        .map(({ ratio: _, ...entry }) => entry);
+
     const months = Array.from({ length: 12 }, (_, i) => dayjs().subtract(11 - i, 'month'));
 
     const viewsByMonth = {
@@ -83,5 +118,6 @@ export default defineEventHandler(async (event) => {
         },
         topTypes: (stat?.types ?? []) as { type: string; count: number }[],
         topUploaders: topUploaders.filter((u) => users.find((user) => user.id === u.userId)),
+        nearQuota,
     };
 });

@@ -544,7 +544,9 @@
             "links": "Liens courts",
             "linksLegend": "liens courts",
             "folders": "Dossiers",
-            "foldersLegend": "dossiers créés"
+            "foldersLegend": "dossiers créés",
+            "storageQuota": "{percent} de {limit} utilisés",
+            "storageQuotaTrashed": "{percent} de {limit} utilisés, dont {size} dans la corbeille"
         }
     },
     "inboxSettings": {
@@ -1258,7 +1260,8 @@
             "inbox": "Boîte de dépôt",
             "integrations": "Intégrations",
             "ai": "IA",
-            "appearance": "Apparence"
+            "appearance": "Apparence",
+            "storage": "Stockage"
         },
         "profile": {
             "avatar": "Photo de profil",
@@ -1385,7 +1388,9 @@
             "storageLegendTrashed": "stockage total utilisé, dont {size} dans la corbeille",
             "views": "Vues",
             "viewsLegend": "vues de fichiers au total"
-        }
+        },
+        "nearQuota": "Proches de leur limite",
+        "nearQuotaDescription": "Utilisateurs qui ont utilisé plus de 80 % de leur espace disponible."
     },
     "sweepApp": {
         "hostRequired": "L'hôte est requis",
@@ -1491,7 +1496,9 @@
             "timeout": "Délai d'importation dépassé",
             "aborted": "Importation interrompue",
             "failed": "Impossible d'importer le fichier"
-        }
+        },
+        "notEnoughSpace": "Pas assez d'espace",
+        "notEnoughSpaceDescription": "Ces fichiers nécessitent {needed}, mais il ne reste que {left}. Les fichiers qui ne rentrent pas échoueront."
     },
     "users": {
         "title": "Utilisateurs",
@@ -1507,8 +1514,6 @@
         "noMatchesDescription": "Essayez un autre nom d'utilisateur.",
         "clearSearch": "Effacer la recherche",
         "you": "Vous",
-        "unlimited": "Illimité",
-        "sizeMb": "{size} Mo",
         "editTitle": "Modifier {username}",
         "editDescription": "Modifiez les informations du compte, les autorisations et les limites.",
         "createDescription": "Créez un compte pour quelqu'un d'autre.",
@@ -1541,7 +1546,7 @@
             "role": "Rôle",
             "files": "Fichiers",
             "notes": "Notes",
-            "storage": "Limite de stockage",
+            "storage": "Stockage",
             "joined": "Inscription"
         },
         "sort": {
@@ -1574,5 +1579,29 @@
         "linkCopied": "Lien copié dans le presse-papiers",
         "noteCopied": "Note copiée dans le presse-papiers",
         "codeCopied": "Code copié dans le presse-papiers"
+    },
+    "storage": {
+        "title": "Stockage",
+        "description": "L'espace occupé par vos fichiers. Les fichiers dans la corbeille sont comptés aussi.",
+        "used": "{used} utilisés sur {limit}",
+        "usedUnlimited": "{used} utilisés sur {infinity}",
+        "unlimited": "Illimité",
+        "limit": "Limite",
+        "inTrash": "Dans la corbeille",
+        "files": "Fichiers",
+        "byType": "Utilisation par type",
+        "byTypeDescription": "L'espace occupé par chaque type de fichier.",
+        "largest": "Fichiers les plus volumineux",
+        "largestDescription": "Supprimez ou déplacez-les pour libérer le plus d'espace.",
+        "largestFailed": "Impossible de charger vos fichiers",
+        "largestFailedDescription": "Vérifiez votre connexion et réessayez.",
+        "tryAgain": "Réessayer",
+        "noFiles": "Aucun fichier pour le moment",
+        "noFilesDescription": "Les fichiers importés apparaissent ici, du plus volumineux au plus petit.",
+        "almostFull": "Votre espace de stockage est presque plein",
+        "almostFullDescription": "Videz la corbeille ou supprimez des fichiers volumineux pour faire de la place.",
+        "full": "Votre espace de stockage est plein",
+        "fullDescription": "Supprimez des fichiers ou videz la corbeille, puis réessayez.",
+        "manage": "Gérer le stockage"
     }
 }

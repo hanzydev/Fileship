@@ -12,5 +12,5 @@ export default defineEventHandler(async (event) => {
         throw apiError(404, 'errorsUsers.userNotFound');
     }
 
-    return serializeListUser(findUserById);
+    return serializeListUser(findUserById, await storageUsedByUsers([findUserById.id]));
 });

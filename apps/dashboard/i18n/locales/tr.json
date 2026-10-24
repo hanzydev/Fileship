@@ -544,7 +544,9 @@
             "links": "Kısa bağlantılar",
             "linksLegend": "oluşturulan kısa bağlantı",
             "folders": "Klasörler",
-            "foldersLegend": "oluşturulan klasör"
+            "foldersLegend": "oluşturulan klasör",
+            "storageQuota": "{limit} alanın {percent} kadarı kullanıldı",
+            "storageQuotaTrashed": "{limit} alanın {percent} kadarı kullanıldı, çöp kutusunda {size}"
         }
     },
     "inboxSettings": {
@@ -1258,7 +1260,8 @@
             "inbox": "Gelen kutusu",
             "integrations": "Entegrasyonlar",
             "ai": "Yapay zekâ",
-            "appearance": "Görünüm"
+            "appearance": "Görünüm",
+            "storage": "Depolama"
         },
         "profile": {
             "avatar": "Profil fotoğrafı",
@@ -1385,7 +1388,9 @@
             "storageLegendTrashed": "toplam kullanılan alan, çöp kutusunda {size}",
             "views": "Görüntülenme",
             "viewsLegend": "toplam görüntülenme"
-        }
+        },
+        "nearQuota": "Alanı dolmak üzere olanlar",
+        "nearQuotaDescription": "Kullanılabilir alanının %80’inden fazlasını kullanan kullanıcılar."
     },
     "sweepApp": {
         "hostRequired": "Sunucu adresi gerekli",
@@ -1491,7 +1496,9 @@
             "timeout": "Yükleme zaman aşımına uğradı",
             "aborted": "Yükleme iptal edildi",
             "failed": "Dosya yüklenemedi"
-        }
+        },
+        "notEnoughSpace": "Yeterli alan yok",
+        "notEnoughSpaceDescription": "Bu dosyalar {needed} gerektiriyor, {left} yerin kaldı. Sığmayan dosyalar yüklenemez."
     },
     "users": {
         "title": "Kullanıcılar",
@@ -1507,8 +1514,6 @@
         "noMatchesDescription": "Başka bir kullanıcı adı dene.",
         "clearSearch": "Aramayı temizle",
         "you": "Sen",
-        "unlimited": "Sınırsız",
-        "sizeMb": "{size} MB",
         "editTitle": "{username} adlı kullanıcıyı düzenle",
         "editDescription": "Hesap bilgilerini, yetkileri ve sınırları güncelle.",
         "createDescription": "Başka biri için hesap oluştur.",
@@ -1541,7 +1546,7 @@
             "role": "Rol",
             "files": "Dosyalar",
             "notes": "Notlar",
-            "storage": "Kullanılabilir alan",
+            "storage": "Depolama",
             "joined": "Katılma tarihi"
         },
         "sort": {
@@ -1574,5 +1579,29 @@
         "linkCopied": "Bağlantı panoya kopyalandı",
         "noteCopied": "Not panoya kopyalandı",
         "codeCopied": "Kod panoya kopyalandı"
+    },
+    "storage": {
+        "title": "Depolama",
+        "description": "Dosyalarının ne kadar yer kapladığı. Çöp kutusundaki dosyalar da sayılır.",
+        "used": "{used} / {limit} kullanıldı",
+        "usedUnlimited": "{used} / {infinity} kullanıldı",
+        "unlimited": "Sınırsız",
+        "limit": "Sınır",
+        "inTrash": "Çöp kutusunda",
+        "files": "Dosyalar",
+        "byType": "Türe göre kullanım",
+        "byTypeDescription": "Her dosya türünün kapladığı alan.",
+        "largest": "En büyük dosyalar",
+        "largestDescription": "En çok yer açmak için bunları sil veya taşı.",
+        "largestFailed": "Dosyalar yüklenemedi",
+        "largestFailedDescription": "Bağlantını kontrol edip tekrar dene.",
+        "tryAgain": "Tekrar dene",
+        "noFiles": "Henüz dosya yok",
+        "noFilesDescription": "Yüklediğin dosyalar burada en büyükten küçüğe görünür.",
+        "almostFull": "Depolama alanın dolmak üzere",
+        "almostFullDescription": "Yer açmak için çöp kutusunu boşalt veya büyük dosyaları sil.",
+        "full": "Depolama alanın doldu",
+        "fullDescription": "Dosya sil veya çöp kutusunu boşalt, sonra tekrar dene.",
+        "manage": "Depolamayı yönet"
     }
 }

@@ -65,6 +65,19 @@
             </UiSidebarGroup>
         </UiSidebarContent>
         <UiSidebarFooter>
+            <NuxtLink
+                v-if="storageUsage && canUploadFiles(authUser)"
+                to="/dashboard/settings/storage"
+                class="flex flex-col gap-2 rounded-md p-2 transition-colors hover:bg-sidebar-accent group-data-[collapsible=icon]:hidden"
+            >
+                <span class="flex items-center justify-between text-xs">
+                    <span class="font-medium">{{ $t('storage.title') }}</span>
+                    <span v-if="storageRatio !== null" class="text-muted-foreground tabular-nums">
+                        {{ percentFormat.format(storageRatio) }}
+                    </span>
+                </span>
+                <StorageMeter :used="storageUsage.used" :limit="storageUsage.limit" />
+            </NuxtLink>
             <template v-if="updaterStatus?.hasUpdate">
                 <UiCard size="sm" class="group-data-[collapsible=icon]:hidden">
                     <UiCardHeader>
@@ -289,10 +302,35 @@ const currentTheme = useTheme();
 const colorMode = useColorMode();
 const route = useRoute();
 const { $toast } = useNuxtApp();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const { setOpenMobile } = useSidebar();
 const trash = useTrash();
+const storageUsage = useStorageUsage();
+const isStorageWarned = useSessionStorage('fileship-storage-warned', false);
 const isLoggingOut = ref(false);
+
+const percentFormat = computed(
+    () => new Intl.NumberFormat(locale.value, { style: 'percent', maximumFractionDigits: 0 }),
+);
+
+const storageRatio = computed(() =>
+    storageUsage.value?.limit
+        ? Number(storageUsage.value.used) / Number(storageUsage.value.limit)
+        : null,
+);
+
+watch(storageRatio, (ratio) => {
+    if (ratio === null || ratio < 0.9 || isStorageWarned.value) return;
+
+    isStorageWarned.value = true;
+    $toast.warning(t('storage.almostFull'), {
+        description: t('storage.almostFullDescription'),
+        action: {
+            label: t('storage.manage'),
+            onClick: () => navigateTo('/dashboard/settings/storage'),
+        },
+    });
+});
 
 const userInitials = computed(() => authUser.value!.username.slice(0, 2).toUpperCase());
 

@@ -544,7 +544,9 @@
             "links": "Kurzlinks",
             "linksLegend": "Kurzlinks",
             "folders": "Ordner",
-            "foldersLegend": "erstellte Ordner"
+            "foldersLegend": "erstellte Ordner",
+            "storageQuota": "{percent} von {limit} belegt",
+            "storageQuotaTrashed": "{percent} von {limit} belegt, davon {size} im Papierkorb"
         }
     },
     "inboxSettings": {
@@ -1258,7 +1260,8 @@
             "inbox": "Posteingang",
             "integrations": "Integrationen",
             "ai": "KI",
-            "appearance": "Darstellung"
+            "appearance": "Darstellung",
+            "storage": "Speicher"
         },
         "profile": {
             "avatar": "Profilbild",
@@ -1385,7 +1388,9 @@
             "storageLegendTrashed": "belegter Speicher insgesamt, davon {size} im Papierkorb",
             "views": "Aufrufe",
             "viewsLegend": "Dateiaufrufe insgesamt"
-        }
+        },
+        "nearQuota": "Fast am Limit",
+        "nearQuotaDescription": "Benutzer, die mehr als 80 % ihres verfügbaren Speichers belegen."
     },
     "sweepApp": {
         "hostRequired": "Host ist erforderlich",
@@ -1491,7 +1496,9 @@
             "timeout": "Zeitüberschreitung beim Upload",
             "aborted": "Upload abgebrochen",
             "failed": "Upload fehlgeschlagen"
-        }
+        },
+        "notEnoughSpace": "Nicht genug Speicher",
+        "notEnoughSpaceDescription": "Diese Dateien brauchen {needed}, frei sind noch {left}. Dateien, die nicht passen, schlagen fehl."
     },
     "users": {
         "title": "Benutzer",
@@ -1507,8 +1514,6 @@
         "noMatchesDescription": "Versuche einen anderen Benutzernamen.",
         "clearSearch": "Suche zurücksetzen",
         "you": "Du",
-        "unlimited": "Unbegrenzt",
-        "sizeMb": "{size} MB",
         "editTitle": "{username} bearbeiten",
         "editDescription": "Passe Kontodaten, Berechtigungen und Limits an.",
         "createDescription": "Erstelle ein Konto für jemand anderen.",
@@ -1541,7 +1546,7 @@
             "role": "Rolle",
             "files": "Dateien",
             "notes": "Notizen",
-            "storage": "Speicherlimit",
+            "storage": "Speicher",
             "joined": "Beigetreten"
         },
         "sort": {
@@ -1574,5 +1579,29 @@
         "linkCopied": "Link in die Zwischenablage kopiert",
         "noteCopied": "Notiz in die Zwischenablage kopiert",
         "codeCopied": "Code in die Zwischenablage kopiert"
+    },
+    "storage": {
+        "title": "Speicher",
+        "description": "Wie viel Platz deine Dateien belegen. Dateien im Papierkorb zählen mit.",
+        "used": "{used} von {limit} belegt",
+        "usedUnlimited": "{used} von {infinity} belegt",
+        "unlimited": "Unbegrenzt",
+        "limit": "Limit",
+        "inTrash": "Im Papierkorb",
+        "files": "Dateien",
+        "byType": "Nutzung nach Typ",
+        "byTypeDescription": "Wie viel Platz jede Dateiart belegt.",
+        "largest": "Größte Dateien",
+        "largestDescription": "Lösche oder verschiebe diese, um am meisten Platz freizugeben.",
+        "largestFailed": "Dateien konnten nicht geladen werden",
+        "largestFailedDescription": "Prüfe deine Verbindung und versuche es erneut.",
+        "tryAgain": "Erneut versuchen",
+        "noFiles": "Noch keine Dateien",
+        "noFilesDescription": "Hochgeladene Dateien erscheinen hier, die größten zuerst.",
+        "almostFull": "Dein Speicher ist fast voll",
+        "almostFullDescription": "Leere den Papierkorb oder lösche große Dateien, um Platz zu schaffen.",
+        "full": "Dein Speicher ist voll",
+        "fullDescription": "Lösche Dateien oder leere den Papierkorb und versuche es dann erneut.",
+        "manage": "Speicher verwalten"
     }
 }

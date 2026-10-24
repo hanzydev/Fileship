@@ -544,7 +544,9 @@
             "links": "단축 링크",
             "linksLegend": "단축 링크",
             "folders": "폴더",
-            "foldersLegend": "만든 폴더"
+            "foldersLegend": "만든 폴더",
+            "storageQuota": "{limit} 중 {percent} 사용",
+            "storageQuotaTrashed": "{limit} 중 {percent} 사용, 휴지통 {size}"
         }
     },
     "inboxSettings": {
@@ -1258,7 +1260,8 @@
             "inbox": "받은 파일함",
             "integrations": "연동",
             "ai": "AI",
-            "appearance": "화면"
+            "appearance": "화면",
+            "storage": "저장 공간"
         },
         "profile": {
             "avatar": "프로필 사진",
@@ -1385,7 +1388,9 @@
             "storageLegendTrashed": "총 사용 용량, 휴지통 {size}",
             "views": "조회수",
             "viewsLegend": "총 파일 조회수"
-        }
+        },
+        "nearQuota": "한도에 가까운 사용자",
+        "nearQuotaDescription": "사용 가능한 용량의 80% 이상을 사용한 사용자예요."
     },
     "sweepApp": {
         "hostRequired": "호스트를 입력하세요",
@@ -1491,7 +1496,9 @@
             "timeout": "업로드 요청 시간이 초과됐어요",
             "aborted": "업로드 요청이 중단됐어요",
             "failed": "업로드하지 못했어요"
-        }
+        },
+        "notEnoughSpace": "공간이 부족해요",
+        "notEnoughSpaceDescription": "이 파일들에는 {needed}가 필요하지만 남은 공간은 {left}예요. 들어가지 않는 파일은 업로드에 실패해요."
     },
     "users": {
         "title": "사용자",
@@ -1507,8 +1514,6 @@
         "noMatchesDescription": "다른 사용자 이름으로 찾아보세요.",
         "clearSearch": "검색어 지우기",
         "you": "나",
-        "unlimited": "무제한",
-        "sizeMb": "{size}MB",
         "editTitle": "{username} 정보 수정",
         "editDescription": "계정 정보, 권한, 한도를 변경해요.",
         "createDescription": "다른 사람이 사용할 계정을 만들어요.",
@@ -1541,7 +1546,7 @@
             "role": "역할",
             "files": "파일",
             "notes": "노트",
-            "storage": "저장 공간 한도",
+            "storage": "저장 공간",
             "joined": "가입일"
         },
         "sort": {
@@ -1574,5 +1579,29 @@
         "linkCopied": "링크를 클립보드에 복사했어요",
         "noteCopied": "노트를 클립보드에 복사했어요",
         "codeCopied": "코드를 클립보드에 복사했어요"
+    },
+    "storage": {
+        "title": "저장 공간",
+        "description": "파일이 차지하는 용량이에요. 휴지통에 있는 파일도 포함돼요.",
+        "used": "{limit} 중 {used} 사용",
+        "usedUnlimited": "{infinity} 중 {used} 사용",
+        "unlimited": "무제한",
+        "limit": "한도",
+        "inTrash": "휴지통",
+        "files": "파일",
+        "byType": "유형별 사용량",
+        "byTypeDescription": "파일 유형마다 차지하는 용량이에요.",
+        "largest": "가장 큰 파일",
+        "largestDescription": "이 파일들을 삭제하거나 옮기면 공간을 가장 많이 확보할 수 있어요.",
+        "largestFailed": "파일을 불러올 수 없어요",
+        "largestFailedDescription": "연결을 확인하고 다시 시도해 주세요.",
+        "tryAgain": "다시 시도",
+        "noFiles": "아직 파일이 없어요",
+        "noFilesDescription": "업로드한 파일이 큰 순서대로 여기에 표시돼요.",
+        "almostFull": "저장 공간이 거의 가득 찼어요",
+        "almostFullDescription": "휴지통을 비우거나 큰 파일을 삭제해 공간을 확보해 주세요.",
+        "full": "저장 공간이 가득 찼어요",
+        "fullDescription": "파일을 삭제하거나 휴지통을 비운 뒤 다시 시도해 주세요.",
+        "manage": "저장 공간 관리"
     }
 }

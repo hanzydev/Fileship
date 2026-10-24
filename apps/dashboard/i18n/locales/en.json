@@ -544,7 +544,9 @@
             "links": "Short links",
             "linksLegend": "short links",
             "folders": "Folders",
-            "foldersLegend": "created folders"
+            "foldersLegend": "created folders",
+            "storageQuota": "{percent} of {limit} used",
+            "storageQuotaTrashed": "{percent} of {limit} used, {size} in trash"
         }
     },
     "inboxSettings": {
@@ -1258,7 +1260,8 @@
             "inbox": "Inbox",
             "integrations": "Integrations",
             "ai": "AI",
-            "appearance": "Appearance"
+            "appearance": "Appearance",
+            "storage": "Storage"
         },
         "profile": {
             "avatar": "Avatar",
@@ -1385,7 +1388,9 @@
             "storageLegendTrashed": "total storage used, {size} in trash",
             "views": "Views",
             "viewsLegend": "total file views"
-        }
+        },
+        "nearQuota": "Near their quota",
+        "nearQuotaDescription": "Users who have used more than 80% of their usable space."
     },
     "sweepApp": {
         "hostRequired": "Host is required",
@@ -1491,7 +1496,9 @@
             "timeout": "Upload request timed out",
             "aborted": "Upload request was aborted",
             "failed": "Upload failed"
-        }
+        },
+        "notEnoughSpace": "Not enough space",
+        "notEnoughSpaceDescription": "These files need {needed}, but {left} is left. Files that do not fit will fail."
     },
     "users": {
         "title": "Users",
@@ -1507,8 +1514,6 @@
         "noMatchesDescription": "Try a different username.",
         "clearSearch": "Clear search",
         "you": "You",
-        "unlimited": "Unlimited",
-        "sizeMb": "{size} MB",
         "editTitle": "Edit {username}",
         "editDescription": "Update account details, permissions and limits.",
         "createDescription": "Create an account for someone else.",
@@ -1541,7 +1546,7 @@
             "role": "Role",
             "files": "Files",
             "notes": "Notes",
-            "storage": "Storage limit",
+            "storage": "Storage",
             "joined": "Joined"
         },
         "sort": {
@@ -1574,5 +1579,29 @@
         "linkCopied": "Link copied to clipboard",
         "noteCopied": "Note copied to clipboard",
         "codeCopied": "Code copied to clipboard"
+    },
+    "storage": {
+        "title": "Storage",
+        "description": "How much space your files take up. Files in the trash count too.",
+        "used": "{used} of {limit} used",
+        "usedUnlimited": "{used} of {infinity} used",
+        "unlimited": "Unlimited",
+        "limit": "Limit",
+        "inTrash": "In the trash",
+        "files": "Files",
+        "byType": "Usage by type",
+        "byTypeDescription": "Space each kind of file takes up.",
+        "largest": "Largest files",
+        "largestDescription": "Delete or move these to free up the most space.",
+        "largestFailed": "Could not load your files",
+        "largestFailedDescription": "Check your connection and try again.",
+        "tryAgain": "Try again",
+        "noFiles": "No files yet",
+        "noFilesDescription": "Files you upload show up here, largest first.",
+        "almostFull": "Your storage is almost full",
+        "almostFullDescription": "Empty the trash or delete large files to make room.",
+        "full": "Your storage is full",
+        "fullDescription": "Delete files or empty the trash, then try again.",
+        "manage": "Manage storage"
     }
 }

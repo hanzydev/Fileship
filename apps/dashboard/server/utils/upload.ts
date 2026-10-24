@@ -41,16 +41,25 @@ interface UploadedFile {
 export const isProcessableImage = (mimeType: string) =>
     mimeType.startsWith('image/') && !['image/gif', 'image/svg+xml'].includes(mimeType);
 
-export const exceedsUsableSpace = async (owner: UploadOwner, size: number) => {
+export const usableSpaceOf = (owner: UploadOwner) => {
     const usableSpace = owner.limits?.usableSpace ?? -1;
-    if (isAdmin(owner) || usableSpace < 0) return false;
+    return isAdmin(owner) || usableSpace < 0 ? null : BigInt(usableSpace * 1024 * 1024);
+};
 
+export const storageUsedBy = async (ownerId: string) => {
     const { _sum } = await prisma.file.aggregate({
-        where: { authorId: owner.id },
+        where: { authorId: ownerId },
         _sum: { size: true },
     });
 
-    return (_sum.size ?? 0n) + BigInt(size) > BigInt(usableSpace * 1024 * 1024);
+    return _sum.size ?? 0n;
+};
+
+export const exceedsUsableSpace = async (owner: UploadOwner, size: number) => {
+    const limit = usableSpaceOf(owner);
+    if (limit === null) return false;
+
+    return (await storageUsedBy(owner.id)) + BigInt(size) > limit;
 };
 
 export const abortUploadSession = async (path: string) => {
@@ -178,7 +187,9 @@ export const receiveChunk = async (
         if (await isTooLarge(received)) {
             await fsp.writeFile(`${path}.json`, JSON.stringify(session));
             await abortUploadSession(path);
-            throw apiError(400, 'errorsFiles.storageLimitReached');
+            throw apiError(400, 'errorsFiles.storageLimitReached', undefined, {
+                quotaExceeded: true,
+            });
         }
 
         session.received = received;
@@ -289,7 +300,9 @@ export const receiveUpload = async <T extends UploadedFile>(
 
         if (await exceedsUsableSpace(owner, session.received)) {
             await abortUploadSession(path);
-            throw apiError(400, 'errorsFiles.storageLimitReached');
+            throw apiError(400, 'errorsFiles.storageLimitReached', undefined, {
+                quotaExceeded: true,
+            });
         }
     }
 

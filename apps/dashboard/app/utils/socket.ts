@@ -32,6 +32,7 @@ export const initSocket = () => {
     const currentTheme = useTheme();
     const storageMigration = useStorageMigration();
     const storageImport = useStorageImport();
+    const storageUsage = useStorageUsage();
 
     const route = useRoute();
 
@@ -178,6 +179,29 @@ export const initSocket = () => {
                 passkeys.value[index] = { ...passkeys.value[index], ...data };
             }
         });
+
+        const refreshStorageUsage = useThrottleFn(
+            async () => {
+                storageUsage.value = await $fetch('/api/users/@me/storage').catch(
+                    () => storageUsage.value,
+                );
+            },
+            2_000,
+            true,
+        );
+
+        for (const event of [
+            'connect',
+            'file:create',
+            'file:delete',
+            'file:bulkDelete',
+            'trash:update',
+            'trash:restore',
+            'deleteAll',
+            'currentUser:update',
+        ]) {
+            socket.on(event, refreshStorageUsage);
+        }
 
         const refreshLogs = useThrottleFn(() => refreshLists('logs'), 2_000, true);
         socket.on('log:create', refreshLogs);

@@ -18,6 +18,7 @@ type ChunkResult = {
     retryable: boolean;
     url?: string;
     error?: string;
+    isQuotaExceeded?: boolean;
 };
 
 export const uploadFilesWithConcurrency = async <T>(
@@ -137,7 +138,12 @@ export const uploadFile = async (
                 });
 
                 req.addEventListener('load', () => {
-                    let response: { error?: boolean; message?: string; url?: string } = {};
+                    let response: {
+                        error?: boolean;
+                        message?: string;
+                        url?: string;
+                        data?: { quotaExceeded?: boolean };
+                    } = {};
 
                     if (req.responseText.length) {
                         try {
@@ -161,6 +167,7 @@ export const uploadFile = async (
                             error:
                                 response.message ||
                                 t('upload.errors.failedStatus', { status: req.status }),
+                            isQuotaExceeded: !!response.data?.quotaExceeded,
                         });
                         return;
                     }
@@ -199,6 +206,18 @@ export const uploadFile = async (
 
         if (!result.ok) {
             uploadingFile.status!.error = result.error || t('upload.errors.failed');
+
+            if (result.isQuotaExceeded && uploadEndpoint === '/api/files') {
+                useNuxtApp().$toast.error(t('storage.full'), {
+                    id: 'storage-full',
+                    description: t('storage.fullDescription'),
+                    action: {
+                        label: t('storage.manage'),
+                        onClick: () => navigateTo('/dashboard/settings/storage'),
+                    },
+                });
+            }
+
             return false;
         }
 

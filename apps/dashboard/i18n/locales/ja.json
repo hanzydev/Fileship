@@ -544,7 +544,9 @@
             "links": "短縮リンク",
             "linksLegend": "作成された短縮リンク",
             "folders": "フォルダー",
-            "foldersLegend": "作成されたフォルダー"
+            "foldersLegend": "作成されたフォルダー",
+            "storageQuota": "{limit} 中 {percent} を使用",
+            "storageQuotaTrashed": "{limit} 中 {percent} を使用（うちゴミ箱 {size}）"
         }
     },
     "inboxSettings": {
@@ -1258,7 +1260,8 @@
             "inbox": "受信ボックス",
             "integrations": "連携",
             "ai": "AI",
-            "appearance": "外観"
+            "appearance": "外観",
+            "storage": "ストレージ"
         },
         "profile": {
             "avatar": "アバター",
@@ -1385,7 +1388,9 @@
             "storageLegendTrashed": "ストレージの総使用量（うちゴミ箱 {size}）",
             "views": "閲覧数",
             "viewsLegend": "ファイルの総閲覧数"
-        }
+        },
+        "nearQuota": "上限に近いユーザー",
+        "nearQuotaDescription": "使用可能な容量の 80% 以上を使用しているユーザーです。"
     },
     "sweepApp": {
         "hostRequired": "ホストを入力してください",
@@ -1491,7 +1496,9 @@
             "timeout": "アップロードがタイムアウトしました",
             "aborted": "アップロードが中断されました",
             "failed": "アップロードできませんでした"
-        }
+        },
+        "notEnoughSpace": "空き容量が足りません",
+        "notEnoughSpaceDescription": "これらのファイルには {needed} が必要ですが、残りは {left} です。入りきらないファイルはアップロードに失敗します。"
     },
     "users": {
         "title": "ユーザー",
@@ -1507,8 +1514,6 @@
         "noMatchesDescription": "別のユーザー名で検索してください。",
         "clearSearch": "検索をクリア",
         "you": "自分",
-        "unlimited": "無制限",
-        "sizeMb": "{size} MB",
         "editTitle": "{username} を編集",
         "editDescription": "アカウント情報、権限、上限を変更します。",
         "createDescription": "ほかのユーザーのアカウントを作成します。",
@@ -1541,7 +1546,7 @@
             "role": "ロール",
             "files": "ファイル",
             "notes": "ノート",
-            "storage": "ストレージの上限",
+            "storage": "ストレージ",
             "joined": "登録日"
         },
         "sort": {
@@ -1574,5 +1579,29 @@
         "linkCopied": "リンクをクリップボードにコピーしました",
         "noteCopied": "ノートをクリップボードにコピーしました",
         "codeCopied": "コードをクリップボードにコピーしました"
+    },
+    "storage": {
+        "title": "ストレージ",
+        "description": "ファイルが使用している容量です。ゴミ箱内のファイルも含まれます。",
+        "used": "{limit} 中 {used} を使用",
+        "usedUnlimited": "{infinity} 中 {used} を使用",
+        "unlimited": "無制限",
+        "limit": "上限",
+        "inTrash": "ゴミ箱内",
+        "files": "ファイル",
+        "byType": "種類別の使用量",
+        "byTypeDescription": "ファイルの種類ごとの使用容量です。",
+        "largest": "サイズの大きいファイル",
+        "largestDescription": "これらを削除または移動すると、最も多くの容量を空けられます。",
+        "largestFailed": "ファイルを読み込めませんでした",
+        "largestFailedDescription": "接続を確認して、もう一度お試しください。",
+        "tryAgain": "再試行",
+        "noFiles": "ファイルはまだありません",
+        "noFilesDescription": "アップロードしたファイルが、サイズの大きい順に表示されます。",
+        "almostFull": "ストレージの空きがほとんどありません",
+        "almostFullDescription": "ゴミ箱を空にするか、大きなファイルを削除して空き容量を作ってください。",
+        "full": "ストレージがいっぱいです",
+        "fullDescription": "ファイルを削除するかゴミ箱を空にしてから、もう一度お試しください。",
+        "manage": "ストレージを管理"
     }
 }

@@ -12,4 +12,5 @@ export type UserData = Omit<
 > & {
     limits: IUserLimits;
     stats: UserBasicStats;
+    storageUsed: string;
 };
