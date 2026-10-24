@@ -8,6 +8,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { LANGUAGES, messages } from './i18n/messages';
 
 const LOCALE_FOLDERS: Partial<Record<(typeof LANGUAGES)[number], string>> = { zh: 'zh_CN' };
+const CHROME_UNSUPPORTED_LOCALES: (typeof LANGUAGES)[number][] = ['az'];
 
 const fromRoot = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 
@@ -74,20 +75,28 @@ export default defineConfig({
         }),
     }),
     hooks: {
-        'build:publicAssets': (_, files) => {
-            for (const language of LANGUAGES)
+        'build:publicAssets': (wxt, files) => {
+            for (const language of LANGUAGES) {
+                if (
+                    wxt.config.browser !== 'firefox' &&
+                    CHROME_UNSUPPORTED_LOCALES.includes(language)
+                )
+                    continue;
+
                 files.push({
                     relativeDest: `_locales/${LOCALE_FOLDERS[language] ?? language}/messages.json`,
                     contents: JSON.stringify({
                         extDescription: { message: messages[language].manifest.description },
                     }),
                 });
+            }
         },
     },
     zip: {
         name: 'fileship',
         sourcesRoot: fromRoot('../..'),
         includeSources: [
+            '.gitignore',
             'apps/extension/**',
             'docs/browser-extension.md',
             'packages/ui/**',
@@ -97,6 +106,12 @@ export default defineConfig({
             'pnpm-workspace.yaml',
             'turbo.json',
         ],
-        excludeSources: ['**/node_modules/**', '**/.output/**', '**/.wxt/**', '**/.nuxt/**'],
+        excludeSources: [
+            '**/node_modules/**',
+            '**/.output/**',
+            '**/.wxt/**',
+            '**/.nuxt/**',
+            'apps/extension/store/**',
+        ],
     },
 });

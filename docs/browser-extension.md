@@ -70,6 +70,8 @@ Images from the same site as the page are downloaded through the page itself and
 
 In Firefox, the add-on declares that it sends website content (images and screenshots) and browsing activity (the links you shorten) to the server you configure, and only when you ask it to.
 
+The [privacy policy](browser-extension-privacy.md) explains what the extension sends, where it goes and what it keeps on your computer.
+
 ## Using it
 
 - **Upload files:** click the Fileship button and choose **Upload files**. In Firefox this opens an upload tab, because Firefox closes the toolbar popup when a file picker opens; drop files there or choose them.
@@ -94,6 +96,18 @@ Uploads keep running after the toolbar popup closes. The recent list is cleared 
 pnpm --filter extension package
 ```
 
-This writes the store packages to `apps/extension/.output`: `fileship-<version>-chrome.zip` (Chrome Web Store and Edge Add-ons), `fileship-<version>-firefox.zip` and `fileship-<version>-sources.zip` (the source code that addons.mozilla.org asks for; build it with the commands in [Installing](#installing)).
+This writes the store packages to `apps/extension/.output`: `fileship-<version>-chrome.zip` (Chrome Web Store and Edge Add-ons), `fileship-<version>-firefox.zip` and `fileship-<version>-sources.zip` (the source code that addons.mozilla.org asks for).
+
+### Rebuilding the Firefox package from its sources
+
+addons.mozilla.org rebuilds the add-on from `fileship-<version>-sources.zip` and compares the result with the submitted package. Unzip it and run these commands in the unzipped folder, on Windows, macOS or Linux, with Node.js 22 or newer (tested with 24) and pnpm 11.9.0 (`corepack enable` picks the version set in `package.json`; `npm install -g pnpm@11.9.0` works too):
+
+```sh
+corepack enable
+pnpm install --frozen-lockfile
+pnpm --filter extension build
+```
+
+`apps/extension/.output/firefox-mv3` then holds exactly the files of `fileship-<version>-firefox.zip`. The sources include the repository's `.gitignore`, because Tailwind reads it to skip build folders when it looks for class names; without it the stylesheet comes out different.
 
 `pnpm --filter extension dev` (or `dev:firefox`) starts a browser with the extension and reloads it on changes.
