@@ -34,6 +34,8 @@ Fileship can send email: links to confirm an email address or reset a password, 
 
 **Send test email** uses the values in the form, so you can try them before saving. Until the dashboard address, the SMTP server and the sender address are set, every email feature stays hidden.
 
+Once email works, people can add an email address in **Settings → Profile**. Fileship sends a confirmation link that is valid for 24 hours and only uses the address after it is confirmed. An address can belong to one account only. Admins see each user's address, and whether it is confirmed, on the **Users** page.
+
 ## Trash
 
 Deleted files, folders and notes move to the trash for 30 days by default. Set **Trash retention** in **Administration → Instance** (or `NUXT_TRASH_RETENTION_DAYS`) to change it; `0` deletes everything immediately. Items in the trash still count toward a user's storage limit until they are deleted for good. Expired files and files that reach their view limit are always deleted immediately.

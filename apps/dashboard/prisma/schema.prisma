@@ -34,6 +34,10 @@ enum StorageType {
   FTP
 }
 
+enum EmailTokenType {
+  VerifyEmail
+}
+
 enum AIJobStatus {
   Pending
   Processing
@@ -67,11 +71,27 @@ model User {
   backupRestoreStartedAt DateTime?
   theme                  String              @default("Fileship")
   language               String?
+  email                  String?             @unique
+  pendingEmail           String?
+  emailTokens            EmailToken[]
   credentials            Credential[]
   aiJobs                 AIJob[]
   inbox                  Inbox?
   backups                Backup[]
   links                  Link[]
+}
+
+model EmailToken {
+  id        String         @id @default(uuid())
+  tokenHash String         @unique
+  type      EmailTokenType
+  email     String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime       @default(now())
+
+  @@index([userId, type])
 }
 
 model Credential {

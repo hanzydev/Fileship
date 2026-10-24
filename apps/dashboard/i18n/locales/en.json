@@ -70,6 +70,13 @@
             "logIn": "Log in",
             "passwordMismatch": "Passwords don't match",
             "success": "Account created"
+        },
+        "verifyEmail": {
+            "title": "Confirm email address",
+            "verifying": "Confirming your email address…",
+            "success": "Email address confirmed",
+            "successDescription": "{email} is now linked to your account.",
+            "failed": "Couldn't confirm the email address"
         }
     },
     "backups": {
@@ -104,6 +111,14 @@
             "subject": "Test email from {siteName}",
             "heading": "Email works",
             "body": "{siteName} can send email with these settings."
+        },
+        "verifyEmail": {
+            "subject": "Confirm your email address",
+            "heading": "Confirm your email address",
+            "body": "Hi {username}, confirm that this address belongs to your {siteName} account. You can then use it to reset your password.",
+            "action": "Confirm email address",
+            "expires": "The link expires in 24 hours.",
+            "ignore": "If you didn't add this address, you can ignore this email."
         }
     },
     "errorsAuth": {
@@ -201,7 +216,11 @@
         "fileNameTaken": "A file with that name already exists"
     },
     "errorsEmail": {
-        "testFailed": "Couldn't send the test email: {error}"
+        "testFailed": "Couldn't send the test email: {error}",
+        "disabled": "Email isn't set up on this instance",
+        "emailTaken": "Another account already uses this email address",
+        "sendFailed": "Couldn't send the email. Try again later.",
+        "invalidLink": "This link is invalid or has expired"
     },
     "errorsFiles": {
         "noFilesToDelete": "No files found to delete",
@@ -1111,7 +1130,10 @@
             "takeNote": "Take Note",
             "updateNote": "Update Note",
             "deleteNote": "Delete Note",
-            "sendTestEmail": "Send Test Email"
+            "sendTestEmail": "Send Test Email",
+            "updateEmail": "Update Email",
+            "removeEmail": "Remove Email",
+            "verifyEmail": "Verify Email"
         }
     },
     "notes": {
@@ -1313,7 +1335,24 @@
             "accountDescription": "Your public username.",
             "username": "Username",
             "save": "Save",
-            "usernameUpdated": "Username updated"
+            "usernameUpdated": "Username updated",
+            "email": {
+                "title": "Email",
+                "description": "Used to reset your password and to warn you when your storage is almost full. Admins can see it.",
+                "label": "Email address",
+                "verified": "Verified",
+                "notVerified": "Not verified",
+                "pendingTitle": "Check your email",
+                "pendingDescription": "We sent a confirmation link to {email}. Open it to start using this address.",
+                "pendingKeepsCurrent": "We sent a confirmation link to {email}. Until you open it, {current} stays in use.",
+                "resend": "Resend link",
+                "remove": "Remove",
+                "sent": "Confirmation link sent to {email}",
+                "pendingCancelled": "Kept your current email address",
+                "removed": "Email address removed",
+                "removeTitle": "Remove your email address?",
+                "removeDescription": "You won't be able to reset your password by email or get storage warnings."
+            }
         },
         "ai": {
             "title": "AI",
@@ -1586,7 +1625,8 @@
             "files": "Files",
             "notes": "Notes",
             "storage": "Storage",
-            "joined": "Joined"
+            "joined": "Joined",
+            "email": "Email"
         },
         "sort": {
             "newest": "Newest",
@@ -1595,7 +1635,9 @@
             "nameDesc": "Name Z–A",
             "mostFiles": "Most files",
             "mostNotes": "Most notes"
-        }
+        },
+        "emailVerified": "Verified",
+        "emailNotVerified": "Not verified"
     },
     "view": {
         "verifyPassword": "Verify password",

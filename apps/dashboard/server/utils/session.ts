@@ -86,6 +86,8 @@ export const startSession = async (
             backupRestoreState: user.backupRestoreState,
             theme: user.theme,
             language: user.language,
+            email: user.email,
+            pendingEmail: user.pendingEmail,
             stats: user._count,
         },
         session: { id: session.id },

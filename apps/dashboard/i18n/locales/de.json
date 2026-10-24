@@ -70,6 +70,13 @@
             "logIn": "Anmelden",
             "passwordMismatch": "Die Passwörter stimmen nicht überein",
             "success": "Konto erstellt"
+        },
+        "verifyEmail": {
+            "title": "E-Mail-Adresse bestätigen",
+            "verifying": "Deine E-Mail-Adresse wird bestätigt…",
+            "success": "E-Mail-Adresse bestätigt",
+            "successDescription": "{email} ist jetzt mit deinem Konto verknüpft.",
+            "failed": "E-Mail-Adresse konnte nicht bestätigt werden"
         }
     },
     "backups": {
@@ -104,6 +111,14 @@
             "subject": "Test-E-Mail von {siteName}",
             "heading": "E-Mail-Versand funktioniert",
             "body": "{siteName} kann mit diesen Einstellungen E-Mails senden."
+        },
+        "verifyEmail": {
+            "subject": "Bestätige deine E-Mail-Adresse",
+            "heading": "Bestätige deine E-Mail-Adresse",
+            "body": "Hallo {username}, bestätige, dass diese Adresse zu deinem Konto bei {siteName} gehört. Danach kannst du damit dein Passwort zurücksetzen.",
+            "action": "E-Mail-Adresse bestätigen",
+            "expires": "Der Link ist 24 Stunden lang gültig.",
+            "ignore": "Wenn du diese Adresse nicht hinzugefügt hast, kannst du diese E-Mail ignorieren."
         }
     },
     "errorsAuth": {
@@ -201,7 +216,11 @@
         "fileNameTaken": "Eine Datei mit diesem Namen existiert bereits"
     },
     "errorsEmail": {
-        "testFailed": "Test-E-Mail konnte nicht gesendet werden: {error}"
+        "testFailed": "Test-E-Mail konnte nicht gesendet werden: {error}",
+        "disabled": "E-Mail ist auf diesem Server nicht eingerichtet",
+        "emailTaken": "Diese E-Mail-Adresse wird bereits von einem anderen Konto verwendet",
+        "sendFailed": "E-Mail konnte nicht gesendet werden. Versuche es später erneut.",
+        "invalidLink": "Dieser Link ist ungültig oder abgelaufen"
     },
     "errorsFiles": {
         "noFilesToDelete": "Keine Dateien zum Löschen gefunden",
@@ -1111,7 +1130,10 @@
             "takeNote": "Notiz erstellt",
             "updateNote": "Notiz aktualisiert",
             "deleteNote": "Notiz gelöscht",
-            "sendTestEmail": "Test-E-Mail gesendet"
+            "sendTestEmail": "Test-E-Mail gesendet",
+            "updateEmail": "E-Mail geändert",
+            "removeEmail": "E-Mail entfernt",
+            "verifyEmail": "E-Mail bestätigt"
         }
     },
     "notes": {
@@ -1313,7 +1335,24 @@
             "accountDescription": "Dein öffentlicher Benutzername.",
             "username": "Benutzername",
             "save": "Speichern",
-            "usernameUpdated": "Benutzername aktualisiert"
+            "usernameUpdated": "Benutzername aktualisiert",
+            "email": {
+                "title": "E-Mail",
+                "description": "Wird zum Zurücksetzen deines Passworts und für Warnungen bei fast vollem Speicher verwendet. Administratoren können sie sehen.",
+                "label": "E-Mail-Adresse",
+                "verified": "Bestätigt",
+                "notVerified": "Nicht bestätigt",
+                "pendingTitle": "Prüfe dein Postfach",
+                "pendingDescription": "Wir haben einen Bestätigungslink an {email} gesendet. Öffne ihn, um diese Adresse zu verwenden.",
+                "pendingKeepsCurrent": "Wir haben einen Bestätigungslink an {email} gesendet. Bis du ihn öffnest, bleibt {current} aktiv.",
+                "resend": "Link erneut senden",
+                "remove": "Entfernen",
+                "sent": "Bestätigungslink an {email} gesendet",
+                "pendingCancelled": "Deine bisherige E-Mail-Adresse bleibt aktiv",
+                "removed": "E-Mail-Adresse entfernt",
+                "removeTitle": "E-Mail-Adresse entfernen?",
+                "removeDescription": "Du kannst dein Passwort dann nicht mehr per E-Mail zurücksetzen und erhältst keine Speicherwarnungen."
+            }
         },
         "ai": {
             "title": "KI",
@@ -1586,7 +1625,8 @@
             "files": "Dateien",
             "notes": "Notizen",
             "storage": "Speicher",
-            "joined": "Beigetreten"
+            "joined": "Beigetreten",
+            "email": "E-Mail"
         },
         "sort": {
             "newest": "Neueste",
@@ -1595,7 +1635,9 @@
             "nameDesc": "Name Z–A",
             "mostFiles": "Meiste Dateien",
             "mostNotes": "Meiste Notizen"
-        }
+        },
+        "emailVerified": "Bestätigt",
+        "emailNotVerified": "Nicht bestätigt"
     },
     "view": {
         "verifyPassword": "Passwort bestätigen",

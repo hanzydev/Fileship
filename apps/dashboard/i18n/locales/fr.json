@@ -70,6 +70,13 @@
             "logIn": "Se connecter",
             "passwordMismatch": "Les mots de passe ne correspondent pas",
             "success": "Compte créé"
+        },
+        "verifyEmail": {
+            "title": "Confirmer l'adresse e-mail",
+            "verifying": "Confirmation de votre adresse e-mail…",
+            "success": "Adresse e-mail confirmée",
+            "successDescription": "{email} est maintenant associée à votre compte.",
+            "failed": "Impossible de confirmer l'adresse e-mail"
         }
     },
     "backups": {
@@ -104,6 +111,14 @@
             "subject": "E-mail de test de {siteName}",
             "heading": "L'envoi d'e-mails fonctionne",
             "body": "{siteName} peut envoyer des e-mails avec ces paramètres."
+        },
+        "verifyEmail": {
+            "subject": "Confirmez votre adresse e-mail",
+            "heading": "Confirmez votre adresse e-mail",
+            "body": "Bonjour {username}, confirmez que cette adresse appartient à votre compte {siteName}. Vous pourrez ensuite l'utiliser pour réinitialiser votre mot de passe.",
+            "action": "Confirmer l'adresse e-mail",
+            "expires": "Le lien expire dans 24 heures.",
+            "ignore": "Si vous n'avez pas ajouté cette adresse, vous pouvez ignorer cet e-mail."
         }
     },
     "errorsAuth": {
@@ -201,7 +216,11 @@
         "fileNameTaken": "Un fichier portant ce nom existe déjà"
     },
     "errorsEmail": {
-        "testFailed": "Impossible d'envoyer l'e-mail de test : {error}"
+        "testFailed": "Impossible d'envoyer l'e-mail de test : {error}",
+        "disabled": "L'e-mail n'est pas configuré sur ce serveur",
+        "emailTaken": "Cette adresse e-mail est déjà utilisée par un autre compte",
+        "sendFailed": "Impossible d'envoyer l'e-mail. Réessayez plus tard.",
+        "invalidLink": "Ce lien est invalide ou a expiré"
     },
     "errorsFiles": {
         "noFilesToDelete": "Aucun fichier à supprimer",
@@ -1111,7 +1130,10 @@
             "takeNote": "Création d'une note",
             "updateNote": "Modification d'une note",
             "deleteNote": "Suppression d'une note",
-            "sendTestEmail": "Envoi d'un e-mail de test"
+            "sendTestEmail": "Envoi d'un e-mail de test",
+            "updateEmail": "Modification de l'e-mail",
+            "removeEmail": "Suppression de l'e-mail",
+            "verifyEmail": "Vérification de l'e-mail"
         }
     },
     "notes": {
@@ -1313,7 +1335,24 @@
             "accountDescription": "Votre nom d'utilisateur public.",
             "username": "Nom d'utilisateur",
             "save": "Enregistrer",
-            "usernameUpdated": "Nom d'utilisateur mis à jour"
+            "usernameUpdated": "Nom d'utilisateur mis à jour",
+            "email": {
+                "title": "E-mail",
+                "description": "Sert à réinitialiser votre mot de passe et à vous prévenir quand votre stockage est presque plein. Les administrateurs peuvent la voir.",
+                "label": "Adresse e-mail",
+                "verified": "Vérifiée",
+                "notVerified": "Non vérifiée",
+                "pendingTitle": "Consultez votre messagerie",
+                "pendingDescription": "Un lien de confirmation a été envoyé à {email}. Ouvrez-le pour commencer à utiliser cette adresse.",
+                "pendingKeepsCurrent": "Un lien de confirmation a été envoyé à {email}. Tant que vous ne l'avez pas ouvert, {current} reste utilisée.",
+                "resend": "Renvoyer le lien",
+                "remove": "Supprimer",
+                "sent": "Lien de confirmation envoyé à {email}",
+                "pendingCancelled": "Votre adresse e-mail actuelle est conservée",
+                "removed": "Adresse e-mail supprimée",
+                "removeTitle": "Supprimer votre adresse e-mail ?",
+                "removeDescription": "Vous ne pourrez plus réinitialiser votre mot de passe par e-mail ni recevoir d'alertes de stockage."
+            }
         },
         "ai": {
             "title": "IA",
@@ -1586,7 +1625,8 @@
             "files": "Fichiers",
             "notes": "Notes",
             "storage": "Stockage",
-            "joined": "Inscription"
+            "joined": "Inscription",
+            "email": "E-mail"
         },
         "sort": {
             "newest": "Plus récents",
@@ -1595,7 +1635,9 @@
             "nameDesc": "Nom (Z–A)",
             "mostFiles": "Nombre de fichiers",
             "mostNotes": "Nombre de notes"
-        }
+        },
+        "emailVerified": "Vérifiée",
+        "emailNotVerified": "Non vérifiée"
     },
     "view": {
         "verifyPassword": "Vérifier le mot de passe",

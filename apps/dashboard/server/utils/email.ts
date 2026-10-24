@@ -1,5 +1,6 @@
 import type { H3Event } from 'h3';
 import { createTransport } from 'nodemailer';
+import { z } from 'zod';
 
 import { createCoreContext, translate as translateMessage } from '@intlify/core';
 
@@ -32,6 +33,8 @@ const catalogs: Record<Language, () => Promise<{ default: object }>> = {
 
 const escapeHtml = (value: string) =>
     value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`);
+
+export const emailAddressSchema = z.string().trim().toLowerCase().pipe(z.email().max(254));
 
 export const isEmailConfigured = (settings: InstanceSettings) =>
     !!(settings.smtpHost && settings.smtpFrom && settings.siteUrl);

@@ -98,6 +98,16 @@
                     </UiBadge>
                 </div>
             </template>
+            <template #cell-email="{ item }">
+                <div v-if="item.email || item.pendingEmail" class="flex min-w-0 items-center gap-2">
+                    <span class="truncate text-muted-foreground">
+                        {{ item.email ?? item.pendingEmail }}
+                    </span>
+                    <UiBadge :variant="item.email ? 'secondary' : 'outline'">
+                        {{ item.email ? $t('users.emailVerified') : $t('users.emailNotVerified') }}
+                    </UiBadge>
+                </div>
+            </template>
             <template #cell-files="{ item }">{{ item.stats.files }}</template>
             <template #cell-notes="{ item }">{{ item.stats.notes }}</template>
             <template #cell-storage="{ item }">
@@ -135,6 +145,21 @@
                                 {{ getRoles(item).join(', ') }} ·
                                 {{ $t('users.fileCount', item.stats.files) }}
                             </TextBlock>
+                            <div
+                                v-if="
+                                    publicSettings.emailEnabled && (item.email || item.pendingEmail)
+                                "
+                                class="flex min-w-0 items-center gap-2 text-xs text-muted-foreground"
+                            >
+                                <span class="truncate">{{ item.email ?? item.pendingEmail }}</span>
+                                <UiBadge :variant="item.email ? 'secondary' : 'outline'">
+                                    {{
+                                        item.email
+                                            ? $t('users.emailVerified')
+                                            : $t('users.emailNotVerified')
+                                    }}
+                                </UiBadge>
+                            </div>
                             <StorageMeter
                                 class="mt-1.5"
                                 :used="item.storageUsed"
@@ -301,6 +326,7 @@ import { UserPermission } from '#shared/prisma/enums';
 import type { UserData } from '~/types/users';
 
 const currentUser = useAuthUser();
+const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
 const { t } = useI18n();
 const date = useDate();
@@ -329,6 +355,9 @@ const {
 const columns = computed(() => [
     { key: 'username', label: t('users.column.user'), sortable: true },
     { key: 'role', label: t('users.column.role'), class: 'hidden w-44 lg:table-cell' },
+    ...(publicSettings.value.emailEnabled
+        ? [{ key: 'email', label: t('users.column.email'), class: 'hidden w-64 xl:table-cell' }]
+        : []),
     {
         key: 'files',
         label: t('users.column.files'),

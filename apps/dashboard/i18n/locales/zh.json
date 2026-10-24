@@ -70,6 +70,13 @@
             "logIn": "登录",
             "passwordMismatch": "两次输入的密码不一致",
             "success": "账户已创建"
+        },
+        "verifyEmail": {
+            "title": "确认邮箱地址",
+            "verifying": "正在确认你的邮箱地址…",
+            "success": "邮箱地址已确认",
+            "successDescription": "{email} 现已关联到你的账户。",
+            "failed": "无法确认邮箱地址"
         }
     },
     "backups": {
@@ -104,6 +111,14 @@
             "subject": "来自 {siteName} 的测试邮件",
             "heading": "邮件发送正常",
             "body": "{siteName} 可以使用这些设置发送邮件。"
+        },
+        "verifyEmail": {
+            "subject": "确认你的邮箱地址",
+            "heading": "确认你的邮箱地址",
+            "body": "{username}，你好！请确认此地址属于你在 {siteName} 的账户。确认后，你可以用它重置密码。",
+            "action": "确认邮箱地址",
+            "expires": "链接在 24 小时内有效。",
+            "ignore": "如果你没有添加此地址，可以忽略此邮件。"
         }
     },
     "errorsAuth": {
@@ -201,7 +216,11 @@
         "fileNameTaken": "已存在同名文件"
     },
     "errorsEmail": {
-        "testFailed": "无法发送测试邮件：{error}"
+        "testFailed": "无法发送测试邮件：{error}",
+        "disabled": "此服务器未设置邮件",
+        "emailTaken": "此邮箱地址已被其他账户使用",
+        "sendFailed": "无法发送邮件，请稍后重试。",
+        "invalidLink": "此链接无效或已过期"
     },
     "errorsFiles": {
         "noFilesToDelete": "没有可删除的文件",
@@ -1111,7 +1130,10 @@
             "takeNote": "新建笔记",
             "updateNote": "更新笔记",
             "deleteNote": "删除笔记",
-            "sendTestEmail": "发送测试邮件"
+            "sendTestEmail": "发送测试邮件",
+            "updateEmail": "更改邮箱",
+            "removeEmail": "移除邮箱",
+            "verifyEmail": "验证邮箱"
         }
     },
     "notes": {
@@ -1313,7 +1335,24 @@
             "accountDescription": "你的公开用户名。",
             "username": "用户名",
             "save": "保存",
-            "usernameUpdated": "用户名已更新"
+            "usernameUpdated": "用户名已更新",
+            "email": {
+                "title": "邮箱",
+                "description": "用于重置密码，以及在存储空间快满时提醒你。管理员可以看到它。",
+                "label": "邮箱地址",
+                "verified": "已验证",
+                "notVerified": "未验证",
+                "pendingTitle": "请查收邮件",
+                "pendingDescription": "确认链接已发送至 {email}。打开链接后即可使用此地址。",
+                "pendingKeepsCurrent": "确认链接已发送至 {email}。在你打开链接之前，仍使用 {current}。",
+                "resend": "重新发送链接",
+                "remove": "移除",
+                "sent": "确认链接已发送至 {email}",
+                "pendingCancelled": "已保留当前邮箱地址",
+                "removed": "邮箱地址已移除",
+                "removeTitle": "移除你的邮箱地址？",
+                "removeDescription": "你将无法通过邮件重置密码，也不会收到存储空间警告。"
+            }
         },
         "ai": {
             "title": "AI",
@@ -1586,7 +1625,8 @@
             "files": "文件",
             "notes": "笔记",
             "storage": "存储",
-            "joined": "加入时间"
+            "joined": "加入时间",
+            "email": "邮箱"
         },
         "sort": {
             "newest": "最新",
@@ -1595,7 +1635,9 @@
             "nameDesc": "名称 Z–A",
             "mostFiles": "文件最多",
             "mostNotes": "笔记最多"
-        }
+        },
+        "emailVerified": "已验证",
+        "emailNotVerified": "未验证"
     },
     "view": {
         "verifyPassword": "验证密码",

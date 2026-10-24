@@ -70,6 +70,13 @@
             "logIn": "ログイン",
             "passwordMismatch": "パスワードが一致しません",
             "success": "アカウントを作成しました"
+        },
+        "verifyEmail": {
+            "title": "メールアドレスの確認",
+            "verifying": "メールアドレスを確認しています…",
+            "success": "メールアドレスを確認しました",
+            "successDescription": "{email} がアカウントに設定されました。",
+            "failed": "メールアドレスを確認できませんでした"
         }
     },
     "backups": {
@@ -104,6 +111,14 @@
             "subject": "{siteName} からのテストメール",
             "heading": "メールを送信できました",
             "body": "この設定で {siteName} からメールを送信できます。"
+        },
+        "verifyEmail": {
+            "subject": "メールアドレスの確認",
+            "heading": "メールアドレスを確認してください",
+            "body": "{username} さん、このアドレスが {siteName} のアカウントのものであることを確認してください。確認後は、このアドレスでパスワードをリセットできます。",
+            "action": "メールアドレスを確認",
+            "expires": "リンクの有効期限は 24 時間です。",
+            "ignore": "このアドレスを追加した覚えがない場合は、このメールを無視してください。"
         }
     },
     "errorsAuth": {
@@ -201,7 +216,11 @@
         "fileNameTaken": "同じ名前のファイルがすでに存在します"
     },
     "errorsEmail": {
-        "testFailed": "テストメールを送信できませんでした：{error}"
+        "testFailed": "テストメールを送信できませんでした：{error}",
+        "disabled": "このサーバーではメールが設定されていません",
+        "emailTaken": "このメールアドレスは別のアカウントで使用されています",
+        "sendFailed": "メールを送信できませんでした。しばらくしてからもう一度お試しください。",
+        "invalidLink": "このリンクは無効か、有効期限が切れています"
     },
     "errorsFiles": {
         "noFilesToDelete": "削除するファイルが見つかりません",
@@ -1111,7 +1130,10 @@
             "takeNote": "ノートを作成",
             "updateNote": "ノートを更新",
             "deleteNote": "ノートを削除",
-            "sendTestEmail": "テストメールを送信"
+            "sendTestEmail": "テストメールを送信",
+            "updateEmail": "メールアドレスを変更",
+            "removeEmail": "メールアドレスを削除",
+            "verifyEmail": "メールアドレスを確認"
         }
     },
     "notes": {
@@ -1313,7 +1335,24 @@
             "accountDescription": "公開されるユーザー名です。",
             "username": "ユーザー名",
             "save": "保存",
-            "usernameUpdated": "ユーザー名を更新しました"
+            "usernameUpdated": "ユーザー名を更新しました",
+            "email": {
+                "title": "メール",
+                "description": "パスワードのリセットや、ストレージの空き容量が少なくなったときの通知に使用します。管理者も確認できます。",
+                "label": "メールアドレス",
+                "verified": "確認済み",
+                "notVerified": "未確認",
+                "pendingTitle": "メールを確認してください",
+                "pendingDescription": "{email} に確認用リンクを送信しました。リンクを開くと、このアドレスを使用できるようになります。",
+                "pendingKeepsCurrent": "{email} に確認用リンクを送信しました。リンクを開くまでは {current} が使用されます。",
+                "resend": "リンクを再送信",
+                "remove": "削除",
+                "sent": "{email} に確認用リンクを送信しました",
+                "pendingCancelled": "現在のメールアドレスをそのまま使用します",
+                "removed": "メールアドレスを削除しました",
+                "removeTitle": "メールアドレスを削除しますか？",
+                "removeDescription": "メールでのパスワードのリセットや、ストレージの警告を受け取れなくなります。"
+            }
         },
         "ai": {
             "title": "AI",
@@ -1586,7 +1625,8 @@
             "files": "ファイル",
             "notes": "ノート",
             "storage": "ストレージ",
-            "joined": "登録日"
+            "joined": "登録日",
+            "email": "メール"
         },
         "sort": {
             "newest": "新しい順",
@@ -1595,7 +1635,9 @@
             "nameDesc": "名前（Z–A）",
             "mostFiles": "ファイル数の多い順",
             "mostNotes": "ノート数の多い順"
-        }
+        },
+        "emailVerified": "確認済み",
+        "emailNotVerified": "未確認"
     },
     "view": {
         "verifyPassword": "パスワードを確認",

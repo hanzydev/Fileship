@@ -70,6 +70,13 @@
             "logIn": "Accedi",
             "passwordMismatch": "Le password non corrispondono",
             "success": "Account creato"
+        },
+        "verifyEmail": {
+            "title": "Conferma indirizzo email",
+            "verifying": "Conferma dell'indirizzo email in corso…",
+            "success": "Indirizzo email confermato",
+            "successDescription": "{email} è ora collegato al tuo account.",
+            "failed": "Impossibile confermare l'indirizzo email"
         }
     },
     "backups": {
@@ -104,6 +111,14 @@
             "subject": "Email di prova da {siteName}",
             "heading": "L'invio delle email funziona",
             "body": "{siteName} può inviare email con queste impostazioni."
+        },
+        "verifyEmail": {
+            "subject": "Conferma il tuo indirizzo email",
+            "heading": "Conferma il tuo indirizzo email",
+            "body": "Ciao {username}, conferma che questo indirizzo appartiene al tuo account {siteName}. Potrai poi usarlo per reimpostare la password.",
+            "action": "Conferma indirizzo email",
+            "expires": "Il link scade tra 24 ore.",
+            "ignore": "Se non hai aggiunto tu questo indirizzo, puoi ignorare questa email."
         }
     },
     "errorsAuth": {
@@ -201,7 +216,11 @@
         "fileNameTaken": "Esiste già un file con questo nome"
     },
     "errorsEmail": {
-        "testFailed": "Impossibile inviare l'email di prova: {error}"
+        "testFailed": "Impossibile inviare l'email di prova: {error}",
+        "disabled": "L'email non è configurata su questo server",
+        "emailTaken": "Questo indirizzo email è già usato da un altro account",
+        "sendFailed": "Impossibile inviare l'email. Riprova più tardi.",
+        "invalidLink": "Questo link non è valido o è scaduto"
     },
     "errorsFiles": {
         "noFilesToDelete": "Nessun file da eliminare",
@@ -1111,7 +1130,10 @@
             "takeNote": "Creazione nota",
             "updateNote": "Modifica nota",
             "deleteNote": "Eliminazione nota",
-            "sendTestEmail": "Invio email di prova"
+            "sendTestEmail": "Invio email di prova",
+            "updateEmail": "Modifica email",
+            "removeEmail": "Rimozione email",
+            "verifyEmail": "Verifica email"
         }
     },
     "notes": {
@@ -1313,7 +1335,24 @@
             "accountDescription": "Il tuo nome utente pubblico.",
             "username": "Nome utente",
             "save": "Salva",
-            "usernameUpdated": "Nome utente aggiornato"
+            "usernameUpdated": "Nome utente aggiornato",
+            "email": {
+                "title": "Email",
+                "description": "Serve per reimpostare la password e per avvisarti quando lo spazio è quasi pieno. Gli amministratori possono vederlo.",
+                "label": "Indirizzo email",
+                "verified": "Verificato",
+                "notVerified": "Non verificato",
+                "pendingTitle": "Controlla la tua posta",
+                "pendingDescription": "Abbiamo inviato un link di conferma a {email}. Aprilo per iniziare a usare questo indirizzo.",
+                "pendingKeepsCurrent": "Abbiamo inviato un link di conferma a {email}. Finché non lo apri, resta in uso {current}.",
+                "resend": "Invia di nuovo il link",
+                "remove": "Rimuovi",
+                "sent": "Link di conferma inviato a {email}",
+                "pendingCancelled": "Il tuo indirizzo email attuale è stato mantenuto",
+                "removed": "Indirizzo email rimosso",
+                "removeTitle": "Rimuovere il tuo indirizzo email?",
+                "removeDescription": "Non potrai più reimpostare la password via email né ricevere avvisi sullo spazio."
+            }
         },
         "ai": {
             "title": "IA",
@@ -1586,7 +1625,8 @@
             "files": "File",
             "notes": "Note",
             "storage": "Archiviazione",
-            "joined": "Data di registrazione"
+            "joined": "Data di registrazione",
+            "email": "Email"
         },
         "sort": {
             "newest": "Più recenti",
@@ -1595,7 +1635,9 @@
             "nameDesc": "Nome Z–A",
             "mostFiles": "Più file",
             "mostNotes": "Più note"
-        }
+        },
+        "emailVerified": "Verificato",
+        "emailNotVerified": "Non verificato"
     },
     "view": {
         "verifyPassword": "Verifica password",

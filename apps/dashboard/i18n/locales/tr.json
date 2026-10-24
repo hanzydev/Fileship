@@ -70,6 +70,13 @@
             "logIn": "Giriş yap",
             "passwordMismatch": "Şifreler eşleşmiyor",
             "success": "Hesap oluşturuldu"
+        },
+        "verifyEmail": {
+            "title": "E-posta adresini onayla",
+            "verifying": "E-posta adresin onaylanıyor…",
+            "success": "E-posta adresi onaylandı",
+            "successDescription": "{email} artık hesabına bağlı.",
+            "failed": "E-posta adresi onaylanamadı"
         }
     },
     "backups": {
@@ -104,6 +111,14 @@
             "subject": "{siteName} test e-postası",
             "heading": "E-posta gönderimi çalışıyor",
             "body": "Bu ayarlarla {siteName} e-posta gönderebiliyor."
+        },
+        "verifyEmail": {
+            "subject": "E-posta adresini onayla",
+            "heading": "E-posta adresini onayla",
+            "body": "Merhaba {username}, bu adresin {siteName} hesabına ait olduğunu onayla. Ardından şifreni sıfırlamak için bu adresi kullanabilirsin.",
+            "action": "E-posta adresini onayla",
+            "expires": "Bağlantı 24 saat geçerli.",
+            "ignore": "Bu adresi sen eklemediysen bu e-postayı görmezden gelebilirsin."
         }
     },
     "errorsAuth": {
@@ -201,7 +216,11 @@
         "fileNameTaken": "Bu adda bir dosya zaten var"
     },
     "errorsEmail": {
-        "testFailed": "Test e-postası gönderilemedi: {error}"
+        "testFailed": "Test e-postası gönderilemedi: {error}",
+        "disabled": "Bu sunucuda e-posta ayarlanmamış",
+        "emailTaken": "Bu e-posta adresi başka bir hesapta kullanılıyor",
+        "sendFailed": "E-posta gönderilemedi. Daha sonra tekrar dene.",
+        "invalidLink": "Bu bağlantı geçersiz veya süresi dolmuş"
     },
     "errorsFiles": {
         "noFilesToDelete": "Silinecek dosya bulunamadı",
@@ -1111,7 +1130,10 @@
             "takeNote": "Not alma",
             "updateNote": "Not güncelleme",
             "deleteNote": "Not silme",
-            "sendTestEmail": "Test e-postası gönderme"
+            "sendTestEmail": "Test e-postası gönderme",
+            "updateEmail": "E-posta güncelleme",
+            "removeEmail": "E-posta kaldırma",
+            "verifyEmail": "E-posta doğrulama"
         }
     },
     "notes": {
@@ -1313,7 +1335,24 @@
             "accountDescription": "Herkesin gördüğü kullanıcı adın.",
             "username": "Kullanıcı adı",
             "save": "Kaydet",
-            "usernameUpdated": "Kullanıcı adı güncellendi"
+            "usernameUpdated": "Kullanıcı adı güncellendi",
+            "email": {
+                "title": "E-posta",
+                "description": "Şifreni sıfırlamak ve depolama alanın dolmak üzereyken seni uyarmak için kullanılır. Yöneticiler görebilir.",
+                "label": "E-posta adresi",
+                "verified": "Doğrulandı",
+                "notVerified": "Doğrulanmadı",
+                "pendingTitle": "E-postanı kontrol et",
+                "pendingDescription": "Onay bağlantısı gönderildi: {email}. Bu adresi kullanmaya başlamak için bağlantıyı aç.",
+                "pendingKeepsCurrent": "Onay bağlantısı gönderildi: {email}. Bağlantıyı açana kadar {current} kullanılmaya devam eder.",
+                "resend": "Bağlantıyı tekrar gönder",
+                "remove": "Kaldır",
+                "sent": "Onay bağlantısı gönderildi: {email}",
+                "pendingCancelled": "Mevcut e-posta adresin korundu",
+                "removed": "E-posta adresi kaldırıldı",
+                "removeTitle": "E-posta adresin kaldırılsın mı?",
+                "removeDescription": "Şifreni e-postayla sıfırlayamaz ve depolama uyarısı alamazsın."
+            }
         },
         "ai": {
             "title": "Yapay zekâ",
@@ -1586,7 +1625,8 @@
             "files": "Dosyalar",
             "notes": "Notlar",
             "storage": "Depolama",
-            "joined": "Katılma tarihi"
+            "joined": "Katılma tarihi",
+            "email": "E-posta"
         },
         "sort": {
             "newest": "En yeni",
@@ -1595,7 +1635,9 @@
             "nameDesc": "Ad (Z–A)",
             "mostFiles": "En çok dosya",
             "mostNotes": "En çok not"
-        }
+        },
+        "emailVerified": "Doğrulandı",
+        "emailNotVerified": "Doğrulanmadı"
     },
     "view": {
         "verifyPassword": "Şifreyi doğrula",
