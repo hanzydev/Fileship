@@ -88,6 +88,14 @@ export default defineEventHandler(async (event) => {
                 system: true,
             });
 
+            sendToUser(findFileById.authorId, 'file:update', {
+                id: findFileById.id,
+                views: {
+                    total: findFileById._count.views + 1,
+                    today: (await getTodayViews([findFileById.id])).get(findFileById.id) ?? 0,
+                },
+            });
+
             isLastView =
                 !!findFileById.maxViews && findFileById._count.views + 1 >= findFileById.maxViews;
         }
