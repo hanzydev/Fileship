@@ -66,6 +66,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - The flyout can be read and its commands invoked from a small C++/WinRT client: `create_instance<IStorageProviderStatusUISourceFactory>(CLSID_FileshipStatus, CLSCTX_LOCAL_SERVER)`, then `GetStatusUISource(L"").GetStatusUI()`.
 - On an empty local database `db:createDefaultUser` creates the seed super admin `admin` / `password`; it can create test users through `POST /api/users`.
 - `nuxt typecheck` in the dashboard fails on `@fileship/ai` and `@fileship/telemetry` until they are built (`pnpm --filter @fileship/ai --filter @fileship/telemetry build`).
+- In a fresh checkout the telemetry panel's `nuxt typecheck` reports dozens of `unknown` errors until its Prisma client exists (`pnpm --filter telemetry db:generate`); `pnpm dev` only generates the dashboard's.
 - Editing catalogs while the dashboard dev server runs rebuilds Nitro, which can crash the process with `0xC0000409` while the AI worker is being stopped. Restart it; it is not caused by the change.
 
 ## Harbor (Cloud Files API) facts
