@@ -70,7 +70,13 @@
             "haveAccount": "已有账户？",
             "logIn": "登录",
             "passwordMismatch": "两次输入的密码不一致",
-            "success": "账户已创建"
+            "success": "账户已创建",
+            "inviteHeading": "加入 {siteName}",
+            "inviteDescription": "{username} 邀请了你。设置用户名和密码即可创建账户。",
+            "inviteEmail": "邮箱地址",
+            "inviteEmailDescription": "将关联到你的账户，用于重置密码。",
+            "inviteInvalidTitle": "无法使用此邀请",
+            "checkingInvite": "正在检查邀请…"
         },
         "verifyEmail": {
             "title": "确认邮箱地址",
@@ -147,6 +153,14 @@
             "action": "设置新密码",
             "expires": "链接在 1 小时内有效，且只能使用一次。",
             "ignore": "如果这不是你本人的请求，可以忽略此邮件，你的密码不会改变。"
+        },
+        "invite": {
+            "subject": "{siteName} 邀请",
+            "heading": "你收到了 {siteName} 的邀请",
+            "body": "{username} 邀请你在 {siteName} 创建账户。",
+            "action": "创建账户",
+            "expires": "邀请在 7 天内有效，且只能使用一次。",
+            "ignore": "如果你没有预料到此邀请，可以忽略此邮件。"
         }
     },
     "errorsAuth": {
@@ -248,7 +262,9 @@
         "disabled": "此服务器未设置邮件",
         "emailTaken": "此邮箱地址已被其他账户使用",
         "sendFailed": "无法发送邮件，请稍后重试。",
-        "invalidLink": "此链接无效或已过期"
+        "invalidLink": "此链接无效或已过期",
+        "invalidInvite": "此邀请无效或已过期",
+        "inviteNotFound": "找不到该邀请"
     },
     "errorsFiles": {
         "noFilesToDelete": "没有可删除的文件",
@@ -1163,7 +1179,9 @@
             "removeEmail": "移除邮箱",
             "verifyEmail": "验证邮箱",
             "resetPassword": "重置密码",
-            "requestPasswordReset": "请求重置密码"
+            "requestPasswordReset": "请求重置密码",
+            "createInvite": "创建邀请",
+            "deleteInvite": "撤回邀请"
         }
     },
     "notes": {
@@ -1667,7 +1685,23 @@
             "mostNotes": "笔记最多"
         },
         "emailVerified": "已验证",
-        "emailNotVerified": "未验证"
+        "emailNotVerified": "未验证",
+        "invite": {
+            "button": "邀请",
+            "title": "邀请用户",
+            "description": "发送一封带有创建账户链接的邮件。即使关闭了注册也可以使用。",
+            "email": "邮箱地址",
+            "language": "邮件语言",
+            "send": "发送邀请",
+            "sent": "邀请已发送至 {email}",
+            "pending": "待接受的邀请",
+            "pendingDescription": "每个链接只能使用一次，7 天后过期。",
+            "details": "{roles} · 邀请人：{username} · 过期：{expires}",
+            "withdraw": "撤回",
+            "withdrawTitle": "撤回发给 {email} 的邀请？",
+            "withdrawDescription": "邮件中的链接将失效。",
+            "withdrawn": "邀请已撤回"
+        }
     },
     "view": {
         "verifyPassword": "验证密码",

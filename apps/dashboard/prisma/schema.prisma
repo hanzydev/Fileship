@@ -75,6 +75,7 @@ model User {
   email                  String?             @unique
   pendingEmail           String?
   emailTokens            EmailToken[]
+  invites                Invite[]
   credentials            Credential[]
   aiJobs                 AIJob[]
   inbox                  Inbox?
@@ -93,6 +94,20 @@ model EmailToken {
   createdAt DateTime       @default(now())
 
   @@index([userId, type])
+}
+
+model Invite {
+  id          String           @id @default(uuid())
+  tokenHash   String           @unique
+  email       String
+  permissions UserPermission[]
+  usableSpace Int
+  invitedBy   User             @relation(fields: [invitedById], references: [id], onDelete: Cascade)
+  invitedById String
+  expiresAt   DateTime
+  createdAt   DateTime         @default(now())
+
+  @@index([email])
 }
 
 model Credential {

@@ -70,7 +70,13 @@
             "haveAccount": "Hai già un account?",
             "logIn": "Accedi",
             "passwordMismatch": "Le password non corrispondono",
-            "success": "Account creato"
+            "success": "Account creato",
+            "inviteHeading": "Unisciti a {siteName}",
+            "inviteDescription": "{username} ti ha invitato. Scegli un nome utente e una password per creare il tuo account.",
+            "inviteEmail": "Indirizzo email",
+            "inviteEmailDescription": "Viene collegato al tuo account e usato per reimpostare la password.",
+            "inviteInvalidTitle": "Impossibile usare questo invito",
+            "checkingInvite": "Verifica dell'invito…"
         },
         "verifyEmail": {
             "title": "Conferma indirizzo email",
@@ -147,6 +153,14 @@
             "action": "Scegli una nuova password",
             "expires": "Il link scade tra 1 ora e funziona una sola volta.",
             "ignore": "Se non l'hai chiesto tu, puoi ignorare questa email. La tua password non cambia."
+        },
+        "invite": {
+            "subject": "Hai ricevuto un invito per {siteName}",
+            "heading": "Hai ricevuto un invito per {siteName}",
+            "body": "{username} ti ha invitato a creare un account su {siteName}.",
+            "action": "Crea il tuo account",
+            "expires": "L'invito scade tra 7 giorni e funziona una sola volta.",
+            "ignore": "Se non te lo aspettavi, puoi ignorare questa email."
         }
     },
     "errorsAuth": {
@@ -248,7 +262,9 @@
         "disabled": "L'email non è configurata su questo server",
         "emailTaken": "Questo indirizzo email è già usato da un altro account",
         "sendFailed": "Impossibile inviare l'email. Riprova più tardi.",
-        "invalidLink": "Questo link non è valido o è scaduto"
+        "invalidLink": "Questo link non è valido o è scaduto",
+        "invalidInvite": "Questo invito non è valido o è scaduto",
+        "inviteNotFound": "Invito non trovato"
     },
     "errorsFiles": {
         "noFilesToDelete": "Nessun file da eliminare",
@@ -1163,7 +1179,9 @@
             "removeEmail": "Rimozione email",
             "verifyEmail": "Verifica email",
             "resetPassword": "Reimpostazione password",
-            "requestPasswordReset": "Richiesta reimpostazione password"
+            "requestPasswordReset": "Richiesta reimpostazione password",
+            "createInvite": "Creazione invito",
+            "deleteInvite": "Ritiro invito"
         }
     },
     "notes": {
@@ -1667,7 +1685,23 @@
             "mostNotes": "Più note"
         },
         "emailVerified": "Verificato",
-        "emailNotVerified": "Non verificato"
+        "emailNotVerified": "Non verificato",
+        "invite": {
+            "button": "Invita",
+            "title": "Invita qualcuno",
+            "description": "Invia un'email con un link per creare un account. Funziona anche quando le registrazioni sono chiuse.",
+            "email": "Indirizzo email",
+            "language": "Lingua dell'email",
+            "send": "Invia invito",
+            "sent": "Invito inviato a {email}",
+            "pending": "Inviti in sospeso",
+            "pendingDescription": "Ogni link funziona una volta e scade dopo 7 giorni.",
+            "details": "{roles} · Invito di {username} · Scade {expires}",
+            "withdraw": "Ritira",
+            "withdrawTitle": "Ritirare l'invito per {email}?",
+            "withdrawDescription": "Il link nell'email smetterà di funzionare.",
+            "withdrawn": "Invito ritirato"
+        }
     },
     "view": {
         "verifyPassword": "Verifica password",

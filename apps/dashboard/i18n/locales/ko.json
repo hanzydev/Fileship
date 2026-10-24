@@ -70,7 +70,13 @@
             "haveAccount": "이미 계정이 있나요?",
             "logIn": "로그인",
             "passwordMismatch": "비밀번호가 일치하지 않아요",
-            "success": "계정을 만들었어요"
+            "success": "계정을 만들었어요",
+            "inviteHeading": "{siteName} 가입하기",
+            "inviteDescription": "{username}님이 초대했어요. 사용자 이름과 비밀번호를 정해 계정을 만들어 주세요.",
+            "inviteEmail": "이메일 주소",
+            "inviteEmailDescription": "계정에 연결되고 비밀번호를 재설정할 때 사용돼요.",
+            "inviteInvalidTitle": "이 초대를 사용할 수 없어요",
+            "checkingInvite": "초대를 확인하는 중…"
         },
         "verifyEmail": {
             "title": "이메일 주소 인증",
@@ -147,6 +153,14 @@
             "action": "새 비밀번호 설정",
             "expires": "링크는 1시간 동안 유효하고 한 번만 사용할 수 있어요.",
             "ignore": "요청한 적이 없다면 이 이메일을 무시해도 돼요. 비밀번호는 바뀌지 않아요."
+        },
+        "invite": {
+            "subject": "{siteName} 초대",
+            "heading": "{siteName}에 초대받았어요",
+            "body": "{username}님이 {siteName} 계정을 만들도록 초대했어요.",
+            "action": "계정 만들기",
+            "expires": "초대는 7일 동안 유효하고 한 번만 사용할 수 있어요.",
+            "ignore": "예상하지 못한 초대라면 이 이메일을 무시해도 돼요."
         }
     },
     "errorsAuth": {
@@ -248,7 +262,9 @@
         "disabled": "이 서버에는 이메일이 설정되어 있지 않아요",
         "emailTaken": "다른 계정에서 이미 사용 중인 이메일 주소예요",
         "sendFailed": "이메일을 보낼 수 없어요. 잠시 후 다시 시도해 주세요.",
-        "invalidLink": "유효하지 않거나 만료된 링크예요"
+        "invalidLink": "유효하지 않거나 만료된 링크예요",
+        "invalidInvite": "유효하지 않거나 만료된 초대예요",
+        "inviteNotFound": "초대를 찾을 수 없어요"
     },
     "errorsFiles": {
         "noFilesToDelete": "삭제할 파일이 없어요",
@@ -1163,7 +1179,9 @@
             "removeEmail": "이메일 삭제",
             "verifyEmail": "이메일 인증",
             "resetPassword": "비밀번호 재설정",
-            "requestPasswordReset": "비밀번호 재설정 요청"
+            "requestPasswordReset": "비밀번호 재설정 요청",
+            "createInvite": "초대 생성",
+            "deleteInvite": "초대 취소"
         }
     },
     "notes": {
@@ -1667,7 +1685,23 @@
             "mostNotes": "노트 많은순"
         },
         "emailVerified": "인증됨",
-        "emailNotVerified": "인증 안 됨"
+        "emailNotVerified": "인증 안 됨",
+        "invite": {
+            "button": "초대",
+            "title": "사용자 초대",
+            "description": "계정을 만들 수 있는 링크를 이메일로 보내요. 가입을 받지 않을 때도 사용할 수 있어요.",
+            "email": "이메일 주소",
+            "language": "이메일 언어",
+            "send": "초대 보내기",
+            "sent": "초대를 보냈어요: {email}",
+            "pending": "대기 중인 초대",
+            "pendingDescription": "각 링크는 한 번만 사용할 수 있고 7일 후에 만료돼요.",
+            "details": "{roles} · 초대한 사람: {username} · 만료: {expires}",
+            "withdraw": "취소",
+            "withdrawTitle": "{email} 초대를 취소할까요?",
+            "withdrawDescription": "이메일의 링크가 더 이상 작동하지 않아요.",
+            "withdrawn": "초대를 취소했어요"
+        }
     },
     "view": {
         "verifyPassword": "비밀번호 확인",

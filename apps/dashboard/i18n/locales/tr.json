@@ -70,7 +70,13 @@
             "haveAccount": "Zaten hesabın var mı?",
             "logIn": "Giriş yap",
             "passwordMismatch": "Şifreler eşleşmiyor",
-            "success": "Hesap oluşturuldu"
+            "success": "Hesap oluşturuldu",
+            "inviteHeading": "{siteName} hesabını oluştur",
+            "inviteDescription": "Seni davet eden: {username}. Hesabını oluşturmak için bir kullanıcı adı ve şifre seç.",
+            "inviteEmail": "E-posta adresi",
+            "inviteEmailDescription": "Hesabına bağlanır ve şifreni sıfırlamak için kullanılır.",
+            "inviteInvalidTitle": "Bu davet kullanılamıyor",
+            "checkingInvite": "Davet kontrol ediliyor…"
         },
         "verifyEmail": {
             "title": "E-posta adresini onayla",
@@ -147,6 +153,14 @@
             "action": "Yeni şifre belirle",
             "expires": "Bağlantı 1 saat geçerli ve yalnızca bir kez kullanılabilir.",
             "ignore": "Bu isteği sen yapmadıysan bu e-postayı görmezden gelebilirsin. Şifren değişmez."
+        },
+        "invite": {
+            "subject": "{siteName} için davet",
+            "heading": "{siteName} için davet edildin",
+            "body": "{username} seni {siteName} üzerinde hesap oluşturmaya davet etti.",
+            "action": "Hesabını oluştur",
+            "expires": "Davet 7 gün geçerli ve yalnızca bir kez kullanılabilir.",
+            "ignore": "Böyle bir davet beklemiyorsan bu e-postayı görmezden gelebilirsin."
         }
     },
     "errorsAuth": {
@@ -248,7 +262,9 @@
         "disabled": "Bu sunucuda e-posta ayarlanmamış",
         "emailTaken": "Bu e-posta adresi başka bir hesapta kullanılıyor",
         "sendFailed": "E-posta gönderilemedi. Daha sonra tekrar dene.",
-        "invalidLink": "Bu bağlantı geçersiz veya süresi dolmuş"
+        "invalidLink": "Bu bağlantı geçersiz veya süresi dolmuş",
+        "invalidInvite": "Bu davet geçersiz veya süresi dolmuş",
+        "inviteNotFound": "Davet bulunamadı"
     },
     "errorsFiles": {
         "noFilesToDelete": "Silinecek dosya bulunamadı",
@@ -1163,7 +1179,9 @@
             "removeEmail": "E-posta kaldırma",
             "verifyEmail": "E-posta doğrulama",
             "resetPassword": "Şifre sıfırlama",
-            "requestPasswordReset": "Şifre sıfırlama isteği"
+            "requestPasswordReset": "Şifre sıfırlama isteği",
+            "createInvite": "Davet oluşturma",
+            "deleteInvite": "Daveti geri çekme"
         }
     },
     "notes": {
@@ -1667,7 +1685,23 @@
             "mostNotes": "En çok not"
         },
         "emailVerified": "Doğrulandı",
-        "emailNotVerified": "Doğrulanmadı"
+        "emailNotVerified": "Doğrulanmadı",
+        "invite": {
+            "button": "Davet et",
+            "title": "Birini davet et",
+            "description": "Hesap oluşturma bağlantısı içeren bir e-posta gönder. Kaydolma kapalıyken de çalışır.",
+            "email": "E-posta adresi",
+            "language": "E-posta dili",
+            "send": "Davet gönder",
+            "sent": "Davet gönderildi: {email}",
+            "pending": "Bekleyen davetler",
+            "pendingDescription": "Her bağlantı bir kez çalışır ve 7 gün sonra geçersiz olur.",
+            "details": "{roles} · Davet eden: {username} · Bitiş: {expires}",
+            "withdraw": "Geri çek",
+            "withdrawTitle": "{email} için gönderilen davet geri çekilsin mi?",
+            "withdrawDescription": "E-postadaki bağlantı artık çalışmaz.",
+            "withdrawn": "Davet geri çekildi"
+        }
     },
     "view": {
         "verifyPassword": "Şifreyi doğrula",

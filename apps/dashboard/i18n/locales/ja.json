@@ -70,7 +70,13 @@
             "haveAccount": "すでにアカウントをお持ちですか？",
             "logIn": "ログイン",
             "passwordMismatch": "パスワードが一致しません",
-            "success": "アカウントを作成しました"
+            "success": "アカウントを作成しました",
+            "inviteHeading": "{siteName} に参加",
+            "inviteDescription": "{username} さんから招待されました。ユーザー名とパスワードを決めて、アカウントを作成してください。",
+            "inviteEmail": "メールアドレス",
+            "inviteEmailDescription": "アカウントに設定され、パスワードのリセットに使用されます。",
+            "inviteInvalidTitle": "この招待は使用できません",
+            "checkingInvite": "招待を確認しています…"
         },
         "verifyEmail": {
             "title": "メールアドレスの確認",
@@ -147,6 +153,14 @@
             "action": "新しいパスワードを設定",
             "expires": "リンクの有効期限は 1 時間で、1 回だけ使用できます。",
             "ignore": "このリクエストに心当たりがない場合は、このメールを無視してください。パスワードは変更されません。"
+        },
+        "invite": {
+            "subject": "{siteName} への招待",
+            "heading": "{siteName} に招待されました",
+            "body": "{username} さんから {siteName} のアカウント作成に招待されました。",
+            "action": "アカウントを作成",
+            "expires": "招待の有効期限は 7 日間で、1 回だけ使用できます。",
+            "ignore": "心当たりがない場合は、このメールを無視してください。"
         }
     },
     "errorsAuth": {
@@ -248,7 +262,9 @@
         "disabled": "このサーバーではメールが設定されていません",
         "emailTaken": "このメールアドレスは別のアカウントで使用されています",
         "sendFailed": "メールを送信できませんでした。しばらくしてからもう一度お試しください。",
-        "invalidLink": "このリンクは無効か、有効期限が切れています"
+        "invalidLink": "このリンクは無効か、有効期限が切れています",
+        "invalidInvite": "この招待は無効か、有効期限が切れています",
+        "inviteNotFound": "招待が見つかりません"
     },
     "errorsFiles": {
         "noFilesToDelete": "削除するファイルが見つかりません",
@@ -1163,7 +1179,9 @@
             "removeEmail": "メールアドレスを削除",
             "verifyEmail": "メールアドレスを確認",
             "resetPassword": "パスワードをリセット",
-            "requestPasswordReset": "パスワードのリセットをリクエスト"
+            "requestPasswordReset": "パスワードのリセットをリクエスト",
+            "createInvite": "招待を作成",
+            "deleteInvite": "招待を取り消し"
         }
     },
     "notes": {
@@ -1667,7 +1685,23 @@
             "mostNotes": "ノート数の多い順"
         },
         "emailVerified": "確認済み",
-        "emailNotVerified": "未確認"
+        "emailNotVerified": "未確認",
+        "invite": {
+            "button": "招待",
+            "title": "ユーザーを招待",
+            "description": "アカウント作成用のリンクをメールで送信します。登録を受け付けていないときも使用できます。",
+            "email": "メールアドレス",
+            "language": "メールの言語",
+            "send": "招待を送信",
+            "sent": "{email} に招待を送信しました",
+            "pending": "保留中の招待",
+            "pendingDescription": "各リンクは 1 回だけ使用でき、7 日後に期限切れになります。",
+            "details": "{roles} · 招待した人: {username} · 期限: {expires}",
+            "withdraw": "取り消す",
+            "withdrawTitle": "{email} への招待を取り消しますか？",
+            "withdrawDescription": "メール内のリンクは使用できなくなります。",
+            "withdrawn": "招待を取り消しました"
+        }
     },
     "view": {
         "verifyPassword": "パスワードを確認",

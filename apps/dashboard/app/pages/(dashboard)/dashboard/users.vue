@@ -8,11 +8,47 @@
             :title="$t('users.title')"
             :description="isLoading ? $t('common.loading') : $t('users.userCount', total)"
         >
+            <UiButton v-if="publicSettings.emailEnabled" variant="outline" @click="openInvite">
+                <IMailPlus />
+                {{ $t('users.invite.button') }}
+            </UiButton>
             <UiButton @click="openSheet(null)">
                 <IUserPlus />
                 {{ $t('users.newUser') }}
             </UiButton>
         </PageHeader>
+
+        <UiCard v-if="publicSettings.emailEnabled && invites?.length" size="sm">
+            <UiCardHeader>
+                <UiCardTitle>{{ $t('users.invite.pending') }}</UiCardTitle>
+                <UiCardDescription>{{ $t('users.invite.pendingDescription') }}</UiCardDescription>
+            </UiCardHeader>
+            <UiCardContent class="flex flex-col gap-3">
+                <div v-for="invite in invites" :key="invite.id" class="flex items-center gap-3">
+                    <IMail class="size-4 shrink-0 text-muted-foreground" />
+                    <div class="flex min-w-0 flex-1 flex-col">
+                        <TextBlock variant="small" class="truncate">{{ invite.email }}</TextBlock>
+                        <TextBlock variant="muted" class="truncate text-xs">
+                            {{
+                                $t('users.invite.details', {
+                                    roles: getRoles(invite).join(', '),
+                                    username: invite.invitedBy.username,
+                                    expires: date(invite.expiresAt).fromNow(),
+                                })
+                            }}
+                        </TextBlock>
+                    </div>
+                    <UiButton
+                        variant="ghost"
+                        size="icon-sm"
+                        :aria-label="$t('users.invite.withdraw')"
+                        @click="handleWithdrawInvite(invite)"
+                    >
+                        <IX />
+                    </UiButton>
+                </div>
+            </UiCardContent>
+        </UiCard>
 
         <div class="flex flex-wrap items-center gap-2">
             <UiInputGroup class="max-w-sm flex-1">
@@ -247,7 +283,7 @@
                                             permission !== UserPermission.Admin &&
                                             form.permissions.includes(UserPermission.Admin)
                                         "
-                                        @update:model-value="togglePermission(permission)"
+                                        @update:model-value="togglePermission(form, permission)"
                                     />
                                     <UiFieldLabel :for="`permission-${permission}`">
                                         {{ $t(`users.permission.${permission}`) }}
@@ -316,6 +352,118 @@
                 </form>
             </UiSheetContent>
         </UiSheet>
+
+        <UiDialog v-model:open="inviteOpen">
+            <UiDialogContent class="sm:max-w-md">
+                <form class="flex flex-col gap-6" @submit.prevent="handleInvite">
+                    <UiDialogHeader>
+                        <UiDialogTitle>{{ $t('users.invite.title') }}</UiDialogTitle>
+                        <UiDialogDescription>
+                            {{ $t('users.invite.description') }}
+                        </UiDialogDescription>
+                    </UiDialogHeader>
+
+                    <UiFieldGroup>
+                        <UiField :data-invalid="!!inviteErrors?.email">
+                            <UiFieldLabel for="invite-email">
+                                {{ $t('users.invite.email') }}
+                            </UiFieldLabel>
+                            <UiInput
+                                id="invite-email"
+                                v-model="inviteForm.email"
+                                type="email"
+                                autocomplete="off"
+                            />
+                            <UiFieldError
+                                v-if="inviteErrors?.email"
+                                :errors="inviteErrors.email._errors"
+                            />
+                        </UiField>
+
+                        <UiFieldSet>
+                            <UiFieldLegend>{{ $t('users.permissions') }}</UiFieldLegend>
+                            <UiFieldGroup class="gap-3">
+                                <UiField
+                                    v-for="permission in Object.values(UserPermission)"
+                                    :key="permission"
+                                    orientation="horizontal"
+                                >
+                                    <UiCheckbox
+                                        :id="`invite-permission-${permission}`"
+                                        :model-value="inviteForm.permissions.includes(permission)"
+                                        :disabled="
+                                            permission !== UserPermission.Admin &&
+                                            inviteForm.permissions.includes(UserPermission.Admin)
+                                        "
+                                        @update:model-value="
+                                            togglePermission(inviteForm, permission)
+                                        "
+                                    />
+                                    <UiFieldLabel :for="`invite-permission-${permission}`">
+                                        {{ $t(`users.permission.${permission}`) }}
+                                    </UiFieldLabel>
+                                </UiField>
+                            </UiFieldGroup>
+                            <UiFieldError
+                                v-if="inviteErrors?.permissions"
+                                :errors="inviteErrors.permissions._errors"
+                            />
+                        </UiFieldSet>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <UiField>
+                                <UiFieldLabel for="invite-storage">
+                                    {{ $t('users.storageMb') }}
+                                </UiFieldLabel>
+                                <UiNumberField
+                                    id="invite-storage"
+                                    v-model="inviteForm.usableSpace"
+                                    :min="-1"
+                                >
+                                    <UiNumberFieldContent>
+                                        <UiNumberFieldDecrement />
+                                        <UiNumberFieldInput />
+                                        <UiNumberFieldIncrement />
+                                    </UiNumberFieldContent>
+                                </UiNumberField>
+                                <UiFieldDescription>
+                                    {{ $t('users.limitsDescription') }}
+                                </UiFieldDescription>
+                            </UiField>
+                            <UiField>
+                                <UiFieldLabel for="invite-language">
+                                    {{ $t('users.invite.language') }}
+                                </UiFieldLabel>
+                                <UiSelect v-model="inviteForm.language">
+                                    <UiSelectTrigger id="invite-language" class="w-full">
+                                        <UiSelectValue />
+                                    </UiSelectTrigger>
+                                    <UiSelectContent>
+                                        <UiSelectItem
+                                            v-for="language in LANGUAGES"
+                                            :key="language"
+                                            :value="language"
+                                        >
+                                            {{ $t(`labels.language.${language}`) }}
+                                        </UiSelectItem>
+                                    </UiSelectContent>
+                                </UiSelect>
+                            </UiField>
+                        </div>
+                    </UiFieldGroup>
+
+                    <UiDialogFooter>
+                        <UiButton type="button" variant="outline" @click="inviteOpen = false">
+                            {{ $t('common.cancel') }}
+                        </UiButton>
+                        <UiButton type="submit" :disabled="isInviting">
+                            <UiSpinner v-if="isInviting" />
+                            {{ $t('users.invite.send') }}
+                        </UiButton>
+                    </UiDialogFooter>
+                </form>
+            </UiDialogContent>
+        </UiDialog>
     </div>
 </template>
 
@@ -328,7 +476,7 @@ import type { UserData } from '~/types/users';
 const currentUser = useAuthUser();
 const publicSettings = usePublicSettings();
 const { $toast } = useNuxtApp();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const date = useDate();
 const { impersonate } = useImpersonation();
 
@@ -411,12 +559,17 @@ const form = reactive({
     limits: { backupLimit: -1, usableSpace: -1 },
 });
 
-const togglePermission = (permission: UserPermission) => {
-    if (form.permissions.includes(permission)) {
-        form.permissions = form.permissions.filter((p) => p !== permission);
+const togglePermission = (
+    target: { permissions: UserPermission[] },
+    permission: UserPermission,
+) => {
+    if (target.permissions.includes(permission)) {
+        target.permissions = target.permissions.filter((p) => p !== permission);
     } else {
-        form.permissions =
-            permission === UserPermission.Admin ? [permission] : [...form.permissions, permission];
+        target.permissions =
+            permission === UserPermission.Admin
+                ? [permission]
+                : [...target.permissions, permission];
     }
 };
 
@@ -470,7 +623,7 @@ watch(sheetOpen, (value) => {
 const limitOf = (user: UserData) =>
     isAdmin(user) || user.limits.usableSpace < 0 ? null : user.limits.usableSpace * 1024 * 1024;
 
-const getRoles = (user: UserData) =>
+const getRoles = (user: { permissions: UserPermission[]; superAdmin?: boolean }) =>
     user.superAdmin
         ? [t('users.superAdmin')]
         : user.permissions.includes(UserPermission.Admin)
@@ -481,6 +634,76 @@ const openSheet = (user: UserData | null) => {
     editingUser.value = user;
     sheetOpen.value = true;
 };
+
+const { data: invites } = await useFetch('/api/invites', {
+    key: 'invites',
+    immediate: publicSettings.value.emailEnabled,
+});
+
+const inviteOpen = ref(false);
+const isInviting = ref(false);
+const inviteErrors = ref();
+
+const inviteForm = reactive({
+    email: '',
+    permissions: [] as UserPermission[],
+    usableSpace: defaultUserLimits.usableSpace,
+    language: locale.value as Language,
+});
+
+const openInvite = () => {
+    inviteErrors.value = null;
+    Object.assign(inviteForm, {
+        email: '',
+        permissions: [],
+        usableSpace: defaultUserLimits.usableSpace,
+        language: locale.value,
+    });
+    inviteOpen.value = true;
+};
+
+const handleInvite = async () => {
+    isInviting.value = true;
+    inviteErrors.value = null;
+
+    try {
+        const result = await withVerification((verificationData) =>
+            $fetch('/api/invites', {
+                method: 'POST',
+                body: { ...inviteForm, verificationData },
+            }),
+        );
+
+        if (result) {
+            inviteOpen.value = false;
+            await refreshNuxtData('invites');
+            $toast.success(t('users.invite.sent', { email: result.email }));
+        }
+    } catch (error: any) {
+        inviteErrors.value = error.data?.data?.formErrors;
+        if (!inviteErrors.value) $toast.error(getErrorMessage(error));
+    }
+
+    isInviting.value = false;
+};
+
+const handleWithdrawInvite = (invite: { id: string; email: string }) =>
+    askConfirmation({
+        title: t('users.invite.withdrawTitle', { email: invite.email }),
+        description: t('users.invite.withdrawDescription'),
+        confirmText: t('users.invite.withdraw'),
+        destructive: true,
+        action: async () => {
+            try {
+                await $fetch(`/api/invites/${invite.id}`, { method: 'DELETE' });
+                await refreshNuxtData('invites');
+                $toast.success(t('users.invite.withdrawn'));
+            } catch (error) {
+                $toast.error(getErrorMessage(error));
+                return false;
+            }
+        },
+    });
 
 const handleImpersonate = async (user: UserData) => {
     try {

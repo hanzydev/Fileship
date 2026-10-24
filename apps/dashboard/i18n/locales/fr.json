@@ -70,7 +70,13 @@
             "haveAccount": "Vous avez déjà un compte ?",
             "logIn": "Se connecter",
             "passwordMismatch": "Les mots de passe ne correspondent pas",
-            "success": "Compte créé"
+            "success": "Compte créé",
+            "inviteHeading": "Rejoignez {siteName}",
+            "inviteDescription": "{username} vous a envoyé une invitation. Choisissez un nom d'utilisateur et un mot de passe pour créer votre compte.",
+            "inviteEmail": "Adresse e-mail",
+            "inviteEmailDescription": "Associée à votre compte et utilisée pour réinitialiser votre mot de passe.",
+            "inviteInvalidTitle": "Impossible d'utiliser cette invitation",
+            "checkingInvite": "Vérification de l'invitation…"
         },
         "verifyEmail": {
             "title": "Confirmer l'adresse e-mail",
@@ -147,6 +153,14 @@
             "action": "Choisir un nouveau mot de passe",
             "expires": "Le lien expire dans 1 heure et ne fonctionne qu'une fois.",
             "ignore": "Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail. Votre mot de passe reste inchangé."
+        },
+        "invite": {
+            "subject": "Invitation à rejoindre {siteName}",
+            "heading": "Vous avez reçu une invitation pour {siteName}",
+            "body": "{username} vous invite à créer un compte sur {siteName}.",
+            "action": "Créer votre compte",
+            "expires": "L'invitation expire dans 7 jours et ne fonctionne qu'une fois.",
+            "ignore": "Si vous ne vous attendiez pas à cette invitation, vous pouvez ignorer cet e-mail."
         }
     },
     "errorsAuth": {
@@ -248,7 +262,9 @@
         "disabled": "L'e-mail n'est pas configuré sur ce serveur",
         "emailTaken": "Cette adresse e-mail est déjà utilisée par un autre compte",
         "sendFailed": "Impossible d'envoyer l'e-mail. Réessayez plus tard.",
-        "invalidLink": "Ce lien est invalide ou a expiré"
+        "invalidLink": "Ce lien est invalide ou a expiré",
+        "invalidInvite": "Cette invitation est invalide ou a expiré",
+        "inviteNotFound": "Invitation introuvable"
     },
     "errorsFiles": {
         "noFilesToDelete": "Aucun fichier à supprimer",
@@ -1163,7 +1179,9 @@
             "removeEmail": "Suppression de l'e-mail",
             "verifyEmail": "Vérification de l'e-mail",
             "resetPassword": "Réinitialisation du mot de passe",
-            "requestPasswordReset": "Demande de réinitialisation du mot de passe"
+            "requestPasswordReset": "Demande de réinitialisation du mot de passe",
+            "createInvite": "Création d'une invitation",
+            "deleteInvite": "Retrait d'une invitation"
         }
     },
     "notes": {
@@ -1667,7 +1685,23 @@
             "mostNotes": "Nombre de notes"
         },
         "emailVerified": "Vérifiée",
-        "emailNotVerified": "Non vérifiée"
+        "emailNotVerified": "Non vérifiée",
+        "invite": {
+            "button": "Inviter",
+            "title": "Inviter quelqu'un",
+            "description": "Envoyez un e-mail avec un lien pour créer un compte. Cela fonctionne même lorsque les inscriptions sont fermées.",
+            "email": "Adresse e-mail",
+            "language": "Langue de l'e-mail",
+            "send": "Envoyer l'invitation",
+            "sent": "Invitation envoyée à {email}",
+            "pending": "Invitations en attente",
+            "pendingDescription": "Chaque lien fonctionne une fois et expire au bout de 7 jours.",
+            "details": "{roles} · Invitation de {username} · Expire {expires}",
+            "withdraw": "Retirer",
+            "withdrawTitle": "Retirer l'invitation pour {email} ?",
+            "withdrawDescription": "Le lien de l'e-mail ne fonctionnera plus.",
+            "withdrawn": "Invitation retirée"
+        }
     },
     "view": {
         "verifyPassword": "Vérifier le mot de passe",

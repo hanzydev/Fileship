@@ -38,6 +38,8 @@ Once email works, people can add an email address in **Settings → Profile**. F
 
 **Forgot your password?** on the login page sends a reset link to the account's confirmed address. The link works once, for one hour, and resetting the password signs the account out everywhere. Accounts that use an authenticator app must enter a code too, so access to the mailbox alone is never enough. The page answers the same way whether or not an account matches, so it never reveals which accounts exist. Without a confirmed address, an admin can still set a new password on the **Users** page.
 
+Admins can invite people from the **Users** page: **Invite** sends a link to create an account with the permissions and storage limit you choose, in the language you pick. The link works once, for seven days, even while self-registration is off, and the invited address becomes the account's confirmed email. Pending invites are listed above the users and can be withdrawn.
+
 ## Trash
 
 Deleted files, folders and notes move to the trash for 30 days by default. Set **Trash retention** in **Administration → Instance** (or `NUXT_TRASH_RETENTION_DAYS`) to change it; `0` deletes everything immediately. Items in the trash still count toward a user's storage limit until they are deleted for good. Expired files and files that reach their view limit are always deleted immediately.

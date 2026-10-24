@@ -70,7 +70,13 @@
             "haveAccount": "Schon ein Konto?",
             "logIn": "Anmelden",
             "passwordMismatch": "Die Passwörter stimmen nicht überein",
-            "success": "Konto erstellt"
+            "success": "Konto erstellt",
+            "inviteHeading": "Willkommen bei {siteName}",
+            "inviteDescription": "{username} hat dich eingeladen. Wähle einen Benutzernamen und ein Passwort, um dein Konto zu erstellen.",
+            "inviteEmail": "E-Mail-Adresse",
+            "inviteEmailDescription": "Wird mit deinem Konto verknüpft und zum Zurücksetzen deines Passworts verwendet.",
+            "inviteInvalidTitle": "Einladung kann nicht verwendet werden",
+            "checkingInvite": "Einladung wird geprüft…"
         },
         "verifyEmail": {
             "title": "E-Mail-Adresse bestätigen",
@@ -147,6 +153,14 @@
             "action": "Neues Passwort festlegen",
             "expires": "Der Link ist 1 Stunde lang gültig und funktioniert nur einmal.",
             "ignore": "Wenn du das nicht angefordert hast, kannst du diese E-Mail ignorieren. Dein Passwort bleibt unverändert."
+        },
+        "invite": {
+            "subject": "Du bist zu {siteName} eingeladen",
+            "heading": "Du bist zu {siteName} eingeladen",
+            "body": "{username} hat dich eingeladen, ein Konto bei {siteName} zu erstellen.",
+            "action": "Konto erstellen",
+            "expires": "Die Einladung ist 7 Tage lang gültig und funktioniert nur einmal.",
+            "ignore": "Wenn du keine Einladung erwartet hast, kannst du diese E-Mail ignorieren."
         }
     },
     "errorsAuth": {
@@ -248,7 +262,9 @@
         "disabled": "E-Mail ist auf diesem Server nicht eingerichtet",
         "emailTaken": "Diese E-Mail-Adresse wird bereits von einem anderen Konto verwendet",
         "sendFailed": "E-Mail konnte nicht gesendet werden. Versuche es später erneut.",
-        "invalidLink": "Dieser Link ist ungültig oder abgelaufen"
+        "invalidLink": "Dieser Link ist ungültig oder abgelaufen",
+        "invalidInvite": "Diese Einladung ist ungültig oder abgelaufen",
+        "inviteNotFound": "Einladung nicht gefunden"
     },
     "errorsFiles": {
         "noFilesToDelete": "Keine Dateien zum Löschen gefunden",
@@ -1163,7 +1179,9 @@
             "removeEmail": "E-Mail entfernt",
             "verifyEmail": "E-Mail bestätigt",
             "resetPassword": "Passwort zurückgesetzt",
-            "requestPasswordReset": "Zurücksetzen des Passworts angefordert"
+            "requestPasswordReset": "Zurücksetzen des Passworts angefordert",
+            "createInvite": "Einladung erstellt",
+            "deleteInvite": "Einladung zurückgezogen"
         }
     },
     "notes": {
@@ -1667,7 +1685,23 @@
             "mostNotes": "Meiste Notizen"
         },
         "emailVerified": "Bestätigt",
-        "emailNotVerified": "Nicht bestätigt"
+        "emailNotVerified": "Nicht bestätigt",
+        "invite": {
+            "button": "Einladen",
+            "title": "Jemanden einladen",
+            "description": "Sende eine E-Mail mit einem Link zum Erstellen eines Kontos. Das funktioniert auch, wenn die Registrierung geschlossen ist.",
+            "email": "E-Mail-Adresse",
+            "language": "Sprache der E-Mail",
+            "send": "Einladung senden",
+            "sent": "Einladung an {email} gesendet",
+            "pending": "Offene Einladungen",
+            "pendingDescription": "Jeder Link funktioniert einmal und läuft nach 7 Tagen ab.",
+            "details": "{roles} · Eingeladen von {username} · Läuft ab {expires}",
+            "withdraw": "Zurückziehen",
+            "withdrawTitle": "Einladung für {email} zurückziehen?",
+            "withdrawDescription": "Der Link in der E-Mail funktioniert dann nicht mehr.",
+            "withdrawn": "Einladung zurückgezogen"
+        }
     },
     "view": {
         "verifyPassword": "Passwort bestätigen",

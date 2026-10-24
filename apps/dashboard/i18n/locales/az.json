@@ -70,7 +70,13 @@
             "haveAccount": "Artıq hesabın var?",
             "logIn": "Daxil ol",
             "passwordMismatch": "Şifrələr uyğun gəlmir",
-            "success": "Hesab yaradıldı"
+            "success": "Hesab yaradıldı",
+            "inviteHeading": "{siteName} hesabını yarat",
+            "inviteDescription": "Səni dəvət edən: {username}. Hesabını yaratmaq üçün istifadəçi adı və şifrə seç.",
+            "inviteEmail": "E-poçt ünvanı",
+            "inviteEmailDescription": "Hesabına bağlanır və şifrəni sıfırlamaq üçün istifadə olunur.",
+            "inviteInvalidTitle": "Bu dəvətdən istifadə etmək mümkün deyil",
+            "checkingInvite": "Dəvət yoxlanılır…"
         },
         "verifyEmail": {
             "title": "E-poçt ünvanını təsdiqlə",
@@ -147,6 +153,14 @@
             "action": "Yeni şifrə təyin et",
             "expires": "Keçid 1 saat etibarlıdır və yalnız bir dəfə işləyir.",
             "ignore": "Bu sorğunu sən göndərməmisənsə, bu e-poçtu nəzərə alma. Şifrən dəyişmir."
+        },
+        "invite": {
+            "subject": "{siteName} dəvəti",
+            "heading": "Səni {siteName} saytına dəvət etdilər",
+            "body": "{username} səni {siteName} üzərində hesab yaratmağa dəvət etdi.",
+            "action": "Hesabını yarat",
+            "expires": "Dəvət 7 gün etibarlıdır və yalnız bir dəfə işləyir.",
+            "ignore": "Belə dəvət gözləmirdinsə, bu e-poçtu nəzərə alma."
         }
     },
     "errorsAuth": {
@@ -248,7 +262,9 @@
         "disabled": "Bu serverdə e-poçt qurulmayıb",
         "emailTaken": "Bu e-poçt ünvanı başqa hesabda istifadə olunur",
         "sendFailed": "E-poçtu göndərmək mümkün olmadı. Bir az sonra yenidən cəhd et.",
-        "invalidLink": "Bu keçid etibarsızdır və ya vaxtı bitib"
+        "invalidLink": "Bu keçid etibarsızdır və ya vaxtı bitib",
+        "invalidInvite": "Bu dəvət etibarsızdır və ya vaxtı bitib",
+        "inviteNotFound": "Dəvət tapılmadı"
     },
     "errorsFiles": {
         "noFilesToDelete": "Silinəcək fayl tapılmadı",
@@ -1163,7 +1179,9 @@
             "removeEmail": "E-poçtu silmə",
             "verifyEmail": "E-poçtu təsdiqləmə",
             "resetPassword": "Şifrəni sıfırlama",
-            "requestPasswordReset": "Şifrə sıfırlama sorğusu"
+            "requestPasswordReset": "Şifrə sıfırlama sorğusu",
+            "createInvite": "Dəvət yaratma",
+            "deleteInvite": "Dəvəti geri götürmə"
         }
     },
     "notes": {
@@ -1667,7 +1685,23 @@
             "mostNotes": "Ən çox qeyd"
         },
         "emailVerified": "Təsdiqlənib",
-        "emailNotVerified": "Təsdiqlənməyib"
+        "emailNotVerified": "Təsdiqlənməyib",
+        "invite": {
+            "button": "Dəvət et",
+            "title": "Kimisə dəvət et",
+            "description": "Hesab yaratmaq üçün keçid olan e-poçt göndər. Qeydiyyat bağlı olanda da işləyir.",
+            "email": "E-poçt ünvanı",
+            "language": "E-poçtun dili",
+            "send": "Dəvət göndər",
+            "sent": "Dəvət göndərildi: {email}",
+            "pending": "Gözləyən dəvətlər",
+            "pendingDescription": "Hər keçid bir dəfə işləyir və 7 gündən sonra etibarsız olur.",
+            "details": "{roles} · Dəvət edən: {username} · Bitmə: {expires}",
+            "withdraw": "Geri götür",
+            "withdrawTitle": "{email} üçün göndərilən dəvət geri götürülsün?",
+            "withdrawDescription": "E-poçtdakı keçid artıq işləməyəcək.",
+            "withdrawn": "Dəvət geri götürüldü"
+        }
     },
     "view": {
         "verifyPassword": "Şifrəni doğrula",
