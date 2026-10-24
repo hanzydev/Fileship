@@ -116,6 +116,14 @@ Upload token: <UPLOAD_TOKEN>
 3. Right-click an image: "Upload image to Fileship"; a link: "Shorten link with Fileship".
 
 Data: the add-on sends data only to the server the user configures and only when the user uses one of its actions (declared as websiteContent and browsingActivity). No analytics, no remote code.
+
+The "Unsafe assignment to innerHTML" warning comes from the Vue runtime (runtime-dom: static content and the innerHTML prop). The add-on's own code never sets innerHTML and uses no v-html.
+```
+
+Version notes:
+
+```text
+First release: upload files, images and screenshots to your own Fileship server and shorten links, from the toolbar button or the right-click menu.
 ```
 
 ## Texts by language
