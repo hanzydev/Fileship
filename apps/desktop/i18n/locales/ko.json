@@ -199,6 +199,7 @@
         "notesFolder": "노트",
         "linksFolder": "링크",
         "notesOnlyText": "Markdown 파일과 텍스트 파일만 노트로 만들 수 있어요.",
+        "onlyFileshipFolders": "파일과 폴더는 Fileship과 동기화되는 폴더로만 옮길 수 있어요.",
         "makeNotePublic": "이 노트를 공개할까요?",
         "makeNotePublicDescription": "링크가 있는 누구나 노트를 읽을 수 있어요."
     },
@@ -238,8 +239,6 @@
             "editsDescription": "변경한 파일을 저장하면 다시 업로드되므로 링크가 바뀌어요.",
             "delete": "삭제하면 휴지통으로 이동해요",
             "deleteDescription": "Windows 휴지통으로 옮긴 파일은 Fileship 휴지통으로 이동해요. Shift + Delete를 누르거나 온라인 전용 파일이라서 Windows가 파일을 완전히 삭제하면 Fileship에서도 삭제돼요.",
-            "folders": "폴더는 한 단계까지만 지원해요",
-            "foldersDescription": "Fileship 폴더에는 다른 폴더를 넣을 수 없으므로, 폴더 안에 만든 폴더는 동기화되지 않아요.",
             "pause": "필요할 때 일시 중지",
             "pauseDescription": "일시 중지하면 업로드와 Fileship의 변경 사항이 대기해요. 이름 변경, 이동, 삭제는 계속 동기화되고 연 파일도 계속 다운로드돼요.",
             "notes": "노트와 단축 링크",

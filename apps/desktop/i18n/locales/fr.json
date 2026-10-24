@@ -199,6 +199,7 @@
         "notesFolder": "Notes",
         "linksFolder": "Liens",
         "notesOnlyText": "Seuls les fichiers Markdown et texte peuvent devenir des notes.",
+        "onlyFileshipFolders": "Les fichiers et dossiers ne peuvent aller que dans des dossiers synchronisés avec Fileship.",
         "makeNotePublic": "Rendre cette note publique ?",
         "makeNotePublicDescription": "Toute personne disposant du lien pourra lire la note."
     },
@@ -238,8 +239,6 @@
             "editsDescription": "Enregistrer un fichier modifié l'importe de nouveau : son lien change donc.",
             "delete": "Les fichiers supprimés vont dans la corbeille",
             "deleteDescription": "Les fichiers que vous placez dans la Corbeille de Windows vont dans la corbeille Fileship. Lorsque Windows supprime définitivement un fichier, avec Maj + Suppr ou parce qu'il était disponible uniquement en ligne, il est aussi supprimé de Fileship.",
-            "folders": "Un seul niveau de dossiers",
-            "foldersDescription": "Les dossiers Fileship ne peuvent pas contenir d'autres dossiers : un dossier créé à l'intérieur d'un autre n'est donc pas synchronisé.",
             "pause": "Suspendre au besoin",
             "pauseDescription": "Pendant la pause, les importations et les modifications venant de Fileship attendent. Les renommages, déplacements et suppressions restent synchronisés, et les fichiers que vous ouvrez sont toujours téléchargés.",
             "notes": "Notes et liens courts",

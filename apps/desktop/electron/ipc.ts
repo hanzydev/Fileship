@@ -47,6 +47,10 @@ import { checkForUpdates, getUpdateStatus, installUpdate } from './updater';
 import { getUploadProgress, resetUploadSettings } from './upload';
 import { broadcast, isAppUrl, notify, openWebUrl, setWindowTheme } from './windows';
 
+type ApiFolder = Folder & { parentId?: string | null };
+
+const FOLDER_PAGE = 200;
+
 type Handlers = {
     [K in keyof IpcInvoke]: (
         this: Electron.IpcMainInvokeEvent,
@@ -177,8 +181,26 @@ const handlers: Handlers = {
     'hotkeys:snippingTool': () => isSnippingToolKeyEnabled(),
     'hotkeys:setSnippingTool': (enabled) => setSnippingToolKey(enabled),
     'folders:list': async () => {
-        const { items } = await api<{ items: Folder[] }>('/api/folders?limit=200&sort=name:asc');
-        return items.map(({ id, name }) => ({ id, name }));
+        const folders: ApiFolder[] = [];
+
+        for (let offset = 0; ; offset += FOLDER_PAGE) {
+            const { items, total } = await api<{ items: ApiFolder[]; total: number }>(
+                `/api/folders?limit=${FOLDER_PAGE}&offset=${offset}&sort=name:asc`,
+            );
+
+            folders.push(...items);
+            if (items.length < FOLDER_PAGE || folders.length >= total) break;
+        }
+
+        const byId = new Map(folders.map((folder) => [folder.id, folder]));
+        const pathOf = (folder: ApiFolder, depth = 0): string => {
+            const parent = folder.parentId && depth < folders.length && byId.get(folder.parentId);
+            return parent ? `${pathOf(parent, depth + 1)} / ${folder.name}` : folder.name;
+        };
+
+        return folders
+            .map((folder) => ({ id: folder.id, name: pathOf(folder) }))
+            .sort((a, b) => a.name.localeCompare(b.name, getLanguage()));
     },
     'dialog:pickFolder': async () => {
         const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });

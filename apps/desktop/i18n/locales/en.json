@@ -199,6 +199,7 @@
         "notesFolder": "Notes",
         "linksFolder": "Links",
         "notesOnlyText": "Only Markdown and text files can become notes.",
+        "onlyFileshipFolders": "Files and folders can only go into folders that sync with Fileship.",
         "makeNotePublic": "Make this note public?",
         "makeNotePublicDescription": "Anyone with the link can read the note."
     },
@@ -238,8 +239,6 @@
             "editsDescription": "Saving a changed file uploads it again, so its link changes.",
             "delete": "Deleting moves to the trash",
             "deleteDescription": "Files you move to the Recycle Bin go to the Fileship trash. When Windows deletes a file for good, with Shift + Delete or because it was online only, it is deleted from Fileship too.",
-            "folders": "Folders stay one level deep",
-            "foldersDescription": "Fileship folders cannot hold other folders, so a folder made inside one is not synced.",
             "pause": "Pause when you need to",
             "pauseDescription": "Pausing holds uploads and changes from Fileship. Renames, moves and deletes still sync, and files you open still download.",
             "notes": "Notes and short links",

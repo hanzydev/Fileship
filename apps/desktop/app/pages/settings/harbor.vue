@@ -259,7 +259,6 @@ import {
     IFolderInput,
     IFolderPlus,
     IFolderSync,
-    IFolderTree,
     IHardDriveDownload,
     IHistory,
     INotebookPen,
@@ -303,11 +302,6 @@ const TIPS = [
         icon: ITrash2,
         title: 'harborSettings.tips.delete',
         description: 'harborSettings.tips.deleteDescription',
-    },
-    {
-        icon: IFolderTree,
-        title: 'harborSettings.tips.folders',
-        description: 'harborSettings.tips.foldersDescription',
     },
     {
         icon: INotebookPen,

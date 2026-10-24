@@ -199,6 +199,7 @@
         "notesFolder": "笔记",
         "linksFolder": "链接",
         "notesOnlyText": "只有 Markdown 和文本文件可以成为笔记。",
+        "onlyFileshipFolders": "文件和文件夹只能移到与 Fileship 同步的文件夹中。",
         "makeNotePublic": "要公开此笔记吗？",
         "makeNotePublicDescription": "任何拥有链接的人都能阅读此笔记。"
     },
@@ -238,8 +239,6 @@
             "editsDescription": "保存修改过的文件会重新上传，因此它的链接会改变。",
             "delete": "删除的文件会进入 Fileship 回收站",
             "deleteDescription": "移到 Windows 回收站的文件会进入 Fileship 回收站。如果 Windows 永久删除了文件（例如按 Shift + Delete，或文件仅在线可用），Fileship 中的文件也会被删除。",
-            "folders": "文件夹只有一层",
-            "foldersDescription": "Fileship 文件夹中不能再包含文件夹，因此在文件夹内新建的文件夹不会同步。",
             "pause": "需要时可暂停",
             "pauseDescription": "暂停后，上传和来自 Fileship 的更改会等待。重命名、移动和删除仍会同步，打开的文件仍会下载。",
             "notes": "笔记和短链接",
