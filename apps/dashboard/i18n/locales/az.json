@@ -49,7 +49,8 @@
             "noAccount": "Hesabın yoxdur?",
             "signUp": "Qeydiyyatdan keç",
             "success": "Daxil oldun",
-            "passkeySuccess": "Giriş açarı ilə daxil oldun"
+            "passkeySuccess": "Giriş açarı ilə daxil oldun",
+            "forgotPassword": "Şifrəni unutmusan?"
         },
         "totp": {
             "title": "İki addımlı doğrulama",
@@ -77,6 +78,25 @@
             "success": "E-poçt ünvanı təsdiqləndi",
             "successDescription": "{email} artıq hesabına bağlıdır.",
             "failed": "E-poçt ünvanını təsdiqləmək mümkün olmadı"
+        },
+        "resetPassword": {
+            "title": "Şifrəni sıfırla",
+            "heading": "Şifrəni sıfırla",
+            "description": "İstifadəçi adını və ya e-poçt ünvanını daxil et. Hesabın təsdiqlənmiş e-poçt ünvanı varsa, yeni şifrə təyin etmək üçün ora keçid göndərilir.",
+            "login": "İstifadəçi adı və ya e-poçt",
+            "submit": "Keçid göndər",
+            "sentTitle": "E-poçtunu yoxla",
+            "sentDescription": "Uyğun gələn və təsdiqlənmiş e-poçt ünvanı olan hesab varsa, şifrə sıfırlama keçidi göndərildi. Keçid 1 saat etibarlıdır.",
+            "backToLogin": "Girişə qayıt",
+            "invalidTitle": "Şifrəni sıfırlamaq mümkün deyil",
+            "requestNew": "Yeni keçid istə",
+            "newHeading": "Yeni şifrə təyin et",
+            "newDescription": "{username} üçün yeni şifrə təyin et. Hesabın digər bütün sessiyaları bağlanacaq.",
+            "checking": "Keçid yoxlanılır…",
+            "newPassword": "Yeni şifrə",
+            "totpDescription": "Bu hesab doğrulama tətbiqindən istifadə edir, tətbiqdəki kodu da daxil et.",
+            "save": "Şifrəni dəyiş",
+            "success": "Şifrə dəyişdirildi"
         }
     },
     "backups": {
@@ -119,6 +139,14 @@
             "action": "E-poçt ünvanını təsdiqlə",
             "expires": "Keçid 24 saat etibarlıdır.",
             "ignore": "Bu ünvanı sən əlavə etməmisənsə, bu e-poçtu nəzərə alma."
+        },
+        "resetPassword": {
+            "subject": "Şifrəni sıfırla",
+            "heading": "Şifrəni sıfırla",
+            "body": "Salam {username}, {siteName} hesabının şifrəsini sıfırlamaq üçün sorğu göndərildi. Yeni şifrə təyin etmək üçün aşağıdakı düyməni istifadə et.",
+            "action": "Yeni şifrə təyin et",
+            "expires": "Keçid 1 saat etibarlıdır və yalnız bir dəfə işləyir.",
+            "ignore": "Bu sorğunu sən göndərməmisənsə, bu e-poçtu nəzərə alma. Şifrən dəyişmir."
         }
     },
     "errorsAuth": {
@@ -1133,7 +1161,9 @@
             "sendTestEmail": "Test e-poçtu göndərmə",
             "updateEmail": "E-poçtu yeniləmə",
             "removeEmail": "E-poçtu silmə",
-            "verifyEmail": "E-poçtu təsdiqləmə"
+            "verifyEmail": "E-poçtu təsdiqləmə",
+            "resetPassword": "Şifrəni sıfırlama",
+            "requestPasswordReset": "Şifrə sıfırlama sorğusu"
         }
     },
     "notes": {

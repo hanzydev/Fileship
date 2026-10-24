@@ -49,7 +49,8 @@
             "noAccount": "Vous n'avez pas de compte ?",
             "signUp": "S'inscrire",
             "success": "Connexion réussie",
-            "passkeySuccess": "Connexion réussie avec votre clé d'accès"
+            "passkeySuccess": "Connexion réussie avec votre clé d'accès",
+            "forgotPassword": "Mot de passe oublié ?"
         },
         "totp": {
             "title": "Authentification à deux facteurs",
@@ -77,6 +78,25 @@
             "success": "Adresse e-mail confirmée",
             "successDescription": "{email} est maintenant associée à votre compte.",
             "failed": "Impossible de confirmer l'adresse e-mail"
+        },
+        "resetPassword": {
+            "title": "Réinitialiser le mot de passe",
+            "heading": "Réinitialisez votre mot de passe",
+            "description": "Saisissez votre nom d'utilisateur ou votre adresse e-mail. Si le compte a une adresse e-mail confirmée, nous y enverrons un lien pour choisir un nouveau mot de passe.",
+            "login": "Nom d'utilisateur ou e-mail",
+            "submit": "Envoyer le lien",
+            "sentTitle": "Consultez votre messagerie",
+            "sentDescription": "Si un compte avec une adresse e-mail confirmée correspond, un lien de réinitialisation est en route. Le lien est valable 1 heure.",
+            "backToLogin": "Retour à la connexion",
+            "invalidTitle": "Impossible de réinitialiser le mot de passe",
+            "requestNew": "Demander un nouveau lien",
+            "newHeading": "Choisissez un nouveau mot de passe",
+            "newDescription": "Définissez un nouveau mot de passe pour {username}. Toutes les autres sessions du compte seront fermées.",
+            "checking": "Vérification du lien…",
+            "newPassword": "Nouveau mot de passe",
+            "totpDescription": "Ce compte utilise une application d'authentification : saisissez aussi un code de celle-ci.",
+            "save": "Changer le mot de passe",
+            "success": "Mot de passe changé"
         }
     },
     "backups": {
@@ -119,6 +139,14 @@
             "action": "Confirmer l'adresse e-mail",
             "expires": "Le lien expire dans 24 heures.",
             "ignore": "Si vous n'avez pas ajouté cette adresse, vous pouvez ignorer cet e-mail."
+        },
+        "resetPassword": {
+            "subject": "Réinitialisez votre mot de passe",
+            "heading": "Réinitialisez votre mot de passe",
+            "body": "Bonjour {username}, une réinitialisation du mot de passe de votre compte {siteName} a été demandée. Utilisez le bouton ci-dessous pour en choisir un nouveau.",
+            "action": "Choisir un nouveau mot de passe",
+            "expires": "Le lien expire dans 1 heure et ne fonctionne qu'une fois.",
+            "ignore": "Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail. Votre mot de passe reste inchangé."
         }
     },
     "errorsAuth": {
@@ -1133,7 +1161,9 @@
             "sendTestEmail": "Envoi d'un e-mail de test",
             "updateEmail": "Modification de l'e-mail",
             "removeEmail": "Suppression de l'e-mail",
-            "verifyEmail": "Vérification de l'e-mail"
+            "verifyEmail": "Vérification de l'e-mail",
+            "resetPassword": "Réinitialisation du mot de passe",
+            "requestPasswordReset": "Demande de réinitialisation du mot de passe"
         }
     },
     "notes": {

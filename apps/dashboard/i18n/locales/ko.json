@@ -49,7 +49,8 @@
             "noAccount": "계정이 없나요?",
             "signUp": "가입하기",
             "success": "로그인했어요",
-            "passkeySuccess": "패스키로 로그인했어요"
+            "passkeySuccess": "패스키로 로그인했어요",
+            "forgotPassword": "비밀번호를 잊으셨나요?"
         },
         "totp": {
             "title": "2단계 인증",
@@ -77,6 +78,25 @@
             "success": "이메일 주소를 인증했어요",
             "successDescription": "이제 {email} 주소가 계정에 연결됐어요.",
             "failed": "이메일 주소를 인증할 수 없어요"
+        },
+        "resetPassword": {
+            "title": "비밀번호 재설정",
+            "heading": "비밀번호 재설정",
+            "description": "사용자 이름이나 이메일 주소를 입력해 주세요. 계정에 인증된 이메일 주소가 있으면 새 비밀번호를 설정할 수 있는 링크를 보내 드려요.",
+            "login": "사용자 이름 또는 이메일",
+            "submit": "링크 보내기",
+            "sentTitle": "메일함을 확인해 주세요",
+            "sentDescription": "인증된 이메일 주소가 있는 계정과 일치하면 비밀번호 재설정 링크를 보냈어요. 링크는 1시간 동안 유효해요.",
+            "backToLogin": "로그인으로 돌아가기",
+            "invalidTitle": "비밀번호를 재설정할 수 없어요",
+            "requestNew": "새 링크 요청",
+            "newHeading": "새 비밀번호 설정",
+            "newDescription": "{username} 계정의 새 비밀번호를 설정해 주세요. 이 계정의 다른 세션은 모두 종료돼요.",
+            "checking": "링크를 확인하는 중…",
+            "newPassword": "새 비밀번호",
+            "totpDescription": "이 계정은 인증 앱을 사용하고 있어요. 앱의 코드도 입력해 주세요.",
+            "save": "비밀번호 변경",
+            "success": "비밀번호를 변경했어요"
         }
     },
     "backups": {
@@ -119,6 +139,14 @@
             "action": "이메일 주소 인증",
             "expires": "링크는 24시간 동안 유효해요.",
             "ignore": "이 주소를 추가한 적이 없다면 이 이메일을 무시해도 돼요."
+        },
+        "resetPassword": {
+            "subject": "비밀번호를 재설정해 주세요",
+            "heading": "비밀번호를 재설정해 주세요",
+            "body": "{username}님, {siteName} 계정의 비밀번호 재설정 요청을 받았어요. 아래 버튼을 눌러 새 비밀번호를 설정해 주세요.",
+            "action": "새 비밀번호 설정",
+            "expires": "링크는 1시간 동안 유효하고 한 번만 사용할 수 있어요.",
+            "ignore": "요청한 적이 없다면 이 이메일을 무시해도 돼요. 비밀번호는 바뀌지 않아요."
         }
     },
     "errorsAuth": {
@@ -1133,7 +1161,9 @@
             "sendTestEmail": "테스트 이메일 발송",
             "updateEmail": "이메일 변경",
             "removeEmail": "이메일 삭제",
-            "verifyEmail": "이메일 인증"
+            "verifyEmail": "이메일 인증",
+            "resetPassword": "비밀번호 재설정",
+            "requestPasswordReset": "비밀번호 재설정 요청"
         }
     },
     "notes": {

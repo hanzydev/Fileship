@@ -49,7 +49,8 @@
             "noAccount": "还没有账户？",
             "signUp": "注册",
             "success": "登录成功",
-            "passkeySuccess": "已使用通行密钥登录"
+            "passkeySuccess": "已使用通行密钥登录",
+            "forgotPassword": "忘记密码？"
         },
         "totp": {
             "title": "双重验证",
@@ -77,6 +78,25 @@
             "success": "邮箱地址已确认",
             "successDescription": "{email} 现已关联到你的账户。",
             "failed": "无法确认邮箱地址"
+        },
+        "resetPassword": {
+            "title": "重置密码",
+            "heading": "重置你的密码",
+            "description": "输入你的用户名或邮箱地址。如果账户有已验证的邮箱地址，我们会向其发送设置新密码的链接。",
+            "login": "用户名或邮箱",
+            "submit": "发送链接",
+            "sentTitle": "请查收邮件",
+            "sentDescription": "如果有匹配且邮箱地址已验证的账户，重置密码的链接已经发出。链接在 1 小时内有效。",
+            "backToLogin": "返回登录",
+            "invalidTitle": "无法重置密码",
+            "requestNew": "重新获取链接",
+            "newHeading": "设置新密码",
+            "newDescription": "为 {username} 设置新密码。该账户的其他所有会话都将退出登录。",
+            "checking": "正在检查链接…",
+            "newPassword": "新密码",
+            "totpDescription": "此账户使用了身份验证器应用，请同时输入应用中的验证码。",
+            "save": "更改密码",
+            "success": "密码已更改"
         }
     },
     "backups": {
@@ -119,6 +139,14 @@
             "action": "确认邮箱地址",
             "expires": "链接在 24 小时内有效。",
             "ignore": "如果你没有添加此地址，可以忽略此邮件。"
+        },
+        "resetPassword": {
+            "subject": "重置你的密码",
+            "heading": "重置你的密码",
+            "body": "{username}，你好！有人请求重置你在 {siteName} 的账户密码。点击下方按钮设置新密码。",
+            "action": "设置新密码",
+            "expires": "链接在 1 小时内有效，且只能使用一次。",
+            "ignore": "如果这不是你本人的请求，可以忽略此邮件，你的密码不会改变。"
         }
     },
     "errorsAuth": {
@@ -1133,7 +1161,9 @@
             "sendTestEmail": "发送测试邮件",
             "updateEmail": "更改邮箱",
             "removeEmail": "移除邮箱",
-            "verifyEmail": "验证邮箱"
+            "verifyEmail": "验证邮箱",
+            "resetPassword": "重置密码",
+            "requestPasswordReset": "请求重置密码"
         }
     },
     "notes": {

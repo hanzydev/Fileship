@@ -49,7 +49,8 @@
             "noAccount": "Noch kein Konto?",
             "signUp": "Registrieren",
             "success": "Angemeldet",
-            "passkeySuccess": "Mit deinem Passkey angemeldet"
+            "passkeySuccess": "Mit deinem Passkey angemeldet",
+            "forgotPassword": "Passwort vergessen?"
         },
         "totp": {
             "title": "Zwei-Faktor-Authentifizierung",
@@ -77,6 +78,25 @@
             "success": "E-Mail-Adresse bestätigt",
             "successDescription": "{email} ist jetzt mit deinem Konto verknüpft.",
             "failed": "E-Mail-Adresse konnte nicht bestätigt werden"
+        },
+        "resetPassword": {
+            "title": "Passwort zurücksetzen",
+            "heading": "Passwort zurücksetzen",
+            "description": "Gib deinen Benutzernamen oder deine E-Mail-Adresse ein. Hat das Konto eine bestätigte E-Mail-Adresse, senden wir dorthin einen Link, mit dem du ein neues Passwort festlegst.",
+            "login": "Benutzername oder E-Mail",
+            "submit": "Link senden",
+            "sentTitle": "Prüfe dein Postfach",
+            "sentDescription": "Wenn ein Konto mit bestätigter E-Mail-Adresse passt, ist ein Link zum Zurücksetzen unterwegs. Der Link ist 1 Stunde lang gültig.",
+            "backToLogin": "Zurück zur Anmeldung",
+            "invalidTitle": "Passwort kann nicht zurückgesetzt werden",
+            "requestNew": "Neuen Link anfordern",
+            "newHeading": "Neues Passwort festlegen",
+            "newDescription": "Lege ein neues Passwort für {username} fest. Alle anderen Sitzungen des Kontos werden beendet.",
+            "checking": "Link wird geprüft…",
+            "newPassword": "Neues Passwort",
+            "totpDescription": "Dieses Konto nutzt eine Authenticator-App. Gib auch einen Code daraus ein.",
+            "save": "Passwort ändern",
+            "success": "Passwort geändert"
         }
     },
     "backups": {
@@ -119,6 +139,14 @@
             "action": "E-Mail-Adresse bestätigen",
             "expires": "Der Link ist 24 Stunden lang gültig.",
             "ignore": "Wenn du diese Adresse nicht hinzugefügt hast, kannst du diese E-Mail ignorieren."
+        },
+        "resetPassword": {
+            "subject": "Setze dein Passwort zurück",
+            "heading": "Setze dein Passwort zurück",
+            "body": "Hallo {username}, jemand möchte das Passwort deines Kontos bei {siteName} zurücksetzen. Über den Button unten legst du ein neues fest.",
+            "action": "Neues Passwort festlegen",
+            "expires": "Der Link ist 1 Stunde lang gültig und funktioniert nur einmal.",
+            "ignore": "Wenn du das nicht angefordert hast, kannst du diese E-Mail ignorieren. Dein Passwort bleibt unverändert."
         }
     },
     "errorsAuth": {
@@ -1133,7 +1161,9 @@
             "sendTestEmail": "Test-E-Mail gesendet",
             "updateEmail": "E-Mail geändert",
             "removeEmail": "E-Mail entfernt",
-            "verifyEmail": "E-Mail bestätigt"
+            "verifyEmail": "E-Mail bestätigt",
+            "resetPassword": "Passwort zurückgesetzt",
+            "requestPasswordReset": "Zurücksetzen des Passworts angefordert"
         }
     },
     "notes": {

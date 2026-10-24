@@ -49,7 +49,8 @@
             "noAccount": "Hesabın yok mu?",
             "signUp": "Kaydol",
             "success": "Giriş yapıldı",
-            "passkeySuccess": "Geçiş anahtarıyla giriş yapıldı"
+            "passkeySuccess": "Geçiş anahtarıyla giriş yapıldı",
+            "forgotPassword": "Şifreni mi unuttun?"
         },
         "totp": {
             "title": "İki adımlı doğrulama",
@@ -77,6 +78,25 @@
             "success": "E-posta adresi onaylandı",
             "successDescription": "{email} artık hesabına bağlı.",
             "failed": "E-posta adresi onaylanamadı"
+        },
+        "resetPassword": {
+            "title": "Şifre sıfırlama",
+            "heading": "Şifreni sıfırla",
+            "description": "Kullanıcı adını veya e-posta adresini gir. Hesabın onaylanmış bir e-posta adresi varsa yeni şifre belirlemen için bir bağlantı gönderilir.",
+            "login": "Kullanıcı adı veya e-posta",
+            "submit": "Bağlantı gönder",
+            "sentTitle": "E-postanı kontrol et",
+            "sentDescription": "Eşleşen ve onaylanmış e-posta adresi olan bir hesap varsa şifre sıfırlama bağlantısı yolda. Bağlantı 1 saat geçerli.",
+            "backToLogin": "Girişe dön",
+            "invalidTitle": "Şifre sıfırlanamıyor",
+            "requestNew": "Yeni bağlantı iste",
+            "newHeading": "Yeni şifre belirle",
+            "newDescription": "{username} için yeni bir şifre belirle. Hesabın diğer tüm oturumları kapatılır.",
+            "checking": "Bağlantı kontrol ediliyor…",
+            "newPassword": "Yeni şifre",
+            "totpDescription": "Bu hesap doğrulama uygulaması kullanıyor, uygulamadaki kodu da gir.",
+            "save": "Şifreyi değiştir",
+            "success": "Şifre değiştirildi"
         }
     },
     "backups": {
@@ -119,6 +139,14 @@
             "action": "E-posta adresini onayla",
             "expires": "Bağlantı 24 saat geçerli.",
             "ignore": "Bu adresi sen eklemediysen bu e-postayı görmezden gelebilirsin."
+        },
+        "resetPassword": {
+            "subject": "Şifreni sıfırla",
+            "heading": "Şifreni sıfırla",
+            "body": "Merhaba {username}, {siteName} hesabının şifresini sıfırlamak için bir istek alındı. Yeni bir şifre belirlemek için aşağıdaki düğmeyi kullan.",
+            "action": "Yeni şifre belirle",
+            "expires": "Bağlantı 1 saat geçerli ve yalnızca bir kez kullanılabilir.",
+            "ignore": "Bu isteği sen yapmadıysan bu e-postayı görmezden gelebilirsin. Şifren değişmez."
         }
     },
     "errorsAuth": {
@@ -1133,7 +1161,9 @@
             "sendTestEmail": "Test e-postası gönderme",
             "updateEmail": "E-posta güncelleme",
             "removeEmail": "E-posta kaldırma",
-            "verifyEmail": "E-posta doğrulama"
+            "verifyEmail": "E-posta doğrulama",
+            "resetPassword": "Şifre sıfırlama",
+            "requestPasswordReset": "Şifre sıfırlama isteği"
         }
     },
     "notes": {

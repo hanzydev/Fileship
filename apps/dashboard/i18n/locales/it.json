@@ -49,7 +49,8 @@
             "noAccount": "Non hai un account?",
             "signUp": "Registrati",
             "success": "Accesso effettuato",
-            "passkeySuccess": "Accesso effettuato con la passkey"
+            "passkeySuccess": "Accesso effettuato con la passkey",
+            "forgotPassword": "Password dimenticata?"
         },
         "totp": {
             "title": "Autenticazione a due fattori",
@@ -77,6 +78,25 @@
             "success": "Indirizzo email confermato",
             "successDescription": "{email} è ora collegato al tuo account.",
             "failed": "Impossibile confermare l'indirizzo email"
+        },
+        "resetPassword": {
+            "title": "Reimposta password",
+            "heading": "Reimposta la password",
+            "description": "Inserisci il nome utente o l'indirizzo email. Se l'account ha un indirizzo email confermato, ti invieremo un link per scegliere una nuova password.",
+            "login": "Nome utente o email",
+            "submit": "Invia link",
+            "sentTitle": "Controlla la tua posta",
+            "sentDescription": "Se corrisponde un account con un indirizzo email confermato, è in arrivo un link per reimpostare la password. Il link è valido per 1 ora.",
+            "backToLogin": "Torna all'accesso",
+            "invalidTitle": "Impossibile reimpostare la password",
+            "requestNew": "Richiedi un nuovo link",
+            "newHeading": "Scegli una nuova password",
+            "newDescription": "Imposta una nuova password per {username}. Tutte le altre sessioni dell'account verranno chiuse.",
+            "checking": "Verifica del link…",
+            "newPassword": "Nuova password",
+            "totpDescription": "Questo account usa un'app di autenticazione: inserisci anche un codice dell'app.",
+            "save": "Cambia password",
+            "success": "Password cambiata"
         }
     },
     "backups": {
@@ -119,6 +139,14 @@
             "action": "Conferma indirizzo email",
             "expires": "Il link scade tra 24 ore.",
             "ignore": "Se non hai aggiunto tu questo indirizzo, puoi ignorare questa email."
+        },
+        "resetPassword": {
+            "subject": "Reimposta la tua password",
+            "heading": "Reimposta la tua password",
+            "body": "Ciao {username}, è stato chiesto di reimpostare la password del tuo account {siteName}. Usa il pulsante qui sotto per sceglierne una nuova.",
+            "action": "Scegli una nuova password",
+            "expires": "Il link scade tra 1 ora e funziona una sola volta.",
+            "ignore": "Se non l'hai chiesto tu, puoi ignorare questa email. La tua password non cambia."
         }
     },
     "errorsAuth": {
@@ -1133,7 +1161,9 @@
             "sendTestEmail": "Invio email di prova",
             "updateEmail": "Modifica email",
             "removeEmail": "Rimozione email",
-            "verifyEmail": "Verifica email"
+            "verifyEmail": "Verifica email",
+            "resetPassword": "Reimpostazione password",
+            "requestPasswordReset": "Richiesta reimpostazione password"
         }
     },
     "notes": {

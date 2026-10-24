@@ -49,7 +49,8 @@
             "noAccount": "Don't have an account?",
             "signUp": "Sign up",
             "success": "Logged in successfully",
-            "passkeySuccess": "Logged in with your passkey"
+            "passkeySuccess": "Logged in with your passkey",
+            "forgotPassword": "Forgot your password?"
         },
         "totp": {
             "title": "Two-factor authentication",
@@ -77,6 +78,25 @@
             "success": "Email address confirmed",
             "successDescription": "{email} is now linked to your account.",
             "failed": "Couldn't confirm the email address"
+        },
+        "resetPassword": {
+            "title": "Reset password",
+            "heading": "Reset your password",
+            "description": "Enter your username or email address. If the account has a confirmed email address, we'll send it a link to choose a new password.",
+            "login": "Username or email",
+            "submit": "Send link",
+            "sentTitle": "Check your email",
+            "sentDescription": "If an account with a confirmed email address matches, a link to reset its password is on its way. The link is valid for 1 hour.",
+            "backToLogin": "Back to login",
+            "invalidTitle": "Can't reset the password",
+            "requestNew": "Request a new link",
+            "newHeading": "Choose a new password",
+            "newDescription": "Set a new password for {username}. This logs the account out everywhere else.",
+            "checking": "Checking the link…",
+            "newPassword": "New password",
+            "totpDescription": "This account uses an authenticator app, so enter a code from it too.",
+            "save": "Change password",
+            "success": "Password changed"
         }
     },
     "backups": {
@@ -119,6 +139,14 @@
             "action": "Confirm email address",
             "expires": "The link expires in 24 hours.",
             "ignore": "If you didn't add this address, you can ignore this email."
+        },
+        "resetPassword": {
+            "subject": "Reset your password",
+            "heading": "Reset your password",
+            "body": "Hi {username}, someone asked to reset the password of your {siteName} account. Use the button below to choose a new one.",
+            "action": "Choose a new password",
+            "expires": "The link expires in 1 hour and works only once.",
+            "ignore": "If you didn't ask for this, you can ignore this email. Your password stays the same."
         }
     },
     "errorsAuth": {
@@ -1133,7 +1161,9 @@
             "sendTestEmail": "Send Test Email",
             "updateEmail": "Update Email",
             "removeEmail": "Remove Email",
-            "verifyEmail": "Verify Email"
+            "verifyEmail": "Verify Email",
+            "resetPassword": "Reset Password",
+            "requestPasswordReset": "Request Password Reset"
         }
     },
     "notes": {

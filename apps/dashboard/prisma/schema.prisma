@@ -36,6 +36,7 @@ enum StorageType {
 
 enum EmailTokenType {
   VerifyEmail
+  ResetPassword
 }
 
 enum AIJobStatus {
