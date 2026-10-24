@@ -34,6 +34,9 @@ Desktop:
 
 Dashboard and infrastructure:
 
+- [ ] Check the emails in real clients (Gmail, Outlook, Apple Mail, a dark mode client); they were only read as raw HTML and text from a local SMTP catcher.
+- [ ] Send through a real SMTP server with STARTTLS and TLS; tests used a plaintext local catcher with AUTH PLAIN and LOGIN.
+
 - [ ] The Docker image is 5.6 GB because the runner copies the whole workspace `node_modules`. Deploy only the dashboard's production dependencies.
 - [ ] In the Docker image the AI worker starts and loads its dependencies, but downloading and running the models inside a container has not been tested.
 - [ ] Review the Dependabot alerts and the open dependency updates.

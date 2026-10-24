@@ -55,7 +55,8 @@
             "noAccount": "Vous n'avez pas de compte ?",
             "signUp": "S'inscrire",
             "success": "Connexion réussie",
-            "passkeySuccess": "Connexion réussie avec votre clé d'accès"
+            "passkeySuccess": "Connexion réussie avec votre clé d'accès",
+            "forgotPassword": "Mot de passe oublié ?"
         },
         "totp": {
             "title": "Authentification à deux facteurs",
@@ -75,7 +76,39 @@
             "haveAccount": "Vous avez déjà un compte ?",
             "logIn": "Se connecter",
             "passwordMismatch": "Les mots de passe ne correspondent pas",
-            "success": "Compte créé"
+            "success": "Compte créé",
+            "inviteHeading": "Rejoignez {siteName}",
+            "inviteDescription": "{username} vous a envoyé une invitation. Choisissez un nom d'utilisateur et un mot de passe pour créer votre compte.",
+            "inviteEmail": "Adresse e-mail",
+            "inviteEmailDescription": "Associée à votre compte et utilisée pour réinitialiser votre mot de passe.",
+            "inviteInvalidTitle": "Impossible d'utiliser cette invitation",
+            "checkingInvite": "Vérification de l'invitation…"
+        },
+        "verifyEmail": {
+            "title": "Confirmer l'adresse e-mail",
+            "verifying": "Confirmation de votre adresse e-mail…",
+            "success": "Adresse e-mail confirmée",
+            "successDescription": "{email} est maintenant associée à votre compte.",
+            "failed": "Impossible de confirmer l'adresse e-mail"
+        },
+        "resetPassword": {
+            "title": "Réinitialiser le mot de passe",
+            "heading": "Réinitialisez votre mot de passe",
+            "description": "Saisissez votre nom d'utilisateur ou votre adresse e-mail. Si le compte a une adresse e-mail confirmée, nous y enverrons un lien pour choisir un nouveau mot de passe.",
+            "login": "Nom d'utilisateur ou e-mail",
+            "submit": "Envoyer le lien",
+            "sentTitle": "Consultez votre messagerie",
+            "sentDescription": "Si un compte avec une adresse e-mail confirmée correspond, un lien de réinitialisation est en route. Le lien est valable 1 heure.",
+            "backToLogin": "Retour à la connexion",
+            "invalidTitle": "Impossible de réinitialiser le mot de passe",
+            "requestNew": "Demander un nouveau lien",
+            "newHeading": "Choisissez un nouveau mot de passe",
+            "newDescription": "Définissez un nouveau mot de passe pour {username}. Toutes les autres sessions du compte seront fermées.",
+            "checking": "Vérification du lien…",
+            "newPassword": "Nouveau mot de passe",
+            "totpDescription": "Ce compte utilise une application d'authentification : saisissez aussi un code de celle-ci.",
+            "save": "Changer le mot de passe",
+            "success": "Mot de passe changé"
         }
     },
     "backups": {
@@ -131,6 +164,46 @@
             },
             "save": "Enregistrer",
             "saved": "Planification des sauvegardes enregistrée"
+        }
+    },
+    "emails": {
+        "copyLink": "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
+        "footer": "Cet e-mail a été envoyé par {siteName}.",
+        "test": {
+            "subject": "E-mail de test de {siteName}",
+            "heading": "L'envoi d'e-mails fonctionne",
+            "body": "{siteName} peut envoyer des e-mails avec ces paramètres."
+        },
+        "verifyEmail": {
+            "subject": "Confirmez votre adresse e-mail",
+            "heading": "Confirmez votre adresse e-mail",
+            "body": "Bonjour {username}, confirmez que cette adresse appartient à votre compte {siteName}. Vous pourrez ensuite l'utiliser pour réinitialiser votre mot de passe.",
+            "action": "Confirmer l'adresse e-mail",
+            "expires": "Le lien expire dans 24 heures.",
+            "ignore": "Si vous n'avez pas ajouté cette adresse, vous pouvez ignorer cet e-mail."
+        },
+        "resetPassword": {
+            "subject": "Réinitialisez votre mot de passe",
+            "heading": "Réinitialisez votre mot de passe",
+            "body": "Bonjour {username}, une réinitialisation du mot de passe de votre compte {siteName} a été demandée. Utilisez le bouton ci-dessous pour en choisir un nouveau.",
+            "action": "Choisir un nouveau mot de passe",
+            "expires": "Le lien expire dans 1 heure et ne fonctionne qu'une fois.",
+            "ignore": "Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail. Votre mot de passe reste inchangé."
+        },
+        "invite": {
+            "subject": "Invitation à rejoindre {siteName}",
+            "heading": "Vous avez reçu une invitation pour {siteName}",
+            "body": "{username} vous invite à créer un compte sur {siteName}.",
+            "action": "Créer votre compte",
+            "expires": "L'invitation expire dans 7 jours et ne fonctionne qu'une fois.",
+            "ignore": "Si vous ne vous attendiez pas à cette invitation, vous pouvez ignorer cet e-mail."
+        },
+        "storageWarning": {
+            "subject": "Votre stockage est presque plein",
+            "heading": "Votre stockage est presque plein",
+            "body": "Bonjour {username}, vous utilisez {used} sur les {limit} dont vous disposez sur {siteName} ({percent}).",
+            "freeUp": "Une fois plein, les importations ne fonctionnent plus. Supprimez les fichiers dont vous n'avez plus besoin et videz la corbeille, car les fichiers qu'elle contient comptent toujours, ou demandez plus d'espace à un administrateur.",
+            "action": "Voir mon stockage"
         }
     },
     "errorsAuth": {
@@ -232,6 +305,15 @@
         "missingFile": "Fichier manquant",
         "invalidFile": "Fichier non valide",
         "fileNameTaken": "Un fichier portant ce nom existe déjà"
+    },
+    "errorsEmail": {
+        "testFailed": "Impossible d'envoyer l'e-mail de test : {error}",
+        "disabled": "L'e-mail n'est pas configuré sur ce serveur",
+        "emailTaken": "Cette adresse e-mail est déjà utilisée par un autre compte",
+        "sendFailed": "Impossible d'envoyer l'e-mail. Réessayez plus tard.",
+        "invalidLink": "Ce lien est invalide ou a expiré",
+        "invalidInvite": "Cette invitation est invalide ou a expiré",
+        "inviteNotFound": "Invitation introuvable"
     },
     "errorsFiles": {
         "noFilesToDelete": "Aucun fichier à supprimer",
@@ -699,6 +781,11 @@
                 "title": "Journal et télémétrie",
                 "description": "Ce que Fileship enregistre et partage.",
                 "saved": "Paramètres du journal et de la télémétrie enregistrés"
+            },
+            "email": {
+                "title": "E-mail",
+                "description": "Envoyez par e-mail les liens de réinitialisation du mot de passe, les invitations et les alertes de stockage. Les fonctions e-mail apparaissent une fois l'adresse du tableau de bord, le serveur SMTP et l'adresse d'expédition renseignés.",
+                "saved": "Paramètres e-mail enregistrés"
             }
         },
         "fields": {
@@ -741,7 +828,20 @@
             "logLevelImportant": "Actions importantes",
             "logLevelEverything": "Tout",
             "telemetryEnabled": "Télémétrie anonyme",
-            "telemetryEnabledDescription": "Partager des statistiques d'utilisation anonymes pour aider à améliorer Fileship."
+            "telemetryEnabledDescription": "Partager des statistiques d'utilisation anonymes pour aider à améliorer Fileship.",
+            "siteUrl": "Adresse du tableau de bord",
+            "siteUrlDescription": "Les liens des e-mails pointent vers cette adresse.",
+            "smtpHost": "Serveur SMTP",
+            "smtpPort": "Port",
+            "smtpSecurity": "Chiffrement",
+            "smtpSecurityDescription": "STARTTLS utilise généralement le port 587, TLS le port 465.",
+            "smtpSecurityStarttls": "STARTTLS",
+            "smtpSecurityTls": "TLS",
+            "smtpSecurityNone": "Aucun",
+            "smtpUser": "Nom d'utilisateur",
+            "smtpPassword": "Mot de passe",
+            "smtpFrom": "Adresse d'expédition",
+            "smtpFromDescription": "Les e-mails sont envoyés depuis cette adresse, au nom du site."
         },
         "ai": {
             "queue": "File d'attente",
@@ -843,6 +943,14 @@
             "start": "Récupérer",
             "pathCopied": "Chemin copié",
             "started": "Récupération des fichiers en arrière-plan"
+        },
+        "siteUrlInvalid": "Saisissez une adresse comme https://files.example.com",
+        "email": {
+            "test": "E-mail de test",
+            "sendTest": "Envoyer un e-mail de test",
+            "testDescription": "Utilise les paramètres ci-dessus, même avant leur enregistrement.",
+            "testSent": "E-mail de test envoyé à {email}",
+            "hostRequired": "Le serveur SMTP est requis"
         }
     },
     "integrations": {
@@ -1157,7 +1265,15 @@
             "deleteLink": "Suppression d'un lien",
             "takeNote": "Création d'une note",
             "updateNote": "Modification d'une note",
-            "deleteNote": "Suppression d'une note"
+            "deleteNote": "Suppression d'une note",
+            "sendTestEmail": "Envoi d'un e-mail de test",
+            "updateEmail": "Modification de l'e-mail",
+            "removeEmail": "Suppression de l'e-mail",
+            "verifyEmail": "Vérification de l'e-mail",
+            "resetPassword": "Réinitialisation du mot de passe",
+            "requestPasswordReset": "Demande de réinitialisation du mot de passe",
+            "createInvite": "Création d'une invitation",
+            "deleteInvite": "Retrait d'une invitation"
         }
     },
     "notes": {
@@ -1359,7 +1475,24 @@
             "accountDescription": "Votre nom d'utilisateur public.",
             "username": "Nom d'utilisateur",
             "save": "Enregistrer",
-            "usernameUpdated": "Nom d'utilisateur mis à jour"
+            "usernameUpdated": "Nom d'utilisateur mis à jour",
+            "email": {
+                "title": "E-mail",
+                "description": "Sert à réinitialiser votre mot de passe et à vous prévenir quand votre stockage est presque plein. Les administrateurs peuvent la voir.",
+                "label": "Adresse e-mail",
+                "verified": "Vérifiée",
+                "notVerified": "Non vérifiée",
+                "pendingTitle": "Consultez votre messagerie",
+                "pendingDescription": "Un lien de confirmation a été envoyé à {email}. Ouvrez-le pour commencer à utiliser cette adresse.",
+                "pendingKeepsCurrent": "Un lien de confirmation a été envoyé à {email}. Tant que vous ne l'avez pas ouvert, {current} reste utilisée.",
+                "resend": "Renvoyer le lien",
+                "remove": "Supprimer",
+                "sent": "Lien de confirmation envoyé à {email}",
+                "pendingCancelled": "Votre adresse e-mail actuelle est conservée",
+                "removed": "Adresse e-mail supprimée",
+                "removeTitle": "Supprimer votre adresse e-mail ?",
+                "removeDescription": "Vous ne pourrez plus réinitialiser votre mot de passe par e-mail ni recevoir d'alertes de stockage."
+            }
         },
         "ai": {
             "title": "IA",
@@ -1640,7 +1773,8 @@
             "files": "Fichiers",
             "notes": "Notes",
             "storage": "Stockage",
-            "joined": "Inscription"
+            "joined": "Inscription",
+            "email": "E-mail"
         },
         "sort": {
             "newest": "Plus récents",
@@ -1649,6 +1783,24 @@
             "nameDesc": "Nom (Z–A)",
             "mostFiles": "Nombre de fichiers",
             "mostNotes": "Nombre de notes"
+        },
+        "emailVerified": "Vérifiée",
+        "emailNotVerified": "Non vérifiée",
+        "invite": {
+            "button": "Inviter",
+            "title": "Inviter quelqu'un",
+            "description": "Envoyez un e-mail avec un lien pour créer un compte. Cela fonctionne même lorsque les inscriptions sont fermées.",
+            "email": "Adresse e-mail",
+            "language": "Langue de l'e-mail",
+            "send": "Envoyer l'invitation",
+            "sent": "Invitation envoyée à {email}",
+            "pending": "Invitations en attente",
+            "pendingDescription": "Chaque lien fonctionne une fois et expire au bout de 7 jours.",
+            "details": "{roles} · Invitation de {username} · Expire {expires}",
+            "withdraw": "Retirer",
+            "withdrawTitle": "Retirer l'invitation pour {email} ?",
+            "withdrawDescription": "Le lien de l'e-mail ne fonctionnera plus.",
+            "withdrawn": "Invitation retirée"
         }
     },
     "view": {

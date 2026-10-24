@@ -55,7 +55,8 @@
             "noAccount": "Don't have an account?",
             "signUp": "Sign up",
             "success": "Logged in successfully",
-            "passkeySuccess": "Logged in with your passkey"
+            "passkeySuccess": "Logged in with your passkey",
+            "forgotPassword": "Forgot your password?"
         },
         "totp": {
             "title": "Two-factor authentication",
@@ -75,7 +76,39 @@
             "haveAccount": "Already have an account?",
             "logIn": "Log in",
             "passwordMismatch": "Passwords don't match",
-            "success": "Account created"
+            "success": "Account created",
+            "inviteHeading": "Join {siteName}",
+            "inviteDescription": "{username} invited you. Choose a username and a password to create your account.",
+            "inviteEmail": "Email address",
+            "inviteEmailDescription": "Linked to your account and used to reset your password.",
+            "inviteInvalidTitle": "Can't use this invitation",
+            "checkingInvite": "Checking the invitation…"
+        },
+        "verifyEmail": {
+            "title": "Confirm email address",
+            "verifying": "Confirming your email address…",
+            "success": "Email address confirmed",
+            "successDescription": "{email} is now linked to your account.",
+            "failed": "Couldn't confirm the email address"
+        },
+        "resetPassword": {
+            "title": "Reset password",
+            "heading": "Reset your password",
+            "description": "Enter your username or email address. If the account has a confirmed email address, we'll send it a link to choose a new password.",
+            "login": "Username or email",
+            "submit": "Send link",
+            "sentTitle": "Check your email",
+            "sentDescription": "If an account with a confirmed email address matches, a link to reset its password is on its way. The link is valid for 1 hour.",
+            "backToLogin": "Back to login",
+            "invalidTitle": "Can't reset the password",
+            "requestNew": "Request a new link",
+            "newHeading": "Choose a new password",
+            "newDescription": "Set a new password for {username}. This logs the account out everywhere else.",
+            "checking": "Checking the link…",
+            "newPassword": "New password",
+            "totpDescription": "This account uses an authenticator app, so enter a code from it too.",
+            "save": "Change password",
+            "success": "Password changed"
         }
     },
     "backups": {
@@ -131,6 +164,46 @@
             },
             "save": "Save",
             "saved": "Backup schedule saved"
+        }
+    },
+    "emails": {
+        "copyLink": "If the button doesn't work, copy this link into your browser:",
+        "footer": "This email was sent by {siteName}.",
+        "test": {
+            "subject": "Test email from {siteName}",
+            "heading": "Email works",
+            "body": "{siteName} can send email with these settings."
+        },
+        "verifyEmail": {
+            "subject": "Confirm your email address",
+            "heading": "Confirm your email address",
+            "body": "Hi {username}, confirm that this address belongs to your {siteName} account. You can then use it to reset your password.",
+            "action": "Confirm email address",
+            "expires": "The link expires in 24 hours.",
+            "ignore": "If you didn't add this address, you can ignore this email."
+        },
+        "resetPassword": {
+            "subject": "Reset your password",
+            "heading": "Reset your password",
+            "body": "Hi {username}, someone asked to reset the password of your {siteName} account. Use the button below to choose a new one.",
+            "action": "Choose a new password",
+            "expires": "The link expires in 1 hour and works only once.",
+            "ignore": "If you didn't ask for this, you can ignore this email. Your password stays the same."
+        },
+        "invite": {
+            "subject": "You're invited to {siteName}",
+            "heading": "You're invited to {siteName}",
+            "body": "{username} invited you to create an account on {siteName}.",
+            "action": "Create your account",
+            "expires": "The invitation expires in 7 days and works once.",
+            "ignore": "If you weren't expecting it, you can ignore this email."
+        },
+        "storageWarning": {
+            "subject": "Your storage is almost full",
+            "heading": "Your storage is almost full",
+            "body": "Hi {username}, you're using {used} of the {limit} available to you on {siteName} ({percent}).",
+            "freeUp": "Uploads stop working once it's full. Delete files you no longer need and empty the trash, because files in the trash still count, or ask an admin for more space.",
+            "action": "Check your storage"
         }
     },
     "errorsAuth": {
@@ -232,6 +305,15 @@
         "missingFile": "Missing file",
         "invalidFile": "Invalid file",
         "fileNameTaken": "A file with that name already exists"
+    },
+    "errorsEmail": {
+        "testFailed": "Couldn't send the test email: {error}",
+        "disabled": "Email isn't set up on this instance",
+        "emailTaken": "Another account already uses this email address",
+        "sendFailed": "Couldn't send the email. Try again later.",
+        "invalidLink": "This link is invalid or has expired",
+        "invalidInvite": "This invitation is invalid or has expired",
+        "inviteNotFound": "Invite not found"
     },
     "errorsFiles": {
         "noFilesToDelete": "No files found to delete",
@@ -699,6 +781,11 @@
                 "title": "Logs and telemetry",
                 "description": "What Fileship records and shares.",
                 "saved": "Logs and telemetry settings saved"
+            },
+            "email": {
+                "title": "Email",
+                "description": "Send password reset links, invites and storage warnings by email. Email features appear once the dashboard address, SMTP server and sender address are set.",
+                "saved": "Email settings saved"
             }
         },
         "fields": {
@@ -741,7 +828,20 @@
             "logLevelImportant": "Important actions",
             "logLevelEverything": "Everything",
             "telemetryEnabled": "Anonymous telemetry",
-            "telemetryEnabledDescription": "Share anonymous usage statistics to help improve Fileship."
+            "telemetryEnabledDescription": "Share anonymous usage statistics to help improve Fileship.",
+            "siteUrl": "Dashboard address",
+            "siteUrlDescription": "Links in emails point to this address.",
+            "smtpHost": "SMTP server",
+            "smtpPort": "Port",
+            "smtpSecurity": "Encryption",
+            "smtpSecurityDescription": "STARTTLS usually uses port 587 and TLS port 465.",
+            "smtpSecurityStarttls": "STARTTLS",
+            "smtpSecurityTls": "TLS",
+            "smtpSecurityNone": "None",
+            "smtpUser": "Username",
+            "smtpPassword": "Password",
+            "smtpFrom": "Sender address",
+            "smtpFromDescription": "Emails are sent from this address under the site name."
         },
         "ai": {
             "queue": "Queue",
@@ -843,6 +943,14 @@
             "start": "Import",
             "pathCopied": "Path copied",
             "started": "Importing files in the background"
+        },
+        "siteUrlInvalid": "Enter an address such as https://files.example.com",
+        "email": {
+            "test": "Test email",
+            "sendTest": "Send test email",
+            "testDescription": "Uses the settings above, even before you save them.",
+            "testSent": "Test email sent to {email}",
+            "hostRequired": "SMTP server is required"
         }
     },
     "integrations": {
@@ -1157,7 +1265,15 @@
             "deleteLink": "Delete Link",
             "takeNote": "Take Note",
             "updateNote": "Update Note",
-            "deleteNote": "Delete Note"
+            "deleteNote": "Delete Note",
+            "sendTestEmail": "Send Test Email",
+            "updateEmail": "Update Email",
+            "removeEmail": "Remove Email",
+            "verifyEmail": "Verify Email",
+            "resetPassword": "Reset Password",
+            "requestPasswordReset": "Request Password Reset",
+            "createInvite": "Create Invite",
+            "deleteInvite": "Delete Invite"
         }
     },
     "notes": {
@@ -1359,7 +1475,24 @@
             "accountDescription": "Your public username.",
             "username": "Username",
             "save": "Save",
-            "usernameUpdated": "Username updated"
+            "usernameUpdated": "Username updated",
+            "email": {
+                "title": "Email",
+                "description": "Used to reset your password and to warn you when your storage is almost full. Admins can see it.",
+                "label": "Email address",
+                "verified": "Verified",
+                "notVerified": "Not verified",
+                "pendingTitle": "Check your email",
+                "pendingDescription": "We sent a confirmation link to {email}. Open it to start using this address.",
+                "pendingKeepsCurrent": "We sent a confirmation link to {email}. Until you open it, {current} stays in use.",
+                "resend": "Resend link",
+                "remove": "Remove",
+                "sent": "Confirmation link sent to {email}",
+                "pendingCancelled": "Kept your current email address",
+                "removed": "Email address removed",
+                "removeTitle": "Remove your email address?",
+                "removeDescription": "You won't be able to reset your password by email or get storage warnings."
+            }
         },
         "ai": {
             "title": "AI",
@@ -1640,7 +1773,8 @@
             "files": "Files",
             "notes": "Notes",
             "storage": "Storage",
-            "joined": "Joined"
+            "joined": "Joined",
+            "email": "Email"
         },
         "sort": {
             "newest": "Newest",
@@ -1649,6 +1783,24 @@
             "nameDesc": "Name Z–A",
             "mostFiles": "Most files",
             "mostNotes": "Most notes"
+        },
+        "emailVerified": "Verified",
+        "emailNotVerified": "Not verified",
+        "invite": {
+            "button": "Invite",
+            "title": "Invite someone",
+            "description": "Send an email with a link to create an account. It works even while sign-ups are closed.",
+            "email": "Email address",
+            "language": "Email language",
+            "send": "Send invite",
+            "sent": "Invite sent to {email}",
+            "pending": "Pending invites",
+            "pendingDescription": "Each link works once and expires after 7 days.",
+            "details": "{roles} · Invited by {username} · Expires {expires}",
+            "withdraw": "Withdraw",
+            "withdrawTitle": "Withdraw the invite for {email}?",
+            "withdrawDescription": "The link in the email will stop working.",
+            "withdrawn": "Invite withdrawn"
         }
     },
     "view": {

@@ -39,6 +39,11 @@ enum FolderRole {
   Editor
 }
 
+enum EmailTokenType {
+  VerifyEmail
+  ResetPassword
+}
+
 enum AIJobStatus {
   Pending
   Processing
@@ -84,6 +89,11 @@ model User {
   backupRestoreStartedAt DateTime?
   theme                  String              @default("Fileship")
   language               String?
+  email                  String?             @unique
+  pendingEmail           String?
+  storageWarnedAt        DateTime?
+  emailTokens            EmailToken[]
+  invites                Invite[]
   credentials            Credential[]
   aiJobs                 AIJob[]
   inbox                  Inbox?
@@ -91,6 +101,33 @@ model User {
   backupSchedule         BackupSchedule?
   links                  Link[]
   folderMemberships      FolderMember[]
+}
+
+model EmailToken {
+  id        String         @id @default(uuid())
+  tokenHash String         @unique
+  type      EmailTokenType
+  email     String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime       @default(now())
+
+  @@index([userId, type])
+}
+
+model Invite {
+  id          String           @id @default(uuid())
+  tokenHash   String           @unique
+  email       String
+  permissions UserPermission[]
+  usableSpace Int
+  invitedBy   User             @relation(fields: [invitedById], references: [id], onDelete: Cascade)
+  invitedById String
+  expiresAt   DateTime
+  createdAt   DateTime         @default(now())
+
+  @@index([email])
 }
 
 model Credential {

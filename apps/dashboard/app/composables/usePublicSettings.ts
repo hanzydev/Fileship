@@ -9,5 +9,6 @@ export const usePublicSettings = () => {
         turnstileSiteKey: '',
         aiEnabled: false,
         uploadConcurrency: 4,
+        emailEnabled: false,
     }));
 };

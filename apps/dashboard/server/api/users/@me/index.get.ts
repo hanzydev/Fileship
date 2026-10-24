@@ -29,6 +29,8 @@ export default defineEventHandler(async (event) => {
         backupRestoreState: currentUser.backupRestoreState,
         theme: currentUser.theme,
         language: currentUser.language,
+        email: currentUser.email,
+        pendingEmail: currentUser.pendingEmail,
         aiSettings: defu(currentUser.aiSettings, defaultUserAiSettings) as IUserAiSettings,
         stats: stats!._count,
     };

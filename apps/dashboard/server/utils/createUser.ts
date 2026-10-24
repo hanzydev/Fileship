@@ -11,6 +11,7 @@ export const createUser = async (data: {
     permissions?: UserPermission[];
     superAdmin?: boolean;
     limits?: Partial<IUserLimits>;
+    email?: string;
 }) => {
     const _createdUser = await prisma.user.create({
         data: {
@@ -19,6 +20,7 @@ export const createUser = async (data: {
             permissions: data.permissions,
             superAdmin: data.superAdmin,
             limits: defu(data.limits, defaultUserLimits),
+            email: data.email,
         },
         select: {
             id: true,
@@ -29,6 +31,8 @@ export const createUser = async (data: {
             createdAt: true,
             limits: true,
             superAdmin: true,
+            email: true,
+            pendingEmail: true,
             _count: {
                 select: userCountSelect,
             },

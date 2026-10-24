@@ -1,7 +1,7 @@
 export default defineTask({
     meta: {
         name: 'db:deleteExpired',
-        description: 'Deletes expired files and links',
+        description: 'Deletes expired files, links, email tokens and invites',
     },
     async run() {
         const expired = await prisma.file.findMany({
@@ -58,6 +58,9 @@ export default defineTask({
 
             sendToUser(link.authorId, 'link:delete', link.id);
         }
+
+        await prisma.emailToken.deleteMany({ where: { expiresAt: { lte: new Date() } } });
+        await prisma.invite.deleteMany({ where: { expiresAt: { lte: new Date() } } });
 
         return { result: 'success' };
     },

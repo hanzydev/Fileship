@@ -30,5 +30,10 @@ export const indexCreatedFile = async (
     if ((owner.aiSettings as any)?.enabled ?? true) event.waitUntil(enqueueFileAnalysis(file));
     event.waitUntil(syncContentHashes());
 
+    queueStorageCheck(
+        file.authorId,
+        event.context.user?.id === file.authorId ? requestLanguage(event) : undefined,
+    );
+
     await upsertFileSearchEntry(file.id);
 };

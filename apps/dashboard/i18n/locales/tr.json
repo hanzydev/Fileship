@@ -55,7 +55,8 @@
             "noAccount": "Hesabın yok mu?",
             "signUp": "Kaydol",
             "success": "Giriş yapıldı",
-            "passkeySuccess": "Geçiş anahtarıyla giriş yapıldı"
+            "passkeySuccess": "Geçiş anahtarıyla giriş yapıldı",
+            "forgotPassword": "Şifreni mi unuttun?"
         },
         "totp": {
             "title": "İki adımlı doğrulama",
@@ -75,7 +76,39 @@
             "haveAccount": "Zaten hesabın var mı?",
             "logIn": "Giriş yap",
             "passwordMismatch": "Şifreler eşleşmiyor",
-            "success": "Hesap oluşturuldu"
+            "success": "Hesap oluşturuldu",
+            "inviteHeading": "{siteName} hesabını oluştur",
+            "inviteDescription": "Seni davet eden: {username}. Hesabını oluşturmak için bir kullanıcı adı ve şifre seç.",
+            "inviteEmail": "E-posta adresi",
+            "inviteEmailDescription": "Hesabına bağlanır ve şifreni sıfırlamak için kullanılır.",
+            "inviteInvalidTitle": "Bu davet kullanılamıyor",
+            "checkingInvite": "Davet kontrol ediliyor…"
+        },
+        "verifyEmail": {
+            "title": "E-posta adresini onayla",
+            "verifying": "E-posta adresin onaylanıyor…",
+            "success": "E-posta adresi onaylandı",
+            "successDescription": "{email} artık hesabına bağlı.",
+            "failed": "E-posta adresi onaylanamadı"
+        },
+        "resetPassword": {
+            "title": "Şifre sıfırlama",
+            "heading": "Şifreni sıfırla",
+            "description": "Kullanıcı adını veya e-posta adresini gir. Hesabın onaylanmış bir e-posta adresi varsa yeni şifre belirlemen için bir bağlantı gönderilir.",
+            "login": "Kullanıcı adı veya e-posta",
+            "submit": "Bağlantı gönder",
+            "sentTitle": "E-postanı kontrol et",
+            "sentDescription": "Eşleşen ve onaylanmış e-posta adresi olan bir hesap varsa şifre sıfırlama bağlantısı yolda. Bağlantı 1 saat geçerli.",
+            "backToLogin": "Girişe dön",
+            "invalidTitle": "Şifre sıfırlanamıyor",
+            "requestNew": "Yeni bağlantı iste",
+            "newHeading": "Yeni şifre belirle",
+            "newDescription": "{username} için yeni bir şifre belirle. Hesabın diğer tüm oturumları kapatılır.",
+            "checking": "Bağlantı kontrol ediliyor…",
+            "newPassword": "Yeni şifre",
+            "totpDescription": "Bu hesap doğrulama uygulaması kullanıyor, uygulamadaki kodu da gir.",
+            "save": "Şifreyi değiştir",
+            "success": "Şifre değiştirildi"
         }
     },
     "backups": {
@@ -131,6 +164,46 @@
             },
             "save": "Kaydet",
             "saved": "Yedekleme planı kaydedildi"
+        }
+    },
+    "emails": {
+        "copyLink": "Düğme çalışmazsa bu bağlantıyı tarayıcına kopyala:",
+        "footer": "Bu e-posta {siteName} tarafından gönderildi.",
+        "test": {
+            "subject": "{siteName} test e-postası",
+            "heading": "E-posta gönderimi çalışıyor",
+            "body": "Bu ayarlarla {siteName} e-posta gönderebiliyor."
+        },
+        "verifyEmail": {
+            "subject": "E-posta adresini onayla",
+            "heading": "E-posta adresini onayla",
+            "body": "Merhaba {username}, bu adresin {siteName} hesabına ait olduğunu onayla. Ardından şifreni sıfırlamak için bu adresi kullanabilirsin.",
+            "action": "E-posta adresini onayla",
+            "expires": "Bağlantı 24 saat geçerli.",
+            "ignore": "Bu adresi sen eklemediysen bu e-postayı görmezden gelebilirsin."
+        },
+        "resetPassword": {
+            "subject": "Şifreni sıfırla",
+            "heading": "Şifreni sıfırla",
+            "body": "Merhaba {username}, {siteName} hesabının şifresini sıfırlamak için bir istek alındı. Yeni bir şifre belirlemek için aşağıdaki düğmeyi kullan.",
+            "action": "Yeni şifre belirle",
+            "expires": "Bağlantı 1 saat geçerli ve yalnızca bir kez kullanılabilir.",
+            "ignore": "Bu isteği sen yapmadıysan bu e-postayı görmezden gelebilirsin. Şifren değişmez."
+        },
+        "invite": {
+            "subject": "{siteName} için davet",
+            "heading": "{siteName} için davet edildin",
+            "body": "{username} seni {siteName} üzerinde hesap oluşturmaya davet etti.",
+            "action": "Hesabını oluştur",
+            "expires": "Davet 7 gün geçerli ve yalnızca bir kez kullanılabilir.",
+            "ignore": "Böyle bir davet beklemiyorsan bu e-postayı görmezden gelebilirsin."
+        },
+        "storageWarning": {
+            "subject": "Depolama alanın dolmak üzere",
+            "heading": "Depolama alanın dolmak üzere",
+            "body": "Merhaba {username}, {siteName} üzerindeki depolama alanın neredeyse dolu: {used} / {limit} ({percent}).",
+            "freeUp": "Alan dolduğunda yükleme yapamazsın. Artık ihtiyacın olmayan dosyaları sil ve çöp kutusunu boşalt, çünkü çöp kutusundaki dosyalar da yer kaplar. Ya da bir yöneticiden daha fazla alan iste.",
+            "action": "Depolama alanını gör"
         }
     },
     "errorsAuth": {
@@ -232,6 +305,15 @@
         "missingFile": "Dosya gönderilmedi",
         "invalidFile": "Dosya geçersiz",
         "fileNameTaken": "Bu adda bir dosya zaten var"
+    },
+    "errorsEmail": {
+        "testFailed": "Test e-postası gönderilemedi: {error}",
+        "disabled": "Bu sunucuda e-posta ayarlanmamış",
+        "emailTaken": "Bu e-posta adresi başka bir hesapta kullanılıyor",
+        "sendFailed": "E-posta gönderilemedi. Daha sonra tekrar dene.",
+        "invalidLink": "Bu bağlantı geçersiz veya süresi dolmuş",
+        "invalidInvite": "Bu davet geçersiz veya süresi dolmuş",
+        "inviteNotFound": "Davet bulunamadı"
     },
     "errorsFiles": {
         "noFilesToDelete": "Silinecek dosya bulunamadı",
@@ -699,6 +781,11 @@
                 "title": "Kayıtlar ve telemetri",
                 "description": "Fileship'in neyi kaydettiği ve paylaştığı.",
                 "saved": "Kayıt ve telemetri ayarları kaydedildi"
+            },
+            "email": {
+                "title": "E-posta",
+                "description": "Şifre sıfırlama bağlantılarını, davetleri ve depolama uyarılarını e-postayla gönder. E-posta özellikleri panel adresi, SMTP sunucusu ve gönderen adresi girildiğinde görünür.",
+                "saved": "E-posta ayarları kaydedildi"
             }
         },
         "fields": {
@@ -741,7 +828,20 @@
             "logLevelImportant": "Önemli işlemler",
             "logLevelEverything": "Her şey",
             "telemetryEnabled": "Anonim telemetri",
-            "telemetryEnabledDescription": "Fileship'in gelişmesine yardımcı olmak için anonim kullanım istatistikleri paylaşılır."
+            "telemetryEnabledDescription": "Fileship'in gelişmesine yardımcı olmak için anonim kullanım istatistikleri paylaşılır.",
+            "siteUrl": "Panel adresi",
+            "siteUrlDescription": "E-postalardaki bağlantılar bu adrese gider.",
+            "smtpHost": "SMTP sunucusu",
+            "smtpPort": "Port",
+            "smtpSecurity": "Şifreleme",
+            "smtpSecurityDescription": "STARTTLS genelde 587, TLS ise 465 numaralı portu kullanır.",
+            "smtpSecurityStarttls": "STARTTLS",
+            "smtpSecurityTls": "TLS",
+            "smtpSecurityNone": "Yok",
+            "smtpUser": "Kullanıcı adı",
+            "smtpPassword": "Şifre",
+            "smtpFrom": "Gönderen adresi",
+            "smtpFromDescription": "E-postalar bu adresten, site adıyla gönderilir."
         },
         "ai": {
             "queue": "Kuyruk",
@@ -843,6 +943,14 @@
             "start": "İçe aktar",
             "pathCopied": "Yol kopyalandı",
             "started": "Dosyalar arka planda içe aktarılıyor"
+        },
+        "siteUrlInvalid": "https://files.example.com gibi bir adres gir",
+        "email": {
+            "test": "Test e-postası",
+            "sendTest": "Test e-postası gönder",
+            "testDescription": "Yukarıdaki ayarları, kaydetmeden önce de kullanır.",
+            "testSent": "Test e-postası gönderildi: {email}",
+            "hostRequired": "SMTP sunucusu gerekli"
         }
     },
     "integrations": {
@@ -1157,7 +1265,15 @@
             "deleteLink": "Bağlantı silme",
             "takeNote": "Not alma",
             "updateNote": "Not güncelleme",
-            "deleteNote": "Not silme"
+            "deleteNote": "Not silme",
+            "sendTestEmail": "Test e-postası gönderme",
+            "updateEmail": "E-posta güncelleme",
+            "removeEmail": "E-posta kaldırma",
+            "verifyEmail": "E-posta doğrulama",
+            "resetPassword": "Şifre sıfırlama",
+            "requestPasswordReset": "Şifre sıfırlama isteği",
+            "createInvite": "Davet oluşturma",
+            "deleteInvite": "Daveti geri çekme"
         }
     },
     "notes": {
@@ -1359,7 +1475,24 @@
             "accountDescription": "Herkesin gördüğü kullanıcı adın.",
             "username": "Kullanıcı adı",
             "save": "Kaydet",
-            "usernameUpdated": "Kullanıcı adı güncellendi"
+            "usernameUpdated": "Kullanıcı adı güncellendi",
+            "email": {
+                "title": "E-posta",
+                "description": "Şifreni sıfırlamak ve depolama alanın dolmak üzereyken seni uyarmak için kullanılır. Yöneticiler görebilir.",
+                "label": "E-posta adresi",
+                "verified": "Doğrulandı",
+                "notVerified": "Doğrulanmadı",
+                "pendingTitle": "E-postanı kontrol et",
+                "pendingDescription": "Onay bağlantısı gönderildi: {email}. Bu adresi kullanmaya başlamak için bağlantıyı aç.",
+                "pendingKeepsCurrent": "Onay bağlantısı gönderildi: {email}. Bağlantıyı açana kadar {current} kullanılmaya devam eder.",
+                "resend": "Bağlantıyı tekrar gönder",
+                "remove": "Kaldır",
+                "sent": "Onay bağlantısı gönderildi: {email}",
+                "pendingCancelled": "Mevcut e-posta adresin korundu",
+                "removed": "E-posta adresi kaldırıldı",
+                "removeTitle": "E-posta adresin kaldırılsın mı?",
+                "removeDescription": "Şifreni e-postayla sıfırlayamaz ve depolama uyarısı alamazsın."
+            }
         },
         "ai": {
             "title": "Yapay zekâ",
@@ -1640,7 +1773,8 @@
             "files": "Dosyalar",
             "notes": "Notlar",
             "storage": "Depolama",
-            "joined": "Katılma tarihi"
+            "joined": "Katılma tarihi",
+            "email": "E-posta"
         },
         "sort": {
             "newest": "En yeni",
@@ -1649,6 +1783,24 @@
             "nameDesc": "Ad (Z–A)",
             "mostFiles": "En çok dosya",
             "mostNotes": "En çok not"
+        },
+        "emailVerified": "Doğrulandı",
+        "emailNotVerified": "Doğrulanmadı",
+        "invite": {
+            "button": "Davet et",
+            "title": "Birini davet et",
+            "description": "Hesap oluşturma bağlantısı içeren bir e-posta gönder. Kaydolma kapalıyken de çalışır.",
+            "email": "E-posta adresi",
+            "language": "E-posta dili",
+            "send": "Davet gönder",
+            "sent": "Davet gönderildi: {email}",
+            "pending": "Bekleyen davetler",
+            "pendingDescription": "Her bağlantı bir kez çalışır ve 7 gün sonra geçersiz olur.",
+            "details": "{roles} · Davet eden: {username} · Bitiş: {expires}",
+            "withdraw": "Geri çek",
+            "withdrawTitle": "{email} için gönderilen davet geri çekilsin mi?",
+            "withdrawDescription": "E-postadaki bağlantı artık çalışmaz.",
+            "withdrawn": "Davet geri çekildi"
         }
     },
     "view": {

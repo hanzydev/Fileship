@@ -233,6 +233,7 @@ export const initSocket = () => {
         socket.on('log:deleteAll', () => refreshLists('logs'));
 
         socket.on('user:create', () => refreshLists('users'));
+        socket.on('invite:update', () => refreshNuxtData('invites'));
         socket.on('user:update', (data) => patchListItem('users', data));
         socket.on('user:updateTotp', (data) => patchListItem('users', data));
         socket.on('user:delete', (userId) => {

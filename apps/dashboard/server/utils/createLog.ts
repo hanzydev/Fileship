@@ -15,6 +15,7 @@ type CreateLogData = {
 const AllowedActions = [
     'Login',
     'Register',
+    'Reset Password',
     'TOTP',
     'Add Passkey',
     'Delete Passkey',
@@ -22,6 +23,8 @@ const AllowedActions = [
     'Impersonate',
     'Regenerate Upload Token',
     'Create User',
+    'Create Invite',
+    'Delete Invite',
     'Update User',
     'Delete User',
     'Update Settings',

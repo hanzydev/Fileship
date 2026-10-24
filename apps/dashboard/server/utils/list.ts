@@ -251,6 +251,8 @@ export const userListSelect = {
     limits: true,
     createdAt: true,
     domains: true,
+    email: true,
+    pendingEmail: true,
     _count: {
         select: userCountSelect,
     },

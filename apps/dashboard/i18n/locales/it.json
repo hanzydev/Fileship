@@ -55,7 +55,8 @@
             "noAccount": "Non hai un account?",
             "signUp": "Registrati",
             "success": "Accesso effettuato",
-            "passkeySuccess": "Accesso effettuato con la passkey"
+            "passkeySuccess": "Accesso effettuato con la passkey",
+            "forgotPassword": "Password dimenticata?"
         },
         "totp": {
             "title": "Autenticazione a due fattori",
@@ -75,7 +76,39 @@
             "haveAccount": "Hai già un account?",
             "logIn": "Accedi",
             "passwordMismatch": "Le password non corrispondono",
-            "success": "Account creato"
+            "success": "Account creato",
+            "inviteHeading": "Unisciti a {siteName}",
+            "inviteDescription": "{username} ti ha invitato. Scegli un nome utente e una password per creare il tuo account.",
+            "inviteEmail": "Indirizzo email",
+            "inviteEmailDescription": "Viene collegato al tuo account e usato per reimpostare la password.",
+            "inviteInvalidTitle": "Impossibile usare questo invito",
+            "checkingInvite": "Verifica dell'invito…"
+        },
+        "verifyEmail": {
+            "title": "Conferma indirizzo email",
+            "verifying": "Conferma dell'indirizzo email in corso…",
+            "success": "Indirizzo email confermato",
+            "successDescription": "{email} è ora collegato al tuo account.",
+            "failed": "Impossibile confermare l'indirizzo email"
+        },
+        "resetPassword": {
+            "title": "Reimposta password",
+            "heading": "Reimposta la password",
+            "description": "Inserisci il nome utente o l'indirizzo email. Se l'account ha un indirizzo email confermato, ti invieremo un link per scegliere una nuova password.",
+            "login": "Nome utente o email",
+            "submit": "Invia link",
+            "sentTitle": "Controlla la tua posta",
+            "sentDescription": "Se corrisponde un account con un indirizzo email confermato, è in arrivo un link per reimpostare la password. Il link è valido per 1 ora.",
+            "backToLogin": "Torna all'accesso",
+            "invalidTitle": "Impossibile reimpostare la password",
+            "requestNew": "Richiedi un nuovo link",
+            "newHeading": "Scegli una nuova password",
+            "newDescription": "Imposta una nuova password per {username}. Tutte le altre sessioni dell'account verranno chiuse.",
+            "checking": "Verifica del link…",
+            "newPassword": "Nuova password",
+            "totpDescription": "Questo account usa un'app di autenticazione: inserisci anche un codice dell'app.",
+            "save": "Cambia password",
+            "success": "Password cambiata"
         }
     },
     "backups": {
@@ -131,6 +164,46 @@
             },
             "save": "Salva",
             "saved": "Pianificazione dei backup salvata"
+        }
+    },
+    "emails": {
+        "copyLink": "Se il pulsante non funziona, copia questo link nel browser:",
+        "footer": "Questa email è stata inviata da {siteName}.",
+        "test": {
+            "subject": "Email di prova da {siteName}",
+            "heading": "L'invio delle email funziona",
+            "body": "{siteName} può inviare email con queste impostazioni."
+        },
+        "verifyEmail": {
+            "subject": "Conferma il tuo indirizzo email",
+            "heading": "Conferma il tuo indirizzo email",
+            "body": "Ciao {username}, conferma che questo indirizzo appartiene al tuo account {siteName}. Potrai poi usarlo per reimpostare la password.",
+            "action": "Conferma indirizzo email",
+            "expires": "Il link scade tra 24 ore.",
+            "ignore": "Se non hai aggiunto tu questo indirizzo, puoi ignorare questa email."
+        },
+        "resetPassword": {
+            "subject": "Reimposta la tua password",
+            "heading": "Reimposta la tua password",
+            "body": "Ciao {username}, è stato chiesto di reimpostare la password del tuo account {siteName}. Usa il pulsante qui sotto per sceglierne una nuova.",
+            "action": "Scegli una nuova password",
+            "expires": "Il link scade tra 1 ora e funziona una sola volta.",
+            "ignore": "Se non l'hai chiesto tu, puoi ignorare questa email. La tua password non cambia."
+        },
+        "invite": {
+            "subject": "Hai ricevuto un invito per {siteName}",
+            "heading": "Hai ricevuto un invito per {siteName}",
+            "body": "{username} ti ha invitato a creare un account su {siteName}.",
+            "action": "Crea il tuo account",
+            "expires": "L'invito scade tra 7 giorni e funziona una sola volta.",
+            "ignore": "Se non te lo aspettavi, puoi ignorare questa email."
+        },
+        "storageWarning": {
+            "subject": "Il tuo spazio è quasi pieno",
+            "heading": "Il tuo spazio è quasi pieno",
+            "body": "Ciao {username}, stai usando {used} dei {limit} disponibili su {siteName} ({percent}).",
+            "freeUp": "Quando sarà pieno, i caricamenti non funzioneranno più. Elimina i file che non ti servono più e svuota il cestino, perché i file nel cestino occupano ancora spazio, oppure chiedi più spazio a un amministratore.",
+            "action": "Controlla lo spazio"
         }
     },
     "errorsAuth": {
@@ -232,6 +305,15 @@
         "missingFile": "File mancante",
         "invalidFile": "File non valido",
         "fileNameTaken": "Esiste già un file con questo nome"
+    },
+    "errorsEmail": {
+        "testFailed": "Impossibile inviare l'email di prova: {error}",
+        "disabled": "L'email non è configurata su questo server",
+        "emailTaken": "Questo indirizzo email è già usato da un altro account",
+        "sendFailed": "Impossibile inviare l'email. Riprova più tardi.",
+        "invalidLink": "Questo link non è valido o è scaduto",
+        "invalidInvite": "Questo invito non è valido o è scaduto",
+        "inviteNotFound": "Invito non trovato"
     },
     "errorsFiles": {
         "noFilesToDelete": "Nessun file da eliminare",
@@ -699,6 +781,11 @@
                 "title": "Registro e telemetria",
                 "description": "Cosa registra e condivide Fileship.",
                 "saved": "Impostazioni di registro e telemetria salvate"
+            },
+            "email": {
+                "title": "Email",
+                "description": "Invia via email i link per reimpostare la password, gli inviti e gli avvisi sullo spazio di archiviazione. Le funzioni email compaiono dopo aver impostato l'indirizzo della dashboard, il server SMTP e l'indirizzo del mittente.",
+                "saved": "Impostazioni email salvate"
             }
         },
         "fields": {
@@ -741,7 +828,20 @@
             "logLevelImportant": "Azioni importanti",
             "logLevelEverything": "Tutto",
             "telemetryEnabled": "Telemetria anonima",
-            "telemetryEnabledDescription": "Condividi statistiche di utilizzo anonime per aiutare a migliorare Fileship."
+            "telemetryEnabledDescription": "Condividi statistiche di utilizzo anonime per aiutare a migliorare Fileship.",
+            "siteUrl": "Indirizzo della dashboard",
+            "siteUrlDescription": "I link nelle email puntano a questo indirizzo.",
+            "smtpHost": "Server SMTP",
+            "smtpPort": "Porta",
+            "smtpSecurity": "Crittografia",
+            "smtpSecurityDescription": "Di solito STARTTLS usa la porta 587 e TLS la porta 465.",
+            "smtpSecurityStarttls": "STARTTLS",
+            "smtpSecurityTls": "TLS",
+            "smtpSecurityNone": "Nessuna",
+            "smtpUser": "Nome utente",
+            "smtpPassword": "Password",
+            "smtpFrom": "Indirizzo del mittente",
+            "smtpFromDescription": "Le email vengono inviate da questo indirizzo con il nome del sito come mittente."
         },
         "ai": {
             "queue": "Coda",
@@ -843,6 +943,14 @@
             "start": "Importa",
             "pathCopied": "Percorso copiato",
             "started": "Importazione dei file in background"
+        },
+        "siteUrlInvalid": "Inserisci un indirizzo come https://files.example.com",
+        "email": {
+            "test": "Email di prova",
+            "sendTest": "Invia email di prova",
+            "testDescription": "Usa le impostazioni qui sopra, anche prima di salvarle.",
+            "testSent": "Email di prova inviata a {email}",
+            "hostRequired": "Il server SMTP è obbligatorio"
         }
     },
     "integrations": {
@@ -1157,7 +1265,15 @@
             "deleteLink": "Eliminazione link",
             "takeNote": "Creazione nota",
             "updateNote": "Modifica nota",
-            "deleteNote": "Eliminazione nota"
+            "deleteNote": "Eliminazione nota",
+            "sendTestEmail": "Invio email di prova",
+            "updateEmail": "Modifica email",
+            "removeEmail": "Rimozione email",
+            "verifyEmail": "Verifica email",
+            "resetPassword": "Reimpostazione password",
+            "requestPasswordReset": "Richiesta reimpostazione password",
+            "createInvite": "Creazione invito",
+            "deleteInvite": "Ritiro invito"
         }
     },
     "notes": {
@@ -1359,7 +1475,24 @@
             "accountDescription": "Il tuo nome utente pubblico.",
             "username": "Nome utente",
             "save": "Salva",
-            "usernameUpdated": "Nome utente aggiornato"
+            "usernameUpdated": "Nome utente aggiornato",
+            "email": {
+                "title": "Email",
+                "description": "Serve per reimpostare la password e per avvisarti quando lo spazio è quasi pieno. Gli amministratori possono vederlo.",
+                "label": "Indirizzo email",
+                "verified": "Verificato",
+                "notVerified": "Non verificato",
+                "pendingTitle": "Controlla la tua posta",
+                "pendingDescription": "Abbiamo inviato un link di conferma a {email}. Aprilo per iniziare a usare questo indirizzo.",
+                "pendingKeepsCurrent": "Abbiamo inviato un link di conferma a {email}. Finché non lo apri, resta in uso {current}.",
+                "resend": "Invia di nuovo il link",
+                "remove": "Rimuovi",
+                "sent": "Link di conferma inviato a {email}",
+                "pendingCancelled": "Il tuo indirizzo email attuale è stato mantenuto",
+                "removed": "Indirizzo email rimosso",
+                "removeTitle": "Rimuovere il tuo indirizzo email?",
+                "removeDescription": "Non potrai più reimpostare la password via email né ricevere avvisi sullo spazio."
+            }
         },
         "ai": {
             "title": "IA",
@@ -1640,7 +1773,8 @@
             "files": "File",
             "notes": "Note",
             "storage": "Archiviazione",
-            "joined": "Data di registrazione"
+            "joined": "Data di registrazione",
+            "email": "Email"
         },
         "sort": {
             "newest": "Più recenti",
@@ -1649,6 +1783,24 @@
             "nameDesc": "Nome Z–A",
             "mostFiles": "Più file",
             "mostNotes": "Più note"
+        },
+        "emailVerified": "Verificato",
+        "emailNotVerified": "Non verificato",
+        "invite": {
+            "button": "Invita",
+            "title": "Invita qualcuno",
+            "description": "Invia un'email con un link per creare un account. Funziona anche quando le registrazioni sono chiuse.",
+            "email": "Indirizzo email",
+            "language": "Lingua dell'email",
+            "send": "Invia invito",
+            "sent": "Invito inviato a {email}",
+            "pending": "Inviti in sospeso",
+            "pendingDescription": "Ogni link funziona una volta e scade dopo 7 giorni.",
+            "details": "{roles} · Invito di {username} · Scade {expires}",
+            "withdraw": "Ritira",
+            "withdrawTitle": "Ritirare l'invito per {email}?",
+            "withdrawDescription": "Il link nell'email smetterà di funzionare.",
+            "withdrawn": "Invito ritirato"
         }
     },
     "view": {

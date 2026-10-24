@@ -59,9 +59,18 @@ export const getSettingDefaults = (): InstanceSettings => {
         aiJobLeaseMs: parseDefault('aiJobLeaseMs', +config.ai.jobLeaseMs, 2 * 60_000),
         logLevel: parseDefault('logLevel', +config.logLevel, 2),
         telemetryEnabled: parseDefault('telemetryEnabled', !!config.telemetryEnabled, true),
+        siteUrl: parseDefault('siteUrl', config.siteUrl, ''),
+        smtpHost: parseDefault('smtpHost', config.smtp.host, ''),
+        smtpPort: parseDefault('smtpPort', +config.smtp.port, 587),
+        smtpSecurity: parseDefault('smtpSecurity', config.smtp.security, 'starttls'),
+        smtpUser: parseDefault('smtpUser', config.smtp.user, ''),
+        smtpPassword: parseDefault('smtpPassword', config.smtp.password, ''),
+        smtpFrom: parseDefault('smtpFrom', config.smtp.from, ''),
         activeStorageId: null,
     };
 };
+
+const encryptedSettingKeys: InstanceSettingKey[] = ['smtpPassword'];
 
 let cache: { overrides: Partial<InstanceSettings>; expiresAt: number } | null = null;
 let pending: { version: number; overrides: Promise<Partial<InstanceSettings>> } | null = null;
@@ -73,7 +82,10 @@ const loadOverrides = async () => {
 
     for (const row of rows) {
         const field = settingsSchema.shape[row.key as InstanceSettingKey];
-        const result = field?.safeParse(row.value);
+        const value = encryptedSettingKeys.includes(row.key as InstanceSettingKey)
+            ? await decrypt(row.value as string).catch(() => null)
+            : row.value;
+        const result = field?.safeParse(value);
         if (result?.success) (overrides as any)[row.key] = result.data;
     }
 
@@ -120,16 +132,27 @@ export const getPublicSettings = async (): Promise<PublicSettings> => {
     return {
         ...(Object.fromEntries(publicSettingKeys.map((key) => [key, settings[key]])) as Omit<
             PublicSettings,
-            'uploadConcurrency'
+            'uploadConcurrency' | 'emailEnabled'
         >),
         uploadConcurrency: storage && !storage.isSequential ? 4 : 1,
+        emailEnabled: isEmailConfigured(settings),
     };
 };
 
 export const updateSettings = async (patch: {
     [K in InstanceSettingKey]?: InstanceSettings[K] | null;
 }) => {
-    const entries = Object.entries(patch) as [InstanceSettingKey, unknown][];
+    const entries = await Promise.all(
+        (Object.entries(patch) as [InstanceSettingKey, unknown][]).map(
+            async ([key, value]) =>
+                [
+                    key,
+                    value !== null && encryptedSettingKeys.includes(key)
+                        ? await encrypt(value as string)
+                        : value,
+                ] as const,
+        ),
+    );
 
     await prisma.$transaction(
         entries.map(([key, value]) =>

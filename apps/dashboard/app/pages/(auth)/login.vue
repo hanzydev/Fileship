@@ -33,9 +33,18 @@
                                     />
                                 </UiField>
                                 <UiField>
-                                    <UiFieldLabel for="password">
-                                        {{ $t('auth.password') }}
-                                    </UiFieldLabel>
+                                    <div class="flex items-center">
+                                        <UiFieldLabel for="password">
+                                            {{ $t('auth.password') }}
+                                        </UiFieldLabel>
+                                        <NuxtLink
+                                            v-if="publicSettings.emailEnabled"
+                                            to="/reset-password"
+                                            class="ml-auto text-sm underline-offset-4 hover:underline"
+                                        >
+                                            {{ $t('auth.login.forgotPassword') }}
+                                        </NuxtLink>
+                                    </div>
                                     <PasswordInput
                                         id="password"
                                         v-model="auth.password"

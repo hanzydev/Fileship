@@ -55,7 +55,8 @@
             "noAccount": "Hesabın yoxdur?",
             "signUp": "Qeydiyyatdan keç",
             "success": "Daxil oldun",
-            "passkeySuccess": "Giriş açarı ilə daxil oldun"
+            "passkeySuccess": "Giriş açarı ilə daxil oldun",
+            "forgotPassword": "Şifrəni unutmusan?"
         },
         "totp": {
             "title": "İki addımlı doğrulama",
@@ -75,7 +76,39 @@
             "haveAccount": "Artıq hesabın var?",
             "logIn": "Daxil ol",
             "passwordMismatch": "Şifrələr uyğun gəlmir",
-            "success": "Hesab yaradıldı"
+            "success": "Hesab yaradıldı",
+            "inviteHeading": "{siteName} hesabını yarat",
+            "inviteDescription": "Səni dəvət edən: {username}. Hesabını yaratmaq üçün istifadəçi adı və şifrə seç.",
+            "inviteEmail": "E-poçt ünvanı",
+            "inviteEmailDescription": "Hesabına bağlanır və şifrəni sıfırlamaq üçün istifadə olunur.",
+            "inviteInvalidTitle": "Bu dəvətdən istifadə etmək mümkün deyil",
+            "checkingInvite": "Dəvət yoxlanılır…"
+        },
+        "verifyEmail": {
+            "title": "E-poçt ünvanını təsdiqlə",
+            "verifying": "E-poçt ünvanın təsdiqlənir…",
+            "success": "E-poçt ünvanı təsdiqləndi",
+            "successDescription": "{email} artıq hesabına bağlıdır.",
+            "failed": "E-poçt ünvanını təsdiqləmək mümkün olmadı"
+        },
+        "resetPassword": {
+            "title": "Şifrəni sıfırla",
+            "heading": "Şifrəni sıfırla",
+            "description": "İstifadəçi adını və ya e-poçt ünvanını daxil et. Hesabın təsdiqlənmiş e-poçt ünvanı varsa, yeni şifrə təyin etmək üçün ora keçid göndərilir.",
+            "login": "İstifadəçi adı və ya e-poçt",
+            "submit": "Keçid göndər",
+            "sentTitle": "E-poçtunu yoxla",
+            "sentDescription": "Uyğun gələn və təsdiqlənmiş e-poçt ünvanı olan hesab varsa, şifrə sıfırlama keçidi göndərildi. Keçid 1 saat etibarlıdır.",
+            "backToLogin": "Girişə qayıt",
+            "invalidTitle": "Şifrəni sıfırlamaq mümkün deyil",
+            "requestNew": "Yeni keçid istə",
+            "newHeading": "Yeni şifrə təyin et",
+            "newDescription": "{username} üçün yeni şifrə təyin et. Hesabın digər bütün sessiyaları bağlanacaq.",
+            "checking": "Keçid yoxlanılır…",
+            "newPassword": "Yeni şifrə",
+            "totpDescription": "Bu hesab doğrulama tətbiqindən istifadə edir, tətbiqdəki kodu da daxil et.",
+            "save": "Şifrəni dəyiş",
+            "success": "Şifrə dəyişdirildi"
         }
     },
     "backups": {
@@ -131,6 +164,46 @@
             },
             "save": "Yadda saxla",
             "saved": "Ehtiyat nüsxə cədvəli yadda saxlanıldı"
+        }
+    },
+    "emails": {
+        "copyLink": "Düymə işləməsə, bu keçidi brauzerinə köçür:",
+        "footer": "Bu e-poçt {siteName} tərəfindən göndərildi.",
+        "test": {
+            "subject": "{siteName} test e-poçtu",
+            "heading": "E-poçt göndərişi işləyir",
+            "body": "Bu ayarlarla {siteName} e-poçt göndərə bilir."
+        },
+        "verifyEmail": {
+            "subject": "E-poçt ünvanını təsdiqlə",
+            "heading": "E-poçt ünvanını təsdiqlə",
+            "body": "Salam {username}, bu ünvanın {siteName} hesabına aid olduğunu təsdiqlə. Sonra şifrəni sıfırlamaq üçün ondan istifadə edə bilərsən.",
+            "action": "E-poçt ünvanını təsdiqlə",
+            "expires": "Keçid 24 saat etibarlıdır.",
+            "ignore": "Bu ünvanı sən əlavə etməmisənsə, bu e-poçtu nəzərə alma."
+        },
+        "resetPassword": {
+            "subject": "Şifrəni sıfırla",
+            "heading": "Şifrəni sıfırla",
+            "body": "Salam {username}, {siteName} hesabının şifrəsini sıfırlamaq üçün sorğu göndərildi. Yeni şifrə təyin etmək üçün aşağıdakı düyməni istifadə et.",
+            "action": "Yeni şifrə təyin et",
+            "expires": "Keçid 1 saat etibarlıdır və yalnız bir dəfə işləyir.",
+            "ignore": "Bu sorğunu sən göndərməmisənsə, bu e-poçtu nəzərə alma. Şifrən dəyişmir."
+        },
+        "invite": {
+            "subject": "{siteName} dəvəti",
+            "heading": "Səni {siteName} saytına dəvət etdilər",
+            "body": "{username} səni {siteName} üzərində hesab yaratmağa dəvət etdi.",
+            "action": "Hesabını yarat",
+            "expires": "Dəvət 7 gün etibarlıdır və yalnız bir dəfə işləyir.",
+            "ignore": "Belə dəvət gözləmirdinsə, bu e-poçtu nəzərə alma."
+        },
+        "storageWarning": {
+            "subject": "Yaddaşın dolmaq üzrədir",
+            "heading": "Yaddaşın dolmaq üzrədir",
+            "body": "Salam {username}, {siteName} üzərində yaddaşın demək olar ki, doludur: {used} / {limit} ({percent}).",
+            "freeUp": "Yaddaş dolanda yükləmə işləməyəcək. Artıq lazım olmayan faylları sil və zibil qutusunu boşalt, çünki zibil qutusundakı fayllar da yer tutur. Ya da admindən daha çox yer istə.",
+            "action": "Yaddaşa bax"
         }
     },
     "errorsAuth": {
@@ -232,6 +305,15 @@
         "missingFile": "Fayl göndərilməyib",
         "invalidFile": "Fayl etibarsızdır",
         "fileNameTaken": "Bu adda fayl artıq var"
+    },
+    "errorsEmail": {
+        "testFailed": "Test e-poçtunu göndərmək mümkün olmadı: {error}",
+        "disabled": "Bu serverdə e-poçt qurulmayıb",
+        "emailTaken": "Bu e-poçt ünvanı başqa hesabda istifadə olunur",
+        "sendFailed": "E-poçtu göndərmək mümkün olmadı. Bir az sonra yenidən cəhd et.",
+        "invalidLink": "Bu keçid etibarsızdır və ya vaxtı bitib",
+        "invalidInvite": "Bu dəvət etibarsızdır və ya vaxtı bitib",
+        "inviteNotFound": "Dəvət tapılmadı"
     },
     "errorsFiles": {
         "noFilesToDelete": "Silinəcək fayl tapılmadı",
@@ -699,6 +781,11 @@
                 "title": "Jurnal və telemetriya",
                 "description": "Fileship nələri qeydə alır və paylaşır.",
                 "saved": "Jurnal və telemetriya ayarları yadda saxlanıldı"
+            },
+            "email": {
+                "title": "E-poçt",
+                "description": "Şifrə sıfırlama keçidlərini, dəvətləri və yaddaş xəbərdarlıqlarını e-poçtla göndər. E-poçt funksiyaları idarə paneli ünvanı, SMTP serveri və göndərən ünvanı daxil edildikdən sonra görünür.",
+                "saved": "E-poçt ayarları yadda saxlanıldı"
             }
         },
         "fields": {
@@ -741,7 +828,20 @@
             "logLevelImportant": "Vacib əməliyyatlar",
             "logLevelEverything": "Hər şey",
             "telemetryEnabled": "Anonim telemetriya",
-            "telemetryEnabledDescription": "Fileship layihəsinin inkişafına kömək etmək üçün anonim istifadə statistikası paylaşılır."
+            "telemetryEnabledDescription": "Fileship layihəsinin inkişafına kömək etmək üçün anonim istifadə statistikası paylaşılır.",
+            "siteUrl": "İdarə paneli ünvanı",
+            "siteUrlDescription": "E-poçtlardakı keçidlər bu ünvana aparır.",
+            "smtpHost": "SMTP serveri",
+            "smtpPort": "Port",
+            "smtpSecurity": "Şifrələmə",
+            "smtpSecurityDescription": "STARTTLS adətən 587, TLS isə 465 nömrəli portdan istifadə edir.",
+            "smtpSecurityStarttls": "STARTTLS",
+            "smtpSecurityTls": "TLS",
+            "smtpSecurityNone": "Yoxdur",
+            "smtpUser": "İstifadəçi adı",
+            "smtpPassword": "Şifrə",
+            "smtpFrom": "Göndərən ünvanı",
+            "smtpFromDescription": "E-poçtlar bu ünvandan sayt adı ilə göndərilir."
         },
         "ai": {
             "queue": "Növbə",
@@ -843,6 +943,14 @@
             "start": "İdxal et",
             "pathCopied": "Yol kopyalandı",
             "started": "Fayllar arxa planda idxal olunur"
+        },
+        "siteUrlInvalid": "https://files.example.com kimi ünvan daxil et",
+        "email": {
+            "test": "Test e-poçtu",
+            "sendTest": "Test e-poçtu göndər",
+            "testDescription": "Yuxarıdakı ayarları yadda saxlamadan əvvəl də istifadə edir.",
+            "testSent": "Test e-poçtu göndərildi: {email}",
+            "hostRequired": "SMTP serveri tələb olunur"
         }
     },
     "integrations": {
@@ -1157,7 +1265,15 @@
             "deleteLink": "Keçid silmə",
             "takeNote": "Qeyd yazma",
             "updateNote": "Qeydi yeniləmə",
-            "deleteNote": "Qeyd silmə"
+            "deleteNote": "Qeyd silmə",
+            "sendTestEmail": "Test e-poçtu göndərmə",
+            "updateEmail": "E-poçtu yeniləmə",
+            "removeEmail": "E-poçtu silmə",
+            "verifyEmail": "E-poçtu təsdiqləmə",
+            "resetPassword": "Şifrəni sıfırlama",
+            "requestPasswordReset": "Şifrə sıfırlama sorğusu",
+            "createInvite": "Dəvət yaratma",
+            "deleteInvite": "Dəvəti geri götürmə"
         }
     },
     "notes": {
@@ -1359,7 +1475,24 @@
             "accountDescription": "Hamının gördüyü istifadəçi adın.",
             "username": "İstifadəçi adı",
             "save": "Yadda saxla",
-            "usernameUpdated": "İstifadəçi adı yeniləndi"
+            "usernameUpdated": "İstifadəçi adı yeniləndi",
+            "email": {
+                "title": "E-poçt",
+                "description": "Şifrəni sıfırlamaq və yaddaşın dolmaq üzrə olanda səni xəbərdar etmək üçün istifadə olunur. Adminlər onu görə bilər.",
+                "label": "E-poçt ünvanı",
+                "verified": "Təsdiqlənib",
+                "notVerified": "Təsdiqlənməyib",
+                "pendingTitle": "E-poçtunu yoxla",
+                "pendingDescription": "Təsdiq keçidi göndərildi: {email}. Bu ünvandan istifadəyə başlamaq üçün keçidi aç.",
+                "pendingKeepsCurrent": "Təsdiq keçidi göndərildi: {email}. Keçidi açana qədər {current} istifadədə qalır.",
+                "resend": "Keçidi yenidən göndər",
+                "remove": "Sil",
+                "sent": "Təsdiq keçidi göndərildi: {email}",
+                "pendingCancelled": "Hazırkı e-poçt ünvanın saxlanıldı",
+                "removed": "E-poçt ünvanı silindi",
+                "removeTitle": "E-poçt ünvanın silinsin?",
+                "removeDescription": "Şifrəni e-poçtla sıfırlaya və yaddaş xəbərdarlıqları ala bilməyəcəksən."
+            }
         },
         "ai": {
             "title": "Süni intellekt",
@@ -1640,7 +1773,8 @@
             "files": "Fayllar",
             "notes": "Qeydlər",
             "storage": "Yaddaş",
-            "joined": "Qoşulma tarixi"
+            "joined": "Qoşulma tarixi",
+            "email": "E-poçt"
         },
         "sort": {
             "newest": "Ən yeni",
@@ -1649,6 +1783,24 @@
             "nameDesc": "Ad (Z–A)",
             "mostFiles": "Ən çox fayl",
             "mostNotes": "Ən çox qeyd"
+        },
+        "emailVerified": "Təsdiqlənib",
+        "emailNotVerified": "Təsdiqlənməyib",
+        "invite": {
+            "button": "Dəvət et",
+            "title": "Kimisə dəvət et",
+            "description": "Hesab yaratmaq üçün keçid olan e-poçt göndər. Qeydiyyat bağlı olanda da işləyir.",
+            "email": "E-poçt ünvanı",
+            "language": "E-poçtun dili",
+            "send": "Dəvət göndər",
+            "sent": "Dəvət göndərildi: {email}",
+            "pending": "Gözləyən dəvətlər",
+            "pendingDescription": "Hər keçid bir dəfə işləyir və 7 gündən sonra etibarsız olur.",
+            "details": "{roles} · Dəvət edən: {username} · Bitmə: {expires}",
+            "withdraw": "Geri götür",
+            "withdrawTitle": "{email} üçün göndərilən dəvət geri götürülsün?",
+            "withdrawDescription": "E-poçtdakı keçid artıq işləməyəcək.",
+            "withdrawn": "Dəvət geri götürüldü"
         }
     },
     "view": {

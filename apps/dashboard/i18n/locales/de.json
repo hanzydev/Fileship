@@ -55,7 +55,8 @@
             "noAccount": "Noch kein Konto?",
             "signUp": "Registrieren",
             "success": "Angemeldet",
-            "passkeySuccess": "Mit deinem Passkey angemeldet"
+            "passkeySuccess": "Mit deinem Passkey angemeldet",
+            "forgotPassword": "Passwort vergessen?"
         },
         "totp": {
             "title": "Zwei-Faktor-Authentifizierung",
@@ -75,7 +76,39 @@
             "haveAccount": "Schon ein Konto?",
             "logIn": "Anmelden",
             "passwordMismatch": "Die Passwörter stimmen nicht überein",
-            "success": "Konto erstellt"
+            "success": "Konto erstellt",
+            "inviteHeading": "Willkommen bei {siteName}",
+            "inviteDescription": "{username} hat dich eingeladen. Wähle einen Benutzernamen und ein Passwort, um dein Konto zu erstellen.",
+            "inviteEmail": "E-Mail-Adresse",
+            "inviteEmailDescription": "Wird mit deinem Konto verknüpft und zum Zurücksetzen deines Passworts verwendet.",
+            "inviteInvalidTitle": "Einladung kann nicht verwendet werden",
+            "checkingInvite": "Einladung wird geprüft…"
+        },
+        "verifyEmail": {
+            "title": "E-Mail-Adresse bestätigen",
+            "verifying": "Deine E-Mail-Adresse wird bestätigt…",
+            "success": "E-Mail-Adresse bestätigt",
+            "successDescription": "{email} ist jetzt mit deinem Konto verknüpft.",
+            "failed": "E-Mail-Adresse konnte nicht bestätigt werden"
+        },
+        "resetPassword": {
+            "title": "Passwort zurücksetzen",
+            "heading": "Passwort zurücksetzen",
+            "description": "Gib deinen Benutzernamen oder deine E-Mail-Adresse ein. Hat das Konto eine bestätigte E-Mail-Adresse, senden wir dorthin einen Link, mit dem du ein neues Passwort festlegst.",
+            "login": "Benutzername oder E-Mail",
+            "submit": "Link senden",
+            "sentTitle": "Prüfe dein Postfach",
+            "sentDescription": "Wenn ein Konto mit bestätigter E-Mail-Adresse passt, ist ein Link zum Zurücksetzen unterwegs. Der Link ist 1 Stunde lang gültig.",
+            "backToLogin": "Zurück zur Anmeldung",
+            "invalidTitle": "Passwort kann nicht zurückgesetzt werden",
+            "requestNew": "Neuen Link anfordern",
+            "newHeading": "Neues Passwort festlegen",
+            "newDescription": "Lege ein neues Passwort für {username} fest. Alle anderen Sitzungen des Kontos werden beendet.",
+            "checking": "Link wird geprüft…",
+            "newPassword": "Neues Passwort",
+            "totpDescription": "Dieses Konto nutzt eine Authenticator-App. Gib auch einen Code daraus ein.",
+            "save": "Passwort ändern",
+            "success": "Passwort geändert"
         }
     },
     "backups": {
@@ -131,6 +164,46 @@
             },
             "save": "Speichern",
             "saved": "Backup-Zeitplan gespeichert"
+        }
+    },
+    "emails": {
+        "copyLink": "Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:",
+        "footer": "Diese E-Mail wurde von {siteName} gesendet.",
+        "test": {
+            "subject": "Test-E-Mail von {siteName}",
+            "heading": "E-Mail-Versand funktioniert",
+            "body": "{siteName} kann mit diesen Einstellungen E-Mails senden."
+        },
+        "verifyEmail": {
+            "subject": "Bestätige deine E-Mail-Adresse",
+            "heading": "Bestätige deine E-Mail-Adresse",
+            "body": "Hallo {username}, bestätige, dass diese Adresse zu deinem Konto bei {siteName} gehört. Danach kannst du damit dein Passwort zurücksetzen.",
+            "action": "E-Mail-Adresse bestätigen",
+            "expires": "Der Link ist 24 Stunden lang gültig.",
+            "ignore": "Wenn du diese Adresse nicht hinzugefügt hast, kannst du diese E-Mail ignorieren."
+        },
+        "resetPassword": {
+            "subject": "Setze dein Passwort zurück",
+            "heading": "Setze dein Passwort zurück",
+            "body": "Hallo {username}, jemand möchte das Passwort deines Kontos bei {siteName} zurücksetzen. Über den Button unten legst du ein neues fest.",
+            "action": "Neues Passwort festlegen",
+            "expires": "Der Link ist 1 Stunde lang gültig und funktioniert nur einmal.",
+            "ignore": "Wenn du das nicht angefordert hast, kannst du diese E-Mail ignorieren. Dein Passwort bleibt unverändert."
+        },
+        "invite": {
+            "subject": "Du bist zu {siteName} eingeladen",
+            "heading": "Du bist zu {siteName} eingeladen",
+            "body": "{username} hat dich eingeladen, ein Konto bei {siteName} zu erstellen.",
+            "action": "Konto erstellen",
+            "expires": "Die Einladung ist 7 Tage lang gültig und funktioniert nur einmal.",
+            "ignore": "Wenn du keine Einladung erwartet hast, kannst du diese E-Mail ignorieren."
+        },
+        "storageWarning": {
+            "subject": "Dein Speicher ist fast voll",
+            "heading": "Dein Speicher ist fast voll",
+            "body": "Hallo {username}, du nutzt {used} von {limit} deines Speichers bei {siteName} ({percent}).",
+            "freeUp": "Sobald er voll ist, funktionieren Uploads nicht mehr. Lösche Dateien, die du nicht mehr brauchst, und leere den Papierkorb, denn Dateien im Papierkorb zählen weiterhin mit, oder bitte einen Administrator um mehr Speicher.",
+            "action": "Speicher ansehen"
         }
     },
     "errorsAuth": {
@@ -232,6 +305,15 @@
         "missingFile": "Keine Datei gesendet",
         "invalidFile": "Ungültige Datei",
         "fileNameTaken": "Eine Datei mit diesem Namen existiert bereits"
+    },
+    "errorsEmail": {
+        "testFailed": "Test-E-Mail konnte nicht gesendet werden: {error}",
+        "disabled": "E-Mail ist auf diesem Server nicht eingerichtet",
+        "emailTaken": "Diese E-Mail-Adresse wird bereits von einem anderen Konto verwendet",
+        "sendFailed": "E-Mail konnte nicht gesendet werden. Versuche es später erneut.",
+        "invalidLink": "Dieser Link ist ungültig oder abgelaufen",
+        "invalidInvite": "Diese Einladung ist ungültig oder abgelaufen",
+        "inviteNotFound": "Einladung nicht gefunden"
     },
     "errorsFiles": {
         "noFilesToDelete": "Keine Dateien zum Löschen gefunden",
@@ -699,6 +781,11 @@
                 "title": "Protokoll und Telemetrie",
                 "description": "Was Fileship aufzeichnet und teilt.",
                 "saved": "Einstellungen für Protokoll und Telemetrie gespeichert"
+            },
+            "email": {
+                "title": "E-Mail",
+                "description": "Sende Links zum Zurücksetzen des Passworts, Einladungen und Speicherwarnungen per E-Mail. Die E-Mail-Funktionen erscheinen, sobald Dashboard-Adresse, SMTP-Server und Absenderadresse eingetragen sind.",
+                "saved": "E-Mail-Einstellungen gespeichert"
             }
         },
         "fields": {
@@ -741,7 +828,20 @@
             "logLevelImportant": "Wichtige Aktionen",
             "logLevelEverything": "Alles",
             "telemetryEnabled": "Anonyme Telemetrie",
-            "telemetryEnabledDescription": "Teile anonyme Nutzungsstatistiken, um Fileship zu verbessern."
+            "telemetryEnabledDescription": "Teile anonyme Nutzungsstatistiken, um Fileship zu verbessern.",
+            "siteUrl": "Dashboard-Adresse",
+            "siteUrlDescription": "Links in E-Mails führen zu dieser Adresse.",
+            "smtpHost": "SMTP-Server",
+            "smtpPort": "Port",
+            "smtpSecurity": "Verschlüsselung",
+            "smtpSecurityDescription": "STARTTLS nutzt meist Port 587, TLS Port 465.",
+            "smtpSecurityStarttls": "STARTTLS",
+            "smtpSecurityTls": "TLS",
+            "smtpSecurityNone": "Keine",
+            "smtpUser": "Benutzername",
+            "smtpPassword": "Passwort",
+            "smtpFrom": "Absenderadresse",
+            "smtpFromDescription": "E-Mails werden von dieser Adresse mit dem Website-Namen als Absender gesendet."
         },
         "ai": {
             "queue": "Warteschlange",
@@ -843,6 +943,14 @@
             "start": "Importieren",
             "pathCopied": "Pfad kopiert",
             "started": "Dateien werden im Hintergrund importiert"
+        },
+        "siteUrlInvalid": "Gib eine Adresse wie https://files.example.com ein",
+        "email": {
+            "test": "Test-E-Mail",
+            "sendTest": "Test-E-Mail senden",
+            "testDescription": "Verwendet die Einstellungen oben, auch bevor du sie speicherst.",
+            "testSent": "Test-E-Mail an {email} gesendet",
+            "hostRequired": "SMTP-Server ist erforderlich"
         }
     },
     "integrations": {
@@ -1157,7 +1265,15 @@
             "deleteLink": "Link gelöscht",
             "takeNote": "Notiz erstellt",
             "updateNote": "Notiz aktualisiert",
-            "deleteNote": "Notiz gelöscht"
+            "deleteNote": "Notiz gelöscht",
+            "sendTestEmail": "Test-E-Mail gesendet",
+            "updateEmail": "E-Mail geändert",
+            "removeEmail": "E-Mail entfernt",
+            "verifyEmail": "E-Mail bestätigt",
+            "resetPassword": "Passwort zurückgesetzt",
+            "requestPasswordReset": "Zurücksetzen des Passworts angefordert",
+            "createInvite": "Einladung erstellt",
+            "deleteInvite": "Einladung zurückgezogen"
         }
     },
     "notes": {
@@ -1359,7 +1475,24 @@
             "accountDescription": "Dein öffentlicher Benutzername.",
             "username": "Benutzername",
             "save": "Speichern",
-            "usernameUpdated": "Benutzername aktualisiert"
+            "usernameUpdated": "Benutzername aktualisiert",
+            "email": {
+                "title": "E-Mail",
+                "description": "Wird zum Zurücksetzen deines Passworts und für Warnungen bei fast vollem Speicher verwendet. Administratoren können sie sehen.",
+                "label": "E-Mail-Adresse",
+                "verified": "Bestätigt",
+                "notVerified": "Nicht bestätigt",
+                "pendingTitle": "Prüfe dein Postfach",
+                "pendingDescription": "Wir haben einen Bestätigungslink an {email} gesendet. Öffne ihn, um diese Adresse zu verwenden.",
+                "pendingKeepsCurrent": "Wir haben einen Bestätigungslink an {email} gesendet. Bis du ihn öffnest, bleibt {current} aktiv.",
+                "resend": "Link erneut senden",
+                "remove": "Entfernen",
+                "sent": "Bestätigungslink an {email} gesendet",
+                "pendingCancelled": "Deine bisherige E-Mail-Adresse bleibt aktiv",
+                "removed": "E-Mail-Adresse entfernt",
+                "removeTitle": "E-Mail-Adresse entfernen?",
+                "removeDescription": "Du kannst dein Passwort dann nicht mehr per E-Mail zurücksetzen und erhältst keine Speicherwarnungen."
+            }
         },
         "ai": {
             "title": "KI",
@@ -1640,7 +1773,8 @@
             "files": "Dateien",
             "notes": "Notizen",
             "storage": "Speicher",
-            "joined": "Beigetreten"
+            "joined": "Beigetreten",
+            "email": "E-Mail"
         },
         "sort": {
             "newest": "Neueste",
@@ -1649,6 +1783,24 @@
             "nameDesc": "Name Z–A",
             "mostFiles": "Meiste Dateien",
             "mostNotes": "Meiste Notizen"
+        },
+        "emailVerified": "Bestätigt",
+        "emailNotVerified": "Nicht bestätigt",
+        "invite": {
+            "button": "Einladen",
+            "title": "Jemanden einladen",
+            "description": "Sende eine E-Mail mit einem Link zum Erstellen eines Kontos. Das funktioniert auch, wenn die Registrierung geschlossen ist.",
+            "email": "E-Mail-Adresse",
+            "language": "Sprache der E-Mail",
+            "send": "Einladung senden",
+            "sent": "Einladung an {email} gesendet",
+            "pending": "Offene Einladungen",
+            "pendingDescription": "Jeder Link funktioniert einmal und läuft nach 7 Tagen ab.",
+            "details": "{roles} · Eingeladen von {username} · Läuft ab {expires}",
+            "withdraw": "Zurückziehen",
+            "withdrawTitle": "Einladung für {email} zurückziehen?",
+            "withdrawDescription": "Der Link in der E-Mail funktioniert dann nicht mehr.",
+            "withdrawn": "Einladung zurückgezogen"
         }
     },
     "view": {
