@@ -354,7 +354,9 @@
         "format": "형식",
         "color": "색상",
         "frames": "프레임 수",
-        "fileUpdated": "파일을 업데이트했어요"
+        "fileUpdated": "파일을 업데이트했어요",
+        "pages": "페이지 수",
+        "page": "{page}페이지"
     },
     "files": {
         "title": "파일",

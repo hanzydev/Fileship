@@ -131,6 +131,9 @@
                     "
                     class="max-h-[calc(100svh-6rem)] max-w-full rounded-2xl"
                 />
+                <div v-else-if="isPdfPreview" class="h-[calc(100svh-6rem)] w-full">
+                    <PdfViewer :src="pdfUrl" :range="false" @error="isPdfFailed = true" />
+                </div>
                 <UiCard v-else-if="isAudio" class="w-full max-w-md">
                     <UiCardContent class="flex flex-col items-center gap-6">
                         <IMusic class="size-10 text-muted-foreground" />
@@ -223,10 +226,12 @@ const contentError = ref<string>();
 const previewMode = ref(true);
 const passwordError = ref<string>();
 const isVerifying = ref(false);
+const isPdfFailed = ref(false);
 
 const isImage = computed(() => data.value.mimeType?.startsWith('image/'));
 const isVideo = computed(() => data.value.mimeType?.startsWith('video/'));
 const isAudio = computed(() => data.value.mimeType?.startsWith('audio/'));
+const isPdfPreview = computed(() => isPdf(data.value.mimeType ?? '') && !isPdfFailed.value);
 const extension = computed(() => getExtname(data.value.fileName || '').slice(1));
 const isText = computed(() => TEXT_FILE_TYPES.some((type) => type.extension === extension.value));
 const codeExtension = computed(
@@ -239,6 +244,11 @@ const fileUrl = computed(
 );
 
 const downloadUrl = computed(() => `${fileUrl.value}${data.value.password ? '&' : '?'}download`);
+
+const pdfUrl = computed(
+    () =>
+        `/u/${encodeURIComponent(data.value.fileName!)}${data.value.password ? `?password=${encodeURIComponent(String(data.value.password))}` : ''}`,
+);
 
 const renderedContent = computed(() =>
     codeExtension.value

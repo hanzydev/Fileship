@@ -7,20 +7,22 @@ import sharp from 'sharp';
 
 import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import ffprobe from '@ffprobe-installer/ffprobe';
+import { createPdfClient } from '@fileship/pdf';
 
 fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 fluentFfmpeg.setFfprobePath(ffprobe.path);
+
+const pdf = createPdfClient();
 
 export const getThumbnailPath = (id: string) => join(dataDirectory, 'thumbnails', `${id}.jpeg`);
 
 export const hasThumbnail = (id: string) => existsSync(getThumbnailPath(id));
 
 export const isAnalyzable = (mimeType: string) =>
-    ['image/', 'video/', 'audio/'].some((type) => mimeType.startsWith(type));
+    isPdf(mimeType) || ['image/', 'video/', 'audio/'].some((type) => mimeType.startsWith(type));
 
 export const canHaveThumbnail = (mimeType: string) =>
-    mimeType.startsWith('video/') ||
-    (mimeType.startsWith('image/') && !['image/gif', 'image/svg+xml'].includes(mimeType));
+    isPdf(mimeType) || mimeType.startsWith('video/') || isProcessableImage(mimeType);
 
 export const getThumbnailUrl = (
     event: H3Event,
@@ -70,11 +72,23 @@ const createImageThumbnail = (filePath: string, outputPath: string) =>
         .toFile(outputPath)
         .catch(() => null);
 
+const createPdfThumbnail = async (filePath: string, outputPath: string) => {
+    const image = (await pdf.preview(filePath, 640).catch(() => null))?.image;
+    if (!image) return;
+
+    await sharp(image.data, { raw: { width: image.width, height: image.height, channels: 4 } })
+        .removeAlpha()
+        .jpeg({ quality: 80, mozjpeg: true })
+        .toFile(outputPath)
+        .catch(() => null);
+};
+
 export const createThumbnail = async (file: { id: string; mimeType: string }, filePath: string) => {
     const thumbnailPath = getThumbnailPath(file.id);
     const tempPath = `${thumbnailPath}.tmp`;
 
-    if (file.mimeType.startsWith('video/')) await createVideoThumbnail(filePath, tempPath);
+    if (isPdf(file.mimeType)) await createPdfThumbnail(filePath, tempPath);
+    else if (file.mimeType.startsWith('video/')) await createVideoThumbnail(filePath, tempPath);
     else await createImageThumbnail(filePath, tempPath);
 
     await fsp.rename(tempPath, thumbnailPath).catch(() => null);
@@ -133,10 +147,21 @@ const readStreamMetadata = async (filePath: string): Promise<IMediaMetadata> => 
     };
 };
 
+const readPdfMetadata = async (filePath: string): Promise<IMediaMetadata> => {
+    const { pages, version } = (await pdf.preview(filePath, 0))!;
+
+    return {
+        pages,
+        format: version ? `PDF ${Math.floor(version / 10)}.${version % 10}` : 'PDF',
+    };
+};
+
 export const readMetadata = (mimeType: string, filePath: string) =>
-    (mimeType.startsWith('image/')
-        ? readImageMetadata(filePath)
-        : readStreamMetadata(filePath)
+    (isPdf(mimeType)
+        ? readPdfMetadata(filePath)
+        : mimeType.startsWith('image/')
+          ? readImageMetadata(filePath)
+          : readStreamMetadata(filePath)
     ).catch(() => ({}) as IMediaMetadata);
 
 export const processMedia = async (file: { id: string; mimeType: string }, filePath: string) => {

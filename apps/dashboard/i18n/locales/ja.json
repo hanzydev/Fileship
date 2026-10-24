@@ -354,7 +354,9 @@
         "format": "形式",
         "color": "色",
         "frames": "フレーム数",
-        "fileUpdated": "ファイルを更新しました"
+        "fileUpdated": "ファイルを更新しました",
+        "pages": "ページ数",
+        "page": "{page} ページ"
     },
     "files": {
         "title": "ファイル",

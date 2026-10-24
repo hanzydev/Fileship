@@ -354,7 +354,9 @@
         "format": "格式",
         "color": "颜色",
         "frames": "帧数",
-        "fileUpdated": "文件已更新"
+        "fileUpdated": "文件已更新",
+        "pages": "页数",
+        "page": "第 {page} 页"
     },
     "files": {
         "title": "文件",

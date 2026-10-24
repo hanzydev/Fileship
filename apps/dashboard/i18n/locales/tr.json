@@ -354,7 +354,9 @@
         "format": "Biçim",
         "color": "Renk",
         "frames": "Kare sayısı",
-        "fileUpdated": "Dosya güncellendi"
+        "fileUpdated": "Dosya güncellendi",
+        "pages": "Sayfa sayısı",
+        "page": "Sayfa {page}"
     },
     "files": {
         "title": "Dosyalar",

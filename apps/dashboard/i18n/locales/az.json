@@ -354,7 +354,9 @@
         "format": "Format",
         "color": "Rəng",
         "frames": "Kadr sayı",
-        "fileUpdated": "Fayl yeniləndi"
+        "fileUpdated": "Fayl yeniləndi",
+        "pages": "Səhifə sayı",
+        "page": "Səhifə {page}"
     },
     "files": {
         "title": "Fayllar",

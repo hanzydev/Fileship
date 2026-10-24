@@ -35,12 +35,17 @@
                             @error="isLoaded = true"
                         />
                         <img
-                            v-else-if="isVideo && file.thumbnailUrl"
+                            v-else-if="file.thumbnailUrl"
                             ref="media"
                             :src="file.thumbnailUrl"
                             :alt="file.name"
                             loading="lazy"
-                            class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            :class="
+                                cn(
+                                    'size-full object-cover transition-transform duration-300 group-hover:scale-105',
+                                    isPdf(file.mimeType) && 'object-top',
+                                )
+                            "
                             @load="isLoaded = true"
                             @error="isLoaded = true"
                         />
@@ -183,7 +188,7 @@ const publicSettings = usePublicSettings();
 
 const isImage = computed(() => file.mimeType.startsWith('image/'));
 const isVideo = computed(() => file.mimeType.startsWith('video/'));
-const hasMedia = computed(() => isImage.value || (isVideo.value && !!file.thumbnailUrl));
+const hasMedia = computed(() => isImage.value || !!file.thumbnailUrl);
 
 const media = useTemplateRef<HTMLImageElement>('media');
 const isLoaded = ref(false);

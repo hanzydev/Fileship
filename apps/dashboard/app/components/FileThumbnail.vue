@@ -6,7 +6,13 @@
         loading="lazy"
         decoding="async"
         draggable="false"
-        :class="cn('size-full object-cover', isSensitive && 'blur-sm')"
+        :class="
+            cn(
+                'size-full object-cover',
+                isPdf(file.mimeType) && 'object-top',
+                isSensitive && 'blur-sm',
+            )
+        "
     />
     <component :is="getFileIcon(file)" v-else class="size-[42%] text-muted-foreground" />
     <IPlay

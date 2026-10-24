@@ -354,7 +354,9 @@
         "format": "Format",
         "color": "Farbe",
         "frames": "Einzelbilder",
-        "fileUpdated": "Datei aktualisiert"
+        "fileUpdated": "Datei aktualisiert",
+        "pages": "Seiten",
+        "page": "Seite {page}"
     },
     "files": {
         "title": "Dateien",

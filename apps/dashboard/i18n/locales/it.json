@@ -354,7 +354,9 @@
         "format": "Formato",
         "color": "Colore",
         "frames": "Fotogrammi",
-        "fileUpdated": "File aggiornato"
+        "fileUpdated": "File aggiornato",
+        "pages": "Pagine",
+        "page": "Pagina {page}"
     },
     "files": {
         "title": "File",

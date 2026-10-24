@@ -60,6 +60,11 @@
                         <IMusic class="size-12 text-muted-foreground" />
                         <audio :key="file.id" :src="file.directUrl" controls class="w-full" />
                     </div>
+                    <PdfViewer
+                        v-else-if="isPdfPreview"
+                        :src="`/u/${encodeURIComponent(file.fileName)}`"
+                        @error="failedPdfId = file.id"
+                    />
                     <div v-else class="flex flex-col items-center gap-4">
                         <component :is="getFileIcon(file)" class="size-12 text-muted-foreground" />
                         <UiButton variant="outline" @click="handleOpenFile">
@@ -416,6 +421,7 @@ const closeButton = useTemplateRef<any>('closeButton');
 const isZoomed = ref(false);
 const isRevealed = ref(false);
 const loadedId = ref<string>();
+const failedPdfId = ref<string>();
 const isSaving = ref(false);
 const isMarking = ref(false);
 const zoomOrigin = ref('center');
@@ -556,6 +562,9 @@ const footerActions = computed(() =>
 const isImage = computed(() => file.value!.mimeType.startsWith('image/'));
 const isVideo = computed(() => file.value!.mimeType.startsWith('video/'));
 const isAudio = computed(() => file.value!.mimeType.startsWith('audio/'));
+const isPdfPreview = computed(
+    () => isPdf(file.value!.mimeType) && failedPdfId.value !== file.value!.id,
+);
 
 const overlayClass = computed(() =>
     cn('transition-opacity', isZoomed.value && 'pointer-events-none opacity-0'),
@@ -697,6 +706,7 @@ const metadata = computed(() => {
                     .join(' · '),
         },
         { label: t('fileViewer.frames'), value: m.frames },
+        { label: t('fileViewer.pages'), value: m.pages && formatNumber(m.pages) },
     ].filter((row) => row.value);
 });
 

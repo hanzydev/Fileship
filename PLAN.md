@@ -37,4 +37,5 @@ Dashboard and infrastructure:
 - [ ] In the Docker image the AI worker starts and loads its dependencies, but downloading and running the models inside a container has not been tested.
 - [ ] Review the Dependabot alerts and the open dependency updates.
 - [ ] `/api/healthz` of the 5.4.4 image reports 5.4.3; check that future images report their own version.
+- [ ] PDF thumbnails were tested in development and a production build on Windows. Check them in the Docker image (`pdf-worker.mjs` and `pdfium.wasm` in `.output`) and with encrypted and damaged PDFs.
 - [ ] Duplicate detection was tested on the local storage only. Check the hashing reads (`hashFile`) on S3, SFTP and FTP, and a large backfill (`files:hash`) on an instance with many files.
