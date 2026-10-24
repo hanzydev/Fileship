@@ -50,6 +50,8 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - **Orama:** the default English splitter drops every non-Latin character. Every index uses `createSearchTokenizer`; never create an Orama index without it.
 - **Hydration:** `TextBlock` renders a `<p>`. Wrapping block content in it (for example `UiSkeleton`, a `<div>`) causes hydration mismatches; use `custom-tag="div"`.
 - **Dialog exit animations:** if a dialog's content is rendered with `v-if` on the same state that closes it, the content disappears at once and the close animation never plays. Keep a copy of the last item and render from that (see `layouts/dashboard.vue` and the public folder page).
+- **Links in emails** use the `siteUrl` setting (**Dashboard address**), never the request `Host`, which anyone can set; building reset links from the request would let an attacker receive another user's reset token.
+- **Testing email locally:** point SMTP at a local catcher with encryption `none` and set the dashboard address to the dev URL. The dev server also runs tasks on demand with `POST /_nitro/tasks/<name>` (for example `email:storageWarnings`). Files must have unique names across the instance, so upload test files with distinct names.
 - **Client IPs in development:** the dev server has no proxy, so the peer address is empty and `getClientIp` trusts the forwarding headers. Test scripts can send `X-Fileship-Client-IP: 10.x.y.z` with a different private address per run to avoid the login rate limit (10 attempts per 15 minutes per IP and username).
 
 ## Testing the desktop app safely
