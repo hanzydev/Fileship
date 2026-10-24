@@ -112,6 +112,8 @@ export default defineEventHandler(async (event) => {
                 system: true,
             });
 
+            emitFilesDeleted(null, findFileById.authorId, [findFileById], 'maxViews');
+
             sendToUser(findFileById.authorId, 'file:delete', findFileById.id);
         });
     }

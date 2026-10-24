@@ -54,6 +54,7 @@ export const getSettingDefaults = (): InstanceSettings => {
         aiJobLeaseMs: parseDefault('aiJobLeaseMs', +config.ai.jobLeaseMs, 2 * 60_000),
         logLevel: parseDefault('logLevel', +config.logLevel, 2),
         telemetryEnabled: parseDefault('telemetryEnabled', !!config.telemetryEnabled, true),
+        webhookPrivateTargets: false,
         activeStorageId: null,
     };
 };

@@ -23,6 +23,14 @@ export default defineEventHandler(async (event) => {
             id: true,
             fileName: true,
             storageId: true,
+            name: true,
+            mimeType: true,
+            size: true,
+            password: true,
+            piiDetected: true,
+            expiresAt: true,
+            aiAnalyzedAt: true,
+            folder: { select: { public: true } },
         },
     });
 
@@ -42,6 +50,8 @@ export default defineEventHandler(async (event) => {
     } else {
         await deleteFilesForever(filesToBeDeleted);
     }
+
+    emitFilesDeleted(event, currentUser.id, filesToBeDeleted, isTrashed ? 'trashed' : 'deleted');
 
     sendToUser(currentUser.id, 'file:bulkDelete', fileIds);
     sendToUser(currentUser.id, 'trash:update', null);

@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
             authorId: currentUser.id,
             deletedAt: null,
         },
+        include: { folder: { select: { public: true } } },
     });
 
     if (!findFileById) {
@@ -43,6 +44,8 @@ export default defineEventHandler(async (event) => {
             ? `Moved file ${findFileById.fileName} to trash`
             : `Deleted file ${findFileById.fileName}`,
     });
+
+    emitFilesDeleted(event, currentUser.id, [findFileById], isTrashed ? 'trashed' : 'deleted');
 
     sendToUser(currentUser.id, 'file:delete', fileId);
     sendToUser(currentUser.id, 'trash:update', null);

@@ -52,6 +52,8 @@ export default defineEventHandler(async (event) => {
         message: `Took note ${note.title}`,
     });
 
+    emitNoteCreated(event, currentUser.id, note);
+
     sendToUser(currentUser.id, 'note:create', note);
 
     return note;

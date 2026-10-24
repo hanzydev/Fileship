@@ -23,6 +23,7 @@ export const settingsSchema = z.object({
     aiJobLeaseMs: z.number().int().min(60_000),
     logLevel: z.union([z.literal(0), z.literal(1), z.literal(2)]),
     telemetryEnabled: z.boolean(),
+    webhookPrivateTargets: z.boolean(),
     activeStorageId: z.string().nullable(),
 });
 

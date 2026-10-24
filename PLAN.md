@@ -37,3 +37,5 @@ Dashboard and infrastructure:
 - [ ] In the Docker image the AI worker starts and loads its dependencies, but downloading and running the models inside a container has not been tested.
 - [ ] Review the Dependabot alerts and the open dependency updates.
 - [ ] `/api/healthz` of the 5.4.4 image reports 5.4.3; check that future images report their own version.
+- [ ] Webhooks were tested against a local receiver only: check how Discord renders the embeds (title escapes, thumbnails fetched through Discord's proxy, `<t:…>` dates) and how Slack renders the blocks with real webhooks.
+- [ ] Check the webhook wait for AI analysis with AI on (an image upload is sent after its analysis, a sensitive one without name and preview); it was only tested with AI off.

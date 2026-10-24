@@ -41,6 +41,19 @@ enum AIJobStatus {
   Failed
 }
 
+enum WebhookFormat {
+  Discord
+  Slack
+  Json
+}
+
+enum WebhookDeliveryStatus {
+  Pending
+  Processing
+  Succeeded
+  Failed
+}
+
 model User {
   id                     String              @id @unique @default(uuid())
   username               String              @unique
@@ -72,6 +85,7 @@ model User {
   inbox                  Inbox?
   backups                Backup[]
   links                  Link[]
+  webhooks               Webhook[]
 }
 
 model Credential {
@@ -279,4 +293,46 @@ model Link {
   authorId  String
 
   @@index([authorId, createdAt])
+}
+
+model Webhook {
+  id           String            @id @default(uuid())
+  name         String
+  url          String
+  secret       String?
+  format       WebhookFormat
+  events       String[]
+  enabled      Boolean           @default(true)
+  language     String            @default("en")
+  failureCount Int               @default(0)
+  disabledAt   DateTime?
+  retryAt      DateTime?
+  createdAt    DateTime          @default(now())
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  deliveries   WebhookDelivery[]
+
+  @@index([userId])
+}
+
+model WebhookDelivery {
+  id            String                @id @default(uuid())
+  webhook       Webhook               @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+  webhookId     String
+  event         String
+  payload       Json
+  status        WebhookDeliveryStatus @default(Pending)
+  attempts      Int                   @default(0)
+  nextAttemptAt DateTime              @default(now())
+  lockedAt      DateTime?
+  lockedBy      String?
+  statusCode    Int?
+  error         String?
+  detail        String?
+  duration      Int?
+  createdAt     DateTime              @default(now())
+  finishedAt    DateTime?
+
+  @@index([status, nextAttemptAt])
+  @@index([webhookId, createdAt])
 }

@@ -38,6 +38,8 @@ export default defineEventHandler(async (event) => {
         message: `Shortened ${link.url} to ${link.code}`,
     });
 
+    emitLinkCreated(event, currentUser.id, serialized);
+
     sendToUser(currentUser.id, 'link:create', serialized);
 
     return serialized;

@@ -182,6 +182,8 @@ export default defineEventHandler(async (event) => {
 
         await indexCreatedFile(event, currentUser, upload);
 
+        emitFileUploaded(event, currentUser, _upload, 'upload');
+
         await createLog(event, {
             action: 'Upload File',
             message: `Uploaded file ${_upload.fileName}`,

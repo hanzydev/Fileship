@@ -54,6 +54,13 @@ export default defineEventHandler(async (event) => {
     }
 
     if (body.data.deleteFilesToo) {
+        emitFilesDeleted(
+            event,
+            currentUser.id,
+            findFolderById.files.map((file) => ({ ...file, folder: findFolderById })),
+            isTrashed ? 'trashed' : 'deleted',
+        );
+
         const deletionPromises = findFolderById.files.map(async (file) => {
             await createLog(event, {
                 action: 'Delete File',

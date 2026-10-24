@@ -158,6 +158,8 @@ export default defineEventHandler(async (event) => {
 
         await indexCreatedFile(event, findInboxById.user, upload);
 
+        emitFileUploaded(event, findInboxById.user, _upload, 'inbox');
+
         await createLog(event, {
             action: 'Inbox File Upload',
             message: `File ${_upload.fileName} uploaded to inbox`,
