@@ -187,7 +187,7 @@ const currentUser = useAuthUser();
 const publicSettings = usePublicSettings();
 
 const isImage = computed(() => file.mimeType.startsWith('image/'));
-const isVideo = computed(() => file.mimeType.startsWith('video/'));
+const isVideo = computed(() => isVideoFile(file));
 const hasMedia = computed(() => isImage.value || !!file.thumbnailUrl);
 
 const media = useTemplateRef<HTMLImageElement>('media');

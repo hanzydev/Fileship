@@ -236,11 +236,7 @@
                                     />
                                 </div>
                                 <div
-                                    v-if="
-                                        !item.isLocked &&
-                                        item.mimeType.startsWith('video/') &&
-                                        item.thumbnailUrl
-                                    "
+                                    v-if="!item.isLocked && isVideoFile(item) && item.thumbnailUrl"
                                     class="absolute inset-0 flex items-center justify-center"
                                 >
                                     <IPlay class="size-8 fill-white text-white drop-shadow" />
@@ -283,7 +279,7 @@
                         class="max-h-full max-w-full rounded-2xl object-contain"
                     />
                     <video
-                        v-else-if="shownFile.mimeType.startsWith('video/')"
+                        v-else-if="isVideoFile(shownFile)"
                         :key="shownFile.id"
                         :src="withPassword(shownFile, shownFile.directUrl)"
                         :poster="
@@ -489,7 +485,7 @@ const visibleFiles = computed(() =>
 );
 
 const isMedia = (file: FileData) =>
-    ['image/', 'video/', 'audio/'].some((type) => file.mimeType.startsWith(type));
+    file.mimeType.startsWith('image/') || file.mimeType.startsWith('audio/') || isVideoFile(file);
 
 const media = computed(() => visibleFiles.value.filter((f) => !f.isLocked && isMedia(f)));
 
