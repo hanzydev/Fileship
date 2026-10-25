@@ -2515,7 +2515,10 @@ void stopHarborNow(StopOptions options) {
             }
         }
 
-        std::ranges::stable_sort(placeholders, [](auto const& a, auto const& b) { return a.isFolder < b.isFolder; });
+        std::ranges::stable_sort(placeholders, [](auto const& a, auto const& b) {
+            if (a.isFolder != b.isFolder) return a.isFolder < b.isFolder;
+            return std::ranges::count(a.path, L'\\') > std::ranges::count(b.path, L'\\');
+        });
 
         for (auto const& item : placeholders) {
             if (item.isFolder && !isEmptyFolder(std::filesystem::path(folder) / item.path)) continue;
