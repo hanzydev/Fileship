@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -8,6 +8,7 @@ import { root } from './msvc.mjs';
 const workspace = join(root, '..', '..');
 const generated = join(root, 'build', 'generated');
 const catalogs = join(root, 'build', 'host', 'i18n');
+const fonts = join(root, 'build', 'host', 'fonts');
 
 const THEME_TOKENS = [
     'background',
@@ -273,9 +274,77 @@ const writeCatalogs = () => {
     }
 };
 
+const resolveGeist = () => {
+    for (const folder of [root, join(workspace, 'apps', 'extension')]) {
+        try {
+            const require = createRequire(join(folder, 'package.json'));
+            return dirname(require.resolve('@fontsource-variable/geist/package.json'));
+        } catch {
+            continue;
+        }
+    }
+
+    throw new Error('The @fontsource-variable/geist package is not installed.');
+};
+
+const writeFonts = () => {
+    const geist = resolveGeist();
+    const css = readFileSync(join(geist, 'wght.css'), 'utf8');
+    const faces = [
+        ...css.matchAll(/url\(\.\/files\/([^)]+-normal\.woff2)\)[^}]*unicode-range:\s*([^;]+);/g),
+    ];
+    const lines = [
+        '#pragma once',
+        '',
+        '#include <cstddef>',
+        '#include <cstdint>',
+        '',
+        'namespace fileship {',
+        '',
+        'struct FontRange {',
+        '    uint32_t first;',
+        '    uint32_t last;',
+        '};',
+        '',
+        'struct FontSubset {',
+        '    wchar_t const* file;',
+        '    FontRange const* ranges;',
+        '    size_t count;',
+        '};',
+        '',
+    ];
+    const subsets = [];
+
+    for (const [index, [, file, ranges]] of faces.entries()) {
+        const values = ranges.split(',').map((range) => {
+            const [first, last = first] = range.trim().slice(2).split('-');
+            return `{0x${first}, 0x${last}}`;
+        });
+
+        copyFileSync(join(geist, 'files', file), join(fonts, file));
+        lines.push(`inline constexpr FontRange FONT_RANGES_${index}[] = {${values.join(', ')}};`);
+        subsets.push(`    {L${JSON.stringify(file)}, FONT_RANGES_${index}, ${values.length}},`);
+    }
+
+    if (!subsets.length) throw new Error('No Geist font files were found.');
+
+    lines.push(
+        '',
+        'inline constexpr FontSubset GEIST_SUBSETS[] = {',
+        ...subsets,
+        '};',
+        '',
+        '}',
+        '',
+    );
+    writeFileSync(join(generated, 'fonts.h'), lines.join('\n'));
+};
+
 mkdirSync(generated, { recursive: true });
 mkdirSync(catalogs, { recursive: true });
+mkdirSync(fonts, { recursive: true });
 
 writeTheme();
 await writeIcons();
 writeCatalogs();
+writeFonts();
