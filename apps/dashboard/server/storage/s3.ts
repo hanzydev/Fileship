@@ -24,6 +24,13 @@ const MAX_COPY_SIZE = 5 * 1024 ** 3;
 const COPY_PART_SIZE = 512 * 1024 ** 2;
 const COPY_CONCURRENCY = 4;
 
+const trimTrailingSlashes = (value: string) => {
+    let end = value.length;
+    while (end > 0 && value[end - 1] === '/') end--;
+
+    return value.slice(0, end);
+};
+
 export interface S3Config {
     endpoint?: string;
     region: string;
@@ -47,7 +54,7 @@ export const createS3Driver = (config: S3Config): StorageDriver => {
         },
     });
 
-    const prefix = config.prefix ? `${config.prefix.replace(/\/+$/, '')}/` : '';
+    const prefix = config.prefix ? `${trimTrailingSlashes(config.prefix)}/` : '';
     const objectKey = (key: string) => `${prefix}${key}`;
 
     const getObject = async (key: string, range?: { start: number; end: number }) => {

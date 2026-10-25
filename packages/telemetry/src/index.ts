@@ -30,8 +30,15 @@ export const collectRuntime = async (directory: string): Promise<TelemetryRuntim
     };
 };
 
+const trimTrailingSlashes = (value: string) => {
+    let end = value.length;
+    while (end > 0 && value[end - 1] === '/') end--;
+
+    return value.slice(0, end);
+};
+
 export const sendReport = (report: TelemetryReport, url = TELEMETRY_URL) =>
-    ofetch(`${url.replace(/\/+$/, '')}/api/v2/report`, {
+    ofetch(`${trimTrailingSlashes(url)}/api/v2/report`, {
         method: 'POST',
         body: report,
         timeout: 10_000,
