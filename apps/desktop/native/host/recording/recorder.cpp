@@ -809,7 +809,7 @@ void begin(std::wstring const& kind, ui::ScreenRect const& rect) {
         setRecordingMute(source == ui::AudioSource::Microphone ? L"microphone" : L"system", muted);
     };
 
-    ui::showRecorderUi(rect, themeMode(values), callbacks);
+    ui::showRecorderUi(rect, themeMode(values), callbacks, flag(recordingSettings, L"showBorder", true));
 
     std::optional<ui::RecorderViewState> view;
     {

@@ -127,7 +127,7 @@ IJsonValue setSettings(JsonObject const& patch) {
 
     if (jsonString(jsonObject(next, L"recording"), L"ffmpegPath") !=
         jsonString(jsonObject(previous, L"recording"), L"ffmpegPath"))
-        setStoreValue(L"ffmpegProbe", JsonValue::CreateNullValue());
+        recording::resetFfmpegProbe();
 
     applySettings();
     if (patch.HasKey(L"hotkeys") || patch.HasKey(L"hotkeysEnabled")) registerHotkeys();
@@ -299,26 +299,6 @@ void registerHandlers() {
     registerHandler(L"hotkeys:setSnippingTool", [](JsonArray const& args) -> IJsonValue { return setSnippingToolKey(boolArg(args, 0)); });
 
     registerHandler(L"folders:list", [](JsonArray const&) -> IJsonValue { return listFolders(); });
-
-    registerHandler(L"harbor:breakdown", [](JsonArray const&) -> IJsonValue {
-        auto stats = api(L"GET", L"/api/users/@me/stats").GetObject();
-        JsonArray result;
-
-        for (auto const& item : stats.GetNamedArray(L"byType")) {
-            auto entry = item.GetObject();
-            auto size = entry.GetNamedValue(L"size");
-
-            JsonObject breakdown;
-            breakdown.SetNamedValue(L"type", JsonValue::CreateStringValue(jsonString(entry, L"type")));
-            breakdown.SetNamedValue(L"size", JsonValue::CreateNumberValue(
-                                                 size.ValueType() == JsonValueType::String
-                                                     ? _wtof(std::wstring(size.GetString()).c_str())
-                                                     : jsonNumber(entry, L"size")));
-            result.Append(breakdown);
-        }
-
-        return result;
-    });
 
     onClientClosed([](uint64_t client) {
         bool wasPausing = false;

@@ -162,6 +162,10 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
     registerHandlers();
     harbor::registerHarborHandlers();
     recording::registerRecordingHandlers();
+    recording::setAreaPicker([](ui::OverlayPurpose purpose, recording::AreaCallback done) {
+        pickArea(purpose, [done](core::Rect area) { done({area.x, area.y, area.width, area.height}); });
+        return true;
+    });
     startRpcServer();
 
     applySettings();
