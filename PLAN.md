@@ -46,7 +46,8 @@ Dashboard and infrastructure:
 
 - [ ] The Docker image is 5.6 GB because the runner copies the whole workspace `node_modules`. Deploy only the dashboard's production dependencies.
 - [ ] In the Docker image the AI worker starts and loads its dependencies, but downloading and running the models inside a container has not been tested.
-- [ ] Review the Dependabot alerts and the open dependency updates.
+- [ ] Dependencies: `pnpm audit` is down to four advisories without a compatible fix. `node-forge` 1.4.0 (nitropack's development certificates; 1.4.1 is not published yet), `zod` 3 inside the `shadcn-vue` CLI (its own dependency and `zod-to-json-schema` need v3; development only), `decode-uri-component` 0.2 under Vite plugins (fixed only in the ESM-only 0.4) and `esbuild` 0.27 under `@nuxt/fonts` (low). Update them when their parents move. Major updates waiting: h3 2, TypeScript 7, `@nuxt/fonts` 1 and Prisma 8 (still a release candidate).
+- [ ] Desktop: move `electron/store.ts` from the synchronous `safeStorage` calls to `encryptStringAsync` / `decryptStringAsync` before Electron 46, which removes them (deprecated in 45).
 - [ ] `/api/healthz` of the 5.4.4 image reports 5.4.3; check that future images report their own version.
 - [ ] Team folders: editors cannot move files or folders yet (only the owner can), files do not record who uploaded them, and shared folders do not appear in Harbor.
 - [ ] Scheduled backups were tested on the data directory with small accounts, with two production instances racing for the same schedules. Check a run on an S3 or SFTP active storage and with a large account.

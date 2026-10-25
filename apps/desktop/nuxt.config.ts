@@ -38,6 +38,10 @@ export default defineNuxtConfig({
         autoImport: true,
     },
 
+    experimental: {
+        nitroAutoImports: true,
+    },
+
     devServer: {
         port: 3020,
     },

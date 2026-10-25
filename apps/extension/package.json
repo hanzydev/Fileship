@@ -29,12 +29,12 @@
         "reka-ui": "^2.11.0",
         "tailwindcss": "^4.3.3",
         "typescript": "^6.0.3",
-        "typescript-eslint": "^8.71.1",
+        "typescript-eslint": "^8.72.0",
         "unplugin-vue-components": "^32.1.0",
         "vitest": "^5.0.5",
-        "vue": "^3.5.43",
+        "vue": "^3.5.44",
         "vue-eslint-parser": "^10.4.1",
-        "vue-tsc": "^3.3.12",
+        "vue-tsc": "^3.3.13",
         "wxt": "^0.21.4"
     }
 }

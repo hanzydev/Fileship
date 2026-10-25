@@ -45,6 +45,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 - **WXT** builds Firefox as MV2 unless `manifestVersion: 3` is set. While zipping sources it prints `Could not get stats of ...` warnings because it resolves the file list against the extension folder instead of `zip.sourcesRoot`; the sources zip itself is complete.
 - unplugin-vue-components treats `!` entries in `dirs` as folders to skip (it appends `/**/*.vue`); exclude single files with `globsExclude`.
 - **Tailwind reads `.gitignore` to find class names.** It skips ignored folders even outside a git repository, so the extension's sources zip carries the root `.gitignore`. Without it, the Firefox build (which runs after the Chrome build) also scans `.output/chrome-mv3` and `.wxt`, and its stylesheet and chunk hashes differ from the submitted package.
+- **Nitro auto-imports with compatibility version 5.** Since Nuxt 4.6.2 the h3 and Nitro presets of `#imports` are off unless `experimental.nitroAutoImports` is on, and compatibility version 5 turns it off. Every app on the ui layer sets it, including the desktop app (`ssr: false`), because `@nuxtjs/i18n`'s server runtime imports `useRuntimeConfig` from `#imports` and the Nitro build of `nuxt generate` fails without it.
 - `LF will be replaced by CRLF` warnings are harmless.
 - Run prettier only on the files you changed; `pnpm lint` formats the whole repository.
 
