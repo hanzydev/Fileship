@@ -35,6 +35,7 @@ using Lock = std::unique_lock<std::recursive_mutex>;
 constexpr int PAGE_SIZE = 200;
 constexpr int APPLY_DELAY_MS = 300;
 constexpr int RETRY_DELAY_MS = 2000;
+constexpr int PARENT_ATTEMPTS = 5;
 constexpr int REPLACE_WINDOW_MS = 3000;
 constexpr std::array<int, 3> RETRY_DELAYS_MS = {5000, 15000, 60000};
 constexpr int FINISH_ATTEMPTS = 3;
@@ -1875,6 +1876,27 @@ void startUpload(HelperEvent const& event, std::optional<std::wstring> const& fo
     });
 }
 
+bool waitForParent(HelperEvent const& event) {
+    if (event.attempt >= PARENT_ATTEMPTS || !pathExists(absoluteOf(dirnameOf(event.path)))) return false;
+
+    auto next = event;
+    next.attempt++;
+    timers().set(RETRY_DELAY_MS, [next] { handleHelperEvent(next); });
+    return true;
+}
+
+void dispatchUnsynced(std::vector<ScanItem> const& items) {
+    for (auto const& item : items) {
+        HelperEvent event;
+        event.type = item.identity && !isPendingIdentity(*item.identity) ? L"localModified" : L"localNew";
+        event.path = item.path;
+        event.identity = item.identity.value_or(L"");
+        event.isFolder = item.isFolder;
+        event.size = item.size;
+        handleHelperEvent(event);
+    }
+}
+
 void handleLocalModified(HelperEvent const& event);
 
 void handleLocalNew(HelperEvent const& event) {
@@ -1902,14 +1924,14 @@ void handleLocalNew(HelperEvent const& event) {
     auto folderId = parent == L"." ? std::nullopt : folderIdAt(parent);
 
     if (parent != L"." && !folderId && !(parentIdentity && startsWith(*parentIdentity, L"v:"))) {
-        if (isPending(parent)) {
-            timers().set(RETRY_DELAY_MS, [event] { handleHelperEvent(event); });
-        }
+        if (!waitForParent(event)) logWarn(L"Skipped " + event.path + L", its folder is not on Fileship");
         return;
     }
 
     if (event.isFolder) {
         if (parentIdentity && startsWith(*parentIdentity, L"v:")) return;
+
+        std::vector<ScanItem> unsynced;
 
         {
             PendingPath pending(event.path);
@@ -1925,7 +1947,7 @@ void handleLocalNew(HelperEvent const& event) {
             }
 
             try {
-                requireHelper()->adopt(event.path, folderIdentity(folder.id));
+                unsynced = requireHelper()->adopt(event.path, folderIdentity(folder.id));
             } catch (...) {
                 rollBack(folderIdentity(folder.id), event.path, std::current_exception());
                 return;
@@ -1938,6 +1960,7 @@ void handleLocalNew(HelperEvent const& event) {
         addActivity(L"folder", basenameOf(event.path));
         setStatus();
         scheduleApply();
+        dispatchUnsynced(unsynced);
         return;
     }
 

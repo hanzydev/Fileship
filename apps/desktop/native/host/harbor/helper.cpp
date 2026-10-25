@@ -51,6 +51,27 @@ HelperEvent parseEvent(JsonObject const& message) {
     return event;
 }
 
+std::vector<ScanItem> itemsOf(JsonObject const& result) {
+    std::vector<ScanItem> items;
+
+    for (auto const& value : result.GetNamedArray(L"items", JsonArray())) {
+        auto object = value.GetObject();
+        ScanItem item;
+        item.path = stringField(object, L"path").value_or(L"");
+        item.isFolder = boolField(object, L"isFolder").value_or(false);
+        item.identity = stringField(object, L"identity");
+        if (item.identity && item.identity->empty()) item.identity.reset();
+        item.inSync = boolField(object, L"inSync").value_or(false);
+        item.modified = boolField(object, L"modified").value_or(false);
+        item.hydrated = boolField(object, L"hydrated").value_or(false);
+        item.isUnreadable = boolField(object, L"unreadable").value_or(false);
+        item.size = static_cast<int64_t>(numberField(object, L"size").value_or(0));
+        items.push_back(std::move(item));
+    }
+
+    return items;
+}
+
 }
 
 std::filesystem::path helperPath() {
@@ -222,25 +243,7 @@ JsonObject HarborHelper::request(std::wstring const& type, JsonObject payload, i
 }
 
 std::vector<ScanItem> HarborHelper::scan() {
-    auto result = request(L"scan");
-    std::vector<ScanItem> items;
-
-    for (auto const& value : result.GetNamedArray(L"items", JsonArray())) {
-        auto object = value.GetObject();
-        ScanItem item;
-        item.path = stringField(object, L"path").value_or(L"");
-        item.isFolder = boolField(object, L"isFolder").value_or(false);
-        item.identity = stringField(object, L"identity");
-        if (item.identity && item.identity->empty()) item.identity.reset();
-        item.inSync = boolField(object, L"inSync").value_or(false);
-        item.modified = boolField(object, L"modified").value_or(false);
-        item.hydrated = boolField(object, L"hydrated").value_or(false);
-        item.isUnreadable = boolField(object, L"unreadable").value_or(false);
-        item.size = static_cast<int64_t>(numberField(object, L"size").value_or(0));
-        items.push_back(std::move(item));
-    }
-
-    return items;
+    return itemsOf(request(L"scan"));
 }
 
 PathIdentity HarborHelper::identityOf(std::wstring const& path) {
@@ -253,13 +256,14 @@ PathIdentity HarborHelper::identityOf(std::wstring const& path) {
     return {boolField(result, L"exists").value_or(false), identity};
 }
 
-void HarborHelper::adopt(std::wstring const& path, std::wstring const& identity, std::wstring const& stamp) {
+std::vector<ScanItem> HarborHelper::adopt(std::wstring const& path, std::wstring const& identity,
+                                          std::wstring const& stamp) {
     JsonObject payload;
     payload.SetNamedValue(L"path", JsonValue::CreateStringValue(path));
     payload.SetNamedValue(L"identity", JsonValue::CreateStringValue(identity));
     if (!stamp.empty()) payload.SetNamedValue(L"stamp", JsonValue::CreateStringValue(stamp));
 
-    request(L"adopt", payload);
+    return itemsOf(request(L"adopt", payload));
 }
 
 void HarborHelper::ack(uint64_t requestId, bool ok) {

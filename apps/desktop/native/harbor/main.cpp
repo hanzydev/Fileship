@@ -165,6 +165,7 @@ void handle(JsonObject const& request) {
             adoptPath(path, std::wstring(request.GetNamedString(L"identity")), isChanged);
             settleItem(path);
             if (isChanged) recheck(path);
+            response.SetNamedValue(L"items", unsyncedChildren(path));
         } else if (type == L"markInSync") {
             auto paths = readPaths(request);
             std::ranges::sort(paths, std::greater{}, depthOf);

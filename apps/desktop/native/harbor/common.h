@@ -93,6 +93,7 @@ bool refreshPlaceholder(std::wstring const& path, int64_t size);
 bool markInSync(std::wstring const& path);
 void removePath(std::wstring const& path);
 void adoptPath(std::wstring const& path, std::wstring const& identity, bool isChanged = false);
+JsonArray unsyncedChildren(std::wstring const& path);
 std::wstring preparePath(std::wstring const& path, std::wstring const& identity);
 std::wstring stampOf(std::wstring const& absolute);
 void reportProgress(std::wstring const& path, int64_t total, int64_t completed);

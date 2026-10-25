@@ -37,6 +37,14 @@ bool isDirectory(std::wstring const& path) {
     return attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY);
 }
 
+bool isClosed(std::wstring const& absolute) {
+    HANDLE handle = CreateFileW(absolute.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,
+                                nullptr);
+    if (handle == INVALID_HANDLE_VALUE) return false;
+    CloseHandle(handle);
+    return true;
+}
+
 IdentityProbe probe(std::wstring const& path, CF_PIN_STATE* pin, CF_IN_SYNC_STATE* sync) {
     std::vector<BYTE> buffer(sizeof(CF_PLACEHOLDER_BASIC_INFO) + 1024);
     DWORD returned = 0;
@@ -269,6 +277,40 @@ void adoptPath(std::wstring const& path, std::wstring const& identity, bool isCh
                                          nullptr, nullptr));
 
     if (!directory) updatePlaceholder(path, std::nullopt, true);
+}
+
+JsonArray unsyncedChildren(std::wstring const& path) {
+    JsonArray items;
+    std::error_code error;
+
+    for (auto iterator = std::filesystem::directory_iterator(fullPath(path), error);
+         !error && iterator != std::filesystem::directory_iterator(); iterator.increment(error)) {
+        auto absolute = iterator->path().wstring();
+        auto name = iterator->path().filename().wstring();
+        DWORD attributes = GetFileAttributesW(absolute.c_str());
+        if (attributes == INVALID_FILE_ATTRIBUTES || isIgnoredName(name)) continue;
+
+        CF_IN_SYNC_STATE sync = CF_IN_SYNC_STATE_NOT_IN_SYNC;
+        auto probed = probe(absolute, nullptr, &sync);
+        auto const& identity = probed.identity;
+        bool directory = (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+        bool isOwned = identity && !identity->empty() && !identity->starts_with(L"p:");
+        bool isSynced = isOwned && (directory || (sync == CF_IN_SYNC_STATE_IN_SYNC && !isModified(absolute)));
+        if (!probed.isKnown || isSynced || (!directory && !isClosed(absolute))) continue;
+
+        std::error_code sizeError;
+        auto size = directory ? 0 : iterator->file_size(sizeError);
+
+        JsonObject item;
+        item.SetNamedValue(L"path", JsonValue::CreateStringValue(path + L"\\" + name));
+        item.SetNamedValue(L"isFolder", JsonValue::CreateBooleanValue(directory));
+        item.SetNamedValue(L"identity", identity && !identity->empty() ? JsonValue::CreateStringValue(*identity)
+                                                                       : JsonValue::CreateNullValue());
+        item.SetNamedValue(L"size", JsonValue::CreateNumberValue(sizeError ? 0 : static_cast<double>(size)));
+        items.Append(item);
+    }
+
+    return items;
 }
 
 std::wstring preparePath(std::wstring const& path, std::wstring const& identity) {
