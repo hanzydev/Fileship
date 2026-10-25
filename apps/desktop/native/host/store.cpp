@@ -19,6 +19,7 @@ std::recursive_mutex mutex;
 JsonObject data{nullptr};
 JsonObject schema{nullptr};
 JsonObject defaults{nullptr};
+std::optional<std::wstring> cachedToken;
 
 std::filesystem::path storePath() {
     return userDataPath() / L"settings.json";
@@ -355,6 +356,7 @@ void loadStore() {
     isChanged |= migrateSecret(stored, L"uploadPassword", L"protectedUploadPassword");
 
     data = normalizeStore(stored);
+    cachedToken.reset();
 
     auto settingsValue = data.GetNamedObject(L"settings");
     auto password = jsonString(jsonObject(settingsValue, L"upload"), L"password");
@@ -425,8 +427,11 @@ std::wstring instanceUrl() {
 
 std::wstring token() {
     std::lock_guard lock(mutex);
+    if (cachedToken) return *cachedToken;
+
     auto stored = jsonString(data, L"protectedToken");
-    return stored.empty() ? std::wstring() : unprotect(stored).value_or(L"");
+    cachedToken = stored.empty() ? std::wstring() : unprotect(stored).value_or(L"");
+    return *cachedToken;
 }
 
 std::wstring siteName() {
@@ -476,6 +481,7 @@ void setSession(std::wstring const& url, std::wstring const& name, std::wstring 
     data.SetNamedValue(L"siteName", JsonValue::CreateStringValue(name));
     data.SetNamedValue(L"protectedToken", JsonValue::CreateStringValue(protect(sessionToken)));
     data.SetNamedValue(L"user", normalized ? IJsonValue(*normalized) : IJsonValue(JsonValue::CreateNullValue()));
+    cachedToken = sessionToken;
     save();
 }
 
@@ -483,6 +489,7 @@ void clearSession() {
     std::lock_guard lock(mutex);
     data.SetNamedValue(L"protectedToken", JsonValue::CreateNullValue());
     data.SetNamedValue(L"user", JsonValue::CreateNullValue());
+    cachedToken = std::wstring();
     save();
 }
 
