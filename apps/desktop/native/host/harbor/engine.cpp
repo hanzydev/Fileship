@@ -2042,6 +2042,19 @@ void runHelperEvent(HelperEvent const& event) {
 }
 
 void handleHelperEvent(HelperEvent event) {
+    if (event.type == L"noteChanged") {
+        auto id = idOf(event.identity);
+        enqueue([id] {
+            tryLog(L"Could not load the note " + id, [&] {
+                auto note = toRemoteNote(harborGet(L"/api/notes/" + id));
+                Lock lock(guard);
+                if (notes.contains(id)) notes[id] = note;
+            });
+            refreshNote(id);
+        });
+        return;
+    }
+
     if (event.type == L"rescan") {
         resync();
         return;

@@ -121,8 +121,17 @@ std::string contentOf(std::wstring const& identity) {
 
 void serveContent(Fetch const& fetch) {
     auto content = contentOf(fetch.identity);
-    if (static_cast<int64_t>(content.size()) < fetch.offset + fetch.length) {
-        throw std::runtime_error("The content is shorter than the placeholder");
+
+    if (static_cast<int64_t>(content.size()) != fetch.fileSize) {
+        log(L"Download failed: the content of " + fetch.identity + L" does not match its placeholder");
+        fail(fetch);
+
+        if (fetch.identity.starts_with(L"n:")) {
+            JsonObject message;
+            message.SetNamedValue(L"identity", JsonValue::CreateStringValue(fetch.identity));
+            sendEvent(L"noteChanged", message);
+        }
+        return;
     }
 
     transfer(fetch, STATUS_SUCCESS, content.data() + fetch.offset, fetch.offset, fetch.length);
