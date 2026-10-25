@@ -21,6 +21,7 @@ const build = (script) => {
 };
 
 build('scripts/native-assets.mjs');
+build('scripts/host-settings.mjs');
 if (!existsSync('build/harbor/fileship-harbor.exe')) build('scripts/harbor.mjs');
 build('scripts/host.mjs');
 

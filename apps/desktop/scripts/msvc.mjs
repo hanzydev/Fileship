@@ -50,6 +50,7 @@ export const compileGroups = (objects, flags, groups) =>
         .filter(([, sources]) => sources.length)
         .map(([name, sources]) => {
             const folder = join(objects, name);
+            rmSync(folder, { recursive: true, force: true });
             mkdirSync(folder, { recursive: true });
             return `cl /nologo /c ${flags} /Fo"${folder}\\\\" ${sources.join(' ')} || exit /b 1`;
         });

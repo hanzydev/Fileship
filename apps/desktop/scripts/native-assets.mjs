@@ -274,21 +274,12 @@ const writeCatalogs = () => {
     }
 };
 
-const resolveGeist = () => {
-    for (const folder of [root, join(workspace, 'apps', 'extension')]) {
-        try {
-            const require = createRequire(join(folder, 'package.json'));
-            return dirname(require.resolve('@fontsource-variable/geist/package.json'));
-        } catch {
-            continue;
-        }
-    }
-
-    throw new Error('The @fontsource-variable/geist package is not installed.');
-};
-
 const writeFonts = () => {
-    const geist = resolveGeist();
+    const geist = dirname(
+        createRequire(join(root, 'package.json')).resolve(
+            '@fontsource-variable/geist/package.json',
+        ),
+    );
     const css = readFileSync(join(geist, 'wght.css'), 'utf8');
     const faces = [
         ...css.matchAll(/url\(\.\/files\/([^)]+-normal\.woff2)\)[^}]*unicode-range:\s*([^;]+);/g),
