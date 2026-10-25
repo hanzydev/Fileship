@@ -2044,13 +2044,18 @@ void handleLocalModified(HelperEvent const& event) {
 
     if (isPending(event.path) || !startsWith(event.identity, L"f:")) return;
 
+    auto parent = dirnameOf(event.path);
+    auto folderId = parent == L"." ? std::nullopt : folderIdAt(parent);
+
+    if (parent != L"." && !folderId) {
+        if (waitForParent(event)) return;
+        throw std::runtime_error(toUtf8(t(L"harbor.onlyFileshipFolders")));
+    }
+
     auto previousId = idOf(event.identity);
-    std::optional<std::wstring> previousFolder;
 
     {
         Lock lock(guard);
-        auto previous = files.find(previousId);
-        if (previous != files.end()) previousFolder = previous->second.folderId;
         pendingPaths.insert(event.path);
         hiddenFiles.insert(previousId);
     }
@@ -2064,7 +2069,7 @@ void handleLocalModified(HelperEvent const& event) {
     auto identity = event.identity;
 
     startUpload(
-        event, previousFolder,
+        event, folderId,
         [previousId, path, identity](RemoteFile const& file, std::wstring const& stamp) {
             try {
                 requireHelper()->adopt(path, fileIdentity(file.id), stamp);
