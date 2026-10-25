@@ -1,7 +1,4 @@
-import { app } from 'electron';
-
-import { type Language, LANGUAGES, messages } from '../i18n/messages';
-import { getSettings } from './store';
+import { type Language, messages } from '../i18n/messages';
 
 type Params = Record<string, string | number>;
 
@@ -28,18 +25,8 @@ export const t = (key: string, params: Params = {}) => {
         .replace(/\{(\w+)\}/g, (match, name) => String(params[name] ?? match));
 };
 
-export const resolveLanguage = (): Language => {
-    const setting = getSettings().language;
-    if (setting !== 'system') return setting;
-
-    const system = app.getPreferredSystemLanguages()[0]?.split('-')[0]?.toLowerCase();
-    return LANGUAGES.includes(system as Language) ? (system as Language) : 'en';
-};
-
 export const getLanguage = () => language;
 
-export const updateLanguage = () => {
-    const previous = language;
-    language = resolveLanguage();
-    return language !== previous;
+export const setLanguage = (value: Language) => {
+    language = value;
 };

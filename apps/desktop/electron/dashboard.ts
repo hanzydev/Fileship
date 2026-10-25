@@ -1,10 +1,9 @@
 import { app, BrowserWindow, session } from 'electron';
 
-import { getAccount } from './account';
-import { desktopUserAgent } from './api';
+import { invokeHost } from './host';
 import { getLanguage } from './i18n';
-import { getStore, getToken } from './store';
 import {
+    desktopUserAgent,
     iconPath,
     openWebUrl,
     restrictPermissions,
@@ -67,7 +66,8 @@ const createDashboard = async (url: string, siteName: string, token: string) => 
     });
 
     const handleNavigate = (_: unknown, target: string) => {
-        if (new URL(target).pathname.startsWith('/login')) getAccount();
+        if (new URL(target).pathname.startsWith('/login'))
+            invokeHost('account:get').catch(() => null);
     };
 
     window.webContents.on('did-navigate', handleNavigate);
@@ -82,13 +82,19 @@ const createDashboard = async (url: string, siteName: string, token: string) => 
 };
 
 export const openDashboard = async (route = '/dashboard') => {
-    const { instanceUrl, siteName } = getStore();
-    const token = getToken();
-    if (!instanceUrl || !token) return;
+    const [account, token] = await Promise.all([
+        invokeHost('account:get'),
+        invokeHost('account:token'),
+    ]);
+    if (!account || !token) return;
 
     if (!dashboardWindow || dashboardWindow.isDestroyed()) {
         if (!opening) {
-            opening = createDashboard(`${instanceUrl}${route}`, siteName, token).finally(() => {
+            opening = createDashboard(
+                `${account.instanceUrl}${route}`,
+                account.siteName,
+                token,
+            ).finally(() => {
                 opening = null;
             });
 
@@ -101,7 +107,7 @@ export const openDashboard = async (route = '/dashboard') => {
     const window = dashboardWindow;
     if (!window || window.isDestroyed()) return;
 
-    if (route !== '/dashboard') window.loadURL(`${instanceUrl}${route}`);
+    if (route !== '/dashboard') window.loadURL(`${account.instanceUrl}${route}`);
     if (window.isMinimized()) window.restore();
     window.focus();
 };

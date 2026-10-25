@@ -1,6 +1,4 @@
 export default defineNuxtRouteMiddleware((to) => {
-    if (['/overlay', '/recorder'].includes(to.path)) return;
-
     const account = useAccount();
 
     if (to.path === '/connect') {

@@ -1,207 +1,40 @@
-import { existsSync, readdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { app, dialog, ipcMain, nativeTheme } from 'electron';
 
-import { app, dialog, globalShortcut, ipcMain, nativeTheme, shell } from 'electron';
-import log from 'electron-log/main';
-
-import { type Folder, INVOKE_CHANNELS, type IpcInvoke } from '../shared/ipc';
-import { checkInstance, getAccount, login, logout } from './account';
-import { runAction, uploadPaths } from './actions';
-import { api } from './api';
-import { writeText } from './clipboard';
+import {
+    HOST_EVENTS,
+    INVOKE_CHANNELS,
+    type IpcInvoke,
+    LOCAL_CHANNELS,
+    type Settings,
+} from '../shared/ipc';
+import { login, logout } from './account';
 import { closeDashboard, openDashboard } from './dashboard';
+import { invokeHost, onHost } from './host';
+import { setLanguage, t } from './i18n';
 import {
-    freeUpHarborSpace,
-    getHarborActivity,
-    getHarborStatus,
-    harborPathFor,
-    harborRoot,
-    openHarbor,
-    pauseHarbor,
-    startHarbor,
-    stopHarbor,
-} from './harbor';
-import { clearHistory, getHistory, listHistory, removeHistory } from './history';
-import {
-    getHotkeyStatus,
-    isSnippingToolKeyEnabled,
-    registerHotkeys,
-    setSnippingToolKey,
-} from './hotkeys';
-import { getLanguage, t, updateLanguage } from './i18n';
-import { finishRegionCapture, markOverlayLoaded, markOverlayReady } from './overlay';
-import { downloadFfmpeg, getFfmpegStatus, resetFfmpegProbe } from './recording/ffmpeg';
-import {
-    controlRecording,
-    getRecorderState,
-    markRecorderReady,
-    recordingPreview,
-    setRecordingMute,
-    showRecorderWindow,
-    writeRecordingAudio,
-} from './recording/recorder';
-import { registerShellMenu } from './shell';
-import { getSettings, updateSettings } from './store';
-import { refreshTray } from './tray';
-import { checkForUpdates, getUpdateStatus, installUpdate } from './updater';
-import { getUploadProgress, resetUploadSettings } from './upload';
-import { broadcast, isAppUrl, notify, openWebUrl, setWindowTheme } from './windows';
+    broadcast,
+    isAppUrl,
+    markQuitting,
+    setTaskbarProgress,
+    setWindowTheme,
+    showMainWindow,
+} from './windows';
 
-type ApiFolder = Folder & { parentId?: string | null };
-
-const FOLDER_PAGE = 200;
+type LocalChannel = (typeof LOCAL_CHANNELS)[number];
 
 type Handlers = {
-    [K in keyof IpcInvoke]: (
-        this: Electron.IpcMainInvokeEvent,
+    [K in LocalChannel]: (
         ...args: Parameters<IpcInvoke[K]>
     ) => ReturnType<IpcInvoke[K]> | Promise<ReturnType<IpcInvoke[K]>>;
 };
 
 const pausingHotkeys = new Set<Electron.WebContents>();
 
-const watchHotkeyPause = (sender: Electron.WebContents) => {
-    if (pausingHotkeys.has(sender)) return;
-
-    pausingHotkeys.add(sender);
-    sender.once('destroyed', () => {
-        pausingHotkeys.delete(sender);
-        registerHotkeys();
-    });
-};
-
-const runInBackground = (label: string, task: () => Promise<unknown>) => {
-    task().catch((error) => {
-        log.error(`${label} failed`, error);
-        notify(t('app.somethingWentWrong'), error.message);
-    });
-};
-
-const applySettings = () => {
-    const { startAtLogin, theme } = getSettings();
-
-    if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: startAtLogin, args: ['--hidden'] });
-    nativeTheme.themeSource = theme;
-
-    if (updateLanguage()) {
-        refreshTray();
-        registerShellMenu();
-        broadcast('app:language', getLanguage());
-    }
-};
-
 const handlers: Handlers = {
-    'instance:check': (url) => checkInstance(url),
-    'account:get': async () => {
-        const account = await getAccount();
-        refreshTray();
-        return account;
-    },
-    'account:login': async (url) => {
-        const account = await login(url);
-        resetUploadSettings();
-        refreshTray();
-        startHarbor();
-        return account;
-    },
-    'account:logout': async () => {
-        await closeDashboard();
-        await stopHarbor({ remove: true, forget: true });
-        await logout();
-        refreshTray();
-    },
-    'settings:get': () => getSettings(),
-    'settings:set': async (patch) => {
-        const previous = getSettings();
-        const previousPath = previous.recording.ffmpegPath;
-        const settings = updateSettings(patch);
-
-        if (settings.harbor.enabled !== previous.harbor.enabled) {
-            if (settings.harbor.enabled) startHarbor();
-            else await stopHarbor({ remove: true });
-        }
-        if (settings.recording.ffmpegPath !== previousPath) resetFfmpegProbe();
-        applySettings();
-        if ('hotkeys' in patch || 'hotkeysEnabled' in patch) registerHotkeys();
-        return settings;
-    },
-    'app:info': () => ({ version: app.getVersion(), isPackaged: app.isPackaged }),
-    'app:language': () => getLanguage(),
+    'account:login': (url) => login(url),
+    'account:logout': () => logout(),
     'app:openDashboard': (route) => openDashboard(route),
     'window:theme': (isDark) => setWindowTheme(isDark),
-    'updates:get': () => getUpdateStatus(),
-    'updates:check': () => {
-        checkForUpdates();
-    },
-    'updates:install': () => installUpdate(),
-    'capture:run': (action) => {
-        runAction(action);
-    },
-    'overlay:loaded': () => markOverlayLoaded(),
-    'overlay:ready': () => markOverlayReady(),
-    'overlay:finish': (result) => {
-        runInBackground('Capture', () => finishRegionCapture(result));
-    },
-    'history:list': (offset, limit) => listHistory(offset, limit),
-    'history:copy': async (id) => {
-        const item = getHistory(id);
-        const url = item?.shortUrl ?? item?.url;
-        if (url) await writeText(url);
-    },
-    'history:open': (id) => {
-        const item = getHistory(id);
-        const url = item?.shortUrl ?? item?.url;
-        if (url) openWebUrl(url);
-    },
-    'history:showFile': (id) => {
-        const item = getHistory(id);
-        if (item?.localPath) shell.showItemInFolder(item.localPath);
-    },
-    'history:showInHarbor': (id) => {
-        const fileId = getHistory(id)?.fileId;
-        const path = fileId && harborPathFor(fileId);
-
-        if (path) shell.showItemInFolder(path);
-        else openHarbor();
-    },
-    'history:remove': (id) => removeHistory(id),
-    'history:clear': () => clearHistory(),
-    'uploads:paths': (paths) => {
-        uploadPaths(paths);
-    },
-    'uploads:progress': () => getUploadProgress(),
-    'hotkeys:status': () => getHotkeyStatus(),
-    'hotkeys:pause': function (paused) {
-        if (!paused) return registerHotkeys();
-
-        watchHotkeyPause(this.sender);
-        globalShortcut.unregisterAll();
-        return getHotkeyStatus();
-    },
-    'hotkeys:snippingTool': () => isSnippingToolKeyEnabled(),
-    'hotkeys:setSnippingTool': (enabled) => setSnippingToolKey(enabled),
-    'folders:list': async () => {
-        const folders: ApiFolder[] = [];
-
-        for (let offset = 0; ; offset += FOLDER_PAGE) {
-            const { items, total } = await api<{ items: ApiFolder[]; total: number }>(
-                `/api/folders?limit=${FOLDER_PAGE}&offset=${offset}&sort=name:asc`,
-            );
-
-            folders.push(...items);
-            if (items.length < FOLDER_PAGE || folders.length >= total) break;
-        }
-
-        const byId = new Map(folders.map((folder) => [folder.id, folder]));
-        const pathOf = (folder: ApiFolder, depth = 0): string => {
-            const parent = folder.parentId && depth < folders.length && byId.get(folder.parentId);
-            return parent ? `${pathOf(parent, depth + 1)} / ${folder.name}` : folder.name;
-        };
-
-        return folders
-            .map((folder) => ({ id: folder.id, name: pathOf(folder) }))
-            .sort((a, b) => a.name.localeCompare(b.name, getLanguage()));
-    },
     'dialog:pickFolder': async () => {
         const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
         return result.filePaths[0] ?? null;
@@ -215,56 +48,87 @@ const handlers: Handlers = {
 
         return result.filePaths[0] ?? null;
     },
-    'ffmpeg:status': () => getFfmpegStatus(),
-    'ffmpeg:download': () => {
-        downloadFfmpeg();
-    },
-    'recording:preview': () => recordingPreview(),
-    'recorder:get': () => getRecorderState(),
-    'recorder:ready': (error) => markRecorderReady(error),
-    'recorder:audio': (track, chunk) => writeRecordingAudio(track, chunk),
-    'recorder:control': (action) => {
-        runInBackground('Recorder', () => controlRecording(action));
-    },
-    'recorder:mute': (source, muted) => setRecordingMute(source, muted),
-    'recorder:visible': function () {
-        showRecorderWindow(this.sender);
-    },
-    'harbor:status': () => getHarborStatus(),
-    'harbor:open': () => {
-        openHarbor();
-    },
-    'harbor:setFolder': async (folder) => {
-        if (folder && resolve(folder) === resolve(harborRoot())) return getHarborStatus();
+};
 
-        if (folder && existsSync(folder) && readdirSync(folder).length > 0) {
-            throw new Error(t('app.harborFolderNotEmpty'));
-        }
+const isLocal = (channel: string): channel is LocalChannel =>
+    (LOCAL_CHANNELS as readonly string[]).includes(channel);
 
-        await stopHarbor({ remove: true });
-        updateSettings({ harbor: { ...getSettings().harbor, folder } });
-        await startHarbor();
-        return getHarborStatus();
-    },
-    'harbor:pause': (paused) => pauseHarbor(paused),
-    'harbor:freeUpSpace': () => freeUpHarborSpace(),
-    'harbor:activity': () => getHarborActivity(),
-    'harbor:breakdown': async () => {
-        const { byType } = await api<{ byType: { type: string; size: string }[] }>(
-            '/api/users/@me/stats',
-        );
+const applyTheme = (settings: Settings) => {
+    nativeTheme.themeSource = settings.theme;
+};
 
-        return byType.map(({ type, size }) => ({ type, size: Number(size) }));
-    },
+const watchHotkeyPause = (sender: Electron.WebContents) => {
+    if (pausingHotkeys.has(sender)) return;
+
+    pausingHotkeys.add(sender);
+    sender.once('destroyed', () => {
+        pausingHotkeys.delete(sender);
+        invokeHost('hotkeys:pause', false).catch(() => null);
+    });
+};
+
+const forward = async (event: Electron.IpcMainInvokeEvent, channel: string, args: unknown[]) => {
+    if (channel === 'hotkeys:pause' && args[0]) watchHotkeyPause(event.sender);
+
+    const result = await (invokeHost as (...values: unknown[]) => Promise<unknown>)(
+        channel,
+        ...args,
+    );
+
+    if (channel === 'settings:set') applyTheme(result as Settings);
+    return result;
+};
+
+const listenToHost = () => {
+    for (const event of HOST_EVENTS) {
+        onHost(event, (payload) => {
+            if (event === 'window:show')
+                return showMainWindow((payload as { route: string }).route);
+            if (event === 'window:dashboard') {
+                openDashboard((payload as { route: string }).route);
+                return;
+            }
+            if (event === 'app:quit') {
+                markQuitting();
+                app.quit();
+                return;
+            }
+
+            if (event === 'app:language') setLanguage(payload as never);
+            if (event === 'account:changed' && !payload) closeDashboard();
+            if (event === 'uploads:progress') {
+                const items = payload as { progress: number }[];
+                const average = items.reduce((sum, item) => sum + item.progress, 0) / items.length;
+
+                setTaskbarProgress(items.length ? average / 100 : -1);
+            }
+
+            broadcast(event as never, payload as never);
+        });
+    }
+};
+
+export const loadHostState = async () => {
+    const [language, settings] = await Promise.all([
+        invokeHost('app:language'),
+        invokeHost('settings:get'),
+    ]);
+
+    setLanguage(language);
+    applyTheme(settings);
 };
 
 export const registerIpc = () => {
-    applySettings();
+    listenToHost();
 
     for (const channel of INVOKE_CHANNELS) {
         ipcMain.handle(channel, (event, ...args) => {
             if (!isAppUrl(event.senderFrame?.url ?? '')) throw new Error('Not allowed');
-            return (handlers[channel] as (...values: unknown[]) => unknown).call(event, ...args);
+            if (isLocal(channel)) {
+                return (handlers[channel] as (...values: unknown[]) => unknown)(...args);
+            }
+
+            return forward(event, channel, args);
         });
     }
 };

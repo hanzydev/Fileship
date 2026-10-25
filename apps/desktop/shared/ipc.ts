@@ -61,8 +61,6 @@ export type UploadProgress = {
 
 export type HotkeyStatus = Partial<Record<HotkeyAction, 'ok' | 'conflict' | 'invalid'>>;
 
-export type OverlayPurpose = 'capture' | 'video' | 'gif' | 'ocr';
-
 export type RecordingKind = 'video' | 'gif';
 
 export type RecorderPhase =
@@ -96,29 +94,7 @@ export type FfmpegStatus = {
     download: { progress: number; error: string | null } | null;
 };
 
-export type ScreenRect = { x: number; y: number; width: number; height: number };
-
-export type OverlayDisplay = {
-    id: number;
-    rect: ScreenRect;
-    scaleFactor: number;
-    isPrimary: boolean;
-    pixels: Uint8Array;
-};
-
-export type OverlayPayload = {
-    bounds: ScreenRect;
-    displays: OverlayDisplay[];
-    windows: (ScreenRect & { title: string; controls: ScreenRect[] })[];
-    cursor: { x: number; y: number };
-    showMagnifier: boolean;
-    purpose: OverlayPurpose;
-};
-
-export type OverlayFinish =
-    | { type: 'cancel' }
-    | { type: 'area'; rect: ScreenRect }
-    | { type: 'region'; rect: ScreenRect; width: number; height: number; rgba: Uint8Array };
+export type Microphone = { id: string; name: string };
 
 export type Folder = { id: string; name: string };
 
@@ -177,9 +153,6 @@ export type IpcInvoke = {
     'updates:check': () => void;
     'updates:install': () => void;
     'capture:run': (action: HotkeyAction) => void;
-    'overlay:loaded': () => void;
-    'overlay:ready': () => void;
-    'overlay:finish': (result: OverlayFinish) => void;
     'history:list': (offset: number, limit: number) => { items: HistoryItem[]; total: number };
     'history:copy': (id: string) => void;
     'history:open': (id: string) => void;
@@ -199,12 +172,10 @@ export type IpcInvoke = {
     'ffmpeg:status': () => FfmpegStatus;
     'ffmpeg:download': () => void;
     'recording:preview': () => string;
+    'recording:microphones': () => Microphone[];
     'recorder:get': () => RecorderState;
-    'recorder:ready': (error: string | null) => void;
-    'recorder:audio': (track: number, chunk: ArrayBuffer) => void;
     'recorder:control': (action: RecorderControl) => void;
     'recorder:mute': (source: AudioSourceId, muted: boolean) => void;
-    'recorder:visible': (view: 'toolbar' | 'border') => void;
     'harbor:status': () => HarborStatus;
     'harbor:open': () => void;
     'harbor:setFolder': (folder: string) => HarborStatus;
@@ -219,8 +190,6 @@ export type IpcEvents = {
     'app:language': Language;
     'account:changed': Account | null;
     'updates:status': UpdateStatus;
-    'overlay:open': OverlayPayload;
-    'overlay:close': null;
     'history:changed': null;
     'uploads:progress': UploadProgress[];
     'ffmpeg:status': FfmpegStatus;
@@ -244,9 +213,6 @@ export const INVOKE_CHANNELS = [
     'updates:check',
     'updates:install',
     'capture:run',
-    'overlay:loaded',
-    'overlay:ready',
-    'overlay:finish',
     'history:list',
     'history:copy',
     'history:open',
@@ -266,12 +232,10 @@ export const INVOKE_CHANNELS = [
     'ffmpeg:status',
     'ffmpeg:download',
     'recording:preview',
+    'recording:microphones',
     'recorder:get',
-    'recorder:ready',
-    'recorder:audio',
     'recorder:control',
     'recorder:mute',
-    'recorder:visible',
     'harbor:status',
     'harbor:open',
     'harbor:setFolder',
@@ -286,8 +250,6 @@ export const EVENT_CHANNELS = [
     'app:language',
     'account:changed',
     'updates:status',
-    'overlay:open',
-    'overlay:close',
     'history:changed',
     'uploads:progress',
     'ffmpeg:status',
@@ -295,6 +257,35 @@ export const EVENT_CHANNELS = [
     'harbor:status',
     'harbor:activity',
 ] as const satisfies (keyof IpcEvents)[];
+
+export const LOCAL_CHANNELS = [
+    'account:login',
+    'account:logout',
+    'app:openDashboard',
+    'window:theme',
+    'dialog:pickFolder',
+    'dialog:pickFfmpeg',
+] as const satisfies (keyof IpcInvoke)[];
+
+export type HostInvoke = Omit<IpcInvoke, (typeof LOCAL_CHANNELS)[number]> & {
+    'client:hello': (client: { pid: number }) => void;
+    'account:setSession': (session: { instanceUrl: string; token: string }) => Account;
+    'account:clearSession': () => void;
+    'account:token': () => string | null;
+};
+
+export type HostEvents = Omit<IpcEvents, 'app:navigate'> & {
+    'window:show': { route: string };
+    'window:dashboard': { route: string };
+    'app:quit': null;
+};
+
+export const HOST_EVENTS = [
+    ...EVENT_CHANNELS.filter((channel) => channel !== 'app:navigate'),
+    'window:show',
+    'window:dashboard',
+    'app:quit',
+] as const;
 
 export type DesktopBridge = {
     invoke: <K extends keyof IpcInvoke>(

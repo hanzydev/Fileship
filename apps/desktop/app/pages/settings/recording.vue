@@ -402,12 +402,11 @@
                                     </UiSelectItem>
                                     <UiSelectItem
                                         v-for="device in microphones"
-                                        :key="device.deviceId"
-                                        :value="device.deviceId"
+                                        :key="device.id"
+                                        :value="device.id"
                                     >
                                         {{
-                                            device.label ||
-                                            $t('recordingSettings.unnamedMicrophone')
+                                            device.name || $t('recordingSettings.unnamedMicrophone')
                                         }}
                                     </UiSelectItem>
                                 </UiSelectContent>
@@ -758,7 +757,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FfmpegStatus } from '../../../shared/ipc';
+import type { FfmpegStatus, Microphone } from '../../../shared/ipc';
 import {
     AUDIO_CODECS,
     AUDIO_TRACKS,
@@ -891,7 +890,7 @@ const { t } = useI18n();
 
 const ffmpeg = ref<FfmpegStatus | null>(null);
 const preview = ref('');
-const microphones = ref<MediaDeviceInfo[]>([]);
+const microphones = ref<Microphone[]>([]);
 const inputArgs = ref(settings.value?.recording.inputArgs ?? '');
 const outputArgs = ref(settings.value?.recording.outputArgs ?? '');
 const volumes = reactive({
@@ -981,10 +980,7 @@ const handlePickFfmpeg = async () => {
 
 const loadMicrophones = async () => {
     try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        microphones.value = devices.filter(
-            (device) => device.kind === 'audioinput' && device.deviceId !== 'default',
-        );
+        microphones.value = await desktop('recording:microphones');
     } catch {
         $toast.error(t('recordingSettings.microphonesFailed'));
     }
@@ -1006,11 +1002,7 @@ watch(
     },
 );
 
-useEventListener(
-    import.meta.client ? navigator.mediaDevices : undefined,
-    'devicechange',
-    loadMicrophones,
-);
+useEventListener(import.meta.client ? window : undefined, 'focus', loadMicrophones);
 
 onMounted(async () => {
     const off = window.fileship.on('ffmpeg:status', async (value) => {

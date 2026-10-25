@@ -16,6 +16,8 @@ export const iconPath = () => join(app.getAppPath(), 'resources', 'icon.png');
 
 export const themeBackground = () => (nativeTheme.shouldUseDarkColors ? DARK : LIGHT);
 
+export const desktopUserAgent = () => `FileshipDesktop/${app.getVersion()} (Windows)`;
+
 export const rendererUrl = (route = '/') =>
     process.env.DESKTOP_RENDERER_URL
         ? `${process.env.DESKTOP_RENDERER_URL}${route}`
@@ -123,6 +125,10 @@ export const showMainWindow = (route?: string) => {
 
     mainWindow.show();
     mainWindow.focus();
+};
+
+export const setTaskbarProgress = (progress: number) => {
+    mainWindow?.setProgressBar(progress);
 };
 
 export const setWindowTheme = (isDark: boolean) => {
