@@ -570,7 +570,6 @@
         "fileCount": "{n} Datei | {n} Dateien",
         "contents": "{files} · {folders}",
         "inParent": "{contents} · in {parent}",
-        "sharedBy": "{contents} · Geteilt von {username}",
         "newFolder": "Neuer Ordner",
         "searchPlaceholder": "Ordner durchsuchen…",
         "sortBy": "Sortieren nach",

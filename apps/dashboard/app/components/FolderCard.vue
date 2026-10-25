@@ -124,8 +124,6 @@ const details = computed(() => {
         ? t('folders.contents', { files, folders: t('folders.count', folder.folderCount) })
         : files;
 
-    if (leavable) return t('folders.sharedBy', { contents, username: folder.owner!.username });
-
     return showParent && folder.parent
         ? t('folders.inParent', { contents, parent: folder.parent.name })
         : contents;

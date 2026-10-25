@@ -570,7 +570,6 @@
         "fileCount": "{n} 个文件",
         "contents": "{files} · {folders}",
         "inParent": "{contents} · 位于 {parent}",
-        "sharedBy": "{contents} · 共享者：{username}",
         "newFolder": "新建文件夹",
         "searchPlaceholder": "搜索文件夹…",
         "sortBy": "排序方式",

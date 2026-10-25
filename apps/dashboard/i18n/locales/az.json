@@ -570,7 +570,6 @@
         "fileCount": "{n} fayl",
         "contents": "{files} · {folders}",
         "inParent": "{contents} · {parent} daxilində",
-        "sharedBy": "{contents} · Paylaşan: {username}",
         "newFolder": "Yeni qovluq",
         "searchPlaceholder": "Qovluq axtar…",
         "sortBy": "Sırala",

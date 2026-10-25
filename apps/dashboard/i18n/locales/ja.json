@@ -570,7 +570,6 @@
         "fileCount": "{n} 個のファイル",
         "contents": "{files} · {folders}",
         "inParent": "{contents} · {parent} 内",
-        "sharedBy": "{contents} · 共有元: {username}",
         "newFolder": "新しいフォルダー",
         "searchPlaceholder": "フォルダーを検索…",
         "sortBy": "並べ替え",

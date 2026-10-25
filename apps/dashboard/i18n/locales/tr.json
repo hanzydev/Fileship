@@ -570,7 +570,6 @@
         "fileCount": "{n} dosya",
         "contents": "{files} · {folders}",
         "inParent": "{contents} · {parent} içinde",
-        "sharedBy": "{contents} · Paylaşan: {username}",
         "newFolder": "Yeni klasör",
         "searchPlaceholder": "Klasör ara…",
         "sortBy": "Sırala",

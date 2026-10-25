@@ -570,7 +570,6 @@
         "fileCount": "파일 {n}개",
         "contents": "{files} · {folders}",
         "inParent": "{contents} · 위치: {parent}",
-        "sharedBy": "{contents} · 공유한 사람: {username}",
         "newFolder": "새 폴더",
         "searchPlaceholder": "폴더 검색…",
         "sortBy": "정렬",
