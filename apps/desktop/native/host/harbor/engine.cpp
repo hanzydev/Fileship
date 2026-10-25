@@ -106,6 +106,7 @@ uint64_t storageTimer = 0;
 uint64_t copyTimer = 0;
 uint64_t applyTimer = 0;
 uint64_t retryTimer = 0;
+uint64_t deleteTimer = 0;
 bool isStopping = false;
 bool isSynced = false;
 int retries = 0;
@@ -124,6 +125,7 @@ std::map<std::wstring, size_t> uploadRetries;
 std::map<std::wstring, std::string> sentStates;
 std::deque<Activity> activity;
 std::vector<std::wstring> linksToCopy;
+std::vector<HelperEvent> deletions;
 
 SerialQueue& queue() {
     static auto* instance = new SerialQueue(L"Harbor");
@@ -1227,6 +1229,21 @@ void deleteEntry(std::wstring const& identity, bool isPermanent) {
     local.erase(identity);
 }
 
+void forgetLocal(std::wstring const& identity) {
+    Lock lock(guard);
+    std::optional<LocalItem> removed;
+    if (auto item = local.find(identity)) removed = *item;
+    local.erase(identity);
+
+    if (removed && removed->isFolder) {
+        std::vector<std::wstring> inside;
+        for (auto const& [key, item] : local.entries()) {
+            if (startsWith(item.path, removed->path + L"\\")) inside.push_back(key);
+        }
+        for (auto const& key : inside) local.erase(key);
+    }
+}
+
 void deleteRemote(std::wstring const& identity, bool isPermanent = false) {
     if (startsWith(identity, L"n:") || startsWith(identity, L"l:")) {
         deleteEntry(identity, isPermanent);
@@ -1268,17 +1285,7 @@ void deleteRemote(std::wstring const& identity, bool isPermanent = false) {
         }
     }
 
-    std::optional<LocalItem> removed;
-    if (auto item = local.find(identity)) removed = *item;
-    local.erase(identity);
-
-    if (removed && removed->isFolder) {
-        std::vector<std::wstring> inside;
-        for (auto const& [key, item] : local.entries()) {
-            if (startsWith(item.path, removed->path + L"\\")) inside.push_back(key);
-        }
-        for (auto const& key : inside) local.erase(key);
-    }
+    forgetLocal(identity);
 }
 
 std::wstring noteTitleOf(std::wstring const& path) {
@@ -1466,6 +1473,51 @@ void refreshNote(std::wstring const& id) {
     });
 }
 
+void syncDelete(HelperEvent const& event) {
+    try {
+        if (startsWith(event.identity, L"n:") && pathExists(absoluteOf(event.path))) {
+            saveNote(event.identity, event.path);
+        } else {
+            deleteRemote(event.identity);
+            addActivity(startsWith(event.identity, L"l:") ? L"delete" : L"trash", basenameOf(event.path));
+        }
+    } catch (...) {
+        auto message = describe(std::current_exception()).message;
+        logWarn(L"Could not delete on Fileship " + event.path + L": " + message);
+        addActivity(L"error", basenameOf(event.path), message);
+        if (event.isFolder) forgetLocal(event.identity);
+    }
+}
+
+void runDeletions() {
+    std::vector<HelperEvent> batch;
+    {
+        Lock lock(guard);
+        batch.swap(deletions);
+    }
+
+    std::set<std::wstring> deletedFolders;
+    for (auto const& event : batch) {
+        if (event.isFolder) deletedFolders.insert(lower(event.path));
+    }
+
+    for (auto const& event : batch) {
+        bool isInside = false;
+        for (auto parent = dirnameOf(event.path); parent != L"." && !isInside; parent = dirnameOf(parent)) {
+            isInside = deletedFolders.contains(lower(parent));
+        }
+
+        if (!isInside) syncDelete(event);
+
+        Lock lock(guard);
+        hiddenFiles.erase(idOf(event.identity));
+        replacedNotes.erase(event.path);
+    }
+
+    setStatus();
+    scheduleApply();
+}
+
 void handleDelete(HelperEvent const& event) {
     if (isPendingIdentity(event.identity)) {
         Lock lock(guard);
@@ -1473,66 +1525,37 @@ void handleDelete(HelperEvent const& event) {
         return;
     }
 
-    if (event.isFolder) {
-        if (startsWith(event.identity, L"v:")) {
-            {
-                Lock lock(guard);
-                local.erase(event.identity);
-            }
-            scheduleApply();
-            return;
+    if (startsWith(event.identity, L"v:")) {
+        {
+            Lock lock(guard);
+            local.erase(event.identity);
         }
-
-        try {
-            deleteRemote(event.identity);
-            addActivity(L"trash", basenameOf(event.path));
-            setStatus();
-        } catch (...) {
-            logWarn(L"Could not delete on Fileship " + event.path + L": " +
-                    describe(std::current_exception()).message);
-            scheduleApply();
-        }
-
+        scheduleApply();
         return;
     }
 
-    auto id = idOf(event.identity);
-    auto absolute = absoluteOf(event.path);
-    bool isNote = startsWith(event.identity, L"n:");
-
     {
         Lock lock(guard);
-        hiddenFiles.insert(id);
-        local.erase(event.identity);
-        if (isNote) replacedNotes.insert(event.path);
+
+        if (!event.isFolder) {
+            hiddenFiles.insert(idOf(event.identity));
+            local.erase(event.identity);
+            if (startsWith(event.identity, L"n:")) replacedNotes.insert(event.path);
+        }
+
+        deletions.push_back(event);
+        timers().clear(deleteTimer);
+        deleteTimer = timers().set(REPLACE_WINDOW_MS, [] {
+            {
+                Lock lock(guard);
+                deleteTimer = 0;
+            }
+
+            enqueue(runDeletions);
+        });
     }
 
     setStatus();
-
-    timers().set(REPLACE_WINDOW_MS, [event, id, absolute, isNote] {
-        enqueue([event, id, absolute, isNote] {
-            try {
-                if (isNote && pathExists(absolute)) {
-                    saveNote(event.identity, event.path);
-                } else {
-                    deleteRemote(event.identity);
-                    addActivity(startsWith(event.identity, L"l:") ? L"delete" : L"trash", basenameOf(event.path));
-                }
-            } catch (...) {
-                logWarn(L"Could not delete on Fileship " + event.path + L": " +
-                        describe(std::current_exception()).message);
-            }
-
-            {
-                Lock lock(guard);
-                hiddenFiles.erase(id);
-                replacedNotes.erase(event.path);
-            }
-
-            setStatus();
-            scheduleApply();
-        });
-    });
 }
 
 JsonValue optionalIdValue(std::optional<std::wstring> const& id) {
