@@ -19,6 +19,18 @@ extraResources:
       to: harbor/fileship-harbor.exe
     - from: build/harbor/icons
       to: harbor/icons
+    - from: build/host
+      to: host
+      filter:
+          - fileship-host.exe
+          - i18n/**
+          - fonts/**
+          - settings-defaults.json
+          - settings-schema.json
+    - from: resources/shutter.wav
+      to: host/sounds/shutter.wav
+    - from: resources/uploaded.wav
+      to: host/sounds/uploaded.wav
 
 electronFuses:
     runAsNode: false
