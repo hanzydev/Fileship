@@ -153,9 +153,11 @@
             v-else-if="!isLoading && !files.length && !isFiltered"
             :icon="IFiles"
             :title="emptyTitle || $t('files.empty')"
-            :description="$t('files.emptyDescription')"
+            :description="
+                canUpload ? $t('files.emptyDescription') : $t('folders.detail.emptyViewOnly')
+            "
         >
-            <UiButton @click="uploadSheetOpen = true">
+            <UiButton v-if="canUpload" @click="uploadSheetOpen = true">
                 <IUpload />
                 {{ $t('files.uploadFiles') }}
             </UiButton>
@@ -324,9 +326,14 @@ import { ICircleAlert, IFiles, ISearchX } from '#components';
 import type { FileData, FileSummary } from '~/types/files';
 import type { FolderData } from '~/types/folders';
 
-const { folderId, emptyTitle } = defineProps<{
+const {
+    folderId,
+    emptyTitle,
+    canUpload = true,
+} = defineProps<{
     folderId?: string;
     emptyTitle?: string;
+    canUpload?: boolean;
 }>();
 
 const { t, locale } = useI18n();

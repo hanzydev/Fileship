@@ -53,6 +53,14 @@
                 </UiDropdownMenu>
             </PageHeader>
 
+            <UiAlert v-if="!isEditableItem(folder)">
+                <IEye />
+                <UiAlertTitle>{{ $t('folders.detail.viewOnlyTitle') }}</UiAlertTitle>
+                <UiAlertDescription>
+                    {{ $t('folders.detail.viewOnlyDescription') }}
+                </UiAlertDescription>
+            </UiAlert>
+
             <UiAlert v-if="folder.isInbox">
                 <IInbox />
                 <UiAlertTitle>{{ $t('folders.detail.inboxTitle') }}</UiAlertTitle>
@@ -82,7 +90,7 @@
                     </template>
                     <template #default="{ item }">
                         <FolderCard
-                            :folder="item"
+                            :folder="withAccess(item)"
                             @edit="openForm(item)"
                             @move="movingFolder = item"
                             @share="sharingFolder = item"
@@ -95,6 +103,7 @@
                 v-model:summary="summary"
                 :folder-id="folder.id"
                 :empty-title="$t('folders.detail.empty')"
+                :can-upload="isEditableItem(folder)"
             />
 
             <FolderFormDialog v-model:open="formOpen" :folder="editingFolder" />
@@ -221,6 +230,7 @@ import type { FolderData } from '~/types/folders';
 const route = useRoute();
 const labels = useBreadcrumbLabels();
 const trail = useBreadcrumbTrail();
+const folderAccess = useCurrentFolderAccess();
 const { $toast } = useNuxtApp();
 const { t } = useI18n();
 const { copyLink } = useFolderActions();
@@ -252,7 +262,11 @@ const {
     refresh,
 } = useLazyAsyncData(
     () => `folder:${folderId.value}`,
-    () => $fetch<FolderData>(`/api/folders/${folderId.value}`),
+    () =>
+        $fetch<FolderData>(`/api/folders/${folderId.value}`).then((data) => ({
+            ...data,
+            access: data.access ?? 'viewer',
+        })),
     { server: false },
 );
 
@@ -285,10 +299,12 @@ const {
 const description = computed(() => {
     const count = summary.value?.count ?? folder.value!.fileCount;
 
-    if (!isOwnedItem(folder.value!))
+    if (folder.value!.owner && !isOwnedItem(folder.value!))
         return t(
-            'folders.detail.sharedDescription',
-            { n: count, username: folder.value!.owner!.username },
+            isEditableItem(folder.value!)
+                ? 'folders.detail.sharedEditorDescription'
+                : 'folders.detail.sharedViewerDescription',
+            { n: count, username: folder.value!.owner.username },
             count,
         );
 
@@ -305,6 +321,9 @@ const pickerChanges = computed(() =>
         ? t('folders.picker.changes', { added: added.value.length, removed: removed.value.length })
         : t('folders.picker.noChanges'),
 );
+
+const withAccess = (item: FolderData) =>
+    item.access || isOwnedItem(folder.value!) ? item : { ...item, access: folder.value!.access };
 
 const openForm = (target: FolderData) => {
     editingFolder.value = target;
@@ -359,6 +378,7 @@ useListHandle({
 watch(folder, (value) => {
     if (!value) return;
 
+    folderAccess.value = { id: value.id, access: value.access! };
     labels.value = { ...labels.value, [value.id]: value.name };
     trail.value = {
         path: route.path,
@@ -373,6 +393,8 @@ watch(
     () => folder.value?.parentId,
     (value, previous) => previous !== undefined && value !== previous && refresh(),
 );
+
+onBeforeUnmount(() => (folderAccess.value = null));
 
 watch(pickerOpen, (value) => {
     if (!value) return;

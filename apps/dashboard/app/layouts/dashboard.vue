@@ -470,7 +470,7 @@ const { t, locale } = useI18n();
 const router = useRouter();
 const uploadSheetOpen = useUploadSheet();
 const uploadingFiles = useUploadingFiles();
-const { quickUpload, retry, dismiss } = useUploader();
+const { quickUpload, retry, dismiss, isReadOnlyFolder } = useUploader();
 const verification = useVerification();
 
 const uploadSheet = useTemplateRef('uploadSheet');
@@ -514,7 +514,7 @@ const breadcrumbLabels = {
 
 const breadcrumbItems = useBreadcrumbs(breadcrumbLabels);
 
-const canUpload = computed(() => canUploadFiles(currentUser.value));
+const canUpload = computed(() => canUploadFiles(currentUser.value) && !isReadOnlyFolder.value);
 
 const currentFolderName = computed(() =>
     route.path.startsWith('/dashboard/folders/') ? breadcrumbItems.value.at(-1)!.label : null,
@@ -658,7 +658,7 @@ const palettePages = computed(() => [
 ]);
 
 const paletteActions = computed(() => [
-    ...(canUploadFiles(currentUser.value)
+    ...(canUpload.value
         ? [
               {
                   label: t('layout.palette.uploadFiles'),
@@ -666,6 +666,10 @@ const paletteActions = computed(() => [
                   shortcut: 'U',
                   run: () => (uploadSheetOpen.value = true),
               },
+          ]
+        : []),
+    ...(canUploadFiles(currentUser.value)
+        ? [
               {
                   label: t('layout.palette.newFolder'),
                   icon: IFolderPlus,

@@ -6,13 +6,23 @@ export const useUploader = () => {
     const uploading = useIsUploading();
     const uploadingFiles = useUploadingFiles();
     const storageUsage = useStorageUsage();
+    const folderAccess = useCurrentFolderAccess();
     const { $toast, $i18n } = useNuxtApp();
     const { t, locale } = $i18n;
     const { copy } = useClipboard({ legacy: true });
 
-    const currentFolder = computed(() =>
+    const routeFolder = computed(() =>
         route.path.startsWith('/dashboard/folders/') ? ((route.params as any).id as string) : null,
     );
+
+    const isReadOnlyFolder = computed(
+        () =>
+            !!routeFolder.value &&
+            folderAccess.value?.id === routeFolder.value &&
+            !isEditableItem(folderAccess.value),
+    );
+
+    const currentFolder = computed(() => (isReadOnlyFolder.value ? null : routeFolder.value));
 
     const warnAboutSpace = (files: File[]) => {
         if (!storageUsage.value?.limit) return;
@@ -221,5 +231,5 @@ export const useUploader = () => {
         uploading.value = uploadingFiles.value.some((f) => !f.status!.error);
     };
 
-    return { currentFolder, upload, copyUrls, quickUpload, retry, dismiss };
+    return { currentFolder, isReadOnlyFolder, upload, copyUrls, quickUpload, retry, dismiss };
 };
