@@ -79,21 +79,27 @@ void notifySaved(std::filesystem::path const& path) {
     notify(t(L"tasks.imageSaved"), path.wstring(), [path] { showItemInFolder(path); });
 }
 
-void keepImage(std::wstring const& historyId, std::vector<uint8_t> const& png, std::wstring const& name,
-               std::wstring const& message) {
+std::optional<std::wstring> saveImage(std::vector<uint8_t> const& png, std::wstring const& name) {
     try {
         auto folder = saveFolder();
         std::filesystem::create_directories(folder);
 
-        auto kept = uniquePath(folder, name);
-        if (!writeBytes(kept, png.data(), png.size())) throw std::runtime_error("write failed");
-
-        updateHistory(historyId, {{L"localPath", kept.wstring()}});
-        notify(t(L"tasks.imageKept"), kept.wstring(), [kept] { showItemInFolder(kept); });
+        auto path = uniquePath(folder, name);
+        if (!writeBytes(path, png.data(), png.size())) throw std::runtime_error("write failed");
+        return path.wstring();
     } catch (std::exception const& error) {
-        logWarn(L"Could not keep the screenshot: " + errorMessage(error));
-        notify(t(L"tasks.uploadFailed"), message);
+        logWarn(L"Could not save the screenshot: " + errorMessage(error));
+        return std::nullopt;
     }
+}
+
+void keepImage(std::wstring const& historyId, std::vector<uint8_t> const& png, std::wstring const& name,
+               std::wstring const& message) {
+    auto kept = saveImage(png, name);
+    if (!kept) return notify(t(L"tasks.uploadFailed"), message);
+
+    updateHistory(historyId, {{L"localPath", kept}});
+    notify(t(L"tasks.imageKept"), *kept, [path = *kept] { showItemInFolder(path); });
 }
 
 void moveFile(std::filesystem::path const& from, std::filesystem::path const& to) {
@@ -274,14 +280,7 @@ void handleImage(core::Bitmap const& image, std::wstring const& title, std::wstr
     std::optional<std::wstring> localPath;
 
     if (jsonBool(afterCapture, L"copyImage")) writeClipboardImage(png, image);
-
-    if (jsonBool(afterCapture, L"saveToFile")) {
-        auto folder = saveFolder();
-        std::filesystem::create_directories(folder);
-        auto path = uniquePath(folder, name);
-        writeBytes(path, png.data(), png.size());
-        localPath = path.wstring();
-    }
+    if (jsonBool(afterCapture, L"saveToFile")) localPath = saveImage(png, name);
 
     auto id = addHistory({kind, name, static_cast<int64_t>(png.size()), localPath, thumbnail});
 
