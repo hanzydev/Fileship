@@ -31,7 +31,7 @@ struct RecorderUiCallbacks {
     std::function<void()> onVisible;
 };
 
-void showRecorderUi(ScreenRect area, ThemeMode theme, RecorderUiCallbacks callbacks);
+void showRecorderUi(ScreenRect area, ThemeMode theme, RecorderUiCallbacks callbacks, bool showBorder = true);
 void updateRecorderUi(RecorderViewState const& state);
 void hideRecorderUi();
 

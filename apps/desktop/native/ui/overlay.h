@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include <cstdint>
+#include <filesystem>
 #include <functional>
 #include <string>
 #include <vector>
@@ -62,6 +63,7 @@ struct OverlayPreferencesStore {
 };
 
 void setOverlayPreferencesStore(OverlayPreferencesStore store);
+void setUiResourcesPath(std::filesystem::path const& path);
 bool openOverlay(OverlayRequest request, OverlayCallback done);
 bool isOverlayOpen();
 void closeOverlay();
