@@ -98,6 +98,7 @@ LaunchOptions& launchOptions() {
 }
 
 std::wstring pipeName() {
+    if (!launchOptions().pipe.empty()) return launchOptions().pipe;
     return L"\\\\.\\pipe\\fileship-host-" + currentUserSid() + profileSuffix();
 }
 

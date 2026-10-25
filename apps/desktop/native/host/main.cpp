@@ -41,6 +41,7 @@ void parseOptions(std::vector<std::wstring> const& arguments) {
         else if (argument == L"--renderer-url" && hasValue) options.rendererUrl = arguments[++index];
         else if (argument == L"--electron" && hasValue) options.electronCommand = arguments[++index];
         else if (argument == L"--update-feed" && hasValue) options.updateFeed = arguments[++index];
+        else if (argument == L"--pipe" && hasValue) options.pipe = arguments[++index];
         else rest.push_back(argument);
     }
 

@@ -17,6 +17,7 @@ struct LaunchOptions {
     std::wstring rendererUrl;
     std::wstring electronCommand;
     std::wstring updateFeed;
+    std::wstring pipe;
     std::vector<std::wstring> arguments;
 };
 
