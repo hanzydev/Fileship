@@ -597,12 +597,15 @@ RemoteNote toRemoteNote(JsonObject const& note) {
     return result;
 }
 
-RemoteLink toRemoteLink(JsonObject const& link) {
+RemoteLink toRemoteLink(JsonObject const& link, RemoteLink const* previous = nullptr) {
     RemoteLink result;
     result.id = stringField(link, L"id").value_or(L"");
-    result.code = stringField(link, L"code").value_or(L"");
-    result.shortUrl = stringField(link, L"shortUrl").value_or(L"");
-    result.createdAt = parseIsoDate(stringField(link, L"createdAt").value_or(L""));
+    result.code = stringField(link, L"code").value_or(previous ? previous->code : L"");
+    result.shortUrl = stringField(link, L"shortUrl").value_or(previous ? previous->shortUrl : L"");
+
+    auto createdAt = stringField(link, L"createdAt");
+    result.createdAt = createdAt && !createdAt->empty() ? parseIsoDate(*createdAt)
+                                                        : (previous ? previous->createdAt : 0);
     return result;
 }
 
@@ -2180,14 +2183,30 @@ void connectSocket() {
         scheduleApply();
     });
 
-    for (auto event : {L"link:create", L"link:update"}) {
-        client->on(event, [](IJsonValue const& payload) {
-            auto value = toRemoteLink(objectOf(payload));
-            Lock lock(guard);
-            links[value.id] = value;
-            scheduleApply();
-        });
-    }
+    client->on(L"link:create", [](IJsonValue const& payload) {
+        auto value = toRemoteLink(objectOf(payload));
+        Lock lock(guard);
+        links[value.id] = value;
+        scheduleApply();
+    });
+
+    client->on(L"link:update", [](IJsonValue const& payload) {
+        auto link = objectOf(payload);
+        auto id = stringField(link, L"id").value_or(L"");
+
+        Lock lock(guard);
+        auto previous = links.find(id);
+        if (previous == links.end() && !stringField(link, L"code")) return;
+
+        auto value = toRemoteLink(link, previous == links.end() ? nullptr : &previous->second);
+        if (previous != links.end() && previous->second.code == value.code &&
+            previous->second.shortUrl == value.shortUrl) {
+            return;
+        }
+
+        links[id] = value;
+        scheduleApply();
+    });
 
     client->on(L"link:delete", [](IJsonValue const& payload) {
         Lock lock(guard);
