@@ -1279,9 +1279,21 @@ std::filesystem::path absoluteOf(std::wstring const& path) {
     return std::filesystem::path(root) / path;
 }
 
-void saveNote(std::wstring const& identity, std::wstring const& path, bool isReplaced) {
+std::wstring stampOf(std::filesystem::path const& path) {
+    WIN32_FILE_ATTRIBUTE_DATA data{};
+    if (!GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &data)) return L"";
+
+    auto size = (static_cast<uint64_t>(data.nFileSizeHigh) << 32) | data.nFileSizeLow;
+    auto time = (static_cast<uint64_t>(data.ftLastWriteTime.dwHighDateTime) << 32) |
+                data.ftLastWriteTime.dwLowDateTime;
+    return std::to_wstring(size) + L":" + std::to_wstring(time);
+}
+
+void saveNote(std::wstring const& identity, std::wstring const& path) {
     auto id = idOf(identity);
-    auto content = readFileText(absoluteOf(path));
+    auto absolute = absoluteOf(path);
+    auto stamp = stampOf(absolute);
+    auto content = readFileText(absolute);
 
     JsonObject body;
     body.SetNamedValue(L"content", str(toWide(content)));
@@ -1293,7 +1305,7 @@ void saveNote(std::wstring const& identity, std::wstring const& path, bool isRep
         localHashes[id] = sha1Hex(content);
     }
 
-    requireHelper()->request(isReplaced ? L"adopt" : L"update", identityPayload(path, identity));
+    requireHelper()->adopt(path, identity, stamp);
 
     {
         Lock lock(guard);
@@ -1338,7 +1350,7 @@ void createNote(HelperEvent const& event) {
     if (occupant && startsWith(*occupant, L"n:")) {
         {
             PendingPath pending(event.path);
-            saveNote(*occupant, event.path, true);
+            saveNote(*occupant, event.path);
         }
 
         setStatus();
@@ -1352,7 +1364,9 @@ void createNote(HelperEvent const& event) {
         return;
     }
 
-    auto content = readFileText(absoluteOf(event.path));
+    auto absolute = absoluteOf(event.path);
+    auto stamp = stampOf(absolute);
+    auto content = readFileText(absolute);
     if (content.empty()) return;
 
     {
@@ -1369,7 +1383,7 @@ void createNote(HelperEvent const& event) {
             localHashes[note.id] = sha1Hex(content);
         }
 
-        requireHelper()->request(L"adopt", identityPayload(event.path, noteIdentity(note.id)));
+        requireHelper()->adopt(event.path, noteIdentity(note.id), stamp);
 
         Lock lock(guard);
         local.set(noteIdentity(note.id), {event.path, false});
@@ -1385,7 +1399,7 @@ void updateNote(HelperEvent const& event) {
 
     {
         PendingPath pending(event.path);
-        saveNote(event.identity, event.path, false);
+        saveNote(event.identity, event.path);
     }
 
     setStatus();
@@ -1472,7 +1486,7 @@ void handleDelete(HelperEvent const& event) {
         enqueue([event, id, absolute, isNote] {
             try {
                 if (isNote && pathExists(absolute)) {
-                    saveNote(event.identity, event.path, true);
+                    saveNote(event.identity, event.path);
                 } else {
                     deleteRemote(event.identity);
                     addActivity(startsWith(event.identity, L"l:") ? L"delete" : L"trash", basenameOf(event.path));
@@ -1734,18 +1748,18 @@ void queueLinkCopy(std::wstring const& id) {
     });
 }
 
-using Finish = std::function<void(RemoteFile const&)>;
+using Finish = std::function<void(RemoteFile const&, std::wstring const&)>;
 
-void finishUpload(RemoteFile const& file, Finish const& finish) {
+void finishUpload(RemoteFile const& file, std::wstring const& stamp, Finish const& finish) {
     for (int attempt = 1;; attempt++) {
         try {
-            enqueue([file, finish] {
+            enqueue([file, stamp, finish] {
                 {
                     Lock lock(guard);
                     files[file.id] = file;
                 }
 
-                if (isRunning()) finish(file);
+                if (isRunning()) finish(file, stamp);
             }).get();
             return;
         } catch (...) {
@@ -1781,6 +1795,7 @@ void startUpload(HelperEvent const& event, std::optional<std::wstring> const& fo
             setError(error);
         };
 
+        auto stamp = stampOf(absoluteOf(path));
         RemoteFile file;
 
         try {
@@ -1821,7 +1836,7 @@ void startUpload(HelperEvent const& event, std::optional<std::wstring> const& fo
         }
 
         try {
-            finishUpload(file, finish);
+            finishUpload(file, stamp, finish);
         } catch (...) {
             fail(std::current_exception());
             return;
@@ -1943,7 +1958,7 @@ void handleLocalNew(HelperEvent const& event) {
 
     startUpload(
         event, folderId,
-        [pending, path](RemoteFile const& file) {
+        [pending, path](RemoteFile const& file, std::wstring const& stamp) {
             bool isCancelled = false;
             {
                 Lock lock(guard);
@@ -1955,7 +1970,7 @@ void handleLocalNew(HelperEvent const& event) {
                 return;
             }
 
-            requireHelper()->request(L"adopt", identityPayload(path, fileIdentity(file.id)));
+            requireHelper()->adopt(path, fileIdentity(file.id), stamp);
 
             Lock lock(guard);
             local.set(fileIdentity(file.id), {path, false});
@@ -1999,7 +2014,7 @@ void handleLocalModified(HelperEvent const& event) {
 
     startUpload(
         event, previousFolder,
-        [previousId, path, identity](RemoteFile const& file) {
+        [previousId, path, identity](RemoteFile const& file, std::wstring const& stamp) {
             ignoreMissing([&] { harborApi(L"DELETE", L"/api/files/" + previousId); });
 
             {
@@ -2007,7 +2022,7 @@ void handleLocalModified(HelperEvent const& event) {
                 files.erase(previousId);
             }
 
-            requireHelper()->request(L"update", identityPayload(path, fileIdentity(file.id)));
+            requireHelper()->adopt(path, fileIdentity(file.id), stamp);
 
             Lock lock(guard);
             local.erase(identity);

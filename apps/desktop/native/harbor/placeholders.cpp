@@ -240,11 +240,22 @@ void removePath(std::wstring const& path) {
     if (error) throw std::runtime_error(error.message());
 }
 
-void adoptPath(std::wstring const& path, std::wstring const& identity) {
+void adoptPath(std::wstring const& path, std::wstring const& identity, bool isChanged) {
     auto absolute = fullPath(path);
     bool directory = isDirectory(absolute);
+    bool isPlaceholder = readIdentity(absolute, nullptr, nullptr).has_value();
 
-    if (!directory && readIdentity(absolute, nullptr, nullptr)) {
+    if (isChanged) {
+        Handle handle(absolute, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES);
+        if (!isPlaceholder) return;
+
+        check_hresult(CfUpdatePlaceholder(handle.value, nullptr, identity.c_str(),
+                                          static_cast<DWORD>(identity.size() * sizeof(wchar_t)), nullptr, 0,
+                                          CF_UPDATE_FLAG_CLEAR_IN_SYNC, nullptr, nullptr));
+        return;
+    }
+
+    if (!directory && isPlaceholder) {
         updatePlaceholder(path, identity, true);
         return;
     }
@@ -275,6 +286,16 @@ std::wstring preparePath(std::wstring const& path, std::wstring const& identity)
                                          static_cast<DWORD>(identity.size() * sizeof(wchar_t)),
                                          CF_CONVERT_FLAG_NONE, nullptr, nullptr));
     return identity;
+}
+
+std::wstring stampOf(std::wstring const& absolute) {
+    WIN32_FILE_ATTRIBUTE_DATA data{};
+    if (!GetFileAttributesExW(absolute.c_str(), GetFileExInfoStandard, &data)) return L"";
+
+    auto size = (static_cast<uint64_t>(data.nFileSizeHigh) << 32) | data.nFileSizeLow;
+    auto time = (static_cast<uint64_t>(data.ftLastWriteTime.dwHighDateTime) << 32) |
+                data.ftLastWriteTime.dwLowDateTime;
+    return std::to_wstring(size) + L":" + std::to_wstring(time);
 }
 
 bool markInSync(std::wstring const& path) {

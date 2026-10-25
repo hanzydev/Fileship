@@ -63,6 +63,7 @@ public:
     void stop();
     std::vector<ScanItem> scan();
     std::optional<std::wstring> identityOf(std::wstring const& path);
+    void adopt(std::wstring const& path, std::wstring const& identity, std::wstring const& stamp = L"");
 
     std::function<void(HelperEvent const&)> onEvent;
     std::function<void(std::optional<DWORD>)> onExit;

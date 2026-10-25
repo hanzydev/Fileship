@@ -92,8 +92,9 @@ bool isModified(std::wstring const& absolute);
 bool refreshPlaceholder(std::wstring const& path, int64_t size);
 bool markInSync(std::wstring const& path);
 void removePath(std::wstring const& path);
-void adoptPath(std::wstring const& path, std::wstring const& identity);
+void adoptPath(std::wstring const& path, std::wstring const& identity, bool isChanged = false);
 std::wstring preparePath(std::wstring const& path, std::wstring const& identity);
+std::wstring stampOf(std::wstring const& absolute);
 void reportProgress(std::wstring const& path, int64_t total, int64_t completed);
 JsonArray scanRoot();
 int64_t localSize();
@@ -112,6 +113,7 @@ void startWatcher();
 void stopWatcher();
 void settle(std::wstring const& folder);
 void settleItem(std::wstring const& path);
+void recheck(std::wstring const& path);
 
 void reportDeleted(CF_CALLBACK_INFO const* info);
 void askRename(CF_CALLBACK_INFO const* info, CF_CALLBACK_PARAMETERS const* parameters);

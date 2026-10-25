@@ -322,6 +322,12 @@ void settleItem(std::wstring const& path) {
     settle(isFolder ? path : parentOf(path));
 }
 
+void recheck(std::wstring const& path) {
+    std::lock_guard lock(changesMutex);
+    forget(path);
+    changes[path] = Clock::now();
+}
+
 void stopWatcher() {
     if (!isWatching) return;
 

@@ -159,8 +159,12 @@ void handle(JsonObject const& request) {
             settle(parentOf(path));
         } else if (type == L"adopt") {
             std::wstring path(request.GetNamedString(L"path"));
-            adoptPath(path, std::wstring(request.GetNamedString(L"identity")));
+            std::wstring stamp(request.GetNamedString(L"stamp", L""));
+            bool isChanged = !stamp.empty() && stampOf(fullPath(path)) != stamp;
+
+            adoptPath(path, std::wstring(request.GetNamedString(L"identity")), isChanged);
             settleItem(path);
+            if (isChanged) recheck(path);
         } else if (type == L"markInSync") {
             auto paths = readPaths(request);
             std::ranges::sort(paths, std::greater{}, depthOf);

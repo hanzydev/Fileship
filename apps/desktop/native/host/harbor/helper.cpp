@@ -252,6 +252,15 @@ std::optional<std::wstring> HarborHelper::identityOf(std::wstring const& path) {
     return identity;
 }
 
+void HarborHelper::adopt(std::wstring const& path, std::wstring const& identity, std::wstring const& stamp) {
+    JsonObject payload;
+    payload.SetNamedValue(L"path", JsonValue::CreateStringValue(path));
+    payload.SetNamedValue(L"identity", JsonValue::CreateStringValue(identity));
+    if (!stamp.empty()) payload.SetNamedValue(L"stamp", JsonValue::CreateStringValue(stamp));
+
+    request(L"adopt", payload);
+}
+
 void HarborHelper::ack(uint64_t requestId, bool ok) {
     if (!running) return;
 
