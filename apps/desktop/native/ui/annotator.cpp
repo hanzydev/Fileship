@@ -213,7 +213,7 @@ Shape const* Annotator::findShape(std::optional<std::string> const& id) const {
 
 Tool Annotator::activeTool() const {
     auto selected = findShape(selectedId);
-    if (tool == Tool::Select && selected) return selected->type;
+    if (isSelectable() && selected) return selected->type;
     return tool.value_or(Tool::Select);
 }
 
@@ -259,16 +259,21 @@ void Annotator::syncSelected() {
     if (key == lastSync) return;
     lastSync = key;
 
+    auto styled = [&](Shape next) {
+        if (hasColor(next.type) && next.type != Tool::Eraser) next.color = toolOptions.color;
+        next.size = toolOptions.size;
+        if (isBoxShape(next.type) && next.type != Tool::Eraser) next.fill = options.fill;
+        if (next.type == Tool::Text) next.background = options.background;
+        if (hasShadow(next.type)) next.shadow = options.shadow;
+        return next;
+    };
+
+    if (editor && editor->shape.type == activeTool()) editor->shape = styled(editor->shape);
+
     auto shape = findShape(selectedId);
     if (!shape || shape->type != activeTool()) return;
 
-    Shape next = *shape;
-    if (hasColor(next.type) && next.type != Tool::Eraser) next.color = toolOptions.color;
-    next.size = toolOptions.size;
-    if (isBoxShape(next.type) && next.type != Tool::Eraser) next.fill = options.fill;
-    if (next.type == Tool::Text) next.background = options.background;
-    if (hasShadow(next.type)) next.shadow = options.shadow;
-
+    auto next = styled(*shape);
     if (next == *shape) return;
     replaceShape(next);
 }
@@ -333,6 +338,16 @@ void Annotator::setEmoji(std::wstring const& value) {
 
 void Annotator::select(std::optional<std::string> id) {
     selectedId = std::move(id);
+
+    if (auto shape = findShape(selectedId)) {
+        auto& toolOptions = options.tools[static_cast<size_t>(shape->type)];
+        if (hasColor(shape->type) && shape->type != Tool::Eraser) toolOptions.color = shape->color;
+        toolOptions.size = shape->size;
+        if (isBoxShape(shape->type) && shape->type != Tool::Eraser) options.fill = shape->fill;
+        if (shape->type == Tool::Text) options.background = shape->background;
+        if (hasShadow(shape->type)) options.shadow = shape->shadow;
+    }
+
     changed();
 }
 
