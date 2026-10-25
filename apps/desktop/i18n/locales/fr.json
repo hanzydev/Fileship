@@ -197,6 +197,8 @@
         "linksFolder": "Liens",
         "notesOnlyText": "Seuls les fichiers Markdown et texte peuvent devenir des notes.",
         "onlyFileshipFolders": "Les fichiers et dossiers ne peuvent aller que dans des dossiers synchronisés avec Fileship.",
+        "folderNameTooLong": "Le nom d'un dossier ne peut pas dépasser {count} caractères.",
+        "folderShortened": "Dossier créé avec un nom plus court",
         "makeNotePublic": "Rendre cette note publique ?",
         "makeNotePublicDescription": "Toute personne disposant du lien pourra lire la note."
     },

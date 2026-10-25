@@ -45,6 +45,7 @@ constexpr int64_t DETAILS_INTERVAL_MS = 10000;
 constexpr int COPY_DELAY_MS = 2000;
 constexpr double NEARLY_FULL = 0.9;
 constexpr size_t ACTIVITY_LIMIT = 50;
+constexpr size_t FOLDER_NAME_LENGTH = 32;
 constexpr int PROPERTY_LOCKED = 1;
 constexpr int PROPERTY_EXPIRES = 2;
 constexpr int PROPERTY_SENSITIVE = 3;
@@ -1562,10 +1563,25 @@ JsonValue optionalIdValue(std::optional<std::wstring> const& id) {
     return id ? str(*id) : nul();
 }
 
+std::runtime_error folderNameError() {
+    auto count = std::to_wstring(FOLDER_NAME_LENGTH);
+    return std::runtime_error(toUtf8(t(L"harbor.folderNameTooLong", {{L"count", count}})));
+}
+
+std::wstring shortFolderName(std::wstring const& name) {
+    if (name.size() <= FOLDER_NAME_LENGTH) return name;
+
+    auto size = IS_HIGH_SURROGATE(name[FOLDER_NAME_LENGTH - 1]) ? FOLDER_NAME_LENGTH - 1 : FOLDER_NAME_LENGTH;
+    return safeName(name.substr(0, size), L"Folder");
+}
+
 void renameFolder(std::wstring const& identity, std::wstring const& from, std::wstring const& to) {
     auto id = idOf(identity);
+    auto name = basenameOf(to);
+    bool isRenamed = name != basenameOf(from);
+    if (isRenamed && name.size() > FOLDER_NAME_LENGTH) throw folderNameError();
+
     auto parentId = parentFolderIdOf(to);
-    auto name = basenameOf(to).substr(0, 32);
     std::optional<RemoteFolder> folder;
 
     {
@@ -1575,7 +1591,7 @@ void renameFolder(std::wstring const& identity, std::wstring const& from, std::w
     }
 
     JsonObject body;
-    if (!folder || name != folder->name) body.SetNamedValue(L"name", str(name));
+    if (isRenamed && (!folder || name != folder->name)) body.SetNamedValue(L"name", str(name));
     if (parentId != (folder ? folder->parentId : std::nullopt)) body.SetNamedValue(L"parentId", optionalIdValue(parentId));
 
     if (body.Size()) {
@@ -1966,13 +1982,21 @@ void handleLocalNew(HelperEvent const& event) {
     if (event.isFolder) {
         if (parentIdentity && startsWith(*parentIdentity, L"v:")) return;
 
+        auto name = shortFolderName(basenameOf(event.path));
+        auto path = parent == L"." ? name : parent + L"\\" + name;
+        bool isShortened = path != event.path;
+
+        if (isShortened && !MoveFileExW(absoluteOf(event.path).c_str(), absoluteOf(path).c_str(), 0)) {
+            throw folderNameError();
+        }
+
         std::vector<ScanItem> unsynced;
 
         {
-            PendingPath pending(event.path);
+            PendingPath pending(path);
 
             JsonObject body;
-            body.SetNamedValue(L"name", str(basenameOf(event.path).substr(0, 32)));
+            body.SetNamedValue(L"name", str(name));
             body.SetNamedValue(L"parentId", optionalIdValue(folderId));
             auto folder = toRemoteFolder(harborApi(L"POST", L"/api/folders", body).GetObject());
 
@@ -1982,17 +2006,17 @@ void handleLocalNew(HelperEvent const& event) {
             }
 
             try {
-                unsynced = requireHelper()->adopt(event.path, folderIdentity(folder.id));
+                unsynced = requireHelper()->adopt(path, folderIdentity(folder.id));
             } catch (...) {
-                rollBack(folderIdentity(folder.id), event.path, std::current_exception());
+                rollBack(folderIdentity(folder.id), path, std::current_exception());
                 return;
             }
 
             Lock lock(guard);
-            local.set(folderIdentity(folder.id), {event.path, true});
+            local.set(folderIdentity(folder.id), {path, true});
         }
 
-        addActivity(L"folder", basenameOf(event.path));
+        addActivity(L"folder", name, isShortened ? std::optional(t(L"harbor.folderShortened")) : std::nullopt);
         setStatus();
         scheduleApply();
         dispatchUnsynced(unsynced);

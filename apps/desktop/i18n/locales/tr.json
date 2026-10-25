@@ -197,6 +197,8 @@
         "linksFolder": "Bağlantılar",
         "notesOnlyText": "Yalnızca Markdown ve metin dosyaları not olabilir.",
         "onlyFileshipFolders": "Dosya ve klasörler yalnızca Fileship ile eşitlenen klasörlere taşınabilir.",
+        "folderNameTooLong": "Klasör adı en fazla {count} karakter olabilir.",
+        "folderShortened": "Klasör daha kısa bir adla oluşturuldu",
         "makeNotePublic": "Bu not herkese açık yapılsın mı?",
         "makeNotePublicDescription": "Bağlantıya sahip herkes notu okuyabilir."
     },

@@ -197,6 +197,8 @@
         "linksFolder": "リンク",
         "notesOnlyText": "ノートにできるのは Markdown ファイルとテキストファイルだけです。",
         "onlyFileshipFolders": "ファイルとフォルダーは、Fileship と同期しているフォルダーにのみ移動できます。",
+        "folderNameTooLong": "フォルダー名は {count} 文字以内にしてください。",
+        "folderShortened": "短い名前でフォルダーを作成",
         "makeNotePublic": "このノートを公開しますか？",
         "makeNotePublicDescription": "リンクを知っている人は誰でもノートを読めます。"
     },

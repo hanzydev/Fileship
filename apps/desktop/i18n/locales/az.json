@@ -197,6 +197,8 @@
         "linksFolder": "Keçidlər",
         "notesOnlyText": "Yalnız Markdown və mətn faylları qeyd ola bilər.",
         "onlyFileshipFolders": "Fayl və qovluqlar yalnız Fileship ilə sinxronlaşan qovluqlara köçürülə bilər.",
+        "folderNameTooLong": "Qovluq adı ən çoxu {count} simvol ola bilər.",
+        "folderShortened": "Qovluq daha qısa adla yaradıldı",
         "makeNotePublic": "Bu qeyd hamıya açıq edilsin?",
         "makeNotePublicDescription": "Keçidi olan hər kəs qeydi oxuya bilər."
     },

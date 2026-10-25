@@ -197,6 +197,8 @@
         "linksFolder": "링크",
         "notesOnlyText": "Markdown 파일과 텍스트 파일만 노트로 만들 수 있어요.",
         "onlyFileshipFolders": "파일과 폴더는 Fileship과 동기화되는 폴더로만 옮길 수 있어요.",
+        "folderNameTooLong": "폴더 이름은 최대 {count}자까지 쓸 수 있어요.",
+        "folderShortened": "더 짧은 이름으로 폴더 만듦",
         "makeNotePublic": "이 노트를 공개할까요?",
         "makeNotePublicDescription": "링크가 있는 누구나 노트를 읽을 수 있어요."
     },

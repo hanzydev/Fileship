@@ -197,6 +197,8 @@
         "linksFolder": "Links",
         "notesOnlyText": "Nur Markdown- und Textdateien können zu Notizen werden.",
         "onlyFileshipFolders": "Dateien und Ordner können nur in Ordner verschoben werden, die mit Fileship synchronisiert werden.",
+        "folderNameTooLong": "Ordnernamen dürfen höchstens {count} Zeichen lang sein.",
+        "folderShortened": "Ordner mit kürzerem Namen erstellt",
         "makeNotePublic": "Diese Notiz öffentlich machen?",
         "makeNotePublicDescription": "Alle mit dem Link können die Notiz lesen."
     },
