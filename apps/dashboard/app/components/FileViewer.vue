@@ -62,6 +62,7 @@
                     </div>
                     <PdfViewer
                         v-else-if="isPdfPreview"
+                        :key="file.id"
                         :src="`/u/${encodeURIComponent(file.fileName)}`"
                         @error="failedPdfId = file.id"
                     />

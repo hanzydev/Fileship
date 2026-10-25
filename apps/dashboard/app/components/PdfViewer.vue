@@ -120,6 +120,9 @@ const load = async (url: string) => {
         aspect.value = height / width;
         ratio.value = `${width} / ${height}`;
         pdf.value = document;
+
+        await nextTick();
+        if (current === version) virtualizer.value.measure();
     } catch {
         if (current === version) emit('error');
     }
