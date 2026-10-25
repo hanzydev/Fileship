@@ -416,20 +416,20 @@ JsonArray listMicrophones() {
             LPWSTR id = nullptr;
             if (FAILED(device->GetId(&id))) continue;
 
-            std::wstring label;
+            std::wstring friendlyName;
             com_ptr<IPropertyStore> properties;
             if (SUCCEEDED(device->OpenPropertyStore(STGM_READ, properties.put()))) {
                 PROPVARIANT name;
                 PropVariantInit(&name);
                 if (SUCCEEDED(properties->GetValue(FRIENDLY_NAME, &name)) && name.vt == VT_LPWSTR) {
-                    label = name.pwszVal;
+                    friendlyName = name.pwszVal;
                 }
                 PropVariantClear(&name);
             }
 
             JsonObject item;
             item.SetNamedValue(L"id", JsonValue::CreateStringValue(id));
-            item.SetNamedValue(L"label", JsonValue::CreateStringValue(label));
+            item.SetNamedValue(L"name", JsonValue::CreateStringValue(friendlyName));
             result.Append(item);
             CoTaskMemFree(id);
         }
