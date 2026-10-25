@@ -185,6 +185,13 @@ void handle(JsonObject const& request) {
             response.SetNamedValue(L"failed", setStates(request.GetNamedArray(L"items")));
         } else if (type == L"scan") {
             response.SetNamedValue(L"items", scanRoot());
+        } else if (type == L"identity") {
+            auto probed = probeIdentity(fullPath(std::wstring(request.GetNamedString(L"path"))), nullptr, nullptr);
+            if (!probed.isKnown) throw std::runtime_error("The placeholder could not be read");
+
+            response.SetNamedValue(L"identity", probed.identity && !probed.identity->empty()
+                                                    ? JsonValue::CreateStringValue(*probed.identity)
+                                                    : JsonValue::CreateNullValue());
         } else if (type == L"ack") {
             resolveAck(static_cast<uint64_t>(request.GetNamedNumber(L"requestId")),
                        request.GetNamedBoolean(L"ok"));

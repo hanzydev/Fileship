@@ -24,6 +24,7 @@ struct ScanItem {
     bool inSync = false;
     bool modified = false;
     bool hydrated = false;
+    bool isUnreadable = false;
     int64_t size = 0;
 };
 
@@ -61,6 +62,7 @@ public:
     void ack(uint64_t requestId, bool ok);
     void stop();
     std::vector<ScanItem> scan();
+    std::optional<std::wstring> identityOf(std::wstring const& path);
 
     std::function<void(HelperEvent const&)> onEvent;
     std::function<void(std::optional<DWORD>)> onExit;

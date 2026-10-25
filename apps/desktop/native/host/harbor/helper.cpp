@@ -235,11 +235,21 @@ std::vector<ScanItem> HarborHelper::scan() {
         item.inSync = boolField(object, L"inSync").value_or(false);
         item.modified = boolField(object, L"modified").value_or(false);
         item.hydrated = boolField(object, L"hydrated").value_or(false);
+        item.isUnreadable = boolField(object, L"unreadable").value_or(false);
         item.size = static_cast<int64_t>(numberField(object, L"size").value_or(0));
         items.push_back(std::move(item));
     }
 
     return items;
+}
+
+std::optional<std::wstring> HarborHelper::identityOf(std::wstring const& path) {
+    JsonObject payload;
+    payload.SetNamedValue(L"path", JsonValue::CreateStringValue(path));
+
+    auto identity = stringField(request(L"identity", payload), L"identity");
+    if (identity && identity->empty()) identity.reset();
+    return identity;
 }
 
 void HarborHelper::ack(uint64_t requestId, bool ok) {

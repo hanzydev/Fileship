@@ -37,25 +37,38 @@ bool isDirectory(std::wstring const& path) {
     return attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY);
 }
 
-std::optional<std::wstring> readIdentity(std::wstring const& path, CF_PIN_STATE* pin, CF_IN_SYNC_STATE* sync) {
+IdentityProbe probe(std::wstring const& path, CF_PIN_STATE* pin, CF_IN_SYNC_STATE* sync) {
     std::vector<BYTE> buffer(sizeof(CF_PLACEHOLDER_BASIC_INFO) + 1024);
     DWORD returned = 0;
 
-    try {
-        Handle handle(path, FILE_READ_ATTRIBUTES);
-        HRESULT result = CfGetPlaceholderInfo(handle.value, CF_PLACEHOLDER_INFO_BASIC, buffer.data(),
-                                              static_cast<DWORD>(buffer.size()), &returned);
-        if (FAILED(result)) return std::nullopt;
-    } catch (hresult_error const&) {
-        return std::nullopt;
+    HANDLE handle = CreateFileW(path.c_str(), FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                                nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, nullptr);
+    if (handle == INVALID_HANDLE_VALUE) {
+        DWORD error = GetLastError();
+        return {error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND, std::nullopt};
     }
+
+    HRESULT result = CfGetPlaceholderInfo(handle, CF_PLACEHOLDER_INFO_BASIC, buffer.data(),
+                                          static_cast<DWORD>(buffer.size()), &returned);
+
+    FILE_ATTRIBUTE_TAG_INFO tag{};
+    bool isCloud = GetFileInformationByHandleEx(handle, FileAttributeTagInfo, &tag, sizeof(tag)) &&
+                   (tag.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) &&
+                   (tag.ReparseTag & 0xFFFF0FFF) == IO_REPARSE_TAG_CLOUD;
+    CloseHandle(handle);
+
+    if (FAILED(result)) return {result == HRESULT_FROM_WIN32(ERROR_NOT_A_CLOUD_FILE) && !isCloud, std::nullopt};
 
     auto info = reinterpret_cast<CF_PLACEHOLDER_BASIC_INFO const*>(buffer.data());
     if (pin) *pin = info->PinState;
     if (sync) *sync = info->InSyncState;
 
-    return std::wstring(reinterpret_cast<wchar_t const*>(info->FileIdentity),
-                        info->FileIdentityLength / sizeof(wchar_t));
+    return {true, std::wstring(reinterpret_cast<wchar_t const*>(info->FileIdentity),
+                               info->FileIdentityLength / sizeof(wchar_t))};
+}
+
+std::optional<std::wstring> readIdentity(std::wstring const& path, CF_PIN_STATE* pin, CF_IN_SYNC_STATE* sync) {
+    return probe(path, pin, sync).identity;
 }
 
 bool childrenInSync(std::wstring const& directory) {
@@ -329,12 +342,14 @@ JsonArray scanRoot() {
         if (attributes == INVALID_FILE_ATTRIBUTES) continue;
 
         CF_IN_SYNC_STATE sync = CF_IN_SYNC_STATE_NOT_IN_SYNC;
-        auto identity = readIdentity(absolute, nullptr, &sync);
+        auto probed = probe(absolute, nullptr, &sync);
+        auto const& identity = probed.identity;
         bool directory = (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
         JsonObject item;
         item.SetNamedValue(L"path", JsonValue::CreateStringValue(*relative));
         item.SetNamedValue(L"isFolder", JsonValue::CreateBooleanValue(directory));
+        if (!probed.isKnown) item.SetNamedValue(L"unreadable", JsonValue::CreateBooleanValue(true));
         item.SetNamedValue(L"identity", identity ? JsonValue::CreateStringValue(*identity)
                                                  : JsonValue::CreateNullValue());
         item.SetNamedValue(L"inSync", JsonValue::CreateBooleanValue(sync == CF_IN_SYNC_STATE_IN_SYNC));
@@ -401,6 +416,10 @@ int64_t freeUpSpace() {
 std::optional<std::wstring> placeholderIdentity(std::wstring const& absolute, CF_PIN_STATE* pin,
                                                 CF_IN_SYNC_STATE* sync) {
     return readIdentity(absolute, pin, sync);
+}
+
+IdentityProbe probeIdentity(std::wstring const& absolute, CF_PIN_STATE* pin, CF_IN_SYNC_STATE* sync) {
+    return probe(absolute, pin, sync);
 }
 
 void hydratePath(std::wstring const& absolute) {

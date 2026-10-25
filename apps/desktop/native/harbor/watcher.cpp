@@ -97,7 +97,10 @@ void inspect(std::wstring const& relative) {
 
     CF_PIN_STATE pin = CF_PIN_STATE_UNSPECIFIED;
     CF_IN_SYNC_STATE sync = CF_IN_SYNC_STATE_NOT_IN_SYNC;
-    auto identity = placeholderIdentity(absolute, &pin, &sync);
+    auto probed = probeIdentity(absolute, &pin, &sync);
+    if (!probed.isKnown) return retryLater(relative);
+
+    auto const& identity = probed.identity;
 
     if (!identity || identity->empty()) {
         if (!isFolder && !isClosed(absolute)) return retryLater(relative);

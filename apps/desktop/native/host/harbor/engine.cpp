@@ -1084,7 +1084,9 @@ void reloadNow() {
         status.localSize = localSize;
 
         for (auto const& item : items) {
-            if (!item.identity || isPendingIdentity(*item.identity)) {
+            if (item.isUnreadable) {
+                logWarn(L"Could not read the Harbor placeholder " + item.path);
+            } else if (!item.identity || isPendingIdentity(*item.identity)) {
                 HelperEvent event;
                 event.type = L"localNew";
                 event.path = item.path;
@@ -1829,6 +1831,21 @@ void handleLocalModified(HelperEvent const& event);
 
 void handleLocalNew(HelperEvent const& event) {
     if (isPending(event.path) || event.path.find(L".fileship-") != std::wstring::npos) return;
+
+    std::optional<std::wstring> existing;
+    try {
+        existing = requireHelper()->identityOf(event.path);
+    } catch (...) {
+        logWarn(L"Could not read " + event.path + L", trying again: " + describe(std::current_exception()).message);
+        timers().set(RETRY_DELAY_MS, [event] { handleHelperEvent(event); });
+        return;
+    }
+
+    if (existing && !isPendingIdentity(*existing)) {
+        Lock lock(guard);
+        local.set(*existing, {event.path, event.isFolder});
+        return;
+    }
 
     auto parent = dirnameOf(event.path);
     auto parentIdentity = parent == L"." ? std::nullopt : occupantOf(parent);

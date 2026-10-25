@@ -107,6 +107,9 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 
 ## Harbor (Cloud Files API) facts
 
+- **A failed identity read is not a new item.** The helper used to treat every failure of `CfGetPlaceholderInfo` (and of opening the item) as "not a placeholder", so the watcher reported existing folder placeholders as `localNew`. The engine then created a new server folder for each and `adopt` failed with "The cloud operation is invalid" (`CfConvertToPlaceholder` refuses an existing placeholder), leaving duplicate folders on the server that synced back as `<name> (2)`; Explorer then crashed in `windows.storage.dll` inside the Harbor folder. It happened in 2.0.0 right after a Windows sign-in (and once in 1.x); restarts, abrupt kills, language and version changes did not reproduce it. Since 2.0.1 only `ERROR_NOT_A_CLOUD_FILE` on an item without a cloud reparse tag counts as "not a placeholder", and `localNew` re-reads the identity before creating anything. Duplicates made by 2.0.0 stay on the server until the user deletes them (they are the empty, newer folders).
+- `FILE_READ_ATTRIBUTES` opens ignore share modes, so holding a folder open without sharing does not make `CfGetPlaceholderInfo` fail; it is not a way to test the above.
+
 - Each account registers its own sync root `Fileship!<SID>!<account key>` (the key is a hash of the instance URL and user id). A folder can belong to only one sync root; registering it again under another id fails with `Access is denied`. The helper therefore unregisters a stale Fileship root of the same Windows user on the same folder before registering.
 - A failed registration can leave an empty key under `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SyncRootManager`; it is harmless and is filled in by the next successful registration.
 - `fileship-harbor.exe --unregister-all` removes every Fileship sync root that Windows lists (the uninstaller runs it).

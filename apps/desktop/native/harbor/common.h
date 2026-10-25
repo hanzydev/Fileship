@@ -44,6 +44,11 @@ struct Config {
     std::vector<std::pair<int32_t, std::wstring>> properties;
 };
 
+struct IdentityProbe {
+    bool isKnown = false;
+    std::optional<std::wstring> identity;
+};
+
 struct PlaceholderItem {
     std::wstring identity;
     std::wstring path;
@@ -95,6 +100,7 @@ int64_t localSize();
 int64_t freeUpSpace();
 std::optional<std::wstring> placeholderIdentity(std::wstring const& absolute, CF_PIN_STATE* pin,
                                                 CF_IN_SYNC_STATE* sync);
+IdentityProbe probeIdentity(std::wstring const& absolute, CF_PIN_STATE* pin, CF_IN_SYNC_STATE* sync);
 void hydratePath(std::wstring const& absolute);
 void setPinState(std::wstring const& absolute, CF_PIN_STATE pin);
 void dehydratePath(std::wstring const& absolute);
