@@ -30,7 +30,7 @@ Desktop:
 - [ ] Check Harbor in a real Explorer (only scripted COM and registry tests ran): thumbnails of online-only images and videos, with the app running and closed (`-Embedding` start), the state columns, Share, the Windows 11 status flyout, the context menu verbs and whether Explorer needs a restart after the first start.
 - [ ] Check the Explorer context menu "Upload to Fileship" with several selected files in a packaged build (one upload batch).
 - [ ] Check the new Harbor flyout in a real Explorer: the quota bar (red from 90%, ∞ label and empty bar when unlimited), the more info message and its button, the sync status line, the five icon buttons, the paused state and the offline (`-Embedding`) view.
-- [ ] Check in a real Explorer: the Views column (custom state without an icon), the Notes and Links folders, editing a note in a few editors, and the folder link verbs in a packaged build.
+- [ ] Check in a real Explorer: the Views column and its icon, the Notes and Links folders, editing a note in a few editors, and the folder link verbs in a packaged build.
 - [ ] Check the tray's Fileship Harbor submenu (state, storage line, pause and resume).
 - [ ] Check the tray: a single click opens the region capture after the double-click time, a double click only opens the window.
 - [ ] Harbor: a file put into a folder created in Explorer a moment before is uploaded only at the next scan (rescan or restart), in 2.0.0 too; its `localNew` arrives while the folder is still being created and is not retried.

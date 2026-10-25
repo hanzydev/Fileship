@@ -15,7 +15,7 @@ wchar_t const* iconOf(int32_t id) {
     if (id == 1) return L"imageres.dll,-59";
     if (id == 2) return L"shell32.dll,-16752";
     if (id == 3) return L"imageres.dll,-107";
-    return L"";
+    return L"imageres.dll,-5409";
 }
 
 }
