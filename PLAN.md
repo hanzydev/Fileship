@@ -17,11 +17,15 @@ Shipped in 6.0.0 (and the Windows app 1.0.0):
 
 Desktop:
 
-- [ ] Check the region overlay on a mixed-DPI setup (for example 150% + 100%). The toolbar zoom and the overlay placement fallback have only been tested on two 100% monitors.
-- [ ] Touch drags on the overlay are treated as clicks (the root has no `touch-action: none`).
+- [ ] Fileship for Windows 2.0 (native host): install a packaged build on a clean Windows 11 machine and on top of 1.1.1, and check that the update keeps the session (safeStorage migration), the Harbor folder, the history and the settings, that the old startup entry is replaced, and that the installer stops the host and the helper. The host, the overlay, Harbor and recording were tested separately and together with scratch profiles in development builds only; the live host test against a dashboard did not finish.
+- [ ] Check the native updater against a real release (`latest.yml`, `sha512`, `/S --updated --force-run`); it has not been run against a real release yet.
+- [ ] Check the native overlay with a real IME composition (Japanese, Korean, Chinese) in the text tool, and the recorder toolbar and borders on screen (they are excluded from capture, so tests only rendered them offscreen).
+- [ ] Harbor in the host: a helper crash and restart, socket reconnect after a server restart, the "make public?" dialog, upload retries, quota errors and free up space were not tested.
+- [ ] Recording: each segment's audio ends 0.2-0.35 s before its video because ffmpeg polls for `q` only every stats period; `-stats_period 0.1` would shorten it. A GIF with a full-frame change between two flat colours renders wrong with `statsMode: diff` in ffmpeg 9.0.2.
+- [ ] Check the region overlay on a mixed-DPI setup (for example 150% + 100%). The native overlay scales each display by its own DPI, but only one display was tested.
 - [ ] Recording border: when the monitors have different heights and the area runs past the shorter one, the edge inside the area on that monitor has no border line.
 - [ ] Check a recording that spans two monitors end to end (border windows on both, gdigrab output size).
-- [ ] Ask testers for the real-mouse feel of the new overlay; automated tests used CDP input only.
+- [ ] Ask testers for the real-mouse feel of the native overlay; automated tests used posted window messages only.
 - [ ] Install 1.0.0 on a clean Windows machine and run through login, capture, upload, OCR, recording and Harbor.
 - [ ] Check Harbor in a real Explorer (only scripted COM and registry tests ran): thumbnails of online-only images and videos, with the app running and closed (`-Embedding` start), the state columns, Share, the Windows 11 status flyout, the context menu verbs and whether Explorer needs a restart after the first start.
 - [ ] Check the Explorer context menu "Upload to Fileship" with several selected files in a packaged build (one upload batch).
@@ -47,7 +51,6 @@ Dashboard and infrastructure:
 - [ ] The Docker image is 5.6 GB because the runner copies the whole workspace `node_modules`. Deploy only the dashboard's production dependencies.
 - [ ] In the Docker image the AI worker starts and loads its dependencies, but downloading and running the models inside a container has not been tested.
 - [ ] Dependencies: `pnpm audit` is down to four advisories without a compatible fix. `node-forge` 1.4.0 (nitropack's development certificates; 1.4.1 is not published yet), `zod` 3 inside the `shadcn-vue` CLI (its own dependency and `zod-to-json-schema` need v3; development only), `decode-uri-component` 0.2 under Vite plugins (fixed only in the ESM-only 0.4) and `esbuild` 0.27 under `@nuxt/fonts` (low). Update them when their parents move. Major updates waiting: h3 2, TypeScript 7, `@nuxt/fonts` 1 and Prisma 8 (still a release candidate).
-- [ ] Desktop: move `electron/store.ts` from the synchronous `safeStorage` calls to `encryptStringAsync` / `decryptStringAsync` before Electron 46, which removes them (deprecated in 45).
 - [ ] `/api/healthz` of the 5.4.4 image reports 5.4.3; check that future images report their own version.
 - [ ] Team folders: editors cannot move files or folders yet (only the owner can), files do not record who uploaded them, and shared folders do not appear in Harbor.
 - [ ] Scheduled backups were tested on the data directory with small accounts, with two production instances racing for the same schedules. Check a run on an S3 or SFTP active storage and with a large account.

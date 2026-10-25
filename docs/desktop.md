@@ -12,7 +12,7 @@ Fileship for Windows captures, records and uploads to your Fileship from the sys
 - One region picker across every monitor that highlights windows and controls under the mouse, with a magnifier for pixel exact selections
 - Annotations while you pick the region: shapes, arrows, pen, highlighter, text, step numbers, emoji, blur and pixelate
 - Text capture: select a region and its text is copied to the clipboard, using your Fileship's OCR
-- Screen and GIF recording with microphone and system audio, pause and resume, hardware encoders and a choice of codecs and containers ([FFmpeg](https://ffmpeg.org/) is downloaded for you)
+- Screen and GIF recording with microphone (with Windows' voice processing) and system audio, pause and resume, hardware encoders and a choice of codecs and containers ([FFmpeg](https://ffmpeg.org/) is downloaded for you)
 
 **Upload and share**
 
@@ -36,13 +36,13 @@ Fileship Harbor puts your Fileship files and folders in File Explorer. Turn it o
 
 **App**
 
-- Starts with Windows and stays in the tray
+- Starts with Windows and stays in the tray using only a few megabytes of memory; the app window opens on demand
 - English, Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese
 - Updates itself in the background and installs them when you restart or quit
 
 ## Requirements
 
-- Windows 10 or 11, 64-bit
+- Windows 11, 64-bit
 - A Fileship 6.0 server or newer
 
 ## Getting started
