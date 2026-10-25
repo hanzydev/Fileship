@@ -61,6 +61,7 @@ LRESULT CALLBACK handleMessage(HWND handle, UINT message, WPARAM wParam, LPARAM 
         return 0;
     case WM_SETTINGCHANGE:
         if (lParam && wcscmp(reinterpret_cast<wchar_t const*>(lParam), L"intl") == 0) applySettings();
+        if (lParam && wcscmp(reinterpret_cast<wchar_t const*>(lParam), L"ImmersiveColorSet") == 0) applyMenuTheme();
         break;
     case WM_CLOSE:
         quitApp();

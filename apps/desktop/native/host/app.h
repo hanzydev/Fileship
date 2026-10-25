@@ -132,6 +132,7 @@ void uploadPaths(std::vector<std::filesystem::path> const& paths);
 
 void createTray();
 void removeTray();
+void applyMenuTheme();
 bool handleTrayMessage(UINT message, WPARAM wParam, LPARAM lParam);
 
 JsonObject registerHotkeys();

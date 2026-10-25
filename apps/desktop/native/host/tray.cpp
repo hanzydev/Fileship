@@ -236,7 +236,25 @@ void handleClick() {
 
 }
 
+void applyMenuTheme() {
+    enum class AppMode { Default, AllowDark, ForceDark, ForceLight };
+    using SetPreferredAppMode = AppMode(WINAPI*)(AppMode);
+    using FlushMenuThemes = void(WINAPI*)();
+
+    static HMODULE uxtheme = LoadLibraryExW(L"uxtheme.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    if (!uxtheme) return;
+
+    static auto setMode = reinterpret_cast<SetPreferredAppMode>(GetProcAddress(uxtheme, MAKEINTRESOURCEA(135)));
+    static auto flush = reinterpret_cast<FlushMenuThemes>(GetProcAddress(uxtheme, MAKEINTRESOURCEA(136)));
+    if (!setMode || !flush) return;
+
+    auto theme = jsonString(settings(), L"theme", L"system");
+    setMode(theme == L"dark" ? AppMode::ForceDark : theme == L"light" ? AppMode::ForceLight : AppMode::AllowDark);
+    flush();
+}
+
 void createTray() {
+    applyMenuTheme();
     addIcon();
 }
 

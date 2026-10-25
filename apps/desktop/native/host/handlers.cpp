@@ -139,6 +139,7 @@ IJsonValue setSettings(JsonObject const& patch) {
 void applySettings() {
     auto current = settings();
     applyStartAtLogin(jsonBool(current, L"startAtLogin", true));
+    applyMenuTheme();
 
     if (setLanguage(resolveLanguage(jsonString(current, L"language", L"system")))) {
         refreshTray();
