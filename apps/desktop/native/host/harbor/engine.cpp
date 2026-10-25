@@ -110,6 +110,7 @@ uint64_t retryTimer = 0;
 uint64_t deleteTimer = 0;
 bool isStopping = false;
 bool isSynced = false;
+bool isResyncQueued = false;
 int retries = 0;
 
 std::map<std::wstring, RemoteFolder> folders;
@@ -566,8 +567,8 @@ RemoteFile toRemoteFile(JsonObject const& file, RemoteFile const* previous = nul
         result.expiresAt = previous ? previous->expiresAt : std::nullopt;
     }
 
-    result.maxViews = file.HasKey(L"maxViews") ? static_cast<int64_t>(numberField(file, L"maxViews").value_or(0))
-                                               : (previous ? previous->maxViews : 0);
+    auto maxViews = numberField(file, L"maxViews");
+    result.maxViews = maxViews ? static_cast<int64_t>(*maxViews) : (previous ? previous->maxViews : 0);
     result.isSensitive = boolField(file, L"piiDetected").value_or(previous && previous->isSensitive);
 
     std::optional<double> views;
@@ -582,13 +583,10 @@ RemoteFile toRemoteFile(JsonObject const& file, RemoteFile const* previous = nul
 RemoteFolder toRemoteFolder(JsonObject const& folder, RemoteFolder const* previous = nullptr) {
     RemoteFolder result;
     result.id = stringField(folder, L"id").value_or(L"");
-    result.name = stringField(folder, L"name").value_or(previous ? previous->name : L"");
+    result.name = stringField(folder, L"name").value_or(L"");
     result.parentId = folder.HasKey(L"parentId") ? optionalId(folder, L"parentId")
                                                  : (previous ? previous->parentId : std::nullopt);
-
-    auto createdAt = stringField(folder, L"createdAt");
-    result.createdAt = createdAt && !createdAt->empty() ? parseIsoDate(*createdAt)
-                                                        : (previous ? previous->createdAt : 0);
+    result.createdAt = parseIsoDate(stringField(folder, L"createdAt").value_or(L""));
     return result;
 }
 
@@ -604,15 +602,12 @@ RemoteNote toRemoteNote(JsonObject const& note) {
     return result;
 }
 
-RemoteLink toRemoteLink(JsonObject const& link, RemoteLink const* previous = nullptr) {
+RemoteLink toRemoteLink(JsonObject const& link) {
     RemoteLink result;
     result.id = stringField(link, L"id").value_or(L"");
-    result.code = stringField(link, L"code").value_or(previous ? previous->code : L"");
-    result.shortUrl = stringField(link, L"shortUrl").value_or(previous ? previous->shortUrl : L"");
-
-    auto createdAt = stringField(link, L"createdAt");
-    result.createdAt = createdAt && !createdAt->empty() ? parseIsoDate(*createdAt)
-                                                        : (previous ? previous->createdAt : 0);
+    result.code = stringField(link, L"code").value_or(L"");
+    result.shortUrl = stringField(link, L"shortUrl").value_or(L"");
+    result.createdAt = parseIsoDate(stringField(link, L"createdAt").value_or(L""));
     return result;
 }
 
@@ -1156,8 +1151,6 @@ void reloadNow() {
 std::shared_future<void> reload() {
     return enqueue(reloadNow);
 }
-
-bool isResyncQueued = false;
 
 void resync() {
     {
@@ -2191,7 +2184,7 @@ void handleHelperEvent(HelperEvent event) {
             tryLog(L"Could not load the note " + id, [&] {
                 auto note = toRemoteNote(harborGet(L"/api/notes/" + id));
                 Lock lock(guard);
-                if (notes.contains(id)) notes[id] = note;
+                notes[id] = note;
             });
             refreshNote(id);
         });
@@ -2355,30 +2348,17 @@ void connectSocket() {
         scheduleApply();
     });
 
-    client->on(L"link:create", [](IJsonValue const& payload) {
-        auto value = toRemoteLink(objectOf(payload));
-        Lock lock(guard);
-        links[value.id] = value;
-        scheduleApply();
-    });
+    for (auto event : {L"link:create", L"link:update"}) {
+        client->on(event, [](IJsonValue const& payload) {
+            auto link = objectOf(payload);
+            if (!link.HasKey(L"code")) return;
 
-    client->on(L"link:update", [](IJsonValue const& payload) {
-        auto link = objectOf(payload);
-        auto id = stringField(link, L"id").value_or(L"");
-
-        Lock lock(guard);
-        auto previous = links.find(id);
-        if (previous == links.end() && !stringField(link, L"code")) return;
-
-        auto value = toRemoteLink(link, previous == links.end() ? nullptr : &previous->second);
-        if (previous != links.end() && previous->second.code == value.code &&
-            previous->second.shortUrl == value.shortUrl) {
-            return;
-        }
-
-        links[id] = value;
-        scheduleApply();
-    });
+            auto value = toRemoteLink(link);
+            Lock lock(guard);
+            links[value.id] = value;
+            scheduleApply();
+        });
+    }
 
     client->on(L"link:delete", [](IJsonValue const& payload) {
         Lock lock(guard);
