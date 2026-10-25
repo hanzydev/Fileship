@@ -1205,11 +1205,11 @@ void Annotator::drawShape(ID2D1DeviceContext* context, Painter& painter, Shape c
     com_ptr<ID2D1Effect> shadow;
     winrt::check_hresult(context->CreateEffect(SHADOW_EFFECT, shadow.put()));
     shadow->SetInput(0, list.get());
-    shadow->SetValue(D2D1_SHADOW_PROP_BLUR_STANDARD_DEVIATION, 3.0f * std::min(scaleX, scaleY));
-    shadow->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::Vector4F(0, 0, 0, 0.45f));
+    shadow->SetValue(D2D1_SHADOW_PROP_BLUR_STANDARD_DEVIATION, 4.0f * std::min(scaleX, scaleY));
+    shadow->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::Vector4F(0, 0, 0, 0.75f));
 
     context->SetTransform(D2D1::Matrix3x2F::Identity());
-    context->DrawImage(shadow.get(), D2D1::Point2F(scaleX, scaleY));
+    context->DrawImage(shadow.get(), D2D1::Point2F(2 * scaleX, 2 * scaleY));
     context->DrawImage(list.get());
     context->SetTransform(matrix);
 }
