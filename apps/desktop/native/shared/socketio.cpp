@@ -14,6 +14,7 @@ namespace {
 
 constexpr int INITIAL_DELAY_MS = 1000;
 constexpr int MAX_DELAY_MS = 5000;
+constexpr int MAX_REJECTED_DELAY_MS = 60000;
 constexpr DWORD RECEIVE_TIMEOUT_MS = 60000;
 constexpr DWORD CONNECT_TIMEOUT_MS = 15000;
 
@@ -43,6 +44,11 @@ void SocketIo::on(std::wstring const& event, Handler handler) {
 void SocketIo::onReconnect(std::function<void()> handler) {
     std::lock_guard lock(mutex);
     reconnectHandler = std::move(handler);
+}
+
+void SocketIo::onConnectError(std::function<void()> handler) {
+    std::lock_guard lock(mutex);
+    connectErrorHandler = std::move(handler);
 }
 
 void SocketIo::connect() {
@@ -86,6 +92,8 @@ void SocketIo::run() {
     int attempt = 0;
 
     while (!stopping) {
+        rejected = false;
+
         if (open()) {
             std::vector<char> buffer(64 * 1024);
             std::string message;
@@ -127,7 +135,7 @@ void SocketIo::run() {
                 if (rejected) break;
             }
 
-            if (connected) attempt = 0;
+            if (connected && !rejected) attempt = 0;
         }
 
         if (connected) {
@@ -136,9 +144,11 @@ void SocketIo::run() {
 
         connected = false;
         closeSocket();
-        if (stopping || rejected) break;
+        hasAttempted = true;
+        if (stopping) break;
 
-        int delay = jitter(std::min(INITIAL_DELAY_MS << std::min(attempt, 8), MAX_DELAY_MS));
+        int delay = jitter(std::min(INITIAL_DELAY_MS << std::min(attempt, 8),
+                                    rejected ? MAX_REJECTED_DELAY_MS : MAX_DELAY_MS));
         attempt++;
         if (!waitFor(delay)) break;
     }
@@ -171,7 +181,7 @@ bool SocketIo::open() {
 
     if (!WinHttpCrackUrl(endpoint.baseUrl.c_str(), 0, 0, &url)) {
         logWarn(L"Socket: invalid instance address " + endpoint.baseUrl);
-        rejected = true;
+        stopping = true;
         return false;
     }
 
@@ -296,9 +306,7 @@ void SocketIo::handlePacket(std::string const& packet) {
     char kind = packet[1];
 
     if (kind == '0') {
-        bool isReconnect = hasConnected;
         connected = true;
-        hasConnected = true;
 
         std::function<void()> handler;
         {
@@ -306,13 +314,21 @@ void SocketIo::handlePacket(std::string const& packet) {
             handler = reconnectHandler;
         }
 
-        if (isReconnect && handler) handler();
+        if (hasAttempted && handler) handler();
     } else if (kind == '1') {
         logInfo(L"Socket: the server closed the connection");
         rejected = true;
     } else if (kind == '4') {
         logWarn(L"Socket: connection refused " + toWide(packet.substr(2)));
         rejected = true;
+
+        std::function<void()> handler;
+        {
+            std::lock_guard lock(mutex);
+            handler = connectErrorHandler;
+        }
+
+        if (handler) handler();
     } else if (kind == '2') {
         dispatch(packet.substr(2));
     }

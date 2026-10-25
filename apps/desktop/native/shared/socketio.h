@@ -27,6 +27,7 @@ public:
 
     void on(std::wstring const& event, Handler handler);
     void onReconnect(std::function<void()> handler);
+    void onConnectError(std::function<void()> handler);
     void connect();
     void close();
     bool isConnected() const;
@@ -45,6 +46,7 @@ private:
     HttpEndpoint endpoint;
     std::map<std::wstring, Handler> handlers;
     std::function<void()> reconnectHandler;
+    std::function<void()> connectErrorHandler;
     std::thread worker;
     std::mutex mutex;
     std::mutex sendMutex;
@@ -55,7 +57,7 @@ private:
     std::atomic<bool> stopping = false;
     std::atomic<bool> connected = false;
     bool rejected = false;
-    bool hasConnected = false;
+    bool hasAttempted = false;
 };
 
 }

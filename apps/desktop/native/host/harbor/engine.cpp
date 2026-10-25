@@ -2254,6 +2254,7 @@ void connectSocket() {
     client->on(L"settings:update", [](IJsonValue const&) { resetUploadSettings(); });
     client->on(L"logout", [](IJsonValue const&) { std::thread([] { handleUnauthorized(); }).detach(); });
     client->onReconnect([] { resync(); });
+    client->onConnectError([] { runDetached([] { harborApi(L"GET", L"/api/users/@me"); }); });
 
     socket = client;
     client->connect();
