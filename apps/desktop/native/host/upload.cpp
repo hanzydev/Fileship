@@ -140,8 +140,10 @@ UploadedFile runJob(UploadSource const& job, std::wstring const& id, UploadOptio
 
         std::lock_guard lock(readMutex);
         std::vector<char> buffer(length);
+        file.clear();
         file.seekg(offset);
         file.read(buffer.data(), static_cast<std::streamsize>(length));
+        if (file.gcount() != static_cast<std::streamsize>(length)) throw translatedError(t(L"tasks.uploadFailed"));
         return buffer;
     };
 
