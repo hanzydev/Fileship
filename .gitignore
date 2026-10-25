@@ -29,6 +29,7 @@ apps/desktop/build/harbor
 apps/desktop/build/native
 apps/desktop/build/host
 apps/desktop/build/generated
+apps/desktop/build/overlay-demo
 
 # Turbo
 .turbo

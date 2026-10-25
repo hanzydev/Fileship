@@ -27,7 +27,8 @@ const groupSources = (...folders) => {
 
     for (const folder of folders) {
         for (const file of readdirSync(join(native, folder), { recursive: true })) {
-            if (!file.endsWith('.cpp')) continue;
+            if (!file.endsWith('.cpp') || join(folder, file).startsWith(join('ui', 'demo')))
+                continue;
 
             const group = join(folder, dirname(file)).replaceAll('\\', '-').replace(/-\.$/, '');
             (groups[group] ??= []).push(`"${join(native, folder, file)}"`);
