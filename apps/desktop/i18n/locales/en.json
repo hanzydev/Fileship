@@ -28,10 +28,6 @@
             "eraser": "Smart eraser",
             "emoji": "Emoji"
         },
-        "color": "Color",
-        "customColor": "Custom color",
-        "emoji": "Emoji",
-        "options": "Options",
         "size": "Size",
         "radius": "Radius",
         "strength": "Strength",
@@ -405,15 +401,11 @@
         "restartNow": "Restart now"
     },
     "overlay": {
-        "moveToolbar": "Move the toolbar",
         "region": "Region"
     },
     "recorder": {
         "microphone": "Microphone",
         "systemAudio": "System audio",
-        "pause": "Pause",
-        "resume": "Resume",
-        "discard": "Discard",
         "stop": "Stop",
         "starting": "Starting…",
         "startingIn": "Starting in {count}",
@@ -440,7 +432,6 @@
         "encoderUnavailable": "Encoder not available",
         "encoderUnsupported": "{codec} does not work on this computer. Pick another one.",
         "cannotRecord": "Cannot record",
-        "notStartedInTime": "The recorder did not start in time.",
         "startFailed": "Could not start recording",
         "alreadyRecording": "A recording is already running",
         "alreadyRecordingDescription": "Stop it before starting another one."

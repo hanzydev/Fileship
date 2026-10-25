@@ -78,8 +78,6 @@ export const VIDEO_CODECS = [
     'libsvtav1',
 ] as const;
 
-export const HARDWARE_CODECS = ['h264_nvenc', 'h264_amf', 'h264_qsv'] as const;
-
 export const CONTAINERS = ['mp4', 'mkv', 'webm'] as const;
 
 export const AUDIO_CODECS = ['aac', 'libopus', 'libmp3lame'] as const;

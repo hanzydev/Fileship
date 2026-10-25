@@ -184,7 +184,6 @@ void runPublisher() {
         }
 
         try {
-            broadcast(L"recorder:state", jsonValue(stateJson(value)));
             refreshTray();
             ui::updateRecorderUi(viewOf(value));
         } catch (...) {
@@ -1003,15 +1002,6 @@ void registerRecordingHandlers() {
     });
     registerHandler(L"recording:preview", [](JsonArray const&) { return recordingPreview(); });
     registerHandler(L"recording:microphones", [](JsonArray const&) { return jsonValue(listMicrophones()); });
-    registerHandler(L"recorder:get", [](JsonArray const&) { return jsonValue(recorderState()); });
-    registerHandler(L"recorder:control", [](JsonArray const& args) {
-        controlRecording(std::wstring(args.GetStringAt(0)));
-        return JsonValue::CreateNullValue();
-    });
-    registerHandler(L"recorder:mute", [](JsonArray const& args) {
-        setRecordingMute(std::wstring(args.GetStringAt(0)), args.GetBooleanAt(1));
-        return JsonValue::CreateNullValue();
-    });
 }
 
 }

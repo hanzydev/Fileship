@@ -28,10 +28,6 @@
             "eraser": "智能橡皮擦",
             "emoji": "表情符号"
         },
-        "color": "颜色",
-        "customColor": "自定义颜色",
-        "emoji": "表情符号",
-        "options": "选项",
         "size": "大小",
         "radius": "圆角",
         "strength": "强度",
@@ -405,15 +401,11 @@
         "restartNow": "立即重启"
     },
     "overlay": {
-        "moveToolbar": "移动工具栏",
         "region": "区域"
     },
     "recorder": {
         "microphone": "麦克风",
         "systemAudio": "系统声音",
-        "pause": "暂停",
-        "resume": "继续",
-        "discard": "放弃",
         "stop": "停止",
         "starting": "正在开始…",
         "startingIn": "{count} 秒后开始",
@@ -440,7 +432,6 @@
         "encoderUnavailable": "编码器不可用",
         "encoderUnsupported": "{codec} 无法在这台电脑上使用，请改选其他编码器。",
         "cannotRecord": "无法录制",
-        "notStartedInTime": "录制程序未能及时启动。",
         "startFailed": "无法开始录制",
         "alreadyRecording": "已有录制正在进行",
         "alreadyRecordingDescription": "请先停止当前录制，再开始新的录制。"

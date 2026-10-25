@@ -28,10 +28,6 @@
             "eraser": "Intelligenter Radierer",
             "emoji": "Emoji"
         },
-        "color": "Farbe",
-        "customColor": "Eigene Farbe",
-        "emoji": "Emoji",
-        "options": "Optionen",
         "size": "Größe",
         "radius": "Radius",
         "strength": "Stärke",
@@ -405,15 +401,11 @@
         "restartNow": "Jetzt neu starten"
     },
     "overlay": {
-        "moveToolbar": "Symbolleiste verschieben",
         "region": "Bereich"
     },
     "recorder": {
         "microphone": "Mikrofon",
         "systemAudio": "Systemaudio",
-        "pause": "Pausieren",
-        "resume": "Fortsetzen",
-        "discard": "Verwerfen",
         "stop": "Beenden",
         "starting": "Wird gestartet…",
         "startingIn": "Start in {count}",
@@ -440,7 +432,6 @@
         "encoderUnavailable": "Encoder nicht verfügbar",
         "encoderUnsupported": "{codec} funktioniert auf diesem Computer nicht. Wähle einen anderen.",
         "cannotRecord": "Aufnahme nicht möglich",
-        "notStartedInTime": "Die Aufnahme ist nicht rechtzeitig gestartet.",
         "startFailed": "Aufnahme konnte nicht gestartet werden",
         "alreadyRecording": "Es läuft bereits eine Aufnahme",
         "alreadyRecordingDescription": "Beende sie, bevor du eine neue startest."

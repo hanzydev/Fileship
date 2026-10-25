@@ -61,28 +61,6 @@ export type UploadProgress = {
 
 export type HotkeyStatus = Partial<Record<HotkeyAction, 'ok' | 'conflict' | 'invalid'>>;
 
-export type RecordingKind = 'video' | 'gif';
-
-export type RecorderPhase =
-    'idle' | 'preparing' | 'countdown' | 'recording' | 'paused' | 'processing';
-
-export type AudioSourceId = 'microphone' | 'system';
-
-export type AudioTrack = { id: 'mixed' | AudioSourceId; title: string; sources: AudioSourceId[] };
-
-export type RecorderState = {
-    phase: RecorderPhase;
-    kind: RecordingKind;
-    elapsed: number;
-    since: number | null;
-    countdown: number;
-    tracks: AudioTrack[];
-    muted: AudioSourceId[];
-    maxDuration: number;
-};
-
-export type RecorderControl = 'stop' | 'pause' | 'resume' | 'abort';
-
 export type FfmpegStatus = {
     path: string | null;
     version: string | null;
@@ -173,9 +151,6 @@ export type IpcInvoke = {
     'ffmpeg:download': () => void;
     'recording:preview': () => string;
     'recording:microphones': () => Microphone[];
-    'recorder:get': () => RecorderState;
-    'recorder:control': (action: RecorderControl) => void;
-    'recorder:mute': (source: AudioSourceId, muted: boolean) => void;
     'harbor:status': () => HarborStatus;
     'harbor:open': () => void;
     'harbor:setFolder': (folder: string) => HarborStatus;
@@ -193,7 +168,6 @@ export type IpcEvents = {
     'history:changed': null;
     'uploads:progress': UploadProgress[];
     'ffmpeg:status': FfmpegStatus;
-    'recorder:state': RecorderState;
     'harbor:status': HarborStatus;
     'harbor:activity': HarborActivity[];
 };
@@ -233,9 +207,6 @@ export const INVOKE_CHANNELS = [
     'ffmpeg:download',
     'recording:preview',
     'recording:microphones',
-    'recorder:get',
-    'recorder:control',
-    'recorder:mute',
     'harbor:status',
     'harbor:open',
     'harbor:setFolder',
@@ -253,7 +224,6 @@ export const EVENT_CHANNELS = [
     'history:changed',
     'uploads:progress',
     'ffmpeg:status',
-    'recorder:state',
     'harbor:status',
     'harbor:activity',
 ] as const satisfies (keyof IpcEvents)[];

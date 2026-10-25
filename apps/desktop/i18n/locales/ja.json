@@ -28,10 +28,6 @@
             "eraser": "スマート消しゴム",
             "emoji": "絵文字"
         },
-        "color": "色",
-        "customColor": "カスタムの色",
-        "emoji": "絵文字",
-        "options": "オプション",
         "size": "サイズ",
         "radius": "半径",
         "strength": "強さ",
@@ -405,15 +401,11 @@
         "restartNow": "今すぐ再起動"
     },
     "overlay": {
-        "moveToolbar": "ツールバーを移動",
         "region": "範囲"
     },
     "recorder": {
         "microphone": "マイク",
         "systemAudio": "システム音声",
-        "pause": "一時停止",
-        "resume": "再開",
-        "discard": "破棄",
         "stop": "停止",
         "starting": "開始しています…",
         "startingIn": "{count} 秒後に開始",
@@ -440,7 +432,6 @@
         "encoderUnavailable": "エンコーダーを使用できません",
         "encoderUnsupported": "{codec} はこの PC では動作しません。別のエンコーダーを選択してください。",
         "cannotRecord": "録画できません",
-        "notStartedInTime": "レコーダーが時間内に起動しませんでした。",
         "startFailed": "録画を開始できませんでした",
         "alreadyRecording": "すでに録画中です",
         "alreadyRecordingDescription": "新しく録画を始める前に、今の録画を停止してください。"

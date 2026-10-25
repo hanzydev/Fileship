@@ -28,10 +28,6 @@
             "eraser": "Ağıllı pozan",
             "emoji": "Emoji"
         },
-        "color": "Rəng",
-        "customColor": "Xüsusi rəng",
-        "emoji": "Emoji",
-        "options": "Seçimlər",
         "size": "Ölçü",
         "radius": "Radius",
         "strength": "İntensivlik",
@@ -405,15 +401,11 @@
         "restartNow": "İndi yenidən başlat"
     },
     "overlay": {
-        "moveToolbar": "Alətlər panelini köçür",
         "region": "Sahə"
     },
     "recorder": {
         "microphone": "Mikrofon",
         "systemAudio": "Sistem səsi",
-        "pause": "Fasilə ver",
-        "resume": "Davam et",
-        "discard": "Yazını ləğv et",
         "stop": "Dayandır",
         "starting": "Başlayır…",
         "startingIn": "Başlayır: {count}",
@@ -440,7 +432,6 @@
         "encoderUnavailable": "Kodlaşdırıcı əlçatan deyil",
         "encoderUnsupported": "{codec} bu kompüterdə işləmir. Başqasını seç.",
         "cannotRecord": "Qeydə almaq mümkün deyil",
-        "notStartedInTime": "Qeydə alma vaxtında başlamadı.",
         "startFailed": "Qeydə almanı başlatmaq mümkün olmadı",
         "alreadyRecording": "Artıq qeydə alma gedir",
         "alreadyRecordingDescription": "Yenisini başlatmazdan əvvəl onu dayandır."

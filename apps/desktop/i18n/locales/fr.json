@@ -28,10 +28,6 @@
             "eraser": "Gomme intelligente",
             "emoji": "Emoji"
         },
-        "color": "Couleur",
-        "customColor": "Couleur personnalisée",
-        "emoji": "Emoji",
-        "options": "Options",
         "size": "Taille",
         "radius": "Rayon",
         "strength": "Intensité",
@@ -405,15 +401,11 @@
         "restartNow": "Redémarrer maintenant"
     },
     "overlay": {
-        "moveToolbar": "Déplacer la barre d'outils",
         "region": "Zone"
     },
     "recorder": {
         "microphone": "Microphone",
         "systemAudio": "Son système",
-        "pause": "Pause",
-        "resume": "Reprendre",
-        "discard": "Abandonner",
         "stop": "Arrêter",
         "starting": "Démarrage…",
         "startingIn": "Démarrage dans {count}",
@@ -440,7 +432,6 @@
         "encoderUnavailable": "Encodeur indisponible",
         "encoderUnsupported": "{codec} ne fonctionne pas sur cet ordinateur. Choisissez-en un autre.",
         "cannotRecord": "Impossible d'enregistrer",
-        "notStartedInTime": "L'enregistreur n'a pas démarré à temps.",
         "startFailed": "Impossible de démarrer l'enregistrement",
         "alreadyRecording": "Un enregistrement est déjà en cours",
         "alreadyRecordingDescription": "Arrêtez-le avant d'en démarrer un autre."
