@@ -242,10 +242,56 @@ bool refreshPlaceholder(std::wstring const& path, int64_t size) {
     return true;
 }
 
-void removePath(std::wstring const& path) {
+namespace {
+
+bool removeEntry(std::filesystem::path const& path) {
+    auto absolute = path.wstring();
+    DWORD attributes = GetFileAttributesW(absolute.c_str());
+    if (attributes == INVALID_FILE_ATTRIBUTES) return false;
+
+    CF_IN_SYNC_STATE sync = CF_IN_SYNC_STATE_NOT_IN_SYNC;
+    auto identity = probe(absolute, nullptr, &sync).identity;
+    bool isOwned = identity && !identity->empty() && !identity->starts_with(L"p:");
+    bool directory = (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
     std::error_code error;
-    std::filesystem::remove_all(fullPath(path), error);
+
+    if (!directory && !isOwned && isIgnoredName(path.filename().wstring())) {
+        std::filesystem::remove(path, error);
+        return false;
+    }
+
+    bool isKept = !isOwned || (!directory && (sync != CF_IN_SYNC_STATE_IN_SYNC || isModified(absolute)));
+
+    if (directory) {
+        std::vector<std::filesystem::path> children;
+        for (auto iterator = std::filesystem::directory_iterator(path, error);
+             !error && iterator != std::filesystem::directory_iterator(); iterator.increment(error)) {
+            children.push_back(iterator->path());
+        }
+        if (error) throw std::runtime_error(error.message());
+
+        for (auto const& child : children) {
+            if (removeEntry(child)) isKept = true;
+        }
+    }
+
+    if (isKept) {
+        if (directory && isOwned) {
+            Handle handle(absolute, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES | WRITE_DAC);
+            check_hresult(CfRevertPlaceholder(handle.value, CF_REVERT_FLAG_NONE, nullptr));
+        }
+        return true;
+    }
+
+    std::filesystem::remove(path, error);
     if (error) throw std::runtime_error(error.message());
+    return false;
+}
+
+}
+
+bool removePath(std::wstring const& path) {
+    return removeEntry(fullPath(path));
 }
 
 void adoptPath(std::wstring const& path, std::wstring const& identity, bool isChanged) {

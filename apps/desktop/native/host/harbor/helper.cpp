@@ -266,6 +266,12 @@ std::vector<ScanItem> HarborHelper::adopt(std::wstring const& path, std::wstring
     return itemsOf(request(L"adopt", payload));
 }
 
+bool HarborHelper::remove(std::wstring const& path) {
+    JsonObject payload;
+    payload.SetNamedValue(L"path", JsonValue::CreateStringValue(path));
+    return boolField(request(L"remove", payload), L"kept").value_or(false);
+}
+
 void HarborHelper::ack(uint64_t requestId, bool ok) {
     if (!running) return;
 

@@ -1032,9 +1032,21 @@ void apply() {
 
     for (auto const& [identity, item] : stale) {
         tryLog(L"Could not remove " + item.path, [&] {
-            current->request(L"remove", pathPayload(item.path));
-            Lock lock(guard);
-            local.erase(identity);
+            bool isKept = current->remove(item.path);
+
+            {
+                Lock lock(guard);
+                local.erase(identity);
+            }
+
+            if (!isKept) return;
+
+            HelperEvent event;
+            event.type = item.isFolder ? L"localNew" : L"localModified";
+            event.path = item.path;
+            event.identity = item.isFolder ? L"" : identity;
+            event.isFolder = item.isFolder;
+            handleHelperEvent(event);
         });
     }
 
@@ -1897,7 +1909,7 @@ void dispatchUnsynced(std::vector<ScanItem> const& items) {
     }
 }
 
-void handleLocalModified(HelperEvent const& event);
+void handleLocalModified(HelperEvent event);
 
 void handleLocalNew(HelperEvent const& event) {
     if (isPending(event.path) || event.path.find(L".fileship-") != std::wstring::npos) return;
@@ -2036,13 +2048,24 @@ void handleLocalNew(HelperEvent const& event) {
         });
 }
 
-void handleLocalModified(HelperEvent const& event) {
+void handleLocalModified(HelperEvent event) {
     if (startsWith(event.identity, L"n:")) {
         updateNote(event);
         return;
     }
 
-    if (isPending(event.path) || !startsWith(event.identity, L"f:")) return;
+    if (!startsWith(event.identity, L"f:")) return;
+
+    {
+        Lock lock(guard);
+        if (auto placed = local.find(event.identity)) {
+            event.path = placed->path;
+        } else if (occupantOf(event.path)) {
+            return;
+        }
+    }
+
+    if (isPending(event.path)) return;
 
     auto parent = dirnameOf(event.path);
     auto folderId = parent == L"." ? std::nullopt : folderIdAt(parent);

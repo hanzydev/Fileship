@@ -71,6 +71,7 @@ public:
     PathIdentity identityOf(std::wstring const& path);
     std::vector<ScanItem> adopt(std::wstring const& path, std::wstring const& identity,
                                 std::wstring const& stamp = L"");
+    bool remove(std::wstring const& path);
 
     std::function<void(HelperEvent const&)> onEvent;
     std::function<void(std::optional<DWORD>)> onExit;

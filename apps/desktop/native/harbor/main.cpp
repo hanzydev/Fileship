@@ -155,7 +155,7 @@ void handle(JsonObject const& request) {
             settle(parentOf(path));
         } else if (type == L"remove") {
             std::wstring path(request.GetNamedString(L"path"));
-            removePath(path);
+            response.SetNamedValue(L"kept", JsonValue::CreateBooleanValue(removePath(path)));
             settle(parentOf(path));
         } else if (type == L"adopt") {
             std::wstring path(request.GetNamedString(L"path"));
