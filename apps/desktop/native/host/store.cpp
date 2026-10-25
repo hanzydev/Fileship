@@ -282,20 +282,6 @@ void save() {
     if (!writeFileAtomic(storePath(), prettyJson(data))) logError(L"Could not save the settings");
 }
 
-void migrateHarbor(JsonObject& stored) {
-    if (stored.HasKey(L"driveRoot")) {
-        if (!stored.HasKey(L"harborRoot")) stored.SetNamedValue(L"harborRoot", stored.GetNamedValue(L"driveRoot"));
-        stored.Remove(L"driveRoot");
-    }
-
-    auto settingsValue = jsonObject(stored, L"settings");
-    if (settingsValue.HasKey(L"drive")) {
-        if (!settingsValue.HasKey(L"harbor")) settingsValue.SetNamedValue(L"harbor", settingsValue.GetNamedValue(L"drive"));
-        settingsValue.Remove(L"drive");
-        stored.SetNamedValue(L"settings", settingsValue);
-    }
-}
-
 bool migrateSecret(JsonObject& stored, wchar_t const* legacy, wchar_t const* field) {
     auto old = jsonString(stored, legacy);
     if (old.empty()) return false;
@@ -314,8 +300,6 @@ bool migrateSecret(JsonObject& stored, wchar_t const* legacy, wchar_t const* fie
 }
 
 JsonObject normalizeStore(JsonObject stored) {
-    migrateHarbor(stored);
-
     JsonObject result;
     for (auto const& pair : stored) result.SetNamedValue(pair.Key(), pair.Value());
 

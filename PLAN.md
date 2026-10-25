@@ -33,7 +33,6 @@ Desktop:
 - [ ] Check in a real Explorer: the Views column (custom state without an icon), the Notes and Links folders, editing a note in a few editors, and the folder link verbs in a packaged build.
 - [ ] Check the tray's Fileship Harbor submenu (state, storage line, pause and resume).
 - [ ] Check the tray: a single click opens the region capture after the double-click time, a double click only opens the window.
-- [ ] Check the 1.0.1 → next upgrade keeps the Harbor folder (`drive` / `driveRoot` store migration).
 - [ ] Check nested folders in Harbor with a real Explorer (only the layout logic and the folder list were tested): folders several levels deep, creating, renaming and moving folders and files between levels, copying a folder tree in, deleting a tree, and moving into Notes or Links being refused.
 
 Browser extension:
