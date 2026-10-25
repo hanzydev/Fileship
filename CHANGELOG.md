@@ -1,5 +1,132 @@
 # Changelog
 
+## v6.2.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v6.1.0...v6.2.0)
+
+Fileship 6.2 lets you share folders and nest them, sends email, previews PDFs, text and code, finds duplicate files, backs up on a schedule and posts to webhooks. It comes with Fileship for Windows 2.0, rebuilt as a native app that uses a few megabytes of memory in the tray.
+
+### ✨ Highlights
+
+- **Shared folders.** Share a folder with other users as viewers or editors; everything inside stays in the owner's storage and trash.
+- **Folders inside folders.** Folders nest up to ten levels, with breadcrumbs, moves between levels and public subfolders.
+- **Email.** Add SMTP settings on the instance page, confirm your email address, reset a forgotten password, invite people by email and get a warning when your storage is almost full.
+- **Previews.** PDFs open in the file viewer and get thumbnails, and text, code and Markdown files are shown with syntax highlighting.
+- **Duplicate files.** The storage page lists files you uploaded more than once, and uploads ask before adding a copy.
+- **Scheduled backups.** Back up daily or weekly at a time you choose, and keep as many automatic backups as your backup limit allows.
+- **Webhooks.** Send uploads, deletes, short links and notes to Discord, Slack or any URL as signed JSON ([guide](https://github.com/hanzydev/Fileship/blob/main/docs/webhooks.md)).
+- **Storage usage.** The sidebar, the users page and the stats show how much space you use and your limit.
+- **Share to Fileship.** Installed as an app on Android, Fileship shows up in the share sheet for files, links and text.
+- **Fileship for Windows 2.0** ([fileship-desktop](https://github.com/hanzydev/fileship-desktop)):
+    - Rebuilt around a native app: it stays in the tray at a few megabytes of memory instead of 70-80 MB, and the app window only runs while it is open.
+    - The region picker, annotations and the recording toolbar are native too, open faster and use far less memory while you capture, with the same look.
+    - Recording records the microphone and system audio directly, using Windows 11's voice processing for the microphone.
+    - Shapes keep their own colour and size: select a shape, even right after picking a region, to change its colour, size, background or shadow; shadows are easier to see.
+    - The tray menu follows the dark theme.
+    - Fileship Harbor syncs nested folders, keeps folders shared with you out of Explorer, and its status flyout gets a Settings button.
+    - Needs 64-bit Windows 11 version 24H2 or newer. Your settings, history, Harbor folder and login are kept when you update.
+
+### 🚀 Enhancements
+
+- **desktop:** Require 64-bit Windows 11 24H2 or newer ([6fcfeee1](https://github.com/hanzydev/Fileship/commit/6fcfeee1))
+- **desktop:** Run Electron only for windows, backed by the native host ([29283567](https://github.com/hanzydev/Fileship/commit/29283567))
+- **desktop:** Run screen recordings from the native host ([7056e5f5](https://github.com/hanzydev/Fileship/commit/7056e5f5))
+- **desktop:** Capture recording audio with WASAPI in the native host ([b47ffc5b](https://github.com/hanzydev/Fileship/commit/b47ffc5b))
+- **desktop:** Add the ffmpeg manager and command builder to the native host ([a74b0bcd](https://github.com/hanzydev/Fileship/commit/a74b0bcd))
+- **desktop:** Run Fileship Harbor in the native host ([d49a0b23](https://github.com/hanzydev/Fileship/commit/d49a0b23))
+- **desktop:** Add a socket.io client over WinHTTP WebSocket ([6b88e76b](https://github.com/hanzydev/Fileship/commit/6b88e76b))
+- **desktop:** Let the host take its pipe name from --pipe ([fd6c2e8a](https://github.com/hanzydev/Fileship/commit/fd6c2e8a))
+- **desktop:** Add the native host core ([7287647b](https://github.com/hanzydev/Fileship/commit/7287647b))
+- **desktop:** Add the native capture overlay and recorder toolbar ([6af4ea62](https://github.com/hanzydev/Fileship/commit/6af4ea62))
+- **desktop:** Add the native host skeleton and shared C++ code ([24b1bc90](https://github.com/hanzydev/Fileship/commit/24b1bc90))
+- **ui:** Preview text, code and markdown files in the file viewer ([5cc5b926](https://github.com/hanzydev/Fileship/commit/5cc5b926))
+- Add webhooks for Discord, Slack and signed JSON ([aa72f799](https://github.com/hanzydev/Fileship/commit/aa72f799))
+- **extension:** Add the Fileship browser extension ([3113b66c](https://github.com/hanzydev/Fileship/commit/3113b66c))
+- **pwa:** Receive files, links and text from the share sheet ([e016ca9d](https://github.com/hanzydev/Fileship/commit/e016ca9d))
+- Share folders with other users ([bc7d34fd](https://github.com/hanzydev/Fileship/commit/bc7d34fd))
+- Preview PDFs ([0179f66e](https://github.com/hanzydev/Fileship/commit/0179f66e))
+- Warn users by email when their storage is almost full ([80675ff3](https://github.com/hanzydev/Fileship/commit/80675ff3))
+- Invite people by email ([15042385](https://github.com/hanzydev/Fileship/commit/15042385))
+- Schedule automatic backups ([8ad794d4](https://github.com/hanzydev/Fileship/commit/8ad794d4))
+- **auth:** Reset forgotten passwords by email ([0624a539](https://github.com/hanzydev/Fileship/commit/0624a539))
+- Detect duplicate files ([81c67284](https://github.com/hanzydev/Fileship/commit/81c67284))
+- **desktop:** Sync nested folders in Fileship Harbor ([a716585c](https://github.com/hanzydev/Fileship/commit/a716585c))
+- Let users add and confirm an email address ([bdfb29a4](https://github.com/hanzydev/Fileship/commit/bdfb29a4))
+- Nest folders inside folders ([eefc57b7](https://github.com/hanzydev/Fileship/commit/eefc57b7))
+- Add SMTP settings and send a test email ([d40ce652](https://github.com/hanzydev/Fileship/commit/d40ce652))
+- **desktop:** Extend the Harbor flyout and bring notes and links to Harbor ([33141d4e](https://github.com/hanzydev/Fileship/commit/33141d4e))
+- Show storage usage and quotas in the dashboard ([8644b07d](https://github.com/hanzydev/Fileship/commit/8644b07d))
+- **api:** Send view counts when a file is viewed ([354d8064](https://github.com/hanzydev/Fileship/commit/354d8064))
+
+### 🩹 Fixes
+
+- **desktop:** Draw the tray menu in the app theme ([8d5ae8f5](https://github.com/hanzydev/Fileship/commit/8d5ae8f5))
+- **desktop:** Make the annotation shadow visible ([0ad8bf6c](https://github.com/hanzydev/Fileship/commit/0ad8bf6c))
+- **desktop:** Let selected and edited shapes change their style ([c0a02075](https://github.com/hanzydev/Fileship/commit/c0a02075))
+- **desktop:** Let Electron read app:quit before the host closes its pipe ([9c69e025](https://github.com/hanzydev/Fileship/commit/9c69e025))
+- **desktop:** Decide whether the host is packaged from its install folder ([a0527b43](https://github.com/hanzydev/Fileship/commit/a0527b43))
+- **desktop:** Connect the recorder to the overlay and the host settings ([44e16793](https://github.com/hanzydev/Fileship/commit/44e16793))
+- **desktop:** Name the microphone field name in recording:microphones ([081b1dce](https://github.com/hanzydev/Fileship/commit/081b1dce))
+- **desktop:** Remove nested Harbor folders before their parents ([2575c6fe](https://github.com/hanzydev/Fileship/commit/2575c6fe))
+- **ui:** Show TypeScript .ts files as code on file cards and public folders ([18129488](https://github.com/hanzydev/Fileship/commit/18129488))
+- **api:** Look up the MIME type by name when an upload has none ([55b334cd](https://github.com/hanzydev/Fileship/commit/55b334cd))
+- Trim trailing slashes without a regular expression ([240bca3c](https://github.com/hanzydev/Fileship/commit/240bca3c))
+- **telemetry:** Hash the admin password with scrypt ([cc88dd5b](https://github.com/hanzydev/Fileship/commit/cc88dd5b))
+- **ui:** Redraw PDF pages when the viewer switches files ([c315a5e7](https://github.com/hanzydev/Fileship/commit/c315a5e7))
+- **ui:** Hide upload controls in folders shared as viewer and show the role ([7507ef99](https://github.com/hanzydev/Fileship/commit/7507ef99))
+- **ui:** Show who shared a folder only inside the folder ([b10f6a43](https://github.com/hanzydev/Fileship/commit/b10f6a43))
+- **ui:** Show full upload errors and center the collapsed queue header ([75f4ab2f](https://github.com/hanzydev/Fileship/commit/75f4ab2f))
+- **extension:** Keep picked files in IndexedDB until their upload ends ([b932b32e](https://github.com/hanzydev/Fileship/commit/b932b32e))
+- **desktop:** Keep folders shared with you out of Harbor ([24adc575](https://github.com/hanzydev/Fileship/commit/24adc575))
+- **desktop:** Log out of the app when the dashboard window logs out ([71cf8289](https://github.com/hanzydev/Fileship/commit/71cf8289))
+- **desktop:** Show the Settings button in the Harbor status flyout ([aa1eb786](https://github.com/hanzydev/Fileship/commit/aa1eb786))
+
+### 💅 Refactors
+
+- **desktop:** Drop the 1.0.1 drive to harbor store migration ([83bab3e2](https://github.com/hanzydev/Fileship/commit/83bab3e2))
+- **desktop:** Remove what the Vue overlay and recorder left behind ([78197d2c](https://github.com/hanzydev/Fileship/commit/78197d2c))
+- **desktop:** Remove the N-API addon now that the host owns capture ([aa67a8f1](https://github.com/hanzydev/Fileship/commit/aa67a8f1))
+- **desktop:** Split the native core into plain C++ functions ([adc94a08](https://github.com/hanzydev/Fileship/commit/adc94a08))
+- **ui:** Move the upload options into UploadOptions ([5a8fcc47](https://github.com/hanzydev/Fileship/commit/5a8fcc47))
+
+### 📖 Documentation
+
+- **desktop:** Describe the native host, overlay and recording ([b86fc82c](https://github.com/hanzydev/Fileship/commit/b86fc82c))
+- **extension:** Add Markdown descriptions for AMO ([2e1cb0d3](https://github.com/hanzydev/Fileship/commit/2e1cb0d3))
+- **extension:** Explain the innerHTML warning to AMO reviewers ([61c2d470](https://github.com/hanzydev/Fileship/commit/61c2d470))
+- **extension:** Fit the Chrome test instructions in 500 characters ([2aeaf7db](https://github.com/hanzydev/Fileship/commit/2aeaf7db))
+- **extension:** Show the popups at their real size in the store images ([aaaa1dc8](https://github.com/hanzydev/Fileship/commit/aaaa1dc8))
+- **extension:** Add store images ([4ad749c5](https://github.com/hanzydev/Fileship/commit/4ad749c5))
+- **extension:** Add the privacy policy and the store listing ([19275535](https://github.com/hanzydev/Fileship/commit/19275535))
+- Add the webhooks guide ([ee9fe318](https://github.com/hanzydev/Fileship/commit/ee9fe318))
+- **extension:** Record the live test against a local dashboard ([1ed89642](https://github.com/hanzydev/Fileship/commit/1ed89642))
+- Note dev traps found while testing folders ([61649b95](https://github.com/hanzydev/Fileship/commit/61649b95))
+- Note how emails are translated and how to test them locally ([a2d0cd55](https://github.com/hanzydev/Fileship/commit/a2d0cd55))
+- Note that the telemetry panel needs its Prisma client for typecheck ([9e725c27](https://github.com/hanzydev/Fileship/commit/9e725c27))
+- Note that Harbor flyout commands need icons ([5e04da50](https://github.com/hanzydev/Fileship/commit/5e04da50))
+
+### 🏡 Chore
+
+- **desktop:** Bump Fileship for Windows to 2.0.0 ([6b4ce43d](https://github.com/hanzydev/Fileship/commit/6b4ce43d))
+- **desktop:** Update dependencies and build steps for the native host ([32d2836d](https://github.com/hanzydev/Fileship/commit/32d2836d))
+- **desktop:** Package the native host ([3cad99c8](https://github.com/hanzydev/Fileship/commit/3cad99c8))
+- **desktop:** Add an overlay demo with a fixture renderer ([18c31573](https://github.com/hanzydev/Fileship/commit/18c31573))
+- **desktop:** Copy the Geist font subsets for the native UI ([2c3af4ab](https://github.com/hanzydev/Fileship/commit/2c3af4ab))
+- **deps:** Update nuxt, zod, Electron 45 and patched dependencies ([a5ed9afc](https://github.com/hanzydev/Fileship/commit/a5ed9afc))
+- **deps:** Bump fast-uri from 3.1.8 to 3.1.9 ([7c824bbf](https://github.com/hanzydev/Fileship/commit/7c824bbf))
+- **extension:** Make the store packages rebuild exactly ([6af5f0fa](https://github.com/hanzydev/Fileship/commit/6af5f0fa))
+- **desktop:** Release 1.1.1 ([df877d90](https://github.com/hanzydev/Fileship/commit/df877d90))
+
+#### ⚠️ Breaking Changes
+
+- **desktop:** Require 64-bit Windows 11 24H2 or newer ([6fcfeee1](https://github.com/hanzydev/Fileship/commit/6fcfeee1))
+- **desktop:** Drop the 1.0.1 drive to harbor store migration ([83bab3e2](https://github.com/hanzydev/Fileship/commit/83bab3e2))
+- **desktop:** Run Electron only for windows, backed by the native host ([29283567](https://github.com/hanzydev/Fileship/commit/29283567))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v6.1.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v6.0.0...v6.1.0)
