@@ -562,8 +562,8 @@ RemoteFile toRemoteFile(JsonObject const& file, RemoteFile const* previous = nul
         result.expiresAt = previous ? previous->expiresAt : std::nullopt;
     }
 
-    auto maxViews = numberField(file, L"maxViews");
-    result.maxViews = maxViews ? static_cast<int64_t>(*maxViews) : (previous ? previous->maxViews : 0);
+    result.maxViews = file.HasKey(L"maxViews") ? static_cast<int64_t>(numberField(file, L"maxViews").value_or(0))
+                                               : (previous ? previous->maxViews : 0);
     result.isSensitive = boolField(file, L"piiDetected").value_or(previous && previous->isSensitive);
 
     std::optional<double> views;
@@ -578,10 +578,13 @@ RemoteFile toRemoteFile(JsonObject const& file, RemoteFile const* previous = nul
 RemoteFolder toRemoteFolder(JsonObject const& folder, RemoteFolder const* previous = nullptr) {
     RemoteFolder result;
     result.id = stringField(folder, L"id").value_or(L"");
-    result.name = stringField(folder, L"name").value_or(L"");
+    result.name = stringField(folder, L"name").value_or(previous ? previous->name : L"");
     result.parentId = folder.HasKey(L"parentId") ? optionalId(folder, L"parentId")
                                                  : (previous ? previous->parentId : std::nullopt);
-    result.createdAt = parseIsoDate(stringField(folder, L"createdAt").value_or(L""));
+
+    auto createdAt = stringField(folder, L"createdAt");
+    result.createdAt = createdAt && !createdAt->empty() ? parseIsoDate(*createdAt)
+                                                        : (previous ? previous->createdAt : 0);
     return result;
 }
 
