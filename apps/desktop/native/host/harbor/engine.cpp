@@ -150,6 +150,7 @@ SerialQueue& outbox() {
 }
 
 void handleHelperEvent(HelperEvent event);
+void refreshNote(std::wstring const& id);
 void scheduleRetry(std::wstring const& error);
 void resync();
 void runAction(std::wstring const& action, std::vector<std::wstring> const& paths);
@@ -1128,16 +1129,24 @@ void reloadNow() {
     apply();
 
     JsonArray stuck;
+    std::vector<std::wstring> staleNotes;
     {
         Lock lock(guard);
         for (auto const& item : items) {
-            if (item.inSync || !item.identity || isPendingIdentity(*item.identity) || item.modified ||
+            if (!item.identity || isPendingIdentity(*item.identity) || item.modified ||
                 pendingPaths.contains(item.path)) {
                 continue;
             }
 
+            if (startsWith(*item.identity, L"n:")) {
+                auto note = notes.find(idOf(*item.identity));
+                if (note != notes.end() && note->second.size != item.size) staleNotes.push_back(note->first);
+            }
+
             auto placed = local.find(*item.identity);
-            if (placed && placed->path == item.path && isKnown(*item.identity)) stuck.Append(str(item.path));
+            if (!item.inSync && placed && placed->path == item.path && isKnown(*item.identity)) {
+                stuck.Append(str(item.path));
+            }
         }
     }
 
@@ -1145,6 +1154,7 @@ void reloadNow() {
     payload.SetNamedValue(L"paths", stuck);
     tryLog(L"Could not mark Harbor in sync", [&] { current->request(L"markInSync", payload); });
 
+    for (auto const& id : staleNotes) refreshNote(id);
     for (auto const& event : unsynced) handleHelperEvent(event);
 }
 
