@@ -152,7 +152,13 @@ std::wstring appVersion() {
 }
 
 bool isPackaged() {
-    return !launchOptions().dev;
+    static bool const packaged = [] {
+        auto resources = resourcesPath().parent_path();
+        return resources.filename() == L"resources" &&
+               std::filesystem::exists(resources.parent_path() / L"Fileship.exe");
+    }();
+
+    return packaged && !launchOptions().dev;
 }
 
 std::wstring desktopUserAgent() {
