@@ -2,37 +2,14 @@
 
 #include "common.h"
 
-#include <winhttp.h>
+#include "../shared/http.h"
 
 namespace harbor {
 
-struct Internet {
-    HINTERNET value = nullptr;
-
-    explicit Internet(HINTERNET handle) : value(handle) {}
-
-    ~Internet() {
-        if (value) WinHttpCloseHandle(value);
-    }
-
-    Internet(Internet const&) = delete;
-    Internet& operator=(Internet const&) = delete;
-};
-
-struct HttpStream {
-    Internet connection;
-    Internet request;
-    DWORD status = 0;
-
+struct HttpStream : fileship::HttpStream {
     HttpStream(std::wstring const& path, std::wstring const& headers = {});
-    DWORD read(char* buffer, DWORD size);
 };
 
-struct HttpResponse {
-    DWORD status = 0;
-    std::vector<char> body;
-};
-
-HttpResponse httpGet(std::wstring const& path);
+fileship::HttpResponse httpGet(std::wstring const& path);
 
 }

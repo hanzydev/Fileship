@@ -10,7 +10,7 @@
     "main": "dist-electron/main.cjs",
     "scripts": {
         "dev": "node scripts/dev.mjs",
-        "build": "nuxt generate && tsdown && node scripts/native.mjs && node scripts/harbor.mjs",
+        "build": "nuxt generate && tsdown && node scripts/native-assets.mjs && node scripts/native.mjs && node scripts/harbor.mjs && node scripts/host.mjs",
         "package": "pnpm build && electron-builder --win",
         "postinstall": "nuxt prepare",
         "lint:types": "nuxt typecheck && tsc -p electron/tsconfig.json --noEmit",

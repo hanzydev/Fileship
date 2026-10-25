@@ -27,6 +27,8 @@ apps/desktop/dist-electron
 apps/desktop/release
 apps/desktop/build/harbor
 apps/desktop/build/native
+apps/desktop/build/host
+apps/desktop/build/generated
 
 # Turbo
 .turbo
