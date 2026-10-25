@@ -40,7 +40,9 @@ interface UploadedFile {
 }
 
 export const uploadMimeType = (file: File) =>
-    file.type || mime.getType(file.name) || 'application/octet-stream';
+    (file.type !== 'application/octet-stream' && file.type) ||
+    mime.getType(file.name) ||
+    'application/octet-stream';
 
 export const usableSpaceOf = (owner: UploadOwner) => {
     const usableSpace = owner.limits?.usableSpace ?? -1;
