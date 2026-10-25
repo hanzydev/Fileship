@@ -1339,6 +1339,15 @@ bool isPending(std::wstring const& path) {
     return pendingPaths.contains(path);
 }
 
+void rollBack(std::wstring const& identity, std::wstring const& path, std::exception_ptr error) {
+    tryLog(L"Could not roll back " + path, [&] { deleteRemote(identity, true); });
+    if (!pathExists(absoluteOf(path))) return;
+
+    auto message = describe(error).message;
+    logWarn(L"Could not adopt " + path + L": " + message);
+    addActivity(L"error", basenameOf(path), message);
+}
+
 void createNote(HelperEvent const& event) {
     {
         Lock lock(guard);
@@ -1383,7 +1392,12 @@ void createNote(HelperEvent const& event) {
             localHashes[note.id] = sha1Hex(content);
         }
 
-        requireHelper()->adopt(event.path, noteIdentity(note.id), stamp);
+        try {
+            requireHelper()->adopt(event.path, noteIdentity(note.id), stamp);
+        } catch (...) {
+            rollBack(noteIdentity(note.id), event.path, std::current_exception());
+            return;
+        }
 
         Lock lock(guard);
         local.set(noteIdentity(note.id), {event.path, false});
@@ -1748,20 +1762,21 @@ void queueLinkCopy(std::wstring const& id) {
     });
 }
 
-using Finish = std::function<void(RemoteFile const&, std::wstring const&)>;
+using Finish = std::function<bool(RemoteFile const&, std::wstring const&)>;
 
-void finishUpload(RemoteFile const& file, std::wstring const& stamp, Finish const& finish) {
+bool finishUpload(RemoteFile const& file, std::wstring const& stamp, Finish const& finish) {
     for (int attempt = 1;; attempt++) {
         try {
-            enqueue([file, stamp, finish] {
+            auto isKept = std::make_shared<bool>(true);
+            enqueue([file, stamp, finish, isKept] {
                 {
                     Lock lock(guard);
                     files[file.id] = file;
                 }
 
-                if (isRunning()) finish(file, stamp);
+                if (isRunning()) *isKept = finish(file, stamp);
             }).get();
-            return;
+            return *isKept;
         } catch (...) {
             if (attempt >= FINISH_ATTEMPTS || isUnauthorized(std::current_exception())) throw;
             std::this_thread::sleep_for(std::chrono::milliseconds(RETRY_DELAY_MS));
@@ -1835,14 +1850,14 @@ void startUpload(HelperEvent const& event, std::optional<std::wstring> const& fo
             return;
         }
 
+        bool isKept = false;
+
         try {
-            finishUpload(file, stamp, finish);
+            isKept = finishUpload(file, stamp, finish);
         } catch (...) {
             fail(std::current_exception());
             return;
         }
-
-        bool isKept = !isCancelled();
 
         {
             Lock lock(guard);
@@ -1865,7 +1880,7 @@ void handleLocalModified(HelperEvent const& event);
 void handleLocalNew(HelperEvent const& event) {
     if (isPending(event.path) || event.path.find(L".fileship-") != std::wstring::npos) return;
 
-    std::optional<std::wstring> existing;
+    PathIdentity existing;
     try {
         existing = requireHelper()->identityOf(event.path);
     } catch (...) {
@@ -1874,9 +1889,11 @@ void handleLocalNew(HelperEvent const& event) {
         return;
     }
 
-    if (existing && !isPendingIdentity(*existing)) {
+    if (!existing.exists) return;
+
+    if (existing.identity && !isPendingIdentity(*existing.identity)) {
         Lock lock(guard);
-        local.set(*existing, {event.path, event.isFolder});
+        local.set(*existing.identity, {event.path, event.isFolder});
         return;
     }
 
@@ -1907,7 +1924,12 @@ void handleLocalNew(HelperEvent const& event) {
                 folders[folder.id] = folder;
             }
 
-            requireHelper()->request(L"adopt", identityPayload(event.path, folderIdentity(folder.id)));
+            try {
+                requireHelper()->adopt(event.path, folderIdentity(folder.id));
+            } catch (...) {
+                rollBack(folderIdentity(folder.id), event.path, std::current_exception());
+                return;
+            }
 
             Lock lock(guard);
             local.set(folderIdentity(folder.id), {event.path, true});
@@ -1967,13 +1989,19 @@ void handleLocalNew(HelperEvent const& event) {
 
             if (isCancelled) {
                 deleteRemote(fileIdentity(file.id), true);
-                return;
+                return false;
             }
 
-            requireHelper()->adopt(path, fileIdentity(file.id), stamp);
+            try {
+                requireHelper()->adopt(path, fileIdentity(file.id), stamp);
+            } catch (...) {
+                rollBack(fileIdentity(file.id), path, std::current_exception());
+                return false;
+            }
 
             Lock lock(guard);
             local.set(fileIdentity(file.id), {path, false});
+            return true;
         },
         [pending] {
             Lock lock(guard);
@@ -2015,18 +2043,20 @@ void handleLocalModified(HelperEvent const& event) {
     startUpload(
         event, previousFolder,
         [previousId, path, identity](RemoteFile const& file, std::wstring const& stamp) {
-            ignoreMissing([&] { harborApi(L"DELETE", L"/api/files/" + previousId); });
-
-            {
-                Lock lock(guard);
-                files.erase(previousId);
+            try {
+                requireHelper()->adopt(path, fileIdentity(file.id), stamp);
+            } catch (...) {
+                rollBack(fileIdentity(file.id), path, std::current_exception());
+                return false;
             }
 
-            requireHelper()->adopt(path, fileIdentity(file.id), stamp);
+            ignoreMissing([&] { harborApi(L"DELETE", L"/api/files/" + previousId); });
 
             Lock lock(guard);
+            files.erase(previousId);
             local.erase(identity);
             local.set(fileIdentity(file.id), {path, false});
+            return true;
         },
         [previousId] {
             Lock lock(guard);

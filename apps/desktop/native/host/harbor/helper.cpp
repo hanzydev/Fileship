@@ -243,13 +243,14 @@ std::vector<ScanItem> HarborHelper::scan() {
     return items;
 }
 
-std::optional<std::wstring> HarborHelper::identityOf(std::wstring const& path) {
+PathIdentity HarborHelper::identityOf(std::wstring const& path) {
     JsonObject payload;
     payload.SetNamedValue(L"path", JsonValue::CreateStringValue(path));
 
-    auto identity = stringField(request(L"identity", payload), L"identity");
+    auto result = request(L"identity", payload);
+    auto identity = stringField(result, L"identity");
     if (identity && identity->empty()) identity.reset();
-    return identity;
+    return {boolField(result, L"exists").value_or(false), identity};
 }
 
 void HarborHelper::adopt(std::wstring const& path, std::wstring const& identity, std::wstring const& stamp) {

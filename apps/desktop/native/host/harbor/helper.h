@@ -41,6 +41,11 @@ struct HelperEvent {
     std::vector<std::wstring> paths;
 };
 
+struct PathIdentity {
+    bool exists = false;
+    std::optional<std::wstring> identity;
+};
+
 std::filesystem::path helperPath();
 bool isHelperAvailable();
 std::filesystem::path harborSessionPath();
@@ -62,7 +67,7 @@ public:
     void ack(uint64_t requestId, bool ok);
     void stop();
     std::vector<ScanItem> scan();
-    std::optional<std::wstring> identityOf(std::wstring const& path);
+    PathIdentity identityOf(std::wstring const& path);
     void adopt(std::wstring const& path, std::wstring const& identity, std::wstring const& stamp = L"");
 
     std::function<void(HelperEvent const&)> onEvent;

@@ -190,9 +190,12 @@ void handle(JsonObject const& request) {
         } else if (type == L"scan") {
             response.SetNamedValue(L"items", scanRoot());
         } else if (type == L"identity") {
-            auto probed = probeIdentity(fullPath(std::wstring(request.GetNamedString(L"path"))), nullptr, nullptr);
+            auto absolute = fullPath(std::wstring(request.GetNamedString(L"path")));
+            auto probed = probeIdentity(absolute, nullptr, nullptr);
             if (!probed.isKnown) throw std::runtime_error("The placeholder could not be read");
 
+            bool exists = GetFileAttributesW(absolute.c_str()) != INVALID_FILE_ATTRIBUTES;
+            response.SetNamedValue(L"exists", JsonValue::CreateBooleanValue(exists));
             response.SetNamedValue(L"identity", probed.identity && !probed.identity->empty()
                                                     ? JsonValue::CreateStringValue(*probed.identity)
                                                     : JsonValue::CreateNullValue());
