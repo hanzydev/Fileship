@@ -115,7 +115,9 @@ const attach = (connection: Socket) => {
     connection.setEncoding('utf8');
     connection.on('error', (error) => log.warn('The host connection failed', error));
     connection.on('close', handleClose);
-    createInterface({ input: connection }).on('line', handleMessage);
+    createInterface({ input: connection })
+        .on('line', handleMessage)
+        .on('error', () => null);
 };
 
 const connectWithin = async (timeout: number, start: boolean) => {

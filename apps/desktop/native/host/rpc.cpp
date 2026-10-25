@@ -178,6 +178,7 @@ void closeClient(std::shared_ptr<Client> const& client) {
     {
         std::lock_guard lock(client->writeMutex);
         client->isOpen = false;
+        FlushFileBuffers(client->pipe);
         DisconnectNamedPipe(client->pipe);
         CloseHandle(client->pipe);
     }
