@@ -41,6 +41,7 @@ runWithMsvc(join(output, 'build.cmd'), [
         `/I"${join(headers, 'include')}" /I"${addonApi}"`,
         `/Fo"${objects}\\\\" /Fe"${addon}"`,
         ...sourceFiles(source),
+        ...sourceFiles(join(source, 'lib')),
         `"${compiledResource}"`,
         `/link /IMPLIB:"${join(objects, 'fileship-native.lib')}" /DELAYLOAD:node.exe "${importLibrary}" delayimp.lib`,
         'user32.lib gdi32.lib dwmapi.lib dxgi.lib windowscodecs.lib ole32.lib oleaut32.lib winmm.lib',
