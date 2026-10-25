@@ -369,15 +369,19 @@ void checkForUpdates() {
         return;
     }
 
-    auto state = jsonString(updateStatus(), L"state");
-    if (state == L"checking" || state == L"downloading" || state == L"ready") return;
+    auto checking = makeStatus(L"checking");
 
     {
         std::lock_guard lock(mutex);
+        auto state = jsonString(status, L"state");
+        if (state == L"checking" || state == L"downloading" || state == L"ready") return;
+
+        status = checking;
         retryGeneration++;
     }
 
-    setStatus(makeStatus(L"checking"));
+    broadcast(L"updates:status", cloneObject(checking));
+    refreshTray();
 
     try {
         auto release = parseRelease(fetchText(feed() + L"/latest.yml"));
