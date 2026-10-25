@@ -1424,8 +1424,8 @@ void handleDelete(HelperEvent const& event) {
         }
 
         try {
-            deleteRemote(event.identity, true);
-            addActivity(L"delete", basenameOf(event.path));
+            deleteRemote(event.identity);
+            addActivity(L"trash", basenameOf(event.path));
             setStatus();
         } catch (...) {
             logWarn(L"Could not delete on Fileship " + event.path + L": " +
@@ -1455,9 +1455,8 @@ void handleDelete(HelperEvent const& event) {
                 if (isNote && pathExists(absolute)) {
                     saveNote(event.identity, event.path, true);
                 } else {
-                    bool isPermanent = !pathExists(absolute);
-                    deleteRemote(event.identity, isPermanent);
-                    addActivity(isPermanent ? L"delete" : L"trash", basenameOf(event.path));
+                    deleteRemote(event.identity);
+                    addActivity(startsWith(event.identity, L"l:") ? L"delete" : L"trash", basenameOf(event.path));
                 }
             } catch (...) {
                 logWarn(L"Could not delete on Fileship " + event.path + L": " +
