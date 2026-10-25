@@ -11,7 +11,6 @@
 #include <ui/recorderUi.h>
 
 #include <dxgi1_2.h>
-#include <shlobj.h>
 #include <winrt/base.h>
 
 #include <algorithm>
@@ -23,7 +22,6 @@
 #include <memory>
 #include <mutex>
 #include <optional>
-#include <random>
 #include <thread>
 
 namespace fs = std::filesystem;
@@ -259,92 +257,10 @@ ui::ScreenRect primaryBounds() {
     return {rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top};
 }
 
-ui::ThemeMode themeMode(JsonObject const& value) {
-    auto theme = text(value, L"theme", L"system");
-    if (theme == L"light") return ui::ThemeMode::Light;
-    if (theme == L"dark") return ui::ThemeMode::Dark;
-
-    DWORD light = 1;
-    DWORD size = sizeof(light);
-    RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
-                 L"AppsUseLightTheme", RRF_RT_REG_DWORD, nullptr, &light, &size);
-    return light ? ui::ThemeMode::Light : ui::ThemeMode::Dark;
-}
-
-std::wstring pad(int value, size_t width = 2) {
-    auto text = std::to_wstring(value);
-    return std::wstring(width > text.size() ? width - text.size() : 0, L'0') + text;
-}
-
-void replaceAll(std::wstring& value, std::wstring const& from, std::wstring const& to) {
-    for (size_t index = 0; (index = value.find(from, index)) != std::wstring::npos; index += to.size()) {
-        value.replace(index, from.size(), to);
-    }
-}
-
-std::wstring randomName() {
-    static std::mt19937_64 random{std::random_device{}()};
-    static wchar_t const digits[] = L"0123456789abcdefghijklmnopqrstuvwxyz";
-    std::wstring result;
-    for (int index = 0; index < 10; index++) result += digits[random() % 36];
-    return result;
-}
-
-std::wstring formatFileName(std::wstring pattern) {
-    SYSTEMTIME now{};
-    GetLocalTime(&now);
-
-    replaceAll(pattern, L"%yyyy", std::to_wstring(now.wYear));
-    replaceAll(pattern, L"%mo", pad(now.wMonth));
-    replaceAll(pattern, L"%d", pad(now.wDay));
-    replaceAll(pattern, L"%h", pad(now.wHour));
-    replaceAll(pattern, L"%mi", pad(now.wMinute));
-    replaceAll(pattern, L"%ms", pad(now.wMilliseconds, 3));
-    replaceAll(pattern, L"%s", pad(now.wSecond));
-    replaceAll(pattern, L"%pn", L"");
-    replaceAll(pattern, L"%ra", randomName());
-
-    std::wstring_view const invalid = L"\\/:*?\"<>|";
-    std::erase_if(pattern, [&](wchar_t c) { return invalid.find(c) != std::wstring_view::npos; });
-
-    auto start = pattern.find_first_not_of(L" \t\r\n");
-    if (start == std::wstring::npos) return L"";
-    auto end = pattern.find_last_not_of(L" \t\r\n");
-    return pattern.substr(start, end - start + 1);
-}
-
-fs::path saveFolder(JsonObject const& value) {
-    auto folder = text(section(value, L"save"), L"folder");
-    if (!folder.empty()) return folder;
-
-    PWSTR pictures = nullptr;
-    SHGetKnownFolderPath(FOLDERID_Pictures, 0, nullptr, &pictures);
-    fs::path result = fs::path(pictures) / L"Fileship";
-    CoTaskMemFree(pictures);
-    return result;
-}
-
-fs::path uniquePath(fs::path const& folder, std::wstring const& name) {
-    auto extension = fs::path(name).extension().wstring();
-    auto base = name.substr(0, name.size() - extension.size());
-    auto path = folder / name;
-
-    std::error_code error;
-    for (int index = 2; fs::exists(path, error); index++) {
-        path = folder / (base + L" (" + std::to_wstring(index) + L")" + extension);
-    }
-
-    return path;
-}
-
 fs::path tempFolder() {
     wchar_t buffer[MAX_PATH + 1]{};
     GetTempPathW(MAX_PATH + 1, buffer);
     return fs::path(buffer);
-}
-
-void playShutter() {
-    if (flag(section(settings(), L"capture"), L"playSound", true)) playSoundFile(L"shutter.wav");
 }
 
 void stopRecording();
@@ -580,7 +496,7 @@ Produced produce(Recording const& recording) {
     auto extension = recording.kind == L"gif" ? std::wstring(L"gif") : text(recordingSettings, L"container", L"mp4");
     auto afterCapture = section(recording.settings, L"afterCapture");
     bool isSaved = flag(afterCapture, L"saveToFile", false) || !flag(afterCapture, L"upload", true);
-    auto folder = isSaved ? saveFolder(recording.settings) : recording.folder;
+    auto folder = isSaved ? saveFolder() : recording.folder;
     fs::create_directories(folder);
 
     auto name = formatFileName(text(section(recording.settings, L"save"), L"pattern", L"%yyyy-%mo-%d_%h-%mi-%s"));
@@ -808,7 +724,7 @@ void begin(std::wstring const& kind, ui::ScreenRect const& rect) {
         setRecordingMute(source == ui::AudioSource::Microphone ? L"microphone" : L"system", muted);
     };
 
-    ui::showRecorderUi(rect, themeMode(values), callbacks, flag(recordingSettings, L"showBorder", true));
+    ui::showRecorderUi(rect, themeMode(), callbacks, flag(recordingSettings, L"showBorder", true));
 
     std::optional<ui::RecorderViewState> view;
     {
