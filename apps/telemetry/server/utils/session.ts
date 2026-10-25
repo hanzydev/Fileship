@@ -1,18 +1,33 @@
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
+import { promisify } from 'node:util';
 
 import type { H3Event } from 'h3';
 
 const SESSION_MAX_AGE = 30 * 24 * 60 * 60;
+const PASSWORD_SALT = randomBytes(16);
 
 export const SESSION_COOKIE = 'telemetryToken';
 
-const hash = (value: string) => createHash('sha256').update(value).digest();
+const scryptAsync = promisify(scrypt) as (
+    password: string,
+    salt: Buffer,
+    length: number,
+) => Promise<Buffer>;
 
-export const hashToken = (token: string) => hash(token).toString('hex');
+const hashPassword = (password: string) => scryptAsync(password, PASSWORD_SALT, 32);
 
-export const isAdminPassword = (password: string) => {
+export const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
+
+export const isAdminPassword = async (password: string) => {
     const { adminPassword } = useRuntimeConfig();
-    return !!adminPassword && timingSafeEqual(hash(password), hash(adminPassword));
+    if (!adminPassword) return false;
+
+    const [given, expected] = await Promise.all([
+        hashPassword(password),
+        hashPassword(adminPassword),
+    ]);
+
+    return timingSafeEqual(given, expected);
 };
 
 export const findSession = async (token: string) => {

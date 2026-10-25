@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const valid = isAdminPassword(body.data.password);
+    const valid = await isAdminPassword(body.data.password);
     const allowed = await limitFailedAttempts(`login:${getClientIp(event)}`, valid);
 
     await limitFailedAttempts('login', valid, 50);
