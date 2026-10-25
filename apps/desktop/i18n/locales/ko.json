@@ -67,7 +67,8 @@
         "serverUnreachable": "{url}에 연결할 수 없어요",
         "notConnected": "Fileship 서버에 연결되어 있지 않아요",
         "tryAgain": "잠시 후 다시 시도하세요.",
-        "linkShortenedOnly": "링크를 단축했어요"
+        "linkShortenedOnly": "링크를 단축했어요",
+        "unsupportedWindows": "Fileship을 사용하려면 64비트 Windows 11 버전 24H2 이상이 필요해요."
     },
     "captureSettings": {
         "capture": {

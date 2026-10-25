@@ -67,7 +67,8 @@
         "serverUnreachable": "Could not reach {url}",
         "notConnected": "Not connected to a Fileship server",
         "tryAgain": "Try again in a moment.",
-        "linkShortenedOnly": "Link shortened"
+        "linkShortenedOnly": "Link shortened",
+        "unsupportedWindows": "Fileship needs 64-bit Windows 11 version 24H2 or newer."
     },
     "captureSettings": {
         "capture": {

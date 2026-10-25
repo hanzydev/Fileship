@@ -1,3 +1,14 @@
+!include "x64.nsh"
+
+!macro customInit
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" "CurrentBuildNumber"
+    ${IfNot} ${RunningX64}
+    ${OrIf} $0 < 26100
+        MessageBox MB_OK|MB_ICONSTOP "Fileship needs 64-bit Windows 11 version 24H2 or newer." /SD IDOK
+        Quit
+    ${EndIf}
+!macroend
+
 !macro customCheckAppRunning
     nsExec::Exec `"$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_Process -Filter \"Name='fileship-host.exe' or Name='fileship-harbor.exe' or Name='Fileship.exe'\" | Where-Object { $$_.ExecutablePath -like '$INSTDIR\*' } | ForEach-Object { Stop-Process -Id $$_.ProcessId -Force -ErrorAction SilentlyContinue }"`
     Pop $0

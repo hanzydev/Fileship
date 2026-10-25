@@ -67,7 +67,8 @@
         "serverUnreachable": "Sunucuya ulaşılamadı: {url}",
         "notConnected": "Bir Fileship sunucusuna bağlı değilsin",
         "tryAgain": "Biraz sonra tekrar dene.",
-        "linkShortenedOnly": "Bağlantı kısaltıldı"
+        "linkShortenedOnly": "Bağlantı kısaltıldı",
+        "unsupportedWindows": "Fileship için 64 bit Windows 11 24H2 veya daha yeni bir sürüm gerekiyor."
     },
     "captureSettings": {
         "capture": {

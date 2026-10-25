@@ -67,7 +67,8 @@
         "serverUnreachable": "Serverə qoşulmaq mümkün olmadı: {url}",
         "notConnected": "Fileship serverinə qoşulmamısan",
         "tryAgain": "Bir az sonra yenidən cəhd et.",
-        "linkShortenedOnly": "Keçid qısaldıldı"
+        "linkShortenedOnly": "Keçid qısaldıldı",
+        "unsupportedWindows": "Fileship üçün 64 bitlik Windows 11 24H2 və ya daha yeni versiya lazımdır."
     },
     "captureSettings": {
         "capture": {

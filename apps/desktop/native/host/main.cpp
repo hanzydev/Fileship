@@ -128,6 +128,18 @@ void quitApp() {
 
 }
 
+constexpr DWORD MIN_WINDOWS_BUILD = 26100;
+
+bool isSupportedWindows() {
+    using RtlGetVersion = LONG(WINAPI*)(OSVERSIONINFOW*);
+
+    auto getVersion = reinterpret_cast<RtlGetVersion>(GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "RtlGetVersion"));
+    OSVERSIONINFOW version{sizeof(version)};
+    if (!getVersion || getVersion(&version) != 0) return false;
+
+    return version.dwMajorVersion >= 10 && version.dwBuildNumber >= MIN_WINDOWS_BUILD;
+}
+
 int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
     using namespace fileship;
     using namespace fileship::host;
@@ -155,6 +167,13 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
 
     loadStore();
     setLanguage(resolveLanguage(jsonString(settings(), L"language", L"system")));
+
+    if (!isSupportedWindows()) {
+        logError(L"This Windows version is not supported");
+        MessageBoxW(nullptr, t(L"app.unsupportedWindows").c_str(), L"Fileship", MB_OK | MB_ICONERROR);
+        return 1;
+    }
+
     createMainWindow();
     runMainQueue();
     initNotifications();

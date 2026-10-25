@@ -42,7 +42,7 @@ Fileship Harbor puts your Fileship files and folders in File Explorer. Turn it o
 
 ## Requirements
 
-- Windows 11, 64-bit
+- 64-bit Windows 11, version 24H2 (build 26100) or newer
 - A Fileship 6.0 server or newer
 
 ## Getting started
