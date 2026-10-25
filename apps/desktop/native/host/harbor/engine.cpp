@@ -1141,8 +1141,21 @@ std::shared_future<void> reload() {
     return enqueue(reloadNow);
 }
 
+bool isResyncQueued = false;
+
 void resync() {
+    {
+        Lock lock(guard);
+        if (isResyncQueued) return;
+        isResyncQueued = true;
+    }
+
     enqueue([] {
+        {
+            Lock lock(guard);
+            isResyncQueued = false;
+        }
+
         try {
             reloadNow();
         } catch (...) {
