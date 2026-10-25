@@ -2231,12 +2231,20 @@ void connectSocket() {
     });
 
     client->on(L"folder:delete", [](IJsonValue const& payload) {
-        bool isKnownFolder = false;
-        {
-            Lock lock(guard);
-            isKnownFolder = folders.contains(stringOf(payload));
+        auto id = stringOf(payload);
+
+        Lock lock(guard);
+        auto folder = folders.find(id);
+        if (folder == folders.end()) return;
+
+        auto parentId = folder->second.parentId;
+        auto removed = subtreeOf(id);
+
+        for (auto const& folderId : removed) folders.erase(folderId);
+        for (auto& [fileId, file] : files) {
+            if (file.folderId && removed.contains(*file.folderId)) file.folderId = parentId;
         }
-        if (isKnownFolder) resync();
+        scheduleApply();
     });
 
     for (auto event : {L"trash:restore", L"currentUser:update", L"deleteAll"}) {
