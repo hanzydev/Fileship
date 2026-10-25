@@ -2568,10 +2568,11 @@ void stopHarborNow(StopOptions options) {
 
     if (options.remove) {
         std::vector<ScanItem> items;
-        try {
+        bool isScanned = false;
+        tryLog(L"Could not scan Harbor", [&] {
             items = current->scan();
-        } catch (...) {
-        }
+            isScanned = true;
+        });
 
         std::set<std::wstring> synced;
         for (auto const& item : items) {
@@ -2598,7 +2599,11 @@ void stopHarborNow(StopOptions options) {
             tryLog(L"Could not remove " + item.path, [&] { current->request(L"remove", pathPayload(item.path)); });
         }
 
-        tryLog(L"Could not unregister", [&] { current->request(L"unregister"); });
+        if (isScanned && std::ranges::none_of(items, &ScanItem::isUnreadable)) {
+            tryLog(L"Could not unregister", [&] { current->request(L"unregister"); });
+        } else {
+            logWarn(L"Harbor stays registered because " + folder + L" could not be read completely");
+        }
     }
 
     current->stop();

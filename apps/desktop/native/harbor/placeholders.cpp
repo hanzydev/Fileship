@@ -325,16 +325,43 @@ bool isModified(std::wstring const& absolute) {
     }
 }
 
+namespace {
+
+struct LocalEntry {
+    std::filesystem::path path;
+    bool isListed = true;
+};
+
+bool listFolder(std::filesystem::path const& folder, std::vector<LocalEntry>& entries) {
+    std::error_code error;
+
+    for (std::filesystem::directory_iterator iterator(folder, error), end; !error && iterator != end;
+         iterator.increment(error)) {
+        std::error_code ignored;
+        auto index = entries.size();
+        entries.push_back({iterator->path()});
+
+        if (std::filesystem::is_directory(iterator->symlink_status(ignored)) && !listFolder(iterator->path(), entries)) {
+            entries[index].isListed = false;
+        }
+    }
+
+    return !error || error == std::errc::no_such_file_or_directory;
+}
+
+std::vector<LocalEntry> listRoot() {
+    std::vector<LocalEntry> entries;
+    if (!listFolder(config().root, entries)) throw std::runtime_error("The Harbor folder could not be read");
+    return entries;
+}
+
+}
+
 JsonArray scanRoot() {
     JsonArray items;
-    std::error_code error;
-    auto options = std::filesystem::directory_options::skip_permission_denied;
 
-    for (auto iterator = std::filesystem::recursive_directory_iterator(config().root, options, error);
-         iterator != std::filesystem::recursive_directory_iterator(); iterator.increment(error)) {
-        if (error) break;
-
-        auto absolute = iterator->path().wstring();
+    for (auto const& entry : listRoot()) {
+        auto absolute = entry.path.wstring();
         auto relative = relativePath(absolute);
         if (!relative) continue;
 
@@ -345,11 +372,12 @@ JsonArray scanRoot() {
         auto probed = probe(absolute, nullptr, &sync);
         auto const& identity = probed.identity;
         bool directory = (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+        std::error_code error;
 
         JsonObject item;
         item.SetNamedValue(L"path", JsonValue::CreateStringValue(*relative));
         item.SetNamedValue(L"isFolder", JsonValue::CreateBooleanValue(directory));
-        if (!probed.isKnown) item.SetNamedValue(L"unreadable", JsonValue::CreateBooleanValue(true));
+        if (!probed.isKnown || !entry.isListed) item.SetNamedValue(L"unreadable", JsonValue::CreateBooleanValue(true));
         item.SetNamedValue(L"identity", identity ? JsonValue::CreateStringValue(*identity)
                                                  : JsonValue::CreateNullValue());
         item.SetNamedValue(L"inSync", JsonValue::CreateBooleanValue(sync == CF_IN_SYNC_STATE_IN_SYNC));
@@ -357,7 +385,7 @@ JsonArray scanRoot() {
         item.SetNamedValue(L"hydrated",
                            JsonValue::CreateBooleanValue((attributes & FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS) == 0));
         item.SetNamedValue(L"size", JsonValue::CreateNumberValue(
-            directory ? 0 : static_cast<double>(std::filesystem::file_size(iterator->path(), error))));
+            directory ? 0 : static_cast<double>(std::filesystem::file_size(entry.path, error))));
         items.Append(item);
     }
 
@@ -368,18 +396,12 @@ namespace {
 
 template <typename Visit>
 void forEachLocalFile(Visit const& visit) {
-    std::error_code error;
-    auto options = std::filesystem::directory_options::skip_permission_denied;
-
-    for (auto iterator = std::filesystem::recursive_directory_iterator(config().root, options, error);
-         iterator != std::filesystem::recursive_directory_iterator(); iterator.increment(error)) {
-        if (error) break;
-
+    for (auto const& entry : listRoot()) {
         WIN32_FILE_ATTRIBUTE_DATA data{};
-        if (!GetFileAttributesExW(iterator->path().c_str(), GetFileExInfoStandard, &data)) continue;
+        if (!GetFileAttributesExW(entry.path.c_str(), GetFileExInfoStandard, &data)) continue;
         if (data.dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS)) continue;
 
-        visit(iterator->path().wstring(), (static_cast<int64_t>(data.nFileSizeHigh) << 32) | data.nFileSizeLow);
+        visit(entry.path.wstring(), (static_cast<int64_t>(data.nFileSizeHigh) << 32) | data.nFileSizeLow);
     }
 }
 
