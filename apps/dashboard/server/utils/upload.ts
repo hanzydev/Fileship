@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { promises as fsp } from 'node:fs';
 
+import mime from 'mime';
 import { basename, dirname, extname, join } from 'pathe';
 import sharp from 'sharp';
 
@@ -37,6 +38,9 @@ interface UploadedFile {
     storageId: string | null;
     metadata: any;
 }
+
+export const uploadMimeType = (file: File) =>
+    file.type || mime.getType(file.name) || 'application/octet-stream';
 
 export const usableSpaceOf = (owner: UploadOwner) => {
     const usableSpace = owner.limits?.usableSpace ?? -1;

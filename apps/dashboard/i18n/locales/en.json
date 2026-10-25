@@ -495,6 +495,10 @@
         "pages": "Pages",
         "page": "Page {page}"
     },
+    "textPreview": {
+        "tooLarge": "Too large to preview",
+        "tooLargeDescription": "Files over {size} aren't shown here. Open or download the file instead."
+    },
     "files": {
         "title": "Files",
         "summary": "{count} file · {size} | {count} files · {size}",

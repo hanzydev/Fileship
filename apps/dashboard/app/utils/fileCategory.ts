@@ -12,9 +12,15 @@ export const FILE_CATEGORIES = {
 
 export type FileCategory = keyof typeof FILE_CATEGORIES;
 
-export const getFileCategory = (file: { mimeType: string; fileName: string }): FileCategory => {
+type CategorizedFile = {
+    mimeType: string;
+    fileName: string;
+    metadata?: { duration?: number } | null;
+};
+
+export const getFileCategory = (file: CategorizedFile): FileCategory => {
     if (file.mimeType.startsWith('image/')) return 'image';
-    if (file.mimeType.startsWith('video/')) return 'video';
+    if (isVideoFile(file)) return 'video';
     if (file.mimeType.startsWith('audio/')) return 'audio';
     if (DOCUMENT_FILE_MIME_TYPES.includes(file.mimeType)) return 'document';
     if (ARCHIVE_FILE_MIME_TYPES.includes(file.mimeType)) return 'archive';
@@ -23,5 +29,4 @@ export const getFileCategory = (file: { mimeType: string; fileName: string }): F
     return 'other';
 };
 
-export const getFileIcon = (file: { mimeType: string; fileName: string }) =>
-    FILE_CATEGORIES[getFileCategory(file)].icon;
+export const getFileIcon = (file: CategorizedFile) => FILE_CATEGORIES[getFileCategory(file)].icon;

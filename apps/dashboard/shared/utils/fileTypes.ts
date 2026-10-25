@@ -136,7 +136,158 @@ export const TEXT_FILE_TYPES = [
     },
 ];
 
-export const CODE_FILE_EXTENSIONS = TEXT_FILE_TYPES.slice(1).map((type) => `.${type.extension}`);
+const TEXT_PREVIEW_LANGUAGES = new Map(
+    Object.entries({
+        txt: 'plaintext',
+        text: 'plaintext',
+        log: 'plaintext',
+        nfo: 'plaintext',
+        csv: 'plaintext',
+        tsv: 'plaintext',
+        srt: 'plaintext',
+        vtt: 'plaintext',
+        rst: 'plaintext',
+        gitignore: 'plaintext',
+        gitattributes: 'plaintext',
+        dockerignore: 'plaintext',
+        npmignore: 'plaintext',
+        md: 'markdown',
+        markdown: 'markdown',
+        mdx: 'markdown',
+        html: 'xml',
+        htm: 'xml',
+        xhtml: 'xml',
+        xml: 'xml',
+        plist: 'xml',
+        vue: 'xml',
+        svelte: 'xml',
+        css: 'css',
+        scss: 'scss',
+        sass: 'scss',
+        less: 'less',
+        js: 'javascript',
+        mjs: 'javascript',
+        cjs: 'javascript',
+        jsx: 'javascript',
+        ts: 'typescript',
+        mts: 'typescript',
+        cts: 'typescript',
+        tsx: 'typescript',
+        json: 'json',
+        jsonc: 'json',
+        json5: 'json',
+        yml: 'yaml',
+        yaml: 'yaml',
+        toml: 'ini',
+        ini: 'ini',
+        cfg: 'ini',
+        conf: 'ini',
+        env: 'ini',
+        properties: 'properties',
+        editorconfig: 'ini',
+        py: 'python',
+        rb: 'ruby',
+        php: 'php',
+        java: 'java',
+        kt: 'kotlin',
+        kts: 'kotlin',
+        swift: 'swift',
+        go: 'go',
+        rs: 'rust',
+        c: 'c',
+        h: 'c',
+        cpp: 'cpp',
+        cc: 'cpp',
+        cxx: 'cpp',
+        hpp: 'cpp',
+        cs: 'csharp',
+        dart: 'dart',
+        scala: 'scala',
+        groovy: 'groovy',
+        gradle: 'groovy',
+        pl: 'perl',
+        pm: 'perl',
+        lua: 'lua',
+        r: 'r',
+        ex: 'elixir',
+        exs: 'elixir',
+        hs: 'haskell',
+        clj: 'clojure',
+        sql: 'sql',
+        graphql: 'graphql',
+        gql: 'graphql',
+        tex: 'latex',
+        diff: 'diff',
+        patch: 'diff',
+        sh: 'bash',
+        bash: 'bash',
+        zsh: 'bash',
+        bat: 'dos',
+        cmd: 'dos',
+        ps1: 'powershell',
+        psm1: 'powershell',
+        psd1: 'powershell',
+        vb: 'vbnet',
+        proto: 'protobuf',
+        cmake: 'cmake',
+        mk: 'makefile',
+        dockerfile: 'dockerfile',
+    }),
+);
+
+const TEXT_PREVIEW_NAMES = new Map(
+    Object.entries({
+        dockerfile: 'dockerfile',
+        makefile: 'makefile',
+        license: 'plaintext',
+        readme: 'plaintext',
+        changelog: 'plaintext',
+    }),
+);
+
+const TEXT_MIME_TYPES = [
+    'application/json',
+    'application/javascript',
+    'application/x-javascript',
+    'application/ecmascript',
+    'application/typescript',
+    'application/xml',
+    'application/x-sh',
+    'application/toml',
+    'application/x-toml',
+    'application/yaml',
+    'application/x-yaml',
+    'application/sql',
+    'application/graphql',
+    'application/x-httpd-php',
+    'application/x-php',
+];
+
+export const TEXT_PREVIEW_MAX_SIZE = 2 * 1024 * 1024;
+
+export const textPreviewLanguage = (name: string, mimeType: string) => {
+    const lowerName = name.toLowerCase();
+    const dot = lowerName.lastIndexOf('.');
+
+    return (
+        TEXT_PREVIEW_NAMES.get(lowerName) ??
+        TEXT_PREVIEW_LANGUAGES.get(dot === -1 ? '' : lowerName.slice(dot + 1)) ??
+        (mimeType.startsWith('text/') ||
+        TEXT_MIME_TYPES.includes(mimeType) ||
+        (mimeType.startsWith('application/') &&
+            (mimeType.endsWith('+json') || mimeType.endsWith('+xml')))
+            ? 'plaintext'
+            : null)
+    );
+};
+
+export const isVideoFile = (file: { mimeType: string; metadata?: { duration?: number } | null }) =>
+    file.mimeType.startsWith('video/') &&
+    (file.mimeType !== 'video/mp2t' || !!file.metadata?.duration);
+
+export const CODE_FILE_EXTENSIONS = [...TEXT_PREVIEW_LANGUAGES]
+    .filter(([, language]) => language !== 'plaintext')
+    .map(([extension]) => `.${extension}`);
 
 export const DOCUMENT_FILE_MIME_TYPES = [
     'application/pdf',
@@ -181,7 +332,6 @@ export const ARCHIVE_FILE_MIME_TYPES = [
     'application/java-archive',
     'application/vnd.ms-cab-compressed',
     'application/x-cpio',
-    'application/x-sh',
     'application/x-compress',
     'application/x-compressed',
 ];

@@ -64,7 +64,8 @@ export default defineEventHandler(async (event) => {
 
     if (!body.success) throw invalidBodyError(body.error);
 
-    const isCompressible = isProcessableImage(file.type) && !!body.data.compression;
+    const mimeType = uploadMimeType(file);
+    const isCompressible = isProcessableImage(mimeType) && !!body.data.compression;
     const extensionName = isCompressible ? '.jpeg' : safeExtension(file.name);
 
     const assertFolder = async () =>
@@ -87,7 +88,7 @@ export default defineEventHandler(async (event) => {
             offset: body.data.chunkOffset ?? 0,
             total: body.data.totalChunks!,
             data: new Uint8Array(await file.arrayBuffer()),
-            mimeType: file.type,
+            mimeType,
             compression: body.data.compression,
         },
         async () => {
@@ -130,7 +131,7 @@ export default defineEventHandler(async (event) => {
                         `${basename(file.name, extname(file.name))}${isCompressible ? '.jpeg' : extname(file.name)}`,
                         data.fileName,
                     ),
-                    mimeType: isCompressible ? 'image/jpeg' : file.type,
+                    mimeType: isCompressible ? 'image/jpeg' : mimeType,
                     password: body.data.password || null,
                     maxViews: body.data.maxViews || 0,
                     expiresAt: body.data.expiration
@@ -189,9 +190,7 @@ export default defineEventHandler(async (event) => {
 
         await sendToFolder(ownerId, [upload.folderId], 'file:create', upload);
 
-        const isText = TEXT_FILE_TYPES.some(
-            (type) => type.extension === extname(upload.fileName).slice(1),
-        );
+        const isText = !!textPreviewLanguage(upload.name, upload.mimeType);
 
         return {
             ...upload,

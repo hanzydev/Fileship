@@ -80,6 +80,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const extensionName = safeExtension(file.name);
+    const mimeType = uploadMimeType(file);
 
     const _upload = await receiveUpload(
         findInboxById.user,
@@ -90,7 +91,7 @@ export default defineEventHandler(async (event) => {
             offset: body.data.chunkOffset ?? 0,
             total: body.data.totalChunks!,
             data: new Uint8Array(await file.arrayBuffer()),
-            mimeType: file.type,
+            mimeType,
         },
         async () => {
             const base = fileNameBase(file.name);
@@ -113,7 +114,7 @@ export default defineEventHandler(async (event) => {
                 data: {
                     ...data,
                     name: toDisplayName(file.name, data.fileName),
-                    mimeType: file.type,
+                    mimeType,
                     authorId: findInboxById.user.id,
                     folderId: findInboxById.folderId,
                 },

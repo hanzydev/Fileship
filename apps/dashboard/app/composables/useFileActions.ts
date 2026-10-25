@@ -7,8 +7,7 @@ export const useFileActions = () => {
     const { copy } = useClipboard({ legacy: true });
     const { deleteConfirmation, notifyDeleted } = useTrash();
 
-    const isTextFile = (file: FileData) =>
-        TEXT_FILE_TYPES.some((type) => `.${type.extension}` === getExtname(file.fileName));
+    const isTextFile = (file: FileData) => !!textPreviewLanguage(file.name, file.mimeType);
 
     const copyLink = (file: FileData) => {
         copy(embed.value.enabled || isTextFile(file) ? file.embedUrl : file.directUrl);

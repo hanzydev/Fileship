@@ -495,6 +495,10 @@
         "pages": "页数",
         "page": "第 {page} 页"
     },
+    "textPreview": {
+        "tooLarge": "文件太大，无法预览",
+        "tooLargeDescription": "超过 {size} 的文件不会在这里显示。请打开或下载文件。"
+    },
     "files": {
         "title": "文件",
         "summary": "{count} 个文件 · {size}",

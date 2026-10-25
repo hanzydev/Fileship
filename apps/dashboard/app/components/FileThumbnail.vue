@@ -15,10 +15,7 @@
         "
     />
     <component :is="getFileIcon(file)" v-else class="size-[42%] text-muted-foreground" />
-    <IPlay
-        v-if="file.mimeType.startsWith('video/')"
-        class="absolute size-1/3 fill-white text-white drop-shadow"
-    />
+    <IPlay v-if="isVideoFile(file)" class="absolute size-1/3 fill-white text-white drop-shadow" />
 </template>
 
 <script setup lang="ts">

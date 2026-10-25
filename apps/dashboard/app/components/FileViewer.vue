@@ -66,6 +66,24 @@
                         :src="`/u/${encodeURIComponent(file.fileName)}`"
                         @error="failedPdfId = file.id"
                     />
+                    <TextPreview
+                        v-else-if="isTextPreview"
+                        :key="file.id"
+                        v-model:content="textContent"
+                        :src="`/u/${encodeURIComponent(file.fileName)}`"
+                        :name="file.name"
+                        :mime-type="file.mimeType"
+                        :size="Number(file.size.raw)"
+                        :preview="textMode === 'preview'"
+                        class="size-full overflow-auto rounded-2xl border bg-card p-4 text-card-foreground"
+                    >
+                        <template #too-large>
+                            <UiButton variant="outline" @click="handleOpenFile">
+                                <IExternalLink />
+                                {{ $t('fileViewer.openInNewTab') }}
+                            </UiButton>
+                        </template>
+                    </TextPreview>
                     <div v-else class="flex flex-col items-center gap-4">
                         <component :is="getFileIcon(file)" class="size-12 text-muted-foreground" />
                         <UiButton variant="outline" @click="handleOpenFile">
@@ -84,6 +102,35 @@
                         </TextBlock>
                         <UiButton variant="secondary" size="sm" @click="isRevealed = true">
                             {{ $t('fileViewer.reveal') }}
+                        </UiButton>
+                    </div>
+
+                    <div
+                        v-if="isTextPreview && textContent !== undefined"
+                        :class="cn('absolute top-2 right-3 flex items-center gap-2', overlayClass)"
+                    >
+                        <UiToggleGroup
+                            v-if="hasRichPreview"
+                            type="single"
+                            variant="outline"
+                            size="sm"
+                            :model-value="textMode"
+                            @update:model-value="handleTextMode"
+                        >
+                            <UiToggleGroupItem value="preview" :aria-label="$t('view.preview')">
+                                <IEye />
+                            </UiToggleGroupItem>
+                            <UiToggleGroupItem value="raw" :aria-label="$t('view.raw')">
+                                <ICode />
+                            </UiToggleGroupItem>
+                        </UiToggleGroup>
+                        <UiButton
+                            variant="outline"
+                            size="icon-sm"
+                            :aria-label="$t('view.copy')"
+                            @click="handleCopyContent"
+                        >
+                            <ICopy />
                         </UiButton>
                     </div>
 
@@ -422,10 +469,14 @@ const stage = useTemplateRef('stage');
 const strip = useTemplateRef('strip');
 const closeButton = useTemplateRef<any>('closeButton');
 
+const { copy } = useClipboard({ legacy: true });
+
 const isZoomed = ref(false);
 const isRevealed = ref(false);
 const loadedId = ref<string>();
 const failedPdfId = ref<string>();
+const textContent = ref<string>();
+const textMode = ref<'preview' | 'raw'>('preview');
 const isSaving = ref(false);
 const isMarking = ref(false);
 const zoomOrigin = ref('center');
@@ -570,11 +621,28 @@ const footerActions = computed(() =>
 );
 
 const isImage = computed(() => file.value!.mimeType.startsWith('image/'));
-const isVideo = computed(() => file.value!.mimeType.startsWith('video/'));
+const isVideo = computed(() => isVideoFile(file.value!));
 const isAudio = computed(() => file.value!.mimeType.startsWith('audio/'));
 const isPdfPreview = computed(
     () => isPdf(file.value!.mimeType) && failedPdfId.value !== file.value!.id,
 );
+const textLanguage = computed(() => textPreviewLanguage(file.value!.name, file.value!.mimeType));
+const isTextPreview = computed(
+    () =>
+        !!textLanguage.value &&
+        !isImage.value &&
+        !isVideo.value &&
+        !isAudio.value &&
+        !isPdfPreview.value,
+);
+const hasRichPreview = computed(() => textLanguage.value !== 'plaintext');
+
+const handleTextMode = (value: unknown) => value && (textMode.value = value as 'preview' | 'raw');
+
+const handleCopyContent = () => {
+    copy(textContent.value!);
+    $toast.success(t('view.contentCopied'));
+};
 
 const overlayClass = computed(() =>
     cn('transition-opacity', isZoomed.value && 'pointer-events-none opacity-0'),
@@ -868,7 +936,7 @@ watch(
 
 useSwipe(stage, {
     onSwipeEnd: (_, direction) => {
-        if (isZoomed.value) return;
+        if (isZoomed.value || isTextPreview.value) return;
         if (direction === 'left') goNext();
         if (direction === 'right' && prev.value) fileId.value = prev.value.id;
     },

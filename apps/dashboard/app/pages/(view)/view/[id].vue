@@ -85,7 +85,7 @@
                 content-class="max-w-5xl"
             >
                 <UiToggleGroup
-                    v-if="isText"
+                    v-if="isText && textLanguage !== 'plaintext'"
                     type="single"
                     variant="outline"
                     size="sm"
@@ -132,7 +132,7 @@
                     class="max-h-[calc(100svh-6rem)] max-w-full rounded-2xl"
                 />
                 <div v-else-if="isPdfPreview" class="h-[calc(100svh-6rem)] w-full">
-                    <PdfViewer :src="pdfUrl" :range="false" @error="isPdfFailed = true" />
+                    <PdfViewer :src="contentUrl" :range="false" @error="isPdfFailed = true" />
                 </div>
                 <UiCard v-else-if="isAudio" class="w-full max-w-md">
                     <UiCardContent class="flex flex-col items-center gap-6">
@@ -142,28 +142,14 @@
                 </UiCard>
                 <UiCard v-else-if="isText" class="w-full flex-1">
                     <UiCardContent>
-                        <TextBlock v-if="contentError" variant="muted">
-                            {{ contentError }}
-                        </TextBlock>
-                        <div v-else-if="fileContent === undefined" class="flex flex-col gap-3">
-                            <TextBlock
-                                v-for="i in 6"
-                                :key="i"
-                                custom-tag="div"
-                                variant="muted"
-                                class="w-full"
-                            >
-                                <UiSkeleton
-                                    class="h-lh rounded-full"
-                                    :style="{ width: `${90 - ((i * 13) % 40)}%` }"
-                                />
-                            </TextBlock>
-                        </div>
-                        <MarkdownRenderer v-else-if="previewMode" :content="renderedContent" />
-                        <pre
-                            v-else
-                            class="overflow-x-auto font-mono text-sm break-all whitespace-pre-wrap"
-                            >{{ fileContent }}</pre>
+                        <TextPreview
+                            v-model:content="fileContent"
+                            :src="contentUrl"
+                            :name="data.name!"
+                            :mime-type="data.mimeType!"
+                            :size="Number(data.size!.raw)"
+                            :preview="previewMode"
+                        />
                     </UiCardContent>
                 </UiCard>
                 <UiCard v-else class="w-full max-w-sm">
@@ -222,20 +208,20 @@ const data = ref({
 });
 
 const fileContent = ref<string>();
-const contentError = ref<string>();
 const previewMode = ref(true);
 const passwordError = ref<string>();
 const isVerifying = ref(false);
 const isPdfFailed = ref(false);
 
 const isImage = computed(() => data.value.mimeType?.startsWith('image/'));
-const isVideo = computed(() => data.value.mimeType?.startsWith('video/'));
+const isVideo = computed(() => !!data.value.mimeType && isVideoFile(data.value as FileData));
 const isAudio = computed(() => data.value.mimeType?.startsWith('audio/'));
 const isPdfPreview = computed(() => isPdf(data.value.mimeType ?? '') && !isPdfFailed.value);
-const extension = computed(() => getExtname(data.value.fileName || '').slice(1));
-const isText = computed(() => TEXT_FILE_TYPES.some((type) => type.extension === extension.value));
-const codeExtension = computed(
-    () => TEXT_FILE_TYPES.slice(2).find((type) => type.extension === extension.value)?.extension,
+const textLanguage = computed(() =>
+    data.value.id ? textPreviewLanguage(data.value.name!, data.value.mimeType!) : null,
+);
+const isText = computed(
+    () => !!textLanguage.value && !isImage.value && !isVideo.value && !isAudio.value,
 );
 
 const fileUrl = computed(
@@ -245,15 +231,9 @@ const fileUrl = computed(
 
 const downloadUrl = computed(() => `${fileUrl.value}${data.value.password ? '&' : '?'}download`);
 
-const pdfUrl = computed(
+const contentUrl = computed(
     () =>
         `/u/${encodeURIComponent(data.value.fileName!)}${data.value.password ? `?password=${encodeURIComponent(String(data.value.password))}` : ''}`,
-);
-
-const renderedContent = computed(() =>
-    codeExtension.value
-        ? `\`\`\`${codeExtension.value}\n${fileContent.value}\n\`\`\``
-        : fileContent.value!,
 );
 
 const replaceString = (str: string) => {
@@ -289,31 +269,12 @@ const handlePassword = async (password: string) => {
 };
 
 const handleCopy = () => {
-    if (isText.value) {
-        copy(fileContent.value || '');
+    if (isText.value && fileContent.value !== undefined) {
+        copy(fileContent.value);
         $toast.success(t('view.contentCopied'));
     } else {
         copy(window.location.href);
         $toast.success(t('view.linkCopied'));
     }
 };
-
-watch(
-    () => data.value.id,
-    async () => {
-        if (import.meta.server || !isText.value || !data.value.id) return;
-
-        try {
-            const file = await $fetch<Blob | string>(`/u/${id}`, {
-                query: { password: data.value.password },
-            });
-
-            contentError.value = undefined;
-            fileContent.value = file instanceof Blob ? await file.text() : file;
-        } catch (error) {
-            contentError.value = getErrorMessage(error);
-        }
-    },
-    { immediate: true },
-);
 </script>
