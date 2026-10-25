@@ -17,8 +17,10 @@ struct StopOptions {
 void startHarbor();
 void stopHarbor(StopOptions options = {});
 JsonObject harborStatus();
+std::optional<std::wstring> harborStorageLabel();
 JsonArray harborActivity();
 void pauseHarbor(bool paused);
+void openHarbor();
 void runHarborAction(std::wstring const& action, std::vector<std::wstring> const& paths);
 std::optional<std::filesystem::path> harborPathFor(std::wstring const& fileId);
 void registerHarborHandlers();
