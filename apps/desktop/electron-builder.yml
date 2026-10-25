@@ -1,5 +1,7 @@
 appId: dev.hanzy.fileship
 productName: Fileship
+extraMetadata:
+    name: Fileship
 copyright: Copyright © 2024-present Hànzy and Fileship contributors
 
 directories:
