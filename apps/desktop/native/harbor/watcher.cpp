@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <chrono>
+#include <deque>
 #include <map>
+#include <set>
 #include <string_view>
 #include <thread>
 
@@ -14,6 +16,7 @@ namespace harbor {
 namespace {
 
 constexpr auto SETTLE_TIME = std::chrono::milliseconds(1500);
+constexpr int PIN_WORKERS = 4;
 
 std::atomic<bool> isWatching = false;
 HANDLE directory = INVALID_HANDLE_VALUE;
@@ -26,6 +29,11 @@ std::map<std::wstring, std::wstring> reported;
 
 std::mutex settleMutex;
 std::map<std::wstring, Clock::time_point> settling;
+
+std::mutex pinMutex;
+std::deque<std::wstring> pinQueue;
+std::set<std::wstring> pinning;
+int pinWorkers = 0;
 
 bool isClosed(std::wstring const& absolute) {
     HANDLE handle = CreateFileW(absolute.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING,
@@ -81,6 +89,58 @@ void pinChildren(std::wstring const& folder) {
     }
 }
 
+void applyPin(std::wstring const& absolute) {
+    DWORD attributes = GetFileAttributesW(absolute.c_str());
+    CF_PIN_STATE pin = CF_PIN_STATE_UNSPECIFIED;
+    if (attributes == INVALID_FILE_ATTRIBUTES || !placeholderIdentity(absolute, &pin, nullptr)) return;
+
+    bool isHydrated = (attributes & FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS) == 0;
+
+    if (pin == CF_PIN_STATE_PINNED && !isHydrated) {
+        hydratePath(absolute);
+    } else if (pin == CF_PIN_STATE_UNPINNED && isHydrated && !isModified(absolute)) {
+        dehydratePath(absolute);
+    }
+}
+
+void runPins() {
+    for (;;) {
+        std::wstring relative;
+
+        {
+            std::lock_guard lock(pinMutex);
+
+            if (pinQueue.empty()) {
+                pinWorkers--;
+                return;
+            }
+
+            relative = pinQueue.front();
+            pinQueue.pop_front();
+        }
+
+        try {
+            applyPin(fullPath(relative));
+        } catch (hresult_error const& error) {
+            log(L"Could not change " + relative + L": " + std::wstring(error.message()));
+        }
+
+        std::lock_guard lock(pinMutex);
+        pinning.erase(relative);
+    }
+}
+
+void queuePin(std::wstring const& relative) {
+    std::lock_guard lock(pinMutex);
+    if (!pinning.insert(relative).second) return;
+
+    pinQueue.push_back(relative);
+    if (pinWorkers == PIN_WORKERS) return;
+
+    pinWorkers++;
+    std::thread(runPins).detach();
+}
+
 void inspect(std::wstring const& relative) {
     auto absolute = fullPath(relative);
     auto name = std::filesystem::path(absolute).filename().wstring();
@@ -127,14 +187,8 @@ void inspect(std::wstring const& relative) {
         return;
     }
 
-    try {
-        if (pin == CF_PIN_STATE_PINNED && !isHydrated) {
-            hydratePath(absolute);
-        } else if (pin == CF_PIN_STATE_UNPINNED && isHydrated) {
-            dehydratePath(absolute);
-        }
-    } catch (hresult_error const& error) {
-        log(L"Could not change " + relative + L": " + std::wstring(error.message()));
+    if ((pin == CF_PIN_STATE_PINNED && !isHydrated) || (pin == CF_PIN_STATE_UNPINNED && isHydrated)) {
+        queuePin(relative);
     }
 }
 
@@ -277,6 +331,10 @@ void stopWatcher() {
     if (workerThread.joinable()) workerThread.join();
     CloseHandle(directory);
     directory = INVALID_HANDLE_VALUE;
+
+    std::lock_guard lock(pinMutex);
+    for (auto const& relative : pinQueue) pinning.erase(relative);
+    pinQueue.clear();
 }
 
 }
