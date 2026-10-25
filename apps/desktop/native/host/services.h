@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/lib/core.h>
+#include <core/core.h>
 #include <shared/http.h>
 #include <shared/i18n.h>
 #include <shared/json.h>

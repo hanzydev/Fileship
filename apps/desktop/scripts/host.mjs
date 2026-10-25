@@ -38,7 +38,7 @@ const groupSources = (...folders) => {
     return groups;
 };
 
-const groups = groupSources('shared', 'ui', 'host', join('core', 'lib'));
+const groups = groupSources('shared', 'ui', 'host', 'core');
 const flags = [
     '/std:c++20 /EHsc /O2 /MT /W4 /permissive- /utf-8 /MP',
     '/DUNICODE /D_UNICODE /DNOMINMAX /DWIN32_LEAN_AND_MEAN',
