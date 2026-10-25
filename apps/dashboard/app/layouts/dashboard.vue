@@ -294,13 +294,13 @@
                     class="fixed right-4 bottom-4 z-40 w-[calc(100%-2rem)] sm:w-96"
                 >
                     <UiCollapsible v-model:open="isQueueExpanded" class="flex flex-col gap-4">
-                        <UiCardHeader>
+                        <UiCardHeader class="items-center">
                             <UiCardTitle class="flex items-center gap-2">
                                 <UiSpinner v-if="activeUploads" />
                                 <ICircleAlert v-else class="size-4 text-destructive" />
                                 {{ queueTitle }}
                             </UiCardTitle>
-                            <UiCardAction>
+                            <UiCardAction class="row-span-1 self-center">
                                 <UiCollapsibleTrigger as-child>
                                     <UiButton
                                         variant="ghost"
@@ -337,11 +337,11 @@
                                         </UiItemTitle>
                                         <UiItemDescription
                                             :class="
-                                                cn(
-                                                    'truncate',
-                                                    file.status!.error && 'text-destructive',
-                                                )
+                                                file.status!.error
+                                                    ? 'line-clamp-none break-words text-destructive'
+                                                    : 'truncate'
                                             "
+                                            :title="file.status!.error || undefined"
                                         >
                                             <template v-if="file.status!.error">
                                                 {{ file.status!.error }}
