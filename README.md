@@ -28,7 +28,7 @@
 - Public sharing with passwords, expiry dates, view limits and rich embeds for Discord and other apps
 - [AI](docs/ai.md) that runs on your server: smart search in over 50 languages, captions, OCR and sensitive content detection, all optional
 - Uploads on the local disk, any S3 compatible service, SFTP or FTP
-- Multiple users with permissions and storage limits, passkeys and two-factor authentication
+- Multiple users with permissions and storage limits, passkeys, two-factor authentication and [single sign-on](docs/configuration.md#single-sign-on) with OpenID Connect
 - Zero-downtime updates, one click or on a schedule
 - ShareX, macOS and Linux upload integrations, the [Windows app](docs/desktop.md) and an [installable app for phones](docs/mobile.md) that Android apps can share to
 - A [browser extension](docs/browser-extension.md) that uploads files, images and screenshots and shortens links, [on the Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh) for Chrome and Edge, and built from source for Firefox
@@ -50,7 +50,7 @@
 | Passwords, expiry and view limits              | ✅                             | ✅                                          | ❌                                                 | 🟡 album links expire                               |
 | Storage                                        | Local, S3, SFTP, FTP           | Local, S3                                   | Local, S3, FTP, Dropbox, Google Cloud              | Local, S3                                           |
 | Two-factor authentication and passkeys         | ✅                             | ✅                                          | ❌                                                 | ❌                                                  |
-| Single sign-on                                 | ❌                             | ✅ OAuth, OIDC                              | ✅ LDAP                                            | ❌                                                  |
+| Single sign-on                                 | ✅ OIDC                        | ✅ OAuth, OIDC                              | ✅ LDAP                                            | ❌                                                  |
 | Webhooks                                       | ✅ Discord, Slack, signed JSON | ✅ Discord, HTTP                            | ❌                                                 | ❌                                                  |
 | Account backups you can restore, on a schedule | ✅                             | 🟡 export                                   | 🟡 export                                          | ❌                                                  |
 | Updates from the dashboard                     | ✅ zero downtime               | ❌                                          | 🟡 with downtime                                   | ❌                                                  |
