@@ -109,6 +109,28 @@
             "totpDescription": "Questo account usa un'app di autenticazione: inserisci anche un codice dell'app.",
             "save": "Cambia password",
             "success": "Password cambiata"
+        },
+        "oidc": {
+            "title": "Single Sign-On",
+            "defaultProvider": "SSO",
+            "continue": "Continua con {provider}",
+            "loginDescription": "Usa {provider} per accedere al tuo account.",
+            "adminLogin": "Accedi come amministratore",
+            "verifiedTitle": "Identità confermata",
+            "verifiedDescription": "Puoi chiudere questa finestra e tornare a Fileship.",
+            "failedTitle": "Verifica non riuscita",
+            "errors": {
+                "unavailable": "Il Single Sign-On non è disponibile al momento. Riprova più tardi o chiedi a un amministratore.",
+                "expired": "L'accesso ha richiesto troppo tempo o è stato avviato in un'altra finestra. Riprova.",
+                "denied": "L'accesso con {provider} è stato annullato.",
+                "failed": "Impossibile accedere con {provider}. Riprova.",
+                "noAccount": "Nessun account è collegato a questo account {provider}. Chiedi a un amministratore, oppure accedi in un altro modo e collegalo in Impostazioni → Sicurezza.",
+                "conflict": "L'account con questo indirizzo email è già collegato a un altro account {provider}.",
+                "tooManyAttempts": "Troppi tentativi, riprova più tardi",
+                "alreadyLinked": "Questo account {provider} è già collegato a un altro account.",
+                "wrongAccount": "Usa l'account {provider} collegato al tuo account.",
+                "wrongAddress": "Apri Fileship dall'indirizzo della dashboard per usare il Single Sign-On."
+            }
         }
     },
     "backups": {
@@ -237,7 +259,9 @@
         "passwordNotAllowed": "L'autenticazione a due fattori è attiva, inserisci il codice dell'app di autenticazione",
         "invalidPassword": "Password non valida",
         "invalidPasskey": "Passkey non valida",
-        "invalidVerificationType": "Metodo di verifica non valido"
+        "invalidVerificationType": "Metodo di verifica non valido",
+        "passwordLoginDisabled": "L'accesso con password è disattivato, accedi con il Single Sign-On",
+        "oidcNotVerified": "Completa prima l'accesso con il Single Sign-On"
     },
     "errorsCommon": {
         "invalidBody": "Alcuni campi non sono validi",
@@ -810,6 +834,11 @@
                 "title": "Webhook",
                 "description": "Regole per i webhook degli utenti.",
                 "saved": "Impostazioni dei webhook salvate"
+            },
+            "oidc": {
+                "title": "Single Sign-On",
+                "description": "Permetti l'accesso con un provider OpenID Connect come Authentik, Authelia, Keycloak, Pocket ID, Zitadel o Google.",
+                "saved": "Impostazioni del Single Sign-On salvate"
             }
         },
         "fields": {
@@ -854,7 +883,7 @@
             "telemetryEnabled": "Telemetria anonima",
             "telemetryEnabledDescription": "Condividi statistiche di utilizzo anonime per aiutare a migliorare Fileship.",
             "siteUrl": "Indirizzo della dashboard",
-            "siteUrlDescription": "I link nelle email puntano a questo indirizzo.",
+            "siteUrlDescription": "I link nelle email e il Single Sign-On usano questo indirizzo.",
             "smtpHost": "Server SMTP",
             "smtpPort": "Porta",
             "smtpSecurity": "Crittografia",
@@ -867,7 +896,19 @@
             "smtpFrom": "Indirizzo del mittente",
             "smtpFromDescription": "Le email vengono inviate da questo indirizzo con il nome del sito come mittente.",
             "webhookPrivateTargets": "Consenti indirizzi privati",
-            "webhookPrivateTargetsDescription": "Permette ai webhook di raggiungere localhost, reti private e indirizzi link-local. Attivalo solo se ti fidi di tutti gli utenti, perché i webhook potrebbero raggiungere i servizi della tua rete."
+            "webhookPrivateTargetsDescription": "Permette ai webhook di raggiungere localhost, reti private e indirizzi link-local. Attivalo solo se ti fidi di tutti gli utenti, perché i webhook potrebbero raggiungere i servizi della tua rete.",
+            "oidcEnabled": "Attiva il Single Sign-On",
+            "oidcEnabledDescription": "Aggiunge un pulsante alla pagina di accesso quando l'indirizzo della dashboard, l'Issuer URL e il Client ID sono impostati.",
+            "oidcIssuerUrl": "Issuer URL",
+            "oidcIssuerUrlDescription": "Fileship legge tutto il resto dal documento di discovery del provider. Copia l'issuer esattamente, con la barra finale se ce l'ha.",
+            "oidcClientId": "Client ID",
+            "oidcClientSecret": "Client secret",
+            "oidcButtonLabel": "Nome del provider",
+            "oidcButtonLabelDescription": "Appare sul pulsante di accesso, ad esempio Continua con Authentik.",
+            "oidcAutoRegister": "Crea gli account",
+            "oidcAutoRegisterDescription": "Chi accede senza un account ne riceve uno con le autorizzazioni e il limite di spazio della registrazione. Se disattivato, possono accedere solo gli account collegati e quelli con lo stesso indirizzo email confermato.",
+            "passwordLoginEnabled": "Accesso con password e passkey",
+            "passwordLoginEnabledDescription": "Se disattivato, solo i super amministratori possono accedere con una password o una passkey. Tutti gli altri usano il Single Sign-On."
         },
         "ai": {
             "queue": "Coda",
@@ -977,6 +1018,18 @@
             "testDescription": "Usa le impostazioni qui sopra, anche prima di salvarle.",
             "testSent": "Email di prova inviata a {email}",
             "hostRequired": "Il server SMTP è obbligatorio"
+        },
+        "oidcIssuerUrlInvalid": "Inserisci un indirizzo come https://auth.example.com/realms/fileship",
+        "oidc": {
+            "redirectUri": "URI di reindirizzamento",
+            "copyRedirectUri": "Copia l'URI di reindirizzamento",
+            "redirectUriCopied": "URI di reindirizzamento copiato",
+            "redirectUriDescription": "Aggiungi questo indirizzo al client Fileship nel tuo provider.",
+            "siteUrlRequired": "Imposta prima l'indirizzo della dashboard in Generale.",
+            "test": "Prova il provider",
+            "testDescription": "Legge il documento di discovery dell'Issuer URL qui sopra, anche prima di salvarlo.",
+            "testButton": "Prova",
+            "testWorks": "Trovato: {issuer}"
         }
     },
     "integrations": {
@@ -1249,7 +1302,9 @@
             "authenticatorCode": "Codice dell'app di autenticazione",
             "usePasskey": "Usa una passkey",
             "submit": "Verifica",
-            "passkeyFailed": "Impossibile verificare la passkey"
+            "passkeyFailed": "Impossibile verificare la passkey",
+            "oidc": "SSO",
+            "oidcHint": "Accedi di nuovo con {provider} nella finestra che si apre."
         },
         "queue": {
             "uploading": "Caricamento di {n} file",
@@ -1416,7 +1471,9 @@
             "resetPassword": "Reimpostazione password",
             "requestPasswordReset": "Richiesta reimpostazione password",
             "createInvite": "Creazione invito",
-            "deleteInvite": "Ritiro invito"
+            "deleteInvite": "Ritiro invito",
+            "linkSso": "Collegamento SSO",
+            "unlinkSso": "Scollegamento SSO"
         }
     },
     "notes": {
@@ -1549,7 +1606,22 @@
         "name": "Nome",
         "save": "Salva",
         "deleteTitle": "Eliminare {name}?",
-        "deleteDescription": "Non potrai più accedere con questa passkey."
+        "deleteDescription": "Non potrai più accedere con questa passkey.",
+        "setPasswordDescription": "Accedi con {provider}. Imposta una password per poter accedere anche senza.",
+        "setPassword": "Imposta password",
+        "passwordSet": "Password impostata",
+        "oidc": "Single Sign-On",
+        "oidcLinked": "Collegato",
+        "oidcNotLinked": "Non collegato",
+        "oidcDescription": "Collega il tuo account {provider} per accedere senza password.",
+        "oidcLinkedEmail": "Puoi accedere con {provider} come {email}.",
+        "oidcLinkedDescription": "Puoi accedere con {provider}.",
+        "oidcLink": "Collega",
+        "oidcUnlink": "Scollega",
+        "oidcUnlinkTitle": "Scollegare il tuo account {provider}?",
+        "oidcUnlinkDescription": "Accederai con la tua password o una passkey.",
+        "oidcUnlinked": "Account {provider} scollegato",
+        "oidcLinkedToast": "Account {provider} collegato"
     },
     "sessions": {
         "title": "Sessioni",
@@ -2040,5 +2112,13 @@
         "fileInFolder": "{date} · {folder}",
         "openFile": "Apri",
         "moveToTrash": "Sposta nel cestino"
+    },
+    "errorsOidc": {
+        "unavailable": "Il Single Sign-On non è disponibile al momento",
+        "wrongAddress": "Apri Fileship da {url} per collegare il Single Sign-On",
+        "setPasswordFirst": "Imposta prima una password o aggiungi una passkey, così potrai ancora accedere",
+        "passwordLoginOff": "L'accesso con password è disattivato, senza Single Sign-On non potresti più accedere",
+        "notLinked": "Nessun account Single Sign-On collegato",
+        "discoveryFailed": "Impossibile leggere il documento di discovery: {error}"
     }
 }

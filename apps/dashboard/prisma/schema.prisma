@@ -79,7 +79,7 @@ enum WebhookDeliveryStatus {
 model User {
   id                     String              @id @unique @default(uuid())
   username               String              @unique
-  password               String
+  password               String?
   avatar                 String?
   permissions            UserPermission[]
   files                  File[]
@@ -108,6 +108,7 @@ model User {
   emailTokens            EmailToken[]
   invites                Invite[]
   credentials            Credential[]
+  oidcIdentities         OidcIdentity[]
   aiJobs                 AIJob[]
   inbox                  Inbox?
   backups                Backup[]
@@ -154,6 +155,19 @@ model Credential {
   createdAt  DateTime @default(now())
   userId     String
   user       User     @relation(fields: [userId], references: [id])
+}
+
+model OidcIdentity {
+  id        String   @id @default(uuid())
+  issuer    String
+  subject   String
+  email     String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@unique([issuer, subject])
+  @@unique([userId, issuer])
 }
 
 model File {

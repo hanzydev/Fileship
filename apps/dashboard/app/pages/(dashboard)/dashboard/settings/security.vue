@@ -4,7 +4,11 @@
             <UiCardHeader>
                 <UiCardTitle>{{ $t('security.password') }}</UiCardTitle>
                 <UiCardDescription>
-                    {{ $t('security.passwordDescription') }}
+                    {{
+                        hasPassword
+                            ? $t('security.passwordDescription')
+                            : $t('security.setPasswordDescription', { provider })
+                    }}
                 </UiCardDescription>
             </UiCardHeader>
             <UiCardContent>
@@ -35,10 +39,45 @@
             <UiCardFooter class="justify-end">
                 <UiButton type="submit" :disabled="isChangingPassword || !password.value">
                     <UiSpinner v-if="isChangingPassword" />
-                    {{ $t('security.changePassword') }}
+                    {{ hasPassword ? $t('security.changePassword') : $t('security.setPassword') }}
                 </UiButton>
             </UiCardFooter>
         </form>
+    </UiCard>
+
+    <UiCard v-if="publicSettings.oidcLogin || oidc?.identity">
+        <UiCardHeader>
+            <UiCardTitle class="flex items-center gap-2">
+                {{ $t('security.oidc') }}
+                <UiBadge v-if="oidc" :variant="oidc.identity ? 'default' : 'secondary'">
+                    {{ oidc.identity ? $t('security.oidcLinked') : $t('security.oidcNotLinked') }}
+                </UiBadge>
+            </UiCardTitle>
+            <UiCardDescription>
+                {{
+                    !oidc?.identity
+                        ? $t('security.oidcDescription', { provider })
+                        : oidc.identity.email
+                          ? $t('security.oidcLinkedEmail', {
+                                provider,
+                                email: oidc.identity.email,
+                            })
+                          : $t('security.oidcLinkedDescription', { provider })
+                }}
+            </UiCardDescription>
+            <UiCardAction class="self-center">
+                <UiButton
+                    :variant="oidc?.identity ? 'outline' : 'default'"
+                    :disabled="!oidc || isUpdatingOidc"
+                    @click="oidc!.identity ? handleUnlinkOidc() : handleLinkOidc()"
+                >
+                    <UiSpinner v-if="isUpdatingOidc" />
+                    <IUnlink v-else-if="oidc?.identity" />
+                    <ILink v-else />
+                    {{ oidc?.identity ? $t('security.oidcUnlink') : $t('security.oidcLink') }}
+                </UiButton>
+            </UiCardAction>
+        </UiCardHeader>
     </UiCard>
 
     <UiCard>
@@ -217,9 +256,16 @@ const passkeys = usePasskeys();
 const isLoadingPasskeys = ref(!passkeys.value.length);
 const isRenaming = ref(false);
 const currentUser = useAuthUser();
+const publicSettings = usePublicSettings();
+const provider = useOidcProvider();
+const route = useRoute();
 const { $toast } = useNuxtApp();
 const { t } = useI18n();
 const date = useDate();
+
+const { data: oidc, refresh: refreshOidc } = await useFetch('/api/users/@me/oidc');
+const isUpdatingOidc = ref(false);
+const hasPassword = computed(() => oidc.value?.hasPassword ?? true);
 
 const supportsPasskeys = ref(true);
 const isChangingPassword = ref(false);
@@ -257,7 +303,10 @@ const handlePasswordChange = async () => {
 
         if (result) {
             Object.assign(password, { value: '', confirm: '' });
-            $toast.success(t('security.passwordChanged'));
+            $toast.success(
+                hasPassword.value ? t('security.passwordChanged') : t('security.passwordSet'),
+            );
+            await refreshOidc();
         }
     } catch (error: any) {
         passwordError.value =
@@ -418,8 +467,58 @@ const handleDeletePasskey = async (passkey: PasskeyData) => {
     });
 };
 
+const handleLinkOidc = async () => {
+    isUpdatingOidc.value = true;
+
+    try {
+        const result = await withVerification((verificationData) =>
+            $fetch('/api/users/@me/oidc', { method: 'POST', body: { verificationData } }),
+        );
+
+        if (result) return await navigateTo(result.url, { external: true });
+    } catch (error) {
+        $toast.error(getErrorMessage(error));
+    }
+
+    isUpdatingOidc.value = false;
+};
+
+const handleUnlinkOidc = () =>
+    askConfirmation({
+        title: t('security.oidcUnlinkTitle', { provider: provider.value }),
+        description: t('security.oidcUnlinkDescription', { provider: provider.value }),
+        confirmText: t('security.oidcUnlink'),
+        destructive: true,
+        action: async () => {
+            try {
+                const result = await withVerification((verificationData) =>
+                    $fetch('/api/users/@me/oidc', { method: 'DELETE', body: { verificationData } }),
+                );
+
+                if (result) {
+                    await refreshOidc();
+                    $toast.success(t('security.oidcUnlinked', { provider: provider.value }));
+                }
+            } catch (error) {
+                $toast.error(getErrorMessage(error));
+            }
+        },
+    });
+
 onMounted(async () => {
     supportsPasskeys.value = browserSupportsWebAuthn();
+
+    const oidcStatus = route.query.sso;
+
+    if (typeof oidcStatus === 'string') {
+        if (oidcStatus === 'linked') {
+            $toast.success(t('security.oidcLinkedToast', { provider: provider.value }));
+        } else {
+            $toast.error(t(oidcErrorKey(oidcStatus), { provider: provider.value }));
+        }
+
+        navigateTo({ query: { ...route.query, sso: undefined } }, { replace: true });
+    }
 
     const data = await $fetch('/api/users/@me/mfa/webauthn/credentials').catch(() => null);
     passkeys.value = (data || []).map((p) => ({ ...p, createdAt: new Date(p.createdAt) }));

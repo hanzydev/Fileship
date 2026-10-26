@@ -89,6 +89,10 @@ export default defineEventHandler(async (event) => {
         });
 
         if (response.verified) {
+            if (!canLogInWithPassword(findUserById, await getSettings())) {
+                throw apiError(403, 'errorsAuth.passwordLoginDisabled');
+            }
+
             await prisma.credential.update({
                 where: { id: findCredentialById.id },
                 data: {

@@ -109,6 +109,28 @@
             "totpDescription": "Bu hesab doğrulama tətbiqindən istifadə edir, tətbiqdəki kodu da daxil et.",
             "save": "Şifrəni dəyiş",
             "success": "Şifrə dəyişdirildi"
+        },
+        "oidc": {
+            "title": "SSO ilə giriş",
+            "defaultProvider": "SSO",
+            "continue": "{provider} ilə davam et",
+            "loginDescription": "Hesabına daxil olmaq üçün {provider} istifadə et.",
+            "adminLogin": "Admin kimi daxil ol",
+            "verifiedTitle": "Təsdiqləndi",
+            "verifiedDescription": "Bu pəncərəni bağlayıb Fileship-ə qayıda bilərsən.",
+            "failedTitle": "Təsdiqlənmədi",
+            "errors": {
+                "unavailable": "SSO ilə giriş hazırda əlçatan deyil. Bir az sonra yenidən cəhd et və ya admindən soruş.",
+                "expired": "Giriş çox uzun çəkdi və ya başqa pəncərədə başladıldı. Yenidən cəhd et.",
+                "denied": "{provider} ilə giriş ləğv edildi.",
+                "failed": "{provider} ilə daxil olmaq mümkün olmadı. Yenidən cəhd et.",
+                "noAccount": "Bu {provider} hesabına bağlı hesab yoxdur. Admindən soruş və ya başqa yolla daxil olub Ayarlar → Təhlükəsizlik bölməsində bağla.",
+                "conflict": "Bu e-poçt ünvanı olan hesab artıq başqa {provider} hesabına bağlıdır.",
+                "tooManyAttempts": "Həddindən çox cəhd edildi, bir az sonra yenidən cəhd et",
+                "alreadyLinked": "Bu {provider} hesabı artıq başqa hesaba bağlıdır.",
+                "wrongAccount": "Hesabına bağlı olan {provider} hesabını istifadə et.",
+                "wrongAddress": "SSO ilə daxil olmaq üçün Fileship-i idarə paneli ünvanında aç."
+            }
         }
     },
     "backups": {
@@ -237,7 +259,9 @@
         "passwordNotAllowed": "İki addımlı doğrulama aktivdir, doğrulama tətbiqindəki kodu daxil et",
         "invalidPassword": "Şifrə yanlışdır",
         "invalidPasskey": "Giriş açarını doğrulamaq mümkün olmadı",
-        "invalidVerificationType": "Doğrulama üsulu etibarsızdır"
+        "invalidVerificationType": "Doğrulama üsulu etibarsızdır",
+        "passwordLoginDisabled": "Şifrə ilə giriş söndürülüb, SSO ilə daxil ol",
+        "oidcNotVerified": "Əvvəlcə SSO ilə girişi tamamla"
     },
     "errorsCommon": {
         "invalidBody": "Bəzi sahələr yanlışdır",
@@ -810,6 +834,11 @@
                 "title": "Webhook-lar",
                 "description": "İstifadəçilərin əlavə etdiyi webhook-lar üçün qaydalar.",
                 "saved": "Webhook ayarları yadda saxlanıldı"
+            },
+            "oidc": {
+                "title": "SSO ilə giriş",
+                "description": "İstifadəçilərə Authentik, Authelia, Keycloak, Pocket ID, Zitadel və ya Google kimi OpenID Connect provayderi ilə daxil olmağa icazə ver.",
+                "saved": "SSO ayarları yadda saxlanıldı"
             }
         },
         "fields": {
@@ -854,7 +883,7 @@
             "telemetryEnabled": "Anonim telemetriya",
             "telemetryEnabledDescription": "Fileship layihəsinin inkişafına kömək etmək üçün anonim istifadə statistikası paylaşılır.",
             "siteUrl": "İdarə paneli ünvanı",
-            "siteUrlDescription": "E-poçtlardakı keçidlər bu ünvana aparır.",
+            "siteUrlDescription": "E-poçtlardakı keçidlər və SSO ilə giriş bu ünvanı istifadə edir.",
             "smtpHost": "SMTP serveri",
             "smtpPort": "Port",
             "smtpSecurity": "Şifrələmə",
@@ -867,7 +896,19 @@
             "smtpFrom": "Göndərən ünvanı",
             "smtpFromDescription": "E-poçtlar bu ünvandan sayt adı ilə göndərilir.",
             "webhookPrivateTargets": "Daxili ünvanlara icazə ver",
-            "webhookPrivateTargetsDescription": "Webhook-ların localhost-a, daxili şəbəkələrə və link-local ünvanlara çatmasına icazə verir. Yalnız bütün istifadəçilərə güvənirsənsə aktiv et, çünki webhook-lar o zaman şəbəkəndəki xidmətlərə çata bilər."
+            "webhookPrivateTargetsDescription": "Webhook-ların localhost-a, daxili şəbəkələrə və link-local ünvanlara çatmasına icazə verir. Yalnız bütün istifadəçilərə güvənirsənsə aktiv et, çünki webhook-lar o zaman şəbəkəndəki xidmətlərə çata bilər.",
+            "oidcEnabled": "SSO ilə girişi aktivləşdir",
+            "oidcEnabledDescription": "İdarə paneli ünvanı, Issuer URL və Client ID təyin olunanda giriş səhifəsinə düymə əlavə olunur.",
+            "oidcIssuerUrl": "Issuer URL",
+            "oidcIssuerUrlDescription": "Fileship qalan hər şeyi provayderin discovery sənədindən oxuyur. Issuer ünvanını olduğu kimi köçür, sonunda çəp xətt varsa, onu da.",
+            "oidcClientId": "Client ID",
+            "oidcClientSecret": "Client secret",
+            "oidcButtonLabel": "Provayderin adı",
+            "oidcButtonLabelDescription": "Giriş düyməsində göstərilir, məsələn Authentik ilə davam et.",
+            "oidcAutoRegister": "Hesab yarat",
+            "oidcAutoRegisterDescription": "Hesabı olmadan daxil olanlara qeydiyyat icazələri və yaddaş limiti ilə hesab yaradılır. Söndürüləndə yalnız bağlı hesablar və eyni təsdiqlənmiş e-poçt ünvanı olan hesablar daxil ola bilər.",
+            "passwordLoginEnabled": "Şifrə və giriş açarı ilə giriş",
+            "passwordLoginEnabledDescription": "Söndürüləndə yalnız super adminlər şifrə və ya giriş açarı ilə daxil ola bilər. Qalan hamı SSO istifadə edir."
         },
         "ai": {
             "queue": "Növbə",
@@ -977,6 +1018,18 @@
             "testDescription": "Yuxarıdakı ayarları yadda saxlamadan əvvəl də istifadə edir.",
             "testSent": "Test e-poçtu göndərildi: {email}",
             "hostRequired": "SMTP serveri tələb olunur"
+        },
+        "oidcIssuerUrlInvalid": "https://auth.example.com/realms/fileship kimi ünvan daxil et",
+        "oidc": {
+            "redirectUri": "Yönləndirmə URI-si",
+            "copyRedirectUri": "Yönləndirmə URI-sini köçür",
+            "redirectUriCopied": "Yönləndirmə URI-si köçürüldü",
+            "redirectUriDescription": "Bu ünvanı provayderində Fileship üçün yaratdığın tətbiqə əlavə et.",
+            "siteUrlRequired": "Əvvəlcə Ümumi bölməsində idarə paneli ünvanını təyin et.",
+            "test": "Provayderi yoxla",
+            "testDescription": "Yuxarıdakı Issuer URL-in discovery sənədini yadda saxlamadan əvvəl də oxuyur.",
+            "testButton": "Yoxla",
+            "testWorks": "Tapıldı: {issuer}"
         }
     },
     "integrations": {
@@ -1249,7 +1302,9 @@
             "authenticatorCode": "Doğrulama kodu",
             "usePasskey": "Giriş açarından istifadə et",
             "submit": "Doğrula",
-            "passkeyFailed": "Giriş açarı doğrulanmadı"
+            "passkeyFailed": "Giriş açarı doğrulanmadı",
+            "oidc": "SSO",
+            "oidcHint": "Açılan pəncərədə {provider} ilə yenidən daxil ol."
         },
         "queue": {
             "uploading": "{n} fayl yüklənir",
@@ -1416,7 +1471,9 @@
             "resetPassword": "Şifrəni sıfırlama",
             "requestPasswordReset": "Şifrə sıfırlama sorğusu",
             "createInvite": "Dəvət yaratma",
-            "deleteInvite": "Dəvəti geri götürmə"
+            "deleteInvite": "Dəvəti geri götürmə",
+            "linkSso": "SSO bağlama",
+            "unlinkSso": "SSO əlaqəsini kəsmə"
         }
     },
     "notes": {
@@ -1549,7 +1606,22 @@
         "name": "Ad",
         "save": "Yadda saxla",
         "deleteTitle": "{name} silinsin?",
-        "deleteDescription": "Bu giriş açarı ilə artıq daxil ola bilməyəcəksən."
+        "deleteDescription": "Bu giriş açarı ilə artıq daxil ola bilməyəcəksən.",
+        "setPasswordDescription": "{provider} ilə daxil olursan. Onsuz da daxil ola bilmək üçün şifrə təyin et.",
+        "setPassword": "Şifrə təyin et",
+        "passwordSet": "Şifrə təyin edildi",
+        "oidc": "SSO ilə giriş",
+        "oidcLinked": "Bağlıdır",
+        "oidcNotLinked": "Bağlı deyil",
+        "oidcDescription": "Şifrəsiz daxil olmaq üçün {provider} hesabını bağla.",
+        "oidcLinkedEmail": "{provider} ilə {email} kimi daxil ola bilərsən.",
+        "oidcLinkedDescription": "{provider} ilə daxil ola bilərsən.",
+        "oidcLink": "Bağla",
+        "oidcUnlink": "Əlaqəni kəs",
+        "oidcUnlinkTitle": "{provider} hesabı ilə əlaqə kəsilsin?",
+        "oidcUnlinkDescription": "Bundan sonra şifrən və ya giriş açarınla daxil olacaqsan.",
+        "oidcUnlinked": "{provider} hesabı ilə əlaqə kəsildi",
+        "oidcLinkedToast": "{provider} hesabı bağlandı"
     },
     "sessions": {
         "title": "Sessiyalar",
@@ -2040,5 +2112,13 @@
         "fileInFolder": "{date} · {folder}",
         "openFile": "Aç",
         "moveToTrash": "Zibil qutusuna at"
+    },
+    "errorsOidc": {
+        "unavailable": "SSO ilə giriş hazırda əlçatan deyil",
+        "wrongAddress": "SSO-nu bağlamaq üçün Fileship-i bu ünvanda aç: {url}",
+        "setPasswordFirst": "Daxil olmağa davam edə bilmək üçün əvvəlcə şifrə təyin et və ya giriş açarı əlavə et",
+        "passwordLoginOff": "Şifrə ilə giriş söndürülüb, SSO olmadan daxil ola bilməzdin",
+        "notLinked": "Bağlı SSO hesabı yoxdur",
+        "discoveryFailed": "Discovery sənədini oxumaq mümkün olmadı: {error}"
     }
 }

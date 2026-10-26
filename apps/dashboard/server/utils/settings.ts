@@ -50,6 +50,17 @@ export const getSettingDefaults = (): InstanceSettings => {
             +config.registration.usableSpace,
             -1,
         ),
+        oidcEnabled: parseDefault('oidcEnabled', !!config.oidc.enabled, false),
+        oidcIssuerUrl: parseDefault('oidcIssuerUrl', config.oidc.issuerUrl, ''),
+        oidcClientId: parseDefault('oidcClientId', config.oidc.clientId, ''),
+        oidcClientSecret: parseDefault('oidcClientSecret', config.oidc.clientSecret, ''),
+        oidcButtonLabel: parseDefault('oidcButtonLabel', config.oidc.buttonLabel, ''),
+        oidcAutoRegister: parseDefault('oidcAutoRegister', !!config.oidc.autoRegister, false),
+        passwordLoginEnabled: parseDefault(
+            'passwordLoginEnabled',
+            !!config.passwordLoginEnabled,
+            true,
+        ),
         turnstileSiteKey: parseDefault('turnstileSiteKey', config.public.turnstile.siteKey, ''),
         turnstileSecretKey: parseDefault('turnstileSecretKey', config.turnstile.secretKey, ''),
         aiEnabled: parseDefault('aiEnabled', !!config.public.aiEnabled, true),
@@ -71,7 +82,7 @@ export const getSettingDefaults = (): InstanceSettings => {
     };
 };
 
-const encryptedSettingKeys: InstanceSettingKey[] = ['smtpPassword'];
+const encryptedSettingKeys: InstanceSettingKey[] = ['smtpPassword', 'oidcClientSecret'];
 
 let cache: { overrides: Partial<InstanceSettings>; expiresAt: number } | null = null;
 let pending: { version: number; overrides: Promise<Partial<InstanceSettings>> } | null = null;
@@ -133,10 +144,12 @@ export const getPublicSettings = async (): Promise<PublicSettings> => {
     return {
         ...(Object.fromEntries(publicSettingKeys.map((key) => [key, settings[key]])) as Omit<
             PublicSettings,
-            'uploadConcurrency' | 'emailEnabled'
+            'uploadConcurrency' | 'emailEnabled' | 'oidcLogin' | 'passwordLogin'
         >),
         uploadConcurrency: storage && !storage.isSequential ? 4 : 1,
         emailEnabled: isEmailConfigured(settings),
+        oidcLogin: isOidcConfigured(settings),
+        passwordLogin: isPasswordLoginEnabled(settings),
     };
 };
 

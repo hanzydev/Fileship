@@ -232,6 +232,10 @@
                             {{ $t('layout.verify.passkeyHint') }}
                         </TextBlock>
 
+                        <TextBlock v-else-if="verifyMethod === 'oidc'" variant="muted">
+                            {{ $t('layout.verify.oidcHint', { provider: oidcProvider }) }}
+                        </TextBlock>
+
                         <UiField v-else-if="verifyMethod === 'totp'">
                             <UiFieldLabel>{{ $t('layout.verify.authenticatorCode') }}</UiFieldLabel>
                             <OtpInput v-model="verifyTotp" @complete="handleVerify" />
@@ -270,6 +274,18 @@
                                 <UiSpinner v-if="currentVerification.isSubmitting" />
                                 <IFingerprint v-else />
                                 {{ $t('layout.verify.usePasskey') }}
+                            </UiButton>
+                            <UiButton
+                                v-else-if="verifyMethod === 'oidc'"
+                                type="button"
+                                :disabled="currentVerification.isSubmitting"
+                                @click="handleVerifyOidc"
+                            >
+                                <UiSpinner
+                                    v-if="currentVerification.isSubmitting || isWaitingForOidc"
+                                />
+                                <ILogIn v-else />
+                                {{ $t('auth.oidc.continue', { provider: oidcProvider }) }}
                             </UiButton>
                             <UiButton
                                 v-else
@@ -731,6 +747,7 @@ const verifyLabels = {
     passkey: 'layout.verify.passkey',
     totp: 'layout.verify.code',
     password: 'layout.verify.password',
+    oidc: 'layout.verify.oidc',
 };
 
 const verifyMethod = ref<VerificationMethod['type']>('password');
@@ -771,8 +788,32 @@ const handleVerifyPasskey = async () => {
     }
 };
 
+const oidcProvider = useOidcProvider();
+const isWaitingForOidc = ref(false);
+const { data: oidcResult } = useBroadcastChannel<{ status: string }, { status: string }>({
+    name: 'fileship-sso',
+});
+
+const handleVerifyOidc = () => {
+    isWaitingForOidc.value = true;
+    window.open('/api/auth/oidc/verify', 'fileship-sso', 'popup,width=520,height=720');
+};
+
+watch(oidcResult, (result) => {
+    if (!result || !isWaitingForOidc.value || !verification.value) return;
+
+    isWaitingForOidc.value = false;
+
+    if (result.status === 'verified') verification.value.submit({ type: 'oidc' });
+    else
+        verification.value.error = t(oidcErrorKey(result.status), { provider: oidcProvider.value });
+});
+
 watch(verification, (value, oldValue) => {
-    if (!value) return;
+    if (!value) {
+        isWaitingForOidc.value = false;
+        return;
+    }
 
     currentVerification.value = value;
     if (!oldValue) verifyOpenCount.value++;
@@ -788,11 +829,9 @@ watch(verifyMethods, (value) => {
 
     verifyTotp.value = '';
     verifyPassword.value = '';
-    verifyMethod.value = value.some((m) => m.type === 'passkey')
-        ? 'passkey'
-        : value.some((m) => m.type === 'totp')
-          ? 'totp'
-          : 'password';
+    verifyMethod.value = (['passkey', 'totp', 'password', 'oidc'] as const).find((type) =>
+        value.some((m) => m.type === type),
+    )!;
 });
 
 const isQueueExpanded = ref(true);

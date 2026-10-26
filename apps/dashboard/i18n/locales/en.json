@@ -109,6 +109,28 @@
             "totpDescription": "This account uses an authenticator app, so enter a code from it too.",
             "save": "Change password",
             "success": "Password changed"
+        },
+        "oidc": {
+            "title": "Single sign-on",
+            "defaultProvider": "single sign-on",
+            "continue": "Continue with {provider}",
+            "loginDescription": "Use {provider} to log in to your account.",
+            "adminLogin": "Log in as an administrator",
+            "verifiedTitle": "Verified",
+            "verifiedDescription": "You can close this window and go back to Fileship.",
+            "failedTitle": "Couldn't verify",
+            "errors": {
+                "unavailable": "Single sign-on isn't available right now. Try again later or ask an admin.",
+                "expired": "The login took too long or was started in another window. Try again.",
+                "denied": "The login with {provider} was cancelled.",
+                "failed": "Couldn't log in with {provider}. Try again.",
+                "noAccount": "No account is linked to this {provider} account. Ask an admin, or log in another way and link it in Settings → Security.",
+                "conflict": "The account with this email address is already linked to a different {provider} account.",
+                "tooManyAttempts": "Too many attempts, try again later",
+                "alreadyLinked": "This {provider} account is already linked to another account.",
+                "wrongAccount": "Use the {provider} account that is linked to your account.",
+                "wrongAddress": "Open Fileship at its dashboard address to use single sign-on."
+            }
         }
     },
     "backups": {
@@ -237,7 +259,9 @@
         "passwordNotAllowed": "Two-factor authentication is enabled, enter the code from your authenticator app",
         "invalidPassword": "Invalid password",
         "invalidPasskey": "Invalid passkey",
-        "invalidVerificationType": "Invalid verification method"
+        "invalidVerificationType": "Invalid verification method",
+        "passwordLoginDisabled": "Password login is turned off, log in with single sign-on",
+        "oidcNotVerified": "Finish logging in with single sign-on first"
     },
     "errorsCommon": {
         "invalidBody": "Some fields are invalid",
@@ -810,6 +834,11 @@
                 "title": "Webhooks",
                 "description": "Rules for the webhooks users add.",
                 "saved": "Webhook settings saved"
+            },
+            "oidc": {
+                "title": "Single sign-on",
+                "description": "Let people log in with an OpenID Connect provider such as Authentik, Authelia, Keycloak, Pocket ID, Zitadel or Google.",
+                "saved": "Single sign-on settings saved"
             }
         },
         "fields": {
@@ -854,7 +883,7 @@
             "telemetryEnabled": "Anonymous telemetry",
             "telemetryEnabledDescription": "Share anonymous usage statistics to help improve Fileship.",
             "siteUrl": "Dashboard address",
-            "siteUrlDescription": "Links in emails point to this address.",
+            "siteUrlDescription": "Links in emails and single sign-on use this address.",
             "smtpHost": "SMTP server",
             "smtpPort": "Port",
             "smtpSecurity": "Encryption",
@@ -867,7 +896,19 @@
             "smtpFrom": "Sender address",
             "smtpFromDescription": "Emails are sent from this address under the site name.",
             "webhookPrivateTargets": "Allow private addresses",
-            "webhookPrivateTargetsDescription": "Lets webhooks reach localhost, private networks and link-local addresses. Turn it on only if you trust every user, since webhooks could then reach services inside your network."
+            "webhookPrivateTargetsDescription": "Lets webhooks reach localhost, private networks and link-local addresses. Turn it on only if you trust every user, since webhooks could then reach services inside your network.",
+            "oidcEnabled": "Enable single sign-on",
+            "oidcEnabledDescription": "Adds a button to the login page once the dashboard address, the issuer URL and the client ID are set.",
+            "oidcIssuerUrl": "Issuer URL",
+            "oidcIssuerUrlDescription": "Fileship finds everything else in the provider's discovery document. Copy the issuer exactly, with the trailing slash if it has one.",
+            "oidcClientId": "Client ID",
+            "oidcClientSecret": "Client secret",
+            "oidcButtonLabel": "Provider name",
+            "oidcButtonLabelDescription": "Shown on the login button, for example Continue with Authentik.",
+            "oidcAutoRegister": "Create accounts",
+            "oidcAutoRegisterDescription": "People who log in without an account get one with the registration permissions and storage limit. When off, only linked accounts and accounts with the same confirmed email address can log in.",
+            "passwordLoginEnabled": "Password and passkey login",
+            "passwordLoginEnabledDescription": "When off, only super admins can log in with a password or a passkey. Everyone else uses single sign-on."
         },
         "ai": {
             "queue": "Queue",
@@ -977,6 +1018,18 @@
             "testDescription": "Uses the settings above, even before you save them.",
             "testSent": "Test email sent to {email}",
             "hostRequired": "SMTP server is required"
+        },
+        "oidcIssuerUrlInvalid": "Enter an address such as https://auth.example.com/realms/fileship",
+        "oidc": {
+            "redirectUri": "Redirect URI",
+            "copyRedirectUri": "Copy the redirect URI",
+            "redirectUriCopied": "Redirect URI copied",
+            "redirectUriDescription": "Add this address to the Fileship client at your provider.",
+            "siteUrlRequired": "Set the dashboard address in General first.",
+            "test": "Test the provider",
+            "testDescription": "Reads the discovery document of the issuer URL above, even before you save it.",
+            "testButton": "Test",
+            "testWorks": "Found {issuer}"
         }
     },
     "integrations": {
@@ -1249,7 +1302,9 @@
             "authenticatorCode": "Authenticator code",
             "usePasskey": "Use a passkey",
             "submit": "Verify",
-            "passkeyFailed": "Failed to verify passkey"
+            "passkeyFailed": "Failed to verify passkey",
+            "oidc": "Single sign-on",
+            "oidcHint": "Log in with {provider} again in the window that opens."
         },
         "queue": {
             "uploading": "Uploading {n} file | Uploading {n} files",
@@ -1416,7 +1471,9 @@
             "resetPassword": "Reset Password",
             "requestPasswordReset": "Request Password Reset",
             "createInvite": "Create Invite",
-            "deleteInvite": "Delete Invite"
+            "deleteInvite": "Delete Invite",
+            "linkSso": "Link SSO",
+            "unlinkSso": "Unlink SSO"
         }
     },
     "notes": {
@@ -1549,7 +1606,22 @@
         "name": "Name",
         "save": "Save",
         "deleteTitle": "Delete {name}?",
-        "deleteDescription": "You will no longer be able to sign in with this passkey."
+        "deleteDescription": "You will no longer be able to sign in with this passkey.",
+        "setPasswordDescription": "You log in with {provider}. Set a password to also log in without it.",
+        "setPassword": "Set password",
+        "passwordSet": "Password set",
+        "oidc": "Single sign-on",
+        "oidcLinked": "Linked",
+        "oidcNotLinked": "Not linked",
+        "oidcDescription": "Link your {provider} account to log in without a password.",
+        "oidcLinkedEmail": "You can log in with {provider} as {email}.",
+        "oidcLinkedDescription": "You can log in with {provider}.",
+        "oidcLink": "Link",
+        "oidcUnlink": "Unlink",
+        "oidcUnlinkTitle": "Unlink your {provider} account?",
+        "oidcUnlinkDescription": "You'll log in with your password or a passkey instead.",
+        "oidcUnlinked": "Unlinked your {provider} account",
+        "oidcLinkedToast": "Linked your {provider} account"
     },
     "sessions": {
         "title": "Sessions",
@@ -2040,5 +2112,13 @@
         "fileInFolder": "{date} · {folder}",
         "openFile": "Open",
         "moveToTrash": "Move to trash"
+    },
+    "errorsOidc": {
+        "unavailable": "Single sign-on isn't available right now",
+        "wrongAddress": "Open Fileship at {url} to link single sign-on",
+        "setPasswordFirst": "Set a password or add a passkey first, so you can still log in",
+        "passwordLoginOff": "Password login is turned off, so you couldn't log in without single sign-on",
+        "notLinked": "No single sign-on account is linked",
+        "discoveryFailed": "Couldn't read the discovery document: {error}"
     }
 }

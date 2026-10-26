@@ -109,6 +109,28 @@
             "totpDescription": "Bu hesap doğrulama uygulaması kullanıyor, uygulamadaki kodu da gir.",
             "save": "Şifreyi değiştir",
             "success": "Şifre değiştirildi"
+        },
+        "oidc": {
+            "title": "Tek oturum açma",
+            "defaultProvider": "SSO",
+            "continue": "{provider} ile devam et",
+            "loginDescription": "Hesabına giriş yapmak için {provider} kullan.",
+            "adminLogin": "Yönetici olarak giriş yap",
+            "verifiedTitle": "Doğrulandı",
+            "verifiedDescription": "Bu pencereyi kapatıp Fileship'e dönebilirsin.",
+            "failedTitle": "Doğrulanamadı",
+            "errors": {
+                "unavailable": "Tek oturum açma şu an kullanılamıyor. Biraz sonra tekrar dene ya da bir yöneticiye sor.",
+                "expired": "Giriş çok uzun sürdü ya da başka bir pencerede başlatıldı. Tekrar dene.",
+                "denied": "{provider} ile giriş iptal edildi.",
+                "failed": "{provider} ile giriş yapılamadı. Tekrar dene.",
+                "noAccount": "Bu {provider} hesabına bağlı bir hesap yok. Bir yöneticiye sor ya da başka bir yolla giriş yapıp Ayarlar → Güvenlik'ten bağla.",
+                "conflict": "Bu e-posta adresine sahip hesap zaten başka bir {provider} hesabına bağlı.",
+                "tooManyAttempts": "Çok fazla deneme yapıldı, biraz sonra tekrar dene",
+                "alreadyLinked": "Bu {provider} hesabı zaten başka bir hesaba bağlı.",
+                "wrongAccount": "Hesabına bağlı olan {provider} hesabını kullan.",
+                "wrongAddress": "Tek oturum açmayı kullanmak için Fileship'i panel adresinden aç."
+            }
         }
     },
     "backups": {
@@ -237,7 +259,9 @@
         "passwordNotAllowed": "İki adımlı doğrulama açık, doğrulama uygulamandaki kodu gir",
         "invalidPassword": "Şifre hatalı",
         "invalidPasskey": "Geçiş anahtarı doğrulanamadı",
-        "invalidVerificationType": "Doğrulama yöntemi geçersiz"
+        "invalidVerificationType": "Doğrulama yöntemi geçersiz",
+        "passwordLoginDisabled": "Şifreyle giriş kapalı, tek oturum açmayla giriş yap",
+        "oidcNotVerified": "Önce tek oturum açmayla girişi tamamla"
     },
     "errorsCommon": {
         "invalidBody": "Bazı alanlar geçersiz",
@@ -810,6 +834,11 @@
                 "title": "Webhook'lar",
                 "description": "Kullanıcıların eklediği webhook'lar için kurallar.",
                 "saved": "Webhook ayarları kaydedildi"
+            },
+            "oidc": {
+                "title": "Tek oturum açma (SSO)",
+                "description": "Kullanıcıların Authentik, Authelia, Keycloak, Pocket ID, Zitadel ya da Google gibi bir OpenID Connect sağlayıcısıyla giriş yapmasına izin ver.",
+                "saved": "Tek oturum açma ayarları kaydedildi"
             }
         },
         "fields": {
@@ -854,7 +883,7 @@
             "telemetryEnabled": "Anonim telemetri",
             "telemetryEnabledDescription": "Fileship'in gelişmesine yardımcı olmak için anonim kullanım istatistikleri paylaşılır.",
             "siteUrl": "Panel adresi",
-            "siteUrlDescription": "E-postalardaki bağlantılar bu adrese gider.",
+            "siteUrlDescription": "E-postalardaki bağlantılar ve tek oturum açma bu adresi kullanır.",
             "smtpHost": "SMTP sunucusu",
             "smtpPort": "Port",
             "smtpSecurity": "Şifreleme",
@@ -867,7 +896,19 @@
             "smtpFrom": "Gönderen adresi",
             "smtpFromDescription": "E-postalar bu adresten, site adıyla gönderilir.",
             "webhookPrivateTargets": "Özel adreslere izin ver",
-            "webhookPrivateTargetsDescription": "Webhook'ların localhost'a, özel ağlara ve link-local adreslere ulaşmasına izin verir. Yalnızca tüm kullanıcılara güveniyorsan aç, çünkü webhook'lar böylece ağındaki servislere ulaşabilir."
+            "webhookPrivateTargetsDescription": "Webhook'ların localhost'a, özel ağlara ve link-local adreslere ulaşmasına izin verir. Yalnızca tüm kullanıcılara güveniyorsan aç, çünkü webhook'lar böylece ağındaki servislere ulaşabilir.",
+            "oidcEnabled": "Tek oturum açmayı aç",
+            "oidcEnabledDescription": "Panel adresi, issuer URL'si ve client ID ayarlanınca giriş sayfasına bir düğme eklenir.",
+            "oidcIssuerUrl": "Issuer URL",
+            "oidcIssuerUrlDescription": "Fileship diğer her şeyi sağlayıcının keşif belgesinden okur. Issuer adresini olduğu gibi kopyala, sonunda eğik çizgi varsa onu da.",
+            "oidcClientId": "Client ID",
+            "oidcClientSecret": "Client secret",
+            "oidcButtonLabel": "Sağlayıcı adı",
+            "oidcButtonLabelDescription": "Giriş düğmesinde gösterilir, örneğin Authentik ile devam et.",
+            "oidcAutoRegister": "Hesap oluştur",
+            "oidcAutoRegisterDescription": "Hesabı olmadan giriş yapanlara kaydolma yetkileri ve depolama sınırıyla bir hesap açılır. Kapalıyken yalnızca bağlı hesaplar ve aynı onaylı e-posta adresine sahip hesaplar giriş yapabilir.",
+            "passwordLoginEnabled": "Şifre ve geçiş anahtarıyla giriş",
+            "passwordLoginEnabledDescription": "Kapalıyken yalnızca süper yöneticiler şifre ya da geçiş anahtarıyla giriş yapabilir. Diğer herkes tek oturum açmayı kullanır."
         },
         "ai": {
             "queue": "Kuyruk",
@@ -977,6 +1018,18 @@
             "testDescription": "Yukarıdaki ayarları, kaydetmeden önce de kullanır.",
             "testSent": "Test e-postası gönderildi: {email}",
             "hostRequired": "SMTP sunucusu gerekli"
+        },
+        "oidcIssuerUrlInvalid": "https://auth.example.com/realms/fileship gibi bir adres gir",
+        "oidc": {
+            "redirectUri": "Yönlendirme URI'si",
+            "copyRedirectUri": "Yönlendirme URI'sini kopyala",
+            "redirectUriCopied": "Yönlendirme URI'si kopyalandı",
+            "redirectUriDescription": "Bu adresi sağlayıcındaki Fileship istemcisine ekle.",
+            "siteUrlRequired": "Önce Genel bölümünde panel adresini ayarla.",
+            "test": "Sağlayıcıyı test et",
+            "testDescription": "Yukarıdaki issuer URL'sinin keşif belgesini kaydetmeden önce de okur.",
+            "testButton": "Test et",
+            "testWorks": "Bulundu: {issuer}"
         }
     },
     "integrations": {
@@ -1249,7 +1302,9 @@
             "authenticatorCode": "Doğrulama kodu",
             "usePasskey": "Geçiş anahtarı kullan",
             "submit": "Doğrula",
-            "passkeyFailed": "Geçiş anahtarı doğrulanamadı"
+            "passkeyFailed": "Geçiş anahtarı doğrulanamadı",
+            "oidc": "SSO",
+            "oidcHint": "Açılan pencerede {provider} ile tekrar giriş yap."
         },
         "queue": {
             "uploading": "{n} dosya yükleniyor",
@@ -1416,7 +1471,9 @@
             "resetPassword": "Şifre sıfırlama",
             "requestPasswordReset": "Şifre sıfırlama isteği",
             "createInvite": "Davet oluşturma",
-            "deleteInvite": "Daveti geri çekme"
+            "deleteInvite": "Daveti geri çekme",
+            "linkSso": "SSO bağlama",
+            "unlinkSso": "SSO bağlantısını kaldırma"
         }
     },
     "notes": {
@@ -1549,7 +1606,22 @@
         "name": "Ad",
         "save": "Kaydet",
         "deleteTitle": "{name} adlı geçiş anahtarı silinsin mi?",
-        "deleteDescription": "Bu geçiş anahtarıyla artık giriş yapamazsın."
+        "deleteDescription": "Bu geçiş anahtarıyla artık giriş yapamazsın.",
+        "setPasswordDescription": "{provider} ile giriş yapıyorsun. Onsuz da giriş yapabilmek için bir şifre belirle.",
+        "setPassword": "Şifre belirle",
+        "passwordSet": "Şifre belirlendi",
+        "oidc": "Tek oturum açma",
+        "oidcLinked": "Bağlı",
+        "oidcNotLinked": "Bağlı değil",
+        "oidcDescription": "Şifresiz giriş yapmak için {provider} hesabını bağla.",
+        "oidcLinkedEmail": "{provider} ile {email} olarak giriş yapabilirsin.",
+        "oidcLinkedDescription": "{provider} ile giriş yapabilirsin.",
+        "oidcLink": "Bağla",
+        "oidcUnlink": "Bağlantıyı kaldır",
+        "oidcUnlinkTitle": "{provider} hesabının bağlantısı kaldırılsın mı?",
+        "oidcUnlinkDescription": "Bundan sonra şifrenle ya da geçiş anahtarınla giriş yaparsın.",
+        "oidcUnlinked": "{provider} hesabının bağlantısı kaldırıldı",
+        "oidcLinkedToast": "{provider} hesabı bağlandı"
     },
     "sessions": {
         "title": "Oturumlar",
@@ -2040,5 +2112,13 @@
         "fileInFolder": "{date} · {folder}",
         "openFile": "Aç",
         "moveToTrash": "Çöpe taşı"
+    },
+    "errorsOidc": {
+        "unavailable": "Tek oturum açma şu an kullanılamıyor",
+        "wrongAddress": "Tek oturum açmayı bağlamak için Fileship'i şu adreste aç: {url}",
+        "setPasswordFirst": "Giriş yapmaya devam edebilmek için önce bir şifre belirle ya da geçiş anahtarı ekle",
+        "passwordLoginOff": "Şifreyle giriş kapalı, tek oturum açma olmadan giriş yapamazsın",
+        "notLinked": "Bağlı bir tek oturum açma hesabı yok",
+        "discoveryFailed": "Keşif belgesi okunamadı: {error}"
     }
 }
