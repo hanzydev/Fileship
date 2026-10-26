@@ -197,19 +197,13 @@ const importFolders = async (event: H3Event, source: ImportSource, owners: Map<s
     const paths = folderPathsOf(source.folders);
     const resolvers = new Map<string, ReturnType<typeof createFolderResolver>>();
     const folderIds = new Map<string, string | null>();
-    const ordered = source.folders
-        .filter((folder) => owners.has(folder.userId))
-        .sort((a, b) => paths.get(a.id)!.length - paths.get(b.id)!.length);
 
-    for (const folder of ordered) {
+    for (const folder of source.folders.filter((folder) => owners.has(folder.userId))) {
         const owner = owners.get(folder.userId)!;
-        const resolver = resolvers.get(owner.id) ?? createFolderResolver(event, owner);
+        const resolver = resolvers.get(owner.id) ?? createFolderResolver(event, owner, true);
 
         resolvers.set(owner.id, resolver);
-        folderIds.set(
-            folder.id,
-            await resolver(paths.get(folder.id)!.slice(0, MAX_FOLDER_DEPTH), folder.public),
-        );
+        folderIds.set(folder.id, await resolver(paths.get(folder.id)!.slice(0, MAX_FOLDER_DEPTH)));
     }
 
     return folderIds;

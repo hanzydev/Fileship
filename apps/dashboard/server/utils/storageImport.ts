@@ -169,10 +169,10 @@ export const reportImport = (progress: StorageImportProgress | null) => {
     sendByFilter((user) => !!user?.superAdmin, 'storage:import', storageImport.progress);
 };
 
-export const createFolderResolver = (event: H3Event, owner: User) => {
+export const createFolderResolver = (event: H3Event, owner: User, isPublic = false) => {
     const folders = new Map<string, string>();
 
-    const findFolder = async (path: string[], isPublic = false): Promise<string | null> => {
+    const findFolder = async (path: string[]): Promise<string | null> => {
         if (!path.length) return null;
 
         const key = path.join('/');

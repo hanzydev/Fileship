@@ -24,7 +24,6 @@ export interface ImportSource {
         userId: string;
         name: string;
         parentId: string | null;
-        public: boolean;
     }[];
     files: {
         id: string;
@@ -130,7 +129,6 @@ const readZipline4 = (exported: Row): ImportSource => {
             userId: String(folder.userId),
             name: String(folder.name),
             parentId: folder.parentId ? String(folder.parentId) : null,
-            public: !!folder.public,
         })),
         files: data.files.map((file: Row) => ({
             id: String(file.id),
@@ -184,7 +182,6 @@ const readZipline3 = (exported: Row): ImportSource => {
             userId: String(folder.user),
             name: String(folder.name),
             parentId: null,
-            public: !!folder.public,
         })),
         files: Object.entries<Row>(exported.files).map(([id, file]) => ({
             id,
@@ -264,14 +261,6 @@ const readXBackBone = (db: DatabaseSync): ImportSource => {
 
 const readChibisafe = (db: DatabaseSync): ImportSource => {
     const [settings] = db.prepare('SELECT usersStorageQuota FROM settings LIMIT 1').all();
-    const now = new Date();
-    const publicAlbums = new Set(
-        db
-            .prepare('SELECT albumId, expiresAt FROM links WHERE enabled = 1')
-            .all()
-            .filter((link) => !link.expiresAt || toDate(link.expiresAt)! > now)
-            .map((link) => String(link.albumId)),
-    );
     const fileAlbums = new Map<string, string>();
 
     for (const row of db.prepare('SELECT A, B FROM _albumsTofiles ORDER BY A').all()) {
@@ -301,7 +290,6 @@ const readChibisafe = (db: DatabaseSync): ImportSource => {
                 userId: String(album.userId),
                 name: String(album.name),
                 parentId: null,
-                public: publicAlbums.has(String(album.id)),
             })),
         files: db
             .prepare(
