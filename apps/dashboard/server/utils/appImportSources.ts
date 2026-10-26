@@ -88,6 +88,13 @@ const parseBytes = (value: unknown) => {
     return Number(match[1]) * 1024 ** 'bkmgtp'.indexOf((match[2] || 'b').toLowerCase());
 };
 
+const repairLatin1 = (text: string) => {
+    if (!/[\u0080-\u00ff]/.test(text) || /[\u0100-\uffff]/.test(text)) return text;
+
+    const decoded = Buffer.from(text, 'latin1').toString('utf8');
+    return decoded.includes('\ufffd') ? text : decoded;
+};
+
 const keptHash = (password: unknown) =>
     typeof password === 'string' && password.startsWith('$argon2') ? password : null;
 
@@ -188,7 +195,7 @@ const readZipline3 = (exported: Row): ImportSource => {
             userId: file.user ? String(file.user) : null,
             path: String(file.name),
             slug: String(file.name),
-            name: String(file.original_name || file.name),
+            name: file.original_name ? repairLatin1(String(file.original_name)) : String(file.name),
             size: Number(file.size),
             mimeType: file.type ? String(file.type) : null,
             createdAt: toDate(file.created_at) ?? new Date(),
