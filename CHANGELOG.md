@@ -1,5 +1,99 @@
 # Changelog
 
+## v6.3.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v6.2.0...v6.3.0)
+
+Fileship 6.3 adds single sign-on with OpenID Connect, moves Zipline, XBackBone and Chibisafe instances into Fileship, speaks Spanish, Brazilian Portuguese and Russian, and ships Docker images that are six times smaller to download. It comes with Fileship for Windows 2.1, which signs in through single sign-on, and the Fileship Harbor fixes of 2.0.1 and 2.0.2.
+
+### ✨ Highlights
+
+- **Single sign-on.** Log in with any OpenID Connect provider: Fileship creates an account on the first login, matches an existing one by its confirmed email address, or lets you link your account from the security settings. Password login can be turned off for everyone except super admins ([guide](https://github.com/hanzydev/Fileship/blob/main/docs/configuration.md#single-sign-on)).
+- **Move from Zipline, XBackBone and Chibisafe.** Super admins import another app's accounts, files with their link names and dates, folders, short links and snippets from a storage's menu. Zipline links keep working once the domain points at Fileship ([guide](https://github.com/hanzydev/Fileship/blob/main/docs/migrating.md)).
+- **Three more languages.** Spanish, Brazilian Portuguese and Russian in the dashboard, emails, webhooks, the Windows app and the browser extension, for 12 languages in all. Corrections from native speakers are welcome.
+- **Smaller Docker images.** The Fileship image is 230 MB to download instead of 1.43 GB (918 MB on disk instead of 5.74 GB), the updater agent 446 MB instead of 4.95 GB and the telemetry panel 500 MB instead of 2.77 GB.
+- **Links on phones.** Link cards on small screens have the Open, Edit and Delete menu.
+- **Fileship for Windows 2.1** ([fileship-desktop](https://github.com/hanzydev/fileship-desktop)):
+    - Sign in with single sign-on, link your account and confirm sensitive actions with your provider in the Dashboard window.
+    - Spanish, Brazilian Portuguese and Russian.
+    - Fileship Harbor no longer crashes File Explorer in its folder or duplicates folders it cannot read, sends every delete to the Fileship trash (a deleted folder's files come back when you restore it), keeps edits saved during an upload and files that never reached Fileship, opens notes in full and applies remote changes without reloading everything.
+    - Screenshots whose save to file failed are kept, and new installations go to `Programs\Fileship`.
+
+### 🚀 Enhancements
+
+- **i18n:** Add Spanish, Brazilian Portuguese and Russian ([34743888](https://github.com/hanzydev/Fileship/commit/34743888))
+- **desktop:** Link and confirm single sign-on in the Dashboard window ([e9d06079](https://github.com/hanzydev/Fileship/commit/e9d06079))
+- **ui:** Add Import from another app to the storage menu ([a9a009eb](https://github.com/hanzydev/Fileship/commit/a9a009eb))
+- **api:** Import Zipline, XBackBone and Chibisafe instances ([b7751fa5](https://github.com/hanzydev/Fileship/commit/b7751fa5))
+- **auth:** Add single sign-on with OpenID Connect ([e5031e8d](https://github.com/hanzydev/Fileship/commit/e5031e8d))
+
+### 🔥 Performance
+
+- **desktop:** Decrypt the session token once ([b7a460a2](https://github.com/hanzydev/Fileship/commit/b7a460a2))
+
+### 🩹 Fixes
+
+- **ui:** Keep longer labels inside their space ([9953e496](https://github.com/hanzydev/Fileship/commit/9953e496))
+- **ui:** Show the link actions menu on mobile ([b2c99106](https://github.com/hanzydev/Fileship/commit/b2c99106))
+- **api:** Repair Zipline 3 file names that were stored as Latin-1 ([4a379195](https://github.com/hanzydev/Fileship/commit/4a379195))
+- **api:** Import other apps' folders as public so their file links keep working ([8162d0b8](https://github.com/hanzydev/Fileship/commit/8162d0b8))
+- **desktop:** Refresh stale Harbor note placeholders when Harbor reloads ([74327549](https://github.com/hanzydev/Fileship/commit/74327549))
+- **desktop:** Keep Harbor folder names within Fileship's limit ([602e919e](https://github.com/hanzydev/Fileship/commit/602e919e))
+- **desktop:** Trash folders deleted together in Harbor as one tree ([e0e8ac8b](https://github.com/hanzydev/Fileship/commit/e0e8ac8b))
+- **desktop:** Keep unsynced files when Harbor removes a deleted folder ([40131df2](https://github.com/hanzydev/Fileship/commit/40131df2))
+- **desktop:** Upload edited Harbor files to the folder they are in ([15b624d6](https://github.com/hanzydev/Fileship/commit/15b624d6))
+- **desktop:** Upload files put into a folder Harbor is still creating ([6f331480](https://github.com/hanzydev/Fileship/commit/6f331480))
+- **desktop:** Stop Harbor from creating items for vanished paths ([56394846](https://github.com/hanzydev/Fileship/commit/56394846))
+- **desktop:** Keep Harbor edits made during an upload ([ddc990a2](https://github.com/hanzydev/Fileship/commit/ddc990a2))
+- **desktop:** Keep Harbor registered when its folder cannot be scanned ([9ddd8e69](https://github.com/hanzydev/Fileship/commit/9ddd8e69))
+- **desktop:** Refresh stale Harbor notes instead of hydrating them truncated ([1df5a967](https://github.com/hanzydev/Fileship/commit/1df5a967))
+- **desktop:** Hydrate pinned Harbor files off the watcher thread ([aaacc4f4](https://github.com/hanzydev/Fileship/commit/aaacc4f4))
+- **desktop:** Reconnect the Harbor socket after the server refuses it ([f1457022](https://github.com/hanzydev/Fileship/commit/f1457022))
+- **desktop:** Apply remote folder deletes to Harbor without a reload ([595efa99](https://github.com/hanzydev/Fileship/commit/595efa99))
+- **desktop:** Coalesce Harbor resyncs ([c285963d](https://github.com/hanzydev/Fileship/commit/c285963d))
+- **desktop:** Merge partial file and folder updates in Harbor ([0150bf97](https://github.com/hanzydev/Fileship/commit/0150bf97))
+- **desktop:** Keep Harbor short links intact on click updates ([150092c9](https://github.com/hanzydev/Fileship/commit/150092c9))
+- **desktop:** Use the light theme when Windows has no app theme set ([6aa2d8bc](https://github.com/hanzydev/Fileship/commit/6aa2d8bc))
+- **desktop:** Run one update check at a time ([2e85a451](https://github.com/hanzydev/Fileship/commit/2e85a451))
+- **desktop:** Keep screenshots whose save to file failed ([e16be703](https://github.com/hanzydev/Fileship/commit/e16be703))
+- **desktop:** Fail uploads when a chunk cannot be read in full ([2a8f9847](https://github.com/hanzydev/Fileship/commit/2a8f9847))
+- **desktop:** Send every Harbor delete to the Fileship trash ([9ee22f07](https://github.com/hanzydev/Fileship/commit/9ee22f07))
+- **desktop:** Stop Harbor from crashing File Explorer ([bc765906](https://github.com/hanzydev/Fileship/commit/bc765906))
+- **desktop:** Install new copies to Programs\Fileship ([64e35513](https://github.com/hanzydev/Fileship/commit/64e35513))
+- **desktop:** Stop Harbor from duplicating folders it cannot read ([892e4ee1](https://github.com/hanzydev/Fileship/commit/892e4ee1))
+
+### 💅 Refactors
+
+- **i18n:** Pick plural forms with one shared rule ([8cfd38c2](https://github.com/hanzydev/Fileship/commit/8cfd38c2))
+- **desktop:** Drop Harbor guards for payloads the server never sends ([aa8b065d](https://github.com/hanzydev/Fileship/commit/aa8b065d))
+- **desktop:** Use the host's naming and theme helpers in the recorder ([2628340f](https://github.com/hanzydev/Fileship/commit/2628340f))
+
+### 📖 Documentation
+
+- Note that the slimmed images were only checked on amd64 ([1450e3fe](https://github.com/hanzydev/Fileship/commit/1450e3fe))
+- Note how to test browser links and Keycloak re-authentication in the desktop app ([f3f4aebd](https://github.com/hanzydev/Fileship/commit/f3f4aebd))
+- Add a guide for moving from Zipline, XBackBone and Chibisafe ([f9016bd6](https://github.com/hanzydev/Fileship/commit/f9016bd6))
+- Document single sign-on ([eeb40fab](https://github.com/hanzydev/Fileship/commit/eeb40fab))
+- Add a demo GIF, a comparison with other file hosts and a social preview ([8a6d3446](https://github.com/hanzydev/Fileship/commit/8a6d3446))
+- Link the browser extension on the Chrome Web Store ([54eca6e7](https://github.com/hanzydev/Fileship/commit/54eca6e7))
+- Note the Cloud Files nested delete limit and the Harbor payload rules ([91a71cfd](https://github.com/hanzydev/Fileship/commit/91a71cfd))
+- Describe the Harbor and host fixes for Fileship for Windows 2.0.2 ([ad8587cd](https://github.com/hanzydev/Fileship/commit/ad8587cd))
+
+### 📦 Build
+
+- Deploy only the updater agent's production dependencies ([1ce50844](https://github.com/hanzydev/Fileship/commit/1ce50844))
+- Ship only the server output and a traced Prisma CLI in the images ([8fb12f56](https://github.com/hanzydev/Fileship/commit/8fb12f56))
+- Keep local build outputs and agent files out of the Docker context ([14b7d9b2](https://github.com/hanzydev/Fileship/commit/14b7d9b2))
+
+### 🏡 Chore
+
+- **desktop:** Bump Fileship for Windows to 2.0.2 ([3f20810a](https://github.com/hanzydev/Fileship/commit/3f20810a))
+- **desktop:** Bump Fileship for Windows to 2.0.1 ([01c546f8](https://github.com/hanzydev/Fileship/commit/01c546f8))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v6.2.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v6.1.0...v6.2.0)
