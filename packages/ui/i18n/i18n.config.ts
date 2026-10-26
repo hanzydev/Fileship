@@ -7,6 +7,7 @@ import ja from './locales/ja.json';
 import ko from './locales/ko.json';
 import tr from './locales/tr.json';
 import zh from './locales/zh.json';
+import { pluralIndex } from './plural';
 
 export default defineI18nConfig(() => ({
     fallbackLocale: 'en',
@@ -14,7 +15,6 @@ export default defineI18nConfig(() => ({
     fallbackWarn: false,
     messages: { en, tr, zh, de, fr, it, az, ja, ko },
     pluralRules: {
-        fr: (choice: number, choicesLength: number) =>
-            choicesLength === 2 ? Number(Math.abs(choice) > 1) : Math.min(Math.abs(choice), 2),
+        fr: (choice: number, choicesLength: number) => pluralIndex('fr', choice, choicesLength),
     },
 }));

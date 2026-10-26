@@ -2,6 +2,7 @@ import type { H3Event } from 'h3';
 import { createTransport } from 'nodemailer';
 import { z } from 'zod';
 
+import { pluralIndex } from '@fileship/ui/i18n/plural';
 import { createCoreContext, translate as translateMessage } from '@intlify/core';
 
 type Params = Record<string, string | number>;
@@ -50,6 +51,10 @@ const createTranslator = async (language: Language) => {
         locale: language,
         fallbackLocale: 'en',
         messages: { en: en.default, [language]: messages.default } as any,
+        pluralRules: {
+            [language]: (choice: number, choicesLength: number) =>
+                pluralIndex(language, choice, choicesLength),
+        },
         missingWarn: false,
         fallbackWarn: false,
     });

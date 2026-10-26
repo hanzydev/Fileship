@@ -1,5 +1,7 @@
 import { filesize } from 'filesize';
 
+import { pluralIndex } from '@fileship/ui/i18n/plural';
+
 import { webhookMessages as az } from '~~/i18n/locales/az.json';
 import { webhookMessages as de } from '~~/i18n/locales/de.json';
 import { webhookMessages as en } from '~~/i18n/locales/en.json';
@@ -36,9 +38,7 @@ const translator =
         const message =
             count === undefined || choices.length === 1
                 ? choices[0]!
-                : choices.length === 2
-                  ? choices[Number(language === 'fr' ? count > 1 : count !== 1)]!
-                  : choices[Math.min(count, 2)]!;
+                : choices[pluralIndex(language, count, choices.length)]!;
 
         return message
             .replace(/\{'([^']*)'\}/g, '$1')
