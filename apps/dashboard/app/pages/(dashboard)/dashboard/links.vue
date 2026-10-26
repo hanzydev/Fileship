@@ -90,34 +90,7 @@
                     >
                         <ICopy />
                     </UiButton>
-                    <UiDropdownMenu>
-                        <UiDropdownMenuTrigger as-child>
-                            <UiButton
-                                variant="ghost"
-                                size="icon-sm"
-                                :aria-label="$t('common.more')"
-                            >
-                                <IEllipsis />
-                            </UiButton>
-                        </UiDropdownMenuTrigger>
-                        <UiDropdownMenuContent align="end" class="w-56">
-                            <UiDropdownMenuItem as-child>
-                                <a :href="item.url" target="_blank" rel="noopener noreferrer">
-                                    <IExternalLink />
-                                    {{ $t('links.openTarget') }}
-                                </a>
-                            </UiDropdownMenuItem>
-                            <UiDropdownMenuItem @select="handleOpen(item)">
-                                <IPencil />
-                                {{ $t('links.edit') }}
-                            </UiDropdownMenuItem>
-                            <UiDropdownMenuSeparator />
-                            <UiDropdownMenuItem variant="destructive" @select="handleDelete(item)">
-                                <ITrash2 />
-                                {{ $t('links.delete') }}
-                            </UiDropdownMenuItem>
-                        </UiDropdownMenuContent>
-                    </UiDropdownMenu>
+                    <LinkMenu :link="item" @edit="handleOpen(item)" @delete="handleDelete(item)" />
                 </div>
             </template>
             <template #card-skeleton>
@@ -143,14 +116,11 @@
                         >
                             <ICopy />
                         </UiButton>
-                        <UiButton
-                            variant="ghost"
-                            size="icon-sm"
-                            :aria-label="$t('links.editLink')"
-                            @click="handleOpen(item)"
-                        >
-                            <IPencil />
-                        </UiButton>
+                        <LinkMenu
+                            :link="item"
+                            @edit="handleOpen(item)"
+                            @delete="handleDelete(item)"
+                        />
                     </UiCardContent>
                 </UiCard>
             </template>
