@@ -109,6 +109,28 @@
             "totpDescription": "Ce compte utilise une application d'authentification : saisissez aussi un code de celle-ci.",
             "save": "Changer le mot de passe",
             "success": "Mot de passe changé"
+        },
+        "oidc": {
+            "title": "Authentification unique",
+            "defaultProvider": "SSO",
+            "continue": "Continuer avec {provider}",
+            "loginDescription": "Utilisez {provider} pour vous connecter à votre compte.",
+            "adminLogin": "Se connecter en tant qu'administrateur",
+            "verifiedTitle": "Identité confirmée",
+            "verifiedDescription": "Vous pouvez fermer cette fenêtre et revenir à Fileship.",
+            "failedTitle": "Vérification impossible",
+            "errors": {
+                "unavailable": "L'authentification unique n'est pas disponible pour le moment. Réessayez plus tard ou contactez un administrateur.",
+                "expired": "La connexion a pris trop de temps ou a été lancée dans une autre fenêtre. Réessayez.",
+                "denied": "La connexion avec {provider} a été annulée.",
+                "failed": "Impossible de se connecter avec {provider}. Réessayez.",
+                "noAccount": "Aucun compte n'est lié à ce compte {provider}. Contactez un administrateur, ou connectez-vous autrement et liez-le dans Paramètres → Sécurité.",
+                "conflict": "Le compte associé à cette adresse e-mail est déjà lié à un autre compte {provider}.",
+                "tooManyAttempts": "Trop de tentatives, réessayez plus tard",
+                "alreadyLinked": "Ce compte {provider} est déjà lié à un autre compte.",
+                "wrongAccount": "Utilisez le compte {provider} lié à votre compte.",
+                "wrongAddress": "Ouvrez Fileship à l'adresse de son tableau de bord pour utiliser l'authentification unique."
+            }
         }
     },
     "backups": {
@@ -237,7 +259,9 @@
         "passwordNotAllowed": "L'authentification à deux facteurs est activée, saisissez le code de votre application d'authentification",
         "invalidPassword": "Mot de passe incorrect",
         "invalidPasskey": "Clé d'accès non valide",
-        "invalidVerificationType": "Méthode de vérification non valide"
+        "invalidVerificationType": "Méthode de vérification non valide",
+        "passwordLoginDisabled": "La connexion par mot de passe est désactivée, connectez-vous avec l'authentification unique",
+        "oidcNotVerified": "Terminez d'abord la connexion avec l'authentification unique"
     },
     "errorsCommon": {
         "invalidBody": "Certains champs ne sont pas valides",
@@ -810,6 +834,11 @@
                 "title": "Webhooks",
                 "description": "Règles pour les webhooks des utilisateurs.",
                 "saved": "Paramètres des webhooks enregistrés"
+            },
+            "oidc": {
+                "title": "Authentification unique (SSO)",
+                "description": "Permettez la connexion avec un fournisseur OpenID Connect comme Authentik, Authelia, Keycloak, Pocket ID, Zitadel ou Google.",
+                "saved": "Paramètres d'authentification unique enregistrés"
             }
         },
         "fields": {
@@ -854,7 +883,7 @@
             "telemetryEnabled": "Télémétrie anonyme",
             "telemetryEnabledDescription": "Partager des statistiques d'utilisation anonymes pour aider à améliorer Fileship.",
             "siteUrl": "Adresse du tableau de bord",
-            "siteUrlDescription": "Les liens des e-mails pointent vers cette adresse.",
+            "siteUrlDescription": "Les liens des e-mails et l'authentification unique utilisent cette adresse.",
             "smtpHost": "Serveur SMTP",
             "smtpPort": "Port",
             "smtpSecurity": "Chiffrement",
@@ -867,7 +896,19 @@
             "smtpFrom": "Adresse d'expédition",
             "smtpFromDescription": "Les e-mails sont envoyés depuis cette adresse, au nom du site.",
             "webhookPrivateTargets": "Autoriser les adresses privées",
-            "webhookPrivateTargetsDescription": "Permet aux webhooks d'atteindre localhost, les réseaux privés et les adresses link-local. Activez cette option uniquement si vous faites confiance à tous les utilisateurs, car les webhooks pourraient alors atteindre des services de votre réseau."
+            "webhookPrivateTargetsDescription": "Permet aux webhooks d'atteindre localhost, les réseaux privés et les adresses link-local. Activez cette option uniquement si vous faites confiance à tous les utilisateurs, car les webhooks pourraient alors atteindre des services de votre réseau.",
+            "oidcEnabled": "Activer l'authentification unique",
+            "oidcEnabledDescription": "Ajoute un bouton à la page de connexion une fois l'adresse du tableau de bord, l'URL de l'émetteur et l'ID client définis.",
+            "oidcIssuerUrl": "URL de l'émetteur",
+            "oidcIssuerUrlDescription": "Fileship lit tout le reste dans le document de découverte du fournisseur. Copiez l'émetteur à l'identique, avec la barre oblique finale s'il en a une.",
+            "oidcClientId": "ID client",
+            "oidcClientSecret": "Secret client",
+            "oidcButtonLabel": "Nom du fournisseur",
+            "oidcButtonLabelDescription": "Affiché sur le bouton de connexion, par exemple Continuer avec Authentik.",
+            "oidcAutoRegister": "Créer les comptes",
+            "oidcAutoRegisterDescription": "Les personnes qui se connectent sans compte en reçoivent un avec les autorisations et la limite de stockage de l'inscription. Désactivé, seuls les comptes liés et les comptes ayant la même adresse e-mail confirmée peuvent se connecter.",
+            "passwordLoginEnabled": "Connexion par mot de passe et clé d'accès",
+            "passwordLoginEnabledDescription": "Désactivée, seuls les super administrateurs peuvent se connecter avec un mot de passe ou une clé d'accès. Tous les autres utilisent l'authentification unique."
         },
         "ai": {
             "queue": "File d'attente",
@@ -977,6 +1018,18 @@
             "testDescription": "Utilise les paramètres ci-dessus, même avant leur enregistrement.",
             "testSent": "E-mail de test envoyé à {email}",
             "hostRequired": "Le serveur SMTP est requis"
+        },
+        "oidcIssuerUrlInvalid": "Saisissez une adresse comme https://auth.example.com/realms/fileship",
+        "oidc": {
+            "redirectUri": "URI de redirection",
+            "copyRedirectUri": "Copier l'URI de redirection",
+            "redirectUriCopied": "URI de redirection copiée",
+            "redirectUriDescription": "Ajoutez cette adresse au client Fileship chez votre fournisseur.",
+            "siteUrlRequired": "Définissez d'abord l'adresse du tableau de bord dans Général.",
+            "test": "Tester le fournisseur",
+            "testDescription": "Lit le document de découverte de l'URL de l'émetteur ci-dessus, même avant son enregistrement.",
+            "testButton": "Tester",
+            "testWorks": "Trouvé : {issuer}"
         }
     },
     "integrations": {
@@ -1249,7 +1302,9 @@
             "authenticatorCode": "Code d'authentification",
             "usePasskey": "Utiliser une clé d'accès",
             "submit": "Vérifier",
-            "passkeyFailed": "Impossible de vérifier la clé d'accès"
+            "passkeyFailed": "Impossible de vérifier la clé d'accès",
+            "oidc": "SSO",
+            "oidcHint": "Reconnectez-vous avec {provider} dans la fenêtre qui s'ouvre."
         },
         "queue": {
             "uploading": "Importation de {n} fichier | Importation de {n} fichiers",
@@ -1416,7 +1471,9 @@
             "resetPassword": "Réinitialisation du mot de passe",
             "requestPasswordReset": "Demande de réinitialisation du mot de passe",
             "createInvite": "Création d'une invitation",
-            "deleteInvite": "Retrait d'une invitation"
+            "deleteInvite": "Retrait d'une invitation",
+            "linkSso": "Liaison SSO",
+            "unlinkSso": "Dissociation SSO"
         }
     },
     "notes": {
@@ -1549,7 +1606,22 @@
         "name": "Nom",
         "save": "Enregistrer",
         "deleteTitle": "Supprimer {name} ?",
-        "deleteDescription": "Vous ne pourrez plus vous connecter avec cette clé d'accès."
+        "deleteDescription": "Vous ne pourrez plus vous connecter avec cette clé d'accès.",
+        "setPasswordDescription": "Vous vous connectez avec {provider}. Définissez un mot de passe pour pouvoir aussi vous connecter sans.",
+        "setPassword": "Définir un mot de passe",
+        "passwordSet": "Mot de passe défini",
+        "oidc": "Authentification unique",
+        "oidcLinked": "Lié",
+        "oidcNotLinked": "Non lié",
+        "oidcDescription": "Liez votre compte {provider} pour vous connecter sans mot de passe.",
+        "oidcLinkedEmail": "Vous pouvez vous connecter avec {provider} en tant que {email}.",
+        "oidcLinkedDescription": "Vous pouvez vous connecter avec {provider}.",
+        "oidcLink": "Lier",
+        "oidcUnlink": "Dissocier",
+        "oidcUnlinkTitle": "Dissocier votre compte {provider} ?",
+        "oidcUnlinkDescription": "Vous vous connecterez avec votre mot de passe ou une clé d'accès.",
+        "oidcUnlinked": "Compte {provider} dissocié",
+        "oidcLinkedToast": "Compte {provider} lié"
     },
     "sessions": {
         "title": "Sessions",
@@ -2040,5 +2112,13 @@
         "fileInFolder": "{date} · {folder}",
         "openFile": "Ouvrir",
         "moveToTrash": "Placer dans la corbeille"
+    },
+    "errorsOidc": {
+        "unavailable": "L'authentification unique n'est pas disponible pour le moment",
+        "wrongAddress": "Ouvrez Fileship à l'adresse {url} pour lier l'authentification unique",
+        "setPasswordFirst": "Définissez d'abord un mot de passe ou ajoutez une clé d'accès pour pouvoir encore vous connecter",
+        "passwordLoginOff": "La connexion par mot de passe est désactivée, vous ne pourriez plus vous connecter sans l'authentification unique",
+        "notLinked": "Aucun compte d'authentification unique n'est lié",
+        "discoveryFailed": "Impossible de lire le document de découverte : {error}"
     }
 }

@@ -46,6 +46,7 @@
         "nanoid": "^6.0.2",
         "nodemailer": "^10.2.1",
         "ofetch": "^1.5.1",
+        "openid-client": "^6.8.8",
         "otplib": "^13.5.0",
         "pathe": "^2.0.3",
         "sharp": "^0.35.5",

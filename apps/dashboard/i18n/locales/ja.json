@@ -109,6 +109,28 @@
             "totpDescription": "このアカウントは認証アプリを使用しているため、アプリのコードも入力してください。",
             "save": "パスワードを変更",
             "success": "パスワードを変更しました"
+        },
+        "oidc": {
+            "title": "シングルサインオン",
+            "defaultProvider": "シングルサインオン",
+            "continue": "{provider} で続行",
+            "loginDescription": "{provider} を使ってアカウントにログインしてください。",
+            "adminLogin": "管理者としてログイン",
+            "verifiedTitle": "確認しました",
+            "verifiedDescription": "このウィンドウを閉じて Fileship に戻ってください。",
+            "failedTitle": "確認できませんでした",
+            "errors": {
+                "unavailable": "シングルサインオンは現在利用できません。しばらくしてからもう一度お試しいただくか、管理者にお問い合わせください。",
+                "expired": "ログインに時間がかかりすぎたか、別のウィンドウで開始されました。もう一度お試しください。",
+                "denied": "{provider} でのログインがキャンセルされました。",
+                "failed": "{provider} でログインできませんでした。もう一度お試しください。",
+                "noAccount": "この {provider} アカウントにリンクされたアカウントはありません。管理者に問い合わせるか、別の方法でログインして「設定」→「セキュリティ」でリンクしてください。",
+                "conflict": "このメールアドレスのアカウントは、すでに別の {provider} アカウントにリンクされています。",
+                "tooManyAttempts": "試行回数が多すぎます。しばらくしてからもう一度お試しください",
+                "alreadyLinked": "この {provider} アカウントは、すでに別のアカウントにリンクされています。",
+                "wrongAccount": "アカウントにリンクされている {provider} アカウントを使用してください。",
+                "wrongAddress": "シングルサインオンを使うには、ダッシュボードのアドレスで Fileship を開いてください。"
+            }
         }
     },
     "backups": {
@@ -237,7 +259,9 @@
         "passwordNotAllowed": "2 段階認証が有効になっています。認証アプリのコードを入力してください",
         "invalidPassword": "パスワードが正しくありません",
         "invalidPasskey": "パスキーが無効です",
-        "invalidVerificationType": "確認方法が無効です"
+        "invalidVerificationType": "確認方法が無効です",
+        "passwordLoginDisabled": "パスワードでのログインはオフになっています。シングルサインオンでログインしてください",
+        "oidcNotVerified": "先にシングルサインオンでのログインを完了してください"
     },
     "errorsCommon": {
         "invalidBody": "一部の項目が無効です",
@@ -810,6 +834,11 @@
                 "title": "Webhook",
                 "description": "ユーザーが追加する Webhook のルールを設定します。",
                 "saved": "Webhook の設定を保存しました"
+            },
+            "oidc": {
+                "title": "シングルサインオン",
+                "description": "Authentik、Authelia、Keycloak、Pocket ID、Zitadel、Google などの OpenID Connect プロバイダーでログインできるようにします。",
+                "saved": "シングルサインオンの設定を保存しました"
             }
         },
         "fields": {
@@ -854,7 +883,7 @@
             "telemetryEnabled": "匿名のテレメトリ",
             "telemetryEnabledDescription": "Fileship の改善のため、匿名の使用統計を共有します。",
             "siteUrl": "ダッシュボードのアドレス",
-            "siteUrlDescription": "メール内のリンクはこのアドレスを指します。",
+            "siteUrlDescription": "メール内のリンクとシングルサインオンはこのアドレスを使用します。",
             "smtpHost": "SMTP サーバー",
             "smtpPort": "ポート",
             "smtpSecurity": "暗号化",
@@ -867,7 +896,19 @@
             "smtpFrom": "送信元アドレス",
             "smtpFromDescription": "メールはサイト名を差出人として、このアドレスから送信されます。",
             "webhookPrivateTargets": "プライベートアドレスを許可",
-            "webhookPrivateTargetsDescription": "Webhook から localhost、プライベートネットワーク、リンクローカルアドレスへの送信を許可します。Webhook からネットワーク内のサービスにアクセスできるようになるため、すべてのユーザーを信頼できる場合にのみオンにしてください。"
+            "webhookPrivateTargetsDescription": "Webhook から localhost、プライベートネットワーク、リンクローカルアドレスへの送信を許可します。Webhook からネットワーク内のサービスにアクセスできるようになるため、すべてのユーザーを信頼できる場合にのみオンにしてください。",
+            "oidcEnabled": "シングルサインオンを有効にする",
+            "oidcEnabledDescription": "ダッシュボードのアドレス、発行者 URL、クライアント ID を設定すると、ログインページにボタンが表示されます。",
+            "oidcIssuerUrl": "発行者 URL",
+            "oidcIssuerUrlDescription": "その他の情報は、プロバイダーのディスカバリードキュメントから読み込みます。発行者は末尾のスラッシュも含めて正確にコピーしてください。",
+            "oidcClientId": "クライアント ID",
+            "oidcClientSecret": "クライアントシークレット",
+            "oidcButtonLabel": "プロバイダー名",
+            "oidcButtonLabelDescription": "ログインボタンに表示されます（例：Authentik で続行）。",
+            "oidcAutoRegister": "アカウントを作成",
+            "oidcAutoRegisterDescription": "アカウントを持たない人がログインすると、登録時の権限とストレージ上限でアカウントが作成されます。オフの場合は、リンク済みのアカウントと、同じ確認済みメールアドレスを持つアカウントのみログインできます。",
+            "passwordLoginEnabled": "パスワードとパスキーでのログイン",
+            "passwordLoginEnabledDescription": "オフにすると、パスワードまたはパスキーでログインできるのはスーパー管理者のみになります。ほかのユーザーはシングルサインオンを使用します。"
         },
         "ai": {
             "queue": "キュー",
@@ -977,6 +1018,18 @@
             "testDescription": "保存する前でも、上の設定を使って送信します。",
             "testSent": "{email} にテストメールを送信しました",
             "hostRequired": "SMTP サーバーを入力してください"
+        },
+        "oidcIssuerUrlInvalid": "https://auth.example.com/realms/fileship のようなアドレスを入力してください",
+        "oidc": {
+            "redirectUri": "リダイレクト URI",
+            "copyRedirectUri": "リダイレクト URI をコピー",
+            "redirectUriCopied": "リダイレクト URI をコピーしました",
+            "redirectUriDescription": "このアドレスをプロバイダーの Fileship クライアントに追加してください。",
+            "siteUrlRequired": "先に「一般」でダッシュボードのアドレスを設定してください。",
+            "test": "プロバイダーをテスト",
+            "testDescription": "保存する前でも、上の発行者 URL のディスカバリードキュメントを読み込みます。",
+            "testButton": "テスト",
+            "testWorks": "見つかりました：{issuer}"
         }
     },
     "integrations": {
@@ -1249,7 +1302,9 @@
             "authenticatorCode": "認証アプリのコード",
             "usePasskey": "パスキーを使用",
             "submit": "確認",
-            "passkeyFailed": "パスキーを確認できませんでした"
+            "passkeyFailed": "パスキーを確認できませんでした",
+            "oidc": "SSO",
+            "oidcHint": "開いたウィンドウで {provider} にもう一度ログインしてください。"
         },
         "queue": {
             "uploading": "{n} 個のファイルをアップロードしています",
@@ -1416,7 +1471,9 @@
             "resetPassword": "パスワードをリセット",
             "requestPasswordReset": "パスワードのリセットをリクエスト",
             "createInvite": "招待を作成",
-            "deleteInvite": "招待を取り消し"
+            "deleteInvite": "招待を取り消し",
+            "linkSso": "SSO をリンク",
+            "unlinkSso": "SSO のリンクを解除"
         }
     },
     "notes": {
@@ -1549,7 +1606,22 @@
         "name": "名前",
         "save": "保存",
         "deleteTitle": "{name} を削除しますか？",
-        "deleteDescription": "このパスキーではログインできなくなります。"
+        "deleteDescription": "このパスキーではログインできなくなります。",
+        "setPasswordDescription": "{provider} でログインしています。パスワードを設定すると、{provider} を使わずにログインすることもできます。",
+        "setPassword": "パスワードを設定",
+        "passwordSet": "パスワードを設定しました",
+        "oidc": "シングルサインオン",
+        "oidcLinked": "リンク済み",
+        "oidcNotLinked": "未リンク",
+        "oidcDescription": "{provider} アカウントをリンクすると、パスワードなしでログインできます。",
+        "oidcLinkedEmail": "{provider} を使って {email} としてログインできます。",
+        "oidcLinkedDescription": "{provider} を使ってログインできます。",
+        "oidcLink": "リンク",
+        "oidcUnlink": "リンクを解除",
+        "oidcUnlinkTitle": "{provider} アカウントのリンクを解除しますか？",
+        "oidcUnlinkDescription": "今後はパスワードまたはパスキーでログインします。",
+        "oidcUnlinked": "{provider} アカウントのリンクを解除しました",
+        "oidcLinkedToast": "{provider} アカウントをリンクしました"
     },
     "sessions": {
         "title": "セッション",
@@ -2040,5 +2112,13 @@
         "fileInFolder": "{date} · {folder}",
         "openFile": "開く",
         "moveToTrash": "ゴミ箱に移動"
+    },
+    "errorsOidc": {
+        "unavailable": "シングルサインオンは現在利用できません",
+        "wrongAddress": "シングルサインオンをリンクするには、{url} で Fileship を開いてください",
+        "setPasswordFirst": "ログインできなくならないよう、先にパスワードを設定するかパスキーを追加してください",
+        "passwordLoginOff": "パスワードでのログインがオフのため、シングルサインオンなしではログインできなくなります",
+        "notLinked": "リンクされたシングルサインオンのアカウントはありません",
+        "discoveryFailed": "ディスカバリードキュメントを読み込めませんでした：{error}"
     }
 }

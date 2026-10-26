@@ -7,20 +7,22 @@ import type { UserPermission } from '#shared/prisma/enums';
 
 export const createUser = async (data: {
     username: string;
-    password: string;
+    password?: string;
     permissions?: UserPermission[];
     superAdmin?: boolean;
     limits?: Partial<IUserLimits>;
     email?: string;
+    oidcIdentity?: { issuer: string; subject: string; email: string | null };
 }) => {
     const _createdUser = await prisma.user.create({
         data: {
             username: data.username,
-            password: await hash(data.password),
+            password: data.password ? await hash(data.password) : null,
             permissions: data.permissions,
             superAdmin: data.superAdmin,
             limits: defu(data.limits, defaultUserLimits),
             email: data.email,
+            oidcIdentities: data.oidcIdentity && { create: data.oidcIdentity },
         },
         select: {
             id: true,

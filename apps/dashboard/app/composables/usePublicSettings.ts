@@ -8,7 +8,10 @@ export const usePublicSettings = () => {
         registrationEnabled: false,
         turnstileSiteKey: '',
         aiEnabled: false,
+        oidcButtonLabel: '',
         uploadConcurrency: 4,
         emailEnabled: false,
+        oidcLogin: false,
+        passwordLogin: true,
     }));
 };

@@ -18,7 +18,7 @@ interface PasskeyVerificationData {
 export const verifySession = async (
     event: H3Event,
     verificationData?: {
-        type: 'passkey' | 'totp' | 'password';
+        type: 'passkey' | 'totp' | 'password' | 'oidc';
         data: string | PasskeyVerificationData;
     },
 ) => {
@@ -74,6 +74,10 @@ export const verifySession = async (
                 });
             }
 
+            const settings = await getSettings();
+            const oidcLinked =
+                isOidcConfigured(settings) && !!(await findOidcIdentity(currentUser.id, settings));
+
             throw apiError(400, 'errorsAuth.verificationRequired', undefined, {
                 mfa: {
                     methods: [
@@ -81,9 +85,10 @@ export const verifySession = async (
                             type: 'passkey',
                             ...passkeyMethod,
                         },
-                        {
-                            type: currentUser.totpEnabled ? 'totp' : 'password',
-                        },
+                        currentUser.totpEnabled
+                            ? { type: 'totp' }
+                            : currentUser.password && { type: 'password' },
+                        oidcLinked && { type: 'oidc' },
                     ].filter(Boolean),
                 },
             });
@@ -110,10 +115,9 @@ export const verifySession = async (
                 throw apiError(400, 'errorsAuth.passwordNotAllowed');
             }
 
-            const passwordMatch = await verify(
-                currentUser.password,
-                verificationData.data as string,
-            );
+            const passwordMatch =
+                !!currentUser.password &&
+                (await verify(currentUser.password, verificationData.data as string));
 
             if (!passwordMatch) {
                 throw apiError(401, 'errorsAuth.invalidPassword');
@@ -172,6 +176,8 @@ export const verifySession = async (
                     counter: response.authenticationInfo.newCounter,
                 },
             });
+        } else if (verificationData?.type === 'oidc') {
+            throw apiError(401, 'errorsAuth.oidcNotVerified');
         } else {
             throw apiError(400, 'errorsAuth.invalidVerificationType');
         }

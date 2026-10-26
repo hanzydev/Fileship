@@ -9,11 +9,33 @@
                     <UiCardHeader>
                         <UiCardTitle>{{ $t('auth.login.heading') }}</UiCardTitle>
                         <UiCardDescription>
-                            {{ $t('auth.login.description') }}
+                            {{
+                                showPasswordForm
+                                    ? $t('auth.login.description')
+                                    : $t('auth.oidc.loginDescription', { provider })
+                            }}
                         </UiCardDescription>
                     </UiCardHeader>
                     <UiCardContent>
-                        <form @submit.prevent="handleSubmit">
+                        <UiFieldGroup v-if="!showPasswordForm">
+                            <UiField>
+                                <UiButton as-child>
+                                    <a :href="oidcLoginUrl" @click="isRedirecting = true">
+                                        <UiSpinner v-if="isRedirecting" />
+                                        <ILogIn v-else />
+                                        {{ $t('auth.oidc.continue', { provider }) }}
+                                    </a>
+                                </UiButton>
+                                <UiButton
+                                    variant="ghost"
+                                    type="button"
+                                    @click="isAdminLogin = true"
+                                >
+                                    {{ $t('auth.oidc.adminLogin') }}
+                                </UiButton>
+                            </UiField>
+                        </UiFieldGroup>
+                        <form v-else @submit.prevent="handleSubmit">
                             <UiFieldGroup>
                                 <UiField>
                                     <UiFieldLabel for="username">
@@ -81,6 +103,17 @@
                                             {{ $t('auth.login.passkey') }}
                                         </UiButton>
                                     </ClientOnly>
+                                    <UiButton
+                                        v-if="publicSettings.oidcLogin"
+                                        variant="outline"
+                                        as-child
+                                    >
+                                        <a :href="oidcLoginUrl" @click="isRedirecting = true">
+                                            <UiSpinner v-if="isRedirecting" />
+                                            <ILogIn v-else />
+                                            {{ $t('auth.oidc.continue', { provider }) }}
+                                        </a>
+                                    </UiButton>
                                     <UiFieldDescription
                                         v-if="publicSettings.registrationEnabled"
                                         class="text-center"
@@ -160,8 +193,11 @@ const turnstileRef = ref();
 
 const loggingIn = ref(false);
 const passkeyLoggingIn = ref(false);
+const isRedirecting = ref(false);
+const isAdminLogin = ref(false);
 
 const publicSettings = usePublicSettings();
+const provider = useOidcProvider();
 const { $toast } = useNuxtApp();
 const { t } = useI18n();
 
@@ -178,6 +214,19 @@ const route = useRoute();
 const currentUser = useAuthUser();
 const currentTheme = useTheme();
 const colorMode = useColorMode();
+
+const showPasswordForm = computed(
+    () =>
+        publicSettings.value.passwordLogin || !publicSettings.value.oidcLogin || isAdminLogin.value,
+);
+
+const oidcLoginUrl = computed(() => {
+    const redirectTo = route.query.redirectTo;
+
+    return typeof redirectTo === 'string' && /^\/(?![/\\])/.test(redirectTo)
+        ? `/api/auth/oidc/login?${new URLSearchParams({ redirectTo })}`
+        : '/api/auth/oidc/login';
+});
 
 const handleLoggedIn = async (user: any, session: any, messageKey: string) => {
     currentUser.value = {
@@ -275,6 +324,14 @@ const handlePasskeyLogin = async () => {
 
     passkeyLoggingIn.value = false;
 };
+
+onMounted(() => {
+    const status = route.query.sso;
+    if (typeof status !== 'string') return;
+
+    $toast.error(t(oidcErrorKey(status), { provider: provider.value }));
+    navigateTo({ query: { ...route.query, sso: undefined } }, { replace: true });
+});
 
 definePageMeta({
     middleware: 'guest-only',

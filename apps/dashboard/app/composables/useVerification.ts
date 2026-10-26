@@ -1,7 +1,7 @@
 import type { PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/browser';
 
 export type VerificationMethod =
-    | { type: 'password' | 'totp' }
+    | { type: 'password' | 'totp' | 'oidc' }
     | {
           type: 'passkey';
           ticket: string;

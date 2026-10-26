@@ -109,6 +109,28 @@
             "totpDescription": "此账户使用了身份验证器应用，请同时输入应用中的验证码。",
             "save": "更改密码",
             "success": "密码已更改"
+        },
+        "oidc": {
+            "title": "单点登录",
+            "defaultProvider": "单点登录",
+            "continue": "通过 {provider} 继续",
+            "loginDescription": "使用 {provider} 登录你的账户。",
+            "adminLogin": "以管理员身份登录",
+            "verifiedTitle": "验证成功",
+            "verifiedDescription": "你可以关闭此窗口并返回 Fileship。",
+            "failedTitle": "验证失败",
+            "errors": {
+                "unavailable": "单点登录暂时不可用。请稍后再试或联系管理员。",
+                "expired": "登录耗时过长，或是在其他窗口中发起的。请重试。",
+                "denied": "已取消通过 {provider} 登录。",
+                "failed": "无法通过 {provider} 登录。请重试。",
+                "noAccount": "没有账户关联到此 {provider} 账户。请联系管理员，或用其他方式登录后在“设置 → 安全”中关联。",
+                "conflict": "使用此邮箱地址的账户已关联到另一个 {provider} 账户。",
+                "tooManyAttempts": "尝试次数过多，请稍后再试",
+                "alreadyLinked": "此 {provider} 账户已关联到另一个账户。",
+                "wrongAccount": "请使用已关联到你账户的 {provider} 账户。",
+                "wrongAddress": "请通过控制台地址打开 Fileship 以使用单点登录。"
+            }
         }
     },
     "backups": {
@@ -237,7 +259,9 @@
         "passwordNotAllowed": "已启用双重验证，请输入身份验证器应用中的验证码",
         "invalidPassword": "密码错误",
         "invalidPasskey": "通行密钥无效",
-        "invalidVerificationType": "验证方式无效"
+        "invalidVerificationType": "验证方式无效",
+        "passwordLoginDisabled": "密码登录已关闭，请使用单点登录",
+        "oidcNotVerified": "请先完成单点登录"
     },
     "errorsCommon": {
         "invalidBody": "部分字段无效",
@@ -810,6 +834,11 @@
                 "title": "Webhook",
                 "description": "用户添加的 Webhook 的规则。",
                 "saved": "Webhook 设置已保存"
+            },
+            "oidc": {
+                "title": "单点登录",
+                "description": "允许用户通过 Authentik、Authelia、Keycloak、Pocket ID、Zitadel 或 Google 等 OpenID Connect 提供方登录。",
+                "saved": "单点登录设置已保存"
             }
         },
         "fields": {
@@ -854,7 +883,7 @@
             "telemetryEnabled": "匿名遥测",
             "telemetryEnabledDescription": "分享匿名使用统计，帮助改进 Fileship。",
             "siteUrl": "控制台地址",
-            "siteUrlDescription": "邮件中的链接指向此地址。",
+            "siteUrlDescription": "邮件中的链接和单点登录都使用此地址。",
             "smtpHost": "SMTP 服务器",
             "smtpPort": "端口",
             "smtpSecurity": "加密方式",
@@ -867,7 +896,19 @@
             "smtpFrom": "发件地址",
             "smtpFromDescription": "邮件将以站点名称从此地址发出。",
             "webhookPrivateTargets": "允许私有地址",
-            "webhookPrivateTargetsDescription": "允许 Webhook 访问 localhost、私有网络和链路本地地址。开启后 Webhook 可以访问你网络中的服务，因此只有在信任所有用户时才开启。"
+            "webhookPrivateTargetsDescription": "允许 Webhook 访问 localhost、私有网络和链路本地地址。开启后 Webhook 可以访问你网络中的服务，因此只有在信任所有用户时才开启。",
+            "oidcEnabled": "启用单点登录",
+            "oidcEnabledDescription": "设置控制台地址、颁发者 URL 和客户端 ID 后，登录页会显示登录按钮。",
+            "oidcIssuerUrl": "颁发者 URL",
+            "oidcIssuerUrlDescription": "其他信息都从提供方的发现文档中读取。请完整复制颁发者，包括末尾的斜杠（如有）。",
+            "oidcClientId": "客户端 ID",
+            "oidcClientSecret": "客户端密钥",
+            "oidcButtonLabel": "提供方名称",
+            "oidcButtonLabelDescription": "显示在登录按钮上，例如“通过 Authentik 继续”。",
+            "oidcAutoRegister": "自动创建账户",
+            "oidcAutoRegisterDescription": "没有账户的用户登录时，会按注册权限和存储上限为其创建账户。关闭后，只有已关联的账户和确认邮箱相同的账户可以登录。",
+            "passwordLoginEnabled": "密码和通行密钥登录",
+            "passwordLoginEnabledDescription": "关闭后，只有超级管理员可以使用密码或通行密钥登录，其他用户都使用单点登录。"
         },
         "ai": {
             "queue": "队列",
@@ -977,6 +1018,18 @@
             "testDescription": "使用上方的设置发送，无需先保存。",
             "testSent": "测试邮件已发送至 {email}",
             "hostRequired": "请输入 SMTP 服务器"
+        },
+        "oidcIssuerUrlInvalid": "请输入类似 https://auth.example.com/realms/fileship 的地址",
+        "oidc": {
+            "redirectUri": "重定向 URI",
+            "copyRedirectUri": "复制重定向 URI",
+            "redirectUriCopied": "重定向 URI 已复制",
+            "redirectUriDescription": "请将此地址添加到提供方的 Fileship 客户端中。",
+            "siteUrlRequired": "请先在“常规”中设置控制台地址。",
+            "test": "测试提供方",
+            "testDescription": "读取上方颁发者 URL 的发现文档，无需先保存。",
+            "testButton": "测试",
+            "testWorks": "已找到：{issuer}"
         }
     },
     "integrations": {
@@ -1249,7 +1302,9 @@
             "authenticatorCode": "身份验证器验证码",
             "usePasskey": "使用通行密钥",
             "submit": "验证",
-            "passkeyFailed": "通行密钥验证失败"
+            "passkeyFailed": "通行密钥验证失败",
+            "oidc": "单点登录",
+            "oidcHint": "请在打开的窗口中重新通过 {provider} 登录。"
         },
         "queue": {
             "uploading": "正在上传 {n} 个文件",
@@ -1416,7 +1471,9 @@
             "resetPassword": "重置密码",
             "requestPasswordReset": "请求重置密码",
             "createInvite": "创建邀请",
-            "deleteInvite": "撤回邀请"
+            "deleteInvite": "撤回邀请",
+            "linkSso": "关联 SSO",
+            "unlinkSso": "取消关联 SSO"
         }
     },
     "notes": {
@@ -1549,7 +1606,22 @@
         "name": "名称",
         "save": "保存",
         "deleteTitle": "要删除 {name} 吗？",
-        "deleteDescription": "删除后将无法再使用此通行密钥登录。"
+        "deleteDescription": "删除后将无法再使用此通行密钥登录。",
+        "setPasswordDescription": "你正在通过 {provider} 登录。设置密码后，也可以不通过它登录。",
+        "setPassword": "设置密码",
+        "passwordSet": "密码已设置",
+        "oidc": "单点登录",
+        "oidcLinked": "已关联",
+        "oidcNotLinked": "未关联",
+        "oidcDescription": "关联你的 {provider} 账户，无需密码即可登录。",
+        "oidcLinkedEmail": "你可以通过 {provider} 以 {email} 的身份登录。",
+        "oidcLinkedDescription": "你可以通过 {provider} 登录。",
+        "oidcLink": "关联",
+        "oidcUnlink": "取消关联",
+        "oidcUnlinkTitle": "取消关联你的 {provider} 账户？",
+        "oidcUnlinkDescription": "之后你将使用密码或通行密钥登录。",
+        "oidcUnlinked": "已取消关联你的 {provider} 账户",
+        "oidcLinkedToast": "已关联你的 {provider} 账户"
     },
     "sessions": {
         "title": "会话",
@@ -2040,5 +2112,13 @@
         "fileInFolder": "{date} · {folder}",
         "openFile": "打开",
         "moveToTrash": "移到回收站"
+    },
+    "errorsOidc": {
+        "unavailable": "单点登录暂时不可用",
+        "wrongAddress": "请在 {url} 打开 Fileship 以关联单点登录",
+        "setPasswordFirst": "请先设置密码或添加通行密钥，以便你仍能登录",
+        "passwordLoginOff": "密码登录已关闭，取消关联后你将无法登录",
+        "notLinked": "未关联单点登录账户",
+        "discoveryFailed": "无法读取发现文档：{error}"
     }
 }

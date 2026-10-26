@@ -44,6 +44,10 @@ export default defineEventHandler(async (event) => {
         throw apiError(401, 'errorsAuth.invalidCredentials');
     }
 
+    if (!canLogInWithPassword(findUserByUsername, await getSettings())) {
+        throw apiError(403, 'errorsAuth.passwordLoginDisabled');
+    }
+
     if (findUserByUsername.totpEnabled) {
         if (!body.data.totp) {
             throw apiError(400, 'errorsAuth.totpRequired', undefined, { totpRequired: true });

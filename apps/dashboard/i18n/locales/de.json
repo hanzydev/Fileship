@@ -109,6 +109,28 @@
             "totpDescription": "Dieses Konto nutzt eine Authenticator-App. Gib auch einen Code daraus ein.",
             "save": "Passwort ändern",
             "success": "Passwort geändert"
+        },
+        "oidc": {
+            "title": "Single Sign-On",
+            "defaultProvider": "Single Sign-On",
+            "continue": "Weiter mit {provider}",
+            "loginDescription": "Melde dich mit {provider} bei deinem Konto an.",
+            "adminLogin": "Als Administrator anmelden",
+            "verifiedTitle": "Bestätigt",
+            "verifiedDescription": "Du kannst dieses Fenster schließen und zu Fileship zurückkehren.",
+            "failedTitle": "Bestätigung fehlgeschlagen",
+            "errors": {
+                "unavailable": "Single Sign-On ist gerade nicht verfügbar. Versuche es später erneut oder wende dich an einen Administrator.",
+                "expired": "Die Anmeldung hat zu lange gedauert oder wurde in einem anderen Fenster gestartet. Versuche es erneut.",
+                "denied": "Die Anmeldung mit {provider} wurde abgebrochen.",
+                "failed": "Anmeldung mit {provider} fehlgeschlagen. Versuche es erneut.",
+                "noAccount": "Mit diesem {provider}-Konto ist kein Konto verknüpft. Wende dich an einen Administrator oder melde dich anders an und verknüpfe es unter Einstellungen → Sicherheit.",
+                "conflict": "Das Konto mit dieser E-Mail-Adresse ist bereits mit einem anderen {provider}-Konto verknüpft.",
+                "tooManyAttempts": "Zu viele Versuche, versuche es später erneut",
+                "alreadyLinked": "Dieses {provider}-Konto ist bereits mit einem anderen Konto verknüpft.",
+                "wrongAccount": "Verwende das {provider}-Konto, das mit deinem Konto verknüpft ist.",
+                "wrongAddress": "Öffne Fileship unter seiner Dashboard-Adresse, um Single Sign-On zu verwenden."
+            }
         }
     },
     "backups": {
@@ -237,7 +259,9 @@
         "passwordNotAllowed": "Die Zwei-Faktor-Authentifizierung ist aktiviert, gib den Code aus deiner Authenticator-App ein",
         "invalidPassword": "Falsches Passwort",
         "invalidPasskey": "Ungültiger Passkey",
-        "invalidVerificationType": "Ungültige Bestätigungsmethode"
+        "invalidVerificationType": "Ungültige Bestätigungsmethode",
+        "passwordLoginDisabled": "Die Anmeldung mit Passwort ist deaktiviert, melde dich mit Single Sign-On an",
+        "oidcNotVerified": "Schließe zuerst die Anmeldung mit Single Sign-On ab"
     },
     "errorsCommon": {
         "invalidBody": "Einige Felder sind ungültig",
@@ -810,6 +834,11 @@
                 "title": "Webhooks",
                 "description": "Regeln für die Webhooks der Benutzer.",
                 "saved": "Webhook-Einstellungen gespeichert"
+            },
+            "oidc": {
+                "title": "Single Sign-On",
+                "description": "Lass Leute sich mit einem OpenID-Connect-Anbieter wie Authentik, Authelia, Keycloak, Pocket ID, Zitadel oder Google anmelden.",
+                "saved": "Single-Sign-On-Einstellungen gespeichert"
             }
         },
         "fields": {
@@ -854,7 +883,7 @@
             "telemetryEnabled": "Anonyme Telemetrie",
             "telemetryEnabledDescription": "Teile anonyme Nutzungsstatistiken, um Fileship zu verbessern.",
             "siteUrl": "Dashboard-Adresse",
-            "siteUrlDescription": "Links in E-Mails führen zu dieser Adresse.",
+            "siteUrlDescription": "Links in E-Mails und Single Sign-On verwenden diese Adresse.",
             "smtpHost": "SMTP-Server",
             "smtpPort": "Port",
             "smtpSecurity": "Verschlüsselung",
@@ -867,7 +896,19 @@
             "smtpFrom": "Absenderadresse",
             "smtpFromDescription": "E-Mails werden von dieser Adresse mit dem Website-Namen als Absender gesendet.",
             "webhookPrivateTargets": "Private Adressen erlauben",
-            "webhookPrivateTargetsDescription": "Erlaubt Webhooks, localhost, private Netzwerke und Link-Local-Adressen zu erreichen. Schalte es nur ein, wenn du allen Benutzern vertraust, denn Webhooks könnten dann Dienste in deinem Netzwerk erreichen."
+            "webhookPrivateTargetsDescription": "Erlaubt Webhooks, localhost, private Netzwerke und Link-Local-Adressen zu erreichen. Schalte es nur ein, wenn du allen Benutzern vertraust, denn Webhooks könnten dann Dienste in deinem Netzwerk erreichen.",
+            "oidcEnabled": "Single Sign-On aktivieren",
+            "oidcEnabledDescription": "Fügt der Anmeldeseite eine Schaltfläche hinzu, sobald Dashboard-Adresse, Issuer-URL und Client-ID festgelegt sind.",
+            "oidcIssuerUrl": "Issuer-URL",
+            "oidcIssuerUrlDescription": "Alles andere liest Fileship aus dem Discovery-Dokument des Anbieters. Kopiere den Issuer genau, auch mit abschließendem Schrägstrich, falls vorhanden.",
+            "oidcClientId": "Client-ID",
+            "oidcClientSecret": "Client-Secret",
+            "oidcButtonLabel": "Name des Anbieters",
+            "oidcButtonLabelDescription": "Steht auf der Anmeldeschaltfläche, zum Beispiel Weiter mit Authentik.",
+            "oidcAutoRegister": "Konten erstellen",
+            "oidcAutoRegisterDescription": "Wer sich ohne Konto anmeldet, bekommt eines mit den Berechtigungen und dem Speicherlimit der Registrierung. Ist die Option aus, können sich nur verknüpfte Konten und Konten mit derselben bestätigten E-Mail-Adresse anmelden.",
+            "passwordLoginEnabled": "Anmeldung mit Passwort und Passkey",
+            "passwordLoginEnabledDescription": "Ist die Option aus, können sich nur Super-Admins mit Passwort oder Passkey anmelden. Alle anderen verwenden Single Sign-On."
         },
         "ai": {
             "queue": "Warteschlange",
@@ -977,6 +1018,18 @@
             "testDescription": "Verwendet die Einstellungen oben, auch bevor du sie speicherst.",
             "testSent": "Test-E-Mail an {email} gesendet",
             "hostRequired": "SMTP-Server ist erforderlich"
+        },
+        "oidcIssuerUrlInvalid": "Gib eine Adresse wie https://auth.example.com/realms/fileship ein",
+        "oidc": {
+            "redirectUri": "Weiterleitungs-URI",
+            "copyRedirectUri": "Weiterleitungs-URI kopieren",
+            "redirectUriCopied": "Weiterleitungs-URI kopiert",
+            "redirectUriDescription": "Trage diese Adresse beim Fileship-Client deines Anbieters ein.",
+            "siteUrlRequired": "Lege zuerst unter Allgemein die Dashboard-Adresse fest.",
+            "test": "Anbieter testen",
+            "testDescription": "Liest das Discovery-Dokument der Issuer-URL oben, auch bevor du sie speicherst.",
+            "testButton": "Testen",
+            "testWorks": "Gefunden: {issuer}"
         }
     },
     "integrations": {
@@ -1249,7 +1302,9 @@
             "authenticatorCode": "Code aus der Authenticator-App",
             "usePasskey": "Passkey verwenden",
             "submit": "Bestätigen",
-            "passkeyFailed": "Passkey konnte nicht bestätigt werden"
+            "passkeyFailed": "Passkey konnte nicht bestätigt werden",
+            "oidc": "Single Sign-On",
+            "oidcHint": "Melde dich im neuen Fenster erneut mit {provider} an."
         },
         "queue": {
             "uploading": "{n} Datei wird hochgeladen | {n} Dateien werden hochgeladen",
@@ -1416,7 +1471,9 @@
             "resetPassword": "Passwort zurückgesetzt",
             "requestPasswordReset": "Zurücksetzen des Passworts angefordert",
             "createInvite": "Einladung erstellt",
-            "deleteInvite": "Einladung zurückgezogen"
+            "deleteInvite": "Einladung zurückgezogen",
+            "linkSso": "SSO verknüpft",
+            "unlinkSso": "SSO getrennt"
         }
     },
     "notes": {
@@ -1549,7 +1606,22 @@
         "name": "Name",
         "save": "Speichern",
         "deleteTitle": "{name} löschen?",
-        "deleteDescription": "Du kannst dich dann nicht mehr mit diesem Passkey anmelden."
+        "deleteDescription": "Du kannst dich dann nicht mehr mit diesem Passkey anmelden.",
+        "setPasswordDescription": "Du meldest dich mit {provider} an. Lege ein Passwort fest, um dich auch ohne anzumelden.",
+        "setPassword": "Passwort festlegen",
+        "passwordSet": "Passwort festgelegt",
+        "oidc": "Single Sign-On",
+        "oidcLinked": "Verknüpft",
+        "oidcNotLinked": "Nicht verknüpft",
+        "oidcDescription": "Verknüpfe dein {provider}-Konto, um dich ohne Passwort anzumelden.",
+        "oidcLinkedEmail": "Du kannst dich mit {provider} als {email} anmelden.",
+        "oidcLinkedDescription": "Du kannst dich mit {provider} anmelden.",
+        "oidcLink": "Verknüpfen",
+        "oidcUnlink": "Trennen",
+        "oidcUnlinkTitle": "Dein {provider}-Konto trennen?",
+        "oidcUnlinkDescription": "Du meldest dich dann mit deinem Passwort oder einem Passkey an.",
+        "oidcUnlinked": "Dein {provider}-Konto wurde getrennt",
+        "oidcLinkedToast": "Dein {provider}-Konto wurde verknüpft"
     },
     "sessions": {
         "title": "Sitzungen",
@@ -2040,5 +2112,13 @@
         "fileInFolder": "{date} · {folder}",
         "openFile": "Öffnen",
         "moveToTrash": "In den Papierkorb verschieben"
+    },
+    "errorsOidc": {
+        "unavailable": "Single Sign-On ist gerade nicht verfügbar",
+        "wrongAddress": "Öffne Fileship unter {url}, um Single Sign-On zu verknüpfen",
+        "setPasswordFirst": "Lege zuerst ein Passwort fest oder füge einen Passkey hinzu, damit du dich weiterhin anmelden kannst",
+        "passwordLoginOff": "Die Anmeldung mit Passwort ist deaktiviert, ohne Single Sign-On könntest du dich nicht mehr anmelden",
+        "notLinked": "Kein Single-Sign-On-Konto verknüpft",
+        "discoveryFailed": "Discovery-Dokument konnte nicht gelesen werden: {error}"
     }
 }

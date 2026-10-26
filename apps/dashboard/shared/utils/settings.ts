@@ -15,6 +15,17 @@ export const settingsSchema = z.object({
         z.enum([UserPermission.UploadFiles, UserPermission.TakeNotes, UserPermission.ShortenLinks]),
     ),
     registrationUsableSpace: z.number().int().min(-1),
+    oidcEnabled: z.boolean(),
+    oidcIssuerUrl: z
+        .string()
+        .trim()
+        .max(512)
+        .regex(/^(https?:\/\/[^\s/?#]+[^\s?#]*)?$/i, 'instance.oidcIssuerUrlInvalid'),
+    oidcClientId: z.string().trim().max(256),
+    oidcClientSecret: z.string().trim().max(512),
+    oidcButtonLabel: z.string().trim().max(32),
+    oidcAutoRegister: z.boolean(),
+    passwordLoginEnabled: z.boolean(),
     turnstileSiteKey: z.string().trim().max(256),
     turnstileSecretKey: z.string().trim().max(256),
     aiEnabled: z.boolean(),
@@ -45,6 +56,7 @@ export type InstanceSettingKey = keyof InstanceSettings;
 export const secretSettingKeys = [
     'turnstileSecretKey',
     'smtpPassword',
+    'oidcClientSecret',
 ] as const satisfies InstanceSettingKey[];
 
 export type SecretSettingKey = (typeof secretSettingKeys)[number];
@@ -58,9 +70,12 @@ export const publicSettingKeys = [
     'registrationEnabled',
     'turnstileSiteKey',
     'aiEnabled',
+    'oidcButtonLabel',
 ] as const satisfies InstanceSettingKey[];
 
 export type PublicSettings = Pick<InstanceSettings, (typeof publicSettingKeys)[number]> & {
     uploadConcurrency: number;
     emailEnabled: boolean;
+    oidcLogin: boolean;
+    passwordLogin: boolean;
 };

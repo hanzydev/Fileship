@@ -247,6 +247,65 @@
                                         </UiField>
                                     </template>
 
+                                    <template v-if="section.id === 'oidc'">
+                                        <UiFieldSeparator class="sm:col-span-2" />
+                                        <UiField class="sm:col-span-2">
+                                            <UiFieldLabel for="oidc-redirect-uri">
+                                                {{ $t('instance.oidc.redirectUri') }}
+                                            </UiFieldLabel>
+                                            <div class="flex gap-2">
+                                                <UiInput
+                                                    id="oidc-redirect-uri"
+                                                    :model-value="oidcRedirectUri"
+                                                    readonly
+                                                />
+                                                <UiButton
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="icon"
+                                                    :aria-label="
+                                                        $t('instance.oidc.copyRedirectUri')
+                                                    "
+                                                    :disabled="!oidcRedirectUri"
+                                                    @click="handleCopyRedirectUri"
+                                                >
+                                                    <ICopy />
+                                                </UiButton>
+                                            </div>
+                                            <UiFieldDescription>
+                                                {{
+                                                    oidcRedirectUri
+                                                        ? $t('instance.oidc.redirectUriDescription')
+                                                        : $t('instance.oidc.siteUrlRequired')
+                                                }}
+                                            </UiFieldDescription>
+                                        </UiField>
+                                        <UiField
+                                            orientation="horizontal"
+                                            class="has-[>[data-slot=field-content]]:items-center sm:col-span-2"
+                                        >
+                                            <UiFieldContent>
+                                                <UiFieldLabel>
+                                                    {{ $t('instance.oidc.test') }}
+                                                </UiFieldLabel>
+                                                <UiFieldDescription>
+                                                    {{ $t('instance.oidc.testDescription') }}
+                                                </UiFieldDescription>
+                                            </UiFieldContent>
+                                            <UiButton
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                :disabled="!form.oidcIssuerUrl || isTestingOidc"
+                                                @click="handleTestOidc"
+                                            >
+                                                <UiSpinner v-if="isTestingOidc" />
+                                                <IPlugZap v-else />
+                                                {{ $t('instance.oidc.testButton') }}
+                                            </UiButton>
+                                        </UiField>
+                                    </template>
+
                                     <template v-if="section.id === 'ai' && aiStatus">
                                         <UiFieldSeparator class="sm:col-span-2" />
                                         <UiField
@@ -883,6 +942,13 @@ const sections: SettingSection[] = [
         fields: [
             { key: 'siteName', label: 'instance.fields.siteName', type: 'text' },
             {
+                key: 'siteUrl',
+                label: 'instance.fields.siteUrl',
+                type: 'text',
+                placeholder: 'https://files.example.com',
+                description: 'instance.fields.siteUrlDescription',
+            },
+            {
                 key: 'returnHttps',
                 label: 'instance.fields.returnHttps',
                 type: 'select',
@@ -961,6 +1027,55 @@ const sections: SettingSection[] = [
         ],
     },
     {
+        id: 'oidc',
+        fields: [
+            {
+                key: 'oidcEnabled',
+                label: 'instance.fields.oidcEnabled',
+                type: 'switch',
+                description: 'instance.fields.oidcEnabledDescription',
+            },
+            {
+                key: 'oidcIssuerUrl',
+                label: 'instance.fields.oidcIssuerUrl',
+                type: 'text',
+                placeholder: 'https://auth.example.com/realms/fileship',
+                description: 'instance.fields.oidcIssuerUrlDescription',
+            },
+            {
+                key: 'oidcClientId',
+                label: 'instance.fields.oidcClientId',
+                type: 'text',
+                half: true,
+            },
+            {
+                key: 'oidcClientSecret',
+                label: 'instance.fields.oidcClientSecret',
+                type: 'secret',
+                half: true,
+            },
+            {
+                key: 'oidcButtonLabel',
+                label: 'instance.fields.oidcButtonLabel',
+                type: 'text',
+                placeholder: 'Authentik',
+                description: 'instance.fields.oidcButtonLabelDescription',
+            },
+            {
+                key: 'oidcAutoRegister',
+                label: 'instance.fields.oidcAutoRegister',
+                type: 'switch',
+                description: 'instance.fields.oidcAutoRegisterDescription',
+            },
+            {
+                key: 'passwordLoginEnabled',
+                label: 'instance.fields.passwordLoginEnabled',
+                type: 'switch',
+                description: 'instance.fields.passwordLoginEnabledDescription',
+            },
+        ],
+    },
+    {
         id: 'turnstile',
         fields: [
             { key: 'turnstileSiteKey', label: 'instance.fields.turnstileSiteKey', type: 'text' },
@@ -1020,13 +1135,6 @@ const sections: SettingSection[] = [
     {
         id: 'email',
         fields: [
-            {
-                key: 'siteUrl',
-                label: 'instance.fields.siteUrl',
-                type: 'text',
-                placeholder: 'https://files.example.com',
-                description: 'instance.fields.siteUrlDescription',
-            },
             {
                 key: 'smtpHost',
                 label: 'instance.fields.smtpHost',
@@ -1105,8 +1213,8 @@ const sections: SettingSection[] = [
 ];
 
 const columns = [
-    [sections[0]!, sections[1]!, sections[2]!, sections[5]!],
-    [sections[4]!, sections[3]!, sections[6]!, sections[7]!],
+    [sections[0]!, sections[1]!, sections[2]!, sections[6]!],
+    [sections[5]!, sections[4]!, sections[3]!, sections[7]!, sections[8]!],
 ];
 
 const storageTypeLabels = computed(() => ({
@@ -1389,6 +1497,38 @@ const handleSendTest = async () => {
     }
 
     isSendingTest.value = false;
+};
+
+const oidcRedirectUri = computed(() =>
+    data.value?.values.siteUrl
+        ? new URL('/api/auth/oidc/callback', data.value.values.siteUrl).href
+        : '',
+);
+
+const isTestingOidc = ref(false);
+
+const handleCopyRedirectUri = async () => {
+    await copy(oidcRedirectUri.value);
+    $toast.success(t('instance.oidc.redirectUriCopied'));
+};
+
+const handleTestOidc = async () => {
+    isTestingOidc.value = true;
+    formErrors.value = null;
+
+    try {
+        const { issuer } = await $fetch('/api/settings/oidc-test', {
+            method: 'POST',
+            body: { oidcIssuerUrl: form.oidcIssuerUrl },
+        });
+
+        $toast.success(t('instance.oidc.testWorks', { issuer }));
+    } catch (error: any) {
+        formErrors.value = error.data?.data?.formErrors;
+        if (!formErrors.value) $toast.error(getErrorMessage(error));
+    }
+
+    isTestingOidc.value = false;
 };
 
 const handleRetryAi = async () => {

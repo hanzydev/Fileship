@@ -19,6 +19,8 @@ const AllowedActions = [
     'TOTP',
     'Add Passkey',
     'Delete Passkey',
+    'Link SSO',
+    'Unlink SSO',
     'Revoke Session',
     'Impersonate',
     'Regenerate Upload Token',
