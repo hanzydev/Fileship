@@ -364,6 +364,8 @@
         "migrationRunning": "Köçürmə artıq gedir",
         "waitForImport": "İdxalın bitməsini gözlə",
         "importRunning": "İdxal artıq gedir",
+        "importSourceUnknown": "Bu fayl Zipline ixracı, XBackBone və ya Chibisafe verilənlər bazası deyil",
+        "importSourceMissing": "Seçilən fayl artıq yoxdur, yenidən seç",
         "waitForMigration": "Yaddaş köçürməsinin bitməsini gözlə",
         "nothingToUpdate": "Yenilənəcək heç nə yoxdur",
         "aiDisabled": "Süni intellekt funksiyaları deaktivdir",

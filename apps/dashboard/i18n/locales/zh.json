@@ -364,6 +364,8 @@
         "migrationRunning": "已有迁移任务在进行",
         "waitForImport": "请等待导入完成",
         "importRunning": "已有导入任务在进行",
+        "importSourceUnknown": "此文件不是 Zipline 导出文件，也不是 XBackBone 或 Chibisafe 数据库",
+        "importSourceMissing": "所选文件已不存在，请重新选择",
         "waitForMigration": "请等待存储迁移完成",
         "nothingToUpdate": "没有需要更新的内容",
         "aiDisabled": "AI 功能已关闭",

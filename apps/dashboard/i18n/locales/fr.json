@@ -364,6 +364,8 @@
         "migrationRunning": "Une migration est déjà en cours",
         "waitForImport": "Attendez la fin de la récupération des fichiers",
         "importRunning": "Une récupération de fichiers est déjà en cours",
+        "importSourceUnknown": "Ce fichier n'est ni un export Zipline ni une base de données XBackBone ou Chibisafe",
+        "importSourceMissing": "Le fichier choisi n'existe plus, choisissez-le à nouveau",
         "waitForMigration": "Attendez la fin de la migration du stockage",
         "nothingToUpdate": "Rien à mettre à jour",
         "aiDisabled": "Les fonctionnalités d'IA sont désactivées",

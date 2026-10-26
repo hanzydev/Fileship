@@ -364,6 +364,8 @@
         "migrationRunning": "移行はすでに実行中です",
         "waitForImport": "インポートが完了するまでお待ちください",
         "importRunning": "インポートはすでに実行中です",
+        "importSourceUnknown": "このファイルは Zipline のエクスポートでも、XBackBone や Chibisafe のデータベースでもありません",
+        "importSourceMissing": "選択したファイルが見つかりません。もう一度選択してください",
         "waitForMigration": "ストレージの移行が完了するまでお待ちください",
         "nothingToUpdate": "更新する項目がありません",
         "aiDisabled": "AI 機能はオフになっています",

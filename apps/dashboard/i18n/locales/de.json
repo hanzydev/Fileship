@@ -364,6 +364,8 @@
         "migrationRunning": "Es läuft bereits eine Migration",
         "waitForImport": "Warte, bis der Import abgeschlossen ist",
         "importRunning": "Es läuft bereits ein Import",
+        "importSourceUnknown": "Diese Datei ist weder ein Zipline-Export noch eine XBackBone- oder Chibisafe-Datenbank",
+        "importSourceMissing": "Die gewählte Datei ist nicht mehr da, wähle sie erneut aus",
         "waitForMigration": "Warte, bis die Speichermigration abgeschlossen ist",
         "nothingToUpdate": "Nichts zu aktualisieren",
         "aiDisabled": "KI-Funktionen sind deaktiviert",

@@ -364,6 +364,8 @@
         "migrationRunning": "이미 이전 작업이 진행 중이에요",
         "waitForImport": "가져오기가 끝날 때까지 기다리세요",
         "importRunning": "이미 가져오기가 진행 중이에요",
+        "importSourceUnknown": "이 파일은 Zipline 내보내기 파일이나 XBackBone, Chibisafe 데이터베이스가 아니에요",
+        "importSourceMissing": "선택한 파일이 없어졌어요. 다시 선택하세요",
         "waitForMigration": "저장소 이전이 끝날 때까지 기다리세요",
         "nothingToUpdate": "변경할 내용이 없어요",
         "aiDisabled": "AI 기능이 꺼져 있어요",

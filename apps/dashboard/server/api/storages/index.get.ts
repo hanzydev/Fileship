@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
         activeStorageId: await getActiveStorageId(),
         migration: storageMigration.progress,
         import: storageImport.progress,
-        local: { files, backups },
+        local: { files, backups, importPath: await localImportPath() },
         items: await Promise.all(
             storages.map(async ({ _count, ...storage }) => ({
                 ...(await serializeStorage(storage)),

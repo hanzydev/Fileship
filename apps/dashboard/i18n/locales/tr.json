@@ -364,6 +364,8 @@
         "migrationRunning": "Bir taşıma işlemi zaten sürüyor",
         "waitForImport": "İçe aktarmanın bitmesini bekle",
         "importRunning": "Bir içe aktarma zaten sürüyor",
+        "importSourceUnknown": "Bu dosya bir Zipline dışa aktarımı ya da XBackBone veya Chibisafe veritabanı değil",
+        "importSourceMissing": "Seçilen dosya artık yok, yeniden seç",
         "waitForMigration": "Depolama taşımasının bitmesini bekle",
         "nothingToUpdate": "Güncellenecek bir şey yok",
         "aiDisabled": "Yapay zekâ özellikleri kapalı",

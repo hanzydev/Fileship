@@ -364,6 +364,8 @@
         "migrationRunning": "A migration is already running",
         "waitForImport": "Wait for the import to finish",
         "importRunning": "An import is already running",
+        "importSourceUnknown": "This isn't a Zipline export or an XBackBone or Chibisafe database",
+        "importSourceMissing": "The chosen file is gone, choose it again",
         "waitForMigration": "Wait for the storage migration to finish",
         "nothingToUpdate": "Nothing to update",
         "aiDisabled": "AI features are turned off",
