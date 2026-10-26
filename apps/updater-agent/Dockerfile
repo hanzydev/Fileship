@@ -10,27 +10,22 @@ COPY . .
 RUN npm i -g corepack@latest
 RUN corepack enable
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --filter updater-agent... --os=current --cpu=current --libc=current
 RUN pnpm --filter updater-agent... build
+RUN pnpm --filter updater-agent deploy --prod --legacy /deploy
 
 FROM node:24-slim AS runner
-
-WORKDIR /fileship
 
 COPY --from=docker:cli /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=docker/compose-bin:latest /docker-compose /usr/local/libexec/docker/cli-plugins/docker-compose
 
 RUN ln -s /usr/local/libexec/docker/cli-plugins/docker-compose /usr/local/bin/docker-compose
 
-RUN npm i -g corepack@latest
-RUN corepack enable
+WORKDIR /fileship/apps/updater-agent
 
-COPY --from=builder /fileship/packages ./packages
-COPY --from=builder /fileship/apps/updater-agent ./apps/updater-agent
-COPY --from=builder /fileship/package.json ./package.json
-COPY --from=builder /fileship/node_modules ./node_modules
-COPY --from=builder /fileship/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=builder /fileship/package.json /fileship/package.json
+COPY --from=builder /deploy ./
 
 EXPOSE 3001
 
-CMD ["pnpm", "--filter", "updater-agent", "start"]
+CMD ["node", "."]
