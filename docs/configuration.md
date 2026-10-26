@@ -80,7 +80,7 @@ Turn off **Password and passkey login** to have everyone log in through the prov
 - While password login is off, accounts created with an invite or through self-registration can only log in again through the provider. They are matched by their confirmed email, or can link the provider right after signing up; **Create accounts** is usually the simpler choice.
 - Fileship does not ask the provider again after someone has logged in, so disabling them there does not end their open sessions. Setting a new password for them on the **Users** page does.
 - Single sign-on only works at the dashboard address. A login started at another address of the same server is sent there first, and linking only works there.
-- The Windows app logs in through the same login page. Its **Dashboard** window opens other sites in your browser, so link an account or confirm actions with the provider in a browser instead.
+- The Windows app logs in through the same login page, and linking an account and confirming actions with the provider work in its **Dashboard** window too.
 - Changing the issuer URL keeps the old links, which then match nothing. People link again, or are matched by their confirmed email.
 - Linked provider accounts are not part of account backups.
 
