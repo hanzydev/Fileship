@@ -4,7 +4,7 @@
   </a>
 
   <p align="center">
-    An open-source, self-hosted file and media management platform.
+    Your own ShareX server and file cloud: a native Windows app, File Explorer sync, AI search that runs on your server and a browser extension.
     <br />
     <br />
     <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Download for Windows</a>
@@ -17,12 +17,8 @@
   </p>
 </div>
 
-## 📸 Screenshots
-
 <p align="center">
-  <img src="apps/dashboard/public/previews/fileship-desktop.png" alt="Fileship dashboard on desktop" width="78%">
-  &nbsp;
-  <img src="apps/dashboard/public/previews/fileship-mobile.png" alt="Fileship files on mobile" width="18%">
+  <img src="docs/images/demo.gif" alt="Dropping an image on Fileship uploads it and copies its link, then smart search finds a photo from a description and shows its AI caption" width="100%">
 </p>
 
 ## 📦 Features
@@ -38,6 +34,38 @@
 - A [browser extension](docs/browser-extension.md) that uploads files, images and screenshots and shortens links, [on the Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh) for Chrome and Edge, and built from source for Firefox
 - [Webhooks](docs/webhooks.md) for Discord, Slack and your own services
 - English, Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese
+
+## 🆚 How Fileship compares
+
+|                                                | Fileship                       | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
+| ---------------------------------------------- | ------------------------------ | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
+| ShareX and other uploaders                     | ✅                             | ✅                                          | ✅                                                 | ✅                                                  |
+| Desktop app for capture and recording          | ✅ Windows                     | ❌                                          | ❌                                                 | ❌                                                  |
+| Your files in File Explorer                    | ✅ Fileship Harbor             | ❌                                          | ❌                                                 | ❌                                                  |
+| Browser extension                              | ✅                             | ❌                                          | ❌                                                 | ✅                                                  |
+| AI search, captions, OCR and sensitive content | ✅ on your server              | ❌                                          | ❌                                                 | ❌                                                  |
+| Short links                                    | ✅                             | ✅                                          | ❌                                                 | ✅                                                  |
+| Notes or pastes                                | ✅ Markdown                    | ✅                                          | 🟡 text uploads                                    | ✅                                                  |
+| Folders                                        | ✅ nested, shared with users   | ✅ nested                                   | ❌ tags                                            | 🟡 flat albums                                      |
+| Passwords, expiry and view limits              | ✅                             | ✅                                          | ❌                                                 | 🟡 album links expire                               |
+| Storage                                        | Local, S3, SFTP, FTP           | Local, S3                                   | Local, S3, FTP, Dropbox, Google Cloud              | Local, S3                                           |
+| Two-factor authentication and passkeys         | ✅                             | ✅                                          | ❌                                                 | ❌                                                  |
+| Single sign-on                                 | ❌                             | ✅ OAuth, OIDC                              | ✅ LDAP                                            | ❌                                                  |
+| Webhooks                                       | ✅ Discord, Slack, signed JSON | ✅ Discord, HTTP                            | ❌                                                 | ❌                                                  |
+| Account backups you can restore, on a schedule | ✅                             | 🟡 export                                   | 🟡 export                                          | ❌                                                  |
+| Updates from the dashboard                     | ✅ zero downtime               | ❌                                          | 🟡 with downtime                                   | ❌                                                  |
+| Languages                                      | 9                              | 12                                          | 31, some partial                                   | 1                                                   |
+| License                                        | MIT                            | MIT                                         | AGPL-3.0                                           | MIT                                                 |
+
+Compared with Zipline 4.8, XBackBone 3.8 and Chibisafe 6.7 in October 2026. Something out of date? [Open an issue](https://github.com/hanzydev/Fileship/issues/new/choose) and it will be fixed.
+
+## 📸 Screenshots
+
+<p align="center">
+  <img src="apps/dashboard/public/previews/fileship-desktop.png" alt="Fileship dashboard on desktop" width="78%">
+  &nbsp;
+  <img src="apps/dashboard/public/previews/fileship-mobile.png" alt="Fileship files on mobile" width="18%">
+</p>
 
 ## 🖥️ Fileship for Windows
 

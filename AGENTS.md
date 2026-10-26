@@ -204,7 +204,7 @@ Reuse these instead of writing new versions.
 - Errors: `createError({ status, statusText?, message, data? })`. `statusCode` and `statusMessage` are deprecated.
 - Long lists use virtual scroll with `reachEnd`, never pagination controls.
 - Commits: conventional commits (`feat`, `fix(ui)`, `fix(api)`, `chore`, `docs`, ...), one topic per commit.
-- User documentation lives in `docs/` (installation, configuration, updating, upgrading, AI, the Windows app, the browser extension, telemetry). `README.md` stays short: what Fileship is, the features in one line each, a quick start and links into `docs/`. Put details in the matching `docs/` page, not in the README.
+- User documentation lives in `docs/` (installation, configuration, updating, upgrading, AI, the Windows app, the browser extension, telemetry). `README.md` stays short: what Fileship is, the demo GIF, the features in one line each, the comparison with other file hosts, a quick start and links into `docs/`. Put details in the matching `docs/` page, not in the README.
 
 ## UI rules
 
