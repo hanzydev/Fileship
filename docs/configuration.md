@@ -26,6 +26,8 @@ To find duplicates (**Settings → Storage → Duplicates**), Fileship reads a f
 
 On every start, Fileship removes files and backups whose data is missing from their storage. A storage that cannot be reached or looks empty is skipped, so a misconfigured storage never deletes anything.
 
+Moving from Zipline, XBackBone or Chibisafe? **Import from another app** in a storage's menu brings their accounts, files, folders, short links and snippets into Fileship; see [Moving from another app](migrating.md).
+
 ## Email
 
 Fileship can send email: links to confirm an email address or reset a password, invites and storage warnings. Set it up in **Administration → Instance → Email**, or give the defaults with `NUXT_SITE_URL` and the `NUXT_SMTP_*` variables:

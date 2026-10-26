@@ -89,13 +89,14 @@ Fileship is now available at `http://localhost:3000`. Log in with `admin` / `pas
 > [!IMPORTANT]
 > Change the password right after your first login (**Settings → Security**).
 
-Upgrading from 5.x? Follow [Upgrading to 6.0](docs/upgrading.md).
+Upgrading from 5.x? Follow [Upgrading to 6.0](docs/upgrading.md). Coming from Zipline, XBackBone or Chibisafe? [Bring your accounts, files and links over](docs/migrating.md).
 
 ## 📚 Documentation
 
 - [Installation](docs/installation.md): requirements, browser support and serving Fileship on your own domain
 - [Configuration](docs/configuration.md): instance settings, storage, trash and environment variables
 - [Updating](docs/updating.md): how updates work and how to schedule them
+- [Moving from another app](docs/migrating.md): importing a Zipline, XBackBone or Chibisafe instance
 - [AI features](docs/ai.md): presets, models, smart search and sensitive content
 - [Fileship for Windows](docs/desktop.md)
 - [Fileship on your phone](docs/mobile.md): installing the app and sharing from Android
