@@ -1,15 +1,32 @@
-.turbo/
+**/.turbo/
 node_modules/
 **/node_modules/
 
-.nuxt/
-.output/
-dist/
+**/.nuxt/
+**/.output/
+**/.nitro/
+**/.cache/
+**/dist/
+**/generated/prisma/
+
+apps/desktop/dist-electron/
+apps/desktop/release/
+apps/desktop/build/harbor/
+apps/desktop/build/host/
+apps/desktop/build/generated/
+apps/desktop/build/overlay-demo/
+apps/extension/.wxt/
 
 **/.env
+**/.env.*
+!**/.env.example
 
 .git/
 .github/
 .gitignore
 
 data/
+
+.claude/
+.impeccable/
+**/*.local.json
