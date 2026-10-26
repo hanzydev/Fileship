@@ -10,25 +10,33 @@ COPY . .
 RUN npm i -g corepack@latest
 RUN corepack enable
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --filter dashboard... --os=current --cpu=current --libc=current
 RUN pnpm --filter dashboard... build
+
+RUN find apps/dashboard/.output/server/node_modules/onnxruntime-node/bin -mindepth 3 -maxdepth 3 \
+    ! -path "*/linux/$(node -p process.arch)" -exec rm -rf {} +
+
+RUN npm install --prefix /prisma --omit=dev --omit=peer --no-audit --no-fund --no-package-lock \
+    prisma@$(node -p "require('./apps/dashboard/node_modules/prisma/package.json').version") \
+    dotenv@$(node -p "require('./apps/dashboard/node_modules/dotenv/package.json').version") \
+    @vercel/nft@1.11.0 \
+    && node scripts/prisma-cli.mjs /prisma /migrate
 
 FROM node:24-slim AS runner
 
-WORKDIR /fileship
+RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update -y && apt-get install -y openssl
-RUN npm i -g corepack@latest
-RUN corepack enable
-
-COPY --from=builder /fileship/packages ./packages
-COPY --from=builder /fileship/apps/dashboard ./apps/dashboard
-COPY --from=builder /fileship/package.json ./package.json
-COPY --from=builder /fileship/node_modules ./node_modules
-COPY --from=builder /fileship/pnpm-workspace.yaml ./pnpm-workspace.yaml
-
-EXPOSE 3000
+ENV CHECKPOINT_DISABLE=1
 
 WORKDIR /fileship/apps/dashboard
 
-CMD ["sh", "-c", "pnpm db:deploy && exec node -r ./scripts/fixPrisma.js .output/server/index.mjs"]
+COPY --from=builder /migrate/node_modules ./node_modules
+COPY --from=builder /fileship/apps/dashboard/package.json /fileship/apps/dashboard/prisma.config.ts ./
+COPY --from=builder /fileship/apps/dashboard/prisma ./prisma
+COPY --from=builder /fileship/apps/dashboard/scripts/fixPrisma.js ./scripts/fixPrisma.js
+COPY --from=builder /fileship/apps/dashboard/.output ./.output
+
+EXPOSE 3000
+
+CMD ["sh", "-c", "node node_modules/prisma/build/index.js migrate deploy && exec node -r ./scripts/fixPrisma.js .output/server/index.mjs"]
