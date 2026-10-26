@@ -402,9 +402,13 @@
                     <div class="flex items-center justify-between gap-2">
                         <TextBlock variant="small">
                             {{
-                                $t('instance.storage.importing', {
-                                    name: storageName(storageImport.storageId),
-                                })
+                                storageImport.app
+                                    ? $t('instance.storage.importingApp', {
+                                          app: IMPORT_APPS[storageImport.app],
+                                      })
+                                    : $t('instance.storage.importing', {
+                                          name: storageName(storageImport.storageId),
+                                      })
                             }}
                         </TextBlock>
                         <TextBlock variant="muted" class="text-xs">
@@ -415,6 +419,28 @@
                         :model-value="(storageImport.done / (storageImport.total || 1)) * 100"
                     />
                 </div>
+
+                <UiAlert v-else-if="importResult?.app" class="mb-2">
+                    <IImport />
+                    <UiAlertTitle>
+                        {{
+                            $t(
+                                'instance.storage.importedAppTitle',
+                                { n: importResult.imported, app: IMPORT_APPS[importResult.app] },
+                                importResult.imported,
+                            )
+                        }}
+                    </UiAlertTitle>
+                    <UiAlertDescription>
+                        {{
+                            $t('instance.storage.importedAppDescription', {
+                                skipped: importResult.skipped,
+                                missing: importResult.missing,
+                                failed: importResult.failed,
+                            })
+                        }}
+                    </UiAlertDescription>
+                </UiAlert>
 
                 <UiAlert v-else-if="importResult" class="mb-2">
                     <IFolderInput />
@@ -506,6 +532,13 @@
                                     <IFolderInput />
                                     {{ $t('instance.storage.importFiles') }}
                                 </UiDropdownMenuItem>
+                                <UiDropdownMenuItem
+                                    :disabled="!!migration || !!storageImport"
+                                    @select="handleOpenAppImport(storage)"
+                                >
+                                    <IImport />
+                                    {{ $t('instance.storage.importFromApp') }}
+                                </UiDropdownMenuItem>
                                 <template v-if="storage.id">
                                     <UiDropdownMenuItem @select="handleOpenStorage(storage)">
                                         <IPencil />
@@ -532,6 +565,12 @@
             </UiCardContent>
         </UiCard>
     </div>
+
+    <AppImportDialog
+        v-model:open="appImportDialog.open"
+        :storage="appImportDialog.storage"
+        @started="importResult = null"
+    />
 
     <UiDialog v-model:open="importDialog.open">
         <UiDialogContent class="sm:max-w-lg">
@@ -628,50 +667,12 @@
 
             <UiField v-else-if="importPreview">
                 <UiFieldLabel for="import-user">{{ $t('instance.import.into') }}</UiFieldLabel>
-                <UiPopover v-model:open="isUserPickerOpen">
-                    <UiPopoverTrigger as-child>
-                        <UiButton id="import-user" variant="outline" class="w-full justify-between">
-                            <span class="flex items-center gap-2 truncate">
-                                <IUser />
-                                {{
-                                    importDialog.user?.username ?? $t('instance.import.chooseUser')
-                                }}
-                            </span>
-                            <IChevronsUpDown class="opacity-50" />
-                        </UiButton>
-                    </UiPopoverTrigger>
-                    <UiPopoverContent class="w-(--reka-popover-trigger-width) p-0" align="start">
-                        <UiCommand>
-                            <UiCommandInput
-                                :placeholder="$t('instance.import.searchUsers')"
-                                @update:model-value="userQuery = $event"
-                            />
-                            <UiCommandList class="mb-1">
-                                <UiCommandGroup class="px-1 pb-0">
-                                    <VirtualList
-                                        :items="users"
-                                        :item-key="(user) => user.id"
-                                        :estimate-size="36"
-                                        :gap="0"
-                                        contained
-                                        @reach-end="loadMoreUsers"
-                                    >
-                                        <template #default="{ item }">
-                                            <UiCommandItem
-                                                :value="item.id"
-                                                :data-checked="importDialog.user?.id === item.id"
-                                                @select="handleSelectImportUser(item)"
-                                            >
-                                                <IUser />
-                                                <span class="truncate">{{ item.username }}</span>
-                                            </UiCommandItem>
-                                        </template>
-                                    </VirtualList>
-                                </UiCommandGroup>
-                            </UiCommandList>
-                        </UiCommand>
-                    </UiPopoverContent>
-                </UiPopover>
+                <UserPicker
+                    id="import-user"
+                    :label="importDialog.user?.username ?? $t('instance.import.chooseUser')"
+                    :selected="importDialog.user?.id"
+                    @select="importDialog.user = $event"
+                />
                 <UiFieldDescription>
                     {{
                         $t(
@@ -868,8 +869,6 @@ import { filesize } from 'filesize';
 
 import { ICircleAlert, ICloud, IFolderSearch, IHardDrive, IServer } from '#components';
 import { StorageType } from '#shared/prisma/enums';
-
-import type { UserData } from '~/types/users';
 
 type FieldType = 'text' | 'secret' | 'number' | 'switch' | 'select' | 'permissions';
 
@@ -1724,15 +1723,11 @@ const importDialog = reactive({
 
 const importPreview = ref<{ count: number; size: number; importPath: string | null } | null>(null);
 const isStartingImport = ref(false);
-const isUserPickerOpen = ref(false);
-const userQuery = ref('');
 
-const { items: users, loadMore: loadMoreUsers } = usePaginatedList<UserData>(
-    'users',
-    '/api/users',
-    () => ({ q: userQuery.value.trim() }),
-    { limit: 30, enabled: isUserPickerOpen },
-);
+const appImportDialog = reactive({
+    open: false,
+    storage: null as (typeof storageRows.value)[number] | null,
+});
 
 const loadImportPreview = async () => {
     importDialog.isLoading = true;
@@ -1761,9 +1756,9 @@ const handleOpenImport = (storage: { id: string | null; name: string }) => {
     loadImportPreview();
 };
 
-const handleSelectImportUser = (user: { id: string; username: string }) => {
-    importDialog.user = { id: user.id, username: user.username };
-    isUserPickerOpen.value = false;
+const handleOpenAppImport = (storage: (typeof storageRows.value)[number]) => {
+    appImportDialog.storage = storage;
+    appImportDialog.open = true;
 };
 
 const handleCopyImportPath = async () => {
@@ -1797,8 +1792,6 @@ const handleStartImport = async () => {
 
     isStartingImport.value = false;
 };
-
-watch(isUserPickerOpen, (value) => value && (userQuery.value = ''));
 
 const handleDeleteStorage = async (storage: StorageRow) => {
     await askConfirmation({
