@@ -56,6 +56,7 @@ Dashboard and infrastructure:
 - [ ] Send through a real SMTP server with STARTTLS and TLS; tests used a plaintext local catcher with AUTH PLAIN and LOGIN.
 
 - [x] The Docker image was 5.74 GB because the runner copied the whole workspace `node_modules`. It now ships only the Nitro `.output` and a traced Prisma CLI: 918 MB (230 MB to download). An empty database migrates, `/api/healthz` reports `ready: true`, and images, PDFs and videos get thumbnails in the container.
+- [ ] The slimmed images were built and run on amd64 only. Check the arm64 images from `docker-publish.yml` (the platform-only install, the onnxruntime prune and the Prisma engine for `linux-arm64`) on an arm64 host before announcing arm64 support.
 - [ ] The AI models download into the data volume and run inside the Docker image with the `low` preset on amd64 (image and video analysis, captions, OCR). Check `medium` and `high`, and an arm64 host.
 - [ ] Dependencies: `pnpm audit` is down to four advisories without a compatible fix. `node-forge` 1.4.0 (nitropack's development certificates; 1.4.1 is not published yet), `zod` 3 inside the `shadcn-vue` CLI (its own dependency and `zod-to-json-schema` need v3; development only), `decode-uri-component` 0.2 under Vite plugins (fixed only in the ESM-only 0.4) and `esbuild` 0.27 under `@nuxt/fonts` (low). Update them when their parents move. Major updates waiting: h3 2, TypeScript 7, `@nuxt/fonts` 1 and Prisma 8 (still a release candidate).
 - [ ] `/api/healthz` of the 5.4.4 image reports 5.4.3; check that future images report their own version.
