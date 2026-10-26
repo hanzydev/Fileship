@@ -9,7 +9,7 @@ The Fileship browser extension uploads files, images and screenshots to your Fil
 - The link is copied to the clipboard and a notification shows it; click the notification to open the link
 - The toolbar button lists recent uploads and short links with their progress, a copy button and errors in plain words (an invalid token, a full storage, a page that cannot be captured)
 - Uploads use your default file name style (random, UUID or the original name) and expiry, and follow the chunk size and parallel uploads of your server, so large files work too
-- English, Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese, following the language of the browser
+- English, Turkish, German, Spanish, French, Italian, Brazilian Portuguese, Russian, Azerbaijani, Japanese, Korean and Simplified Chinese, following the language of the browser
 
 ## Requirements
 

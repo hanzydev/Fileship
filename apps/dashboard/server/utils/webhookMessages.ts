@@ -5,10 +5,13 @@ import { pluralIndex } from '@fileship/ui/i18n/plural';
 import { webhookMessages as az } from '~~/i18n/locales/az.json';
 import { webhookMessages as de } from '~~/i18n/locales/de.json';
 import { webhookMessages as en } from '~~/i18n/locales/en.json';
+import { webhookMessages as es } from '~~/i18n/locales/es.json';
 import { webhookMessages as fr } from '~~/i18n/locales/fr.json';
 import { webhookMessages as it } from '~~/i18n/locales/it.json';
 import { webhookMessages as ja } from '~~/i18n/locales/ja.json';
 import { webhookMessages as ko } from '~~/i18n/locales/ko.json';
+import { webhookMessages as pt } from '~~/i18n/locales/pt.json';
+import { webhookMessages as ru } from '~~/i18n/locales/ru.json';
 import { webhookMessages as tr } from '~~/i18n/locales/tr.json';
 import { webhookMessages as zh } from '~~/i18n/locales/zh.json';
 
@@ -27,7 +30,20 @@ type Card = {
     thumbnail?: string | null;
 };
 
-const MESSAGES: Record<string, Record<MessageKey, string>> = { en, tr, de, fr, it, az, ja, ko, zh };
+const MESSAGES: Record<string, Record<MessageKey, string>> = {
+    en,
+    tr,
+    de,
+    es,
+    fr,
+    it,
+    pt,
+    ru,
+    az,
+    ja,
+    ko,
+    zh,
+};
 
 const translator =
     (language: string) =>

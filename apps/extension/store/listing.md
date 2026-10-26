@@ -162,7 +162,7 @@ What you need
 • A Fileship 6.0 server or newer: https://github.com/hanzydev/Fileship
 • An upload token from Settings → Integrations in your Fileship dashboard
 
-Available in English, Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese. Open source under the MIT license.
+Available in English, Turkish, German, Spanish, French, Italian, Brazilian Portuguese, Russian, Azerbaijani, Japanese, Korean and Simplified Chinese. Open source under the MIT license.
 ```
 
 ### Türkçe (tr)
@@ -197,7 +197,7 @@ Gerekenler
 • Fileship 6.0 veya daha yeni bir sunucu: https://github.com/hanzydev/Fileship
 • Fileship panelinde Ayarlar → Entegrasyonlar sayfasından bir yükleme anahtarı
 
-İngilizce, Türkçe, Almanca, Fransızca, İtalyanca, Azerbaycanca, Japonca, Korece ve Basitleştirilmiş Çince olarak kullanılabilir. MIT lisanslı, açık kaynak.
+İngilizce, Türkçe, Almanca, İspanyolca, Fransızca, İtalyanca, Brezilya Portekizcesi, Rusça, Azerbaycanca, Japonca, Korece ve Basitleştirilmiş Çince olarak kullanılabilir. MIT lisanslı, açık kaynak.
 ```
 
 ### Deutsch (de)
@@ -232,7 +232,42 @@ Was du brauchst
 • Einen Fileship-Server ab Version 6.0: https://github.com/hanzydev/Fileship
 • Ein Upload-Token aus Einstellungen → Integrationen in deinem Fileship-Dashboard
 
-Verfügbar auf Englisch, Türkisch, Deutsch, Französisch, Italienisch, Aserbaidschanisch, Japanisch, Koreanisch und vereinfachtem Chinesisch. Open Source unter der MIT-Lizenz.
+Verfügbar auf Englisch, Türkisch, Deutsch, Spanisch, Französisch, Italienisch, brasilianischem Portugiesisch, Russisch, Aserbaidschanisch, Japanisch, Koreanisch und vereinfachtem Chinesisch. Open Source unter der MIT-Lizenz.
+```
+
+### Español (es)
+
+Summary:
+
+```text
+Sube archivos, capturas de pantalla e imágenes a tu Fileship y acorta enlaces.
+```
+
+Description:
+
+```text
+Sube archivos, imágenes y capturas de pantalla a tu propio servidor de Fileship y acorta enlaces, directamente desde el navegador.
+
+Fileship es una plataforma de código abierto y autoalojada para archivos, notas y enlaces cortos. Esta extensión se conecta a tu servidor de Fileship con tu token de subida.
+
+Qué puedes hacer
+• Subir archivos desde el botón de la barra de herramientas o soltarlos en la página de subida
+• Capturar la parte visible de una pestaña o arrastrar sobre la página para capturar un área
+• Hacer clic derecho en una imagen para subirla o en un enlace para acortarlo
+• Acortar la dirección de la pestaña actual
+• El enlace se copia al portapapeles y se muestra en una notificación
+• Seguir tus subidas desde el botón de la barra de herramientas, con el progreso, botones para copiar y mensajes de error claros
+• Los archivos grandes se suben en fragmentos paralelos que respetan los límites de tu servidor
+• Elegir el estilo de nombre de archivo y la caducidad predeterminados
+
+Privacidad
+La extensión solo se comunica con el servidor que indiques. No incluye analíticas ni seguimiento y solo envía algo cuando usas una de sus acciones. No pide acceso a ningún sitio al instalarse, solo acceso a tu servidor cuando guardas la conexión.
+
+Qué necesitas
+• Un servidor de Fileship 6.0 o posterior: https://github.com/hanzydev/Fileship
+• Un token de subida de Configuración → Integraciones en tu panel de Fileship
+
+Disponible en inglés, turco, alemán, español, francés, italiano, portugués de Brasil, ruso, azerí, japonés, coreano y chino simplificado. Código abierto con licencia MIT.
 ```
 
 ### Français (fr)
@@ -267,7 +302,7 @@ Prérequis
 • Un serveur Fileship 6.0 ou plus récent : https://github.com/hanzydev/Fileship
 • Un jeton d'importation, depuis Paramètres → Intégrations dans votre tableau de bord Fileship
 
-Disponible en anglais, turc, allemand, français, italien, azerbaïdjanais, japonais, coréen et chinois simplifié. Open source sous licence MIT.
+Disponible en anglais, turc, allemand, espagnol, français, italien, portugais du Brésil, russe, azerbaïdjanais, japonais, coréen et chinois simplifié. Open source sous licence MIT.
 ```
 
 ### Italiano (it)
@@ -302,7 +337,77 @@ Requisiti
 • Un server Fileship 6.0 o successivo: https://github.com/hanzydev/Fileship
 • Un token di caricamento da Impostazioni → Integrazioni nella dashboard di Fileship
 
-Disponibile in inglese, turco, tedesco, francese, italiano, azero, giapponese, coreano e cinese semplificato. Open source con licenza MIT.
+Disponibile in inglese, turco, tedesco, spagnolo, francese, italiano, portoghese brasiliano, russo, azero, giapponese, coreano e cinese semplificato. Open source con licenza MIT.
+```
+
+### Português (Brasil) (pt_BR)
+
+Summary:
+
+```text
+Envie arquivos, capturas de tela e imagens para o seu Fileship e encurte links.
+```
+
+Description:
+
+```text
+Envie arquivos, imagens e capturas de tela para o seu próprio servidor Fileship e encurte links, direto do navegador.
+
+O Fileship é uma plataforma de código aberto e auto-hospedada para arquivos, notas e links curtos. Esta extensão se conecta ao seu servidor Fileship com o seu token de envio.
+
+O que você pode fazer
+• Enviar arquivos pelo botão da barra de ferramentas ou soltá-los na página de envio
+• Capturar a parte visível de uma aba ou arrastar sobre a página para capturar uma área
+• Clicar com o botão direito em uma imagem para enviá-la ou em um link para encurtá-lo
+• Encurtar o endereço da aba atual
+• O link é copiado para a área de transferência e mostrado em uma notificação
+• Acompanhar os envios pelo botão da barra de ferramentas, com o progresso, botões de copiar e mensagens de erro claras
+• Arquivos grandes são enviados em partes paralelas que respeitam os limites do seu servidor
+• Escolher o estilo padrão do nome de arquivo e a expiração
+
+Privacidade
+A extensão se comunica apenas com o servidor que você informar. Ela não tem análises nem rastreamento e só envia algo quando você usa uma das suas ações. Na instalação, não pede acesso a nenhum site, apenas ao seu servidor quando você salva a conexão.
+
+O que você precisa
+• Um servidor Fileship 6.0 ou mais recente: https://github.com/hanzydev/Fileship
+• Um token de envio em Configurações → Integrações no painel do Fileship
+
+Disponível em inglês, turco, alemão, espanhol, francês, italiano, português do Brasil, russo, azerbaijano, japonês, coreano e chinês simplificado. Código aberto sob a licença MIT.
+```
+
+### Русский (ru)
+
+Summary:
+
+```text
+Загружайте файлы, скриншоты и изображения в свой Fileship и сокращайте ссылки.
+```
+
+Description:
+
+```text
+Загружайте файлы, изображения и скриншоты на свой сервер Fileship и сокращайте ссылки прямо из браузера.
+
+Fileship — платформа с открытым исходным кодом для файлов, заметок и коротких ссылок, которую вы размещаете на своём сервере. Расширение подключается к вашему серверу Fileship по токену загрузки.
+
+Что можно делать
+• Загружать файлы кнопкой на панели инструментов или перетаскивать их на страницу загрузки
+• Делать скриншот видимой части вкладки или выделять на странице область для захвата
+• Загружать изображение или сокращать ссылку из контекстного меню
+• Сокращать адрес текущей вкладки
+• Ссылка копируется в буфер обмена и показывается в уведомлении
+• Следить за загрузками с кнопки на панели инструментов: прогресс, кнопки копирования и понятные сообщения об ошибках
+• Большие файлы загружаются параллельными частями с учётом ограничений вашего сервера
+• Выбирать стиль имени файла и срок действия по умолчанию
+
+Конфиденциальность
+Расширение обращается только к указанному вами серверу. В нём нет аналитики и отслеживания, и оно отправляет данные, только когда вы используете одно из его действий. При установке оно не запрашивает доступ к сайтам — только доступ к вашему серверу, когда вы сохраняете подключение.
+
+Что нужно
+• Сервер Fileship версии 6.0 или новее: https://github.com/hanzydev/Fileship
+• Токен загрузки из раздела «Настройки → Интеграции» в панели управления Fileship
+
+Доступно на английском, турецком, немецком, испанском, французском, итальянском, бразильском португальском, русском, азербайджанском, японском, корейском и упрощённом китайском. Открытый исходный код под лицензией MIT.
 ```
 
 ### Azərbaycanca (az, AMO only)
@@ -337,7 +442,7 @@ Nə lazımdır
 • Fileship 6.0 və ya daha yeni server: https://github.com/hanzydev/Fileship
 • Fileship idarə panelində Ayarlar → İnteqrasiyalar səhifəsindən yükləmə açarı
 
-İngilis, türk, alman, fransız, italyan, Azərbaycan, yapon, koreya və sadələşdirilmiş Çin dillərində mövcuddur. MIT lisenziyası ilə açıq mənbəli.
+İngilis, türk, alman, ispan, fransız, italyan, Braziliya portuqal, rus, Azərbaycan, yapon, koreya və sadələşdirilmiş Çin dillərində mövcuddur. MIT lisenziyası ilə açıq mənbəli.
 ```
 
 ### 日本語 (ja)
@@ -372,7 +477,7 @@ Fileship は、ファイル、ノート、短縮リンクのためのオープ�
 • Fileship 6.0 以降のサーバー：https://github.com/hanzydev/Fileship
 • Fileship のダッシュボードの「設定」→「連携」で取得できるアップロードトークン
 
-英語、トルコ語、ドイツ語、フランス語、イタリア語、アゼルバイジャン語、日本語、韓国語、簡体字中国語に対応しています。MIT ライセンスのオープンソースです。
+英語、トルコ語、ドイツ語、スペイン語、フランス語、イタリア語、ポルトガル語（ブラジル）、ロシア語、アゼルバイジャン語、日本語、韓国語、簡体字中国語に対応しています。MIT ライセンスのオープンソースです。
 ```
 
 ### 한국어 (ko)
@@ -407,7 +512,7 @@ Fileship은 파일, 노트, 단축 링크를 위한 오픈 소스 셀프 호스�
 • Fileship 6.0 이상 서버: https://github.com/hanzydev/Fileship
 • Fileship 대시보드의 설정 → 연동에서 받은 업로드 토큰
 
-영어, 터키어, 독일어, 프랑스어, 이탈리아어, 아제르바이잔어, 일본어, 한국어, 중국어(간체)를 지원해요. MIT 라이선스의 오픈 소스예요.
+영어, 터키어, 독일어, 스페인어, 프랑스어, 이탈리아어, 포르투갈어(브라질), 러시아어, 아제르바이잔어, 일본어, 한국어, 중국어(간체)를 지원해요. MIT 라이선스의 오픈 소스예요.
 ```
 
 ### 简体中文 (zh_CN)
@@ -442,7 +547,7 @@ Fileship 是一个开源、自托管的平台，用于管理文件、笔记和�
 • Fileship 6.0 或更高版本的服务器：https://github.com/hanzydev/Fileship
 • 在 Fileship 控制台的“设置 → 集成”中获取的上传令牌
 
-支持英语、土耳其语、德语、法语、意大利语、阿塞拜疆语、日语、韩语和简体中文。基于 MIT 许可证开源。
+支持英语、土耳其语、德语、西班牙语、法语、意大利语、巴西葡萄牙语、俄语、阿塞拜疆语、日语、韩语和简体中文。基于 MIT 许可证开源。
 ```
 
 ## AMO descriptions (Markdown)
@@ -476,7 +581,7 @@ The extension talks only to the server you enter. It has no analytics or trackin
 - A Fileship 6.0 server or newer: [github.com/hanzydev/Fileship](https://github.com/hanzydev/Fileship)
 - An upload token from Settings → Integrations in your Fileship dashboard
 
-Available in English, Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese. Open source under the MIT license.
+Available in English, Turkish, German, Spanish, French, Italian, Brazilian Portuguese, Russian, Azerbaijani, Japanese, Korean and Simplified Chinese. Open source under the MIT license.
 ```
 
 ### Türkçe (tr)
@@ -506,7 +611,7 @@ Eklenti yalnızca girdiğin sunucuyla konuşur. Analitik ya da takip içermez ve
 - Fileship 6.0 veya daha yeni bir sunucu: [github.com/hanzydev/Fileship](https://github.com/hanzydev/Fileship)
 - Fileship panelinde Ayarlar → Entegrasyonlar sayfasından bir yükleme anahtarı
 
-İngilizce, Türkçe, Almanca, Fransızca, İtalyanca, Azerbaycanca, Japonca, Korece ve Basitleştirilmiş Çince olarak kullanılabilir. MIT lisanslı, açık kaynak.
+İngilizce, Türkçe, Almanca, İspanyolca, Fransızca, İtalyanca, Brezilya Portekizcesi, Rusça, Azerbaycanca, Japonca, Korece ve Basitleştirilmiş Çince olarak kullanılabilir. MIT lisanslı, açık kaynak.
 ```
 
 ### Deutsch (de)
@@ -536,7 +641,37 @@ Die Erweiterung kommuniziert nur mit dem Server, den du einträgst. Sie enthält
 - Einen Fileship-Server ab Version 6.0: [github.com/hanzydev/Fileship](https://github.com/hanzydev/Fileship)
 - Ein Upload-Token aus Einstellungen → Integrationen in deinem Fileship-Dashboard
 
-Verfügbar auf Englisch, Türkisch, Deutsch, Französisch, Italienisch, Aserbaidschanisch, Japanisch, Koreanisch und vereinfachtem Chinesisch. Open Source unter der MIT-Lizenz.
+Verfügbar auf Englisch, Türkisch, Deutsch, Spanisch, Französisch, Italienisch, brasilianischem Portugiesisch, Russisch, Aserbaidschanisch, Japanisch, Koreanisch und vereinfachtem Chinesisch. Open Source unter der MIT-Lizenz.
+```
+
+### Español (es)
+
+```text
+Sube archivos, imágenes y capturas de pantalla a tu propio servidor de Fileship y acorta enlaces, directamente desde el navegador.
+
+Fileship es una plataforma de código abierto y autoalojada para archivos, notas y enlaces cortos. Esta extensión se conecta a tu servidor de Fileship con tu token de subida.
+
+**Qué puedes hacer**
+
+- Subir archivos desde el botón de la barra de herramientas o soltarlos en la página de subida
+- Capturar la parte visible de una pestaña o arrastrar sobre la página para capturar un área
+- Hacer clic derecho en una imagen para subirla o en un enlace para acortarlo
+- Acortar la dirección de la pestaña actual
+- El enlace se copia al portapapeles y se muestra en una notificación
+- Seguir tus subidas desde el botón de la barra de herramientas, con el progreso, botones para copiar y mensajes de error claros
+- Los archivos grandes se suben en fragmentos paralelos que respetan los límites de tu servidor
+- Elegir el estilo de nombre de archivo y la caducidad predeterminados
+
+**Privacidad**
+
+La extensión solo se comunica con el servidor que indiques. No incluye analíticas ni seguimiento y solo envía algo cuando usas una de sus acciones. No pide acceso a ningún sitio al instalarse, solo acceso a tu servidor cuando guardas la conexión.
+
+**Qué necesitas**
+
+- Un servidor de Fileship 6.0 o posterior: [github.com/hanzydev/Fileship](https://github.com/hanzydev/Fileship)
+- Un token de subida de Configuración → Integraciones en tu panel de Fileship
+
+Disponible en inglés, turco, alemán, español, francés, italiano, portugués de Brasil, ruso, azerí, japonés, coreano y chino simplificado. Código abierto con licencia MIT.
 ```
 
 ### Français (fr)
@@ -566,7 +701,7 @@ L'extension ne communique qu'avec le serveur que vous indiquez. Elle ne contient
 - Un serveur Fileship 6.0 ou plus récent : [github.com/hanzydev/Fileship](https://github.com/hanzydev/Fileship)
 - Un jeton d'importation, depuis Paramètres → Intégrations dans votre tableau de bord Fileship
 
-Disponible en anglais, turc, allemand, français, italien, azerbaïdjanais, japonais, coréen et chinois simplifié. Open source sous licence MIT.
+Disponible en anglais, turc, allemand, espagnol, français, italien, portugais du Brésil, russe, azerbaïdjanais, japonais, coréen et chinois simplifié. Open source sous licence MIT.
 ```
 
 ### Italiano (it)
@@ -596,7 +731,67 @@ L'estensione comunica solo con il server che inserisci. Non contiene statistiche
 - Un server Fileship 6.0 o successivo: [github.com/hanzydev/Fileship](https://github.com/hanzydev/Fileship)
 - Un token di caricamento da Impostazioni → Integrazioni nella dashboard di Fileship
 
-Disponibile in inglese, turco, tedesco, francese, italiano, azero, giapponese, coreano e cinese semplificato. Open source con licenza MIT.
+Disponibile in inglese, turco, tedesco, spagnolo, francese, italiano, portoghese brasiliano, russo, azero, giapponese, coreano e cinese semplificato. Open source con licenza MIT.
+```
+
+### Português (Brasil) (pt_BR)
+
+```text
+Envie arquivos, imagens e capturas de tela para o seu próprio servidor Fileship e encurte links, direto do navegador.
+
+O Fileship é uma plataforma de código aberto e auto-hospedada para arquivos, notas e links curtos. Esta extensão se conecta ao seu servidor Fileship com o seu token de envio.
+
+**O que você pode fazer**
+
+- Enviar arquivos pelo botão da barra de ferramentas ou soltá-los na página de envio
+- Capturar a parte visível de uma aba ou arrastar sobre a página para capturar uma área
+- Clicar com o botão direito em uma imagem para enviá-la ou em um link para encurtá-lo
+- Encurtar o endereço da aba atual
+- O link é copiado para a área de transferência e mostrado em uma notificação
+- Acompanhar os envios pelo botão da barra de ferramentas, com o progresso, botões de copiar e mensagens de erro claras
+- Arquivos grandes são enviados em partes paralelas que respeitam os limites do seu servidor
+- Escolher o estilo padrão do nome de arquivo e a expiração
+
+**Privacidade**
+
+A extensão se comunica apenas com o servidor que você informar. Ela não tem análises nem rastreamento e só envia algo quando você usa uma das suas ações. Na instalação, não pede acesso a nenhum site, apenas ao seu servidor quando você salva a conexão.
+
+**O que você precisa**
+
+- Um servidor Fileship 6.0 ou mais recente: [github.com/hanzydev/Fileship](https://github.com/hanzydev/Fileship)
+- Um token de envio em Configurações → Integrações no painel do Fileship
+
+Disponível em inglês, turco, alemão, espanhol, francês, italiano, português do Brasil, russo, azerbaijano, japonês, coreano e chinês simplificado. Código aberto sob a licença MIT.
+```
+
+### Русский (ru)
+
+```text
+Загружайте файлы, изображения и скриншоты на свой сервер Fileship и сокращайте ссылки прямо из браузера.
+
+Fileship — платформа с открытым исходным кодом для файлов, заметок и коротких ссылок, которую вы размещаете на своём сервере. Расширение подключается к вашему серверу Fileship по токену загрузки.
+
+**Что можно делать**
+
+- Загружать файлы кнопкой на панели инструментов или перетаскивать их на страницу загрузки
+- Делать скриншот видимой части вкладки или выделять на странице область для захвата
+- Загружать изображение или сокращать ссылку из контекстного меню
+- Сокращать адрес текущей вкладки
+- Ссылка копируется в буфер обмена и показывается в уведомлении
+- Следить за загрузками с кнопки на панели инструментов: прогресс, кнопки копирования и понятные сообщения об ошибках
+- Большие файлы загружаются параллельными частями с учётом ограничений вашего сервера
+- Выбирать стиль имени файла и срок действия по умолчанию
+
+**Конфиденциальность**
+
+Расширение обращается только к указанному вами серверу. В нём нет аналитики и отслеживания, и оно отправляет данные, только когда вы используете одно из его действий. При установке оно не запрашивает доступ к сайтам — только доступ к вашему серверу, когда вы сохраняете подключение.
+
+**Что нужно**
+
+- Сервер Fileship версии 6.0 или новее: [github.com/hanzydev/Fileship](https://github.com/hanzydev/Fileship)
+- Токен загрузки из раздела «Настройки → Интеграции» в панели управления Fileship
+
+Доступно на английском, турецком, немецком, испанском, французском, итальянском, бразильском португальском, русском, азербайджанском, японском, корейском и упрощённом китайском. Открытый исходный код под лицензией MIT.
 ```
 
 ### Azərbaycanca (az, AMO only)
@@ -626,7 +821,7 @@ Genişləndirmə yalnız daxil etdiyin serverlə əlaqə saxlayır. Analitika v�
 - Fileship 6.0 və ya daha yeni server: [github.com/hanzydev/Fileship](https://github.com/hanzydev/Fileship)
 - Fileship idarə panelində Ayarlar → İnteqrasiyalar səhifəsindən yükləmə açarı
 
-İngilis, türk, alman, fransız, italyan, Azərbaycan, yapon, koreya və sadələşdirilmiş Çin dillərində mövcuddur. MIT lisenziyası ilə açıq mənbəli.
+İngilis, türk, alman, ispan, fransız, italyan, Braziliya portuqal, rus, Azərbaycan, yapon, koreya və sadələşdirilmiş Çin dillərində mövcuddur. MIT lisenziyası ilə açıq mənbəli.
 ```
 
 ### 日本語 (ja)
@@ -656,7 +851,7 @@ Fileship は、ファイル、ノート、短縮リンクのためのオープ�
 - Fileship 6.0 以降のサーバー：[github.com/hanzydev/Fileship](https://github.com/hanzydev/Fileship)
 - Fileship のダッシュボードの「設定」→「連携」で取得できるアップロードトークン
 
-英語、トルコ語、ドイツ語、フランス語、イタリア語、アゼルバイジャン語、日本語、韓国語、簡体字中国語に対応しています。MIT ライセンスのオープンソースです。
+英語、トルコ語、ドイツ語、スペイン語、フランス語、イタリア語、ポルトガル語（ブラジル）、ロシア語、アゼルバイジャン語、日本語、韓国語、簡体字中国語に対応しています。MIT ライセンスのオープンソースです。
 ```
 
 ### 한국어 (ko)
@@ -686,7 +881,7 @@ Fileship은 파일, 노트, 단축 링크를 위한 오픈 소스 셀프 호스�
 - Fileship 6.0 이상 서버: [github.com/hanzydev/Fileship](https://github.com/hanzydev/Fileship)
 - Fileship 대시보드의 설정 → 연동에서 받은 업로드 토큰
 
-영어, 터키어, 독일어, 프랑스어, 이탈리아어, 아제르바이잔어, 일본어, 한국어, 중국어(간체)를 지원해요. MIT 라이선스의 오픈 소스예요.
+영어, 터키어, 독일어, 스페인어, 프랑스어, 이탈리아어, 포르투갈어(브라질), 러시아어, 아제르바이잔어, 일본어, 한국어, 중국어(간체)를 지원해요. MIT 라이선스의 오픈 소스예요.
 ```
 
 ### 简体中文 (zh_CN)
@@ -716,5 +911,5 @@ Fileship 是一个开源、自托管的平台，用于管理文件、笔记和�
 - Fileship 6.0 或更高版本的服务器：[github.com/hanzydev/Fileship](https://github.com/hanzydev/Fileship)
 - 在 Fileship 控制台的“设置 → 集成”中获取的上传令牌
 
-支持英语、土耳其语、德语、法语、意大利语、阿塞拜疆语、日语、韩语和简体中文。基于 MIT 许可证开源。
+支持英语、土耳其语、德语、西班牙语、法语、意大利语、巴西葡萄牙语、俄语、阿塞拜疆语、日语、韩语和简体中文。基于 MIT 许可证开源。
 ```

@@ -37,7 +37,7 @@ Fileship Harbor puts your Fileship files and folders in File Explorer. Turn it o
 **App**
 
 - Starts with Windows and stays in the tray using only a few megabytes of memory; the app window opens on demand
-- English, Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese
+- English, Turkish, German, Spanish, French, Italian, Brazilian Portuguese, Russian, Azerbaijani, Japanese, Korean and Simplified Chinese
 - Updates itself in the background and installs them when you restart or quit
 
 ## Requirements
