@@ -1,6 +1,6 @@
 # Store listing
 
-Everything to fill in when the extension is submitted to the Chrome Web Store and addons.mozilla.org (AMO). Paste the text blocks as they are. Replace `<SERVER_URL>` and `<UPLOAD_TOKEN>` with the reviewer account's values in the store forms only; never commit them.
+Everything to fill in when the extension is submitted to the Chrome Web Store and addons.mozilla.org (AMO). Paste the text blocks as they are. Version 1.0.0 is [on the Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh) (item id `lbnlfnmlaipoflalhikladilalkoagnh`); AMO and Edge Add-ons are not done yet. Replace `<SERVER_URL>` and `<UPLOAD_TOKEN>` with the reviewer account's values in the store forms only; never commit them.
 
 ## Packages
 

@@ -18,17 +18,18 @@ The Fileship browser extension uploads files, images and screenshots to your Fil
 
 ## Installing
 
-The extension is not in the browser stores yet. Build it from this repository (Node.js 22+ and pnpm):
+- **Chrome and other Chromium browsers:** install [Fileship from the Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh). The browser keeps it up to date.
+- **Edge:** open the same Chrome Web Store page, choose **Allow extensions from other stores** in the banner Edge shows, then **Add to Chrome**.
+- **Firefox:** the extension is not on addons.mozilla.org yet. Build it from this repository (Node.js 22+ and pnpm):
 
-```sh
-pnpm install
-pnpm --filter extension build
-```
+    ```sh
+    pnpm install
+    pnpm --filter extension build
+    ```
 
-This writes `apps/extension/.output/chrome-mv3` and `apps/extension/.output/firefox-mv3`.
+    Then open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on** and select `manifest.json` in `apps/extension/.output/firefox-mv3`. Temporary add-ons are removed when Firefox closes.
 
-- **Chrome and Edge:** open `chrome://extensions` (or `edge://extensions`), turn on **Developer mode**, choose **Load unpacked** and select the `chrome-mv3` folder.
-- **Firefox:** open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on** and select `manifest.json` in the `firefox-mv3` folder. Temporary add-ons are removed when Firefox closes.
+To try a build of your own in Chrome or Edge, run the same build, open `chrome://extensions` (or `edge://extensions`), turn on **Developer mode**, choose **Load unpacked** and select `apps/extension/.output/chrome-mv3`.
 
 ## Connecting
 

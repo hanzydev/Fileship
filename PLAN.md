@@ -48,7 +48,7 @@ Browser extension:
 - [ ] Finish the Firefox checks by hand. Headless Firefox 158 with the build as a temporary add-on passed the options page and its permission request, the menu items, shortening and copying from the background page, IndexedDB uploads in parallel chunks, the upload tab (drop), `captureVisibleTab`, the area picker and the error messages, against a mock server. Still unchecked: clicking the context menu items (Firefox cannot dispatch them), the permission prompts, notifications and clicking them, the real toolbar popup, and an upload that runs longer than the event page's idle timeout.
 - [ ] Check the host permission prompt from the context menu for an image on another site, in Chrome and Firefox (automated tests cannot click it, so they ran with the permission already granted).
 - [ ] Check the file picker in the Chrome toolbar popup on macOS and Linux (Windows behaviour is assumed, not tested; the popup was only tested as a page).
-- [ ] Publish to the Chrome Web Store, Edge Add-ons and addons.mozilla.org (store listings, screenshots, privacy answers that match the declared data collection).
+- [ ] Publish to Edge Add-ons and addons.mozilla.org (store listings, screenshots, privacy answers that match the declared data collection). The Chrome Web Store has 1.0.0.
 
 Dashboard and infrastructure:
 
