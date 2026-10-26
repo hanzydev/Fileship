@@ -511,14 +511,14 @@ const columns = computed(() => [
         label: t('users.column.files'),
         sortable: true,
         descFirst: true,
-        class: 'hidden w-24 lg:table-cell',
+        class: 'hidden w-28 lg:table-cell',
     },
     {
         key: 'notes',
         label: t('users.column.notes'),
         sortable: true,
         descFirst: true,
-        class: 'hidden w-24 xl:table-cell',
+        class: 'hidden w-28 xl:table-cell',
     },
     { key: 'storage', label: t('users.column.storage'), class: 'hidden w-36 xl:table-cell' },
     {
@@ -526,7 +526,7 @@ const columns = computed(() => [
         label: t('users.column.joined'),
         sortable: true,
         descFirst: true,
-        class: 'w-32',
+        class: 'w-40',
     },
     { key: 'actions', label: '', class: 'w-16' },
 ]);
