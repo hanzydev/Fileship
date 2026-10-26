@@ -2,6 +2,7 @@ import type { H3Event } from 'h3';
 import { createTransport } from 'nodemailer';
 import { z } from 'zod';
 
+import { pluralIndex } from '@fileship/ui/i18n/plural';
 import { createCoreContext, translate as translateMessage } from '@intlify/core';
 
 type Params = Record<string, string | number>;
@@ -23,8 +24,11 @@ const catalogs: Record<Language, () => Promise<{ default: object }>> = {
     en: () => import('~~/i18n/locales/en.json'),
     tr: () => import('~~/i18n/locales/tr.json'),
     de: () => import('~~/i18n/locales/de.json'),
+    es: () => import('~~/i18n/locales/es.json'),
     fr: () => import('~~/i18n/locales/fr.json'),
     it: () => import('~~/i18n/locales/it.json'),
+    pt: () => import('~~/i18n/locales/pt.json'),
+    ru: () => import('~~/i18n/locales/ru.json'),
     az: () => import('~~/i18n/locales/az.json'),
     ja: () => import('~~/i18n/locales/ja.json'),
     ko: () => import('~~/i18n/locales/ko.json'),
@@ -50,6 +54,10 @@ const createTranslator = async (language: Language) => {
         locale: language,
         fallbackLocale: 'en',
         messages: { en: en.default, [language]: messages.default } as any,
+        pluralRules: {
+            [language]: (choice: number, choicesLength: number) =>
+                pluralIndex(language, choice, choicesLength),
+        },
         missingWarn: false,
         fallbackWarn: false,
     });

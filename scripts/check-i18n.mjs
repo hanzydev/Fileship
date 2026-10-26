@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import { baseCompile } from '@intlify/message-compiler';
 
-const LOCALES = ['en', 'tr', 'de', 'fr', 'it', 'az', 'ja', 'ko', 'zh'];
+const LOCALES = ['en', 'tr', 'de', 'es', 'fr', 'it', 'pt', 'ru', 'az', 'ja', 'ko', 'zh'];
 const CATALOGS = [
     'packages/ui/i18n/locales',
     'apps/dashboard/i18n/locales',

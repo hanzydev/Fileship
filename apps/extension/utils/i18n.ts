@@ -1,3 +1,5 @@
+import { pluralIndex } from '@fileship/ui/i18n/plural';
+
 import { type Language, LANGUAGES, messages } from '../i18n/messages';
 
 type Params = Record<string, string | number>;
@@ -15,9 +17,7 @@ const lookup = (locale: Language, key: string) =>
 const choose = (message: string, count?: number) => {
     const choices = message.split(' | ');
     if (count === undefined || choices.length === 1) return choices[0]!;
-    if (choices.length === 2)
-        return choices[Number(getLanguage() === 'fr' ? count > 1 : count !== 1)]!;
-    return choices[Math.min(count, 2)]!;
+    return choices[pluralIndex(getLanguage(), count, choices.length)]!;
 };
 
 export const getLanguage = () => (language ??= resolveLanguage());

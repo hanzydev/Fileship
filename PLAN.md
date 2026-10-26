@@ -8,7 +8,7 @@ Shipped in 6.0.0 (and the Windows app 1.0.0):
 
 - Dashboard rebuilt on shadcn-vue and the shared `packages/ui` layer, with the trash, storages (local, S3, SFTP, FTP), short links, inbox, backups, passkeys, TOTP and server-side sessions.
 - AI analysis on a worker thread (`packages/ai`): image and text embeddings, captions, OCR, sensitive-content detection, and smart search with calibrated cutoffs; fulltext search works for every script.
-- English, Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese for the dashboard (UI and API errors) and the Windows app.
+- English, Turkish, German, Spanish, French, Italian, Brazilian Portuguese, Russian, Azerbaijani, Japanese, Korean and Simplified Chinese for the dashboard (UI and API errors) and the Windows app.
 - Telemetry panel (`apps/telemetry`) and the anonymous report schema (`packages/telemetry`).
 - Fileship for Windows (`apps/desktop`): ShareX-style capture across monitors with annotations, OCR, screen and GIF recording, uploads with history, Fileship Harbor in File Explorer, auto-updates from `hanzydev/fileship-desktop`.
 - The upgrade from 5.4.4 was tested in Docker: migrations, files, folders, notes and passwords are kept; the steps are in the 6.0.0 section of `CHANGELOG.md`.
@@ -49,6 +49,11 @@ Browser extension:
 - [ ] Check the host permission prompt from the context menu for an image on another site, in Chrome and Firefox (automated tests cannot click it, so they ran with the permission already granted).
 - [ ] Check the file picker in the Chrome toolbar popup on macOS and Linux (Windows behaviour is assumed, not tested; the popup was only tested as a page).
 - [ ] Publish to Edge Add-ons and addons.mozilla.org (store listings, screenshots, privacy answers that match the declared data collection). The Chrome Web Store has 1.0.0.
+- [ ] Add the Spanish, Brazilian Portuguese and Russian listing texts from `apps/extension/store/listing.md` at the next Chrome Web Store update; the package then carries `_locales/es`, `pt_BR` and `ru`.
+
+Translations:
+
+- [ ] Spanish, Brazilian Portuguese and Russian were translated by AI agents from the English with the I18N.md glossaries, and only the dashboard was checked on screen (files, folders, notes, links, trash, stats, users, logs, instance and settings pages and the upload sheet, at desktop and phone width). Ask native speakers to read them, and check the Windows app (tray, notifications, overlay toolbar, settings pages) and the extension pages in those languages on screen.
 
 Dashboard and infrastructure:
 

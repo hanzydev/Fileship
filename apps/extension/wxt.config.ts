@@ -7,7 +7,10 @@ import tailwindcss from '@tailwindcss/vite';
 
 import { LANGUAGES, messages } from './i18n/messages';
 
-const LOCALE_FOLDERS: Partial<Record<(typeof LANGUAGES)[number], string>> = { zh: 'zh_CN' };
+const LOCALE_FOLDERS: Partial<Record<(typeof LANGUAGES)[number], string>> = {
+    pt: 'pt_BR',
+    zh: 'zh_CN',
+};
 const CHROME_UNSUPPORTED_LOCALES: (typeof LANGUAGES)[number][] = ['az'];
 
 const fromRoot = (path: string) => fileURLToPath(new URL(path, import.meta.url));

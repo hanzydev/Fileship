@@ -8,15 +8,15 @@
             <UiTabs v-model="colorMode.preference">
                 <UiTabsList class="w-full">
                     <UiTabsTrigger value="light">
-                        <ISun />
+                        <ISun class="hidden sm:block" />
                         {{ $t('settings.appearance.light') }}
                     </UiTabsTrigger>
                     <UiTabsTrigger value="dark">
-                        <IMoon />
+                        <IMoon class="hidden sm:block" />
                         {{ $t('settings.appearance.dark') }}
                     </UiTabsTrigger>
                     <UiTabsTrigger value="system">
-                        <IMonitor />
+                        <IMonitor class="hidden sm:block" />
                         {{ $t('settings.appearance.system') }}
                     </UiTabsTrigger>
                 </UiTabsList>

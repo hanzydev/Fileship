@@ -47,7 +47,7 @@
 
     <UiCard v-if="publicSettings.oidcLogin || oidc?.identity">
         <UiCardHeader>
-            <UiCardTitle class="flex items-center gap-2">
+            <UiCardTitle class="flex flex-wrap items-center gap-2">
                 {{ $t('security.oidc') }}
                 <UiBadge v-if="oidc" :variant="oidc.identity ? 'default' : 'secondary'">
                     {{ oidc.identity ? $t('security.oidcLinked') : $t('security.oidcNotLinked') }}
@@ -82,7 +82,7 @@
 
     <UiCard>
         <UiCardHeader>
-            <UiCardTitle class="flex items-center gap-2">
+            <UiCardTitle class="flex flex-wrap items-center gap-2">
                 {{ $t('security.authenticatorApp') }}
                 <UiBadge :variant="currentUser!.totpEnabled ? 'default' : 'secondary'">
                     {{

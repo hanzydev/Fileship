@@ -33,7 +33,7 @@
 - ShareX, macOS and Linux upload integrations, the [Windows app](docs/desktop.md) and an [installable app for phones](docs/mobile.md) that Android apps can share to
 - A [browser extension](docs/browser-extension.md) that uploads files, images and screenshots and shortens links, [on the Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh) for Chrome and Edge, and built from source for Firefox
 - [Webhooks](docs/webhooks.md) for Discord, Slack and your own services
-- English, Turkish, German, French, Italian, Azerbaijani, Japanese, Korean and Simplified Chinese
+- English, Turkish, German, Spanish, French, Italian, Brazilian Portuguese, Russian, Azerbaijani, Japanese, Korean and Simplified Chinese
 
 ## 🆚 How Fileship compares
 
@@ -54,7 +54,7 @@
 | Webhooks                                       | ✅ Discord, Slack, signed JSON | ✅ Discord, HTTP                            | ❌                                                 | ❌                                                  |
 | Account backups you can restore, on a schedule | ✅                             | 🟡 export                                   | 🟡 export                                          | ❌                                                  |
 | Updates from the dashboard                     | ✅ zero downtime               | ❌                                          | 🟡 with downtime                                   | ❌                                                  |
-| Languages                                      | 9                              | 12                                          | 31, some partial                                   | 1                                                   |
+| Languages                                      | 12                             | 12                                          | 31, some partial                                   | 1                                                   |
 | License                                        | MIT                            | MIT                                         | AGPL-3.0                                           | MIT                                                 |
 
 Compared with Zipline 4.8, XBackBone 3.8 and Chibisafe 6.7 in October 2026. Something out of date? [Open an issue](https://github.com/hanzydev/Fileship/issues/new/choose) and it will be fixed.

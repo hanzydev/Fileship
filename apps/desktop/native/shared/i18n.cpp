@@ -3,6 +3,7 @@
 #include "json.h"
 #include "log.h"
 
+#include <cstdlib>
 #include <fstream>
 #include <mutex>
 #include <optional>
@@ -53,6 +54,14 @@ std::optional<std::wstring> lookup(JsonObject const& catalog, std::wstring_view 
     }
 }
 
+size_t russianForm(long long count) {
+    long long ones = count % 10;
+    long long tens = count % 100;
+
+    if (ones == 1 && tens != 11) return 0;
+    return ones >= 2 && ones <= 4 && (tens < 12 || tens > 14) ? 1 : 2;
+}
+
 std::wstring choose(std::wstring const& message, std::optional<long long> count) {
     std::vector<std::wstring> choices;
     size_t start = 0;
@@ -66,11 +75,18 @@ std::wstring choose(std::wstring const& message, std::optional<long long> count)
     }
 
     if (!count || choices.size() == 1) return choices[0];
-    if (choices.size() == 2) {
-        return choices[currentLanguage == L"fr" ? *count > 1 : *count != 1];
+
+    long long number = std::llabs(*count);
+    if (currentLanguage == L"ru" && choices.size() > 2) {
+        size_t form = russianForm(number);
+        return choices.size() == 4 ? choices[number ? form + 1 : 0] : choices[form];
     }
 
-    return choices[static_cast<size_t>(std::min<long long>(*count, 2))];
+    if (choices.size() == 2) {
+        return choices[currentLanguage == L"fr" ? number > 1 : number != 1];
+    }
+
+    return choices[static_cast<size_t>(std::min<long long>(number, 2))];
 }
 
 }
@@ -83,7 +99,7 @@ void initI18n(std::filesystem::path const& directory) {
 }
 
 std::vector<std::wstring> languages() {
-    return {L"en", L"tr", L"de", L"fr", L"it", L"az", L"ja", L"ko", L"zh"};
+    return {L"en", L"tr", L"de", L"es", L"fr", L"it", L"pt", L"ru", L"az", L"ja", L"ko", L"zh"};
 }
 
 std::wstring resolveLanguage(std::wstring const& setting) {

@@ -1,0 +1,124 @@
+{
+    "manifest": {
+        "description": "Envie arquivos, capturas de tela e imagens para o seu Fileship e encurte links."
+    },
+    "menu": {
+        "uploadImage": "Enviar imagem para o Fileship",
+        "shortenLink": "Encurtar link com o Fileship",
+        "shortenPage": "Encurtar link da página com o Fileship"
+    },
+    "popup": {
+        "settings": "Configurações",
+        "uploadFiles": "Enviar arquivos",
+        "uploadFilesDescription": "Escolha arquivos deste computador",
+        "shortenPage": "Encurtar esta página",
+        "shortenPageDescription": "Crie um link curto para a aba atual",
+        "captureVisible": "Capturar área visível",
+        "captureVisibleDescription": "Envie uma captura de tela do que você vê",
+        "captureArea": "Capturar uma área",
+        "captureAreaDescription": "Arraste sobre a página para escolher o que capturar",
+        "connectTitle": "Conecte seu Fileship",
+        "connectDescription": "Adicione o endereço do servidor e o token de envio para começar a enviar.",
+        "openSettings": "Abrir configurações"
+    },
+    "upload": {
+        "title": "Enviar para o Fileship",
+        "description": "Os arquivos são enviados com as opções de envio das configurações.",
+        "dropTitle": "Solte os arquivos aqui",
+        "dropDescription": "Ou escolha-os neste computador.",
+        "choose": "Escolher arquivos"
+    },
+    "tasks": {
+        "title": "Recentes",
+        "clear": "Limpar",
+        "empty": "Envios e links curtos aparecem aqui.",
+        "uploading": "Enviando… {progress}%",
+        "shortening": "Encurtando…",
+        "copyLink": "Copiar link",
+        "openLink": "Abrir link",
+        "linkCopied": "Link copiado"
+    },
+    "options": {
+        "title": "Configurações do Fileship",
+        "description": "Envie arquivos, capturas de tela e imagens deste navegador e encurte links.",
+        "connection": "Conexão",
+        "connectionDescription": "O servidor Fileship para onde este navegador envia arquivos.",
+        "serverAddress": "Endereço do servidor",
+        "serverAddressPlaceholder": "files.example.com",
+        "uploadToken": "Token de envio",
+        "uploadTokenDescription": "Copie em Configurações → Integrações no seu Fileship. Ele só pode enviar arquivos e encurtar links, e fica guardado apenas neste navegador.",
+        "test": "Testar conexão",
+        "save": "Salvar",
+        "disconnect": "Desconectar",
+        "saved": "Conexão salva",
+        "disconnected": "Desconectado",
+        "connected": "Conectado a {siteName} · Fileship v{version}",
+        "canUploadAndShorten": "Este token pode enviar arquivos e encurtar links.",
+        "canUploadOnly": "Este token pode enviar arquivos, mas não pode encurtar links.",
+        "canShortenOnly": "Este token pode encurtar links, mas não pode enviar arquivos.",
+        "connectionFailed": "Não foi possível conectar",
+        "uploadOptions": "Opções de envio",
+        "uploadOptionsDescription": "Usadas para arquivos, imagens e capturas de tela enviados deste navegador.",
+        "fileName": "Nome do arquivo",
+        "expiration": "Expiração"
+    },
+    "labels": {
+        "fileNameTypes": {
+            "Random": "Aleatório",
+            "UUID": "UUID",
+            "Original": "Original"
+        },
+        "expiration": {
+            "never": "Nunca",
+            "5m": "5 minutos",
+            "15m": "15 minutos",
+            "30m": "30 minutos",
+            "1h": "1 hora",
+            "6h": "6 horas",
+            "12h": "12 horas",
+            "1d": "1 dia",
+            "1w": "1 semana",
+            "2w": "2 semanas",
+            "1mo": "1 mês",
+            "3mo": "3 meses",
+            "6mo": "6 meses",
+            "1y": "1 ano"
+        }
+    },
+    "area": {
+        "hint": "Arraste para escolher uma área, clique para capturar a página visível ou pressione Esc para cancelar"
+    },
+    "notify": {
+        "uploadedCopied": "Enviado, link copiado",
+        "uploaded": "Enviado",
+        "shortenedCopied": "Link encurtado e copiado",
+        "shortened": "Link encurtado",
+        "uploadFailed": "Falha no envio",
+        "shortenFailed": "Não foi possível encurtar o link"
+    },
+    "errors": {
+        "notConfigured": "Primeiro, conecte seu Fileship nas configurações.",
+        "invalidAddress": "Digite um endereço de servidor válido.",
+        "tokenRequired": "Digite seu token de envio.",
+        "permissionDenied": "O Fileship precisa de acesso a {origin} para enviar arquivos.",
+        "hostPermissionMissing": "A extensão não consegue mais acessar {origin}. Salve a conexão novamente nas configurações.",
+        "unreachable": "Não foi possível acessar seu servidor Fileship.",
+        "timeout": "O servidor demorou demais para responder.",
+        "notFileship": "Nenhum servidor Fileship foi encontrado em {url}.",
+        "serverStarting": "Este servidor Fileship ainda está iniciando. Tente novamente em instantes.",
+        "serverTooOld": "Este servidor usa o Fileship v{version}. A extensão precisa da v{minVersion} ou mais recente.",
+        "invalidToken": "O token de envio não é válido. Copie-o novamente em Configurações → Integrações.",
+        "noPermission": "Sua conta não pode enviar arquivos nem encurtar links neste servidor.",
+        "cannotUpload": "Sua conta não pode enviar arquivos neste servidor.",
+        "cannotShorten": "Sua conta não pode encurtar links neste servidor.",
+        "storageFull": "Seu armazenamento está cheio.",
+        "requestFailed": "A solicitação falhou ({status}).",
+        "noLink": "O servidor não retornou um link.",
+        "imageAccessDenied": "O Fileship precisa de acesso a {origin} para baixar esta imagem.",
+        "imageDownloadFailed": "Não foi possível baixar a imagem.",
+        "pageNotSupported": "Só é possível encurtar páginas http e https.",
+        "captureNotAllowed": "Não é possível capturar esta página.",
+        "interrupted": "O navegador interrompeu esta tarefa. Tente novamente.",
+        "fileMissing": "O arquivo não está mais disponível. Escolha-o novamente."
+    }
+}

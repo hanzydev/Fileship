@@ -383,7 +383,7 @@
                 <UiCardAction>
                     <UiButton @click="handleOpenStorage()">
                         <IPlus />
-                        {{ $t('instance.storage.add') }}
+                        <span class="hidden sm:inline">{{ $t('instance.storage.add') }}</span>
                     </UiButton>
                 </UiCardAction>
             </UiCardHeader>
