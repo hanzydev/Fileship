@@ -1,5 +1,32 @@
 # Changelog
 
+## v6.3.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v6.3.0...v6.3.1)
+
+Fileship 6.3.1 makes single sign-on work with Google, keeps the storage page usable on large accounts and builds the Docker images without emulation, which also publishes the telemetry panel image that 6.3.0 missed.
+
+### 🩹 Fixes
+
+- **auth:** Send client credentials Google can read in single sign-on. Logging in with Google failed after consent with "The OAuth client was not found" ([b8be2edd](https://github.com/hanzydev/Fileship/commit/b8be2edd))
+- **ui:** Keep the storage page lists in their own scroll area, so the duplicates are within reach on accounts with many files ([3de2ba15](https://github.com/hanzydev/Fileship/commit/3de2ba15))
+- **ui:** Move the webhooks section to the left column of the instance page ([da01f519](https://github.com/hanzydev/Fileship/commit/da01f519))
+- **docker:** Cross-build the images instead of building under QEMU ([52b5e396](https://github.com/hanzydev/Fileship/commit/52b5e396))
+
+### 📖 Documentation
+
+- Translate the README into the eleven other app languages ([9eaba2d7](https://github.com/hanzydev/Fileship/commit/9eaba2d7))
+- Record the arm64 checks under emulation ([da455e62](https://github.com/hanzydev/Fileship/commit/da455e62))
+- **extension:** Note that 1.1.0 is in review with the new listing texts ([ce1b9724](https://github.com/hanzydev/Fileship/commit/ce1b9724))
+
+### 🤖 CI
+
+- **extension:** Submit tagged releases to the Chrome Web Store ([38f77acd](https://github.com/hanzydev/Fileship/commit/38f77acd))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v6.3.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v6.2.0...v6.3.0)
