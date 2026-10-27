@@ -35,7 +35,7 @@
 - Несколько пользователей с правами и лимитами хранилища, ключи доступа, двухфакторная аутентификация и [единый вход](docs/configuration.md#single-sign-on) через OpenID Connect
 - Обновления без простоя: в один клик или по расписанию
 - Интеграции для загрузки из ShareX, macOS и Linux, [приложение для Windows](docs/desktop.md) и [устанавливаемое приложение для телефона](docs/mobile.md), в которое можно делиться из приложений Android
-- [Расширение для браузера](docs/browser-extension.md), которое загружает файлы, изображения и скриншоты и сокращает ссылки: для Chrome и Edge — [в Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh), для Firefox — сборка из исходного кода
+- [Расширение для браузера](docs/browser-extension.md), которое загружает файлы, изображения и скриншоты и сокращает ссылки: для Chrome и Edge — [в Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh), для Firefox — [в каталоге дополнений Firefox](https://addons.mozilla.org/firefox/addon/fileship/)
 - [Вебхуки](docs/webhooks.md) для Discord, Slack и ваших собственных сервисов
 - Английский, турецкий, немецкий, испанский, французский, итальянский, бразильский португальский, русский, азербайджанский, японский, корейский и упрощённый китайский
 

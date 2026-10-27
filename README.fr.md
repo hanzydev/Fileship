@@ -35,7 +35,7 @@
 - Plusieurs utilisateurs avec autorisations et limites de stockage, clés d'accès, authentification à deux facteurs et [authentification unique](docs/configuration.md#single-sign-on) avec OpenID Connect
 - Mises à jour sans interruption de service, en un clic ou planifiées
 - Intégrations d'importation pour ShareX, macOS et Linux, l'[application Windows](docs/desktop.md) et une [application installable sur téléphone](docs/mobile.md) vers laquelle les applications Android peuvent partager
-- Une [extension de navigateur](docs/browser-extension.md) qui importe des fichiers, des images et des captures d'écran et raccourcit les liens, [sur le Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh) pour Chrome et Edge, et à compiler depuis les sources pour Firefox
+- Une [extension de navigateur](docs/browser-extension.md) qui importe des fichiers, des images et des captures d'écran et raccourcit les liens, [sur le Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh) pour Chrome et Edge, et [sur les modules Firefox](https://addons.mozilla.org/firefox/addon/fileship/) pour Firefox
 - Des [webhooks](docs/webhooks.md) pour Discord, Slack et vos propres services
 - Anglais, turc, allemand, espagnol, français, italien, portugais du Brésil, russe, azerbaïdjanais, japonais, coréen et chinois simplifié
 

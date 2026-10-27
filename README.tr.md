@@ -35,7 +35,7 @@
 - Yetkileri ve depolama sınırları olan birden çok kullanıcı, geçiş anahtarları, iki adımlı doğrulama ve OpenID Connect ile [tek oturum açma (SSO)](docs/configuration.md#single-sign-on)
 - Kesintisiz güncellemeler: tek tıkla ya da zamanlanmış
 - ShareX, macOS ve Linux için yükleme entegrasyonları, [Windows uygulaması](docs/desktop.md) ve Android uygulamalarından paylaşım alabilen, [telefona yüklenebilen bir uygulama](docs/mobile.md)
-- Dosya, görsel ve ekran görüntüsü yükleyen, bağlantı kısaltan bir [tarayıcı uzantısı](docs/browser-extension.md): Chrome ve Edge için [Chrome Web Mağazası'nda](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh), Firefox için kaynak koddan derlenir
+- Dosya, görsel ve ekran görüntüsü yükleyen, bağlantı kısaltan bir [tarayıcı uzantısı](docs/browser-extension.md): Chrome ve Edge için [Chrome Web Mağazası'nda](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh), Firefox için [Firefox Eklentileri'nde](https://addons.mozilla.org/firefox/addon/fileship/)
 - Discord, Slack ve kendi servislerin için [webhook'lar](docs/webhooks.md)
 - İngilizce, Türkçe, Almanca, İspanyolca, Fransızca, İtalyanca, Brezilya Portekizcesi, Rusça, Azerice, Japonca, Korece ve Basitleştirilmiş Çince
 

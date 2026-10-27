@@ -35,7 +35,7 @@
 - 多用户，支持权限和存储限制、通行密钥、双重验证，以及基于 OpenID Connect 的[单点登录](docs/configuration.md#single-sign-on)
 - 零停机更新，一键完成或按计划自动进行
 - ShareX、macOS 和 Linux 上传集成、[Windows 应用](docs/desktop.md)，以及可接收 Android 应用分享的[手机可安装应用](docs/mobile.md)
-- [浏览器扩展](docs/browser-extension.md)，可上传文件、图片和截图并生成短链接。Chrome 和 Edge 可从 [Chrome 应用商店](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh)安装，Firefox 需从源码构建
+- [浏览器扩展](docs/browser-extension.md)，可上传文件、图片和截图并生成短链接。Chrome 和 Edge 可从 [Chrome 应用商店](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh)安装，Firefox 可从 [Firefox 附加组件](https://addons.mozilla.org/firefox/addon/fileship/)安装
 - 可推送到 Discord、Slack 和你自己的服务的 [Webhook](docs/webhooks.md)
 - 英语、土耳其语、德语、西班牙语、法语、意大利语、巴西葡萄牙语、俄语、阿塞拜疆语、日语、韩语和简体中文
 

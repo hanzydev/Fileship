@@ -35,7 +35,7 @@
 - 権限と容量制限を設定できる複数ユーザー、パスキー、2 段階認証、OpenID Connect による[シングルサインオン](docs/configuration.md#single-sign-on)
 - ダウンタイムなしのアップデート。ワンクリックでもスケジュールでも実行できます
 - ShareX、macOS、Linux 向けのアップロード連携、[Windows アプリ](docs/desktop.md)、Android アプリから共有できる[スマートフォン用のインストール可能なアプリ](docs/mobile.md)
-- ファイル、画像、スクリーンショットのアップロードとリンクの短縮ができる[ブラウザー拡張機能](docs/browser-extension.md)。Chrome と Edge 向けは [Chrome ウェブストア](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh)で公開しており、Firefox 向けはソースからビルドします
+- ファイル、画像、スクリーンショットのアップロードとリンクの短縮ができる[ブラウザー拡張機能](docs/browser-extension.md)。Chrome と Edge 向けは [Chrome ウェブストア](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh)で公開しており、Firefox 向けは [Firefox アドオン](https://addons.mozilla.org/firefox/addon/fileship/)で公開しています
 - Discord、Slack、独自のサービスに送れる [Webhook](docs/webhooks.md)
 - 英語、トルコ語、ドイツ語、スペイン語、フランス語、イタリア語、ブラジルポルトガル語、ロシア語、アゼルバイジャン語、日本語、韓国語、簡体字中国語
 

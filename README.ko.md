@@ -35,7 +35,7 @@
 - 권한과 저장 용량 제한을 둘 수 있는 다중 사용자, 패스키, 2단계 인증, OpenID Connect 기반 [싱글 사인온](docs/configuration.md#single-sign-on)
 - 다운타임 없는 업데이트, 클릭 한 번으로 또는 예약해서
 - ShareX, macOS, Linux 업로드 연동, [Windows 앱](docs/desktop.md), Android 앱에서 공유할 수 있는 [휴대폰용 설치형 앱](docs/mobile.md)
-- 파일, 이미지, 스크린샷을 업로드하고 링크를 단축하는 [브라우저 확장 프로그램](docs/browser-extension.md). Chrome과 Edge용은 [Chrome 웹 스토어](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh)에 있고, Firefox용은 소스에서 빌드해요
+- 파일, 이미지, 스크린샷을 업로드하고 링크를 단축하는 [브라우저 확장 프로그램](docs/browser-extension.md). Chrome과 Edge용은 [Chrome 웹 스토어](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh)에 있고, Firefox용은 [Firefox 부가 기능](https://addons.mozilla.org/firefox/addon/fileship/)에 있어요
 - Discord, Slack, 직접 만든 서비스로 보내는 [웹훅](docs/webhooks.md)
 - 영어, 터키어, 독일어, 스페인어, 프랑스어, 이탈리아어, 브라질 포르투갈어, 러시아어, 아제르바이잔어, 일본어, 한국어, 중국어 간체
 

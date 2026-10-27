@@ -35,7 +35,7 @@
 - İcazələri və yaddaş limitləri olan çoxlu istifadəçi, giriş açarları, iki addımlı doğrulama və OpenID Connect ilə [SSO ilə giriş](docs/configuration.md#single-sign-on)
 - Fasiləsiz yeniləmələr: bir kliklə və ya cədvəl üzrə
 - ShareX, macOS və Linux üçün yükləmə inteqrasiyaları, [Windows tətbiqi](docs/desktop.md) və Android tətbiqlərindən paylaşım qəbul edən, [telefona quraşdırıla bilən tətbiq](docs/mobile.md)
-- Fayl, şəkil və ekran görüntüsü yükləyən, keçidləri qısaldan [brauzer genişləndirməsi](docs/browser-extension.md): Chrome və Edge üçün [Chrome Web Store-da](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh), Firefox üçün isə mənbə kodundan qurulur
+- Fayl, şəkil və ekran görüntüsü yükləyən, keçidləri qısaldan [brauzer genişləndirməsi](docs/browser-extension.md): Chrome və Edge üçün [Chrome Web Store-da](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh), Firefox üçün isə [Firefox əlavələrində](https://addons.mozilla.org/firefox/addon/fileship/)
 - Discord, Slack və öz xidmətlərin üçün [webhook-lar](docs/webhooks.md)
 - İngilis, türk, alman, ispan, fransız, italyan, portuqal (Braziliya), rus, Azərbaycan, yapon, koreya və sadələşdirilmiş çin dilləri
 
