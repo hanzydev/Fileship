@@ -2,6 +2,7 @@
 @import '@fileship/ui/app/styles/tailwind.css';
 
 @source '..';
+@source not '../store';
 
 @theme inline {
     --font-sans: 'Geist Variable', sans-serif;
