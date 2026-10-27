@@ -1,4 +1,6 @@
-FROM node:24-slim AS builder
+FROM --platform=$BUILDPLATFORM node:24-slim AS builder
+
+ARG TARGETARCH
 
 WORKDIR /fileship
 
@@ -10,17 +12,18 @@ COPY . .
 RUN npm i -g corepack@latest
 RUN corepack enable
 
-RUN pnpm install --frozen-lockfile --filter dashboard... --os=current --cpu=current --libc=current
+RUN pnpm install --frozen-lockfile --filter dashboard... --os=current --libc=current \
+    --cpu=current --cpu=$(echo $TARGETARCH | sed s/amd64/x64/)
 RUN pnpm --filter dashboard... build
+RUN node scripts/retarget-natives.mjs apps/dashboard/.output $TARGETARCH
 
-RUN find apps/dashboard/.output/server/node_modules/onnxruntime-node/bin -mindepth 3 -maxdepth 3 \
-    ! -path "*/linux/$(node -p process.arch)" -exec rm -rf {} +
-
-RUN npm install --prefix /prisma --omit=dev --omit=peer --no-audit --no-fund --no-package-lock \
+RUN export PRISMA_CLI_BINARY_TARGETS=$([ $TARGETARCH = arm64 ] && echo linux-arm64 || echo debian)-openssl-3.0.x \
+    && npm install --prefix /prisma --omit=dev --omit=peer --no-audit --no-fund --no-package-lock \
     prisma@$(node -p "require('./apps/dashboard/node_modules/prisma/package.json').version") \
     dotenv@$(node -p "require('./apps/dashboard/node_modules/dotenv/package.json').version") \
     @vercel/nft@1.11.0 \
-    && node scripts/prisma-cli.mjs /prisma /migrate
+    && node scripts/prisma-cli.mjs /prisma /migrate \
+    && node scripts/retarget-natives.mjs /migrate $TARGETARCH
 
 FROM node:24-slim AS runner
 

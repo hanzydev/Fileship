@@ -1,4 +1,6 @@
-FROM node:24-slim AS builder
+FROM --platform=$BUILDPLATFORM node:24-slim AS builder
+
+ARG TARGETARCH
 
 WORKDIR /fileship
 
@@ -13,6 +15,7 @@ RUN corepack enable
 RUN pnpm install --frozen-lockfile --filter updater-agent... --os=current --cpu=current --libc=current
 RUN pnpm --filter updater-agent... build
 RUN pnpm --filter updater-agent deploy --prod --legacy /deploy
+RUN node scripts/retarget-natives.mjs /deploy $TARGETARCH
 
 FROM node:24-slim AS runner
 
