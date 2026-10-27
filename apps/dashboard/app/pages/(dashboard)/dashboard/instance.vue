@@ -1212,8 +1212,8 @@ const sections: SettingSection[] = [
 ];
 
 const columns = [
-    [sections[0]!, sections[1]!, sections[2]!, sections[6]!],
-    [sections[5]!, sections[4]!, sections[3]!, sections[7]!, sections[8]!],
+    [sections[0]!, sections[1]!, sections[2]!, sections[6]!, sections[8]!],
+    [sections[5]!, sections[4]!, sections[3]!, sections[7]!],
 ];
 
 const storageTypeLabels = computed(() => ({
