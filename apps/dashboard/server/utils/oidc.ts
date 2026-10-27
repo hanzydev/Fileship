@@ -53,6 +53,13 @@ export const findOidcIdentity = async (userId: string, settings: InstanceSetting
         isSameIssuer(identity.issuer, settings.oidcIssuerUrl),
     ) ?? null;
 
+const clientSecretBasic =
+    (clientId: string, clientSecret: string): client.ClientAuth =>
+    (_as, _client, _body, headers) => {
+        const credentials = `${encodeURIComponent(clientId)}:${encodeURIComponent(clientSecret)}`;
+        headers.set('authorization', `Basic ${Buffer.from(credentials).toString('base64')}`);
+    };
+
 export const discoverOidc = async (issuerUrl: string, clientId: string, clientSecret: string) => {
     const issuer = new URL(issuerUrl);
     const execute = issuer.protocol === 'http:' ? [client.allowInsecureRequests] : [];
@@ -69,7 +76,7 @@ export const discoverOidc = async (issuerUrl: string, clientId: string, clientSe
         clientId,
         clientSecret,
         !methods || methods.includes('client_secret_basic')
-            ? client.ClientSecretBasic(clientSecret)
+            ? clientSecretBasic(clientId, clientSecret)
             : client.ClientSecretPost(clientSecret),
     );
 
