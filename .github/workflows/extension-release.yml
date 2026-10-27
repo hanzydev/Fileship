@@ -78,9 +78,9 @@ jobs:
               run: |
                   key=${CHROME_SERVICE_ACCOUNT_PRIVATE_KEY//'\n'/$'\n'}
                   export CHROME_SERVICE_ACCOUNT_PRIVATE_KEY="$key"
-                  pnpm exec wxt submit --chrome-zip ".output/fileship-$VERSION-chrome.zip" ${DRY_RUN:+--dry-run}
+                  pnpm exec wxt submit --chrome-zip ".output/fileship-$VERSION-chrome.zip"
               env:
-                  DRY_RUN: ${{ inputs.dry_run && 'true' || '' }}
+                  DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
                   CHROME_API_VERSION: v2
                   CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
                   CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
@@ -94,9 +94,8 @@ jobs:
                   pnpm exec wxt submit
                   --firefox-zip ".output/fileship-$VERSION-firefox.zip"
                   --firefox-sources-zip ".output/fileship-$VERSION-sources.zip"
-                  ${DRY_RUN:+--dry-run}
               env:
-                  DRY_RUN: ${{ inputs.dry_run && 'true' || '' }}
+                  DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
                   FIREFOX_EXTENSION_ID: fileship@hanzy.dev
                   FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
                   FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
