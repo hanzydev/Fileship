@@ -1,6 +1,6 @@
 # Store listing
 
-Everything to fill in when the extension is submitted to the Chrome Web Store and addons.mozilla.org (AMO). Paste the text blocks as they are. Version 1.1.0 is [on the Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh) (item id `lbnlfnmlaipoflalhikladilalkoagnh`); AMO and Edge Add-ons are not done yet. Replace `<SERVER_URL>` and `<UPLOAD_TOKEN>` with the reviewer account's values in the store forms only; never commit them.
+Everything to fill in when the extension is submitted to the Chrome Web Store and addons.mozilla.org (AMO). Paste the text blocks as they are. Version 1.1.0 is [on the Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh) (item id `lbnlfnmlaipoflalhikladilalkoagnh`) and 1.0.0 [on AMO](https://addons.mozilla.org/firefox/addon/fileship/); Edge Add-ons is not done yet. Version updates go through the release workflow (MEMORY.md, Releasing); this page is for the listings and first submissions. Replace `<SERVER_URL>` and `<UPLOAD_TOKEN>` with the reviewer account's values in the store forms only; never commit them.
 
 ## Packages
 
@@ -12,7 +12,7 @@ Run `pnpm --filter extension package`. It writes to `apps/extension/.output`:
 | `fileship-<version>-firefox.zip` | AMO, the add-on itself                    |
 | `fileship-<version>-sources.zip` | AMO, the source code step                 |
 
-Before an AMO submission, rebuild the sources zip in an empty folder (steps in `docs/browser-extension.md`) and check that `firefox-mv3` matches the Firefox zip.
+Before an AMO submission by hand, rebuild the sources zip in an empty folder (steps in `docs/browser-extension.md`) and check that `firefox-mv3` matches the Firefox zip; the release workflow does this on its own.
 
 ## Shared details
 

@@ -6,8 +6,16 @@ on:
             - 'extension-v*'
     workflow_dispatch:
         inputs:
+            stores:
+                description: Stores to submit to
+                type: choice
+                options:
+                    - all
+                    - chrome
+                    - firefox
+                default: all
             dry_run:
-                description: Only check the Chrome Web Store credentials
+                description: Only check the store credentials
                 type: boolean
                 default: true
 
@@ -51,7 +59,21 @@ jobs:
                   name: fileship-extension-${{ env.VERSION }}
                   path: apps/extension/.output/fileship-${{ env.VERSION }}-*.zip
 
+            - name: Rebuild the Firefox package from its sources
+              id: sources
+              run: |
+                  sources="$RUNNER_TEMP/sources"
+                  submitted="$RUNNER_TEMP/firefox"
+                  mkdir "$sources" "$submitted"
+                  unzip -q "apps/extension/.output/fileship-$VERSION-sources.zip" -d "$sources"
+                  unzip -q "apps/extension/.output/fileship-$VERSION-firefox.zip" -d "$submitted"
+                  cd "$sources"
+                  pnpm install --frozen-lockfile
+                  pnpm --filter extension build
+                  diff -r apps/extension/.output/firefox-mv3 "$submitted"
+
             - name: Submit to the Chrome Web Store
+              if: inputs.stores != 'firefox'
               working-directory: apps/extension
               run: |
                   key=${CHROME_SERVICE_ACCOUNT_PRIVATE_KEY//'\n'/$'\n'}
@@ -64,3 +86,17 @@ jobs:
                   CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
                   CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL: ${{ secrets.CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL }}
                   CHROME_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY }}
+
+            - name: Submit to addons.mozilla.org
+              if: ${{ !cancelled() && steps.sources.outcome == 'success' && inputs.stores != 'chrome' }}
+              working-directory: apps/extension
+              run: >-
+                  pnpm exec wxt submit
+                  --firefox-zip ".output/fileship-$VERSION-firefox.zip"
+                  --firefox-sources-zip ".output/fileship-$VERSION-sources.zip"
+                  ${DRY_RUN:+--dry-run}
+              env:
+                  DRY_RUN: ${{ inputs.dry_run && 'true' || '' }}
+                  FIREFOX_EXTENSION_ID: fileship@hanzy.dev
+                  FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+                  FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
