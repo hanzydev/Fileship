@@ -80,42 +80,44 @@
                 :description="$t('storage.noFilesDescription')"
             />
 
-            <VirtualList
-                v-else
-                :items="files"
-                :item-key="(file) => file.id"
-                :estimate-size="66"
-                :loading="isLoadingMore"
-                @reach-end="loadMore"
-            >
-                <template #skeleton>
-                    <ListCardSkeleton media="size-10" />
-                </template>
-                <template #default="{ item }">
-                    <NuxtLink :to="`/dashboard/files?file=${item.id}`" class="block">
-                        <UiCard size="sm" class="transition-colors hover:bg-muted/50">
-                            <UiCardContent class="flex items-center gap-3">
-                                <div
-                                    class="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted"
-                                >
-                                    <FileThumbnail :file="item" />
-                                </div>
-                                <div class="flex min-w-0 flex-1 flex-col">
-                                    <TextBlock variant="small" class="truncate">
-                                        {{ item.name }}
-                                    </TextBlock>
-                                    <TextBlock variant="muted" class="truncate">
-                                        {{ date(item.createdAt).format('ll') }}
-                                    </TextBlock>
-                                </div>
-                                <span class="shrink-0 text-sm tabular-nums">
-                                    {{ item.size.formatted }}
-                                </span>
-                            </UiCardContent>
-                        </UiCard>
-                    </NuxtLink>
-                </template>
-            </VirtualList>
+            <div v-else class="max-h-120 overflow-y-auto">
+                <VirtualList
+                    :items="files"
+                    :item-key="(file) => file.id"
+                    :estimate-size="66"
+                    :loading="isLoadingMore"
+                    contained
+                    @reach-end="loadMore"
+                >
+                    <template #skeleton>
+                        <ListCardSkeleton media="size-10" />
+                    </template>
+                    <template #default="{ item }">
+                        <NuxtLink :to="`/dashboard/files?file=${item.id}`" class="block">
+                            <UiCard size="sm" class="transition-colors hover:bg-muted/50">
+                                <UiCardContent class="flex items-center gap-3">
+                                    <div
+                                        class="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted"
+                                    >
+                                        <FileThumbnail :file="item" />
+                                    </div>
+                                    <div class="flex min-w-0 flex-1 flex-col">
+                                        <TextBlock variant="small" class="truncate">
+                                            {{ item.name }}
+                                        </TextBlock>
+                                        <TextBlock variant="muted" class="truncate">
+                                            {{ date(item.createdAt).format('ll') }}
+                                        </TextBlock>
+                                    </div>
+                                    <span class="shrink-0 text-sm tabular-nums">
+                                        {{ item.size.formatted }}
+                                    </span>
+                                </UiCardContent>
+                            </UiCard>
+                        </NuxtLink>
+                    </template>
+                </VirtualList>
+            </div>
         </UiCardContent>
     </UiCard>
 
@@ -152,94 +154,98 @@
                 :description="$t('storage.noDuplicatesDescription')"
             />
 
-            <VirtualList
-                v-else
-                :items="duplicates"
-                :item-key="(group) => group.id"
-                :estimate-size="190"
-                :loading="isLoadingMoreDuplicates"
-                @reach-end="loadMoreDuplicates"
-            >
-                <template #skeleton>
-                    <ListCardSkeleton media="size-10" />
-                </template>
-                <template #default="{ item }">
-                    <UiCard size="sm">
-                        <UiCardHeader>
-                            <UiCardTitle>
-                                {{
-                                    $t('storage.copies', {
-                                        count: item.files.length,
-                                        size: formatSize(+item.size),
-                                    })
-                                }}
-                            </UiCardTitle>
-                            <UiCardDescription>
-                                {{ $t('storage.canFree', { size: formatSize(+item.wasted) }) }}
-                            </UiCardDescription>
-                            <UiCardAction>
-                                <UiButton
-                                    variant="outline"
-                                    size="sm"
-                                    @click="handleKeepOldest(item)"
-                                >
-                                    <ITrash2 />
-                                    {{ $t('storage.keepOldest') }}
-                                </UiButton>
-                            </UiCardAction>
-                        </UiCardHeader>
-                        <UiCardContent>
-                            <UiItemGroup>
-                                <UiItem
-                                    v-for="file in item.files"
-                                    :key="file.id"
-                                    variant="muted"
-                                    size="sm"
-                                >
-                                    <UiItemMedia variant="image" class="relative bg-muted">
-                                        <FileThumbnail :file="file" />
-                                    </UiItemMedia>
-                                    <UiItemContent class="min-w-0">
-                                        <UiItemTitle class="max-w-full">
-                                            <span class="truncate">{{ file.name }}</span>
-                                        </UiItemTitle>
-                                        <UiItemDescription class="truncate">
-                                            {{
-                                                file.folder
-                                                    ? $t('storage.fileInFolder', {
-                                                          date: date(file.createdAt).format('ll'),
-                                                          folder: file.folder.name,
-                                                      })
-                                                    : date(file.createdAt).format('ll')
-                                            }}
-                                        </UiItemDescription>
-                                    </UiItemContent>
-                                    <UiItemActions>
-                                        <UiButton
-                                            variant="ghost"
-                                            size="icon-sm"
-                                            :aria-label="$t('storage.openFile')"
-                                            as-child
-                                        >
-                                            <NuxtLink :to="`/dashboard/files?file=${file.id}`">
-                                                <IExternalLink />
-                                            </NuxtLink>
-                                        </UiButton>
-                                        <UiButton
-                                            variant="ghost"
-                                            size="icon-sm"
-                                            :aria-label="$t('storage.moveToTrash')"
-                                            @click="remove([file])"
-                                        >
-                                            <ITrash2 />
-                                        </UiButton>
-                                    </UiItemActions>
-                                </UiItem>
-                            </UiItemGroup>
-                        </UiCardContent>
-                    </UiCard>
-                </template>
-            </VirtualList>
+            <div v-else class="max-h-120 overflow-y-auto">
+                <VirtualList
+                    :items="duplicates"
+                    :item-key="(group) => group.id"
+                    :estimate-size="190"
+                    :loading="isLoadingMoreDuplicates"
+                    contained
+                    @reach-end="loadMoreDuplicates"
+                >
+                    <template #skeleton>
+                        <ListCardSkeleton media="size-10" />
+                    </template>
+                    <template #default="{ item }">
+                        <UiCard size="sm">
+                            <UiCardHeader>
+                                <UiCardTitle>
+                                    {{
+                                        $t('storage.copies', {
+                                            count: item.files.length,
+                                            size: formatSize(+item.size),
+                                        })
+                                    }}
+                                </UiCardTitle>
+                                <UiCardDescription>
+                                    {{ $t('storage.canFree', { size: formatSize(+item.wasted) }) }}
+                                </UiCardDescription>
+                                <UiCardAction>
+                                    <UiButton
+                                        variant="outline"
+                                        size="sm"
+                                        @click="handleKeepOldest(item)"
+                                    >
+                                        <ITrash2 />
+                                        {{ $t('storage.keepOldest') }}
+                                    </UiButton>
+                                </UiCardAction>
+                            </UiCardHeader>
+                            <UiCardContent>
+                                <UiItemGroup>
+                                    <UiItem
+                                        v-for="file in item.files"
+                                        :key="file.id"
+                                        variant="muted"
+                                        size="sm"
+                                    >
+                                        <UiItemMedia variant="image" class="relative bg-muted">
+                                            <FileThumbnail :file="file" />
+                                        </UiItemMedia>
+                                        <UiItemContent class="min-w-0">
+                                            <UiItemTitle class="max-w-full">
+                                                <span class="truncate">{{ file.name }}</span>
+                                            </UiItemTitle>
+                                            <UiItemDescription class="truncate">
+                                                {{
+                                                    file.folder
+                                                        ? $t('storage.fileInFolder', {
+                                                              date: date(file.createdAt).format(
+                                                                  'll',
+                                                              ),
+                                                              folder: file.folder.name,
+                                                          })
+                                                        : date(file.createdAt).format('ll')
+                                                }}
+                                            </UiItemDescription>
+                                        </UiItemContent>
+                                        <UiItemActions>
+                                            <UiButton
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                :aria-label="$t('storage.openFile')"
+                                                as-child
+                                            >
+                                                <NuxtLink :to="`/dashboard/files?file=${file.id}`">
+                                                    <IExternalLink />
+                                                </NuxtLink>
+                                            </UiButton>
+                                            <UiButton
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                :aria-label="$t('storage.moveToTrash')"
+                                                @click="remove([file])"
+                                            >
+                                                <ITrash2 />
+                                            </UiButton>
+                                        </UiItemActions>
+                                    </UiItem>
+                                </UiItemGroup>
+                            </UiCardContent>
+                        </UiCard>
+                    </template>
+                </VirtualList>
+            </div>
         </UiCardContent>
     </UiCard>
 </template>
