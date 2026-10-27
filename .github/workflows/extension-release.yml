@@ -1,0 +1,66 @@
+name: Release the browser extension
+
+on:
+    push:
+        tags:
+            - 'extension-v*'
+    workflow_dispatch:
+        inputs:
+            dry_run:
+                description: Only check the Chrome Web Store credentials
+                type: boolean
+                default: true
+
+permissions:
+    contents: read
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v6
+            - uses: pnpm/action-setup@v6
+
+            - name: Use Node.js 24
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: 'pnpm'
+
+            - name: Read the version
+              run: echo "VERSION=$(node -p "require('./apps/extension/package.json').version")" >> "$GITHUB_ENV"
+
+            - name: Check the version
+              if: startsWith(github.ref, 'refs/tags/extension-v')
+              run: |
+                  if [ "extension-v$VERSION" != "${GITHUB_REF_NAME}" ]; then
+                      echo "Tag ${GITHUB_REF_NAME} does not match apps/extension/package.json ($VERSION)"
+                      exit 1
+                  fi
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Package
+              run: pnpm --filter extension package
+
+            - name: Keep the packages
+              uses: actions/upload-artifact@v4
+              with:
+                  name: fileship-extension-${{ env.VERSION }}
+                  path: apps/extension/.output/fileship-${{ env.VERSION }}-*.zip
+
+            - name: Submit to the Chrome Web Store
+              working-directory: apps/extension
+              run: |
+                  key=${CHROME_SERVICE_ACCOUNT_PRIVATE_KEY//'\n'/$'\n'}
+                  export CHROME_SERVICE_ACCOUNT_PRIVATE_KEY="$key"
+                  pnpm exec wxt submit --chrome-zip ".output/fileship-$VERSION-chrome.zip" ${DRY_RUN:+--dry-run}
+              env:
+                  DRY_RUN: ${{ inputs.dry_run && 'true' || '' }}
+                  CHROME_API_VERSION: v2
+                  CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+                  CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
+                  CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL: ${{ secrets.CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL }}
+                  CHROME_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_PRIVATE_KEY }}
