@@ -22,6 +22,7 @@ Desktop:
 - [ ] Check the native overlay with a real IME composition (Japanese, Korean, Chinese) in the text tool, and the recorder toolbar and borders on screen (they are excluded from capture, so tests only rendered them offscreen).
 - [ ] Harbor in the host: a helper crash and restart, socket reconnect after a server restart, the "make public?" dialog, upload retries, quota errors and free up space were not tested.
 - [ ] Recording: each segment's audio ends 0.2-0.35 s before its video because ffmpeg polls for `q` only every stats period; `-stats_period 0.1` would shorten it. A GIF with a full-frame change between two flat colours renders wrong with `statsMode: diff` in ffmpeg 9.0.2.
+- [ ] Check screenshots of fullscreen games (exclusive fullscreen and fullscreen optimizations, for example PUBG in a match) with the DXGI capture: it matched GDI on a static desktop, but no game was captured yet. Also check a rotated monitor (falls back to GDI) and an HDR monitor (`DuplicateOutput1` converts to BGRA).
 - [ ] Check the region overlay on a mixed-DPI setup (for example 150% + 100%). The native overlay scales each display by its own DPI, but only one display was tested.
 - [ ] Recording border: when the monitors have different heights and the area runs past the shorter one, the edge inside the area on that monitor has no border line.
 - [ ] Check a recording that spans two monitors end to end (border windows on both, gdigrab output size).
