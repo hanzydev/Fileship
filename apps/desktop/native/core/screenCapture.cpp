@@ -1,10 +1,13 @@
 #include "core.h"
 
 #include <d3d11.h>
+#include <dwmapi.h>
 #include <dxgi1_5.h>
+#include <shellapi.h>
 #include <wrl/client.h>
 
 #include <cstring>
+#include <cwchar>
 #include <thread>
 
 using Microsoft::WRL::ComPtr;
@@ -12,6 +15,34 @@ using Microsoft::WRL::ComPtr;
 namespace fileship::core {
 
 namespace {
+
+bool coversDisplay(Rect const& display) {
+    POINT center{display.x + display.width / 2, display.y + display.height / 2};
+    HWND window = GetAncestor(WindowFromPoint(center), GA_ROOT);
+    if (!window) return false;
+
+    wchar_t name[16]{};
+    GetClassNameW(window, name, 16);
+    if (!std::wcscmp(name, L"Progman") || !std::wcscmp(name, L"WorkerW")) return false;
+
+    RECT bounds{};
+    if (FAILED(DwmGetWindowAttribute(window, DWMWA_EXTENDED_FRAME_BOUNDS, &bounds, sizeof(bounds))))
+        GetWindowRect(window, &bounds);
+
+    return bounds.left <= display.x && bounds.top <= display.y && bounds.right >= display.x + display.width &&
+           bounds.bottom >= display.y + display.height;
+}
+
+bool showsFullscreenApp(Rect const& rect) {
+    QUERY_USER_NOTIFICATION_STATE state{};
+    if (SUCCEEDED(SHQueryUserNotificationState(&state)) && state == QUNS_RUNNING_D3D_FULL_SCREEN) return true;
+
+    for (auto const& display : listDisplays()) {
+        if (intersectRects(rect, display.rect) && coversDisplay(display.rect)) return true;
+    }
+
+    return false;
+}
 
 bool duplicateOutput(DisplayOutput const& output, Rect const& rect, uint8_t* pixels) {
     auto part = intersectRects(rect, output.rect);
@@ -192,7 +223,7 @@ bool blitRect(Rect const& rect, bool cursor, uint8_t* pixels) {
 }
 
 bool captureRectInto(Rect const& rect, bool cursor, uint8_t* pixels) {
-    bool isCaptured = duplicateRect(rect, pixels);
+    bool isCaptured = showsFullscreenApp(rect) && duplicateRect(rect, pixels);
     if (isCaptured && cursor) drawCursorOnto(rect, pixels);
     if (!isCaptured && !blitRect(rect, cursor, pixels)) return false;
 
