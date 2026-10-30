@@ -1,5 +1,5 @@
 <template>
-    <div v-if="embed" class="discord-preview flex overflow-hidden rounded-xl bg-muted">
+    <div v-if="embed" class="flex overflow-hidden rounded-xl bg-muted">
         <div class="w-1 shrink-0" :style="{ backgroundColor: color }" />
         <div class="flex min-w-0 flex-1 flex-col gap-3 p-4 text-sm">
             <UiBadge v-if="embed.component.spoiler" variant="secondary" class="self-start">
@@ -114,19 +114,3 @@ const textParts = (content: string) =>
 const buttonText = (button: { label?: string; emoji?: { name: string } }) =>
     [button.emoji?.name, button.label].filter(Boolean).join(' ');
 </script>
-
-<style scoped>
-@reference '~/styles/tailwind.css';
-
-.discord-preview :deep(.markdown) {
-    @apply leading-6;
-}
-
-.discord-preview :deep(.markdown > * + *) {
-    @apply mt-1;
-}
-
-.discord-preview :deep(.markdown h2) {
-    @apply border-0 pb-0;
-}
-</style>
