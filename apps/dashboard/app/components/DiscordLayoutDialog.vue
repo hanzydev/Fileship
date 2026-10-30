@@ -21,6 +21,7 @@
                     :key="kind"
                     v-model="draft[kind]"
                     :kind="kind"
+                    :color="embed.color"
                     @reset="draft[kind] = defaultLayout(kind)"
                 />
                 <div class="flex flex-col gap-2 lg:sticky lg:top-0 lg:self-start">

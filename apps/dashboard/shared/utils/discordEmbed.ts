@@ -171,6 +171,39 @@ export const defaultDiscordLayout = (
     };
 };
 
+const isTemplateUrl = (value: string) => /^(https?:\/\/|\{)/i.test(value.trim());
+
+const buttonProblems = (button: DiscordButton) => [
+    ...(!button.label.trim() && !button.emoji.trim() ? ['buttonLabel'] : []),
+    ...(!isTemplateUrl(button.url) ? ['url'] : []),
+];
+
+export const discordChildProblems = (child: DiscordChild): string[] => {
+    const problems = (() => {
+        switch (child.type) {
+            case 'text':
+                return child.content.trim() ? [] : ['emptyText'];
+            case 'section':
+                return [
+                    ...(child.texts.some((text) => !text.trim()) ? ['emptyText'] : []),
+                    ...(child.accessory.type === 'thumbnail'
+                        ? isTemplateUrl(child.accessory.url)
+                            ? []
+                            : ['mediaUrl']
+                        : buttonProblems(child.accessory)),
+                ];
+            case 'gallery':
+                return child.items.some((item) => !isTemplateUrl(item.url)) ? ['mediaUrl'] : [];
+            case 'separator':
+                return [];
+            case 'buttons':
+                return child.buttons.flatMap(buttonProblems);
+        }
+    })();
+
+    return [...new Set(problems)];
+};
+
 export const escapeDiscord = (value: string) => value.replace(/[\\*_~`|>[\]<]/g, '\\$&');
 
 const PLACEHOLDER = /\{(\w+)\}/g;

@@ -20,17 +20,16 @@ The title, description and site name can use these placeholders:
 
 Discord can show a richer preview built from components: text, images and videos in a gallery, a thumbnail next to text, separators and link buttons. With **Discord layout** on (the default while embeds are on), Fileship adds such a layout to file, note and folder pages. Other apps keep the regular embed.
 
-**Customize layouts** opens a builder with one layout for files, one for notes and one for folders. Add components, move them up or down, and see a preview next to them. **Reset to default** brings back the built-in layout, which uses your embed's title, description and site name and the language of your account.
+**Customize layouts** opens a builder with one layout for files, one for notes and one for folders, with a preview next to it. Add components from **Add component**, open one to edit it, and move, copy or remove it from the buttons on its row; a red mark on a row means something in it will not show on Discord. **Reset to default** brings back the built-in layout, which uses your embed's title, description and site name and the language of your account.
 
 ### Components
 
-| Component           | What it shows                                                      |
-| ------------------- | ------------------------------------------------------------------ |
-| Text                | Discord Markdown: `#` headings, `-#` small text, `**bold**`, links |
-| Text with side item | Up to three texts with a thumbnail or a button on the side         |
-| Media gallery       | Up to ten images or videos                                         |
-| Separator           | A line or a gap, small or large                                    |
-| Buttons             | Up to five buttons that open a link                                |
+| Component     | What it shows                                                                                                                                              |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Text          | Discord Markdown: `#` headings, `-#` small text, `**bold**`, links. **Add accessory** puts a thumbnail or a link button next to it, with up to three texts |
+| Media gallery | Up to ten images or videos                                                                                                                                 |
+| Separator     | A line or a gap, small or large                                                                                                                            |
+| Buttons       | Up to five buttons that open a link                                                                                                                        |
 
 The whole preview can be hidden behind a spoiler, and so can each image.
 
