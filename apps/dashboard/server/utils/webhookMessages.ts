@@ -45,10 +45,11 @@ const MESSAGES: Record<string, Record<MessageKey, string>> = {
     zh,
 };
 
-const translator =
+export const catalogTranslator =
+    <Key extends string>(catalogs: Record<string, Record<Key, string>>) =>
     (language: string) =>
-    (key: MessageKey, params: Params = {}) => {
-        const choices = (MESSAGES[language] ?? en)[key].split(' | ');
+    (key: Key, params: Params = {}) => {
+        const choices = (catalogs[language] ?? catalogs.en!)[key].split(' | ');
         const count = typeof params.count === 'number' ? params.count : undefined;
 
         const message =
@@ -60,6 +61,8 @@ const translator =
             .replace(/\{'([^']*)'\}/g, '$1')
             .replace(/\{(\w+)\}/g, (match, name) => String(params[name] ?? match));
     };
+
+const translator = catalogTranslator(MESSAGES);
 
 const LIST_LIMIT = 10;
 
@@ -206,8 +209,6 @@ const buildCard = (payload: WebhookPayload, language: string): Card => {
             };
     }
 };
-
-const escapeDiscord = (value: string) => value.replace(/[\\*_~`|>[\]<]/g, '\\$&');
 
 const unix = (date: string) => Math.floor(new Date(date).getTime() / 1000);
 

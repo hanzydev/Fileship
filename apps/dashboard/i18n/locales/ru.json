@@ -442,7 +442,8 @@
         "avatarProcessFailed": "Не удалось обработать аватар",
         "domainTooLong": "Домен должен содержать не более 253 символов",
         "tooManyDomains": "Можно добавить не более 50 доменов",
-        "slugRequired": "Адрес не может быть пустым"
+        "slugRequired": "Адрес не может быть пустым",
+        "discordLayoutInvalid": "Макет для Discord пуст или слишком велик для Discord"
     },
     "errorsWebhooks": {
         "nameRequired": "Введите название",
@@ -1230,6 +1231,11 @@
         "expires": "Истекает",
         "maxClicks": "Лимит переходов"
     },
+    "linkPreview": {
+        "download": "Скачать",
+        "files": "{count} файл | {count} файла | {count} файлов",
+        "folders": "{count} папка | {count} папки | {count} папок"
+    },
     "labels": {
         "category": {
             "image": "Изображения",
@@ -1782,7 +1788,60 @@
         "removeDomain": "Удалить {domain}",
         "noDomains": "Собственных доменов нет",
         "noDomainsDescription": "В ссылках используется текущий домен.",
-        "domainsSaved": "Домены сохранены"
+        "domainsSaved": "Домены сохранены",
+        "discord": {
+            "title": "Макет для Discord",
+            "description": "Показывать в Discord более подробный предпросмотр по вашим макетам. Другие сайты по-прежнему используют предпросмотр ссылки выше.",
+            "customize": "Настроить макеты",
+            "dialogTitle": "Макеты для Discord",
+            "dialogDescription": "Выберите, что Discord показывает для ссылок на ваши файлы, заметки и папки. Подстановки заполняются для каждой ссылки.",
+            "kinds": {
+                "file": "Файл",
+                "note": "Заметка",
+                "folder": "Папка"
+            },
+            "layoutSpoiler": "Скрыть весь предпросмотр под спойлером",
+            "spoiler": "Спойлер",
+            "types": {
+                "text": "Текст",
+                "section": "Текст с боковым элементом",
+                "gallery": "Медиагалерея",
+                "separator": "Разделитель",
+                "buttons": "Кнопки"
+            },
+            "moveUp": "Переместить вверх",
+            "moveDown": "Переместить вниз",
+            "remove": "Удалить компонент",
+            "sectionText": "Текст {n}",
+            "removeText": "Удалить текст",
+            "addText": "Добавить текст",
+            "accessory": "Боковой элемент",
+            "thumbnail": "Миниатюра",
+            "button": "Кнопка",
+            "mediaUrl": "URL изображения или видео",
+            "altText": "Описание",
+            "removeItem": "Удалить элемент",
+            "addItem": "Добавить изображение",
+            "divider": "Показывать линию",
+            "largeSpacing": "Большой отступ",
+            "buttonLabel": "Подпись",
+            "emoji": "Эмодзи",
+            "buttonUrl": "Ссылка",
+            "removeButton": "Удалить кнопку",
+            "addButton": "Добавить кнопку",
+            "componentType": "Тип компонента",
+            "add": "Добавить",
+            "componentCount": "Компонентов: {count} из {limit}",
+            "reset": "Вернуть по умолчанию",
+            "placeholders": "Подстановки: {list}",
+            "limits": "Discord показывает только изображения и видео, ссылки должны начинаться с http:// или https://, а в макете может быть не больше 40 компонентов. Discord хранит предпросмотр около 30 минут.",
+            "done": "Готово",
+            "emptyPreview": "Нечего показать",
+            "emptyPreviewDescription": "Добавьте компонент или проверьте, что ссылки и подстановки заполнены.",
+            "sampleFolder": "Фото из отпуска",
+            "sampleNote": "Список покупок",
+            "sampleExcerpt": "Молоко, яйца, хлеб и кофе на выходные."
+        }
     },
     "shareTarget": {
         "title": "Отправить в Fileship",

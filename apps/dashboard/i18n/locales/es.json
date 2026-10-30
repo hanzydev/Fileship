@@ -442,7 +442,8 @@
         "avatarProcessFailed": "No se pudo procesar el avatar",
         "domainTooLong": "Los dominios no pueden tener más de 253 caracteres",
         "tooManyDomains": "Puedes agregar como máximo 50 dominios",
-        "slugRequired": "La dirección no puede estar vacía"
+        "slugRequired": "La dirección no puede estar vacía",
+        "discordLayoutInvalid": "Un diseño para Discord está vacío o es demasiado grande para Discord"
     },
     "errorsWebhooks": {
         "nameRequired": "Escribe un nombre",
@@ -1230,6 +1231,11 @@
         "expires": "Caduca",
         "maxClicks": "Máximo de clics"
     },
+    "linkPreview": {
+        "download": "Descargar",
+        "files": "{count} archivo | {count} archivos",
+        "folders": "{count} carpeta | {count} carpetas"
+    },
     "labels": {
         "category": {
             "image": "Imágenes",
@@ -1782,7 +1788,60 @@
         "removeDomain": "Quitar {domain}",
         "noDomains": "No hay dominios personalizados",
         "noDomainsDescription": "Los enlaces usan el dominio actual.",
-        "domainsSaved": "Dominios guardados"
+        "domainsSaved": "Dominios guardados",
+        "discord": {
+            "title": "Diseño para Discord",
+            "description": "Muestra en Discord una vista previa más completa creada con tus diseños. Los demás sitios siguen usando la vista previa de arriba.",
+            "customize": "Personalizar diseños",
+            "dialogTitle": "Diseños para Discord",
+            "dialogDescription": "Elige qué muestra Discord en los enlaces a tus archivos, notas y carpetas. Los marcadores se rellenan para cada enlace.",
+            "kinds": {
+                "file": "Archivo",
+                "note": "Nota",
+                "folder": "Carpeta"
+            },
+            "layoutSpoiler": "Ocultar toda la vista previa como spoiler",
+            "spoiler": "Spoiler",
+            "types": {
+                "text": "Texto",
+                "section": "Texto con elemento lateral",
+                "gallery": "Galería multimedia",
+                "separator": "Separador",
+                "buttons": "Botones"
+            },
+            "moveUp": "Subir",
+            "moveDown": "Bajar",
+            "remove": "Quitar componente",
+            "sectionText": "Texto {n}",
+            "removeText": "Quitar texto",
+            "addText": "Añadir texto",
+            "accessory": "Elemento lateral",
+            "thumbnail": "Miniatura",
+            "button": "Botón",
+            "mediaUrl": "URL de imagen o video",
+            "altText": "Descripción",
+            "removeItem": "Quitar elemento",
+            "addItem": "Añadir imagen",
+            "divider": "Mostrar una línea",
+            "largeSpacing": "Espacio grande",
+            "buttonLabel": "Etiqueta",
+            "emoji": "Emoji",
+            "buttonUrl": "Enlace",
+            "removeButton": "Quitar botón",
+            "addButton": "Añadir botón",
+            "componentType": "Tipo de componente",
+            "add": "Añadir",
+            "componentCount": "{count} de {limit} componentes",
+            "reset": "Restablecer",
+            "placeholders": "Marcadores: {list}",
+            "limits": "Discord solo muestra imágenes y videos, los enlaces deben empezar por http:// o https:// y un diseño admite hasta 40 componentes. Discord guarda una vista previa unos 30 minutos.",
+            "done": "Listo",
+            "emptyPreview": "No hay nada que mostrar",
+            "emptyPreviewDescription": "Añade un componente o comprueba que sus enlaces y marcadores estén completos.",
+            "sampleFolder": "Fotos de vacaciones",
+            "sampleNote": "Lista de la compra",
+            "sampleExcerpt": "Leche, huevos, pan y café para el fin de semana."
+        }
     },
     "shareTarget": {
         "title": "Compartir con Fileship",

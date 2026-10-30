@@ -6,6 +6,8 @@
             <template v-if="data?.embed?.enabled">
                 <Meta name="theme-color" :content="data.embed.color" />
                 <Meta property="og:title" :content="data.title" />
+                <Meta v-if="data.excerpt" property="og:description" :content="data.excerpt" />
+                <Meta v-if="data.publicUrl" property="og:url" :content="data.publicUrl" />
             </template>
         </Head>
 
@@ -56,9 +58,15 @@ const { t } = useI18n();
 const date = useDate();
 const { copy } = useClipboard({ legacy: true });
 
-const { data, error } = await useFetch<NoteData & { embed: Pick<IEmbed, 'enabled' | 'color'> }>(
-    `/api/notes/${(route.params as any).id}`,
-);
+const { data, error } = await useFetch<
+    NoteData & {
+        embed: Pick<IEmbed, 'enabled' | 'color'>;
+        excerpt: string;
+        discordEmbed: string | null;
+    }
+>(`/api/notes/${(route.params as any).id}`);
+
+useDiscordEmbed(() => data.value?.discordEmbed);
 
 if (error.value?.status === 404) {
     throw createError({ status: 404, message: t('view.noteNotFound') });

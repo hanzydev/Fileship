@@ -29,7 +29,7 @@
 
 - File, cartelle annidate da condividere con altri utenti, note in Markdown, link brevi e caselle di ricezione, con un cestino per tutto ciò che elimini
 - Backup dell'account da scaricare e ripristinare, creati a mano o in base a una pianificazione
-- Condivisione pubblica con password, data di scadenza, limite di visualizzazioni e anteprime dei link curate per Discord e altre app
+- Condivisione pubblica con password, data di scadenza, limite di visualizzazioni e [anteprime dei link curate](docs/link-previews.md) per Discord e altre app
 - [IA](docs/ai.md) che gira sul tuo server: ricerca intelligente in oltre 50 lingue, descrizioni, OCR e rilevamento dei contenuti sensibili, tutto facoltativo
 - Caricamenti sul disco locale, su qualsiasi servizio compatibile con S3, su SFTP o FTP
 - Più utenti con autorizzazioni e limiti di spazio, passkey, autenticazione a due fattori e [Single Sign-On](docs/configuration.md#single-sign-on) con OpenID Connect

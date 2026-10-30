@@ -197,7 +197,7 @@ export default defineEventHandler(async (event) => {
             url: buildPublicUrl(
                 event,
                 owner.domains,
-                `/${(owner.embed as any).enabled || isText ? 'view' : 'u'}/${_upload.fileName}`,
+                `/${embedOf(owner.embed).enabled || isText ? 'view' : 'u'}/${_upload.fileName}`,
             ),
         };
     }

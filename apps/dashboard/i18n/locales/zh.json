@@ -442,7 +442,8 @@
         "avatarProcessFailed": "无法处理头像",
         "domainTooLong": "域名最多 253 个字符",
         "tooManyDomains": "最多只能添加 50 个域名",
-        "slugRequired": "标识不能为空"
+        "slugRequired": "标识不能为空",
+        "discordLayoutInvalid": "Discord 布局为空，或对 Discord 来说太大"
     },
     "errorsWebhooks": {
         "nameRequired": "请输入名称",
@@ -1230,6 +1231,11 @@
         "expires": "过期时间",
         "maxClicks": "最大点击次数"
     },
+    "linkPreview": {
+        "download": "下载",
+        "files": "{count} 个文件",
+        "folders": "{count} 个文件夹"
+    },
     "labels": {
         "category": {
             "image": "图片",
@@ -1782,7 +1788,60 @@
         "removeDomain": "移除 {domain}",
         "noDomains": "没有自定义域名",
         "noDomainsDescription": "链接将使用当前域名。",
-        "domainsSaved": "域名已保存"
+        "domainsSaved": "域名已保存",
+        "discord": {
+            "title": "Discord 布局",
+            "description": "在 Discord 上显示根据你的布局生成的更丰富预览。其他网站仍使用上方的链接预览。",
+            "customize": "自定义布局",
+            "dialogTitle": "Discord 布局",
+            "dialogDescription": "选择 Discord 为你的文件、笔记和文件夹链接显示的内容。占位符会按每个链接填充。",
+            "kinds": {
+                "file": "文件",
+                "note": "笔记",
+                "folder": "文件夹"
+            },
+            "layoutSpoiler": "将整个预览隐藏为剧透",
+            "spoiler": "剧透",
+            "types": {
+                "text": "文本",
+                "section": "带侧边项的文本",
+                "gallery": "媒体画廊",
+                "separator": "分隔线",
+                "buttons": "按钮"
+            },
+            "moveUp": "上移",
+            "moveDown": "下移",
+            "remove": "移除组件",
+            "sectionText": "文本 {n}",
+            "removeText": "移除文本",
+            "addText": "添加文本",
+            "accessory": "侧边项",
+            "thumbnail": "缩略图",
+            "button": "按钮",
+            "mediaUrl": "图片或视频 URL",
+            "altText": "描述",
+            "removeItem": "移除项目",
+            "addItem": "添加图片",
+            "divider": "显示线条",
+            "largeSpacing": "大间距",
+            "buttonLabel": "标签",
+            "emoji": "表情",
+            "buttonUrl": "链接",
+            "removeButton": "移除按钮",
+            "addButton": "添加按钮",
+            "componentType": "组件类型",
+            "add": "添加",
+            "componentCount": "{count} / {limit} 个组件",
+            "reset": "恢复默认",
+            "placeholders": "占位符：{list}",
+            "limits": "Discord 只显示图片和视频，链接必须以 http:// 或 https:// 开头，一个布局最多包含 40 个组件。Discord 会将预览保留约 30 分钟。",
+            "done": "完成",
+            "emptyPreview": "没有可显示的内容",
+            "emptyPreviewDescription": "添加一个组件，或检查其链接和占位符是否已填写。",
+            "sampleFolder": "假期照片",
+            "sampleNote": "购物清单",
+            "sampleExcerpt": "周末要买的牛奶、鸡蛋、面包和咖啡。"
+        }
     },
     "shareTarget": {
         "title": "分享到 Fileship",

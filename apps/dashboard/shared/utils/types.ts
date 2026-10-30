@@ -1,9 +1,17 @@
+import type { DiscordLayout } from './discordEmbed';
+
 export interface IEmbed {
     enabled: boolean;
     color: string;
     title: string;
     description: string;
     siteName: string;
+    discord: {
+        enabled: boolean;
+        file: DiscordLayout | null;
+        note: DiscordLayout | null;
+        folder: DiscordLayout | null;
+    };
 }
 
 export interface IMediaMetadata {

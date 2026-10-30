@@ -442,7 +442,8 @@
         "avatarProcessFailed": "프로필 사진을 처리할 수 없어요",
         "domainTooLong": "도메인은 최대 253자까지 입력할 수 있어요",
         "tooManyDomains": "도메인은 최대 50개까지 추가할 수 있어요",
-        "slugRequired": "주소를 입력하세요"
+        "slugRequired": "주소를 입력하세요",
+        "discordLayoutInvalid": "Discord 레이아웃이 비어 있거나 Discord에 비해 너무 커요"
     },
     "errorsWebhooks": {
         "nameRequired": "이름을 입력하세요",
@@ -1230,6 +1231,11 @@
         "expires": "만료",
         "maxClicks": "최대 클릭수"
     },
+    "linkPreview": {
+        "download": "다운로드",
+        "files": "파일 {count}개",
+        "folders": "폴더 {count}개"
+    },
     "labels": {
         "category": {
             "image": "이미지",
@@ -1782,7 +1788,60 @@
         "removeDomain": "{domain} 제거",
         "noDomains": "사용자 지정 도메인이 없어요",
         "noDomainsDescription": "링크에 현재 도메인을 사용해요.",
-        "domainsSaved": "도메인을 저장했어요"
+        "domainsSaved": "도메인을 저장했어요",
+        "discord": {
+            "title": "Discord 레이아웃",
+            "description": "레이아웃으로 만든 더 풍부한 미리보기를 Discord에 보여줘요. 다른 사이트는 위의 링크 미리보기를 그대로 써요.",
+            "customize": "레이아웃 사용자 지정",
+            "dialogTitle": "Discord 레이아웃",
+            "dialogDescription": "파일, 노트, 폴더 링크에서 Discord가 보여줄 내용을 골라요. 자리 표시자는 링크마다 채워져요.",
+            "kinds": {
+                "file": "파일",
+                "note": "노트",
+                "folder": "폴더"
+            },
+            "layoutSpoiler": "미리보기 전체를 스포일러로 가리기",
+            "spoiler": "스포일러",
+            "types": {
+                "text": "텍스트",
+                "section": "옆 항목이 있는 텍스트",
+                "gallery": "미디어 갤러리",
+                "separator": "구분선",
+                "buttons": "버튼"
+            },
+            "moveUp": "위로 이동",
+            "moveDown": "아래로 이동",
+            "remove": "구성 요소 삭제",
+            "sectionText": "텍스트 {n}",
+            "removeText": "텍스트 삭제",
+            "addText": "텍스트 추가",
+            "accessory": "옆 항목",
+            "thumbnail": "썸네일",
+            "button": "버튼",
+            "mediaUrl": "이미지 또는 동영상 URL",
+            "altText": "설명",
+            "removeItem": "항목 삭제",
+            "addItem": "이미지 추가",
+            "divider": "선 표시",
+            "largeSpacing": "넓은 간격",
+            "buttonLabel": "레이블",
+            "emoji": "이모지",
+            "buttonUrl": "링크",
+            "removeButton": "버튼 삭제",
+            "addButton": "버튼 추가",
+            "componentType": "구성 요소 유형",
+            "add": "추가",
+            "componentCount": "구성 요소 {count}/{limit}개",
+            "reset": "기본값으로 되돌리기",
+            "placeholders": "자리 표시자: {list}",
+            "limits": "Discord는 이미지와 동영상만 보여주고, 링크는 http:// 또는 https://로 시작해야 하며, 레이아웃 하나에 구성 요소는 최대 40개예요. Discord는 미리보기를 약 30분 동안 보관해요.",
+            "done": "완료",
+            "emptyPreview": "보여줄 내용이 없어요",
+            "emptyPreviewDescription": "구성 요소를 추가하거나 링크와 자리 표시자가 채워졌는지 확인하세요.",
+            "sampleFolder": "여행 사진",
+            "sampleNote": "장보기 목록",
+            "sampleExcerpt": "주말에 먹을 우유, 달걀, 빵, 커피."
+        }
     },
     "shareTarget": {
         "title": "Fileship으로 공유",

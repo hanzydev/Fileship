@@ -44,11 +44,46 @@
                     <UiFieldDescription>
                         {{ $t('sharing.placeholders', PLACEHOLDERS) }}
                     </UiFieldDescription>
+                    <UiSeparator />
+                    <UiField
+                        orientation="horizontal"
+                        class="has-[>[data-slot=field-content]]:items-center"
+                    >
+                        <UiFieldContent>
+                            <UiFieldLabel for="embed-discord">
+                                {{ $t('sharing.discord.title') }}
+                            </UiFieldLabel>
+                            <UiFieldDescription>
+                                {{ $t('sharing.discord.description') }}
+                            </UiFieldDescription>
+                        </UiFieldContent>
+                        <UiSwitch
+                            id="embed-discord"
+                            v-model="embedForm.discord.enabled"
+                            :disabled="!embedForm.enabled"
+                        />
+                    </UiField>
+                    <UiButton
+                        type="button"
+                        variant="outline"
+                        class="self-start"
+                        :disabled="!isDiscordActive"
+                        @click="isLayoutsOpen = true"
+                    >
+                        <ILayoutTemplate />
+                        {{ $t('sharing.discord.customize') }}
+                    </UiButton>
                 </UiFieldGroup>
 
                 <div class="flex flex-col gap-2">
                     <TextBlock variant="small">{{ $t('sharing.preview') }}</TextBlock>
+                    <DiscordEmbedPreview
+                        v-if="isDiscordActive"
+                        :embed="preview('file', embedForm)"
+                        :color="embedForm.color"
+                    />
                     <div
+                        v-else
                         :class="
                             cn(
                                 'flex gap-3 rounded-xl border-l-4 bg-muted p-4 transition-opacity',
@@ -87,6 +122,12 @@
             </UiCardFooter>
         </form>
     </UiCard>
+
+    <DiscordLayoutDialog
+        v-model:open="isLayoutsOpen"
+        v-model:discord="embedForm.discord"
+        :embed="embedForm"
+    />
 
     <UiCard>
         <UiCardHeader>
@@ -150,11 +191,18 @@ const PLACEHOLDERS = {
     now: '{now}',
 };
 
-const embedForm = reactive({ ...embed.value });
+const { preview } = useDiscordPreview();
+
+const copyEmbed = (value: IEmbed): IEmbed => JSON.parse(JSON.stringify(value));
+
+const embedForm = reactive(copyEmbed(embed.value));
 const domainsForm = ref([...domains.value]);
 const newDomain = ref('');
 const isSavingEmbed = ref(false);
 const isSavingDomains = ref(false);
+const isLayoutsOpen = ref(false);
+
+const isDiscordActive = computed(() => embedForm.enabled && embedForm.discord.enabled);
 
 const isEmbedDirty = computed(() => JSON.stringify(embedForm) !== JSON.stringify(embed.value));
 const isDomainsDirty = computed(() => domainsForm.value.join() !== domains.value.join());
@@ -203,6 +251,6 @@ const handleSaveDomains = async () => {
     isSavingDomains.value = false;
 };
 
-watch(embed, (value) => Object.assign(embedForm, value));
+watch(embed, (value) => Object.assign(embedForm, copyEmbed(value)));
 watch(domains, (value) => (domainsForm.value = [...value]));
 </script>

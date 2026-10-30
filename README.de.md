@@ -29,7 +29,7 @@
 
 - Dateien, verschachtelte Ordner, die du mit anderen Benutzern teilen kannst, Markdown-Notizen, Kurzlinks und Posteingänge, dazu ein Papierkorb für alles, was du löschst
 - Konto-Backups zum Herunterladen und Wiederherstellen, von Hand oder nach Zeitplan erstellt
-- Öffentliche Freigaben mit Passwort, Ablaufdatum, Aufruflimit und ansprechender Link-Vorschau für Discord und andere Apps
+- Öffentliche Freigaben mit Passwort, Ablaufdatum, Aufruflimit und [ansprechender Link-Vorschau](docs/link-previews.md) für Discord und andere Apps
 - [KI](docs/ai.md), die auf deinem Server läuft: intelligente Suche in über 50 Sprachen, Bildbeschreibungen, OCR und Erkennung sensibler Inhalte, alles optional
 - Uploads auf die lokale Festplatte, jeden S3-kompatiblen Dienst, SFTP oder FTP
 - Mehrere Benutzer mit Berechtigungen und Speicherlimits, Passkeys, Zwei-Faktor-Authentifizierung und [Single Sign-On](docs/configuration.md#single-sign-on) mit OpenID Connect

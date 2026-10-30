@@ -442,7 +442,8 @@
         "avatarProcessFailed": "Impossible de traiter l'avatar",
         "domainTooLong": "Les domaines ne peuvent pas dépasser 253 caractères",
         "tooManyDomains": "Vous pouvez ajouter 50 domaines au maximum",
-        "slugRequired": "L'adresse ne peut pas être vide"
+        "slugRequired": "L'adresse ne peut pas être vide",
+        "discordLayoutInvalid": "Une mise en page Discord est vide ou trop grande pour Discord"
     },
     "errorsWebhooks": {
         "nameRequired": "Saisissez un nom",
@@ -1230,6 +1231,11 @@
         "expires": "Expire",
         "maxClicks": "Clics max."
     },
+    "linkPreview": {
+        "download": "Télécharger",
+        "files": "{count} fichier | {count} fichiers",
+        "folders": "{count} dossier | {count} dossiers"
+    },
     "labels": {
         "category": {
             "image": "Images",
@@ -1782,7 +1788,60 @@
         "removeDomain": "Retirer {domain}",
         "noDomains": "Aucun domaine personnalisé",
         "noDomainsDescription": "Les liens utilisent le domaine actuel.",
-        "domainsSaved": "Domaines enregistrés"
+        "domainsSaved": "Domaines enregistrés",
+        "discord": {
+            "title": "Mise en page Discord",
+            "description": "Affiche sur Discord un aperçu plus riche construit à partir de vos mises en page. Les autres sites gardent l'aperçu du lien ci-dessus.",
+            "customize": "Personnaliser les mises en page",
+            "dialogTitle": "Mises en page Discord",
+            "dialogDescription": "Choisissez ce que Discord affiche pour les liens vers vos fichiers, notes et dossiers. Les variables sont remplies pour chaque lien.",
+            "kinds": {
+                "file": "Fichier",
+                "note": "Note",
+                "folder": "Dossier"
+            },
+            "layoutSpoiler": "Masquer tout l'aperçu derrière un spoiler",
+            "spoiler": "Spoiler",
+            "types": {
+                "text": "Texte",
+                "section": "Texte avec élément latéral",
+                "gallery": "Galerie multimédia",
+                "separator": "Séparateur",
+                "buttons": "Boutons"
+            },
+            "moveUp": "Monter",
+            "moveDown": "Descendre",
+            "remove": "Retirer le composant",
+            "sectionText": "Texte {n}",
+            "removeText": "Retirer le texte",
+            "addText": "Ajouter un texte",
+            "accessory": "Élément latéral",
+            "thumbnail": "Miniature",
+            "button": "Bouton",
+            "mediaUrl": "URL de l'image ou de la vidéo",
+            "altText": "Description",
+            "removeItem": "Retirer l'élément",
+            "addItem": "Ajouter une image",
+            "divider": "Afficher une ligne",
+            "largeSpacing": "Grand espacement",
+            "buttonLabel": "Libellé",
+            "emoji": "Emoji",
+            "buttonUrl": "Lien",
+            "removeButton": "Retirer le bouton",
+            "addButton": "Ajouter un bouton",
+            "componentType": "Type de composant",
+            "add": "Ajouter",
+            "componentCount": "{count} composants sur {limit}",
+            "reset": "Rétablir les valeurs par défaut",
+            "placeholders": "Variables : {list}",
+            "limits": "Discord n'affiche que des images et des vidéos, les liens doivent commencer par http:// ou https:// et une mise en page compte au plus 40 composants. Discord conserve un aperçu environ 30 minutes.",
+            "done": "Terminé",
+            "emptyPreview": "Rien à afficher",
+            "emptyPreviewDescription": "Ajoutez un composant ou vérifiez que ses liens et ses variables sont remplis.",
+            "sampleFolder": "Photos de vacances",
+            "sampleNote": "Liste de courses",
+            "sampleExcerpt": "Lait, œufs, pain et café pour le week-end."
+        }
     },
     "shareTarget": {
         "title": "Partager avec Fileship",

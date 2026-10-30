@@ -186,7 +186,9 @@ const { copy } = useClipboard({ legacy: true });
 
 const id = (route.params as any).id as string;
 
-const { data: _data, error } = await useFetch<FileData & { embed: IEmbed }>(
+const { data: _data, error } = await useFetch<
+    FileData & { embed: IEmbed; discordEmbed: string | null }
+>(
     `/api/files/${id}${route.query.password ? `?password=${encodeURIComponent(String(route.query.password))}` : ''}`,
     {
         headers: useRequestHeaders(['x-forwarded-for', 'host']),
@@ -206,6 +208,8 @@ const data = ref({
     ..._data.value,
     password: (route.query.password as string) || null,
 });
+
+useDiscordEmbed(() => data.value.discordEmbed);
 
 const fileContent = ref<string>();
 const previewMode = ref(true);
@@ -256,9 +260,12 @@ const handlePassword = async (password: string) => {
     isVerifying.value = true;
 
     try {
-        const file = await $fetch<FileData & { embed: IEmbed }>(`/api/files/${id}`, {
-            query: { password },
-        });
+        const file = await $fetch<FileData & { embed: IEmbed; discordEmbed: string | null }>(
+            `/api/files/${id}`,
+            {
+                query: { password },
+            },
+        );
 
         data.value = { ...file, password };
     } catch (error: any) {

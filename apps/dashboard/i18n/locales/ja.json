@@ -442,7 +442,8 @@
         "avatarProcessFailed": "アバターを処理できませんでした",
         "domainTooLong": "ドメインは 253 文字以内にしてください",
         "tooManyDomains": "追加できるドメインは 50 個までです",
-        "slugRequired": "スラッグを入力してください"
+        "slugRequired": "スラッグを入力してください",
+        "discordLayoutInvalid": "Discord 用レイアウトが空か、Discord には大きすぎます"
     },
     "errorsWebhooks": {
         "nameRequired": "名前を入力してください",
@@ -1230,6 +1231,11 @@
         "expires": "有効期限",
         "maxClicks": "最大クリック数"
     },
+    "linkPreview": {
+        "download": "ダウンロード",
+        "files": "{count} 個のファイル",
+        "folders": "{count} 個のフォルダー"
+    },
     "labels": {
         "category": {
             "image": "画像",
@@ -1782,7 +1788,60 @@
         "removeDomain": "{domain} を削除",
         "noDomains": "カスタムドメインはありません",
         "noDomainsDescription": "リンクには現在のドメインが使われます。",
-        "domainsSaved": "ドメインを保存しました"
+        "domainsSaved": "ドメインを保存しました",
+        "discord": {
+            "title": "Discord 用レイアウト",
+            "description": "レイアウトをもとに、Discord でより詳しいプレビューを表示します。ほかのサイトでは上のリンクのプレビューが使われます。",
+            "customize": "レイアウトをカスタマイズ",
+            "dialogTitle": "Discord 用レイアウト",
+            "dialogDescription": "ファイル、ノート、フォルダーへのリンクで Discord に表示する内容を選びます。プレースホルダーはリンクごとに置き換えられます。",
+            "kinds": {
+                "file": "ファイル",
+                "note": "ノート",
+                "folder": "フォルダー"
+            },
+            "layoutSpoiler": "プレビュー全体をスポイラーで隠す",
+            "spoiler": "スポイラー",
+            "types": {
+                "text": "テキスト",
+                "section": "サイド要素付きテキスト",
+                "gallery": "メディアギャラリー",
+                "separator": "区切り",
+                "buttons": "ボタン"
+            },
+            "moveUp": "上へ移動",
+            "moveDown": "下へ移動",
+            "remove": "コンポーネントを削除",
+            "sectionText": "テキスト {n}",
+            "removeText": "テキストを削除",
+            "addText": "テキストを追加",
+            "accessory": "サイド要素",
+            "thumbnail": "サムネイル",
+            "button": "ボタン",
+            "mediaUrl": "画像または動画の URL",
+            "altText": "説明",
+            "removeItem": "項目を削除",
+            "addItem": "画像を追加",
+            "divider": "線を表示",
+            "largeSpacing": "広い余白",
+            "buttonLabel": "ラベル",
+            "emoji": "絵文字",
+            "buttonUrl": "リンク",
+            "removeButton": "ボタンを削除",
+            "addButton": "ボタンを追加",
+            "componentType": "コンポーネントの種類",
+            "add": "追加",
+            "componentCount": "{count} / {limit} コンポーネント",
+            "reset": "既定に戻す",
+            "placeholders": "プレースホルダー: {list}",
+            "limits": "Discord に表示できるのは画像と動画だけです。リンクは http:// または https:// で始まる必要があり、1 つのレイアウトに入るコンポーネントは最大 40 個です。Discord はプレビューを約 30 分保持します。",
+            "done": "完了",
+            "emptyPreview": "表示する内容がありません",
+            "emptyPreviewDescription": "コンポーネントを追加するか、リンクとプレースホルダーが入力されているか確認してください。",
+            "sampleFolder": "旅行の写真",
+            "sampleNote": "買い物リスト",
+            "sampleExcerpt": "週末用の牛乳、卵、パン、コーヒー。"
+        }
     },
     "shareTarget": {
         "title": "Fileship に共有",

@@ -442,7 +442,8 @@
         "avatarProcessFailed": "Impossibile elaborare l'avatar",
         "domainTooLong": "I domini possono contenere al massimo 253 caratteri",
         "tooManyDomains": "Puoi aggiungere al massimo 50 domini",
-        "slugRequired": "Lo slug non può essere vuoto"
+        "slugRequired": "Lo slug non può essere vuoto",
+        "discordLayoutInvalid": "Un layout per Discord è vuoto o troppo grande per Discord"
     },
     "errorsWebhooks": {
         "nameRequired": "Inserisci un nome",
@@ -1230,6 +1231,11 @@
         "expires": "Scade",
         "maxClicks": "Clic massimi"
     },
+    "linkPreview": {
+        "download": "Scarica",
+        "files": "{count} file | {count} file",
+        "folders": "{count} cartella | {count} cartelle"
+    },
     "labels": {
         "category": {
             "image": "Immagini",
@@ -1782,7 +1788,60 @@
         "removeDomain": "Rimuovi {domain}",
         "noDomains": "Nessun dominio personalizzato",
         "noDomainsDescription": "I link usano il dominio attuale.",
-        "domainsSaved": "Domini salvati"
+        "domainsSaved": "Domini salvati",
+        "discord": {
+            "title": "Layout per Discord",
+            "description": "Mostra su Discord un'anteprima più ricca costruita con i tuoi layout. Gli altri siti continuano a usare l'anteprima del link qui sopra.",
+            "customize": "Personalizza i layout",
+            "dialogTitle": "Layout per Discord",
+            "dialogDescription": "Scegli cosa mostra Discord per i link a file, note e cartelle. I segnaposto vengono compilati per ogni link.",
+            "kinds": {
+                "file": "File",
+                "note": "Nota",
+                "folder": "Cartella"
+            },
+            "layoutSpoiler": "Nascondi tutta l'anteprima come spoiler",
+            "spoiler": "Spoiler",
+            "types": {
+                "text": "Testo",
+                "section": "Testo con elemento laterale",
+                "gallery": "Galleria multimediale",
+                "separator": "Separatore",
+                "buttons": "Pulsanti"
+            },
+            "moveUp": "Sposta su",
+            "moveDown": "Sposta giù",
+            "remove": "Rimuovi componente",
+            "sectionText": "Testo {n}",
+            "removeText": "Rimuovi testo",
+            "addText": "Aggiungi testo",
+            "accessory": "Elemento laterale",
+            "thumbnail": "Miniatura",
+            "button": "Pulsante",
+            "mediaUrl": "URL dell'immagine o del video",
+            "altText": "Descrizione",
+            "removeItem": "Rimuovi elemento",
+            "addItem": "Aggiungi immagine",
+            "divider": "Mostra una linea",
+            "largeSpacing": "Spaziatura ampia",
+            "buttonLabel": "Etichetta",
+            "emoji": "Emoji",
+            "buttonUrl": "Link",
+            "removeButton": "Rimuovi pulsante",
+            "addButton": "Aggiungi pulsante",
+            "componentType": "Tipo di componente",
+            "add": "Aggiungi",
+            "componentCount": "{count} di {limit} componenti",
+            "reset": "Ripristina predefinito",
+            "placeholders": "Segnaposto: {list}",
+            "limits": "Discord mostra solo immagini e video, i link devono iniziare con http:// o https:// e un layout contiene al massimo 40 componenti. Discord conserva un'anteprima per circa 30 minuti.",
+            "done": "Fatto",
+            "emptyPreview": "Niente da mostrare",
+            "emptyPreviewDescription": "Aggiungi un componente o controlla che link e segnaposto siano compilati.",
+            "sampleFolder": "Foto delle vacanze",
+            "sampleNote": "Lista della spesa",
+            "sampleExcerpt": "Latte, uova, pane e caffè per il fine settimana."
+        }
     },
     "shareTarget": {
         "title": "Condividi con Fileship",

@@ -442,7 +442,8 @@
         "avatarProcessFailed": "Profil şəklini emal etmək mümkün olmadı",
         "domainTooLong": "Domen ən çoxu 253 simvol ola bilər",
         "tooManyDomains": "Ən çoxu 50 domen əlavə edə bilərsən",
-        "slugRequired": "Ünvan boş ola bilməz"
+        "slugRequired": "Ünvan boş ola bilməz",
+        "discordLayoutInvalid": "Discord düzənlərindən biri boşdur və ya Discord üçün çox böyükdür"
     },
     "errorsWebhooks": {
         "nameRequired": "Ad daxil et",
@@ -1230,6 +1231,11 @@
         "expires": "Bitmə tarixi",
         "maxClicks": "Maksimum klik"
     },
+    "linkPreview": {
+        "download": "Endir",
+        "files": "{count} fayl",
+        "folders": "{count} qovluq"
+    },
     "labels": {
         "category": {
             "image": "Şəkillər",
@@ -1782,7 +1788,60 @@
         "removeDomain": "Sil: {domain}",
         "noDomains": "Xüsusi domen yoxdur",
         "noDomainsDescription": "Keçidlər cari domendən istifadə edir.",
-        "domainsSaved": "Domenlər yadda saxlanıldı"
+        "domainsSaved": "Domenlər yadda saxlanıldı",
+        "discord": {
+            "title": "Discord düzəni",
+            "description": "Discord-da düzənlərindən qurulan daha zəngin önizləmə göstər. Digər saytlar yuxarıdakı keçid önizləməsini işlətməyə davam edir.",
+            "customize": "Düzənləri fərdiləşdir",
+            "dialogTitle": "Discord düzənləri",
+            "dialogDescription": "Fayl, qeyd və qovluq keçidlərin üçün Discord-un nə göstərəcəyini seç. Yer tutucular hər keçid üçün doldurulur.",
+            "kinds": {
+                "file": "Fayl",
+                "note": "Qeyd",
+                "folder": "Qovluq"
+            },
+            "layoutSpoiler": "Bütün önizləməni spoyler kimi gizlət",
+            "spoiler": "Spoyler",
+            "types": {
+                "text": "Mətn",
+                "section": "Yan elementli mətn",
+                "gallery": "Media qalereyası",
+                "separator": "Ayırıcı",
+                "buttons": "Düymələr"
+            },
+            "moveUp": "Yuxarı daşı",
+            "moveDown": "Aşağı daşı",
+            "remove": "Komponenti sil",
+            "sectionText": "Mətn {n}",
+            "removeText": "Mətni sil",
+            "addText": "Mətn əlavə et",
+            "accessory": "Yan element",
+            "thumbnail": "Kiçik şəkil",
+            "button": "Düymə",
+            "mediaUrl": "Şəkil və ya video URL",
+            "altText": "Təsvir",
+            "removeItem": "Elementi sil",
+            "addItem": "Şəkil əlavə et",
+            "divider": "Xətt göstər",
+            "largeSpacing": "Böyük boşluq",
+            "buttonLabel": "Ad",
+            "emoji": "Emoji",
+            "buttonUrl": "Keçid",
+            "removeButton": "Düyməni sil",
+            "addButton": "Düymə əlavə et",
+            "componentType": "Komponent növü",
+            "add": "Əlavə et",
+            "componentCount": "{count}/{limit} komponent",
+            "reset": "Standarta qaytar",
+            "placeholders": "Yer tutucular: {list}",
+            "limits": "Discord yalnız şəkil və video göstərir, keçidlər http:// və ya https:// ilə başlamalıdır və bir düzəndə ən çox 40 komponent ola bilər. Discord önizləməni təxminən 30 dəqiqə saxlayır.",
+            "done": "Hazırdır",
+            "emptyPreview": "Göstəriləcək heç nə yoxdur",
+            "emptyPreviewDescription": "Komponent əlavə et və ya keçidlərin və yer tutucuların dolu olduğunu yoxla.",
+            "sampleFolder": "Tətil şəkilləri",
+            "sampleNote": "Alış-veriş siyahısı",
+            "sampleExcerpt": "Həftəsonu üçün süd, yumurta, çörək və qəhvə."
+        }
     },
     "shareTarget": {
         "title": "Fileship ilə paylaş",

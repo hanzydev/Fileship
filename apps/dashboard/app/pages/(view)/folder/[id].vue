@@ -2,6 +2,13 @@
     <div class="flex min-h-svh flex-col">
         <Head>
             <Title>{{ data!.name }}</Title>
+
+            <template v-if="data!.embed.enabled">
+                <Meta name="theme-color" :content="data!.embed.color" />
+                <Meta property="og:title" :content="data!.name" />
+                <Meta property="og:description" :content="subtitle" />
+                <Meta v-if="data!.publicUrl" property="og:url" :content="data!.publicUrl" />
+            </template>
         </Head>
 
         <ViewHeader :title="data!.name" :subtitle="subtitle" content-class="max-w-7xl">
@@ -387,16 +394,17 @@ const { t } = useI18n();
 
 type PublicFile = FileData & { isLocked: boolean };
 
-const { data, error } = await useFetch<FolderData & { embed: IEmbed; lockedCount: number }>(
-    `/api/folders/${(route.params as any).id}`,
-    {
-        headers: useRequestHeaders(['host']),
-    },
-);
+const { data, error } = await useFetch<
+    FolderData & { embed: IEmbed; lockedCount: number; discordEmbed: string | null }
+>(`/api/folders/${(route.params as any).id}`, {
+    headers: useRequestHeaders(['host']),
+});
 
 if (error.value) {
     throw createError({ status: 404, message: t('publicPages.folder.notFound') });
 }
+
+useDiscordEmbed(() => data.value?.discordEmbed);
 
 const search = ref('');
 const aiSearch = ref(false);

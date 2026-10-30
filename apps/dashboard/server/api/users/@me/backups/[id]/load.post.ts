@@ -112,11 +112,13 @@ export default defineEventHandler(async (event) => {
     };
 
     const restoreUser = async (databasePath: string) => {
-        const { avatar, domains, embed } = JSON.parse(await fsp.readFile(databasePath, 'utf-8'));
+        const user = JSON.parse(await fsp.readFile(databasePath, 'utf-8'));
+        const { avatar, domains } = user;
+        const embed = embedOf(user.embed);
 
         await prisma.user.update({
             where: { id: currentUser.id },
-            data: { avatar, domains, embed },
+            data: { avatar, domains, embed: embed as any },
         });
 
         sendToUser(currentUser.id, 'currentUser:domainsUpdate', domains);

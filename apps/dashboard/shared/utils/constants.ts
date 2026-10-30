@@ -6,6 +6,7 @@ export const defaultEmbed: IEmbed = {
     siteName: '',
     color: '#5865f2',
     enabled: false,
+    discord: { enabled: true, file: null, note: null, folder: null },
 };
 
 export const defaultUserLimits: IUserLimits = {

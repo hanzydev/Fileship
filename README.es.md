@@ -29,7 +29,7 @@
 
 - Archivos, carpetas anidadas que puedes compartir con otros usuarios, notas en Markdown, enlaces cortos y buzones, con una papelera para todo lo que eliminas
 - Copias de seguridad de la cuenta que puedes descargar y restaurar, creadas a mano o de forma programada
-- Uso compartido público con contraseñas, fechas de caducidad, límites de visualizaciones y vistas previas enriquecidas para Discord y otras apps
+- Uso compartido público con contraseñas, fechas de caducidad, límites de visualizaciones y [vistas previas enriquecidas](docs/link-previews.md) para Discord y otras apps
 - [IA](docs/ai.md) que se ejecuta en tu servidor: búsqueda inteligente en más de 50 idiomas, descripciones, OCR y detección de contenido sensible, todo opcional
 - Subidas guardadas en el disco local, en cualquier servicio compatible con S3, SFTP o FTP
 - Varios usuarios con permisos y límites de almacenamiento, llaves de acceso, verificación en dos pasos e [inicio de sesión único](docs/configuration.md#single-sign-on) con OpenID Connect

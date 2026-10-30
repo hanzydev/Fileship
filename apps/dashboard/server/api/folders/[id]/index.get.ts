@@ -1,5 +1,3 @@
-import { defu } from 'defu';
-
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
     const folderId = getRouterParam(event, 'id');
@@ -17,6 +15,7 @@ export default defineEventHandler(async (event) => {
                     avatar: true,
                     domains: true,
                     embed: true,
+                    language: true,
                     aiSettings: true,
                 },
             },
@@ -73,6 +72,10 @@ export default defineEventHandler(async (event) => {
               ? ancestors.slice(firstShared === -1 ? ancestors.length : firstShared)
               : ancestors.slice(ancestors.findLastIndex((folder) => !folder.public) + 1);
 
+    const publicUrl = findFolderById.public
+        ? buildPublicUrl(event, findFolderById.author.domains, `/folder/${findFolderById.id}`)
+        : undefined;
+
     return {
         ...findFolderById,
         inbox: undefined,
@@ -94,9 +97,15 @@ export default defineEventHandler(async (event) => {
         folderCount,
         ancestors: visibleAncestors.map((folder) => ({ id: folder.id, name: folder.name })),
         isInbox: !!findFolderById.inbox,
-        embed: defu(findFolderById.author.embed, defaultEmbed) as IEmbed,
-        publicUrl: findFolderById.public
-            ? buildPublicUrl(event, findFolderById.author.domains, `/folder/${findFolderById.id}`)
-            : undefined,
+        embed: embedOf(findFolderById.author.embed),
+        publicUrl,
+        discordEmbed: publicUrl
+            ? discordEmbedFor(
+                  'folder',
+                  findFolderById.author,
+                  { name: findFolderById.name, fileCount, folderCount, url: publicUrl },
+                  findFolderById.createdAt,
+              )
+            : null,
     };
 });

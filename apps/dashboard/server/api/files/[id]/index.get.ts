@@ -1,5 +1,3 @@
-import { defu } from 'defu';
-
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
 
@@ -25,6 +23,7 @@ export default defineEventHandler(async (event) => {
                     select: {
                         embed: true,
                         domains: true,
+                        language: true,
                     },
                 },
             },
@@ -68,6 +67,11 @@ export default defineEventHandler(async (event) => {
     }
 
     const todayViews = await getTodayViews([findFileById.id]);
+    const { domains } = findFileById.author;
+    const directUrl = buildPublicUrl(event, domains, `/u/${findFileById.fileName}`);
+    const embedUrl = buildPublicUrl(event, domains, `/view/${findFileById.fileName}`);
+    const thumbnailUrl = getThumbnailUrl(event, domains, findFileById);
+    const isVisual = findFileById.mimeType.startsWith('image/') || isVideoFile(findFileById as any);
 
     return {
         ...findFileById,
@@ -85,17 +89,24 @@ export default defineEventHandler(async (event) => {
             total: findFileById._count.views,
             today: todayViews.get(findFileById.id) ?? 0,
         },
-        embed: defu(findFileById.author.embed, defaultEmbed) as IEmbed,
-        directUrl: buildPublicUrl(
-            event,
-            findFileById.author.domains,
-            `/u/${findFileById.fileName}`,
+        embed: embedOf(findFileById.author.embed),
+        discordEmbed: discordEmbedFor(
+            'file',
+            findFileById.author,
+            {
+                name: findFileById.name,
+                fileName: findFileById.fileName,
+                mimeType: findFileById.mimeType,
+                size: findFileById.size,
+                url: embedUrl,
+                fileUrl: isVisual ? directUrl : '',
+                downloadUrl: `${directUrl}?download`,
+                thumbnailUrl: thumbnailUrl ?? '',
+            },
+            findFileById.createdAt,
         ),
-        embedUrl: buildPublicUrl(
-            event,
-            findFileById.author.domains,
-            `/view/${findFileById.fileName}`,
-        ),
-        thumbnailUrl: getThumbnailUrl(event, findFileById.author.domains, findFileById),
+        directUrl,
+        embedUrl,
+        thumbnailUrl,
     };
 });

@@ -442,7 +442,8 @@
         "avatarProcessFailed": "Failed to process avatar",
         "domainTooLong": "Domains must be at most 253 characters",
         "tooManyDomains": "You can add at most 50 domains",
-        "slugRequired": "Slug cannot be empty"
+        "slugRequired": "Slug cannot be empty",
+        "discordLayoutInvalid": "A Discord layout is empty or too large for Discord"
     },
     "errorsWebhooks": {
         "nameRequired": "Enter a name",
@@ -1230,6 +1231,11 @@
         "expires": "Expires",
         "maxClicks": "Max clicks"
     },
+    "linkPreview": {
+        "download": "Download",
+        "files": "{count} file | {count} files",
+        "folders": "{count} folder | {count} folders"
+    },
     "labels": {
         "category": {
             "image": "Images",
@@ -1782,7 +1788,60 @@
         "removeDomain": "Remove {domain}",
         "noDomains": "No custom domains",
         "noDomainsDescription": "Links use the current domain.",
-        "domainsSaved": "Domains saved"
+        "domainsSaved": "Domains saved",
+        "discord": {
+            "title": "Discord layout",
+            "description": "Show a richer preview on Discord, built from your layouts. Other sites keep the embed above.",
+            "customize": "Customize layouts",
+            "dialogTitle": "Discord layouts",
+            "dialogDescription": "Choose what Discord shows for links to your files, notes and folders. Placeholders are filled in for each link.",
+            "kinds": {
+                "file": "File",
+                "note": "Note",
+                "folder": "Folder"
+            },
+            "layoutSpoiler": "Hide the whole preview behind a spoiler",
+            "spoiler": "Spoiler",
+            "types": {
+                "text": "Text",
+                "section": "Text with side item",
+                "gallery": "Media gallery",
+                "separator": "Separator",
+                "buttons": "Buttons"
+            },
+            "moveUp": "Move up",
+            "moveDown": "Move down",
+            "remove": "Remove component",
+            "sectionText": "Text {n}",
+            "removeText": "Remove text",
+            "addText": "Add text",
+            "accessory": "Side item",
+            "thumbnail": "Thumbnail",
+            "button": "Button",
+            "mediaUrl": "Image or video URL",
+            "altText": "Description",
+            "removeItem": "Remove item",
+            "addItem": "Add image",
+            "divider": "Show a line",
+            "largeSpacing": "Large spacing",
+            "buttonLabel": "Label",
+            "emoji": "Emoji",
+            "buttonUrl": "Link",
+            "removeButton": "Remove button",
+            "addButton": "Add button",
+            "componentType": "Component type",
+            "add": "Add",
+            "componentCount": "{count} of {limit} components",
+            "reset": "Reset to default",
+            "placeholders": "Placeholders: {list}",
+            "limits": "Discord only shows images and videos, links must start with http:// or https://, and a layout holds up to 40 components. Discord keeps a preview for about 30 minutes.",
+            "done": "Done",
+            "emptyPreview": "Nothing to show",
+            "emptyPreviewDescription": "Add a component, or check that its links and placeholders are filled in.",
+            "sampleFolder": "Holiday photos",
+            "sampleNote": "Shopping list",
+            "sampleExcerpt": "Milk, eggs, bread and coffee for the weekend."
+        }
     },
     "shareTarget": {
         "title": "Share to Fileship",

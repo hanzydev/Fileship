@@ -442,7 +442,8 @@
         "avatarProcessFailed": "Profil fotoğrafı işlenemedi",
         "domainTooLong": "Alan adı en fazla 253 karakter olabilir",
         "tooManyDomains": "En fazla 50 alan adı ekleyebilirsin",
-        "slugRequired": "Adres boş olamaz"
+        "slugRequired": "Adres boş olamaz",
+        "discordLayoutInvalid": "Bir Discord düzeni boş ya da Discord için fazla büyük"
     },
     "errorsWebhooks": {
         "nameRequired": "Bir ad gir",
@@ -1230,6 +1231,11 @@
         "expires": "Son kullanma",
         "maxClicks": "En fazla tıklanma"
     },
+    "linkPreview": {
+        "download": "İndir",
+        "files": "{count} dosya",
+        "folders": "{count} klasör"
+    },
     "labels": {
         "category": {
             "image": "Görseller",
@@ -1782,7 +1788,60 @@
         "removeDomain": "Kaldır: {domain}",
         "noDomains": "Özel alan adı yok",
         "noDomainsDescription": "Bağlantılar geçerli alan adını kullanır.",
-        "domainsSaved": "Alan adları kaydedildi"
+        "domainsSaved": "Alan adları kaydedildi",
+        "discord": {
+            "title": "Discord düzeni",
+            "description": "Discord'da düzenlerinden oluşan daha zengin bir önizleme göster. Diğer siteler yukarıdaki önizlemeyi kullanmaya devam eder.",
+            "customize": "Düzenleri özelleştir",
+            "dialogTitle": "Discord düzenleri",
+            "dialogDescription": "Dosya, not ve klasör bağlantıların için Discord'un ne göstereceğini seç. Yer tutucular her bağlantı için doldurulur.",
+            "kinds": {
+                "file": "Dosya",
+                "note": "Not",
+                "folder": "Klasör"
+            },
+            "layoutSpoiler": "Önizlemenin tamamını spoiler olarak gizle",
+            "spoiler": "Spoiler",
+            "types": {
+                "text": "Metin",
+                "section": "Yan öğeli metin",
+                "gallery": "Medya galerisi",
+                "separator": "Ayırıcı",
+                "buttons": "Butonlar"
+            },
+            "moveUp": "Yukarı taşı",
+            "moveDown": "Aşağı taşı",
+            "remove": "Bileşeni kaldır",
+            "sectionText": "Metin {n}",
+            "removeText": "Metni kaldır",
+            "addText": "Metin ekle",
+            "accessory": "Yan öğe",
+            "thumbnail": "Küçük resim",
+            "button": "Buton",
+            "mediaUrl": "Görsel veya video URL",
+            "altText": "Açıklama",
+            "removeItem": "Öğeyi kaldır",
+            "addItem": "Görsel ekle",
+            "divider": "Çizgi göster",
+            "largeSpacing": "Geniş boşluk",
+            "buttonLabel": "Etiket",
+            "emoji": "Emoji",
+            "buttonUrl": "Bağlantı",
+            "removeButton": "Butonu kaldır",
+            "addButton": "Buton ekle",
+            "componentType": "Bileşen türü",
+            "add": "Ekle",
+            "componentCount": "{count}/{limit} bileşen",
+            "reset": "Varsayılana döndür",
+            "placeholders": "Yer tutucular: {list}",
+            "limits": "Discord yalnızca görsel ve video gösterir, bağlantılar http:// veya https:// ile başlamalı ve bir düzende en fazla 40 bileşen olabilir. Discord bir önizlemeyi yaklaşık 30 dakika saklar.",
+            "done": "Tamam",
+            "emptyPreview": "Gösterilecek bir şey yok",
+            "emptyPreviewDescription": "Bir bileşen ekle ya da bağlantılarının ve yer tutucularının dolu olduğunu kontrol et.",
+            "sampleFolder": "Tatil fotoğrafları",
+            "sampleNote": "Alışveriş listesi",
+            "sampleExcerpt": "Hafta sonu için süt, yumurta, ekmek ve kahve."
+        }
     },
     "shareTarget": {
         "title": "Fileship ile paylaş",

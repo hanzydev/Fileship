@@ -29,7 +29,7 @@
 
 - Dosyalar, başka kullanıcılarla paylaşabileceğin iç içe klasörler, Markdown notları, kısa bağlantılar ve gelen kutuları; sildiğin her şey için de bir çöp kutusu
 - İndirip geri yükleyebileceğin hesap yedekleri, elle ya da zamanlanmış olarak oluşturulur
-- Şifre, son kullanma tarihi, görüntülenme sınırı ve Discord gibi uygulamalar için zengin yerleştirme önizlemeleriyle herkese açık paylaşım
+- Şifre, son kullanma tarihi, görüntülenme sınırı ve Discord gibi uygulamalar için [zengin yerleştirme önizlemeleriyle](docs/link-previews.md) herkese açık paylaşım
 - Kendi sunucunda çalışan [yapay zekâ](docs/ai.md): 50'den fazla dilde akıllı arama, açıklamalar, OCR ve hassas içerik algılama; hepsi isteğe bağlı
 - Yüklemeler için yerel disk, S3 uyumlu herhangi bir servis, SFTP veya FTP
 - Yetkileri ve depolama sınırları olan birden çok kullanıcı, geçiş anahtarları, iki adımlı doğrulama ve OpenID Connect ile [tek oturum açma (SSO)](docs/configuration.md#single-sign-on)

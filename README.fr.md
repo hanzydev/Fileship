@@ -29,7 +29,7 @@
 
 - Fichiers, dossiers imbriqués à partager avec d'autres utilisateurs, notes Markdown, liens courts et boîtes de dépôt, avec une corbeille pour tout ce que vous supprimez
 - Sauvegardes de compte à télécharger et à restaurer, créées à la main ou planifiées
-- Partage public avec mot de passe, date d'expiration, limite de vues et aperçus de liens soignés pour Discord et d'autres applications
+- Partage public avec mot de passe, date d'expiration, limite de vues et [aperçus de liens soignés](docs/link-previews.md) pour Discord et d'autres applications
 - Une [IA](docs/ai.md) qui tourne sur votre serveur : recherche intelligente dans plus de 50 langues, descriptions, OCR et détection de contenu sensible, le tout facultatif
 - Stockage des fichiers sur le disque local, tout service compatible S3, SFTP ou FTP
 - Plusieurs utilisateurs avec autorisations et limites de stockage, clés d'accès, authentification à deux facteurs et [authentification unique](docs/configuration.md#single-sign-on) avec OpenID Connect

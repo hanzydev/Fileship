@@ -29,7 +29,7 @@
 
 - Arquivos, pastas aninhadas que você pode compartilhar com outros usuários, notas em Markdown, links curtos e caixas de entrada, com uma lixeira para tudo o que for excluído
 - Backups da conta que podem ser baixados e restaurados, criados manualmente ou de forma agendada
-- Compartilhamento público com senhas, datas de expiração, limites de visualizações e prévias completas para o Discord e outros apps
+- Compartilhamento público com senhas, datas de expiração, limites de visualizações e [prévias completas](docs/link-previews.md) para o Discord e outros apps
 - [IA](docs/ai.md) que roda no seu servidor: pesquisa inteligente em mais de 50 idiomas, descrições, OCR e detecção de conteúdo sensível, tudo opcional
 - Envios armazenados no disco local, em qualquer serviço compatível com S3, SFTP ou FTP
 - Vários usuários com permissões e limites de armazenamento, chaves de acesso, verificação em duas etapas e [login único](docs/configuration.md#single-sign-on) com OpenID Connect

@@ -442,7 +442,8 @@
         "avatarProcessFailed": "Das Profilbild konnte nicht verarbeitet werden",
         "domainTooLong": "Domains dürfen höchstens 253 Zeichen lang sein",
         "tooManyDomains": "Du kannst höchstens 50 Domains hinzufügen",
-        "slugRequired": "Die Adresse darf nicht leer sein"
+        "slugRequired": "Die Adresse darf nicht leer sein",
+        "discordLayoutInvalid": "Ein Discord-Layout ist leer oder zu groß für Discord"
     },
     "errorsWebhooks": {
         "nameRequired": "Gib einen Namen ein",
@@ -1230,6 +1231,11 @@
         "expires": "Läuft ab",
         "maxClicks": "Maximale Klicks"
     },
+    "linkPreview": {
+        "download": "Herunterladen",
+        "files": "{count} Datei | {count} Dateien",
+        "folders": "{count} Ordner | {count} Ordner"
+    },
     "labels": {
         "category": {
             "image": "Bilder",
@@ -1782,7 +1788,60 @@
         "removeDomain": "{domain} entfernen",
         "noDomains": "Keine eigenen Domains",
         "noDomainsDescription": "Links verwenden die aktuelle Domain.",
-        "domainsSaved": "Domains gespeichert"
+        "domainsSaved": "Domains gespeichert",
+        "discord": {
+            "title": "Discord-Layout",
+            "description": "Zeigt auf Discord eine ausführlichere Vorschau aus deinen Layouts. Andere Seiten nutzen weiter die Link-Vorschau oben.",
+            "customize": "Layouts anpassen",
+            "dialogTitle": "Discord-Layouts",
+            "dialogDescription": "Lege fest, was Discord für Links zu deinen Dateien, Notizen und Ordnern zeigt. Platzhalter werden für jeden Link ausgefüllt.",
+            "kinds": {
+                "file": "Datei",
+                "note": "Notiz",
+                "folder": "Ordner"
+            },
+            "layoutSpoiler": "Ganze Vorschau als Spoiler verbergen",
+            "spoiler": "Spoiler",
+            "types": {
+                "text": "Text",
+                "section": "Text mit Seitenelement",
+                "gallery": "Mediengalerie",
+                "separator": "Trenner",
+                "buttons": "Schaltflächen"
+            },
+            "moveUp": "Nach oben",
+            "moveDown": "Nach unten",
+            "remove": "Komponente entfernen",
+            "sectionText": "Text {n}",
+            "removeText": "Text entfernen",
+            "addText": "Text hinzufügen",
+            "accessory": "Seitenelement",
+            "thumbnail": "Vorschaubild",
+            "button": "Schaltfläche",
+            "mediaUrl": "Bild- oder Video-URL",
+            "altText": "Beschreibung",
+            "removeItem": "Element entfernen",
+            "addItem": "Bild hinzufügen",
+            "divider": "Linie anzeigen",
+            "largeSpacing": "Großer Abstand",
+            "buttonLabel": "Beschriftung",
+            "emoji": "Emoji",
+            "buttonUrl": "Link",
+            "removeButton": "Schaltfläche entfernen",
+            "addButton": "Schaltfläche hinzufügen",
+            "componentType": "Komponententyp",
+            "add": "Hinzufügen",
+            "componentCount": "{count} von {limit} Komponenten",
+            "reset": "Auf Standard zurücksetzen",
+            "placeholders": "Platzhalter: {list}",
+            "limits": "Discord zeigt nur Bilder und Videos, Links müssen mit http:// oder https:// beginnen, und ein Layout hat höchstens 40 Komponenten. Discord speichert eine Vorschau etwa 30 Minuten lang.",
+            "done": "Fertig",
+            "emptyPreview": "Nichts anzuzeigen",
+            "emptyPreviewDescription": "Füge eine Komponente hinzu oder prüfe, ob ihre Links und Platzhalter ausgefüllt sind.",
+            "sampleFolder": "Urlaubsfotos",
+            "sampleNote": "Einkaufsliste",
+            "sampleExcerpt": "Milch, Eier, Brot und Kaffee fürs Wochenende."
+        }
     },
     "shareTarget": {
         "title": "Mit Fileship teilen",

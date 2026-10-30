@@ -29,7 +29,7 @@
 
 - Fayllar, digər istifadəçilərlə paylaşa biləcəyin iç-içə qovluqlar, Markdown qeydləri, qısa keçidlər və gələnlər qutuları, həmçinin sildiyin hər şey üçün zibil qutusu
 - Endirib bərpa edə biləcəyin hesab ehtiyat nüsxələri: əl ilə və ya cədvəl üzrə yaradılır
-- Şifrə, bitmə tarixi, baxış limiti və Discord kimi tətbiqlər üçün zəngin keçid önizləmələri ilə hamıya açıq paylaşım
+- Şifrə, bitmə tarixi, baxış limiti və Discord kimi tətbiqlər üçün [zəngin keçid önizləmələri](docs/link-previews.md) ilə hamıya açıq paylaşım
 - Öz serverində işləyən [süni intellekt](docs/ai.md): 50-dən çox dildə ağıllı axtarış, təsvirlər, OCR və həssas məzmunun aşkarlanması; hamısı istəyə bağlıdır
 - Yükləmələr üçün yerli disk, istənilən S3 uyğun xidmət, SFTP və ya FTP
 - İcazələri və yaddaş limitləri olan çoxlu istifadəçi, giriş açarları, iki addımlı doğrulama və OpenID Connect ilə [SSO ilə giriş](docs/configuration.md#single-sign-on)

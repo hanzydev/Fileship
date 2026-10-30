@@ -1,5 +1,3 @@
-import defu from 'defu';
-
 export default defineEventHandler(async (event) => {
     const noteId = getRouterParam(event, 'id');
     const user = event.context.user;
@@ -14,6 +12,7 @@ export default defineEventHandler(async (event) => {
                 select: {
                     domains: true,
                     embed: true,
+                    language: true,
                 },
             },
         },
@@ -27,18 +26,33 @@ export default defineEventHandler(async (event) => {
         throw apiError(403, 'errorsContent.notePageForbidden');
     }
 
-    const embed = defu(findNoteById.author.embed, defaultEmbed) as IEmbed;
+    const embed = embedOf(findNoteById.author.embed);
+    const excerpt = noteExcerpt(findNoteById.content);
+    const publicUrl = findNoteById.public
+        ? buildPublicUrl(event, findNoteById.author.domains, `/note/${findNoteById.id}`)
+        : undefined;
 
     return {
         ...findNoteById,
         author: undefined,
         authorId: findNoteById.authorId === user?.id ? findNoteById.authorId : undefined,
-        publicUrl: findNoteById.public
-            ? buildPublicUrl(event, findNoteById.author.domains, `/note/${findNoteById.id}`)
-            : undefined,
+        publicUrl,
         embed: {
             enabled: embed.enabled,
             color: embed.color,
         },
+        excerpt,
+        discordEmbed: publicUrl
+            ? discordEmbedFor(
+                  'note',
+                  findNoteById.author,
+                  {
+                      title: findNoteById.title,
+                      excerpt,
+                      url: publicUrl,
+                  },
+                  findNoteById.createdAt,
+              )
+            : null,
     };
 });
