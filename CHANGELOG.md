@@ -1,5 +1,45 @@
 # Changelog
 
+## v6.4.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v6.3.1...v6.4.0)
+
+Fileship 6.4 gives links shared in Discord a richer preview built from Discord's components, and comes with Fileship for Windows 2.1.1, which captures fullscreen games as they are on screen.
+
+### ✨ Highlights
+
+- **Discord layouts.** File, note and folder links shared in Discord show a preview with text, an image or video gallery, a thumbnail next to the text, separators and link buttons such as Download. It is on by default while embeds are on and uses your embed's title, description and site name in your language. **Settings → Sharing → Customize layouts** opens a builder with a live preview and placeholders for each kind. Other apps keep the regular embed ([guide](https://github.com/hanzydev/Fileship/blob/main/docs/link-previews.md)).
+- **Fileship for Windows 2.1.1** ([fileship-desktop](https://github.com/hanzydev/fileship-desktop)): screenshots of games in exclusive fullscreen or with fullscreen optimizations show the current frame instead of an older one, such as the lobby during a match. Ordinary screenshots stay as fast as before.
+
+### 🚀 Enhancements
+
+- **sharing:** Add Discord layouts to link previews ([824c4a69](https://github.com/hanzydev/Fileship/commit/824c4a69))
+
+### 🔥 Performance
+
+- **desktop:** Capture with DXGI only while a fullscreen app is shown ([6cbf19b3](https://github.com/hanzydev/Fileship/commit/6cbf19b3))
+
+### 🩹 Fixes
+
+- **desktop:** Capture the screen with DXGI so fullscreen games are not stale ([53e6e1d8](https://github.com/hanzydev/Fileship/commit/53e6e1d8))
+- **extension:** Keep the store listing out of the stylesheet, so the Firefox package matches a rebuild from its sources ([5370d35c](https://github.com/hanzydev/Fileship/commit/5370d35c))
+- **ci:** Pass the dry run setting as true or false to wxt submit ([a88718fc](https://github.com/hanzydev/Fileship/commit/a88718fc))
+
+### 📖 Documentation
+
+- Note that fullscreen game captures work ([f12ed0cc](https://github.com/hanzydev/Fileship/commit/f12ed0cc))
+- **extension:** Link the Firefox add-on on addons.mozilla.org ([f1227e4b](https://github.com/hanzydev/Fileship/commit/f1227e4b))
+- **extension:** Note that 1.1.0 is published on the Chrome Web Store ([e2cec8a7](https://github.com/hanzydev/Fileship/commit/e2cec8a7))
+- Note that single sign-on works with Google ([0ac9f556](https://github.com/hanzydev/Fileship/commit/0ac9f556))
+
+### 🤖 CI
+
+- **extension:** Submit to addons.mozilla.org in the release workflow ([2d445125](https://github.com/hanzydev/Fileship/commit/2d445125))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v6.3.1
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v6.3.0...v6.3.1)

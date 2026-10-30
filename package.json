@@ -1,7 +1,7 @@
 {
     "name": "fileship",
     "description": "An open-source, self-hosted file and media management platform.",
-    "version": "6.3.1",
+    "version": "6.4.0",
     "type": "module",
     "scripts": {
         "build": "turbo run build",
