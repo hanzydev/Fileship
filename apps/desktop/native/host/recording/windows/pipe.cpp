@@ -1,8 +1,16 @@
-#include "pipe.h"
+#include <host/recording/pipe.h>
+
+#include <windows.h>
 
 #include <stdexcept>
 
 namespace fileship::host::recording {
+
+struct AudioPipe::Channel {
+    HANDLE pipe = INVALID_HANDLE_VALUE;
+    HANDLE stopEvent = nullptr;
+    HANDLE dataEvent = nullptr;
+};
 
 namespace {
 
@@ -24,26 +32,31 @@ bool waitIo(HANDLE pipe, OVERLAPPED& overlapped, HANDLE stopEvent) {
 
 }
 
-AudioPipe::AudioPipe(std::wstring name, size_t priming) : pipeName(std::move(name)), primingBytes(priming) {
-    pipe = CreateNamedPipeW(pipeName.c_str(),
-                            PIPE_ACCESS_OUTBOUND | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
-                            PIPE_TYPE_BYTE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS, 1, PIPE_BUFFER, 0, 0, nullptr);
-    if (pipe == INVALID_HANDLE_VALUE) {
+std::wstring audioPipeName(std::filesystem::path const&, std::wstring const& name) {
+    return L"\\\\.\\pipe\\fileship-" + std::to_wstring(GetCurrentProcessId()) + L"-" + name;
+}
+
+AudioPipe::AudioPipe(std::wstring name, size_t priming)
+    : pipeName(std::move(name)), primingBytes(priming), channel(std::make_unique<Channel>()) {
+    channel->pipe =
+        CreateNamedPipeW(pipeName.c_str(), PIPE_ACCESS_OUTBOUND | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
+                         PIPE_TYPE_BYTE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS, 1, PIPE_BUFFER, 0, 0, nullptr);
+    if (channel->pipe == INVALID_HANDLE_VALUE) {
         throw std::runtime_error("Could not create the audio pipe (" + std::to_string(GetLastError()) + ")");
     }
 
-    stopEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
-    dataEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
+    channel->stopEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+    channel->dataEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
     thread = std::thread([this] { run(); });
 }
 
 AudioPipe::~AudioPipe() {
-    SetEvent(stopEvent);
+    SetEvent(channel->stopEvent);
     if (thread.joinable()) thread.join();
 
-    if (pipe != INVALID_HANDLE_VALUE) CloseHandle(pipe);
-    CloseHandle(stopEvent);
-    CloseHandle(dataEvent);
+    if (channel->pipe != INVALID_HANDLE_VALUE) CloseHandle(channel->pipe);
+    CloseHandle(channel->stopEvent);
+    CloseHandle(channel->dataEvent);
 }
 
 void AudioPipe::write(char const* data, size_t size) {
@@ -53,7 +66,7 @@ void AudioPipe::write(char const* data, size_t size) {
         queue.emplace_back(data, data + size);
     }
 
-    SetEvent(dataEvent);
+    wake();
 }
 
 void AudioPipe::end() {
@@ -62,10 +75,16 @@ void AudioPipe::end() {
         isEnding = true;
     }
 
-    SetEvent(dataEvent);
+    wake();
+}
+
+void AudioPipe::wake() {
+    SetEvent(channel->dataEvent);
 }
 
 void AudioPipe::run() {
+    auto pipe = channel->pipe;
+    auto stopEvent = channel->stopEvent;
     OVERLAPPED overlapped{};
     overlapped.hEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
 
@@ -80,7 +99,7 @@ void AudioPipe::run() {
         }
     }
 
-    HANDLE events[] = {stopEvent, dataEvent};
+    HANDLE events[] = {stopEvent, channel->dataEvent};
 
     while (connected) {
         std::vector<char> chunk;
@@ -117,7 +136,7 @@ void AudioPipe::run() {
     }
 
     CloseHandle(pipe);
-    pipe = INVALID_HANDLE_VALUE;
+    channel->pipe = INVALID_HANDLE_VALUE;
     CloseHandle(overlapped.hEvent);
 }
 

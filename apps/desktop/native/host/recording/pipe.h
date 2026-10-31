@@ -1,15 +1,16 @@
 #pragma once
 
-#include <windows.h>
-
-#include <atomic>
 #include <deque>
+#include <filesystem>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
 
 namespace fileship::host::recording {
+
+std::wstring audioPipeName(std::filesystem::path const& folder, std::wstring const& name);
 
 class AudioPipe {
 public:
@@ -24,13 +25,14 @@ public:
     void end();
 
 private:
+    struct Channel;
+
     void run();
+    void wake();
 
     std::wstring pipeName;
     size_t primingBytes;
-    HANDLE pipe = INVALID_HANDLE_VALUE;
-    HANDLE stopEvent = nullptr;
-    HANDLE dataEvent = nullptr;
+    std::unique_ptr<Channel> channel;
     std::mutex mutex;
     std::deque<std::vector<char>> queue;
     bool isConnected = false;

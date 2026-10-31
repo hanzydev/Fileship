@@ -1,13 +1,13 @@
 #include "ffmpeg.h"
 
 #include "command.h"
+#include "platform.h"
 #include "process.h"
 
 #include <host/rpc.h>
 #include <host/services.h>
 #include <shared/hash.h>
 #include <shared/log.h>
-
 
 #include <algorithm>
 #include <chrono>
@@ -23,18 +23,6 @@ namespace fs = std::filesystem;
 namespace fileship::host::recording {
 
 namespace {
-
-struct Build {
-    wchar_t const* version;
-    wchar_t const* url;
-    char const* sha256;
-};
-
-constexpr Build BUILD = {
-    L"9.0.2",
-    L"https://github.com/GyanD/codexffmpeg/releases/download/9.0.2/ffmpeg-9.0.2-essentials_build.zip",
-    "60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba",
-};
 
 struct Download {
     int progress = 0;
@@ -52,13 +40,7 @@ fs::path managedDir() {
 }
 
 fs::path managedPath() {
-    return managedDir() / L"ffmpeg.exe";
-}
-
-fs::path tempFolder() {
-    wchar_t buffer[MAX_PATH + 1]{};
-    GetTempPathW(MAX_PATH + 1, buffer);
-    return fs::path(buffer);
+    return managedDir() / ffmpegFileName();
 }
 
 bool fileExists(fs::path const& path) {
@@ -67,17 +49,12 @@ bool fileExists(fs::path const& path) {
 }
 
 std::wstring probeKey(std::wstring const& path) {
-    WIN32_FILE_ATTRIBUTE_DATA data{};
-    if (!GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &data)) {
-        throw std::runtime_error("Could not read " + toUtf8(path));
-    }
+    std::error_code error;
+    auto size = fs::file_size(path, error);
+    auto time = fs::last_write_time(path, error);
+    if (error) throw std::runtime_error("Could not read " + toUtf8(path));
 
-    auto size = (static_cast<uint64_t>(data.nFileSizeHigh) << 32) | data.nFileSizeLow;
-    auto time = (static_cast<uint64_t>(data.ftLastWriteTime.dwHighDateTime) << 32) |
-                data.ftLastWriteTime.dwLowDateTime;
-    auto mtimeMs = (time - 116444736000000000ULL) / 10000;
-
-    return path + L"|" + std::to_wstring(size) + L"|" + std::to_wstring(mtimeMs);
+    return path + L"|" + std::to_wstring(size) + L"|" + std::to_wstring(time.time_since_epoch().count());
 }
 
 Ffmpeg runProbe(std::wstring const& path) {
@@ -117,16 +94,14 @@ Ffmpeg runProbe(std::wstring const& path) {
         if (name.find(L'_') == std::wstring::npos) working.push_back(name);
     }
 
-    static std::wregex const hardwarePattern(L"_(nvenc|amf|qsv)$");
+    static std::wregex const hardwarePattern(L"_(nvenc|amf|qsv|vaapi)$");
 
     for (auto const& encoder : available) {
         if (std::find(VIDEO_CODECS.begin(), VIDEO_CODECS.end(), encoder) == VIDEO_CODECS.end()) continue;
         if (!std::regex_search(encoder, hardwarePattern)) continue;
 
         try {
-            runProcess(path, {L"-hide_banner", L"-loglevel", L"error", L"-f", L"lavfi", L"-i",
-                              L"color=c=black:s=256x256:r=30", L"-frames:v", L"3", L"-c:v", encoder, L"-f",
-                              L"null", L"-"});
+            runProcess(path, hardwareProbeArgs(encoder));
             working.push_back(encoder);
         } catch (...) {
         }
@@ -156,8 +131,8 @@ void setDownload(std::optional<Download> value) {
     download = std::move(value);
 }
 
-void fetchArchive(fs::path const& archive) {
-    std::wstring url = BUILD.url;
+void fetchArchive(FfmpegBuild const& build, fs::path const& archive) {
+    std::wstring url = build.url;
     auto slash = url.find(L'/', url.find(L"://") + 3);
 
     std::optional<HttpStream> stream;
@@ -208,29 +183,28 @@ void fetchArchive(fs::path const& archive) {
     file.close();
     if (!file) throw std::runtime_error("Could not write " + archive.string());
 
-    if (toHex(hash.finish()) != BUILD.sha256) throw std::runtime_error(toUtf8(t(L"recording.downloadDamaged")));
+    if (toHex(hash.finish()) != build.sha256) throw std::runtime_error(toUtf8(t(L"recording.downloadDamaged")));
 }
 
 void runDownload() {
     auto stamp = std::to_wstring(
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch())
             .count());
-    auto archive = tempFolder() / (L"fileship-ffmpeg-" + stamp + L".zip");
-    auto extracted = tempFolder() / (L"fileship-ffmpeg-" + stamp);
+    auto build = managedFfmpegBuild();
+    auto temp = fs::temp_directory_path();
+    auto name = fs::path(build ? build->url : L"").filename().wstring();
+    auto archive = temp / (L"fileship-ffmpeg-" + stamp + L"-" + name);
+    auto extracted = temp / (L"fileship-ffmpeg-" + stamp);
     std::error_code ignored;
 
     try {
-        fetchArchive(archive);
+        if (!build) throw std::runtime_error(toUtf8(t(L"recording.ffmpegNotInDownload")));
+        fetchArchive(*build, archive);
 
         fs::create_directories(extracted);
+        extractFfmpeg(archive, extracted);
 
-        wchar_t system[MAX_PATH]{};
-        GetSystemDirectoryW(system, MAX_PATH);
-        runProcess((fs::path(system) / L"tar.exe").wstring(),
-                   {L"-xf", archive.wstring(), L"-C", extracted.wstring(), L"--strip-components", L"2",
-                    L"*/bin/ffmpeg.exe"});
-
-        auto binary = extracted / L"ffmpeg.exe";
+        auto binary = extracted / ffmpegFileName();
         if (!fileExists(binary)) throw std::runtime_error(toUtf8(t(L"recording.ffmpegNotInDownload")));
 
         fs::create_directories(managedDir());
@@ -254,7 +228,8 @@ void runDownload() {
 std::optional<std::wstring> ffmpegPath() {
     auto custom = text(section(settings(), L"recording"), L"ffmpegPath");
     if (!custom.empty()) return fileExists(custom) ? std::optional(custom) : std::nullopt;
-    return fileExists(managedPath()) ? std::optional(managedPath().wstring()) : std::nullopt;
+    if (fileExists(managedPath())) return managedPath().wstring();
+    return systemFfmpeg();
 }
 
 std::optional<Ffmpeg> getFfmpeg() {
@@ -296,11 +271,13 @@ JsonObject ffmpegStatus() {
     status.SetNamedValue(L"path", string(info ? std::optional(info->path)
                                               : custom.empty() ? std::nullopt : std::optional(custom)));
     status.SetNamedValue(L"version", string(info ? std::optional(info->version) : std::nullopt));
-    status.SetNamedValue(L"isManaged", JsonValue::CreateBooleanValue(custom.empty()));
+    auto build = managedFfmpegBuild();
+    status.SetNamedValue(L"isManaged", JsonValue::CreateBooleanValue(custom.empty() && build));
+    status.SetNamedValue(L"canDownload", JsonValue::CreateBooleanValue(build.has_value()));
     status.SetNamedValue(L"isInstalled", JsonValue::CreateBooleanValue(info.has_value()));
     status.SetNamedValue(L"ddagrab", JsonValue::CreateBooleanValue(info && info->ddagrab));
     status.SetNamedValue(L"encoders", encoders);
-    status.SetNamedValue(L"managedVersion", JsonValue::CreateStringValue(BUILD.version));
+    status.SetNamedValue(L"managedVersion", string(build ? std::optional(build->version) : std::nullopt));
 
     std::lock_guard lock(downloadMutex);
     if (download) {

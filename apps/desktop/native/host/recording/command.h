@@ -39,11 +39,14 @@ struct RecordTarget {
     std::optional<OutputTarget> output;
 };
 
+enum class VideoSource { Ddagrab, Gdigrab, X11grab, Pipewire };
+
 struct RecordCommand {
     std::wstring kind;
     std::wstring codec;
-    bool useDda = false;
+    VideoSource source = VideoSource::Gdigrab;
     RecordTarget target;
+    std::wstring input;
     std::vector<std::wstring> pipes;
     std::vector<AudioTrack> tracks;
     std::wstring output;
@@ -53,6 +56,8 @@ std::vector<std::wstring> splitArgs(std::wstring const& value);
 std::vector<AudioTrack> audioTracks(JsonObject const& audio);
 std::wstring defaultPreset(std::wstring const& codec);
 std::wstring pixelFormat(std::wstring const& codec);
+std::wstring vaapiDevice();
+std::vector<std::wstring> hardwareProbeArgs(std::wstring const& encoder);
 std::vector<std::wstring> videoCodecArgs(std::wstring const& codec, JsonObject const& recording);
 std::optional<std::wstring> containerProblem(std::wstring const& container, std::wstring const& codec);
 std::vector<std::wstring> recordArgs(JsonObject const& settings, RecordCommand const& command);

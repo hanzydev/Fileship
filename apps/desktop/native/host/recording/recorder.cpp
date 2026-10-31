@@ -2,19 +2,19 @@
 #include "command.h"
 #include "ffmpeg.h"
 #include "pipe.h"
+#include "platform.h"
 #include "process.h"
 
 #include <host/recording.h>
 #include <host/rpc.h>
+#include <core/core.h>
 #include <host/services.h>
 #include <shared/log.h>
 #include <ui/recorderUi.h>
 
-#include <dxgi1_2.h>
-#include <winrt/base.h>
-
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <condition_variable>
 #include <deque>
 #include <filesystem>
@@ -65,7 +65,8 @@ struct Recording {
     std::wstring ffmpeg;
     std::wstring codec;
     std::vector<AudioTrack> tracks;
-    bool useDda = false;
+    VideoSource source = VideoSource::Gdigrab;
+    std::wstring input;
     RecordTarget target;
     fs::path folder;
     std::vector<std::wstring> segments;
@@ -217,50 +218,28 @@ bool contains(ui::ScreenRect const& outer, ui::ScreenRect const& inner) {
 }
 
 std::optional<OutputTarget> findOutput(ui::ScreenRect const& rect) {
-    winrt::com_ptr<IDXGIFactory1> factory;
-    if (FAILED(CreateDXGIFactory1(IID_PPV_ARGS(factory.put())))) {
-        logWarn(L"Could not list the displays");
-        return std::nullopt;
+    auto outputs = core::listOutputs();
+    if (outputs.empty()) {
+        for (auto const& display : core::listDisplays()) {
+            outputs.push_back({0, static_cast<uint32_t>(outputs.size()), display.rect});
+        }
     }
 
-    winrt::com_ptr<IDXGIAdapter1> adapter;
-    for (UINT adapterIndex = 0; factory->EnumAdapters1(adapterIndex, adapter.put()) != DXGI_ERROR_NOT_FOUND;
-         adapterIndex++) {
-        winrt::com_ptr<IDXGIOutput> output;
-
-        for (UINT outputIndex = 0; adapter->EnumOutputs(outputIndex, output.put()) != DXGI_ERROR_NOT_FOUND;
-             outputIndex++) {
-            DXGI_OUTPUT_DESC desc{};
-
-            if (SUCCEEDED(output->GetDesc(&desc))) {
-                auto const& bounds = desc.DesktopCoordinates;
-                ui::ScreenRect outputRect{bounds.left, bounds.top, bounds.right - bounds.left,
-                                          bounds.bottom - bounds.top};
-                if (contains(outputRect, rect)) {
-                    return OutputTarget{static_cast<int>(adapterIndex), static_cast<int>(outputIndex), outputRect};
-                }
-            }
-
-            output = nullptr;
+    for (auto const& output : outputs) {
+        ui::ScreenRect bounds{output.rect.x, output.rect.y, output.rect.width, output.rect.height};
+        if (contains(bounds, rect)) {
+            return OutputTarget{static_cast<int>(output.adapter), static_cast<int>(output.output), bounds};
         }
-
-        adapter = nullptr;
     }
 
     return std::nullopt;
 }
 
 ui::ScreenRect primaryBounds() {
-    MONITORINFO info{sizeof(info)};
-    GetMonitorInfoW(MonitorFromPoint({0, 0}, MONITOR_DEFAULTTOPRIMARY), &info);
-    auto const& rect = info.rcMonitor;
-    return {rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top};
-}
-
-fs::path tempFolder() {
-    wchar_t buffer[MAX_PATH + 1]{};
-    GetTempPathW(MAX_PATH + 1, buffer);
-    return fs::path(buffer);
+    auto displays = core::listDisplays();
+    auto primary = std::find_if(displays.begin(), displays.end(), [](auto const& display) { return display.isPrimary; });
+    if (primary == displays.end()) return {0, 0, 1920, 1080};
+    return {primary->rect.x, primary->rect.y, primary->rect.width, primary->rect.height};
 }
 
 void stopRecording();
@@ -327,15 +306,15 @@ void startSegment(std::shared_ptr<Recording> const& recording) {
 
     std::vector<std::wstring> pipes;
     for (size_t track = 0; track < tracks.size(); track++) {
-        auto name = L"\\\\.\\pipe\\fileship-" + std::to_wstring(GetCurrentProcessId()) + L"-" + stamp + L"-" +
-                    std::to_wstring(index) + L"-" + std::to_wstring(track);
+        auto name = audioPipeName(recording->folder,
+                                  stamp + L"-" + std::to_wstring(index) + L"-" + std::to_wstring(track));
         segment->pipes.push_back(
             std::make_unique<AudioPipe>(name, static_cast<size_t>(std::llround(BYTES_PER_SECOND * PRIMING_SECONDS))));
         pipes.push_back(name);
     }
 
-    RecordCommand command{recording->kind, recording->codec, recording->useDda, recording->target,
-                          pipes,           tracks,           output};
+    RecordCommand command{recording->kind,   recording->codec, recording->source, recording->target,
+                          recording->input, pipes,            tracks,            output};
     auto args = recordArgs(recording->settings, command);
 
     logInfo(L"Recording " + formatCommand(recording->ffmpeg, args));
@@ -385,7 +364,7 @@ void startSegment(std::shared_ptr<Recording> const& recording) {
 
     std::weak_ptr<Recording> weakRecording = recording;
     std::thread([segment, weakRecording] {
-        segment->process->wait(INFINITE);
+        segment->process->wait(WAIT_UNTIL_EXIT);
         auto code = segment->process->exitCode();
         std::string stderrText;
 
@@ -399,7 +378,7 @@ void startSegment(std::shared_ptr<Recording> const& recording) {
         logError(L"ffmpeg stopped while recording " + std::to_wstring(code) + L" " + toWide(stderrText));
         auto last = toWide(lastLine(stderrText));
         notify(t(L"recording.stopped"),
-               last.empty() ? t(L"recording.ffmpegExited", {{L"code", std::to_wstring(static_cast<int>(code))}})
+               last.empty() ? t(L"recording.ffmpegExited", {{L"code", std::to_wstring(code)}})
                             : last);
         stopRecording();
     }).detach();
@@ -435,7 +414,7 @@ void closeSegment(std::shared_ptr<Recording> const& recording, std::shared_ptr<S
         segment->process->kill();
     }
 
-    segment->process->wait(INFINITE);
+    segment->process->wait(WAIT_UNTIL_EXIT);
     if (auto code = segment->process->exitCode()) {
         std::lock_guard lock(mutex);
         logWarn(L"ffmpeg exited with " + std::to_wstring(code) + L" " + toWide(segment->stderrText));
@@ -558,7 +537,8 @@ void stopRecording() {
 
     if (result) {
         try {
-            handleRecording({result->output, recording->kind == L"gif" ? L"gif" : L"recording", result->thumbnail});
+            handleRecording(
+                {result->output, recording->kind == L"gif" ? L"gif" : L"recording", result->thumbnail, {}, false});
         } catch (std::exception const& error) {
             logError(L"Could not handle the recording: " + message(error));
             notify(t(L"app.somethingWentWrong"), message(error));
@@ -695,9 +675,10 @@ void begin(std::wstring const& kind, ui::ScreenRect const& rect) {
     recording->ffmpeg = ffmpeg->path;
     recording->codec = codec;
     recording->tracks = kind == L"gif" ? std::vector<AudioTrack>{} : audioTracks(section(values, L"audio"));
-    recording->useDda = text(recordingSettings, L"source", L"auto") != L"gdigrab" && ffmpeg->ddagrab && output;
+    recording->source = videoSource(recordingSettings, ffmpeg->ddagrab, output.has_value());
     recording->target = {rect, output};
-    recording->folder = tempFolder() / (L"fileship-recording-" + std::to_wstring(epochMs()));
+    recording->folder = fs::temp_directory_path() / (L"fileship-recording-" + std::to_wstring(epochMs()));
+    recording->input = videoInput(recording->source, recording->folder);
 
     {
         std::lock_guard lock(mutex);
@@ -894,20 +875,23 @@ JsonValue recordingPreview() {
     auto bounds = primaryBounds();
     auto tracks = audioTracks(section(values, L"audio"));
     auto output = findOutput(bounds);
+    auto folder = fs::temp_directory_path();
+    auto source = videoSource(recordingSettings, !ffmpeg || ffmpeg->ddagrab, true);
 
     std::vector<std::wstring> pipes;
-    for (auto const& track : tracks) pipes.push_back(L"\\\\.\\pipe\\fileship-" + track.id);
+    for (auto const& track : tracks) pipes.push_back(audioPipeName(folder, track.id));
 
     RecordCommand command{L"video",
                           codec,
-                          text(recordingSettings, L"source", L"auto") != L"gdigrab" && (!ffmpeg || ffmpeg->ddagrab),
+                          source,
                           {bounds, output ? output : OutputTarget{0, 0, bounds}},
+                          videoInput(source, folder),
                           pipes,
                           tracks,
                           L"recording.mkv"};
 
     return JsonValue::CreateStringValue(
-        formatCommand(ffmpeg ? ffmpeg->path : L"ffmpeg.exe", recordArgs(values, command)));
+        formatCommand(ffmpeg ? ffmpeg->path : ffmpegFileName(), recordArgs(values, command)));
 }
 
 void registerRecordingHandlers() {

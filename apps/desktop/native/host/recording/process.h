@@ -1,8 +1,8 @@
 #pragma once
 
-#include <windows.h>
-
+#include <cstdint>
 #include <functional>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <thread>
@@ -10,17 +10,18 @@
 
 namespace fileship::host::recording {
 
+constexpr uint32_t WAIT_UNTIL_EXIT = UINT32_MAX;
+
 struct ProcessError : std::runtime_error {
     using std::runtime_error::runtime_error;
 };
 
 struct ProcessResult {
-    DWORD code = 0;
+    int code = 0;
     std::string out;
     std::string err;
 };
 
-std::wstring commandLine(std::wstring const& path, std::vector<std::wstring> const& args);
 ProcessResult runProcess(std::wstring const& path, std::vector<std::wstring> const& args);
 std::string lastLine(std::string const& text);
 
@@ -36,15 +37,16 @@ public:
 
     void write(std::string const& text);
     void kill();
-    bool wait(DWORD timeoutMs);
-    DWORD exitCode() const;
-    HANDLE handle() const { return process; }
+    bool wait(uint32_t timeoutMs);
+    int exitCode() const;
 
 private:
-    HANDLE process = nullptr;
-    HANDLE input = nullptr;
-    HANDLE errors = nullptr;
+    struct Handles;
+
+    std::unique_ptr<Handles> handles;
     std::thread reader;
 };
+
+void splitLines(std::string& partial, char const* data, size_t size, ChildProcess::LineHandler const& onLine);
 
 }

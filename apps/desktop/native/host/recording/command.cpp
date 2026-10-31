@@ -5,16 +5,18 @@
 #include <algorithm>
 #include <charconv>
 #include <cwctype>
+#include <filesystem>
 #include <map>
 
 namespace fileship::host::recording {
 
 std::vector<std::wstring> const VIDEO_CODECS = {
-    L"auto",     L"libx264",  L"libx265",  L"h264_nvenc", L"hevc_nvenc", L"av1_nvenc",  L"h264_amf",
-    L"hevc_amf", L"av1_amf",  L"h264_qsv", L"hevc_qsv",   L"av1_qsv",    L"libvpx-vp9", L"libsvtav1",
+    L"auto",       L"libx264",    L"libx265",   L"h264_nvenc", L"hevc_nvenc", L"av1_nvenc",
+    L"h264_amf",   L"hevc_amf",   L"av1_amf",   L"h264_qsv",   L"hevc_qsv",   L"av1_qsv",
+    L"h264_vaapi", L"hevc_vaapi", L"av1_vaapi", L"libvpx-vp9", L"libsvtav1",
 };
 
-std::vector<std::wstring> const HARDWARE_CODECS = {L"h264_nvenc", L"h264_amf", L"h264_qsv"};
+std::vector<std::wstring> const HARDWARE_CODECS = {L"h264_nvenc", L"h264_amf", L"h264_qsv", L"h264_vaapi"};
 
 namespace {
 
@@ -123,7 +125,26 @@ std::wstring defaultPreset(std::wstring const& codec) {
 }
 
 std::wstring pixelFormat(std::wstring const& codec) {
-    return endsWith(codec, L"_qsv") ? L"nv12" : L"yuv420p";
+    return endsWith(codec, L"_qsv") || endsWith(codec, L"_vaapi") ? L"nv12" : L"yuv420p";
+}
+
+std::wstring vaapiDevice() {
+    for (int index = 128; index < 136; index++) {
+        auto path = L"/dev/dri/renderD" + std::to_wstring(index);
+        std::error_code error;
+        if (std::filesystem::exists(path, error)) return path;
+    }
+    return L"/dev/dri/renderD128";
+}
+
+std::vector<std::wstring> hardwareProbeArgs(std::wstring const& encoder) {
+    std::vector<std::wstring> args = {L"-hide_banner", L"-loglevel", L"error"};
+    bool isVaapi = endsWith(encoder, L"_vaapi");
+    if (isVaapi) append(args, {L"-init_hw_device", L"vaapi=va:" + vaapiDevice(), L"-filter_hw_device", L"va"});
+    append(args, {L"-f", L"lavfi", L"-i", L"color=c=black:s=256x256:r=30"});
+    if (isVaapi) append(args, {L"-vf", L"format=nv12,hwupload"});
+    append(args, {L"-frames:v", L"3", L"-c:v", encoder, L"-f", L"null", L"-"});
+    return args;
 }
 
 std::vector<std::wstring> videoCodecArgs(std::wstring const& codec, JsonObject const& recording) {
@@ -160,6 +181,14 @@ std::vector<std::wstring> videoCodecArgs(std::wstring const& codec, JsonObject c
     } else if (endsWith(codec, L"_qsv")) {
         args = {L"-c:v", codec, L"-preset", preset};
         append(args, rate({L"-global_quality", quality}));
+    } else if (endsWith(codec, L"_vaapi")) {
+        args = {L"-c:v", codec};
+        if (bitrate) {
+            append(args, {L"-rc_mode", L"VBR"});
+            append(args, *bitrate);
+        } else {
+            append(args, {L"-rc_mode", L"CQP", L"-qp", quality});
+        }
     } else if (codec == L"libvpx-vp9") {
         args = {L"-c:v", codec, L"-deadline", L"realtime", L"-cpu-used", preset, L"-row-mt", L"1"};
         append(args, rate({L"-crf", quality, L"-b:v", L"0"}));
@@ -193,7 +222,12 @@ std::vector<std::wstring> recordArgs(JsonObject const& settings, RecordCommand c
     append(args, splitArgs(text(recording, L"inputArgs")));
     std::wstring video;
 
-    if (command.useDda && output) {
+    bool isVaapi = !isGif && endsWith(command.codec, L"_vaapi");
+    if (isVaapi) append(args, {L"-init_hw_device", L"vaapi=va:" + vaapiDevice(), L"-filter_hw_device", L"va"});
+    auto upload = std::wstring(isVaapi ? L",hwupload" : L"");
+    bool isFilterSource = command.source == VideoSource::Ddagrab && output;
+
+    if (isFilterSource) {
         auto options = L"output_idx=" + std::to_wstring(output->index) + L":framerate=" + fps +
                        L":draw_mouse=" + cursor + L":offset_x=" + std::to_wstring(rect.x - output->bounds.x) +
                        L":offset_y=" + std::to_wstring(rect.y - output->bounds.y) + L":video_size=" + size;
@@ -201,6 +235,17 @@ std::vector<std::wstring> recordArgs(JsonObject const& settings, RecordCommand c
         append(args, {L"-init_hw_device", L"d3d11va=dda:" + std::to_wstring(output->adapter),
                       L"-filter_hw_device", L"dda"});
         video = L"ddagrab=" + options + L",showinfo=checksum=0,hwdownload,format=bgra,format=" + format + L"[v]";
+    } else if (command.source == VideoSource::Pipewire && output) {
+        auto frame = std::to_wstring(output->bounds.width) + L"x" + std::to_wstring(output->bounds.height);
+        append(args, {L"-f", L"rawvideo", L"-pixel_format", L"bgr0", L"-video_size", frame,
+                      L"-use_wallclock_as_timestamps", L"1", L"-thread_queue_size", L"64", L"-i", command.input});
+        video = L"[0:v]crop=" + std::to_wstring(even(rect.width)) + L":" + std::to_wstring(even(rect.height)) + L":" +
+                std::to_wstring(rect.x - output->bounds.x) + L":" + std::to_wstring(rect.y - output->bounds.y) +
+                L",showinfo=checksum=0,fps=" + fps + L",format=" + format + upload + L"[v]";
+    } else if (command.source == VideoSource::X11grab) {
+        append(args, {L"-f", L"x11grab", L"-framerate", fps, L"-draw_mouse", cursor, L"-video_size", size, L"-i",
+                      command.input + L"+" + std::to_wstring(rect.x) + L"," + std::to_wstring(rect.y)});
+        video = L"[0:v]showinfo=checksum=0,fps=" + fps + L",format=" + format + upload + L"[v]";
     } else {
         append(args, {L"-f", L"gdigrab", L"-framerate", fps, L"-draw_mouse", cursor, L"-offset_x",
                       std::to_wstring(rect.x), L"-offset_y", std::to_wstring(rect.y), L"-video_size", size,
@@ -208,7 +253,7 @@ std::vector<std::wstring> recordArgs(JsonObject const& settings, RecordCommand c
         video = L"[0:v]showinfo=checksum=0,fps=" + fps + L",format=" + format + L"[v]";
     }
 
-    size_t firstAudio = command.useDda && output ? 0 : 1;
+    size_t firstAudio = isFilterSource ? 0 : 1;
     auto tracks = isGif ? std::vector<AudioTrack>{} : command.tracks;
     auto offset = decimal(number(audio, L"delay", 0) / 1000.0 - PRIMING_SECONDS);
 
