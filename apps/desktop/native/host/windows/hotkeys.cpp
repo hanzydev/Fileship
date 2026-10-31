@@ -1,6 +1,7 @@
 #include "win32.h"
 
 #include <host/app.h>
+#include <host/hotkeys.h>
 
 #include <shared/log.h>
 
@@ -10,27 +11,12 @@ namespace fileship::host {
 
 namespace {
 
-constexpr wchar_t const* ACTIONS[] = {
-    L"captureMonitor", L"captureRegion",     L"captureWindow",   L"captureText",  L"recordVideo",      L"recordGif",
-    L"captureFullscreen", L"captureLastRegion", L"uploadClipboard", L"uploadFile", L"shortenClipboard", L"openMain",
-};
-
 constexpr wchar_t const* KEYBOARD_KEY = L"Control Panel\\Keyboard";
 constexpr wchar_t const* SNIPPING_VALUE = L"PrintScreenKeyForSnippingEnabled";
 
 std::mutex mutex;
 JsonObject status;
 std::vector<int> registered;
-
-struct Accelerator {
-    UINT modifiers = 0;
-    UINT key = 0;
-};
-
-std::wstring lower(std::wstring text) {
-    for (auto& character : text) character = static_cast<wchar_t>(towlower(character));
-    return text;
-}
 
 std::optional<UINT> keyCode(std::wstring const& name) {
     static std::map<std::wstring, UINT> const keys{
@@ -70,7 +56,7 @@ std::optional<UINT> keyCode(std::wstring const& name) {
         {L"numdiv", VK_DIVIDE},
     };
 
-    auto key = lower(name);
+    auto key = lowerKeyName(name);
     if (auto found = keys.find(key); found != keys.end()) return found->second;
 
     if (key.size() == 1) {
@@ -93,46 +79,9 @@ std::optional<UINT> keyCode(std::wstring const& name) {
     return std::nullopt;
 }
 
-std::optional<Accelerator> parseAccelerator(std::wstring const& text) {
-    Accelerator result;
-    bool hasKey = false;
-    size_t start = 0;
-
-    while (start <= text.size()) {
-        auto plus = text.find(L'+', start);
-        auto token = text.substr(start, plus == std::wstring::npos ? std::wstring::npos : plus - start);
-
-        if (token.empty() && plus != std::wstring::npos) {
-            token = L"Plus";
-            plus++;
-        }
-
-        auto name = lower(token);
-
-        if (name == L"command" || name == L"cmd" || name == L"commandorcontrol" || name == L"cmdorctrl" ||
-            name == L"control" || name == L"ctrl") {
-            result.modifiers |= MOD_CONTROL;
-        } else if (name == L"alt" || name == L"option") {
-            result.modifiers |= MOD_ALT;
-        } else if (name == L"altgr") {
-            result.modifiers |= MOD_CONTROL | MOD_ALT;
-        } else if (name == L"shift") {
-            result.modifiers |= MOD_SHIFT;
-        } else if (name == L"super" || name == L"meta") {
-            result.modifiers |= MOD_WIN;
-        } else {
-            auto key = keyCode(token);
-            if (!key || hasKey) return std::nullopt;
-            result.key = *key;
-            hasKey = true;
-        }
-
-        if (plus == std::wstring::npos) break;
-        start = plus + 1;
-    }
-
-    if (!hasKey) return std::nullopt;
-    return result;
+UINT windowsModifiers(uint32_t modifiers) {
+    return (modifiers & HotkeyControl ? MOD_CONTROL : 0) | (modifiers & HotkeyAlt ? MOD_ALT : 0) |
+           (modifiers & HotkeyShift ? MOD_SHIFT : 0) | (modifiers & HotkeySuper ? MOD_WIN : 0);
 }
 
 void unregisterAll() {
@@ -152,21 +101,23 @@ JsonObject registerHotkeys() {
         if (!jsonBool(current, L"hotkeysEnabled", true)) return cloneObject(status);
 
         auto hotkeys = jsonObject(current, L"hotkeys");
+        auto const& actions = hotkeyActions();
 
-        for (int index = 0; index < static_cast<int>(std::size(ACTIONS)); index++) {
-            auto accelerator = jsonString(hotkeys, ACTIONS[index]);
+        for (int index = 0; index < static_cast<int>(actions.size()); index++) {
+            auto accelerator = jsonString(hotkeys, actions[index].c_str());
             if (accelerator.empty()) continue;
 
-            auto parsed = parseAccelerator(accelerator);
+            auto parsed = parseAccelerator(accelerator, keyCode);
             if (!parsed) {
-                status.SetNamedValue(ACTIONS[index], JsonValue::CreateStringValue(L"invalid"));
+                status.SetNamedValue(actions[index], JsonValue::CreateStringValue(L"invalid"));
                 continue;
             }
 
             int id = index + 1;
-            bool isRegistered = RegisterHotKey(mainWindow(), id, parsed->modifiers | MOD_NOREPEAT, parsed->key) != FALSE;
+            bool isRegistered = RegisterHotKey(mainWindow(), id, windowsModifiers(parsed->modifiers) | MOD_NOREPEAT,
+                                               parsed->key) != FALSE;
             if (isRegistered) registered.push_back(id);
-            status.SetNamedValue(ACTIONS[index], JsonValue::CreateStringValue(isRegistered ? L"ok" : L"conflict"));
+            status.SetNamedValue(actions[index], JsonValue::CreateStringValue(isRegistered ? L"ok" : L"conflict"));
         }
 
         return cloneObject(status);
@@ -192,7 +143,8 @@ void unregisterHotkeys() {
 }
 
 void handleHotkey(int id) {
-    if (id >= 1 && id <= static_cast<int>(std::size(ACTIONS))) runAction(ACTIONS[id - 1]);
+    auto const& actions = hotkeyActions();
+    if (id >= 1 && id <= static_cast<int>(actions.size())) runAction(actions[id - 1]);
 }
 
 bool isSnippingToolKeyEnabled() {
