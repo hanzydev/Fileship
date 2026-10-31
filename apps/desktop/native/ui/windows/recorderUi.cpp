@@ -1,19 +1,14 @@
 #include "direct2d.h"
 
-#include <ui/fixture.h>
-#include <ui/recorderUi.h>
+#include <ui/recorderToolbar.h>
 #include <ui/uiThread.h>
-#include <ui/widgets.h>
 
-#include <shared/i18n.h>
 #include <shared/log.h>
 
 #include <shellscalingapi.h>
-#include <wincodec.h>
 #include <windowsx.h>
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 
 #pragma comment(lib, "shcore.lib")
@@ -22,34 +17,8 @@ namespace fileship::ui {
 
 namespace {
 
-constexpr float TOOLBAR_WIDTH = 440;
-constexpr float TOOLBAR_HEIGHT = 64;
-constexpr float BORDER_PADDING = 3;
-constexpr float BORDER_WIDTH = 2;
 constexpr UINT_PTR FADE_TIMER = 1;
 constexpr UINT_PTR FRAME_TIMER = 2;
-
-int64_t epochMs() {
-    FILETIME time{};
-    GetSystemTimePreciseAsFileTime(&time);
-    ULARGE_INTEGER value{{time.dwLowDateTime, time.dwHighDateTime}};
-    return static_cast<int64_t>((value.QuadPart - 116444736000000000ULL) / 10000);
-}
-
-std::wstring formatTime(int64_t milliseconds) {
-    int64_t total = std::max<int64_t>(0, milliseconds / 1000);
-    int64_t hours = total / 3600;
-    int64_t minutes = total % 3600 / 60;
-    int64_t seconds = total % 60;
-    wchar_t buffer[32];
-
-    if (hours) {
-        swprintf(buffer, 32, L"%lld:%02lld:%02lld", hours, minutes, seconds);
-    } else {
-        swprintf(buffer, 32, L"%lld:%02lld", minutes, seconds);
-    }
-    return buffer;
-}
 
 struct MonitorPart {
     RECT bounds{};
@@ -116,7 +85,7 @@ struct LayeredWindow {
         target->Clear(D2D1::ColorF(0, 0, 0, 0));
         {
             auto painter = createPainter(context.get(), resources);
-            paint(context.get(), *painter);
+            paint(*painter);
         }
         target->EndDraw();
         present();
@@ -150,22 +119,10 @@ struct LayeredWindow {
     }
 };
 
-enum class Control { None, Microphone, System, Pause, Discard, Stop };
-
-struct ControlRect {
-    Control control;
-    RectF rect;
-    bool isDisabled;
-};
-
 class RecorderUi {
 public:
-    RecorderUi(ScreenRect area, ThemeMode theme, RecorderUiCallbacks value, bool showBorder)
-        : callbacks(std::move(value)) {
-        resources = Resources::acquire();
-        palette = {theme == ThemeMode::Dark ? DARK_THEME : LIGHT_THEME, theme == ThemeMode::Dark};
-        state.phase = RecorderPhase::Preparing;
-
+    RecorderUi(ScreenRect area, ThemeMode theme, RecorderUiCallbacks callbacks, bool showBorder)
+        : toolbar(theme, std::move(callbacks)) {
         static bool isRegistered = false;
         if (!isRegistered) {
             WNDCLASSW windowClass{};
@@ -193,50 +150,13 @@ public:
         createToolbar(host, area);
     }
 
-    RecorderUi(ThemeMode theme, RecorderViewState const& value, double factor) : state(value), scale(factor) {
-        resources = Resources::acquire();
-        palette = {theme == ThemeMode::Dark ? DARK_THEME : LIGHT_THEME, theme == ThemeMode::Dark};
-    }
-
-    std::vector<uint8_t> renderImage(int& width, int& height) {
-        width = static_cast<int>(std::round(TOOLBAR_WIDTH * scale));
-        height = static_cast<int>(std::round(TOOLBAR_HEIGHT * scale));
-
-        com_ptr<IWICImagingFactory> wic;
-        winrt::check_hresult(CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER,
-                                              IID_PPV_ARGS(wic.put())));
-        com_ptr<IWICBitmap> bitmap;
-        winrt::check_hresult(wic->CreateBitmap(width, height, GUID_WICPixelFormat32bppPBGRA, WICBitmapCacheOnLoad,
-                                               bitmap.put()));
-
-        auto properties = D2D1::RenderTargetProperties(
-            D2D1_RENDER_TARGET_TYPE_SOFTWARE,
-            D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED), 96, 96);
-        com_ptr<ID2D1RenderTarget> target;
-        winrt::check_hresult(factoryOf(*resources)->CreateWicBitmapRenderTarget(bitmap.get(), properties, target.put()));
-        auto context = target.as<ID2D1DeviceContext>();
-
-        target->BeginDraw();
-        target->Clear(D2D1::ColorF(0, 0, 0, 0));
-        {
-            auto painter = createPainter(context.get(), *resources);
-            paint(context.get(), *painter, nowMs());
-        }
-        winrt::check_hresult(target->EndDraw());
-
-        std::vector<uint8_t> pixels(static_cast<size_t>(width) * height * 4);
-        WICRect rect{0, 0, width, height};
-        winrt::check_hresult(bitmap->CopyPixels(&rect, width * 4, static_cast<UINT>(pixels.size()), pixels.data()));
-        return pixels;
-    }
-
     ~RecorderUi() {
-        toolbar.destroy();
+        window.destroy();
         for (auto& border : borders) border.destroy();
     }
 
     void update(RecorderViewState const& value) {
-        state = value;
+        toolbar.setState(value);
         render();
     }
 
@@ -282,14 +202,15 @@ private:
         if (part.sides.empty()) return;
 
         auto pad = [&](wchar_t side) {
-            return part.sides.find(side) != std::wstring::npos ? static_cast<LONG>(std::lround(BORDER_PADDING * part.scale))
-                                                               : 0;
+            return part.sides.find(side) != std::wstring::npos
+                       ? static_cast<LONG>(std::lround(RECORDER_BORDER_PADDING * part.scale))
+                       : 0;
         };
         LONG left = std::max(part.part.left - pad(L'l'), part.bounds.left);
         LONG top = std::max(part.part.top - pad(L't'), part.bounds.top);
         LONG right = std::min(part.part.right + pad(L'r'), part.bounds.right);
         LONG bottom = std::min(part.part.bottom + pad(L'b'), part.bounds.bottom);
-        LONG width = std::max(1L, static_cast<LONG>(std::lround(BORDER_WIDTH * part.scale)));
+        LONG width = std::max(1L, static_cast<LONG>(std::lround(RECORDER_BORDER_WIDTH * part.scale)));
 
         for (wchar_t side : part.sides) {
             RECT rect{left, top, right, bottom};
@@ -300,26 +221,18 @@ private:
 
             LayeredWindow border;
             DWORD style = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
-            if (!border.create(*resources, rect, style, nullptr)) {
+            if (!border.create(toolbar.resources(), rect, style, nullptr)) {
                 border.destroy();
                 continue;
             }
 
             bool isHorizontal = side == L't' || side == L'b';
-            float dash = static_cast<float>(width * 3);
-            auto tint = color(palette.theme.destructive);
-            int length = isHorizontal ? border.width : border.height;
+            auto tint = color(toolbar.palette().theme.destructive);
             float offset = isHorizontal ? static_cast<float>(rect.left - left) : static_cast<float>(rect.top - top);
 
-            border.draw(*resources, [&](ID2D1DeviceContext*, Painter& painter) {
-                for (float start = -std::fmod(offset, dash * 2); start < length; start += dash * 2) {
-                    float end = std::min(static_cast<float>(length), start + dash);
-                    float begin = std::max(0.0f, start);
-                    if (end <= begin) continue;
-                    painter.fillRect(isHorizontal ? RectF(begin, 0, end, static_cast<float>(border.height))
-                                                  : RectF(0, begin, static_cast<float>(border.width), end),
-                                     tint);
-                }
+            border.draw(toolbar.resources(), [&](Painter& painter) {
+                paintRecorderBorder(painter, tint, isHorizontal, border.width, border.height, offset,
+                                    static_cast<float>(width * 3));
             });
 
             ShowWindow(border.window, SW_SHOWNOACTIVATE);
@@ -330,6 +243,7 @@ private:
     void createToolbar(MonitorPart const* host, ScreenRect const& area) {
         RECT part = host ? host->part : RECT{area.x, area.y, area.x + area.width, area.y + area.height};
         RECT work = host ? host->work : part;
+        double scale = 1;
         if (!host) {
             HMONITOR monitor = MonitorFromRect(&part, MONITOR_DEFAULTTONEAREST);
             MONITORINFO info{sizeof(info)};
@@ -342,9 +256,10 @@ private:
         } else {
             scale = host->scale;
         }
+        toolbar.setScale(scale);
 
-        double width = std::round(TOOLBAR_WIDTH * scale);
-        double height = std::round(TOOLBAR_HEIGHT * scale);
+        double width = std::round(RECORDER_TOOLBAR_WIDTH * scale);
+        double height = std::round(RECORDER_TOOLBAR_HEIGHT * scale);
         double margin = 8 * scale;
         double centerX = (part.left + part.right) / 2.0;
         double x = std::round(std::min(std::max(centerX - width / 2, static_cast<double>(work.left)), work.right - width));
@@ -355,228 +270,20 @@ private:
         RECT rect{static_cast<LONG>(x), static_cast<LONG>(std::round(y)), static_cast<LONG>(x + width),
                   static_cast<LONG>(std::round(y) + height)};
         DWORD style = WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
-        if (!toolbar.create(*resources, rect, style, this)) return;
+        if (!window.create(toolbar.resources(), rect, style, this)) return;
 
         render();
-        ShowWindow(toolbar.window, SW_SHOWNOACTIVATE);
-        SetTimer(toolbar.window, FADE_TIMER, 16, nullptr);
-        SetTimer(toolbar.window, FRAME_TIMER, 16, nullptr);
-        if (callbacks.onVisible) callbacks.onVisible();
-    }
-
-    bool isBusy() const {
-        return state.phase == RecorderPhase::Preparing || state.phase == RecorderPhase::Countdown ||
-               state.phase == RecorderPhase::Processing;
-    }
-
-    bool isMuted(AudioSource source) const {
-        return std::find(state.muted.begin(), state.muted.end(), source) != state.muted.end();
-    }
-
-    std::wstring label() const {
-        switch (state.phase) {
-        case RecorderPhase::Preparing:
-        case RecorderPhase::Idle:
-            return t(L"recorder.starting");
-        case RecorderPhase::Countdown:
-            return t(L"recorder.startingIn", {{L"count", std::to_wstring(state.countdown)}});
-        case RecorderPhase::Processing:
-            return t(L"recorder.processing");
-        default:
-            break;
-        }
-
-        int64_t elapsed = state.elapsedMs + (state.sinceMs ? epochMs() - state.sinceMs : 0);
-        auto time = formatTime(elapsed);
-        return state.maxDurationMs ? time + L" / " + formatTime(state.maxDurationMs) : time;
-    }
-
-    std::vector<ControlRect> layout(float& pillLeft, float& pillWidth, float& statusWidth) {
-        auto text = label();
-        float textWidth = resources->measure(text, 14, FontWeight::Medium, FontKind::Sans, true);
-        float indicator = isBusy() || state.phase == RecorderPhase::Paused ? 16.0f : 10.0f;
-        statusWidth = std::max(96.0f, 10 + indicator + 8 + textWidth);
-
-        float stopWidth = 12 + 16 + 4 + resources->measure(t(L"recorder.stop"), 14, FontWeight::Medium) + 12;
-        std::vector<Control> buttons;
-        std::vector<AudioSource> unique;
-        for (auto source : state.sources)
-            if (std::find(unique.begin(), unique.end(), source) == unique.end()) unique.push_back(source);
-        for (auto source : unique) buttons.push_back(source == AudioSource::Microphone ? Control::Microphone : Control::System);
-        buttons.push_back(Control::Pause);
-        buttons.push_back(Control::Discard);
-
-        float content = statusWidth + 4 + 9 + static_cast<float>(buttons.size()) * (4 + BUTTON_SIZE) + 4 + stopWidth;
-        pillWidth = 1 + 6 + content + 6 + 1;
-        pillLeft = (TOOLBAR_WIDTH - pillWidth) / 2;
-
-        std::vector<ControlRect> result;
-        float x = pillLeft + 7 + statusWidth + 4 + 9;
-        float top = (TOOLBAR_HEIGHT - BUTTON_SIZE) / 2;
-
-        for (auto control : buttons) {
-            x += 4;
-            bool isDisabled = control == Control::Pause    ? state.phase != RecorderPhase::Recording &&
-                                                                 state.phase != RecorderPhase::Paused
-                              : control == Control::Discard ? state.phase == RecorderPhase::Processing
-                                                            : isBusy();
-            result.push_back({control, RectF(x, top, x + BUTTON_SIZE, top + BUTTON_SIZE), isDisabled});
-            x += BUTTON_SIZE;
-        }
-
-        x += 4;
-        result.push_back({Control::Stop, RectF(x, top, x + stopWidth, top + BUTTON_SIZE), isBusy()});
-        return result;
-    }
-
-    Animation& hoverOf(Control control) {
-        return hovers[static_cast<size_t>(control)];
+        ShowWindow(window.window, SW_SHOWNOACTIVATE);
+        SetTimer(window.window, FADE_TIMER, 16, nullptr);
+        SetTimer(window.window, FRAME_TIMER, 16, nullptr);
+        toolbar.notifyVisible();
     }
 
     void render() {
-        if (!toolbar.window) return;
+        if (!window.window) return;
 
         double now = nowMs();
-        toolbar.draw(*resources, [&](ID2D1DeviceContext* context, Painter& painter) { paint(context, painter, now); });
-    }
-
-    void paint(ID2D1DeviceContext*, Painter& painter, double now) {
-        auto s = static_cast<float>(scale);
-        Transform transform(painter, Matrix::scale(s, s));
-        auto const& theme = palette.theme;
-
-        float pillLeft = 0;
-        float pillWidth = 0;
-        float statusWidth = 0;
-        auto controls = layout(pillLeft, pillWidth, statusWidth);
-
-        auto pill = RectF(pillLeft, 8, pillLeft + pillWidth, 56);
-        painter.boxShadow(pill, 24, 4, 6, -1, 0.1f);
-        painter.boxShadow(pill, 24, 2, 4, -2, 0.1f);
-        painter.fillRounded(pill, 24, color(theme.popover));
-        painter.strokeRounded(RectF(pill.left + 0.5f, pill.top + 0.5f, pill.right - 0.5f, pill.bottom - 0.5f),
-                              23.5f, color(theme.border), 1);
-
-        auto foreground = color(theme.popoverForeground);
-        float x = pillLeft + 7 + 10;
-        float center = TOOLBAR_HEIGHT / 2;
-
-        if (isBusy()) {
-            drawSpinner(painter, x, center - 8, 16, foreground, now);
-            x += 16;
-        } else if (state.phase == RecorderPhase::Paused) {
-            painter.icon(icons::pause, x, center - 8, 16, color(theme.mutedForeground));
-            x += 16;
-        } else {
-            double phase = std::fmod(now, 2000.0) / 2000.0;
-            double wave = phase < 0.5 ? cubicBezier(0.4, 0, 0.6, 1, phase * 2) : 1 - cubicBezier(0.4, 0, 0.6, 1, (phase - 0.5) * 2);
-            painter.fillEllipse(x + 5, center, 5, 5, color(theme.destructive, static_cast<float>(1 - 0.5 * wave)));
-            x += 10;
-        }
-
-        x += 8;
-        auto text = label();
-        auto layout = resources->layout(text, 14, FontWeight::Medium, FontKind::Sans, 0, true);
-        painter.text(*layout, x, painter.middleBaseline(center, 14) - layout->baseline(), foreground);
-
-        float separatorX = pillLeft + 7 + statusWidth + 4 + 4;
-        painter.fillRect(RectF(separatorX, 20, separatorX + 1, 44), color(theme.border));
-
-        for (auto const& control : controls) {
-            ButtonStyle style;
-            style.variant = control.control == Control::Stop ? ButtonVariant::Destructive : ButtonVariant::Ghost;
-            style.hover = hoverOf(control.control).value(now);
-            style.isPressed = pressed == control.control && hovered == control.control;
-            style.isDisabled = control.isDisabled;
-
-            if (style.isDisabled) painter.pushOpacity(0.5f);
-            drawButton(painter, palette, control.rect, style);
-
-            auto tint = buttonForeground(palette, style);
-            float offset = buttonOffset(style);
-            float iconX = control.rect.left + 8;
-            float iconY = control.rect.top + 8 + offset;
-
-            switch (control.control) {
-            case Control::Microphone:
-                painter.icon(isMuted(AudioSource::Microphone) ? icons::micOff : icons::mic, iconX, iconY, 16,
-                             isMuted(AudioSource::Microphone) ? color(theme.destructive) : tint);
-                break;
-            case Control::System:
-                painter.icon(isMuted(AudioSource::System) ? icons::volumeX : icons::volume2, iconX, iconY, 16,
-                             isMuted(AudioSource::System) ? color(theme.destructive) : tint);
-                break;
-            case Control::Pause:
-                painter.icon(state.phase == RecorderPhase::Paused ? icons::play : icons::pause, iconX, iconY, 16,
-                             tint);
-                break;
-            case Control::Discard:
-                painter.icon(icons::trash2, iconX, iconY, 16, tint);
-                break;
-            case Control::Stop: {
-                float left = control.rect.left + 12;
-                painter.icon(icons::square, left, iconY, 16, tint, true);
-                painter.textAt(t(L"recorder.stop"), left + 20, painter.middleBaseline(center + offset, 14), 14,
-                               FontWeight::Medium, tint);
-                break;
-            }
-            default:
-                break;
-            }
-
-            if (style.isDisabled) painter.popOpacity();
-        }
-    }
-
-    bool isAnimating(double now) {
-        for (auto const& hover : hovers)
-            if (hover.isRunning(now)) return true;
-        return state.phase != RecorderPhase::Paused;
-    }
-
-    Control controlAt(LPARAM lParam) {
-        float pillLeft = 0;
-        float pillWidth = 0;
-        float statusWidth = 0;
-        double x = GET_X_LPARAM(lParam) / scale;
-        double y = GET_Y_LPARAM(lParam) / scale;
-
-        for (auto const& control : layout(pillLeft, pillWidth, statusWidth)) {
-            auto const& r = control.rect;
-            if (!control.isDisabled && x >= r.left && x < r.right && y >= r.top && y < r.bottom) return control.control;
-        }
-        return Control::None;
-    }
-
-    void activate(Control control) {
-        switch (control) {
-        case Control::Microphone:
-            if (callbacks.onMute) callbacks.onMute(AudioSource::Microphone, !isMuted(AudioSource::Microphone));
-            break;
-        case Control::System:
-            if (callbacks.onMute) callbacks.onMute(AudioSource::System, !isMuted(AudioSource::System));
-            break;
-        case Control::Pause:
-            if (callbacks.onControl)
-                callbacks.onControl(state.phase == RecorderPhase::Paused ? RecorderAction::Resume : RecorderAction::Pause);
-            break;
-        case Control::Discard:
-            if (callbacks.onControl) callbacks.onControl(RecorderAction::Abort);
-            break;
-        case Control::Stop:
-            if (callbacks.onControl) callbacks.onControl(RecorderAction::Stop);
-            break;
-        default:
-            break;
-        }
-    }
-
-    void setHovered(Control control) {
-        if (control == hovered) return;
-        double now = nowMs();
-        if (hovered != Control::None) hoverOf(hovered).animate(0, now, BUTTON_DURATION);
-        if (control != Control::None) hoverOf(control).animate(1, now, BUTTON_DURATION);
-        hovered = control;
+        window.draw(toolbar.resources(), [&](Painter& painter) { toolbar.paint(painter, now); });
     }
 
     static LRESULT CALLBACK handleMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -590,7 +297,10 @@ private:
         return self->handle(window, message, wParam, lParam);
     }
 
-    LRESULT handle(HWND window, UINT message, WPARAM wParam, LPARAM lParam) {
+    LRESULT handle(HWND handle, UINT message, WPARAM wParam, LPARAM lParam) {
+        double x = GET_X_LPARAM(lParam);
+        double y = GET_Y_LPARAM(lParam);
+
         switch (message) {
         case WM_TIMER:
             if (wParam == FADE_TIMER) {
@@ -598,12 +308,12 @@ private:
                     layered->opacity = static_cast<BYTE>(std::min(255, layered->opacity + 51));
                     layered->present();
                 }
-                if (toolbar.opacity >= 255) KillTimer(window, FADE_TIMER);
+                if (window.opacity >= 255) KillTimer(handle, FADE_TIMER);
                 return 0;
             }
             if (wParam == FRAME_TIMER) {
                 double now = nowMs();
-                if (isAnimating(now) || now - lastFrame >= 250) {
+                if (toolbar.isAnimating(now) || now - lastFrame >= 250) {
                     lastFrame = now;
                     render();
                 }
@@ -612,82 +322,58 @@ private:
             return 0;
         case WM_MOUSEMOVE: {
             if (!isTracking) {
-                TRACKMOUSEEVENT track{sizeof(track), TME_LEAVE, window, 0};
+                TRACKMOUSEEVENT track{sizeof(track), TME_LEAVE, handle, 0};
                 TrackMouseEvent(&track);
                 isTracking = true;
             }
-            setHovered(controlAt(lParam));
+            toolbar.pointerMove(x, y);
             render();
             return 0;
         }
         case WM_MOUSELEAVE:
             isTracking = false;
-            setHovered(Control::None);
+            toolbar.pointerLeave();
             render();
             return 0;
         case WM_LBUTTONDOWN:
-            SetCapture(window);
-            pressed = controlAt(lParam);
+            SetCapture(handle);
+            toolbar.pointerDown(x, y);
             render();
             return 0;
-        case WM_LBUTTONUP: {
+        case WM_LBUTTONUP:
             ReleaseCapture();
-            auto control = controlAt(lParam);
-            auto previous = std::exchange(pressed, Control::None);
+            toolbar.pointerUp(x, y);
             render();
-            if (control != Control::None && control == previous) activate(control);
             return 0;
-        }
         case WM_MOUSEACTIVATE:
             return MA_NOACTIVATE;
         case WM_NCHITTEST: {
             POINT point{GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
-            ScreenToClient(window, &point);
-            float pillLeft = 0;
-            float pillWidth = 0;
-            float statusWidth = 0;
-            layout(pillLeft, pillWidth, statusWidth);
-            double x = point.x / scale;
-            double y = point.y / scale;
-            bool isInside = x >= pillLeft && x < pillLeft + pillWidth && y >= 8 && y < 56;
-            return isInside ? HTCLIENT : HTTRANSPARENT;
+            ScreenToClient(handle, &point);
+            return toolbar.contains(point.x, point.y) ? HTCLIENT : HTTRANSPARENT;
         }
         default:
             break;
         }
 
-        return DefWindowProcW(window, message, wParam, lParam);
+        return DefWindowProcW(handle, message, wParam, lParam);
     }
 
     std::vector<LayeredWindow*> allWindows() {
-        std::vector<LayeredWindow*> result{&toolbar};
+        std::vector<LayeredWindow*> result{&window};
         for (auto& border : borders) result.push_back(&border);
         return result;
     }
 
-    RecorderUiCallbacks callbacks;
-    std::shared_ptr<Resources> resources;
-    Palette palette;
-    RecorderViewState state;
-    LayeredWindow toolbar;
+    RecorderToolbar toolbar;
+    LayeredWindow window;
     std::vector<LayeredWindow> borders;
-    double scale = 1;
-    std::array<Animation, 6> hovers{};
-    Control hovered = Control::None;
-    Control pressed = Control::None;
     bool isTracking = false;
     double lastFrame = 0;
 };
 
 std::unique_ptr<RecorderUi> current;
 
-}
-
-FixtureImage renderRecorderFixture(RecorderViewState const& state, ThemeMode theme, double scale) {
-    RecorderUi view(theme, state, scale);
-    FixtureImage image;
-    image.bgra = view.renderImage(image.width, image.height);
-    return image;
 }
 
 void showRecorderUi(ScreenRect area, ThemeMode theme, RecorderUiCallbacks callbacks, bool showBorder) {
