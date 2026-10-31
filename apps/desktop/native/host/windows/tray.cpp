@@ -1,4 +1,6 @@
-#include "app.h"
+#include "win32.h"
+
+#include <host/app.h>
 
 #include <host/harbor.h>
 #include <host/recording.h>

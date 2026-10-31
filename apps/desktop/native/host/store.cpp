@@ -3,9 +3,6 @@
 
 #include <shared/log.h>
 
-#include <bcrypt.h>
-#include <dpapi.h>
-
 #include <cmath>
 #include <mutex>
 
@@ -192,93 +189,6 @@ std::optional<JsonObject> normalizeUser(IJsonValue const& value) {
     return result;
 }
 
-std::wstring protect(std::wstring const& value) {
-    auto utf8 = toUtf8(value);
-    DATA_BLOB input{static_cast<DWORD>(utf8.size()), reinterpret_cast<BYTE*>(utf8.data())};
-    DATA_BLOB output{};
-
-    if (!CryptProtectData(&input, L"Fileship", nullptr, nullptr, nullptr, CRYPTPROTECT_UI_FORBIDDEN, &output))
-        return {};
-
-    auto result = base64(output.pbData, output.cbData);
-    LocalFree(output.pbData);
-    return result;
-}
-
-std::optional<std::wstring> unprotect(std::wstring const& value) {
-    auto bytes = fromBase64(value);
-    if (bytes.empty()) return std::nullopt;
-
-    DATA_BLOB input{static_cast<DWORD>(bytes.size()), bytes.data()};
-    DATA_BLOB output{};
-    if (!CryptUnprotectData(&input, nullptr, nullptr, nullptr, nullptr, CRYPTPROTECT_UI_FORBIDDEN, &output))
-        return std::nullopt;
-
-    std::wstring result = toWide(std::string_view(reinterpret_cast<char*>(output.pbData), output.cbData));
-    SecureZeroMemory(output.pbData, output.cbData);
-    LocalFree(output.pbData);
-    return result;
-}
-
-std::optional<std::vector<uint8_t>> electronKey() {
-    static std::optional<std::vector<uint8_t>> key = [] {
-        auto state = readJsonFile(userDataPath() / L"Local State");
-        auto encrypted = fromBase64(jsonString(jsonObject(state, L"os_crypt"), L"encrypted_key"));
-        if (encrypted.size() <= 5 || std::string(encrypted.begin(), encrypted.begin() + 5) != "DPAPI")
-            return std::optional<std::vector<uint8_t>>();
-
-        DATA_BLOB input{static_cast<DWORD>(encrypted.size() - 5), encrypted.data() + 5};
-        DATA_BLOB output{};
-        if (!CryptUnprotectData(&input, nullptr, nullptr, nullptr, nullptr, CRYPTPROTECT_UI_FORBIDDEN, &output))
-            return std::optional<std::vector<uint8_t>>();
-
-        std::vector<uint8_t> result(output.pbData, output.pbData + output.cbData);
-        LocalFree(output.pbData);
-        return std::optional(result);
-    }();
-
-    return key;
-}
-
-std::optional<std::string> decryptGcm(std::vector<uint8_t> const& key, std::vector<uint8_t> const& payload) {
-    constexpr size_t NONCE = 12;
-    constexpr size_t TAG = 16;
-    if (payload.size() < 3 + NONCE + TAG || std::string(payload.begin(), payload.begin() + 3) != "v10")
-        return std::nullopt;
-
-    BCRYPT_ALG_HANDLE algorithm = nullptr;
-    BCRYPT_KEY_HANDLE handle = nullptr;
-    std::optional<std::string> result;
-
-    if (BCRYPT_SUCCESS(BCryptOpenAlgorithmProvider(&algorithm, BCRYPT_AES_ALGORITHM, nullptr, 0)) &&
-        BCRYPT_SUCCESS(BCryptSetProperty(algorithm, BCRYPT_CHAINING_MODE,
-                                         reinterpret_cast<PUCHAR>(const_cast<wchar_t*>(BCRYPT_CHAIN_MODE_GCM)),
-                                         sizeof(BCRYPT_CHAIN_MODE_GCM), 0)) &&
-        BCRYPT_SUCCESS(BCryptGenerateSymmetricKey(algorithm, &handle, nullptr, 0, const_cast<PUCHAR>(key.data()),
-                                                  static_cast<ULONG>(key.size()), 0))) {
-        std::vector<uint8_t> nonce(payload.begin() + 3, payload.begin() + 3 + NONCE);
-        std::vector<uint8_t> cipher(payload.begin() + 3 + NONCE, payload.end() - TAG);
-        std::vector<uint8_t> tag(payload.end() - TAG, payload.end());
-        std::vector<uint8_t> plain(cipher.size());
-
-        BCRYPT_AUTHENTICATED_CIPHER_MODE_INFO info;
-        BCRYPT_INIT_AUTH_MODE_INFO(info);
-        info.pbNonce = nonce.data();
-        info.cbNonce = static_cast<ULONG>(nonce.size());
-        info.pbTag = tag.data();
-        info.cbTag = static_cast<ULONG>(tag.size());
-
-        ULONG written = 0;
-        if (BCRYPT_SUCCESS(BCryptDecrypt(handle, cipher.data(), static_cast<ULONG>(cipher.size()), &info, nullptr,
-                                         0, plain.data(), static_cast<ULONG>(plain.size()), &written, 0)))
-            result = std::string(plain.begin(), plain.begin() + written);
-    }
-
-    if (handle) BCryptDestroyKey(handle);
-    if (algorithm) BCryptCloseAlgorithmProvider(algorithm, 0);
-    return result;
-}
-
 void save() {
     if (!writeFileAtomic(storePath(), prettyJson(data))) logError(L"Could not save the settings");
 }
@@ -289,8 +199,8 @@ bool migrateSecret(JsonObject& stored, wchar_t const* legacy, wchar_t const* fie
 
     if (jsonString(stored, field).empty()) {
         if (auto plain = unprotectElectronValue(old)) {
-            stored.SetNamedValue(field, JsonValue::CreateStringValue(protect(toWide(*plain))));
-            logInfo(std::wstring(L"Moved the Electron ") + legacy + L" to DPAPI");
+            stored.SetNamedValue(field, JsonValue::CreateStringValue(protectSecret(field, toWide(*plain))));
+            logInfo(std::wstring(L"Moved the Electron ") + legacy + L" to the secret store");
         } else {
             logWarn(std::wstring(L"Could not decrypt the Electron ") + legacy);
         }
@@ -340,12 +250,6 @@ JsonObject withoutPassword(JsonObject settingsValue) {
 
 }
 
-std::optional<std::string> unprotectElectronValue(std::wstring const& value) {
-    auto key = electronKey();
-    if (!key) return std::nullopt;
-    return decryptGcm(*key, fromBase64(value));
-}
-
 void loadStore() {
     std::lock_guard lock(mutex);
 
@@ -361,7 +265,8 @@ void loadStore() {
     auto settingsValue = data.GetNamedObject(L"settings");
     auto password = jsonString(jsonObject(settingsValue, L"upload"), L"password");
     if (!password.empty()) {
-        data.SetNamedValue(L"protectedUploadPassword", JsonValue::CreateStringValue(protect(password)));
+        data.SetNamedValue(L"protectedUploadPassword",
+                           JsonValue::CreateStringValue(protectSecret(L"protectedUploadPassword", password)));
         data.SetNamedValue(L"settings", withoutPassword(settingsValue));
         isChanged = true;
     }
@@ -382,7 +287,8 @@ JsonObject settings() {
     if (stored.empty()) return result;
 
     auto upload = result.GetNamedObject(L"upload");
-    upload.SetNamedValue(L"password", JsonValue::CreateStringValue(unprotect(stored).value_or(L"")));
+    upload.SetNamedValue(L"password", JsonValue::CreateStringValue(
+                                           unprotectSecret(L"protectedUploadPassword", stored).value_or(L"")));
     result.SetNamedValue(L"upload", upload);
     return result;
 }
@@ -402,7 +308,8 @@ JsonObject updateSettings(JsonObject const& patch) {
 
     auto password = jsonString(jsonObject(next, L"upload"), L"password");
     data.SetNamedValue(L"settings", withoutPassword(cloneObject(next)));
-    data.SetNamedValue(L"protectedUploadPassword", stringOrNull(password.empty() ? L"" : protect(password)));
+    data.SetNamedValue(L"protectedUploadPassword",
+                       stringOrNull(password.empty() ? L"" : protectSecret(L"protectedUploadPassword", password)));
     save();
 
     return next;
@@ -430,7 +337,7 @@ std::wstring token() {
     if (cachedToken) return *cachedToken;
 
     auto stored = jsonString(data, L"protectedToken");
-    cachedToken = stored.empty() ? std::wstring() : unprotect(stored).value_or(L"");
+    cachedToken = stored.empty() ? std::wstring() : unprotectSecret(L"protectedToken", stored).value_or(L"");
     return *cachedToken;
 }
 
@@ -479,7 +386,7 @@ void setSession(std::wstring const& url, std::wstring const& name, std::wstring 
 
     data.SetNamedValue(L"instanceUrl", JsonValue::CreateStringValue(url));
     data.SetNamedValue(L"siteName", JsonValue::CreateStringValue(name));
-    data.SetNamedValue(L"protectedToken", JsonValue::CreateStringValue(protect(sessionToken)));
+    data.SetNamedValue(L"protectedToken", JsonValue::CreateStringValue(protectSecret(L"protectedToken", sessionToken)));
     data.SetNamedValue(L"user", normalized ? IJsonValue(*normalized) : IJsonValue(JsonValue::CreateNullValue()));
     cachedToken = sessionToken;
     save();

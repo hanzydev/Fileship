@@ -17,20 +17,9 @@ struct PendingCapture {
 };
 
 std::mutex mutex;
-std::set<DWORD> windowProcesses;
+std::set<uint32_t> windowProcesses;
 std::atomic<bool> isOpen = false;
 std::optional<core::Rect> lastRegion;
-
-BOOL CALLBACK collectWindow(HWND window, LPARAM parameter) {
-    auto& state = *reinterpret_cast<std::pair<std::set<DWORD>, std::vector<uint64_t>>*>(parameter);
-    DWORD pid = 0;
-    GetWindowThreadProcessId(window, &pid);
-
-    if (state.first.contains(pid))
-        state.second.push_back(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(window)));
-
-    return TRUE;
-}
 
 core::Bitmap fromOverlay(ui::OverlayResult const& result) {
     return core::Bitmap{result.bgra, static_cast<uint32_t>(result.width), static_cast<uint32_t>(result.height)};
@@ -100,27 +89,26 @@ void recognize(core::Bitmap const& image) {
 
 }
 
-void addWindowProcess(DWORD pid) {
+void addWindowProcess(uint32_t pid) {
     std::lock_guard lock(mutex);
     windowProcesses.insert(pid);
 }
 
-void removeWindowProcess(DWORD pid) {
+void removeWindowProcess(uint32_t pid) {
     std::lock_guard lock(mutex);
     windowProcesses.erase(pid);
 }
 
 std::vector<uint64_t> ignoredWindows() {
-    std::pair<std::set<DWORD>, std::vector<uint64_t>> state;
+    std::set<uint32_t> processes;
 
     {
         std::lock_guard lock(mutex);
-        state.first = windowProcesses;
+        processes = windowProcesses;
     }
 
-    state.first.insert(GetCurrentProcessId());
-    EnumWindows(collectWindow, reinterpret_cast<LPARAM>(&state));
-    return state.second;
+    processes.insert(currentProcessId());
+    return core::windowsOfProcesses(processes);
 }
 
 ui::ThemeMode themeMode() {
@@ -128,14 +116,7 @@ ui::ThemeMode themeMode() {
     if (theme == L"light") return ui::ThemeMode::Light;
     if (theme == L"dark") return ui::ThemeMode::Dark;
 
-    DWORD value = 0;
-    DWORD size = sizeof(value);
-    if (RegGetValueW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
-                     L"AppsUseLightTheme", RRF_RT_REG_DWORD, nullptr, &value, &size) != ERROR_SUCCESS ||
-        value)
-        return ui::ThemeMode::Light;
-
-    return ui::ThemeMode::Dark;
+    return systemUsesLightTheme() ? ui::ThemeMode::Light : ui::ThemeMode::Dark;
 }
 
 bool isCapturing() {
@@ -156,9 +137,7 @@ std::optional<Shot> captureFullscreen() {
 }
 
 std::optional<Shot> captureActiveMonitor() {
-    POINT cursor{};
-    GetCursorPos(&cursor);
-    return captureRect(core::displayNearest(cursor).rect);
+    return captureRect(core::displayNearest(core::cursorPosition()).rect);
 }
 
 std::optional<Shot> captureActiveWindow() {
@@ -185,7 +164,8 @@ void openRegionCapture(ui::OverlayPurpose purpose, AreaCallback onArea, std::fun
         request.bounds = {bounds.x, bounds.y, bounds.width, bounds.height};
         request.showMagnifier = jsonBool(capture, L"showMagnifier", true);
         request.theme = themeMode();
-        GetCursorPos(&request.cursor);
+        auto cursor = core::cursorPosition();
+        request.cursor = {cursor.x, cursor.y};
 
         std::vector<core::Rect> rects;
         for (auto const& display : displays) {

@@ -4,9 +4,6 @@
 
 #include <shared/log.h>
 
-#include <aclapi.h>
-#include <sddl.h>
-
 #include <atomic>
 #include <map>
 #include <memory>
@@ -17,16 +14,16 @@ namespace fileship::host {
 
 namespace {
 
-constexpr DWORD BUFFER_SIZE = 64 * 1024;
+constexpr size_t BUFFER_SIZE = 64 * 1024;
 constexpr size_t MAX_LINE = 256 * 1024 * 1024;
 
 struct Client {
     uint64_t id = 0;
-    HANDLE pipe = INVALID_HANDLE_VALUE;
+    std::shared_ptr<RpcConnection> connection;
     std::mutex writeMutex;
     std::atomic<bool> isOpen = true;
     bool isWindow = false;
-    DWORD pid = 0;
+    uint32_t pid = 0;
 };
 
 std::mutex handlersMutex;
@@ -37,81 +34,12 @@ std::map<uint64_t, std::shared_ptr<Client>> clients;
 std::vector<std::function<void(uint64_t)>> closeListeners;
 std::atomic<uint64_t> nextClientId = 1;
 std::atomic<bool> isStopping = false;
-HANDLE stopEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
-std::thread listenerThread;
 
 thread_local uint64_t activeClient = 0;
 
-std::wstring securityDescriptor() {
-    HANDLE processToken = nullptr;
-    std::wstring sid;
-
-    if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &processToken)) {
-        DWORD size = 0;
-        GetTokenInformation(processToken, TokenUser, nullptr, 0, &size);
-        std::vector<uint8_t> buffer(size);
-
-        if (GetTokenInformation(processToken, TokenUser, buffer.data(), size, &size)) {
-            LPWSTR text = nullptr;
-            if (ConvertSidToStringSidW(reinterpret_cast<TOKEN_USER*>(buffer.data())->User.Sid, &text)) {
-                sid = text;
-                LocalFree(text);
-            }
-        }
-
-        CloseHandle(processToken);
-    }
-
-    return L"D:P(A;;GA;;;" + sid + L")";
-}
-
-HANDLE createPipe(bool isFirst) {
-    static std::wstring const descriptor = securityDescriptor();
-
-    PSECURITY_DESCRIPTOR security = nullptr;
-    ConvertStringSecurityDescriptorToSecurityDescriptorW(descriptor.c_str(), SDDL_REVISION_1, &security, nullptr);
-
-    SECURITY_ATTRIBUTES attributes{sizeof(attributes), security, FALSE};
-    DWORD mode = PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED | (isFirst ? FILE_FLAG_FIRST_PIPE_INSTANCE : 0);
-
-    HANDLE pipe = CreateNamedPipeW(pipeName().c_str(), mode, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT |
-                                                                 PIPE_REJECT_REMOTE_CLIENTS,
-                                   PIPE_UNLIMITED_INSTANCES, BUFFER_SIZE, BUFFER_SIZE, 0, &attributes);
-
-    if (security) LocalFree(security);
-    return pipe;
-}
-
 bool writeAll(Client& client, std::string const& line) {
     std::lock_guard lock(client.writeMutex);
-    if (!client.isOpen) return false;
-
-    OVERLAPPED overlapped{};
-    overlapped.hEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
-    size_t offset = 0;
-    bool isOk = true;
-
-    while (offset < line.size()) {
-        DWORD written = 0;
-        ResetEvent(overlapped.hEvent);
-        auto chunk = static_cast<DWORD>(std::min<size_t>(line.size() - offset, 1024 * 1024));
-
-        if (!WriteFile(client.pipe, line.data() + offset, chunk, nullptr, &overlapped) &&
-            GetLastError() != ERROR_IO_PENDING) {
-            isOk = false;
-            break;
-        }
-
-        if (!GetOverlappedResult(client.pipe, &overlapped, &written, TRUE) || !written) {
-            isOk = false;
-            break;
-        }
-
-        offset += written;
-    }
-
-    CloseHandle(overlapped.hEvent);
-    return isOk;
+    return client.isOpen && client.connection->write(line.data(), line.size());
 }
 
 void send(Client& client, JsonObject const& message) {
@@ -179,9 +107,7 @@ void closeClient(std::shared_ptr<Client> const& client) {
     {
         std::lock_guard lock(client->writeMutex);
         client->isOpen = false;
-        FlushFileBuffers(client->pipe);
-        DisconnectNamedPipe(client->pipe);
-        CloseHandle(client->pipe);
+        client->connection->close();
     }
 
     std::vector<std::function<void(uint64_t)>> listeners;
@@ -196,28 +122,12 @@ void closeClient(std::shared_ptr<Client> const& client) {
 }
 
 void serve(std::shared_ptr<Client> client) {
-    OVERLAPPED overlapped{};
-    overlapped.hEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
     std::vector<char> buffer(BUFFER_SIZE);
     std::string pending;
 
     while (client->isOpen && !isStopping) {
-        DWORD read = 0;
-        ResetEvent(overlapped.hEvent);
-
-        if (!ReadFile(client->pipe, buffer.data(), BUFFER_SIZE, nullptr, &overlapped) &&
-            GetLastError() != ERROR_IO_PENDING && GetLastError() != ERROR_MORE_DATA)
-            break;
-
-        HANDLE events[] = {overlapped.hEvent, stopEvent};
-        if (WaitForMultipleObjects(2, events, FALSE, INFINITE) != WAIT_OBJECT_0) {
-            CancelIoEx(client->pipe, &overlapped);
-            GetOverlappedResult(client->pipe, &overlapped, &read, TRUE);
-            break;
-        }
-
-        if (!GetOverlappedResult(client->pipe, &overlapped, &read, FALSE) && GetLastError() != ERROR_MORE_DATA)
-            break;
+        auto read = client->connection->read(buffer.data(), buffer.size());
+        if (!read) break;
 
         pending.append(buffer.data(), read);
         if (pending.size() > MAX_LINE) break;
@@ -229,60 +139,21 @@ void serve(std::shared_ptr<Client> client) {
         }
     }
 
-    CloseHandle(overlapped.hEvent);
     closeClient(client);
 }
 
-void listen() {
-    bool isFirst = true;
+void accept(std::shared_ptr<RpcConnection> connection) {
+    auto client = std::make_shared<Client>();
+    client->id = nextClientId++;
+    client->connection = std::move(connection);
 
-    while (!isStopping) {
-        HANDLE pipe = createPipe(isFirst);
-        if (pipe == INVALID_HANDLE_VALUE) {
-            logError(L"Could not create the host pipe: " + std::to_wstring(GetLastError()));
-            if (WaitForSingleObject(stopEvent, 1000) == WAIT_OBJECT_0) return;
-            continue;
-        }
-
-        isFirst = false;
-
-        OVERLAPPED overlapped{};
-        overlapped.hEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
-        bool isConnected = ConnectNamedPipe(pipe, &overlapped) != FALSE;
-        DWORD error = GetLastError();
-
-        if (!isConnected && error == ERROR_IO_PENDING) {
-            HANDLE events[] = {overlapped.hEvent, stopEvent};
-            if (WaitForMultipleObjects(2, events, FALSE, INFINITE) == WAIT_OBJECT_0) {
-                DWORD ignored = 0;
-                isConnected = GetOverlappedResult(pipe, &overlapped, &ignored, FALSE) != FALSE;
-            } else {
-                CancelIoEx(pipe, &overlapped);
-            }
-        } else if (error == ERROR_PIPE_CONNECTED) {
-            isConnected = true;
-        }
-
-        CloseHandle(overlapped.hEvent);
-
-        if (!isConnected || isStopping) {
-            CloseHandle(pipe);
-            continue;
-        }
-
-        auto client = std::make_shared<Client>();
-        client->id = nextClientId++;
-        client->pipe = pipe;
-
-        {
-            std::lock_guard lock(clientsMutex);
-            clients[client->id] = client;
-        }
-
-        std::thread(serve, client).detach();
+    {
+        std::lock_guard lock(clientsMutex);
+        clients[client->id] = client;
     }
-}
 
+    std::thread(serve, client).detach();
+}
 }
 
 void registerHandler(std::wstring const& channel, RpcHandler handler) {
@@ -347,7 +218,7 @@ bool hasWindowClient() {
     return false;
 }
 
-void handleWindowClient(uint64_t id, DWORD pid) {
+void handleWindowClient(uint64_t id, uint32_t pid) {
     auto client = findClient(id);
     if (!client) return;
 
@@ -361,29 +232,17 @@ void handleWindowClient(uint64_t id, DWORD pid) {
 }
 
 void startRpcServer() {
-    listenerThread = std::thread(listen);
+    startRpcListener(pipeName(), accept);
 }
 
 void stopRpcServer() {
     isStopping = true;
-    SetEvent(stopEvent);
-    if (listenerThread.joinable()) listenerThread.join();
+    stopRpcListener();
 }
 
 bool forwardToRunningHost(std::vector<std::wstring> const& arguments) {
-    auto name = pipeName();
-    HANDLE pipe = INVALID_HANDLE_VALUE;
-    auto deadline = GetTickCount64() + 10000;
-
-    while (GetTickCount64() < deadline) {
-        pipe = CreateFileW(name.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr);
-        if (pipe != INVALID_HANDLE_VALUE) break;
-
-        if (GetLastError() == ERROR_PIPE_BUSY) WaitNamedPipeW(name.c_str(), 1000);
-        else Sleep(100);
-    }
-
-    if (pipe == INVALID_HANDLE_VALUE) return false;
+    auto connection = connectRpc(pipeName(), 10000);
+    if (!connection) return false;
 
     JsonArray argv;
     for (auto const& argument : arguments) argv.Append(JsonValue::CreateStringValue(argument));
@@ -398,14 +257,12 @@ bool forwardToRunningHost(std::vector<std::wstring> const& arguments) {
     message.SetNamedValue(L"args", args);
 
     auto line = stringify(message) + "\n";
-    DWORD written = 0;
-    bool isSent = WriteFile(pipe, line.data(), static_cast<DWORD>(line.size()), &written, nullptr) != FALSE;
+    bool isSent = connection->write(line.data(), line.size());
 
     char buffer[4096];
-    DWORD read = 0;
-    if (isSent) ReadFile(pipe, buffer, sizeof(buffer), &read, nullptr);
+    if (isSent) connection->read(buffer, sizeof(buffer));
 
-    CloseHandle(pipe);
+    connection->close();
     return isSent;
 }
 

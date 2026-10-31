@@ -3,9 +3,8 @@
 #include <host/recording.h>
 #include <shared/log.h>
 
-#include <shlobj.h>
-
 #include <atomic>
+#include <chrono>
 #include <fstream>
 #include <mutex>
 #include <random>
@@ -103,8 +102,15 @@ void keepImage(std::wstring const& historyId, std::vector<uint8_t> const& png, s
 }
 
 void moveFile(std::filesystem::path const& from, std::filesystem::path const& to) {
-    if (MoveFileExW(from.c_str(), to.c_str(), MOVEFILE_COPY_ALLOWED)) return;
-    throw std::runtime_error("move failed");
+    if (std::filesystem::exists(to)) throw std::runtime_error("move failed");
+
+    std::error_code error;
+    std::filesystem::rename(from, to, error);
+    if (!error) return;
+
+    std::filesystem::copy_file(from, to, error);
+    if (error) throw std::runtime_error("move failed");
+    std::filesystem::remove(from, error);
 }
 
 void keepRecording(std::wstring const& historyId, std::filesystem::path const& path, std::wstring const& name,
@@ -159,17 +165,18 @@ bool isBusy() {
 }
 
 std::wstring formatFileName(std::wstring const& pattern, std::wstring const& title) {
-    SYSTEMTIME now{};
-    GetLocalTime(&now);
+    auto clock = std::chrono::system_clock::now();
+    auto now = localTime(std::chrono::system_clock::to_time_t(clock));
+    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(clock.time_since_epoch()).count() % 1000;
 
     auto result = pattern;
-    replaceAll(result, L"%yyyy", std::to_wstring(now.wYear));
-    replaceAll(result, L"%mo", pad(now.wMonth));
-    replaceAll(result, L"%d", pad(now.wDay));
-    replaceAll(result, L"%h", pad(now.wHour));
-    replaceAll(result, L"%mi", pad(now.wMinute));
-    replaceAll(result, L"%ms", pad(now.wMilliseconds, 3));
-    replaceAll(result, L"%s", pad(now.wSecond));
+    replaceAll(result, L"%yyyy", std::to_wstring(now.tm_year + 1900));
+    replaceAll(result, L"%mo", pad(now.tm_mon + 1));
+    replaceAll(result, L"%d", pad(now.tm_mday));
+    replaceAll(result, L"%h", pad(now.tm_hour));
+    replaceAll(result, L"%mi", pad(now.tm_min));
+    replaceAll(result, L"%ms", pad(static_cast<int>(milliseconds), 3));
+    replaceAll(result, L"%s", pad(now.tm_sec));
     replaceAll(result, L"%pn", title);
     replaceAll(result, L"%ra", randomBase36());
 
@@ -184,11 +191,7 @@ std::filesystem::path saveFolder() {
     auto folder = jsonString(jsonObject(settings(), L"save"), L"folder");
     if (!folder.empty()) return folder;
 
-    PWSTR pictures = nullptr;
-    SHGetKnownFolderPath(FOLDERID_Pictures, 0, nullptr, &pictures);
-    std::filesystem::path result = std::filesystem::path(pictures) / L"Fileship";
-    CoTaskMemFree(pictures);
-    return result;
+    return picturesFolder() / L"Fileship";
 }
 
 std::filesystem::path uniquePath(std::filesystem::path const& folder, std::wstring const& name) {

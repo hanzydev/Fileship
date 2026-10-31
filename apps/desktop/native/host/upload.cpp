@@ -3,9 +3,8 @@
 
 #include <shared/log.h>
 
-#include <bcrypt.h>
-
 #include <atomic>
+#include <chrono>
 #include <cmath>
 #include <condition_variable>
 #include <deque>
@@ -104,7 +103,7 @@ std::optional<JsonObject> sendChunk(std::function<Multipart()> const& form) {
             bool isRetryable = error.status == 0 || error.status >= 500;
             if (!isRetryable || attempt >= MAX_ATTEMPTS) throw;
 
-            Sleep(static_cast<DWORD>(attempt * 1000));
+            std::this_thread::sleep_for(std::chrono::seconds(attempt));
         }
     }
 }
@@ -115,7 +114,7 @@ UploadedFile runJob(UploadSource const& job, std::wstring const& id, UploadOptio
     auto size = limits.chunkSize;
 
     std::vector<uint8_t> random(12);
-    BCryptGenRandom(nullptr, random.data(), static_cast<ULONG>(random.size()), BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+    randomBytes(random.data(), random.size());
     auto uploadId = base64(random.data(), random.size());
     for (auto& character : uploadId) {
         if (character == L'+') character = L'-';

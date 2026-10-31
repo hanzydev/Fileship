@@ -36,6 +36,10 @@ void debugOutput(std::string_view line) {
     OutputDebugStringW(toWide(line).c_str());
 }
 
+uint32_t currentProcessId() {
+    return GetCurrentProcessId();
+}
+
 std::wstring describeException(std::exception_ptr error) {
     try {
         std::rethrow_exception(error);

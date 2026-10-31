@@ -1,4 +1,6 @@
-#include "core.h"
+#include <core/core.h>
+
+#include <windows.h>
 
 #include <wincodec.h>
 #include <wrl/client.h>

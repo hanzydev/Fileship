@@ -1,4 +1,6 @@
-#include "core.h"
+#include <core/core.h>
+
+#include <windows.h>
 
 #include <dwmapi.h>
 
@@ -107,19 +109,22 @@ std::optional<WindowInfo> foregroundWindow(std::vector<uint64_t> const& ignored)
     return info;
 }
 
-void forceForeground(HWND window) {
-    HWND foreground = GetForegroundWindow();
-    DWORD current = GetCurrentThreadId();
-    DWORD target = foreground ? GetWindowThreadProcessId(foreground, nullptr) : 0;
-    bool shouldAttach = target != 0 && target != current;
+std::vector<uint64_t> windowsOfProcesses(std::set<uint32_t> const& processes) {
+    std::pair<std::set<uint32_t> const*, std::vector<uint64_t>> state{&processes, {}};
 
-    if (shouldAttach) AttachThreadInput(current, target, TRUE);
+    EnumWindows(
+        [](HWND window, LPARAM parameter) -> BOOL {
+            auto& state = *reinterpret_cast<std::pair<std::set<uint32_t> const*, std::vector<uint64_t>>*>(parameter);
+            DWORD pid = 0;
+            GetWindowThreadProcessId(window, &pid);
 
-    BringWindowToTop(window);
-    SetForegroundWindow(window);
-    SetFocus(window);
+            if (state.first->contains(pid))
+                state.second.push_back(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(window)));
+            return TRUE;
+        },
+        reinterpret_cast<LPARAM>(&state));
 
-    if (shouldAttach) AttachThreadInput(current, target, FALSE);
+    return state.second;
 }
 
 }

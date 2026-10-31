@@ -1,7 +1,5 @@
 #pragma once
 
-#include <windows.h>
-
 #include <cstdint>
 #include <filesystem>
 #include <functional>
@@ -9,6 +7,11 @@
 #include <vector>
 
 namespace fileship::ui {
+
+struct ScreenPoint {
+    int x = 0;
+    int y = 0;
+};
 
 struct ScreenRect {
     int x = 0;
@@ -40,7 +43,7 @@ struct OverlayRequest {
     ScreenRect bounds;
     std::vector<DisplaySnapshot> displays;
     std::vector<WindowTarget> windows;
-    POINT cursor{};
+    ScreenPoint cursor;
     bool showMagnifier = true;
     ThemeMode theme = ThemeMode::Dark;
 };

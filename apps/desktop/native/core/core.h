@@ -1,14 +1,18 @@
 #pragma once
 
-#include <windows.h>
-
 #include <cstdint>
 #include <filesystem>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
 namespace fileship::core {
+
+struct Point {
+    int32_t x = 0;
+    int32_t y = 0;
+};
 
 struct Rect {
     int32_t x = 0;
@@ -59,12 +63,13 @@ std::optional<Bitmap> captureRect(Rect const& rect, bool cursor);
 
 std::vector<WindowInfo> listWindows(std::vector<uint64_t> const& ignored, bool controls);
 std::optional<WindowInfo> foregroundWindow(std::vector<uint64_t> const& ignored);
-void forceForeground(HWND window);
+std::vector<uint64_t> windowsOfProcesses(std::set<uint32_t> const& processes);
 
 std::vector<DisplayOutput> listOutputs();
 std::vector<DisplayInfo> listDisplays();
 Rect virtualScreen();
-DisplayInfo displayNearest(POINT point);
+DisplayInfo displayNearest(Point point);
+Point cursorPosition();
 std::optional<Rect> intersectRects(Rect const& a, Rect const& b);
 
 std::vector<uint8_t> encodeImage(uint8_t const* pixels, uint32_t width, uint32_t height,

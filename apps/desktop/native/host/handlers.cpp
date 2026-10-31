@@ -151,7 +151,7 @@ void applySettings() {
 void registerHandlers() {
     registerHandler(L"client:hello", [](JsonArray const& args) -> IJsonValue {
         auto client = currentClient();
-        handleWindowClient(client, static_cast<DWORD>(jsonNumber(objectArg(args, 0), L"pid")));
+        handleWindowClient(client, static_cast<uint32_t>(jsonNumber(objectArg(args, 0), L"pid")));
         flushWindowEvents(client);
 
         JsonObject result;

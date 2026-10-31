@@ -190,7 +190,9 @@ OverlayRequest captureRequest(OverlayPurpose purpose, ThemeMode theme) {
 
     request.bounds = {bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top};
     EnumWindows(collectWindow, reinterpret_cast<LPARAM>(&request.windows));
-    GetCursorPos(&request.cursor);
+    POINT cursor{};
+    GetCursorPos(&cursor);
+    request.cursor = {cursor.x, cursor.y};
     return request;
 }
 

@@ -1,12 +1,11 @@
 #pragma once
 
+#include "platform.h"
 #include "rpc.h"
 #include "services.h"
 
 #include <future>
 #include <map>
-
-#undef GetObject
 
 namespace fileship::host {
 
@@ -23,9 +22,11 @@ struct LaunchOptions {
 
 LaunchOptions& launchOptions();
 std::wstring pipeName();
-std::wstring mutexName();
-std::wstring appUserModelId();
-HWND mainWindow();
+std::wstring profileSuffix();
+void parseOptions(std::vector<std::wstring> const& arguments);
+bool shouldForwardLaunch();
+void initHost();
+void startHost();
 void runMainQueue();
 bool isMainThread();
 void quitApp();
@@ -64,7 +65,7 @@ void clearSession();
 std::optional<std::string> unprotectElectronValue(std::wstring const& value);
 
 struct HttpResult {
-    DWORD status = 0;
+    int status = 0;
     JsonValue body{nullptr};
 };
 
@@ -117,8 +118,8 @@ struct Shot {
 };
 
 std::vector<uint64_t> ignoredWindows();
-void addWindowProcess(DWORD pid);
-void removeWindowProcess(DWORD pid);
+void addWindowProcess(uint32_t pid);
+void removeWindowProcess(uint32_t pid);
 std::optional<Shot> captureRect(core::Rect const& rect, bool sound = true);
 std::optional<Shot> captureFullscreen();
 std::optional<Shot> captureActiveMonitor();
@@ -133,13 +134,11 @@ void uploadPaths(std::vector<std::filesystem::path> const& paths);
 void createTray();
 void removeTray();
 void applyMenuTheme();
-bool handleTrayMessage(UINT message, WPARAM wParam, LPARAM lParam);
 
 JsonObject registerHotkeys();
 JsonObject hotkeyStatus();
 void pauseHotkeys();
 void unregisterHotkeys();
-void handleHotkey(int id);
 bool isSnippingToolKeyEnabled();
 JsonObject setSnippingToolKey(bool enabled);
 
@@ -157,8 +156,8 @@ void installOnQuit();
 
 void registerHandlers();
 void applySettings();
-void launchElectron(std::vector<std::wstring> const& arguments);
-void handleWindowClient(uint64_t client, DWORD pid);
+bool launchElectron(std::vector<std::wstring> const& arguments);
+void handleWindowClient(uint64_t client, uint32_t pid);
 void flushWindowEvents(uint64_t client);
 IJsonValue invokeHandler(std::wstring const& channel, JsonArray const& args);
 void startRpcServer();

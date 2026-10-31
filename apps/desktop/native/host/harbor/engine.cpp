@@ -84,7 +84,7 @@ struct Activity {
 
 struct Failure {
     std::wstring message;
-    DWORD status = 0;
+    int status = 0;
     bool quotaExceeded = false;
 };
 

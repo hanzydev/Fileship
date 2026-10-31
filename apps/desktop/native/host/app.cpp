@@ -1,21 +1,18 @@
 #include "app.h"
 
+#include <shared/hash.h>
 #include <shared/log.h>
 
-#include <bcrypt.h>
-#include <shellapi.h>
-#include <sddl.h>
-#include <shlobj.h>
-#include <wincrypt.h>
+#include <version.h>
 
 #include <array>
 #include <chrono>
+#include <cstdio>
 #include <deque>
 #include <fstream>
 #include <mutex>
 #include <sstream>
-
-#pragma comment(lib, "version.lib")
+#include <thread>
 
 namespace fileship::host {
 
@@ -23,37 +20,13 @@ namespace {
 
 std::mutex queueMutex;
 std::deque<std::function<void()>> mainQueue;
-DWORD mainThreadId = GetCurrentThreadId();
+std::thread::id mainThread = std::this_thread::get_id();
 
-std::filesystem::path executablePath() {
-    std::wstring buffer(MAX_PATH, L'\0');
-
-    while (true) {
-        DWORD length = GetModuleFileNameW(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
-        if (length < buffer.size()) return std::filesystem::path(buffer.substr(0, length));
-        buffer.resize(buffer.size() * 2);
-    }
 }
 
-std::wstring currentUserSid() {
-    HANDLE processToken = nullptr;
-    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &processToken)) return L"unknown";
-
-    DWORD size = 0;
-    GetTokenInformation(processToken, TokenUser, nullptr, 0, &size);
-    std::vector<uint8_t> buffer(size);
-    std::wstring result = L"unknown";
-
-    if (GetTokenInformation(processToken, TokenUser, buffer.data(), size, &size)) {
-        LPWSTR text = nullptr;
-        if (ConvertSidToStringSidW(reinterpret_cast<TOKEN_USER*>(buffer.data())->User.Sid, &text)) {
-            result = text;
-            LocalFree(text);
-        }
-    }
-
-    CloseHandle(processToken);
-    return result;
+LaunchOptions& launchOptions() {
+    static LaunchOptions options;
+    return options;
 }
 
 std::wstring profileSuffix() {
@@ -69,55 +42,18 @@ std::wstring profileSuffix() {
     }
 
     wchar_t text[16]{};
-    swprintf_s(text, L"-%08x", hash);
+    std::swprintf(text, std::size(text), L"-%08x", hash);
     return text;
-}
-
-void CALLBACK runWork(PTP_CALLBACK_INSTANCE, void* context) {
-    std::unique_ptr<std::function<void()>> work(static_cast<std::function<void()>*>(context));
-
-    try {
-        (*work)();
-    } catch (std::exception const& error) {
-        logError(L"Background task failed: " + errorMessage(error));
-    } catch (...) {
-        logError(L"Background task failed: " + describeException(std::current_exception()));
-    }
-}
-
-void CALLBACK runTimer(PTP_CALLBACK_INSTANCE instance, void* context, PTP_TIMER timer) {
-    runWork(instance, context);
-    CloseThreadpoolTimer(timer);
-}
-
-}
-
-LaunchOptions& launchOptions() {
-    static LaunchOptions options;
-    return options;
 }
 
 std::wstring pipeName() {
     if (!launchOptions().pipe.empty()) return launchOptions().pipe;
-    return L"\\\\.\\pipe\\fileship-host-" + currentUserSid() + profileSuffix();
-}
-
-std::wstring mutexName() {
-    return L"Local\\FileshipHost" + profileSuffix();
-}
-
-std::wstring appUserModelId() {
-    return isPackaged() ? L"dev.hanzy.fileship" : L"dev.hanzy.fileship.dev";
+    return defaultPipeName(profileSuffix());
 }
 
 std::filesystem::path userDataPath() {
     if (!launchOptions().userData.empty()) return std::filesystem::absolute(launchOptions().userData);
-
-    PWSTR folder = nullptr;
-    SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &folder);
-    std::filesystem::path result = std::filesystem::path(folder) / L"Fileship";
-    CoTaskMemFree(folder);
-    return result;
+    return defaultUserDataPath();
 }
 
 std::filesystem::path hostExecutable() {
@@ -130,39 +66,16 @@ std::filesystem::path resourcesPath() {
 }
 
 std::wstring appVersion() {
-    static std::wstring const version = [] {
-        auto path = hostExecutable().wstring();
-        DWORD handle = 0;
-        DWORD size = GetFileVersionInfoSizeW(path.c_str(), &handle);
-        std::vector<uint8_t> data(size);
-        wchar_t* value = nullptr;
-        UINT length = 0;
-
-        if (size && GetFileVersionInfoW(path.c_str(), 0, size, data.data()) &&
-            VerQueryValueW(data.data(), L"\\StringFileInfo\\040904b0\\ProductVersion",
-                           reinterpret_cast<void**>(&value), &length) &&
-            length) {
-            return std::wstring(value);
-        }
-
-        return std::wstring(L"0.0.0");
-    }();
-
-    return version;
+    return FILESHIP_VERSION;
 }
 
 bool isPackaged() {
-    static bool const packaged = [] {
-        auto resources = resourcesPath().parent_path();
-        return resources.filename() == L"resources" &&
-               std::filesystem::exists(resources.parent_path() / L"Fileship.exe");
-    }();
-
+    static bool const packaged = hasPackagedLayout();
     return packaged && !launchOptions().dev;
 }
 
 std::wstring desktopUserAgent() {
-    return L"FileshipDesktop/" + appVersion() + L" (Windows)";
+    return L"FileshipDesktop/" + appVersion() + L" (" + platformName() + L")";
 }
 
 void postToMainThread(std::function<void()> work) {
@@ -171,12 +84,11 @@ void postToMainThread(std::function<void()> work) {
         mainQueue.push_back(std::move(work));
     }
 
-    if (auto window = mainWindow()) PostMessageW(window, WM_APP, 0, 0);
-    else PostThreadMessageW(mainThreadId, WM_APP, 0, 0);
+    wakeMainThread();
 }
 
 bool isMainThread() {
-    return GetCurrentThreadId() == mainThreadId;
+    return std::this_thread::get_id() == mainThread;
 }
 
 void runMainQueue() {
@@ -198,33 +110,6 @@ void runMainQueue() {
             logError(L"Main thread task failed: " + describeException(std::current_exception()));
         }
     }
-}
-
-void runAsync(std::function<void()> work) {
-    auto context = new std::function<void()>(std::move(work));
-    if (!TrySubmitThreadpoolCallback(runWork, context, nullptr)) {
-        delete context;
-        logError(L"Could not queue a background task");
-    }
-}
-
-void runAfter(int delayMs, std::function<void()> work) {
-    auto context = new std::function<void()>(std::move(work));
-    auto timer = CreateThreadpoolTimer(runTimer, context, nullptr);
-
-    if (!timer) {
-        delete context;
-        logError(L"Could not create a timer");
-        return;
-    }
-
-    ULARGE_INTEGER due{};
-    due.QuadPart = static_cast<ULONGLONG>(-static_cast<LONGLONG>(std::max(delayMs, 0)) * 10000);
-
-    FILETIME time{};
-    time.dwLowDateTime = due.LowPart;
-    time.dwHighDateTime = due.HighPart;
-    SetThreadpoolTimer(timer, &time, 0, 0);
 }
 
 int64_t nowMs() {
@@ -348,63 +233,64 @@ std::string prettyJson(IJsonValue const& value) {
 
 std::wstring randomHex(size_t bytes) {
     std::vector<uint8_t> random(bytes);
-    BCryptGenRandom(nullptr, random.data(), static_cast<ULONG>(random.size()), BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-
-    std::wstring result;
-    for (auto byte : random) {
-        wchar_t hex[3]{};
-        swprintf_s(hex, L"%02x", byte);
-        result += hex;
-    }
-
-    return result;
+    randomBytes(random.data(), random.size());
+    return toWide(toHex(random));
 }
 
 std::wstring randomUuid() {
-    std::array<uint8_t, 16> bytes{};
-    BCryptGenRandom(nullptr, bytes.data(), static_cast<ULONG>(bytes.size()), BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+    std::vector<uint8_t> bytes(16);
+    randomBytes(bytes.data(), bytes.size());
     bytes[6] = static_cast<uint8_t>((bytes[6] & 0x0f) | 0x40);
     bytes[8] = static_cast<uint8_t>((bytes[8] & 0x3f) | 0x80);
 
-    std::wstring result;
-    for (size_t index = 0; index < bytes.size(); index++) {
-        if (index == 4 || index == 6 || index == 8 || index == 10) result += L'-';
-
-        wchar_t hex[3]{};
-        swprintf_s(hex, L"%02x", bytes[index]);
-        result += hex;
-    }
-
-    return result;
+    auto hex = toWide(toHex(bytes));
+    return hex.substr(0, 8) + L"-" + hex.substr(8, 4) + L"-" + hex.substr(12, 4) + L"-" + hex.substr(16, 4) + L"-" +
+           hex.substr(20);
 }
 
 std::wstring base64(void const* data, size_t size) {
-    if (!size) return {};
+    static constexpr wchar_t ALPHABET[] = L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    auto bytes = static_cast<uint8_t const*>(data);
+    std::wstring result;
+    result.reserve((size + 2) / 3 * 4);
 
-    DWORD length = 0;
-    auto bytes = static_cast<BYTE const*>(data);
-    CryptBinaryToStringW(bytes, static_cast<DWORD>(size), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, nullptr,
-                         &length);
+    for (size_t index = 0; index < size; index += 3) {
+        uint32_t chunk = static_cast<uint32_t>(bytes[index]) << 16;
+        if (index + 1 < size) chunk |= static_cast<uint32_t>(bytes[index + 1]) << 8;
+        if (index + 2 < size) chunk |= bytes[index + 2];
 
-    std::wstring result(length, L'\0');
-    CryptBinaryToStringW(bytes, static_cast<DWORD>(size), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-                         result.data(), &length);
-    result.resize(length);
+        result += ALPHABET[(chunk >> 18) & 0x3F];
+        result += ALPHABET[(chunk >> 12) & 0x3F];
+        result += index + 1 < size ? ALPHABET[(chunk >> 6) & 0x3F] : L'=';
+        result += index + 2 < size ? ALPHABET[chunk & 0x3F] : L'=';
+    }
+
     return result;
 }
 
 std::vector<uint8_t> fromBase64(std::wstring const& text) {
-    DWORD length = 0;
-    if (!CryptStringToBinaryW(text.c_str(), static_cast<DWORD>(text.size()), CRYPT_STRING_BASE64, nullptr,
-                              &length, nullptr, nullptr))
-        return {};
+    std::vector<uint8_t> result;
+    uint32_t buffer = 0;
+    int bits = 0;
 
-    std::vector<uint8_t> result(length);
-    if (!CryptStringToBinaryW(text.c_str(), static_cast<DWORD>(text.size()), CRYPT_STRING_BASE64, result.data(),
-                              &length, nullptr, nullptr))
-        return {};
+    for (auto character : text) {
+        int value = character >= L'A' && character <= L'Z'   ? character - L'A'
+                    : character >= L'a' && character <= L'z' ? character - L'a' + 26
+                    : character >= L'0' && character <= L'9' ? character - L'0' + 52
+                    : character == L'+' || character == L'-' ? 62
+                    : character == L'/' || character == L'_' ? 63
+                                                             : -1;
+        if (character == L'=' || character == L'\r' || character == L'\n' || character == L' ') continue;
+        if (value < 0) return {};
 
-    result.resize(length);
+        buffer = (buffer << 6) | static_cast<uint32_t>(value);
+        bits += 6;
+        if (bits >= 8) {
+            bits -= 8;
+            result.push_back(static_cast<uint8_t>((buffer >> bits) & 0xFF));
+        }
+    }
+
     return result;
 }
 
@@ -428,7 +314,7 @@ bool writeFileAtomic(std::filesystem::path const& path, std::string const& conte
         if (!file) return false;
     }
 
-    return MoveFileExW(temporary.c_str(), path.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != FALSE;
+    return replaceFile(temporary, path);
 }
 
 std::wstring argumentOf(std::vector<std::wstring> const& arguments, std::wstring const& name) {
@@ -469,36 +355,18 @@ std::wstring formatStorageSize(int64_t bytes) {
     }
 
     wchar_t text[64]{};
-    swprintf_s(text, L"%.2f", value);
+    std::swprintf(text, std::size(text), L"%.2f", value);
     std::wstring number(text);
     while (number.back() == L'0') number.pop_back();
     if (number.back() == L'.') number.pop_back();
 
-    wchar_t separator[8]{};
-    if (GetLocaleInfoEx(language().c_str(), LOCALE_SDECIMAL, separator, 8) > 0) {
+    static std::wstring const COMMA_LANGUAGES[] = {L"tr", L"de", L"es", L"fr", L"it", L"pt", L"ru", L"az"};
+    if (std::ranges::find(COMMA_LANGUAGES, language()) != std::end(COMMA_LANGUAGES)) {
         auto dot = number.find(L'.');
-        if (dot != std::wstring::npos) number.replace(dot, 1, separator);
+        if (dot != std::wstring::npos) number.replace(dot, 1, L",");
     }
 
     return number + L" " + UNITS[unit];
-}
-
-void openWebUrl(std::wstring const& url) {
-    auto lower = url.substr(0, 8);
-    for (auto& character : lower) character = static_cast<wchar_t>(towlower(character));
-    if (lower.rfind(L"http://", 0) != 0 && lower.rfind(L"https://", 0) != 0) return;
-
-    ShellExecuteW(nullptr, L"open", url.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
-}
-
-void showItemInFolder(std::filesystem::path const& path) {
-    postToMainThread([path] {
-        PIDLIST_ABSOLUTE item = ILCreateFromPathW(path.c_str());
-        if (!item) return;
-
-        SHOpenFolderAndSelectItems(item, 0, nullptr, 0);
-        ILFree(item);
-    });
 }
 
 }

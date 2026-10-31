@@ -331,10 +331,19 @@ const writeFonts = () => {
     writeFileSync(join(generated, 'fonts.h'), lines.join('\n'));
 };
 
+const writeVersion = () => {
+    const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+    writeFileSync(
+        join(generated, 'version.h'),
+        ['#pragma once', '', `#define FILESHIP_VERSION L"${version}"`, ''].join('\n'),
+    );
+};
+
 mkdirSync(generated, { recursive: true });
 mkdirSync(catalogs, { recursive: true });
 mkdirSync(fonts, { recursive: true });
 
+writeVersion();
 writeTheme();
 await writeIcons();
 writeCatalogs();

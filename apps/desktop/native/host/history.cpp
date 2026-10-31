@@ -3,7 +3,11 @@
 
 #include <shared/log.h>
 
+#ifdef _WIN32
 #include <winsqlite/winsqlite3.h>
+#else
+#include <sqlite3.h>
+#endif
 
 #include <mutex>
 
@@ -20,7 +24,7 @@ sqlite3* database = nullptr;
 class Statement {
 public:
     Statement(sqlite3* db, std::wstring const& sql) {
-        if (sqlite3_prepare16_v2(db, sql.c_str(), -1, &statement, nullptr) != SQLITE_OK)
+        if (sqlite3_prepare_v2(db, toUtf8(sql).c_str(), -1, &statement, nullptr) != SQLITE_OK)
             throw std::runtime_error(std::string("History query failed: ") + sqlite3_errmsg(db));
     }
 
@@ -32,7 +36,7 @@ public:
     Statement& operator=(Statement const&) = delete;
 
     void bind(int index, std::optional<std::wstring> const& value) {
-        if (value) sqlite3_bind_text16(statement, index, value->c_str(), -1, SQLITE_TRANSIENT);
+        if (value) sqlite3_bind_text(statement, index, toUtf8(*value).c_str(), -1, SQLITE_TRANSIENT);
         else sqlite3_bind_null(statement, index);
     }
 
@@ -51,7 +55,7 @@ public:
         JsonObject item;
 
         for (int index = 0; index < sqlite3_column_count(statement); index++) {
-            std::wstring name(static_cast<wchar_t const*>(sqlite3_column_name16(statement, index)));
+            auto name = toWide(sqlite3_column_name(statement, index));
 
             switch (sqlite3_column_type(statement, index)) {
             case SQLITE_NULL:
@@ -62,8 +66,8 @@ public:
                 item.SetNamedValue(name, JsonValue::CreateNumberValue(sqlite3_column_double(statement, index)));
                 break;
             default:
-                item.SetNamedValue(name, JsonValue::CreateStringValue(
-                                             static_cast<wchar_t const*>(sqlite3_column_text16(statement, index))));
+                item.SetNamedValue(name, JsonValue::CreateStringValue(toWide(
+                                             reinterpret_cast<char const*>(sqlite3_column_text(statement, index)))));
             }
         }
 
@@ -85,7 +89,7 @@ sqlite3* db() {
     std::error_code error;
     std::filesystem::create_directories(path.parent_path(), error);
 
-    if (sqlite3_open16(path.c_str(), &database) != SQLITE_OK) {
+    if (sqlite3_open(toUtf8(path.wstring()).c_str(), &database) != SQLITE_OK) {
         sqlite3_close(database);
         database = nullptr;
         throw std::runtime_error("Could not open the history");

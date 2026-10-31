@@ -4,8 +4,6 @@
 #include <shared/hash.h>
 #include <shared/log.h>
 
-#include <shlobj.h>
-
 #include <fstream>
 #include <mutex>
 #include <sstream>
@@ -93,7 +91,12 @@ std::optional<SemVer> parseVersion(std::wstring text) {
         text.resize(hyphen);
     }
 
-    if (swscanf_s(text.c_str(), L"%d.%d.%d", &version.major, &version.minor, &version.patch) != 3) return std::nullopt;
+    std::wistringstream parts(text);
+    wchar_t first = 0;
+    wchar_t second = 0;
+    if (!(parts >> version.major >> first >> version.minor >> second >> version.patch) || first != L'.' ||
+        second != L'.' || !parts.eof())
+        return std::nullopt;
     return version;
 }
 
@@ -154,7 +157,7 @@ Release parseRelease(std::string const& text) {
 
         if (key == L"url") release.url = value;
         if (key == L"sha512") release.sha512 = value;
-        if (key == L"size") release.size = _wtoi64(value.c_str());
+        if (key == L"size") release.size = std::wcstoll(value.c_str(), nullptr, 10);
     }
 
     return release;
@@ -172,13 +175,7 @@ std::wstring describeError(std::exception const& error) {
 }
 
 std::filesystem::path downloadFolder() {
-    if (!isPackaged()) return userDataPath() / L"updates";
-
-    PWSTR folder = nullptr;
-    SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &folder);
-    std::filesystem::path result = std::filesystem::path(folder) / L"fileship-updater" / L"pending";
-    CoTaskMemFree(folder);
-    return result;
+    return isPackaged() ? updatesFolder() : userDataPath() / L"updates";
 }
 
 std::wstring hashFile(std::filesystem::path const& path) {
@@ -293,19 +290,7 @@ void runInstaller(bool forceRun) {
     }
 
     if (path.empty()) return;
-
-    std::wstring command = L"\"" + path.wstring() + L"\" --updated /S" + (forceRun ? L" --force-run" : L"");
-    STARTUPINFOW startup{sizeof(startup)};
-    PROCESS_INFORMATION process{};
-
-    if (!CreateProcessW(nullptr, command.data(), nullptr, nullptr, FALSE, DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP,
-                        nullptr, path.parent_path().c_str(), &startup, &process)) {
-        logError(L"Could not start the update installer: " + std::to_wstring(GetLastError()));
-        return;
-    }
-
-    CloseHandle(process.hThread);
-    CloseHandle(process.hProcess);
+    startInstaller(path, forceRun);
 }
 
 void install() {
@@ -359,7 +344,7 @@ void checkForUpdates() {
     refreshTray();
 
     try {
-        auto release = parseRelease(fetchText(feed() + L"/latest.yml"));
+        auto release = parseRelease(fetchText(feed() + L"/" + updateManifestName()));
         auto remote = parseVersion(release.version);
         auto local = parseVersion(appVersion());
         if (!remote || release.url.empty() || release.sha512.empty()) throw std::runtime_error("Invalid latest.yml");
