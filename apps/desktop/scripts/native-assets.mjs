@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { root } from './msvc.mjs';
+import { decodeWoff2 } from './woff2.mjs';
 
 const workspace = join(root, '..', '..');
 const generated = join(root, 'build', 'generated');
@@ -312,9 +313,10 @@ const writeFonts = () => {
             return `{0x${first}, 0x${last}}`;
         });
 
-        copyFileSync(join(geist, 'files', file), join(fonts, file));
+        const name = file.replace(/\.woff2$/, '.ttf');
+        writeFileSync(join(fonts, name), decodeWoff2(readFileSync(join(geist, 'files', file))));
         lines.push(`inline constexpr FontRange FONT_RANGES_${index}[] = {${values.join(', ')}};`);
-        subsets.push(`    {L${JSON.stringify(file)}, FONT_RANGES_${index}, ${values.length}},`);
+        subsets.push(`    {L${JSON.stringify(name)}, FONT_RANGES_${index}, ${values.length}},`);
     }
 
     if (!subsets.length) throw new Error('No Geist font files were found.');

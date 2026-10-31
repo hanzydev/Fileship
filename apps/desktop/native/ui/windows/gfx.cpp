@@ -208,22 +208,11 @@ struct Resources::Backend {
             auto bytes = readFile(directory / subset.file);
             if (bytes.empty()) continue;
 
-            com_ptr<IDWriteFontFileStream> stream;
-            if (FAILED(write->UnpackFontFile(DWRITE_CONTAINER_TYPE_WOFF2, bytes.data(),
-                                             static_cast<UINT32>(bytes.size()), stream.put())))
-                continue;
-
-            UINT64 size = 0;
-            void const* fragment = nullptr;
-            void* context = nullptr;
-            stream->GetFileSize(&size);
-            if (FAILED(stream->ReadFileFragment(&fragment, 0, size, &context))) continue;
-
             com_ptr<IDWriteFontFile> file;
-            HRESULT created = fontLoader->CreateInMemoryFontFileReference(write.get(), fragment,
-                                                                          static_cast<UINT32>(size), nullptr, file.put());
-            stream->ReleaseFileFragment(context);
-            if (FAILED(created)) continue;
+            if (FAILED(fontLoader->CreateInMemoryFontFileReference(write.get(), bytes.data(),
+                                                                   static_cast<UINT32>(bytes.size()), nullptr,
+                                                                   file.put())))
+                continue;
 
             com_ptr<IDWriteFontSetBuilder2> setBuilder;
             com_ptr<IDWriteFontSet> set;
