@@ -1,5 +1,5 @@
 import type { Language } from '../i18n/messages';
-import type { HotkeyAction, Settings } from './settings';
+import type { HotkeyAction, Settings, VideoSource } from './settings';
 
 export type { Settings, Theme } from './settings';
 
@@ -111,9 +111,29 @@ export type HarborActivity = {
 
 export type HarborBreakdown = { type: string; size: number };
 
+export type AppCapabilities = {
+    windowDetection: boolean;
+    controlDetection: boolean;
+    hotkeys: 'native' | 'portal' | 'command';
+    snippingToolKey: boolean;
+    harbor: boolean;
+    recordingBorder: boolean;
+    voiceProcessing: {
+        noiseSuppression: boolean;
+        echoCancellation: boolean;
+        autoGainControl: boolean;
+    };
+    videoSources: VideoSource[];
+    updates: 'auto' | 'package' | 'none';
+};
+
 export type AppInfo = {
     version: string;
     isPackaged: boolean;
+    platform: 'windows' | 'linux';
+    launchCommand: string;
+    saveFolder: string;
+    capabilities: AppCapabilities;
 };
 
 export type IpcInvoke = {
@@ -239,6 +259,7 @@ export const LOCAL_CHANNELS = [
 
 export type HostInvoke = Omit<IpcInvoke, (typeof LOCAL_CHANNELS)[number]> & {
     'client:hello': (client: { pid: number }) => void;
+    'app:launch': (argv: string[], cwd: string) => void;
     'account:setSession': (session: { instanceUrl: string; token: string }) => Account;
     'account:clearSession': () => void;
     'account:token': () => string | null;

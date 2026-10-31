@@ -5,6 +5,8 @@
 #include <host/recording.h>
 #include <shared/log.h>
 
+#include <shlobj.h>
+
 #include <mutex>
 #include <set>
 
@@ -196,9 +198,35 @@ void registerHandlers() {
     registerHandler(L"settings:set", [](JsonArray const& args) -> IJsonValue { return setSettings(objectArg(args, 0)); });
 
     registerHandler(L"app:info", [](JsonArray const&) -> IJsonValue {
+        auto launcher = isPackaged() ? resourcesPath().parent_path().parent_path() / L"Fileship.exe" : hostExecutable();
+
+        PWSTR pictures = nullptr;
+        SHGetKnownFolderPath(FOLDERID_Pictures, 0, nullptr, &pictures);
+        auto defaultSaveFolder = std::filesystem::path(pictures) / L"Fileship";
+        CoTaskMemFree(pictures);
+
+        JsonObject voiceProcessing;
+        for (auto key : {L"noiseSuppression", L"echoCancellation", L"autoGainControl"})
+            voiceProcessing.SetNamedValue(key, JsonValue::CreateBooleanValue(true));
+
+        JsonArray videoSources;
+        for (auto source : {L"auto", L"ddagrab", L"gdigrab"}) videoSources.Append(JsonValue::CreateStringValue(source));
+
+        JsonObject capabilities;
+        for (auto key : {L"windowDetection", L"controlDetection", L"snippingToolKey", L"harbor", L"recordingBorder"})
+            capabilities.SetNamedValue(key, JsonValue::CreateBooleanValue(true));
+        capabilities.SetNamedValue(L"hotkeys", JsonValue::CreateStringValue(L"native"));
+        capabilities.SetNamedValue(L"voiceProcessing", voiceProcessing);
+        capabilities.SetNamedValue(L"videoSources", videoSources);
+        capabilities.SetNamedValue(L"updates", JsonValue::CreateStringValue(isPackaged() ? L"auto" : L"none"));
+
         JsonObject info;
         info.SetNamedValue(L"version", JsonValue::CreateStringValue(appVersion()));
         info.SetNamedValue(L"isPackaged", JsonValue::CreateBooleanValue(isPackaged()));
+        info.SetNamedValue(L"platform", JsonValue::CreateStringValue(L"windows"));
+        info.SetNamedValue(L"launchCommand", JsonValue::CreateStringValue(L"\"" + launcher.wstring() + L"\""));
+        info.SetNamedValue(L"saveFolder", JsonValue::CreateStringValue(defaultSaveFolder.wstring()));
+        info.SetNamedValue(L"capabilities", capabilities);
         return info;
     });
 
