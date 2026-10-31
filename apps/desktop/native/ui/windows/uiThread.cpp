@@ -1,4 +1,4 @@
-#include "uiThread.h"
+#include <ui/uiThread.h>
 
 #include <windows.h>
 

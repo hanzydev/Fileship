@@ -21,8 +21,8 @@ public:
 
     void setSide(Side value);
     void setPalette(Palette const& value);
-    D2D1_SIZE_F size();
-    void place(double left, double top, double zoom, D2D1_RECT_F const& viewport);
+    SizeF size();
+    void place(double left, double top, double zoom, RectF const& viewport);
 
     bool contains(Point point);
     bool popoverContains(Point point);
@@ -33,7 +33,7 @@ public:
     bool pointerDown(Point point, double now);
     void pointerUp(Point point, double now);
     void pointerLeave(double now);
-    bool key(UINT key, double now);
+    bool key(Key key, double now);
 
     void render(Painter& painter, double now);
     bool isAnimating(double now);
@@ -45,7 +45,7 @@ private:
     struct Item {
         ItemKind kind;
         Tool tool = Tool::Select;
-        D2D1_RECT_F rect{};
+        RectF rect{};
         bool isActive = false;
         bool isDisabled = false;
         std::wstring tooltip;
@@ -70,10 +70,10 @@ private:
 
     std::vector<Item> buildItems();
     Item const* itemAt(Point point);
-    D2D1_RECT_F toLocal(D2D1_RECT_F const& rect) const;
+    RectF toLocal(RectF const& rect) const;
     Point toToolbar(Point point) const;
     Point toPopover(Point point) const;
-    D2D1_SIZE_F popoverSize(ItemKind kind);
+    SizeF popoverSize(ItemKind kind);
     void updatePopover(double now);
     void activate(Item const& item, double now);
     void closePopover(double now, bool animate);
@@ -98,8 +98,8 @@ private:
     double originX = 0;
     double originY = 0;
     double zoom = 1;
-    D2D1_RECT_F viewport{};
-    D2D1_SIZE_F currentSize{};
+    RectF viewport{};
+    SizeF currentSize{};
 
     std::unordered_map<int, Animation> hovers;
     int hoveredKey = -1;

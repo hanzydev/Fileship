@@ -78,7 +78,7 @@ bool Animation::isRunning(double now) const {
     return duration > 0 && now - start < duration;
 }
 
-D2D1_COLOR_F buttonBackground(Palette const& palette, ButtonStyle const& style) {
+Color buttonBackground(Palette const& palette, ButtonStyle const& style) {
     auto const& theme = palette.theme;
     double hover = style.isDisabled ? 0 : style.hover;
 
@@ -98,7 +98,7 @@ D2D1_COLOR_F buttonBackground(Palette const& palette, ButtonStyle const& style) 
     }
 }
 
-D2D1_COLOR_F buttonForeground(Palette const& palette, ButtonStyle const& style) {
+Color buttonForeground(Palette const& palette, ButtonStyle const& style) {
     switch (style.variant) {
     case ButtonVariant::Secondary:
         return color(palette.theme.secondaryForeground);
@@ -113,75 +113,75 @@ float buttonOffset(ButtonStyle const& style) {
     return style.isPressed && !style.hasPopup && !style.isDisabled ? 1.0f : 0.0f;
 }
 
-void drawButton(Painter& painter, Palette const& palette, D2D1_RECT_F const& rect, ButtonStyle const& style) {
+void drawButton(Painter& painter, Palette const& palette, RectF const& rect, ButtonStyle const& style) {
     auto background = buttonBackground(palette, style);
     if (background.a <= 0) return;
 
     float offset = buttonOffset(style);
-    auto moved = D2D1::RectF(rect.left, rect.top + offset, rect.right, rect.bottom + offset);
+    auto moved = RectF(rect.left, rect.top + offset, rect.right, rect.bottom + offset);
     painter.fillRounded(moved, 32, background);
 }
 
 TooltipLayout measureTooltip(Resources& resources, std::wstring const& text, std::wstring const& kbd) {
-    float textWidth = resources.measure(text, 12, DWRITE_FONT_WEIGHT_NORMAL);
+    float textWidth = resources.measure(text, 12, FontWeight::Normal);
     if (kbd.empty()) return {12 + textWidth + 12, 28};
 
-    float kbdWidth = std::max(22.0f, resources.measure(kbd, 12, DWRITE_FONT_WEIGHT_MEDIUM) + 12);
+    float kbdWidth = std::max(22.0f, resources.measure(kbd, 12, FontWeight::Medium) + 12);
     return {12 + textWidth + 10 + kbdWidth + 6, 34};
 }
 
-void drawKbd(Painter& painter, D2D1_RECT_F const& rect, std::wstring const& text, D2D1_COLOR_F const& background,
-             D2D1_COLOR_F const& foreground) {
+void drawKbd(Painter& painter, RectF const& rect, std::wstring const& text, Color const& background,
+             Color const& foreground) {
     painter.fillRounded(rect, 10, background);
 
-    float width = painter.resources().measure(text, 12, DWRITE_FONT_WEIGHT_MEDIUM);
+    float width = painter.resources().measure(text, 12, FontWeight::Medium);
     float x = (rect.left + rect.right) / 2 - width / 2;
     float baseline = painter.middleBaseline((rect.top + rect.bottom) / 2, 12);
-    painter.textAt(text, x, baseline, 12, DWRITE_FONT_WEIGHT_MEDIUM, foreground);
+    painter.textAt(text, x, baseline, 12, FontWeight::Medium, foreground);
 }
 
-void drawTooltip(Painter& painter, Palette const& palette, D2D1_RECT_F const& rect, Side side, float arrowCenter,
+void drawTooltip(Painter& painter, Palette const& palette, RectF const& rect, Side side, float arrowCenter,
                  std::wstring const& text, std::wstring const& kbd) {
     auto const& theme = palette.theme;
     auto background = color(theme.foreground);
     auto foreground = color(theme.background);
 
-    D2D1_POINT_2F arrow{};
+    PointF arrow{};
     switch (side) {
     case Side::Bottom:
-        arrow = D2D1::Point2F(arrowCenter, rect.top + 2);
+        arrow = PointF(arrowCenter, rect.top + 2);
         break;
     case Side::Top:
-        arrow = D2D1::Point2F(arrowCenter, rect.bottom - 2);
+        arrow = PointF(arrowCenter, rect.bottom - 2);
         break;
     case Side::Right:
-        arrow = D2D1::Point2F(rect.left + 2, arrowCenter);
+        arrow = PointF(rect.left + 2, arrowCenter);
         break;
     case Side::Left:
-        arrow = D2D1::Point2F(rect.right - 2, arrowCenter);
+        arrow = PointF(rect.right - 2, arrowCenter);
         break;
     }
 
     {
-        Transform rotate(painter.context(),
-                         D2D1::Matrix3x2F::Rotation(45) * D2D1::Matrix3x2F::Translation(arrow.x, arrow.y));
-        painter.fillRounded(D2D1::RectF(-5, -5, 5, 5), 2, background);
+        Transform rotate(painter,
+                         Matrix::rotation(45) * Matrix::translation(arrow.x, arrow.y));
+        painter.fillRounded(RectF(-5, -5, 5, 5), 2, background);
     }
 
     painter.fillRounded(rect, 14, background);
 
     float centerY = (rect.top + rect.bottom) / 2;
-    painter.textAt(text, rect.left + 12, painter.middleBaseline(centerY, 12), 12, DWRITE_FONT_WEIGHT_NORMAL,
+    painter.textAt(text, rect.left + 12, painter.middleBaseline(centerY, 12), 12, FontWeight::Normal,
                    foreground);
 
     if (!kbd.empty()) {
-        float kbdWidth = std::max(22.0f, painter.resources().measure(kbd, 12, DWRITE_FONT_WEIGHT_MEDIUM) + 12);
-        auto kbdRect = D2D1::RectF(rect.right - 6 - kbdWidth, centerY - 11, rect.right - 6, centerY + 11);
+        float kbdWidth = std::max(22.0f, painter.resources().measure(kbd, 12, FontWeight::Medium) + 12);
+        auto kbdRect = RectF(rect.right - 6 - kbdWidth, centerY - 11, rect.right - 6, centerY + 11);
         drawKbd(painter, kbdRect, kbd, color(theme.background, palette.dark ? 0.1f : 0.2f), foreground);
     }
 }
 
-void drawPopoverFrame(Painter& painter, Palette const& palette, D2D1_RECT_F const& rect, bool isLarge) {
+void drawPopoverFrame(Painter& painter, Palette const& palette, RectF const& rect, bool isLarge) {
     if (isLarge) {
         painter.boxShadow(rect, 24, 10, 15, -3, 0.1f);
         painter.boxShadow(rect, 24, 4, 6, -4, 0.1f);
@@ -194,23 +194,21 @@ void drawPopoverFrame(Painter& painter, Palette const& palette, D2D1_RECT_F cons
     painter.ring(rect, 24, 1, color(palette.theme.foreground, palette.dark ? 0.1f : 0.05f));
 }
 
-void drawSlider(Painter& painter, Palette const& palette, D2D1_RECT_F const& rect, double fraction, double hover) {
+void drawSlider(Painter& painter, Palette const& palette, RectF const& rect, double fraction, double hover) {
     auto const& theme = palette.theme;
     float width = rect.right - rect.left;
     float centerY = (rect.top + rect.bottom) / 2;
-    auto track = D2D1::RectF(rect.left, centerY - 4, rect.right, centerY + 4);
+    auto track = RectF(rect.left, centerY - 4, rect.right, centerY + 4);
 
     painter.fillRounded(track, 4, color(theme.input, 0.9f));
 
-    com_ptr<ID2D1RoundedRectangleGeometry> mask;
-    painter.resources().factory()->CreateRoundedRectangleGeometry(D2D1::RoundedRect(track, 4, 4), mask.put());
-    painter.context()->PushLayer(D2D1::LayerParameters(D2D1::InfiniteRect(), mask.get()), nullptr);
-    painter.fillRect(D2D1::RectF(rect.left, track.top, rect.left + static_cast<float>(fraction) * width, track.bottom),
+    painter.pushClip(track, 4);
+    painter.fillRect(RectF(rect.left, track.top, rect.left + static_cast<float>(fraction) * width, track.bottom),
                      color(theme.primary));
-    painter.context()->PopLayer();
+    painter.popClip();
 
     float center = rect.left + 12 + static_cast<float>(fraction) * (width - 24);
-    auto thumb = D2D1::RectF(center - 12, centerY - 8, center + 12, centerY + 8);
+    auto thumb = RectF(center - 12, centerY - 8, center + 12, centerY + 8);
     painter.boxShadow(thumb, 8, 4, 6, -1, 0.1f);
     painter.boxShadow(thumb, 8, 2, 4, -2, 0.1f);
 
@@ -220,7 +218,7 @@ void drawSlider(Painter& painter, Palette const& palette, D2D1_RECT_F const& rec
     painter.fillRounded(thumb, 8, rgba(255, 255, 255));
 }
 
-void drawSwitch(Painter& painter, Palette const& palette, D2D1_RECT_F const& rect, double checked) {
+void drawSwitch(Painter& painter, Palette const& palette, RectF const& rect, double checked) {
     auto const& theme = palette.theme;
     float value = static_cast<float>(checked);
     auto background = mix(color(theme.input, 0.9f), color(theme.primary), value);
@@ -230,21 +228,21 @@ void drawSwitch(Painter& painter, Palette const& palette, D2D1_RECT_F const& rec
     auto thumbColor = palette.dark ? mix(color(theme.foreground), color(theme.primaryForeground), value)
                                    : color(theme.background);
     float left = rect.left + 2 + 16 * value;
-    auto thumb = D2D1::RectF(left, rect.top + 2, left + 24, rect.top + 18);
+    auto thumb = RectF(left, rect.top + 2, left + 24, rect.top + 18);
     painter.boxShadow(thumb, 8, 1, 3, 0, 0.1f);
     painter.boxShadow(thumb, 8, 1, 2, -1, 0.1f);
     painter.fillRounded(thumb, 8, thumbColor);
 }
 
-void drawSpinner(Painter& painter, float x, float y, float size, D2D1_COLOR_F const& tint, double now) {
+void drawSpinner(Painter& painter, float x, float y, float size, Color const& tint, double now) {
     float angle = static_cast<float>(std::fmod(now, 1000.0) / 1000.0 * 360.0);
     float half = size / 2;
-    Transform rotate(painter.context(), D2D1::Matrix3x2F::Rotation(angle, D2D1::Point2F(x + half, y + half)));
+    Transform rotate(painter, Matrix::rotation(angle, PointF(x + half, y + half)));
     painter.icon(icons::loaderCircle, x, y, size, tint);
 }
 
-Placement placeFloating(D2D1_RECT_F const& anchor, float width, float height, Side side, float offset,
-                        D2D1_RECT_F const& bounds) {
+Placement placeFloating(RectF const& anchor, float width, float height, Side side, float offset,
+                        RectF const& bounds) {
     auto fits = [&](Side candidate) {
         switch (candidate) {
         case Side::Bottom:
@@ -304,21 +302,21 @@ Placement placeFloating(D2D1_RECT_F const& anchor, float width, float height, Si
     }
 
     Placement placement;
-    placement.rect = D2D1::RectF(x, y, x + width, y + height);
+    placement.rect = RectF(x, y, x + width, y + height);
     placement.side = side;
 
     switch (side) {
     case Side::Bottom:
-        placement.origin = D2D1::Point2F(std::clamp(centerX, x, x + width), y);
+        placement.origin = PointF(std::clamp(centerX, x, x + width), y);
         break;
     case Side::Top:
-        placement.origin = D2D1::Point2F(std::clamp(centerX, x, x + width), y + height);
+        placement.origin = PointF(std::clamp(centerX, x, x + width), y + height);
         break;
     case Side::Right:
-        placement.origin = D2D1::Point2F(x, std::clamp(centerY, y, y + height));
+        placement.origin = PointF(x, std::clamp(centerY, y, y + height));
         break;
     case Side::Left:
-        placement.origin = D2D1::Point2F(x + width, std::clamp(centerY, y, y + height));
+        placement.origin = PointF(x + width, std::clamp(centerY, y, y + height));
         break;
     }
 
@@ -337,16 +335,16 @@ Reveal revealAt(double progress, bool isOpening, Side side, bool zoom, bool slid
             float distance = static_cast<float>(8 * (1 - eased));
             switch (side) {
             case Side::Bottom:
-                reveal.shift = D2D1::Point2F(0, -distance);
+                reveal.shift = PointF(0, -distance);
                 break;
             case Side::Top:
-                reveal.shift = D2D1::Point2F(0, distance);
+                reveal.shift = PointF(0, distance);
                 break;
             case Side::Right:
-                reveal.shift = D2D1::Point2F(-distance, 0);
+                reveal.shift = PointF(-distance, 0);
                 break;
             case Side::Left:
-                reveal.shift = D2D1::Point2F(distance, 0);
+                reveal.shift = PointF(distance, 0);
                 break;
             }
         }

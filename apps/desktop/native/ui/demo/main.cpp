@@ -35,12 +35,6 @@ using namespace fileship::ui;
 
 namespace {
 
-std::filesystem::path executableDirectory() {
-    wchar_t buffer[MAX_PATH]{};
-    GetModuleFileNameW(nullptr, buffer, MAX_PATH);
-    return std::filesystem::path(buffer).parent_path();
-}
-
 void print(std::string const& text) {
     static std::mutex mutex;
     std::lock_guard lock(mutex);

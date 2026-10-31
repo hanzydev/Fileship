@@ -1,20 +1,12 @@
 #pragma once
 
-#include <windows.h>
-
-#include <d2d1_3.h>
-#include <d3d11.h>
-#include <dcomp.h>
-#include <dwrite_3.h>
-#include <dxgi1_3.h>
-
-#include <winrt/base.h>
-
 #include <icons.h>
 #include <theme.h>
 
+#include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -22,9 +14,65 @@
 
 namespace fileship::ui {
 
-using winrt::com_ptr;
+struct PointF {
+    float x = 0;
+    float y = 0;
 
-inline constexpr CLSID SHADOW_EFFECT{0xC67EA361, 0x1863, 0x4E69, {0x89, 0xDB, 0x69, 0x5D, 0x3E, 0x9A, 0x5B, 0x6B}};
+    constexpr PointF() = default;
+    constexpr PointF(float x, float y) : x(x), y(y) {}
+};
+
+struct SizeF {
+    float width = 0;
+    float height = 0;
+
+    constexpr SizeF() = default;
+    constexpr SizeF(float width, float height) : width(width), height(height) {}
+};
+
+struct RectF {
+    float left = 0;
+    float top = 0;
+    float right = 0;
+    float bottom = 0;
+
+    constexpr RectF() = default;
+    constexpr RectF(float left, float top, float right, float bottom)
+        : left(left), top(top), right(right), bottom(bottom) {}
+};
+
+struct PixelRect {
+    int left = 0;
+    int top = 0;
+    int right = 0;
+    int bottom = 0;
+};
+
+struct Color {
+    float r = 0;
+    float g = 0;
+    float b = 0;
+    float a = 1;
+
+    constexpr Color() = default;
+    constexpr Color(float r, float g, float b, float a = 1) : r(r), g(g), b(b), a(a) {}
+};
+
+struct Matrix {
+    float m11 = 1;
+    float m12 = 0;
+    float m21 = 0;
+    float m22 = 1;
+    float dx = 0;
+    float dy = 0;
+
+    static Matrix scale(float x, float y, PointF center = {});
+    static Matrix translation(float x, float y);
+    static Matrix rotation(float degrees, PointF center = {});
+
+    Matrix operator*(Matrix const& next) const;
+    PointF apply(PointF point) const;
+};
 
 struct Box {
     double x = 0;
@@ -44,165 +92,232 @@ struct Box {
         return px >= x && py >= y && px < x + width && py < y + height;
     }
 
-    D2D1_RECT_F rect() const {
-        return D2D1::RectF(static_cast<float>(x), static_cast<float>(y), static_cast<float>(x + width),
-                           static_cast<float>(y + height));
+    RectF rect() const {
+        return RectF(static_cast<float>(x), static_cast<float>(y), static_cast<float>(x + width),
+                     static_cast<float>(y + height));
     }
 };
 
 enum class FontKind { Sans, Emoji };
+
+enum class FontWeight { Normal = 400, Medium = 500, Bold = 700 };
 
 struct FontMetrics {
     float ascent = 0.9f;
     float descent = 0.25f;
 };
 
-class Resources {
-public:
-    static std::shared_ptr<Resources> acquire();
-
-    Resources() = default;
-    ~Resources();
-    Resources(Resources const&) = delete;
-    Resources& operator=(Resources const&) = delete;
-
-    ID2D1Factory7* factory() const {
-        return d2d.get();
-    }
-
-    IDWriteFactory7* dwrite() const {
-        return write.get();
-    }
-
-    ID2D1PathGeometry* icon(Icon const& icon);
-    ID2D1StrokeStyle1* roundStroke();
-    ID2D1StrokeStyle1* dashStroke(float dash, float gap, bool round = false);
-
-    com_ptr<IDWriteTextLayout4> layout(std::wstring_view text, float size, DWRITE_FONT_WEIGHT weight,
-                                       FontKind kind = FontKind::Sans, float lineHeight = 0, bool tabular = false);
-    FontMetrics metrics(FontKind kind);
-    float measure(std::wstring_view text, float size, DWRITE_FONT_WEIGHT weight, FontKind kind = FontKind::Sans,
-                  bool tabular = false);
-
-private:
-    void loadFonts();
-    com_ptr<IDWriteTextFormat3> format(float size, DWRITE_FONT_WEIGHT weight, FontKind kind);
-
-    com_ptr<ID2D1Factory7> d2d;
-    com_ptr<IDWriteFactory7> write;
-    com_ptr<IDWriteFontCollection1> sans;
-    com_ptr<IDWriteFontFallback> fallback;
-    com_ptr<IDWriteInMemoryFontFileLoader> fontLoader;
-    std::wstring sansFamily = L"Segoe UI";
-    std::vector<com_ptr<IDWriteFontCollection1>> subsets;
-    std::unordered_map<Icon const*, com_ptr<ID2D1PathGeometry>> icons;
-    std::unordered_map<std::wstring, com_ptr<ID2D1StrokeStyle1>> strokes;
-    std::unordered_map<std::wstring, com_ptr<IDWriteTextFormat3>> formats;
-    FontMetrics sansMetrics;
-    FontMetrics emojiMetrics;
-    bool metricsReady = false;
+struct TextMetrics {
+    float width = 0;
+    float widthIncludingTrailingWhitespace = 0;
+    float height = 0;
+    uint32_t lineCount = 1;
 };
 
-void setResourcesPath(std::filesystem::path const& path);
-std::filesystem::path resourcesPath();
+struct TextPosition {
+    float x = 0;
+    float y = 0;
+    float height = 0;
+};
 
-com_ptr<ID2D1PathGeometry> parseSvgPath(ID2D1Factory* factory, char const* data);
+class TextLayout {
+public:
+    virtual ~TextLayout() = default;
 
-D2D1_COLOR_F color(ThemeColor const& value, float opacity = 1);
-D2D1_COLOR_F withAlpha(D2D1_COLOR_F value, float opacity);
-D2D1_COLOR_F rgba(int r, int g, int b, float a = 1);
-D2D1_COLOR_F parseHex(std::string_view hex);
-std::string toHex(D2D1_COLOR_F const& value);
-D2D1_COLOR_F mix(D2D1_COLOR_F a, D2D1_COLOR_F b, float t);
+    virtual TextMetrics metrics() const = 0;
+    virtual float baseline() const = 0;
+    virtual TextPosition position(size_t index) const = 0;
+    virtual std::vector<RectF> rangeRects(size_t start, size_t length) const = 0;
+    virtual size_t indexAt(float x, float y) const = 0;
+};
 
-double easeOutCubic(double t);
-double easeOut(double t);
-double nowMs();
+enum class FillMode { Winding, Alternate };
+
+class Path {
+public:
+    enum class Verb { Move, Line, Quad, Cubic, Arc, Close };
+
+    struct Segment {
+        Verb verb;
+        PointF points[3];
+        float rx = 0;
+        float ry = 0;
+        float rotation = 0;
+        bool large = false;
+        bool sweep = false;
+    };
+
+    void moveTo(PointF point);
+    void lineTo(PointF point);
+    void quadTo(PointF control, PointF point);
+    void cubicTo(PointF first, PointF second, PointF point);
+    void arcTo(PointF point, float rx, float ry, float rotation, bool large, bool sweep);
+    void close();
+    void addRect(RectF const& rect);
+    void addRoundedRect(RectF const& rect, float radius);
+    void addEllipse(float cx, float cy, float rx, float ry);
+
+    FillMode fill = FillMode::Winding;
+    std::vector<Segment> segments;
+    mutable std::shared_ptr<void> compiled;
+};
+
+enum class CapStyle { Flat, Round };
+
+struct StrokeStyle {
+    CapStyle cap = CapStyle::Flat;
+    bool roundJoin = false;
+    float dash = 0;
+    float gap = 0;
+
+    static StrokeStyle round();
+    static StrokeStyle dashed(float dash, float gap, bool round = false);
+};
+
+enum class Interpolation { Nearest, Linear };
+
+class Image {
+public:
+    virtual ~Image() = default;
+
+    virtual int width() const = 0;
+    virtual int height() const = 0;
+};
+
+class Resources;
 
 class Painter {
 public:
-    Painter(ID2D1DeviceContext* context, Resources& resources);
-
-    ID2D1DeviceContext* context() const {
-        return target;
-    }
+    explicit Painter(Resources& resources) : res(resources) {}
+    virtual ~Painter() = default;
+    Painter(Painter const&) = delete;
+    Painter& operator=(Painter const&) = delete;
 
     Resources& resources() const {
         return res;
     }
 
-    ID2D1SolidColorBrush* brush(D2D1_COLOR_F const& value);
+    virtual void clear(Color const& value) = 0;
+    virtual void fillRect(RectF const& rect, Color const& value) = 0;
+    virtual void strokeRect(RectF const& rect, Color const& value, float width,
+                            StrokeStyle const* style = nullptr) = 0;
+    virtual void fillRounded(RectF const& rect, float radius, Color const& value) = 0;
+    virtual void strokeRounded(RectF const& rect, float radius, Color const& value, float width,
+                               StrokeStyle const* style = nullptr) = 0;
+    virtual void fillEllipse(float cx, float cy, float rx, float ry, Color const& value) = 0;
+    virtual void strokeEllipse(float cx, float cy, float rx, float ry, Color const& value, float width) = 0;
+    virtual void line(PointF from, PointF to, Color const& value, float width) = 0;
+    virtual void fillPath(Path const& path, Color const& value) = 0;
+    virtual void strokePath(Path const& path, Color const& value, float width, StrokeStyle const& style) = 0;
+    virtual void text(TextLayout const& layout, float x, float y, Color const& value) = 0;
+    virtual void image(Image const& source, RectF const& destination, std::optional<RectF> const& cut,
+                       Interpolation interpolation) = 0;
+    virtual std::shared_ptr<Image> createImage(uint8_t const* bgra, int width, int height, bool isOpaque) = 0;
+    virtual void boxShadow(RectF const& rect, float radius, float offsetY, float blur, float spread,
+                           float alpha) = 0;
 
-    void fillRect(D2D1_RECT_F const& rect, D2D1_COLOR_F const& value);
-    void fillRounded(D2D1_RECT_F const& rect, float radius, D2D1_COLOR_F const& value);
-    void strokeRounded(D2D1_RECT_F const& rect, float radius, D2D1_COLOR_F const& value, float width,
-                       ID2D1StrokeStyle* style = nullptr);
-    void fillEllipse(float cx, float cy, float rx, float ry, D2D1_COLOR_F const& value);
-    void strokeEllipse(float cx, float cy, float rx, float ry, D2D1_COLOR_F const& value, float width);
-    void icon(Icon const& icon, float x, float y, float size, D2D1_COLOR_F const& value, bool fill = false,
+    virtual void pushOpacity(float opacity) = 0;
+    virtual void popOpacity() = 0;
+    virtual void pushClip(RectF const& rect, float radius) = 0;
+    virtual void popClip() = 0;
+    virtual void pushTransform(Matrix const& local) = 0;
+    virtual void popTransform() = 0;
+    virtual Matrix transform() const = 0;
+    virtual void beginShadow() = 0;
+    virtual void endShadow(float offsetX, float offsetY, float blur, float alpha) = 0;
+
+    void icon(Icon const& icon, float x, float y, float size, Color const& value, bool fill = false,
               float strokeWidth = 2);
-    void text(IDWriteTextLayout* layout, float x, float y, D2D1_COLOR_F const& value);
-    void textAt(std::wstring_view text, float x, float baseline, float size, DWRITE_FONT_WEIGHT weight,
-                D2D1_COLOR_F const& value, FontKind kind = FontKind::Sans);
-    void boxShadow(D2D1_RECT_F const& rect, float radius, float offsetY, float blur, float spread, float alpha);
-    void ring(D2D1_RECT_F const& rect, float radius, float width, D2D1_COLOR_F const& value);
+    void textAt(std::wstring_view text, float x, float baseline, float size, FontWeight weight, Color const& value,
+                FontKind kind = FontKind::Sans);
+    void ring(RectF const& rect, float radius, float width, Color const& value);
     float middleBaseline(float centerY, float size, FontKind kind = FontKind::Sans);
 
-    void pushOpacity(float opacity);
-    void popOpacity();
-
 private:
-    ID2D1DeviceContext* target;
     Resources& res;
-    com_ptr<ID2D1SolidColorBrush> solid;
-    std::vector<com_ptr<ID2D1Layer>> layers;
-    int layerDepth = 0;
 };
 
 class Transform {
 public:
-    Transform(ID2D1DeviceContext* context, D2D1_MATRIX_3X2_F const& local) : target(context) {
-        target->GetTransform(&saved);
-        target->SetTransform(local * saved);
+    Transform(Painter& painter, Matrix const& local) : painter(painter) {
+        painter.pushTransform(local);
     }
 
     ~Transform() {
-        target->SetTransform(saved);
+        painter.popTransform();
     }
 
     Transform(Transform const&) = delete;
     Transform& operator=(Transform const&) = delete;
 
 private:
-    ID2D1DeviceContext* target;
-    D2D1_MATRIX_3X2_F saved{};
+    Painter& painter;
 };
 
-struct Gpu {
-    com_ptr<ID3D11Device> d3d;
-    com_ptr<IDXGIDevice> dxgi;
-    com_ptr<ID2D1Device6> device;
-    com_ptr<ID2D1DeviceContext5> context;
-    com_ptr<IDCompositionDevice> composition;
-
-    static std::unique_ptr<Gpu> create(Resources& resources);
-};
-
-class SwapSurface {
+class Canvas {
 public:
-    bool create(Gpu& gpu, HWND window, int width, int height, bool transparent);
-    ID2D1DeviceContext5* begin(Gpu& gpu);
-    void present(Gpu& gpu);
-    void release();
+    virtual ~Canvas() = default;
+
+    virtual Painter& painter() = 0;
+    virtual std::vector<uint8_t> finish() = 0;
+};
+
+class Device {
+public:
+    static std::unique_ptr<Device> create(Resources& resources);
+
+    virtual ~Device() = default;
+
+    virtual std::shared_ptr<Image> createImage(uint8_t const* bgra, int width, int height, bool isOpaque) = 0;
+    virtual std::vector<uint8_t> readImage(Image const& image, PixelRect const& rect) = 0;
+    virtual std::unique_ptr<Canvas> createCanvas(int width, int height) = 0;
+};
+
+class Resources {
+public:
+    static std::shared_ptr<Resources> acquire();
+
+    Resources();
+    ~Resources();
+    Resources(Resources const&) = delete;
+    Resources& operator=(Resources const&) = delete;
+
+    std::shared_ptr<TextLayout> layout(std::wstring_view text, float size, FontWeight weight,
+                                       FontKind kind = FontKind::Sans, float lineHeight = 0, bool tabular = false);
+    FontMetrics metrics(FontKind kind);
+    float measure(std::wstring_view text, float size, FontWeight weight, FontKind kind = FontKind::Sans,
+                  bool tabular = false);
+    Path const& icon(Icon const& icon);
+    RectF bounds(Path const& path);
+    bool fillContains(Path const& path, PointF point);
+    bool strokeContains(Path const& path, PointF point, float width, StrokeStyle const* style = nullptr);
+
+    struct Backend;
+    Backend& backend() const {
+        return *state;
+    }
 
 private:
-    com_ptr<IDXGISwapChain1> chain;
-    com_ptr<IDCompositionTarget> target;
-    com_ptr<IDCompositionVisual> visual;
-    com_ptr<ID2D1Bitmap1> buffer;
-    bool committed = false;
+    std::unique_ptr<Backend> state;
+    std::unordered_map<Icon const*, Path> icons;
 };
 
-std::vector<uint8_t> readBitmap(ID2D1DeviceContext* context, ID2D1Bitmap1* source, D2D1_RECT_U const& rect);
+void setResourcesPath(std::filesystem::path const& path);
+std::filesystem::path resourcesPath();
+std::filesystem::path executableDirectory();
+double caretBlinkMs();
+
+Path parseSvgPath(char const* data);
+
+Color color(ThemeColor const& value, float opacity = 1);
+Color withAlpha(Color value, float opacity);
+Color rgba(int r, int g, int b, float a = 1);
+Color parseHex(std::string_view hex);
+std::string toHex(Color const& value);
+Color mix(Color a, Color b, float t);
+
+double easeOutCubic(double t);
+double easeOut(double t);
+double nowMs();
 
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gfx.h"
+#include "input.h"
 
 #include <array>
 #include <functional>
@@ -67,7 +68,7 @@ bool isLineShape(Tool type);
 
 struct AnnotationSource {
     double scale = 1;
-    std::function<std::vector<uint8_t>(RECT const&)> read;
+    std::function<std::vector<uint8_t>(PixelRect const&)> read;
 };
 
 enum class Anchor { None, TopLeft, Top, TopRight, Right, BottomRight, Bottom, BottomLeft, Left };
@@ -116,7 +117,7 @@ public:
     void redo();
     bool removeSelected();
     void select(std::optional<std::string> id);
-    bool handleKey(UINT key, bool ctrl, bool shift);
+    bool handleKey(Key key, bool ctrl, bool shift);
     bool handleShortcut(wchar_t character);
 
     bool isOverShape(Point point);
@@ -128,11 +129,11 @@ public:
     void pointerUp(Point point);
     bool isBusy() const;
 
-    void render(ID2D1DeviceContext* context, bool forExport);
+    void render(Painter& painter, bool forExport);
     void releaseDeviceResources();
 
     void finishTextEdit();
-    bool editorKey(UINT key, bool ctrl, bool shift);
+    bool editorKey(Key key, bool ctrl, bool shift);
     void editorChar(wchar_t character);
     void editorComposition(std::wstring const& text);
     void editorCommit(std::wstring const& text);
@@ -142,6 +143,8 @@ public:
     bool caretVisible() const;
 
     std::function<void()> onChange;
+    std::function<void(std::wstring const&)> copyText;
+    std::function<std::wstring()> pasteText;
 
 private:
     struct Draft {
@@ -175,8 +178,8 @@ private:
 
     struct EffectCache {
         std::string key;
-        com_ptr<ID2D1Bitmap1> bitmap;
-        RECT crop{};
+        std::shared_ptr<Image> image;
+        PixelRect crop{};
     };
 
     Shape const* findShape(std::optional<std::string> const& id) const;
@@ -201,14 +204,14 @@ private:
     std::vector<Anchor> anchors(Shape const& shape) const;
     Point anchorPoint(Box const& box, Anchor anchor) const;
 
-    void drawShape(ID2D1DeviceContext* context, Painter& painter, Shape const& shape);
-    void drawShapeBody(ID2D1DeviceContext* context, Painter& painter, Shape const& shape);
-    void drawEffect(ID2D1DeviceContext* context, Shape const& shape);
+    void drawShape(Painter& painter, Shape const& shape);
+    void drawShapeBody(Painter& painter, Shape const& shape);
+    void drawEffect(Painter& painter, Shape const& shape);
     void drawTransformer(Painter& painter, Shape const& shape);
     void drawEditor(Painter& painter);
-    com_ptr<ID2D1PathGeometry> lineGeometry(Shape const& shape);
-    com_ptr<ID2D1PathGeometry> arrowHead(Shape const& shape);
-    com_ptr<IDWriteTextLayout4> textLayout(Shape const& shape, std::wstring const& text, float scale = 1);
+    Path lineGeometry(Shape const& shape);
+    Path arrowHead(Shape const& shape);
+    std::shared_ptr<TextLayout> textLayout(Shape const& shape, std::wstring const& text, float scale = 1);
     Box textBox(Shape const& shape);
     Box emojiBox(Shape const& shape);
 
@@ -217,7 +220,7 @@ private:
     void editorErase(bool forward);
     void editorMove(size_t position, bool extend);
     size_t editorIndexAt(Point point);
-    void editorLayout(com_ptr<IDWriteTextLayout4>& layout, Box& box, float& padding, float& scale);
+    void editorLayout(std::shared_ptr<TextLayout>& layout, Box& box, float& padding, float& scale);
 
     Resources& res;
     Theme theme;

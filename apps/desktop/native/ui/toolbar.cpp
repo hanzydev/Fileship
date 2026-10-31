@@ -104,11 +104,11 @@ std::wstring formatNumber(double value) {
     return buffer;
 }
 
-D2D1_RECT_F inflate(D2D1_RECT_F const& rect, float amount) {
-    return D2D1::RectF(rect.left - amount, rect.top - amount, rect.right + amount, rect.bottom + amount);
+RectF inflate(RectF const& rect, float amount) {
+    return RectF(rect.left - amount, rect.top - amount, rect.right + amount, rect.bottom + amount);
 }
 
-bool inside(D2D1_RECT_F const& rect, Point point) {
+bool inside(RectF const& rect, Point point) {
     return point.x >= rect.left && point.y >= rect.top && point.x < rect.right && point.y < rect.bottom;
 }
 
@@ -173,25 +173,25 @@ std::vector<AnnotationToolbar::Item> AnnotationToolbar::buildItems() {
 
         float length = item.kind == ItemKind::Separator ? SEPARATOR : BUTTON_SIZE;
         if (isVertical) {
-            item.rect = D2D1::RectF(PADDING, cursor, PADDING + BUTTON_SIZE, cursor + length);
+            item.rect = RectF(PADDING, cursor, PADDING + BUTTON_SIZE, cursor + length);
         } else {
-            item.rect = D2D1::RectF(cursor, PADDING, cursor + length, PADDING + BUTTON_SIZE);
+            item.rect = RectF(cursor, PADDING, cursor + length, PADDING + BUTTON_SIZE);
         }
         cursor += length;
     }
 
     cursor += PADDING;
-    currentSize = isVertical ? D2D1::SizeF(BUTTON_SIZE + PADDING * 2, cursor)
-                             : D2D1::SizeF(cursor, BUTTON_SIZE + PADDING * 2);
+    currentSize = isVertical ? SizeF(BUTTON_SIZE + PADDING * 2, cursor)
+                             : SizeF(cursor, BUTTON_SIZE + PADDING * 2);
     return result;
 }
 
-D2D1_SIZE_F AnnotationToolbar::size() {
+SizeF AnnotationToolbar::size() {
     items = buildItems();
     return currentSize;
 }
 
-void AnnotationToolbar::place(double left, double top, double scale, D2D1_RECT_F const& bounds) {
+void AnnotationToolbar::place(double left, double top, double scale, RectF const& bounds) {
     originX = left;
     originY = top;
     zoom = scale;
@@ -199,11 +199,11 @@ void AnnotationToolbar::place(double left, double top, double scale, D2D1_RECT_F
     items = buildItems();
 }
 
-D2D1_RECT_F AnnotationToolbar::toLocal(D2D1_RECT_F const& rect) const {
+RectF AnnotationToolbar::toLocal(RectF const& rect) const {
     auto z = static_cast<float>(zoom);
     auto x = static_cast<float>(originX);
     auto y = static_cast<float>(originY);
-    return D2D1::RectF(x + rect.left * z, y + rect.top * z, x + rect.right * z, y + rect.bottom * z);
+    return RectF(x + rect.left * z, y + rect.top * z, x + rect.right * z, y + rect.bottom * z);
 }
 
 Point AnnotationToolbar::toToolbar(Point point) const {
@@ -242,14 +242,14 @@ AnnotationToolbar::Item const* AnnotationToolbar::itemAt(Point point) {
     return nullptr;
 }
 
-D2D1_SIZE_F AnnotationToolbar::popoverSize(ItemKind kind) {
+SizeF AnnotationToolbar::popoverSize(ItemKind kind) {
     switch (kind) {
     case ItemKind::Color:
-        return D2D1::SizeF(16 + 5 * 28 + 4 * 8 + 16, 16 + 3 * 28 + 2 * 8 + 16);
+        return SizeF(16 + 5 * 28 + 4 * 8 + 16, 16 + 3 * 28 + 2 * 8 + 16);
     case ItemKind::Emoji:
-        return D2D1::SizeF(288, 16 + 4 * 32 + 3 * 4 + 16);
+        return SizeF(288, 16 + 4 * 32 + 3 * 4 + 16);
     default:
-        return D2D1::SizeF(256, optionsLayout(annotator.activeTool()).height);
+        return SizeF(256, optionsLayout(annotator.activeTool()).height);
     }
 }
 
@@ -453,8 +453,8 @@ void AnnotationToolbar::pointerUp(Point point, double now) {
     }
 }
 
-bool AnnotationToolbar::key(UINT key, double now) {
-    if (key == VK_ESCAPE && popover) {
+bool AnnotationToolbar::key(Key key, double now) {
+    if (key == Key::Escape && popover) {
         closePopover(now, true);
         return true;
     }
@@ -471,26 +471,26 @@ int AnnotationToolbar::popoverElementAt(Point point) {
         for (int index = 0; index <= CUSTOM_COLOR; index++) {
             float x = 16 + static_cast<float>(index % 5) * 36;
             float y = 16 + static_cast<float>(index / 5) * 36;
-            if (inside(D2D1::RectF(x, y, x + 28, y + 28), local)) return index;
+            if (inside(RectF(x, y, x + 28, y + 28), local)) return index;
         }
         return -1;
     case ItemKind::Emoji:
         for (int index = 0; index < static_cast<int>(std::size(EMOJIS)); index++) {
             float x = 16 + static_cast<float>(index % 8) * 32.5f;
             float y = 16 + static_cast<float>(index / 8) * 36;
-            if (inside(D2D1::RectF(x, y, x + 32, y + 32), local)) return 100 + index;
+            if (inside(RectF(x, y, x + 32, y + 32), local)) return 100 + index;
         }
         return -1;
     default: {
         auto layout = optionsLayout(annotator.activeTool());
-        if (layout.hasRange && inside(D2D1::RectF(16, layout.sliderY - 4, 240, layout.sliderY + 12), local)) return SLIDER;
+        if (layout.hasRange && inside(RectF(16, layout.sliderY - 4, 240, layout.sliderY + 12), local)) return SLIDER;
         for (auto [toggle, y] : layout.toggles) {
-            if (inside(D2D1::RectF(196, y, 240, y + 20), local)) return toggle;
+            if (inside(RectF(196, y, 240, y + 20), local)) return toggle;
             float labelWidth = res.measure(t(toggle == TOGGLE_FILL         ? L"annotate.fill"
                                              : toggle == TOGGLE_BACKGROUND ? L"annotate.background"
                                                                            : L"annotate.shadow"),
-                                           14, DWRITE_FONT_WEIGHT_MEDIUM);
-            if (inside(D2D1::RectF(16, y, 16 + labelWidth, y + 20), local)) return toggle;
+                                           14, FontWeight::Medium);
+            if (inside(RectF(16, y, 16 + labelWidth, y + 20), local)) return toggle;
         }
         return -1;
     }
@@ -541,13 +541,11 @@ bool AnnotationToolbar::isAnimating(double now) {
 }
 
 void AnnotationToolbar::drawItem(Painter& painter, Item const& item, double now) {
-    auto context = painter.context();
-
     if (item.kind == ItemKind::Separator) {
         bool isVertical = side == Side::Left || side == Side::Right;
         auto const& r = item.rect;
-        auto line = isVertical ? D2D1::RectF(r.left, r.top + 4, r.right, r.top + 5)
-                               : D2D1::RectF(r.left + 4, r.top + 6, r.left + 5, r.bottom - 6);
+        auto line = isVertical ? RectF(r.left, r.top + 4, r.right, r.top + 5)
+                               : RectF(r.left + 4, r.top + 6, r.left + 5, r.bottom - 6);
         painter.fillRect(line, color(palette.theme.border));
         return;
     }
@@ -588,9 +586,9 @@ void AnnotationToolbar::drawItem(Painter& painter, Item const& item, double now)
     }
     case ItemKind::Emoji: {
         auto const& emoji = annotator.options.emoji;
-        float width = res.measure(emoji, 16, DWRITE_FONT_WEIGHT_NORMAL, FontKind::Emoji);
+        float width = res.measure(emoji, 16, FontWeight::Normal, FontKind::Emoji);
         float baseline = painter.middleBaseline(y + 8, 16, FontKind::Emoji);
-        painter.textAt(emoji, x + 8 - width / 2, baseline, 16, DWRITE_FONT_WEIGHT_NORMAL, foreground, FontKind::Emoji);
+        painter.textAt(emoji, x + 8 - width / 2, baseline, 16, FontWeight::Normal, foreground, FontKind::Emoji);
         break;
     }
     case ItemKind::Options:
@@ -613,7 +611,6 @@ void AnnotationToolbar::drawItem(Painter& painter, Item const& item, double now)
     }
 
     if (style.isDisabled) painter.popOpacity();
-    (void)context;
 }
 
 void AnnotationToolbar::drawPopoverContent(Painter& painter, ItemKind kind, double now) {
@@ -627,7 +624,7 @@ void AnnotationToolbar::drawPopoverContent(Painter& painter, ItemKind kind, doub
             float x = 16 + static_cast<float>(index % 5) * 36;
             float y = 16 + static_cast<float>(index / 5) * 36;
             float scale = 1 + 0.1f * static_cast<float>(hoverOf(10000 + index).value(now));
-            Transform grow(painter.context(), D2D1::Matrix3x2F::Scale(scale, scale, D2D1::Point2F(x + 14, y + 14)));
+            Transform grow(painter, Matrix::scale(scale, scale, PointF(x + 14, y + 14)));
 
             if (index == CUSTOM_COLOR) {
                 painter.fillEllipse(x + 14, y + 14, 14, 14, color(theme.muted));
@@ -652,9 +649,9 @@ void AnnotationToolbar::drawPopoverContent(Painter& painter, ItemKind kind, doub
             double hover = std::max(isPressed ? 1.0 : 0.0, hoverOf(10000 + 100 + index).value(now));
             if (hover > 0) painter.fillEllipse(x + 16, y + 16, 16, 16, color(theme.muted, static_cast<float>(hover)));
 
-            float width = res.measure(EMOJIS[index], 18, DWRITE_FONT_WEIGHT_NORMAL, FontKind::Emoji);
+            float width = res.measure(EMOJIS[index], 18, FontWeight::Normal, FontKind::Emoji);
             float baseline = painter.middleBaseline(y + 16, 18, FontKind::Emoji);
-            painter.textAt(EMOJIS[index], x + 16 - width / 2, baseline, 18, DWRITE_FONT_WEIGHT_NORMAL, foreground,
+            painter.textAt(EMOJIS[index], x + 16 - width / 2, baseline, 18, FontWeight::Normal, foreground,
                            FontKind::Emoji);
         }
         return;
@@ -667,12 +664,12 @@ void AnnotationToolbar::drawPopoverContent(Painter& painter, ItemKind kind, doub
         auto range = *sizeRange(tool);
         double size = annotator.current().size;
         auto label = sizeLabel(tool) + L" · " + formatNumber(size);
-        painter.textAt(label, 16, painter.middleBaseline(16 + LABEL_HEIGHT / 2, 14), 14, DWRITE_FONT_WEIGHT_MEDIUM,
+        painter.textAt(label, 16, painter.middleBaseline(16 + LABEL_HEIGHT / 2, 14), 14, FontWeight::Medium,
                        foreground);
 
         double fraction = std::clamp((size - range.first) / (range.second - range.first), 0.0, 1.0);
         double hover = std::max(hoverOf(10000 + SLIDER).value(now), isSliderDragging ? 1.0 : 0.0);
-        drawSlider(painter, palette, D2D1::RectF(16, layout.sliderY - 4, 240, layout.sliderY + 12), fraction, hover);
+        drawSlider(painter, palette, RectF(16, layout.sliderY - 4, 240, layout.sliderY + 12), fraction, hover);
     }
 
     for (auto [toggle, y] : layout.toggles) {
@@ -687,8 +684,8 @@ void AnnotationToolbar::drawPopoverContent(Painter& painter, ItemKind kind, doub
         auto& animation = hoverOf(20000 + toggle);
         animation.animate(checked ? 1 : 0, now, BUTTON_DURATION);
 
-        painter.textAt(label, 16, painter.middleBaseline(y + 10, 14), 14, DWRITE_FONT_WEIGHT_MEDIUM, foreground);
-        drawSwitch(painter, palette, D2D1::RectF(196, y, 240, y + 20), animation.value(now));
+        painter.textAt(label, 16, painter.middleBaseline(y + 10, 14), 14, FontWeight::Medium, foreground);
+        drawSwitch(painter, palette, RectF(196, y, 240, y + 20), animation.value(now));
     }
 }
 
@@ -703,14 +700,14 @@ void AnnotationToolbar::drawPopover(Painter& painter, PopoverState const& state,
     auto z = static_cast<float>(zoom);
     auto scale = static_cast<float>(reveal.scale);
 
-    Transform transform(painter.context(), D2D1::Matrix3x2F::Scale(z, z) *
-                                               D2D1::Matrix3x2F::Translation(rect.left, rect.top) *
-                                               D2D1::Matrix3x2F::Scale(scale, scale, origin) *
-                                               D2D1::Matrix3x2F::Translation(reveal.shift.x * z, reveal.shift.y * z));
+    Transform transform(painter, Matrix::scale(z, z) *
+                                               Matrix::translation(rect.left, rect.top) *
+                                               Matrix::scale(scale, scale, origin) *
+                                               Matrix::translation(reveal.shift.x * z, reveal.shift.y * z));
 
     painter.pushOpacity(static_cast<float>(reveal.opacity));
     auto content = popoverSize(state.kind);
-    drawPopoverFrame(painter, palette, D2D1::RectF(0, 0, content.width, content.height), !isEmoji);
+    drawPopoverFrame(painter, palette, RectF(0, 0, content.width, content.height), !isEmoji);
     drawPopoverContent(painter, state.kind, now);
     painter.popOpacity();
 }
@@ -725,10 +722,10 @@ void AnnotationToolbar::drawTooltipState(Painter& painter, TooltipState const& s
     auto scale = static_cast<float>(reveal.scale);
     auto origin = state.placement.origin;
 
-    Transform transform(painter.context(), D2D1::Matrix3x2F::Scale(z, z) *
-                                               D2D1::Matrix3x2F::Translation(rect.left, rect.top) *
-                                               D2D1::Matrix3x2F::Scale(scale, scale, origin) *
-                                               D2D1::Matrix3x2F::Translation(reveal.shift.x * z, reveal.shift.y * z));
+    Transform transform(painter, Matrix::scale(z, z) *
+                                               Matrix::translation(rect.left, rect.top) *
+                                               Matrix::scale(scale, scale, origin) *
+                                               Matrix::translation(reveal.shift.x * z, reveal.shift.y * z));
 
     float width = (rect.right - rect.left) / z;
     float height = (rect.bottom - rect.top) / z;
@@ -736,7 +733,7 @@ void AnnotationToolbar::drawTooltipState(Painter& painter, TooltipState const& s
     float arrowCenter = isHorizontal ? (origin.x - rect.left) / z : (origin.y - rect.top) / z;
 
     painter.pushOpacity(static_cast<float>(reveal.opacity));
-    drawTooltip(painter, palette, D2D1::RectF(0, 0, width, height), state.placement.side, arrowCenter, state.text,
+    drawTooltip(painter, palette, RectF(0, 0, width, height), state.placement.side, arrowCenter, state.text,
                 state.kbd);
     painter.popOpacity();
 }
@@ -747,11 +744,11 @@ void AnnotationToolbar::render(Painter& painter, double now) {
 
     {
         auto z = static_cast<float>(zoom);
-        Transform transform(painter.context(), D2D1::Matrix3x2F::Scale(z, z) *
-                                                   D2D1::Matrix3x2F::Translation(static_cast<float>(originX),
+        Transform transform(painter, Matrix::scale(z, z) *
+                                                   Matrix::translation(static_cast<float>(originX),
                                                                                  static_cast<float>(originY)));
 
-        auto frame = D2D1::RectF(0, 0, currentSize.width, currentSize.height);
+        auto frame = RectF(0, 0, currentSize.width, currentSize.height);
         float radius = std::min(32.0f, std::min(currentSize.width, currentSize.height) / 2);
         painter.boxShadow(frame, radius, 4, 6, -1, 0.1f);
         painter.boxShadow(frame, radius, 2, 4, -2, 0.1f);

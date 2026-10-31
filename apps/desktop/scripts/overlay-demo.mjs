@@ -22,6 +22,7 @@ const groups = {
     shared: sources('shared'),
     'shared-windows': sources(join('shared', 'windows')),
     ui: sources('ui'),
+    'ui-windows': sources(join('ui', 'windows')),
     demo: sources(join('ui', 'demo')),
 };
 

@@ -55,9 +55,9 @@ struct ButtonStyle {
     bool hasPopup = false;
 };
 
-D2D1_COLOR_F buttonBackground(Palette const& palette, ButtonStyle const& style);
-D2D1_COLOR_F buttonForeground(Palette const& palette, ButtonStyle const& style);
-void drawButton(Painter& painter, Palette const& palette, D2D1_RECT_F const& rect, ButtonStyle const& style);
+Color buttonBackground(Palette const& palette, ButtonStyle const& style);
+Color buttonForeground(Palette const& palette, ButtonStyle const& style);
+void drawButton(Painter& painter, Palette const& palette, RectF const& rect, ButtonStyle const& style);
 float buttonOffset(ButtonStyle const& style);
 
 struct TooltipLayout {
@@ -66,29 +66,29 @@ struct TooltipLayout {
 };
 
 TooltipLayout measureTooltip(Resources& resources, std::wstring const& text, std::wstring const& kbd);
-void drawTooltip(Painter& painter, Palette const& palette, D2D1_RECT_F const& rect, Side side, float arrowCenter,
+void drawTooltip(Painter& painter, Palette const& palette, RectF const& rect, Side side, float arrowCenter,
                  std::wstring const& text, std::wstring const& kbd);
 
-void drawPopoverFrame(Painter& painter, Palette const& palette, D2D1_RECT_F const& rect, bool isLarge);
-void drawKbd(Painter& painter, D2D1_RECT_F const& rect, std::wstring const& text, D2D1_COLOR_F const& background,
-             D2D1_COLOR_F const& foreground);
-void drawSlider(Painter& painter, Palette const& palette, D2D1_RECT_F const& rect, double fraction, double hover);
-void drawSwitch(Painter& painter, Palette const& palette, D2D1_RECT_F const& rect, double checked);
-void drawSpinner(Painter& painter, float x, float y, float size, D2D1_COLOR_F const& tint, double now);
+void drawPopoverFrame(Painter& painter, Palette const& palette, RectF const& rect, bool isLarge);
+void drawKbd(Painter& painter, RectF const& rect, std::wstring const& text, Color const& background,
+             Color const& foreground);
+void drawSlider(Painter& painter, Palette const& palette, RectF const& rect, double fraction, double hover);
+void drawSwitch(Painter& painter, Palette const& palette, RectF const& rect, double checked);
+void drawSpinner(Painter& painter, float x, float y, float size, Color const& tint, double now);
 
 struct Placement {
-    D2D1_RECT_F rect{};
+    RectF rect{};
     Side side = Side::Bottom;
-    D2D1_POINT_2F origin{};
+    PointF origin{};
 };
 
-Placement placeFloating(D2D1_RECT_F const& anchor, float width, float height, Side side, float offset,
-                        D2D1_RECT_F const& bounds);
+Placement placeFloating(RectF const& anchor, float width, float height, Side side, float offset,
+                        RectF const& bounds);
 
 struct Reveal {
     double opacity = 1;
     double scale = 1;
-    D2D1_POINT_2F shift{};
+    PointF shift{};
 };
 
 Reveal revealAt(double progress, bool isOpening, Side side, bool zoom, bool slide);

@@ -2,8 +2,6 @@
 
 #include "effects.h"
 
-#include <d2d1effects_2.h>
-
 #include <algorithm>
 #include <cmath>
 #include <cwctype>
@@ -18,6 +16,14 @@ constexpr double MIN_SIZE = 3;
 constexpr double DOUBLE_CLICK_MS = 400;
 constexpr double DRAG_DISTANCE = 3;
 constexpr float ANCHOR_SIZE = 8;
+
+bool isHighSurrogate(wchar_t character) {
+    return character >= 0xD800 && character <= 0xDBFF;
+}
+
+bool isLowSurrogate(wchar_t character) {
+    return character >= 0xDC00 && character <= 0xDFFF;
+}
 
 std::string contrastColor(std::string const& value) {
     auto parsed = parseHex(value);
@@ -77,12 +83,12 @@ std::vector<double> expandPoints(std::vector<double> const& p, double tension) {
     return result;
 }
 
-D2D1_POINT_2F point2(double x, double y) {
-    return D2D1::Point2F(static_cast<float>(x), static_cast<float>(y));
+PointF point2(double x, double y) {
+    return PointF(static_cast<float>(x), static_cast<float>(y));
 }
 
-D2D1_RECT_F rect(double x, double y, double width, double height) {
-    return D2D1::RectF(static_cast<float>(x), static_cast<float>(y), static_cast<float>(x + width),
+RectF rect(double x, double y, double width, double height) {
+    return RectF(static_cast<float>(x), static_cast<float>(y), static_cast<float>(x + width),
                        static_cast<float>(y + height));
 }
 
@@ -285,9 +291,9 @@ std::string Annotator::newId() {
 std::string Annotator::sampleColor(Point point) {
     if (!source.read) return "#ffffff";
 
-    LONG x = std::lround(point.x * source.scale);
-    LONG y = std::lround(point.y * source.scale);
-    auto pixel = source.read(RECT{x, y, x + 1, y + 1});
+    int x = static_cast<int>(std::lround(point.x * source.scale));
+    int y = static_cast<int>(std::lround(point.y * source.scale));
+    auto pixel = source.read(PixelRect{x, y, x + 1, y + 1});
     if (pixel.size() < 4) return "#000000";
 
     return toHex(rgba(pixel[2], pixel[1], pixel[0]));
@@ -400,10 +406,10 @@ bool Annotator::removeSelected() {
     return true;
 }
 
-bool Annotator::handleKey(UINT key, bool ctrl, bool shift) {
+bool Annotator::handleKey(Key key, bool ctrl, bool shift) {
     if (editor) return false;
 
-    if (ctrl && key == 'Z') {
+    if (ctrl && key == Key::Z) {
         if (shift) {
             redo();
         } else {
@@ -412,12 +418,12 @@ bool Annotator::handleKey(UINT key, bool ctrl, bool shift) {
         return true;
     }
 
-    if (ctrl && key == 'Y') {
+    if (ctrl && key == Key::Y) {
         redo();
         return true;
     }
 
-    if (key == VK_DELETE || key == VK_BACK) return removeSelected();
+    if (key == Key::Delete || key == Key::Backspace) return removeSelected();
     return false;
 }
 
@@ -722,8 +728,7 @@ Box Annotator::textBox(Shape const& shape) {
     double padding = shape.background ? std::round(shape.size * 0.35) : 0;
     auto layout = textLayout(shape, shape.text.empty() ? L" " : shape.text);
 
-    DWRITE_TEXT_METRICS metrics{};
-    layout->GetMetrics(&metrics);
+    auto metrics = layout->metrics();
 
     double width = metrics.widthIncludingTrailingWhitespace + padding * 2;
     double height = shape.size * 1.2 * metrics.lineCount + padding * 2;
@@ -731,20 +736,18 @@ Box Annotator::textBox(Shape const& shape) {
 }
 
 Box Annotator::emojiBox(Shape const& shape) {
-    double width = res.measure(shape.text, static_cast<float>(shape.size), DWRITE_FONT_WEIGHT_NORMAL, FontKind::Emoji);
+    double width = res.measure(shape.text, static_cast<float>(shape.size), FontWeight::Normal, FontKind::Emoji);
     return {shape.x, shape.y, width * shape.scaleX, shape.size * shape.scaleY};
 }
 
-com_ptr<IDWriteTextLayout4> Annotator::textLayout(Shape const& shape, std::wstring const& text, float scale) {
+std::shared_ptr<TextLayout> Annotator::textLayout(Shape const& shape, std::wstring const& text, float scale) {
     float size = static_cast<float>(shape.size) * scale;
-    return res.layout(text, size, DWRITE_FONT_WEIGHT_BOLD, FontKind::Sans, size * 1.2f);
+    return res.layout(text, size, FontWeight::Bold, FontKind::Sans, size * 1.2f);
 }
 
 Box Annotator::localBox(Shape const& shape) {
     if (isLineShape(shape.type)) {
-        auto geometry = lineGeometry(shape);
-        D2D1_RECT_F bounds{};
-        geometry->GetBounds(nullptr, &bounds);
+        auto bounds = res.bounds(lineGeometry(shape));
 
         double minX = bounds.left;
         double minY = bounds.top;
@@ -924,29 +927,21 @@ bool Annotator::hitShape(Shape const& shape, Point point) {
     double originX = shape.type == Tool::Ellipse ? shape.x + shape.width / 2 : shape.x;
     double originY = shape.type == Tool::Ellipse ? shape.y + shape.height / 2 : shape.y;
     auto local = point2((point.x - originX) / shape.scaleX, (point.y - originY) / shape.scaleY);
-    auto factory = res.factory();
-    BOOL contains = FALSE;
+    bool contains = false;
 
     switch (shape.type) {
     case Tool::Rectangle: {
         float radius = static_cast<float>(std::min({shape.size, 6.0, shape.width / 2, shape.height / 2}));
-        com_ptr<ID2D1RoundedRectangleGeometry> geometry;
-        factory->CreateRoundedRectangleGeometry(
-            D2D1::RoundedRect(rect(0, 0, shape.width, shape.height), radius, radius), geometry.put());
-        if (shape.fill) geometry->FillContainsPoint(local, nullptr, 0.25f, &contains);
-        if (!contains)
-            geometry->StrokeContainsPoint(local, static_cast<float>(shape.size), nullptr, nullptr, 0.25f, &contains);
-        return contains;
+        Path geometry;
+        geometry.addRoundedRect(rect(0, 0, shape.width, shape.height), radius);
+        if (shape.fill) contains = res.fillContains(geometry, local);
+        return contains || res.strokeContains(geometry, local, static_cast<float>(shape.size));
     }
     case Tool::Ellipse: {
-        com_ptr<ID2D1EllipseGeometry> geometry;
-        factory->CreateEllipseGeometry(
-            D2D1::Ellipse(D2D1::Point2F(0, 0), static_cast<float>(shape.width / 2), static_cast<float>(shape.height / 2)),
-            geometry.put());
-        if (shape.fill) geometry->FillContainsPoint(local, nullptr, 0.25f, &contains);
-        if (!contains)
-            geometry->StrokeContainsPoint(local, static_cast<float>(shape.size), nullptr, nullptr, 0.25f, &contains);
-        return contains;
+        Path geometry;
+        geometry.addEllipse(0, 0, static_cast<float>(shape.width / 2), static_cast<float>(shape.height / 2));
+        if (shape.fill) contains = res.fillContains(geometry, local);
+        return contains || res.strokeContains(geometry, local, static_cast<float>(shape.size));
     }
     case Tool::Highlight:
     case Tool::Eraser:
@@ -957,12 +952,11 @@ bool Annotator::hitShape(Shape const& shape, Point point) {
     case Tool::Line:
     case Tool::Freehand: {
         float width = static_cast<float>(std::max(12.0, shape.size));
-        auto geometry = lineGeometry(shape);
-        geometry->StrokeContainsPoint(local, width, res.roundStroke(), nullptr, 0.25f, &contains);
+        auto round = StrokeStyle::round();
+        contains = res.strokeContains(lineGeometry(shape), local, width, &round);
         if (!contains && shape.type == Tool::Arrow && shape.points.size() >= 4) {
             auto head = arrowHead(shape);
-            head->FillContainsPoint(local, nullptr, 0.25f, &contains);
-            if (!contains) head->StrokeContainsPoint(local, width, res.roundStroke(), nullptr, 0.25f, &contains);
+            contains = res.fillContains(head, local) || res.strokeContains(head, local, width, &round);
         }
         return contains;
     }
@@ -994,49 +988,36 @@ bool Annotator::isOverShape(Point point) {
     return anchorAt(point).has_value() || shapeAt(point).has_value();
 }
 
-com_ptr<ID2D1PathGeometry> Annotator::lineGeometry(Shape const& shape) {
-    com_ptr<ID2D1PathGeometry> geometry;
-    winrt::check_hresult(res.factory()->CreatePathGeometry(geometry.put()));
-
-    com_ptr<ID2D1GeometrySink> sink;
-    winrt::check_hresult(geometry->Open(sink.put()));
+Path Annotator::lineGeometry(Shape const& shape) {
+    Path geometry;
 
     auto const& p = shape.points;
     if (p.size() >= 2) {
-        sink->BeginFigure(point2(p[0], p[1]), D2D1_FIGURE_BEGIN_HOLLOW);
+        geometry.moveTo(point2(p[0], p[1]));
 
         if (shape.type == Tool::Freehand && p.size() > 4) {
             auto tp = expandPoints(p, 0.4);
             size_t length = tp.size();
 
             if (length >= 4) {
-                sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(point2(tp[0], tp[1]), point2(tp[2], tp[3])));
+                geometry.quadTo(point2(tp[0], tp[1]), point2(tp[2], tp[3]));
                 size_t n = 4;
                 while (n + 2 < length) {
-                    sink->AddBezier(D2D1::BezierSegment(point2(tp[n], tp[n + 1]), point2(tp[n + 2], tp[n + 3]),
-                                                        point2(tp[n + 4], tp[n + 5])));
+                    geometry.cubicTo(point2(tp[n], tp[n + 1]), point2(tp[n + 2], tp[n + 3]), point2(tp[n + 4], tp[n + 5]));
                     n += 6;
                 }
-                sink->AddQuadraticBezier(D2D1::QuadraticBezierSegment(point2(tp[length - 2], tp[length - 1]),
-                                                                      point2(p[p.size() - 2], p[p.size() - 1])));
+                geometry.quadTo(point2(tp[length - 2], tp[length - 1]), point2(p[p.size() - 2], p[p.size() - 1]));
             }
         } else {
-            for (size_t n = 2; n + 1 < p.size(); n += 2) sink->AddLine(point2(p[n], p[n + 1]));
+            for (size_t n = 2; n + 1 < p.size(); n += 2) geometry.lineTo(point2(p[n], p[n + 1]));
         }
-
-        sink->EndFigure(D2D1_FIGURE_END_OPEN);
     }
 
-    winrt::check_hresult(sink->Close());
     return geometry;
 }
 
-com_ptr<ID2D1PathGeometry> Annotator::arrowHead(Shape const& shape) {
-    com_ptr<ID2D1PathGeometry> geometry;
-    winrt::check_hresult(res.factory()->CreatePathGeometry(geometry.put()));
-
-    com_ptr<ID2D1GeometrySink> sink;
-    winrt::check_hresult(geometry->Open(sink.put()));
+Path Annotator::arrowHead(Shape const& shape) {
+    Path geometry;
 
     size_t n = shape.points.size();
     double angle = pointerAngle(shape.points);
@@ -1048,29 +1029,27 @@ com_ptr<ID2D1PathGeometry> Annotator::arrowHead(Shape const& shape) {
 
     auto rotate = [&](double x, double y) { return point2(ex + x * cosine - y * sine, ey + x * sine + y * cosine); };
 
-    sink->BeginFigure(rotate(0, 0), D2D1_FIGURE_BEGIN_FILLED);
-    sink->AddLine(rotate(-length, length / 2));
-    sink->AddLine(rotate(-length, -length / 2));
-    sink->EndFigure(D2D1_FIGURE_END_CLOSED);
-
-    winrt::check_hresult(sink->Close());
+    geometry.moveTo(rotate(0, 0));
+    geometry.lineTo(rotate(-length, length / 2));
+    geometry.lineTo(rotate(-length, -length / 2));
+    geometry.close();
     return geometry;
 }
 
-void Annotator::drawEffect(ID2D1DeviceContext* context, Shape const& shape) {
+void Annotator::drawEffect(Painter& painter, Shape const& shape) {
     if (shape.width < 1 || shape.height < 1 || !source.read) return;
 
     double scale = source.scale;
-    RECT crop{std::lround(shape.x * scale), std::lround(shape.y * scale), 0, 0};
-    crop.right = crop.left + std::max(1L, std::lround(shape.width * scale));
-    crop.bottom = crop.top + std::max(1L, std::lround(shape.height * scale));
+    PixelRect crop{static_cast<int>(std::lround(shape.x * scale)), static_cast<int>(std::lround(shape.y * scale)), 0, 0};
+    crop.right = crop.left + static_cast<int>(std::max(1L, std::lround(shape.width * scale)));
+    crop.bottom = crop.top + static_cast<int>(std::max(1L, std::lround(shape.height * scale)));
 
     int strength = shape.type == Tool::Blur
                        ? static_cast<int>(std::lround(std::min(shape.size * scale, 180.0) * scale))
                        : static_cast<int>(std::ceil(std::max(2L, std::lround(shape.size * scale)) * scale));
 
     char buffer[128];
-    snprintf(buffer, sizeof(buffer), "%d:%ld:%ld:%ld:%ld:%d", static_cast<int>(shape.type), crop.left, crop.top,
+    snprintf(buffer, sizeof(buffer), "%d:%d:%d:%d:%d:%d", static_cast<int>(shape.type), crop.left, crop.top,
              crop.right, crop.bottom, strength);
 
     auto found = std::find_if(effects.begin(), effects.end(), [&](auto const& item) { return item.first == shape.id; });
@@ -1080,7 +1059,7 @@ void Annotator::drawEffect(ID2D1DeviceContext* context, Shape const& shape) {
     }
 
     auto& cache = found->second;
-    if (cache.key != buffer || !cache.bitmap) {
+    if (cache.key != buffer || !cache.image) {
         int width = crop.right - crop.left;
         int height = crop.bottom - crop.top;
         auto pixels = source.read(crop);
@@ -1091,20 +1070,16 @@ void Annotator::drawEffect(ID2D1DeviceContext* context, Shape const& shape) {
             pixelate(pixels.data(), width, height, strength);
         }
 
-        auto properties = D2D1::BitmapProperties1(
-            D2D1_BITMAP_OPTIONS_NONE, D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED));
-        cache.bitmap = nullptr;
-        winrt::check_hresult(context->CreateBitmap(D2D1::SizeU(width, height), pixels.data(), width * 4, properties,
-                                                   cache.bitmap.put()));
+        cache.image = nullptr;
+        cache.image = painter.createImage(pixels.data(), width, height, false);
         cache.key = buffer;
         cache.crop = crop;
     }
 
-    context->DrawBitmap(cache.bitmap.get(), rect(0, 0, shape.width, shape.height), 1.0f,
-                        D2D1_INTERPOLATION_MODE_LINEAR, nullptr, nullptr);
+    painter.image(*cache.image, rect(0, 0, shape.width, shape.height), std::nullopt, Interpolation::Linear);
 }
 
-void Annotator::drawShapeBody(ID2D1DeviceContext* context, Painter& painter, Shape const& shape) {
+void Annotator::drawShapeBody(Painter& painter, Shape const& shape) {
     auto tint = shape.color.empty() ? rgba(0, 0, 0) : parseHex(shape.color);
     float size = static_cast<float>(shape.size);
 
@@ -1131,17 +1106,16 @@ void Annotator::drawShapeBody(ID2D1DeviceContext* context, Painter& painter, Sha
         break;
     case Tool::Blur:
     case Tool::Pixelate:
-        drawEffect(context, shape);
+        drawEffect(painter, shape);
         break;
     case Tool::Arrow:
     case Tool::Line:
     case Tool::Freehand: {
-        auto geometry = lineGeometry(shape);
-        context->DrawGeometry(geometry.get(), painter.brush(tint), size, res.roundStroke());
+        painter.strokePath(lineGeometry(shape), tint, size, StrokeStyle::round());
         if (shape.type == Tool::Arrow && shape.points.size() >= 4) {
             auto head = arrowHead(shape);
-            context->FillGeometry(head.get(), painter.brush(tint));
-            context->DrawGeometry(head.get(), painter.brush(tint), size, res.roundStroke());
+            painter.fillPath(head, tint);
+            painter.strokePath(head, tint, size, StrokeStyle::round());
         }
         break;
     }
@@ -1153,7 +1127,7 @@ void Annotator::drawShapeBody(ID2D1DeviceContext* context, Painter& painter, Sha
 
         auto layout = textLayout(shape, shape.text.empty() ? L" " : shape.text);
         auto fill = shape.background ? parseHex(contrastColor(shape.color)) : tint;
-        painter.text(layout.get(), static_cast<float>(padding), static_cast<float>(padding), fill);
+        painter.text(*layout, static_cast<float>(padding), static_cast<float>(padding), fill);
         break;
     }
     case Tool::Step: {
@@ -1161,16 +1135,14 @@ void Annotator::drawShapeBody(ID2D1DeviceContext* context, Painter& painter, Sha
         painter.strokeEllipse(0, 0, size, size, rgba(255, 255, 255), std::max(2.0f, size / 8));
 
         auto label = std::to_wstring(shape.value);
-        auto layout = res.layout(label, size, DWRITE_FONT_WEIGHT_BOLD, FontKind::Sans, size);
-        DWRITE_TEXT_METRICS metrics{};
-        layout->GetMetrics(&metrics);
-        painter.text(layout.get(), -metrics.widthIncludingTrailingWhitespace / 2, -size / 2,
+        auto layout = res.layout(label, size, FontWeight::Bold, FontKind::Sans, size);
+        painter.text(*layout, -layout->metrics().widthIncludingTrailingWhitespace / 2, -size / 2,
                      parseHex(contrastColor(shape.color)));
         break;
     }
     case Tool::Emoji: {
-        auto layout = res.layout(shape.text, size, DWRITE_FONT_WEIGHT_NORMAL, FontKind::Emoji, size);
-        painter.text(layout.get(), 0, 0, rgba(0, 0, 0));
+        auto layout = res.layout(shape.text, size, FontWeight::Normal, FontKind::Emoji, size);
+        painter.text(*layout, 0, 0, rgba(0, 0, 0));
         break;
     }
     default:
@@ -1178,46 +1150,24 @@ void Annotator::drawShapeBody(ID2D1DeviceContext* context, Painter& painter, Sha
     }
 }
 
-void Annotator::drawShape(ID2D1DeviceContext* context, Painter& painter, Shape const& shape) {
-    Transform node(context, D2D1::Matrix3x2F::Scale(static_cast<float>(shape.scaleX), static_cast<float>(shape.scaleY)) *
-                                D2D1::Matrix3x2F::Translation(static_cast<float>(shape.x), static_cast<float>(shape.y)));
+void Annotator::drawShape(Painter& painter, Shape const& shape) {
+    Transform node(painter, Matrix::scale(static_cast<float>(shape.scaleX), static_cast<float>(shape.scaleY)) *
+                                Matrix::translation(static_cast<float>(shape.x), static_cast<float>(shape.y)));
 
     if (!drawsShadow(shape)) {
-        drawShapeBody(context, painter, shape);
+        drawShapeBody(painter, shape);
         return;
     }
 
-    com_ptr<ID2D1CommandList> list;
-    winrt::check_hresult(context->CreateCommandList(list.put()));
-
-    com_ptr<ID2D1Image> previous;
-    context->GetTarget(previous.put());
-    context->SetTarget(list.get());
-    drawShapeBody(context, painter, shape);
-    context->SetTarget(previous.get());
-    list->Close();
-
-    D2D1_MATRIX_3X2_F matrix{};
-    context->GetTransform(&matrix);
-    float scaleX = std::abs(matrix._11);
-    float scaleY = std::abs(matrix._22);
-
-    com_ptr<ID2D1Effect> shadow;
-    winrt::check_hresult(context->CreateEffect(SHADOW_EFFECT, shadow.put()));
-    shadow->SetInput(0, list.get());
-    shadow->SetValue(D2D1_SHADOW_PROP_BLUR_STANDARD_DEVIATION, 4.0f * std::min(scaleX, scaleY));
-    shadow->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::Vector4F(0, 0, 0, 0.75f));
-
-    context->SetTransform(D2D1::Matrix3x2F::Identity());
-    context->DrawImage(shadow.get(), D2D1::Point2F(2 * scaleX, 2 * scaleY));
-    context->DrawImage(list.get());
-    context->SetTransform(matrix);
+    painter.beginShadow();
+    drawShapeBody(painter, shape);
+    painter.endShadow(2, 2, 4, 0.75f);
 }
 
 void Annotator::drawTransformer(Painter& painter, Shape const& shape) {
     auto box = nodeBox(shape);
     auto primary = color(theme.primary);
-    painter.context()->DrawRectangle(box.rect(), painter.brush(primary), 1.0f);
+    painter.strokeRect(box.rect(), primary, 1.0f);
 
     for (auto anchor : anchors(shape)) {
         auto center = anchorPoint(box, anchor);
@@ -1227,16 +1177,14 @@ void Annotator::drawTransformer(Painter& painter, Shape const& shape) {
     }
 }
 
-void Annotator::render(ID2D1DeviceContext* context, bool forExport) {
-    Painter painter(context, res);
-
+void Annotator::render(Painter& painter, bool forExport) {
     std::vector<std::pair<std::string, EffectCache>> used;
     for (auto const& shape : shapes) {
         if (editor && editor->shape.id == shape.id) continue;
-        drawShape(context, painter, shape);
+        drawShape(painter, shape);
     }
 
-    if (draft) drawShape(context, painter, draft->shape);
+    if (draft) drawShape(painter, draft->shape);
 
     for (auto& entry : effects) {
         bool isUsed = std::any_of(shapes.begin(), shapes.end(), [&](Shape const& shape) { return shape.id == entry.first; }) ||
@@ -1262,16 +1210,14 @@ std::wstring Annotator::editorText() const {
     return text;
 }
 
-void Annotator::editorLayout(com_ptr<IDWriteTextLayout4>& layout, Box& box, float& padding, float& scale) {
+void Annotator::editorLayout(std::shared_ptr<TextLayout>& layout, Box& box, float& padding, float& scale) {
     auto const& shape = editor->shape;
     scale = static_cast<float>(shape.scaleX);
     padding = shape.background ? static_cast<float>(std::round(shape.size * 0.35)) * scale : 0;
 
     auto text = editorText();
     layout = textLayout(shape, text, scale);
-
-    DWRITE_TEXT_METRICS metrics{};
-    layout->GetMetrics(&metrics);
+    auto metrics = layout->metrics();
 
     double fontSize = shape.size * scale;
     double width = std::max(fontSize * 2, static_cast<double>(metrics.widthIncludingTrailingWhitespace + padding * 2 + 4));
@@ -1280,7 +1226,7 @@ void Annotator::editorLayout(com_ptr<IDWriteTextLayout4>& layout, Box& box, floa
 }
 
 void Annotator::drawEditor(Painter& painter) {
-    com_ptr<IDWriteTextLayout4> layout;
+    std::shared_ptr<TextLayout> layout;
     Box box;
     float padding = 0;
     float scale = 1;
@@ -1293,9 +1239,10 @@ void Annotator::drawEditor(Painter& painter) {
 
     if (shape.background) painter.fillRounded(box.rect(), radius, tint);
 
-    auto inner = D2D1::RectF(static_cast<float>(box.x) + 0.5f, static_cast<float>(box.y) + 0.5f,
+    auto inner = RectF(static_cast<float>(box.x) + 0.5f, static_cast<float>(box.y) + 0.5f,
                              static_cast<float>(box.right()) - 0.5f, static_cast<float>(box.bottom()) - 0.5f);
-    painter.strokeRounded(inner, radius, textColor, 1, res.dashStroke(3, 3));
+    auto dashed = StrokeStyle::dashed(3, 3);
+    painter.strokeRounded(inner, radius, textColor, 1, &dashed);
 
     float originX = static_cast<float>(box.x) + 1 + padding;
     float originY = static_cast<float>(box.y) + 1 + padding;
@@ -1303,53 +1250,41 @@ void Annotator::drawEditor(Painter& painter) {
     if (editor->caret != editor->anchor && editor->composition.empty()) {
         size_t start = std::min(editor->caret, editor->anchor);
         size_t length = std::max(editor->caret, editor->anchor) - start;
-        UINT32 count = 0;
-        layout->HitTestTextRange(static_cast<UINT32>(start), static_cast<UINT32>(length), 0, 0, nullptr, 0, &count);
-        std::vector<DWRITE_HIT_TEST_METRICS> ranges(count);
-        layout->HitTestTextRange(static_cast<UINT32>(start), static_cast<UINT32>(length), 0, 0, ranges.data(), count,
-                                 &count);
-        for (auto const& range : ranges)
-            painter.fillRect(D2D1::RectF(originX + range.left, originY + range.top, originX + range.left + range.width,
-                                         originY + range.top + range.height),
+        for (auto const& range : layout->rangeRects(start, length))
+            painter.fillRect(RectF(originX + range.left, originY + range.top, originX + range.right,
+                                   originY + range.bottom),
                              rgba(51, 144, 255, 0.4f));
     }
 
-    painter.text(layout.get(), originX, originY, textColor);
+    painter.text(*layout, originX, originY, textColor);
 
     if (!editor->composition.empty()) {
-        DWRITE_HIT_TEST_METRICS hit{};
-        float x = 0;
-        float y = 0;
-        layout->HitTestTextPosition(static_cast<UINT32>(editor->caret), FALSE, &x, &y, &hit);
-        float endX = 0;
-        float endY = 0;
-        layout->HitTestTextPosition(static_cast<UINT32>(editor->caret + editor->composition.size()), FALSE, &endX,
-                                    &endY, &hit);
-        float underline = originY + y + hit.height - 2 * scale;
-        painter.fillRect(D2D1::RectF(originX + x, underline, originX + endX, underline + std::max(1.0f, scale)),
+        auto begin = layout->position(editor->caret);
+        auto end = layout->position(editor->caret + editor->composition.size());
+        float underline = originY + begin.y + end.height - 2 * scale;
+        painter.fillRect(RectF(originX + begin.x, underline, originX + end.x, underline + std::max(1.0f, scale)),
                          textColor);
     }
 
     if (caretVisible()) {
         float height = 0;
         auto caret = editorCaret(height);
-        painter.fillRect(D2D1::RectF(static_cast<float>(caret.x), static_cast<float>(caret.y),
+        painter.fillRect(RectF(static_cast<float>(caret.x), static_cast<float>(caret.y),
                                      static_cast<float>(caret.x) + 1, static_cast<float>(caret.y) + height),
                          textColor);
     }
 }
 
 Point Annotator::editorCaret(float& height) {
-    com_ptr<IDWriteTextLayout4> layout;
+    std::shared_ptr<TextLayout> layout;
     Box box;
     float padding = 0;
     float scale = 1;
     editorLayout(layout, box, padding, scale);
 
-    float x = 0;
-    float y = 0;
-    DWRITE_HIT_TEST_METRICS hit{};
-    layout->HitTestTextPosition(static_cast<UINT32>(editor->caret + editor->composition.size()), FALSE, &x, &y, &hit);
+    auto position = layout->position(editor->caret + editor->composition.size());
+    float x = position.x;
+    float y = position.y;
 
     auto metrics = res.metrics(FontKind::Sans);
     float fontSize = static_cast<float>(editor->shape.size) * scale;
@@ -1361,15 +1296,15 @@ Point Annotator::editorCaret(float& height) {
 
 bool Annotator::caretVisible() const {
     if (!editor) return false;
-    double blink = GetCaretBlinkTime();
-    if (blink <= 0 || blink >= INFINITE) return true;
+    double blink = caretBlinkMs();
+    if (blink <= 0) return true;
     return std::fmod(nowMs() - editor->blinkStart, blink * 2) < blink;
 }
 
 bool Annotator::editorContains(Point point) {
     if (!editor) return false;
 
-    com_ptr<IDWriteTextLayout4> layout;
+    std::shared_ptr<TextLayout> layout;
     Box box;
     float padding = 0;
     float scale = 1;
@@ -1378,18 +1313,14 @@ bool Annotator::editorContains(Point point) {
 }
 
 size_t Annotator::editorIndexAt(Point point) {
-    com_ptr<IDWriteTextLayout4> layout;
+    std::shared_ptr<TextLayout> layout;
     Box box;
     float padding = 0;
     float scale = 1;
     editorLayout(layout, box, padding, scale);
 
-    BOOL trailing = FALSE;
-    BOOL inside = FALSE;
-    DWRITE_HIT_TEST_METRICS hit{};
-    layout->HitTestPoint(static_cast<float>(point.x - box.x - 1 - padding),
-                         static_cast<float>(point.y - box.y - 1 - padding), &trailing, &inside, &hit);
-    return std::min(editor->text.size(), static_cast<size_t>(hit.textPosition + (trailing ? hit.length : 0)));
+    return std::min(editor->text.size(), layout->indexAt(static_cast<float>(point.x - box.x - 1 - padding),
+                                                         static_cast<float>(point.y - box.y - 1 - padding)));
 }
 
 void Annotator::editorClick(Point point, bool shift) {
@@ -1400,8 +1331,8 @@ void Annotator::editorClick(Point point, bool shift) {
 void Annotator::editorMove(size_t position, bool extend) {
     auto& text = editor->text;
     position = std::min(position, text.size());
-    if (position > 0 && position < text.size() && IS_LOW_SURROGATE(text[position]) &&
-        IS_HIGH_SURROGATE(text[position - 1]))
+    if (position > 0 && position < text.size() && isLowSurrogate(text[position]) &&
+        isHighSurrogate(text[position - 1]))
         position += position > editor->caret ? 1 : -1;
 
     editor->caret = position;
@@ -1428,70 +1359,70 @@ void Annotator::editorErase(bool forward) {
     size_t caret = editor->caret;
     if (forward) {
         if (caret >= text.size()) return;
-        size_t length = caret + 1 < text.size() && IS_HIGH_SURROGATE(text[caret]) ? 2 : 1;
+        size_t length = caret + 1 < text.size() && isHighSurrogate(text[caret]) ? 2 : 1;
         text.erase(caret, length);
     } else {
         if (caret == 0) return;
-        size_t length = caret >= 2 && IS_LOW_SURROGATE(text[caret - 1]) && IS_HIGH_SURROGATE(text[caret - 2]) ? 2 : 1;
+        size_t length = caret >= 2 && isLowSurrogate(text[caret - 1]) && isHighSurrogate(text[caret - 2]) ? 2 : 1;
         text.erase(caret - length, length);
         editor->caret = editor->anchor = caret - length;
     }
     editor->blinkStart = nowMs();
 }
 
-bool Annotator::editorKey(UINT key, bool ctrl, bool shift) {
+bool Annotator::editorKey(Key key, bool ctrl, bool shift) {
     if (!editor) return false;
     if (!editor->composition.empty()) return true;
 
     auto& text = editor->text;
 
     switch (key) {
-    case VK_ESCAPE:
+    case Key::Escape:
         finishTextEdit();
         return true;
-    case VK_RETURN:
+    case Key::Enter:
         if (shift) {
             editorInsert(L"\n");
         } else {
             finishTextEdit();
         }
         return true;
-    case VK_BACK:
+    case Key::Backspace:
         editorErase(false);
         return true;
-    case VK_DELETE:
+    case Key::Delete:
         editorErase(true);
         return true;
-    case VK_LEFT:
+    case Key::Left:
         if (!shift && editor->caret != editor->anchor) {
             editorMove(std::min(editor->caret, editor->anchor), false);
         } else if (editor->caret > 0) {
             editorMove(editor->caret - 1, shift);
         }
         return true;
-    case VK_RIGHT:
+    case Key::Right:
         if (!shift && editor->caret != editor->anchor) {
             editorMove(std::max(editor->caret, editor->anchor), false);
         } else {
             editorMove(editor->caret + 1, shift);
         }
         return true;
-    case VK_HOME: {
+    case Key::Home: {
         size_t start = editor->caret == 0 ? 0 : text.rfind(L'\n', editor->caret - 1);
         editorMove(start == std::wstring::npos ? 0 : (editor->caret == 0 ? 0 : start + 1), shift);
         return true;
     }
-    case VK_END: {
+    case Key::End: {
         size_t end = text.find(L'\n', editor->caret);
         editorMove(end == std::wstring::npos ? text.size() : end, shift);
         return true;
     }
-    case VK_UP:
-    case VK_DOWN: {
+    case Key::Up:
+    case Key::Down: {
         float height = 0;
         auto caret = editorCaret(height);
         double lineHeight = editor->shape.size * editor->shape.scaleX * 1.2;
-        Point target{caret.x, caret.y + height / 2 + (key == VK_UP ? -lineHeight : lineHeight)};
+        Point target{caret.x, caret.y + height / 2 + (key == Key::Up ? -lineHeight : lineHeight)};
         editorMove(editorIndexAt(target), shift);
         return true;
     }
@@ -1499,41 +1430,23 @@ bool Annotator::editorKey(UINT key, bool ctrl, bool shift) {
         break;
     }
 
-    if (ctrl && key == 'A') {
+    if (ctrl && key == Key::A) {
         editor->anchor = 0;
         editor->caret = text.size();
         return true;
     }
 
-    if (ctrl && (key == 'C' || key == 'X') && editor->caret != editor->anchor) {
+    if (ctrl && (key == Key::C || key == Key::X) && editor->caret != editor->anchor) {
         size_t start = std::min(editor->caret, editor->anchor);
-        auto selected = text.substr(start, std::max(editor->caret, editor->anchor) - start);
-
-        if (OpenClipboard(nullptr)) {
-            EmptyClipboard();
-            size_t bytes = (selected.size() + 1) * sizeof(wchar_t);
-            if (HGLOBAL memory = GlobalAlloc(GMEM_MOVEABLE, bytes)) {
-                memcpy(GlobalLock(memory), selected.c_str(), bytes);
-                GlobalUnlock(memory);
-                SetClipboardData(CF_UNICODETEXT, memory);
-            }
-            CloseClipboard();
-        }
-
-        if (key == 'X') editorInsert(L"");
+        if (copyText) copyText(text.substr(start, std::max(editor->caret, editor->anchor) - start));
+        if (key == Key::X) editorInsert(L"");
         return true;
     }
 
-    if (ctrl && key == 'V') {
-        if (OpenClipboard(nullptr)) {
-            if (HANDLE data = GetClipboardData(CF_UNICODETEXT)) {
-                std::wstring pasted(static_cast<wchar_t const*>(GlobalLock(data)));
-                GlobalUnlock(data);
-                pasted.erase(std::remove(pasted.begin(), pasted.end(), L'\r'), pasted.end());
-                editorInsert(pasted);
-            }
-            CloseClipboard();
-        }
+    if (ctrl && key == Key::V) {
+        auto pasted = pasteText ? pasteText() : std::wstring();
+        pasted.erase(std::remove(pasted.begin(), pasted.end(), L'\r'), pasted.end());
+        if (!pasted.empty()) editorInsert(pasted);
         return true;
     }
 
