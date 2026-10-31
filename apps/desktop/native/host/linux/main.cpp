@@ -5,6 +5,7 @@
 #include <shared/log.h>
 
 #include <fcntl.h>
+#include <signal.h>
 #include <glib-unix.h>
 #include <sys/file.h>
 #include <sys/stat.h>
@@ -18,6 +19,7 @@ int main(int argc, char** argv) {
     using namespace fileship::host;
 
     std::setlocale(LC_ALL, "");
+    signal(SIGPIPE, SIG_IGN);
     try {
         std::locale::global(std::locale("C.UTF-8"));
     } catch (std::runtime_error const&) {

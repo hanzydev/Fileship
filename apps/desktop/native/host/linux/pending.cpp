@@ -1,34 +1,5 @@
 #include <host/app.h>
 #include <host/harbor.h>
-#include <host/recording.h>
-
-namespace fileship::host::recording {
-
-void setAreaPicker(AreaPicker) {}
-
-void toggleRecording(std::wstring const&) {}
-
-void controlRecording(std::wstring const&) {}
-
-void setRecordingMute(std::wstring const&, bool) {}
-
-bool isRecording() {
-    return false;
-}
-
-JsonObject recorderState() {
-    JsonObject state;
-    state.SetNamedValue(L"phase", JsonValue::CreateStringValue(L"idle"));
-    return state;
-}
-
-void resetFfmpegProbe() {}
-
-void quitRecorder() {}
-
-void registerRecordingHandlers() {}
-
-}
 
 namespace fileship::host::harbor {
 

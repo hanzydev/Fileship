@@ -13,7 +13,7 @@ import {
 import { generateProtocols } from './wayland.mjs';
 
 const PLATFORM_FOLDERS = { win32: 'windows', linux: 'linux' };
-const PENDING_ON_LINUX = [join('host', 'recording'), join('host', 'harbor')];
+const PENDING_ON_LINUX = [join('host', 'harbor')];
 
 const platform = PLATFORM_FOLDERS[process.platform];
 if (!platform) {

@@ -230,14 +230,18 @@ bool RecorderToolbar::isAnimating(double now) const {
     return current.phase != RecorderPhase::Paused;
 }
 
-bool RecorderToolbar::contains(double x, double y) {
+RectF RecorderToolbar::pill() {
     float pillLeft = 0;
     float pillWidth = 0;
     float statusWidth = 0;
     layout(pillLeft, pillWidth, statusWidth);
-    x /= factor;
-    y /= factor;
-    return x >= pillLeft && x < pillLeft + pillWidth && y >= 8 && y < 56;
+    auto s = static_cast<float>(factor);
+    return RectF(pillLeft * s, 8 * s, (pillLeft + pillWidth) * s, 56 * s);
+}
+
+bool RecorderToolbar::contains(double x, double y) {
+    auto rect = pill();
+    return x >= rect.left && x < rect.right && y >= rect.top && y < rect.bottom;
 }
 
 RecorderToolbar::Control RecorderToolbar::controlAt(double x, double y) {

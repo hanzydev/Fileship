@@ -28,6 +28,7 @@ public:
 
     void paint(Painter& painter, double now);
     bool isAnimating(double now) const;
+    RectF pill();
     bool contains(double x, double y);
     void pointerMove(double x, double y);
     void pointerLeave();
