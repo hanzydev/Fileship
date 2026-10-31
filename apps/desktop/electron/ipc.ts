@@ -40,10 +40,11 @@ const handlers: Handlers = {
         return result.filePaths[0] ?? null;
     },
     'dialog:pickFfmpeg': async () => {
+        const isWindows = process.platform === 'win32';
         const result = await dialog.showOpenDialog({
-            title: t('app.chooseFfmpeg'),
+            title: t(isWindows ? 'app.chooseFfmpeg' : 'app.chooseFfmpegLinux'),
             properties: ['openFile'],
-            filters: [{ name: 'ffmpeg', extensions: ['exe'] }],
+            filters: isWindows ? [{ name: 'ffmpeg', extensions: ['exe'] }] : [],
         });
 
         return result.filePaths[0] ?? null;
