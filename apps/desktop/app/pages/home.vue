@@ -175,6 +175,7 @@ const KIND_ICONS: Record<HistoryKind, Component> = {
 };
 
 const account = useAccount();
+const appInfo = useAppInfo();
 const { $toast } = useNuxtApp();
 const { t, locale } = useI18n();
 
@@ -187,11 +188,13 @@ const settings = ref<{ hotkey: string } | null>(null);
 const harborState = ref<HarborStatus['state']>('off');
 const now = useNow({ scheduler: (callback) => useIntervalFn(callback, 30_000) });
 
-const emptyDescription = computed(() =>
-    settings.value?.hotkey
-        ? t('home.emptyWithHotkey', { hotkey: settings.value.hotkey.replaceAll('+', ' + ') })
-        : t('home.emptyWithTray'),
-);
+const emptyDescription = computed(() => {
+    if (settings.value?.hotkey) {
+        return t('home.emptyWithHotkey', { hotkey: settings.value.hotkey.replaceAll('+', ' + ') });
+    }
+
+    return t(appInfo.value.platform === 'linux' ? 'home.emptyWithMenu' : 'home.emptyWithTray');
+});
 
 const timeAgo = (value: number) =>
     relativeTime(locale.value, value, now.value.getTime(), t('home.justNow'));
@@ -294,7 +297,10 @@ onMounted(async () => {
     setProgress(current);
     harborState.value = harbor.state;
     settings.value = {
-        hotkey: savedSettings.hotkeysEnabled ? savedSettings.hotkeys.captureRegion : '',
+        hotkey:
+            savedSettings.hotkeysEnabled && appInfo.value.capabilities.hotkeys !== 'command'
+                ? savedSettings.hotkeys.captureRegion
+                : '',
     };
 });
 

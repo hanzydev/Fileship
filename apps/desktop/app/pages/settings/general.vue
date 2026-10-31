@@ -2,11 +2,15 @@
     <UiCard>
         <UiCardHeader>
             <UiCardTitle>{{ $t('general.startup') }}</UiCardTitle>
-            <UiCardDescription>{{ $t('general.startupDescription') }}</UiCardDescription>
+            <UiCardDescription>
+                {{ $t(isLinux ? 'general.startupDescriptionLinux' : 'general.startupDescription') }}
+            </UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
             <UiField orientation="horizontal">
-                <UiFieldLabel for="start-at-login">{{ $t('general.startAtLogin') }}</UiFieldLabel>
+                <UiFieldLabel for="start-at-login">
+                    {{ $t(isLinux ? 'general.startAtLoginLinux' : 'general.startAtLogin') }}
+                </UiFieldLabel>
                 <UiSwitch
                     id="start-at-login"
                     :model-value="settings?.startAtLogin"
@@ -37,7 +41,13 @@
                         :key="language"
                         :value="language"
                     >
-                        {{ $t(`labels.language.${language}`) }}
+                        {{
+                            $t(
+                                language === 'system' && isLinux
+                                    ? 'labels.language.systemLinux'
+                                    : `labels.language.${language}`,
+                            )
+                        }}
                     </UiSelectItem>
                 </UiSelectContent>
             </UiSelect>
@@ -47,7 +57,9 @@
     <UiCard>
         <UiCardHeader>
             <UiCardTitle>{{ $t('general.theme') }}</UiCardTitle>
-            <UiCardDescription>{{ $t('general.themeDescription') }}</UiCardDescription>
+            <UiCardDescription>
+                {{ $t(isLinux ? 'general.themeDescriptionLinux' : 'general.themeDescription') }}
+            </UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
             <UiTabs v-model="colorMode.preference">
@@ -74,6 +86,9 @@
 import { LANGUAGES } from '../../../i18n/messages';
 import type { Settings } from '../../../shared/settings';
 
+const appInfo = useAppInfo();
 const colorMode = useColorMode();
 const settings = useSettings();
+
+const isLinux = computed(() => appInfo.value.platform === 'linux');
 </script>

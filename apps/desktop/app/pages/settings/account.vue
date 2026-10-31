@@ -19,7 +19,15 @@
     <UiCard>
         <UiCardHeader>
             <UiCardTitle>{{ $t('account.session') }}</UiCardTitle>
-            <UiCardDescription>{{ $t('account.sessionDescription') }}</UiCardDescription>
+            <UiCardDescription>
+                {{
+                    $t(
+                        appInfo.platform === 'linux'
+                            ? 'account.sessionDescriptionLinux'
+                            : 'account.sessionDescription',
+                    )
+                }}
+            </UiCardDescription>
         </UiCardHeader>
         <UiCardFooter class="gap-2">
             <UiButton variant="outline" @click="handleOpenSessions">
@@ -37,6 +45,7 @@
 
 <script setup lang="ts">
 const account = useAccount();
+const appInfo = useAppInfo();
 const { t } = useI18n();
 
 const isLoggingOut = ref(false);

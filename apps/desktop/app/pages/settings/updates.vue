@@ -3,7 +3,14 @@
         <UiCardHeader>
             <UiCardTitle>{{ $t('updates.title') }}</UiCardTitle>
             <UiCardDescription>
-                {{ $t('updates.description', { version: info?.version ?? '' }) }}
+                {{
+                    $t(
+                        appInfo.capabilities.updates === 'package'
+                            ? 'updates.descriptionPackage'
+                            : 'updates.description',
+                        { version: appInfo.version },
+                    )
+                }}
             </UiCardDescription>
         </UiCardHeader>
         <UiCardContent class="flex flex-col gap-3">
@@ -32,12 +39,9 @@
 </template>
 
 <script setup lang="ts">
-import type { AppInfo } from '../../../shared/ipc';
-
+const appInfo = useAppInfo();
 const updateStatus = useUpdateStatus();
 const { t } = useI18n();
-
-const info = ref<AppInfo | null>(null);
 
 const isWorking = computed(() => ['checking', 'downloading'].includes(updateStatus.value.state));
 
@@ -54,8 +58,4 @@ const statusText = computed(() => {
 const handleCheck = () => desktop('updates:check');
 
 const handleInstall = () => desktop('updates:install');
-
-onMounted(async () => {
-    info.value = await desktop('app:info');
-});
 </script>

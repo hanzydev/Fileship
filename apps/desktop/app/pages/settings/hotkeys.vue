@@ -1,8 +1,39 @@
 <template>
-    <UiCard>
+    <UiCard v-if="capabilities.hotkeys === 'command'">
         <UiCardHeader>
             <UiCardTitle>{{ $t('hotkeys.title') }}</UiCardTitle>
-            <UiCardDescription>{{ $t('hotkeys.description') }}</UiCardDescription>
+            <UiCardDescription>{{ $t('hotkeys.commandsDescription') }}</UiCardDescription>
+        </UiCardHeader>
+        <UiCardContent>
+            <UiItemGroup class="gap-2">
+                <UiItem v-for="action in HOTKEY_ACTIONS" :key="action" variant="muted" size="sm">
+                    <UiItemContent class="min-w-0">
+                        <UiItemTitle>{{ $t(`hotkeys.actions.${action}`) }}</UiItemTitle>
+                        <UiItemDescription class="line-clamp-none font-mono break-all">
+                            {{ commandOf(action) }}
+                        </UiItemDescription>
+                    </UiItemContent>
+                    <UiItemActions>
+                        <UiButton
+                            variant="ghost"
+                            size="icon-sm"
+                            :aria-label="$t('hotkeys.copyCommand')"
+                            @click="handleCopy(action)"
+                        >
+                            <ICopy />
+                        </UiButton>
+                    </UiItemActions>
+                </UiItem>
+            </UiItemGroup>
+        </UiCardContent>
+    </UiCard>
+
+    <UiCard v-else>
+        <UiCardHeader>
+            <UiCardTitle>{{ $t('hotkeys.title') }}</UiCardTitle>
+            <UiCardDescription>
+                {{ $t(isLinux ? 'hotkeys.descriptionLinux' : 'hotkeys.description') }}
+            </UiCardDescription>
             <UiCardAction>
                 <UiSwitch
                     :model-value="settings?.hotkeysEnabled"
@@ -12,7 +43,13 @@
                 />
             </UiCardAction>
         </UiCardHeader>
-        <UiCardContent>
+        <UiCardContent class="flex flex-col gap-4">
+            <UiAlert v-if="capabilities.hotkeys === 'portal'">
+                <IInfo />
+                <UiAlertTitle>{{ $t('hotkeys.portalTitle') }}</UiAlertTitle>
+                <UiAlertDescription>{{ $t('hotkeys.portalDescription') }}</UiAlertDescription>
+            </UiAlert>
+
             <UiItemGroup :class="cn('gap-2', !settings?.hotkeysEnabled && 'opacity-50')">
                 <UiItem v-for="action in HOTKEY_ACTIONS" :key="action" variant="muted" size="sm">
                     <UiItemContent class="min-w-0">
@@ -30,7 +67,7 @@
                             v-else-if="status[action] === 'invalid'"
                             class="text-destructive"
                         >
-                            {{ $t('hotkeys.invalid') }}
+                            {{ $t(isLinux ? 'hotkeys.invalidLinux' : 'hotkeys.invalid') }}
                         </UiItemDescription>
                     </UiItemContent>
                     <UiItemActions>
@@ -49,7 +86,7 @@
                                     v-for="key in settings.hotkeys[action]!.split('+')"
                                     :key="key"
                                 >
-                                    {{ KEY_LABELS[key] ?? key }}
+                                    {{ keyLabels[key] ?? key }}
                                 </UiKbd>
                             </UiKbdGroup>
                             <span v-else class="text-muted-foreground">
@@ -77,7 +114,7 @@
         </UiCardFooter>
     </UiCard>
 
-    <UiCard>
+    <UiCard v-if="capabilities.snippingToolKey">
         <UiCardHeader>
             <UiCardTitle>{{ $t('hotkeys.printScreen') }}</UiCardTitle>
             <UiCardDescription>{{ $t('hotkeys.printScreenDescription') }}</UiCardDescription>
@@ -99,7 +136,6 @@ import { DEFAULT_HOTKEYS, HOTKEY_ACTIONS, type HotkeyAction } from '../../../sha
 
 const KEY_LABELS: Record<string, string> = {
     Control: 'Ctrl',
-    Super: 'Win',
     PrintScreen: 'Print Screen',
     Up: '↑',
     Down: '↓',
@@ -144,7 +180,13 @@ const CODE_KEYS: Record<string, string> = {
 const MODIFIER_CODES = ['Control', 'Alt', 'Shift', 'Meta', 'OS'];
 
 const settings = useSettings();
+const appInfo = useAppInfo();
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
+
+const { capabilities } = appInfo.value;
+const isLinux = appInfo.value.platform === 'linux';
+const keyLabels: Record<string, string> = { ...KEY_LABELS, Super: isLinux ? 'Super' : 'Win' };
 
 const status = ref<HotkeyStatus>({});
 const recording = ref<HotkeyAction | null>(null);
@@ -191,6 +233,13 @@ const toAccelerator = (event: KeyboardEvent) => {
     ].filter(Boolean);
 
     return [...modifiers, key].join('+');
+};
+
+const commandOf = (action: HotkeyAction) => `${appInfo.value.launchCommand} --action ${action}`;
+
+const handleCopy = async (action: HotkeyAction) => {
+    await navigator.clipboard.writeText(commandOf(action));
+    $toast.success(t('hotkeys.commandCopied'));
 };
 
 const loadStatus = async () => {
@@ -268,7 +317,12 @@ useEventListener('blur', stopRecording);
 onBeforeUnmount(stopRecording);
 
 onMounted(async () => {
-    const [, snippingTool] = await Promise.all([loadStatus(), desktop('hotkeys:snippingTool')]);
+    if (capabilities.hotkeys === 'command') return;
+
+    const [, snippingTool] = await Promise.all([
+        loadStatus(),
+        capabilities.snippingToolKey ? desktop('hotkeys:snippingTool') : null,
+    ]);
     isSnippingToolEnabled.value = snippingTool;
 });
 </script>

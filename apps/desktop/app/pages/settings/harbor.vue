@@ -2,7 +2,9 @@
     <UiCard>
         <UiCardHeader>
             <UiCardTitle>{{ $t('harborSettings.title') }}</UiCardTitle>
-            <UiCardDescription>{{ $t('harborSettings.description') }}</UiCardDescription>
+            <UiCardDescription>
+                {{ $t(isLinux ? 'harborSettings.descriptionLinux' : 'harborSettings.description') }}
+            </UiCardDescription>
             <UiCardAction>
                 <UiSwitch
                     :model-value="settings?.harbor.enabled"
@@ -114,7 +116,13 @@
                     <UiInputGroupInput
                         id="harbor-folder"
                         :model-value="settings?.harbor.folder || status.root"
-                        :placeholder="$t('harborSettings.locationPlaceholder')"
+                        :placeholder="
+                            $t(
+                                isLinux
+                                    ? 'harborSettings.locationPlaceholderLinux'
+                                    : 'harborSettings.locationPlaceholder',
+                            )
+                        "
                         readonly
                     />
                     <UiInputGroupAddon align="inline-end">
@@ -159,7 +167,13 @@
                 @click="desktop('harbor:open')"
             >
                 <IFolderOpen />
-                {{ $t('harborSettings.openInExplorer') }}
+                {{
+                    $t(
+                        isLinux
+                            ? 'harborSettings.openInFileManager'
+                            : 'harborSettings.openInExplorer',
+                    )
+                }}
             </UiButton>
             <UiButton
                 v-if="status.state === 'paused'"
@@ -229,11 +243,19 @@
     <UiCard>
         <UiCardHeader>
             <UiCardTitle>{{ $t('harborSettings.howItWorks') }}</UiCardTitle>
-            <UiCardDescription>{{ $t('harborSettings.howItWorksDescription') }}</UiCardDescription>
+            <UiCardDescription>
+                {{
+                    $t(
+                        isLinux
+                            ? 'harborSettings.howItWorksDescriptionLinux'
+                            : 'harborSettings.howItWorksDescription',
+                    )
+                }}
+            </UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
             <UiItemGroup class="gap-2">
-                <UiItem v-for="item in TIPS" :key="item.title" variant="muted" size="sm">
+                <UiItem v-for="item in tips" :key="item.title" variant="muted" size="sm">
                     <UiItemMedia variant="icon">
                         <component :is="item.icon" />
                     </UiItemMedia>
@@ -282,36 +304,43 @@ const TIPS = [
         icon: ICloud,
         title: 'harborSettings.tips.online',
         description: 'harborSettings.tips.onlineDescription',
+        linuxDescription: 'harborSettings.tips.onlineDescriptionLinux',
     },
     {
         icon: ICloudDownload,
         title: 'harborSettings.tips.offline',
         description: 'harborSettings.tips.offlineDescription',
+        linuxDescription: null,
     },
     {
         icon: IFolderSync,
         title: 'harborSettings.tips.sync',
         description: 'harborSettings.tips.syncDescription',
+        linuxDescription: 'harborSettings.tips.syncDescription',
     },
     {
         icon: IFilePen,
         title: 'harborSettings.tips.edits',
         description: 'harborSettings.tips.editsDescription',
+        linuxDescription: 'harborSettings.tips.editsDescription',
     },
     {
         icon: ITrash2,
         title: 'harborSettings.tips.delete',
         description: 'harborSettings.tips.deleteDescription',
+        linuxDescription: 'harborSettings.tips.deleteDescriptionLinux',
     },
     {
         icon: INotebookPen,
         title: 'harborSettings.tips.notes',
         description: 'harborSettings.tips.notesDescription',
+        linuxDescription: 'harborSettings.tips.notesDescription',
     },
     {
         icon: IPause,
         title: 'harborSettings.tips.pause',
         description: 'harborSettings.tips.pauseDescription',
+        linuxDescription: 'harborSettings.tips.pauseDescription',
     },
 ];
 
@@ -329,6 +358,7 @@ const ACTIVITY_ICONS: Record<HarborActivityKind, Component> = {
 };
 
 const settings = useSettings();
+const appInfo = useAppInfo();
 const { $toast } = useNuxtApp();
 const { t, locale } = useI18n();
 const now = useNow({ scheduler: (callback) => useIntervalFn(callback, 30_000) });
@@ -347,6 +377,17 @@ const activity = ref<HarborActivity[]>([]);
 const sizes = ref<HarborBreakdown[]>([]);
 const isBusy = ref(false);
 const isFreeing = ref(false);
+
+const isLinux = computed(() => appInfo.value.platform === 'linux');
+
+const tips = computed(() =>
+    isLinux.value
+        ? TIPS.filter((tip) => tip.linuxDescription).map((tip) => ({
+              ...tip,
+              description: tip.linuxDescription!,
+          }))
+        : TIPS,
+);
 
 const percentFormat = computed(
     () => new Intl.NumberFormat(locale.value, { style: 'percent', maximumFractionDigits: 0 }),
@@ -435,5 +476,11 @@ onMounted(async () => {
     if (status.value.state !== 'off') {
         sizes.value = await desktop('harbor:breakdown').catch(() => []);
     }
+});
+
+definePageMeta({
+    middleware: () => {
+        if (!useAppInfo().value.capabilities.harbor) return '/settings/general';
+    },
 });
 </script>

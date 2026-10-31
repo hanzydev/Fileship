@@ -62,6 +62,7 @@ import {
 } from '#components';
 
 const route = useRoute();
+const appInfo = useAppInfo();
 
 const sections = [
     { label: 'settings.general', path: '/settings/general', icon: ISlidersHorizontal },
@@ -72,7 +73,7 @@ const sections = [
     { label: 'settings.harbor', path: '/settings/harbor', icon: IAnchor },
     { label: 'settings.account', path: '/settings/account', icon: IUser },
     { label: 'settings.updates', path: '/settings/updates', icon: IDownload },
-];
+].filter((section) => section.path !== '/settings/harbor' || appInfo.value.capabilities.harbor);
 
 definePageMeta({
     layout: 'desktop',

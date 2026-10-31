@@ -39,14 +39,16 @@
                             : ffmpeg.path
                     }}
                 </dd>
-                <dt class="text-muted-foreground">{{ $t('recordingSettings.capture') }}</dt>
-                <dd class="text-right">
-                    {{
-                        ffmpeg.ddagrab
-                            ? $t('recordingSettings.captureBoth')
-                            : $t('recordingSettings.captureGdiOnly')
-                    }}
-                </dd>
+                <template v-if="hasDesktopDuplication">
+                    <dt class="text-muted-foreground">{{ $t('recordingSettings.capture') }}</dt>
+                    <dd class="text-right">
+                        {{
+                            ffmpeg.ddagrab
+                                ? $t('recordingSettings.captureBoth')
+                                : $t('recordingSettings.captureGdiOnly')
+                        }}
+                    </dd>
+                </template>
                 <dt class="text-muted-foreground">{{ $t('recordingSettings.gpuEncoders') }}</dt>
                 <dd class="flex flex-wrap justify-end gap-1">
                     <UiBadge v-for="encoder in gpuEncoders" :key="encoder" variant="secondary">
@@ -79,7 +81,7 @@
             </UiButton>
             <UiButton variant="outline" :disabled="isDownloading" @click="handlePickFfmpeg">
                 <IFolderOpen />
-                {{ $t('recordingSettings.useOwn') }}
+                {{ $t(isLinux ? 'recordingSettings.useOwnLinux' : 'recordingSettings.useOwn') }}
             </UiButton>
             <UiButton
                 v-if="!ffmpeg?.isManaged"
@@ -111,7 +113,7 @@
                             </UiSelectTrigger>
                             <UiSelectContent>
                                 <UiSelectItem
-                                    v-for="codec in VIDEO_CODECS"
+                                    v-for="codec in codecs"
                                     :key="codec"
                                     :value="codec"
                                     :disabled="!isAvailable(codec)"
@@ -268,7 +270,7 @@
                             :model-value="recording.source"
                             @update:model-value="
                                 updateSection('recording', {
-                                    source: $event as (typeof VIDEO_SOURCES)[number],
+                                    source: $event as VideoSource,
                                 })
                             "
                         >
@@ -277,7 +279,7 @@
                             </UiSelectTrigger>
                             <UiSelectContent>
                                 <UiSelectItem
-                                    v-for="source in VIDEO_SOURCES"
+                                    v-for="source in capabilities.videoSources"
                                     :key="source"
                                     :value="source"
                                 >
@@ -286,7 +288,13 @@
                             </UiSelectContent>
                         </UiSelect>
                         <UiFieldDescription>
-                            {{ $t('recordingSettings.captureMethodDescription') }}
+                            {{
+                                $t(
+                                    hasDesktopDuplication
+                                        ? 'recordingSettings.captureMethodDescription'
+                                        : 'recordingSettings.captureMethodDescriptionLinux',
+                                )
+                            }}
                         </UiFieldDescription>
                     </UiField>
 
@@ -331,7 +339,7 @@
                 <UiFieldSeparator />
 
                 <UiField
-                    v-for="field in VIDEO_SWITCHES"
+                    v-for="field in videoSwitches"
                     :key="field.key"
                     orientation="horizontal"
                     class="has-[>[data-slot=field-content]]:items-center"
@@ -398,7 +406,13 @@
                                 </UiSelectTrigger>
                                 <UiSelectContent>
                                     <UiSelectItem :value="DEFAULT_OPTION">
-                                        {{ $t('recordingSettings.windowsDefault') }}
+                                        {{
+                                            $t(
+                                                isLinux
+                                                    ? 'recordingSettings.systemDefault'
+                                                    : 'recordingSettings.windowsDefault',
+                                            )
+                                        }}
                                     </UiSelectItem>
                                     <UiSelectItem
                                         v-for="device in microphones"
@@ -432,7 +446,7 @@
                     </div>
 
                     <UiField
-                        v-for="field in MICROPHONE_SWITCHES"
+                        v-for="field in microphoneSwitches"
                         :key="field.key"
                         orientation="horizontal"
                         class="has-[>[data-slot=field-content]]:items-center"
@@ -718,7 +732,7 @@
                         id="recording-input-args"
                         v-model="inputArgs"
                         class="font-mono"
-                        :placeholder="INPUT_ARGS_PLACEHOLDER"
+                        :placeholder="isLinux ? undefined : INPUT_ARGS_PLACEHOLDER"
                         @change="updateSection('recording', { inputArgs })"
                     />
                 </UiField>
@@ -764,8 +778,8 @@ import {
     CONTAINERS,
     GIF_DITHERS,
     VIDEO_CODECS,
-    VIDEO_SOURCES,
     type VideoCodec,
+    type VideoSource,
 } from '../../../shared/settings';
 
 type NumberSection = 'recording' | 'audio' | 'gif';
@@ -775,10 +789,12 @@ const AUDIO_BITRATES = [64, 96, 128, 160, 192, 256, 320];
 const INPUT_ARGS_PLACEHOLDER = '-rtbufsize 512M';
 const OUTPUT_ARGS_PLACEHOLDER = '-g 120 -bf 0';
 
-const SOURCE_LABELS: Record<(typeof VIDEO_SOURCES)[number], string> = {
+const SOURCE_LABELS: Record<VideoSource, string> = {
     auto: 'recordingSettings.automatic',
     ddagrab: 'recordingSettings.ddagrab',
     gdigrab: 'recordingSettings.gdigrab',
+    x11grab: 'recordingSettings.x11grab',
+    pipewire: 'recordingSettings.pipewire',
 };
 
 const CODEC_LABELS: Record<Exclude<VideoCodec, 'auto'>, string> = {
@@ -793,6 +809,9 @@ const CODEC_LABELS: Record<Exclude<VideoCodec, 'auto'>, string> = {
     h264_qsv: 'H.264 · Intel Quick Sync',
     hevc_qsv: 'HEVC · Intel Quick Sync',
     av1_qsv: 'AV1 · Intel Quick Sync',
+    h264_vaapi: 'H.264 · VA-API',
+    hevc_vaapi: 'HEVC · VA-API',
+    av1_vaapi: 'AV1 · VA-API',
     'libvpx-vp9': 'VP9 · libvpx (CPU)',
     libsvtav1: 'AV1 · SVT-AV1 (CPU)',
 };
@@ -885,8 +904,20 @@ const DEFAULT_PRESETS: Record<string, string> = {
 };
 
 const settings = useSettings();
+const appInfo = useAppInfo();
 const { $toast } = useNuxtApp();
 const { t } = useI18n();
+
+const { capabilities } = appInfo.value;
+const isLinux = appInfo.value.platform === 'linux';
+const hasDesktopDuplication = capabilities.videoSources.includes('ddagrab');
+const codecs = VIDEO_CODECS.filter((codec) => isLinux || !codec.endsWith('_vaapi'));
+const videoSwitches = VIDEO_SWITCHES.filter(
+    (field) => field.key !== 'showBorder' || capabilities.recordingBorder,
+);
+const microphoneSwitches = MICROPHONE_SWITCHES.filter(
+    (field) => capabilities.voiceProcessing[field.key],
+);
 
 const ffmpeg = ref<FfmpegStatus | null>(null);
 const preview = ref('');
@@ -904,14 +935,14 @@ const gif = computed(() => settings.value!.gif);
 
 const isDownloading = computed(() => !!ffmpeg.value?.download && !ffmpeg.value.download.error);
 const gpuEncoders = computed(
-    () => ffmpeg.value?.encoders.filter((name) => /_(nvenc|amf|qsv)$/.test(name)) ?? [],
+    () => ffmpeg.value?.encoders.filter((name) => /_(nvenc|amf|qsv|vaapi)$/.test(name)) ?? [],
 );
 const hasBothSources = computed(() => audio.value.microphone && audio.value.system);
 
 const effectiveCodec = computed(() => {
     if (recording.value.codec !== 'auto') return recording.value.codec;
     return (
-        (['h264_nvenc', 'h264_amf', 'h264_qsv'] as const).find((codec) =>
+        (['h264_nvenc', 'h264_amf', 'h264_qsv', 'h264_vaapi'] as const).find((codec) =>
             ffmpeg.value?.encoders.includes(codec),
         ) ?? 'libx264'
     );
@@ -932,7 +963,7 @@ const presets = computed(() => {
 const qualityLabel = computed(() => {
     const codec = effectiveCodec.value;
     if (codec.endsWith('_nvenc')) return 'recordingSettings.constantQuality';
-    if (codec.endsWith('_amf')) return 'recordingSettings.quantizer';
+    if (codec.endsWith('_amf') || codec.endsWith('_vaapi')) return 'recordingSettings.quantizer';
     if (codec.endsWith('_qsv')) return 'recordingSettings.globalQuality';
     return 'recordingSettings.constantRateFactor';
 });
