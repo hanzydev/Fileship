@@ -1,9 +1,9 @@
 #include "app.h"
 #include "rpc.h"
 
+#include <shared/hash.h>
 #include <shared/log.h>
 
-#include <bcrypt.h>
 #include <shlobj.h>
 
 #include <fstream>
@@ -181,45 +181,19 @@ std::filesystem::path downloadFolder() {
     return result;
 }
 
-class Sha512 {
-public:
-    Sha512() {
-        BCryptOpenAlgorithmProvider(&algorithm, BCRYPT_SHA512_ALGORITHM, nullptr, 0);
-        BCryptCreateHash(algorithm, &hash, nullptr, 0, nullptr, 0, 0);
-    }
-
-    ~Sha512() {
-        if (hash) BCryptDestroyHash(hash);
-        if (algorithm) BCryptCloseAlgorithmProvider(algorithm, 0);
-    }
-
-    void update(char const* data, size_t size) {
-        BCryptHashData(hash, reinterpret_cast<PUCHAR>(const_cast<char*>(data)), static_cast<ULONG>(size), 0);
-    }
-
-    std::wstring finish() {
-        uint8_t digest[64]{};
-        BCryptFinishHash(hash, digest, sizeof(digest), 0);
-        return base64(digest, sizeof(digest));
-    }
-
-private:
-    BCRYPT_ALG_HANDLE algorithm = nullptr;
-    BCRYPT_HASH_HANDLE hash = nullptr;
-};
-
 std::wstring hashFile(std::filesystem::path const& path) {
     std::ifstream file(path, std::ios::binary);
     if (!file) return {};
 
-    Sha512 hasher;
+    Hasher hasher(HashKind::Sha512);
     std::vector<char> buffer(1024 * 1024);
     while (file) {
         file.read(buffer.data(), static_cast<std::streamsize>(buffer.size()));
         hasher.update(buffer.data(), static_cast<size_t>(file.gcount()));
     }
 
-    return hasher.finish();
+    auto digest = hasher.finish();
+    return base64(digest.data(), digest.size());
 }
 
 HttpEndpoint endpointFor(std::wstring const& base) {
@@ -259,12 +233,12 @@ void download(Release const& release, std::filesystem::path const& target) {
     std::ofstream file(partial, std::ios::binary | std::ios::trunc);
     if (!file) throw std::runtime_error("Could not write the update");
 
-    Sha512 hasher;
+    Hasher hasher(HashKind::Sha512);
     std::vector<char> buffer(256 * 1024);
     int64_t received = 0;
     int reported = -1;
 
-    while (DWORD read = stream->read(buffer.data(), static_cast<DWORD>(buffer.size()))) {
+    while (size_t read = stream->read(buffer.data(), buffer.size())) {
         file.write(buffer.data(), read);
         hasher.update(buffer.data(), read);
         received += read;
@@ -280,7 +254,8 @@ void download(Release const& release, std::filesystem::path const& target) {
 
     file.close();
 
-    if (hasher.finish() != release.sha512) {
+    auto digest = hasher.finish();
+    if (base64(digest.data(), digest.size()) != release.sha512) {
         std::error_code error;
         std::filesystem::remove(partial, error);
         throw std::runtime_error("sha512 checksum mismatch");

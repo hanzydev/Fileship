@@ -355,8 +355,8 @@ void HarborHelper::handleLine(std::string const& line) {
                 onEvent(parseEvent(*message));
             } catch (std::exception const& error) {
                 logWarn(L"[harbor] event failed: " + errorMessage(error));
-            } catch (winrt::hresult_error const& error) {
-                logWarn(L"[harbor] event failed: " + std::wstring(error.message()));
+            } catch (...) {
+                logWarn(L"[harbor] event failed: " + describeException(std::current_exception()));
             }
         }
         return;

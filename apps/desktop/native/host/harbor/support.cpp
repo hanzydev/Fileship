@@ -1,9 +1,9 @@
 #include "support.h"
 
+#include <shared/hash.h>
 #include <shared/i18n.h>
 #include <shared/log.h>
 
-#include <bcrypt.h>
 #include <icu.h>
 
 #include <algorithm>
@@ -76,8 +76,8 @@ void SerialQueue::run() {
         } catch (std::exception const& error) {
             logError(name + L" task failed: " + errorMessage(error));
             promise->set_exception(std::current_exception());
-        } catch (winrt::hresult_error const& error) {
-            logError(name + L" task failed: " + std::wstring(error.message()));
+        } catch (...) {
+            logError(name + L" task failed: " + describeException(std::current_exception()));
             promise->set_exception(std::current_exception());
         }
     }
@@ -144,8 +144,8 @@ void Timers::run() {
             callback();
         } catch (std::exception const& error) {
             logError(L"Harbor timer failed: " + errorMessage(error));
-        } catch (winrt::hresult_error const& error) {
-            logError(L"Harbor timer failed: " + std::wstring(error.message()));
+        } catch (...) {
+            logError(L"Harbor timer failed: " + describeException(std::current_exception()));
         }
 
         lock.lock();
@@ -195,45 +195,12 @@ int64_t parseIsoDate(std::wstring const& text) {
 }
 
 std::wstring randomHex(size_t bytes) {
-    std::vector<unsigned char> random(bytes);
-    BCryptGenRandom(nullptr, random.data(), static_cast<ULONG>(random.size()),
-                    BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-
-    std::wstring result;
-    for (auto byte : random) {
-        wchar_t hex[3]{};
-        swprintf_s(hex, L"%02x", byte);
-        result += hex;
-    }
-
-    return result;
+    std::vector<uint8_t> random(bytes);
+    randomBytes(random.data(), random.size());
+    return toWide(toHex(random));
 }
 
 namespace {
-
-std::string hashHex(LPCWSTR algorithm, std::string const& data) {
-    BCRYPT_ALG_HANDLE provider = nullptr;
-    BCryptOpenAlgorithmProvider(&provider, algorithm, nullptr, 0);
-
-    DWORD length = 0;
-    DWORD size = 0;
-    BCryptGetProperty(provider, BCRYPT_HASH_LENGTH, reinterpret_cast<PUCHAR>(&length), sizeof(length),
-                      &size, 0);
-
-    std::vector<unsigned char> digest(length);
-    BCryptHash(provider, nullptr, 0, reinterpret_cast<PUCHAR>(const_cast<char*>(data.data())),
-               static_cast<ULONG>(data.size()), digest.data(), length);
-    BCryptCloseAlgorithmProvider(provider, 0);
-
-    std::string result;
-    for (auto byte : digest) {
-        char hex[3]{};
-        snprintf(hex, sizeof(hex), "%02x", byte);
-        result += hex;
-    }
-
-    return result;
-}
 
 std::string localeName() {
     return toUtf8(language());
@@ -242,11 +209,11 @@ std::string localeName() {
 }
 
 std::string sha1Hex(std::string const& data) {
-    return hashHex(BCRYPT_SHA1_ALGORITHM, data);
+    return hashHex(HashKind::Sha1, data);
 }
 
 std::string sha256Hex(std::string const& data) {
-    return hashHex(BCRYPT_SHA256_ALGORITHM, data);
+    return hashHex(HashKind::Sha256, data);
 }
 
 std::wstring lower(std::wstring const& text) {

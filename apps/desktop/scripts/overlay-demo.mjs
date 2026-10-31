@@ -20,6 +20,7 @@ const sources = (folder) =>
 
 const groups = {
     shared: sources('shared'),
+    'shared-windows': sources(join('shared', 'windows')),
     ui: sources('ui'),
     demo: sources(join('ui', 'demo')),
 };

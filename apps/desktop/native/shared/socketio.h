@@ -7,13 +7,12 @@
 #include <condition_variable>
 #include <functional>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
 
 namespace fileship {
-
-using winrt::Windows::Data::Json::IJsonValue;
 
 class SocketIo {
 public:
@@ -35,7 +34,6 @@ public:
 
 private:
     void run();
-    bool session();
     bool open();
     void closeSocket();
     bool sendText(std::string const& text);
@@ -51,9 +49,7 @@ private:
     std::mutex mutex;
     std::mutex sendMutex;
     std::condition_variable wake;
-    HINTERNET internet = nullptr;
-    HINTERNET connection = nullptr;
-    HINTERNET socket = nullptr;
+    std::shared_ptr<WebSocket> socket;
     std::atomic<bool> stopping = false;
     std::atomic<bool> connected = false;
     bool rejected = false;

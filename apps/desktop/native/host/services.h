@@ -4,6 +4,7 @@
 #include <shared/http.h>
 #include <shared/i18n.h>
 #include <shared/json.h>
+#include <shared/system.h>
 #include <ui/overlay.h>
 
 #include <cstdint>
@@ -15,8 +16,6 @@
 #include <vector>
 
 namespace fileship::host {
-
-using winrt::Windows::Data::Json::IJsonValue;
 
 std::filesystem::path userDataPath();
 std::filesystem::path resourcesPath();

@@ -1,8 +1,11 @@
 #include "log.h"
 
+#include "system.h"
 #include "utf8.h"
 
+#include <chrono>
 #include <cstdio>
+#include <fstream>
 #include <mutex>
 
 namespace fileship {
@@ -28,25 +31,23 @@ void initLog(std::filesystem::path const& file) {
 }
 
 void writeLog(LogLevel level, std::wstring_view message) {
-    SYSTEMTIME time{};
-    GetLocalTime(&time);
+    auto now = std::chrono::system_clock::now();
+    auto time = localTime(std::chrono::system_clock::to_time_t(now));
+    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count() % 1000;
 
     char prefix[64]{};
-    snprintf(prefix, sizeof(prefix), "[%04u-%02u-%02u %02u:%02u:%02u.%03u] [%s] ", time.wYear, time.wMonth,
-             time.wDay, time.wHour, time.wMinute, time.wSecond, time.wMilliseconds,
+    snprintf(prefix, sizeof(prefix), "[%04d-%02d-%02d %02d:%02d:%02d.%03d] [%s] ", time.tm_year + 1900,
+             time.tm_mon + 1, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec, static_cast<int>(milliseconds),
              level == LogLevel::Error ? "error" : level == LogLevel::Warn ? "warn" : "info");
 
     auto line = prefix + toUtf8(message) + "\n";
-    OutputDebugStringW(toWide(line).c_str());
+    debugOutput(line);
 
     std::lock_guard lock(mutex);
     if (logFile.empty()) return;
 
-    FILE* file = nullptr;
-    if (_wfopen_s(&file, logFile.c_str(), L"ab") != 0) return;
-
-    fwrite(line.data(), 1, line.size(), file);
-    fclose(file);
+    std::ofstream file(logFile, std::ios::binary | std::ios::app);
+    file.write(line.data(), static_cast<std::streamsize>(line.size()));
 }
 
 }

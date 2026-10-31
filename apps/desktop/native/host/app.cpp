@@ -80,8 +80,8 @@ void CALLBACK runWork(PTP_CALLBACK_INSTANCE, void* context) {
         (*work)();
     } catch (std::exception const& error) {
         logError(L"Background task failed: " + errorMessage(error));
-    } catch (winrt::hresult_error const& error) {
-        logError(L"Background task failed: " + std::wstring(error.message()));
+    } catch (...) {
+        logError(L"Background task failed: " + describeException(std::current_exception()));
     }
 }
 
@@ -194,8 +194,8 @@ void runMainQueue() {
             work();
         } catch (std::exception const& error) {
             logError(L"Main thread task failed: " + errorMessage(error));
-        } catch (winrt::hresult_error const& error) {
-            logError(L"Main thread task failed: " + std::wstring(error.message()));
+        } catch (...) {
+            logError(L"Main thread task failed: " + describeException(std::current_exception()));
         }
     }
 }

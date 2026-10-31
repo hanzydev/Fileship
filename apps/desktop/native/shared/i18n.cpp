@@ -2,6 +2,7 @@
 
 #include "json.h"
 #include "log.h"
+#include "system.h"
 
 #include <cstdlib>
 #include <fstream>
@@ -106,14 +107,10 @@ std::wstring resolveLanguage(std::wstring const& setting) {
     auto supported = languages();
     if (setting != L"system") return setting;
 
-    ULONG count = 0;
-    ULONG size = 0;
-    GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &count, nullptr, &size);
+    auto preferred = preferredLanguages();
+    if (preferred.empty()) return L"en";
 
-    std::wstring buffer(size, L'\0');
-    if (!GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &count, buffer.data(), &size)) return L"en";
-
-    std::wstring first(buffer.c_str());
+    std::wstring const& first = preferred.front();
     std::wstring code = first.substr(0, first.find(L'-'));
     for (auto& character : code) character = static_cast<wchar_t>(towlower(character));
 

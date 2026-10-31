@@ -8,8 +8,6 @@
 
 namespace fileship::host {
 
-using winrt::Windows::Data::Json::IJsonValue;
-
 using RpcHandler = std::function<IJsonValue(JsonArray const& args)>;
 
 void registerHandler(std::wstring const& channel, RpcHandler handler);

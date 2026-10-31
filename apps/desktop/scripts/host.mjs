@@ -1,5 +1,5 @@
 import { mkdirSync, readdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, sep } from 'node:path';
 
 import {
     compileGroups,
@@ -27,7 +27,11 @@ const groupSources = (...folders) => {
 
     for (const folder of folders) {
         for (const file of readdirSync(join(native, folder), { recursive: true })) {
-            if (!file.endsWith('.cpp') || join(folder, file).startsWith(join('ui', 'demo')))
+            if (
+                !file.endsWith('.cpp') ||
+                join(folder, file).startsWith(join('ui', 'demo')) ||
+                file.split(sep).includes('linux')
+            )
                 continue;
 
             const group = join(folder, dirname(file)).replaceAll('\\', '-').replace(/-\.$/, '');

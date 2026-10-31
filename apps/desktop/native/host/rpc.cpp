@@ -154,9 +154,10 @@ void respond(std::shared_ptr<Client> const& client, JsonValue const& id, std::st
     } catch (std::exception const& error) {
         response.SetNamedValue(L"ok", JsonValue::CreateBooleanValue(false));
         response.SetNamedValue(L"error", JsonValue::CreateStringValue(errorMessage(error)));
-    } catch (winrt::hresult_error const& error) {
+    } catch (...) {
         response.SetNamedValue(L"ok", JsonValue::CreateBooleanValue(false));
-        response.SetNamedValue(L"error", JsonValue::CreateStringValue(error.message()));
+        response.SetNamedValue(L"error",
+                               JsonValue::CreateStringValue(describeException(std::current_exception())));
     }
 
     activeClient = 0;

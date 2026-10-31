@@ -1,6 +1,7 @@
 #pragma once
 
 #include <shared/json.h>
+#include <shared/system.h>
 
 #include <condition_variable>
 #include <cstdint>

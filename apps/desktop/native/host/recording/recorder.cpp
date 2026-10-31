@@ -102,8 +102,8 @@ void async(char const* name, Work work) {
             work();
         } catch (std::exception const& error) {
             logError(toWide(name) + L" failed: " + toWide(error.what()));
-        } catch (winrt::hresult_error const& error) {
-            logError(toWide(name) + L" failed: " + std::wstring(error.message()));
+        } catch (...) {
+            logError(toWide(name) + L" failed: " + describeException(std::current_exception()));
         }
     }).detach();
 }

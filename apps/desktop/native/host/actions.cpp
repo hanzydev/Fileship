@@ -155,9 +155,9 @@ void runGuarded(std::wstring const& name, bool requiresAccount, std::function<vo
     } catch (std::exception const& error) {
         logError(name + L" failed: " + errorMessage(error));
         notify(t(L"app.somethingWentWrong"), errorMessage(error));
-    } catch (winrt::hresult_error const& error) {
-        logError(name + L" failed: " + std::wstring(error.message()));
-        notify(t(L"app.somethingWentWrong"), std::wstring(error.message()));
+    } catch (...) {
+        logError(name + L" failed: " + describeException(std::current_exception()));
+        notify(t(L"app.somethingWentWrong"), describeException(std::current_exception()));
     }
 }
 
