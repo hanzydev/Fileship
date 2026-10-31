@@ -2,8 +2,8 @@
 
 #include <host/app.h>
 #include <shared/log.h>
+#include <ui/linux/gtk.h>
 
-#include <gtk/gtk.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -43,8 +43,7 @@ GDBusConnection* sessionBus() {
 }
 
 bool ensureGtk() {
-    static bool const isReady = gtk_init_check();
-    return isReady;
+    return ui::initGtk();
 }
 
 bool isFlatpak() {

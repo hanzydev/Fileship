@@ -12,18 +12,7 @@ import {
 } from './msvc.mjs';
 
 const PLATFORM_FOLDERS = { win32: 'windows', linux: 'linux' };
-const PENDING_ON_LINUX = [
-    join('ui', 'annotator.cpp'),
-    join('ui', 'gfx.cpp'),
-    join('ui', 'overlay.cpp'),
-    join('ui', 'preferences.cpp'),
-    join('ui', 'recorderUi.cpp'),
-    join('ui', 'toolbar.cpp'),
-    join('ui', 'uiThread.cpp'),
-    join('ui', 'widgets.cpp'),
-    join('host', 'recording'),
-    join('host', 'harbor'),
-];
+const PENDING_ON_LINUX = [join('host', 'recording'), join('host', 'harbor')];
 
 const platform = PLATFORM_FOLDERS[process.platform];
 if (!platform) {
