@@ -1,4 +1,8 @@
 export const getDevice = (userAgent: string) => {
+    if (/FileshipDesktop\/\S+ \(Linux\)/.test(userAgent)) {
+        return { os: 'Desktop', platform: 'Fileship for Linux' };
+    }
+
     if (/FileshipDesktop\//.test(userAgent)) {
         return { os: 'Desktop', platform: 'Fileship for Windows' };
     }
