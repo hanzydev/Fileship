@@ -17,6 +17,8 @@ const PACKAGE_NAMES = {
     xfixes: 'libxfixes-dev',
     xrandr: 'libxrandr-dev',
     fontconfig: 'libfontconfig-dev',
+    'wayland-client': 'libwayland-dev',
+    'wayland-scanner': 'libwayland-bin',
     'glib-2.0': 'libglib2.0-dev',
     'gio-2.0': 'libglib2.0-dev',
     'gio-unix-2.0': 'libglib2.0-dev',

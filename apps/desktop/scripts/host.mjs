@@ -10,6 +10,7 @@ import {
     runWithMsvc,
     writeVersionResource,
 } from './msvc.mjs';
+import { generateProtocols } from './wayland.mjs';
 
 const PLATFORM_FOLDERS = { win32: 'windows', linux: 'linux' };
 const PENDING_ON_LINUX = [join('host', 'recording'), join('host', 'harbor')];
@@ -53,6 +54,8 @@ const groups = groupSources('shared', 'ui', 'host', 'core');
 mkdirSync(objects, { recursive: true });
 
 if (platform === 'linux') {
+    generateProtocols(join(native, 'protocols'), join(generated, 'wayland'));
+
     await buildExecutable({
         objects,
         executable: join(output, 'fileship-host'),
@@ -70,6 +73,7 @@ if (platform === 'linux') {
             'xfixes',
             'xrandr',
             'fontconfig',
+            'wayland-client',
         ],
         flags: [`-I${native}`, `-I${generated}`],
     });
