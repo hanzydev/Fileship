@@ -344,6 +344,7 @@ mkdirSync(catalogs, { recursive: true });
 mkdirSync(fonts, { recursive: true });
 
 writeVersion();
+copyFileSync(join(root, 'build', 'icon.png'), join(root, 'build', 'host', 'icon.png'));
 writeTheme();
 await writeIcons();
 writeCatalogs();

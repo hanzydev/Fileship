@@ -129,7 +129,7 @@ Release parseRelease(std::string const& text) {
     int fileCount = 0;
 
     while (std::getline(lines, line)) {
-        if (!line.empty() && line.back() == L'') line.pop_back();
+        if (!line.empty() && line.back() == L'\r') line.pop_back();
 
         auto first = line.find_first_not_of(L' ');
         if (first == std::wstring::npos || line[first] == L'#') continue;

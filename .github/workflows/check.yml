@@ -20,6 +20,13 @@ jobs:
                   node-version: 24
                   cache: 'pnpm'
 
+            - name: Install the desktop build dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y --no-install-recommends libgtk-4-dev libcurl4-openssl-dev \
+                      libsqlite3-dev libsecret-1-dev libpulse-dev libpipewire-0.3-dev libfuse3-dev libx11-dev \
+                      libxext-dev libxfixes-dev libxrandr-dev libfontconfig-dev
+
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
 

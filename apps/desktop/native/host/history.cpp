@@ -9,6 +9,7 @@
 #include <sqlite3.h>
 #endif
 
+#include <algorithm>
 #include <mutex>
 
 namespace fileship::host {

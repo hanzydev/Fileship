@@ -28,6 +28,7 @@ std::optional<std::wstring> unprotectSecret(std::wstring const& name, std::wstri
 bool replaceFile(std::filesystem::path const& from, std::filesystem::path const& to);
 std::vector<std::filesystem::path> pickFiles();
 bool systemUsesLightTheme();
+bool textLess(std::wstring const& a, std::wstring const& b);
 
 std::wstring updateManifestName();
 void startInstaller(std::filesystem::path const& path, bool forceRun);

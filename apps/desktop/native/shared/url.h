@@ -22,7 +22,7 @@ inline std::optional<Url> parseUrl(std::wstring_view text) {
     auto startsWith = [&](std::wstring_view prefix) {
         if (text.size() < prefix.size()) return false;
         for (size_t index = 0; index < prefix.size(); index++)
-            if (std::towlower(text[index]) != prefix[index]) return false;
+            if (static_cast<wchar_t>(std::towlower(text[index])) != prefix[index]) return false;
         return true;
     };
 

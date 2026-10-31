@@ -148,6 +148,11 @@ bool systemUsesLightTheme() {
            value;
 }
 
+bool textLess(std::wstring const& a, std::wstring const& b) {
+    return CompareStringEx(language().c_str(), LINGUISTIC_IGNORECASE, a.c_str(), -1, b.c_str(), -1, nullptr, nullptr,
+                           0) == CSTR_LESS_THAN;
+}
+
 void openWebUrl(std::wstring const& url) {
     auto lower = url.substr(0, 8);
     for (auto& character : lower) character = static_cast<wchar_t>(towlower(character));

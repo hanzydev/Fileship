@@ -5,6 +5,7 @@
 #include <host/recording.h>
 #include <shared/log.h>
 
+#include <algorithm>
 #include <mutex>
 #include <set>
 
@@ -96,11 +97,7 @@ IJsonValue listFolders() {
     std::vector<std::pair<std::wstring, std::wstring>> named;
     for (auto const& folder : folders) named.emplace_back(folder.id, pathOf(folder, 0));
 
-    auto locale = language();
-    std::sort(named.begin(), named.end(), [&](auto const& a, auto const& b) {
-        return CompareStringEx(locale.c_str(), LINGUISTIC_IGNORECASE, a.second.c_str(), -1, b.second.c_str(), -1,
-                               nullptr, nullptr, 0) == CSTR_LESS_THAN;
-    });
+    std::sort(named.begin(), named.end(), [](auto const& a, auto const& b) { return textLess(a.second, b.second); });
 
     JsonArray result;
     for (auto const& [id, name] : named) {
