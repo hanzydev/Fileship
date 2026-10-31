@@ -38,7 +38,19 @@ GMainLoop* mainLoop() {
 }
 
 GDBusConnection* sessionBus() {
-    static GDBusConnection* connection = g_bus_get_sync(G_BUS_TYPE_SESSION, nullptr, nullptr);
+    static GDBusConnection* connection = [] {
+        auto bus = g_bus_get_sync(G_BUS_TYPE_SESSION, nullptr, nullptr);
+        if (!bus || isFlatpak()) return bus;
+
+        GVariantBuilder options;
+        g_variant_builder_init(&options, G_VARIANT_TYPE_VARDICT);
+        auto reply = g_dbus_connection_call_sync(bus, "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop",
+                                                 "org.freedesktop.host.portal.Registry", "Register",
+                                                 g_variant_new("(sa{sv})", "dev.hanzy.fileship", &options), nullptr,
+                                                 G_DBUS_CALL_FLAGS_NONE, 2000, nullptr, nullptr);
+        if (reply) g_variant_unref(reply);
+        return bus;
+    }();
     return connection;
 }
 
