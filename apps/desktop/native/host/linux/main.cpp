@@ -59,6 +59,7 @@ int main(int argc, char** argv) {
     stopRpcServer();
     logInfo(L"Stopped");
     close(lock);
-    std::fflush(nullptr);
+    std::fflush(stdout);
+    std::fflush(stderr);
     _exit(0);
 }
