@@ -2,33 +2,18 @@
 
 #include "support.h"
 
+#include <host/platform.h>
 #include <host/services.h>
 #include <shared/i18n.h>
 #include <shared/log.h>
-
-#include <shlobj.h>
 
 #include <future>
 #include <stdexcept>
 #include <thread>
 
-#undef GetObject
-
 namespace fileship::host::harbor {
 
 namespace {
-
-std::wstring localAppData() {
-    PWSTR folder = nullptr;
-    SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &folder);
-    std::wstring result(folder);
-    CoTaskMemFree(folder);
-    return result;
-}
-
-[[noreturn]] void throwLastError(char const* what) {
-    throw std::runtime_error(std::string(what) + " failed with " + std::to_string(GetLastError()));
-}
 
 HelperEvent parseEvent(JsonObject const& message) {
     HelperEvent event;
@@ -75,7 +60,7 @@ std::vector<ScanItem> itemsOf(JsonObject const& result) {
 }
 
 std::filesystem::path helperPath() {
-    return resourcesPath().parent_path() / L"harbor" / L"fileship-harbor.exe";
+    return resourcesPath().parent_path() / L"harbor" / executableName(L"fileship-harbor");
 }
 
 bool isHelperAvailable() {
@@ -84,82 +69,27 @@ bool isHelperAvailable() {
 }
 
 std::filesystem::path harborSessionPath() {
-    return std::filesystem::path(localAppData()) / L"Fileship" / L"harbor.json";
+    return localDataFolder() / L"Fileship" / L"harbor.json";
 }
 
-HarborHelper::~HarborHelper() {
-    if (input) CloseHandle(input);
-    if (process) CloseHandle(process);
-}
+HarborHelper::~HarborHelper() = default;
 
 void HarborHelper::start() {
-    SECURITY_ATTRIBUTES inherit{sizeof(inherit), nullptr, TRUE};
-    HANDLE inputRead = nullptr, inputWrite = nullptr;
-    HANDLE outputRead = nullptr, outputWrite = nullptr;
-    HANDLE errorRead = nullptr, errorWrite = nullptr;
-
-    if (!CreatePipe(&inputRead, &inputWrite, &inherit, 0) ||
-        !CreatePipe(&outputRead, &outputWrite, &inherit, 0) ||
-        !CreatePipe(&errorRead, &errorWrite, &inherit, 0)) {
-        throwLastError("CreatePipe");
-    }
-
-    SetHandleInformation(inputWrite, HANDLE_FLAG_INHERIT, 0);
-    SetHandleInformation(outputRead, HANDLE_FLAG_INHERIT, 0);
-    SetHandleInformation(errorRead, HANDLE_FLAG_INHERIT, 0);
-
-    HANDLE inherited[] = {inputRead, outputWrite, errorWrite};
-    SIZE_T size = 0;
-    InitializeProcThreadAttributeList(nullptr, 1, 0, &size);
-    std::vector<char> attributes(size);
-    auto list = reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(attributes.data());
-    InitializeProcThreadAttributeList(list, 1, 0, &size);
-    UpdateProcThreadAttribute(list, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST, inherited, sizeof(inherited),
-                              nullptr, nullptr);
-
-    STARTUPINFOEXW startup{};
-    startup.StartupInfo.cb = sizeof(startup);
-    startup.StartupInfo.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
-    startup.StartupInfo.wShowWindow = SW_HIDE;
-    startup.StartupInfo.hStdInput = inputRead;
-    startup.StartupInfo.hStdOutput = outputWrite;
-    startup.StartupInfo.hStdError = errorWrite;
-    startup.lpAttributeList = list;
-
-    auto executable = helperPath().wstring();
-    std::wstring command = L"\"" + executable + L"\"";
-    PROCESS_INFORMATION info{};
-
-    BOOL created = CreateProcessW(executable.c_str(), command.data(), nullptr, nullptr, TRUE,
-                                  CREATE_NO_WINDOW | EXTENDED_STARTUPINFO_PRESENT, nullptr, nullptr,
-                                  &startup.StartupInfo, &info);
-    DWORD error = GetLastError();
-
-    DeleteProcThreadAttributeList(list);
-    CloseHandle(inputRead);
-    CloseHandle(outputWrite);
-    CloseHandle(errorWrite);
-
-    if (!created) {
-        CloseHandle(inputWrite);
-        CloseHandle(outputRead);
-        CloseHandle(errorRead);
-        SetLastError(error);
-        throwLastError("CreateProcess");
-    }
-
-    CloseHandle(info.hThread);
-
-    {
-        std::lock_guard lock(mutex);
-        process = info.hProcess;
-        input = inputWrite;
-        running = true;
-    }
-
     auto self = shared_from_this();
-    std::thread([self, outputRead] { self->readOutput(outputRead); }).detach();
-    std::thread([self, errorRead] { self->readErrors(errorRead); }).detach();
+    ChildProcess::Handlers handlers;
+    handlers.onError = [](std::string const& line) {
+        if (!line.empty()) logWarn(L"[harbor] " + toWide(line));
+    };
+    handlers.onOutput = [self](std::string const& line) {
+        if (!line.empty()) self->handleLine(line);
+    };
+    handlers.onOutputClosed = [self] { self->finish(); };
+
+    auto child = std::make_unique<ChildProcess>(helperPath().wstring(), std::vector<std::wstring>{}, std::move(handlers));
+
+    std::lock_guard lock(mutex);
+    process = std::move(child);
+    running = true;
 }
 
 bool HarborHelper::isRunning() const {
@@ -168,17 +98,8 @@ bool HarborHelper::isRunning() const {
 
 void HarborHelper::write(std::string const& line) {
     std::lock_guard writing(writeMutex);
-    HANDLE handle = nullptr;
-
-    {
-        std::lock_guard lock(mutex);
-        handle = input;
-    }
-
-    if (!handle) return;
-
-    DWORD written = 0;
-    WriteFile(handle, line.data(), static_cast<DWORD>(line.size()), &written, nullptr);
+    std::lock_guard lock(mutex);
+    if (process && running) process->write(line);
 }
 
 void HarborHelper::requestAsync(std::wstring const& type, JsonObject payload, Callback callback,
@@ -290,55 +211,9 @@ void HarborHelper::stop() {
     } catch (std::exception const&) {
     }
 
-    HANDLE handle = nullptr;
-    {
-        std::lock_guard lock(mutex);
-        handle = process;
-    }
-
-    if (handle && WaitForSingleObject(handle, 2000) == WAIT_TIMEOUT) TerminateProcess(handle, 1);
+    std::lock_guard lock(mutex);
+    if (process && !process->wait(2000)) process->kill();
     running = false;
-}
-
-void HarborHelper::readOutput(HANDLE output) {
-    std::string buffer;
-    char chunk[65536];
-    DWORD read = 0;
-
-    while (ReadFile(output, chunk, sizeof(chunk), &read, nullptr) && read > 0) {
-        buffer.append(chunk, read);
-
-        size_t newline = 0;
-        while ((newline = buffer.find('\n')) != std::string::npos) {
-            std::string line = buffer.substr(0, newline);
-            buffer.erase(0, newline + 1);
-            if (!line.empty() && line.back() == '\r') line.pop_back();
-            if (!line.empty()) handleLine(line);
-        }
-    }
-
-    CloseHandle(output);
-    finish();
-}
-
-void HarborHelper::readErrors(HANDLE errors) {
-    std::string buffer;
-    char chunk[4096];
-    DWORD read = 0;
-
-    while (ReadFile(errors, chunk, sizeof(chunk), &read, nullptr) && read > 0) {
-        buffer.append(chunk, read);
-
-        size_t newline = 0;
-        while ((newline = buffer.find('\n')) != std::string::npos) {
-            std::string line = buffer.substr(0, newline);
-            buffer.erase(0, newline + 1);
-            if (!line.empty() && line.back() == '\r') line.pop_back();
-            if (!line.empty()) logWarn(L"[harbor] " + toWide(line));
-        }
-    }
-
-    CloseHandle(errors);
 }
 
 void HarborHelper::handleLine(std::string const& line) {
@@ -384,7 +259,7 @@ void HarborHelper::handleLine(std::string const& line) {
 }
 
 void HarborHelper::finish() {
-    std::optional<DWORD> code;
+    std::optional<int> code;
     std::map<uint64_t, Pending> rejected;
 
     {
@@ -392,14 +267,8 @@ void HarborHelper::finish() {
         std::lock_guard lock(mutex);
 
         if (process) {
-            WaitForSingleObject(process, 5000);
-            DWORD exitCode = 0;
-            if (GetExitCodeProcess(process, &exitCode) && exitCode != STILL_ACTIVE) code = exitCode;
-        }
-
-        if (input) {
-            CloseHandle(input);
-            input = nullptr;
+            if (process->wait(5000)) code = process->exitCode();
+            process->closeInput();
         }
 
         rejected.swap(pending);

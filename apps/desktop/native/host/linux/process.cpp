@@ -1,4 +1,4 @@
-#include <host/recording/process.h>
+#include <host/process.h>
 
 #include <shared/utf8.h>
 
@@ -18,12 +18,13 @@
 
 extern char** environ;
 
-namespace fileship::host::recording {
+namespace fileship::host {
 
 struct ChildProcess::Handles {
     pid_t pid = -1;
     int pidfd = -1;
     int input = -1;
+    int output = -1;
     int errors = -1;
     std::mutex mutex;
     bool isReaped = false;
@@ -116,6 +117,28 @@ Spawned spawn(std::wstring const& path, std::vector<std::wstring> const& args, b
     return {pid, input[1], output[0], errors[0]};
 }
 
+void readLines(int fd, ChildProcess::LineHandler const& onLine) {
+    std::string partial;
+    char buffer[16 * 1024];
+
+    for (;;) {
+        auto count = read(fd, buffer, sizeof(buffer));
+        if (count < 0 && errno == EINTR) continue;
+        if (count <= 0) break;
+        splitLines(partial, buffer, static_cast<size_t>(count), onLine);
+    }
+
+    if (!partial.empty()) onLine(partial);
+}
+
+void joinOrDetach(std::thread& thread) {
+    if (thread.get_id() == std::this_thread::get_id()) {
+        thread.detach();
+    } else if (thread.joinable()) {
+        thread.join();
+    }
+}
+
 std::string readAll(int fd) {
     std::string text;
     char buffer[16 * 1024];
@@ -160,27 +183,26 @@ ProcessResult runProcess(std::wstring const& path, std::vector<std::wstring> con
     return result;
 }
 
-ChildProcess::ChildProcess(std::wstring const& path, std::vector<std::wstring> const& args, LineHandler onLine)
+ChildProcess::ChildProcess(std::wstring const& path, std::vector<std::wstring> const& args, Handlers handlers)
     : handles(std::make_unique<Handles>()) {
-    auto spawned = spawn(path, args, true, false);
+    bool withOutput = static_cast<bool>(handlers.onOutput);
+    auto spawned = spawn(path, args, true, withOutput);
     handles->pid = spawned.pid;
     handles->input = spawned.input;
+    handles->output = spawned.output;
     handles->errors = spawned.errors;
     handles->pidfd = static_cast<int>(syscall(SYS_pidfd_open, spawned.pid, 0));
 
-    reader = std::thread([errors = handles->errors, onLine = std::move(onLine)] {
-        std::string partial;
-        char buffer[8 * 1024];
+    if (!handlers.onError) handlers.onError = [](std::string const&) {};
+    reader = std::thread([errors = handles->errors, onLine = std::move(handlers.onError)] { readLines(errors, onLine); });
 
-        for (;;) {
-            auto count = read(errors, buffer, sizeof(buffer));
-            if (count < 0 && errno == EINTR) continue;
-            if (count <= 0) break;
-            splitLines(partial, buffer, static_cast<size_t>(count), onLine);
-        }
-
-        if (!partial.empty()) onLine(partial);
-    });
+    if (withOutput) {
+        outputReader = std::thread([output = handles->output, onLine = std::move(handlers.onOutput),
+                                    onClosed = std::move(handlers.onOutputClosed)] {
+            readLines(output, onLine);
+            if (onClosed) onClosed();
+        });
+    }
 }
 
 ChildProcess::~ChildProcess() {
@@ -189,11 +211,9 @@ ChildProcess::~ChildProcess() {
         kill();
         wait(WAIT_UNTIL_EXIT);
     }
-    if (reader.get_id() == std::this_thread::get_id()) {
-        reader.detach();
-    } else if (reader.joinable()) {
-        reader.join();
-    }
+    joinOrDetach(reader);
+    joinOrDetach(outputReader);
+    closeFd(handles->output);
     closeFd(handles->errors);
     closeFd(handles->pidfd);
 }
@@ -208,6 +228,10 @@ void ChildProcess::write(std::string const& text) {
         if (count <= 0) return;
         offset += static_cast<size_t>(count);
     }
+}
+
+void ChildProcess::closeInput() {
+    closeFd(handles->input);
 }
 
 void ChildProcess::kill() {

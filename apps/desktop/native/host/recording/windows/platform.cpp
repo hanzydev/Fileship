@@ -1,5 +1,5 @@
 #include <host/recording/platform.h>
-#include <host/recording/process.h>
+#include <host/process.h>
 
 #include <windows.h>
 

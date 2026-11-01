@@ -104,6 +104,18 @@ std::filesystem::path updatesFolder() {
     return xdgFolder("XDG_CACHE_HOME", ".cache") / "fileship-updater" / "pending";
 }
 
+std::filesystem::path localDataFolder() {
+    return xdgFolder("XDG_DATA_HOME", ".local/share");
+}
+
+std::filesystem::path homeFolder() {
+    return g_get_home_dir();
+}
+
+std::wstring executableName(std::wstring const& base) {
+    return base;
+}
+
 std::wstring platformName() {
     return L"Linux";
 }
@@ -182,6 +194,15 @@ void openWebUrl(std::wstring const& url) {
     if (lower.rfind(L"http://", 0) != 0 && lower.rfind(L"https://", 0) != 0) return;
 
     postToMainThread([uri = toUtf8(url)] { g_app_info_launch_default_for_uri(uri.c_str(), nullptr, nullptr); });
+}
+
+void openFolder(std::filesystem::path const& path) {
+    postToMainThread([path] {
+        auto uri = g_filename_to_uri(path.c_str(), nullptr, nullptr);
+        if (!uri) return;
+        g_app_info_launch_default_for_uri(uri, nullptr, nullptr);
+        g_free(uri);
+    });
 }
 
 void showItemInFolder(std::filesystem::path const& path) {

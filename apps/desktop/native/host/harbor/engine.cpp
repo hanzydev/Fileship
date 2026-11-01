@@ -4,15 +4,12 @@
 #include "paths.h"
 #include "support.h"
 
+#include <host/platform.h>
 #include <host/rpc.h>
 #include <host/services.h>
 #include <shared/i18n.h>
 #include <shared/log.h>
 #include <shared/socketio.h>
-
-#include <commctrl.h>
-#include <shellapi.h>
-#include <shlobj.h>
 
 #include <algorithm>
 #include <array>
@@ -274,14 +271,6 @@ bool isEmptyFolder(std::filesystem::path const& path) {
     return iterator == std::filesystem::directory_iterator();
 }
 
-std::filesystem::path homeFolder() {
-    PWSTR folder = nullptr;
-    SHGetKnownFolderPath(FOLDERID_Profile, 0, nullptr, &folder);
-    std::filesystem::path result(folder);
-    CoTaskMemFree(folder);
-    return result;
-}
-
 JsonObject harborSettings() {
     auto current = settings();
     if (current && current.HasKey(L"harbor") &&
@@ -290,19 +279,6 @@ JsonObject harborSettings() {
     }
 
     return JsonObject();
-}
-
-std::filesystem::path executablePath() {
-    std::wstring path(MAX_PATH, L'\0');
-
-    while (true) {
-        DWORD length = GetModuleFileNameW(nullptr, path.data(), static_cast<DWORD>(path.size()));
-        if (length < path.size()) {
-            path.resize(length);
-            return path;
-        }
-        path.resize(path.size() * 2);
-    }
 }
 
 std::wstring storeString(std::wstring const& key) {
@@ -774,7 +750,7 @@ void placeEntry(HarborHelper& current, LayoutEntry const& entry) {
 
         if (entry.isFolder) {
             Lock lock(guard);
-            auto prefix = placed->path + L"\\";
+            auto prefix = placed->path + SEPARATOR;
 
             for (auto& [identity, item] : local) {
                 if (startsWith(item.path, prefix)) item.path = entry.path + item.path.substr(placed->path.size());
@@ -1232,7 +1208,7 @@ void forgetLocal(std::wstring const& identity) {
     if (removed && removed->isFolder) {
         std::vector<std::wstring> inside;
         for (auto const& [key, item] : local.entries()) {
-            if (startsWith(item.path, removed->path + L"\\")) inside.push_back(key);
+            if (startsWith(item.path, removed->path + SEPARATOR)) inside.push_back(key);
         }
         for (auto const& key : inside) local.erase(key);
     }
@@ -1294,13 +1270,12 @@ std::filesystem::path absoluteOf(std::wstring const& path) {
 }
 
 std::wstring stampOf(std::filesystem::path const& path) {
-    WIN32_FILE_ATTRIBUTE_DATA data{};
-    if (!GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &data)) return L"";
-
-    auto size = (static_cast<uint64_t>(data.nFileSizeHigh) << 32) | data.nFileSizeLow;
-    auto time = (static_cast<uint64_t>(data.ftLastWriteTime.dwHighDateTime) << 32) |
-                data.ftLastWriteTime.dwLowDateTime;
-    return std::to_wstring(size) + L":" + std::to_wstring(time);
+    std::error_code error;
+    auto size = std::filesystem::file_size(path, error);
+    if (error) return L"";
+    auto time = std::filesystem::last_write_time(path, error);
+    if (error) return L"";
+    return std::to_wstring(size) + L":" + std::to_wstring(time.time_since_epoch().count());
 }
 
 void saveNote(std::wstring const& identity, std::wstring const& path) {
@@ -1597,7 +1572,7 @@ void renameFolder(std::wstring const& identity, std::wstring const& from, std::w
     local.set(identity, {to, true});
 
     for (auto& [key, item] : local) {
-        if (startsWith(item.path, from + L"\\")) item.path = to + item.path.substr(from.size());
+        if (startsWith(item.path, from + SEPARATOR)) item.path = to + item.path.substr(from.size());
     }
 }
 
@@ -1976,10 +1951,12 @@ void handleLocalNew(HelperEvent const& event) {
         if (parentIdentity && startsWith(*parentIdentity, L"v:")) return;
 
         auto name = shortFolderName(basenameOf(event.path));
-        auto path = parent == L"." ? name : parent + L"\\" + name;
+        auto path = parent == L"." ? name : parent + SEPARATOR + name;
         bool isShortened = path != event.path;
+        std::error_code renameError;
 
-        if (isShortened && !MoveFileExW(absoluteOf(event.path).c_str(), absoluteOf(path).c_str(), 0)) {
+        if (isShortened && (std::filesystem::exists(absoluteOf(path), renameError) ||
+                            (std::filesystem::rename(absoluteOf(event.path), absoluteOf(path), renameError), renameError))) {
             throw folderNameError();
         }
 
@@ -2527,7 +2504,7 @@ bool launch() {
         if (*listening) handleHelperEvent(event);
     };
 
-    current->onExit = [raw](std::optional<DWORD> code) {
+    current->onExit = [raw](std::optional<int> code) {
         std::shared_ptr<SocketIo> client;
         bool isRestarting = false;
 
@@ -2714,7 +2691,7 @@ void stopHarborNow(StopOptions options) {
 
         std::ranges::stable_sort(placeholders, [](auto const& a, auto const& b) {
             if (a.isFolder != b.isFolder) return a.isFolder < b.isFolder;
-            return std::ranges::count(a.path, L'\\') > std::ranges::count(b.path, L'\\');
+            return std::ranges::count(a.path, SEPARATOR) > std::ranges::count(b.path, SEPARATOR);
         });
 
         for (auto const& item : placeholders) {
@@ -2787,37 +2764,8 @@ std::optional<std::wstring> identityAt(std::wstring const& path) {
     return std::nullopt;
 }
 
-HRESULT CALLBACK dialogCallback(HWND window, UINT notification, WPARAM, LPARAM, LONG_PTR) {
-    if (notification == TDN_CREATED) {
-        SetWindowPos(window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-        SetForegroundWindow(window);
-    }
-
-    return S_OK;
-}
-
 bool confirmPublic(std::wstring const& message, std::wstring const& detail) {
-    constexpr int MAKE_PUBLIC = 100;
-    constexpr int CANCEL = 101;
-
-    auto makePublic = t(L"harbor.makePublic");
-    auto cancel = t(L"harbor.cancel");
-    TASKDIALOG_BUTTON buttons[] = {{MAKE_PUBLIC, makePublic.c_str()}, {CANCEL, cancel.c_str()}};
-
-    TASKDIALOGCONFIG config{};
-    config.cbSize = sizeof(config);
-    config.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION;
-    config.pszWindowTitle = L"Fileship";
-    config.pszMainInstruction = message.c_str();
-    config.pszContent = detail.c_str();
-    config.cButtons = static_cast<UINT>(std::size(buttons));
-    config.pButtons = buttons;
-    config.nDefaultButton = MAKE_PUBLIC;
-    config.pfCallback = dialogCallback;
-
-    int pressed = CANCEL;
-    if (FAILED(TaskDialogIndirect(&config, &pressed, nullptr, nullptr))) return false;
-    return pressed == MAKE_PUBLIC;
+    return confirmDialog(message, detail, t(L"harbor.makePublic"), t(L"harbor.cancel"));
 }
 
 std::optional<Links> noteLinksOf(std::wstring const& id) {
@@ -3075,7 +3023,7 @@ int64_t freeUpHarborSpace() {
 }
 
 void openHarbor() {
-    ShellExecuteW(nullptr, L"open", harborFolder().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+    openFolder(harborFolder());
 }
 
 void runHarborAction(std::wstring const& action, std::vector<std::wstring> const& paths) {

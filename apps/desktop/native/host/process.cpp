@@ -1,8 +1,8 @@
-#include "process.h"
+#include <host/process.h>
 
 #include <algorithm>
 
-namespace fileship::host::recording {
+namespace fileship::host {
 
 std::string lastLine(std::string const& text) {
     size_t end = text.find_last_not_of(" \t\r\n");
@@ -13,6 +13,9 @@ std::string lastLine(std::string const& text) {
 
     return text.substr(start, std::min<size_t>(end - start + 1, 200));
 }
+
+ChildProcess::ChildProcess(std::wstring const& path, std::vector<std::wstring> const& args, LineHandler onError)
+    : ChildProcess(path, args, Handlers{std::move(onError), {}, {}}) {}
 
 void splitLines(std::string& partial, char const* data, size_t size, ChildProcess::LineHandler const& onLine) {
     partial.append(data, size);

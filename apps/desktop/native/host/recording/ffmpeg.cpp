@@ -2,8 +2,8 @@
 
 #include "command.h"
 #include "platform.h"
-#include "process.h"
 
+#include <host/process.h>
 #include <host/rpc.h>
 #include <host/services.h>
 #include <shared/hash.h>

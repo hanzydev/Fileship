@@ -106,7 +106,7 @@ Layout buildLayout(std::vector<RemoteFolder> const& folders, std::vector<RemoteF
         [&](std::vector<RemoteFolder> const& list, std::wstring const& parentPath, NameSet& names) {
             for (auto const& folder : list) {
                 auto name = uniqueName(safeName(folder.name, L"Folder"), names);
-                auto path = parentPath.empty() ? name : parentPath + L"\\" + name;
+                auto path = parentPath.empty() ? name : parentPath + SEPARATOR + name;
 
                 folderPaths[folder.id] = path;
                 folderNames[folder.id] = {};
@@ -127,7 +127,7 @@ Layout buildLayout(std::vector<RemoteFolder> const& folders, std::vector<RemoteF
         auto name = uniqueName(safeName(file.name, L"File"), names);
 
         layout.set(fileIdentity(file.id), {fileIdentity(file.id),
-                                           hasParent ? parent->second + L"\\" + name : name, false,
+                                           hasParent ? parent->second + SEPARATOR + name : name, false,
                                            file.size, file.createdAt});
     }
 
@@ -140,7 +140,7 @@ Layout buildLayout(std::vector<RemoteFolder> const& folders, std::vector<RemoteF
         for (auto const& note : sortedByAge(notes->items)) {
             auto name = uniqueName(safeName(note.title, L"Note") + L".md", names);
             layout.set(noteIdentity(note.id),
-                       {noteIdentity(note.id), path + L"\\" + name, false, note.size, note.createdAt});
+                       {noteIdentity(note.id), path + SEPARATOR + name, false, note.size, note.createdAt});
         }
     }
 
@@ -154,7 +154,7 @@ Layout buildLayout(std::vector<RemoteFolder> const& folders, std::vector<RemoteF
             auto name = uniqueName(safeName(link.code, L"Link") + L".url", names);
             auto size = static_cast<int64_t>(toUtf8(linkShortcut(instanceUrl, link.code)).size());
             layout.set(linkIdentity(link.code),
-                       {linkIdentity(link.code), path + L"\\" + name, false, size, link.createdAt});
+                       {linkIdentity(link.code), path + SEPARATOR + name, false, size, link.createdAt});
         }
     }
 

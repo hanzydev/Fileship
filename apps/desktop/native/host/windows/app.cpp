@@ -83,6 +83,18 @@ std::filesystem::path updatesFolder() {
     return knownFolder(FOLDERID_LocalAppData) / L"fileship-updater" / L"pending";
 }
 
+std::filesystem::path localDataFolder() {
+    return knownFolder(FOLDERID_LocalAppData);
+}
+
+std::filesystem::path homeFolder() {
+    return knownFolder(FOLDERID_Profile);
+}
+
+std::wstring executableName(std::wstring const& base) {
+    return base + L".exe";
+}
+
 std::wstring platformName() {
     return L"Windows";
 }
@@ -159,6 +171,10 @@ void openWebUrl(std::wstring const& url) {
     if (lower.rfind(L"http://", 0) != 0 && lower.rfind(L"https://", 0) != 0) return;
 
     ShellExecuteW(nullptr, L"open", url.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+}
+
+void openFolder(std::filesystem::path const& path) {
+    ShellExecuteW(nullptr, L"open", path.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 }
 
 void showItemInFolder(std::filesystem::path const& path) {

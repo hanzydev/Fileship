@@ -134,6 +134,7 @@ void writeClipboardText(std::wstring const& text);
 void refreshTray();
 void playSoundFile(std::wstring const& name);
 void showItemInFolder(std::filesystem::path const& path);
+void openFolder(std::filesystem::path const& path);
 void setShellHarborRoot(std::optional<std::filesystem::path> const& root);
 
 void showMainWindow(std::wstring const& route = L"/");

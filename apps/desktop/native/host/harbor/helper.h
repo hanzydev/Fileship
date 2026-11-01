@@ -1,8 +1,7 @@
 #pragma once
 
+#include <host/process.h>
 #include <shared/json.h>
-
-#include <windows.h>
 
 #include <atomic>
 #include <cstdint>
@@ -74,7 +73,7 @@ public:
     bool remove(std::wstring const& path);
 
     std::function<void(HelperEvent const&)> onEvent;
-    std::function<void(std::optional<DWORD>)> onExit;
+    std::function<void(std::optional<int>)> onExit;
 
 private:
     struct Pending {
@@ -84,15 +83,12 @@ private:
     };
 
     void write(std::string const& line);
-    void readOutput(HANDLE output);
-    void readErrors(HANDLE errors);
     void handleLine(std::string const& line);
     void finish();
 
     std::mutex mutex;
     std::mutex writeMutex;
-    HANDLE process = nullptr;
-    HANDLE input = nullptr;
+    std::unique_ptr<ChildProcess> process;
     std::atomic<bool> running = false;
     uint64_t nextId = 1;
     std::map<uint64_t, Pending> pending;

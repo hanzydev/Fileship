@@ -15,6 +15,9 @@ std::filesystem::path executablePath();
 std::filesystem::path defaultUserDataPath();
 std::filesystem::path picturesFolder();
 std::filesystem::path updatesFolder();
+std::filesystem::path localDataFolder();
+std::filesystem::path homeFolder();
+std::wstring executableName(std::wstring const& base);
 std::wstring platformName();
 bool hasPackagedLayout();
 std::wstring defaultPipeName(std::wstring const& suffix);
@@ -27,6 +30,8 @@ std::optional<std::wstring> unprotectSecret(std::wstring const& name, std::wstri
 
 bool replaceFile(std::filesystem::path const& from, std::filesystem::path const& to);
 std::vector<std::filesystem::path> pickFiles();
+bool confirmDialog(std::wstring const& message, std::wstring const& detail, std::wstring const& accept,
+                   std::wstring const& cancel);
 bool systemUsesLightTheme();
 bool textLess(std::wstring const& a, std::wstring const& b);
 

@@ -6,6 +6,7 @@
 #include <condition_variable>
 #include <cstdint>
 #include <deque>
+#include <filesystem>
 #include <functional>
 #include <future>
 #include <list>
@@ -17,6 +18,8 @@
 #include <unordered_map>
 
 namespace fileship::host::harbor {
+
+inline constexpr wchar_t SEPARATOR = static_cast<wchar_t>(std::filesystem::path::preferred_separator);
 
 class SerialQueue {
 public:

@@ -8,7 +8,7 @@
 #include <thread>
 #include <vector>
 
-namespace fileship::host::recording {
+namespace fileship::host {
 
 constexpr uint32_t WAIT_UNTIL_EXIT = UINT32_MAX;
 
@@ -29,13 +29,21 @@ class ChildProcess {
 public:
     using LineHandler = std::function<void(std::string const& line)>;
 
-    ChildProcess(std::wstring const& path, std::vector<std::wstring> const& args, LineHandler onLine);
+    struct Handlers {
+        LineHandler onError;
+        LineHandler onOutput;
+        std::function<void()> onOutputClosed;
+    };
+
+    ChildProcess(std::wstring const& path, std::vector<std::wstring> const& args, LineHandler onError);
+    ChildProcess(std::wstring const& path, std::vector<std::wstring> const& args, Handlers handlers);
     ~ChildProcess();
 
     ChildProcess(ChildProcess const&) = delete;
     ChildProcess& operator=(ChildProcess const&) = delete;
 
     void write(std::string const& text);
+    void closeInput();
     void kill();
     bool wait(uint32_t timeoutMs);
     int exitCode() const;
@@ -45,6 +53,7 @@ private:
 
     std::unique_ptr<Handles> handles;
     std::thread reader;
+    std::thread outputReader;
 };
 
 void splitLines(std::string& partial, char const* data, size_t size, ChildProcess::LineHandler const& onLine);

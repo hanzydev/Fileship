@@ -3,11 +3,11 @@
 #include "ffmpeg.h"
 #include "pipe.h"
 #include "platform.h"
-#include "process.h"
 
 #include <host/recording.h>
 #include <host/rpc.h>
 #include <core/core.h>
+#include <host/process.h>
 #include <host/services.h>
 #include <shared/log.h>
 #include <ui/recorderUi.h>

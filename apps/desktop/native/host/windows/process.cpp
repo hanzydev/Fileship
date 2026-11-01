@@ -1,4 +1,4 @@
-#include <host/recording/process.h>
+#include <host/process.h>
 
 #include <shared/utf8.h>
 
@@ -6,11 +6,12 @@
 
 #include <array>
 
-namespace fileship::host::recording {
+namespace fileship::host {
 
 struct ChildProcess::Handles {
     HANDLE process = nullptr;
     HANDLE input = nullptr;
+    HANDLE output = nullptr;
     HANDLE errors = nullptr;
 };
 
@@ -146,6 +147,26 @@ Spawned spawn(std::wstring const& path, std::vector<std::wstring> const& args, b
     return result;
 }
 
+void readLines(HANDLE handle, ChildProcess::LineHandler const& onLine) {
+    std::string partial;
+    char buffer[16 * 1024];
+    DWORD read = 0;
+
+    while (ReadFile(handle, buffer, sizeof(buffer), &read, nullptr) && read) {
+        splitLines(partial, buffer, read, onLine);
+    }
+
+    if (!partial.empty()) onLine(partial);
+}
+
+void joinOrDetach(std::thread& thread) {
+    if (thread.get_id() == std::this_thread::get_id()) {
+        thread.detach();
+    } else if (thread.joinable()) {
+        thread.join();
+    }
+}
+
 std::string readAll(HANDLE handle) {
     std::string text;
     char buffer[16 * 1024];
@@ -182,34 +203,33 @@ ProcessResult runProcess(std::wstring const& path, std::vector<std::wstring> con
     return result;
 }
 
-ChildProcess::ChildProcess(std::wstring const& path, std::vector<std::wstring> const& args, LineHandler onLine)
+ChildProcess::ChildProcess(std::wstring const& path, std::vector<std::wstring> const& args, Handlers handlers)
     : handles(std::make_unique<Handles>()) {
-    auto spawned = spawn(path, args, true, false);
+    bool withOutput = static_cast<bool>(handlers.onOutput);
+    auto spawned = spawn(path, args, true, withOutput);
     handles->process = spawned.process;
     handles->input = spawned.input;
+    handles->output = spawned.output;
     handles->errors = spawned.errors;
 
-    reader = std::thread([errors = handles->errors, onLine = std::move(onLine)] {
-        std::string partial;
-        char buffer[8 * 1024];
-        DWORD read = 0;
+    if (!handlers.onError) handlers.onError = [](std::string const&) {};
+    reader = std::thread([errors = handles->errors, onLine = std::move(handlers.onError)] { readLines(errors, onLine); });
 
-        while (ReadFile(errors, buffer, sizeof(buffer), &read, nullptr) && read) {
-            splitLines(partial, buffer, read, onLine);
-        }
-
-        if (!partial.empty()) onLine(partial);
-    });
+    if (withOutput) {
+        outputReader = std::thread([output = handles->output, onLine = std::move(handlers.onOutput),
+                                    onClosed = std::move(handlers.onOutputClosed)] {
+            readLines(output, onLine);
+            if (onClosed) onClosed();
+        });
+    }
 }
 
 ChildProcess::~ChildProcess() {
     closeHandle(handles->input);
     if (WaitForSingleObject(handles->process, 0) == WAIT_TIMEOUT) TerminateProcess(handles->process, 1);
-    if (reader.get_id() == std::this_thread::get_id()) {
-        reader.detach();
-    } else if (reader.joinable()) {
-        reader.join();
-    }
+    joinOrDetach(reader);
+    joinOrDetach(outputReader);
+    closeHandle(handles->output);
     closeHandle(handles->errors);
     closeHandle(handles->process);
 }
@@ -217,6 +237,10 @@ ChildProcess::~ChildProcess() {
 void ChildProcess::write(std::string const& text) {
     DWORD written = 0;
     if (handles->input) WriteFile(handles->input, text.data(), static_cast<DWORD>(text.size()), &written, nullptr);
+}
+
+void ChildProcess::closeInput() {
+    closeHandle(handles->input);
 }
 
 void ChildProcess::kill() {
