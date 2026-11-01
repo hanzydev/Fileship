@@ -1,6 +1,7 @@
-import { cpSync, mkdirSync } from 'node:fs';
+import { cpSync, mkdirSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { buildExecutable } from './gcc.mjs';
 import {
     compileGroups,
     moveAsideLocked,
@@ -11,16 +12,37 @@ import {
     writeVersionResource,
 } from './msvc.mjs';
 
-if (process.platform !== 'win32') {
-    console.log('Skipping the Harbor helper build, it needs Windows and MSVC.');
-    process.exit(0);
-}
-
 const native = join(root, 'native');
-const source = join(native, 'harbor');
 const shared = join(native, 'shared');
 const output = join(root, 'build', 'harbor');
 const objects = join(output, 'obj');
+
+if (process.platform === 'linux') {
+    const source = join(native, 'harbor', 'linux');
+
+    mkdirSync(objects, { recursive: true });
+    await buildExecutable({
+        objects,
+        executable: join(output, 'fileship-harbor'),
+        groups: {
+            shared: ['http.cpp', 'json.cpp'].map((file) => join(shared, file)),
+            'shared-linux': ['http.cpp', 'system.cpp'].map((file) => join(shared, 'linux', file)),
+            harbor: readdirSync(source)
+                .filter((file) => file.endsWith('.cpp'))
+                .map((file) => join(source, file)),
+        },
+        packages: ['fuse3', 'libcurl', 'glib-2.0'],
+        flags: [`-I${native}`],
+    });
+    process.exit(0);
+}
+
+if (process.platform !== 'win32') {
+    console.log(`Skipping the Harbor helper build, ${process.platform} is not supported.`);
+    process.exit(0);
+}
+
+const source = join(native, 'harbor', 'windows');
 const executable = join(output, 'fileship-harbor.exe');
 const resource = join(output, 'harbor.rc');
 const compiledResource = join(output, 'harbor.res');
@@ -37,7 +59,7 @@ const flags = [
 ].join(' ');
 
 mkdirSync(objects, { recursive: true });
-cpSync(join(source, 'icons'), join(output, 'icons'), { recursive: true });
+cpSync(join(native, 'harbor', 'icons'), join(output, 'icons'), { recursive: true });
 moveAsideLocked(output, 'fileship-harbor.exe');
 
 writeVersionResource(resource, {

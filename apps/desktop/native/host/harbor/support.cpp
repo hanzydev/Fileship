@@ -7,7 +7,9 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <chrono>
 #include <ctime>
+#include <sstream>
 
 namespace fileship::host::harbor {
 
@@ -154,34 +156,28 @@ Timers& timers() {
 }
 
 int64_t nowMs() {
-    FILETIME time{};
-    GetSystemTimePreciseAsFileTime(&time);
-    ULARGE_INTEGER value{};
-    value.LowPart = time.dwLowDateTime;
-    value.HighPart = time.dwHighDateTime;
-    return static_cast<int64_t>(value.QuadPart / 10000 - 11644473600000LL);
+    using namespace std::chrono;
+    return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
 int64_t parseIsoDate(std::wstring const& text) {
     int year = 0, month = 0, day = 0, hour = 0, minute = 0;
     double second = 0;
-    wchar_t rest[16]{};
+    wchar_t separator = 0;
 
-    int read = swscanf_s(text.c_str(), L"%d-%d-%dT%d:%d:%lf%15s", &year, &month, &day, &hour, &minute,
-                         &second, rest, static_cast<unsigned>(std::size(rest)));
-    if (read < 6) return 0;
+    std::wistringstream stream(text);
+    stream >> year >> separator >> month >> separator >> day >> separator >> hour >> separator >> minute >> separator >>
+        second;
+    if (!stream && !stream.eof()) return 0;
 
-    std::tm parts{};
-    parts.tm_year = year - 1900;
-    parts.tm_mon = month - 1;
-    parts.tm_mday = day;
-    parts.tm_hour = hour;
-    parts.tm_min = minute;
-    parts.tm_sec = 0;
+    std::wstring zone;
+    std::getline(stream, zone);
 
-    int64_t result = _mkgmtime64(&parts) * 1000 + static_cast<int64_t>(std::llround(second * 1000));
+    using namespace std::chrono;
+    auto days = sys_days(std::chrono::year(year) / month / day).time_since_epoch().count();
+    int64_t result = ((static_cast<int64_t>(days) * 24 + hour) * 60 + minute) * 60000 +
+                     static_cast<int64_t>(std::llround(second * 1000));
 
-    std::wstring zone(rest);
     if (zone.size() >= 6 && (zone[0] == L'+' || zone[0] == L'-')) {
         int offset = std::stoi(zone.substr(1, 2)) * 60 + std::stoi(zone.substr(4, 2));
         result -= (zone[0] == L'+' ? 1 : -1) * static_cast<int64_t>(offset) * 60000;

@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-#include "../shared/http.h"
+#include <shared/http.h>
 
 namespace harbor {
 

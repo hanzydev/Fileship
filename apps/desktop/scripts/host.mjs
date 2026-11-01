@@ -13,7 +13,6 @@ import {
 import { generateProtocols } from './wayland.mjs';
 
 const PLATFORM_FOLDERS = { win32: 'windows', linux: 'linux' };
-const PENDING_ON_LINUX = [join('host', 'harbor')];
 
 const platform = PLATFORM_FOLDERS[process.platform];
 if (!platform) {
@@ -36,9 +35,7 @@ const groupSources = (...folders) => {
             if (
                 !file.endsWith('.cpp') ||
                 path.startsWith(join('ui', 'demo')) ||
-                file.split(sep).some((part) => others.includes(part)) ||
-                (platform === 'linux' &&
-                    PENDING_ON_LINUX.some((pending) => path.startsWith(pending)))
+                file.split(sep).some((part) => others.includes(part))
             )
                 continue;
 

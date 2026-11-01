@@ -19,8 +19,6 @@
 #include <set>
 #include <sstream>
 
-#pragma comment(lib, "comctl32.lib")
-
 #undef GetObject
 
 namespace fileship::host::harbor {
@@ -1539,7 +1537,8 @@ std::runtime_error folderNameError() {
 std::wstring shortFolderName(std::wstring const& name) {
     if (name.size() <= FOLDER_NAME_LENGTH) return name;
 
-    auto size = IS_HIGH_SURROGATE(name[FOLDER_NAME_LENGTH - 1]) ? FOLDER_NAME_LENGTH - 1 : FOLDER_NAME_LENGTH;
+    auto last = name[FOLDER_NAME_LENGTH - 1];
+    auto size = last >= 0xd800 && last <= 0xdbff ? FOLDER_NAME_LENGTH - 1 : FOLDER_NAME_LENGTH;
     return safeName(name.substr(0, size), L"Folder");
 }
 
