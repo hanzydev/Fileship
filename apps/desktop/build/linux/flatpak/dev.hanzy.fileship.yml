@@ -1,0 +1,53 @@
+id: dev.hanzy.fileship
+runtime: org.gnome.Platform
+runtime-version: '51'
+sdk: org.gnome.Sdk
+base: org.electronjs.Electron2.BaseApp
+base-version: '26.08'
+command: fileship
+separate-locales: false
+finish-args:
+    - --share=ipc
+    - --share=network
+    - --socket=fallback-x11
+    - --socket=wayland
+    - --socket=pulseaudio
+    - --device=dri
+    - --filesystem=xdg-pictures
+    - --filesystem=xdg-videos
+    - --talk-name=org.kde.StatusNotifierWatcher
+    - --talk-name=org.freedesktop.Notifications
+    - --talk-name=org.freedesktop.FileManager1
+modules:
+    - name: fileship
+      buildsystem: simple
+      sources:
+          - type: archive
+            url: https://github.com/hanzydev/fileship-desktop/releases/download/v2.1.1/fileship-2.1.1-x64.tar.gz
+            sha256: '0000000000000000000000000000000000000000000000000000000000000000'
+            dest: fileship
+            x-checker-data:
+                type: json
+                url: https://api.github.com/repos/hanzydev/fileship-desktop/releases/latest
+                version-query: .tag_name | sub("^v"; "")
+                url-query: '"https://github.com/hanzydev/fileship-desktop/releases/download/v" + $version + "/fileship-" + $version + "-x64.tar.gz"'
+          - type: file
+            path: ../dev.hanzy.fileship.desktop
+          - type: file
+            path: ../dev.hanzy.fileship.metainfo.xml
+          - type: script
+            dest-filename: fileship-launcher
+            commands:
+                - exec /app/fileship/resources/host/fileship-host "$@"
+          - type: script
+            dest-filename: fileship-electron
+            commands:
+                - exec zypak-wrapper /app/fileship/fileship "$@"
+      build-commands:
+          - cp -a fileship /app/fileship
+          - rm -rf /app/fileship/resources/harbor
+          - install -Dm755 fileship-launcher /app/bin/fileship
+          - install -Dm755 fileship-electron -t /app/bin
+          - install -Dm644 dev.hanzy.fileship.desktop -t /app/share/applications
+          - install -Dm644 dev.hanzy.fileship.metainfo.xml -t /app/share/metainfo
+          - install -Dm644 fileship/resources/host/icon.png /app/share/icons/hicolor/512x512/apps/dev.hanzy.fileship.png

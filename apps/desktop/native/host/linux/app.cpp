@@ -72,7 +72,10 @@ std::filesystem::path xdgFolder(char const* variable, char const* fallback) {
 }
 
 std::filesystem::path runtimeFolder() {
-    if (auto value = std::getenv("XDG_RUNTIME_DIR"); value && *value == '/') return std::filesystem::path(value);
+    auto value = std::getenv("XDG_RUNTIME_DIR");
+    auto id = std::getenv("FLATPAK_ID");
+    if (value && *value == '/' && id && *id && isFlatpak()) return std::filesystem::path(value) / "app" / id;
+    if (value && *value == '/') return std::filesystem::path(value);
     return std::filesystem::temp_directory_path() / ("fileship-" + std::to_string(getuid()));
 }
 
@@ -179,6 +182,7 @@ void runOutsideAppImage(char** argv) {
 }
 
 std::wstring launchCommand() {
+    if (auto id = std::getenv("FLATPAK_ID"); id && *id && isFlatpak()) return L"flatpak run " + toWide(id);
     if (auto image = appImagePath()) return toWide(shellQuote(image->string()));
     if (isPackaged()) return toWide(shellQuote((resourcesPath().parent_path().parent_path() / "fileship").string()));
     return toWide(shellQuote(hostExecutable().string()));

@@ -183,6 +183,21 @@ void setShellHarborRoot(std::optional<std::filesystem::path> const& root) {
 void applyStartAtLogin(bool enabled) {
     if (!isPackaged()) return;
 
+    if (isFlatpak()) {
+        GVariantBuilder options;
+        g_variant_builder_init(&options, G_VARIANT_TYPE_VARDICT);
+        g_variant_builder_add(&options, "{sv}", "reason",
+                              g_variant_new_string(toUtf8(t(L"general.startAtLoginLinux")).c_str()));
+        g_variant_builder_add(&options, "{sv}", "autostart", g_variant_new_boolean(enabled));
+        char const* command[] = {"fileship", "--hidden"};
+        g_variant_builder_add(&options, "{sv}", "commandline", g_variant_new_strv(command, 2));
+        g_dbus_connection_call(sessionBus(), "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop",
+                               "org.freedesktop.portal.Background", "RequestBackground",
+                               g_variant_new("(sa{sv})", "", &options), nullptr, G_DBUS_CALL_FLAGS_NONE, -1, nullptr,
+                               nullptr, nullptr);
+        return;
+    }
+
     std::error_code error;
     if (!enabled) {
         std::filesystem::remove(autostartFile(), error);

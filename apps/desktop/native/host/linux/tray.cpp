@@ -371,7 +371,8 @@ void createTray() {
 
     node = g_dbus_node_info_new_for_xml(INTROSPECTION, nullptr);
     tooltip = toUtf8(trayTooltip());
-    busName = "org.kde.StatusNotifierItem-" + std::to_string(getpid()) + "-1";
+    busName = isFlatpak() ? g_dbus_connection_get_unique_name(sessionBus())
+                          : "org.kde.StatusNotifierItem-" + std::to_string(getpid()) + "-1";
 
     static GDBusInterfaceVTable const itemTable{handleItemCall, getItemProperty, nullptr, {}};
     static GDBusInterfaceVTable const menuTable{handleMenuCall, getMenuProperty, nullptr, {}};
@@ -380,8 +381,10 @@ void createTray() {
                                                          nullptr, nullptr, nullptr);
     menuRegistration = g_dbus_connection_register_object(sessionBus(), MENU_PATH, node->interfaces[1], &menuTable,
                                                          nullptr, nullptr, nullptr);
-    ownership = g_bus_own_name_on_connection(sessionBus(), busName.c_str(), G_BUS_NAME_OWNER_FLAGS_NONE, nullptr,
-                                             nullptr, nullptr, nullptr);
+    if (!isFlatpak()) {
+        ownership = g_bus_own_name_on_connection(sessionBus(), busName.c_str(), G_BUS_NAME_OWNER_FLAGS_NONE, nullptr,
+                                                 nullptr, nullptr, nullptr);
+    }
 
     watcher = g_bus_watch_name_on_connection(
         sessionBus(), WATCHER, G_BUS_NAME_WATCHER_FLAGS_NONE,
@@ -401,7 +404,8 @@ void removeTray() {
     if (!itemRegistration) return;
 
     g_bus_unwatch_name(watcher);
-    g_bus_unown_name(ownership);
+    if (ownership) g_bus_unown_name(ownership);
+    ownership = 0;
     g_dbus_connection_unregister_object(sessionBus(), itemRegistration);
     g_dbus_connection_unregister_object(sessionBus(), menuRegistration);
     g_dbus_node_info_unref(node);
