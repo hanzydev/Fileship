@@ -16,6 +16,8 @@ type Listener = (payload: unknown) => void;
 const CONNECT_TIMEOUT_MS = 10_000;
 const RECONNECT_TIMEOUT_MS = 5_000;
 const RETRY_MS = 200;
+const HOST_BINARY = process.platform === 'win32' ? 'fileship-host.exe' : 'fileship-host';
+const START_ERRORS = new Set(['ENOENT', 'ECONNREFUSED']);
 
 const pending = new Map<number, Pending>();
 const listeners = new Map<string, Set<Listener>>();
@@ -48,14 +50,21 @@ const currentUserSid = () => {
     return output.trim().split(',').at(-1)!.replaceAll('"', '');
 };
 
-const pipeName = () =>
-    argumentValue('--host-pipe') ?? `\\\\.\\pipe\\fileship-host-${currentUserSid()}`;
+const defaultSocket = () => {
+    if (process.platform === 'win32') return `\\\\.\\pipe\\fileship-host-${currentUserSid()}`;
+
+    const runtime = process.env.XDG_RUNTIME_DIR;
+    return runtime
+        ? join(runtime, 'fileship', 'host.sock')
+        : join('/tmp', `fileship-${process.getuid!()}`, 'host.sock');
+};
+
+const pipeName = () => argumentValue('--host-pipe') ?? defaultSocket();
 
 const hostPath = () =>
     app.isPackaged
-        ? join(process.resourcesPath, 'host', 'fileship-host.exe')
-        : (process.env.DESKTOP_HOST_PATH ??
-          join(app.getAppPath(), 'build', 'host', 'fileship-host.exe'));
+        ? join(process.resourcesPath, 'host', HOST_BINARY)
+        : (process.env.DESKTOP_HOST_PATH ?? join(app.getAppPath(), 'build', 'host', HOST_BINARY));
 
 const startHost = () => {
     const path = hostPath();
@@ -120,7 +129,7 @@ const attach = (connection: Socket) => {
         .on('error', () => null);
 };
 
-const connectWithin = async (timeout: number, start: boolean) => {
+const connectWithin = async (timeout: number, start: boolean, isWindow = true) => {
     const name = pipeName();
     const deadline = Date.now() + timeout;
     let started = !start;
@@ -128,10 +137,10 @@ const connectWithin = async (timeout: number, start: boolean) => {
     while (true) {
         try {
             attach(await open(name));
-            await invokeHost('client:hello', { pid: process.pid });
+            if (isWindow) await invokeHost('client:hello', { pid: process.pid });
             return;
         } catch (error: any) {
-            if (!started && error?.code === 'ENOENT') {
+            if (!started && START_ERRORS.has(error?.code)) {
                 startHost();
                 started = true;
             }
@@ -151,6 +160,11 @@ export const connectHost = (handleLost: () => void) => {
     });
 
     return connecting;
+};
+
+export const launchInHost = async (argv: string[], cwd: string) => {
+    await connectWithin(CONNECT_TIMEOUT_MS, !argumentValue('--host-pipe'), false);
+    await invokeHost('app:launch', argv, cwd);
 };
 
 export const invokeHost = <K extends keyof HostInvoke>(

@@ -59,7 +59,9 @@ export const COMPRESSIONS = [
     { label: 'labels.compression.maximum', value: 100 },
 ];
 
-export const VIDEO_SOURCES = ['auto', 'ddagrab', 'gdigrab'] as const;
+export const VIDEO_SOURCES = ['auto', 'ddagrab', 'gdigrab', 'x11grab', 'pipewire'] as const;
+
+export type VideoSource = (typeof VIDEO_SOURCES)[number];
 
 export const VIDEO_CODECS = [
     'auto',
@@ -74,6 +76,9 @@ export const VIDEO_CODECS = [
     'h264_qsv',
     'hevc_qsv',
     'av1_qsv',
+    'h264_vaapi',
+    'hevc_vaapi',
+    'av1_vaapi',
     'libvpx-vp9',
     'libsvtav1',
 ] as const;

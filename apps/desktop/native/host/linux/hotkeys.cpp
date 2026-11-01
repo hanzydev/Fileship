@@ -581,6 +581,11 @@ PortalHotkeys& portalHotkeys() {
 
 }
 
+std::wstring hotkeyBackend() {
+    if (!core::isWaylandSession()) return L"native";
+    return portalHotkeys().isAvailable() ? L"portal" : L"command";
+}
+
 JsonObject registerHotkeys() {
     auto bound = boundHotkeys();
 

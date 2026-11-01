@@ -99,6 +99,29 @@ std::wstring platformName() {
     return L"Windows";
 }
 
+std::wstring launchCommand() {
+    auto launcher = isPackaged() ? resourcesPath().parent_path().parent_path() / L"Fileship.exe" : hostExecutable();
+    return L"\"" + launcher.wstring() + L"\"";
+}
+
+JsonObject platformCapabilities() {
+    JsonObject voiceProcessing;
+    for (auto key : {L"noiseSuppression", L"echoCancellation", L"autoGainControl"})
+        voiceProcessing.SetNamedValue(key, JsonValue::CreateBooleanValue(true));
+
+    JsonArray videoSources;
+    for (auto source : {L"auto", L"ddagrab", L"gdigrab"}) videoSources.Append(JsonValue::CreateStringValue(source));
+
+    JsonObject capabilities;
+    for (auto key : {L"windowDetection", L"controlDetection", L"snippingToolKey", L"harbor", L"recordingBorder"})
+        capabilities.SetNamedValue(key, JsonValue::CreateBooleanValue(true));
+    capabilities.SetNamedValue(L"hotkeys", JsonValue::CreateStringValue(L"native"));
+    capabilities.SetNamedValue(L"voiceProcessing", voiceProcessing);
+    capabilities.SetNamedValue(L"videoSources", videoSources);
+    capabilities.SetNamedValue(L"updates", JsonValue::CreateStringValue(isPackaged() ? L"auto" : L"none"));
+    return capabilities;
+}
+
 bool hasPackagedLayout() {
     auto resources = resourcesPath().parent_path();
     return resources.filename() == L"resources" && std::filesystem::exists(resources.parent_path() / L"Fileship.exe");

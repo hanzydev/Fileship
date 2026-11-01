@@ -2,10 +2,12 @@
 #include "rpc.h"
 
 #include <host/harbor.h>
+#include <host/platform.h>
 #include <host/recording.h>
 #include <shared/log.h>
 
 #include <algorithm>
+#include <cwctype>
 #include <mutex>
 #include <set>
 
@@ -193,9 +195,16 @@ void registerHandlers() {
     registerHandler(L"settings:set", [](JsonArray const& args) -> IJsonValue { return setSettings(objectArg(args, 0)); });
 
     registerHandler(L"app:info", [](JsonArray const&) -> IJsonValue {
+        auto platform = platformName();
+        for (auto& character : platform) character = static_cast<wchar_t>(std::towlower(character));
+
         JsonObject info;
         info.SetNamedValue(L"version", JsonValue::CreateStringValue(appVersion()));
         info.SetNamedValue(L"isPackaged", JsonValue::CreateBooleanValue(isPackaged()));
+        info.SetNamedValue(L"platform", JsonValue::CreateStringValue(platform));
+        info.SetNamedValue(L"launchCommand", JsonValue::CreateStringValue(launchCommand()));
+        info.SetNamedValue(L"saveFolder", JsonValue::CreateStringValue((picturesFolder() / L"Fileship").wstring()));
+        info.SetNamedValue(L"capabilities", platformCapabilities());
         return info;
     });
 

@@ -1,6 +1,8 @@
 #include "linux.h"
 
+#include <core/linux/linux.h>
 #include <host/app.h>
+#include <host/harbor/helper.h>
 #include <shared/log.h>
 #include <ui/linux/gtk.h>
 
@@ -118,6 +120,44 @@ std::wstring executableName(std::wstring const& base) {
 
 std::wstring platformName() {
     return L"Linux";
+}
+
+std::wstring launchCommand() {
+    if (auto image = std::getenv("APPIMAGE"); image && *image) return toWide(shellQuote(image));
+    if (isPackaged()) return toWide(shellQuote((resourcesPath().parent_path().parent_path() / "fileship").string()));
+    return toWide(shellQuote(hostExecutable().string()));
+}
+
+JsonObject platformCapabilities() {
+    bool isWayland = core::isWaylandSession();
+    auto type = packageType();
+
+    JsonObject voiceProcessing;
+    for (auto key : {L"noiseSuppression", L"echoCancellation", L"autoGainControl"})
+        voiceProcessing.SetNamedValue(key, JsonValue::CreateBooleanValue(false));
+
+    JsonArray videoSources;
+    for (auto source : {L"auto", isWayland ? L"pipewire" : L"x11grab"}) {
+        videoSources.Append(JsonValue::CreateStringValue(source));
+    }
+
+    std::error_code error;
+    bool hasHarbor = !isFlatpak() && std::filesystem::exists("/dev/fuse", error) && harbor::isHelperAvailable();
+    auto updates = !isPackaged()                                            ? L"none"
+                   : isFlatpak() || (type != "deb" && type != "rpm" && !std::getenv("APPIMAGE")) ? L"package"
+                                                                                                    : L"auto";
+
+    JsonObject capabilities;
+    capabilities.SetNamedValue(L"windowDetection", JsonValue::CreateBooleanValue(!isWayland));
+    capabilities.SetNamedValue(L"controlDetection", JsonValue::CreateBooleanValue(false));
+    capabilities.SetNamedValue(L"snippingToolKey", JsonValue::CreateBooleanValue(false));
+    capabilities.SetNamedValue(L"harbor", JsonValue::CreateBooleanValue(hasHarbor));
+    capabilities.SetNamedValue(L"recordingBorder", JsonValue::CreateBooleanValue(!isWayland));
+    capabilities.SetNamedValue(L"hotkeys", JsonValue::CreateStringValue(hotkeyBackend()));
+    capabilities.SetNamedValue(L"voiceProcessing", voiceProcessing);
+    capabilities.SetNamedValue(L"videoSources", videoSources);
+    capabilities.SetNamedValue(L"updates", JsonValue::CreateStringValue(updates));
+    return capabilities;
 }
 
 bool hasPackagedLayout() {

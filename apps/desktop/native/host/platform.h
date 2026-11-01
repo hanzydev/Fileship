@@ -1,5 +1,7 @@
 #pragma once
 
+#include <shared/json.h>
+
 #include <cstddef>
 #include <filesystem>
 #include <functional>
@@ -19,6 +21,8 @@ std::filesystem::path localDataFolder();
 std::filesystem::path homeFolder();
 std::wstring executableName(std::wstring const& base);
 std::wstring platformName();
+std::wstring launchCommand();
+JsonObject platformCapabilities();
 bool hasPackagedLayout();
 std::wstring defaultPipeName(std::wstring const& suffix);
 

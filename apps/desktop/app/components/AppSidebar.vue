@@ -20,7 +20,11 @@
                                 <TextBlock variant="muted" class="truncate">
                                     {{
                                         account?.siteName === 'Fileship'
-                                            ? $t('nav.forWindows')
+                                            ? $t(
+                                                  appInfo.platform === 'linux'
+                                                      ? 'nav.forLinux'
+                                                      : 'nav.forWindows',
+                                              )
                                             : account?.siteName
                                     }}
                                 </TextBlock>
@@ -99,6 +103,7 @@ import { IHome, ISettings } from '#components';
 import { useSidebar } from '#layers/ui/app/components/ui/sidebar';
 
 const account = useAccount();
+const appInfo = useAppInfo();
 const route = useRoute();
 const { locale } = useI18n();
 const { setOpenMobile } = useSidebar();

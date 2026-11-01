@@ -14,7 +14,13 @@
                         {{ $t('nav.updateReady', { version: updateStatus.version }) }}
                     </UiAlertTitle>
                     <UiAlertDescription>
-                        {{ $t('nav.updateReadyDescription') }}
+                        {{
+                            $t(
+                                appInfo.capabilities.updates === 'package'
+                                    ? 'nav.updateReadyDescriptionPackage'
+                                    : 'nav.updateReadyDescription',
+                            )
+                        }}
                     </UiAlertDescription>
                     <UiAlertAction class="top-1/2 -translate-y-1/2">
                         <UiButton size="sm" @click="handleInstall">
@@ -32,6 +38,7 @@
 </template>
 
 <script setup lang="ts">
+const appInfo = useAppInfo();
 const updateStatus = useUpdateStatus();
 
 const breadcrumbLabels = {
@@ -42,7 +49,7 @@ const breadcrumbLabels = {
     capture: 'nav.capture',
     recording: 'nav.recording',
     upload: 'nav.upload',
-    harbor: 'nav.harbor',
+    ...(appInfo.value.capabilities.harbor && { harbor: 'nav.harbor' }),
     account: 'nav.account',
     updates: 'nav.updates',
 };

@@ -2,18 +2,21 @@ import type { Theme } from '../../shared/ipc';
 
 export default defineNuxtPlugin(async () => {
     const account = useAccount();
+    const appInfo = useAppInfo();
     const updateStatus = useUpdateStatus();
     const savedSettings = useSettings();
     const colorMode = useColorMode();
     const router = useRouter();
 
-    const [currentAccount, settings, status] = await Promise.all([
+    const [currentAccount, info, settings, status] = await Promise.all([
         desktop('account:get').catch(() => null),
+        desktop('app:info'),
         desktop('settings:get'),
         desktop('updates:get'),
     ]);
 
     account.value = currentAccount;
+    appInfo.value = info;
     savedSettings.value = settings;
     updateStatus.value = status;
     colorMode.preference = settings.theme;

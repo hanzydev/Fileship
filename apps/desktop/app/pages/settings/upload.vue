@@ -151,7 +151,7 @@
                         <UiInputGroupInput
                             id="save-folder"
                             :model-value="save.folder"
-                            :placeholder="$t('uploadSettings.saveFolderPlaceholder')"
+                            :placeholder="appInfo.saveFolder"
                             readonly
                         />
                         <UiInputGroupAddon align="inline-end">
@@ -198,6 +198,7 @@ const NO_FOLDER = 'none';
 const DEFAULT_PATTERN = '%yyyy-%mo-%d_%h-%mi-%s';
 
 const settings = useSettings();
+const appInfo = useAppInfo();
 const { $toast } = useNuxtApp();
 const { t } = useI18n();
 

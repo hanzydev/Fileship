@@ -15,5 +15,7 @@ std::filesystem::path runtimeFolder();
 std::filesystem::path xdgFolder(char const* variable, char const* fallback);
 std::filesystem::path iconPath();
 std::string shellQuote(std::string const& argument);
+std::string packageType();
+std::wstring hotkeyBackend();
 
 }

@@ -11,14 +11,14 @@
 
 namespace fileship::host {
 
-namespace {
-
 std::string packageType() {
     std::ifstream file(resourcesPath().parent_path() / "package-type");
     std::string type;
     std::getline(file, type);
     return type;
 }
+
+namespace {
 
 bool spawn(std::vector<std::string> arguments) {
     std::vector<char*> argv;

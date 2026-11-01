@@ -16,7 +16,8 @@ export const iconPath = () => join(app.getAppPath(), 'resources', 'icon.png');
 
 export const themeBackground = () => (nativeTheme.shouldUseDarkColors ? DARK : LIGHT);
 
-export const desktopUserAgent = () => `FileshipDesktop/${app.getVersion()} (Windows)`;
+export const desktopUserAgent = () =>
+    `FileshipDesktop/${app.getVersion()} (${process.platform === 'linux' ? 'Linux' : 'Windows'})`;
 
 export const rendererUrl = (route = '/') =>
     process.env.DESKTOP_RENDERER_URL
@@ -96,7 +97,14 @@ const createMainWindow = (route = '/') => {
         if (isQuitting || hasShownTrayHint || !Notification.isSupported()) return;
 
         hasShownTrayHint = true;
-        notify(t('app.stillRunning'), t('app.stillRunningDescription'));
+        notify(
+            t('app.stillRunning'),
+            t(
+                process.platform === 'linux'
+                    ? 'app.stillRunningDescriptionLinux'
+                    : 'app.stillRunningDescription',
+            ),
+        );
     });
 
     window.on('closed', () => {
