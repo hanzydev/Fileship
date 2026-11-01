@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 #include <clocale>
+#include <cstdio>
 #include <locale>
 
 int main(int argc, char** argv) {
@@ -58,5 +59,6 @@ int main(int argc, char** argv) {
     stopRpcServer();
     logInfo(L"Stopped");
     close(lock);
-    return 0;
+    std::fflush(nullptr);
+    _exit(0);
 }
