@@ -4,10 +4,10 @@
   </a>
 
   <p align="center">
-    属于你自己的 ShareX 服务器和文件云：原生 Windows 应用、文件资源管理器同步、在你的服务器上运行的 AI 搜索，以及浏览器扩展。
+    属于你自己的 ShareX 服务器和文件云：原生 Windows 和 Linux 应用、文件管理器同步、在你的服务器上运行的 AI 搜索，以及浏览器扩展。
     <br />
     <br />
-    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">下载 Windows 版</a>
+    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">下载 Windows 和 Linux 版</a>
     ·
     <a href="https://github.com/hanzydev/Fileship/issues/new?template=bug-report.yml">报告问题</a>
     ·
@@ -34,7 +34,7 @@
 - 上传的文件可存放在本地磁盘、任意兼容 S3 的服务、SFTP 或 FTP
 - 多用户，支持权限和存储限制、通行密钥、双重验证，以及基于 OpenID Connect 的[单点登录](docs/configuration.md#single-sign-on)
 - 零停机更新，一键完成或按计划自动进行
-- ShareX、macOS 和 Linux 上传集成、[Windows 应用](docs/desktop.md)，以及可接收 Android 应用分享的[手机可安装应用](docs/mobile.md)
+- ShareX、macOS 和 Linux 上传集成、[Windows 和 Linux 应用](docs/desktop.md)，以及可接收 Android 应用分享的[手机可安装应用](docs/mobile.md)
 - [浏览器扩展](docs/browser-extension.md)，可上传文件、图片和截图并生成短链接。Chrome 和 Edge 可从 [Chrome 应用商店](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh)安装，Firefox 可从 [Firefox 附加组件](https://addons.mozilla.org/firefox/addon/fileship/)安装
 - 可推送到 Discord、Slack 和你自己的服务的 [Webhook](docs/webhooks.md)
 - 英语、土耳其语、德语、西班牙语、法语、意大利语、巴西葡萄牙语、俄语、阿塞拜疆语、日语、韩语和简体中文
@@ -44,8 +44,8 @@
 |                                   | Fileship                     | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | --------------------------------- | ---------------------------- | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX 及其他上传工具             | ✅                           | ✅                                          | ✅                                                 | ✅                                                  |
-| 用于截图和录制的桌面应用          | ✅ Windows                   | ❌                                          | ❌                                                 | ❌                                                  |
-| 在文件资源管理器中访问文件        | ✅ Fileship Harbor           | ❌                                          | ❌                                                 | ❌                                                  |
+| 用于截图和录制的桌面应用          | ✅ Windows, Linux            | ❌                                          | ❌                                                 | ❌                                                  |
+| 在文件管理器中访问文件            | ✅ Fileship Harbor           | ❌                                          | ❌                                                 | ❌                                                  |
 | 浏览器扩展                        | ✅                           | ❌                                          | ❌                                                 | ✅                                                  |
 | AI 搜索、图片描述、OCR 和敏感内容 | ✅ 在你的服务器上运行        | ❌                                          | ❌                                                 | ❌                                                  |
 | 短链接                            | ✅                           | ✅                                          | ❌                                                 | ✅                                                  |
@@ -71,9 +71,9 @@
   <img src="apps/dashboard/public/previews/fileship-mobile.png" alt="手机上的 Fileship 文件列表" width="18%">
 </p>
 
-## 🖥️ Fileship Windows 版
+## 🖥️ Fileship Windows 和 Linux 版
 
-在通知区域中以 ShareX 的方式截图、录制并上传到你的 Fileship，还能通过 Fileship Harbor 在文件资源管理器中浏览你的文件。需要 64 位 Windows 11 24H2 或更高版本，以及 Fileship 6.0 服务器。
+在通知区域中以 ShareX 的方式截图、录制并上传到你的 Fileship，还能通过 Fileship Harbor 在文件资源管理器或 Linux 文件管理器中浏览你的文件。需要 64 位 Windows 11 24H2 或更高版本，或者使用 X11 或 Wayland 的 64 位 Linux 发行版（如 Ubuntu 24.04、Fedora 41 或更高版本），以及 Fileship 6.0 服务器。
 
 **[下载最新版本](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [功能与设置](docs/desktop.md)
 
@@ -102,7 +102,7 @@ docker compose up -d
 - [更新](docs/updating.md)：更新的工作方式以及如何定时更新
 - [从其他应用迁移](docs/migrating.md)：导入 Zipline、XBackBone 或 Chibisafe 服务器
 - [AI 功能](docs/ai.md)：预设、模型、智能搜索和敏感内容
-- [Fileship Windows 版](docs/desktop.md)
+- [Fileship Windows 和 Linux 版](docs/desktop.md)
 - [在手机上使用 Fileship](docs/mobile.md)：安装应用以及从 Android 分享
 - [Webhook](docs/webhooks.md)：事件、格式、投递和签名验证
 - [遥测](docs/telemetry.md)：收集哪些数据以及如何关闭

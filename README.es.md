@@ -4,10 +4,10 @@
   </a>
 
   <p align="center">
-    Tu propio servidor de ShareX y tu nube de archivos: una app nativa para Windows, sincronización con el Explorador de archivos, búsqueda con IA que se ejecuta en tu servidor y una extensión para el navegador.
+    Tu propio servidor de ShareX y tu nube de archivos: apps nativas para Windows y Linux, sincronización con el gestor de archivos, búsqueda con IA que se ejecuta en tu servidor y una extensión para el navegador.
     <br />
     <br />
-    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Descargar para Windows</a>
+    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Descargar para Windows y Linux</a>
     ·
     <a href="https://github.com/hanzydev/Fileship/issues/new?template=bug-report.yml">Informar de un error</a>
     ·
@@ -34,7 +34,7 @@
 - Subidas guardadas en el disco local, en cualquier servicio compatible con S3, SFTP o FTP
 - Varios usuarios con permisos y límites de almacenamiento, llaves de acceso, verificación en dos pasos e [inicio de sesión único](docs/configuration.md#single-sign-on) con OpenID Connect
 - Actualizaciones sin tiempo de inactividad, con un clic o programadas
-- Integraciones de subida para ShareX, macOS y Linux, la [app para Windows](docs/desktop.md) y una [app instalable para teléfonos](docs/mobile.md) a la que puedes compartir desde las apps de Android
+- Integraciones de subida para ShareX, macOS y Linux, la [app para Windows y Linux](docs/desktop.md) y una [app instalable para teléfonos](docs/mobile.md) a la que puedes compartir desde las apps de Android
 - Una [extensión para el navegador](docs/browser-extension.md) que sube archivos, imágenes y capturas de pantalla y acorta enlaces, [en Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh) para Chrome y Edge, y [en Firefox Add-ons](https://addons.mozilla.org/firefox/addon/fileship/) para Firefox
 - [Webhooks](docs/webhooks.md) para Discord, Slack y tus propios servicios
 - Inglés, turco, alemán, español, francés, italiano, portugués de Brasil, ruso, azerí, japonés, coreano y chino simplificado
@@ -44,8 +44,8 @@
 |                                                             | Fileship                              | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | ----------------------------------------------------------- | ------------------------------------- | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX y otros clientes de subida                           | ✅                                    | ✅                                          | ✅                                                 | ✅                                                  |
-| App de escritorio para capturas y grabaciones               | ✅ Windows                            | ❌                                          | ❌                                                 | ❌                                                  |
-| Tus archivos en el Explorador de archivos                   | ✅ Fileship Harbor                    | ❌                                          | ❌                                                 | ❌                                                  |
+| App de escritorio para capturas y grabaciones               | ✅ Windows, Linux                     | ❌                                          | ❌                                                 | ❌                                                  |
+| Tus archivos en el gestor de archivos                       | ✅ Fileship Harbor                    | ❌                                          | ❌                                                 | ❌                                                  |
 | Extensión para el navegador                                 | ✅                                    | ❌                                          | ❌                                                 | ✅                                                  |
 | Búsqueda con IA, descripciones, OCR y contenido sensible    | ✅ en tu servidor                     | ❌                                          | ❌                                                 | ❌                                                  |
 | Enlaces cortos                                              | ✅                                    | ✅                                          | ❌                                                 | ✅                                                  |
@@ -71,9 +71,9 @@ Comparado con Zipline 4.8, XBackBone 3.8 y Chibisafe 6.7 en octubre de 2026. ¿H
   <img src="apps/dashboard/public/previews/fileship-mobile.png" alt="Archivos de Fileship en el teléfono" width="18%">
 </p>
 
-## 🖥️ Fileship para Windows
+## 🖥️ Fileship para Windows y Linux
 
-Captura, graba y sube contenido a tu Fileship desde el área de notificación, al estilo de ShareX, y explora tus archivos en el Explorador de archivos con Fileship Harbor. Requiere Windows 11 de 64 bits, versión 24H2 o posterior, y un servidor con Fileship 6.0.
+Captura, graba y sube contenido a tu Fileship desde el área de notificación, al estilo de ShareX, y explora tus archivos en el Explorador de archivos o en el gestor de archivos de Linux con Fileship Harbor. Requiere Windows 11 de 64 bits, versión 24H2 o posterior, o una distribución de Linux de 64 bits como Ubuntu 24.04 o Fedora 41 y posteriores con X11 o Wayland, y un servidor con Fileship 6.0.
 
 **[Descargar la última versión](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Funciones y configuración](docs/desktop.md)
 
@@ -102,7 +102,7 @@ Fileship ya está disponible en `http://localhost:3000`. Inicia sesión con `adm
 - [Actualizaciones](docs/updating.md): cómo funcionan las actualizaciones y cómo programarlas
 - [Migrar desde otra app](docs/migrating.md): importar un servidor de Zipline, XBackBone o Chibisafe
 - [Funciones de IA](docs/ai.md): perfiles, modelos, búsqueda inteligente y contenido sensible
-- [Fileship para Windows](docs/desktop.md)
+- [Fileship para Windows y Linux](docs/desktop.md)
 - [Fileship en tu teléfono](docs/mobile.md): instalar la app y compartir desde Android
 - [Webhooks](docs/webhooks.md): eventos, formatos, entrega y verificación de firmas
 - [Telemetría](docs/telemetry.md): qué se recopila y cómo desactivarla

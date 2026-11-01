@@ -4,10 +4,10 @@
   </a>
 
   <p align="center">
-    나만의 ShareX 서버이자 파일 클라우드예요. 네이티브 Windows 앱, 파일 탐색기 동기화, 내 서버에서 실행되는 AI 검색, 브라우저 확장 프로그램을 제공해요.
+    나만의 ShareX 서버이자 파일 클라우드예요. Windows와 Linux용 네이티브 앱, 파일 관리자 동기화, 내 서버에서 실행되는 AI 검색, 브라우저 확장 프로그램을 제공해요.
     <br />
     <br />
-    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Windows용 다운로드</a>
+    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Windows·Linux용 다운로드</a>
     ·
     <a href="https://github.com/hanzydev/Fileship/issues/new?template=bug-report.yml">버그 신고</a>
     ·
@@ -34,7 +34,7 @@
 - 로컬 디스크, S3 호환 서비스, SFTP, FTP 중 원하는 곳에 업로드 저장
 - 권한과 저장 용량 제한을 둘 수 있는 다중 사용자, 패스키, 2단계 인증, OpenID Connect 기반 [싱글 사인온](docs/configuration.md#single-sign-on)
 - 다운타임 없는 업데이트, 클릭 한 번으로 또는 예약해서
-- ShareX, macOS, Linux 업로드 연동, [Windows 앱](docs/desktop.md), Android 앱에서 공유할 수 있는 [휴대폰용 설치형 앱](docs/mobile.md)
+- ShareX, macOS, Linux 업로드 연동, [Windows·Linux 앱](docs/desktop.md), Android 앱에서 공유할 수 있는 [휴대폰용 설치형 앱](docs/mobile.md)
 - 파일, 이미지, 스크린샷을 업로드하고 링크를 단축하는 [브라우저 확장 프로그램](docs/browser-extension.md). Chrome과 Edge용은 [Chrome 웹 스토어](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh)에 있고, Firefox용은 [Firefox 부가 기능](https://addons.mozilla.org/firefox/addon/fileship/)에 있어요
 - Discord, Slack, 직접 만든 서비스로 보내는 [웹훅](docs/webhooks.md)
 - 영어, 터키어, 독일어, 스페인어, 프랑스어, 이탈리아어, 브라질 포르투갈어, 러시아어, 아제르바이잔어, 일본어, 한국어, 중국어 간체
@@ -44,8 +44,8 @@
 |                                   | Fileship                       | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | --------------------------------- | ------------------------------ | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX 및 기타 업로더             | ✅                             | ✅                                          | ✅                                                 | ✅                                                  |
-| 캡처와 녹화를 위한 데스크톱 앱    | ✅ Windows                     | ❌                                          | ❌                                                 | ❌                                                  |
-| 파일 탐색기에서 내 파일 보기      | ✅ Fileship Harbor             | ❌                                          | ❌                                                 | ❌                                                  |
+| 캡처와 녹화를 위한 데스크톱 앱    | ✅ Windows, Linux              | ❌                                          | ❌                                                 | ❌                                                  |
+| 파일 관리자에서 내 파일 보기      | ✅ Fileship Harbor             | ❌                                          | ❌                                                 | ❌                                                  |
 | 브라우저 확장 프로그램            | ✅                             | ❌                                          | ❌                                                 | ✅                                                  |
 | AI 검색, 설명, OCR, 민감한 콘텐츠 | ✅ 내 서버에서 실행            | ❌                                          | ❌                                                 | ❌                                                  |
 | 단축 링크                         | ✅                             | ✅                                          | ❌                                                 | ✅                                                  |
@@ -71,9 +71,9 @@
   <img src="apps/dashboard/public/previews/fileship-mobile.png" alt="모바일에서 본 Fileship 파일 목록" width="18%">
 </p>
 
-## 🖥️ Windows용 Fileship
+## 🖥️ Windows·Linux용 Fileship
 
-알림 영역에서 ShareX처럼 캡처하고 녹화해서 Fileship에 업로드하고, Fileship Harbor로 파일 탐색기에서 내 파일을 둘러볼 수 있어요. 64비트 Windows 11 버전 24H2 이상과 Fileship 6.0 서버가 필요해요.
+알림 영역에서 ShareX처럼 캡처하고 녹화해서 Fileship에 업로드하고, Fileship Harbor로 파일 탐색기나 Linux 파일 관리자에서 내 파일을 둘러볼 수 있어요. 64비트 Windows 11 버전 24H2 이상, 또는 X11이나 Wayland를 쓰는 Ubuntu 24.04, Fedora 41 이상 같은 64비트 Linux 배포판과 Fileship 6.0 서버가 필요해요.
 
 **[최신 버전 다운로드](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [기능 및 설정 방법](docs/desktop.md)
 
@@ -102,7 +102,7 @@ docker compose up -d
 - [업데이트](docs/updating.md): 업데이트 방식과 예약 방법
 - [다른 앱에서 옮겨 오기](docs/migrating.md): Zipline, XBackBone, Chibisafe 서버 가져오기
 - [AI 기능](docs/ai.md): 프리셋, 모델, 스마트 검색, 민감한 콘텐츠
-- [Windows용 Fileship](docs/desktop.md)
+- [Windows·Linux용 Fileship](docs/desktop.md)
 - [휴대폰에서 Fileship 쓰기](docs/mobile.md): 앱 설치와 Android에서 공유하기
 - [웹훅](docs/webhooks.md): 이벤트, 형식, 전송, 서명 검증
 - [원격 분석](docs/telemetry.md): 수집하는 정보와 끄는 방법

@@ -44,6 +44,18 @@ Desktop:
 - [ ] Harbor duplicates: check the 2.0.1 identity checks after a Windows sign-in on a machine with an existing Harbor folder (the 2.0.0 duplication could not be reproduced on demand).
 - [ ] Check nested folders in Harbor with a real Explorer (only the layout logic and the folder list were tested): folders several levels deep, creating, renaming and moving folders and files between levels, copying a folder tree in, deleting a tree, and moving into Notes or Links being refused.
 
+Desktop on Linux (Fileship for Linux, on `feat/desktop-linux`, not released yet):
+
+- [ ] Real desktops: GNOME (46 and 48+ for global shortcuts) and KDE Plasma 6 on X11 and Wayland, with several monitors and fractional scaling. Tested only in WSL: X11 on Xvfb with openbox, Wayland on headless sway with xdg-desktop-portal-wlr, a mock GlobalShortcuts portal and no real tray watcher.
+- [ ] GNOME: the Screenshot portal permission for a tray app (asked from a focused window), the tray through the AppIndicator extension, the XWayland clipboard without focus, and Print Screen taken by GNOME's own screenshot tool.
+- [ ] The overlay with a real IME in the text tool, a real mouse across monitors, and window detection on X11 desktops other than openbox.
+- [ ] Recording: GIF and the VAAPI, NVENC and QSV encoders were not run; on Wayland the area stays within one monitor and there is no toolbar or border (a layer-shell toolbar for Plasma and wlroots would bring them back); `x11grab` across monitors.
+- [ ] Harbor on Linux was tested through the helper protocol (35 checks on Ubuntu 26.04, Debian 13 and Fedora) and not end to end through the host against a dashboard (needs a scratch database). Not done: thumbnails for file managers (opening a preview downloads the file), state emblems, a pin entry in the file manager menus (pinning is `setfattr -n user.fileship.pinned -v 1`).
+- [ ] Packages were installed in containers (deb on Ubuntu 24.04 and Debian 13, rpm on Fedora and openSUSE Tumbleweed, the AUR package with `makepkg` on Arch, the AppImage's static runtime without libfuse2) and the Flatpak was built and started with `flatpak-builder` on GNOME 51, but none ran on a desktop. Check the updates from one version to the next (AppImage in place, `.deb` and `.rpm` through `pkexec`), the Flatpak's windows through zypak, its Background portal autostart and tray, and the AppImage's runtime copy after an update.
+- [ ] Flathub: the first submission needs the domain verification (`hanzy.dev/.well-known/org.flathub.VerifiedApps.txt`), screenshots and `<releases>` in the metainfo. AUR: the account and the `AUR_SSH_PRIVATE_KEY` secret; until then the `aur` job skips itself.
+- [ ] arm64 builds of the Linux app.
+- [ ] Overlay monitors are matched to displays by position; match them by connector name when a desktop reports different layouts to GDK and the capture backend.
+
 Browser extension:
 
 - [ ] Finish the Firefox checks by hand. Headless Firefox 158 with the build as a temporary add-on passed the options page and its permission request, the menu items, shortening and copying from the background page, IndexedDB uploads in parallel chunks, the upload tab (drop), `captureVisibleTab`, the area picker and the error messages, against a mock server. Still unchecked: clicking the context menu items (Firefox cannot dispatch them), the permission prompts, notifications and clicking them, the real toolbar popup, and an upload that runs longer than the event page's idle timeout.

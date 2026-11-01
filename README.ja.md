@@ -4,10 +4,10 @@
   </a>
 
   <p align="center">
-    自分だけの ShareX サーバー兼ファイルクラウド。ネイティブの Windows アプリ、エクスプローラーとの同期、自分のサーバーで動く AI 検索、ブラウザー拡張機能を備えています。
+    自分だけの ShareX サーバー兼ファイルクラウド。Windows と Linux 向けのネイティブアプリ、ファイルマネージャーとの同期、自分のサーバーで動く AI 検索、ブラウザー拡張機能を備えています。
     <br />
     <br />
-    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Windows 版をダウンロード</a>
+    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Windows 版・Linux 版をダウンロード</a>
     ·
     <a href="https://github.com/hanzydev/Fileship/issues/new?template=bug-report.yml">バグを報告</a>
     ·
@@ -34,7 +34,7 @@
 - アップロード先はローカルディスク、S3 互換サービス、SFTP、FTP から選べます
 - 権限と容量制限を設定できる複数ユーザー、パスキー、2 段階認証、OpenID Connect による[シングルサインオン](docs/configuration.md#single-sign-on)
 - ダウンタイムなしのアップデート。ワンクリックでもスケジュールでも実行できます
-- ShareX、macOS、Linux 向けのアップロード連携、[Windows アプリ](docs/desktop.md)、Android アプリから共有できる[スマートフォン用のインストール可能なアプリ](docs/mobile.md)
+- ShareX、macOS、Linux 向けのアップロード連携、[Windows・Linux アプリ](docs/desktop.md)、Android アプリから共有できる[スマートフォン用のインストール可能なアプリ](docs/mobile.md)
 - ファイル、画像、スクリーンショットのアップロードとリンクの短縮ができる[ブラウザー拡張機能](docs/browser-extension.md)。Chrome と Edge 向けは [Chrome ウェブストア](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh)で公開しており、Firefox 向けは [Firefox アドオン](https://addons.mozilla.org/firefox/addon/fileship/)で公開しています
 - Discord、Slack、独自のサービスに送れる [Webhook](docs/webhooks.md)
 - 英語、トルコ語、ドイツ語、スペイン語、フランス語、イタリア語、ブラジルポルトガル語、ロシア語、アゼルバイジャン語、日本語、韓国語、簡体字中国語
@@ -44,8 +44,8 @@
 |                                                | Fileship                         | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | ---------------------------------------------- | -------------------------------- | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX などのアップローダー                    | ✅                               | ✅                                          | ✅                                                 | ✅                                                  |
-| キャプチャと録画ができるデスクトップアプリ     | ✅ Windows                       | ❌                                          | ❌                                                 | ❌                                                  |
-| エクスプローラーでファイルを表示               | ✅ Fileship Harbor               | ❌                                          | ❌                                                 | ❌                                                  |
+| キャプチャと録画ができるデスクトップアプリ     | ✅ Windows, Linux                | ❌                                          | ❌                                                 | ❌                                                  |
+| ファイルマネージャーでファイルを表示           | ✅ Fileship Harbor               | ❌                                          | ❌                                                 | ❌                                                  |
 | ブラウザー拡張機能                             | ✅                               | ❌                                          | ❌                                                 | ✅                                                  |
 | AI 検索、説明文、OCR、センシティブなコンテンツ | ✅ 自分のサーバーで動作          | ❌                                          | ❌                                                 | ❌                                                  |
 | 短縮リンク                                     | ✅                               | ✅                                          | ❌                                                 | ✅                                                  |
@@ -71,9 +71,9 @@
   <img src="apps/dashboard/public/previews/fileship-mobile.png" alt="スマートフォンで表示した Fileship のファイル一覧" width="18%">
 </p>
 
-## 🖥️ Fileship for Windows
+## 🖥️ Fileship for Windows / Fileship for Linux
 
-通知領域から ShareX のようにキャプチャ、録画、Fileship へのアップロードができ、Fileship Harbor を使えばエクスプローラーでファイルを閲覧できます。64 ビット版 Windows 11 バージョン 24H2 以降と、Fileship 6.0 のサーバーが必要です。
+通知領域から ShareX のようにキャプチャ、録画、Fileship へのアップロードができ、Fileship Harbor を使えばエクスプローラーや Linux のファイルマネージャーでファイルを閲覧できます。64 ビット版 Windows 11 バージョン 24H2 以降、または X11 か Wayland で動く Ubuntu 24.04 や Fedora 41 以降などの 64 ビット版 Linux ディストリビューションと、Fileship 6.0 のサーバーが必要です。
 
 **[最新版をダウンロード](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [機能とセットアップ](docs/desktop.md)
 
@@ -102,7 +102,7 @@ docker compose up -d
 - [アップデート](docs/updating.md)：アップデートの仕組みとスケジュールの設定
 - [他のアプリからの移行](docs/migrating.md)：Zipline、XBackBone、Chibisafe のサーバーのインポート
 - [AI 機能](docs/ai.md)：プリセット、モデル、スマート検索、センシティブなコンテンツ
-- [Fileship for Windows](docs/desktop.md)
+- [Fileship for Windows / Fileship for Linux](docs/desktop.md)
 - [スマートフォンで使う Fileship](docs/mobile.md)：アプリのインストールと Android からの共有
 - [Webhook](docs/webhooks.md)：イベント、形式、配信、署名の検証
 - [テレメトリー](docs/telemetry.md)：収集されるデータとオフにする方法

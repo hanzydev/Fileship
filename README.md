@@ -4,10 +4,10 @@
   </a>
 
   <p align="center">
-    Your own ShareX server and file cloud: a native Windows app, File Explorer sync, AI search that runs on your server and a browser extension.
+    Your own ShareX server and file cloud: native apps for Windows and Linux, file manager sync, AI search that runs on your server and a browser extension.
     <br />
     <br />
-    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Download for Windows</a>
+    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Download for Windows and Linux</a>
     ·
     <a href="https://github.com/hanzydev/Fileship/issues/new?template=bug-report.yml">Report a bug</a>
     ·
@@ -34,7 +34,7 @@
 - Uploads on the local disk, any S3 compatible service, SFTP or FTP
 - Multiple users with permissions and storage limits, passkeys, two-factor authentication and [single sign-on](docs/configuration.md#single-sign-on) with OpenID Connect
 - Zero-downtime updates, one click or on a schedule
-- ShareX, macOS and Linux upload integrations, the [Windows app](docs/desktop.md) and an [installable app for phones](docs/mobile.md) that Android apps can share to
+- ShareX, macOS and Linux upload integrations, the [Windows and Linux app](docs/desktop.md) and an [installable app for phones](docs/mobile.md) that Android apps can share to
 - A [browser extension](docs/browser-extension.md) that uploads files, images and screenshots and shortens links, [on the Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh) for Chrome and Edge, and [on Firefox Add-ons](https://addons.mozilla.org/firefox/addon/fileship/) for Firefox
 - [Webhooks](docs/webhooks.md) for Discord, Slack and your own services
 - English, Turkish, German, Spanish, French, Italian, Brazilian Portuguese, Russian, Azerbaijani, Japanese, Korean and Simplified Chinese
@@ -44,8 +44,8 @@
 |                                                | Fileship                       | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | ---------------------------------------------- | ------------------------------ | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX and other uploaders                     | ✅                             | ✅                                          | ✅                                                 | ✅                                                  |
-| Desktop app for capture and recording          | ✅ Windows                     | ❌                                          | ❌                                                 | ❌                                                  |
-| Your files in File Explorer                    | ✅ Fileship Harbor             | ❌                                          | ❌                                                 | ❌                                                  |
+| Desktop app for capture and recording          | ✅ Windows, Linux              | ❌                                          | ❌                                                 | ❌                                                  |
+| Your files in your file manager                | ✅ Fileship Harbor             | ❌                                          | ❌                                                 | ❌                                                  |
 | Browser extension                              | ✅                             | ❌                                          | ❌                                                 | ✅                                                  |
 | AI search, captions, OCR and sensitive content | ✅ on your server              | ❌                                          | ❌                                                 | ❌                                                  |
 | Short links                                    | ✅                             | ✅                                          | ❌                                                 | ✅                                                  |
@@ -71,9 +71,9 @@ Compared with Zipline 4.8, XBackBone 3.8 and Chibisafe 6.7 in October 2026. Some
   <img src="apps/dashboard/public/previews/fileship-mobile.png" alt="Fileship files on mobile" width="18%">
 </p>
 
-## 🖥️ Fileship for Windows
+## 🖥️ Fileship for Windows and Linux
 
-Capture, record and upload to your Fileship from the system tray, ShareX style, and browse your files in File Explorer with Fileship Harbor. Needs 64-bit Windows 11 version 24H2 or newer and a Fileship 6.0 server.
+Capture, record and upload to your Fileship from the system tray, ShareX style, and browse your files in File Explorer or your Linux file manager with Fileship Harbor. Needs 64-bit Windows 11 version 24H2 or newer, or a 64-bit Linux distribution such as Ubuntu 24.04 or Fedora 41 and newer with X11 or Wayland, and a Fileship 6.0 server.
 
 **[Download the latest version](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Features and setup](docs/desktop.md)
 
@@ -102,7 +102,7 @@ Upgrading from 5.x? Follow [Upgrading to 6.0](docs/upgrading.md). Coming from Zi
 - [Updating](docs/updating.md): how updates work and how to schedule them
 - [Moving from another app](docs/migrating.md): importing a Zipline, XBackBone or Chibisafe instance
 - [AI features](docs/ai.md): presets, models, smart search and sensitive content
-- [Fileship for Windows](docs/desktop.md)
+- [Fileship for Windows and Linux](docs/desktop.md)
 - [Fileship on your phone](docs/mobile.md): installing the app and sharing from Android
 - [Webhooks](docs/webhooks.md): events, formats, delivery and signature verification
 - [Telemetry](docs/telemetry.md): what is collected and how to turn it off

@@ -4,10 +4,10 @@
   </a>
 
   <p align="center">
-    Kendi ShareX sunucun ve dosya bulutun: yerel bir Windows uygulaması, Dosya Gezgini eşitlemesi, kendi sunucunda çalışan yapay zekâ araması ve bir tarayıcı uzantısı.
+    Kendi ShareX sunucun ve dosya bulutun: Windows ve Linux için yerel uygulamalar, dosya yöneticisi eşitlemesi, kendi sunucunda çalışan yapay zekâ araması ve bir tarayıcı uzantısı.
     <br />
     <br />
-    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Windows için indir</a>
+    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Windows ve Linux için indir</a>
     ·
     <a href="https://github.com/hanzydev/Fileship/issues/new?template=bug-report.yml">Hata bildir</a>
     ·
@@ -34,7 +34,7 @@
 - Yüklemeler için yerel disk, S3 uyumlu herhangi bir servis, SFTP veya FTP
 - Yetkileri ve depolama sınırları olan birden çok kullanıcı, geçiş anahtarları, iki adımlı doğrulama ve OpenID Connect ile [tek oturum açma (SSO)](docs/configuration.md#single-sign-on)
 - Kesintisiz güncellemeler: tek tıkla ya da zamanlanmış
-- ShareX, macOS ve Linux için yükleme entegrasyonları, [Windows uygulaması](docs/desktop.md) ve Android uygulamalarından paylaşım alabilen, [telefona yüklenebilen bir uygulama](docs/mobile.md)
+- ShareX, macOS ve Linux için yükleme entegrasyonları, [Windows ve Linux uygulaması](docs/desktop.md) ve Android uygulamalarından paylaşım alabilen, [telefona yüklenebilen bir uygulama](docs/mobile.md)
 - Dosya, görsel ve ekran görüntüsü yükleyen, bağlantı kısaltan bir [tarayıcı uzantısı](docs/browser-extension.md): Chrome ve Edge için [Chrome Web Mağazası'nda](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh), Firefox için [Firefox Eklentileri'nde](https://addons.mozilla.org/firefox/addon/fileship/)
 - Discord, Slack ve kendi servislerin için [webhook'lar](docs/webhooks.md)
 - İngilizce, Türkçe, Almanca, İspanyolca, Fransızca, İtalyanca, Brezilya Portekizcesi, Rusça, Azerice, Japonca, Korece ve Basitleştirilmiş Çince
@@ -44,8 +44,8 @@
 |                                                       | Fileship                                 | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | ----------------------------------------------------- | ---------------------------------------- | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX ve diğer yükleme araçları                      | ✅                                       | ✅                                          | ✅                                                 | ✅                                                  |
-| Ekran görüntüsü ve kayıt için masaüstü uygulaması     | ✅ Windows                               | ❌                                          | ❌                                                 | ❌                                                  |
-| Dosyaların Dosya Gezgini'nde                          | ✅ Fileship Harbor                       | ❌                                          | ❌                                                 | ❌                                                  |
+| Ekran görüntüsü ve kayıt için masaüstü uygulaması     | ✅ Windows, Linux                        | ❌                                          | ❌                                                 | ❌                                                  |
+| Dosyaların dosya yöneticinde                          | ✅ Fileship Harbor                       | ❌                                          | ❌                                                 | ❌                                                  |
 | Tarayıcı uzantısı                                     | ✅                                       | ❌                                          | ❌                                                 | ✅                                                  |
 | Yapay zekâ araması, açıklamalar, OCR ve hassas içerik | ✅ kendi sunucunda                       | ❌                                          | ❌                                                 | ❌                                                  |
 | Kısa bağlantılar                                      | ✅                                       | ✅                                          | ❌                                                 | ✅                                                  |
@@ -71,9 +71,9 @@ Zipline 4.8, XBackBone 3.8 ve Chibisafe 6.7 ile Ekim 2026'da karşılaştırıld
   <img src="apps/dashboard/public/previews/fileship-mobile.png" alt="Telefonda Fileship dosyaları" width="18%">
 </p>
 
-## 🖥️ Windows için Fileship
+## 🖥️ Windows ve Linux için Fileship
 
-Bildirim alanından ShareX tarzında ekran görüntüsü al, kayıt yap ve Fileship'ine yükle; dosyalarına da Fileship Harbor ile Dosya Gezgini'nden göz at. 64 bit Windows 11 24H2 veya daha yeni bir sürüm ve Fileship 6.0 sunucusu gerekir.
+Bildirim alanından ShareX tarzında ekran görüntüsü al, kayıt yap ve Fileship'ine yükle; dosyalarına da Fileship Harbor ile Dosya Gezgini'nden ya da Linux'taki dosya yöneticinden göz at. 64 bit Windows 11 24H2 veya daha yeni bir sürüm ya da X11 veya Wayland kullanan, Ubuntu 24.04 veya Fedora 41 ve sonrası gibi 64 bit bir Linux dağıtımı ve Fileship 6.0 sunucusu gerekir.
 
 **[Son sürümü indir](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Özellikler ve kurulum](docs/desktop.md)
 
@@ -102,7 +102,7 @@ Fileship artık `http://localhost:3000` adresinde çalışıyor. `admin` / `pass
 - [Güncelleme](docs/updating.md): güncellemelerin nasıl çalıştığı ve nasıl zamanlanacağı
 - [Başka bir uygulamadan geçiş](docs/migrating.md): bir Zipline, XBackBone veya Chibisafe sunucusunu içe aktarma
 - [Yapay zekâ özellikleri](docs/ai.md): ön ayarlar, modeller, akıllı arama ve hassas içerik
-- [Windows için Fileship](docs/desktop.md)
+- [Windows ve Linux için Fileship](docs/desktop.md)
 - [Telefonda Fileship](docs/mobile.md): uygulamayı yükleme ve Android'den paylaşma
 - [Webhook'lar](docs/webhooks.md): olaylar, biçimler, teslimat ve imza doğrulama
 - [Telemetri](docs/telemetry.md): neler toplandığı ve nasıl kapatılacağı

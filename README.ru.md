@@ -4,10 +4,10 @@
   </a>
 
   <p align="center">
-    Собственный сервер для ShareX и файловое облако: нативное приложение для Windows, синхронизация с Проводником, ИИ-поиск на вашем сервере и расширение для браузера.
+    Собственный сервер для ShareX и файловое облако: нативные приложения для Windows и Linux, синхронизация с файловым менеджером, ИИ-поиск на вашем сервере и расширение для браузера.
     <br />
     <br />
-    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Скачать для Windows</a>
+    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Скачать для Windows и Linux</a>
     ·
     <a href="https://github.com/hanzydev/Fileship/issues/new?template=bug-report.yml">Сообщить об ошибке</a>
     ·
@@ -34,7 +34,7 @@
 - Хранение загрузок на локальном диске, в любом S3-совместимом сервисе, по SFTP или FTP
 - Несколько пользователей с правами и лимитами хранилища, ключи доступа, двухфакторная аутентификация и [единый вход](docs/configuration.md#single-sign-on) через OpenID Connect
 - Обновления без простоя: в один клик или по расписанию
-- Интеграции для загрузки из ShareX, macOS и Linux, [приложение для Windows](docs/desktop.md) и [устанавливаемое приложение для телефона](docs/mobile.md), в которое можно делиться из приложений Android
+- Интеграции для загрузки из ShareX, macOS и Linux, [приложение для Windows и Linux](docs/desktop.md) и [устанавливаемое приложение для телефона](docs/mobile.md), в которое можно делиться из приложений Android
 - [Расширение для браузера](docs/browser-extension.md), которое загружает файлы, изображения и скриншоты и сокращает ссылки: для Chrome и Edge — [в Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh), для Firefox — [в каталоге дополнений Firefox](https://addons.mozilla.org/firefox/addon/fileship/)
 - [Вебхуки](docs/webhooks.md) для Discord, Slack и ваших собственных сервисов
 - Английский, турецкий, немецкий, испанский, французский, итальянский, бразильский португальский, русский, азербайджанский, японский, корейский и упрощённый китайский
@@ -44,8 +44,8 @@
 |                                                            | Fileship                            | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | ---------------------------------------------------------- | ----------------------------------- | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX и другие загрузчики                                 | ✅                                  | ✅                                          | ✅                                                 | ✅                                                  |
-| Приложение для скриншотов и записи экрана                  | ✅ Windows                          | ❌                                          | ❌                                                 | ❌                                                  |
-| Ваши файлы в Проводнике                                    | ✅ Fileship Harbor                  | ❌                                          | ❌                                                 | ❌                                                  |
+| Приложение для скриншотов и записи экрана                  | ✅ Windows, Linux                   | ❌                                          | ❌                                                 | ❌                                                  |
+| Ваши файлы в файловом менеджере                            | ✅ Fileship Harbor                  | ❌                                          | ❌                                                 | ❌                                                  |
 | Расширение для браузера                                    | ✅                                  | ❌                                          | ❌                                                 | ✅                                                  |
 | ИИ-поиск, описания, OCR и конфиденциальные данные          | ✅ на вашем сервере                 | ❌                                          | ❌                                                 | ❌                                                  |
 | Короткие ссылки                                            | ✅                                  | ✅                                          | ❌                                                 | ✅                                                  |
@@ -71,9 +71,9 @@
   <img src="apps/dashboard/public/previews/fileship-mobile.png" alt="Файлы в Fileship на телефоне" width="18%">
 </p>
 
-## 🖥️ Fileship для Windows
+## 🖥️ Fileship для Windows и Linux
 
-Делайте скриншоты, записывайте экран и загружайте всё в свой Fileship прямо из области уведомлений, как в ShareX, а с Fileship Harbor работайте со своими файлами в Проводнике. Нужна 64-разрядная Windows 11 версии 24H2 или новее и сервер Fileship 6.0.
+Делайте скриншоты, записывайте экран и загружайте всё в свой Fileship прямо из области уведомлений, как в ShareX, а с Fileship Harbor работайте со своими файлами в Проводнике или файловом менеджере Linux. Нужна 64-разрядная Windows 11 версии 24H2 или новее либо 64-разрядный дистрибутив Linux, например Ubuntu 24.04 или Fedora 41 и новее, с X11 или Wayland, а также сервер Fileship 6.0.
 
 **[Скачать последнюю версию](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Возможности и настройка](docs/desktop.md)
 
@@ -102,7 +102,7 @@ docker compose up -d
 - [Обновление](docs/updating.md): как работают обновления и как их запланировать
 - [Переход с другого приложения](docs/migrating.md): импорт сервера Zipline, XBackBone или Chibisafe
 - [Возможности ИИ](docs/ai.md): профили, модели, умный поиск и конфиденциальные данные
-- [Fileship для Windows](docs/desktop.md)
+- [Fileship для Windows и Linux](docs/desktop.md)
 - [Fileship на телефоне](docs/mobile.md): установка приложения и отправка файлов из Android
 - [Вебхуки](docs/webhooks.md): события, форматы, доставка и проверка подписи
 - [Телеметрия](docs/telemetry.md): что собирается и как это отключить

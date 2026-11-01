@@ -14,13 +14,13 @@ Discord and Slack messages are written in your Fileship language.
 
 ## Events
 
-| Event                | Sent when                                                                                                         |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `file.uploaded`      | A file is uploaded from the dashboard, the Windows app, ShareX, the scripts or a visitor through your inbox.      |
-| `file.deleted`       | Files are moved to the trash, deleted for good, expire or reach their view limit. One event covers a bulk delete. |
-| `storage.almostFull` | An upload takes your storage past 90% of your usable space. Accounts without a storage limit never send it.       |
-| `link.created`       | A short link is created.                                                                                          |
-| `note.created`       | A note is created.                                                                                                |
+| Event                | Sent when                                                                                                             |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `file.uploaded`      | A file is uploaded from the dashboard, the Windows or Linux app, ShareX, the scripts or a visitor through your inbox. |
+| `file.deleted`       | Files are moved to the trash, deleted for good, expire or reach their view limit. One event covers a bulk delete.     |
+| `storage.almostFull` | An upload takes your storage past 90% of your usable space. Accounts without a storage limit never send it.           |
+| `link.created`       | A short link is created.                                                                                              |
+| `note.created`       | A note is created.                                                                                                    |
 
 **Send test** in a webhook's menu sends a `webhook.test` event right away and shows the result.
 

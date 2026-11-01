@@ -4,10 +4,10 @@
   </a>
 
   <p align="center">
-    Öz ShareX serverin və fayl buludun: yerli Windows tətbiqi, Fayl Bələdçisi ilə sinxronizasiya, öz serverində işləyən süni intellekt axtarışı və brauzer genişləndirməsi.
+    Öz ShareX serverin və fayl buludun: Windows və Linux üçün yerli tətbiqlər, fayl meneceri ilə sinxronizasiya, öz serverində işləyən süni intellekt axtarışı və brauzer genişləndirməsi.
     <br />
     <br />
-    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Windows üçün endir</a>
+    <a href="https://github.com/hanzydev/fileship-desktop/releases/latest">Windows və Linux üçün endir</a>
     ·
     <a href="https://github.com/hanzydev/Fileship/issues/new?template=bug-report.yml">Xəta bildir</a>
     ·
@@ -34,7 +34,7 @@
 - Yükləmələr üçün yerli disk, istənilən S3 uyğun xidmət, SFTP və ya FTP
 - İcazələri və yaddaş limitləri olan çoxlu istifadəçi, giriş açarları, iki addımlı doğrulama və OpenID Connect ilə [SSO ilə giriş](docs/configuration.md#single-sign-on)
 - Fasiləsiz yeniləmələr: bir kliklə və ya cədvəl üzrə
-- ShareX, macOS və Linux üçün yükləmə inteqrasiyaları, [Windows tətbiqi](docs/desktop.md) və Android tətbiqlərindən paylaşım qəbul edən, [telefona quraşdırıla bilən tətbiq](docs/mobile.md)
+- ShareX, macOS və Linux üçün yükləmə inteqrasiyaları, [Windows və Linux tətbiqi](docs/desktop.md) və Android tətbiqlərindən paylaşım qəbul edən, [telefona quraşdırıla bilən tətbiq](docs/mobile.md)
 - Fayl, şəkil və ekran görüntüsü yükləyən, keçidləri qısaldan [brauzer genişləndirməsi](docs/browser-extension.md): Chrome və Edge üçün [Chrome Web Store-da](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh), Firefox üçün isə [Firefox əlavələrində](https://addons.mozilla.org/firefox/addon/fileship/)
 - Discord, Slack və öz xidmətlərin üçün [webhook-lar](docs/webhooks.md)
 - İngilis, türk, alman, ispan, fransız, italyan, portuqal (Braziliya), rus, Azərbaycan, yapon, koreya və sadələşdirilmiş çin dilləri
@@ -44,8 +44,8 @@
 |                                                        | Fileship                              | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | ------------------------------------------------------ | ------------------------------------- | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX və digər yükləmə alətləri                       | ✅                                    | ✅                                          | ✅                                                 | ✅                                                  |
-| Ekran görüntüsü və qeydə alma üçün masaüstü tətbiq     | ✅ Windows                            | ❌                                          | ❌                                                 | ❌                                                  |
-| Faylların Fayl Bələdçisində                            | ✅ Fileship Harbor                    | ❌                                          | ❌                                                 | ❌                                                  |
+| Ekran görüntüsü və qeydə alma üçün masaüstü tətbiq     | ✅ Windows, Linux                     | ❌                                          | ❌                                                 | ❌                                                  |
+| Faylların fayl menecerində                             | ✅ Fileship Harbor                    | ❌                                          | ❌                                                 | ❌                                                  |
 | Brauzer genişləndirməsi                                | ✅                                    | ❌                                          | ❌                                                 | ✅                                                  |
 | Süni intellekt axtarışı, təsvirlər, OCR, həssas məzmun | ✅ öz serverində                      | ❌                                          | ❌                                                 | ❌                                                  |
 | Qısa keçidlər                                          | ✅                                    | ✅                                          | ❌                                                 | ✅                                                  |
@@ -71,9 +71,9 @@
   <img src="apps/dashboard/public/previews/fileship-mobile.png" alt="Telefonda Fileship faylları" width="18%">
 </p>
 
-## 🖥️ Windows üçün Fileship
+## 🖥️ Windows və Linux üçün Fileship
 
-Bildiriş sahəsindən ShareX üslubunda ekran görüntüsü çək, ekranı qeydə al və Fileship-ə yüklə, fayllarına isə Fileship Harbor ilə Fayl Bələdçisində bax. 64 bitlik Windows 11 24H2 və ya daha yeni versiya, həmçinin Fileship 6.0 serveri lazımdır.
+Bildiriş sahəsindən ShareX üslubunda ekran görüntüsü çək, ekranı qeydə al və Fileship-ə yüklə, fayllarına isə Fileship Harbor ilə Fayl Bələdçisində və ya Linux-dakı fayl menecerində bax. 64 bitlik Windows 11 24H2 və ya daha yeni versiya, yaxud X11 və ya Wayland ilə işləyən, Ubuntu 24.04, Fedora 41 və ya daha yenisi kimi 64 bitlik Linux distributivi, həmçinin Fileship 6.0 serveri lazımdır.
 
 **[Son versiyanı endir](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [İmkanlar və quraşdırma](docs/desktop.md)
 
@@ -102,7 +102,7 @@ Fileship artıq `http://localhost:3000` ünvanında işləyir. `admin` / `passwo
 - [Yeniləmə](docs/updating.md): yeniləmələr necə işləyir və onları necə planlaşdırmaq olar
 - [Başqa tətbiqdən köçmək](docs/migrating.md): Zipline, XBackBone və ya Chibisafe serverinin idxalı
 - [Süni intellekt imkanları](docs/ai.md): hazır ayarlar, modellər, ağıllı axtarış və həssas məzmun
-- [Windows üçün Fileship](docs/desktop.md)
+- [Windows və Linux üçün Fileship](docs/desktop.md)
 - [Telefonda Fileship](docs/mobile.md): tətbiqin quraşdırılması və Android-dən paylaşım
 - [Webhook-lar](docs/webhooks.md): hadisələr, formatlar, çatdırılma və imzanın yoxlanması
 - [Telemetriya](docs/telemetry.md): nə toplanır və necə söndürülür
