@@ -125,8 +125,9 @@ Release parseRelease(std::string const& text) {
     Release release;
     std::wistringstream lines(toWide(text));
     std::wstring line;
+    Release fallback;
     bool inFiles = false;
-    int fileCount = 0;
+    bool isChosen = false;
 
     while (std::getline(lines, line)) {
         if (!line.empty() && line.back() == L'\r') line.pop_back();
@@ -146,18 +147,23 @@ Release parseRelease(std::string const& text) {
         if (!isIndented) {
             inFiles = key == L"files";
             if (key == L"version") release.version = value;
-            if (key == L"path" && release.url.empty()) release.url = value;
-            if (key == L"sha512" && release.sha512.empty()) release.sha512 = value;
+            if (key == L"path") fallback.url = value;
+            if (key == L"sha512") fallback.sha512 = value;
             continue;
         }
 
         if (!inFiles) continue;
-        if (isEntry) fileCount++;
-        if (fileCount != 1) continue;
+        if (isEntry) isChosen = release.url.empty() && key == L"url" && isUpdateFile(value);
+        if (!isChosen) continue;
 
         if (key == L"url") release.url = value;
         if (key == L"sha512") release.sha512 = value;
         if (key == L"size") release.size = std::wcstoll(value.c_str(), nullptr, 10);
+    }
+
+    if (release.url.empty() && isUpdateFile(fallback.url)) {
+        release.url = fallback.url;
+        release.sha512 = fallback.sha512;
     }
 
     return release;
@@ -306,7 +312,7 @@ void install() {
 }
 
 bool isEnabled() {
-    return isPackaged() || !launchOptions().updateFeed.empty();
+    return (isPackaged() && canUpdateItself()) || !launchOptions().updateFeed.empty();
 }
 
 void scheduleChecks() {

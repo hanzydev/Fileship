@@ -9,6 +9,14 @@ std::wstring updateManifestName() {
     return L"latest.yml";
 }
 
+bool canUpdateItself() {
+    return true;
+}
+
+bool isUpdateFile(std::wstring const& url) {
+    return url.ends_with(L".exe");
+}
+
 void startInstaller(std::filesystem::path const& path, bool forceRun) {
     std::wstring command = L"\"" + path.wstring() + L"\" --updated /S" + (forceRun ? L" --force-run" : L"");
     STARTUPINFOW startup{sizeof(startup)};

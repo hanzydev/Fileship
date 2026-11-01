@@ -40,6 +40,8 @@ bool systemUsesLightTheme();
 bool textLess(std::wstring const& a, std::wstring const& b);
 
 std::wstring updateManifestName();
+bool canUpdateItself();
+bool isUpdateFile(std::wstring const& url);
 void startInstaller(std::filesystem::path const& path, bool forceRun);
 
 class RpcConnection {

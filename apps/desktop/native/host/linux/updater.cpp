@@ -40,6 +40,16 @@ std::wstring updateManifestName() {
     return L"latest-linux.yml";
 }
 
+bool canUpdateItself() {
+    auto type = packageType();
+    return !isFlatpak() && (appImagePath() || type == "deb" || type == "rpm");
+}
+
+bool isUpdateFile(std::wstring const& url) {
+    if (appImagePath()) return url.ends_with(L".AppImage");
+    return url.ends_with(L"." + toWide(packageType()));
+}
+
 void startInstaller(std::filesystem::path const& path, bool forceRun) {
     if (auto image = appImagePath()) {
         auto target = *image;

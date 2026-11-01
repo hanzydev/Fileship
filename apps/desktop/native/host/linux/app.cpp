@@ -186,7 +186,6 @@ std::wstring launchCommand() {
 
 JsonObject platformCapabilities() {
     bool isWayland = core::isWaylandSession();
-    auto type = packageType();
 
     JsonObject voiceProcessing;
     for (auto key : {L"noiseSuppression", L"echoCancellation", L"autoGainControl"})
@@ -199,9 +198,7 @@ JsonObject platformCapabilities() {
 
     std::error_code error;
     bool hasHarbor = !isFlatpak() && std::filesystem::exists("/dev/fuse", error) && harbor::isHelperAvailable();
-    auto updates = !isPackaged()                                            ? L"none"
-                   : isFlatpak() || (type != "deb" && type != "rpm" && !appImagePath()) ? L"package"
-                                                                                                    : L"auto";
+    auto updates = !isPackaged() ? L"none" : canUpdateItself() ? L"auto" : L"package";
 
     JsonObject capabilities;
     capabilities.SetNamedValue(L"windowDetection", JsonValue::CreateBooleanValue(!isWayland));
