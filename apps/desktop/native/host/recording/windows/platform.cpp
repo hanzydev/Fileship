@@ -14,6 +14,10 @@ std::wstring videoInput(VideoSource, std::filesystem::path const&) {
     return L"desktop";
 }
 
+std::unique_ptr<VideoCapture> openVideoCapture(VideoSource, RecordTarget const&, bool, std::function<void()>) {
+    return nullptr;
+}
+
 std::wstring ffmpegFileName() {
     return L"ffmpeg.exe";
 }

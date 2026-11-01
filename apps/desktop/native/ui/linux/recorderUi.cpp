@@ -164,6 +164,7 @@ class RecorderUi {
 public:
     RecorderUi(ScreenRect area, ThemeMode theme, RecorderUiCallbacks value, bool showBorder)
         : toolbar(theme, std::move(value)) {
+        if (!isX11()) return;
         addStyle();
 
         auto parts = monitorParts(area);

@@ -440,7 +440,10 @@
         "cannotRecord": "Aufnahme nicht möglich",
         "startFailed": "Aufnahme konnte nicht gestartet werden",
         "alreadyRecording": "Es läuft bereits eine Aufnahme",
-        "alreadyRecordingDescription": "Beende sie, bevor du eine neue startest."
+        "alreadyRecordingDescription": "Beende sie, bevor du eine neue startest.",
+        "screenCastDenied": "Die Bildschirmfreigabe wurde nicht erlaubt.",
+        "screenCastFailed": "Die Bildschirmaufnahme konnte nicht gestartet werden.",
+        "screenCastMonitor": "Wähle den Bildschirm, auf dem der ausgewählte Bereich liegt."
     },
     "recordingSettings": {
         "ffmpeg": "FFmpeg",

@@ -440,7 +440,10 @@
         "cannotRecord": "Запись невозможна",
         "startFailed": "Не удалось начать запись",
         "alreadyRecording": "Запись уже идёт",
-        "alreadyRecordingDescription": "Остановите её, прежде чем начинать новую."
+        "alreadyRecordingDescription": "Остановите её, прежде чем начинать новую.",
+        "screenCastDenied": "Демонстрация экрана не разрешена.",
+        "screenCastFailed": "Не удалось начать захват экрана.",
+        "screenCastMonitor": "Выберите экран, на котором находится выбранная область."
     },
     "recordingSettings": {
         "ffmpeg": "FFmpeg",

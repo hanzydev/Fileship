@@ -440,7 +440,10 @@
         "cannotRecord": "无法录制",
         "startFailed": "无法开始录制",
         "alreadyRecording": "已有录制正在进行",
-        "alreadyRecordingDescription": "请先停止当前录制，再开始新的录制。"
+        "alreadyRecordingDescription": "请先停止当前录制，再开始新的录制。",
+        "screenCastDenied": "未允许屏幕共享。",
+        "screenCastFailed": "无法开始屏幕捕获。",
+        "screenCastMonitor": "请选择所选区域所在的显示器。"
     },
     "recordingSettings": {
         "ffmpeg": "FFmpeg",

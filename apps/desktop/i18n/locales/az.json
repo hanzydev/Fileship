@@ -440,7 +440,10 @@
         "cannotRecord": "Qeydə almaq mümkün deyil",
         "startFailed": "Qeydə almanı başlatmaq mümkün olmadı",
         "alreadyRecording": "Artıq qeydə alma gedir",
-        "alreadyRecordingDescription": "Yenisini başlatmazdan əvvəl onu dayandır."
+        "alreadyRecordingDescription": "Yenisini başlatmazdan əvvəl onu dayandır.",
+        "screenCastDenied": "Ekran paylaşımına icazə verilmədi.",
+        "screenCastFailed": "Ekranı çəkmək mümkün olmadı.",
+        "screenCastMonitor": "Seçdiyin sahənin olduğu ekranı seç."
     },
     "recordingSettings": {
         "ffmpeg": "FFmpeg",

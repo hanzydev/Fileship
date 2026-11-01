@@ -41,6 +41,12 @@ struct RecordTarget {
 
 enum class VideoSource { Ddagrab, Gdigrab, X11grab, Pipewire };
 
+struct FrameInfo {
+    int width = 0;
+    int height = 0;
+    std::wstring format;
+};
+
 struct RecordCommand {
     std::wstring kind;
     std::wstring codec;
@@ -50,6 +56,7 @@ struct RecordCommand {
     std::vector<std::wstring> pipes;
     std::vector<AudioTrack> tracks;
     std::wstring output;
+    std::optional<FrameInfo> frame;
 };
 
 std::vector<std::wstring> splitArgs(std::wstring const& value);

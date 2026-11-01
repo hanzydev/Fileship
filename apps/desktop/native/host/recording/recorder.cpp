@@ -72,6 +72,7 @@ struct Recording {
     std::vector<std::wstring> segments;
     std::shared_ptr<Segment> segment;
     std::unique_ptr<AudioEngine> audio;
+    std::unique_ptr<VideoCapture> capture;
     bool isTiming = false;
     bool isSwitching = false;
 };
@@ -313,8 +314,16 @@ void startSegment(std::shared_ptr<Recording> const& recording) {
         pipes.push_back(name);
     }
 
-    RecordCommand command{recording->kind,   recording->codec, recording->source, recording->target,
-                          recording->input, pipes,            tracks,            output};
+    RecordCommand command{recording->kind, recording->codec, recording->source, recording->target,
+                          recording->input, pipes,            tracks,            output,
+                          std::nullopt};
+
+    if (recording->capture) {
+        bool isGif = recording->kind == L"gif";
+        auto fps = number(section(recording->settings, isGif ? L"gif" : L"recording"), L"fps", isGif ? 15 : 30);
+        command.input = recording->capture->startSegment(recording->folder, L"video-" + std::to_wstring(index), fps);
+        command.frame = recording->capture->frameInfo();
+    }
     auto args = recordArgs(recording->settings, command);
 
     logInfo(L"Recording " + formatCommand(recording->ffmpeg, args));
@@ -406,6 +415,7 @@ void closeSegment(std::shared_ptr<Recording> const& recording, std::shared_ptr<S
     } else {
         segment->process->write("q");
         for (auto& pipe : pipes) pipe->end();
+        if (recording->capture) recording->capture->endSegment();
     }
 
     if (!segment->process->wait(15'000)) {
@@ -421,6 +431,7 @@ void closeSegment(std::shared_ptr<Recording> const& recording, std::shared_ptr<S
     }
 
     pipes.clear();
+    if (recording->capture) recording->capture->closeSegment();
 
     std::lock_guard lock(mutex);
     if (recording->segment == segment) recording->segment = nullptr;
@@ -428,15 +439,18 @@ void closeSegment(std::shared_ptr<Recording> const& recording, std::shared_ptr<S
 
 void finish(std::shared_ptr<Recording> const& recording) {
     std::unique_ptr<AudioEngine> audio;
+    std::unique_ptr<VideoCapture> capture;
 
     {
         std::lock_guard lock(mutex);
         recording->isTiming = false;
         audio = std::move(recording->audio);
+        capture = std::move(recording->capture);
         if (current == recording) current = nullptr;
     }
 
     audio.reset();
+    capture.reset();
     ui::hideRecorderUi();
     setState([&](State& value) { value = idleState(recording->kind); });
 }
@@ -716,9 +730,17 @@ void begin(std::wstring const& kind, ui::ScreenRect const& rect) {
 
     std::optional<std::wstring> error;
     std::unique_ptr<AudioEngine> audio;
+    std::unique_ptr<VideoCapture> capture;
 
     try {
-        if (!recording->tracks.empty()) {
+        capture = openVideoCapture(recording->source, recording->target, flag(recordingSettings, L"showCursor", true),
+                                   [] { controlRecording(L"stop"); });
+    } catch (std::exception const& captureError) {
+        error = message(captureError);
+    }
+
+    try {
+        if (!error && !recording->tracks.empty()) {
             audio = std::make_unique<AudioEngine>(section(values, L"audio"), recording->tracks,
                                                   [](size_t track, std::vector<float> const& samples) {
                                                       writeRecordingAudio(track, samples);
@@ -735,6 +757,7 @@ void begin(std::wstring const& kind, ui::ScreenRect const& rect) {
         if (current != recording) return;
 
         recording->audio = std::move(audio);
+        recording->capture = std::move(capture);
         for (auto const& source : state.muted) {
             if (recording->audio) recording->audio->setMuted(source, true);
         }
@@ -888,7 +911,8 @@ JsonValue recordingPreview() {
                           videoInput(source, folder),
                           pipes,
                           tracks,
-                          L"recording.mkv"};
+                          L"recording.mkv",
+                          std::nullopt};
 
     return JsonValue::CreateStringValue(
         formatCommand(ffmpeg ? ffmpeg->path : ffmpegFileName(), recordArgs(values, command)));

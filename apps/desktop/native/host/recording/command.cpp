@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <charconv>
+#include <cmath>
 #include <cwctype>
 #include <filesystem>
 #include <map>
@@ -236,11 +237,22 @@ std::vector<std::wstring> recordArgs(JsonObject const& settings, RecordCommand c
                       L"-filter_hw_device", L"dda"});
         video = L"ddagrab=" + options + L",showinfo=checksum=0,hwdownload,format=bgra,format=" + format + L"[v]";
     } else if (command.source == VideoSource::Pipewire && output) {
-        auto frame = std::to_wstring(output->bounds.width) + L"x" + std::to_wstring(output->bounds.height);
-        append(args, {L"-f", L"rawvideo", L"-pixel_format", L"bgr0", L"-video_size", frame,
-                      L"-use_wallclock_as_timestamps", L"1", L"-thread_queue_size", L"64", L"-i", command.input});
-        video = L"[0:v]crop=" + std::to_wstring(even(rect.width)) + L":" + std::to_wstring(even(rect.height)) + L":" +
-                std::to_wstring(rect.x - output->bounds.x) + L":" + std::to_wstring(rect.y - output->bounds.y) +
+        auto const& bounds = output->bounds;
+        auto frame = command.frame.value_or(FrameInfo{bounds.width, bounds.height, L"bgr0"});
+        double scaleX = static_cast<double>(frame.width) / bounds.width;
+        double scaleY = static_cast<double>(frame.height) / bounds.height;
+        auto scaled = [](int value, double scale) { return static_cast<int>(std::lround(value * scale)); };
+        bool isScaled = frame.width != bounds.width || frame.height != bounds.height;
+
+        append(args, {L"-f", L"rawvideo", L"-pixel_format", frame.format, L"-video_size",
+                      std::to_wstring(frame.width) + L"x" + std::to_wstring(frame.height), L"-framerate", fps,
+                      L"-use_wallclock_as_timestamps", L"1", L"-thread_queue_size", L"8", L"-i", command.input});
+        video = L"[0:v]crop=" + std::to_wstring(even(scaled(rect.width, scaleX))) + L":" +
+                std::to_wstring(even(scaled(rect.height, scaleY))) + L":" +
+                std::to_wstring(scaled(rect.x - bounds.x, scaleX)) + L":" +
+                std::to_wstring(scaled(rect.y - bounds.y, scaleY)) +
+                (isScaled ? L",scale=" + std::to_wstring(even(rect.width)) + L":" + std::to_wstring(even(rect.height))
+                          : L"") +
                 L",showinfo=checksum=0,fps=" + fps + L",format=" + format + upload + L"[v]";
     } else if (command.source == VideoSource::X11grab) {
         append(args, {L"-f", L"x11grab", L"-framerate", fps, L"-draw_mouse", cursor, L"-video_size", size, L"-i",

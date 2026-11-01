@@ -440,7 +440,10 @@
         "cannotRecord": "Impossible d'enregistrer",
         "startFailed": "Impossible de démarrer l'enregistrement",
         "alreadyRecording": "Un enregistrement est déjà en cours",
-        "alreadyRecordingDescription": "Arrêtez-le avant d'en démarrer un autre."
+        "alreadyRecordingDescription": "Arrêtez-le avant d'en démarrer un autre.",
+        "screenCastDenied": "Le partage d'écran n'a pas été autorisé.",
+        "screenCastFailed": "Impossible de démarrer la capture d'écran.",
+        "screenCastMonitor": "Choisissez l'écran qui contient la zone sélectionnée."
     },
     "recordingSettings": {
         "ffmpeg": "FFmpeg",

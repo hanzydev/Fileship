@@ -440,7 +440,10 @@
         "cannotRecord": "Cannot record",
         "startFailed": "Could not start recording",
         "alreadyRecording": "A recording is already running",
-        "alreadyRecordingDescription": "Stop it before starting another one."
+        "alreadyRecordingDescription": "Stop it before starting another one.",
+        "screenCastDenied": "Screen sharing was not allowed.",
+        "screenCastFailed": "Could not start the screen capture.",
+        "screenCastMonitor": "Pick the screen that holds the area you selected."
     },
     "recordingSettings": {
         "ffmpeg": "FFmpeg",

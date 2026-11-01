@@ -440,7 +440,10 @@
         "cannotRecord": "녹화할 수 없어요",
         "startFailed": "녹화를 시작할 수 없어요",
         "alreadyRecording": "이미 녹화 중이에요",
-        "alreadyRecordingDescription": "새로 녹화하려면 먼저 현재 녹화를 중지하세요."
+        "alreadyRecordingDescription": "새로 녹화하려면 먼저 현재 녹화를 중지하세요.",
+        "screenCastDenied": "화면 공유가 허용되지 않았어요.",
+        "screenCastFailed": "화면 캡처를 시작할 수 없어요.",
+        "screenCastMonitor": "선택한 영역이 있는 모니터를 골라 주세요."
     },
     "recordingSettings": {
         "ffmpeg": "FFmpeg",

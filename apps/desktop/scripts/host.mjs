@@ -74,6 +74,7 @@ if (platform === 'linux') {
             'xrandr',
             'fontconfig',
             'wayland-client',
+            'libpipewire-0.3',
         ],
         flags: [`-I${native}`, `-I${generated}`],
     });

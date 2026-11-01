@@ -440,7 +440,10 @@
         "cannotRecord": "録画できません",
         "startFailed": "録画を開始できませんでした",
         "alreadyRecording": "すでに録画中です",
-        "alreadyRecordingDescription": "新しく録画を始める前に、今の録画を停止してください。"
+        "alreadyRecordingDescription": "新しく録画を始める前に、今の録画を停止してください。",
+        "screenCastDenied": "画面の共有が許可されませんでした。",
+        "screenCastFailed": "画面のキャプチャを開始できませんでした。",
+        "screenCastMonitor": "選択した範囲があるモニターを選んでください。"
     },
     "recordingSettings": {
         "ffmpeg": "FFmpeg",

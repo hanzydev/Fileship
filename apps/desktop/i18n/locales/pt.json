@@ -440,7 +440,10 @@
         "cannotRecord": "Não é possível gravar",
         "startFailed": "Não foi possível iniciar a gravação",
         "alreadyRecording": "Já há uma gravação em andamento",
-        "alreadyRecordingDescription": "Pare a gravação atual antes de iniciar outra."
+        "alreadyRecordingDescription": "Pare a gravação atual antes de iniciar outra.",
+        "screenCastDenied": "O compartilhamento de tela não foi permitido.",
+        "screenCastFailed": "Não foi possível iniciar a captura de tela.",
+        "screenCastMonitor": "Escolha a tela que contém a área selecionada."
     },
     "recordingSettings": {
         "ffmpeg": "FFmpeg",

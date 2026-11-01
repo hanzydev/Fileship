@@ -440,7 +440,10 @@
         "cannotRecord": "Kayıt yapılamıyor",
         "startFailed": "Kayıt başlatılamadı",
         "alreadyRecording": "Zaten bir kayıt sürüyor",
-        "alreadyRecordingDescription": "Yenisini başlatmadan önce onu durdur."
+        "alreadyRecordingDescription": "Yenisini başlatmadan önce onu durdur.",
+        "screenCastDenied": "Ekran paylaşımına izin verilmedi.",
+        "screenCastFailed": "Ekran yakalama başlatılamadı.",
+        "screenCastMonitor": "Seçtiğin alanın bulunduğu ekranı seç."
     },
     "recordingSettings": {
         "ffmpeg": "FFmpeg",

@@ -440,7 +440,10 @@
         "cannotRecord": "Impossibile registrare",
         "startFailed": "Impossibile avviare la registrazione",
         "alreadyRecording": "C'è già una registrazione in corso",
-        "alreadyRecordingDescription": "Interrompila prima di avviarne un'altra."
+        "alreadyRecordingDescription": "Interrompila prima di avviarne un'altra.",
+        "screenCastDenied": "La condivisione dello schermo non è stata consentita.",
+        "screenCastFailed": "Impossibile avviare l'acquisizione dello schermo.",
+        "screenCastMonitor": "Scegli lo schermo che contiene l'area selezionata."
     },
     "recordingSettings": {
         "ffmpeg": "FFmpeg",
