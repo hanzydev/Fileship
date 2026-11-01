@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>dev.hanzy.fileship</id>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>MIT</project_license>
+    <name>Fileship</name>
+    <summary>Capture, record and upload to your Fileship</summary>
+    <developer id="dev.hanzy">
+        <name>Hànzy</name>
+    </developer>
+    <description>
+        <p>
+            Fileship for Linux is the desktop app of Fileship, the self-hosted file and media
+            management platform. It waits in the system tray and sends what you capture straight
+            to your own server.
+        </p>
+        <ul>
+            <li>Screenshots of a region, a window or a whole monitor, annotated while you pick the area</li>
+            <li>Screen recordings and GIFs with the microphone and system audio</li>
+            <li>Text capture that reads the text in an area with your server's OCR</li>
+            <li>Uploads of files and the clipboard, with the link copied right away</li>
+            <li>Global shortcuts on X11, and through the Global Shortcuts portal on Wayland</li>
+            <li>A history of everything you captured and uploaded</li>
+        </ul>
+        <p>Fileship for Linux needs a Fileship server, version 6.0 or newer.</p>
+    </description>
+    <launchable type="desktop-id">dev.hanzy.fileship.desktop</launchable>
+    <url type="homepage">https://github.com/hanzydev/Fileship</url>
+    <url type="bugtracker">https://github.com/hanzydev/Fileship/issues</url>
+    <url type="vcs-browser">https://github.com/hanzydev/Fileship</url>
+    <url type="help">https://github.com/hanzydev/Fileship/blob/main/docs/desktop.md</url>
+    <provides>
+        <binary>fileship</binary>
+    </provides>
+    <supports>
+        <control>pointing</control>
+        <control>keyboard</control>
+    </supports>
+    <requires>
+        <internet>always</internet>
+    </requires>
+    <content_rating type="oars-1.1" />
+</component>

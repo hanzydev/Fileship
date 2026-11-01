@@ -10,7 +10,38 @@ permissions:
     contents: read
 
 jobs:
-    release:
+    draft:
+        runs-on: ubuntu-24.04
+        outputs:
+            version: ${{ steps.version.outputs.version }}
+
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Read the version
+              id: version
+              run: echo "version=$(node -p "require('./apps/desktop/package.json').version")" >> "$GITHUB_OUTPUT"
+
+            - name: Check the version
+              if: startsWith(github.ref, 'refs/tags/desktop-v')
+              run: |
+                  if [ "desktop-v$VERSION" != "${GITHUB_REF_NAME}" ]; then
+                      echo "Tag ${GITHUB_REF_NAME} does not match apps/desktop/package.json ($VERSION)"
+                      exit 1
+                  fi
+              env:
+                  VERSION: ${{ steps.version.outputs.version }}
+
+            - name: Create a draft release
+              run: |
+                  gh release view "v$VERSION" --repo hanzydev/fileship-desktop > /dev/null 2>&1 ||
+                      gh release create "v$VERSION" --repo hanzydev/fileship-desktop --draft --title "$VERSION" --notes ""
+              env:
+                  GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}
+                  VERSION: ${{ steps.version.outputs.version }}
+
+    windows:
+        needs: draft
         runs-on: windows-latest
 
         steps:
@@ -23,32 +54,11 @@ jobs:
                   node-version: 24
                   cache: 'pnpm'
 
-            - name: Read the version
-              shell: bash
-              run: echo "VERSION=$(node -p "require('./apps/desktop/package.json').version")" >> "$GITHUB_ENV"
-
-            - name: Check the version
-              if: startsWith(github.ref, 'refs/tags/desktop-v')
-              shell: bash
-              run: |
-                  if [ "desktop-v$VERSION" != "${GITHUB_REF_NAME}" ]; then
-                      echo "Tag ${GITHUB_REF_NAME} does not match apps/desktop/package.json ($VERSION)"
-                      exit 1
-                  fi
-
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
 
             - name: Build
               run: pnpm --filter desktop... build
-
-            - name: Create a draft release
-              shell: bash
-              run: |
-                  gh release view "v$VERSION" --repo hanzydev/fileship-desktop > /dev/null 2>&1 ||
-                      gh release create "v$VERSION" --repo hanzydev/fileship-desktop --draft --title "$VERSION" --notes ""
-              env:
-                  GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}
 
             - name: Package and upload
               working-directory: apps/desktop
@@ -56,8 +66,90 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}
 
+    linux:
+        needs: draft
+        runs-on: ubuntu-24.04
+
+        steps:
+            - uses: actions/checkout@v6
+            - uses: pnpm/action-setup@v6
+
+            - name: Use Node.js 24
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: 'pnpm'
+
+            - name: Install the build dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y --no-install-recommends rpm libgtk-4-dev libcurl4-openssl-dev \
+                      libsqlite3-dev libsecret-1-dev libpulse-dev libpipewire-0.3-dev libfuse3-dev libx11-dev \
+                      libxext-dev libxfixes-dev libxrandr-dev libfontconfig-dev libwayland-dev libwayland-bin
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build
+              run: pnpm --filter desktop... build
+
+            - name: Package and upload
+              working-directory: apps/desktop
+              run: pnpm exec electron-builder --linux --publish always
+              env:
+                  GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}
+
+    publish:
+        needs: [draft, windows, linux]
+        runs-on: ubuntu-24.04
+
+        steps:
             - name: Publish the release
-              shell: bash
               run: gh release edit "v$VERSION" --repo hanzydev/fileship-desktop --draft=false --latest
               env:
                   GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}
+                  VERSION: ${{ needs.draft.outputs.version }}
+
+    aur:
+        needs: [draft, publish]
+        runs-on: ubuntu-24.04
+        container: archlinux:base-devel
+        env:
+            AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+            VERSION: ${{ needs.draft.outputs.version }}
+
+        steps:
+            - name: Install the tools
+              if: env.AUR_SSH_PRIVATE_KEY != ''
+              run: pacman -Syu --noconfirm --needed git openssh pacman-contrib
+
+            - uses: actions/checkout@v6
+              if: env.AUR_SSH_PRIVATE_KEY != ''
+              with:
+                  sparse-checkout: apps/desktop/build/linux/aur
+
+            - name: Update fileship-bin
+              if: env.AUR_SSH_PRIVATE_KEY != ''
+              run: |
+                  useradd -m builder
+                  install -d -m 700 -o builder -g builder /home/builder/.ssh
+                  printf '%s\n' "$AUR_SSH_PRIVATE_KEY" > /home/builder/.ssh/aur
+                  ssh-keyscan -t ed25519 aur.archlinux.org > /home/builder/.ssh/known_hosts
+                  printf 'Host aur.archlinux.org\n    IdentityFile ~/.ssh/aur\n    User aur\n' > /home/builder/.ssh/config
+                  chmod 600 /home/builder/.ssh/*
+                  chown -R builder:builder /home/builder/.ssh
+                  install -m 644 -o builder -g builder apps/desktop/build/linux/aur/PKGBUILD /home/builder/PKGBUILD
+
+                  sudo -H -u builder env VERSION="$VERSION" bash -e << 'EOF'
+                  cd /home/builder
+                  git clone ssh://aur@aur.archlinux.org/fileship-bin.git aur
+                  cd aur
+                  git config user.name 'Hànzy'
+                  git config user.email 'contact@hanzy.dev'
+                  sed "s/^pkgver=.*/pkgver=$VERSION/; s/^pkgrel=.*/pkgrel=1/" ../PKGBUILD > PKGBUILD
+                  updpkgsums
+                  makepkg --printsrcinfo > .SRCINFO
+                  git add PKGBUILD .SRCINFO
+                  git diff --cached --quiet || git commit -m "Update to $VERSION"
+                  git push origin HEAD:master
+                  EOF

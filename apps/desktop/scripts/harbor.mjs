@@ -1,4 +1,13 @@
-import { cpSync, mkdirSync, readdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import {
+    copyFileSync,
+    cpSync,
+    existsSync,
+    mkdirSync,
+    readdirSync,
+    realpathSync,
+    rmSync,
+} from 'node:fs';
 import { join } from 'node:path';
 
 import { buildExecutable } from './gcc.mjs';
@@ -19,11 +28,12 @@ const objects = join(output, 'obj');
 
 if (process.platform === 'linux') {
     const source = join(native, 'harbor', 'linux');
+    const executable = join(output, 'fileship-harbor');
 
     mkdirSync(objects, { recursive: true });
     await buildExecutable({
         objects,
-        executable: join(output, 'fileship-harbor'),
+        executable,
         groups: {
             shared: ['http.cpp', 'json.cpp'].map((file) => join(shared, file)),
             'shared-linux': ['http.cpp', 'system.cpp'].map((file) => join(shared, 'linux', file)),
@@ -33,7 +43,20 @@ if (process.platform === 'linux') {
         },
         packages: ['fuse3', 'libcurl', 'glib-2.0'],
         flags: [`-I${native}`],
+        libraries: ['-Wl,-rpath,$ORIGIN'],
     });
+
+    for (const file of readdirSync(output)) {
+        if (file.startsWith('libfuse3.so')) rmSync(join(output, file));
+    }
+
+    const library = execFileSync('ldd', [executable], { encoding: 'utf8' }).match(
+        /^\s*(libfuse3\.so\.\d+) => (\S+)/m,
+    );
+    copyFileSync(realpathSync(library[2]), join(output, library[1]));
+
+    const license = '/usr/share/common-licenses/LGPL-2.1';
+    if (existsSync(license)) copyFileSync(license, join(output, 'LICENSE.libfuse.txt'));
     process.exit(0);
 }
 

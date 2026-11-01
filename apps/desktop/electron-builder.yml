@@ -2,6 +2,7 @@ appId: dev.hanzy.fileship
 productName: Fileship
 extraMetadata:
     name: Fileship
+    desktopName: dev.hanzy.fileship.desktop
 copyright: Copyright © 2024-present Hànzy and Fileship contributors
 
 directories:
@@ -15,16 +16,12 @@ files:
     - package.json
 
 extraResources:
-    - from: build/harbor/fileship-harbor.exe
-      to: harbor/fileship-harbor.exe
-    - from: build/harbor/icons
-      to: harbor/icons
     - from: build/host
       to: host
       filter:
-          - fileship-host.exe
           - i18n/**
           - fonts/**
+          - icon.png
           - settings-defaults.json
           - settings-schema.json
     - from: resources/shutter.wav
@@ -37,6 +34,9 @@ electronFuses:
     enableNodeOptionsEnvironmentVariable: false
     enableNodeCliInspectArguments: false
 
+toolsets:
+    appimage: 1.0.3
+
 npmRebuild: false
 nodeGypRebuild: false
 
@@ -46,6 +46,13 @@ win:
           arch: [x64]
     icon: build/icon.ico
     artifactName: Fileship-Setup-${version}.${ext}
+    extraResources:
+        - from: build/host/fileship-host.exe
+          to: host/fileship-host.exe
+        - from: build/harbor/fileship-harbor.exe
+          to: harbor/fileship-harbor.exe
+        - from: build/harbor/icons
+          to: harbor/icons
 
 nsis:
     oneClick: true
@@ -53,6 +60,98 @@ nsis:
     shortcutName: Fileship
     uninstallDisplayName: Fileship
     deleteAppDataOnUninstall: false
+
+linux:
+    target:
+        - target: AppImage
+          arch: [x64]
+        - target: deb
+          arch: [x64]
+        - target: rpm
+          arch: [x64]
+        - target: tar.gz
+          arch: [x64]
+    executableName: fileship
+    packageName: fileship
+    artifactName: fileship-${version}-${arch}.${ext}
+    syncDesktopName: true
+    icon: build/icon.png
+    category: Utility
+    synopsis: Capture, record and upload to your Fileship
+    description: Captures the screen, records it with audio and uploads to your self-hosted Fileship.
+    maintainer: Hànzy <contact@hanzy.dev>
+    vendor: Hànzy
+    desktop:
+        entry:
+            Keywords: screenshot;capture;record;upload;fileship;
+    extraResources:
+        - from: build/host/fileship-host
+          to: host/fileship-host
+        - from: build/harbor
+          to: harbor
+          filter:
+              - fileship-harbor
+              - libfuse3.so.*
+              - LICENSE.libfuse.txt
+
+appImage:
+    artifactName: Fileship-${version}-${arch}.${ext}
+
+deb:
+    artifactName: fileship_${version}_${arch}.${ext}
+    depends:
+        - libgtk-3-0t64 | libgtk-3-0
+        - libnotify4
+        - libnss3
+        - libxss1
+        - libxtst6
+        - xdg-utils
+        - libatspi2.0-0t64 | libatspi2.0-0
+        - libuuid1
+        - libsecret-1-0
+        - libgtk-4-1
+        - libcurl4t64 | libcurl4
+        - libsqlite3-0
+        - libpulse0
+        - libpipewire-0.3-0t64 | libpipewire-0.3-0
+        - libwayland-client0
+        - libx11-6
+        - libxext6
+        - libxfixes3
+        - libxrandr2
+        - libfontconfig1
+        - fuse3
+    recommends:
+        - ffmpeg
+
+rpm:
+    artifactName: fileship-${version}.${arch}.${ext}
+    depends:
+        - libgtk-3.so.0()(64bit)
+        - libnotify.so.4()(64bit)
+        - libnss3.so()(64bit)
+        - libXss.so.1()(64bit)
+        - libXtst.so.6()(64bit)
+        - xdg-utils
+        - libatk-bridge-2.0.so.0()(64bit)
+        - libuuid.so.1()(64bit)
+        - libsecret-1.so.0()(64bit)
+        - libgtk-4.so.1()(64bit)
+        - libcurl.so.4()(64bit)
+        - libsqlite3.so.0()(64bit)
+        - libpulse.so.0()(64bit)
+        - libpulse-simple.so.0()(64bit)
+        - libpipewire-0.3.so.0()(64bit)
+        - libwayland-client.so.0()(64bit)
+        - libX11.so.6()(64bit)
+        - libXext.so.6()(64bit)
+        - libXfixes.so.3()(64bit)
+        - libXrandr.so.2()(64bit)
+        - libfontconfig.so.1()(64bit)
+        - fuse3
+    fpm:
+        - --rpm-tag
+        - 'Recommends: (ffmpeg or ffmpeg-free)'
 
 publish:
     provider: github

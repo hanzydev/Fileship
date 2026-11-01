@@ -1,0 +1,31 @@
+# Maintainer: Hànzy <contact@hanzy.dev>
+
+pkgname=fileship-bin
+pkgver=2.1.1
+pkgrel=1
+pkgdesc='Capture, record and upload to your Fileship'
+arch=('x86_64')
+url='https://github.com/hanzydev/Fileship'
+license=('MIT')
+depends=('alsa-lib' 'at-spi2-core' 'curl' 'fontconfig' 'fuse3' 'glib2' 'gtk3' 'gtk4' 'libnotify' 'libpipewire'
+    'libpulse' 'libsecret' 'libx11' 'libxext' 'libxfixes' 'libxrandr' 'libxss' 'libxtst' 'nss' 'sqlite'
+    'util-linux-libs' 'wayland' 'xdg-utils')
+optdepends=('ffmpeg: record with the system ffmpeg instead of a downloaded one')
+provides=('fileship')
+conflicts=('fileship')
+options=('!strip' '!debug')
+source=("https://github.com/hanzydev/fileship-desktop/releases/download/v${pkgver}/fileship-${pkgver}-x64.tar.gz"
+    "fileship-${pkgver}.desktop::https://raw.githubusercontent.com/hanzydev/Fileship/desktop-v${pkgver}/apps/desktop/build/linux/dev.hanzy.fileship.desktop"
+    "fileship-${pkgver}-LICENSE::https://raw.githubusercontent.com/hanzydev/Fileship/desktop-v${pkgver}/LICENSE")
+sha256sums=('SKIP' 'SKIP' 'SKIP')
+
+package() {
+    install -d "${pkgdir}/opt/Fileship" "${pkgdir}/usr/bin"
+    cp -a "fileship-${pkgver}-x64/." "${pkgdir}/opt/Fileship/"
+    ln -s /opt/Fileship/fileship "${pkgdir}/usr/bin/fileship"
+
+    install -Dm644 "fileship-${pkgver}.desktop" "${pkgdir}/usr/share/applications/dev.hanzy.fileship.desktop"
+    install -Dm644 "${pkgdir}/opt/Fileship/resources/host/icon.png" \
+        "${pkgdir}/usr/share/icons/hicolor/512x512/apps/dev.hanzy.fileship.png"
+    install -Dm644 "fileship-${pkgver}-LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

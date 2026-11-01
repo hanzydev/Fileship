@@ -102,7 +102,7 @@ void writeNemo(bool hasHarbor) {
     auto action = [&](std::string const& name, std::wstring const& label, std::string const& arguments,
                       bool isFolder) {
         writeFile(folder / ("fileship-" + name + ".nemo_action"),
-                  "[Nemo Action]\nName=" + toUtf8(label) + "\nIcon-Name=dev.hanzy.fileship\nExec=" +
+                  "[Nemo Action]\nName=" + toUtf8(label) + "\nIcon-Name=" + iconPath().string() + "\nExec=" +
                       entryCommand(arguments + " %F") + "\nSelection=" + (isFolder ? "s" : "notnone") +
                       "\nExtensions=" + (isFolder ? "dir;" : "nodirs;") + "\n",
                   false);
@@ -128,7 +128,7 @@ void writeDolphin(bool hasHarbor) {
         auto add = [&](std::string const& name, std::wstring const& label, std::string const& arguments) {
             actions += name + ";";
             sections += "\n[Desktop Action " + name + "]\nName=" + toUtf8(label) +
-                        "\nIcon=dev.hanzy.fileship\nExec=" + entryCommand(arguments + " %F") + "\n";
+                        "\nIcon=" + iconPath().string() + "\nExec=" + entryCommand(arguments + " %F") + "\n";
         };
 
         if (!isFolder) add("upload", t(L"shell.upload"), "--upload");
@@ -194,7 +194,7 @@ void applyStartAtLogin(bool enabled) {
     file << "[Desktop Entry]\n"
          << "Type=Application\n"
          << "Name=Fileship\n"
-         << "Icon=dev.hanzy.fileship\n"
+         << "Icon=" << iconPath().string() << "\n"
          << "Exec=" << entryCommand("--hidden") << "\n"
          << "NoDisplay=true\n"
          << "X-GNOME-Autostart-enabled=true\n";

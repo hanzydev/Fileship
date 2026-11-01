@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Fileship
+Comment=Capture, record and upload to your Fileship
+Exec=fileship %U
+Icon=dev.hanzy.fileship
+Terminal=false
+StartupWMClass=Fileship
+Categories=Utility;
+Keywords=screenshot;capture;record;upload;fileship;
