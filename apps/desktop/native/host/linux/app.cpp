@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include <cstdlib>
+#include <fstream>
 
 namespace fileship::host {
 
@@ -122,8 +123,63 @@ std::wstring platformName() {
     return L"Linux";
 }
 
+std::optional<std::filesystem::path> appImagePath() {
+    if (auto image = std::getenv("APPIMAGE"); image && *image) return std::filesystem::path(image);
+
+    std::ifstream file(resourcesPath().parent_path().parent_path() / "appimage");
+    std::string path;
+    std::error_code error;
+    if (std::getline(file, path) && !path.empty() && std::filesystem::exists(path, error)) return path;
+    return std::nullopt;
+}
+
+void runOutsideAppImage(char** argv) {
+    auto folder = std::getenv("APPDIR");
+    auto image = std::getenv("APPIMAGE");
+    if (!folder || !*folder || !image || !*image) return;
+
+    auto executable = executablePath();
+    if (!executable.string().starts_with(std::string(folder) + "/")) return;
+
+    auto runtime = localDataFolder() / "Fileship" / "runtime";
+    auto version = toUtf8(appVersion());
+    auto target = runtime / version;
+    auto host = target / "resources" / "host" / "fileship-host";
+    std::error_code error;
+
+    if (!std::filesystem::exists(host, error)) {
+        auto staging = runtime / (version + ".tmp");
+        auto resources = executable.parent_path().parent_path();
+        std::filesystem::remove_all(staging, error);
+        std::filesystem::create_directories(staging / "resources", error);
+
+        for (auto name : {"host", "harbor"}) {
+            if (!error) std::filesystem::copy(resources / name, staging / "resources" / name,
+                                              std::filesystem::copy_options::recursive, error);
+        }
+
+        if (!error) {
+            std::ofstream launcher(staging / "fileship");
+            launcher << "#!/bin/sh\nexec \"$(cat \"$(dirname \"$0\")/appimage\")\" \"$@\"\n";
+        }
+        chmod((staging / "fileship").c_str(), 0755);
+        if (!error) std::filesystem::rename(staging, target, error);
+        if (error) return logWarn(L"Could not copy Fileship out of the AppImage: " + toWide(error.message()));
+    }
+
+    std::ofstream(target / "appimage", std::ios::trunc) << image;
+
+    for (auto const& entry : std::filesystem::directory_iterator(runtime, error)) {
+        std::error_code ignored;
+        if (entry.path() != target) std::filesystem::remove_all(entry.path(), ignored);
+    }
+
+    unsetenv("APPDIR");
+    execv(host.c_str(), argv);
+}
+
 std::wstring launchCommand() {
-    if (auto image = std::getenv("APPIMAGE"); image && *image) return toWide(shellQuote(image));
+    if (auto image = appImagePath()) return toWide(shellQuote(image->string()));
     if (isPackaged()) return toWide(shellQuote((resourcesPath().parent_path().parent_path() / "fileship").string()));
     return toWide(shellQuote(hostExecutable().string()));
 }
@@ -144,7 +200,7 @@ JsonObject platformCapabilities() {
     std::error_code error;
     bool hasHarbor = !isFlatpak() && std::filesystem::exists("/dev/fuse", error) && harbor::isHelperAvailable();
     auto updates = !isPackaged()                                            ? L"none"
-                   : isFlatpak() || (type != "deb" && type != "rpm" && !std::getenv("APPIMAGE")) ? L"package"
+                   : isFlatpak() || (type != "deb" && type != "rpm" && !appImagePath()) ? L"package"
                                                                                                     : L"auto";
 
     JsonObject capabilities;

@@ -14,7 +14,7 @@ bool launchElectron(std::vector<std::wstring> const& arguments) {
     std::vector<std::string> argv;
 
     if (isPackaged()) {
-        if (auto image = std::getenv("APPIMAGE"); image && *image) argv.push_back(image);
+        if (auto image = appImagePath()) argv.push_back(image->string());
         else argv.push_back((resourcesPath().parent_path().parent_path() / "fileship").string());
     } else if (options.electronCommand.empty()) {
         logWarn(L"No Electron command was given, cannot open a window");

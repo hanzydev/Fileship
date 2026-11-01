@@ -41,8 +41,8 @@ std::wstring updateManifestName() {
 }
 
 void startInstaller(std::filesystem::path const& path, bool forceRun) {
-    if (auto image = std::getenv("APPIMAGE"); image && *image) {
-        std::filesystem::path target(image);
+    if (auto image = appImagePath()) {
+        auto target = *image;
         auto staged = std::filesystem::path(target).concat(".update");
 
         std::error_code error;

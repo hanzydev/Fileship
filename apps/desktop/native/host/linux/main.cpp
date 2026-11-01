@@ -26,6 +26,8 @@ int main(int argc, char** argv) {
     } catch (std::runtime_error const&) {
     }
 
+    runOutsideAppImage(argv);
+
     std::vector<std::wstring> arguments;
     for (int index = 1; index < argc; index++) arguments.push_back(toWide(argv[index]));
     parseOptions(arguments);
