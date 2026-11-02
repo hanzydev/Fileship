@@ -71,7 +71,10 @@
         "notConnected": "Bir Fileship sunucusuna bağlı değilsin",
         "tryAgain": "Biraz sonra tekrar dene.",
         "linkShortenedOnly": "Bağlantı kısaltıldı",
-        "unsupportedWindows": "Fileship için 64 bit Windows 11 24H2 veya daha yeni bir sürüm gerekiyor."
+        "unsupportedWindows": "Fileship için 64 bit Windows 11 24H2 veya daha yeni bir sürüm gerekiyor.",
+        "hostRestarted": "Fileship yeniden başlatıldı",
+        "hostRestartedDescription": "Arka planda çalışan kısmı beklenmedik şekilde durdu ve yeniden başlatıldı.",
+        "hostNotResponding": "Fileship'in arka planda çalışan kısmı yanıt vermiyor. Fileship'i yeniden aç."
     },
     "captureSettings": {
         "capture": {

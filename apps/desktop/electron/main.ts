@@ -4,10 +4,11 @@ import { app, BrowserWindow, dialog } from 'electron';
 import log from 'electron-log/main';
 
 import { openDashboard } from './dashboard';
-import { connectHost, launchInHost } from './host';
+import { closeHost, connectHost, launchInHost } from './host';
+import { t } from './i18n';
 import { loadHostState, registerIpc } from './ipc';
 import { handleAppProtocol, registerAppScheme } from './protocol';
-import { markQuitting, showMainWindow } from './windows';
+import { markQuitting, notify, showMainWindow } from './windows';
 
 log.initialize();
 log.errorHandler.startCatching();
@@ -15,10 +16,15 @@ log.errorHandler.startCatching();
 const DEBUG_SWITCHES = ['remote-debugging-port', 'remote-debugging-pipe'];
 const LAUNCH_SWITCHES = ['--upload', '--action'];
 const IDLE_QUIT_MS = 60_000;
+const STATE_TIMEOUT_MS = 15_000;
 
 const isLaunch = process.argv.some((argument) => LAUNCH_SWITCHES.includes(argument));
 
 let idleTimer: NodeJS.Timeout | null = null;
+let markReady: () => void = () => null;
+const ready = new Promise<void>((resolve) => {
+    markReady = resolve;
+});
 
 if (app.isPackaged && DEBUG_SWITCHES.some((name) => app.commandLine.hasSwitch(name))) {
     app.exit(1);
@@ -43,6 +49,8 @@ if (isLaunch) {
     forwardLaunch();
 } else if (!app.requestSingleInstanceLock()) {
     app.exit(0);
+} else {
+    registerIpc();
 }
 
 if (process.platform === 'win32') {
@@ -67,10 +75,19 @@ const openFromArguments = (argv: string[]) => {
 
 const quit = () => {
     markQuitting();
+    closeHost();
     app.quit();
 };
 
-app.on('second-instance', (_, argv) => openFromArguments(argv));
+const withinTimeout = <T>(work: Promise<T>) =>
+    Promise.race([
+        work,
+        new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error(t('app.hostNotResponding'))), STATE_TIMEOUT_MS),
+        ),
+    ]);
+
+app.on('second-instance', (_, argv) => ready.then(() => openFromArguments(argv)));
 
 app.on('browser-window-created', () => {
     if (idleTimer) clearTimeout(idleTimer);
@@ -92,8 +109,10 @@ app.whenReady().then(async () => {
     if (!process.env.DESKTOP_RENDERER_URL) handleAppProtocol();
 
     try {
-        await connectHost(quit);
-        await loadHostState();
+        await connectHost(quit, () =>
+            notify(t('app.hostRestarted'), t('app.hostRestartedDescription')),
+        );
+        await withinTimeout(loadHostState());
     } catch (error) {
         log.error('Could not reach the Fileship host', error);
         dialog.showErrorBox('Fileship', String((error as Error).message ?? error));
@@ -101,6 +120,6 @@ app.whenReady().then(async () => {
         return;
     }
 
-    registerIpc();
+    markReady();
     openFromArguments(process.argv);
 });

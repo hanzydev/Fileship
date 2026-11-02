@@ -71,7 +71,10 @@
         "notConnected": "Fileship 서버에 연결되어 있지 않아요",
         "tryAgain": "잠시 후 다시 시도하세요.",
         "linkShortenedOnly": "링크를 단축했어요",
-        "unsupportedWindows": "Fileship을 사용하려면 64비트 Windows 11 버전 24H2 이상이 필요해요."
+        "unsupportedWindows": "Fileship을 사용하려면 64비트 Windows 11 버전 24H2 이상이 필요해요.",
+        "hostRestarted": "Fileship을 다시 시작했어요",
+        "hostRestartedDescription": "백그라운드에서 실행되는 부분이 예기치 않게 멈춰서 다시 시작했어요.",
+        "hostNotResponding": "Fileship의 백그라운드에서 실행되는 부분이 응답하지 않아요. Fileship을 다시 열어 주세요."
     },
     "captureSettings": {
         "capture": {

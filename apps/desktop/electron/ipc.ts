@@ -9,7 +9,7 @@ import {
 } from '../shared/ipc';
 import { login, logout } from './account';
 import { closeDashboard, openDashboard } from './dashboard';
-import { invokeHost, onHost } from './host';
+import { closeHost, invokeHost, onHost } from './host';
 import { setLanguage, t } from './i18n';
 import {
     broadcast,
@@ -91,6 +91,7 @@ const listenToHost = () => {
             }
             if (event === 'app:quit') {
                 markQuitting();
+                closeHost();
                 app.quit();
                 return;
             }

@@ -71,7 +71,10 @@
         "notConnected": "Нет подключения к серверу Fileship",
         "tryAgain": "Повторите попытку чуть позже.",
         "linkShortenedOnly": "Ссылка сокращена",
-        "unsupportedWindows": "Для Fileship нужна 64-разрядная Windows 11 версии 24H2 или новее."
+        "unsupportedWindows": "Для Fileship нужна 64-разрядная Windows 11 версии 24H2 или новее.",
+        "hostRestarted": "Fileship перезапущен",
+        "hostRestartedDescription": "Фоновая часть приложения неожиданно остановилась и была запущена снова.",
+        "hostNotResponding": "Фоновая часть Fileship не отвечает. Откройте Fileship ещё раз."
     },
     "captureSettings": {
         "capture": {

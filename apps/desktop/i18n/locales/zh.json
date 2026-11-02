@@ -71,7 +71,10 @@
         "notConnected": "未连接到 Fileship 服务器",
         "tryAgain": "请稍后再试。",
         "linkShortenedOnly": "链接已缩短",
-        "unsupportedWindows": "Fileship 需要 64 位 Windows 11 24H2 或更高版本。"
+        "unsupportedWindows": "Fileship 需要 64 位 Windows 11 24H2 或更高版本。",
+        "hostRestarted": "Fileship 已重新启动",
+        "hostRestartedDescription": "后台运行的部分意外停止，已重新启动。",
+        "hostNotResponding": "Fileship 的后台运行部分没有响应。请重新打开 Fileship。"
     },
     "captureSettings": {
         "capture": {

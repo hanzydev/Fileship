@@ -14,8 +14,8 @@ type Pending = { resolve: (value: unknown) => void; reject: (error: Error) => vo
 type Listener = (payload: unknown) => void;
 
 const CONNECT_TIMEOUT_MS = 10_000;
-const RECONNECT_TIMEOUT_MS = 5_000;
 const RETRY_MS = 200;
+const RESTART_INTERVAL_MS = 60_000;
 const HOST_BINARY = process.platform === 'win32' ? 'fileship-host.exe' : 'fileship-host';
 const START_ERRORS = new Set(['ENOENT', 'ECONNREFUSED']);
 
@@ -23,9 +23,12 @@ const pending = new Map<number, Pending>();
 const listeners = new Map<string, Set<Listener>>();
 
 let socket: Socket | null = null;
-let connecting: Promise<void> | null = null;
+let connecting: Promise<boolean> | null = null;
 let nextId = 1;
 let onLost: (() => void) | null = null;
+let onRestarted: (() => void) | null = null;
+let isClosing = false;
+let lastRestart = 0;
 
 export class HostError extends Error {
     public constructor(
@@ -105,7 +108,10 @@ const handleClose = () => {
     for (const request of pending.values()) request.reject(new Error('The Fileship host closed'));
     pending.clear();
 
-    reconnect().catch(() => onLost?.());
+    if (isClosing) return;
+    reconnect()
+        .then((isRestarted) => isRestarted && onRestarted?.())
+        .catch(() => onLost?.());
 };
 
 const open = (name: string) =>
@@ -133,16 +139,18 @@ const connectWithin = async (timeout: number, start: boolean, isWindow = true) =
     const name = pipeName();
     const deadline = Date.now() + timeout;
     let started = !start;
+    let isStarted = false;
 
     while (true) {
         try {
             attach(await open(name));
             if (isWindow) await invokeHost('client:hello', { pid: process.pid });
-            return;
+            return isStarted;
         } catch (error: any) {
             if (!started && START_ERRORS.has(error?.code)) {
                 startHost();
                 started = true;
+                isStarted = true;
             }
 
             if (Date.now() > deadline) throw error;
@@ -151,15 +159,31 @@ const connectWithin = async (timeout: number, start: boolean, isWindow = true) =
     }
 };
 
-const reconnect = () => connectWithin(RECONNECT_TIMEOUT_MS, false);
-
-export const connectHost = (handleLost: () => void) => {
-    onLost = handleLost;
-    connecting ??= connectWithin(CONNECT_TIMEOUT_MS, !argumentValue('--host-pipe')).finally(() => {
+const track = (attempt: Promise<boolean>) => {
+    connecting = attempt.finally(() => {
         connecting = null;
     });
 
     return connecting;
+};
+
+const reconnect = () => {
+    const canStart =
+        pipeName() === defaultSocket() && Date.now() - lastRestart > RESTART_INTERVAL_MS;
+    if (canStart) lastRestart = Date.now();
+
+    return track(connectWithin(CONNECT_TIMEOUT_MS, canStart));
+};
+
+export const connectHost = (handleLost: () => void, handleRestarted: () => void) => {
+    onLost = handleLost;
+    onRestarted = handleRestarted;
+
+    return connecting ?? track(connectWithin(CONNECT_TIMEOUT_MS, !argumentValue('--host-pipe')));
+};
+
+export const closeHost = () => {
+    isClosing = true;
 };
 
 export const launchInHost = async (argv: string[], cwd: string) => {
@@ -167,11 +191,12 @@ export const launchInHost = async (argv: string[], cwd: string) => {
     await invokeHost('app:launch', argv, cwd);
 };
 
-export const invokeHost = <K extends keyof HostInvoke>(
+export const invokeHost = async <K extends keyof HostInvoke>(
     channel: K,
     ...args: Parameters<HostInvoke[K]>
 ): Promise<ReturnType<HostInvoke[K]>> => {
-    if (!socket) return Promise.reject(new Error('The Fileship host is not running'));
+    if (!socket && connecting) await connecting.catch(() => null);
+    if (!socket) throw new Error('The Fileship host is not running');
 
     const id = nextId++;
     const connection = socket;

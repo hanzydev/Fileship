@@ -71,7 +71,10 @@
         "notConnected": "Sem conexão com um servidor Fileship",
         "tryAgain": "Tente novamente em instantes.",
         "linkShortenedOnly": "Link encurtado",
-        "unsupportedWindows": "O Fileship precisa do Windows 11 de 64 bits, versão 24H2 ou mais recente."
+        "unsupportedWindows": "O Fileship precisa do Windows 11 de 64 bits, versão 24H2 ou mais recente.",
+        "hostRestarted": "O Fileship foi reiniciado",
+        "hostRestartedDescription": "A parte que roda em segundo plano parou inesperadamente e foi iniciada de novo.",
+        "hostNotResponding": "A parte do Fileship que roda em segundo plano não está respondendo. Abra o Fileship de novo."
     },
     "captureSettings": {
         "capture": {
