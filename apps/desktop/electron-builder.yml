@@ -72,7 +72,6 @@ linux:
         - target: tar.gz
           arch: [x64]
     executableName: fileship
-    packageName: fileship
     artifactName: fileship-${version}-${arch}.${ext}
     syncDesktopName: true
     icon: build/icon.png
@@ -125,6 +124,7 @@ deb:
         - ffmpeg
 
 rpm:
+    packageName: fileship
     artifactName: fileship-${version}.${arch}.${ext}
     depends:
         - libgtk-3.so.0()(64bit)
