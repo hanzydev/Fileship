@@ -3,12 +3,72 @@
 
 #include <libsecret/secret.h>
 
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <functional>
+#include <memory>
+#include <mutex>
+#include <thread>
+
 namespace fileship::host {
 
 namespace {
 
 constexpr wchar_t const* KEYRING = L"keyring";
 constexpr wchar_t const* PLAIN = L"plain:";
+constexpr auto KEYRING_TIMEOUT = std::chrono::minutes(2);
+constexpr auto CANCEL_TIMEOUT = std::chrono::seconds(5);
+
+std::atomic<bool> isRefused = false;
+
+struct Outcome {
+    bool isDone = false;
+    bool isOk = false;
+    std::string value;
+    std::string error;
+};
+
+struct Call {
+    std::mutex mutex;
+    std::condition_variable condition;
+    Outcome outcome;
+    GCancellable* cancellable = g_cancellable_new();
+
+    ~Call() {
+        g_object_unref(cancellable);
+    }
+};
+
+Outcome runWithDeadline(std::function<void(GCancellable*, Outcome&)> work) {
+    auto call = std::make_shared<Call>();
+
+    std::thread([call, work = std::move(work)] {
+        Outcome outcome;
+        work(call->cancellable, outcome);
+
+        {
+            std::lock_guard lock(call->mutex);
+            outcome.isDone = true;
+            call->outcome = std::move(outcome);
+        }
+        call->condition.notify_all();
+    }).detach();
+
+    std::unique_lock lock(call->mutex);
+    auto isDone = [&] { return call->outcome.isDone; };
+    if (!call->condition.wait_for(lock, KEYRING_TIMEOUT, isDone)) {
+        g_cancellable_cancel(call->cancellable);
+        call->condition.wait_for(lock, CANCEL_TIMEOUT, isDone);
+    }
+
+    return call->outcome;
+}
+
+std::string describe(Outcome const& outcome, char const* fallback) {
+    if (!outcome.isDone) return "the keyring did not answer";
+    return outcome.error.empty() ? fallback : outcome.error;
+}
 
 SecretSchema const* schema() {
     static SecretSchema const value = {
@@ -34,16 +94,27 @@ std::string profile() {
 }
 
 std::wstring protectSecret(std::wstring const& name, std::wstring const& value) {
-    GError* error = nullptr;
     auto utf8 = toUtf8(value);
 
-    if (secret_password_store_sync(schema(), SECRET_COLLECTION_DEFAULT, "Fileship", utf8.c_str(), nullptr, &error,
-                                   "profile", profile().c_str(), "name", toUtf8(name).c_str(), nullptr))
-        return KEYRING;
+    if (!isRefused) {
+        auto outcome = runWithDeadline([utf8, key = toUtf8(name), owner = profile()](GCancellable* cancellable,
+                                                                                     Outcome& result) {
+            GError* error = nullptr;
+            result.isOk = secret_password_store_sync(schema(), SECRET_COLLECTION_DEFAULT, "Fileship", utf8.c_str(),
+                                                     cancellable, &error, "profile", owner.c_str(), "name",
+                                                     key.c_str(), nullptr);
+            if (error) {
+                result.error = error->message;
+                g_error_free(error);
+            }
+        });
+        if (outcome.isOk) return KEYRING;
 
-    logWarn(L"No keyring is available, storing " + name + L" in the settings file: " +
-            toWide(error ? error->message : "unknown error"));
-    if (error) g_error_free(error);
+        isRefused = true;
+        logWarn(L"The keyring did not store " + name + L", keeping it in the settings file: " +
+                toWide(describe(outcome, "the prompt was dismissed")));
+    }
+
     return PLAIN + base64(utf8.data(), utf8.size());
 }
 
@@ -55,13 +126,26 @@ std::optional<std::wstring> unprotectSecret(std::wstring const& name, std::wstri
 
     if (stored != KEYRING) return std::nullopt;
 
-    auto secret = secret_password_lookup_sync(schema(), nullptr, nullptr, "profile", profile().c_str(), "name",
-                                              toUtf8(name).c_str(), nullptr);
-    if (!secret) return std::nullopt;
+    auto outcome = runWithDeadline([key = toUtf8(name), owner = profile()](GCancellable* cancellable,
+                                                                           Outcome& result) {
+        GError* error = nullptr;
+        auto secret = secret_password_lookup_sync(schema(), cancellable, &error, "profile", owner.c_str(), "name",
+                                                  key.c_str(), nullptr);
+        if (secret) {
+            result.isOk = true;
+            result.value = secret;
+            secret_password_free(secret);
+        }
+        if (error) {
+            result.error = error->message;
+            g_error_free(error);
+        }
+    });
 
-    std::wstring result = toWide(secret);
-    secret_password_free(secret);
-    return result;
+    if (outcome.isOk) return toWide(outcome.value);
+
+    logWarn(L"Could not read " + name + L" from the keyring: " + toWide(describe(outcome, "it is not there")));
+    return std::nullopt;
 }
 
 std::optional<std::string> unprotectElectronValue(std::wstring const&) {

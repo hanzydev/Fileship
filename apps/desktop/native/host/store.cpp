@@ -13,10 +13,13 @@ namespace {
 constexpr wchar_t const* PERMISSIONS[] = {L"Admin", L"UploadFiles", L"TakeNotes", L"ShortenLinks"};
 
 std::recursive_mutex mutex;
+std::mutex secretMutex;
+std::mutex updateMutex;
 JsonObject data{nullptr};
 JsonObject schema{nullptr};
 JsonObject defaults{nullptr};
 std::optional<std::wstring> cachedToken;
+std::optional<std::wstring> cachedUploadPassword;
 
 std::filesystem::path storePath() {
     return userDataPath() / L"settings.json";
@@ -241,11 +244,32 @@ JsonObject normalizeStore(JsonObject stored) {
     return result;
 }
 
-JsonObject withoutPassword(JsonObject settingsValue) {
+JsonObject withPassword(JsonObject settingsValue, std::wstring const& password) {
     auto upload = jsonObject(settingsValue, L"upload");
-    upload.SetNamedValue(L"password", JsonValue::CreateStringValue(L""));
+    upload.SetNamedValue(L"password", JsonValue::CreateStringValue(password));
     settingsValue.SetNamedValue(L"upload", upload);
     return settingsValue;
+}
+
+std::wstring unprotectCached(std::optional<std::wstring>& cache, wchar_t const* field) {
+    std::wstring stored;
+    {
+        std::lock_guard lock(mutex);
+        if (cache) return *cache;
+        stored = jsonString(data, field);
+    }
+
+    std::lock_guard lookup(secretMutex);
+    {
+        std::lock_guard lock(mutex);
+        if (cache) return *cache;
+    }
+
+    auto value = stored.empty() ? std::wstring() : unprotectSecret(field, stored).value_or(L"");
+
+    std::lock_guard lock(mutex);
+    if (!cache && jsonString(data, field) == stored) cache = value;
+    return cache ? *cache : value;
 }
 
 }
@@ -261,13 +285,14 @@ void loadStore() {
 
     data = normalizeStore(stored);
     cachedToken.reset();
+    cachedUploadPassword.reset();
 
     auto settingsValue = data.GetNamedObject(L"settings");
     auto password = jsonString(jsonObject(settingsValue, L"upload"), L"password");
     if (!password.empty()) {
         data.SetNamedValue(L"protectedUploadPassword",
                            JsonValue::CreateStringValue(protectSecret(L"protectedUploadPassword", password)));
-        data.SetNamedValue(L"settings", withoutPassword(settingsValue));
+        data.SetNamedValue(L"settings", withPassword(settingsValue, L""));
         isChanged = true;
     }
 
@@ -280,23 +305,22 @@ JsonObject storeData() {
 }
 
 JsonObject settings() {
-    std::lock_guard lock(mutex);
+    JsonObject result{nullptr};
 
-    auto result = cloneObject(data.GetNamedObject(L"settings"));
-    auto stored = jsonString(data, L"protectedUploadPassword");
-    if (stored.empty()) return result;
+    {
+        std::lock_guard lock(mutex);
+        result = cloneObject(data.GetNamedObject(L"settings"));
+        if (jsonString(data, L"protectedUploadPassword").empty()) return result;
+    }
 
-    auto upload = result.GetNamedObject(L"upload");
-    upload.SetNamedValue(L"password", JsonValue::CreateStringValue(
-                                           unprotectSecret(L"protectedUploadPassword", stored).value_or(L"")));
-    result.SetNamedValue(L"upload", upload);
-    return result;
+    return withPassword(result, unprotectCached(cachedUploadPassword, L"protectedUploadPassword"));
 }
 
 JsonObject updateSettings(JsonObject const& patch) {
-    std::lock_guard lock(mutex);
+    std::lock_guard update(updateMutex);
 
-    auto merged = settings();
+    auto current = settings();
+    auto merged = cloneObject(current);
     for (auto const& pair : patch) merged.SetNamedValue(pair.Key(), pair.Value());
 
     JsonObject next;
@@ -307,9 +331,20 @@ JsonObject updateSettings(JsonObject const& patch) {
     }
 
     auto password = jsonString(jsonObject(next, L"upload"), L"password");
-    data.SetNamedValue(L"settings", withoutPassword(cloneObject(next)));
-    data.SetNamedValue(L"protectedUploadPassword",
-                       stringOrNull(password.empty() ? L"" : protectSecret(L"protectedUploadPassword", password)));
+    std::wstring stored;
+    {
+        std::lock_guard lock(mutex);
+        stored = jsonString(data, L"protectedUploadPassword");
+    }
+
+    if (password.empty()) stored.clear();
+    else if (stored.empty() || password != jsonString(jsonObject(current, L"upload"), L"password"))
+        stored = protectSecret(L"protectedUploadPassword", password);
+
+    std::lock_guard lock(mutex);
+    data.SetNamedValue(L"settings", withPassword(cloneObject(next), L""));
+    data.SetNamedValue(L"protectedUploadPassword", stringOrNull(stored));
+    cachedUploadPassword = password;
     save();
 
     return next;
@@ -333,12 +368,7 @@ std::wstring instanceUrl() {
 }
 
 std::wstring token() {
-    std::lock_guard lock(mutex);
-    if (cachedToken) return *cachedToken;
-
-    auto stored = jsonString(data, L"protectedToken");
-    cachedToken = stored.empty() ? std::wstring() : unprotectSecret(L"protectedToken", stored).value_or(L"");
-    return *cachedToken;
+    return unprotectCached(cachedToken, L"protectedToken");
 }
 
 std::wstring siteName() {
@@ -381,12 +411,13 @@ void setHarborRoot(std::filesystem::path const& root) {
 
 void setSession(std::wstring const& url, std::wstring const& name, std::wstring const& sessionToken,
                 JsonObject const& user) {
+    auto protectedToken = protectSecret(L"protectedToken", sessionToken);
     std::lock_guard lock(mutex);
     auto normalized = normalizeUser(user);
 
     data.SetNamedValue(L"instanceUrl", JsonValue::CreateStringValue(url));
     data.SetNamedValue(L"siteName", JsonValue::CreateStringValue(name));
-    data.SetNamedValue(L"protectedToken", JsonValue::CreateStringValue(protectSecret(L"protectedToken", sessionToken)));
+    data.SetNamedValue(L"protectedToken", JsonValue::CreateStringValue(protectedToken));
     data.SetNamedValue(L"user", normalized ? IJsonValue(*normalized) : IJsonValue(JsonValue::CreateNullValue()));
     cachedToken = sessionToken;
     save();
