@@ -1,5 +1,35 @@
 # Changelog
 
+## v6.5.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v6.4.0...v6.5.0)
+
+Fileship 6.5 lets the Windows app's Dashboard window download like a browser and show your files in Fileship Harbor, and comes with Fileship for Windows 2.2.0.
+
+### ✨ Highlights
+
+- **Downloads in the Windows app.** Downloads in the Dashboard window ask where to save, starting in the folder you used last. The download button at the top right (or Ctrl + J) lists them with their progress and speed, opens finished files, shows them in their folder and cancels the ones still running. The window shows the progress on the taskbar, the app stays open until running downloads finish, and a notification tells you when one finishes while you are elsewhere. Executables and scripts are shown in their folder instead of being opened.
+- **Show in Fileship Harbor.** While Fileship Harbor runs, the menu of a file, folder or note in the Dashboard window selects it in File Explorer, without downloading online-only files.
+- **Fileship for Windows 2.2.0** ([fileship-desktop](https://github.com/hanzydev/fileship-desktop)) brings both. With an older Fileship server the app still handles downloads and notifies you when they finish, but the download button and Show in Fileship Harbor need Fileship 6.5.
+
+### 🚀 Enhancements
+
+- **desktop:** Handle downloads in the Dashboard window ([4fc6c0a4](https://github.com/hanzydev/Fileship/commit/4fc6c0a4))
+- **desktop:** Locate Harbor items by id ([7441124f](https://github.com/hanzydev/Fileship/commit/7441124f))
+- **dashboard:** Show downloads and Fileship Harbor in the desktop app ([c2c66425](https://github.com/hanzydev/Fileship/commit/c2c66425))
+
+### 🩹 Fixes
+
+- **dashboard:** Download files from the dashboard's own address. Downloads used a custom domain's link, which gets no session cookie, so the owner counted as a visitor: views were counted, a view limit could delete the file, and sensitive, locked or trashed files did not download. In the Windows app the link also opened in the browser ([88ebdaaa](https://github.com/hanzydev/Fileship/commit/88ebdaaa))
+
+### 📖 Documentation
+
+- Describe downloads and Show in Fileship Harbor in the desktop app ([41c30f1b](https://github.com/hanzydev/Fileship/commit/41c30f1b))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v6.4.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v6.3.1...v6.4.0)
