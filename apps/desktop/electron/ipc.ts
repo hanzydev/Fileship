@@ -1,6 +1,7 @@
 import { app, dialog, ipcMain, nativeTheme } from 'electron';
 
 import {
+    type HarborStatus,
     HOST_EVENTS,
     INVOKE_CHANNELS,
     type IpcInvoke,
@@ -8,7 +9,12 @@ import {
     type Settings,
 } from '../shared/ipc';
 import { login, logout } from './account';
-import { closeDashboard, openDashboard } from './dashboard';
+import {
+    closeDashboard,
+    openDashboard,
+    registerDashboardIpc,
+    updateDashboardHarbor,
+} from './dashboard';
 import { invokeHost, onHost } from './host';
 import { setLanguage, t } from './i18n';
 import {
@@ -96,6 +102,7 @@ const listenToHost = () => {
 
             if (event === 'app:language') setLanguage(payload as never);
             if (event === 'account:changed' && !payload) closeDashboard();
+            if (event === 'harbor:status') updateDashboardHarbor(payload as HarborStatus);
             if (event === 'uploads:progress') {
                 const items = payload as { progress: number }[];
                 const average = items.reduce((sum, item) => sum + item.progress, 0) / items.length;
@@ -120,6 +127,7 @@ export const loadHostState = async () => {
 
 export const registerIpc = () => {
     listenToHost();
+    registerDashboardIpc();
 
     for (const channel of INVOKE_CHANNELS) {
         ipcMain.handle(channel, (event, ...args) => {

@@ -68,7 +68,9 @@
         "notConnected": "Fileship サーバーに接続されていません",
         "tryAgain": "しばらくしてからもう一度お試しください。",
         "linkShortenedOnly": "リンクを短縮しました",
-        "unsupportedWindows": "Fileship には 64 ビット版 Windows 11 バージョン 24H2 以降が必要です。"
+        "unsupportedWindows": "Fileship には 64 ビット版 Windows 11 バージョン 24H2 以降が必要です。",
+        "downloadComplete": "ダウンロードが完了しました",
+        "downloadFailed": "ダウンロードできませんでした"
     },
     "captureSettings": {
         "capture": {

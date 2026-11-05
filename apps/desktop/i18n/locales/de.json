@@ -68,7 +68,9 @@
         "notConnected": "Nicht mit einem Fileship-Server verbunden",
         "tryAgain": "Versuch es gleich noch einmal.",
         "linkShortenedOnly": "Link gekürzt",
-        "unsupportedWindows": "Fileship benötigt 64-Bit-Windows 11 Version 24H2 oder neuer."
+        "unsupportedWindows": "Fileship benötigt 64-Bit-Windows 11 Version 24H2 oder neuer.",
+        "downloadComplete": "Download abgeschlossen",
+        "downloadFailed": "Download fehlgeschlagen"
     },
     "captureSettings": {
         "capture": {

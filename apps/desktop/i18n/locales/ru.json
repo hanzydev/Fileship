@@ -68,7 +68,9 @@
         "notConnected": "Нет подключения к серверу Fileship",
         "tryAgain": "Повторите попытку чуть позже.",
         "linkShortenedOnly": "Ссылка сокращена",
-        "unsupportedWindows": "Для Fileship нужна 64-разрядная Windows 11 версии 24H2 или новее."
+        "unsupportedWindows": "Для Fileship нужна 64-разрядная Windows 11 версии 24H2 или новее.",
+        "downloadComplete": "Скачивание завершено",
+        "downloadFailed": "Не удалось скачать файл"
     },
     "captureSettings": {
         "capture": {

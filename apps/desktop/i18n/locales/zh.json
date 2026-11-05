@@ -68,7 +68,9 @@
         "notConnected": "未连接到 Fileship 服务器",
         "tryAgain": "请稍后再试。",
         "linkShortenedOnly": "链接已缩短",
-        "unsupportedWindows": "Fileship 需要 64 位 Windows 11 24H2 或更高版本。"
+        "unsupportedWindows": "Fileship 需要 64 位 Windows 11 24H2 或更高版本。",
+        "downloadComplete": "下载完成",
+        "downloadFailed": "下载失败"
     },
     "captureSettings": {
         "capture": {

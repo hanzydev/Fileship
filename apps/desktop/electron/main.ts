@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog } from 'electron';
 import log from 'electron-log/main';
 
 import { openDashboard } from './dashboard';
+import { hasActiveDownloads } from './downloads';
 import { connectHost } from './host';
 import { loadHostState, registerIpc } from './ipc';
 import { handleAppProtocol, registerAppScheme } from './protocol';
@@ -50,11 +51,16 @@ app.on('browser-window-created', () => {
     idleTimer = null;
 });
 
-app.on('window-all-closed', () => {
+const scheduleIdleQuit = () => {
     idleTimer = setTimeout(() => {
-        if (BrowserWindow.getAllWindows().length === 0) quit();
+        if (BrowserWindow.getAllWindows().length) return;
+        if (hasActiveDownloads()) return scheduleIdleQuit();
+
+        quit();
     }, IDLE_QUIT_MS);
-});
+};
+
+app.on('window-all-closed', scheduleIdleQuit);
 
 app.on('web-contents-created', (_, contents) => {
     if (app.isPackaged) contents.on('devtools-opened', () => contents.closeDevTools());

@@ -1,4 +1,5 @@
 import type { Language } from '../i18n/messages';
+import type { HarborItemKind } from './dashboard';
 import type { HotkeyAction, Settings } from './settings';
 
 export type { Settings, Theme } from './settings';
@@ -242,6 +243,7 @@ export type HostInvoke = Omit<IpcInvoke, (typeof LOCAL_CHANNELS)[number]> & {
     'account:setSession': (session: { instanceUrl: string; token: string }) => Account;
     'account:clearSession': () => void;
     'account:token': () => string | null;
+    'harbor:locate': (kind: HarborItemKind, id: string) => string | null;
 };
 
 export type HostEvents = Omit<IpcEvents, 'app:navigate'> & {

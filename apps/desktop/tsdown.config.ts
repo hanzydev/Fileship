@@ -15,4 +15,5 @@ const shared = {
 export default defineConfig([
     { ...shared, entry: { main: 'electron/main.ts' } },
     { ...shared, entry: { preload: 'electron/preload.ts' } },
+    { ...shared, entry: { dashboardPreload: 'electron/dashboardPreload.ts' } },
 ]);
