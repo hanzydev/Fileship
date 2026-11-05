@@ -32,11 +32,13 @@ Fileship Harbor puts your Fileship files and folders in File Explorer. Turn it o
 - The status button in File Explorer shows your storage use, what is syncing, how much is on this device and when it last synced, with buttons to open Fileship, upload, pause syncing, open the trash and free up space (storage use needs an up-to-date Fileship server)
 - Right click a folder to copy its public link or its inbox link, and turn on **Copy links of uploaded files** to get the link of every file you drop in
 - **Settings → Harbor** shows the same details, usage by type and the recent activity
+- In the app's Dashboard window, **Show in Fileship Harbor** in the menu of a file, folder or note selects it in File Explorer (needs an up-to-date Fileship server)
 - It needs an empty folder. Folders inside folders sync too when your Fileship server supports nested folders
 
 **App**
 
 - Starts with Windows and stays in the tray using only a few megabytes of memory; the app window opens on demand
+- The Dashboard window downloads like a browser: it asks where to save, and the download button at the top right (or Ctrl + J) lists your downloads with their progress, opens them and shows them in their folder. With an older Fileship server there is no button, and a notification tells you when a download finishes
 - English, Turkish, German, Spanish, French, Italian, Brazilian Portuguese, Russian, Azerbaijani, Japanese, Korean and Simplified Chinese
 - Updates itself in the background and installs them when you restart or quit
 
