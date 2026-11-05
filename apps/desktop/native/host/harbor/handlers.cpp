@@ -1,4 +1,5 @@
 #include "engine.h"
+#include "paths.h"
 #include "support.h"
 
 #include <host/rpc.h>
@@ -26,6 +27,15 @@ std::wstring resolved(std::filesystem::path const& path) {
     auto absolute = std::filesystem::absolute(path, error).lexically_normal().wstring();
     while (absolute.size() > 3 && (absolute.back() == L'\\' || absolute.back() == L'/')) absolute.pop_back();
     return lower(absolute);
+}
+
+JsonValue locate(std::wstring const& kind, std::wstring const& id) {
+    auto identity = kind == L"file"     ? fileIdentity(id)
+                    : kind == L"folder" ? folderIdentity(id)
+                    : kind == L"note"   ? noteIdentity(id)
+                                        : L"";
+    auto path = identity.empty() || id.empty() ? std::nullopt : harborPathOf(identity);
+    return path ? JsonValue::CreateStringValue(path->wstring()) : JsonValue::CreateNullValue();
 }
 
 JsonValue statusValue() {
@@ -90,6 +100,7 @@ void registerHarborHandlers() {
         return JsonValue::Parse(harborActivity().Stringify());
     });
     registerHandler(L"harbor:breakdown", [](JsonArray const&) { return breakdown(); });
+    registerHandler(L"harbor:locate", [](JsonArray const& args) { return locate(stringArg(args, 0), stringArg(args, 1)); });
 }
 
 }

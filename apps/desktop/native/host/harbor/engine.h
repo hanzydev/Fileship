@@ -12,5 +12,6 @@ namespace fileship::host::harbor {
 std::filesystem::path harborFolder();
 void startHarborAndWait();
 int64_t freeUpHarborSpace();
+std::optional<std::filesystem::path> harborPathOf(std::wstring const& identity);
 
 }

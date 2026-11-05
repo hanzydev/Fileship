@@ -3092,11 +3092,24 @@ void runHarborAction(std::wstring const& action, std::vector<std::wstring> const
     runDetached([action, paths] { runAction(action, paths); });
 }
 
+std::optional<std::filesystem::path> harborPathOf(std::wstring const& identity) {
+    std::filesystem::path path;
+
+    {
+        Lock lock(guard);
+        auto entry = local.find(identity);
+        auto isPlaced = status.state == L"ready" || status.state == L"syncing" || status.state == L"paused";
+        if (!entry || !isPlaced) return std::nullopt;
+        path = std::filesystem::path(root) / entry->path;
+    }
+
+    std::error_code error;
+    if (!std::filesystem::exists(path, error)) return std::nullopt;
+    return path;
+}
+
 std::optional<std::filesystem::path> harborPathFor(std::wstring const& fileId) {
-    Lock lock(guard);
-    auto entry = local.find(fileIdentity(fileId));
-    if (status.state != L"ready" || !entry || entry->isFolder) return std::nullopt;
-    return std::filesystem::path(root) / entry->path;
+    return harborPathOf(fileIdentity(fileId));
 }
 
 }
