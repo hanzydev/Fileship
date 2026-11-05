@@ -17,7 +17,7 @@ export const useFileActions = () => {
     const openFile = (file: FileData) => window.open(file.embedUrl, '_blank');
 
     const download = (files: FileData[]) =>
-        files.forEach((file) => downloadFile(`${file.directUrl}?download`));
+        files.forEach((file) => downloadFile(`/u/${encodeURIComponent(file.fileName)}?download`));
 
     const move = async (files: Pick<FileData, 'id'>[], folderId: string | null) => {
         const id = $toast.loading(
