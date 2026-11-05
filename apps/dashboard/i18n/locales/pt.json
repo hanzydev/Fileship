@@ -38,6 +38,9 @@
             "nowPublic": "A nota agora é pública",
             "label": "a nota"
         },
+        "harbor": {
+            "notFound": "Ainda não está no Fileship Harbor"
+        },
         "signingInAs": "Entrando como {username}…",
         "verificationFailed": "Falha na verificação",
         "themeFailed": "Não foi possível atualizar o tema"
@@ -575,6 +578,7 @@
         "deselectAll": "Desmarcar tudo",
         "move": "Mover",
         "download": "Baixar",
+        "showInHarbor": "Mostrar no Fileship Harbor",
         "delete": "Excluir",
         "clearSelection": "Limpar seleção",
         "fallbackName": "arquivo",
@@ -681,6 +685,7 @@
             "makePrivate": "Tornar privada",
             "makePublic": "Tornar pública",
             "download": "Baixar como arquivo compactado",
+            "showInHarbor": "Mostrar no Fileship Harbor",
             "edit": "Editar",
             "move": "Mover",
             "share": "Compartilhar",
@@ -1365,6 +1370,19 @@
             "retry": "Tentar novamente",
             "dismiss": "Dispensar"
         },
+        "downloads": {
+            "title": "Downloads",
+            "clear": "Limpar",
+            "empty": "Os arquivos que você baixar aparecem aqui.",
+            "showInFolder": "Mostrar na pasta",
+            "cancel": "Cancelar download",
+            "remove": "Remover da lista",
+            "progress": "{received} de {total} · {speed}/s",
+            "progressUnknown": "{received} · {speed}/s",
+            "completed": "{size} · Concluído",
+            "cancelled": "Cancelado",
+            "failed": "Falhou"
+        },
         "drop": {
             "title": "Solte os arquivos para enviar",
             "toFolder": "Eles serão adicionados à pasta {folder}.",
@@ -1558,6 +1576,7 @@
             "open": "Abrir",
             "copyLink": "Copiar link público",
             "copyContent": "Copiar conteúdo",
+            "showInHarbor": "Mostrar no Fileship Harbor",
             "makePrivate": "Tornar privada",
             "makePublic": "Tornar pública",
             "delete": "Excluir"

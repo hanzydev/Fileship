@@ -15,6 +15,10 @@
         <IDownload />
         {{ $t('files.download') }}
     </component>
+    <component :is="Item" v-if="isInHarbor(file)" @select="revealInHarbor('file', file.id)">
+        <IAnchor />
+        {{ $t('files.showInHarbor') }}
+    </component>
     <template v-if="isEditableItem(file)">
         <component :is="Separator" />
         <component :is="Item" @select="emit('edit')">
@@ -73,6 +77,7 @@ const emit = defineEmits<{
 
 const publicSettings = usePublicSettings();
 const { openFile, copyLink, download, move, remove, setSensitive } = useFileActions();
+const { isInHarbor, revealInHarbor } = useDesktopApp();
 
 const Item = type === 'context' ? UiContextMenuItem : UiDropdownMenuItem;
 const Separator = type === 'context' ? UiContextMenuSeparator : UiDropdownMenuSeparator;

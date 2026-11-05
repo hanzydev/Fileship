@@ -13,6 +13,10 @@
         <ICopy />
         {{ $t('notes.menu.copyContent') }}
     </component>
+    <component :is="Item" v-if="isInHarbor(note)" @select="revealInHarbor('note', note.id)">
+        <IAnchor />
+        {{ $t('notes.menu.showInHarbor') }}
+    </component>
     <component :is="Item" @select="togglePublic(note)">
         <IGlobe v-if="!note.public" />
         <IGlobeLock v-else />
@@ -42,6 +46,7 @@ const { note, type } = defineProps<{
 }>();
 
 const { copyLink, copyContent, togglePublic, remove } = useNoteActions();
+const { isInHarbor, revealInHarbor } = useDesktopApp();
 
 const Item = type === 'context' ? UiContextMenuItem : UiDropdownMenuItem;
 const Separator = type === 'context' ? UiContextMenuSeparator : UiDropdownMenuSeparator;

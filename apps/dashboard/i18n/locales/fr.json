@@ -38,6 +38,9 @@
             "nowPublic": "La note est maintenant publique",
             "label": "la note"
         },
+        "harbor": {
+            "notFound": "Pas encore dans Fileship Harbor"
+        },
         "signingInAs": "Connexion en tant que {username}…",
         "verificationFailed": "Échec de la vérification",
         "themeFailed": "Impossible de mettre à jour le thème"
@@ -575,6 +578,7 @@
         "deselectAll": "Tout désélectionner",
         "move": "Déplacer",
         "download": "Télécharger",
+        "showInHarbor": "Afficher dans Fileship Harbor",
         "delete": "Supprimer",
         "clearSelection": "Effacer la sélection",
         "fallbackName": "fichier",
@@ -681,6 +685,7 @@
             "makePrivate": "Rendre privé",
             "makePublic": "Rendre public",
             "download": "Télécharger en archive",
+            "showInHarbor": "Afficher dans Fileship Harbor",
             "edit": "Modifier",
             "move": "Déplacer",
             "share": "Partager",
@@ -1365,6 +1370,19 @@
             "retry": "Réessayer",
             "dismiss": "Fermer"
         },
+        "downloads": {
+            "title": "Téléchargements",
+            "clear": "Effacer",
+            "empty": "Les fichiers que vous téléchargez apparaissent ici.",
+            "showInFolder": "Afficher dans le dossier",
+            "cancel": "Annuler le téléchargement",
+            "remove": "Retirer de la liste",
+            "progress": "{received} sur {total} · {speed}/s",
+            "progressUnknown": "{received} · {speed}/s",
+            "completed": "{size} · Terminé",
+            "cancelled": "Annulé",
+            "failed": "Échec"
+        },
         "drop": {
             "title": "Déposez des fichiers pour les importer",
             "toFolder": "Ils seront ajoutés à {folder}.",
@@ -1558,6 +1576,7 @@
             "open": "Ouvrir",
             "copyLink": "Copier le lien public",
             "copyContent": "Copier le contenu",
+            "showInHarbor": "Afficher dans Fileship Harbor",
             "makePrivate": "Rendre privée",
             "makePublic": "Rendre publique",
             "delete": "Supprimer"

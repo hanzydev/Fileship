@@ -38,6 +38,9 @@
             "nowPublic": "Заметка теперь публичная",
             "label": "заметка"
         },
+        "harbor": {
+            "notFound": "Ещё нет в Fileship Harbor"
+        },
         "signingInAs": "Входим как {username}…",
         "verificationFailed": "Не удалось подтвердить",
         "themeFailed": "Не удалось изменить тему"
@@ -575,6 +578,7 @@
         "deselectAll": "Снять выделение",
         "move": "Переместить",
         "download": "Скачать",
+        "showInHarbor": "Показать в Fileship Harbor",
         "delete": "Удалить",
         "clearSelection": "Снять выделение",
         "fallbackName": "файл",
@@ -681,6 +685,7 @@
             "makePrivate": "Сделать приватной",
             "makePublic": "Сделать публичной",
             "download": "Скачать архивом",
+            "showInHarbor": "Показать в Fileship Harbor",
             "edit": "Изменить",
             "move": "Переместить",
             "share": "Поделиться",
@@ -1365,6 +1370,19 @@
             "retry": "Повторить",
             "dismiss": "Закрыть"
         },
+        "downloads": {
+            "title": "Скачанные файлы",
+            "clear": "Очистить",
+            "empty": "Здесь появятся скачанные файлы.",
+            "showInFolder": "Показать в папке",
+            "cancel": "Отменить скачивание",
+            "remove": "Убрать из списка",
+            "progress": "{received} из {total} · {speed}/с",
+            "progressUnknown": "{received} · {speed}/с",
+            "completed": "{size} · Готово",
+            "cancelled": "Отменено",
+            "failed": "Не удалось скачать"
+        },
         "drop": {
             "title": "Отпустите файлы для загрузки",
             "toFolder": "Они будут добавлены в папку «{folder}».",
@@ -1558,6 +1576,7 @@
             "open": "Открыть",
             "copyLink": "Копировать публичную ссылку",
             "copyContent": "Копировать текст",
+            "showInHarbor": "Показать в Fileship Harbor",
             "makePrivate": "Сделать приватной",
             "makePublic": "Сделать публичной",
             "delete": "Удалить"

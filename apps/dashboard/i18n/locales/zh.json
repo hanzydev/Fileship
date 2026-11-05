@@ -38,6 +38,9 @@
             "nowPublic": "笔记已设为公开",
             "label": "笔记"
         },
+        "harbor": {
+            "notFound": "尚未同步到 Fileship Harbor"
+        },
         "signingInAs": "正在以 {username} 的身份登录…",
         "verificationFailed": "验证失败",
         "themeFailed": "无法更新主题"
@@ -575,6 +578,7 @@
         "deselectAll": "取消全选",
         "move": "移动",
         "download": "下载",
+        "showInHarbor": "在 Fileship Harbor 中显示",
         "delete": "删除",
         "clearSelection": "清除选择",
         "fallbackName": "文件",
@@ -681,6 +685,7 @@
             "makePrivate": "设为私密",
             "makePublic": "设为公开",
             "download": "下载为压缩包",
+            "showInHarbor": "在 Fileship Harbor 中显示",
             "edit": "编辑",
             "move": "移动",
             "share": "共享",
@@ -1365,6 +1370,19 @@
             "retry": "重试",
             "dismiss": "关闭"
         },
+        "downloads": {
+            "title": "下载",
+            "clear": "清除",
+            "empty": "你下载的文件会显示在这里。",
+            "showInFolder": "在文件夹中显示",
+            "cancel": "取消下载",
+            "remove": "从列表中移除",
+            "progress": "{received} / {total} · {speed}/s",
+            "progressUnknown": "{received} · {speed}/s",
+            "completed": "{size} · 已完成",
+            "cancelled": "已取消",
+            "failed": "下载失败"
+        },
         "drop": {
             "title": "松开即可上传",
             "toFolder": "文件将添加到 {folder}。",
@@ -1558,6 +1576,7 @@
             "open": "打开",
             "copyLink": "复制公开链接",
             "copyContent": "复制内容",
+            "showInHarbor": "在 Fileship Harbor 中显示",
             "makePrivate": "设为私密",
             "makePublic": "设为公开",
             "delete": "删除"

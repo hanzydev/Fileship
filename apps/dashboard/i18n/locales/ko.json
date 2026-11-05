@@ -38,6 +38,9 @@
             "nowPublic": "노트를 공개로 전환했어요",
             "label": "노트를"
         },
+        "harbor": {
+            "notFound": "아직 Fileship Harbor에 없어요"
+        },
         "signingInAs": "{username} 계정으로 로그인하는 중…",
         "verificationFailed": "인증하지 못했어요",
         "themeFailed": "테마를 변경할 수 없어요"
@@ -575,6 +578,7 @@
         "deselectAll": "모두 선택 해제",
         "move": "이동",
         "download": "다운로드",
+        "showInHarbor": "Fileship Harbor에서 보기",
         "delete": "삭제",
         "clearSelection": "선택 해제",
         "fallbackName": "파일",
@@ -681,6 +685,7 @@
             "makePrivate": "비공개로 전환",
             "makePublic": "공개로 전환",
             "download": "압축 파일로 다운로드",
+            "showInHarbor": "Fileship Harbor에서 보기",
             "edit": "수정",
             "move": "이동",
             "share": "공유",
@@ -1365,6 +1370,19 @@
             "retry": "다시 시도",
             "dismiss": "닫기"
         },
+        "downloads": {
+            "title": "다운로드",
+            "clear": "지우기",
+            "empty": "다운로드한 파일이 여기에 표시돼요.",
+            "showInFolder": "폴더에서 보기",
+            "cancel": "다운로드 취소",
+            "remove": "목록에서 제거",
+            "progress": "{received} / {total} · {speed}/s",
+            "progressUnknown": "{received} · {speed}/s",
+            "completed": "{size} · 완료",
+            "cancelled": "취소됨",
+            "failed": "실패함"
+        },
         "drop": {
             "title": "파일을 놓아 업로드하세요",
             "toFolder": "{folder} 폴더에 추가돼요.",
@@ -1558,6 +1576,7 @@
             "open": "열기",
             "copyLink": "공개 링크 복사",
             "copyContent": "내용 복사",
+            "showInHarbor": "Fileship Harbor에서 보기",
             "makePrivate": "비공개로 전환",
             "makePublic": "공개로 전환",
             "delete": "삭제"

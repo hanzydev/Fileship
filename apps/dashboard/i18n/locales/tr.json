@@ -38,6 +38,9 @@
             "nowPublic": "Not artık herkese açık",
             "label": "Not"
         },
+        "harbor": {
+            "notFound": "Henüz Fileship Harbor'da değil"
+        },
         "signingInAs": "{username} hesabına giriliyor…",
         "verificationFailed": "Doğrulanamadı",
         "themeFailed": "Tema güncellenemedi"
@@ -575,6 +578,7 @@
         "deselectAll": "Seçimi kaldır",
         "move": "Taşı",
         "download": "İndir",
+        "showInHarbor": "Fileship Harbor'da göster",
         "delete": "Sil",
         "clearSelection": "Seçimi temizle",
         "fallbackName": "dosya",
@@ -681,6 +685,7 @@
             "makePrivate": "Gizli yap",
             "makePublic": "Herkese açık yap",
             "download": "Arşiv olarak indir",
+            "showInHarbor": "Fileship Harbor'da göster",
             "edit": "Düzenle",
             "move": "Taşı",
             "share": "Paylaş",
@@ -1365,6 +1370,19 @@
             "retry": "Tekrar dene",
             "dismiss": "Kapat"
         },
+        "downloads": {
+            "title": "İndirilenler",
+            "clear": "Temizle",
+            "empty": "İndirdiğin dosyalar burada görünür.",
+            "showInFolder": "Klasörde göster",
+            "cancel": "İndirmeyi iptal et",
+            "remove": "Listeden kaldır",
+            "progress": "{received} / {total} · {speed}/sn",
+            "progressUnknown": "{received} · {speed}/sn",
+            "completed": "{size} · Tamamlandı",
+            "cancelled": "İptal edildi",
+            "failed": "İndirilemedi"
+        },
         "drop": {
             "title": "Yüklemek için dosyaları bırak",
             "toFolder": "Dosyalar şu klasöre eklenir: {folder}.",
@@ -1558,6 +1576,7 @@
             "open": "Aç",
             "copyLink": "Herkese açık bağlantıyı kopyala",
             "copyContent": "İçeriği kopyala",
+            "showInHarbor": "Fileship Harbor'da göster",
             "makePrivate": "Gizli yap",
             "makePublic": "Herkese açık yap",
             "delete": "Sil"

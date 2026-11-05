@@ -38,6 +38,9 @@
             "nowPublic": "La nota ora è pubblica",
             "label": "la nota"
         },
+        "harbor": {
+            "notFound": "Non è ancora in Fileship Harbor"
+        },
         "signingInAs": "Accesso come {username}…",
         "verificationFailed": "Verifica non riuscita",
         "themeFailed": "Impossibile aggiornare il tema"
@@ -575,6 +578,7 @@
         "deselectAll": "Deseleziona tutto",
         "move": "Sposta",
         "download": "Scarica",
+        "showInHarbor": "Mostra in Fileship Harbor",
         "delete": "Elimina",
         "clearSelection": "Annulla selezione",
         "fallbackName": "file",
@@ -681,6 +685,7 @@
             "makePrivate": "Rendi privata",
             "makePublic": "Rendi pubblica",
             "download": "Scarica come archivio",
+            "showInHarbor": "Mostra in Fileship Harbor",
             "edit": "Modifica",
             "move": "Sposta",
             "share": "Condividi",
@@ -1365,6 +1370,19 @@
             "retry": "Riprova",
             "dismiss": "Chiudi"
         },
+        "downloads": {
+            "title": "Download",
+            "clear": "Svuota",
+            "empty": "I file che scarichi appaiono qui.",
+            "showInFolder": "Mostra nella cartella",
+            "cancel": "Annulla download",
+            "remove": "Rimuovi dall'elenco",
+            "progress": "{received} di {total} · {speed}/s",
+            "progressUnknown": "{received} · {speed}/s",
+            "completed": "{size} · Completato",
+            "cancelled": "Annullato",
+            "failed": "Non riuscito"
+        },
         "drop": {
             "title": "Rilascia i file per caricarli",
             "toFolder": "Verranno aggiunti a {folder}.",
@@ -1558,6 +1576,7 @@
             "open": "Apri",
             "copyLink": "Copia link pubblico",
             "copyContent": "Copia contenuto",
+            "showInHarbor": "Mostra in Fileship Harbor",
             "makePrivate": "Rendi privata",
             "makePublic": "Rendi pubblica",
             "delete": "Elimina"

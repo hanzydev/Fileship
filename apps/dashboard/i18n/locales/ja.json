@@ -38,6 +38,9 @@
             "nowPublic": "ノートを公開しました",
             "label": "ノート"
         },
+        "harbor": {
+            "notFound": "まだ Fileship Harbor にありません"
+        },
         "signingInAs": "{username} としてログインしています…",
         "verificationFailed": "確認に失敗しました",
         "themeFailed": "テーマを更新できませんでした"
@@ -575,6 +578,7 @@
         "deselectAll": "すべて選択解除",
         "move": "移動",
         "download": "ダウンロード",
+        "showInHarbor": "Fileship Harbor に表示",
         "delete": "削除",
         "clearSelection": "選択を解除",
         "fallbackName": "ファイル",
@@ -681,6 +685,7 @@
             "makePrivate": "非公開にする",
             "makePublic": "公開する",
             "download": "アーカイブとしてダウンロード",
+            "showInHarbor": "Fileship Harbor に表示",
             "edit": "編集",
             "move": "移動",
             "share": "共有",
@@ -1365,6 +1370,19 @@
             "retry": "再試行",
             "dismiss": "閉じる"
         },
+        "downloads": {
+            "title": "ダウンロード",
+            "clear": "クリア",
+            "empty": "ダウンロードしたファイルがここに表示されます。",
+            "showInFolder": "フォルダーに表示",
+            "cancel": "ダウンロードをキャンセル",
+            "remove": "リストから削除",
+            "progress": "{received} / {total} · {speed}/s",
+            "progressUnknown": "{received} · {speed}/s",
+            "completed": "{size} · 完了",
+            "cancelled": "キャンセルしました",
+            "failed": "失敗しました"
+        },
         "drop": {
             "title": "ドロップしてアップロード",
             "toFolder": "{folder} に追加されます。",
@@ -1558,6 +1576,7 @@
             "open": "開く",
             "copyLink": "公開リンクをコピー",
             "copyContent": "内容をコピー",
+            "showInHarbor": "Fileship Harbor に表示",
             "makePrivate": "非公開にする",
             "makePublic": "公開する",
             "delete": "削除"

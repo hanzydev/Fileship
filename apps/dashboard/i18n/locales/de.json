@@ -38,6 +38,9 @@
             "nowPublic": "Notiz ist jetzt öffentlich",
             "label": "Notiz"
         },
+        "harbor": {
+            "notFound": "Noch nicht in Fileship Harbor"
+        },
         "signingInAs": "Anmeldung als {username}…",
         "verificationFailed": "Bestätigung fehlgeschlagen",
         "themeFailed": "Design konnte nicht geändert werden"
@@ -575,6 +578,7 @@
         "deselectAll": "Alle abwählen",
         "move": "Verschieben",
         "download": "Herunterladen",
+        "showInHarbor": "In Fileship Harbor anzeigen",
         "delete": "Löschen",
         "clearSelection": "Auswahl aufheben",
         "fallbackName": "Datei",
@@ -681,6 +685,7 @@
             "makePrivate": "Privat machen",
             "makePublic": "Öffentlich machen",
             "download": "Als Archiv herunterladen",
+            "showInHarbor": "In Fileship Harbor anzeigen",
             "edit": "Bearbeiten",
             "move": "Verschieben",
             "share": "Teilen",
@@ -1365,6 +1370,19 @@
             "retry": "Erneut versuchen",
             "dismiss": "Schließen"
         },
+        "downloads": {
+            "title": "Downloads",
+            "clear": "Leeren",
+            "empty": "Heruntergeladene Dateien erscheinen hier.",
+            "showInFolder": "Im Ordner anzeigen",
+            "cancel": "Download abbrechen",
+            "remove": "Aus der Liste entfernen",
+            "progress": "{received} von {total} · {speed}/s",
+            "progressUnknown": "{received} · {speed}/s",
+            "completed": "{size} · Fertig",
+            "cancelled": "Abgebrochen",
+            "failed": "Fehlgeschlagen"
+        },
         "drop": {
             "title": "Dateien zum Hochladen ablegen",
             "toFolder": "Sie werden zu {folder} hinzugefügt.",
@@ -1558,6 +1576,7 @@
             "open": "Öffnen",
             "copyLink": "Öffentlichen Link kopieren",
             "copyContent": "Inhalt kopieren",
+            "showInHarbor": "In Fileship Harbor anzeigen",
             "makePrivate": "Privat machen",
             "makePublic": "Öffentlich machen",
             "delete": "Löschen"

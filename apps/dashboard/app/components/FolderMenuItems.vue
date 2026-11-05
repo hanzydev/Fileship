@@ -22,6 +22,10 @@
         <IDownload />
         {{ $t('folders.menu.download') }}
     </component>
+    <component :is="Item" v-if="isInHarbor(folder)" @select="revealInHarbor('folder', folder.id)">
+        <IAnchor />
+        {{ $t('folders.menu.showInHarbor') }}
+    </component>
     <template v-if="isEditable">
         <component :is="Separator" />
         <component :is="Item" @select="emit('edit')">
@@ -83,6 +87,7 @@ const emit = defineEmits<{
 }>();
 
 const { copyLink, togglePublic, download, leave, remove } = useFolderActions();
+const { isInHarbor, revealInHarbor } = useDesktopApp();
 
 const isOwner = computed(() => isOwnedItem(folder));
 const isEditable = computed(() => isEditableItem(folder));

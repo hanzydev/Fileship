@@ -38,6 +38,9 @@
             "nowPublic": "Note is now public",
             "label": "Note"
         },
+        "harbor": {
+            "notFound": "Not in Fileship Harbor yet"
+        },
         "signingInAs": "Signing in as {username}…",
         "verificationFailed": "Verification failed",
         "themeFailed": "Failed to update theme"
@@ -575,6 +578,7 @@
         "deselectAll": "Deselect all",
         "move": "Move",
         "download": "Download",
+        "showInHarbor": "Show in Fileship Harbor",
         "delete": "Delete",
         "clearSelection": "Clear selection",
         "fallbackName": "file",
@@ -681,6 +685,7 @@
             "makePrivate": "Make private",
             "makePublic": "Make public",
             "download": "Download as archive",
+            "showInHarbor": "Show in Fileship Harbor",
             "edit": "Edit",
             "move": "Move",
             "share": "Share",
@@ -1365,6 +1370,19 @@
             "retry": "Retry",
             "dismiss": "Dismiss"
         },
+        "downloads": {
+            "title": "Downloads",
+            "clear": "Clear",
+            "empty": "Files you download appear here.",
+            "showInFolder": "Show in folder",
+            "cancel": "Cancel download",
+            "remove": "Remove from list",
+            "progress": "{received} of {total} · {speed}/s",
+            "progressUnknown": "{received} · {speed}/s",
+            "completed": "{size} · Done",
+            "cancelled": "Cancelled",
+            "failed": "Failed"
+        },
         "drop": {
             "title": "Drop files to upload",
             "toFolder": "They will be added to {folder}.",
@@ -1558,6 +1576,7 @@
             "open": "Open",
             "copyLink": "Copy public link",
             "copyContent": "Copy content",
+            "showInHarbor": "Show in Fileship Harbor",
             "makePrivate": "Make private",
             "makePublic": "Make public",
             "delete": "Delete"

@@ -38,6 +38,9 @@
             "nowPublic": "Qeyd artıq hamıya açıqdır",
             "label": "Qeyd"
         },
+        "harbor": {
+            "notFound": "Hələ Fileship Harbor-da deyil"
+        },
         "signingInAs": "{username} hesabına daxil olunur…",
         "verificationFailed": "Doğrulamaq mümkün olmadı",
         "themeFailed": "Temanı yeniləmək mümkün olmadı"
@@ -575,6 +578,7 @@
         "deselectAll": "Seçimi ləğv et",
         "move": "Köçür",
         "download": "Endir",
+        "showInHarbor": "Fileship Harbor-da göstər",
         "delete": "Sil",
         "clearSelection": "Seçimi təmizlə",
         "fallbackName": "fayl",
@@ -681,6 +685,7 @@
             "makePrivate": "Gizli et",
             "makePublic": "Hamıya açıq et",
             "download": "Arxiv kimi endir",
+            "showInHarbor": "Fileship Harbor-da göstər",
             "edit": "Redaktə et",
             "move": "Köçür",
             "share": "Paylaş",
@@ -1365,6 +1370,19 @@
             "retry": "Yenidən cəhd et",
             "dismiss": "Bağla"
         },
+        "downloads": {
+            "title": "Endirilənlər",
+            "clear": "Təmizlə",
+            "empty": "Endirdiyin fayllar burada görünür.",
+            "showInFolder": "Qovluqda göstər",
+            "cancel": "Endirməni ləğv et",
+            "remove": "Siyahıdan çıxar",
+            "progress": "{received} / {total} · {speed}/san",
+            "progressUnknown": "{received} · {speed}/san",
+            "completed": "{size} · Tamamlandı",
+            "cancelled": "Ləğv edildi",
+            "failed": "Endirilmədi"
+        },
         "drop": {
             "title": "Yükləmək üçün faylları burax",
             "toFolder": "Fayllar bu qovluğa əlavə olunacaq: {folder}.",
@@ -1558,6 +1576,7 @@
             "open": "Aç",
             "copyLink": "Hamıya açıq keçidi kopyala",
             "copyContent": "Məzmunu kopyala",
+            "showInHarbor": "Fileship Harbor-da göstər",
             "makePrivate": "Gizli et",
             "makePublic": "Hamıya açıq et",
             "delete": "Sil"

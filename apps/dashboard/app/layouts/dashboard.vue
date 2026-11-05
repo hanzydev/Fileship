@@ -65,6 +65,146 @@
                         >
                             <ISearch />
                         </UiButton>
+                        <UiPopover v-if="isDesktop" v-model:open="isDownloadsOpen">
+                            <UiPopoverTrigger as-child>
+                                <UiButton
+                                    variant="ghost"
+                                    size="icon"
+                                    class="relative"
+                                    :aria-label="$t('layout.downloads.title')"
+                                >
+                                    <IDownload />
+                                    <svg
+                                        v-if="downloadProgress !== null"
+                                        viewBox="0 0 36 36"
+                                        :class="
+                                            cn(
+                                                'pointer-events-none absolute inset-0 size-full -rotate-90',
+                                                downloadProgress < 0 && 'animate-spin',
+                                            )
+                                        "
+                                    >
+                                        <circle
+                                            cx="18"
+                                            cy="18"
+                                            r="16"
+                                            fill="none"
+                                            stroke="var(--border)"
+                                            stroke-width="2"
+                                        />
+                                        <circle
+                                            cx="18"
+                                            cy="18"
+                                            r="16"
+                                            fill="none"
+                                            stroke="var(--primary)"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            path-length="100"
+                                            :stroke-dasharray="ringDash"
+                                            class="transition-[stroke-dasharray] duration-300"
+                                        />
+                                    </svg>
+                                </UiButton>
+                            </UiPopoverTrigger>
+                            <UiPopoverContent
+                                align="end"
+                                class="w-80 gap-2 p-2 sm:w-96"
+                                @open-auto-focus.prevent
+                            >
+                                <div
+                                    class="flex min-h-8 items-center justify-between gap-2 pr-1 pl-3"
+                                >
+                                    <span class="font-medium">
+                                        {{ $t('layout.downloads.title') }}
+                                    </span>
+                                    <UiButton
+                                        v-if="hasFinishedDownloads"
+                                        variant="ghost"
+                                        size="xs"
+                                        @click="bridge().downloads.clear()"
+                                    >
+                                        {{ $t('layout.downloads.clear') }}
+                                    </UiButton>
+                                </div>
+                                <div
+                                    v-if="downloads.length"
+                                    class="flex max-h-96 flex-col gap-2 overflow-y-auto"
+                                >
+                                    <UiItem
+                                        v-for="download in downloads"
+                                        :key="download.id"
+                                        variant="muted"
+                                        size="sm"
+                                    >
+                                        <UiItemContent class="min-w-0">
+                                            <UiItemTitle class="max-w-full">
+                                                <button
+                                                    v-if="download.state === 'completed'"
+                                                    type="button"
+                                                    class="truncate text-left hover:underline"
+                                                    @click="bridge().downloads.open(download.id)"
+                                                >
+                                                    {{ download.name }}
+                                                </button>
+                                                <span v-else class="truncate">
+                                                    {{ download.name }}
+                                                </span>
+                                            </UiItemTitle>
+                                            <UiItemDescription
+                                                :class="
+                                                    cn(
+                                                        'truncate',
+                                                        download.state === 'interrupted' &&
+                                                            'text-destructive',
+                                                    )
+                                                "
+                                            >
+                                                {{ downloadStatus(download) }}
+                                            </UiItemDescription>
+                                        </UiItemContent>
+                                        <UiItemActions>
+                                            <UiButton
+                                                v-if="download.state === 'completed'"
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                :aria-label="$t('layout.downloads.showInFolder')"
+                                                @click="bridge().downloads.show(download.id)"
+                                            >
+                                                <IFolderOpen />
+                                            </UiButton>
+                                            <UiButton
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                :aria-label="
+                                                    download.state === 'progressing'
+                                                        ? $t('layout.downloads.cancel')
+                                                        : $t('layout.downloads.remove')
+                                                "
+                                                @click="handleDismissDownload(download)"
+                                            >
+                                                <IX />
+                                            </UiButton>
+                                        </UiItemActions>
+                                        <UiItemFooter
+                                            v-if="
+                                                download.state === 'progressing' && download.total
+                                            "
+                                        >
+                                            <UiProgress
+                                                class="flex-1"
+                                                :model-value="
+                                                    (download.received / download.total) * 100
+                                                "
+                                            />
+                                        </UiItemFooter>
+                                    </UiItem>
+                                </div>
+                                <p v-else class="px-3 pb-2 text-muted-foreground">
+                                    {{ $t('layout.downloads.empty') }}
+                                </p>
+                            </UiPopoverContent>
+                        </UiPopover>
                     </AppHeader>
 
                     <slot />
@@ -471,6 +611,7 @@ import {
     IUsers,
 } from '#components';
 
+import type { DesktopDownload } from '~/types/desktop';
 import type { FileData } from '~/types/files';
 import type { FolderData } from '~/types/folders';
 import type { LinkData } from '~/types/links';
@@ -488,6 +629,7 @@ const uploadSheetOpen = useUploadSheet();
 const uploadingFiles = useUploadingFiles();
 const { quickUpload, retry, dismiss, isReadOnlyFolder } = useUploader();
 const verification = useVerification();
+const { isDesktop, downloads, downloadsStarted, bridge } = useDesktopApp();
 
 const uploadSheet = useTemplateRef('uploadSheet');
 const commandPaletteOpen = ref(false);
@@ -847,6 +989,62 @@ const queueTitle = computed(() =>
 
 const formatEta = (seconds: number) =>
     dayjs.duration(seconds, 'seconds').locale(locale.value).humanize();
+
+const isDownloadsOpen = ref(false);
+
+const downloadProgress = computed(() => {
+    const active = downloads.value.filter((download) => download.state === 'progressing');
+    if (!active.length) return null;
+    if (active.some((download) => !download.total)) return -1;
+
+    const received = active.reduce((sum, download) => sum + download.received, 0);
+    const total = active.reduce((sum, download) => sum + download.total, 0);
+    return (received / total) * 100;
+});
+
+const ringDash = computed(() => {
+    const progress = downloadProgress.value!;
+    return `${progress < 0 ? 25 : progress} 100`;
+});
+
+const hasFinishedDownloads = computed(() =>
+    downloads.value.some((download) => download.state !== 'progressing'),
+);
+
+const formatSize = (bytes: number) => filesize(bytes, { locale: locale.value });
+
+const downloadStatus = (download: DesktopDownload) => {
+    if (download.state === 'completed') {
+        return t('layout.downloads.completed', {
+            size: formatSize(download.total || download.received),
+        });
+    }
+    if (download.state === 'cancelled') return t('layout.downloads.cancelled');
+    if (download.state === 'interrupted') return t('layout.downloads.failed');
+
+    const received = formatSize(download.received);
+    const speed = formatSize(download.bytesPerSecond);
+
+    return download.total
+        ? t('layout.downloads.progress', { received, total: formatSize(download.total), speed })
+        : t('layout.downloads.progressUnknown', { received, speed });
+};
+
+const handleDismissDownload = (download: DesktopDownload) =>
+    download.state === 'progressing'
+        ? bridge().downloads.cancel(download.id)
+        : bridge().downloads.remove(download.id);
+
+watch(downloadsStarted, () => {
+    isDownloadsOpen.value = true;
+});
+
+onKeyStroke(['j', 'J'], (event) => {
+    if (!(event.ctrlKey || event.metaKey) || !isDesktop.value) return;
+
+    event.preventDefault();
+    isDownloadsOpen.value = !isDownloadsOpen.value;
+});
 
 onMounted(async () => {
     isMac.value = /Mac|iPhone|iPad/.test(navigator.userAgent);
