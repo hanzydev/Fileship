@@ -58,6 +58,9 @@ Translations:
 
 Dashboard and infrastructure:
 
+- [ ] Memory: run the AI and PDF workers as child processes with a memory limit (`--max-old-space-size` does not cover onnxruntime or WASM, so watch RSS and restart), so a runaway model restarts the worker instead of the dashboard. Also page and stream `View` and `Log` rows when a backup is created (`server/utils/backup.ts` loads every view and stringifies each table at once), add a log retention period and page logs in `search:addToOrama`, and limit ffprobe's output with `-show_entries`.
+- [ ] Check the request body limits and streamed uploads against a real ShareX, the desktop app and the browser extension, and behind Caddy (only curl and fetch against a development server were tested: a 300 MB single-request upload kept RSS flat and arrived byte for byte).
+
 - [ ] Check the emails in real clients (Gmail, Outlook, Apple Mail, a dark mode client); they were only read as raw HTML and text from a local SMTP catcher.
 - [ ] Send through a real SMTP server with STARTTLS and TLS; tests used a plaintext local catcher with AUTH PLAIN and LOGIN.
 
