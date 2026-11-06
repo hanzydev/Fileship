@@ -22,7 +22,9 @@ fluentFfmpeg.setFfmpegPath(ffmpeg.path);
 const FLORENCE_MODEL_ID = 'onnx-community/Florence-2-base';
 const PRIVACY_FILTER_MODEL_ID = 'openai/privacy-filter';
 
-const PRIVACY_FILTER_MAX_CHARS = 20_000;
+const PRIVACY_FILTER_CHUNK_CHARS = 2_000;
+const PRIVACY_FILTER_CHUNK_TOKENS = 512;
+const PRIVACY_FILTER_OVERLAP_CHARS = 200;
 const QUERY_MODEL_KEEP_ALIVE_MS = 30 * 60_000;
 const IMAGE_SIZE = 1024;
 const OCR_IMAGE_SIZE = 1600;
@@ -113,6 +115,58 @@ const usePrivacyFilter = <R>(fn: (filter: any) => Promise<R>) =>
         (filter) => filter.dispose(),
         fn,
     );
+
+let privacyFilterTurn: Promise<unknown> = Promise.resolve();
+
+const runPrivacyFilter = <R>(fn: () => Promise<R>) => {
+    const run = privacyFilterTurn.then(fn);
+    privacyFilterTurn = run.catch(() => null);
+
+    return run;
+};
+
+const isSpace = (char?: string) => !!char && /\s/.test(char);
+
+const chunkEnd = (text: string, start: number, size: number) => {
+    const end = start + size;
+    if (end >= text.length) return text.length;
+
+    for (let i = end; i > start + size / 2; i--) if (isSpace(text[i - 1])) return i;
+
+    return end;
+};
+
+const nextStart = (text: string, start: number, end: number) => {
+    const overlap = Math.min(PRIVACY_FILTER_OVERLAP_CHARS, Math.floor((end - start) / 4));
+
+    for (let i = end - overlap; i < end; i++) if (isSpace(text[i])) return i + 1;
+
+    return end - overlap;
+};
+
+const splitPrivacyText = (text: string, countTokens: (chunk: string) => number) => {
+    const chunks: string[] = [];
+    let start = 0;
+    let size = PRIVACY_FILTER_CHUNK_CHARS;
+
+    while (start < text.length) {
+        const end = chunkEnd(text, start, size);
+        const chunk = text.slice(start, end);
+
+        if (size > 64 && countTokens(chunk) > PRIVACY_FILTER_CHUNK_TOKENS) {
+            size = Math.floor(size / 2);
+            continue;
+        }
+
+        if (chunk.trim()) chunks.push(chunk);
+        if (end >= text.length) break;
+
+        start = nextStart(text, start, end);
+        size = PRIVACY_FILTER_CHUNK_CHARS;
+    }
+
+    return chunks;
+};
 
 const toRawImage = async (input: Sharp, size: number) => {
     const { data, info } = await input
@@ -274,13 +328,30 @@ export const methods: AIMethods = {
     },
 
     async findPrivacyEntities(text) {
-        const input = text.slice(0, PRIVACY_FILTER_MAX_CHARS);
-        if (!input.trim()) return [];
+        if (!text.trim()) return [];
 
-        const entities: PrivacyEntity[] = await usePrivacyFilter((filter) =>
-            filter(input, { aggregation_strategy: 'simple' }),
+        return runPrivacyFilter(() =>
+            usePrivacyFilter(async (filter) => {
+                const found = new Map<string, PrivacyEntity>();
+                const chunks = splitPrivacyText(
+                    text,
+                    (chunk) => filter.tokenizer.encode(chunk).length,
+                );
+
+                for (const chunk of chunks) {
+                    const entities: PrivacyEntity[] = await filter(chunk, {
+                        aggregation_strategy: 'simple',
+                    });
+
+                    for (const { entity_group, score, word } of entities) {
+                        const key = `${entity_group}\n${word.trim()}`;
+                        if ((found.get(key)?.score ?? -1) < score)
+                            found.set(key, { entity_group, score, word });
+                    }
+                }
+
+                return [...found.values()];
+            }),
         );
-
-        return entities.map(({ entity_group, score, word }) => ({ entity_group, score, word }));
     },
 };

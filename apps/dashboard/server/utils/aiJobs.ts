@@ -76,15 +76,40 @@ export const enqueueFileAnalysis = async (file: {
     return enqueueAIJob({ userId: file.authorId, fileId: file.id, type: AI_JOB_TYPES[kind] });
 };
 
+const stripTags = (html: string) => {
+    const lower = html.toLowerCase();
+    const parts: string[] = [];
+    let index = 0;
+
+    while (index < html.length) {
+        const open = html.indexOf('<', index);
+        if (open === -1) break;
+
+        parts.push(html.slice(index, open), ' ');
+
+        const block = /^<(script|style)\b/.exec(lower.slice(open, open + 8))?.[1];
+        const blockEnd = block ? lower.indexOf(`</${block}`, open) : -1;
+        const close = html.indexOf('>', blockEnd === -1 ? open + 1 : blockEnd);
+
+        if (close === -1) {
+            index = open;
+            break;
+        }
+
+        index = close + 1;
+    }
+
+    parts.push(html.slice(index));
+
+    return parts.join('');
+};
+
 const readFileText = async (path: string) => {
     const text = await readUtf8Snippet(path, 200_000);
     const extension = extname(path).toLowerCase();
 
     if (['.html', '.htm', '.xml'].includes(extension))
-        return text
-            .replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ')
-            .replace(/<[^>]+>/g, ' ')
-            .replace(/&[a-z#0-9]+;/gi, ' ');
+        return stripTags(text).replace(/&[a-z#0-9]+;/gi, ' ');
 
     if (extension === '.rtf') return text.replace(/\\[a-z]+-?\d* ?|[{}]/gi, ' ');
 
