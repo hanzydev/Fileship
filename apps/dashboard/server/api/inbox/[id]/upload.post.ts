@@ -1,5 +1,8 @@
+import type { H3Event } from 'h3';
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
+
+import type { Inbox, User } from '~~/generated/prisma/client';
 
 const validationSchema = z.object({
     uploadId: z
@@ -20,21 +23,48 @@ const validationSchema = z.object({
 export default defineEventHandler(async (event) => {
     const currentUser = event.context.user;
 
-    await rateLimit(
-        `inboxUpload:${getClientIp(event)}:${getRouterParam(event, 'id')}`,
-        120,
-        60 * 1000,
-    );
+    await rateLimit(`inboxUpload:${getClientIp(event)}`, 120, 60 * 1000);
 
-    const formData = await readFormData(event);
+    const findInboxById = await prisma.inbox.findFirst({
+        where: {
+            id: getRouterParam(event, 'id'),
+        },
+        include: {
+            user: true,
+        },
+    });
 
-    const file = formData.get('file');
-    if (!file) {
-        throw apiError(400, 'errorsContent.missingFile');
+    if (!findInboxById?.enabled || !canUploadFiles(findInboxById.user)) {
+        throw apiError(404, 'errorsContent.inboxNotFound');
     }
 
-    if (typeof file === 'string') {
-        throw apiError(400, 'errorsContent.invalidFile');
+    const limit = usableSpaceOf(findInboxById.user);
+    const formData = await readUploadForm(event, {
+        field: 'file',
+        memoryLimit: getSettingsSync().fileChunkSize * 1024 * 1024,
+        spill: true,
+        maxSize:
+            limit === null ? null : Number(limit - (await storageUsedBy(findInboxById.user.id))),
+        maxSizeError: () =>
+            apiError(400, 'errorsFiles.storageLimitReached', undefined, { quotaExceeded: true }),
+    });
+
+    try {
+        return await saveInboxUpload(event, currentUser, findInboxById, formData);
+    } finally {
+        await removeUploadForm(formData);
+    }
+});
+
+const saveInboxUpload = async (
+    event: H3Event,
+    currentUser: H3Event['context']['user'],
+    findInboxById: Inbox & { user: User },
+    formData: UploadForm,
+) => {
+    const file = formData.file;
+    if (!file) {
+        throw apiError(400, 'errorsContent.missingFile');
     }
 
     const chunkOffset = formData.get('chunkOffset');
@@ -50,21 +80,6 @@ export default defineEventHandler(async (event) => {
 
     if (!body.success) {
         throw invalidBodyError(body.error);
-    }
-
-    const inboxId = getRouterParam(event, 'id');
-
-    const findInboxById = await prisma.inbox.findFirst({
-        where: {
-            id: inboxId,
-        },
-        include: {
-            user: true,
-        },
-    });
-
-    if (!findInboxById?.enabled || !canUploadFiles(findInboxById.user)) {
-        throw apiError(404, 'errorsContent.inboxNotFound');
     }
 
     if (
@@ -90,7 +105,7 @@ export default defineEventHandler(async (event) => {
             part: body.data.currentChunk!,
             offset: body.data.chunkOffset ?? 0,
             total: body.data.totalChunks!,
-            data: new Uint8Array(await file.arrayBuffer()),
+            data: file.data,
             mimeType,
         },
         async () => {
@@ -168,4 +183,4 @@ export default defineEventHandler(async (event) => {
 
         await sendToFolder(findInboxById.user.id, [findInboxById.folderId], 'file:create', upload);
     }
-});
+};

@@ -399,6 +399,9 @@
         "imageTooLarge": "L'image est trop volumineuse",
         "imageMissing": "Image manquante",
         "imageUnreadable": "Impossible de lire l'image",
+        "requestTooLarge": "La requête est trop volumineuse",
+        "requestAborted": "La requête a été interrompue",
+        "lengthRequired": "La requête doit indiquer sa taille",
         "restoreInProgress": "Une sauvegarde est en cours de restauration, réessayez une fois l'opération terminée"
     },
     "errorsUsers": {

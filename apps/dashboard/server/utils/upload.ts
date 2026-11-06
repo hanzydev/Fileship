@@ -26,7 +26,7 @@ interface UploadChunk {
     part: number;
     total: number;
     offset: number;
-    data: Uint8Array;
+    data: UploadData;
 }
 
 type UploadOwner = NonNullable<PartialUser> & { id: string; limits: any };
@@ -39,7 +39,7 @@ interface UploadedFile {
     metadata: any;
 }
 
-export const uploadMimeType = (file: File) =>
+export const uploadMimeType = (file: { name: string; type: string }) =>
     (file.type !== 'application/octet-stream' && file.type) ||
     mime.getType(file.name) ||
     'application/octet-stream';
@@ -133,7 +133,8 @@ const checkLayout = (session: UploadSession, chunk: UploadChunk) => {
         return;
     }
 
-    const chunkSize = isLast ? chunk.offset / (session.total - 1) : chunk.data.length;
+    const size = uploadDataSize(chunk.data);
+    const chunkSize = isLast ? chunk.offset / (session.total - 1) : size;
 
     if (!Number.isInteger(chunkSize) || chunkSize < 1) throw invalidChunk();
 
@@ -142,7 +143,7 @@ const checkLayout = (session: UploadSession, chunk: UploadChunk) => {
     if (
         chunkSize !== session.chunkSize ||
         chunk.offset !== (chunk.part - 1) * session.chunkSize ||
-        (isLast && chunk.data.length > session.chunkSize)
+        (isLast && size > session.chunkSize)
     )
         throw invalidChunk();
 };
@@ -155,12 +156,17 @@ export const receiveChunk = async (
 ) => {
     const path = join(dataDirectory, 'temp', ownerId, `${chunk.uploadId}.upload`);
     const attempt = randomUUID();
+    const size = uploadDataSize(chunk.data);
+    const isOnDisk = !(chunk.data instanceof Uint8Array);
+
+    if (isOnDisk && chunk.total !== 1) throw invalidChunk();
 
     const session = await withSessionLock(path, async () => {
         let session = await readSession(path);
 
         if (!session) {
-            const { key, isDirect } = await start();
+            const { key, isDirect: canWriteDirectly } = await start();
+            const isDirect = canWriteDirectly && !isOnDisk;
             const storageId = await getActiveStorageId();
 
             await fsp.mkdir(dirname(path), { recursive: true });
@@ -184,8 +190,7 @@ export const receiveChunk = async (
 
         checkLayout(session, chunk);
 
-        const received =
-            session.received - (session.parts[chunk.part]?.size ?? 0) + chunk.data.length;
+        const received = session.received - (session.parts[chunk.part]?.size ?? 0) + size;
 
         if (await isTooLarge(received)) {
             await fsp.writeFile(`${path}.json`, JSON.stringify(session));
@@ -196,7 +201,7 @@ export const receiveChunk = async (
         }
 
         session.received = received;
-        session.parts[chunk.part] = { size: chunk.data.length, attempt, isDone: false };
+        session.parts[chunk.part] = { size, attempt, isDone: false };
 
         await fsp.writeFile(`${path}.json`, JSON.stringify(session));
         return session;
@@ -209,15 +214,17 @@ export const receiveChunk = async (
                   session.state,
                   chunk.part,
                   chunk.offset,
-                  chunk.data,
+                  chunk.data as Uint8Array,
               )
-            : writeUploadChunk(path, chunk.data, chunk.offset, chunk.part === chunk.total)
+            : chunk.data instanceof Uint8Array
+              ? writeUploadChunk(path, chunk.data, chunk.offset, chunk.part === chunk.total)
+              : moveFileRobust(chunk.data.path, path)
     ).catch(async (error) => {
         await withSessionLock(path, async () => {
             const current = await readSession(path);
             if (current?.parts[chunk.part]?.attempt !== attempt) return;
 
-            current.received -= chunk.data.length;
+            current.received -= size;
             current.parts = Object.fromEntries(
                 Object.entries(current.parts).filter(([part]) => Number(part) !== chunk.part),
             );
@@ -261,16 +268,15 @@ export const receiveUpload = async <T extends UploadedFile>(
     owner: UploadOwner = uploader,
 ) => {
     const { removeExifData } = await getSettings();
+    const isProcessed =
+        isProcessableImage(chunk.mimeType) && (removeExifData || !!chunk.compression);
 
     const upload = await receiveChunk(
         uploader.id,
         chunk,
         async () => ({
             key: uploadKey(await getFileName()),
-            isDirect: !(
-                isProcessableImage(chunk.mimeType) &&
-                (removeExifData || !!chunk.compression)
-            ),
+            isDirect: !isProcessed,
         }),
         (size) => exceedsUsableSpace(owner, size),
     );
@@ -280,7 +286,7 @@ export const receiveUpload = async <T extends UploadedFile>(
     const { path, session, parts } = upload;
     const storage = await getStorage(session.storageId);
 
-    if (!session.isDirect) {
+    if (isProcessed) {
         const processedPath = `${path}${extname(session.key)}`;
 
         try {

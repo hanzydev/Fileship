@@ -399,6 +399,9 @@
         "imageTooLarge": "Görsel çok büyük",
         "imageMissing": "Görsel gönderilmedi",
         "imageUnreadable": "Görsel okunamadı",
+        "requestTooLarge": "İstek çok büyük",
+        "requestAborted": "İstek yarıda kesildi",
+        "lengthRequired": "İstek uzunluğunu belirtmeli",
         "restoreInProgress": "Bir yedek geri yükleniyor, bitince yeniden dene"
     },
     "errorsUsers": {

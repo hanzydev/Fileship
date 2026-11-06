@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
+import type { H3Event } from 'h3';
 import { nanoid } from 'nanoid';
 import { basename, extname } from 'pathe';
 import { z } from 'zod';
@@ -35,15 +36,27 @@ export default defineEventHandler(async (event) => {
     fileUploaderOnly(event);
 
     const currentUser = event.context.user!;
-    const formData = await readFormData(event);
+    const formData = await readUploadForm(event, {
+        field: 'file',
+        memoryLimit: getSettingsSync().fileChunkSize * 1024 * 1024,
+        spill: true,
+    });
 
-    const file = formData.get('file');
+    try {
+        return await saveUpload(event, currentUser, formData);
+    } finally {
+        await removeUploadForm(formData);
+    }
+});
+
+const saveUpload = async (
+    event: H3Event,
+    currentUser: NonNullable<H3Event['context']['user']>,
+    formData: UploadForm,
+) => {
+    const file = formData.file;
     if (!file) {
         throw apiError(400, 'errorsFiles.missingFile');
-    }
-
-    if (typeof file === 'string') {
-        throw apiError(400, 'errorsFiles.invalidFile');
     }
 
     const chunkOffset = formData.get('chunkOffset');
@@ -87,7 +100,7 @@ export default defineEventHandler(async (event) => {
             part: body.data.currentChunk!,
             offset: body.data.chunkOffset ?? 0,
             total: body.data.totalChunks!,
-            data: new Uint8Array(await file.arrayBuffer()),
+            data: file.data,
             mimeType,
             compression: body.data.compression,
         },
@@ -201,4 +214,4 @@ export default defineEventHandler(async (event) => {
             ),
         };
     }
-});
+};

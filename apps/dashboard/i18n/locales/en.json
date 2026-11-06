@@ -399,6 +399,9 @@
         "imageTooLarge": "The image is too large",
         "imageMissing": "Missing image",
         "imageUnreadable": "Could not read the image",
+        "requestTooLarge": "The request is too large",
+        "requestAborted": "The request was interrupted",
+        "lengthRequired": "The request must include its length",
         "restoreInProgress": "A backup is being restored, try again when it finishes"
     },
     "errorsUsers": {

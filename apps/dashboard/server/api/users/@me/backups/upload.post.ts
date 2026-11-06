@@ -19,15 +19,14 @@ export default defineEventHandler(async (event) => {
     userOnly(event);
 
     const currentUser = event.context.user!;
-    const formData = await readFormData(event);
+    const formData = await readUploadForm(event, {
+        field: 'backup',
+        memoryLimit: getSettingsSync().fileChunkSize * 1024 * 1024,
+    });
 
-    const backup = formData.get('backup');
+    const backup = formData.file;
     if (!backup) {
         throw apiError(400, 'errorsUsers.missingBackupFile');
-    }
-
-    if (typeof backup === 'string') {
-        throw apiError(400, 'errorsUsers.invalidBackupFile');
     }
 
     const body = validationSchema.safeParse({
@@ -49,7 +48,7 @@ export default defineEventHandler(async (event) => {
             part: body.data.currentChunk,
             offset: body.data.chunkOffset,
             total: body.data.totalChunks,
-            data: new Uint8Array(await backup.arrayBuffer()),
+            data: backup.data,
         },
         async () => {
             if (!backup.name.endsWith('.tgz')) {

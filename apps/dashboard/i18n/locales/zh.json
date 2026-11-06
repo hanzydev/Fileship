@@ -399,6 +399,9 @@
         "imageTooLarge": "图片太大",
         "imageMissing": "缺少图片",
         "imageUnreadable": "无法读取图片",
+        "requestTooLarge": "请求过大",
+        "requestAborted": "请求已中断",
+        "lengthRequired": "请求必须包含长度",
         "restoreInProgress": "正在还原备份，请在完成后重试"
     },
     "errorsUsers": {

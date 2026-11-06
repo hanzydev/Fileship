@@ -399,6 +399,9 @@
         "imageTooLarge": "画像が大きすぎます",
         "imageMissing": "画像がありません",
         "imageUnreadable": "画像を読み込めませんでした",
+        "requestTooLarge": "リクエストが大きすぎます",
+        "requestAborted": "リクエストが中断されました",
+        "lengthRequired": "リクエストにはサイズの指定が必要です",
         "restoreInProgress": "バックアップを復元しています。完了してからもう一度お試しください"
     },
     "errorsUsers": {

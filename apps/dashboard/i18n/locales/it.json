@@ -399,6 +399,9 @@
         "imageTooLarge": "L'immagine è troppo grande",
         "imageMissing": "Immagine mancante",
         "imageUnreadable": "Impossibile leggere l'immagine",
+        "requestTooLarge": "La richiesta è troppo grande",
+        "requestAborted": "La richiesta è stata interrotta",
+        "lengthRequired": "La richiesta deve indicare la sua dimensione",
         "restoreInProgress": "È in corso il ripristino di un backup, riprova al termine"
     },
     "errorsUsers": {

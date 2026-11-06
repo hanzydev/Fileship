@@ -399,6 +399,9 @@
         "imageTooLarge": "Şəkil çox böyükdür",
         "imageMissing": "Şəkil göndərilməyib",
         "imageUnreadable": "Şəkli oxumaq mümkün olmadı",
+        "requestTooLarge": "Sorğu çox böyükdür",
+        "requestAborted": "Sorğu yarımçıq kəsildi",
+        "lengthRequired": "Sorğu öz ölçüsünü göstərməlidir",
         "restoreInProgress": "Ehtiyat nüsxə bərpa edilir, bitəndən sonra yenidən cəhd et"
     },
     "errorsUsers": {
