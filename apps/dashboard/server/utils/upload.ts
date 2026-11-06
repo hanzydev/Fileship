@@ -3,7 +3,6 @@ import { promises as fsp } from 'node:fs';
 
 import mime from 'mime';
 import { basename, dirname, extname, join } from 'pathe';
-import sharp from 'sharp';
 
 import type { UploadPart, UploadState } from '~~/server/storage/types';
 
@@ -290,7 +289,7 @@ export const receiveUpload = async <T extends UploadedFile>(
         const processedPath = `${path}${extname(session.key)}`;
 
         try {
-            let image = sharp(path).rotate();
+            let image = openImage(path).rotate();
 
             if (chunk.compression) {
                 image = image.jpeg({
@@ -302,8 +301,12 @@ export const receiveUpload = async <T extends UploadedFile>(
 
             await image.toFile(processedPath);
             await fsp.rename(processedPath, path);
-        } catch {
-            //
+        } catch (error) {
+            if (isPixelLimitError(error)) {
+                await fsp.rm(processedPath, { force: true });
+                await abortUploadSession(path);
+                throw apiError(400, 'errorsSystem.imageTooLarge');
+            }
         }
 
         session.received = (await fsp.stat(path)).size;

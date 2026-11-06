@@ -30,6 +30,7 @@ const IMAGE_SIZE = 1024;
 const OCR_IMAGE_SIZE = 1600;
 const VIDEO_FRAME_TIMEOUT_MS = 60_000;
 const IMAGE_CACHE_MS = 60_000;
+const MAX_IMAGE_PIXELS = 120_000_000;
 
 const normalize = (vector: ArrayLike<number>) => {
     let magnitude = 0;
@@ -188,7 +189,11 @@ let cachedImage: {
 const loadImage = (path: string) => {
     if (cachedImage?.path !== path) {
         clearTimeout(cachedImage?.timer);
-        cachedImage = { path, image: toRawImage(sharp(path), IMAGE_SIZE), timer: undefined! };
+        cachedImage = {
+            path,
+            image: toRawImage(sharp(path, { limitInputPixels: MAX_IMAGE_PIXELS }), IMAGE_SIZE),
+            timer: undefined!,
+        };
     }
 
     const entry = cachedImage;
@@ -314,7 +319,7 @@ export const methods: AIMethods = {
     },
 
     async recognizeText(image) {
-        const { data, info } = await sharp(image)
+        const { data, info } = await sharp(image, { limitInputPixels: MAX_IMAGE_PIXELS })
             .rotate()
             .resize(OCR_IMAGE_SIZE, OCR_IMAGE_SIZE, { fit: 'inside', withoutEnlargement: true })
             .png()

@@ -1,6 +1,6 @@
 import { hash } from 'argon2';
 import { defu } from 'defu';
-import sharp, { type Metadata, type Sharp } from 'sharp';
+import type { Metadata, Sharp } from 'sharp';
 import { z } from 'zod';
 
 import { update } from '@orama/orama';
@@ -127,7 +127,7 @@ export default defineEventHandler(async (event) => {
         let metadata: Metadata;
 
         try {
-            image = sharp(buffer);
+            image = openImage(buffer);
             metadata = await image.metadata();
         } catch {
             throw apiError(400, 'errorsUsers.invalidAvatarImage');

@@ -65,7 +65,7 @@ const createVideoThumbnail = (filePath: string, outputPath: string) =>
     });
 
 const createImageThumbnail = (filePath: string, outputPath: string) =>
-    sharp(filePath)
+    openImage(filePath)
         .rotate()
         .resize(640, 640, { fit: 'inside', withoutEnlargement: true })
         .jpeg({ quality: 80, mozjpeg: true })
@@ -95,7 +95,7 @@ export const createThumbnail = async (file: { id: string; mimeType: string }, fi
 };
 
 const readImageMetadata = async (filePath: string): Promise<IMediaMetadata> => {
-    const metadata = await sharp(filePath).metadata();
+    const metadata = await openImage(filePath).metadata();
     const isRotated = metadata.orientation! >= 5;
     const height = metadata.pageHeight ?? metadata.height;
 
