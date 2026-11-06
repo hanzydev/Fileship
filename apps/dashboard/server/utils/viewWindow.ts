@@ -1,20 +1,26 @@
+import { createHash } from 'node:crypto';
+
 const VIEW_WINDOW = 10 * 60 * 1_000;
-const PRUNE_SIZE = 20_000;
+const MAX_ENTRIES = 50_000;
 
 const lastViews = new Map<string, number>();
 
 export const claimView = (key: string) => {
+    const id = createHash('sha1').update(key).digest('base64');
     const now = Date.now();
-    const lastView = lastViews.get(key) ?? 0;
+    const lastView = lastViews.get(id) ?? 0;
 
     if (now - lastView <= VIEW_WINDOW) return false;
 
-    if (lastViews.size >= PRUNE_SIZE) {
+    lastViews.delete(id);
+
+    if (lastViews.size >= MAX_ENTRIES) {
         for (const [entry, at] of lastViews) {
-            if (now - at > VIEW_WINDOW) lastViews.delete(entry);
+            if (lastViews.size < MAX_ENTRIES && now - at <= VIEW_WINDOW) break;
+            lastViews.delete(entry);
         }
     }
 
-    lastViews.set(key, now);
+    lastViews.set(id, now);
     return true;
 };

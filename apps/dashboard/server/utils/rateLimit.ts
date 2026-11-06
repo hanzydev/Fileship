@@ -1,30 +1,53 @@
 import type { H3Event } from 'h3';
 
-export const rateLimit = async (key: string, limit: number, windowMs: number) => {
-    const storage = useStorage('cache');
-    const now = Date.now();
-    const entry = await storage.getItem<{ count: number; resetAt: number }>(`rateLimit:${key}`);
-    const current = entry && entry.resetAt > now ? entry : { count: 0, resetAt: now + windowMs };
+const MAX_BUCKETS = 100_000;
+const SWEEP_INTERVAL = 60_000;
 
-    if (current.count >= limit) {
+const buckets = new Map<string, { count: number; resetAt: number }>();
+let lastSweep = 0;
+
+const sweep = (now: number) => {
+    if (now - lastSweep < SWEEP_INTERVAL && buckets.size < MAX_BUCKETS) return;
+    lastSweep = now;
+
+    for (const [key, bucket] of buckets) {
+        if (bucket.resetAt <= now || buckets.size >= MAX_BUCKETS) buckets.delete(key);
+    }
+};
+
+const bucketOf = (key: string, windowMs: number) => {
+    const now = Date.now();
+    sweep(now);
+
+    let bucket = buckets.get(key);
+
+    if (!bucket || bucket.resetAt <= now) {
+        bucket = { count: 0, resetAt: now + windowMs };
+        buckets.delete(key);
+        buckets.set(key, bucket);
+    }
+
+    return bucket;
+};
+
+export const rateLimit = async (key: string, limit: number, windowMs: number) => {
+    const bucket = bucketOf(key, windowMs);
+
+    if (bucket.count >= limit) {
         throw apiError(429, 'errorsCommon.tooManyAttempts');
     }
 
-    await storage.setItem(`rateLimit:${key}`, { ...current, count: current.count + 1 });
+    bucket.count++;
 };
 
 export const limitPasswordAttempts = async (event: H3Event, resourceId: string, valid: boolean) => {
-    const storage = useStorage('cache');
-    const key = `rateLimit:password:${getClientIp(event)}:${resourceId}`;
-    const now = Date.now();
-    const entry = await storage.getItem<{ count: number; resetAt: number }>(key);
-    const current = entry && entry.resetAt > now ? entry : { count: 0, resetAt: now + 10 * 60_000 };
+    const bucket = bucketOf(`password:${getClientIp(event)}:${resourceId}`, 10 * 60_000);
 
-    if (current.count >= 20) {
+    if (bucket.count >= 20) {
         throw apiError(429, 'errorsCommon.tooManyAttempts');
     }
 
-    if (!valid) await storage.setItem(key, { ...current, count: current.count + 1 });
+    if (!valid) bucket.count++;
 
     return valid;
 };
