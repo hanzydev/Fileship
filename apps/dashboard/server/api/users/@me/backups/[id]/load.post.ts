@@ -5,7 +5,7 @@ import { join } from 'pathe';
 import chain from 'stream-chain';
 import { parser } from 'stream-json';
 import { streamArray } from 'stream-json/streamers/stream-array.js';
-import { extract } from 'tar';
+import { extract, list } from 'tar';
 import { z } from 'zod';
 
 import { insert, removeMultiple } from '@orama/orama';
@@ -136,16 +136,41 @@ export default defineEventHandler(async (event) => {
 
     const tempPath = join(dataDirectory, 'temp', `restore-${backup.id}`);
 
+    const checkBackupEntries = async (backupPath: string) => {
+        const { avatarMaxSize } = await getSettings();
+        const userJsonLimit = Math.ceil((avatarMaxSize * 1024 * 1024 * 4) / 3) + 1024 * 1024;
+        const usableSpace = usableSpaceOf(currentUser);
+        let uploadsSize = 0;
+        let isTooLarge = false;
+
+        await list({
+            file: backupPath,
+            onReadEntry: (entry) => {
+                const path = entry.path.replace(/^\.\//, '');
+
+                if (path.startsWith('uploads/')) uploadsSize += entry.size;
+                if (path === 'database/user.json' && entry.size > userJsonLimit) isTooLarge = true;
+            },
+        });
+
+        if (isTooLarge) throw new Error('Backup has an invalid user file');
+
+        if (usableSpace !== null && uploadsSize > usableSpace)
+            throw new Error('Backup exceeds the storage limit');
+    };
+
     const restore = async () => {
         await fsp.mkdir(tempPath, { recursive: true });
 
-        await withLocalFile(backup.storageId, backupKey(backup), (backupPath) =>
-            extract({
+        await withLocalFile(backup.storageId, backupKey(backup), async (backupPath) => {
+            await checkBackupEntries(backupPath);
+
+            await extract({
                 file: backupPath,
                 cwd: tempPath,
                 filter: (_, entry) => 'type' in entry && ['File', 'Directory'].includes(entry.type),
-            }),
-        );
+            });
+        });
 
         const backupUploadsPath = join(tempPath, 'uploads');
         const backupUploads: { name: string; size: number }[] = [];

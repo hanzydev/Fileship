@@ -127,12 +127,10 @@ export const createBackup = async (owner: BackupOwner, automatic = false) => {
             ),
         );
 
-        await Promise.allSettled(
-            files.map(async (file) =>
-                (await getStorage(file.storageId)).download(
-                    uploadKey(file.fileName),
-                    join(backupUploadsPath, file.fileName),
-                ),
+        await settleWithLimit(files, STORAGE_DOWNLOAD_CONCURRENCY, async (file) =>
+            (await getStorage(file.storageId)).download(
+                uploadKey(file.fileName),
+                join(backupUploadsPath, file.fileName),
             ),
         );
 

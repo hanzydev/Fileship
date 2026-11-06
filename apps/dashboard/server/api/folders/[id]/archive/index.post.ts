@@ -102,16 +102,14 @@ export default defineEventHandler(async (event) => {
     await mkdir(tempPath);
     await mkdir(archiveUploadsPath);
 
-    const downloads = await Promise.allSettled(
-        files.map(async (file) => {
-            await mkdir(join(archiveUploadsPath, dirname(file.path)), { recursive: true });
-            await (
-                await getStorage(file.storageId)
-            ).download(uploadKey(file.fileName), join(archiveUploadsPath, file.path));
+    const downloads = await settleWithLimit(files, STORAGE_DOWNLOAD_CONCURRENCY, async (file) => {
+        await mkdir(join(archiveUploadsPath, dirname(file.path)), { recursive: true });
+        await (
+            await getStorage(file.storageId)
+        ).download(uploadKey(file.fileName), join(archiveUploadsPath, file.path));
 
-            return file.path;
-        }),
-    );
+        return file.path;
+    });
 
     const userUploads = downloads
         .filter((download) => download.status === 'fulfilled')
