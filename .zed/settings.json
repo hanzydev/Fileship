@@ -1,0 +1,19 @@
+{
+    "lsp": {
+        "tailwindcss-language-server": {
+            "settings": {
+                "classFunctions": ["cn", "cva"],
+                "experimental": {
+                    "configFile": {
+                        "apps/dashboard/app/styles/tailwind.css": "apps/dashboard/**",
+                        "apps/telemetry/app/styles/tailwind.css": "apps/telemetry/**",
+                        "apps/desktop/app/styles/tailwind.css": "apps/desktop/**",
+                        "apps/extension/assets/tailwind.css": "apps/extension/**",
+                        "apps/landing/app/styles/tailwind.css": "apps/landing/**",
+                        "packages/ui/app/styles/tailwind.css": "packages/ui/**",
+                    },
+                },
+            },
+        },
+    },
+}
