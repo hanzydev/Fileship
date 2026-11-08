@@ -1,0 +1,46 @@
+name: landing-deploy
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - 'apps/landing/**'
+            - 'packages/ui/**'
+            - 'docs/**'
+            - 'CHANGELOG.md'
+            - 'pnpm-lock.yaml'
+            - '.github/workflows/landing-deploy.yml'
+    workflow_dispatch:
+permissions:
+    contents: read
+concurrency:
+    group: landing-deploy
+    cancel-in-progress: true
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v6
+              with:
+                  fetch-depth: 0
+            - uses: pnpm/action-setup@v6
+
+            - name: Use Node.js 24
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile --filter landing...
+
+            - name: Generate
+              run: pnpm --filter landing generate
+
+            - name: Deploy to Cloudflare Pages
+              uses: cloudflare/wrangler-action@v3
+              with:
+                  apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                  command: pages deploy apps/landing/.output/public --project-name=fileship-landing --branch=main
