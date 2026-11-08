@@ -29,7 +29,7 @@ For larger changes, please open an issue first so the approach can be discussed 
     ```sh
     docker run -d --name fileship-postgres -p 5432:5432 \
         -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=fileship \
-        postgres:16
+        postgres:18
     ```
 
 3. Create `apps/dashboard/.env` from [`apps/dashboard/.env.example`](apps/dashboard/.env.example) and set `DATABASE_URL`:

@@ -22,6 +22,8 @@ jobs:
                       dockerfile: apps/updater-agent/Dockerfile
                     - image_name: fileship-telemetry
                       dockerfile: apps/telemetry/Dockerfile
+                    - image_name: fileship-postgres
+                      dockerfile: docker/postgres/Dockerfile
 
         steps:
             - name: Checkout
