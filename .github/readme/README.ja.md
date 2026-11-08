@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/hanzydev/Fileship">
-    <img src="banner.png" alt="Fileship" width="520" height="200">
+    <img src="../../banner.png" alt="Fileship" width="520" height="200">
   </a>
 
   <p align="center">
@@ -13,30 +13,30 @@
     ·
     <a href="https://github.com/hanzydev/Fileship/issues/new?template=feature-request.yml">機能をリクエスト</a>
     ·
-    <a href="SECURITY.md">セキュリティポリシー</a>
+    <a href="../../SECURITY.md">セキュリティポリシー</a>
   </p>
 
   <p align="center">
-    <a href="README.md">English</a> · <a href="README.tr.md">Türkçe</a> · <a href="README.de.md">Deutsch</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.it.md">Italiano</a> · <a href="README.pt-BR.md">Português (Brasil)</a> · <a href="README.ru.md">Русский</a> · <a href="README.az.md">Azərbaycanca</a> · <b>日本語</b> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a>
+    <a href="../../README.md">English</a> · <a href="README.tr.md">Türkçe</a> · <a href="README.de.md">Deutsch</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.it.md">Italiano</a> · <a href="README.pt-BR.md">Português (Brasil)</a> · <a href="README.ru.md">Русский</a> · <a href="README.az.md">Azərbaycanca</a> · <b>日本語</b> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a>
   </p>
 </div>
 
 <p align="center">
-  <img src="docs/images/demo.gif" alt="画像を Fileship にドロップするとアップロードされてリンクがコピーされ、スマート検索が文章から写真を見つけて AI による説明文を表示する様子" width="100%">
+  <img src="../../docs/images/demo.gif" alt="画像を Fileship にドロップするとアップロードされてリンクがコピーされ、スマート検索が文章から写真を見つけて AI による説明文を表示する様子" width="100%">
 </p>
 
 ## 📦 機能
 
 - ファイル、他のユーザーと共有できる階層フォルダー、Markdown ノート、短縮リンク、受信ボックス。削除したものはゴミ箱に入ります
 - ダウンロードや復元ができるアカウントのバックアップ。手動でもスケジュールでも作成できます
-- パスワード、有効期限、閲覧数の上限を設定できる公開共有と、Discord などのアプリで表示される[リッチなリンクのプレビュー](docs/link-previews.md)
-- 自分のサーバーで動く [AI](docs/ai.md)：50 以上の言語に対応したスマート検索、説明文、OCR、センシティブなコンテンツの検出。すべて任意です
+- パスワード、有効期限、閲覧数の上限を設定できる公開共有と、Discord などのアプリで表示される[リッチなリンクのプレビュー](../../docs/link-previews.md)
+- 自分のサーバーで動く [AI](../../docs/ai.md)：50 以上の言語に対応したスマート検索、説明文、OCR、センシティブなコンテンツの検出。すべて任意です
 - アップロード先はローカルディスク、S3 互換サービス、SFTP、FTP から選べます
-- 権限と容量制限を設定できる複数ユーザー、パスキー、2 段階認証、OpenID Connect による[シングルサインオン](docs/configuration.md#single-sign-on)
+- 権限と容量制限を設定できる複数ユーザー、パスキー、2 段階認証、OpenID Connect による[シングルサインオン](../../docs/configuration.md#single-sign-on)
 - ダウンタイムなしのアップデート。ワンクリックでもスケジュールでも実行できます
-- ShareX、macOS、Linux 向けのアップロード連携、[Windows アプリ](docs/desktop.md)、Android アプリから共有できる[スマートフォン用のインストール可能なアプリ](docs/mobile.md)
-- ファイル、画像、スクリーンショットのアップロードとリンクの短縮ができる[ブラウザー拡張機能](docs/browser-extension.md)。Chrome と Edge 向けは [Chrome ウェブストア](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh)で公開しており、Firefox 向けは [Firefox アドオン](https://addons.mozilla.org/firefox/addon/fileship/)で公開しています
-- Discord、Slack、独自のサービスに送れる [Webhook](docs/webhooks.md)
+- ShareX、macOS、Linux 向けのアップロード連携、[Windows アプリ](../../docs/desktop.md)、Android アプリから共有できる[スマートフォン用のインストール可能なアプリ](../../docs/mobile.md)
+- ファイル、画像、スクリーンショットのアップロードとリンクの短縮ができる[ブラウザー拡張機能](../../docs/browser-extension.md)。Chrome と Edge 向けは [Chrome ウェブストア](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh)で公開しており、Firefox 向けは [Firefox アドオン](https://addons.mozilla.org/firefox/addon/fileship/)で公開しています
+- Discord、Slack、独自のサービスに送れる [Webhook](../../docs/webhooks.md)
 - 英語、トルコ語、ドイツ語、スペイン語、フランス語、イタリア語、ブラジルポルトガル語、ロシア語、アゼルバイジャン語、日本語、韓国語、簡体字中国語
 
 ## 🆚 他のツールとの比較
@@ -66,20 +66,20 @@
 ## 📸 スクリーンショット
 
 <p align="center">
-  <img src="apps/dashboard/public/previews/fileship-desktop.png" alt="デスクトップで表示した Fileship のダッシュボード" width="78%">
+  <img src="../../apps/dashboard/public/previews/fileship-desktop.png" alt="デスクトップで表示した Fileship のダッシュボード" width="78%">
   &nbsp;
-  <img src="apps/dashboard/public/previews/fileship-mobile.png" alt="スマートフォンで表示した Fileship のファイル一覧" width="18%">
+  <img src="../../apps/dashboard/public/previews/fileship-mobile.png" alt="スマートフォンで表示した Fileship のファイル一覧" width="18%">
 </p>
 
 ## 🖥️ Fileship for Windows
 
 通知領域から ShareX のようにキャプチャ、録画、Fileship へのアップロードができ、Fileship Harbor を使えばエクスプローラーでファイルを閲覧できます。64 ビット版 Windows 11 バージョン 24H2 以降と、Fileship 6.0 のサーバーが必要です。
 
-**[最新版をダウンロード](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [機能とセットアップ](docs/desktop.md)
+**[最新版をダウンロード](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [機能とセットアップ](../../docs/desktop.md)
 
 ## 🚀 はじめに
 
-[Docker](https://www.docker.com/) と [Docker Compose](https://docs.docker.com/compose/)、2 コアの CPU、2 GB の RAM が必要です（AI を使う場合は 4 GB 以上。[動作要件](docs/installation.md#requirements)を参照してください）。
+[Docker](https://www.docker.com/) と [Docker Compose](https://docs.docker.com/compose/)、2 コアの CPU、2 GB の RAM が必要です（AI を使う場合は 4 GB 以上。[動作要件](../../docs/installation.md#requirements)を参照してください）。
 
 ```sh
 git clone https://github.com/hanzydev/Fileship.git
@@ -93,19 +93,19 @@ docker compose up -d
 > [!IMPORTANT]
 > 初回ログイン後、すぐにパスワードを変更してください（**設定 → セキュリティ**）。
 
-5.x からアップグレードする場合は、[6.0 へのアップグレード](docs/upgrading.md)の手順に従ってください。Zipline、XBackBone、Chibisafe から移る場合は、[アカウント、ファイル、リンクをそのまま移行できます](docs/migrating.md)。
+5.x からアップグレードする場合は、[6.0 へのアップグレード](../../docs/upgrading.md)の手順に従ってください。Zipline、XBackBone、Chibisafe から移る場合は、[アカウント、ファイル、リンクをそのまま移行できます](../../docs/migrating.md)。
 
 ## 📚 ドキュメント
 
-- [インストール](docs/installation.md)：動作要件、対応ブラウザー、独自ドメインでの公開
-- [設定](docs/configuration.md)：サーバー設定、ストレージ、ゴミ箱、環境変数
-- [アップデート](docs/updating.md)：アップデートの仕組みとスケジュールの設定
-- [他のアプリからの移行](docs/migrating.md)：Zipline、XBackBone、Chibisafe のサーバーのインポート
-- [AI 機能](docs/ai.md)：プリセット、モデル、スマート検索、センシティブなコンテンツ
-- [Fileship for Windows](docs/desktop.md)
-- [スマートフォンで使う Fileship](docs/mobile.md)：アプリのインストールと Android からの共有
-- [Webhook](docs/webhooks.md)：イベント、形式、配信、署名の検証
-- [テレメトリー](docs/telemetry.md)：収集されるデータとオフにする方法
+- [インストール](../../docs/installation.md)：動作要件、対応ブラウザー、独自ドメインでの公開
+- [設定](../../docs/configuration.md)：サーバー設定、ストレージ、ゴミ箱、環境変数
+- [アップデート](../../docs/updating.md)：アップデートの仕組みとスケジュールの設定
+- [他のアプリからの移行](../../docs/migrating.md)：Zipline、XBackBone、Chibisafe のサーバーのインポート
+- [AI 機能](../../docs/ai.md)：プリセット、モデル、スマート検索、センシティブなコンテンツ
+- [Fileship for Windows](../../docs/desktop.md)
+- [スマートフォンで使う Fileship](../../docs/mobile.md)：アプリのインストールと Android からの共有
+- [Webhook](../../docs/webhooks.md)：イベント、形式、配信、署名の検証
+- [テレメトリー](../../docs/telemetry.md)：収集されるデータとオフにする方法
 
 ## 🧰 使用技術
 
@@ -123,8 +123,8 @@ docker compose up -d
 
 ## ❤️ コントリビューション
 
-コントリビューションを歓迎します。まず[コントリビューションガイドライン](CONTRIBUTING.md)をお読みください。コードベースのアーキテクチャと規約は [AGENTS.md](AGENTS.md) にまとめています。
+コントリビューションを歓迎します。まず[コントリビューションガイドライン](../../CONTRIBUTING.md)をお読みください。コードベースのアーキテクチャと規約は [AGENTS.md](../../AGENTS.md) にまとめています。
 
 ## ⚖️ ライセンス
 
-[AGPL-3.0](LICENSE)（帰属表示の条件付き）。Fileship for Windows、ブラウザー拡張機能、共有パッケージは MIT ライセンスです。詳しくは [LICENSING.md](LICENSING.md) をご覧ください。
+[AGPL-3.0](../../LICENSE)（帰属表示の条件付き）。Fileship for Windows、ブラウザー拡張機能、共有パッケージは MIT ライセンスです。詳しくは [LICENSING.md](../../LICENSING.md) をご覧ください。

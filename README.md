@@ -17,7 +17,7 @@
   </p>
 
   <p align="center">
-    <b>English</b> · <a href="README.tr.md">Türkçe</a> · <a href="README.de.md">Deutsch</a> · <a href="README.es.md">Español</a> · <a href="README.fr.md">Français</a> · <a href="README.it.md">Italiano</a> · <a href="README.pt-BR.md">Português (Brasil)</a> · <a href="README.ru.md">Русский</a> · <a href="README.az.md">Azərbaycanca</a> · <a href="README.ja.md">日本語</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a>
+    <b>English</b> · <a href=".github/readme/README.tr.md">Türkçe</a> · <a href=".github/readme/README.de.md">Deutsch</a> · <a href=".github/readme/README.es.md">Español</a> · <a href=".github/readme/README.fr.md">Français</a> · <a href=".github/readme/README.it.md">Italiano</a> · <a href=".github/readme/README.pt-BR.md">Português (Brasil)</a> · <a href=".github/readme/README.ru.md">Русский</a> · <a href=".github/readme/README.az.md">Azərbaycanca</a> · <a href=".github/readme/README.ja.md">日本語</a> · <a href=".github/readme/README.ko.md">한국어</a> · <a href=".github/readme/README.zh-CN.md">简体中文</a>
   </p>
 </div>
 

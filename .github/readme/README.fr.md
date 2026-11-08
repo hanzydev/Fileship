@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/hanzydev/Fileship">
-    <img src="banner.png" alt="Fileship" width="520" height="200">
+    <img src="../../banner.png" alt="Fileship" width="520" height="200">
   </a>
 
   <p align="center">
@@ -13,30 +13,30 @@
     ·
     <a href="https://github.com/hanzydev/Fileship/issues/new?template=feature-request.yml">Proposer une fonctionnalité</a>
     ·
-    <a href="SECURITY.md">Politique de sécurité</a>
+    <a href="../../SECURITY.md">Politique de sécurité</a>
   </p>
 
   <p align="center">
-    <a href="README.md">English</a> · <a href="README.tr.md">Türkçe</a> · <a href="README.de.md">Deutsch</a> · <a href="README.es.md">Español</a> · <b>Français</b> · <a href="README.it.md">Italiano</a> · <a href="README.pt-BR.md">Português (Brasil)</a> · <a href="README.ru.md">Русский</a> · <a href="README.az.md">Azərbaycanca</a> · <a href="README.ja.md">日本語</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a>
+    <a href="../../README.md">English</a> · <a href="README.tr.md">Türkçe</a> · <a href="README.de.md">Deutsch</a> · <a href="README.es.md">Español</a> · <b>Français</b> · <a href="README.it.md">Italiano</a> · <a href="README.pt-BR.md">Português (Brasil)</a> · <a href="README.ru.md">Русский</a> · <a href="README.az.md">Azərbaycanca</a> · <a href="README.ja.md">日本語</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a>
   </p>
 </div>
 
 <p align="center">
-  <img src="docs/images/demo.gif" alt="Une image déposée sur Fileship est importée et son lien copié, puis la recherche intelligente retrouve une photo à partir d'une description et affiche la description générée par l'IA" width="100%">
+  <img src="../../docs/images/demo.gif" alt="Une image déposée sur Fileship est importée et son lien copié, puis la recherche intelligente retrouve une photo à partir d'une description et affiche la description générée par l'IA" width="100%">
 </p>
 
 ## 📦 Fonctionnalités
 
 - Fichiers, dossiers imbriqués à partager avec d'autres utilisateurs, notes Markdown, liens courts et boîtes de dépôt, avec une corbeille pour tout ce que vous supprimez
 - Sauvegardes de compte à télécharger et à restaurer, créées à la main ou planifiées
-- Partage public avec mot de passe, date d'expiration, limite de vues et [aperçus de liens soignés](docs/link-previews.md) pour Discord et d'autres applications
-- Une [IA](docs/ai.md) qui tourne sur votre serveur : recherche intelligente dans plus de 50 langues, descriptions, OCR et détection de contenu sensible, le tout facultatif
+- Partage public avec mot de passe, date d'expiration, limite de vues et [aperçus de liens soignés](../../docs/link-previews.md) pour Discord et d'autres applications
+- Une [IA](../../docs/ai.md) qui tourne sur votre serveur : recherche intelligente dans plus de 50 langues, descriptions, OCR et détection de contenu sensible, le tout facultatif
 - Stockage des fichiers sur le disque local, tout service compatible S3, SFTP ou FTP
-- Plusieurs utilisateurs avec autorisations et limites de stockage, clés d'accès, authentification à deux facteurs et [authentification unique](docs/configuration.md#single-sign-on) avec OpenID Connect
+- Plusieurs utilisateurs avec autorisations et limites de stockage, clés d'accès, authentification à deux facteurs et [authentification unique](../../docs/configuration.md#single-sign-on) avec OpenID Connect
 - Mises à jour sans interruption de service, en un clic ou planifiées
-- Intégrations d'importation pour ShareX, macOS et Linux, l'[application Windows](docs/desktop.md) et une [application installable sur téléphone](docs/mobile.md) vers laquelle les applications Android peuvent partager
-- Une [extension de navigateur](docs/browser-extension.md) qui importe des fichiers, des images et des captures d'écran et raccourcit les liens, [sur le Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh) pour Chrome et Edge, et [sur les modules Firefox](https://addons.mozilla.org/firefox/addon/fileship/) pour Firefox
-- Des [webhooks](docs/webhooks.md) pour Discord, Slack et vos propres services
+- Intégrations d'importation pour ShareX, macOS et Linux, l'[application Windows](../../docs/desktop.md) et une [application installable sur téléphone](../../docs/mobile.md) vers laquelle les applications Android peuvent partager
+- Une [extension de navigateur](../../docs/browser-extension.md) qui importe des fichiers, des images et des captures d'écran et raccourcit les liens, [sur le Chrome Web Store](https://chromewebstore.google.com/detail/fileship/lbnlfnmlaipoflalhikladilalkoagnh) pour Chrome et Edge, et [sur les modules Firefox](https://addons.mozilla.org/firefox/addon/fileship/) pour Firefox
+- Des [webhooks](../../docs/webhooks.md) pour Discord, Slack et vos propres services
 - Anglais, turc, allemand, espagnol, français, italien, portugais du Brésil, russe, azerbaïdjanais, japonais, coréen et chinois simplifié
 
 ## 🆚 Fileship face aux alternatives
@@ -66,20 +66,20 @@ Comparaison avec Zipline 4.8, XBackBone 3.8 et Chibisafe 6.7 en octobre 2026. Un
 ## 📸 Captures d'écran
 
 <p align="center">
-  <img src="apps/dashboard/public/previews/fileship-desktop.png" alt="Tableau de bord Fileship sur ordinateur" width="78%">
+  <img src="../../apps/dashboard/public/previews/fileship-desktop.png" alt="Tableau de bord Fileship sur ordinateur" width="78%">
   &nbsp;
-  <img src="apps/dashboard/public/previews/fileship-mobile.png" alt="Fichiers Fileship sur mobile" width="18%">
+  <img src="../../apps/dashboard/public/previews/fileship-mobile.png" alt="Fichiers Fileship sur mobile" width="18%">
 </p>
 
 ## 🖥️ Fileship pour Windows
 
 Capturez, enregistrez et importez vers votre Fileship depuis la zone de notification, à la manière de ShareX, et parcourez vos fichiers dans l'Explorateur de fichiers avec Fileship Harbor. Nécessite Windows 11 64 bits version 24H2 ou ultérieure et un serveur Fileship 6.0.
 
-**[Télécharger la dernière version](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Fonctionnalités et installation](docs/desktop.md)
+**[Télécharger la dernière version](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Fonctionnalités et installation](../../docs/desktop.md)
 
 ## 🚀 Démarrage
 
-Il vous faut [Docker](https://www.docker.com/) avec [Docker Compose](https://docs.docker.com/compose/), 2 cœurs de processeur et 2 Go de RAM (4 Go ou plus avec l'IA, voir la [configuration requise](docs/installation.md#requirements)).
+Il vous faut [Docker](https://www.docker.com/) avec [Docker Compose](https://docs.docker.com/compose/), 2 cœurs de processeur et 2 Go de RAM (4 Go ou plus avec l'IA, voir la [configuration requise](../../docs/installation.md#requirements)).
 
 ```sh
 git clone https://github.com/hanzydev/Fileship.git
@@ -93,19 +93,19 @@ Fileship est maintenant accessible sur `http://localhost:3000`. Connectez-vous a
 > [!IMPORTANT]
 > Changez le mot de passe dès votre première connexion (**Paramètres → Sécurité**).
 
-Vous utilisez la version 5.x ? Suivez [Passer à la 6.0](docs/upgrading.md). Vous venez de Zipline, XBackBone ou Chibisafe ? [Importez vos comptes, fichiers et liens](docs/migrating.md).
+Vous utilisez la version 5.x ? Suivez [Passer à la 6.0](../../docs/upgrading.md). Vous venez de Zipline, XBackBone ou Chibisafe ? [Importez vos comptes, fichiers et liens](../../docs/migrating.md).
 
 ## 📚 Documentation
 
-- [Installation](docs/installation.md) : prérequis, navigateurs pris en charge et Fileship sur votre propre domaine
-- [Configuration](docs/configuration.md) : paramètres du serveur, stockage, corbeille et variables d'environnement
-- [Mises à jour](docs/updating.md) : fonctionnement des mises à jour et planification
-- [Migrer depuis une autre application](docs/migrating.md) : importer un serveur Zipline, XBackBone ou Chibisafe
-- [Fonctionnalités d'IA](docs/ai.md) : préréglages, modèles, recherche intelligente et contenu sensible
-- [Fileship pour Windows](docs/desktop.md)
-- [Fileship sur votre téléphone](docs/mobile.md) : installer l'application et partager depuis Android
-- [Webhooks](docs/webhooks.md) : événements, formats, envoi et vérification de la signature
-- [Télémétrie](docs/telemetry.md) : ce qui est collecté et comment la désactiver
+- [Installation](../../docs/installation.md) : prérequis, navigateurs pris en charge et Fileship sur votre propre domaine
+- [Configuration](../../docs/configuration.md) : paramètres du serveur, stockage, corbeille et variables d'environnement
+- [Mises à jour](../../docs/updating.md) : fonctionnement des mises à jour et planification
+- [Migrer depuis une autre application](../../docs/migrating.md) : importer un serveur Zipline, XBackBone ou Chibisafe
+- [Fonctionnalités d'IA](../../docs/ai.md) : préréglages, modèles, recherche intelligente et contenu sensible
+- [Fileship pour Windows](../../docs/desktop.md)
+- [Fileship sur votre téléphone](../../docs/mobile.md) : installer l'application et partager depuis Android
+- [Webhooks](../../docs/webhooks.md) : événements, formats, envoi et vérification de la signature
+- [Télémétrie](../../docs/telemetry.md) : ce qui est collecté et comment la désactiver
 
 ## 🧰 Conçu avec
 
@@ -123,8 +123,8 @@ Vous utilisez la version 5.x ? Suivez [Passer à la 6.0](docs/upgrading.md). Vo
 
 ## ❤️ Contribuer
 
-Les contributions sont les bienvenues. Lisez d'abord le [guide de contribution](CONTRIBUTING.md). [AGENTS.md](AGENTS.md) décrit l'architecture et les conventions du code.
+Les contributions sont les bienvenues. Lisez d'abord le [guide de contribution](../../CONTRIBUTING.md). [AGENTS.md](../../AGENTS.md) décrit l'architecture et les conventions du code.
 
 ## ⚖️ Licence
 
-[AGPL-3.0](LICENSE), avec une clause d'attribution. Fileship pour Windows, l'extension de navigateur et les paquets partagés sont sous licence MIT. Détails dans [LICENSING.md](LICENSING.md).
+[AGPL-3.0](../../LICENSE), avec une clause d'attribution. Fileship pour Windows, l'extension de navigateur et les paquets partagés sont sous licence MIT. Détails dans [LICENSING.md](../../LICENSING.md).
