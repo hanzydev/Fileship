@@ -35,6 +35,14 @@ export default defineNuxtConfig({
                 global: true,
             },
         ],
+        providers: {
+            adobe: false,
+            bunny: false,
+            fontshare: false,
+            fontsource: false,
+            googleicons: false,
+            npm: false,
+        },
     },
 
     colorMode: {
