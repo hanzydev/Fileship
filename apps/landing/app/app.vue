@@ -25,6 +25,12 @@ useHead({
             : 'Fileship',
 });
 
+useHead({
+    meta: [
+        { key: 'theme-color-accent', name: 'theme-color', content: '#4f39f6', tagPriority: 'low' },
+    ],
+});
+
 useSeoMeta({
     ogType: 'website',
     twitterCard: 'summary_large_image',
