@@ -17,7 +17,9 @@
         "somethingWentWrong": "Etwas ist schiefgelaufen",
         "noData": "Noch keine Daten",
         "loadFailed": "Daten konnten nicht geladen werden",
-        "goHome": "Zur Startseite"
+        "goHome": "Zur Startseite",
+        "copy": "Kopieren",
+        "copied": "Kopiert"
     },
     "error": {
         "401": "Nicht angemeldet",

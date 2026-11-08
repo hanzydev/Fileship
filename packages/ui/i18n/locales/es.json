@@ -17,7 +17,9 @@
         "somethingWentWrong": "Algo salió mal",
         "noData": "Aún no hay datos",
         "loadFailed": "No se pudieron cargar los datos",
-        "goHome": "Ir al inicio"
+        "goHome": "Ir al inicio",
+        "copy": "Copiar",
+        "copied": "Copiado"
     },
     "error": {
         "401": "No autorizado",

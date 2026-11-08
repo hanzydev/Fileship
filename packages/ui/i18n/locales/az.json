@@ -17,7 +17,9 @@
         "somethingWentWrong": "Xəta baş verdi",
         "noData": "Hələ məlumat yoxdur",
         "loadFailed": "Məlumatlar yüklənmədi",
-        "goHome": "Ana səhifəyə qayıt"
+        "goHome": "Ana səhifəyə qayıt",
+        "copy": "Kopyala",
+        "copied": "Kopyalandı"
     },
     "error": {
         "401": "Daxil olmamısan",

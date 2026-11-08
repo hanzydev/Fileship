@@ -17,7 +17,9 @@
         "somethingWentWrong": "問題が発生しました",
         "noData": "データはまだありません",
         "loadFailed": "データを読み込めませんでした",
-        "goHome": "ホームに戻る"
+        "goHome": "ホームに戻る",
+        "copy": "コピー",
+        "copied": "コピーしました"
     },
     "error": {
         "401": "ログインが必要です",

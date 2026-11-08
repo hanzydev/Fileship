@@ -17,7 +17,9 @@
         "somethingWentWrong": "Un problème est survenu",
         "noData": "Aucune donnée pour le moment",
         "loadFailed": "Impossible de charger les données",
-        "goHome": "Retour à l'accueil"
+        "goHome": "Retour à l'accueil",
+        "copy": "Copier",
+        "copied": "Copié"
     },
     "error": {
         "401": "Non autorisé",

@@ -6,6 +6,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@utility scrollbar-thin {
+    scrollbar-width: thin;
+}
+
 @theme inline {
     --font-sans: 'Geist', sans-serif;
     --font-heading: var(--font-sans);

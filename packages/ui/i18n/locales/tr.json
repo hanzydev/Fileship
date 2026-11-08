@@ -17,7 +17,9 @@
         "somethingWentWrong": "Bir sorun oluştu",
         "noData": "Henüz veri yok",
         "loadFailed": "Veriler yüklenemedi",
-        "goHome": "Ana sayfaya dön"
+        "goHome": "Ana sayfaya dön",
+        "copy": "Kopyala",
+        "copied": "Kopyalandı"
     },
     "error": {
         "401": "Giriş yapılmamış",

@@ -17,7 +17,9 @@
         "somethingWentWrong": "Si è verificato un problema",
         "noData": "Ancora nessun dato",
         "loadFailed": "Impossibile caricare i dati",
-        "goHome": "Torna alla home"
+        "goHome": "Torna alla home",
+        "copy": "Copia",
+        "copied": "Copiato"
     },
     "error": {
         "401": "Accesso non effettuato",

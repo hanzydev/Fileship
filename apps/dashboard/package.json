@@ -78,7 +78,6 @@
         "bufferutil": "^4.1.0",
         "dayjs": "^1.11.23",
         "eslint": "^10.12.0",
-        "highlight.js": "^11.12.0",
         "katex": "^0.18.11",
         "marked": "^18.1.0",
         "marked-katex-extension": "^5.1.13",
