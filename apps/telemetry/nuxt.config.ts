@@ -94,5 +94,9 @@ export default defineNuxtConfig({
         },
     },
 
+    devServer: {
+        host: 'localhost',
+    },
+
     compatibilityDate: '2024-09-04',
 });

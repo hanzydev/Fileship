@@ -132,6 +132,10 @@ export default defineNuxtConfig({
         enabled: true,
     },
 
+    devServer: {
+        host: 'localhost',
+    },
+
     experimental: {
         nitroAutoImports: true,
     },
