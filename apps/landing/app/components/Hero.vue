@@ -105,8 +105,8 @@ const uploaders = computed(() => [
     background-size:
         4rem 4rem,
         4rem 4rem,
-        10px 10px,
-        10px 10px;
+        0.5rem 0.5rem,
+        0.5rem 0.5rem;
     background-position:
         -1px -1px,
         -1px -1px,
