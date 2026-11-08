@@ -1,5 +1,29 @@
 <template>
-    <div ref="root" class="bgGrid overflow-x-clip">
+    <div ref="root" class="relative isolate overflow-x-clip">
+        <svg
+            aria-hidden="true"
+            class="pointer-events-none absolute inset-0 -z-10 size-full text-border"
+            shape-rendering="crispEdges"
+        >
+            <defs>
+                <pattern id="heroGrid" width="64" height="64" patternUnits="userSpaceOnUse">
+                    <path
+                        :d="fineLines"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-opacity="0.3"
+                        stroke-width="1"
+                    />
+                    <path
+                        d="M0 0.5H64M0.5 0V64"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1"
+                    />
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#heroGrid)" />
+        </svg>
         <div class="pt-16 lg:pt-24 w-full">
             <div
                 class="container mx-auto flex flex-col items-center justify-center text-center gap-6 lg:gap-8"
@@ -135,6 +159,10 @@ onMounted(() => {
         .fromTo(items('mobile'), { y: 40 }, { opacity: 1, y: 0, duration: 0.7 }, '-=0.65');
 });
 
+const fineLines = [8, 16, 24, 32, 40, 48, 56]
+    .map((p) => `M0 ${p + 0.5}H64M${p + 0.5} 0V64`)
+    .join('');
+
 const dockerCompose = 'Docker Compose';
 const separator = '・';
 
@@ -148,23 +176,3 @@ const uploaders = computed(() => [
     t('hero.androidShare'),
 ]);
 </script>
-
-<style scoped>
-.bgGrid {
-    background-image:
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px),
-        linear-gradient(var(--border) 0.5px, transparent 0.5px),
-        linear-gradient(90deg, var(--border) 0.5px, transparent 0.5px);
-    background-size:
-        4rem 4rem,
-        4rem 4rem,
-        0.5rem 0.5rem,
-        0.5rem 0.5rem;
-    background-position:
-        -1px -1px,
-        -1px -1px,
-        -0.5px -0.5px,
-        -0.5px -0.5px;
-}
-</style>
