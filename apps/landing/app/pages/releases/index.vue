@@ -73,4 +73,11 @@ useSeoMeta({
     title: () => t('releases.title'),
     description: () => t('releases.description'),
 });
+
+defineOgImage('Fileship', {
+    headline: t('seo.releasesHeadline'),
+    title: t('releases.title'),
+    description: t('releases.description'),
+    tagline: t('seo.ogTagline'),
+});
 </script>

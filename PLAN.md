@@ -57,6 +57,11 @@ Translations:
 
 - [ ] Spanish, Brazilian Portuguese and Russian were translated by AI agents from the English with the I18N.md glossaries, and only the dashboard was checked on screen (files, folders, notes, links, trash, stats, users, logs, instance and settings pages and the upload sheet, at desktop and phone width). Ask native speakers to read them, and check the Windows app (tray, notifications, overlay toolbar, settings pages) and the extension pages in those languages on screen.
 
+Landing:
+
+- [ ] Submit `https://fileship.app/sitemap.xml` in Google Search Console and Bing Webmaster Tools, and check the cards (opengraph.xyz, Discord, X) and the structured data (Rich Results Test) on the live site. Ranking for "Zipline alternative" depends on links to the comparison pages (awesome-selfhosted, alternativeto.net, r/selfhosted), not on the pages alone.
+- [ ] The landing is indexed in English only: every language shares one URL. Language prefixes (`/tr`, `/de`, … with hreflang) would let the translations rank too.
+
 Dashboard and infrastructure:
 
 - [ ] Memory: run the AI and PDF workers as child processes with a memory limit (`--max-old-space-size` does not cover onnxruntime or WASM, so watch RSS and restart), so a runaway model restarts the worker instead of the dashboard. Also page and stream `View` and `Log` rows when a backup is created (`server/utils/backup.ts` loads every view and stringifies each table at once), add a log retention period and page logs in `search:addToOrama`, and limit ffprobe's output with `-show_entries`.

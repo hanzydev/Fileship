@@ -91,6 +91,13 @@ useSeoMeta({
     description: () => t('docs.description'),
 });
 
+defineOgImage('Fileship', {
+    headline: t('seo.docsHeadline'),
+    title: t('docs.title'),
+    description: t('docs.description'),
+    tagline: t('seo.ogTagline'),
+});
+
 definePageMeta({
     layout: 'docs',
 });

@@ -164,7 +164,11 @@
         "releases": "Releases",
         "security": "Security",
         "contributing": "Contributing",
-        "copyright": "© {years} Hànzy and Fileship contributors"
+        "copyright": "© {years} Hànzy and Fileship contributors",
+        "compare": "Compare",
+        "zipline": "Fileship vs Zipline",
+        "xbackbone": "Fileship vs XBackBone",
+        "chibisafe": "Fileship vs Chibisafe"
     },
     "docs": {
         "title": "Documentation",
@@ -226,5 +230,96 @@
         "older": "Older",
         "newer": "Newer",
         "more": "More releases"
+    },
+    "seo": {
+        "homeTitle": "Fileship: self-hosted ShareX server and file cloud",
+        "homeDescription": "Fileship is an open-source, self-hosted file host and ShareX server with a native Windows app, File Explorer sync, short links, notes and AI search that runs on your own server. A modern Zipline alternative.",
+        "homeHeadline": "Self-hosted file cloud",
+        "homeOgTitle": "Your own ShareX server and file cloud",
+        "homeOgDescription": "Capture, upload and share from Windows, browse files in File Explorer and search them with AI on your own server.",
+        "ogTagline": "Open source · Self-hosted",
+        "docsHeadline": "Documentation",
+        "releaseHeadline": "Release",
+        "releasesHeadline": "Releases",
+        "releaseHeadlineDate": "Release · {date}",
+        "comparisonHeadline": "Comparison"
+    },
+    "alternatives": {
+        "eyebrow": "Comparison",
+        "title": "Fileship vs {app}: a self-hosted {app} alternative",
+        "ogTitle": "Fileship vs {app}",
+        "tableTitle": "Side by side",
+        "tableDescription": "Checked against {version} in October 2026.",
+        "addsTitle": "What Fileship adds",
+        "aheadTitle": "Where {app} is ahead",
+        "migrateTitle": "Moving from {app}",
+        "migrateGuide": "Read the migration guide",
+        "faqTitle": "Questions",
+        "adds": {
+            "desktop": {
+                "title": "A native Windows app",
+                "text": "Capture a region across every monitor, annotate it, copy text with OCR or record a video or GIF. The link lands on your clipboard."
+            },
+            "harbor": {
+                "title": "Your files in File Explorer",
+                "text": "Fileship Harbor shows your files and folders in File Explorer, online-only until you open them, and syncs renames, moves and deletes."
+            },
+            "ai": {
+                "title": "AI search on your server",
+                "text": "Find files by describing them, with captions, OCR and sensitive content detection. Every model runs on your own hardware, and all of it is optional."
+            },
+            "updates": {
+                "title": "Updates without downtime",
+                "text": "A blue/green updater starts the new version next to the old one and switches over once it is healthy, and the database upgrades itself."
+            },
+            "sharing": {
+                "title": "Sharing with limits",
+                "text": "Passwords, expiry and view limits on every file and link, folders shared with other users as viewers or editors, and Discord previews you design."
+            },
+            "backups": {
+                "title": "Backups and a trash",
+                "text": "Scheduled account backups you can restore, a trash that keeps deleted files for a while, and webhooks for Discord, Slack or signed JSON."
+            }
+        },
+        "apps": {
+            "zipline": {
+                "version": "Zipline 4.8",
+                "description": "Compare Fileship and Zipline: both are self-hosted ShareX servers. Fileship adds a Windows app, File Explorer sync, AI search and zero-downtime updates, and imports your Zipline accounts, files and links.",
+                "intro": "Zipline is a popular self-hosted ShareX server, and Fileship covers the same ground: uploads from ShareX and other tools, nested folders, short links, passwords, expiry and view limits. Fileship then adds the apps around it, so it feels like your own file cloud.",
+                "ahead": "Zipline signs in with OAuth providers such as Discord, GitHub and Google as well as OpenID Connect, while Fileship supports OpenID Connect only. Zipline is MIT licensed; Fileship is AGPL-3.0.",
+                "migrate": "Fileship imports a Zipline 3.7 or 4.x server export: accounts with their passwords, files with their names, link names, dates and views, nested folders and short links. Old /u/ links keep working once the domain points at Fileship."
+            },
+            "xbackbone": {
+                "version": "XBackBone 3.8",
+                "description": "Compare Fileship and XBackBone: both are self-hosted ShareX servers. Fileship adds folders, sharing limits, a Windows app, File Explorer sync and AI search, and imports your XBackBone users and files.",
+                "intro": "XBackBone is a lightweight PHP file manager for ShareX. Fileship accepts the same uploads and adds nested folders, notes, short links, passwords, expiry and view limits, plus a Windows app and a browser extension.",
+                "ahead": "XBackBone runs on plain PHP hosting without Docker, offers more storage backends and signs in with LDAP, which Fileship does not support.",
+                "migrate": "Fileship imports an XBackBone 3 SQLite database with its storage folder: users with their email addresses, and files with their names, link names and dates. Users set a new password, because XBackBone hashes passwords with bcrypt."
+            },
+            "chibisafe": {
+                "version": "Chibisafe 6.7",
+                "description": "Compare Fileship and Chibisafe: both are self-hosted file uploaders. Fileship adds nested folders, sharing limits, a Windows app, File Explorer sync and AI search, and imports your Chibisafe files, albums and snippets.",
+                "intro": "Chibisafe is a self-hosted file uploader with albums and a browser extension. Fileship has the same, with nested folders instead of flat albums, and adds passwords, expiry and view limits, notes, a Windows app and AI search.",
+                "ahead": "Chibisafe is MIT licensed and has a simpler setup with fewer moving parts.",
+                "migrate": "Fileship imports a Chibisafe 6 SQLite database with its uploads folder: accounts, files with their names, link names and dates, albums as folders, short links and snippets as notes."
+            }
+        },
+        "faq": {
+            "free": {
+                "q": "Is Fileship free?",
+                "a": "Yes. Fileship is open source under AGPL-3.0, and you run it on your own server."
+            },
+            "sharex": {
+                "q": "Does Fileship work with ShareX like {app}?",
+                "a": "Yes. Fileship takes uploads from ShareX, Flameshot, curl, iOS Shortcuts and other uploaders, and has its own Windows app and browser extension."
+            },
+            "migrate": {
+                "q": "Can I move my data from {app}?"
+            },
+            "requirements": {
+                "q": "What do I need to run Fileship?",
+                "a": "Docker with Compose, 2 CPU cores and 2 GB of RAM, or 4 GB or more with AI."
+            }
+        }
     }
 }

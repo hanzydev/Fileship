@@ -164,7 +164,11 @@
         "releases": "Buraxılışlar",
         "security": "Təhlükəsizlik",
         "contributing": "Töhfə vermək",
-        "copyright": "© {years} Hànzy və Fileship töhfəçiləri"
+        "copyright": "© {years} Hànzy və Fileship töhfəçiləri",
+        "compare": "Müqayisə et",
+        "zipline": "Fileship vs Zipline",
+        "xbackbone": "Fileship vs XBackBone",
+        "chibisafe": "Fileship vs Chibisafe"
     },
     "docs": {
         "title": "Sənədlər",
@@ -226,5 +230,96 @@
         "older": "Daha köhnə",
         "newer": "Daha yeni",
         "more": "Digər buraxılışlar"
+    },
+    "seo": {
+        "homeTitle": "Fileship: öz serverində ShareX serveri və fayl buludu",
+        "homeDescription": "Fileship Windows tətbiqi, Fayl Bələdçisi sinxronizasiyası, qısa keçidlər, qeydlər və öz serverində işləyən süni intellekt axtarışı ilə açıq mənbəli, öz serverində quraşdırılan fayl hostinqi və ShareX serveridir. Zipline üçün müasir alternativ.",
+        "homeHeadline": "Öz serverində fayl buludu",
+        "homeOgTitle": "Öz ShareX serverin və fayl buludun",
+        "homeOgDescription": "Windows-dan çək, yüklə və paylaş, fayllarına Fayl Bələdçisində bax və öz serverində süni intellektlə axtar.",
+        "ogTagline": "Açıq mənbə · Öz serverində",
+        "docsHeadline": "Sənədlər",
+        "releaseHeadline": "Buraxılış",
+        "releasesHeadline": "Buraxılışlar",
+        "releaseHeadlineDate": "Buraxılış · {date}",
+        "comparisonHeadline": "Müqayisə"
+    },
+    "alternatives": {
+        "eyebrow": "Müqayisə",
+        "title": "Fileship vs {app}: öz serverində işləyən {app} alternativi",
+        "ogTitle": "Fileship vs {app}",
+        "tableTitle": "Yan-yana",
+        "tableDescription": "Oktyabr 2026-da {version} ilə müqayisə edilib.",
+        "addsTitle": "Fileship nə əlavə edir",
+        "aheadTitle": "{app} harada öndədir",
+        "migrateTitle": "{app} tətbiqindən köçmə",
+        "migrateGuide": "Keçid bələdçisini oxu",
+        "faqTitle": "Suallar",
+        "adds": {
+            "desktop": {
+                "title": "Yerli Windows tətbiqi",
+                "text": "Bütün ekranlara yayılan sahəni çək, üzərində işarələmə et, OCR ilə mətni kopyala və ya video, ya da GIF qeydə al. Keçid mübadilə buferinə düşür."
+            },
+            "harbor": {
+                "title": "Faylların Fayl Bələdçisində",
+                "text": "Fileship Harbor fayl və qovluqlarını Fayl Bələdçisində göstərir, açana qədər yalnız onlayn saxlayır, adın dəyişməsini, köçürmə və silmələri sinxronlaşdırır."
+            },
+            "ai": {
+                "title": "Öz serverində süni intellekt axtarışı",
+                "text": "Faylları təsvir edərək tap; təsvirlər, OCR və həssas məzmun aşkarlanması da var. Hər model öz avadanlığında işləyir və hamısı istəyə bağlıdır."
+            },
+            "updates": {
+                "title": "Fasiləsiz yeniləmələr",
+                "text": "Blue/green yeniləyici yeni versiyanı köhnəsinin yanında başladır, sağlam olanda keçid edir, verilənlər bazası da özünü yeniləyir."
+            },
+            "sharing": {
+                "title": "Məhdudiyyətlərlə paylaşım",
+                "text": "Hər fayl və keçiddə şifrə, bitmə tarixi və baxış limiti, digər istifadəçilərlə baxan və ya redaktor kimi paylaşılan qovluqlar və özün dizayn etdiyin Discord önizləmələri."
+            },
+            "backups": {
+                "title": "Ehtiyat nüsxələr və zibil qutusu",
+                "text": "Bərpa edə biləcəyin planlı hesab ehtiyat nüsxələri, silinən faylları bir müddət saxlayan zibil qutusu və Discord, Slack və ya imzalı JSON üçün webhook-lar."
+            }
+        },
+        "apps": {
+            "zipline": {
+                "version": "Zipline 4.8",
+                "description": "Fileship və Zipline-ı müqayisə et: hər ikisi öz serverində işləyən ShareX serverləridir. Fileship Windows tətbiqi, Fayl Bələdçisi sinxronizasiyası, süni intellekt axtarışı və fasiləsiz yeniləmələr əlavə edir, Zipline hesablarını, fayllarını və keçidlərini də idxal edir.",
+                "intro": "Zipline öz serverində işləyən populyar ShareX serveridir və Fileship də eyni işləri görür: ShareX və digər alətlərdən yükləmələr, iç-içə qovluqlar, qısa keçidlər, şifrələr, bitmə tarixi və baxış limitləri. Üstəlik ətrafındakı tətbiqləri əlavə edir, beləcə öz fayl buludun kimi hiss olunur.",
+                "ahead": "Zipline OpenID Connect ilə yanaşı Discord, GitHub və Google kimi OAuth provayderləri ilə də daxil olmağı dəstəkləyir, Fileship isə yalnız OpenID Connect-i dəstəkləyir. Zipline MIT lisenziyalıdır, Fileship isə AGPL-3.0.",
+                "migrate": "Fileship Zipline 3.7 və ya 4.x server ixracını idxal edir: şifrələri ilə hesablar; adları, keçid adları, tarixləri və baxışları ilə fayllar, iç-içə qovluqlar və qısa keçidlər. Domen Fileship-ə yönələndən sonra köhnə /u/ keçidləri işləməyə davam edir."
+            },
+            "xbackbone": {
+                "version": "XBackBone 3.8",
+                "description": "Fileship və XBackBone-u müqayisə et: hər ikisi öz serverində işləyən ShareX serverləridir. Fileship qovluqlar, paylaşım limitləri, Windows tətbiqi, Fayl Bələdçisi sinxronizasiyası və süni intellekt axtarışı əlavə edir, XBackBone istifadəçilərini və fayllarını da idxal edir.",
+                "intro": "XBackBone ShareX üçün yüngül PHP fayl menecеridir. Fileship eyni yükləmələri qəbul edir və iç-içə qovluqlar, qeydlər, qısa keçidlər, şifrələr, bitmə tarixi və baxış limitləri ilə yanaşı Windows tətbiqi və brauzer genişlənməsi də əlavə edir.",
+                "ahead": "XBackBone Docker olmadan adi PHP hostinqində işləyir, daha çox yaddaş variantı təklif edir və Fileship-in dəstəkləmədiyi LDAP ilə daxil olur.",
+                "migrate": "Fileship yaddaş qovluğu ilə birlikdə XBackBone 3 SQLite verilənlər bazasını idxal edir: e-poçt ünvanları ilə istifadəçilər; adları, keçid adları və tarixləri ilə fayllar. XBackBone şifrələri bcrypt ilə saxladığı üçün istifadəçilər yeni şifrə təyin edir."
+            },
+            "chibisafe": {
+                "version": "Chibisafe 6.7",
+                "description": "Fileship və Chibisafe-i müqayisə et: hər ikisi öz serverində işləyən fayl yükləyiciləridir. Fileship iç-içə qovluqlar, paylaşım limitləri, Windows tətbiqi, Fayl Bələdçisi sinxronizasiyası və süni intellekt axtarışı əlavə edir, Chibisafe fayllarını, albomlarını və snippet-lərini də idxal edir.",
+                "intro": "Chibisafe albomları və brauzer genişlənməsi olan, öz serverində işləyən fayl yükləyicisidir. Fileship-də bunlar düz albomlar əvəzinə iç-içə qovluqlarla var, üstəlik şifrələr, bitmə tarixi və baxış limitləri, qeydlər, Windows tətbiqi və süni intellekt axtarışı gəlir.",
+                "ahead": "Chibisafe MIT lisenziyalıdır və daha az hissə ilə daha sadə quraşdırmaya malikdir.",
+                "migrate": "Fileship yükləmələr qovluğu ilə birlikdə Chibisafe 6 SQLite verilənlər bazasını idxal edir: hesablar; adları, keçid adları və tarixləri ilə fayllar; qovluq kimi albomlar, qısa keçidlər və qeyd kimi snippet-lər."
+            }
+        },
+        "faq": {
+            "free": {
+                "q": "Fileship pulsuzdur?",
+                "a": "Bəli. Fileship AGPL-3.0 lisenziyalı açıq mənbəli proqramdır və onu öz serverində işlədirsən."
+            },
+            "sharex": {
+                "q": "Fileship də {app} kimi ShareX ilə işləyir?",
+                "a": "Bəli. Fileship ShareX, Flameshot, curl, iOS Shortcuts və digər yükləyicilərdən gələn yükləmələri qəbul edir, həmçinin öz Windows tətbiqi və brauzer genişlənməsi var."
+            },
+            "migrate": {
+                "q": "Məlumatlarımı {app} tətbiqindən köçürə bilərəm?"
+            },
+            "requirements": {
+                "q": "Fileship-i işlətmək üçün nə lazımdır?",
+                "a": "Compose ilə Docker, 2 CPU nüvəsi və 2 GB RAM, süni intellektlə isə 4 GB və ya daha çox."
+            }
+        }
     }
 }

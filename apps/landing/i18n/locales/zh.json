@@ -164,7 +164,11 @@
         "releases": "版本发布",
         "security": "安全",
         "contributing": "参与贡献",
-        "copyright": "© {years} Hànzy 和 Fileship 贡献者"
+        "copyright": "© {years} Hànzy 和 Fileship 贡献者",
+        "compare": "对比",
+        "zipline": "Fileship vs Zipline",
+        "xbackbone": "Fileship vs XBackBone",
+        "chibisafe": "Fileship vs Chibisafe"
     },
     "docs": {
         "title": "文档",
@@ -226,5 +230,96 @@
         "older": "更早",
         "newer": "更新",
         "more": "更多版本"
+    },
+    "seo": {
+        "homeTitle": "Fileship：自托管 ShareX 服务器与文件云",
+        "homeDescription": "Fileship 是一款开源的自托管文件托管平台和 ShareX 服务器，提供原生 Windows 应用、文件资源管理器同步、短链接、笔记，以及在你自己的服务器上运行的 AI 搜索。一个现代化的 Zipline 替代方案。",
+        "homeHeadline": "自托管文件云",
+        "homeOgTitle": "你自己的 ShareX 服务器和文件云",
+        "homeOgDescription": "在 Windows 上截取、上传和分享，在文件资源管理器中浏览文件，并在你自己的服务器上用 AI 搜索。",
+        "ogTagline": "开源 · 自托管",
+        "docsHeadline": "文档",
+        "releaseHeadline": "版本",
+        "releasesHeadline": "版本发布",
+        "releaseHeadlineDate": "版本 · {date}",
+        "comparisonHeadline": "对比"
+    },
+    "alternatives": {
+        "eyebrow": "对比",
+        "title": "Fileship vs {app}：可自托管的 {app} 替代方案",
+        "ogTitle": "Fileship vs {app}",
+        "tableTitle": "功能对比",
+        "tableDescription": "基于 2026 年 10 月的 {version} 对比。",
+        "addsTitle": "Fileship 额外提供",
+        "aheadTitle": "{app} 的优势",
+        "migrateTitle": "从 {app} 迁移",
+        "migrateGuide": "阅读迁移指南",
+        "faqTitle": "常见问题",
+        "adds": {
+            "desktop": {
+                "title": "原生 Windows 应用",
+                "text": "截取横跨所有显示器的区域并添加标注，用 OCR 复制文字，或录制视频和 GIF。链接会自动复制到剪贴板。"
+            },
+            "harbor": {
+                "title": "在文件资源管理器中访问文件",
+                "text": "Fileship Harbor 在文件资源管理器中显示你的文件和文件夹，打开前仅保存在线上，并同步重命名、移动和删除。"
+            },
+            "ai": {
+                "title": "在你的服务器上进行 AI 搜索",
+                "text": "通过描述即可找到文件，支持图片描述、OCR 和敏感内容检测。所有模型都在你自己的硬件上运行，而且全部可选。"
+            },
+            "updates": {
+                "title": "零停机更新",
+                "text": "蓝绿更新程序在旧版本旁边启动新版本，运行正常后再切换，数据库也会自动升级。"
+            },
+            "sharing": {
+                "title": "可设限制的分享",
+                "text": "每个文件和链接都可设置密码、过期时间和浏览次数上限，文件夹可以以查看者或编辑者身份分享给其他用户，还能自行设计 Discord 预览。"
+            },
+            "backups": {
+                "title": "备份与回收站",
+                "text": "可还原的定时账户备份，暂时保留已删除文件的回收站，以及用于 Discord、Slack 或签名 JSON 的 Webhook。"
+            }
+        },
+        "apps": {
+            "zipline": {
+                "version": "Zipline 4.8",
+                "description": "对比 Fileship 与 Zipline：两者都是自托管 ShareX 服务器。Fileship 额外提供 Windows 应用、文件资源管理器同步、AI 搜索和零停机更新，并可导入你的 Zipline 账户、文件和链接。",
+                "intro": "Zipline 是一款流行的自托管 ShareX 服务器，Fileship 同样具备这些功能：来自 ShareX 和其他工具的上传、嵌套文件夹、短链接、密码、过期时间和浏览次数上限。此外，Fileship 还提供周边应用，让它用起来就像你自己的文件云。",
+                "ahead": "除了 OpenID Connect，Zipline 还支持通过 Discord、GitHub 和 Google 等 OAuth 提供商登录，而 Fileship 仅支持 OpenID Connect。Zipline 采用 MIT 许可证，Fileship 采用 AGPL-3.0。",
+                "migrate": "Fileship 可导入 Zipline 3.7 或 4.x 的服务器导出：保留密码的账户，保留名称、链接名、日期和浏览次数的文件，嵌套文件夹和短链接。将域名指向 Fileship 后，旧的 /u/ 链接仍可继续使用。"
+            },
+            "xbackbone": {
+                "version": "XBackBone 3.8",
+                "description": "对比 Fileship 与 XBackBone：两者都是自托管 ShareX 服务器。Fileship 额外提供文件夹、分享限制、Windows 应用、文件资源管理器同步和 AI 搜索，并可导入你的 XBackBone 用户和文件。",
+                "intro": "XBackBone 是一款面向 ShareX 的轻量级 PHP 文件管理器。Fileship 接受相同的上传，并额外提供嵌套文件夹、笔记、短链接、密码、过期时间和浏览次数上限，以及 Windows 应用和浏览器扩展。",
+                "ahead": "XBackBone 无需 Docker，可在普通 PHP 主机上运行，支持更多存储后端，还支持 LDAP 登录，而 Fileship 不支持。",
+                "migrate": "Fileship 可导入 XBackBone 3 的 SQLite 数据库及其存储文件夹：保留邮箱地址的用户，以及保留名称、链接名和日期的文件。由于 XBackBone 使用 bcrypt 哈希密码，用户需要设置新密码。"
+            },
+            "chibisafe": {
+                "version": "Chibisafe 6.7",
+                "description": "对比 Fileship 与 Chibisafe：两者都是自托管文件上传工具。Fileship 额外提供嵌套文件夹、分享限制、Windows 应用、文件资源管理器同步和 AI 搜索，并可导入你的 Chibisafe 文件、相册和代码片段。",
+                "intro": "Chibisafe 是一款带有相册和浏览器扩展的自托管文件上传工具。Fileship 同样具备这些功能，并用嵌套文件夹取代扁平相册，还额外提供密码、过期时间和浏览次数上限、笔记、Windows 应用和 AI 搜索。",
+                "ahead": "Chibisafe 采用 MIT 许可证，组件更少，部署更简单。",
+                "migrate": "Fileship 可导入 Chibisafe 6 的 SQLite 数据库及其上传文件夹：账户，保留名称、链接名和日期的文件，作为文件夹的相册，短链接，以及作为笔记的代码片段。"
+            }
+        },
+        "faq": {
+            "free": {
+                "q": "Fileship 免费吗？",
+                "a": "免费。Fileship 基于 AGPL-3.0 开源，你可以在自己的服务器上运行。"
+            },
+            "sharex": {
+                "q": "Fileship 能像 {app} 一样配合 ShareX 使用吗？",
+                "a": "可以。Fileship 接受来自 ShareX、Flameshot、curl、iOS Shortcuts 等上传工具的上传，还有自己的 Windows 应用和浏览器扩展。"
+            },
+            "migrate": {
+                "q": "我能从 {app} 迁移数据吗？"
+            },
+            "requirements": {
+                "q": "运行 Fileship 需要什么？",
+                "a": "Docker 和 Compose、2 个 CPU 核心和 2 GB 内存，启用 AI 则需要 4 GB 或更多。"
+            }
+        }
     }
 }

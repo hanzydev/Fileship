@@ -73,6 +73,14 @@ const groups = [
         ],
     },
     {
+        title: 'compare',
+        links: [
+            { title: 'zipline', href: '/alternatives/zipline' },
+            { title: 'xbackbone', href: '/alternatives/xbackbone' },
+            { title: 'chibisafe', href: '/alternatives/chibisafe' },
+        ],
+    },
+    {
         title: 'project',
         links: [
             { title: 'github', href: 'https://github.com/hanzydev/Fileship' },

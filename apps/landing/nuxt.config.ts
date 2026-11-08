@@ -13,9 +13,48 @@ export default defineNuxtConfig({
         '@vueuse/nuxt/module',
         '@nuxt/eslint',
         '@nuxt/image',
+        '@nuxtjs/seo',
     ],
 
     devtools: { enabled: true },
+
+    site: {
+        url: 'https://fileship.app',
+        name: 'Fileship',
+        description:
+            'Open-source, self-hosted ShareX server and file cloud with a native Windows app, File Explorer sync and AI search on your own server.',
+        defaultLocale: 'en',
+    },
+
+    ogImage: {
+        zeroRuntime: true,
+    },
+
+    schemaOrg: {
+        identity: {
+            type: 'Organization',
+            name: 'Fileship',
+            url: 'https://fileship.app',
+            logo: 'https://fileship.app/fileship.png',
+            sameAs: ['https://github.com/hanzydev/Fileship'],
+        },
+    },
+
+    sitemap: {
+        exclude: ['/200', '/404'],
+    },
+
+    linkChecker: {
+        enabled: false,
+    },
+
+    aiReady: {
+        enabled: false,
+    },
+
+    skewProtection: {
+        enabled: false,
+    },
 
     devServer: {
         host: 'localhost',
@@ -101,6 +140,9 @@ export default defineNuxtConfig({
     },
 
     nitro: {
+        prerender: {
+            routes: ['/alternatives/zipline', '/alternatives/xbackbone', '/alternatives/chibisafe'],
+        },
         esbuild: {
             options: {
                 target: 'esnext',

@@ -164,7 +164,11 @@
         "releases": "Versioni",
         "security": "Sicurezza",
         "contributing": "Contribuire",
-        "copyright": "© {years} Hànzy e i collaboratori di Fileship"
+        "copyright": "© {years} Hànzy e i collaboratori di Fileship",
+        "compare": "Confronta",
+        "zipline": "Fileship vs Zipline",
+        "xbackbone": "Fileship vs XBackBone",
+        "chibisafe": "Fileship vs Chibisafe"
     },
     "docs": {
         "title": "Documentazione",
@@ -226,5 +230,96 @@
         "older": "Precedente",
         "newer": "Successiva",
         "more": "Altre versioni"
+    },
+    "seo": {
+        "homeTitle": "Fileship: server ShareX e cloud di file self-hosted",
+        "homeDescription": "Fileship è un file host e server ShareX open source e self-hosted, con app nativa per Windows, sincronizzazione con Esplora file, link brevi, note e ricerca con IA che gira sul tuo server. Un’alternativa moderna a Zipline.",
+        "homeHeadline": "Cloud di file self-hosted",
+        "homeOgTitle": "Il tuo server ShareX e cloud di file",
+        "homeOgDescription": "Acquisisci, carica e condividi da Windows, sfoglia i file in Esplora file e cercali con l’IA sul tuo server.",
+        "ogTagline": "Open source · Self-hosted",
+        "docsHeadline": "Documentazione",
+        "releaseHeadline": "Versione",
+        "releasesHeadline": "Versioni",
+        "releaseHeadlineDate": "Versione · {date}",
+        "comparisonHeadline": "Confronto"
+    },
+    "alternatives": {
+        "eyebrow": "Confronto",
+        "title": "Fileship vs {app}: un’alternativa self-hosted a {app}",
+        "ogTitle": "Fileship vs {app}",
+        "tableTitle": "A confronto",
+        "tableDescription": "Confrontato con {version} a ottobre 2026.",
+        "addsTitle": "Cosa aggiunge Fileship",
+        "aheadTitle": "Dove {app} è avanti",
+        "migrateTitle": "Passare da {app}",
+        "migrateGuide": "Leggi la guida alla migrazione",
+        "faqTitle": "Domande",
+        "adds": {
+            "desktop": {
+                "title": "Un’app nativa per Windows",
+                "text": "Acquisisci un’area su tutti gli schermi, aggiungi annotazioni, copia il testo con l’OCR o registra un video o una GIF. Il link finisce negli appunti."
+            },
+            "harbor": {
+                "title": "I tuoi file in Esplora file",
+                "text": "Fileship Harbor mostra file e cartelle in Esplora file, solo online finché non li apri, e sincronizza rinomine, spostamenti ed eliminazioni."
+            },
+            "ai": {
+                "title": "Ricerca con IA sul tuo server",
+                "text": "Trova i file descrivendoli, con descrizioni, OCR e rilevamento dei contenuti sensibili. Ogni modello gira sul tuo hardware, ed è tutto facoltativo."
+            },
+            "updates": {
+                "title": "Aggiornamenti senza interruzioni",
+                "text": "Un updater blue/green avvia la nuova versione accanto alla vecchia e passa a quella nuova appena è pronta, e il database si aggiorna da solo."
+            },
+            "sharing": {
+                "title": "Condivisione con limiti",
+                "text": "Password, scadenza e limiti di visualizzazioni su ogni file e link, cartelle condivise con altri utenti in lettura o modifica e anteprime Discord progettate da te."
+            },
+            "backups": {
+                "title": "Backup e cestino",
+                "text": "Backup pianificati dell’account da ripristinare, un cestino che conserva per un po’ i file eliminati e webhook per Discord, Slack o JSON firmato."
+            }
+        },
+        "apps": {
+            "zipline": {
+                "version": "Zipline 4.8",
+                "description": "Confronta Fileship e Zipline: entrambi sono server ShareX self-hosted. Fileship aggiunge un’app per Windows, la sincronizzazione con Esplora file, la ricerca con IA e aggiornamenti senza interruzioni, e importa account, file e link da Zipline.",
+                "intro": "Zipline è un server ShareX self-hosted molto diffuso, e Fileship copre le stesse esigenze: caricamenti da ShareX e altri strumenti, cartelle annidate, link brevi, password, scadenza e limiti di visualizzazioni. In più aggiunge le app intorno, così sembra il tuo cloud di file personale.",
+                "ahead": "Zipline consente l’accesso con provider OAuth come Discord, GitHub e Google oltre a OpenID Connect, mentre Fileship supporta solo OpenID Connect. Zipline ha licenza MIT, Fileship AGPL-3.0.",
+                "migrate": "Fileship importa un’esportazione del server di Zipline 3.7 o 4.x: account con le loro password, file con nomi, nomi dei link, date e visualizzazioni, cartelle annidate e link brevi. I vecchi link /u/ continuano a funzionare quando il dominio punta a Fileship."
+            },
+            "xbackbone": {
+                "version": "XBackBone 3.8",
+                "description": "Confronta Fileship e XBackBone: entrambi sono server ShareX self-hosted. Fileship aggiunge cartelle, limiti di condivisione, un’app per Windows, la sincronizzazione con Esplora file e la ricerca con IA, e importa utenti e file da XBackBone.",
+                "intro": "XBackBone è un file manager PHP leggero per ShareX. Fileship accetta gli stessi caricamenti e aggiunge cartelle annidate, note, link brevi, password, scadenza e limiti di visualizzazioni, oltre a un’app per Windows e un’estensione del browser.",
+                "ahead": "XBackBone gira su un normale hosting PHP senza Docker, offre più opzioni di archiviazione e consente l’accesso con LDAP, che Fileship non supporta.",
+                "migrate": "Fileship importa un database SQLite di XBackBone 3 con la sua cartella di archiviazione: utenti con i loro indirizzi email e file con nomi, nomi dei link e date. Gli utenti impostano una nuova password, perché XBackBone salva le password con bcrypt."
+            },
+            "chibisafe": {
+                "version": "Chibisafe 6.7",
+                "description": "Confronta Fileship e Chibisafe: entrambi sono servizi self-hosted per caricare file. Fileship aggiunge cartelle annidate, limiti di condivisione, un’app per Windows, la sincronizzazione con Esplora file e la ricerca con IA, e importa file, album e snippet da Chibisafe.",
+                "intro": "Chibisafe è un servizio self-hosted per caricare file, con album e un’estensione del browser. Fileship offre lo stesso, con cartelle annidate al posto di album piatti, e aggiunge password, scadenza e limiti di visualizzazioni, note, un’app per Windows e la ricerca con IA.",
+                "ahead": "Chibisafe ha licenza MIT e un’installazione più semplice, con meno componenti.",
+                "migrate": "Fileship importa un database SQLite di Chibisafe 6 con la sua cartella dei caricamenti: account, file con nomi, nomi dei link e date, album come cartelle, link brevi e snippet come note."
+            }
+        },
+        "faq": {
+            "free": {
+                "q": "Fileship è gratuito?",
+                "a": "Sì. Fileship è open source con licenza AGPL-3.0, e lo fai girare sul tuo server."
+            },
+            "sharex": {
+                "q": "Fileship funziona con ShareX come {app}?",
+                "a": "Sì. Fileship accetta caricamenti da ShareX, Flameshot, curl, iOS Shortcuts e altri strumenti, e ha una sua app per Windows e un’estensione del browser."
+            },
+            "migrate": {
+                "q": "Posso trasferire i miei dati da {app}?"
+            },
+            "requirements": {
+                "q": "Cosa serve per far girare Fileship?",
+                "a": "Docker con Compose, 2 core CPU e 2 GB di RAM, oppure 4 GB o più con l’IA."
+            }
+        }
     }
 }

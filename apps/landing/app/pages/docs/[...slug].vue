@@ -180,11 +180,22 @@ watch(
     () => nextTick(updateActive),
 );
 
+const { t } = useI18n();
+
+const description = computed(() => page.value!.description || t('docs.description'));
+
 useSeoMeta({
     title: () => page.value!.title,
-    description: () => page.value!.description,
+    description,
     ogTitle: () => page.value!.title,
-    ogDescription: () => page.value!.description,
+    ogDescription: description,
+});
+
+defineOgImage('Fileship', {
+    headline: group.value ? t(`docs.groups.${group.value}`) : t('seo.docsHeadline'),
+    title: page.value.title,
+    description: description.value,
+    tagline: t('seo.ogTagline'),
 });
 
 definePageMeta({

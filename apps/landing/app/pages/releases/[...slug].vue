@@ -119,5 +119,18 @@ const githubUrl = computed(
 useSeoMeta({
     title: () => `Fileship ${release.value!.title}`,
     description: () => release.value!.description,
+    ogTitle: () => `Fileship ${release.value!.title}`,
+    ogDescription: () => release.value!.description,
+});
+
+const { t } = useI18n();
+
+defineOgImage('Fileship', {
+    headline: release.value.date
+        ? t('seo.releaseHeadlineDate', { date: formatDate(release.value.date) })
+        : t('seo.releaseHeadline'),
+    title: `Fileship ${release.value.title}`,
+    description: release.value.description,
+    tagline: t('seo.ogTagline'),
 });
 </script>

@@ -164,7 +164,11 @@
         "releases": "リリース",
         "security": "セキュリティ",
         "contributing": "コントリビュート",
-        "copyright": "© {years} Hànzy と Fileship のコントリビューター"
+        "copyright": "© {years} Hànzy と Fileship のコントリビューター",
+        "compare": "比較",
+        "zipline": "Fileship vs Zipline",
+        "xbackbone": "Fileship vs XBackBone",
+        "chibisafe": "Fileship vs Chibisafe"
     },
     "docs": {
         "title": "ドキュメント",
@@ -226,5 +230,96 @@
         "older": "前のリリース",
         "newer": "次のリリース",
         "more": "ほかのリリース"
+    },
+    "seo": {
+        "homeTitle": "Fileship: セルフホストの ShareX サーバー兼ファイルクラウド",
+        "homeDescription": "Fileship は、ネイティブの Windows アプリ、エクスプローラーとの同期、短縮リンク、ノート、自分のサーバーで動く AI 検索を備えた、オープンソースのセルフホスト型ファイルホスト兼 ShareX サーバーです。Zipline に代わるモダンな選択肢です。",
+        "homeHeadline": "セルフホストのファイルクラウド",
+        "homeOgTitle": "自分だけの ShareX サーバーとファイルクラウド",
+        "homeOgDescription": "Windows からキャプチャ、アップロード、共有。ファイルはエクスプローラーで閲覧でき、自分のサーバー上で AI 検索できます。",
+        "ogTagline": "オープンソース · セルフホスト",
+        "docsHeadline": "ドキュメント",
+        "releaseHeadline": "リリース",
+        "releasesHeadline": "リリース",
+        "releaseHeadlineDate": "リリース · {date}",
+        "comparisonHeadline": "比較"
+    },
+    "alternatives": {
+        "eyebrow": "比較",
+        "title": "Fileship vs {app}: セルフホストできる {app} の代替",
+        "ogTitle": "Fileship vs {app}",
+        "tableTitle": "機能の比較",
+        "tableDescription": "2026 年 10 月に {version} と比較しました。",
+        "addsTitle": "Fileship ならではの機能",
+        "aheadTitle": "{app} が優れている点",
+        "migrateTitle": "{app} からの移行",
+        "migrateGuide": "移行ガイドを読む",
+        "faqTitle": "よくある質問",
+        "adds": {
+            "desktop": {
+                "title": "ネイティブの Windows アプリ",
+                "text": "すべてのモニターにまたがる範囲をキャプチャして注釈を付けたり、OCR でテキストをコピーしたり、動画や GIF を録画したりできます。リンクはクリップボードにコピーされます。"
+            },
+            "harbor": {
+                "title": "エクスプローラーでファイルを表示",
+                "text": "Fileship Harbor は、ファイルとフォルダーをエクスプローラーに表示します。開くまではオンラインのみで保持され、名前の変更、移動、削除も同期されます。"
+            },
+            "ai": {
+                "title": "自分のサーバーで AI 検索",
+                "text": "説明するだけでファイルを見つけられます。説明文、OCR、センシティブなコンテンツの検出にも対応。すべてのモデルは自分のハードウェアで動き、どれも任意です。"
+            },
+            "updates": {
+                "title": "ダウンタイムなしのアップデート",
+                "text": "Blue/Green 方式のアップデーターが新しいバージョンを古いバージョンの隣で起動し、正常に動いたら切り替えます。データベースも自動でアップグレードされます。"
+            },
+            "sharing": {
+                "title": "制限付きの共有",
+                "text": "すべてのファイルとリンクにパスワード、有効期限、閲覧数の上限を設定でき、フォルダーは閲覧者や編集者として他のユーザーと共有できます。Discord のプレビューも自分でデザインできます。"
+            },
+            "backups": {
+                "title": "バックアップとゴミ箱",
+                "text": "復元できるアカウントの定期バックアップ、削除したファイルをしばらく保持するゴミ箱、Discord、Slack、署名付き JSON 向けの Webhook を備えています。"
+            }
+        },
+        "apps": {
+            "zipline": {
+                "version": "Zipline 4.8",
+                "description": "Fileship と Zipline を比較します。どちらもセルフホストの ShareX サーバーです。Fileship は Windows アプリ、エクスプローラーとの同期、AI 検索、ダウンタイムなしのアップデートを備え、Zipline のアカウント、ファイル、リンクをインポートできます。",
+                "intro": "Zipline は人気のあるセルフホストの ShareX サーバーで、Fileship も同じことができます。ShareX などのツールからのアップロード、入れ子のフォルダー、短縮リンク、パスワード、有効期限、閲覧数の上限。さらに周辺のアプリがそろっているので、自分だけのファイルクラウドとして使えます。",
+                "ahead": "Zipline は OpenID Connect に加えて Discord、GitHub、Google などの OAuth プロバイダーでのログインに対応していますが、Fileship は OpenID Connect のみです。Zipline は MIT ライセンス、Fileship は AGPL-3.0 です。",
+                "migrate": "Fileship は Zipline 3.7 または 4.x のサーバーエクスポートをインポートできます。パスワード付きのアカウント、名前、リンク名、日付、閲覧数付きのファイル、入れ子のフォルダー、短縮リンクが移行されます。ドメインを Fileship に向ければ、古い /u/ リンクもそのまま使えます。"
+            },
+            "xbackbone": {
+                "version": "XBackBone 3.8",
+                "description": "Fileship と XBackBone を比較します。どちらもセルフホストの ShareX サーバーです。Fileship はフォルダー、共有の制限、Windows アプリ、エクスプローラーとの同期、AI 検索を備え、XBackBone のユーザーとファイルをインポートできます。",
+                "intro": "XBackBone は ShareX 向けの軽量な PHP 製ファイルマネージャーです。Fileship は同じアップロードを受け付け、入れ子のフォルダー、ノート、短縮リンク、パスワード、有効期限、閲覧数の上限に加え、Windows アプリとブラウザー拡張機能も備えています。",
+                "ahead": "XBackBone は Docker なしで一般的な PHP ホスティングで動作し、より多くのストレージに対応し、Fileship が対応していない LDAP でのログインもできます。",
+                "migrate": "Fileship は XBackBone 3 の SQLite データベースとストレージフォルダーをインポートできます。メールアドレス付きのユーザーと、名前、リンク名、日付付きのファイルが移行されます。XBackBone はパスワードを bcrypt でハッシュ化しているため、ユーザーは新しいパスワードを設定します。"
+            },
+            "chibisafe": {
+                "version": "Chibisafe 6.7",
+                "description": "Fileship と Chibisafe を比較します。どちらもセルフホストのファイルアップローダーです。Fileship は入れ子のフォルダー、共有の制限、Windows アプリ、エクスプローラーとの同期、AI 検索を備え、Chibisafe のファイル、アルバム、スニペットをインポートできます。",
+                "intro": "Chibisafe はアルバムとブラウザー拡張機能を備えたセルフホストのファイルアップローダーです。Fileship にも同じ機能があり、平坦なアルバムの代わりに入れ子のフォルダーを使えます。さらにパスワード、有効期限、閲覧数の上限、ノート、Windows アプリ、AI 検索も備えています。",
+                "ahead": "Chibisafe は MIT ライセンスで、構成要素が少なくセットアップが簡単です。",
+                "migrate": "Fileship は Chibisafe 6 の SQLite データベースとアップロードフォルダーをインポートできます。アカウント、名前、リンク名、日付付きのファイル、フォルダーとしてのアルバム、短縮リンク、ノートとしてのスニペットが移行されます。"
+            }
+        },
+        "faq": {
+            "free": {
+                "q": "Fileship は無料ですか？",
+                "a": "はい。Fileship は AGPL-3.0 のオープンソースで、自分のサーバーで運用します。"
+            },
+            "sharex": {
+                "q": "Fileship は {app} のように ShareX で使えますか？",
+                "a": "はい。Fileship は ShareX、Flameshot、curl、iOS Shortcuts などのアップローダーからのアップロードを受け付け、独自の Windows アプリとブラウザー拡張機能もあります。"
+            },
+            "migrate": {
+                "q": "{app} からデータを移行できますか？"
+            },
+            "requirements": {
+                "q": "Fileship の運用には何が必要ですか？",
+                "a": "Docker と Compose、CPU 2 コア、RAM 2 GB が必要です。AI を使う場合は 4 GB 以上です。"
+            }
+        }
     }
 }
