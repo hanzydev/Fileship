@@ -164,5 +164,58 @@
         "security": "安全",
         "contributing": "参与贡献",
         "copyright": "© {years} Hànzy 和 Fileship 贡献者"
+    },
+    "docs": {
+        "title": "文档",
+        "description": "在你自己的服务器上安装 Fileship，放在 Web 服务器后面，完成配置并连接你的应用和上传工具。",
+        "navigation": "文档",
+        "menu": "菜单",
+        "copyPage": "复制页面",
+        "copied": "已复制",
+        "edit": "在 GitHub 上编辑",
+        "previous": "上一页",
+        "next": "下一页",
+        "pagination": "更多页面",
+        "onThisPage": "本页内容",
+        "anchor": "本节链接",
+        "search": {
+            "button": "搜索文档…",
+            "title": "搜索文档",
+            "description": "查找页面或章节",
+            "placeholder": "搜索文档…",
+            "empty": "未找到结果。"
+        },
+        "groups": {
+            "gettingStarted": "入门",
+            "proxy": "Web 服务器和 SSL",
+            "configuration": "配置",
+            "features": "功能",
+            "apps": "应用和上传工具",
+            "integrations": "集成",
+            "updating": "更新和迁移",
+            "troubleshooting": "故障排除",
+            "more": "更多"
+        },
+        "groupDescriptions": {
+            "gettingStarted": "系统要求，以及使用 Docker、在 Windows 上或不使用 Docker 安装。",
+            "proxy": "Caddy、Nginx、Apache、Traefik、IIS 和 Cloudflare Tunnel，带或不带 SSL。",
+            "configuration": "服务器设置、环境变量、存储、邮件和单点登录。",
+            "features": "文件、文件夹、分享、AI，以及控制台中的所有其他功能。",
+            "apps": "Windows 应用、浏览器扩展、手机、ShareX 和其他上传工具。",
+            "integrations": "用于 Discord、Slack 和你自己服务的 Webhook，以及遥测。",
+            "updating": "更新 Fileship、从 5.x 升级以及从其他应用迁移。",
+            "troubleshooting": "错误的含义和解决方法。"
+        },
+        "alerts": {
+            "note": "注意",
+            "tip": "提示",
+            "important": "重要",
+            "warning": "警告",
+            "caution": "小心"
+        },
+        "code": {
+            "copy": "复制代码",
+            "copied": "已复制"
+        }
     }
 }

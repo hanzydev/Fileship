@@ -164,5 +164,58 @@
         "security": "Güvenlik",
         "contributing": "Katkıda bulunma",
         "copyright": "© {years} Hànzy ve Fileship'e katkıda bulunanlar"
+    },
+    "docs": {
+        "title": "Belgeler",
+        "description": "Fileship'i kendi sunucuna kur, bir web sunucusunun arkasına al, ayarla ve uygulamalarını ve yükleyicilerini bağla.",
+        "navigation": "Belgeler",
+        "menu": "Menü",
+        "copyPage": "Sayfayı kopyala",
+        "copied": "Kopyalandı",
+        "edit": "GitHub'da düzenle",
+        "previous": "Önceki",
+        "next": "Sonraki",
+        "pagination": "Diğer sayfalar",
+        "onThisPage": "Bu sayfada",
+        "anchor": "Bu bölümün bağlantısı",
+        "search": {
+            "button": "Belgelerde ara…",
+            "title": "Belgelerde ara",
+            "description": "Bir sayfa ya da bölüm bul",
+            "placeholder": "Belgelerde ara…",
+            "empty": "Sonuç bulunamadı."
+        },
+        "groups": {
+            "gettingStarted": "Başlarken",
+            "proxy": "Web sunucusu ve SSL",
+            "configuration": "Yapılandırma",
+            "features": "Özellikler",
+            "apps": "Uygulamalar ve yükleyiciler",
+            "integrations": "Entegrasyonlar",
+            "updating": "Güncelleme ve taşıma",
+            "troubleshooting": "Sorun giderme",
+            "more": "Diğer"
+        },
+        "groupDescriptions": {
+            "gettingStarted": "Gereksinimler ve Docker ile, Windows üzerinde ya da Docker olmadan kurulum.",
+            "proxy": "SSL ile ya da SSL olmadan Caddy, Nginx, Apache, Traefik, IIS ve Cloudflare Tunnel.",
+            "configuration": "Sunucu ayarları, ortam değişkenleri, depolama, e-posta ve tek oturum açma.",
+            "features": "Dosyalar, klasörler, paylaşım, yapay zekâ ve panelde yapabileceğin diğer her şey.",
+            "apps": "Windows uygulaması, tarayıcı eklentisi, telefonun, ShareX ve diğer yükleyiciler.",
+            "integrations": "Discord, Slack ve kendi servislerin için webhook'lar ve telemetri.",
+            "updating": "Fileship'i güncelleme, 5.x'ten yükseltme ve başka uygulamalardan taşıma.",
+            "troubleshooting": "Bir hatanın ne anlama geldiği ve nasıl düzeltileceği."
+        },
+        "alerts": {
+            "note": "Not",
+            "tip": "İpucu",
+            "important": "Önemli",
+            "warning": "Uyarı",
+            "caution": "Dikkat"
+        },
+        "code": {
+            "copy": "Kodu kopyala",
+            "copied": "Kopyalandı"
+        }
     }
 }

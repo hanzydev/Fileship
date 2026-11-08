@@ -164,5 +164,58 @@
         "security": "Sicherheit",
         "contributing": "Mitwirken",
         "copyright": "© {years} Hànzy und die Fileship-Mitwirkenden"
+    },
+    "docs": {
+        "title": "Dokumentation",
+        "description": "Installiere Fileship auf deinem eigenen Server, betreibe es hinter einem Webserver, richte es ein und verbinde deine Apps und Uploader.",
+        "navigation": "Dokumentation",
+        "menu": "Menü",
+        "copyPage": "Seite kopieren",
+        "copied": "Kopiert",
+        "edit": "Auf GitHub bearbeiten",
+        "previous": "Zurück",
+        "next": "Weiter",
+        "pagination": "Weitere Seiten",
+        "onThisPage": "Auf dieser Seite",
+        "anchor": "Link zu diesem Abschnitt",
+        "search": {
+            "button": "Doku durchsuchen…",
+            "title": "Dokumentation durchsuchen",
+            "description": "Eine Seite oder einen Abschnitt finden",
+            "placeholder": "Doku durchsuchen…",
+            "empty": "Keine Ergebnisse."
+        },
+        "groups": {
+            "gettingStarted": "Erste Schritte",
+            "proxy": "Webserver und SSL",
+            "configuration": "Konfiguration",
+            "features": "Funktionen",
+            "apps": "Apps und Uploader",
+            "integrations": "Integrationen",
+            "updating": "Updates und Umzug",
+            "troubleshooting": "Fehlerbehebung",
+            "more": "Mehr"
+        },
+        "groupDescriptions": {
+            "gettingStarted": "Anforderungen und Installation mit Docker, unter Windows oder ohne Docker.",
+            "proxy": "Caddy, Nginx, Apache, Traefik, IIS und Cloudflare Tunnel, mit oder ohne SSL.",
+            "configuration": "Servereinstellungen, Umgebungsvariablen, Speicher, E-Mail und Single Sign-on.",
+            "features": "Dateien, Ordner, Freigaben, KI und alles andere, was du im Dashboard tun kannst.",
+            "apps": "Die Windows-App, die Browsererweiterung, dein Smartphone, ShareX und andere Uploader.",
+            "integrations": "Webhooks für Discord, Slack und eigene Dienste, und Telemetrie.",
+            "updating": "Fileship aktualisieren, von 5.x upgraden und von anderen Apps umziehen.",
+            "troubleshooting": "Was ein Fehler bedeutet und wie du ihn behebst."
+        },
+        "alerts": {
+            "note": "Hinweis",
+            "tip": "Tipp",
+            "important": "Wichtig",
+            "warning": "Warnung",
+            "caution": "Vorsicht"
+        },
+        "code": {
+            "copy": "Code kopieren",
+            "copied": "Kopiert"
+        }
     }
 }

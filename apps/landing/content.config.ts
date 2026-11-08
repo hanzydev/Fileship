@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 
-import { defineCollection, defineContentConfig } from '@nuxt/content';
+import { defineCollection, defineContentConfig, z } from '@nuxt/content';
 
 const docsDirectory = fileURLToPath(new URL('../../docs', import.meta.url));
 
@@ -13,6 +13,9 @@ export default defineContentConfig({
                 include: '**/*.md',
                 prefix: '/docs',
             },
+            schema: z.object({
+                rawbody: z.string(),
+            }),
         }),
     },
 });

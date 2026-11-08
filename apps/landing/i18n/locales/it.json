@@ -164,5 +164,58 @@
         "security": "Sicurezza",
         "contributing": "Contribuire",
         "copyright": "© {years} Hànzy e i collaboratori di Fileship"
+    },
+    "docs": {
+        "title": "Documentazione",
+        "description": "Installa Fileship sul tuo server, mettilo dietro un server web, configuralo e collega le tue app e i client di caricamento.",
+        "navigation": "Documentazione",
+        "menu": "Menu",
+        "copyPage": "Copia la pagina",
+        "copied": "Copiato",
+        "edit": "Modifica su GitHub",
+        "previous": "Precedente",
+        "next": "Successivo",
+        "pagination": "Altre pagine",
+        "onThisPage": "In questa pagina",
+        "anchor": "Link a questa sezione",
+        "search": {
+            "button": "Cerca nella documentazione…",
+            "title": "Cerca nella documentazione",
+            "description": "Trova una pagina o una sezione",
+            "placeholder": "Cerca nella documentazione…",
+            "empty": "Nessun risultato."
+        },
+        "groups": {
+            "gettingStarted": "Per iniziare",
+            "proxy": "Server web e SSL",
+            "configuration": "Configurazione",
+            "features": "Funzionalità",
+            "apps": "App e client di caricamento",
+            "integrations": "Integrazioni",
+            "updating": "Aggiornamenti e migrazione",
+            "troubleshooting": "Risoluzione dei problemi",
+            "more": "Altro"
+        },
+        "groupDescriptions": {
+            "gettingStarted": "Requisiti e installazione con Docker, su Windows o senza Docker.",
+            "proxy": "Caddy, Nginx, Apache, Traefik, IIS e Cloudflare Tunnel, con o senza SSL.",
+            "configuration": "Impostazioni del server, variabili d’ambiente, archiviazione, email e single sign-on.",
+            "features": "File, cartelle, condivisione, IA e tutto il resto che puoi fare nella dashboard.",
+            "apps": "L’app per Windows, l’estensione del browser, il telefono, ShareX e gli altri client di caricamento.",
+            "integrations": "Webhook per Discord, Slack e i tuoi servizi, e telemetria.",
+            "updating": "Aggiornare Fileship, passare dalla 5.x e migrare da altre app.",
+            "troubleshooting": "Cosa significa un errore e come risolverlo."
+        },
+        "alerts": {
+            "note": "Nota",
+            "tip": "Suggerimento",
+            "important": "Importante",
+            "warning": "Avviso",
+            "caution": "Attenzione"
+        },
+        "code": {
+            "copy": "Copia il codice",
+            "copied": "Copiato"
+        }
     }
 }

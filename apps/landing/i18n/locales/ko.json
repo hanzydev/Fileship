@@ -164,5 +164,58 @@
         "security": "보안",
         "contributing": "기여하기",
         "copyright": "© {years} Hànzy 및 Fileship 기여자"
+    },
+    "docs": {
+        "title": "문서",
+        "description": "Fileship을 내 서버에 설치하고, 웹 서버 뒤에 두고, 설정한 다음 앱과 업로더를 연결하세요.",
+        "navigation": "문서",
+        "menu": "메뉴",
+        "copyPage": "페이지 복사",
+        "copied": "복사했어요",
+        "edit": "GitHub에서 편집",
+        "previous": "이전",
+        "next": "다음",
+        "pagination": "다른 페이지",
+        "onThisPage": "이 페이지의 내용",
+        "anchor": "이 섹션 링크",
+        "search": {
+            "button": "문서 검색…",
+            "title": "문서 검색",
+            "description": "페이지나 섹션을 찾아보세요",
+            "placeholder": "문서 검색…",
+            "empty": "결과가 없어요."
+        },
+        "groups": {
+            "gettingStarted": "시작하기",
+            "proxy": "웹 서버와 SSL",
+            "configuration": "구성",
+            "features": "기능",
+            "apps": "앱과 업로더",
+            "integrations": "연동",
+            "updating": "업데이트와 이전",
+            "troubleshooting": "문제 해결",
+            "more": "더 보기"
+        },
+        "groupDescriptions": {
+            "gettingStarted": "요구 사항과 Docker, Windows, Docker 없이 설치하는 방법.",
+            "proxy": "SSL 유무에 따른 Caddy, Nginx, Apache, Traefik, IIS, Cloudflare Tunnel 설정.",
+            "configuration": "서버 설정, 환경 변수, 저장소, 이메일, 싱글 사인온.",
+            "features": "파일, 폴더, 공유, AI 등 대시보드에서 할 수 있는 모든 것.",
+            "apps": "Windows 앱, 브라우저 확장 프로그램, 휴대폰, ShareX와 기타 업로더.",
+            "integrations": "Discord, Slack, 직접 만든 서비스용 웹훅과 텔레메트리.",
+            "updating": "Fileship 업데이트, 5.x에서 업그레이드, 다른 앱에서 이전하기.",
+            "troubleshooting": "오류의 의미와 해결 방법."
+        },
+        "alerts": {
+            "note": "참고",
+            "tip": "팁",
+            "important": "중요",
+            "warning": "경고",
+            "caution": "주의"
+        },
+        "code": {
+            "copy": "코드 복사",
+            "copied": "복사했어요"
+        }
     }
 }

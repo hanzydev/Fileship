@@ -164,5 +164,58 @@
         "security": "Təhlükəsizlik",
         "contributing": "Töhfə vermək",
         "copyright": "© {years} Hànzy və Fileship töhfəçiləri"
+    },
+    "docs": {
+        "title": "Sənədlər",
+        "description": "Fileship-i öz serverinə qur, onu veb serverin arxasına qoy, ayarla və tətbiqlərini və yükləyicilərini qoş.",
+        "navigation": "Sənədlər",
+        "menu": "Menyu",
+        "copyPage": "Səhifəni kopyala",
+        "copied": "Kopyalandı",
+        "edit": "GitHub-da redaktə et",
+        "previous": "Əvvəlki",
+        "next": "Növbəti",
+        "pagination": "Digər səhifələr",
+        "onThisPage": "Bu səhifədə",
+        "anchor": "Bu bölmənin keçidi",
+        "search": {
+            "button": "Sənədlərdə axtar…",
+            "title": "Sənədlərdə axtar",
+            "description": "Səhifə və ya bölmə tap",
+            "placeholder": "Sənədlərdə axtar…",
+            "empty": "Nəticə tapılmadı."
+        },
+        "groups": {
+            "gettingStarted": "Başlanğıc",
+            "proxy": "Veb server və SSL",
+            "configuration": "Konfiqurasiya",
+            "features": "İmkanlar",
+            "apps": "Tətbiqlər və yükləyicilər",
+            "integrations": "İnteqrasiyalar",
+            "updating": "Yeniləmə və köçürmə",
+            "troubleshooting": "Problemlərin həlli",
+            "more": "Digər"
+        },
+        "groupDescriptions": {
+            "gettingStarted": "Tələblər və Docker ilə, Windows-da və ya Docker olmadan quraşdırma.",
+            "proxy": "SSL ilə və ya SSL olmadan Caddy, Nginx, Apache, Traefik, IIS və Cloudflare Tunnel.",
+            "configuration": "Server ayarları, mühit dəyişənləri, yaddaş, e-poçt və vahid giriş.",
+            "features": "Fayllar, qovluqlar, paylaşım, süni intellekt və idarə panelində edə biləcəyin hər şey.",
+            "apps": "Windows tətbiqi, brauzer genişlənməsi, telefonun, ShareX və digər yükləyicilər.",
+            "integrations": "Discord, Slack və öz servislərin üçün webhook-lar və telemetriya.",
+            "updating": "Fileship-i yeniləmək, 5.x versiyasından keçmək və digər tətbiqlərdən köçmək.",
+            "troubleshooting": "Xətanın nə demək olduğu və necə düzəldiləcəyi."
+        },
+        "alerts": {
+            "note": "Qeyd",
+            "tip": "Məsləhət",
+            "important": "Vacib",
+            "warning": "Xəbərdarlıq",
+            "caution": "Diqqət"
+        },
+        "code": {
+            "copy": "Kodu kopyala",
+            "copied": "Kopyalandı"
+        }
     }
 }

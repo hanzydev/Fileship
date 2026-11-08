@@ -164,5 +164,58 @@
         "security": "Security",
         "contributing": "Contributing",
         "copyright": "© {years} Hànzy and Fileship contributors"
+    },
+    "docs": {
+        "title": "Documentation",
+        "description": "Install Fileship on your own server, put it behind a web server, configure it and connect your apps and uploaders.",
+        "navigation": "Documentation",
+        "menu": "Menu",
+        "copyPage": "Copy page",
+        "copied": "Copied",
+        "edit": "Edit on GitHub",
+        "previous": "Previous",
+        "next": "Next",
+        "pagination": "More pages",
+        "onThisPage": "On this page",
+        "anchor": "Link to this section",
+        "search": {
+            "button": "Search docs…",
+            "title": "Search the documentation",
+            "description": "Find a page or a section",
+            "placeholder": "Search the docs…",
+            "empty": "No results found."
+        },
+        "groups": {
+            "gettingStarted": "Getting started",
+            "proxy": "Web server and SSL",
+            "configuration": "Configuration",
+            "features": "Features",
+            "apps": "Apps and uploaders",
+            "integrations": "Integrations",
+            "updating": "Updating and migrating",
+            "troubleshooting": "Troubleshooting",
+            "more": "More"
+        },
+        "groupDescriptions": {
+            "gettingStarted": "Requirements and installation with Docker, on Windows or without Docker.",
+            "proxy": "Caddy, Nginx, Apache, Traefik, IIS and Cloudflare Tunnel, with or without SSL.",
+            "configuration": "Instance settings, environment variables, storage, email and single sign-on.",
+            "features": "Files, folders, sharing, AI and everything else you can do in the dashboard.",
+            "apps": "The Windows app, the browser extension, your phone, ShareX and other uploaders.",
+            "integrations": "Webhooks for Discord, Slack and your own services, and telemetry.",
+            "updating": "Updating Fileship, upgrading from 5.x and moving from other apps.",
+            "troubleshooting": "What an error means and how to fix it."
+        },
+        "alerts": {
+            "note": "Note",
+            "tip": "Tip",
+            "important": "Important",
+            "warning": "Warning",
+            "caution": "Caution"
+        },
+        "code": {
+            "copy": "Copy code",
+            "copied": "Copied"
+        }
     }
 }

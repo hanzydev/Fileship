@@ -164,5 +164,58 @@
         "security": "Seguridad",
         "contributing": "Contribuir",
         "copyright": "© {years} Hànzy y los colaboradores de Fileship"
+    },
+    "docs": {
+        "title": "Documentación",
+        "description": "Instala Fileship en tu propio servidor, ponlo detrás de un servidor web, configúralo y conecta tus apps y clientes de subida.",
+        "navigation": "Documentación",
+        "menu": "Menú",
+        "copyPage": "Copiar página",
+        "copied": "Copiado",
+        "edit": "Editar en GitHub",
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "pagination": "Más páginas",
+        "onThisPage": "En esta página",
+        "anchor": "Enlace a esta sección",
+        "search": {
+            "button": "Buscar en la documentación…",
+            "title": "Buscar en la documentación",
+            "description": "Encuentra una página o una sección",
+            "placeholder": "Buscar en la documentación…",
+            "empty": "No se encontraron resultados."
+        },
+        "groups": {
+            "gettingStarted": "Primeros pasos",
+            "proxy": "Servidor web y SSL",
+            "configuration": "Configuración",
+            "features": "Funciones",
+            "apps": "Apps y clientes de subida",
+            "integrations": "Integraciones",
+            "updating": "Actualizar y migrar",
+            "troubleshooting": "Solución de problemas",
+            "more": "Más"
+        },
+        "groupDescriptions": {
+            "gettingStarted": "Requisitos e instalación con Docker, en Windows o sin Docker.",
+            "proxy": "Caddy, Nginx, Apache, Traefik, IIS y Cloudflare Tunnel, con o sin SSL.",
+            "configuration": "Ajustes del servidor, variables de entorno, almacenamiento, correo e inicio de sesión único.",
+            "features": "Archivos, carpetas, uso compartido, IA y todo lo demás que puedes hacer en el panel.",
+            "apps": "La app para Windows, la extensión del navegador, tu teléfono, ShareX y otros clientes de subida.",
+            "integrations": "Webhooks para Discord, Slack y tus propios servicios, y telemetría.",
+            "updating": "Actualizar Fileship, pasar desde 5.x y migrar desde otras apps.",
+            "troubleshooting": "Qué significa un error y cómo solucionarlo."
+        },
+        "alerts": {
+            "note": "Nota",
+            "tip": "Consejo",
+            "important": "Importante",
+            "warning": "Advertencia",
+            "caution": "Precaución"
+        },
+        "code": {
+            "copy": "Copiar código",
+            "copied": "Copiado"
+        }
     }
 }

@@ -164,5 +164,58 @@
         "security": "セキュリティ",
         "contributing": "コントリビュート",
         "copyright": "© {years} Hànzy と Fileship のコントリビューター"
+    },
+    "docs": {
+        "title": "ドキュメント",
+        "description": "Fileship を自分のサーバーにインストールし、Web サーバーの後ろに置いて設定し、アプリやアップローダーを接続します。",
+        "navigation": "ドキュメント",
+        "menu": "メニュー",
+        "copyPage": "ページをコピー",
+        "copied": "コピーしました",
+        "edit": "GitHub で編集",
+        "previous": "前へ",
+        "next": "次へ",
+        "pagination": "ほかのページ",
+        "onThisPage": "このページの内容",
+        "anchor": "このセクションへのリンク",
+        "search": {
+            "button": "ドキュメントを検索…",
+            "title": "ドキュメントを検索",
+            "description": "ページやセクションを探します",
+            "placeholder": "ドキュメントを検索…",
+            "empty": "結果が見つかりません。"
+        },
+        "groups": {
+            "gettingStarted": "はじめに",
+            "proxy": "Web サーバーと SSL",
+            "configuration": "設定",
+            "features": "機能",
+            "apps": "アプリとアップローダー",
+            "integrations": "連携",
+            "updating": "アップデートと移行",
+            "troubleshooting": "トラブルシューティング",
+            "more": "その他"
+        },
+        "groupDescriptions": {
+            "gettingStarted": "必要な環境と、Docker、Windows、Docker なしでのインストール。",
+            "proxy": "Caddy、Nginx、Apache、Traefik、IIS、Cloudflare Tunnel（SSL あり・なし）。",
+            "configuration": "サーバー設定、環境変数、ストレージ、メール、シングルサインオン。",
+            "features": "ファイル、フォルダー、共有、AI など、ダッシュボードでできること。",
+            "apps": "Windows アプリ、ブラウザー拡張機能、スマートフォン、ShareX などのアップローダー。",
+            "integrations": "Discord、Slack、独自サービス向けの Webhook とテレメトリ。",
+            "updating": "Fileship のアップデート、5.x からのアップグレード、ほかのアプリからの移行。",
+            "troubleshooting": "エラーの意味と直し方。"
+        },
+        "alerts": {
+            "note": "注",
+            "tip": "ヒント",
+            "important": "重要",
+            "warning": "警告",
+            "caution": "注意"
+        },
+        "code": {
+            "copy": "コードをコピー",
+            "copied": "コピーしました"
+        }
     }
 }
