@@ -4,7 +4,7 @@
             <div
                 class="container mx-auto flex flex-col items-center justify-center text-center gap-6 lg:gap-8"
             >
-                <NuxtLink to="/docs" class="max-w-full">
+                <NuxtLink :to="latestRelease?.path ?? '/releases'" class="max-w-full">
                     <div
                         class="cursor-pointer rounded-3xl bg-card border flex p-1.5 justify-between w-fit max-w-full items-center gap-2 text-left hover:bg-secondary transition-colors duration-200"
                     >
@@ -76,6 +76,10 @@
 <script setup lang="ts">
 const slots = useSlots();
 const { t } = useI18n();
+
+const { data: latestRelease } = await useAsyncData('latest-release', () =>
+    queryCollection('releases').order('order', 'DESC').select('path').first(),
+);
 
 const dockerCompose = 'Docker Compose';
 const separator = '・';

@@ -7,7 +7,8 @@
         "docs": "문서",
         "github": "GitHub",
         "menu": "메뉴",
-        "openMenu": "메뉴 열기"
+        "openMenu": "메뉴 열기",
+        "releases": "릴리스"
     },
     "hero": {
         "release": "Windows 대시보드에서 다운로드와 Harbor 지원",
@@ -217,5 +218,17 @@
             "copy": "코드 복사",
             "copied": "복사했어요"
         }
+    },
+    "releases": {
+        "title": "릴리스",
+        "description": "Fileship의 모든 버전에서 바뀐 내용.",
+        "major": "Fileship {major}.x",
+        "latest": "최신",
+        "desktop": "Windows 앱 {version}",
+        "github": "GitHub에서 보기",
+        "compare": "변경 사항 비교",
+        "older": "이전 릴리스",
+        "newer": "다음 릴리스",
+        "more": "다른 릴리스"
     }
 }

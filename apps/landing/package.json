@@ -3,9 +3,10 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "nuxt build",
-        "dev": "nuxt dev",
-        "generate": "nuxt generate",
+        "build": "pnpm releases && nuxt build",
+        "dev": "pnpm releases && nuxt dev",
+        "generate": "pnpm releases && nuxt generate",
+        "releases": "node scripts/releases.mjs",
         "preview": "nuxt preview",
         "cleanup": "nuxt cleanup",
         "lint:types": "nuxt typecheck",

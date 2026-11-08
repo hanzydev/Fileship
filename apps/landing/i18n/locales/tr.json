@@ -7,7 +7,8 @@
         "docs": "Belgeler",
         "github": "GitHub",
         "menu": "Menü",
-        "openMenu": "Menüyü aç"
+        "openMenu": "Menüyü aç",
+        "releases": "Sürümler"
     },
     "hero": {
         "release": "Windows panelinde indirmeler ve Harbor",
@@ -217,5 +218,17 @@
             "copy": "Kodu kopyala",
             "copied": "Kopyalandı"
         }
+    },
+    "releases": {
+        "title": "Sürümler",
+        "description": "Fileship'in her sürümünde değişen her şey.",
+        "major": "Fileship {major}.x",
+        "latest": "En son",
+        "desktop": "Windows uygulaması {version}",
+        "github": "GitHub'da gör",
+        "compare": "Değişiklikleri karşılaştır",
+        "older": "Daha eski",
+        "newer": "Daha yeni",
+        "more": "Diğer sürümler"
     }
 }

@@ -7,7 +7,8 @@
         "docs": "Sənədlər",
         "github": "GitHub",
         "menu": "Menyu",
-        "openMenu": "Menyunu aç"
+        "openMenu": "Menyunu aç",
+        "releases": "Buraxılışlar"
     },
     "hero": {
         "release": "Windows idarə panelində endirmələr və Harbor",
@@ -217,5 +218,17 @@
             "copy": "Kodu kopyala",
             "copied": "Kopyalandı"
         }
+    },
+    "releases": {
+        "title": "Buraxılışlar",
+        "description": "Fileship-in hər versiyasında dəyişən hər şey.",
+        "major": "Fileship {major}.x",
+        "latest": "Ən son",
+        "desktop": "Windows tətbiqi {version}",
+        "github": "GitHub-da bax",
+        "compare": "Dəyişiklikləri müqayisə et",
+        "older": "Daha köhnə",
+        "newer": "Daha yeni",
+        "more": "Digər buraxılışlar"
     }
 }

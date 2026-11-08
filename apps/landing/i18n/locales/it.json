@@ -7,7 +7,8 @@
         "docs": "Documentazione",
         "github": "GitHub",
         "menu": "Menu",
-        "openMenu": "Apri il menu"
+        "openMenu": "Apri il menu",
+        "releases": "Versioni"
     },
     "hero": {
         "release": "Download e Harbor nella dashboard di Windows",
@@ -217,5 +218,17 @@
             "copy": "Copia il codice",
             "copied": "Copiato"
         }
+    },
+    "releases": {
+        "title": "Versioni",
+        "description": "Tutto ciò che è cambiato in ogni versione di Fileship.",
+        "major": "Fileship {major}.x",
+        "latest": "Più recente",
+        "desktop": "App per Windows {version}",
+        "github": "Vedi su GitHub",
+        "compare": "Confronta le modifiche",
+        "older": "Precedente",
+        "newer": "Successiva",
+        "more": "Altre versioni"
     }
 }

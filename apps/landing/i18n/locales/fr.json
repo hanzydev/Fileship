@@ -7,7 +7,8 @@
         "docs": "Documentation",
         "github": "GitHub",
         "menu": "Menu",
-        "openMenu": "Ouvrir le menu"
+        "openMenu": "Ouvrir le menu",
+        "releases": "Versions"
     },
     "hero": {
         "release": "Téléchargements et Harbor dans le tableau de bord Windows",
@@ -217,5 +218,17 @@
             "copy": "Copier le code",
             "copied": "Copié"
         }
+    },
+    "releases": {
+        "title": "Versions",
+        "description": "Tout ce qui a changé dans chaque version de Fileship.",
+        "major": "Fileship {major}.x",
+        "latest": "Dernière",
+        "desktop": "Application Windows {version}",
+        "github": "Voir sur GitHub",
+        "compare": "Comparer les modifications",
+        "older": "Plus ancienne",
+        "newer": "Plus récente",
+        "more": "Autres versions"
     }
 }

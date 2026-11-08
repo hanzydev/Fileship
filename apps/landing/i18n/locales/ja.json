@@ -7,7 +7,8 @@
         "docs": "ドキュメント",
         "github": "GitHub",
         "menu": "メニュー",
-        "openMenu": "メニューを開く"
+        "openMenu": "メニューを開く",
+        "releases": "リリース"
     },
     "hero": {
         "release": "Windows のダッシュボードでダウンロードと Harbor に対応",
@@ -217,5 +218,17 @@
             "copy": "コードをコピー",
             "copied": "コピーしました"
         }
+    },
+    "releases": {
+        "title": "リリース",
+        "description": "Fileship の各バージョンの変更点。",
+        "major": "Fileship {major}.x",
+        "latest": "最新",
+        "desktop": "Windows アプリ {version}",
+        "github": "GitHub で見る",
+        "compare": "変更を比較",
+        "older": "前のリリース",
+        "newer": "次のリリース",
+        "more": "ほかのリリース"
     }
 }

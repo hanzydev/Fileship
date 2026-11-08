@@ -7,7 +7,8 @@
         "docs": "Документация",
         "github": "GitHub",
         "menu": "Меню",
-        "openMenu": "Открыть меню"
+        "openMenu": "Открыть меню",
+        "releases": "Релизы"
     },
     "hero": {
         "release": "Загрузки и Harbor в панели управления для Windows",
@@ -217,5 +218,17 @@
             "copy": "Скопировать код",
             "copied": "Скопировано"
         }
+    },
+    "releases": {
+        "title": "Релизы",
+        "description": "Всё, что менялось в каждой версии Fileship.",
+        "major": "Fileship {major}.x",
+        "latest": "Последний",
+        "desktop": "Приложение для Windows {version}",
+        "github": "Открыть на GitHub",
+        "compare": "Сравнить изменения",
+        "older": "Предыдущий",
+        "newer": "Следующий",
+        "more": "Другие релизы"
     }
 }

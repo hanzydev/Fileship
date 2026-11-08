@@ -7,7 +7,8 @@
         "docs": "Docs",
         "github": "GitHub",
         "menu": "Menu",
-        "openMenu": "Open menu"
+        "openMenu": "Open menu",
+        "releases": "Releases"
     },
     "hero": {
         "release": "Downloads and Harbor in the Windows dashboard",
@@ -217,5 +218,17 @@
             "copy": "Copy code",
             "copied": "Copied"
         }
+    },
+    "releases": {
+        "title": "Releases",
+        "description": "Everything that changed in every version of Fileship.",
+        "major": "Fileship {major}.x",
+        "latest": "Latest",
+        "desktop": "Windows app {version}",
+        "github": "View on GitHub",
+        "compare": "Compare changes",
+        "older": "Older",
+        "newer": "Newer",
+        "more": "More releases"
     }
 }

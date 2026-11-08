@@ -18,7 +18,7 @@
                     </NuxtLink>
                 </UiButton>
                 <UiButton class="hidden sm:inline-flex" as-child>
-                    <NuxtLink to="#getStarted">{{ $t('nav.getStarted') }}</NuxtLink>
+                    <NuxtLink to="/#getStarted">{{ $t('nav.getStarted') }}</NuxtLink>
                 </UiButton>
 
                 <UiSheet v-model:open="isMenuOpen">
@@ -59,7 +59,7 @@
                                     {{ $t('nav.github') }}
                                 </NuxtLink>
                             </UiButton>
-                            <UiButton @click="handleNavigate('#getStarted')">
+                            <UiButton @click="handleNavigate('/#getStarted')">
                                 {{ $t('nav.getStarted') }}
                             </UiButton>
                         </UiSheetFooter>
@@ -76,23 +76,27 @@ const isMenuOpen = ref(false);
 const items = [
     {
         title: 'nav.features',
-        href: '#features',
+        href: '/#features',
     },
     {
         title: 'nav.windowsApp',
-        href: '#windowsApp',
+        href: '/#windowsApp',
     },
     {
         title: 'nav.compare',
-        href: '#compare',
+        href: '/#compare',
     },
     {
         title: 'nav.getStarted',
-        href: '#getStarted',
+        href: '/#getStarted',
     },
     {
         title: 'nav.docs',
         href: '/docs',
+    },
+    {
+        title: 'nav.releases',
+        href: '/releases',
     },
 ];
 

@@ -7,7 +7,8 @@
         "docs": "文档",
         "github": "GitHub",
         "menu": "菜单",
-        "openMenu": "打开菜单"
+        "openMenu": "打开菜单",
+        "releases": "版本发布"
     },
     "hero": {
         "release": "Windows 控制台支持下载和 Harbor",
@@ -217,5 +218,17 @@
             "copy": "复制代码",
             "copied": "已复制"
         }
+    },
+    "releases": {
+        "title": "版本发布",
+        "description": "Fileship 每个版本的全部变更。",
+        "major": "Fileship {major}.x",
+        "latest": "最新",
+        "desktop": "Windows 应用 {version}",
+        "github": "在 GitHub 上查看",
+        "compare": "比较变更",
+        "older": "更早",
+        "newer": "更新",
+        "more": "更多版本"
     }
 }

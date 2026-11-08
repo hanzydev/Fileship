@@ -76,7 +76,7 @@ const groups = [
         title: 'project',
         links: [
             { title: 'github', href: 'https://github.com/hanzydev/Fileship' },
-            { title: 'releases', href: 'https://github.com/hanzydev/Fileship/releases' },
+            { title: 'releases', href: '/releases' },
             {
                 title: 'security',
                 href: 'https://github.com/hanzydev/Fileship/blob/main/SECURITY.md',
