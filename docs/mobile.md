@@ -1,10 +1,15 @@
+---
+title: Fileship on your phone
+description: Install the Fileship dashboard as an app on Android and iOS, and share photos, files, links and text to it from Android.
+---
+
 # Fileship on your phone
 
 The dashboard works in any mobile browser. Installed as an app, it opens in its own window from the home screen and, on Android, shows up in the share sheet of other apps, so you can send photos, files, links and text straight to Fileship.
 
 ## Requirements
 
-- Fileship must be served over HTTPS (see [Web server configuration](installation.md#web-server-configuration-optional)). Browsers only install apps and run their service worker on secure origins; `http://localhost` is the only exception.
+- Fileship must be served over HTTPS (see [Reverse proxy overview](proxy/overview.md) and [SSL certificates](proxy/ssl.md)). Browsers only install apps and run their service worker on secure origins; `http://localhost` is the only exception.
 - The app is built with `ENABLE_PWA` on, which is the default and what the published image uses. With `ENABLE_PWA=false` the dashboard has no web app manifest and no service worker, so it cannot be installed and nothing can be shared to it.
 
 ## Install the app

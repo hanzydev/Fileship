@@ -1,3 +1,8 @@
+---
+title: Moving from another app
+description: Import accounts, files, folders, short links and snippets from Zipline, XBackBone or Chibisafe into Fileship.
+---
+
 # Moving from another app
 
 Fileship can take over a Zipline, XBackBone or Chibisafe instance: its accounts, its files with their original names, dates and link names, its folders or albums, its short links and its snippets. Super admins run the import from the dashboard, one app at a time.
@@ -46,7 +51,7 @@ Not imported: tags, favorites, avatars, two-factor authentication, passkeys, OAu
 ### Accounts
 
 - New accounts keep the old username when it is free (Fileship usernames are 3 to 24 characters; a taken name gets a number). They can upload files, take notes and shorten links. **Admin rights are never copied**; grant them on the **Users** page.
-- **Zipline accounts keep their password**, because Zipline and Fileship hash passwords the same way (Argon2); accounts that only signed in through OAuth have none and need one. XBackBone and Chibisafe use bcrypt, which Fileship cannot check, so set a new password for those accounts on the **Users** page. XBackBone email addresses are imported as confirmed addresses, so once [email](configuration.md#email) is set up those users can also reset their password themselves.
+- **Zipline accounts keep their password**, because Zipline and Fileship hash passwords the same way (Argon2); accounts that only signed in through OAuth have none and need one. XBackBone and Chibisafe use bcrypt, which Fileship cannot check, so set a new password for those accounts on the **Users** page. XBackBone email addresses are imported as confirmed addresses, so once [email](configuration/email.md) is set up those users can also reset their password themselves.
 - New accounts get the storage limit they had in the old app, or no limit. An existing account keeps its own limit, and files that do not fit are skipped.
 - Two-factor authentication and passkeys have to be set up again.
 

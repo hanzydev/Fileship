@@ -1,3 +1,8 @@
+---
+title: Browser extension
+description: Upload files, images and screenshots to Fileship and shorten links from Chrome, Edge and Firefox.
+---
+
 # Browser extension
 
 The Fileship browser extension uploads files, images and screenshots to your Fileship and shortens links, right from Chrome, Edge or Firefox. It talks to your own server with your upload token, nothing else.

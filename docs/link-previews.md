@@ -1,3 +1,8 @@
+---
+title: Link previews
+description: Choose how Fileship links look in Discord, Slack, X and other apps, with embeds and custom Discord layouts.
+---
+
 # Link previews
 
 When you share a Fileship link in Discord, Slack, X or another app, it shows a preview card. Set it up in **Settings → Sharing → Embeds**.

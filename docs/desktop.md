@@ -1,3 +1,8 @@
+---
+title: Fileship for Windows
+description: Capture, record and upload from the Windows tray, ShareX style, and see your Fileship files in File Explorer with Fileship Harbor.
+---
+
 # Fileship for Windows
 
 Fileship for Windows captures, records and uploads to your Fileship from the system tray, ShareX style, and shows your files in File Explorer with Fileship Harbor.
