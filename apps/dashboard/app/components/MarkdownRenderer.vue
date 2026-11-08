@@ -1,9 +1,19 @@
 <template>
-    <div class="markdown" @click="handleClick" v-html="html" />
+    <div class="markdown">
+        <template v-for="(segment, index) in segments" :key="index">
+            <HighlightedCode
+                v-if="segment.type === 'code'"
+                :code="segment.code"
+                :language="segment.language"
+                :title="segment.language || 'text'"
+            />
+            <div v-else class="contents" v-html="segment.html" />
+        </template>
+    </div>
 </template>
 
 <script setup lang="ts">
-import hljs from 'highlight.js';
+import type { Token, TokensList } from 'marked';
 import { Marked } from 'marked';
 import markedKatex from 'marked-katex-extension';
 
@@ -11,12 +21,7 @@ const { content } = defineProps<{
     content: string;
 }>();
 
-const { $toast } = useNuxtApp();
-const { t } = useI18n();
-const { copy } = useClipboard({ legacy: true });
-
-const copyIcon =
-    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
+type Segment = { type: 'code'; code: string; language: string } | { type: 'html'; html: string };
 
 const escapeHtml = (value: string) =>
     value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`);
@@ -32,6 +37,8 @@ const isSafeUrl = (url: string) => {
 };
 
 const marked = new Marked(markedKatex({ throwOnError: false }), {
+    breaks: true,
+    gfm: true,
     renderer: {
         html({ text }) {
             return escapeHtml(text);
@@ -46,35 +53,46 @@ const marked = new Marked(markedKatex({ throwOnError: false }), {
 
             return `<img src="${escapeHtml(href)}" alt="${escapeHtml(text)}"${title ? ` title="${escapeHtml(title)}"` : ''}>`;
         },
-        code({ text, lang }) {
-            const language = hljs.getLanguage(lang || '') ? lang! : 'plaintext';
-            const highlighted = hljs.highlight(text, { language }).value;
-
-            return `<pre><button type="button" data-copy aria-label="${escapeHtml(t('view.copyCode'))}">${copyIcon}</button><code class="hljs language-${language}">${highlighted}</code></pre>`;
+        code({ text }) {
+            return `<pre><code>${escapeHtml(text)}</code></pre>`;
         },
     },
 });
 
-const html = computed(() => marked.parse(content, { breaks: true, gfm: true }) as string);
+const segments = computed(() => {
+    const tokens = marked.lexer(content);
+    const result: Segment[] = [];
+    let run: Token[] = [];
 
-const handleClick = (event: MouseEvent) => {
-    const button = (event.target as HTMLElement).closest('[data-copy]');
-    if (!button) return;
+    const flush = () => {
+        if (!run.length) return;
+        result.push({
+            type: 'html',
+            html: marked.parser(Object.assign(run, { links: tokens.links }) as TokensList),
+        });
+        run = [];
+    };
 
-    copy(button.nextElementSibling!.textContent!);
-    $toast.success(t('view.codeCopied'));
-};
+    for (const token of tokens) {
+        if (token.type === 'code') {
+            flush();
+            result.push({ type: 'code', code: token.text, language: token.lang ?? '' });
+        } else if (token.type !== 'space') {
+            run.push(token);
+        }
+    }
+
+    flush();
+
+    return result;
+});
 </script>
 
 <style scoped>
 @reference '~/styles/tailwind.css';
 
 .markdown {
-    @apply text-sm leading-7 break-words;
-}
-
-.markdown :deep(> * + *) {
-    @apply mt-4;
+    @apply flex flex-col gap-4 text-sm leading-7 break-words;
 }
 
 .markdown :deep(h1) {
@@ -113,20 +131,8 @@ const handleClick = (event: MouseEvent) => {
     @apply rounded-md bg-muted px-1.5 py-0.5 font-mono text-[0.85em];
 }
 
-.markdown :deep(pre) {
-    @apply relative overflow-x-auto rounded-2xl;
-}
-
-.markdown :deep(pre code) {
-    @apply block p-4 font-mono text-[0.85em];
-}
-
-.markdown :deep(pre [data-copy]) {
-    @apply absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-background/70 text-muted-foreground opacity-0 transition-opacity pointer-coarse:opacity-100 hover:text-foreground;
-}
-
-.markdown :deep(pre:hover [data-copy]) {
-    @apply opacity-100;
+.markdown :deep(pre:not([data-slot])) {
+    @apply overflow-x-auto rounded-2xl bg-muted p-4 font-mono text-[0.85em];
 }
 
 .markdown :deep(table) {

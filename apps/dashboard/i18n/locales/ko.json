@@ -2188,7 +2188,6 @@
         "raw": "원본",
         "copy": "복사",
         "download": "다운로드",
-        "copyCode": "코드 복사",
         "fileSubtitle": "{size} · {date}",
         "noPreview": "미리보기를 사용할 수 없어요",
         "noPreviewDescription": "이 파일 형식은 미리 볼 수 없지만 다운로드할 수 있어요.",
@@ -2197,8 +2196,7 @@
         "noPermission": "이 페이지에 접근할 권한이 없어요",
         "contentCopied": "내용을 클립보드에 복사했어요",
         "linkCopied": "링크를 클립보드에 복사했어요",
-        "noteCopied": "노트를 클립보드에 복사했어요",
-        "codeCopied": "코드를 클립보드에 복사했어요"
+        "noteCopied": "노트를 클립보드에 복사했어요"
     },
     "storage": {
         "title": "저장 공간",

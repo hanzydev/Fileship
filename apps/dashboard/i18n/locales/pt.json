@@ -2188,7 +2188,6 @@
         "raw": "Texto bruto",
         "copy": "Copiar",
         "download": "Baixar",
-        "copyCode": "Copiar código",
         "fileSubtitle": "{size} · {date}",
         "noPreview": "Pré-visualização indisponível",
         "noPreviewDescription": "Não é possível pré-visualizar este tipo de arquivo, mas você pode baixá-lo.",
@@ -2197,8 +2196,7 @@
         "noPermission": "Você não tem permissão para acessar esta página",
         "contentCopied": "Conteúdo copiado para a área de transferência",
         "linkCopied": "Link copiado para a área de transferência",
-        "noteCopied": "Nota copiada para a área de transferência",
-        "codeCopied": "Código copiado para a área de transferência"
+        "noteCopied": "Nota copiada para a área de transferência"
     },
     "storage": {
         "title": "Armazenamento",

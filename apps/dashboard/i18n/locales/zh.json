@@ -2188,7 +2188,6 @@
         "raw": "原始内容",
         "copy": "复制",
         "download": "下载",
-        "copyCode": "复制代码",
         "fileSubtitle": "{size} · {date}",
         "noPreview": "无法预览",
         "noPreviewDescription": "此类文件无法预览，但可以下载。",
@@ -2197,8 +2196,7 @@
         "noPermission": "你没有权限访问此页面",
         "contentCopied": "内容已复制到剪贴板",
         "linkCopied": "链接已复制到剪贴板",
-        "noteCopied": "笔记已复制到剪贴板",
-        "codeCopied": "代码已复制到剪贴板"
+        "noteCopied": "笔记已复制到剪贴板"
     },
     "storage": {
         "title": "存储",

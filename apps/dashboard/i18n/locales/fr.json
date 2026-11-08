@@ -2188,7 +2188,6 @@
         "raw": "Brut",
         "copy": "Copier",
         "download": "Télécharger",
-        "copyCode": "Copier le code",
         "fileSubtitle": "{size} · {date}",
         "noPreview": "Aucun aperçu disponible",
         "noPreviewDescription": "Ce type de fichier ne peut pas être prévisualisé, mais vous pouvez le télécharger.",
@@ -2197,8 +2196,7 @@
         "noPermission": "Vous n'avez pas l'autorisation d'accéder à cette page",
         "contentCopied": "Contenu copié dans le presse-papiers",
         "linkCopied": "Lien copié dans le presse-papiers",
-        "noteCopied": "Note copiée dans le presse-papiers",
-        "codeCopied": "Code copié dans le presse-papiers"
+        "noteCopied": "Note copiée dans le presse-papiers"
     },
     "storage": {
         "title": "Stockage",

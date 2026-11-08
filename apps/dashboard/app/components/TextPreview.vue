@@ -22,17 +22,19 @@
             </TextBlock>
         </div>
         <MarkdownRenderer v-else-if="preview && language === 'markdown'" :content="content" />
-        <pre
-            v-else-if="preview && highlighted"
-            class="overflow-x-auto rounded-2xl"
-        ><code class="hljs block p-4 font-mono text-[0.85em]" v-html="highlighted" /></pre>
-        <pre v-else class="font-mono text-sm break-all whitespace-pre-wrap">{{ content }}</pre>
+        <HighlightedCode
+            v-else-if="preview && isHighlighted"
+            :code="content"
+            :language="language"
+            line-numbers
+        />
+        <UiCodeBlock v-else>
+            <UiCodeBlockContent wrap class="text-[0.85em]">{{ content }}</UiCodeBlockContent>
+        </UiCodeBlock>
     </div>
 </template>
 
 <script setup lang="ts">
-import hljs from 'highlight.js';
-
 import { IFileText } from '#components';
 
 const HIGHLIGHT_MAX_LENGTH = 512 * 1024;
@@ -60,13 +62,10 @@ const error = ref<string>();
 const language = computed(() => textPreviewLanguage(name, mimeType) ?? 'plaintext');
 const isTooLarge = computed(() => size > TEXT_PREVIEW_MAX_SIZE);
 
-const highlighted = computed(() =>
-    content.value &&
-    content.value.length <= HIGHLIGHT_MAX_LENGTH &&
-    !['plaintext', 'markdown'].includes(language.value) &&
-    hljs.getLanguage(language.value)
-        ? hljs.highlight(content.value, { language: language.value, ignoreIllegals: true }).value
-        : null,
+const isHighlighted = computed(
+    () =>
+        content.value!.length <= HIGHLIGHT_MAX_LENGTH &&
+        !['plaintext', 'markdown'].includes(language.value),
 );
 
 let version = 0;

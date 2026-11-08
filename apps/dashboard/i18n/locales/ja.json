@@ -2188,7 +2188,6 @@
         "raw": "ソース",
         "copy": "コピー",
         "download": "ダウンロード",
-        "copyCode": "コードをコピー",
         "fileSubtitle": "{size} · {date}",
         "noPreview": "プレビューできません",
         "noPreviewDescription": "この種類のファイルはプレビューできませんが、ダウンロードはできます。",
@@ -2197,8 +2196,7 @@
         "noPermission": "このページにアクセスする権限がありません",
         "contentCopied": "内容をクリップボードにコピーしました",
         "linkCopied": "リンクをクリップボードにコピーしました",
-        "noteCopied": "ノートをクリップボードにコピーしました",
-        "codeCopied": "コードをクリップボードにコピーしました"
+        "noteCopied": "ノートをクリップボードにコピーしました"
     },
     "storage": {
         "title": "ストレージ",

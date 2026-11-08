@@ -97,11 +97,7 @@ export default defineNuxtConfig({
         },
     ],
 
-    css: [
-        '~/styles/tailwind.css',
-        'katex/dist/katex.min.css',
-        'highlight.js/styles/tokyo-night-dark.css',
-    ],
+    css: ['~/styles/tailwind.css', 'katex/dist/katex.min.css'],
 
     i18n: {
         locales: [
@@ -314,7 +310,6 @@ export default defineNuxtConfig({
                 'dayjs/plugin/localizedFormat', // CJS
                 'dayjs/plugin/relativeTime', // CJS
                 'filesize',
-                'highlight.js',
                 'marked',
                 'marked-katex-extension',
                 'nanoid',

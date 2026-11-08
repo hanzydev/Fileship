@@ -2188,7 +2188,6 @@
         "raw": "Ham metin",
         "copy": "Kopyala",
         "download": "İndir",
-        "copyCode": "Kodu kopyala",
         "fileSubtitle": "{size} · {date}",
         "noPreview": "Önizleme yok",
         "noPreviewDescription": "Bu dosya türü önizlenemiyor ama indirebilirsin.",
@@ -2197,8 +2196,7 @@
         "noPermission": "Bu sayfaya erişim yetkin yok",
         "contentCopied": "İçerik panoya kopyalandı",
         "linkCopied": "Bağlantı panoya kopyalandı",
-        "noteCopied": "Not panoya kopyalandı",
-        "codeCopied": "Kod panoya kopyalandı"
+        "noteCopied": "Not panoya kopyalandı"
     },
     "storage": {
         "title": "Depolama",

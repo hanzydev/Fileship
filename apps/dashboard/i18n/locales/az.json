@@ -2188,7 +2188,6 @@
         "raw": "Xam mətn",
         "copy": "Kopyala",
         "download": "Endir",
-        "copyCode": "Kodu kopyala",
         "fileSubtitle": "{size} · {date}",
         "noPreview": "Önizləmə yoxdur",
         "noPreviewDescription": "Bu fayl növü önizlənmir, amma onu endirə bilərsən.",
@@ -2197,8 +2196,7 @@
         "noPermission": "Bu səhifəyə giriş icazən yoxdur",
         "contentCopied": "Məzmun mübadilə buferinə kopyalandı",
         "linkCopied": "Keçid mübadilə buferinə kopyalandı",
-        "noteCopied": "Qeyd mübadilə buferinə kopyalandı",
-        "codeCopied": "Kod mübadilə buferinə kopyalandı"
+        "noteCopied": "Qeyd mübadilə buferinə kopyalandı"
     },
     "storage": {
         "title": "Yaddaş",

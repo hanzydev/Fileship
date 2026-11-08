@@ -2188,7 +2188,6 @@
         "raw": "Originale",
         "copy": "Copia",
         "download": "Scarica",
-        "copyCode": "Copia codice",
         "fileSubtitle": "{size} · {date}",
         "noPreview": "Anteprima non disponibile",
         "noPreviewDescription": "Non è possibile visualizzare l'anteprima di questo tipo di file, ma puoi scaricarlo.",
@@ -2197,8 +2196,7 @@
         "noPermission": "Non hai l'autorizzazione per accedere a questa pagina",
         "contentCopied": "Contenuto copiato negli appunti",
         "linkCopied": "Link copiato negli appunti",
-        "noteCopied": "Nota copiata negli appunti",
-        "codeCopied": "Codice copiato negli appunti"
+        "noteCopied": "Nota copiata negli appunti"
     },
     "storage": {
         "title": "Archiviazione",

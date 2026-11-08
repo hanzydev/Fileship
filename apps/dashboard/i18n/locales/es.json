@@ -2188,7 +2188,6 @@
         "raw": "Sin formato",
         "copy": "Copiar",
         "download": "Descargar",
-        "copyCode": "Copiar código",
         "fileSubtitle": "{size} · {date}",
         "noPreview": "No hay vista previa disponible",
         "noPreviewDescription": "Este tipo de archivo no tiene vista previa, pero puedes descargarlo.",
@@ -2197,8 +2196,7 @@
         "noPermission": "No tienes permiso para acceder a esta página",
         "contentCopied": "Contenido copiado al portapapeles",
         "linkCopied": "Enlace copiado al portapapeles",
-        "noteCopied": "Nota copiada al portapapeles",
-        "codeCopied": "Código copiado al portapapeles"
+        "noteCopied": "Nota copiada al portapapeles"
     },
     "storage": {
         "title": "Almacenamiento",

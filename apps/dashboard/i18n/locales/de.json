@@ -2188,7 +2188,6 @@
         "raw": "Rohtext",
         "copy": "Kopieren",
         "download": "Herunterladen",
-        "copyCode": "Code kopieren",
         "fileSubtitle": "{size} · {date}",
         "noPreview": "Keine Vorschau verfügbar",
         "noPreviewDescription": "Für diesen Dateityp gibt es keine Vorschau, du kannst die Datei aber herunterladen.",
@@ -2197,8 +2196,7 @@
         "noPermission": "Du hast keine Berechtigung für diese Seite",
         "contentCopied": "Inhalt in die Zwischenablage kopiert",
         "linkCopied": "Link in die Zwischenablage kopiert",
-        "noteCopied": "Notiz in die Zwischenablage kopiert",
-        "codeCopied": "Code in die Zwischenablage kopiert"
+        "noteCopied": "Notiz in die Zwischenablage kopiert"
     },
     "storage": {
         "title": "Speicher",

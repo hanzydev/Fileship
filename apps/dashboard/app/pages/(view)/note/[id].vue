@@ -40,9 +40,9 @@
             <UiCard>
                 <UiCardContent>
                     <MarkdownRenderer v-if="previewMode" :content="data!.content" />
-                    <pre v-else class="font-mono text-sm break-all whitespace-pre-wrap">{{
-                        data!.content
-                    }}</pre>
+                    <UiCodeBlock v-else>
+                        <UiCodeBlockContent wrap>{{ data!.content }}</UiCodeBlockContent>
+                    </UiCodeBlock>
                 </UiCardContent>
             </UiCard>
         </main>
