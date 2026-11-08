@@ -59,7 +59,7 @@
 | Backup dell'account ripristinabili e pianificati       | ✅                               | 🟡 esportazione                             | 🟡 esportazione                                    | ❌                                                  |
 | Aggiornamenti dalla dashboard                          | ✅ senza interruzioni            | ❌                                          | 🟡 con interruzione                                | ❌                                                  |
 | Lingue                                                 | 12                               | 12                                          | 31, alcune parziali                                | 1                                                   |
-| Licenza                                                | MIT                              | MIT                                         | AGPL-3.0                                           | MIT                                                 |
+| Licenza                                                | AGPL-3.0                         | MIT                                         | AGPL-3.0                                           | MIT                                                 |
 
 Confronto con Zipline 4.8, XBackBone 3.8 e Chibisafe 6.7 a ottobre 2026. Qualcosa non è aggiornato? [Apri una issue](https://github.com/hanzydev/Fileship/issues/new/choose) e verrà corretto.
 
@@ -127,4 +127,4 @@ I contributi sono benvenuti. Leggi prima le [linee guida per contribuire](CONTRI
 
 ## ⚖️ Licenza
 
-[MIT](LICENSE)
+[AGPL-3.0](LICENSE), con una clausola di attribuzione. Fileship per Windows, l'estensione del browser e i pacchetti condivisi sono con licenza MIT. Dettagli in [LICENSING.md](LICENSING.md).

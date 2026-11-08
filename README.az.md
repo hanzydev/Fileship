@@ -59,7 +59,7 @@
 | Bərpa edilə bilən, cədvəl üzrə hesab ehtiyat nüsxələri | ✅                                    | 🟡 ixrac                                    | 🟡 ixrac                                           | ❌                                                  |
 | İdarə panelindən yeniləmə                              | ✅ fasiləsiz                          | ❌                                          | 🟡 fasilə ilə                                      | ❌                                                  |
 | Dillər                                                 | 12                                    | 12                                          | 31, bəziləri natamam                               | 1                                                   |
-| Lisenziya                                              | MIT                                   | MIT                                         | AGPL-3.0                                           | MIT                                                 |
+| Lisenziya                                              | AGPL-3.0                              | MIT                                         | AGPL-3.0                                           | MIT                                                 |
 
 2026-cı ilin oktyabrında Zipline 4.8, XBackBone 3.8 və Chibisafe 6.7 ilə müqayisə edilib. Nəsə köhnəlib? [Issue aç](https://github.com/hanzydev/Fileship/issues/new/choose), düzəldək.
 
@@ -127,4 +127,4 @@ Töhfələrə açığıq. Əvvəlcə [töhfə qaydalarını](CONTRIBUTING.md) ox
 
 ## ⚖️ Lisenziya
 
-[MIT](LICENSE)
+[AGPL-3.0](LICENSE), müəllifin göstərilməsi şərti ilə. Windows üçün Fileship, brauzer genişləndirməsi və ortaq paketlər MIT lisenziyası ilədir. Ətraflı: [LICENSING.md](LICENSING.md).

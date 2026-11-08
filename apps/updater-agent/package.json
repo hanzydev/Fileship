@@ -1,6 +1,7 @@
 {
     "name": "updater-agent",
     "version": "1.0.0",
+    "license": "AGPL-3.0-only",
     "type": "module",
     "main": "./dist/index.mjs",
     "scripts": {

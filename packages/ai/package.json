@@ -1,6 +1,7 @@
 {
     "name": "@fileship/ai",
     "description": "AI models for Fileship, run on a worker thread",
+    "license": "AGPL-3.0-only",
     "version": "1.0.0",
     "type": "module",
     "private": true,

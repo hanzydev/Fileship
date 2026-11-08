@@ -1,5 +1,6 @@
 {
     "name": "landing",
+    "license": "AGPL-3.0-only",
     "private": true,
     "type": "module",
     "scripts": {

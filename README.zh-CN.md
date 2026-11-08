@@ -59,7 +59,7 @@
 | 可还原的账户备份，支持定时        | ✅                           | 🟡 导出                                     | 🟡 导出                                            | ❌                                                  |
 | 在控制台中更新                    | ✅ 零停机                    | ❌                                          | 🟡 需要停机                                        | ❌                                                  |
 | 语言                              | 12                           | 12                                          | 31，部分未译完                                     | 1                                                   |
-| 许可证                            | MIT                          | MIT                                         | AGPL-3.0                                           | MIT                                                 |
+| 许可证                            | AGPL-3.0                     | MIT                                         | AGPL-3.0                                           | MIT                                                 |
 
 以上对比基于 2026 年 10 月的 Zipline 4.8、XBackBone 3.8 和 Chibisafe 6.7。发现内容过时了？欢迎[提交 issue](https://github.com/hanzydev/Fileship/issues/new/choose)，我们会及时修正。
 
@@ -127,4 +127,4 @@ docker compose up -d
 
 ## ⚖️ 许可证
 
-[MIT](LICENSE)
+[AGPL-3.0](LICENSE)，附带署名条款。Fileship for Windows、浏览器扩展和共享包采用 MIT 许可证。详情请见 [LICENSING.md](LICENSING.md)。

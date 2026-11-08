@@ -1,6 +1,7 @@
 {
     "name": "@fileship/ui",
     "description": "Shared Nuxt layer with the Fileship design system",
+    "license": "MIT",
     "version": "1.0.0",
     "type": "module",
     "private": true,

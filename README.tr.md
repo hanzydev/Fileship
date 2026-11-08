@@ -59,7 +59,7 @@
 | Geri yüklenebilen, zamanlanabilen hesap yedekleri     | ✅                                       | 🟡 dışa aktarma                             | 🟡 dışa aktarma                                    | ❌                                                  |
 | Panelden güncelleme                                   | ✅ kesintisiz                            | ❌                                          | 🟡 kesintili                                       | ❌                                                  |
 | Diller                                                | 12                                       | 12                                          | 31, bazıları eksik                                 | 1                                                   |
-| Lisans                                                | MIT                                      | MIT                                         | AGPL-3.0                                           | MIT                                                 |
+| Lisans                                                | AGPL-3.0                                 | MIT                                         | AGPL-3.0                                           | MIT                                                 |
 
 Zipline 4.8, XBackBone 3.8 ve Chibisafe 6.7 ile Ekim 2026'da karşılaştırıldı. Güncelliğini yitirmiş bir bilgi mi var? [Bir issue aç](https://github.com/hanzydev/Fileship/issues/new/choose), düzeltelim.
 
@@ -127,4 +127,4 @@ Katkılara açığız. Önce [katkı rehberini](CONTRIBUTING.md) oku. [AGENTS.md
 
 ## ⚖️ Lisans
 
-[MIT](LICENSE)
+[AGPL-3.0](LICENSE), atıf koşuluyla. Windows için Fileship, tarayıcı eklentisi ve ortak paketler MIT lisanslı. Ayrıntılar: [LICENSING.md](LICENSING.md).

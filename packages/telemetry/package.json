@@ -1,6 +1,7 @@
 {
     "name": "@fileship/telemetry",
     "description": "Telemetry module for Fileship",
+    "license": "MIT",
     "version": "1.0.0",
     "type": "module",
     "private": true,

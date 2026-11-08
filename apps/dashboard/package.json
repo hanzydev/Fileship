@@ -1,5 +1,6 @@
 {
     "name": "dashboard",
+    "license": "AGPL-3.0-only",
     "type": "module",
     "scripts": {
         "build": "pnpm db:generate && nuxt build",

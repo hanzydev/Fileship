@@ -59,7 +59,7 @@
 | 復元できるアカウントのバックアップ（定期実行） | ✅                               | 🟡 エクスポート                             | 🟡 エクスポート                                    | ❌                                                  |
 | ダッシュボードからのアップデート               | ✅ ダウンタイムなし              | ❌                                          | 🟡 ダウンタイムあり                                | ❌                                                  |
 | 対応言語                                       | 12                               | 12                                          | 31（一部は翻訳途中）                               | 1                                                   |
-| ライセンス                                     | MIT                              | MIT                                         | AGPL-3.0                                           | MIT                                                 |
+| ライセンス                                     | AGPL-3.0                         | MIT                                         | AGPL-3.0                                           | MIT                                                 |
 
 2026 年 10 月時点の Zipline 4.8、XBackBone 3.8、Chibisafe 6.7 と比較しています。情報が古くなっていたら [Issue を作成](https://github.com/hanzydev/Fileship/issues/new/choose)してください。修正します。
 
@@ -127,4 +127,4 @@ docker compose up -d
 
 ## ⚖️ ライセンス
 
-[MIT](LICENSE)
+[AGPL-3.0](LICENSE)（帰属表示の条件付き）。Fileship for Windows、ブラウザー拡張機能、共有パッケージは MIT ライセンスです。詳しくは [LICENSING.md](LICENSING.md) をご覧ください。

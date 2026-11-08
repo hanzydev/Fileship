@@ -68,4 +68,4 @@ Super admins can turn off **Anonymous telemetry** in **Administration → Instan
 
 ## ⚖️ License
 
-[MIT](https://github.com/hanzydev/Fileship/blob/main/LICENSE)
+[MIT](https://github.com/hanzydev/Fileship/blob/main/packages/telemetry/LICENSE)

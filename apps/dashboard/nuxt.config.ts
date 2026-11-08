@@ -286,7 +286,7 @@ export default defineNuxtConfig({
 * Fileship v${pkg.version}
 * https://github.com/hanzydev/Fileship
 * (c) 2024-present Hànzy and Fileship contributors
-* @license MIT
+* @license AGPL-3.0-only
 */`,
                 },
             },

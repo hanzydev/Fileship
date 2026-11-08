@@ -11,6 +11,7 @@ Project knowledge that is not obvious from the code: decisions, release facts an
 
 ## Decisions
 
+- **License (6.6.0):** Fileship moved from MIT to AGPL-3.0-only for the server side, with a section 7(b) term that keeps "Powered by Fileship" on the login page, plus a CLA, a trademark policy and commercial licenses on request; the Windows app, the extension and the shared packages stay MIT. The goal is a Sentry-style hosted Fileship Cloud while keeping the "open source" label, which rules out FSL, BUSL and custom licenses (not OSI approved). 6.5.0 and earlier stay MIT. The CLA bot stores signatures on the `cla-signatures` branch, which must exist. The license, the attribution term and the CLA were written without a lawyer; have them reviewed before relying on them, especially whether the login-page notice counts as a "reasonable" attribution under 7(b).
 - v6 is a major version: breaking changes are fine and backward-compatibility shims are not wanted (old cookies, formats, endpoints). Mark such commits with `!` (`feat(auth)!: ...`) and a `BREAKING CHANGE:` footer.
 - The only compatibility kept on purpose: the telemetry panel still accepts `POST /api/event` from pre-6.0 instances.
 - Write code in the existing style: minimal, `!` instead of defensive `?.`/`??` where the value is known, no guards for states that cannot happen, no comments. Mirror `AppSidebar.vue`, `layouts/dashboard.vue` and `login.vue` in the dashboard.

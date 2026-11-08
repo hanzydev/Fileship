@@ -95,6 +95,10 @@ Before opening a pull request, make sure that:
 - you have tested your change locally, including on a narrow screen for UI changes
 - documentation is updated where needed (`README.md`, `AGENTS.md`, `apps/dashboard/.env.example`, `apps/telemetry/.env.example`)
 
+### Contributor License Agreement
+
+Before your first pull request can be merged, you sign the [Contributor License Agreement](CLA.md): the CLA bot comments on the pull request and asks you to reply with one sentence. You sign once, and it covers all your later contributions. You keep the copyright of your work; the agreement lets the project offer commercial licenses next to the open-source license (see [LICENSING.md](LICENSING.md)).
+
 Keep pull requests focused: unrelated changes are easier to review as separate pull requests. Draft pull requests are welcome if you would like early feedback.
 
 ## Resources
