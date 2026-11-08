@@ -28,7 +28,7 @@
                 <UiCardHeader>
                     <UiCardTitle>Adoption</UiCardTitle>
                     <UiCardDescription>
-                        Active instances per version, the {{ TOP_VERSIONS }} most used ones and the
+                        Active instances per version, the {{ TOP_VERSIONS }} most used today and the
                         rest as Other
                     </UiCardDescription>
                 </UiCardHeader>
@@ -120,18 +120,24 @@ const handleRetry = () => Promise.all([refreshLatest(), refreshSeries()]);
 const config = reactive<ChartConfig>({});
 
 const topVersions = computed(() => {
+    const stats = series.value ?? [];
+    const current = stats.at(-1)?.versions ?? {};
     const totals: Record<string, number> = {};
 
-    for (const stat of series.value ?? []) {
+    for (const stat of stats) {
         for (const [version, count] of Object.entries(stat.versions)) {
             totals[version] = (totals[version] ?? 0) + count;
         }
     }
 
-    return Object.entries(totals)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, TOP_VERSIONS)
-        .map(([version]) => version);
+    return Object.keys(totals)
+        .sort(
+            (a, b) =>
+                (current[b] ?? 0) - (current[a] ?? 0) ||
+                ((current[a] ?? 0) ? 0 : totals[b]! - totals[a]!) ||
+                b.localeCompare(a, undefined, { numeric: true }),
+        )
+        .slice(0, TOP_VERSIONS);
 });
 
 const keys = computed(() => [...topVersions.value.map((_, index) => `v${index}`), 'other']);
