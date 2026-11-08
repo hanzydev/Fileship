@@ -163,6 +163,7 @@
         "expiresAfterViews": "Excluído após {count} visualização | Excluído após {count} visualizações",
         "upToDate": "Atualizado",
         "syncing": "Sincronizando…",
+        "syncingProgress": "Sincronizando arquivos… {percent}%",
         "syncError": "Erro de sincronização",
         "offline": "O Fileship não está em execução",
         "viewOnline": "Ver online",

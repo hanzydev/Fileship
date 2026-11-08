@@ -163,6 +163,7 @@
         "expiresAfterViews": "Удалится после {count} просмотра | Удалится после {count} просмотров | Удалится после {count} просмотров",
         "upToDate": "Всё синхронизировано",
         "syncing": "Синхронизация…",
+        "syncingProgress": "Синхронизация файлов… {percent} %",
         "syncError": "Ошибка синхронизации",
         "offline": "Fileship не запущен",
         "viewOnline": "Открыть в браузере",

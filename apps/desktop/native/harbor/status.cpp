@@ -145,6 +145,8 @@ struct Source : implements<Source, IStorageProviderStatusUISource> {
         auto status = text.empty() ? JsonObject() : JsonObject::Parse(text);
         std::wstring name(status.GetNamedString(L"state", L""));
         auto state = describe(name);
+        std::wstring stateLabel(status.GetNamedString(L"stateLabel", L""));
+        if (!stateLabel.empty()) state.label = stateLabel;
         auto dashboard = config().instanceUrl + L"/dashboard";
 
         StorageProviderStatusUI ui;

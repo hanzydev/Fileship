@@ -163,6 +163,7 @@
         "expiresAfterViews": "浏览 {count} 次后删除",
         "upToDate": "已是最新",
         "syncing": "正在同步…",
+        "syncingProgress": "正在同步文件… {percent}%",
         "syncError": "同步出错",
         "offline": "Fileship 未运行",
         "viewOnline": "在线查看",

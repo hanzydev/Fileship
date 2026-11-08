@@ -163,6 +163,7 @@
         "expiresAfterViews": "Deleted after {count} view | Deleted after {count} views",
         "upToDate": "Up to date",
         "syncing": "Syncing…",
+        "syncingProgress": "Syncing files… {percent}%",
         "syncError": "Sync error",
         "offline": "Fileship is not running",
         "viewOnline": "View online",

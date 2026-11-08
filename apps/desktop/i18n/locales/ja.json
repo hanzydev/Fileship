@@ -163,6 +163,7 @@
         "expiresAfterViews": "{count} 回の閲覧後に削除",
         "upToDate": "最新の状態",
         "syncing": "同期中…",
+        "syncingProgress": "ファイルを同期中… {percent}%",
         "syncError": "同期エラー",
         "offline": "Fileship が実行されていません",
         "viewOnline": "オンラインで表示",

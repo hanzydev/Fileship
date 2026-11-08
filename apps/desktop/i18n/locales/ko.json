@@ -163,6 +163,7 @@
         "expiresAfterViews": "조회 {count}회 후 삭제",
         "upToDate": "최신 상태",
         "syncing": "동기화 중…",
+        "syncingProgress": "파일 동기화 중… {percent}%",
         "syncError": "동기화 오류",
         "offline": "Fileship이 실행 중이 아니에요",
         "viewOnline": "온라인으로 보기",

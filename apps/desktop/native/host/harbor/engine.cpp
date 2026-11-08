@@ -124,6 +124,8 @@ std::set<std::wstring> pendingPaths;
 std::set<std::wstring> hiddenFiles;
 std::set<std::wstring> cancelledUploads;
 std::map<std::wstring, size_t> uploadRetries;
+std::map<std::wstring, std::pair<int64_t, int64_t>> uploadBatch;
+std::optional<int> lastPercent;
 std::map<std::wstring, std::string> sentStates;
 std::deque<Activity> activity;
 std::vector<std::wstring> linksToCopy;
@@ -375,6 +377,24 @@ std::pair<std::wstring, std::wstring> moreInfoOf() {
     return {summaryOf(), status.localSize.value_or(0) ? L"freeUpSpace" : L""};
 }
 
+std::optional<int> batchPercent() {
+    int64_t sent = 0;
+    int64_t total = 0;
+
+    for (auto const& [path, progress] : uploadBatch) {
+        sent += progress.first;
+        total += progress.second;
+    }
+
+    if (total <= 0) return std::nullopt;
+    return static_cast<int>(std::min<int64_t>(sent * 10 / total, 10)) * 10;
+}
+
+std::wstring stateLabelOf() {
+    if (status.state != L"syncing" || !lastPercent) return L"";
+    return t(L"harbor.syncingProgress", {{L"percent", std::to_wstring(*lastPercent)}});
+}
+
 void reportSyncStatus() {
     if (!helper || !helper->isRunning()) return;
 
@@ -383,6 +403,7 @@ void reportSyncStatus() {
 
     JsonObject state;
     state.SetNamedValue(L"state", str(status.state));
+    state.SetNamedValue(L"stateLabel", str(stateLabelOf()));
     state.SetNamedValue(L"message", str(message));
     state.SetNamedValue(L"action", str(action));
 
@@ -1739,10 +1760,58 @@ private:
     bool inFlight = false;
 };
 
+void refreshBatchPercent() {
+    auto percent = batchPercent();
+    if (percent && lastPercent) percent = std::max(*percent, *lastPercent);
+    if (percent == lastPercent) return;
+
+    lastPercent = percent;
+    reportSyncStatus();
+}
+
+class BatchEntry {
+public:
+    BatchEntry(std::wstring path, int64_t size) : path(std::move(path)) {
+        Lock lock(guard);
+        uploadBatch[this->path] = {0, size};
+        refreshBatchPercent();
+    }
+
+    ~BatchEntry() {
+        if (isFinished) return;
+
+        Lock lock(guard);
+        uploadBatch.erase(path);
+        refreshBatchPercent();
+    }
+
+    void update(int64_t sent, int64_t total) {
+        Lock lock(guard);
+        uploadBatch[path] = {sent, total};
+        refreshBatchPercent();
+    }
+
+    void finish() {
+        Lock lock(guard);
+        auto& progress = uploadBatch[path];
+        progress.first = progress.second;
+        refreshBatchPercent();
+        isFinished = true;
+    }
+
+    BatchEntry(BatchEntry const&) = delete;
+    BatchEntry& operator=(BatchEntry const&) = delete;
+
+private:
+    std::wstring path;
+    bool isFinished = false;
+};
+
 RemoteFile uploadLocal(std::wstring const& path, std::optional<std::wstring> const& folderId) {
     auto absolute = absoluteOf(path);
     auto size = static_cast<int64_t>(std::filesystem::file_size(absolute));
     auto reporter = std::make_shared<ProgressReporter>(currentHelper(), path);
+    BatchEntry batch(path, size);
 
     UploadSource source;
     source.path = absolute;
@@ -1753,8 +1822,12 @@ RemoteFile uploadLocal(std::wstring const& path, std::optional<std::wstring> con
     options.fileNameType = L"Random";
     options.folderId = folderId;
 
-    auto uploaded = uploadFile(source, options, [reporter](int64_t sent, int64_t total) { reporter->report(sent, total); });
+    auto uploaded = uploadFile(source, options, [reporter, &batch](int64_t sent, int64_t total) {
+        reporter->report(sent, total);
+        batch.update(sent, total);
+    });
     reporter->wait();
+    batch.finish();
 
     RemoteFile file;
     file.id = uploaded.id;
@@ -1848,6 +1921,10 @@ void startUpload(HelperEvent const& event, std::optional<std::wstring> const& fo
             {
                 Lock lock(guard);
                 pendingPaths.erase(path);
+                if (pendingPaths.empty()) {
+                    uploadBatch.clear();
+                    lastPercent.reset();
+                }
             }
             cleanup();
         };

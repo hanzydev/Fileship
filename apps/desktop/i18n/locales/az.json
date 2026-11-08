@@ -163,6 +163,7 @@
         "expiresAfterViews": "{count} baxışdan sonra silinir",
         "upToDate": "Aktualdır",
         "syncing": "Sinxronlaşdırılır…",
+        "syncingProgress": "Fayllar sinxronlaşdırılır… {percent}%",
         "syncError": "Sinxronlaşdırma xətası",
         "offline": "Fileship işləmir",
         "viewOnline": "Onlayn bax",

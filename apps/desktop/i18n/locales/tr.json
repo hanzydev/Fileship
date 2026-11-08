@@ -163,6 +163,7 @@
         "expiresAfterViews": "{count} görüntülenmeden sonra silinir",
         "upToDate": "Güncel",
         "syncing": "Eşitleniyor…",
+        "syncingProgress": "Dosyalar eşitleniyor… %{percent}",
         "syncError": "Eşitleme sorunu",
         "offline": "Fileship çalışmıyor",
         "viewOnline": "Çevrimiçi görüntüle",
