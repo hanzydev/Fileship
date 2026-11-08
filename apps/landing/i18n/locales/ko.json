@@ -1,0 +1,168 @@
+{
+    "nav": {
+        "features": "기능",
+        "windowsApp": "Windows 앱",
+        "compare": "비교",
+        "getStarted": "시작하기",
+        "docs": "문서",
+        "github": "GitHub",
+        "menu": "메뉴",
+        "openMenu": "메뉴 열기"
+    },
+    "hero": {
+        "release": "Windows 대시보드에서 다운로드와 Harbor 지원",
+        "titleLine1": "나만의 ShareX 서버",
+        "titleLine2": "그리고 파일 클라우드.",
+        "description": "네이티브 Windows 앱으로 캡처하고 업로드하고 공유하세요. 파일 탐색기에서 파일을 둘러보고, 내 서버에서 돌아가는 AI로 검색할 수 있어요. 오픈 소스이며 직접 호스팅해요.",
+        "selfHost": "Fileship 직접 호스팅",
+        "download": "Windows용 다운로드",
+        "license": "MIT 라이선스",
+        "languages": "12개 언어",
+        "dashboardAlt": "최근 업로드와 저장소 차트가 있는 Fileship 대시보드 홈",
+        "mobileAlt": "휴대폰에서 본 Fileship 파일 페이지",
+        "uploadFrom": "업로드 지원",
+        "windowsApp": "Windows 앱",
+        "androidShare": "Android 공유 메뉴"
+    },
+    "features": {
+        "eyebrow": "기능",
+        "title": "스크린샷을 올려두는 곳 그 이상.",
+        "description": "파일, 중첩 폴더, 노트, 단축 링크, 받은 파일함에 이를 둘러싼 앱까지 더해 진짜 클라우드처럼 쓸 수 있어요. 내 하드웨어에서, 내 규칙대로.",
+        "windows": {
+            "label": "Windows용 Fileship",
+            "title": "캡처하고, 주석을 달고, 녹화하세요. 링크는 이미 클립보드에 있어요.",
+            "description": "ShareX 스타일의 네이티브 알림 영역 앱이에요. 모든 모니터에 걸쳐 영역을 고르고, 손을 떼기 전에 그 위에 그리고, OCR로 텍스트를 복사하거나 동영상이나 GIF를 녹화하세요. 대기 중에는 몇 MB만 써요.",
+            "annotation": "고쳤어요",
+            "linkCopied": "링크를 복사했어요"
+        },
+        "harbor": {
+            "title": "파일 탐색기 속 내 파일.",
+            "description": "열기 전까지는 온라인에만 있어요. 탐색기에서 이름을 바꾸거나 옮기거나 삭제하면 동기화돼요.",
+            "name": "이름",
+            "status": "상태",
+            "screenshots": "스크린샷",
+            "projects": "프로젝트",
+            "notes": "노트"
+        },
+        "ai": {
+            "label": "내 서버에서 도는 AI",
+            "title": "설명만으로 사진을 찾으세요.",
+            "description": "50개 이상의 언어로 스마트 검색, 설명, OCR, 민감한 콘텐츠 감지를 지원해요. 모든 모델이 내 컴퓨터에서 돌아가고, 전부 선택 사항이에요.",
+            "query": "해 뜨는 산",
+            "smart": "스마트"
+        },
+        "sharing": {
+            "label": "원하는 방식으로 공유",
+            "title": "모든 링크에 비밀번호, 만료, 조회수 제한.",
+            "description": "다른 사용자와 폴더를 보기 또는 편집 권한으로 공유하고, Discord에서 링크가 어떻게 보일지 직접 꾸며 보세요.",
+            "password": "비밀번호",
+            "expires": "만료",
+            "expiresValue": "7일 후",
+            "maxViews": "최대 조회수",
+            "discordEmbed": "Discord 미리보기"
+        },
+        "storage": {
+            "title": "원하는 곳에 저장",
+            "description": "로컬 디스크, S3 호환 서비스, SFTP 또는 FTP. 한 번에 모든 것을 새 저장소로 옮길 수 있어요.",
+            "local": "로컬"
+        },
+        "updates": {
+            "title": "중단 없는 업데이트",
+            "description": "클릭 한 번으로, 또는 예약해서. 새 버전이 기존 버전 옆에서 시작하고 준비되면 넘겨받아요."
+        },
+        "users": {
+            "title": "여러 명이 함께 쓰도록",
+            "description": "권한과 저장소 한도가 있는 사용자, 초대, 패스키, 2단계 인증, OpenID Connect 기반 싱글 사인온."
+        }
+    },
+    "toolbox": {
+        "title": "그리고 나머지 도구들",
+        "notes": "Markdown 노트",
+        "notesText": "공개 또는 비공개 노트를 쓰고 공유하세요.",
+        "links": "단축 링크",
+        "linksText": "클릭수, 비밀번호, 제한이 있는 단축 링크.",
+        "inboxes": "받은 파일함",
+        "inboxesText": "누구나 계정 없이 파일을 보낼 수 있는 페이지.",
+        "trash": "휴지통",
+        "trashText": "삭제한 파일은 완전히 사라지기 전에 휴지통에서 기다려요.",
+        "backups": "예약 백업",
+        "backupsText": "복원할 수 있는 매일 또는 매주 계정 백업.",
+        "webhooks": "웹훅",
+        "webhooksText": "업로드, 링크, 노트에 Discord, Slack 또는 서명된 JSON.",
+        "phone": "휴대폰에 설치",
+        "phoneText": "Android 앱에서 공유할 수 있는 설치형 앱.",
+        "duplicates": "중복 파일 찾기",
+        "duplicatesText": "업로드 전후에 똑같은 파일을 찾아내요.",
+        "languages": "12개 언어",
+        "languagesText": "English, Türkçe부터 日本語, 简体中文까지."
+    },
+    "compare": {
+        "eyebrow": "비교",
+        "title": "Fileship 비교",
+        "description": "Zipline 4.8, XBackBone 3.8, Chibisafe 6.7과 비교했어요(2026년 10월 확인). 이 중 하나를 쓰고 있나요? {link}",
+        "migrate": "계정, 파일, 링크를 그대로 옮겨 오세요.",
+        "yes": "지원",
+        "no": "미지원",
+        "partly": "일부 지원",
+        "rows": {
+            "uploaders": "ShareX 및 기타 업로더",
+            "desktop": "캡처와 녹화용 데스크톱 앱",
+            "explorer": "파일 탐색기에서 보는 내 파일",
+            "extension": "브라우저 확장 프로그램",
+            "ai": "AI 검색, 설명, OCR",
+            "folders": "폴더",
+            "sharing": "비밀번호, 만료, 조회수 제한",
+            "storage": "저장소",
+            "security": "패스키와 2단계 인증",
+            "sso": "싱글 사인온",
+            "webhooks": "웹훅",
+            "backups": "복원 가능한 예약 백업",
+            "updates": "대시보드에서 업데이트",
+            "languages": "언어",
+            "license": "라이선스"
+        },
+        "notes": {
+            "onYourServer": "내 서버에서",
+            "nestedShared": "중첩, 공유 가능",
+            "nested": "중첩",
+            "tags": "태그",
+            "flatAlbums": "단일 앨범",
+            "albumLinks": "앨범 링크",
+            "export": "내보내기",
+            "zeroDowntime": "중단 없음",
+            "withDowntime": "중단 있음",
+            "somePartial": "31개, 일부 미완성",
+            "local": "로컬"
+        }
+    },
+    "getStarted": {
+        "eyebrow": "시작하기",
+        "title": "1분이면 실행돼요.",
+        "description": "Compose가 포함된 Docker, CPU 2코어, RAM 2 GB만 있으면 돼요(AI를 쓰면 4 GB 이상). 그다음 {address} 주소를 열고 로그인하세요.",
+        "installation": "설치 가이드",
+        "upgrading": "5.x에서 업그레이드",
+        "terminal": "터미널",
+        "copy": "명령어 복사",
+        "copied": "복사했어요",
+        "ready": "Fileship 준비 완료: {url}"
+    },
+    "footer": {
+        "tagline": "오픈 소스, 직접 호스팅하는 파일 및 미디어 관리. MIT 라이선스.",
+        "product": "제품",
+        "docs": "문서",
+        "project": "프로젝트",
+        "features": "기능",
+        "windowsApp": "Windows 앱",
+        "chrome": "Chrome 확장 프로그램",
+        "firefox": "Firefox 부가 기능",
+        "installation": "설치",
+        "configuration": "구성",
+        "ai": "AI 기능",
+        "migrating": "이전하기",
+        "github": "GitHub",
+        "releases": "릴리스",
+        "security": "보안",
+        "contributing": "기여하기",
+        "copyright": "© {years} Hànzy 및 Fileship 기여자"
+    }
+}

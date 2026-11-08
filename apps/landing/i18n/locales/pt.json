@@ -1,0 +1,168 @@
+{
+    "nav": {
+        "features": "Recursos",
+        "windowsApp": "App para Windows",
+        "compare": "Comparar",
+        "getStarted": "Começar",
+        "docs": "Documentação",
+        "github": "GitHub",
+        "menu": "Menu",
+        "openMenu": "Abrir menu"
+    },
+    "hero": {
+        "release": "Downloads e Harbor no painel do Windows",
+        "titleLine1": "Seu próprio servidor ShareX",
+        "titleLine2": "e sua nuvem de arquivos.",
+        "description": "Capture, envie e compartilhe com um app nativo para Windows, navegue pelos seus arquivos no Explorador de Arquivos e encontre-os com uma IA que roda no seu próprio servidor. Código aberto e auto-hospedado.",
+        "selfHost": "Hospedar o Fileship",
+        "download": "Baixar para Windows",
+        "license": "Licença MIT",
+        "languages": "12 idiomas",
+        "dashboardAlt": "Página inicial do painel do Fileship com envios recentes e gráficos de armazenamento",
+        "mobileAlt": "Página de arquivos do Fileship em um celular",
+        "uploadFrom": "Envie pelo",
+        "windowsApp": "App para Windows",
+        "androidShare": "Menu de compartilhamento do Android"
+    },
+    "features": {
+        "eyebrow": "Recursos",
+        "title": "Mais do que um lugar para guardar capturas de tela.",
+        "description": "Arquivos, pastas aninhadas, notas, links curtos e caixas de entrada, com os apps ao redor que fazem tudo parecer uma nuvem de verdade. No seu hardware, com as suas regras.",
+        "windows": {
+            "label": "Fileship para Windows",
+            "title": "Capture, anote, grave. O link já está na área de transferência.",
+            "description": "Um app nativo na área de notificação, no estilo do ShareX. Escolha uma área em qualquer tela, desenhe nela antes de soltar, copie texto com OCR ou grave um vídeo ou GIF. Parado, usa só alguns megabytes.",
+            "annotation": "corrigido",
+            "linkCopied": "Link copiado"
+        },
+        "harbor": {
+            "title": "Seus arquivos no Explorador de Arquivos.",
+            "description": "Somente online até serem abertos. Renomeie, mova ou exclua no Explorador e tudo é sincronizado.",
+            "name": "Nome",
+            "status": "Status",
+            "screenshots": "Capturas de tela",
+            "projects": "Projetos",
+            "notes": "Notas"
+        },
+        "ai": {
+            "label": "IA no seu servidor",
+            "title": "Encontre uma foto descrevendo-a.",
+            "description": "Pesquisa inteligente em mais de 50 idiomas, descrições, OCR e detecção de conteúdo sensível. Cada modelo roda na sua máquina, e tudo é opcional.",
+            "query": "montanhas ao nascer do sol",
+            "smart": "Inteligente"
+        },
+        "sharing": {
+            "label": "Compartilhamento do seu jeito",
+            "title": "Senha, expiração e limite de visualizações em cada link.",
+            "description": "Compartilhe pastas com outros usuários como leitores ou editores e defina como seus links aparecem no Discord.",
+            "password": "Senha",
+            "expires": "Expira",
+            "expiresValue": "em 7 dias",
+            "maxViews": "Máximo de visualizações",
+            "discordEmbed": "Prévia no Discord"
+        },
+        "storage": {
+            "title": "Armazene onde quiser",
+            "description": "Disco local, qualquer serviço compatível com S3, SFTP ou FTP. Mova tudo para um novo armazenamento em uma única etapa.",
+            "local": "Local"
+        },
+        "updates": {
+            "title": "Atualizações sem interrupção",
+            "description": "Com um clique ou agendadas. A nova versão inicia ao lado da antiga e assume quando estiver pronta."
+        },
+        "users": {
+            "title": "Feito para mais de uma pessoa",
+            "description": "Usuários com permissões e limites de armazenamento, convites, chaves de acesso, verificação em duas etapas e login único com OpenID Connect."
+        }
+    },
+    "toolbox": {
+        "title": "E o resto da caixa de ferramentas",
+        "notes": "Notas em Markdown",
+        "notesText": "Escreva e compartilhe notas, públicas ou privadas.",
+        "links": "Links curtos",
+        "linksText": "Links curtos com contagem de cliques, senhas e limites.",
+        "inboxes": "Caixas de entrada",
+        "inboxesText": "Uma página pela qual qualquer pessoa pode enviar arquivos, sem precisar de conta.",
+        "trash": "Lixeira",
+        "trashText": "Arquivos excluídos aguardam na lixeira antes de sumirem de vez.",
+        "backups": "Backups agendados",
+        "backupsText": "Backups diários ou semanais da conta que você pode restaurar.",
+        "webhooks": "Webhooks",
+        "webhooksText": "Discord, Slack ou JSON assinado em envios, links e notas.",
+        "phone": "Instale no celular",
+        "phoneText": "Um app instalável para o qual os apps do Android podem compartilhar.",
+        "duplicates": "Localizador de duplicados",
+        "duplicatesText": "Encontre arquivos idênticos antes e depois de enviá-los.",
+        "languages": "Doze idiomas",
+        "languagesText": "Do English e do Türkçe ao 日本語 e ao 简体中文."
+    },
+    "compare": {
+        "eyebrow": "Comparar",
+        "title": "Como o Fileship se compara",
+        "description": "Em relação ao Zipline 4.8, XBackBone 3.8 e Chibisafe 6.7, verificado em outubro de 2026. Vem de um deles? {link}",
+        "migrate": "Traga suas contas, arquivos e links.",
+        "yes": "Sim",
+        "no": "Não",
+        "partly": "Em parte",
+        "rows": {
+            "uploaders": "ShareX e outros clientes de envio",
+            "desktop": "App de desktop para capturar e gravar",
+            "explorer": "Seus arquivos no Explorador de Arquivos",
+            "extension": "Extensão de navegador",
+            "ai": "Pesquisa com IA, descrições, OCR",
+            "folders": "Pastas",
+            "sharing": "Senha, expiração e limite de visualizações",
+            "storage": "Armazenamento",
+            "security": "Chaves de acesso e verificação em duas etapas",
+            "sso": "Login único",
+            "webhooks": "Webhooks",
+            "backups": "Backups agendados e restauráveis",
+            "updates": "Atualizações pelo painel",
+            "languages": "Idiomas",
+            "license": "Licença"
+        },
+        "notes": {
+            "onYourServer": "no seu servidor",
+            "nestedShared": "aninhadas, compartilhadas",
+            "nested": "aninhadas",
+            "tags": "tags",
+            "flatAlbums": "álbuns simples",
+            "albumLinks": "links de álbum",
+            "export": "exportação",
+            "zeroDowntime": "sem interrupção",
+            "withDowntime": "com interrupção",
+            "somePartial": "31, alguns parciais",
+            "local": "Local"
+        }
+    },
+    "getStarted": {
+        "eyebrow": "Começar",
+        "title": "Funcionando em um minuto.",
+        "description": "Basta ter Docker com Compose, 2 núcleos de CPU e 2 GB de RAM (4 GB ou mais com IA). Depois, abra {address} e entre.",
+        "installation": "Guia de instalação",
+        "upgrading": "Atualizar a partir da 5.x",
+        "terminal": "Terminal",
+        "copy": "Copiar comandos",
+        "copied": "Copiado",
+        "ready": "O Fileship está pronto em {url}"
+    },
+    "footer": {
+        "tagline": "Gerenciamento de arquivos e mídia de código aberto e auto-hospedado. Licença MIT.",
+        "product": "Produto",
+        "docs": "Documentação",
+        "project": "Projeto",
+        "features": "Recursos",
+        "windowsApp": "App para Windows",
+        "chrome": "Extensão para Chrome",
+        "firefox": "Complemento para Firefox",
+        "installation": "Instalação",
+        "configuration": "Configuração",
+        "ai": "Recursos de IA",
+        "migrating": "Migração",
+        "github": "GitHub",
+        "releases": "Versões",
+        "security": "Segurança",
+        "contributing": "Contribuir",
+        "copyright": "© {years} Hànzy e os colaboradores do Fileship"
+    }
+}

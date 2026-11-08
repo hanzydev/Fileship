@@ -1,0 +1,168 @@
+{
+    "nav": {
+        "features": "功能",
+        "windowsApp": "Windows 应用",
+        "compare": "对比",
+        "getStarted": "开始使用",
+        "docs": "文档",
+        "github": "GitHub",
+        "menu": "菜单",
+        "openMenu": "打开菜单"
+    },
+    "hero": {
+        "release": "Windows 控制台支持下载和 Harbor",
+        "titleLine1": "你自己的 ShareX 服务器",
+        "titleLine2": "和文件云。",
+        "description": "用原生 Windows 应用截取、上传和分享，在文件资源管理器中浏览你的文件，并用运行在你自己服务器上的 AI 搜索它们。开源，自托管。",
+        "selfHost": "自托管 Fileship",
+        "download": "下载 Windows 版",
+        "license": "MIT 许可",
+        "languages": "12 种语言",
+        "dashboardAlt": "Fileship 控制台首页，显示最近上传和存储图表",
+        "mobileAlt": "手机上的 Fileship 文件页面",
+        "uploadFrom": "上传来源",
+        "windowsApp": "Windows 应用",
+        "androidShare": "Android 分享菜单"
+    },
+    "features": {
+        "eyebrow": "功能",
+        "title": "不只是存放截图的地方。",
+        "description": "文件、嵌套文件夹、笔记、短链接和收件箱，再加上周边应用，让它用起来像真正的云。在你的硬件上，按你的规则。",
+        "windows": {
+            "label": "Windows 版 Fileship",
+            "title": "截取、标注、录制。链接已在剪贴板中。",
+            "description": "ShareX 风格的原生通知区域应用。跨所有显示器选择区域，松开前就能在上面绘制，用 OCR 复制文字，或者录制视频和 GIF。空闲时只占用几 MB 内存。",
+            "annotation": "修好了",
+            "linkCopied": "链接已复制"
+        },
+        "harbor": {
+            "title": "文件资源管理器里的你的文件。",
+            "description": "打开之前只保存在线上。在资源管理器中重命名、移动或删除，都会自动同步。",
+            "name": "名称",
+            "status": "状态",
+            "screenshots": "截图",
+            "projects": "项目",
+            "notes": "笔记"
+        },
+        "ai": {
+            "label": "运行在你服务器上的 AI",
+            "title": "描述一下，就能找到照片。",
+            "description": "支持 50 多种语言的智能搜索、图片描述、OCR 和敏感内容检测。每个模型都在你的机器上运行，而且全部可选。",
+            "query": "日出时的群山",
+            "smart": "智能"
+        },
+        "sharing": {
+            "label": "按你的方式分享",
+            "title": "每个链接都能设置密码、过期时间和浏览次数上限。",
+            "description": "以查看者或编辑者身份与其他用户共享文件夹，并设计你的链接在 Discord 中的样子。",
+            "password": "密码",
+            "expires": "过期",
+            "expiresValue": "7 天后",
+            "maxViews": "最大浏览次数",
+            "discordEmbed": "Discord 预览"
+        },
+        "storage": {
+            "title": "想存哪就存哪",
+            "description": "本地磁盘、任何兼容 S3 的服务、SFTP 或 FTP。一步就能把所有内容迁移到新的存储。",
+            "local": "本地"
+        },
+        "updates": {
+            "title": "不停机更新",
+            "description": "一键更新或按计划更新。新版本在旧版本旁边启动，准备就绪后接管。"
+        },
+        "users": {
+            "title": "为多人使用而生",
+            "description": "带权限和存储上限的用户、邀请、通行密钥、双重验证，以及基于 OpenID Connect 的单点登录。"
+        }
+    },
+    "toolbox": {
+        "title": "以及工具箱里的其他工具",
+        "notes": "Markdown 笔记",
+        "notesText": "撰写并分享笔记，公开或私密均可。",
+        "links": "短链接",
+        "linksText": "带点击次数、密码和限制的短链接。",
+        "inboxes": "收件箱",
+        "inboxesText": "任何人无需账户就能给你发送文件的页面。",
+        "trash": "回收站",
+        "trashText": "删除的文件会先在回收站中等待，然后才会彻底消失。",
+        "backups": "定时备份",
+        "backupsText": "可还原的每日或每周账户备份。",
+        "webhooks": "Webhook",
+        "webhooksText": "上传、链接和笔记可推送到 Discord、Slack 或签名 JSON。",
+        "phone": "安装到手机",
+        "phoneText": "可安装的应用，Android 应用可以直接分享给它。",
+        "duplicates": "重复文件查找",
+        "duplicatesText": "在上传前后发现相同的文件。",
+        "languages": "十二种语言",
+        "languagesText": "从 English 和 Türkçe 到 日本語 和 简体中文。"
+    },
+    "compare": {
+        "eyebrow": "对比",
+        "title": "Fileship 对比",
+        "description": "对比对象为 Zipline 4.8、XBackBone 3.8 和 Chibisafe 6.7，于 2026 年 10 月核对。正在使用其中之一？{link}",
+        "migrate": "把你的账户、文件和链接迁移过来。",
+        "yes": "支持",
+        "no": "不支持",
+        "partly": "部分支持",
+        "rows": {
+            "uploaders": "ShareX 及其他上传工具",
+            "desktop": "用于截取和录制的桌面应用",
+            "explorer": "在文件资源管理器中查看文件",
+            "extension": "浏览器扩展",
+            "ai": "AI 搜索、图片描述、OCR",
+            "folders": "文件夹",
+            "sharing": "密码、过期时间和浏览次数上限",
+            "storage": "存储",
+            "security": "通行密钥和双重验证",
+            "sso": "单点登录",
+            "webhooks": "Webhook",
+            "backups": "可还原的定时备份",
+            "updates": "从控制台更新",
+            "languages": "语言",
+            "license": "许可证"
+        },
+        "notes": {
+            "onYourServer": "在你的服务器上",
+            "nestedShared": "嵌套，可共享",
+            "nested": "嵌套",
+            "tags": "标签",
+            "flatAlbums": "单层相册",
+            "albumLinks": "相册链接",
+            "export": "导出",
+            "zeroDowntime": "不停机",
+            "withDowntime": "需停机",
+            "somePartial": "31 种，部分未完成",
+            "local": "本地"
+        }
+    },
+    "getStarted": {
+        "eyebrow": "开始使用",
+        "title": "一分钟即可运行。",
+        "description": "你只需要带 Compose 的 Docker、2 个 CPU 核心和 2 GB 内存（使用 AI 时需要 4 GB 或更多）。然后打开 {address} 并登录。",
+        "installation": "安装指南",
+        "upgrading": "从 5.x 升级",
+        "terminal": "终端",
+        "copy": "复制命令",
+        "copied": "已复制",
+        "ready": "Fileship 已在 {url} 就绪"
+    },
+    "footer": {
+        "tagline": "开源、自托管的文件和媒体管理。MIT 许可。",
+        "product": "产品",
+        "docs": "文档",
+        "project": "项目",
+        "features": "功能",
+        "windowsApp": "Windows 应用",
+        "chrome": "Chrome 扩展",
+        "firefox": "Firefox 附加组件",
+        "installation": "安装",
+        "configuration": "配置",
+        "ai": "AI 功能",
+        "migrating": "迁移",
+        "github": "GitHub",
+        "releases": "版本发布",
+        "security": "安全",
+        "contributing": "参与贡献",
+        "copyright": "© {years} Hànzy 和 Fileship 贡献者"
+    }
+}

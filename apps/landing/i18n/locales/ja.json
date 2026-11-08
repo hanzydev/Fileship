@@ -1,0 +1,168 @@
+{
+    "nav": {
+        "features": "機能",
+        "windowsApp": "Windows アプリ",
+        "compare": "比較",
+        "getStarted": "はじめる",
+        "docs": "ドキュメント",
+        "github": "GitHub",
+        "menu": "メニュー",
+        "openMenu": "メニューを開く"
+    },
+    "hero": {
+        "release": "Windows のダッシュボードでダウンロードと Harbor に対応",
+        "titleLine1": "自分だけの ShareX サーバー",
+        "titleLine2": "とファイルクラウド。",
+        "description": "ネイティブの Windows アプリでキャプチャ、アップロード、共有し、エクスプローラーでファイルを閲覧して、自分のサーバーで動く AI で検索できます。オープンソースで、セルフホスト型です。",
+        "selfHost": "Fileship をセルフホスト",
+        "download": "Windows 版をダウンロード",
+        "license": "MIT ライセンス",
+        "languages": "12 言語",
+        "dashboardAlt": "最近のアップロードとストレージのグラフが表示された Fileship ダッシュボードのホーム",
+        "mobileAlt": "スマートフォンで表示した Fileship のファイルページ",
+        "uploadFrom": "アップロード元",
+        "windowsApp": "Windows アプリ",
+        "androidShare": "Android の共有メニュー"
+    },
+    "features": {
+        "eyebrow": "機能",
+        "title": "スクリーンショットの置き場所以上のもの。",
+        "description": "ファイル、入れ子のフォルダー、ノート、短縮リンク、受信ボックス。それを取り巻くアプリで、本物のクラウドのように使えます。あなたのハードウェアで、あなたのルールで。",
+        "windows": {
+            "label": "Fileship for Windows",
+            "title": "キャプチャして、注釈を付けて、録画。リンクはもうクリップボードに。",
+            "description": "ShareX スタイルのネイティブな通知領域アプリです。すべてのモニターにまたがって範囲を選び、指を離す前に描き込み、OCR でテキストをコピーしたり、動画や GIF を録画したりできます。待機中のメモリーはわずか数 MB です。",
+            "annotation": "直したよ",
+            "linkCopied": "リンクをコピーしました"
+        },
+        "harbor": {
+            "title": "エクスプローラーにあなたのファイルを。",
+            "description": "開くまではオンラインのみ。エクスプローラーで名前の変更、移動、削除をすると同期されます。",
+            "name": "名前",
+            "status": "状態",
+            "screenshots": "スクリーンショット",
+            "projects": "プロジェクト",
+            "notes": "ノート"
+        },
+        "ai": {
+            "label": "あなたのサーバーで動く AI",
+            "title": "写真を言葉で探せます。",
+            "description": "50 以上の言語でのスマート検索、説明文、OCR、センシティブなコンテンツの検出。すべてのモデルがあなたのマシンで動き、どれも任意です。",
+            "query": "日の出の山",
+            "smart": "スマート"
+        },
+        "sharing": {
+            "label": "共有は思いどおりに",
+            "title": "すべてのリンクにパスワード、有効期限、閲覧数の上限を。",
+            "description": "フォルダーを閲覧者または編集者としてほかのユーザーと共有し、Discord でのリンクの見え方もデザインできます。",
+            "password": "パスワード",
+            "expires": "有効期限",
+            "expiresValue": "7 日後",
+            "maxViews": "最大閲覧数",
+            "discordEmbed": "Discord のプレビュー"
+        },
+        "storage": {
+            "title": "好きな場所に保存",
+            "description": "ローカルディスク、S3 互換のサービス、SFTP、FTP。ワンステップで新しいストレージにすべて移動できます。",
+            "local": "ローカル"
+        },
+        "updates": {
+            "title": "停止なしのアップデート",
+            "description": "ワンクリックでも、スケジュールでも。新しいバージョンが古いバージョンの横で起動し、準備ができたら切り替わります。"
+        },
+        "users": {
+            "title": "複数人での利用に",
+            "description": "権限とストレージ上限を持つユーザー、招待、パスキー、2 段階認証、OpenID Connect によるシングルサインオン。"
+        }
+    },
+    "toolbox": {
+        "title": "そのほかの道具もそろっています",
+        "notes": "Markdown ノート",
+        "notesText": "公開・非公開のノートを書いて共有できます。",
+        "links": "短縮リンク",
+        "linksText": "クリック数、パスワード、上限付きの短縮リンク。",
+        "inboxes": "受信ボックス",
+        "inboxesText": "誰でもアカウントなしでファイルを送れるページ。",
+        "trash": "ゴミ箱",
+        "trashText": "削除したファイルは完全に消える前にゴミ箱で待機します。",
+        "backups": "スケジュールバックアップ",
+        "backupsText": "毎日または毎週のアカウントバックアップを作成し、復元できます。",
+        "webhooks": "Webhook",
+        "webhooksText": "アップロード、リンク、ノートを Discord、Slack、署名付き JSON で通知。",
+        "phone": "スマートフォンにインストール",
+        "phoneText": "Android アプリから共有できるインストール型アプリ。",
+        "duplicates": "重複ファイルの検出",
+        "duplicatesText": "アップロードの前後で同じファイルを見つけます。",
+        "languages": "12 の言語",
+        "languagesText": "English や Türkçe から 日本語、简体中文 まで。"
+    },
+    "compare": {
+        "eyebrow": "比較",
+        "title": "Fileship と他のアプリの比較",
+        "description": "Zipline 4.8、XBackBone 3.8、Chibisafe 6.7 との比較です（2026 年 10 月に確認）。これらから乗り換えますか？{link}",
+        "migrate": "アカウント、ファイル、リンクを移行できます。",
+        "yes": "あり",
+        "no": "なし",
+        "partly": "一部",
+        "rows": {
+            "uploaders": "ShareX などのアップローダー",
+            "desktop": "キャプチャと録画のデスクトップアプリ",
+            "explorer": "エクスプローラーでのファイル表示",
+            "extension": "ブラウザー拡張機能",
+            "ai": "AI 検索、説明文、OCR",
+            "folders": "フォルダー",
+            "sharing": "パスワード、有効期限、閲覧数の上限",
+            "storage": "ストレージ",
+            "security": "パスキーと 2 段階認証",
+            "sso": "シングルサインオン",
+            "webhooks": "Webhook",
+            "backups": "復元できるスケジュールバックアップ",
+            "updates": "ダッシュボードからのアップデート",
+            "languages": "言語",
+            "license": "ライセンス"
+        },
+        "notes": {
+            "onYourServer": "自分のサーバーで",
+            "nestedShared": "入れ子、共有可",
+            "nested": "入れ子",
+            "tags": "タグ",
+            "flatAlbums": "階層なしのアルバム",
+            "albumLinks": "アルバムのリンク",
+            "export": "エクスポート",
+            "zeroDowntime": "停止なし",
+            "withDowntime": "停止あり",
+            "somePartial": "31（一部は未完成）",
+            "local": "ローカル"
+        }
+    },
+    "getStarted": {
+        "eyebrow": "はじめる",
+        "title": "1 分で起動。",
+        "description": "必要なのは Compose 付きの Docker、2 コアの CPU、2 GB の RAM（AI を使う場合は 4 GB 以上）だけです。あとは {address} を開いてログインします。",
+        "installation": "インストールガイド",
+        "upgrading": "5.x からのアップグレード",
+        "terminal": "ターミナル",
+        "copy": "コマンドをコピー",
+        "copied": "コピーしました",
+        "ready": "Fileship の準備ができました: {url}"
+    },
+    "footer": {
+        "tagline": "オープンソースでセルフホスト型のファイル・メディア管理。MIT ライセンス。",
+        "product": "製品",
+        "docs": "ドキュメント",
+        "project": "プロジェクト",
+        "features": "機能",
+        "windowsApp": "Windows アプリ",
+        "chrome": "Chrome 拡張機能",
+        "firefox": "Firefox アドオン",
+        "installation": "インストール",
+        "configuration": "設定",
+        "ai": "AI 機能",
+        "migrating": "移行",
+        "github": "GitHub",
+        "releases": "リリース",
+        "security": "セキュリティ",
+        "contributing": "コントリビュート",
+        "copyright": "© {years} Hànzy と Fileship のコントリビューター"
+    }
+}

@@ -1,0 +1,168 @@
+{
+    "nav": {
+        "features": "Özellikler",
+        "windowsApp": "Windows uygulaması",
+        "compare": "Karşılaştır",
+        "getStarted": "Başla",
+        "docs": "Belgeler",
+        "github": "GitHub",
+        "menu": "Menü",
+        "openMenu": "Menüyü aç"
+    },
+    "hero": {
+        "release": "Windows panelinde indirmeler ve Harbor",
+        "titleLine1": "Kendi ShareX sunucun",
+        "titleLine2": "ve dosya bulutun.",
+        "description": "Yerel bir Windows uygulamasıyla yakala, yükle ve paylaş; dosyalarına Dosya Gezgini'nden göz at ve onları kendi sunucunda çalışan yapay zekâyla ara. Açık kaynak ve kendin barındırırsın.",
+        "selfHost": "Fileship'i kur",
+        "download": "Windows için indir",
+        "license": "MIT lisanslı",
+        "languages": "12 dil",
+        "dashboardAlt": "Son yüklemeler ve depolama grafikleriyle Fileship panelinin ana sayfası",
+        "mobileAlt": "Telefonda Fileship dosyalar sayfası",
+        "uploadFrom": "Buradan yükle",
+        "windowsApp": "Windows uygulaması",
+        "androidShare": "Android paylaşım menüsü"
+    },
+    "features": {
+        "eyebrow": "Özellikler",
+        "title": "Ekran görüntüsü bırakılan bir yerden fazlası.",
+        "description": "Dosyalar, iç içe klasörler, notlar, kısa bağlantılar ve gelen kutuları; etrafındaki uygulamalarla gerçek bir bulut gibi. Kendi donanımında, kendi kurallarınla.",
+        "windows": {
+            "label": "Fileship for Windows",
+            "title": "Yakala, işaretle, kaydet. Bağlantı panonda.",
+            "description": "ShareX tarzında yerel bir bildirim alanı uygulaması. Tüm ekranlarda bir bölge seç, bırakmadan önce üzerine çiz, OCR ile metni kopyala ya da video veya GIF kaydet. Boştayken birkaç megabayt kullanır.",
+            "annotation": "düzelttim",
+            "linkCopied": "Bağlantı kopyalandı"
+        },
+        "harbor": {
+            "title": "Dosyaların Dosya Gezgini'nde.",
+            "description": "Açana kadar yalnızca çevrimiçi. Gezgin'de yeniden adlandır, taşı ya da sil; değişiklik eşitlenir.",
+            "name": "Ad",
+            "status": "Durum",
+            "screenshots": "Ekran görüntüleri",
+            "projects": "Projeler",
+            "notes": "Notlar"
+        },
+        "ai": {
+            "label": "Sunucunda yapay zekâ",
+            "title": "Bir fotoğrafı anlatarak bul.",
+            "description": "50'den fazla dilde akıllı arama, açıklamalar, OCR ve hassas içerik tespiti. Her model kendi makinende çalışır ve hepsi isteğe bağlıdır.",
+            "query": "gün doğumunda dağlar",
+            "smart": "Akıllı"
+        },
+        "sharing": {
+            "label": "Paylaşım senin kurallarınla",
+            "title": "Her bağlantıda şifre, son kullanma ve görüntülenme sınırı.",
+            "description": "Klasörleri diğer kullanıcılarla görüntüleyici ya da düzenleyici olarak paylaş ve bağlantılarının Discord'da nasıl görüneceğini tasarla.",
+            "password": "Şifre",
+            "expires": "Sona erer",
+            "expiresValue": "7 gün içinde",
+            "maxViews": "En fazla görüntülenme",
+            "discordEmbed": "Discord önizlemesi"
+        },
+        "storage": {
+            "title": "İstediğin yerde sakla",
+            "description": "Yerel disk, S3 uyumlu herhangi bir servis, SFTP ya da FTP. Her şeyi tek adımda yeni bir depolamaya taşı.",
+            "local": "Yerel"
+        },
+        "updates": {
+            "title": "Kesintisiz güncellemeler",
+            "description": "Tek tıkla ya da zamanlanmış. Yeni sürüm eskisinin yanında başlar ve sağlıklı olduğunda devralır."
+        },
+        "users": {
+            "title": "Birden fazla kişi için",
+            "description": "Yetkileri ve depolama sınırları olan kullanıcılar, davetler, geçiş anahtarları, iki adımlı doğrulama ve OpenID Connect ile tek oturum açma."
+        }
+    },
+    "toolbox": {
+        "title": "Ve araç kutusunun geri kalanı",
+        "notes": "Markdown notları",
+        "notesText": "Herkese açık ya da gizli notlar yaz ve paylaş.",
+        "links": "Kısa bağlantılar",
+        "linksText": "Tıklanma sayıları, şifreler ve sınırlarla kısa bağlantılar.",
+        "inboxes": "Gelen kutuları",
+        "inboxesText": "Herkesin sana hesap olmadan dosya gönderebileceği bir sayfa.",
+        "trash": "Çöp kutusu",
+        "trashText": "Silinen dosyalar tamamen gitmeden önce çöp kutusunda bekler.",
+        "backups": "Zamanlanmış yedekler",
+        "backupsText": "Geri yükleyebileceğin günlük ya da haftalık hesap yedekleri.",
+        "webhooks": "Webhook'lar",
+        "webhooksText": "Yüklemeler, bağlantılar ve notlarda Discord, Slack ya da imzalı JSON.",
+        "phone": "Telefonuna yükle",
+        "phoneText": "Android uygulamalarının paylaşabildiği yüklenebilir bir uygulama.",
+        "duplicates": "Kopya bulucu",
+        "duplicatesText": "Aynı dosyaları yüklemeden önce ve sonra fark et.",
+        "languages": "On iki dil",
+        "languagesText": "English ve Türkçe'den 日本語 ve 简体中文 diline kadar."
+    },
+    "compare": {
+        "eyebrow": "Karşılaştır",
+        "title": "Fileship nasıl karşılaştırılır",
+        "description": "Zipline 4.8, XBackBone 3.8 ve Chibisafe 6.7 ile karşılaştırıldı, Ekim 2026'da kontrol edildi. Bunlardan birinden mi geliyorsun? {link}",
+        "migrate": "Hesaplarını, dosyalarını ve bağlantılarını taşı.",
+        "yes": "Evet",
+        "no": "Hayır",
+        "partly": "Kısmen",
+        "rows": {
+            "uploaders": "ShareX ve diğer yükleyiciler",
+            "desktop": "Yakalama ve kayıt için masaüstü uygulaması",
+            "explorer": "Dosyaların Dosya Gezgini'nde",
+            "extension": "Tarayıcı eklentisi",
+            "ai": "Yapay zekâ ile arama, açıklamalar, OCR",
+            "folders": "Klasörler",
+            "sharing": "Şifre, son kullanma ve görüntülenme sınırı",
+            "storage": "Depolama",
+            "security": "Geçiş anahtarları ve iki adımlı doğrulama",
+            "sso": "Tek oturum açma",
+            "webhooks": "Webhook'lar",
+            "backups": "Geri yüklenebilir, zamanlanmış yedekler",
+            "updates": "Panelden güncelleme",
+            "languages": "Diller",
+            "license": "Lisans"
+        },
+        "notes": {
+            "onYourServer": "kendi sunucunda",
+            "nestedShared": "iç içe, paylaşılan",
+            "nested": "iç içe",
+            "tags": "etiketler",
+            "flatAlbums": "düz albümler",
+            "albumLinks": "albüm bağlantıları",
+            "export": "dışa aktarma",
+            "zeroDowntime": "kesintisiz",
+            "withDowntime": "kesintili",
+            "somePartial": "31, bazıları eksik",
+            "local": "Yerel"
+        }
+    },
+    "getStarted": {
+        "eyebrow": "Başla",
+        "title": "Bir dakikada çalışır.",
+        "description": "Tek ihtiyacın Compose ile Docker, 2 CPU çekirdeği ve 2 GB RAM (yapay zekâ ile 4 GB veya daha fazla). Ardından {address} adresini aç ve giriş yap.",
+        "installation": "Kurulum rehberi",
+        "upgrading": "5.x'ten yükseltme",
+        "terminal": "Terminal",
+        "copy": "Komutları kopyala",
+        "copied": "Kopyalandı",
+        "ready": "Fileship hazır: {url}"
+    },
+    "footer": {
+        "tagline": "Açık kaynak, kendin barındırdığın dosya ve medya yönetimi. MIT lisanslı.",
+        "product": "Ürün",
+        "docs": "Belgeler",
+        "project": "Proje",
+        "features": "Özellikler",
+        "windowsApp": "Windows uygulaması",
+        "chrome": "Chrome eklentisi",
+        "firefox": "Firefox eklentisi",
+        "installation": "Kurulum",
+        "configuration": "Yapılandırma",
+        "ai": "Yapay zekâ özellikleri",
+        "migrating": "Taşıma",
+        "github": "GitHub",
+        "releases": "Sürümler",
+        "security": "Güvenlik",
+        "contributing": "Katkıda bulunma",
+        "copyright": "© {years} Hànzy ve Fileship'e katkıda bulunanlar"
+    }
+}

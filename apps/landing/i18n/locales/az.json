@@ -1,0 +1,168 @@
+{
+    "nav": {
+        "features": "İmkanlar",
+        "windowsApp": "Windows tətbiqi",
+        "compare": "Müqayisə",
+        "getStarted": "Başla",
+        "docs": "Sənədlər",
+        "github": "GitHub",
+        "menu": "Menyu",
+        "openMenu": "Menyunu aç"
+    },
+    "hero": {
+        "release": "Windows idarə panelində endirmələr və Harbor",
+        "titleLine1": "Öz ShareX serverin",
+        "titleLine2": "və fayl buludun.",
+        "description": "Yerli Windows tətbiqi ilə çək, yüklə və paylaş, fayllarına Fayl Bələdçisində bax və onları öz serverində işləyən süni intellektlə axtar. Açıq mənbəli və öz serverində.",
+        "selfHost": "Fileship-i qur",
+        "download": "Windows üçün endir",
+        "license": "MIT lisenziyalı",
+        "languages": "12 dil",
+        "dashboardAlt": "Son yükləmələr və yaddaş qrafikləri ilə Fileship idarə panelinin əsas səhifəsi",
+        "mobileAlt": "Telefonda Fileship fayllar səhifəsi",
+        "uploadFrom": "Buradan yüklə",
+        "windowsApp": "Windows tətbiqi",
+        "androidShare": "Android paylaşım menyusu"
+    },
+    "features": {
+        "eyebrow": "İmkanlar",
+        "title": "Ekran görüntüsü atılan yerdən daha artıq.",
+        "description": "Fayllar, iç-içə qovluqlar, qeydlər, qısa keçidlər və gələnlər qutuları, ətrafındakı tətbiqlərlə birlikdə əsl bulud kimi. Öz avadanlığında, öz qaydalarınla.",
+        "windows": {
+            "label": "Windows üçün Fileship",
+            "title": "Çək, işarələ, qeydə al. Keçid artıq mübadilə buferindədir.",
+            "description": "ShareX üslubunda yerli bildiriş sahəsi tətbiqi. İstənilən ekranda sahə seç, buraxmazdan əvvəl üzərində çək, OCR ilə mətni kopyala və ya video, yaxud GIF qeydə al. Boş vaxtda bir neçə meqabayt istifadə edir.",
+            "annotation": "düzəltdim",
+            "linkCopied": "Keçid kopyalandı"
+        },
+        "harbor": {
+            "title": "Faylların Fayl Bələdçisində.",
+            "description": "Açana qədər yalnız onlayndır. Bələdçidə adını dəyiş, köçür və ya sil, dəyişiklik sinxronlaşır.",
+            "name": "Ad",
+            "status": "Vəziyyət",
+            "screenshots": "Ekran görüntüləri",
+            "projects": "Layihələr",
+            "notes": "Qeydlər"
+        },
+        "ai": {
+            "label": "Serverində süni intellekt",
+            "title": "Fotonu təsvir edərək tap.",
+            "description": "50-dən çox dildə ağıllı axtarış, təsvirlər, OCR və həssas məzmunun aşkarlanması. Hər model sənin kompüterində işləyir və hamısı istəyə bağlıdır.",
+            "query": "gün doğanda dağlar",
+            "smart": "Ağıllı"
+        },
+        "sharing": {
+            "label": "Paylaşım sənin qaydalarınla",
+            "title": "Hər keçiddə şifrə, bitmə tarixi və baxış limiti.",
+            "description": "Qovluqları digər istifadəçilərlə baxış və ya redaktə icazəsi ilə paylaş və keçidlərinin Discord-da necə görünəcəyini özün qur.",
+            "password": "Şifrə",
+            "expires": "Bitir",
+            "expiresValue": "7 gün sonra",
+            "maxViews": "Maksimum baxış",
+            "discordEmbed": "Discord önizləməsi"
+        },
+        "storage": {
+            "title": "İstədiyin yerdə saxla",
+            "description": "Yerli disk, istənilən S3 uyğun xidmət, SFTP və ya FTP. Hər şeyi bir addımda yeni yaddaşa köçür.",
+            "local": "Yerli"
+        },
+        "updates": {
+            "title": "Fasiləsiz yeniləmələr",
+            "description": "Bir kliklə və ya cədvəllə. Yeni versiya köhnəsinin yanında başlayır və hazır olanda işi öz üzərinə götürür."
+        },
+        "users": {
+            "title": "Bir nəfərdən çoxu üçün",
+            "description": "İcazələri və yaddaş limitləri olan istifadəçilər, dəvətlər, giriş açarları, iki addımlı doğrulama və OpenID Connect ilə vahid giriş."
+        }
+    },
+    "toolbox": {
+        "title": "Və alətlər qutusunun qalanı",
+        "notes": "Markdown qeydləri",
+        "notesText": "Hamıya açıq və ya gizli qeydlər yaz və paylaş.",
+        "links": "Qısa keçidlər",
+        "linksText": "Klik sayı, şifrə və limitlərlə qısa keçidlər.",
+        "inboxes": "Gələnlər qutuları",
+        "inboxesText": "Hər kəsin sənə hesabsız fayl göndərə biləcəyi səhifə.",
+        "trash": "Zibil qutusu",
+        "trashText": "Silinən fayllar tamamilə yox olmadan əvvəl zibil qutusunda gözləyir.",
+        "backups": "Cədvəlli ehtiyat nüsxələr",
+        "backupsText": "Bərpa edə biləcəyin gündəlik və ya həftəlik hesab ehtiyat nüsxələri.",
+        "webhooks": "Webhook-lar",
+        "webhooksText": "Yükləmələr, keçidlər və qeydlərdə Discord, Slack və ya imzalı JSON.",
+        "phone": "Telefonuna quraşdır",
+        "phoneText": "Android tətbiqlərinin paylaşa biləcəyi quraşdırılan tətbiq.",
+        "duplicates": "Dublikat axtarışı",
+        "duplicatesText": "Eyni faylları yükləmədən əvvəl və sonra aşkar et.",
+        "languages": "On iki dil",
+        "languagesText": "English və Türkçe dillərindən 日本語 və 简体中文 dillərinə qədər."
+    },
+    "compare": {
+        "eyebrow": "Müqayisə",
+        "title": "Fileship digərləri ilə müqayisədə",
+        "description": "Zipline 4.8, XBackBone 3.8 və Chibisafe 6.7 ilə müqayisə, 2026-cı ilin oktyabrında yoxlanılıb. Onlardan birindən gəlirsən? {link}",
+        "migrate": "Hesablarını, fayllarını və keçidlərini köçür.",
+        "yes": "Bəli",
+        "no": "Xeyr",
+        "partly": "Qismən",
+        "rows": {
+            "uploaders": "ShareX və digər yükləyicilər",
+            "desktop": "Çəkiliş və qeydə alma üçün masaüstü tətbiq",
+            "explorer": "Faylların Fayl Bələdçisində",
+            "extension": "Brauzer genişlənməsi",
+            "ai": "Süni intellektlə axtarış, təsvirlər, OCR",
+            "folders": "Qovluqlar",
+            "sharing": "Şifrə, bitmə tarixi və baxış limiti",
+            "storage": "Yaddaş",
+            "security": "Giriş açarları və iki addımlı doğrulama",
+            "sso": "Vahid giriş",
+            "webhooks": "Webhook-lar",
+            "backups": "Bərpa edilə bilən cədvəlli ehtiyat nüsxələr",
+            "updates": "İdarə panelindən yeniləmə",
+            "languages": "Dillər",
+            "license": "Lisenziya"
+        },
+        "notes": {
+            "onYourServer": "öz serverində",
+            "nestedShared": "iç-içə, paylaşılan",
+            "nested": "iç-içə",
+            "tags": "teqlər",
+            "flatAlbums": "düz albomlar",
+            "albumLinks": "albom keçidləri",
+            "export": "ixrac",
+            "zeroDowntime": "fasiləsiz",
+            "withDowntime": "fasilə ilə",
+            "somePartial": "31, bəziləri natamam",
+            "local": "Yerli"
+        }
+    },
+    "getStarted": {
+        "eyebrow": "Başla",
+        "title": "Bir dəqiqəyə işləyir.",
+        "description": "Sənə yalnız Compose ilə Docker, 2 CPU nüvəsi və 2 GB RAM lazımdır (süni intellektlə 4 GB və ya daha çox). Sonra {address} ünvanını aç və daxil ol.",
+        "installation": "Quraşdırma bələdçisi",
+        "upgrading": "5.x versiyasından yeniləmə",
+        "terminal": "Terminal",
+        "copy": "Əmrləri kopyala",
+        "copied": "Kopyalandı",
+        "ready": "Fileship hazırdır: {url}"
+    },
+    "footer": {
+        "tagline": "Açıq mənbəli, öz serverində işləyən fayl və media idarəetməsi. MIT lisenziyalı.",
+        "product": "Məhsul",
+        "docs": "Sənədlər",
+        "project": "Layihə",
+        "features": "İmkanlar",
+        "windowsApp": "Windows tətbiqi",
+        "chrome": "Chrome genişlənməsi",
+        "firefox": "Firefox əlavəsi",
+        "installation": "Quraşdırma",
+        "configuration": "Konfiqurasiya",
+        "ai": "Süni intellekt imkanları",
+        "migrating": "Köçürmə",
+        "github": "GitHub",
+        "releases": "Buraxılışlar",
+        "security": "Təhlükəsizlik",
+        "contributing": "Töhfə vermək",
+        "copyright": "© {years} Hànzy və Fileship töhfəçiləri"
+    }
+}

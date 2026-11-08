@@ -1,0 +1,168 @@
+{
+    "nav": {
+        "features": "Funktionen",
+        "windowsApp": "Windows-App",
+        "compare": "Vergleich",
+        "getStarted": "Loslegen",
+        "docs": "Doku",
+        "github": "GitHub",
+        "menu": "Menü",
+        "openMenu": "Menü öffnen"
+    },
+    "hero": {
+        "release": "Downloads und Harbor im Windows-Dashboard",
+        "titleLine1": "Dein eigener ShareX-Server",
+        "titleLine2": "und deine Datei-Cloud.",
+        "description": "Nimm auf, lade hoch und teile mit einer nativen Windows-App, durchsuche deine Dateien im Explorer und finde sie mit KI, die auf deinem eigenen Server läuft. Open Source und selbst gehostet.",
+        "selfHost": "Fileship selbst hosten",
+        "download": "Für Windows herunterladen",
+        "license": "MIT-lizenziert",
+        "languages": "12 Sprachen",
+        "dashboardAlt": "Startseite des Fileship-Dashboards mit neuen Uploads und Speicherdiagrammen",
+        "mobileAlt": "Dateiseite von Fileship auf einem Smartphone",
+        "uploadFrom": "Hochladen mit",
+        "windowsApp": "Windows-App",
+        "androidShare": "Android-Teilen-Menü"
+    },
+    "features": {
+        "eyebrow": "Funktionen",
+        "title": "Mehr als ein Ablageort für Screenshots.",
+        "description": "Dateien, verschachtelte Ordner, Notizen, Kurzlinks und Posteingänge, dazu die passenden Apps, damit es sich wie eine echte Cloud anfühlt. Auf deiner Hardware, nach deinen Regeln.",
+        "windows": {
+            "label": "Fileship für Windows",
+            "title": "Aufnehmen, markieren, aufzeichnen. Der Link ist in der Zwischenablage.",
+            "description": "Eine native App im Infobereich im Stil von ShareX. Wähle einen Bereich über alle Bildschirme, zeichne darauf, bevor du loslässt, kopiere Text per OCR oder nimm ein Video oder GIF auf. Im Leerlauf braucht sie nur wenige Megabyte.",
+            "annotation": "behoben",
+            "linkCopied": "Link kopiert"
+        },
+        "harbor": {
+            "title": "Deine Dateien im Explorer.",
+            "description": "Nur online, bis du sie öffnest. Umbenennen, verschieben oder löschen im Explorer wird synchronisiert.",
+            "name": "Name",
+            "status": "Status",
+            "screenshots": "Screenshots",
+            "projects": "Projekte",
+            "notes": "Notizen"
+        },
+        "ai": {
+            "label": "KI auf deinem Server",
+            "title": "Finde ein Foto, indem du es beschreibst.",
+            "description": "Intelligente Suche in über 50 Sprachen, Bildbeschreibungen, OCR und Erkennung sensibler Inhalte. Jedes Modell läuft auf deinem Rechner, und alles ist optional.",
+            "query": "Berge bei Sonnenaufgang",
+            "smart": "Intelligent"
+        },
+        "sharing": {
+            "label": "Teilen nach deinen Regeln",
+            "title": "Passwörter, Ablauf und Aufruflimits für jeden Link.",
+            "description": "Teile Ordner mit anderen Benutzern zum Ansehen oder Bearbeiten und gestalte, wie deine Links in Discord aussehen.",
+            "password": "Passwort",
+            "expires": "Läuft ab",
+            "expiresValue": "in 7 Tagen",
+            "maxViews": "Maximale Aufrufe",
+            "discordEmbed": "Discord-Vorschau"
+        },
+        "storage": {
+            "title": "Speichern, wo du willst",
+            "description": "Lokale Festplatte, jeder S3-kompatible Dienst, SFTP oder FTP. Verschiebe alles in einem Schritt auf einen neuen Speicher.",
+            "local": "Lokal"
+        },
+        "updates": {
+            "title": "Updates ohne Ausfallzeit",
+            "description": "Mit einem Klick oder nach Zeitplan. Die neue Version startet neben der alten und übernimmt, sobald sie bereit ist."
+        },
+        "users": {
+            "title": "Für mehr als eine Person",
+            "description": "Benutzer mit Berechtigungen und Speicherlimits, Einladungen, Passkeys, Zwei-Faktor-Authentifizierung und Single Sign-on mit OpenID Connect."
+        }
+    },
+    "toolbox": {
+        "title": "Und der Rest des Werkzeugkastens",
+        "notes": "Markdown-Notizen",
+        "notesText": "Schreibe und teile Notizen, öffentlich oder privat.",
+        "links": "Kurzlinks",
+        "linksText": "Kurzlinks mit Klickzahlen, Passwörtern und Limits.",
+        "inboxes": "Posteingänge",
+        "inboxesText": "Eine Seite, über die dir jeder Dateien schicken kann, ohne Konto.",
+        "trash": "Papierkorb",
+        "trashText": "Gelöschte Dateien warten im Papierkorb, bevor sie endgültig weg sind.",
+        "backups": "Geplante Backups",
+        "backupsText": "Tägliche oder wöchentliche Kontobackups, die du wiederherstellen kannst.",
+        "webhooks": "Webhooks",
+        "webhooksText": "Discord, Slack oder signiertes JSON bei Uploads, Links und Notizen.",
+        "phone": "Auf dem Smartphone installieren",
+        "phoneText": "Eine installierbare App, an die Android-Apps teilen können.",
+        "duplicates": "Duplikatsuche",
+        "duplicatesText": "Erkenne identische Dateien vor und nach dem Hochladen.",
+        "languages": "Zwölf Sprachen",
+        "languagesText": "Von English und Türkçe bis 日本語 und 简体中文."
+    },
+    "compare": {
+        "eyebrow": "Vergleich",
+        "title": "Fileship im Vergleich",
+        "description": "Verglichen mit Zipline 4.8, XBackBone 3.8 und Chibisafe 6.7, geprüft im Oktober 2026. Du kommst von einem davon? {link}",
+        "migrate": "Nimm deine Konten, Dateien und Links mit.",
+        "yes": "Ja",
+        "no": "Nein",
+        "partly": "Teilweise",
+        "rows": {
+            "uploaders": "ShareX und andere Uploader",
+            "desktop": "Desktop-App für Screenshots und Aufnahmen",
+            "explorer": "Deine Dateien im Explorer",
+            "extension": "Browsererweiterung",
+            "ai": "KI-Suche, Bildbeschreibungen, OCR",
+            "folders": "Ordner",
+            "sharing": "Passwörter, Ablauf und Aufruflimits",
+            "storage": "Speicher",
+            "security": "Passkeys und Zwei-Faktor",
+            "sso": "Single Sign-on",
+            "webhooks": "Webhooks",
+            "backups": "Geplante, wiederherstellbare Backups",
+            "updates": "Updates aus dem Dashboard",
+            "languages": "Sprachen",
+            "license": "Lizenz"
+        },
+        "notes": {
+            "onYourServer": "auf deinem Server",
+            "nestedShared": "verschachtelt, geteilt",
+            "nested": "verschachtelt",
+            "tags": "Tags",
+            "flatAlbums": "flache Alben",
+            "albumLinks": "Album-Links",
+            "export": "Export",
+            "zeroDowntime": "ohne Ausfallzeit",
+            "withDowntime": "mit Ausfallzeit",
+            "somePartial": "31, teils unvollständig",
+            "local": "Lokal"
+        }
+    },
+    "getStarted": {
+        "eyebrow": "Loslegen",
+        "title": "In einer Minute startklar.",
+        "description": "Du brauchst nur Docker mit Compose, 2 CPU-Kerne und 2 GB RAM (4 GB oder mehr mit KI). Öffne dann {address} und melde dich an.",
+        "installation": "Installationsanleitung",
+        "upgrading": "Upgrade von 5.x",
+        "terminal": "Terminal",
+        "copy": "Befehle kopieren",
+        "copied": "Kopiert",
+        "ready": "Fileship ist bereit unter {url}"
+    },
+    "footer": {
+        "tagline": "Open-Source-Datei- und Medienverwaltung zum Selbsthosten. MIT-lizenziert.",
+        "product": "Produkt",
+        "docs": "Doku",
+        "project": "Projekt",
+        "features": "Funktionen",
+        "windowsApp": "Windows-App",
+        "chrome": "Chrome-Erweiterung",
+        "firefox": "Firefox-Add-on",
+        "installation": "Installation",
+        "configuration": "Konfiguration",
+        "ai": "KI-Funktionen",
+        "migrating": "Umzug",
+        "github": "GitHub",
+        "releases": "Releases",
+        "security": "Sicherheit",
+        "contributing": "Mitwirken",
+        "copyright": "© {years} Hànzy und die Fileship-Mitwirkenden"
+    }
+}

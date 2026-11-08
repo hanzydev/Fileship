@@ -1,0 +1,9 @@
+@import '@fileship/ui/app/styles/tailwind.css';
+
+@utility container {
+    padding-inline: 1rem;
+
+    @media (width >= 40rem) {
+        padding-inline: 1.5rem;
+    }
+}

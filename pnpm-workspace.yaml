@@ -31,6 +31,7 @@ allowBuilds:
   '@parcel/watcher': true
   '@prisma/engines': true
   argon2: true
+  better-sqlite3: true
   bufferutil: true
   cpu-features: false
   electron: true

@@ -15,6 +15,7 @@ pnpm + Turborepo monorepo (`pnpm@11`, workspaces `apps/*` and `packages/*`). pnp
 | `apps/desktop`           | Fileship for Windows: a native host (tray, capture, overlay, recording, uploads, Harbor) with Electron windows and a Nuxt renderer on the ui layer, for Fileship 6.0+.   |
 | `apps/extension`         | The browser extension (Manifest V3 for Chrome, Edge and Firefox, built with WXT and Vue): uploads, screenshots and short links with an upload token.                     |
 | `apps/telemetry`         | Nuxt 4 telemetry panel: receives the anonymous reports and shows the statistics. Admin only. Not part of the user-facing stack.                                          |
+| `apps/landing`           | Nuxt 4 landing page and docs site on the ui layer (Nuxt Content), translated into the twelve app languages. Not part of the self-hosted stack.                           |
 | `packages/ui`            | `@fileship/ui`, the shared Nuxt layer: shadcn-vue components, theme tokens, generic app components and the shared Nuxt modules.                                          |
 | `packages/telemetry`     | `@fileship/telemetry`, the report schema (zod) and the client that collects runtime info and sends reports.                                                              |
 | `packages/ai`            | `@fileship/ai`, the AI models (SigLIP, Florence-2, text embeddings, PaddleOCR, privacy filter) running on a worker thread.                                               |
