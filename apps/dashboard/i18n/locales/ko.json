@@ -134,7 +134,8 @@
                 "wrongAccount": "내 계정과 연결된 {provider} 계정을 사용하세요.",
                 "wrongAddress": "SSO를 사용하려면 대시보드 주소로 Fileship을 여세요."
             }
-        }
+        },
+        "poweredBy": "{name} 기반"
     },
     "backups": {
         "title": "백업",

@@ -134,7 +134,8 @@
                 "wrongAccount": "Hesabına bağlı olan {provider} hesabını istifadə et.",
                 "wrongAddress": "SSO ilə daxil olmaq üçün Fileship-i idarə paneli ünvanında aç."
             }
-        }
+        },
+        "poweredBy": "{name} ilə işləyir"
     },
     "backups": {
         "title": "Ehtiyat nüsxələr",

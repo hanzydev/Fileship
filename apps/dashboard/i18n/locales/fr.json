@@ -134,7 +134,8 @@
                 "wrongAccount": "Utilisez le compte {provider} lié à votre compte.",
                 "wrongAddress": "Ouvrez Fileship à l'adresse de son tableau de bord pour utiliser l'authentification unique."
             }
-        }
+        },
+        "poweredBy": "Propulsé par {name}"
     },
     "backups": {
         "title": "Sauvegardes",

@@ -134,7 +134,8 @@
                 "wrongAccount": "请使用已关联到你账户的 {provider} 账户。",
                 "wrongAddress": "请通过控制台地址打开 Fileship 以使用单点登录。"
             }
-        }
+        },
+        "poweredBy": "由 {name} 提供支持"
     },
     "backups": {
         "title": "备份",

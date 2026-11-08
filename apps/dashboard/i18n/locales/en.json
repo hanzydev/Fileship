@@ -134,7 +134,8 @@
                 "wrongAccount": "Use the {provider} account that is linked to your account.",
                 "wrongAddress": "Open Fileship at its dashboard address to use single sign-on."
             }
-        }
+        },
+        "poweredBy": "Powered by {name}"
     },
     "backups": {
         "title": "Backups",

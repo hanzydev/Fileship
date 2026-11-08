@@ -134,7 +134,8 @@
                 "wrongAccount": "Usa la cuenta de {provider} vinculada a tu cuenta.",
                 "wrongAddress": "Abre Fileship desde la dirección del panel para usar el inicio de sesión único."
             }
-        }
+        },
+        "poweredBy": "Con la tecnología de {name}"
     },
     "backups": {
         "title": "Copias de seguridad",

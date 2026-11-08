@@ -133,6 +133,7 @@
                     </UiCardContent>
                 </template>
             </UiCard>
+            <PoweredBy />
         </Centered>
     </div>
 </template>

@@ -134,7 +134,8 @@
                 "wrongAccount": "Use a conta {provider} vinculada à sua conta.",
                 "wrongAddress": "Abra o Fileship pelo endereço do painel para usar o login único."
             }
-        }
+        },
+        "poweredBy": "Com tecnologia {name}"
     },
     "backups": {
         "title": "Backups",

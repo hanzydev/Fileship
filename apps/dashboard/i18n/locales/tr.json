@@ -134,7 +134,8 @@
                 "wrongAccount": "Hesabına bağlı olan {provider} hesabını kullan.",
                 "wrongAddress": "Tek oturum açmayı kullanmak için Fileship'i panel adresinden aç."
             }
-        }
+        },
+        "poweredBy": "{name} altyapısıyla çalışır"
     },
     "backups": {
         "title": "Yedekler",

@@ -134,7 +134,8 @@
                 "wrongAccount": "アカウントにリンクされている {provider} アカウントを使用してください。",
                 "wrongAddress": "シングルサインオンを使うには、ダッシュボードのアドレスで Fileship を開いてください。"
             }
-        }
+        },
+        "poweredBy": "{name} で動作しています"
     },
     "backups": {
         "title": "バックアップ",

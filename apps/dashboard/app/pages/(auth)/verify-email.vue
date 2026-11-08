@@ -38,6 +38,7 @@
                     </UiButton>
                 </UiCardFooter>
             </UiCard>
+            <PoweredBy />
         </Centered>
     </div>
 </template>

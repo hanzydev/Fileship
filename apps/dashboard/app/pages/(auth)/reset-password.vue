@@ -166,6 +166,7 @@
                     <UiCardDescription>{{ $t('auth.resetPassword.checking') }}</UiCardDescription>
                 </UiCardHeader>
             </UiCard>
+            <PoweredBy />
         </Centered>
     </div>
 </template>
