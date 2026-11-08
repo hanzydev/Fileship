@@ -40,6 +40,7 @@ Fileship 6.6 keeps PostgreSQL up to date by itself, bounds the memory that uploa
 - **media:** Limit the pixels decoded from user images to 120 megapixels in EXIF removal, thumbnails, avatars and AI analysis; an upload that must be processed and passes the limit is refused instead of being stored with its EXIF data ([988f9542](https://github.com/hanzydev/Fileship/commit/988f9542))
 - **api:** Download at most six files at a time for folder archives and backups, and check a backup's contents against the usable space before extracting it ([979f7293](https://github.com/hanzydev/Fileship/commit/979f7293))
 - **api:** Bound the rate limit and view window maps, which grew without limit with changing keys ([d29ecaab](https://github.com/hanzydev/Fileship/commit/d29ecaab))
+- **ui:** Turn off the font providers the apps do not use, so a build no longer fails when Google's icon list cannot be fetched ([f71ef732](https://github.com/hanzydev/Fileship/commit/f71ef732))
 - **dashboard:** Show the full borders of the storage page's inner cards ([73af41bf](https://github.com/hanzydev/Fileship/commit/73af41bf))
 - **telemetry:** Name the versions most used today in the adoption chart, instead of old versions that a few instances ran for months ([84a172cd](https://github.com/hanzydev/Fileship/commit/84a172cd))
 - **landing:** Render the docs folder with Nuxt Content ([ddd132f5](https://github.com/hanzydev/Fileship/commit/ddd132f5))
