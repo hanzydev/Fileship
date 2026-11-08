@@ -1,6 +1,6 @@
 # Updating Fileship
 
-Fileship updates itself without downtime. A small built-in proxy ([Caddy](https://caddyserver.com/)) listens on port `3000` and always routes requests to a healthy container. During an update, the updater agent starts the new version in a second container (`fileship-blue` / `fileship-green`), waits until it is healthy and then stops the old one. If the new version fails to start, it is stopped and the current version keeps running. Updates also wait for any running backup restore to finish.
+Fileship updates itself without downtime (a database restart, when a new PostgreSQL version arrives, is the only short pause). A small built-in proxy ([Caddy](https://caddyserver.com/)) listens on port `3000` and always routes requests to a healthy container. During an update, the updater agent starts the new version in a second container (`fileship-blue` / `fileship-green`), waits until it is healthy and then stops the old one. If the new version fails to start, it is stopped and the current version keeps running. Updates also wait for any running backup restore to finish.
 
 ## One-click update
 
@@ -16,5 +16,25 @@ updater-agent:
         AUTOUPDATER_ENABLED: true # set to false to disable scheduled updates
         AUTOUPDATER_CRON: '0 3 * * *' # cron expression (default: every day at 3:00 AM)
 ```
+
+## PostgreSQL
+
+The database runs on `ghcr.io/hanzydev/fileship-postgres`, a Fileship image based on [pgautoupgrade](https://github.com/pgautoupgrade/docker-pgautoupgrade). When it starts on a data folder from an older major version, it upgrades the data in place with `pg_upgrade`, refreshes the statistics, rebuilds the indexes and then starts as usual. Fileship waits until it is healthy.
+
+Every update first pulls the newest database image. Postgres is restarted only when its version changed (a minor release or a new major version), which takes a few seconds, or longer while a major upgrade rebuilds the indexes of a large database. If the database does not come back healthy, the update stops and the current version keeps running. After a successful update the updater agent also updates itself.
+
+A major upgrade changes the data folder in place, so keep a copy of the `pg_data` volume (or a recent `pg_dump`) if your data matters.
+
+### Installations from before 6.6
+
+Older installations run `postgres:16` and an updater agent that cannot update the database or itself. Update the Compose file and both images once:
+
+```sh
+git pull
+docker compose pull
+docker compose up -d
+```
+
+The database is upgraded from PostgreSQL 16 to 18 during this start, and every later update is automatic. The volume is now mounted at `/var/lib/postgresql` instead of `/var/lib/postgresql/data`; if you changed the `postgres` service (for example a bind mount), change its target the same way and keep the `healthcheck` without a `test`.
 
 Coming from 5.x? See [Upgrading to 6.0](upgrading.md).

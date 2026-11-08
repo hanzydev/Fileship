@@ -12,7 +12,7 @@ The disk sizes include about 1.8, 2.6 and 3 GB of AI models. Add the space for u
 
 You also need [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/).
 
-PostgreSQL 16 is included in the Compose stack.
+PostgreSQL 18 is included in the Compose stack and is kept up to date by the updater agent, including new major versions (see [Updating](updating.md#postgresql)).
 
 ## Install
 

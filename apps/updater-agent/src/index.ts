@@ -31,6 +31,7 @@ const FILESHIP_URL = process.env.FILESHIP_URL || 'http://proxy:3000';
 
 const COLORS = ['blue', 'green'] as const;
 const HEALTH_TIMEOUT = 3 * 60 * 1000;
+const POSTGRES_HEALTH_TIMEOUT = 60 * 60 * 1000;
 const RESTORE_WAIT_TIMEOUT = 10 * 60 * 1000;
 
 type Color = (typeof COLORS)[number];
@@ -165,6 +166,106 @@ const waitUntilHealthy = async (color: Color) => {
     return false;
 };
 
+const docker = async (...args: string[]) => (await execa('docker', args)).stdout.trim();
+
+const serviceContainer = async (service: string) =>
+    (await compose('ps', '-q', service)).stdout.trim();
+
+const serviceImage = async (service: string) => {
+    const { stdout } = await compose('config', '--format', 'json');
+    return JSON.parse(stdout).services[service].image as string;
+};
+
+const pgVersionOf = async (kind: 'container' | 'image', target: string) => {
+    const env = await docker(
+        kind,
+        'inspect',
+        target,
+        '--format',
+        '{{range .Config.Env}}{{println .}}{{end}}',
+    );
+    return env.split('\n').find((line) => line.startsWith('PG_VERSION='));
+};
+
+const waitUntilPostgresHealthy = async () => {
+    const startedAt = Date.now();
+
+    while (Date.now() - startedAt < POSTGRES_HEALTH_TIMEOUT) {
+        const container = await serviceContainer('postgres');
+        const [status, health] = (
+            await docker(
+                'container',
+                'inspect',
+                container,
+                '--format',
+                '{{.State.Status}}|{{if .State.Health}}{{.State.Health.Status}}{{end}}',
+            )
+        ).split('|');
+
+        if (health === 'healthy' || (status === 'running' && !health)) return true;
+        if (['exited', 'dead', 'restarting'].includes(status!)) return false;
+
+        await new Promise((resolve) => setTimeout(resolve, 2_000));
+    }
+
+    return false;
+};
+
+const updatePostgres = async () => {
+    await compose('pull', '--ignore-buildable', 'postgres');
+
+    const container = await serviceContainer('postgres');
+    const target = await pgVersionOf('image', await serviceImage('postgres'));
+
+    if (container && (await pgVersionOf('container', container)) === target) return;
+
+    consola.info(`Restarting postgres on ${target?.slice('PG_VERSION='.length)}...`);
+
+    await compose('up', '-d', '--no-deps', '--no-build', 'postgres');
+
+    if (!(await waitUntilPostgresHealthy())) {
+        throw new Error('postgres failed to become healthy');
+    }
+};
+
+const updateSelf = async () => {
+    if (IS_DEV) return;
+
+    await compose('pull', 'updater-agent');
+
+    const latest = await docker(
+        'image',
+        'inspect',
+        await serviceImage('updater-agent'),
+        '--format',
+        '{{.Id}}',
+    );
+    const current = await docker('container', 'inspect', hostname(), '--format', '{{.Image}}');
+
+    if (latest === current) return;
+
+    consola.info('Restarting the updater agent on its new version...');
+
+    await docker(
+        'run',
+        '-d',
+        '--rm',
+        '--volumes-from',
+        hostname(),
+        '-w',
+        rootDir,
+        latest,
+        'docker',
+        ...(await getComposeArgs()),
+        'up',
+        '-d',
+        '--no-deps',
+        '--no-build',
+        '--force-recreate',
+        'updater-agent',
+    );
+};
+
 const isFileshipBusy = async () => {
     const health = await fsFetch<{ busy?: boolean }>('/healthz').catch(() => null);
     return !!health?.busy;
@@ -189,9 +290,14 @@ const handleUpdate = async (onStatus?: (status: UpdateStatus) => Promise<void>) 
 
         const previous = running.filter((color) => color !== target);
 
+        await onStatus?.('Pulling');
+
+        consola.info('Checking for a new postgres image...');
+
+        await updatePostgres();
+
         consola.info(`Pulling latest fileship image...`);
 
-        await onStatus?.('Pulling');
         await compose('pull', '--ignore-buildable', `fileship-${target}`);
 
         consola.info(`Starting fileship-${target} next to ${previous.join(', ') || 'nothing'}...`);
@@ -230,6 +336,10 @@ const handleUpdate = async (onStatus?: (status: UpdateStatus) => Promise<void>) 
         }
 
         consola.success(`Fileship updated successfully, fileship-${target} is now serving.`);
+
+        await updateSelf().catch((error) =>
+            consola.error('Failed to update the updater agent:', error),
+        );
 
         return true;
     } catch (error) {
