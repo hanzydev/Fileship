@@ -126,7 +126,7 @@ const rows = computed(() => {
             cells: [yes(note('zeroDowntime')), no(), part(note('withDowntime')), no()],
         },
         { key: 'languages', cells: [text('12'), text('12'), text(note('somePartial')), text('1')] },
-        { key: 'license', cells: [text('MIT'), text('MIT'), text('AGPL-3.0'), text('MIT')] },
+        { key: 'license', cells: [text('AGPL-3.0'), text('MIT'), text('AGPL-3.0'), text('MIT')] },
     ];
 });
 </script>

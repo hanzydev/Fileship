@@ -19,7 +19,7 @@
         "description": "Capture, upload and share from a native Windows app, browse your files in File Explorer, and search them with AI that runs on your own server. Open source and self-hosted.",
         "selfHost": "Self-host Fileship",
         "download": "Download for Windows",
-        "license": "MIT licensed",
+        "license": "AGPL-3.0 licensed",
         "languages": "12 languages",
         "dashboardAlt": "The Fileship dashboard home page with recent uploads and storage charts",
         "mobileAlt": "Fileship files page on a phone",
@@ -148,7 +148,7 @@
         "ready": "Fileship is ready on {url}"
     },
     "footer": {
-        "tagline": "Open-source, self-hosted file and media management. MIT licensed.",
+        "tagline": "Open-source, self-hosted file and media management. AGPL-3.0 licensed.",
         "product": "Product",
         "docs": "Docs",
         "project": "Project",

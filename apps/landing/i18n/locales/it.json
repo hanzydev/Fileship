@@ -19,7 +19,7 @@
         "description": "Acquisisci, carica e condividi da un'app nativa per Windows, sfoglia i tuoi file in Esplora file e cercali con un'IA che gira sul tuo server. Open source e self-hosted.",
         "selfHost": "Installa Fileship",
         "download": "Scarica per Windows",
-        "license": "Licenza MIT",
+        "license": "Licenza AGPL-3.0",
         "languages": "12 lingue",
         "dashboardAlt": "Home della dashboard di Fileship con i caricamenti recenti e i grafici dello spazio",
         "mobileAlt": "Pagina dei file di Fileship su un telefono",
@@ -148,7 +148,7 @@
         "ready": "Fileship è pronto su {url}"
     },
     "footer": {
-        "tagline": "Gestione di file e media open source e self-hosted. Licenza MIT.",
+        "tagline": "Gestione di file e media open source e self-hosted. Licenza AGPL-3.0.",
         "product": "Prodotto",
         "docs": "Documentazione",
         "project": "Progetto",

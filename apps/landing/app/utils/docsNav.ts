@@ -121,6 +121,7 @@ export const DOCS_NAV: DocsNavGroup[] = [
         key: 'more',
         folders: ['about'],
         items: [
+            '/docs/about/license',
             '/docs/about/security',
             '/docs/about/contributing',
             '/docs/browser-extension-privacy',

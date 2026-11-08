@@ -19,7 +19,7 @@
         "description": "Yerli Windows tətbiqi ilə çək, yüklə və paylaş, fayllarına Fayl Bələdçisində bax və onları öz serverində işləyən süni intellektlə axtar. Açıq mənbəli və öz serverində.",
         "selfHost": "Fileship-i qur",
         "download": "Windows üçün endir",
-        "license": "MIT lisenziyalı",
+        "license": "AGPL-3.0 lisenziyalı",
         "languages": "12 dil",
         "dashboardAlt": "Son yükləmələr və yaddaş qrafikləri ilə Fileship idarə panelinin əsas səhifəsi",
         "mobileAlt": "Telefonda Fileship fayllar səhifəsi",
@@ -148,7 +148,7 @@
         "ready": "Fileship hazırdır: {url}"
     },
     "footer": {
-        "tagline": "Açıq mənbəli, öz serverində işləyən fayl və media idarəetməsi. MIT lisenziyalı.",
+        "tagline": "Açıq mənbəli, öz serverində işləyən fayl və media idarəetməsi. AGPL-3.0 lisenziyalı.",
         "product": "Məhsul",
         "docs": "Sənədlər",
         "project": "Layihə",

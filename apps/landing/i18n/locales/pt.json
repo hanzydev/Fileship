@@ -19,7 +19,7 @@
         "description": "Capture, envie e compartilhe com um app nativo para Windows, navegue pelos seus arquivos no Explorador de Arquivos e encontre-os com uma IA que roda no seu próprio servidor. Código aberto e auto-hospedado.",
         "selfHost": "Hospedar o Fileship",
         "download": "Baixar para Windows",
-        "license": "Licença MIT",
+        "license": "Licença AGPL-3.0",
         "languages": "12 idiomas",
         "dashboardAlt": "Página inicial do painel do Fileship com envios recentes e gráficos de armazenamento",
         "mobileAlt": "Página de arquivos do Fileship em um celular",
@@ -148,7 +148,7 @@
         "ready": "O Fileship está pronto em {url}"
     },
     "footer": {
-        "tagline": "Gerenciamento de arquivos e mídia de código aberto e auto-hospedado. Licença MIT.",
+        "tagline": "Gerenciamento de arquivos e mídia de código aberto e auto-hospedado. Licença AGPL-3.0.",
         "product": "Produto",
         "docs": "Documentação",
         "project": "Projeto",

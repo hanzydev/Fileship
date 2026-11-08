@@ -19,7 +19,7 @@
         "description": "用原生 Windows 应用截取、上传和分享，在文件资源管理器中浏览你的文件，并用运行在你自己服务器上的 AI 搜索它们。开源，自托管。",
         "selfHost": "自托管 Fileship",
         "download": "下载 Windows 版",
-        "license": "MIT 许可",
+        "license": "AGPL-3.0 许可",
         "languages": "12 种语言",
         "dashboardAlt": "Fileship 控制台首页，显示最近上传和存储图表",
         "mobileAlt": "手机上的 Fileship 文件页面",
@@ -148,7 +148,7 @@
         "ready": "Fileship 已在 {url} 就绪"
     },
     "footer": {
-        "tagline": "开源、自托管的文件和媒体管理。MIT 许可。",
+        "tagline": "开源、自托管的文件和媒体管理。AGPL-3.0 许可。",
         "product": "产品",
         "docs": "文档",
         "project": "项目",

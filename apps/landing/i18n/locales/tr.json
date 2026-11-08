@@ -19,7 +19,7 @@
         "description": "Yerel bir Windows uygulamasıyla yakala, yükle ve paylaş; dosyalarına Dosya Gezgini'nden göz at ve onları kendi sunucunda çalışan yapay zekâyla ara. Açık kaynak ve kendin barındırırsın.",
         "selfHost": "Fileship'i kur",
         "download": "Windows için indir",
-        "license": "MIT lisanslı",
+        "license": "AGPL-3.0 lisanslı",
         "languages": "12 dil",
         "dashboardAlt": "Son yüklemeler ve depolama grafikleriyle Fileship panelinin ana sayfası",
         "mobileAlt": "Telefonda Fileship dosyalar sayfası",
@@ -148,7 +148,7 @@
         "ready": "Fileship hazır: {url}"
     },
     "footer": {
-        "tagline": "Açık kaynak, kendin barındırdığın dosya ve medya yönetimi. MIT lisanslı.",
+        "tagline": "Açık kaynak, kendin barındırdığın dosya ve medya yönetimi. AGPL-3.0 lisanslı.",
         "product": "Ürün",
         "docs": "Belgeler",
         "project": "Proje",

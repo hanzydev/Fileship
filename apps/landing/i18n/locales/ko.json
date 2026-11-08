@@ -19,7 +19,7 @@
         "description": "네이티브 Windows 앱으로 캡처하고 업로드하고 공유하세요. 파일 탐색기에서 파일을 둘러보고, 내 서버에서 돌아가는 AI로 검색할 수 있어요. 오픈 소스이며 직접 호스팅해요.",
         "selfHost": "Fileship 직접 호스팅",
         "download": "Windows용 다운로드",
-        "license": "MIT 라이선스",
+        "license": "AGPL-3.0 라이선스",
         "languages": "12개 언어",
         "dashboardAlt": "최근 업로드와 저장소 차트가 있는 Fileship 대시보드 홈",
         "mobileAlt": "휴대폰에서 본 Fileship 파일 페이지",
@@ -148,7 +148,7 @@
         "ready": "Fileship 준비 완료: {url}"
     },
     "footer": {
-        "tagline": "오픈 소스, 직접 호스팅하는 파일 및 미디어 관리. MIT 라이선스.",
+        "tagline": "오픈 소스, 직접 호스팅하는 파일 및 미디어 관리. AGPL-3.0 라이선스.",
         "product": "제품",
         "docs": "문서",
         "project": "프로젝트",
