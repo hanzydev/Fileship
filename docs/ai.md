@@ -1,3 +1,8 @@
+---
+title: AI features
+description: Smart search, captions, OCR and sensitive content detection with AI models that run on your own server, and the presets that choose them.
+---
+
 # AI features
 
 Fileship can analyze uploads to power smart search, image captions, OCR and sensitive content detection. The models run locally with [Transformers.js](https://huggingface.co/docs/transformers.js); no file ever leaves your server.
@@ -14,7 +19,7 @@ Every image, video and text file is analyzed once in the background after it is 
 
 ## AI presets
 
-The preset sets which models are used and how long they stay in memory. Choose it in **Administration → Instance** or with `NUXT_AI_PRESET`. A new preset applies to files analyzed from then on. Files that were already analyzed keep their captions and text until you choose **Reset AI data**. The hardware each preset needs is listed in [Installation](installation.md#requirements).
+The preset sets which models are used and how long they stay in memory. Choose it in **Administration → Instance** or with `NUXT_AI_PRESET`. A new preset applies to files analyzed from then on. Files that were already analyzed keep their captions and text until you choose **Reset AI data**. The hardware each preset needs is listed in [Requirements](install/requirements.md).
 
 |                        | `low`                          | `medium` (default)                    | `high`                                 |
 | ---------------------- | ------------------------------ | ------------------------------------- | -------------------------------------- |

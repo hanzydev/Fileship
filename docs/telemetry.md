@@ -1,3 +1,8 @@
+---
+title: Telemetry
+description: What anonymous usage data Fileship collects, how often it is sent, and how to turn it off.
+---
+
 # Telemetry
 
 Fileship collects anonymous usage data to understand how it is used and to guide development. Collection is **optional** and can be turned off at any time.

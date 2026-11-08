@@ -1,3 +1,8 @@
+---
+title: Webhooks
+description: Send Fileship events to Discord, Slack or your own service, with signed JSON payloads.
+---
+
 # Webhooks
 
 Webhooks post your Fileship events to Discord, Slack or a service of your own. Add them in **Settings → Integrations → Webhooks**: give the webhook a name, paste its URL, pick a format and the events you want. Every user can add up to 10 webhooks.

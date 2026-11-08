@@ -1,3 +1,8 @@
+---
+title: Browser extension privacy policy
+description: What the Fileship browser extension sends, where it goes and what it keeps on your computer.
+---
+
 # Fileship browser extension privacy policy
 
 Last updated: October 24, 2026

@@ -1,3 +1,8 @@
+---
+title: Updating
+description: How Fileship with Docker updates itself without downtime, scheduled updates, and automatic PostgreSQL upgrades.
+---
+
 # Updating Fileship
 
 Fileship updates itself without downtime (a database restart, when a new PostgreSQL version arrives, is the only short pause). A small built-in proxy ([Caddy](https://caddyserver.com/)) listens on port `3000` and always routes requests to a healthy container. During an update, the updater agent starts the new version in a second container (`fileship-blue` / `fileship-green`), waits until it is healthy and then stops the old one. If the new version fails to start, it is stopped and the current version keeps running. Updates also wait for any running backup restore to finish.
@@ -36,5 +41,7 @@ docker compose up -d
 ```
 
 The database is upgraded from PostgreSQL 16 to 18 during this start, and every later update is automatic. The volume is now mounted at `/var/lib/postgresql` instead of `/var/lib/postgresql/data`; if you changed the `postgres` service (for example a bind mount), change its target the same way and keep the `healthcheck` without a `test`.
+
+Running Fileship without Docker? See [Updating without Docker](updating/without-docker.md). If an update fails, see [Update problems](troubleshooting/updates.md).
 
 Coming from 5.x? See [Upgrading to 6.0](upgrading.md).

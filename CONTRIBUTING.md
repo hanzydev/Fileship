@@ -18,7 +18,7 @@ For larger changes, please open an issue first so the approach can be discussed 
 
 - [Node.js](https://nodejs.org/) 24
 - [pnpm](https://pnpm.io/) 11 (the repository enforces pnpm)
-- [Docker](https://www.docker.com/), or any PostgreSQL 16 server
+- [Docker](https://www.docker.com/), or any PostgreSQL 18 server
 
 ### Getting started
 

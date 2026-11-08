@@ -1,3 +1,8 @@
+---
+title: Upgrading to 6.0
+description: Move a Fileship 5.x installation to 6.0 - renamed environment variables, the new Compose file and AI data.
+---
+
 # Upgrading to 6.0
 
 Fileship 6.0 introduces a redesigned dashboard and renames its environment variables so they can be applied at runtime. Before updating:
