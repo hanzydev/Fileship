@@ -15,7 +15,7 @@
     "dependencies": {
         "@lucide/vue": "^1.55.0",
         "@nuxt/eslint": "^1.17.0",
-        "@nuxt/fonts": "^0.14.0",
+        "@nuxt/fonts": "^1.2.0",
         "@nuxtjs/color-mode": "^4.0.1",
         "@nuxtjs/i18n": "^10.6.0",
         "@tailwindcss/vite": "^4.3.3",
