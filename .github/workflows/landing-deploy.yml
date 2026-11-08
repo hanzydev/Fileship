@@ -1,4 +1,4 @@
-name: landing-deploy
+name: Deploy the landing page
 on:
     push:
         branches:
