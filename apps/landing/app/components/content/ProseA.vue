@@ -12,15 +12,21 @@
 <script setup lang="ts">
 const props = defineProps<{ href?: string; target?: string }>();
 
-const route = useRoute();
+const source = inject<Ref<string> | undefined>('docsSource', undefined);
+
+const headingId = (hash: string) =>
+    hash && `#${hash.slice(1).replace(/-+/g, '-').replace(/^-|-$/g, '').replace(/^(\d)/, '_$1')}`;
 
 const url = computed(() => {
     const href = props.href ?? '';
-    if (!route.path.startsWith('/docs/') || !href.startsWith('../')) return href;
+    if (!source?.value || /^(?:[a-z]+:|\/)/i.test(href)) return href;
+    if (href.startsWith('#')) return headingId(href);
 
-    const folder = route.path.slice(0, route.path.lastIndexOf('/') + 1);
+    const folder = `/${source.value.slice(0, source.value.lastIndexOf('/') + 1)}`;
     const { pathname, hash } = new URL(href, `https://fileship.local${folder}`);
-    if (pathname.startsWith('/docs/')) return href;
+
+    if (pathname.startsWith('/docs/'))
+        return `${pathname.replace(/\.md$/, '').replace(/\/index$/, '')}${headingId(hash)}`;
 
     const file = pathname.split('/').pop()!;
     const path = file.includes('.') ? pathname : `${pathname}.md`;

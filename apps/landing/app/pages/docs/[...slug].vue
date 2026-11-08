@@ -119,6 +119,11 @@ const editUrl = computed(
     () => `https://github.com/hanzydev/Fileship/edit/main/${page.value!.stem}.md`,
 );
 
+provide(
+    'docsSource',
+    computed(() => page.value!.stem),
+);
+
 const { copy, copied } = useClipboard({ legacy: true });
 
 const handleCopy = () => copy(page.value!.rawbody);
