@@ -1,6 +1,7 @@
 <template>
     <UiCommandDialog
         v-model:open="isOpen"
+        class="top-1/2 -translate-y-1/2!"
         :title="$t('docs.search.title')"
         :description="$t('docs.search.description')"
     >
@@ -8,7 +9,7 @@
             :placeholder="$t('docs.search.placeholder')"
             @update:model-value="query = String($event ?? '')"
         />
-        <UiCommandList class="mb-1 max-h-[60vh]">
+        <UiCommandList class="mb-1 max-h-[min(60vh,28rem)]">
             <UiCommandEmpty>{{ $t('docs.search.empty') }}</UiCommandEmpty>
             <UiCommandGroup v-if="results.length" class="px-1 pb-0">
                 <UiCommandItem

@@ -8,7 +8,9 @@
         "github": "GitHub",
         "menu": "メニュー",
         "openMenu": "メニューを開く",
-        "releases": "リリース"
+        "releases": "リリース",
+        "language": "言語",
+        "toggleTheme": "テーマを切り替え"
     },
     "hero": {
         "release": "Windows のダッシュボードでダウンロードと Harbor に対応",
@@ -143,8 +145,6 @@
         "installation": "インストールガイド",
         "upgrading": "5.x からのアップグレード",
         "terminal": "ターミナル",
-        "copy": "コマンドをコピー",
-        "copied": "コピーしました",
         "ready": "Fileship の準備ができました: {url}"
     },
     "footer": {
@@ -213,10 +213,6 @@
             "important": "重要",
             "warning": "警告",
             "caution": "注意"
-        },
-        "code": {
-            "copy": "コードをコピー",
-            "copied": "コピーしました"
         }
     },
     "releases": {

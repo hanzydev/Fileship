@@ -11,6 +11,38 @@
                 </UiButton>
             </nav>
             <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1">
+                    <UiDropdownMenu>
+                        <UiDropdownMenuTrigger as-child>
+                            <UiButton variant="ghost" size="icon" :aria-label="$t('nav.language')">
+                                <ILanguages />
+                            </UiButton>
+                        </UiDropdownMenuTrigger>
+                        <UiDropdownMenuContent align="end">
+                            <UiDropdownMenuRadioGroup
+                                :model-value="locale"
+                                @update:model-value="handleLocaleChange"
+                            >
+                                <UiDropdownMenuRadioItem
+                                    v-for="language in locales"
+                                    :key="language.code"
+                                    :value="language.code"
+                                >
+                                    {{ language.name }}
+                                </UiDropdownMenuRadioItem>
+                            </UiDropdownMenuRadioGroup>
+                        </UiDropdownMenuContent>
+                    </UiDropdownMenu>
+                    <UiButton
+                        variant="ghost"
+                        size="icon"
+                        :aria-label="$t('nav.toggleTheme')"
+                        @click="handleToggleColorMode"
+                    >
+                        <ISun class="hidden dark:block" />
+                        <IMoon class="dark:hidden" />
+                    </UiButton>
+                </div>
                 <UiButton variant="outline" class="hidden sm:inline-flex" as-child>
                     <NuxtLink to="https://github.com/hanzydev/Fileship" target="_blank">
                         <GitHubIcon />
@@ -71,7 +103,16 @@
 </template>
 
 <script setup lang="ts">
+const { locale, locales, setLocale } = useI18n();
+const colorMode = useColorMode();
+
 const isMenuOpen = ref(false);
+
+const handleLocaleChange = (code: unknown) => setLocale(code as typeof locale.value);
+
+const handleToggleColorMode = () => {
+    colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark';
+};
 
 const items = [
     {

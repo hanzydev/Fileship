@@ -8,7 +8,9 @@
         "github": "GitHub",
         "menu": "메뉴",
         "openMenu": "메뉴 열기",
-        "releases": "릴리스"
+        "releases": "릴리스",
+        "language": "언어",
+        "toggleTheme": "테마 전환"
     },
     "hero": {
         "release": "Windows 대시보드에서 다운로드와 Harbor 지원",
@@ -143,8 +145,6 @@
         "installation": "설치 가이드",
         "upgrading": "5.x에서 업그레이드",
         "terminal": "터미널",
-        "copy": "명령어 복사",
-        "copied": "복사했어요",
         "ready": "Fileship 준비 완료: {url}"
     },
     "footer": {
@@ -213,10 +213,6 @@
             "important": "중요",
             "warning": "경고",
             "caution": "주의"
-        },
-        "code": {
-            "copy": "코드 복사",
-            "copied": "복사했어요"
         }
     },
     "releases": {

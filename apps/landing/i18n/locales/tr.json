@@ -8,7 +8,9 @@
         "github": "GitHub",
         "menu": "Menü",
         "openMenu": "Menüyü aç",
-        "releases": "Sürümler"
+        "releases": "Sürümler",
+        "language": "Dil",
+        "toggleTheme": "Temayı değiştir"
     },
     "hero": {
         "release": "Windows panelinde indirmeler ve Harbor",
@@ -143,8 +145,6 @@
         "installation": "Kurulum rehberi",
         "upgrading": "5.x'ten yükseltme",
         "terminal": "Terminal",
-        "copy": "Komutları kopyala",
-        "copied": "Kopyalandı",
         "ready": "Fileship hazır: {url}"
     },
     "footer": {
@@ -213,10 +213,6 @@
             "important": "Önemli",
             "warning": "Uyarı",
             "caution": "Dikkat"
-        },
-        "code": {
-            "copy": "Kodu kopyala",
-            "copied": "Kopyalandı"
         }
     },
     "releases": {

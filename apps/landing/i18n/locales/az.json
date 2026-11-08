@@ -8,7 +8,9 @@
         "github": "GitHub",
         "menu": "Menyu",
         "openMenu": "Menyunu aç",
-        "releases": "Buraxılışlar"
+        "releases": "Buraxılışlar",
+        "language": "Dil",
+        "toggleTheme": "Temanı dəyiş"
     },
     "hero": {
         "release": "Windows idarə panelində endirmələr və Harbor",
@@ -143,8 +145,6 @@
         "installation": "Quraşdırma bələdçisi",
         "upgrading": "5.x versiyasından yeniləmə",
         "terminal": "Terminal",
-        "copy": "Əmrləri kopyala",
-        "copied": "Kopyalandı",
         "ready": "Fileship hazırdır: {url}"
     },
     "footer": {
@@ -213,10 +213,6 @@
             "important": "Vacib",
             "warning": "Xəbərdarlıq",
             "caution": "Diqqət"
-        },
-        "code": {
-            "copy": "Kodu kopyala",
-            "copied": "Kopyalandı"
         }
     },
     "releases": {

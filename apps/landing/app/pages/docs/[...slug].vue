@@ -69,22 +69,35 @@
         </article>
 
         <aside v-if="toc.length" class="hidden w-56 shrink-0 xl:block">
-            <nav :aria-label="$t('docs.onThisPage')" class="sticky top-0 flex flex-col gap-1 py-10">
-                <TextBlock variant="small" class="mb-2">{{ $t('docs.onThisPage') }}</TextBlock>
-                <a
-                    v-for="link in toc"
-                    :key="link.id"
-                    :href="`#${link.id}`"
-                    :class="
-                        cn(
-                            'border-l-2 py-1 text-sm text-muted-foreground transition-colors hover:text-foreground',
-                            link.depth > 2 ? 'pl-6' : 'pl-3',
-                            activeId === link.id && 'border-sidebar-primary text-foreground',
-                        )
-                    "
-                >
-                    {{ link.text }}
-                </a>
+            <nav :aria-label="$t('docs.onThisPage')" class="sticky top-0 flex flex-col gap-3 py-10">
+                <TextBlock variant="small">{{ $t('docs.onThisPage') }}</TextBlock>
+                <div class="relative flex flex-col border-l">
+                    <span
+                        :class="
+                            cn(
+                                'absolute -left-px w-0.5 rounded-full bg-sidebar-primary transition-[top,height,opacity] duration-300 ease-out',
+                                !indicator && 'opacity-0',
+                            )
+                        "
+                        :style="indicator"
+                    />
+                    <a
+                        v-for="link in toc"
+                        :key="link.id"
+                        ref="links"
+                        :href="`#${link.id}`"
+                        :class="
+                            cn(
+                                'py-1 text-sm text-muted-foreground transition-colors hover:text-foreground',
+                                link.depth > 2 ? 'pl-7' : 'pl-4',
+                                activeId === link.id && 'text-foreground',
+                            )
+                        "
+                        @click="activeId = link.id"
+                    >
+                        {{ link.text }}
+                    </a>
+                </div>
             </nav>
         </aside>
     </div>
@@ -129,25 +142,43 @@ const { copy, copied } = useClipboard({ legacy: true });
 const handleCopy = () => copy(page.value!.rawbody);
 
 const activeId = ref('');
+const links = useTemplateRef<HTMLAnchorElement[]>('links');
 
-let observer: IntersectionObserver | undefined;
+const indicator = computed(() => {
+    const index = toc.value.findIndex((link) => link.id === activeId.value);
+    const element = links.value?.[index];
 
-onMounted(() => {
-    observer = new IntersectionObserver(
-        (entries) => {
-            const visible = entries.find((entry) => entry.isIntersecting);
-            if (visible) activeId.value = visible.target.id;
-        },
-        { rootMargin: '0px 0px -70% 0px' },
-    );
-
-    toc.value.forEach((link) => {
-        const element = document.getElementById(link.id);
-        if (element) observer!.observe(element);
-    });
+    return element && { top: `${element.offsetTop}px`, height: `${element.offsetHeight}px` };
 });
 
-onBeforeUnmount(() => observer?.disconnect());
+let frame = 0;
+
+const updateActive = () => {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(() => {
+        const headings = toc.value
+            .map((link) => document.getElementById(link.id))
+            .filter((element) => !!element);
+
+        const atBottom =
+            window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+
+        const current = atBottom
+            ? headings.at(-1)
+            : headings.findLast((element) => element.getBoundingClientRect().top <= 120);
+
+        activeId.value = current?.id ?? headings[0]?.id ?? '';
+    });
+};
+
+useEventListener('scroll', updateActive, { passive: true });
+
+onMounted(updateActive);
+
+watch(
+    () => route.path,
+    () => nextTick(updateActive),
+);
 
 useSeoMeta({
     title: () => page.value!.title,

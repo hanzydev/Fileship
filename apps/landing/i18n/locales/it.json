@@ -8,7 +8,9 @@
         "github": "GitHub",
         "menu": "Menu",
         "openMenu": "Apri il menu",
-        "releases": "Versioni"
+        "releases": "Versioni",
+        "language": "Lingua",
+        "toggleTheme": "Cambia tema"
     },
     "hero": {
         "release": "Download e Harbor nella dashboard di Windows",
@@ -143,8 +145,6 @@
         "installation": "Guida all'installazione",
         "upgrading": "Aggiornare dalla 5.x",
         "terminal": "Terminale",
-        "copy": "Copia i comandi",
-        "copied": "Copiato",
         "ready": "Fileship è pronto su {url}"
     },
     "footer": {
@@ -213,10 +213,6 @@
             "important": "Importante",
             "warning": "Avviso",
             "caution": "Attenzione"
-        },
-        "code": {
-            "copy": "Copia il codice",
-            "copied": "Copiato"
         }
     },
     "releases": {

@@ -8,7 +8,9 @@
         "github": "GitHub",
         "menu": "菜单",
         "openMenu": "打开菜单",
-        "releases": "版本发布"
+        "releases": "版本发布",
+        "language": "语言",
+        "toggleTheme": "切换主题"
     },
     "hero": {
         "release": "Windows 控制台支持下载和 Harbor",
@@ -143,8 +145,6 @@
         "installation": "安装指南",
         "upgrading": "从 5.x 升级",
         "terminal": "终端",
-        "copy": "复制命令",
-        "copied": "已复制",
         "ready": "Fileship 已在 {url} 就绪"
     },
     "footer": {
@@ -213,10 +213,6 @@
             "important": "重要",
             "warning": "警告",
             "caution": "小心"
-        },
-        "code": {
-            "copy": "复制代码",
-            "copied": "已复制"
         }
     },
     "releases": {

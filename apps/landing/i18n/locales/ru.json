@@ -8,7 +8,9 @@
         "github": "GitHub",
         "menu": "Меню",
         "openMenu": "Открыть меню",
-        "releases": "Релизы"
+        "releases": "Релизы",
+        "language": "Язык",
+        "toggleTheme": "Сменить тему"
     },
     "hero": {
         "release": "Загрузки и Harbor в панели управления для Windows",
@@ -143,8 +145,6 @@
         "installation": "Руководство по установке",
         "upgrading": "Обновление с 5.x",
         "terminal": "Терминал",
-        "copy": "Скопировать команды",
-        "copied": "Скопировано",
         "ready": "Fileship готов: {url}"
     },
     "footer": {
@@ -213,10 +213,6 @@
             "important": "Важно",
             "warning": "Предупреждение",
             "caution": "Осторожно"
-        },
-        "code": {
-            "copy": "Скопировать код",
-            "copied": "Скопировано"
         }
     },
     "releases": {

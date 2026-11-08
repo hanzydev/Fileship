@@ -9,8 +9,8 @@
             </TextBlock>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
-            <UiCard v-for="group in sections" :key="group.key">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-6">
+            <UiCard v-for="(group, index) in sections" :key="group.key" :class="spanOf(index)">
                 <UiCardHeader class="gap-3">
                     <span
                         class="flex size-10 items-center justify-center rounded-full bg-muted text-chart-1"
@@ -71,6 +71,20 @@ const { t } = useI18n();
 const { groups } = await useDocsNav();
 
 const sections = computed(() => groups.value.filter((group) => group.key !== 'more'));
+
+const spanOf = (index: number) => {
+    const count = sections.value.length;
+    const lastRow = count % 3;
+
+    return cn(
+        count % 2 === 1 && index === count - 1 && 'md:col-span-2',
+        index < count - lastRow || !lastRow
+            ? '2xl:col-span-2'
+            : lastRow === 2
+              ? '2xl:col-span-3'
+              : '2xl:col-span-6',
+    );
+};
 
 useSeoMeta({
     title: () => t('docs.title'),

@@ -30,28 +30,27 @@
                     </div>
                 </div>
 
-                <div class="min-w-0 flex-1 overflow-hidden rounded-3xl border bg-background">
-                    <div class="flex items-center justify-between border-b py-2 pr-2 pl-5">
-                        <div class="flex items-center gap-2 text-muted-foreground">
-                            <ITerminal class="size-4" />
-                            <TextBlock variant="muted" class="font-mono text-xs">
-                                {{ $t('getStarted.terminal') }}
-                            </TextBlock>
-                        </div>
-                        <UiButton
-                            variant="ghost"
-                            size="icon-sm"
-                            :aria-label="copied ? $t('getStarted.copied') : $t('getStarted.copy')"
-                            @click="handleCopy"
-                        >
-                            <ICheck v-if="copied" />
-                            <ICopy v-else />
-                        </UiButton>
-                    </div>
-                    <pre
-                        class="overflow-x-auto p-6 font-mono text-sm leading-8"
-                    ><span v-for="command in commands" :key="command" class="block"><span class="text-muted-foreground select-none">{{ prompt }}</span>{{ command }}</span><span class="block text-muted-foreground"><ICheck class="mr-2 inline size-4 text-chart-1" />{{ $t('getStarted.ready', { url: `http://${address}` }) }}</span></pre>
-                </div>
+                <UiCodeBlock class="min-w-0 flex-1">
+                    <UiCodeBlockHeader>
+                        <UiCodeBlockTitle>
+                            <ITerminal />
+                            {{ $t('getStarted.terminal') }}
+                        </UiCodeBlockTitle>
+                        <UiCodeBlockActions>
+                            <CodeCopyButton :value="script" />
+                        </UiCodeBlockActions>
+                    </UiCodeBlockHeader>
+                    <UiCodeBlockContent class="leading-8">
+                        <UiCodeBlockLine v-for="command in commands" :key="command">
+                            <span class="text-muted-foreground select-none">{{ prompt }}</span>
+                            {{ command }}
+                        </UiCodeBlockLine>
+                        <UiCodeBlockLine class="text-muted-foreground">
+                            <ICheck class="mr-2 inline size-4 text-chart-1" />
+                            {{ $t('getStarted.ready', { url: `http://${address}` }) }}
+                        </UiCodeBlockLine>
+                    </UiCodeBlockContent>
+                </UiCodeBlock>
             </UiCard>
         </div>
     </section>
@@ -59,7 +58,7 @@
 
 <script setup lang="ts">
 const address = 'localhost:3000';
-const prompt = '$ ';
+const prompt = '$';
 
 const commands = [
     'git clone https://github.com/hanzydev/Fileship.git',
@@ -68,7 +67,5 @@ const commands = [
     'docker compose up -d',
 ];
 
-const { copy, copied } = useClipboard({ legacy: true });
-
-const handleCopy = () => copy(commands.join('\n'));
+const script = commands.join('\n');
 </script>
