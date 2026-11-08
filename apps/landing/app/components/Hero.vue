@@ -37,7 +37,7 @@
                     <div
                         class="cursor-pointer rounded-3xl bg-card border flex p-1.5 justify-between w-fit max-w-full items-center gap-2 text-left hover:bg-secondary transition-colors duration-200"
                     >
-                        <UiBadge>6.5</UiBadge>
+                        <UiBadge v-if="latestVersion">{{ latestVersion }}</UiBadge>
                         <TextBlock variant="muted">
                             {{ $t('hero.release') }}
                         </TextBlock>
@@ -129,8 +129,10 @@ const slots = useSlots();
 const { t } = useI18n();
 
 const { data: latestRelease } = await useAsyncData('latest-release', () =>
-    queryCollection('releases').order('order', 'DESC').select('path').first(),
+    queryCollection('releases').order('order', 'DESC').select('path', 'version').first(),
 );
+
+const latestVersion = computed(() => latestRelease.value?.version.split('.').slice(0, 2).join('.'));
 
 const root = useTemplateRef<HTMLElement>('root');
 

@@ -13,7 +13,7 @@
         "toggleTheme": "テーマを切り替え"
     },
     "hero": {
-        "release": "Windows のダッシュボードでダウンロードと Harbor に対応",
+        "release": "新機能を見る",
         "titleLine1": "自分だけの ShareX サーバー",
         "titleLine2": "とファイルクラウド。",
         "description": "ネイティブの Windows アプリでキャプチャ、アップロード、共有し、エクスプローラーでファイルを閲覧して、自分のサーバーで動く AI で検索できます。オープンソースで、セルフホスト型です。",
