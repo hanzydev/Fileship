@@ -1,5 +1,94 @@
 # Changelog
 
+## v6.6.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v6.5.0...v6.6.0)
+
+Fileship 6.6 keeps PostgreSQL up to date by itself, bounds the memory that uploads, images and the privacy filter can take, moves the server to AGPL-3.0 and comes with Fileship for Windows 2.3.0, which shows the upload progress in File Explorer.
+
+### ⚠️ Before you update
+
+- **Run one manual update.** The database now runs on an image that upgrades itself, and the updater agent can update the database and itself, but an installation from before 6.6 still has the old Compose file and agent. Update once with `git pull`, `docker compose pull` and `docker compose up -d`; the database is upgraded from PostgreSQL 16 to 18 during this start, and every later update is automatic. Keep a copy of the `pg_data` volume (or a recent `pg_dump`) first if your data matters. If you changed the `postgres` service (for example a bind mount), point it at `/var/lib/postgresql` instead of `/var/lib/postgresql/data` and keep its `healthcheck` without a `test` ([guide](https://github.com/hanzydev/Fileship/blob/main/docs/updating.md#installations-from-before-66)).
+- **New license.** From 6.6.0 the server (the dashboard, the updater agent, the telemetry panel, the landing site and the AI and PDF packages) is licensed under AGPL-3.0-only, with an additional term that keeps the "Powered by Fileship" notice on the sign-in pages. Fileship for Windows, the browser extension and the shared packages stay MIT, and 6.5.0 and earlier stay MIT. Running Fileship for yourself or your team changes nothing; if you modify it and offer it to others over a network, the AGPL asks you to share your changes. Contributions now go through a contributor license agreement ([licensing](https://github.com/hanzydev/Fileship/blob/main/LICENSING.md)).
+
+### ✨ Highlights
+
+- **PostgreSQL updates itself.** The database runs on `ghcr.io/hanzydev/fileship-postgres`, which upgrades an older data folder in place when a new major version comes out. Every update pulls it first and restarts the database only when its version changed, waits until it is healthy and stops the update if it is not, so the running version keeps serving. After a successful update the updater agent also updates itself.
+- **Bounded memory.** A single request could exhaust the server's memory: uploads were read into memory whole (even anonymous inbox uploads), small images could decode to gigabytes, and dense text such as JSON took the privacy filter past 6 GB until the operating system killed the dashboard. Uploads now stream, large single-request uploads from ShareX or curl go to disk, other request bodies are limited, images are capped at 120 megapixels, the privacy filter runs in small pieces, and archives, backups and the in-memory counters are bounded too.
+- **Fileship for Windows 2.3.0** ([fileship-desktop](https://github.com/hanzydev/fileship-desktop)): while Fileship Harbor uploads, the status in File Explorer's Fileship flyout shows the progress of everything uploading, such as "Syncing files… 40%", instead of "Syncing…".
+- **A website and docs.** [fileship.app](https://fileship.app) has a landing page, the documentation with search and every release, in the twelve app languages. The docs grew guides for installing without Docker and on Windows, reverse proxies and SSL, every setting and feature, uploaders and the upload API, updating without Docker, database backups, troubleshooting with an error index, security and contributing.
+
+### 🚀 Enhancements
+
+- **docker:** Run Postgres on an image that upgrades itself ([dc7d4857](https://github.com/hanzydev/Fileship/commit/dc7d4857))
+- **updater:** Update Postgres and the agent itself ([85c16099](https://github.com/hanzydev/Fileship/commit/85c16099))
+- **desktop:** Show the Harbor upload percent in the Explorer status ([3aed22dd](https://github.com/hanzydev/Fileship/commit/3aed22dd))
+- **dashboard:** Show Powered by Fileship on the sign-in pages ([85ab54c3](https://github.com/hanzydev/Fileship/commit/85ab54c3))
+- **ui:** Add the code block component ([aa465c46](https://github.com/hanzydev/Fileship/commit/aa465c46))
+- **landing:** Add the landing page ([85d2ddaf](https://github.com/hanzydev/Fileship/commit/85d2ddaf))
+- **landing:** Add the docs layout with navigation and search ([05fafc16](https://github.com/hanzydev/Fileship/commit/05fafc16))
+- **landing:** Style the docs content ([d088d763](https://github.com/hanzydev/Fileship/commit/d088d763))
+- **landing:** Show every release from the changelog ([ce9c6ca1](https://github.com/hanzydev/Fileship/commit/ce9c6ca1))
+- **landing:** Code blocks, docs polish and language and theme switchers ([f70436dd](https://github.com/hanzydev/Fileship/commit/f70436dd))
+- **landing:** Add SEO meta, OG images and comparison pages ([f33fb6a7](https://github.com/hanzydev/Fileship/commit/f33fb6a7))
+- **landing:** Add smooth scrolling and reveal animations ([958f5f70](https://github.com/hanzydev/Fileship/commit/958f5f70))
+
+### 🩹 Fixes
+
+- **ai:** Run the privacy filter in pieces of at most 512 tokens, one at a time, so dense text no longer grows the AI worker past 6 GB and gets the dashboard killed; text extraction from HTML no longer takes quadratic time on unclosed tags ([fe3c2b1b](https://github.com/hanzydev/Fileship/commit/fe3c2b1b))
+- **api:** Bound request bodies and stream large uploads to disk. Uploads are parsed as a stream, single-request uploads larger than the chunk size are written to disk, the inbox checks the owner's remaining space while it receives a file, and other API bodies over 1 MB are refused ([a0a292ae](https://github.com/hanzydev/Fileship/commit/a0a292ae))
+- **media:** Limit the pixels decoded from user images to 120 megapixels in EXIF removal, thumbnails, avatars and AI analysis; an upload that must be processed and passes the limit is refused instead of being stored with its EXIF data ([988f9542](https://github.com/hanzydev/Fileship/commit/988f9542))
+- **api:** Download at most six files at a time for folder archives and backups, and check a backup's contents against the usable space before extracting it ([979f7293](https://github.com/hanzydev/Fileship/commit/979f7293))
+- **api:** Bound the rate limit and view window maps, which grew without limit with changing keys ([d29ecaab](https://github.com/hanzydev/Fileship/commit/d29ecaab))
+- **dashboard:** Show the full borders of the storage page's inner cards ([73af41bf](https://github.com/hanzydev/Fileship/commit/73af41bf))
+- **telemetry:** Name the versions most used today in the adoption chart, instead of old versions that a few instances ran for months ([84a172cd](https://github.com/hanzydev/Fileship/commit/84a172cd))
+- **landing:** Render the docs folder with Nuxt Content ([ddd132f5](https://github.com/hanzydev/Fileship/commit/ddd132f5))
+- **landing:** Resolve docs links the way GitHub does ([a81fd796](https://github.com/hanzydev/Fileship/commit/a81fd796))
+- **landing:** Give link previews the accent color ([aa4bec93](https://github.com/hanzydev/Fileship/commit/aa4bec93))
+- **landing:** Align the hero's fine grid with its large grid ([e9b72756](https://github.com/hanzydev/Fileship/commit/e9b72756))
+- **landing:** Draw the hero grid as a crisp SVG pattern ([a192a82d](https://github.com/hanzydev/Fileship/commit/a192a82d))
+
+### 💅 Refactors
+
+- **dashboard:** Highlight text previews, Markdown fences and raw notes with Shiki in the shared code block instead of highlight.js ([383d8830](https://github.com/hanzydev/Fileship/commit/383d8830))
+
+### 📖 Documentation
+
+- Describe the memory limits on uploads, images and the privacy filter ([d3a92eea](https://github.com/hanzydev/Fileship/commit/d3a92eea))
+- Add frontmatter to every page and split requirements from the install guide ([5f3ee0a1](https://github.com/hanzydev/Fileship/commit/5f3ee0a1))
+- Add the introduction and install guides without Docker and on Windows ([8a2c2e8e](https://github.com/hanzydev/Fileship/commit/8a2c2e8e))
+- Add reverse proxy and SSL guides ([82cce7f2](https://github.com/hanzydev/Fileship/commit/82cce7f2))
+- Add configuration pages ([f8abafb3](https://github.com/hanzydev/Fileship/commit/f8abafb3))
+- Add feature pages ([3548a07e](https://github.com/hanzydev/Fileship/commit/3548a07e))
+- Add uploader guides and the upload API ([20f4f6a2](https://github.com/hanzydev/Fileship/commit/20f4f6a2))
+- Add updating without Docker and database backups ([34ccce09](https://github.com/hanzydev/Fileship/commit/34ccce09))
+- Add troubleshooting pages and an error index ([af19e444](https://github.com/hanzydev/Fileship/commit/af19e444))
+- Add security and contributing pages ([002cb839](https://github.com/hanzydev/Fileship/commit/002cb839))
+- Describe the landing and docs site ([46036fac](https://github.com/hanzydev/Fileship/commit/46036fac))
+- **landing:** Show the AGPL-3.0 license ([63307626](https://github.com/hanzydev/Fileship/commit/63307626))
+- Move the README translations to .github/readme ([525017d7](https://github.com/hanzydev/Fileship/commit/525017d7))
+- **plan:** Add the Microsoft Store release of the Windows app ([8f0f79b0](https://github.com/hanzydev/Fileship/commit/8f0f79b0))
+- Note that a test host can start Harbor on the real folder ([972c3a68](https://github.com/hanzydev/Fileship/commit/972c3a68))
+
+### 🤖 CI
+
+- **landing:** Deploy to Cloudflare Pages ([ad79a44c](https://github.com/hanzydev/Fileship/commit/ad79a44c))
+- **landing:** Run wrangler with npx ([4067b5c2](https://github.com/hanzydev/Fileship/commit/4067b5c2))
+- **landing:** Name the deploy workflow ([67f91e8b](https://github.com/hanzydev/Fileship/commit/67f91e8b))
+
+### 🏡 Chore
+
+- Relicense the server under AGPL-3.0, with LICENSING.md, a contributor license agreement and its workflow, and a trademark policy ([37dd3f35](https://github.com/hanzydev/Fileship/commit/37dd3f35))
+- **desktop:** Bump Fileship for Windows to 2.3.0 ([b78feb67](https://github.com/hanzydev/Fileship/commit/b78feb67))
+- **deps:** Update nuxt to 4.6.4 ([a981801e](https://github.com/hanzydev/Fileship/commit/a981801e))
+- **ui:** Update @nuxt/fonts to 1.x and load Geist globally ([bb933556](https://github.com/hanzydev/Fileship/commit/bb933556))
+- Bind the Nuxt dev servers to localhost ([6fa89e47](https://github.com/hanzydev/Fileship/commit/6fa89e47))
+- Add Zed settings for the Tailwind language server ([135b427a](https://github.com/hanzydev/Fileship/commit/135b427a))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v6.5.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v6.4.0...v6.5.0)

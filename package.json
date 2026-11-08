@@ -2,7 +2,7 @@
     "name": "fileship",
     "description": "An open-source, self-hosted file and media management platform.",
     "license": "AGPL-3.0-only",
-    "version": "6.5.0",
+    "version": "6.6.0",
     "type": "module",
     "scripts": {
         "build": "turbo run build",
