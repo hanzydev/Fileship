@@ -4,23 +4,32 @@
         :title="$t('docs.search.title')"
         :description="$t('docs.search.description')"
     >
-        <UiCommandInput :placeholder="$t('docs.search.placeholder')" />
+        <UiCommandInput
+            :placeholder="$t('docs.search.placeholder')"
+            @update:model-value="query = String($event ?? '')"
+        />
         <UiCommandList class="mb-1 max-h-[60vh]">
             <UiCommandEmpty>{{ $t('docs.search.empty') }}</UiCommandEmpty>
-            <UiCommandGroup class="px-1 pb-0">
+            <UiCommandGroup v-if="results.length" class="px-1 pb-0">
                 <UiCommandItem
-                    v-for="section in sections"
-                    :key="section.id"
-                    :value="section.value"
+                    v-for="result in results"
+                    :key="`${result.id}:${term}`"
+                    :value="result.id"
                     class="items-start"
-                    @select="handleSelect(section.id)"
+                    @select="handleSelect(result.id)"
                 >
-                    <IHash v-if="section.level > 1" class="mt-0.5" />
+                    <IHash v-if="result.level > 1" class="mt-0.5" />
                     <IFileText v-else class="mt-0.5" />
                     <div class="flex min-w-0 flex-col gap-0.5">
-                        <span class="truncate">{{ section.title }}</span>
-                        <span v-if="section.path" class="truncate text-xs text-muted-foreground">
-                            {{ section.path }}
+                        <span class="truncate">{{ result.title }}</span>
+                        <span v-if="result.path" class="truncate text-xs text-muted-foreground">
+                            {{ result.path }}
+                        </span>
+                        <span
+                            v-if="result.excerpt"
+                            class="line-clamp-2 text-xs text-muted-foreground"
+                        >
+                            {{ result.excerpt }}
                         </span>
                     </div>
                 </UiCommandItem>
@@ -30,7 +39,12 @@
 </template>
 
 <script setup lang="ts">
+const LIMIT = 40;
+
 const isOpen = useState('docs-search-open', () => false);
+const query = ref('');
+
+const term = computed(() => query.value.trim().toLocaleLowerCase());
 
 const { data, execute } = useLazyAsyncData(
     'docs-search',
@@ -38,19 +52,58 @@ const { data, execute } = useLazyAsyncData(
     { server: false, immediate: false },
 );
 
-watch(isOpen, (open) => open && !data.value && execute());
+watch(isOpen, (open) => {
+    if (!open) return;
+    query.value = '';
+    if (!data.value) execute();
+});
 
-const sections = computed(() =>
-    (data.value ?? []).map((section) => ({
-        id: section.id,
-        level: section.level,
-        title: section.title,
-        path: section.titles.join(' › '),
-        value: [section.id, ...section.titles, section.title, section.content.slice(0, 160)].join(
-            ' ',
-        ),
-    })),
-);
+const sections = computed(() => {
+    const seen = new Set<string>();
+
+    return (data.value ?? [])
+        .map((section) => ({
+            id: section.id,
+            level: section.level,
+            title: section.title,
+            path: section.titles.join(' › '),
+            content: section.content.replace(/\s+/g, ' ').trim(),
+        }))
+        .filter((section) => {
+            const key = `${section.path}|${section.title}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+});
+
+const excerptOf = (content: string, index: number) => {
+    const start = Math.max(0, index - 50);
+    const end = Math.min(content.length, index + term.value.length + 90);
+
+    return `${start ? '…' : ''}${content.slice(start, end)}${end < content.length ? '…' : ''}`;
+};
+
+const results = computed(() => {
+    if (!term.value)
+        return sections.value
+            .filter((section) => section.level === 1)
+            .map((section) => ({ ...section, excerpt: '' }));
+
+    const titled = [];
+    const mentioned = [];
+
+    for (const section of sections.value) {
+        const inTitle = `${section.path} ${section.title}`.toLocaleLowerCase().includes(term.value);
+        const index = section.content.toLocaleLowerCase().indexOf(term.value);
+
+        if (inTitle) titled.push({ ...section, excerpt: '' });
+        else if (index >= 0)
+            mentioned.push({ ...section, excerpt: excerptOf(section.content, index) });
+    }
+
+    return [...titled, ...mentioned].slice(0, LIMIT);
+});
 
 const handleSelect = (id: string) => {
     isOpen.value = false;

@@ -1,5 +1,13 @@
 @import '@fileship/ui/app/styles/tailwind.css';
 
+.shiki span {
+    color: var(--shiki-default);
+}
+
+.dark .shiki span {
+    color: var(--shiki-dark);
+}
+
 @utility container {
     padding-inline: 1rem;
 

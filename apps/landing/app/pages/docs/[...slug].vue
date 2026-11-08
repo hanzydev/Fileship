@@ -36,7 +36,7 @@
                 </div>
             </div>
 
-            <ContentRenderer :value="page" class="docs-prose" />
+            <ContentRenderer :value="page" />
 
             <nav
                 v-if="previous || next"
@@ -116,7 +116,7 @@ const toc = computed(() =>
 );
 
 const editUrl = computed(
-    () => `https://github.com/hanzydev/Fileship/edit/main/docs/${page.value!.stem}.md`,
+    () => `https://github.com/hanzydev/Fileship/edit/main/${page.value!.stem}.md`,
 );
 
 const { copy, copied } = useClipboard({ legacy: true });

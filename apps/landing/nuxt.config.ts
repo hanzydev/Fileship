@@ -1,3 +1,5 @@
+import rehypeAlerts from './markdown/rehypeAlerts.mjs';
+
 export default defineNuxtConfig({
     extends: ['@fileship/ui'],
 
@@ -5,7 +7,13 @@ export default defineNuxtConfig({
         compatibilityVersion: 5,
     },
 
-    modules: ['@nuxt/content', '@nuxtjs/i18n', '@vueuse/nuxt/module', '@nuxt/eslint', '@nuxt/image'],
+    modules: [
+        '@nuxt/content',
+        '@nuxtjs/i18n',
+        '@vueuse/nuxt/module',
+        '@nuxt/eslint',
+        '@nuxt/image',
+    ],
 
     devtools: { enabled: true },
 
@@ -22,7 +30,42 @@ export default defineNuxtConfig({
         },
     ],
 
-    css: ['~/styles/tailwind.css','highlight.js/styles/tokyo-night-dark.css'],
+    css: ['~/styles/tailwind.css'],
+
+    content: {
+        build: {
+            markdown: {
+                highlight: {
+                    theme: { default: 'github-light', dark: 'github-dark' },
+                    langs: [
+                        'bash',
+                        'shell',
+                        'powershell',
+                        'bat',
+                        'nginx',
+                        'apache',
+                        'yaml',
+                        'json',
+                        'jsonc',
+                        'javascript',
+                        'typescript',
+                        'ini',
+                        'toml',
+                        'docker',
+                        'xml',
+                        'http',
+                        'diff',
+                        'sql',
+                        'markdown',
+                        'html',
+                    ],
+                },
+                rehypePlugins: {
+                    alerts: { instance: rehypeAlerts },
+                },
+            },
+        },
+    },
 
     i18n: {
         locales: [
@@ -115,7 +158,6 @@ export default defineNuxtConfig({
                 'dayjs/plugin/duration', // CJS
                 'dayjs/plugin/localizedFormat', // CJS
                 'dayjs/plugin/relativeTime', // CJS
-                'highlight.js',
             ],
         },
     },
