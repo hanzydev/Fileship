@@ -80,7 +80,7 @@
                 :description="$t('storage.noFilesDescription')"
             />
 
-            <div v-else class="max-h-120 overflow-y-auto">
+            <div v-else class="-m-2 max-h-124 overflow-y-auto p-2">
                 <VirtualList
                     :items="files"
                     :item-key="(file) => file.id"
@@ -94,10 +94,13 @@
                     </template>
                     <template #default="{ item }">
                         <NuxtLink :to="`/dashboard/files?file=${item.id}`" class="block">
-                            <UiCard size="sm" class="transition-colors hover:bg-muted/50">
+                            <UiCard
+                                size="sm"
+                                class="bg-muted/50 shadow-none transition-colors hover:bg-muted"
+                            >
                                 <UiCardContent class="flex items-center gap-3">
                                     <div
-                                        class="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted"
+                                        class="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-background"
                                     >
                                         <FileThumbnail :file="item" />
                                     </div>
@@ -154,7 +157,7 @@
                 :description="$t('storage.noDuplicatesDescription')"
             />
 
-            <div v-else class="max-h-120 overflow-y-auto">
+            <div v-else class="-m-2 max-h-124 overflow-y-auto p-2">
                 <VirtualList
                     :items="duplicates"
                     :item-key="(group) => group.id"
@@ -167,7 +170,7 @@
                         <ListCardSkeleton media="size-10" />
                     </template>
                     <template #default="{ item }">
-                        <UiCard size="sm">
+                        <UiCard size="sm" class="bg-muted/50 shadow-none">
                             <UiCardHeader>
                                 <UiCardTitle>
                                     {{
@@ -199,7 +202,7 @@
                                         variant="muted"
                                         size="sm"
                                     >
-                                        <UiItemMedia variant="image" class="relative bg-muted">
+                                        <UiItemMedia variant="image" class="relative bg-background">
                                             <FileThumbnail :file="file" />
                                         </UiItemMedia>
                                         <UiItemContent class="min-w-0">
