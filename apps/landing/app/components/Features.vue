@@ -7,7 +7,7 @@
                 <template #description>{{ $t('features.description') }}</template>
             </SectionHeading>
 
-            <div class="grid grid-cols-1 gap-4 lg:grid-cols-6">
+            <div v-reveal.stagger class="grid grid-cols-1 gap-4 lg:grid-cols-6">
                 <UiCard id="windowsApp" class="scroll-mt-24 lg:col-span-4">
                     <UiCardHeader class="max-w-xl gap-2">
                         <div class="flex items-center gap-2 text-chart-1">

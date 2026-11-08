@@ -1,7 +1,7 @@
 <template>
     <div class="bgGrid overflow-x-clip">
         <div class="container mx-auto flex max-w-5xl flex-col gap-16 py-16 lg:gap-20 lg:py-24">
-            <div class="flex flex-col gap-6">
+            <div v-reveal.stagger class="flex flex-col gap-6">
                 <TextBlock variant="small" class="font-mono text-chart-1">
                     {{ $t('alternatives.eyebrow') }}
                 </TextBlock>
@@ -47,7 +47,7 @@
                 <SectionHeading>
                     <template #title>{{ $t('alternatives.addsTitle') }}</template>
                 </SectionHeading>
-                <div class="grid gap-4 sm:grid-cols-2">
+                <div v-reveal.stagger class="grid gap-4 sm:grid-cols-2">
                     <UiCard v-for="item in adds" :key="item">
                         <UiCardHeader>
                             <UiCardTitle>{{ $t(`alternatives.adds.${item}.title`) }}</UiCardTitle>
@@ -59,7 +59,7 @@
                 </div>
             </section>
 
-            <section class="grid gap-10 md:grid-cols-2">
+            <section v-reveal.stagger class="grid gap-10 md:grid-cols-2">
                 <div class="flex flex-col gap-4">
                     <TextBlock variant="h3">
                         {{ $t('alternatives.aheadTitle', { app: name }) }}
@@ -89,7 +89,7 @@
                 <SectionHeading>
                     <template #title>{{ $t('alternatives.faqTitle') }}</template>
                 </SectionHeading>
-                <dl class="flex flex-col divide-y rounded-4xl border">
+                <dl v-reveal class="flex flex-col divide-y rounded-4xl border">
                     <div v-for="item in faq" :key="item.key" class="flex flex-col gap-2 px-6 py-5">
                         <dt class="font-medium">{{ item.question }}</dt>
                         <dd class="text-muted-foreground leading-relaxed">{{ item.answer }}</dd>

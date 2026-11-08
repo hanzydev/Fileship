@@ -1,5 +1,5 @@
 <template>
-    <div class="overflow-hidden rounded-4xl border">
+    <div v-reveal class="overflow-hidden rounded-4xl border">
         <UiTable :class="columns.length > 2 && 'min-w-3xl'">
             <UiTableHeader>
                 <UiTableRow class="hover:bg-transparent">

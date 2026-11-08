@@ -26,6 +26,13 @@ useHead({
 });
 
 useHead({
+    script: [
+        {
+            innerHTML:
+                "if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion')",
+            tagPosition: 'head',
+        },
+    ],
     meta: [
         { key: 'theme-color-accent', name: 'theme-color', content: '#4f39f6', tagPriority: 'low' },
     ],

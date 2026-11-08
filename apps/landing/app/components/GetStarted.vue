@@ -30,7 +30,7 @@
                     </div>
                 </div>
 
-                <UiCodeBlock class="min-w-0 flex-1">
+                <UiCodeBlock v-reveal class="min-w-0 flex-1">
                     <UiCodeBlockHeader>
                         <UiCodeBlockTitle>
                             <ITerminal />

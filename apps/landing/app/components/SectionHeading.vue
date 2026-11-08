@@ -1,5 +1,5 @@
 <template>
-    <div class="flex max-w-3xl flex-col gap-4">
+    <div v-reveal class="flex max-w-3xl flex-col gap-4">
         <TextBlock variant="small" class="font-mono text-chart-1">
             <slot name="eyebrow" />
         </TextBlock>

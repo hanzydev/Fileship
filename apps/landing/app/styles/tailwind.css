@@ -15,3 +15,9 @@
         padding-inline: 1.5rem;
     }
 }
+
+.motion [data-reveal='']:not([data-reveal-done]),
+.motion [data-reveal='stagger']:not([data-reveal-done]) > * {
+    opacity: 0;
+    transform: translateY(16px);
+}
