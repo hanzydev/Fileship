@@ -61,7 +61,7 @@ export default defineNuxtConfig({
                     ],
                 },
                 rehypePlugins: {
-                    alerts: { instance: rehypeAlerts },
+                    alerts: { instance: rehypeAlerts, src: '~~/markdown/rehypeAlerts.mjs' },
                 },
             },
         },
