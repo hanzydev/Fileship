@@ -71,7 +71,7 @@ struct HttpResult {
 JsonValue request(std::wstring const& baseUrl, std::wstring const& method, std::wstring const& path,
                   std::vector<char> body = {}, std::wstring const& contentType = {},
                   std::wstring const& bearer = {}, int timeoutMs = 30000,
-                  std::function<void(size_t)> const& onSent = {});
+                  std::function<void(size_t, size_t)> const& onSent = {});
 std::wstring normalizeInstanceUrl(std::wstring const& input);
 JsonObject checkInstance(std::wstring const& input);
 IJsonValue getAccount();
@@ -105,7 +105,8 @@ void clearHistory();
 std::wstring thumbnailOf(core::Bitmap const& bitmap);
 void handleImage(core::Bitmap const& image, std::wstring const& title = {}, std::wstring const& kind = L"screenshot");
 void handleFile(UploadSource const& source);
-std::wstring finishUpload(std::wstring const& historyId, UploadedFile const& file);
+std::wstring finishUpload(std::wstring const& historyId, UploadedFile const& file,
+                          std::optional<std::filesystem::path> const& image = {});
 
 bool writeClipboardImage(std::vector<uint8_t> const& png, core::Bitmap const& bitmap);
 std::wstring readClipboardText();

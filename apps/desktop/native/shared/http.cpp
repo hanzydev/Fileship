@@ -83,7 +83,7 @@ HttpStream::HttpStream(HttpEndpoint const& endpoint, HttpRequest const& options)
             }
 
             sent += written;
-            options.onSent(sent);
+            options.onSent(sent, length);
         }
 
         if (!WinHttpReceiveResponse(request.value, nullptr)) throwLastError("WinHttpSendRequest");

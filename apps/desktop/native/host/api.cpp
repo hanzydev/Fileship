@@ -96,7 +96,7 @@ bool canUseDesktop(JsonObject const& user) {
 
 JsonValue request(std::wstring const& baseUrl, std::wstring const& method, std::wstring const& path,
                   std::vector<char> body, std::wstring const& contentType, std::wstring const& bearer,
-                  int timeoutMs, std::function<void(size_t)> const& onSent) {
+                  int timeoutMs, std::function<void(size_t, size_t)> const& onSent) {
     HttpEndpoint endpoint{baseUrl, bearer, desktopUserAgent(), language()};
     HttpRequest options{method, path, contentType.empty() ? L"" : L"Content-Type: " + contentType + L"\r\n",
                         std::move(body), timeoutMs, onSent};
@@ -105,6 +105,8 @@ JsonValue request(std::wstring const& baseUrl, std::wstring const& method, std::
 
     try {
         response = httpSend(endpoint, options);
+    } catch (HttpInterrupted const&) {
+        throw;
     } catch (std::exception const& error) {
         std::string what = error.what();
         bool isTimeout = what.find("12002") != std::string::npos;
@@ -142,7 +144,7 @@ JsonValue api(std::wstring const& method, std::wstring const& path, std::optiona
 }
 
 JsonValue apiForm(std::wstring const& path, Multipart& form, int timeoutMs,
-                  std::function<void(size_t)> const& onSent) {
+                  std::function<void(size_t, size_t)> const& onSent) {
     auto url = instanceUrl();
     if (url.empty()) throw ApiError(toUtf8(t(L"app.notConnected")), 401, JsonObject());
 

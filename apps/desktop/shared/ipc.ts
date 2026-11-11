@@ -58,6 +58,7 @@ export type UploadProgress = {
     id: string;
     name: string;
     progress: number;
+    paused: boolean;
 };
 
 export type HotkeyStatus = Partial<Record<HotkeyAction, 'ok' | 'conflict' | 'invalid'>>;
@@ -141,6 +142,9 @@ export type IpcInvoke = {
     'history:clear': () => void;
     'uploads:paths': (paths: string[]) => void;
     'uploads:progress': () => UploadProgress[];
+    'uploads:pause': (id: string) => void;
+    'uploads:resume': (id: string) => void;
+    'uploads:cancel': (id: string) => void;
     'hotkeys:status': () => HotkeyStatus;
     'hotkeys:pause': (paused: boolean) => HotkeyStatus;
     'hotkeys:snippingTool': () => boolean;
@@ -197,6 +201,9 @@ export const INVOKE_CHANNELS = [
     'history:clear',
     'uploads:paths',
     'uploads:progress',
+    'uploads:pause',
+    'uploads:resume',
+    'uploads:cancel',
     'hotkeys:status',
     'hotkeys:pause',
     'hotkeys:snippingTool',

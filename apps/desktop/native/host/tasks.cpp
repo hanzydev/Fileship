@@ -5,6 +5,7 @@
 
 #include <shlobj.h>
 
+#include <algorithm>
 #include <atomic>
 #include <fstream>
 #include <mutex>
@@ -13,6 +14,8 @@
 namespace fileship::host {
 
 namespace {
+
+constexpr size_t KEEP_NOTIFICATION_IMAGES = 50;
 
 std::atomic<int> activeTasks = 0;
 std::mutex soundsMutex;
@@ -58,7 +61,36 @@ void notifyUploadFailure(std::exception const& error) {
     notify(t(L"tasks.storageFull"), errorMessage(error), [] { openDashboard(L"/dashboard/settings/storage"); });
 }
 
+std::optional<std::filesystem::path> notificationImage(std::wstring const& historyId,
+                                                       std::optional<std::wstring> const& thumbnail) {
+    static std::wstring const PREFIX = L"data:image/jpeg;base64,";
+    if (!thumbnail || !thumbnail->starts_with(PREFIX)) return std::nullopt;
+
+    std::error_code error;
+    auto folder = userDataPath() / L"notifications";
+    std::filesystem::create_directories(folder, error);
+
+    std::vector<std::filesystem::directory_entry> images;
+    for (auto const& entry : std::filesystem::directory_iterator(folder, error)) images.push_back(entry);
+
+    if (images.size() >= KEEP_NOTIFICATION_IMAGES) {
+        std::sort(images.begin(), images.end(), [](auto const& a, auto const& b) {
+            std::error_code ignored;
+            return a.last_write_time(ignored) > b.last_write_time(ignored);
+        });
+
+        for (size_t index = KEEP_NOTIFICATION_IMAGES - 1; index < images.size(); index++)
+            std::filesystem::remove(images[index].path(), error);
+    }
+
+    auto bytes = fromBase64(thumbnail->substr(PREFIX.size()));
+    auto path = folder / (historyId + L".jpg");
+    if (bytes.empty() || !writeBytes(path, bytes.data(), bytes.size())) return std::nullopt;
+    return path;
+}
+
 std::optional<std::wstring> uploadAndFinish(std::wstring const& historyId, UploadSource source,
+                                            std::optional<std::wstring> const& thumbnail = {},
                                             std::function<void(std::wstring const&)> const& onFailure = {}) {
     UploadToast toast(historyId, source.name);
 
@@ -67,7 +99,12 @@ std::optional<std::wstring> uploadAndFinish(std::wstring const& historyId, Uploa
         auto uploaded =
             uploadFile(source, uploadOptions(), [&](int64_t sent, int64_t total) { toast.update(sent, total); });
         toast.close();
-        return finishUpload(historyId, uploaded);
+        return finishUpload(historyId, uploaded, notificationImage(historyId, thumbnail));
+    } catch (UploadCanceled const&) {
+        toast.close();
+        updateHistory(historyId, {{L"error", t(L"tasks.uploadCanceled")}});
+        if (onFailure) onFailure(t(L"tasks.uploadCanceled"));
+        return std::nullopt;
     } catch (std::exception const& error) {
         toast.close();
         logWarn(L"Upload failed: " + errorMessage(error));
@@ -243,7 +280,8 @@ std::wstring thumbnailOf(core::Bitmap const& bitmap) {
     return L"data:image/jpeg;base64," + base64(jpeg.data(), jpeg.size());
 }
 
-std::wstring finishUpload(std::wstring const& historyId, UploadedFile const& file) {
+std::wstring finishUpload(std::wstring const& historyId, UploadedFile const& file,
+                          std::optional<std::filesystem::path> const& image) {
     auto afterUpload = jsonObject(settings(), L"afterUpload");
     auto url = file.url;
     std::optional<std::wstring> shortUrl;
@@ -265,7 +303,10 @@ std::wstring finishUpload(std::wstring const& historyId, UploadedFile const& fil
     if (jsonBool(afterUpload, L"openUrl")) openWebUrl(url);
 
     if (jsonBool(afterUpload, L"notify", true)) {
-        notify(t(copyUrl ? L"tasks.uploadedLinkCopied" : L"tasks.uploaded"), url, [url] { openWebUrl(url); });
+        std::function<void()> onClick = [url] { openWebUrl(url); };
+        if (image && !file.id.empty()) onClick = [id = file.id] { openDashboard(L"/dashboard/files?file=" + id); };
+
+        notify(t(copyUrl ? L"tasks.uploadedLinkCopied" : L"tasks.uploaded"), url, onClick, image);
     }
 
     return url;
@@ -294,7 +335,7 @@ void handleImage(core::Bitmap const& image, std::wstring const& title, std::wstr
         std::function<void(std::wstring const&)> onFailure;
         if (!localPath) onFailure = [&](std::wstring const& message) { keepImage(id, png, name, message); };
 
-        uploadAndFinish(id, std::move(source), onFailure);
+        uploadAndFinish(id, std::move(source), thumbnail, onFailure);
     } else if (localPath) {
         notifySaved(*localPath);
     } else {
@@ -313,8 +354,9 @@ void handleFile(UploadSource const& source) {
     std::optional<std::wstring> localPath;
     if (source.data.empty() && !source.path.empty()) localPath = source.path.wstring();
 
-    auto id = addHistory({L"file", source.name, size, localPath, fileThumbnail(source)});
-    uploadAndFinish(id, source);
+    auto thumbnail = fileThumbnail(source);
+    auto id = addHistory({L"file", source.name, size, localPath, thumbnail});
+    uploadAndFinish(id, source, thumbnail);
 }
 
 void handleRecording(RecordingOutput const& output) {
@@ -340,7 +382,7 @@ void handleRecording(RecordingOutput const& output) {
             onFailure = [&](std::wstring const& message) { keepRecording(id, output.path, name, message); };
         }
 
-        uploadAndFinish(id, std::move(source), onFailure);
+        uploadAndFinish(id, std::move(source), thumbnail, onFailure);
     } else {
         auto path = output.path;
         notify(t(L"tasks.recordingSaved"), path.wstring(), [path] { showItemInFolder(path); });

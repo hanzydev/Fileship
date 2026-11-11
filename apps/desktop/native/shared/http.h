@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <functional>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -37,7 +38,11 @@ struct HttpRequest {
     std::wstring headers;
     std::vector<char> body;
     int timeoutMs = 30000;
-    std::function<void(size_t sent)> onSent;
+    std::function<void(size_t sent, size_t total)> onSent;
+};
+
+struct HttpInterrupted : std::runtime_error {
+    HttpInterrupted() : std::runtime_error("interrupted") {}
 };
 
 struct HttpResponse {

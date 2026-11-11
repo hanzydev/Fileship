@@ -275,6 +275,18 @@ void registerHandlers() {
     });
 
     registerHandler(L"uploads:progress", [](JsonArray const&) -> IJsonValue { return uploadProgress(); });
+    registerHandler(L"uploads:pause", [](JsonArray const& args) -> IJsonValue {
+        pauseUpload(stringArg(args, 0));
+        return none();
+    });
+    registerHandler(L"uploads:resume", [](JsonArray const& args) -> IJsonValue {
+        resumeUpload(stringArg(args, 0));
+        return none();
+    });
+    registerHandler(L"uploads:cancel", [](JsonArray const& args) -> IJsonValue {
+        cancelUpload(stringArg(args, 0));
+        return none();
+    });
 
     registerHandler(L"hotkeys:status", [](JsonArray const&) -> IJsonValue { return hotkeyStatus(); });
 

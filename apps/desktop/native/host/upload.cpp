@@ -32,6 +32,13 @@ struct ProgressItem {
     std::wstring id;
     std::wstring name;
     int progress = 0;
+    bool paused = false;
+};
+
+struct UploadControl {
+    bool paused = false;
+    bool canceled = false;
+    std::condition_variable changed;
 };
 
 std::mutex mutex;
@@ -40,6 +47,7 @@ std::deque<uint64_t> waiting;
 uint64_t nextTicket = 0;
 int running = 0;
 std::vector<ProgressItem> progressItems;
+std::map<std::wstring, std::shared_ptr<UploadControl>> controls;
 std::optional<Limits> cachedLimits;
 
 void publish() {
@@ -52,6 +60,35 @@ void setProgress(std::wstring const& id, int value) {
     for (auto& item : progressItems) {
         if (item.id == id) item.progress = value;
     }
+}
+
+bool isInterrupted(UploadControl const& control) {
+    std::lock_guard lock(mutex);
+    return control.paused || control.canceled;
+}
+
+void waitWhilePaused(UploadControl& control) {
+    std::unique_lock lock(mutex);
+    control.changed.wait(lock, [&] { return !control.paused || control.canceled; });
+    if (control.canceled) throw UploadCanceled();
+}
+
+bool setPaused(std::wstring const& id, bool paused) {
+    {
+        std::lock_guard lock(mutex);
+        auto found = controls.find(id);
+        if (found == controls.end() || found->second->canceled || found->second->paused == paused) return false;
+
+        found->second->paused = paused;
+        found->second->changed.notify_all();
+        for (auto& item : progressItems) {
+            if (item.id == id) item.paused = paused;
+        }
+    }
+
+    publish();
+    setUploadToastPaused(id, paused);
+    return true;
 }
 
 Limits uploadLimits() {
@@ -93,27 +130,33 @@ std::string escapeFileName(std::wstring const& name) {
 }
 
 std::optional<JsonObject> sendChunk(std::function<Multipart()> const& form,
-                                    std::function<void(size_t)> const& onSent) {
-    for (int attempt = 1;; attempt++) {
+                                    std::function<void(size_t, size_t)> const& onSent, UploadControl& control) {
+    for (int attempt = 1;;) {
+        waitWhilePaused(control);
+
         try {
             auto body = form();
-            onSent(0);
+            onSent(0, 1);
             auto response = apiForm(L"/api/files", body, 120000, onSent);
             if (response.ValueType() == JsonValueType::Object) return response.GetObject();
             return std::nullopt;
+        } catch (HttpInterrupted const&) {
+            continue;
         } catch (ApiError const& error) {
             if (error.status == 401) handleUnauthorized();
 
             bool isRetryable = error.status == 0 || error.status >= 500;
             if (!isRetryable || attempt >= MAX_ATTEMPTS) throw;
 
-            Sleep(static_cast<DWORD>(attempt * 1000));
+            std::unique_lock lock(mutex);
+            control.changed.wait_for(lock, std::chrono::seconds(attempt), [&] { return control.canceled; });
+            attempt++;
         }
     }
 }
 
 UploadedFile runJob(UploadSource const& job, std::wstring const& id, UploadOptions const& options,
-                    UploadProgress const& onProgress) {
+                    UploadProgress const& onProgress, UploadControl& control) {
     auto limits = uploadLimits();
     auto size = limits.chunkSize;
 
@@ -164,7 +207,7 @@ UploadedFile runJob(UploadSource const& job, std::wstring const& id, UploadOptio
         bool isNewPercent = false;
         {
             std::lock_guard lock(stateMutex);
-            if (partSent) inFlight[index] = *partSent;
+            if (partSent) inFlight[index] = std::max(inFlight[index], *partSent);
             else inFlight.erase(index);
 
             total = sent;
@@ -201,9 +244,12 @@ UploadedFile runJob(UploadSource const& job, std::wstring const& id, UploadOptio
             if (options.folderId) form.field("folderId", toUtf8(*options.folderId));
             form.file("file", escapeFileName(job.name), toUtf8(job.mimeType), chunk.data(), chunk.size());
             return form;
-        }, [&, length = static_cast<int64_t>(chunk.size())](size_t bytes) {
+        }, [&, length = static_cast<int64_t>(chunk.size())](size_t bytes, size_t body) {
             report(index, std::min(static_cast<int64_t>(bytes), length));
-        });
+
+            bool isFinal = index == totalChunks - 1 && bytes >= body;
+            if (!isFinal && isInterrupted(control)) throw HttpInterrupted();
+        }, control);
 
         {
             std::lock_guard lock(stateMutex);
@@ -239,7 +285,25 @@ UploadedFile runJob(UploadSource const& job, std::wstring const& id, UploadOptio
     worker();
     for (auto& thread : workers) thread.join();
 
-    if (failure) std::rethrow_exception(failure);
+    if (failure) {
+        bool isCanceled = false;
+        {
+            std::lock_guard lock(mutex);
+            isCanceled = control.canceled;
+        }
+
+        if (isCanceled) {
+            try {
+                api(L"DELETE", L"/api/files/uploads/" + uploadId);
+            } catch (std::exception const&) {
+            }
+
+            throw UploadCanceled();
+        }
+
+        std::rethrow_exception(failure);
+    }
+
     if (!result || jsonString(*result, L"url").empty()) throw translatedError(t(L"tasks.noLink"));
 
     return UploadedFile{jsonString(*result, L"id"), jsonString(*result, L"name"), jsonString(*result, L"fileName"),
@@ -266,6 +330,7 @@ JsonArray uploadProgress() {
         entry.SetNamedValue(L"id", JsonValue::CreateStringValue(item.id));
         entry.SetNamedValue(L"name", JsonValue::CreateStringValue(item.name));
         entry.SetNamedValue(L"progress", JsonValue::CreateNumberValue(item.progress));
+        entry.SetNamedValue(L"paused", JsonValue::CreateBooleanValue(item.paused));
         result.Append(entry);
     }
 
@@ -305,6 +370,7 @@ UploadedFile uploadFile(UploadSource const& source, UploadOptions const& options
     if (!isConnected()) throw translatedError(t(L"tasks.logInToUpload"));
 
     auto id = source.id.empty() ? randomHex(8) : source.id;
+    auto control = std::make_shared<UploadControl>();
     uint64_t ticket = 0;
 
     {
@@ -312,26 +378,19 @@ UploadedFile uploadFile(UploadSource const& source, UploadOptions const& options
         ticket = nextTicket++;
         waiting.push_back(ticket);
         progressItems.push_back({id, source.name, 0});
+        controls[id] = control;
     }
 
     publish();
 
-    {
-        std::unique_lock lock(mutex);
-        slots.wait(lock, [&] { return running < MAX_CONCURRENT && waiting.front() == ticket; });
-        waiting.pop_front();
-        running++;
-    }
-
-    slots.notify_all();
-
-    auto finish = [&] {
+    auto release = [&](bool wasRunning) {
         bool isIdle = false;
 
         {
             std::lock_guard lock(mutex);
-            running--;
+            if (wasRunning) running--;
             std::erase_if(progressItems, [&](auto const& item) { return item.id == id; });
+            controls.erase(id);
             isIdle = running == 0 && waiting.empty();
         }
 
@@ -340,14 +399,55 @@ UploadedFile uploadFile(UploadSource const& source, UploadOptions const& options
         if (isIdle) notifyIdle();
     };
 
+    bool isCanceled = false;
+
+    {
+        std::unique_lock lock(mutex);
+        slots.wait(lock, [&] {
+            return control->canceled || (running < MAX_CONCURRENT && waiting.front() == ticket);
+        });
+
+        std::erase(waiting, ticket);
+        isCanceled = control->canceled;
+        if (!isCanceled) running++;
+    }
+
+    if (isCanceled) {
+        release(false);
+        throw UploadCanceled();
+    }
+
+    slots.notify_all();
+
     try {
-        auto result = runJob(source, id, options, progress);
-        finish();
+        auto result = runJob(source, id, options, progress, *control);
+        release(true);
         return result;
     } catch (...) {
-        finish();
+        release(true);
         throw;
     }
+}
+
+void pauseUpload(std::wstring const& id) {
+    setPaused(id, true);
+}
+
+void resumeUpload(std::wstring const& id) {
+    setPaused(id, false);
+}
+
+void cancelUpload(std::wstring const& id) {
+    {
+        std::lock_guard lock(mutex);
+        auto found = controls.find(id);
+        if (found == controls.end()) return;
+
+        found->second->canceled = true;
+        found->second->changed.notify_all();
+    }
+
+    slots.notify_all();
 }
 
 std::wstring shortenUrl(std::wstring const& url) {

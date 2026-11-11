@@ -57,7 +57,7 @@ HttpEndpoint apiEndpoint();
 JsonValue api(std::wstring const& method, std::wstring const& path,
               std::optional<IJsonValue> const& body = std::nullopt, int timeoutMs = 30000);
 JsonValue apiForm(std::wstring const& path, Multipart& form, int timeoutMs = 30000,
-                  std::function<void(size_t)> const& onSent = {});
+                  std::function<void(size_t, size_t)> const& onSent = {});
 void handleUnauthorized();
 void resetUploadSettings();
 
@@ -92,6 +92,13 @@ UploadOptions uploadOptions();
 UploadedFile uploadFile(UploadSource const& source, UploadOptions const& options,
                         UploadProgress const& progress = {});
 bool isUploading();
+void pauseUpload(std::wstring const& id);
+void resumeUpload(std::wstring const& id);
+void cancelUpload(std::wstring const& id);
+
+struct UploadCanceled : std::runtime_error {
+    UploadCanceled() : std::runtime_error("canceled") {}
+};
 std::wstring shortenUrl(std::wstring const& url);
 
 struct RecordingOutput {
@@ -132,26 +139,35 @@ void playShutter();
 void playUploaded();
 ui::ThemeMode themeMode();
 
-void notify(std::wstring const& title, std::wstring const& body, std::function<void()> onClick = {});
+void notify(std::wstring const& title, std::wstring const& body, std::function<void()> onClick = {},
+            std::optional<std::filesystem::path> const& image = {});
+
+void setUploadToastPaused(std::wstring const& tag, bool paused);
 
 class UploadToast {
 public:
     UploadToast(std::wstring tag, std::wstring name);
+    ~UploadToast();
     void update(int64_t sent, int64_t total);
+    void setPaused(bool paused);
     void close();
 
 private:
+    void show();
+
     std::mutex mutex;
     std::wstring tag;
     std::wstring name;
     bool isEnabled = false;
     bool isShown = false;
     bool isClosed = false;
+    bool isPaused = false;
+    bool isRebuilt = false;
     int64_t startedAt = 0;
     int64_t updatedAt = 0;
-    int64_t sampledAt = 0;
-    int64_t sampledSent = 0;
-    double speed = 0;
+    int64_t pausedAt = 0;
+    int64_t sent = 0;
+    int64_t total = 0;
     uint32_t sequence = 0;
 };
 void writeClipboardText(std::wstring const& text);

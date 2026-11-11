@@ -98,11 +98,43 @@
                                             {{ item.name }}
                                         </TextBlock>
 
-                                        <UiProgress
+                                        <div
                                             v-if="progress[item.id]"
-                                            :model-value="progress[item.id]!.progress"
-                                            class="my-1.5"
-                                        />
+                                            class="flex items-center gap-1"
+                                        >
+                                            <UiProgress
+                                                :model-value="progress[item.id]!.progress"
+                                                class="flex-1"
+                                            />
+                                            <UiButton
+                                                variant="ghost"
+                                                size="icon-xs"
+                                                :aria-label="
+                                                    progress[item.id]!.paused
+                                                        ? $t('tasks.uploadingResume')
+                                                        : $t('tasks.uploadingPause')
+                                                "
+                                                @click="
+                                                    desktop(
+                                                        progress[item.id]!.paused
+                                                            ? 'uploads:resume'
+                                                            : 'uploads:pause',
+                                                        item.id,
+                                                    )
+                                                "
+                                            >
+                                                <IPlay v-if="progress[item.id]!.paused" />
+                                                <IPause v-else />
+                                            </UiButton>
+                                            <UiButton
+                                                variant="ghost"
+                                                size="icon-xs"
+                                                :aria-label="$t('tasks.uploadingCancel')"
+                                                @click="desktop('uploads:cancel', item.id)"
+                                            >
+                                                <IX />
+                                            </UiButton>
+                                        </div>
                                         <TextBlock
                                             v-else
                                             variant="muted"
