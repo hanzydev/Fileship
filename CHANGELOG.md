@@ -1,5 +1,36 @@
 # Changelog
 
+## v6.7.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v6.6.0...v6.7.0)
+
+Fileship 6.7 lets you pause, resume and cancel uploads in the dashboard and comes with Fileship for Windows 2.5.0, which shows the progress of every upload in a notification with the speed, the time left and the same buttons.
+
+### ✨ Highlights
+
+- **Pause, resume and cancel uploads.** Every file in the dashboard's upload queue has Pause/Resume and Cancel buttons. A paused upload continues where it stopped, and a canceled one is dropped on the server right away instead of hours later.
+- **Fileship for Windows 2.5.0** ([fileship-desktop](https://github.com/hanzydev/fileship-desktop)): uploads from the tray, File Explorer's **Upload to Fileship**, the clipboard, screenshots and recordings show a notification with a progress bar, the speed and the time left that stays on screen until the upload ends, with Pause/Resume and Cancel buttons (also on the uploads in the app). The **Uploaded** notification shows a preview of screenshots, images and recordings, and clicking it opens the file in the app.
+
+### 🚀 Enhancements
+
+- **dashboard:** Pause, resume and cancel uploads in the queue ([253ccd8f](https://github.com/hanzydev/Fileship/commit/253ccd8f))
+- **api:** Add `DELETE /api/files/uploads/<uploadId>` to cancel an unfinished upload ([253ccd8f](https://github.com/hanzydev/Fileship/commit/253ccd8f))
+- **desktop:** Show upload progress, speed and time left in a notification ([e654aa8d](https://github.com/hanzydev/Fileship/commit/e654aa8d))
+- **desktop:** Pause, resume and cancel uploads, preview in the Uploaded notification ([947eb663](https://github.com/hanzydev/Fileship/commit/947eb663))
+- **landing:** Show the latest release in the hero chip ([73c104f5](https://github.com/hanzydev/Fileship/commit/73c104f5))
+
+### 🩹 Fixes
+
+- **desktop:** Update the upload notification smoothly and keep it on screen ([63d92b82](https://github.com/hanzydev/Fileship/commit/63d92b82))
+
+### 🏡 Chore
+
+- **desktop:** Release Fileship for Windows 2.4.0, 2.4.1 and 2.5.0 ([1237732b](https://github.com/hanzydev/Fileship/commit/1237732b))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v6.6.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v6.5.0...v6.6.0)
