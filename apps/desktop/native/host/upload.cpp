@@ -161,6 +161,7 @@ UploadedFile runJob(UploadSource const& job, std::wstring const& id, UploadOptio
     auto report = [&](int64_t index, std::optional<int64_t> partSent) {
         int64_t total = 0;
         int percent = 0;
+        bool isNewPercent = false;
         {
             std::lock_guard lock(stateMutex);
             if (partSent) inFlight[index] = *partSent;
@@ -170,12 +171,15 @@ UploadedFile runJob(UploadSource const& job, std::wstring const& id, UploadOptio
             for (auto const& [part, bytes] : inFlight) total += bytes;
             total = std::min(total, fileSize);
             percent = fileSize ? static_cast<int>(total * 100 / fileSize) : 100;
-            if (percent == reported) return;
+            isNewPercent = percent != reported;
             reported = percent;
         }
 
-        setProgress(id, percent);
-        publish();
+        if (isNewPercent) {
+            setProgress(id, percent);
+            publish();
+        }
+
         if (onProgress) onProgress(total, fileSize);
     };
 

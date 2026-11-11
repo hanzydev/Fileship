@@ -124,14 +124,17 @@ void UploadToast::update(int64_t sent, int64_t total) {
         }
 
         XmlDocument document;
-        document.LoadXml(L"<toast><visual><binding template=\"ToastGeneric\"><text/><text/>"
+        document.LoadXml(L"<toast scenario=\"reminder\"><visual><binding template=\"ToastGeneric\"><text/><text/>"
                          L"<progress value=\"{progressValue}\" valueStringOverride=\"{progressValueString}\" "
                          L"status=\"{progressStatus}\"/></binding></visual>"
+                         L"<actions><action arguments=\"dismiss\" activationType=\"system\" content=\"\"/></actions>"
                          L"<audio silent=\"true\"/></toast>");
 
         auto texts = document.GetElementsByTagName(L"text");
         texts.Item(0).AppendChild(document.CreateTextNode(t(L"tasks.uploadingTitle")));
         texts.Item(1).AppendChild(document.CreateTextNode(name));
+        document.GetElementsByTagName(L"action").Item(0).as<winrt::Windows::Data::Xml::Dom::XmlElement>().SetAttribute(
+            L"content", t(L"tasks.uploadingHide"));
 
         ToastNotification toast(document);
         toast.Tag(tag);

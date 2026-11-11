@@ -579,6 +579,7 @@
         "uploadingSecondsLeft": "Осталась {count} секунда | Осталось {count} секунды | Осталось {count} секунд",
         "uploadingMinutesLeft": "Осталась {count} минута | Осталось {count} минуты | Осталось {count} минут",
         "uploadingHoursLeft": "Осталось {hours} ч {minutes} мин",
+        "uploadingHide": "Скрыть",
         "imageSaved": "Изображение сохранено",
         "screenshotCopied": "Скриншот скопирован",
         "uploadsOff": "Загрузка выключена в настройках «После захвата».",

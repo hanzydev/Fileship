@@ -579,6 +579,7 @@
         "uploadingSecondsLeft": "Falta {count} segundo | Faltam {count} segundos",
         "uploadingMinutesLeft": "Falta {count} minuto | Faltam {count} minutos",
         "uploadingHoursLeft": "Faltam {hours} h {minutes} min",
+        "uploadingHide": "Ocultar",
         "imageSaved": "Imagem salva",
         "screenshotCopied": "Captura de tela copiada",
         "uploadsOff": "O envio está desativado nas configurações, em Após a captura.",

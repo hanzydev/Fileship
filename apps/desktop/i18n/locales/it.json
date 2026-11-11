@@ -579,6 +579,7 @@
         "uploadingSecondsLeft": "Manca {count} secondo | Mancano {count} secondi",
         "uploadingMinutesLeft": "Manca {count} minuto | Mancano {count} minuti",
         "uploadingHoursLeft": "Mancano {hours} h {minutes} min",
+        "uploadingHide": "Nascondi",
         "imageSaved": "Immagine salvata",
         "screenshotCopied": "Screenshot copiato",
         "uploadsOff": "Il caricamento è disattivato nelle impostazioni \"Dopo l'acquisizione\".",

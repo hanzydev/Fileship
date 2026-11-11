@@ -579,6 +579,7 @@
         "uploadingSecondsLeft": "剩余 {count} 秒",
         "uploadingMinutesLeft": "剩余 {count} 分钟",
         "uploadingHoursLeft": "剩余 {hours} 小时 {minutes} 分钟",
+        "uploadingHide": "隐藏",
         "imageSaved": "图片已保存",
         "screenshotCopied": "截图已复制",
         "uploadsOff": "“截图后”设置中已关闭上传。",

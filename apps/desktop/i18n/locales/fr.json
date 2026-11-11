@@ -579,6 +579,7 @@
         "uploadingSecondsLeft": "{count} seconde restante | {count} secondes restantes",
         "uploadingMinutesLeft": "{count} minute restante | {count} minutes restantes",
         "uploadingHoursLeft": "{hours} h {minutes} min restantes",
+        "uploadingHide": "Masquer",
         "imageSaved": "Image enregistrée",
         "screenshotCopied": "Capture d'écran copiée",
         "uploadsOff": "L'importation est désactivée dans les paramètres « Après la capture ».",
