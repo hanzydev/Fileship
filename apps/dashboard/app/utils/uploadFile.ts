@@ -17,9 +17,67 @@ const CHUNK_REQUEST_ATTEMPTS = 3;
 type ChunkResult = {
     ok: boolean;
     retryable: boolean;
+    interrupted?: boolean;
     url?: string;
     error?: string;
     isQuotaExceeded?: boolean;
+};
+
+type UploadControl = {
+    paused: boolean;
+    canceled: boolean;
+    interrupted: boolean;
+    request: XMLHttpRequest | null;
+    canAbort: () => boolean;
+    wake: (() => void) | null;
+};
+
+const controls = new WeakMap<File, UploadControl>();
+
+const controlOf = (file: File) => {
+    const raw = toRaw(file);
+    let control = controls.get(raw);
+
+    if (!control) {
+        control = {
+            paused: false,
+            canceled: false,
+            interrupted: false,
+            request: null,
+            canAbort: () => false,
+            wake: null,
+        };
+        controls.set(raw, control);
+    }
+
+    return control;
+};
+
+const interrupt = (control: UploadControl) => {
+    if (!control.request || !control.canAbort()) return;
+
+    control.interrupted = true;
+    control.request.abort();
+};
+
+export const pauseUpload = (file: File) => {
+    const control = controlOf(file);
+    control.paused = true;
+    interrupt(control);
+};
+
+export const resumeUpload = (file: File) => {
+    const control = controlOf(file);
+    control.paused = false;
+    control.wake?.();
+};
+
+export const cancelUpload = (file: File) => {
+    const control = controlOf(file);
+    control.canceled = true;
+    control.paused = false;
+    interrupt(control);
+    control.wake?.();
 };
 
 export const uploadFilesWithConcurrency = async <F extends File, T>(
@@ -61,13 +119,15 @@ export const uploadFile = async (
 
     const chunks = Math.max(1, Math.ceil(file.size / fileChunkSize));
     const uploadingFile = uploadingFiles.value.find((f) => toRaw(f) === toRaw(file));
+    const control = controlOf(file);
 
-    if (!uploadingFile) return;
+    if (!uploadingFile || control.canceled) return null;
 
     if (!uploadingFile.status) {
         uploadingFile.status = reactive({
             started: false,
             completed: false,
+            paused: false,
             progress: {
                 speed: 0,
                 percent: 0,
@@ -81,7 +141,7 @@ export const uploadFile = async (
     uploadingFile.status!.completed = false;
     uploadingFile.status!.error = null;
 
-    const startedAt = Date.now();
+    let startedAt = Date.now();
     const uploadId = nanoid();
 
     let uploadedFileUrl = '';
@@ -109,14 +169,27 @@ export const uploadFile = async (
         if (settings.reportDuplicate) formData.append('reportDuplicate', 'true');
 
         let result: ChunkResult = { ok: false, retryable: true };
+        let chunkLoaded = 0;
 
         for (let attempt = 0; attempt < CHUNK_REQUEST_ATTEMPTS; attempt++) {
+            if (control.paused) {
+                const pausedAt = Date.now();
+                await new Promise<void>((resolve) => (control.wake = resolve));
+                control.wake = null;
+                startedAt += Date.now() - pausedAt;
+            }
+
+            if (control.canceled) break;
+
             result = await new Promise<ChunkResult>((resolve) => {
                 const req = new XMLHttpRequest();
                 let settled = false;
                 let attemptLoaded = 0;
 
                 const canRetry = () => i < chunks - 1 || attemptLoaded < chunk.size;
+
+                control.request = req;
+                control.canAbort = canRetry;
 
                 const settle = (value: ChunkResult) => {
                     if (settled) return;
@@ -128,7 +201,8 @@ export const uploadFile = async (
                     if (!e.lengthComputable) return;
 
                     attemptLoaded = e.loaded;
-                    const loaded = start + e.loaded;
+                    chunkLoaded = Math.max(chunkLoaded, e.loaded);
+                    const loaded = start + chunkLoaded;
                     const elapsedSeconds = Math.max((Date.now() - startedAt) / 1000, 0.001);
                     const speed = loaded / elapsedSeconds;
                     const percent = file.size
@@ -190,20 +264,41 @@ export const uploadFile = async (
                         error: t('upload.errors.timeout'),
                     }),
                 );
-                req.addEventListener('abort', () =>
+                req.addEventListener('abort', () => {
+                    if (control.interrupted) {
+                        control.interrupted = false;
+                        settle({ ok: false, retryable: true, interrupted: true });
+                        return;
+                    }
+
                     settle({
                         ok: false,
                         retryable: canRetry(),
                         error: t('upload.errors.aborted'),
-                    }),
-                );
+                    });
+                });
 
                 req.open('POST', uploadEndpoint);
                 req.timeout = CHUNK_REQUEST_TIMEOUT_MS;
                 req.send(formData);
             });
 
+            control.request = null;
+
+            if (result.interrupted) {
+                attempt--;
+                continue;
+            }
+
             if (result.ok || !result.retryable) break;
+        }
+
+        if (control.canceled && !result.ok) {
+            if (uploadEndpoint === '/api/files') {
+                $fetch(`/api/files/uploads/${uploadId}`, { method: 'DELETE' }).catch(() => null);
+            }
+
+            return null;
         }
 
         if (!result.ok) {

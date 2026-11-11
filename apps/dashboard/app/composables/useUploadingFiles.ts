@@ -4,6 +4,7 @@ export type UploadingFileData = File & {
     status?: UnwrapNestedRefs<{
         started: boolean;
         completed: boolean;
+        paused: boolean;
         progress: { speed: number; percent: number; eta: number };
         error: string | null;
     }>;

@@ -124,6 +124,7 @@ export const useUploader = () => {
             file.status = reactive({
                 started: false,
                 completed: false,
+                paused: false,
                 progress: { speed: 0, percent: 0, eta: 0 },
                 error: null,
             });
@@ -153,7 +154,9 @@ export const useUploader = () => {
         uploadingFiles.value = uploadingFiles.value.filter((f) => !successfulFiles.has(f));
         uploading.value = uploadingFiles.value.some((f) => !f.status!.error);
 
-        return { urls, results, failed: newFiles.length - successfulFiles.size };
+        const canceled = results.filter((result) => result === null).length;
+
+        return { urls, results, failed: newFiles.length - successfulFiles.size - canceled };
     };
 
     const upload = async (files: File[], settings: FileSettings = {}) => {
@@ -231,5 +234,31 @@ export const useUploader = () => {
         uploading.value = uploadingFiles.value.some((f) => !f.status!.error);
     };
 
-    return { currentFolder, isReadOnlyFolder, upload, copyUrls, quickUpload, retry, dismiss };
+    const pause = (file: UploadingFileData) => {
+        file.status!.paused = true;
+        pauseUpload(file);
+    };
+
+    const resume = (file: UploadingFileData) => {
+        file.status!.paused = false;
+        resumeUpload(file);
+    };
+
+    const cancel = (file: UploadingFileData) => {
+        cancelUpload(file);
+        dismiss(file);
+    };
+
+    return {
+        currentFolder,
+        isReadOnlyFolder,
+        upload,
+        copyUrls,
+        quickUpload,
+        retry,
+        dismiss,
+        pause,
+        resume,
+        cancel,
+    };
 };

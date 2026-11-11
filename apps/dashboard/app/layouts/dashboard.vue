@@ -505,6 +505,13 @@
                                             <template v-else-if="!file.status!.started">
                                                 {{ $t('layout.queue.waiting') }}
                                             </template>
+                                            <template
+                                                v-else-if="
+                                                    !file.status!.completed && file.status!.paused
+                                                "
+                                            >
+                                                {{ $t('layout.queue.paused') }}
+                                            </template>
                                             <template v-else-if="!file.status!.completed">
                                                 {{
                                                     $t('layout.queue.progress', {
@@ -544,9 +551,35 @@
                                             v-else-if="file.status!.completed"
                                             class="size-4 text-primary"
                                         />
-                                        <UiItemDescription v-else>
-                                            {{ file.status!.progress.percent }}%
-                                        </UiItemDescription>
+                                        <template v-else>
+                                            <UiItemDescription v-if="file.status!.started">
+                                                {{ file.status!.progress.percent }}%
+                                            </UiItemDescription>
+                                            <UiButton
+                                                v-if="file.status!.started"
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                :aria-label="
+                                                    file.status!.paused
+                                                        ? $t('layout.queue.resume')
+                                                        : $t('layout.queue.pause')
+                                                "
+                                                @click="
+                                                    file.status!.paused ? resume(file) : pause(file)
+                                                "
+                                            >
+                                                <IPlay v-if="file.status!.paused" />
+                                                <IPause v-else />
+                                            </UiButton>
+                                            <UiButton
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                :aria-label="$t('layout.queue.cancel')"
+                                                @click="cancel(file)"
+                                            >
+                                                <IX />
+                                            </UiButton>
+                                        </template>
                                     </UiItemActions>
                                     <UiItemFooter
                                         v-if="!file.status!.error && !file.status!.completed"
@@ -627,7 +660,7 @@ const { t, locale } = useI18n();
 const router = useRouter();
 const uploadSheetOpen = useUploadSheet();
 const uploadingFiles = useUploadingFiles();
-const { quickUpload, retry, dismiss, isReadOnlyFolder } = useUploader();
+const { quickUpload, retry, dismiss, pause, resume, cancel, isReadOnlyFolder } = useUploader();
 const verification = useVerification();
 const { isDesktop, downloads, downloadsStarted, bridge } = useDesktopApp();
 

@@ -78,6 +78,11 @@ export const abortUploadSession = async (path: string) => {
             .catch(() => null);
 };
 
+export const cancelUploadSession = (ownerId: string, uploadId: string) => {
+    const path = join(dataDirectory, 'temp', ownerId, `${uploadId}.upload`);
+    return withSessionLock(path, () => abortUploadSession(path).catch(() => null));
+};
+
 const uploadSessionPaths = async (directory: string) =>
     (await fsp.readdir(directory).catch(() => [] as string[]))
         .filter((name) => name.endsWith('.upload.json'))

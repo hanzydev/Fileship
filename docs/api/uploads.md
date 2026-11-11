@@ -77,6 +77,8 @@ Rules:
 - Send the same options (`fileNameType`, `expiration`, …) with every piece; the name is chosen with the first one.
 - Pieces before the last answer with an empty response. The request that completes the file returns the file as above.
 - A piece that does not fit the layout fails with **Invalid upload chunk**. An upload with no new piece for 6 hours is discarded.
+- A piece can be sent again (after a network error, or to resume a paused upload); it replaces the earlier copy. A piece whose request was cut off before its body arrived is not stored. Only the last piece must not be sent again once its whole body went out, because the server may already have completed the file.
+- To cancel, send `DELETE /api/files/uploads/<uploadId>` with a session (not an upload token). It drops the pieces received so far and answers 204, also when there is nothing to drop.
 
 ## Shorten a link
 
