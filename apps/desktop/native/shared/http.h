@@ -4,6 +4,7 @@
 #include <winhttp.h>
 
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
@@ -36,6 +37,7 @@ struct HttpRequest {
     std::wstring headers;
     std::vector<char> body;
     int timeoutMs = 30000;
+    std::function<void(size_t sent)> onSent;
 };
 
 struct HttpResponse {

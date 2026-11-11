@@ -96,10 +96,10 @@ bool canUseDesktop(JsonObject const& user) {
 
 JsonValue request(std::wstring const& baseUrl, std::wstring const& method, std::wstring const& path,
                   std::vector<char> body, std::wstring const& contentType, std::wstring const& bearer,
-                  int timeoutMs) {
+                  int timeoutMs, std::function<void(size_t)> const& onSent) {
     HttpEndpoint endpoint{baseUrl, bearer, desktopUserAgent(), language()};
     HttpRequest options{method, path, contentType.empty() ? L"" : L"Content-Type: " + contentType + L"\r\n",
-                        std::move(body), timeoutMs};
+                        std::move(body), timeoutMs, onSent};
 
     HttpResponse response;
 
@@ -141,12 +141,13 @@ JsonValue api(std::wstring const& method, std::wstring const& path, std::optiona
     return request(url, method, path, std::move(bytes), body ? L"application/json" : L"", token(), timeoutMs);
 }
 
-JsonValue apiForm(std::wstring const& path, Multipart& form, int timeoutMs) {
+JsonValue apiForm(std::wstring const& path, Multipart& form, int timeoutMs,
+                  std::function<void(size_t)> const& onSent) {
     auto url = instanceUrl();
     if (url.empty()) throw ApiError(toUtf8(t(L"app.notConnected")), 401, JsonObject());
 
     auto contentType = form.contentType();
-    return request(url, L"POST", path, form.finish(), contentType, token(), timeoutMs);
+    return request(url, L"POST", path, form.finish(), contentType, token(), timeoutMs, onSent);
 }
 
 std::wstring normalizeInstanceUrl(std::wstring const& input) {

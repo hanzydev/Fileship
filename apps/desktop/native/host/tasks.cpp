@@ -60,11 +60,16 @@ void notifyUploadFailure(std::exception const& error) {
 
 std::optional<std::wstring> uploadAndFinish(std::wstring const& historyId, UploadSource source,
                                             std::function<void(std::wstring const&)> const& onFailure = {}) {
+    UploadToast toast(historyId, source.name);
+
     try {
         source.id = historyId;
-        auto uploaded = uploadFile(source, uploadOptions());
+        auto uploaded =
+            uploadFile(source, uploadOptions(), [&](int64_t sent, int64_t total) { toast.update(sent, total); });
+        toast.close();
         return finishUpload(historyId, uploaded);
     } catch (std::exception const& error) {
+        toast.close();
         logWarn(L"Upload failed: " + errorMessage(error));
         updateHistory(historyId, {{L"error", errorMessage(error)}});
 

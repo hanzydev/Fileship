@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <functional>
+#include <mutex>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -55,7 +56,8 @@ std::wstring errorMessage(std::exception const& error);
 HttpEndpoint apiEndpoint();
 JsonValue api(std::wstring const& method, std::wstring const& path,
               std::optional<IJsonValue> const& body = std::nullopt, int timeoutMs = 30000);
-JsonValue apiForm(std::wstring const& path, Multipart& form, int timeoutMs = 30000);
+JsonValue apiForm(std::wstring const& path, Multipart& form, int timeoutMs = 30000,
+                  std::function<void(size_t)> const& onSent = {});
 void handleUnauthorized();
 void resetUploadSettings();
 
@@ -131,6 +133,27 @@ void playUploaded();
 ui::ThemeMode themeMode();
 
 void notify(std::wstring const& title, std::wstring const& body, std::function<void()> onClick = {});
+
+class UploadToast {
+public:
+    UploadToast(std::wstring tag, std::wstring name);
+    void update(int64_t sent, int64_t total);
+    void close();
+
+private:
+    std::mutex mutex;
+    std::wstring tag;
+    std::wstring name;
+    bool isEnabled = false;
+    bool isShown = false;
+    bool isClosed = false;
+    int64_t startedAt = 0;
+    int64_t updatedAt = 0;
+    int64_t sampledAt = 0;
+    int64_t sampledSent = 0;
+    double speed = 0;
+    uint32_t sequence = 0;
+};
 void writeClipboardText(std::wstring const& text);
 void refreshTray();
 void playSoundFile(std::wstring const& name);

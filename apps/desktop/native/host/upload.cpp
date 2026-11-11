@@ -10,6 +10,7 @@
 #include <condition_variable>
 #include <deque>
 #include <fstream>
+#include <map>
 #include <mutex>
 #include <thread>
 
@@ -91,11 +92,13 @@ std::string escapeFileName(std::wstring const& name) {
     return result;
 }
 
-std::optional<JsonObject> sendChunk(std::function<Multipart()> const& form) {
+std::optional<JsonObject> sendChunk(std::function<Multipart()> const& form,
+                                    std::function<void(size_t)> const& onSent) {
     for (int attempt = 1;; attempt++) {
         try {
             auto body = form();
-            auto response = apiForm(L"/api/files", body, 120000);
+            onSent(0);
+            auto response = apiForm(L"/api/files", body, 120000, onSent);
             if (response.ValueType() == JsonValueType::Object) return response.GetObject();
             return std::nullopt;
         } catch (ApiError const& error) {
@@ -151,7 +154,30 @@ UploadedFile runJob(UploadSource const& job, std::wstring const& id, UploadOptio
     std::optional<JsonObject> result;
     std::atomic<int64_t> next = 0;
     int64_t sent = 0;
+    std::map<int64_t, int64_t> inFlight;
+    int reported = -1;
     std::exception_ptr failure;
+
+    auto report = [&](int64_t index, std::optional<int64_t> partSent) {
+        int64_t total = 0;
+        int percent = 0;
+        {
+            std::lock_guard lock(stateMutex);
+            if (partSent) inFlight[index] = *partSent;
+            else inFlight.erase(index);
+
+            total = sent;
+            for (auto const& [part, bytes] : inFlight) total += bytes;
+            total = std::min(total, fileSize);
+            percent = fileSize ? static_cast<int>(total * 100 / fileSize) : 100;
+            if (percent == reported) return;
+            reported = percent;
+        }
+
+        setProgress(id, percent);
+        publish();
+        if (onProgress) onProgress(total, fileSize);
+    };
 
     auto sendPart = [&](int64_t index) {
         auto offset = index * size;
@@ -171,19 +197,17 @@ UploadedFile runJob(UploadSource const& job, std::wstring const& id, UploadOptio
             if (options.folderId) form.field("folderId", toUtf8(*options.folderId));
             form.file("file", escapeFileName(job.name), toUtf8(job.mimeType), chunk.data(), chunk.size());
             return form;
+        }, [&, length = static_cast<int64_t>(chunk.size())](size_t bytes) {
+            report(index, std::min(static_cast<int64_t>(bytes), length));
         });
 
-        int64_t total = 0;
         {
             std::lock_guard lock(stateMutex);
             if (response) result = response;
             sent += static_cast<int64_t>(chunk.size());
-            total = sent;
         }
 
-        setProgress(id, fileSize ? static_cast<int>(std::lround(static_cast<double>(total) / fileSize * 100)) : 100);
-        publish();
-        if (onProgress) onProgress(total, fileSize);
+        report(index, std::nullopt);
     };
 
     auto worker = [&] {

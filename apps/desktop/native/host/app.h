@@ -70,7 +70,8 @@ struct HttpResult {
 
 JsonValue request(std::wstring const& baseUrl, std::wstring const& method, std::wstring const& path,
                   std::vector<char> body = {}, std::wstring const& contentType = {},
-                  std::wstring const& bearer = {}, int timeoutMs = 30000);
+                  std::wstring const& bearer = {}, int timeoutMs = 30000,
+                  std::function<void(size_t)> const& onSent = {});
 std::wstring normalizeInstanceUrl(std::wstring const& input);
 JsonObject checkInstance(std::wstring const& input);
 IJsonValue getAccount();

@@ -2,6 +2,7 @@
 
 #include <bcrypt.h>
 
+#include <algorithm>
 #include <iterator>
 #include <mutex>
 #include <stdexcept>
@@ -9,6 +10,8 @@
 namespace fileship {
 
 namespace {
+
+constexpr DWORD WRITE_BLOCK = 256 * 1024;
 
 [[noreturn]] void throwLastError(char const* what) {
     throw std::runtime_error(std::string(what) + " failed with " + std::to_string(GetLastError()));
@@ -63,14 +66,35 @@ HttpStream::HttpStream(HttpEndpoint const& endpoint, HttpRequest const& options)
     if (!endpoint.language.empty()) headers += L"Accept-Language: " + endpoint.language + L"\r\n";
     headers += options.headers;
 
-    auto body = options.body.empty() ? WINHTTP_NO_REQUEST_DATA
-                                     : const_cast<char*>(options.body.data());
     auto length = static_cast<DWORD>(options.body.size());
 
-    if (!WinHttpSendRequest(request.value, headers.c_str(), static_cast<DWORD>(headers.size()), body,
-                            length, length, 0) ||
-        !WinHttpReceiveResponse(request.value, nullptr)) {
-        throwLastError("WinHttpSendRequest");
+    if (options.onSent && length) {
+        if (!WinHttpSendRequest(request.value, headers.c_str(), static_cast<DWORD>(headers.size()),
+                                WINHTTP_NO_REQUEST_DATA, 0, length, 0)) {
+            throwLastError("WinHttpSendRequest");
+        }
+
+        DWORD sent = 0;
+        while (sent < length) {
+            DWORD written = 0;
+            DWORD block = std::min<DWORD>(WRITE_BLOCK, length - sent);
+            if (!WinHttpWriteData(request.value, options.body.data() + sent, block, &written) || !written) {
+                throwLastError("WinHttpSendRequest");
+            }
+
+            sent += written;
+            options.onSent(sent);
+        }
+
+        if (!WinHttpReceiveResponse(request.value, nullptr)) throwLastError("WinHttpSendRequest");
+    } else {
+        auto body = options.body.empty() ? WINHTTP_NO_REQUEST_DATA : const_cast<char*>(options.body.data());
+
+        if (!WinHttpSendRequest(request.value, headers.c_str(), static_cast<DWORD>(headers.size()), body,
+                                length, length, 0) ||
+            !WinHttpReceiveResponse(request.value, nullptr)) {
+            throwLastError("WinHttpSendRequest");
+        }
     }
 
     DWORD size = sizeof(status);
