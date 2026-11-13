@@ -1,3 +1,6 @@
 CHANGELOG.md
 pnpm-lock.yaml
 packages/ui/app/components/ui
+apps/ml/.venv
+apps/ml/tests/fixtures
+apps/ml/tests/reference.json
