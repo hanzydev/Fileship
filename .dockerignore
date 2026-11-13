@@ -8,6 +8,8 @@ node_modules/
 **/.cache/
 **/dist/
 **/generated/prisma/
+**/.venv/
+**/__pycache__/
 
 apps/desktop/dist-electron/
 apps/desktop/release/

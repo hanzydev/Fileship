@@ -31,6 +31,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-c
     && rm -rf /var/lib/apt/lists/*
 
 ENV CHECKPOINT_DISABLE=1
+ENV NUXT_AI_SERVICE_URL=http://fileship-ml:3003
 
 WORKDIR /fileship/apps/dashboard
 

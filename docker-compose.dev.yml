@@ -53,6 +53,16 @@ services:
         <<: *fileship
         profiles: [green]
 
+    fileship-ml:
+        build:
+            context: .
+            dockerfile: apps/ml/Dockerfile
+        image: ghcr.io/hanzydev/fileship-ml:latest
+        restart: unless-stopped
+        init: true
+        volumes:
+            - ./data/models:/models
+
     updater-agent:
         build:
             context: .

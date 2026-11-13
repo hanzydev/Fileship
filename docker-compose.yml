@@ -59,6 +59,25 @@ services:
         <<: *fileship
         profiles: [green]
 
+    fileship-ml:
+        image: ghcr.io/hanzydev/fileship-ml:latest
+        restart: unless-stopped
+        init: true
+        volumes:
+            - ./data/models:/models
+        healthcheck:
+            test:
+                [
+                    'CMD',
+                    'python',
+                    '-c',
+                    "import urllib.request; urllib.request.urlopen('http://localhost:3003/health')",
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 30s
+
     updater-agent:
         image: ghcr.io/hanzydev/fileship-updater-agent:latest
         restart: unless-stopped
