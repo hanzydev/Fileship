@@ -1,5 +1,37 @@
 # Changelog
 
+## v6.8.0
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v6.7.0...v6.8.0)
+
+Fileship 6.8 adds update channels: stay on stable releases, or switch to the experimental channel to get pre-releases first. The documentation on fileship.app now follows the version you run.
+
+### ✨ Highlights
+
+- **Update channels.** Super admins choose **Stable** or **Experimental** in the new **Updates** section of the instance page. Experimental also installs pre-releases, pinned to their exact version, and still takes a stable release when it is newer. Switching back to Stable never installs an older version: Fileship stays on the pre-release until a newer stable release is out, and the database only moves with stable releases. Back up the database and the `data` folder before you switch ([guide](https://fileship.app/docs/updating#update-channels)).
+- **Docs for your version.** While a pre-release is out, [fileship.app/docs](https://fileship.app/docs) has a version selector: the stable docs stay at `/docs` and the pre-release's are at `/docs/experimental`. Links from the dashboard open the docs of the version the server runs.
+
+### 🚀 Enhancements
+
+- **updater:** Stable and experimental update channels ([f495b998](https://github.com/hanzydev/Fileship/commit/f495b998))
+- **landing:** Docs for the stable and experimental versions ([206a1b42](https://github.com/hanzydev/Fileship/commit/206a1b42))
+
+### 🩹 Fixes
+
+- **deps:** Patch vulnerable dependencies ([844be65d](https://github.com/hanzydev/Fileship/commit/844be65d))
+
+### 📖 Documentation
+
+- Describe the update channels and the pre-release branch ([de043f2f](https://github.com/hanzydev/Fileship/commit/de043f2f))
+
+### 🤖 CI
+
+- Tag `latest` only for stable releases and push the fileship image last ([2f961268](https://github.com/hanzydev/Fileship/commit/2f961268))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v6.7.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v6.6.0...v6.7.0)
