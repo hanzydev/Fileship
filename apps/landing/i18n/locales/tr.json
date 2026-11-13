@@ -190,6 +190,16 @@
             "placeholder": "Belgelerde ara…",
             "empty": "Sonuç bulunamadı."
         },
+        "versions": {
+            "label": "Belge sürümü",
+            "stable": "Kararlı ({version})",
+            "experimental": "Deneysel ({version})"
+        },
+        "experimental": {
+            "title": "Deneysel belgeler",
+            "description": "Bu sayfalar deneysel güncelleme kanalındaki Fileship {version} ön sürümünü anlatır. Bir kısmı henüz kararlı sürümde yok.",
+            "stable": "Kararlı belgeleri oku"
+        },
         "groups": {
             "gettingStarted": "Başlarken",
             "proxy": "Web sunucusu ve SSL",

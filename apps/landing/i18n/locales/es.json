@@ -190,6 +190,16 @@
             "placeholder": "Buscar en la documentación…",
             "empty": "No se encontraron resultados."
         },
+        "versions": {
+            "label": "Versión de la documentación",
+            "stable": "Estable ({version})",
+            "experimental": "Experimental ({version})"
+        },
+        "experimental": {
+            "title": "Documentación experimental",
+            "description": "Estas páginas describen Fileship {version}, una versión preliminar del canal de actualizaciones experimental. Parte de lo que se explica aquí todavía no está en la versión estable.",
+            "stable": "Ver la documentación estable"
+        },
         "groups": {
             "gettingStarted": "Primeros pasos",
             "proxy": "Servidor web y SSL",

@@ -190,6 +190,16 @@
             "placeholder": "문서 검색…",
             "empty": "결과가 없어요."
         },
+        "versions": {
+            "label": "문서 버전",
+            "stable": "안정 버전 ({version})",
+            "experimental": "실험 버전 ({version})"
+        },
+        "experimental": {
+            "title": "실험 버전 문서",
+            "description": "이 페이지는 실험 업데이트 채널의 사전 출시 버전인 Fileship {version}에 대한 내용이에요. 일부 내용은 아직 안정 버전에 없어요.",
+            "stable": "안정 버전 문서 보기"
+        },
         "groups": {
             "gettingStarted": "시작하기",
             "proxy": "웹 서버와 SSL",

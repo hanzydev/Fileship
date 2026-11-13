@@ -190,6 +190,16 @@
             "placeholder": "搜索文档…",
             "empty": "未找到结果。"
         },
+        "versions": {
+            "label": "文档版本",
+            "stable": "稳定版（{version}）",
+            "experimental": "实验版（{version}）"
+        },
+        "experimental": {
+            "title": "实验版文档",
+            "description": "这些页面介绍的是 Fileship {version}，一个来自实验版更新通道的预发布版本。部分内容尚未包含在稳定版中。",
+            "stable": "查看稳定版文档"
+        },
         "groups": {
             "gettingStarted": "入门",
             "proxy": "Web 服务器和 SSL",

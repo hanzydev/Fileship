@@ -190,6 +190,16 @@
             "placeholder": "ドキュメントを検索…",
             "empty": "結果が見つかりません。"
         },
+        "versions": {
+            "label": "ドキュメントのバージョン",
+            "stable": "安定版（{version}）",
+            "experimental": "試験版（{version}）"
+        },
+        "experimental": {
+            "title": "試験版のドキュメント",
+            "description": "このページでは、試験版のアップデートチャンネルで配信されているプレリリース Fileship {version} について説明しています。一部の内容はまだ安定版に含まれていません。",
+            "stable": "安定版のドキュメントを見る"
+        },
         "groups": {
             "gettingStarted": "はじめに",
             "proxy": "Web サーバーと SSL",

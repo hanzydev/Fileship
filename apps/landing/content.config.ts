@@ -2,22 +2,31 @@ import { fileURLToPath } from 'node:url';
 
 import { defineCollection, defineContentConfig, z } from '@nuxt/content';
 
+import { docsVersions } from './docsVersions.ts';
+
 const docsDirectory = fileURLToPath(new URL('../../docs', import.meta.url));
 const releasesDirectory = fileURLToPath(new URL('./.data/releases', import.meta.url));
 
+const docsCollection = (key: 'stable' | 'experimental', prefix: string) =>
+    defineCollection({
+        type: 'page',
+        source: {
+            cwd:
+                docsVersions.extracted === key
+                    ? fileURLToPath(new URL(`./.data/docs/${docsVersions[key]}`, import.meta.url))
+                    : docsDirectory,
+            include: '**/*.md',
+            prefix,
+        },
+        schema: z.object({
+            rawbody: z.string(),
+        }),
+    });
+
 export default defineContentConfig({
     collections: {
-        docs: defineCollection({
-            type: 'page',
-            source: {
-                cwd: docsDirectory,
-                include: '**/*.md',
-                prefix: '/docs',
-            },
-            schema: z.object({
-                rawbody: z.string(),
-            }),
-        }),
+        docs: docsCollection('stable', '/docs'),
+        docsExperimental: docsCollection('experimental', '/docs/experimental'),
         releases: defineCollection({
             type: 'page',
             source: {

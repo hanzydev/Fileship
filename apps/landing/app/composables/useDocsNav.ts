@@ -11,12 +11,20 @@ const groupOf = (path: string) => {
 };
 
 export const useDocsNav = async () => {
-    const { data: pages } = await useAsyncData('docs-nav', () =>
-        queryCollection('docs').select('path', 'title').all(),
+    const { version } = useDocsVersion();
+
+    const { data: pages } = await useAsyncData(
+        () => `docs-nav-${version.value.collection}`,
+        () => queryCollection(version.value.collection).select('path', 'title').all(),
     );
 
     const groups = computed(() => {
-        const known = new Map((pages.value ?? []).map((page) => [page.path, page]));
+        const known = new Map(
+            (pages.value ?? []).map((page) => [
+                `/docs${page.path.slice(version.value.root.length)}`,
+                page,
+            ]),
+        );
         const listed = new Set(DOCS_NAV.flatMap((group) => group.items));
 
         return DOCS_NAV.map((group) => {

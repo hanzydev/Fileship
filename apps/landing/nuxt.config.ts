@@ -1,3 +1,4 @@
+import { docsVersions } from './docsVersions.ts';
 import rehypeAlerts from './markdown/rehypeAlerts.mjs';
 
 export default defineNuxtConfig({
@@ -61,6 +62,14 @@ export default defineNuxtConfig({
     },
 
     compatibilityDate: '2024-04-03',
+
+    appConfig: {
+        docsVersions,
+    },
+
+    routeRules: {
+        '/docs/experimental/**': { robots: 'noindex, follow' },
+    },
 
     components: [
         {
@@ -141,7 +150,12 @@ export default defineNuxtConfig({
 
     nitro: {
         prerender: {
-            routes: ['/alternatives/zipline', '/alternatives/xbackbone', '/alternatives/chibisafe'],
+            routes: [
+                '/alternatives/zipline',
+                '/alternatives/xbackbone',
+                '/alternatives/chibisafe',
+                ...(docsVersions.experimental ? ['/docs/experimental'] : []),
+            ],
         },
         esbuild: {
             options: {

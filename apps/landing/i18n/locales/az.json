@@ -190,6 +190,16 @@
             "placeholder": "Sənədlərdə axtar…",
             "empty": "Nəticə tapılmadı."
         },
+        "versions": {
+            "label": "Sənədlərin versiyası",
+            "stable": "Stabil ({version})",
+            "experimental": "Eksperimental ({version})"
+        },
+        "experimental": {
+            "title": "Eksperimental sənədlər",
+            "description": "Bu səhifələr eksperimental yeniləmə kanalındakı Fileship {version} ilkin versiyasını təsvir edir. Bir hissəsi hələ stabil versiyada yoxdur.",
+            "stable": "Stabil sənədləri oxu"
+        },
         "groups": {
             "gettingStarted": "Başlanğıc",
             "proxy": "Veb server və SSL",

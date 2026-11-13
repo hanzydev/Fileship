@@ -6,7 +6,7 @@
                     <UiBreadcrumbList>
                         <UiBreadcrumbItem>
                             <UiBreadcrumbLink as-child>
-                                <NuxtLink to="/docs">{{ $t('docs.title') }}</NuxtLink>
+                                <NuxtLink :to="version.root">{{ $t('docs.title') }}</NuxtLink>
                             </UiBreadcrumbLink>
                         </UiBreadcrumbItem>
                         <template v-if="group">
@@ -105,9 +105,10 @@
 
 <script setup lang="ts">
 const route = useRoute();
+const { version } = useDocsVersion();
 
 const { data: page } = await useAsyncData(`docs-${route.path}`, () =>
-    queryCollection('docs').path(route.path).first(),
+    queryCollection(version.value.collection).path(route.path).first(),
 );
 
 if (!page.value) {
@@ -128,13 +129,14 @@ const toc = computed(() =>
     (page.value!.body.toc?.links ?? []).flatMap((link) => [link, ...(link.children ?? [])]),
 );
 
-const editUrl = computed(
-    () => `https://github.com/hanzydev/Fileship/edit/main/${page.value!.stem}.md`,
-);
+const source = computed(() => `docs${page.value!.stem.slice(version.value.root.length - 1)}`);
 
+const editUrl = computed(() => `https://github.com/hanzydev/Fileship/edit/main/${source.value}.md`);
+
+provide('docsSource', source);
 provide(
-    'docsSource',
-    computed(() => page.value!.stem),
+    'docsRoot',
+    computed(() => version.value.root),
 );
 
 const { copy, copied } = useClipboard({ legacy: true });

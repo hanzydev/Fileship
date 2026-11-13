@@ -3,6 +3,7 @@ on:
     push:
         branches:
             - main
+            - next
         paths:
             - 'apps/landing/**'
             - 'packages/ui/**'
@@ -10,6 +11,8 @@ on:
             - 'CHANGELOG.md'
             - 'pnpm-lock.yaml'
             - '.github/workflows/landing-deploy.yml'
+    release:
+        types: [published]
     workflow_dispatch:
 permissions:
     contents: read
@@ -23,6 +26,7 @@ jobs:
         steps:
             - uses: actions/checkout@v6
               with:
+                  ref: main
                   fetch-depth: 0
             - uses: pnpm/action-setup@v6
 

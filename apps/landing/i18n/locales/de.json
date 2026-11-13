@@ -190,6 +190,16 @@
             "placeholder": "Doku durchsuchen…",
             "empty": "Keine Ergebnisse."
         },
+        "versions": {
+            "label": "Version der Dokumentation",
+            "stable": "Stabil ({version})",
+            "experimental": "Experimentell ({version})"
+        },
+        "experimental": {
+            "title": "Experimentelle Dokumentation",
+            "description": "Diese Seiten beschreiben Fileship {version}, eine Vorabversion aus dem experimentellen Update-Kanal. Manches davon gibt es in der stabilen Version noch nicht.",
+            "stable": "Zur stabilen Dokumentation"
+        },
         "groups": {
             "gettingStarted": "Erste Schritte",
             "proxy": "Webserver und SSL",

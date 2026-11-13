@@ -4,10 +4,11 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "pnpm releases && nuxt build",
-        "dev": "pnpm releases && nuxt dev",
-        "generate": "pnpm releases && nuxt generate",
+        "build": "pnpm releases && pnpm docs-versions && nuxt build",
+        "dev": "pnpm releases && pnpm docs-versions && nuxt dev",
+        "generate": "pnpm releases && pnpm docs-versions && nuxt generate",
         "releases": "node scripts/releases.mjs",
+        "docs-versions": "node scripts/docs-versions.mjs",
         "preview": "nuxt preview",
         "cleanup": "nuxt cleanup",
         "lint:types": "nuxt typecheck",
@@ -35,6 +36,7 @@
         "@fileship/eslint-config": "workspace:*",
         "@vueuse/core": "^15.0.0",
         "dayjs": "^1.11.23",
+        "semver": "^7.8.5",
         "typescript": "^6.0.3",
         "vue-tsc": "^3.3.13"
     }

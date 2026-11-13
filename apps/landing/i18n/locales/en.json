@@ -190,6 +190,16 @@
             "placeholder": "Search the docs…",
             "empty": "No results found."
         },
+        "versions": {
+            "label": "Docs version",
+            "stable": "Stable ({version})",
+            "experimental": "Experimental ({version})"
+        },
+        "experimental": {
+            "title": "Experimental docs",
+            "description": "These pages describe Fileship {version}, a pre-release on the experimental update channel. Some of it is not in the stable release yet.",
+            "stable": "Read the stable docs"
+        },
         "groups": {
             "gettingStarted": "Getting started",
             "proxy": "Web server and SSL",

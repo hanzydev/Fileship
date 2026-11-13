@@ -47,9 +47,11 @@ const query = ref('');
 
 const term = computed(() => query.value.trim().toLocaleLowerCase());
 
+const { version } = useDocsVersion();
+
 const { data, execute } = useLazyAsyncData(
-    'docs-search',
-    () => queryCollectionSearchSections('docs'),
+    () => `docs-search-${version.value.collection}`,
+    () => queryCollectionSearchSections(version.value.collection),
     { server: false, immediate: false },
 );
 

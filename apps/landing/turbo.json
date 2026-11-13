@@ -3,7 +3,12 @@
     "extends": ["//"],
     "tasks": {
         "build": {
-            "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/docs/**", "$TURBO_ROOT$/CHANGELOG.md"]
+            "inputs": [
+                "$TURBO_EXTENDS$",
+                "$TURBO_ROOT$/docs/**",
+                "$TURBO_ROOT$/CHANGELOG.md",
+                "$TURBO_ROOT$/package.json"
+            ]
         }
     }
 }

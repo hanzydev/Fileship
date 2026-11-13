@@ -13,6 +13,7 @@
 const props = defineProps<{ href?: string; target?: string }>();
 
 const source = inject<Ref<string> | undefined>('docsSource', undefined);
+const root = inject<Ref<string> | undefined>('docsRoot', undefined);
 
 const headingId = (hash: string) =>
     hash && `#${hash.slice(1).replace(/-+/g, '-').replace(/^-|-$/g, '').replace(/^(\d)/, '_$1')}`;
@@ -26,7 +27,10 @@ const url = computed(() => {
     const { pathname, hash } = new URL(href, `https://fileship.local${folder}`);
 
     if (pathname.startsWith('/docs/'))
-        return `${pathname.replace(/\.md$/, '').replace(/\/index$/, '')}${headingId(hash)}`;
+        return `${root!.value}${pathname
+            .slice('/docs'.length)
+            .replace(/\.md$/, '')
+            .replace(/\/index$/, '')}${headingId(hash)}`;
 
     const file = pathname.split('/').pop()!;
     const path = file.includes('.') ? pathname : `${pathname}.md`;

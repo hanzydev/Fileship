@@ -1,5 +1,7 @@
 import { WebhookFormat } from '#shared/prisma/enums';
 
+import { docsUrl } from './docs';
+
 export const WEBHOOK_EVENTS = {
     'file.uploaded': {
         label: 'webhooks.events.fileUploaded',
@@ -36,7 +38,7 @@ export const WEBHOOK_FORMATS = {
     [WebhookFormat.Json]: { label: 'JSON', description: 'webhooks.formats.json' },
 };
 
-export const WEBHOOK_DOCS_URL = 'https://github.com/hanzydev/Fileship/blob/main/docs/webhooks.md';
+export const WEBHOOK_DOCS_URL = docsUrl('webhooks');
 
 export const WEBHOOK_LIMIT = 10;
 export const WEBHOOK_HISTORY = 20;
