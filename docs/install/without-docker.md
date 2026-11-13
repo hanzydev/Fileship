@@ -26,6 +26,7 @@ For Windows, see [Windows](windows.md#without-docker).
 - [pnpm 11](https://pnpm.io/), through Corepack
 - [PostgreSQL 18](https://www.postgresql.org/), the version the Docker stack runs
 - `git`, and a C++ build toolchain with Python for native modules (`build-essential` and `python3` on Debian and Ubuntu)
+- [uv](https://docs.astral.sh/uv/) for the AI service; it installs the Python version the AI service needs by itself
 
 The commands below are for Debian 13 and Ubuntu 24.04. Other distributions work the same way with their own package names.
 
@@ -41,6 +42,12 @@ sudo corepack enable
 ```
 
 `node --version` should print `v24`. Corepack picks the pnpm version the repository asks for.
+
+Install uv for every user, so the `fileship` user can run it:
+
+```sh
+curl -LsSf https://astral.sh/uv/install.sh | sudo env UV_INSTALL_DIR=/usr/local/bin sh
+```
 
 ## 2. Install PostgreSQL and create a database
 
@@ -101,10 +108,10 @@ sudo chmod 600 /opt/fileship/app/apps/dashboard/.env
 ```sh
 cd /opt/fileship/app
 sudo -u fileship pnpm install --frozen-lockfile --filter dashboard... --os=current --libc=current --cpu=current
-sudo -u fileship pnpm --filter dashboard... build
+sudo -u fileship pnpm --filter dashboard... --filter ml build
 ```
 
-The first command installs only what the dashboard needs, for this system's processor. The build takes a few minutes and writes the server to `apps/dashboard/.output`.
+The first command installs only what the dashboard needs, for this system's processor. The build takes a few minutes and writes the server to `apps/dashboard/.output`; `--filter ml` sets up the AI service with Python and its packages in `apps/ml/.venv`.
 
 ## 6. Create the database tables
 
@@ -203,6 +210,6 @@ Run Fileship as **one** process. Do not use PM2's cluster mode or start several 
 ## Notes
 
 - **ffmpeg** for video thumbnails and **PDFium** for PDF previews come with the build; nothing else needs to be installed.
-- **AI models** are downloaded from Hugging Face into `<data directory>/models` the first time they are needed. See [AI features](../ai.md).
+- **AI** runs in a second process that Fileship starts and restarts itself from `apps/ml/.venv`; systemd, PM2 and NSSM stop it together with Fileship. Its models are downloaded from Hugging Face into `<data directory>/models` the first time they are needed. See [AI features](../ai.md#the-ai-service).
 - **Updates:** admins still see **Update available** in the sidebar, with a link to the release, but there is no **Update** button. See [Updating without Docker](../updating/without-docker.md).
 - **Client IP:** Fileship trusts `X-Forwarded-For` only from private and loopback addresses, which covers a proxy on the same machine. See [Client IP](../proxy/overview.md#client-ip).

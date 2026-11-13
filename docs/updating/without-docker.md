@@ -21,9 +21,11 @@ sudo -u fileship git fetch --tags
 sudo -u fileship git checkout main
 sudo -u fileship git pull
 sudo -u fileship pnpm install --frozen-lockfile --filter dashboard... --os=current --libc=current --cpu=current
-sudo -u fileship pnpm --filter dashboard... build
+sudo -u fileship pnpm --filter dashboard... --filter ml build
 sudo systemctl restart fileship
 ```
+
+Coming from a version before 6.9? AI now runs in its own process, set up by `--filter ml`. Install [uv](../install/without-docker.md#1-install-nodejs-pnpm-and-the-build-tools) once before the build (`winget install -e --id astral-sh.uv` on Windows). Until then Fileship runs without AI analysis: files wait for it, nothing is lost, and super admins see a warning.
 
 `main` always holds the latest stable release. To pin a release instead of following `main`, check out its tag (`sudo -u fileship git checkout v6.6.0`) instead of the `checkout main` and `pull` lines.
 

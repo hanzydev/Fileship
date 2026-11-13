@@ -5,7 +5,7 @@ description: Smart search, captions, OCR and sensitive content detection with AI
 
 # AI features
 
-Fileship can analyze uploads to power smart search, image captions, OCR and sensitive content detection. The models run locally with [Transformers.js](https://huggingface.co/docs/transformers.js); no file ever leaves your server.
+Fileship can analyze uploads to power smart search, image captions, OCR and sensitive content detection. The models run on your own server in Fileship's [AI service](#the-ai-service); no file ever leaves your server.
 
 AI features are **enabled by default**. Super admins can turn them off in **Administration → Instance**, and each user can opt out in their own settings. The `NUXT_PUBLIC_AI_ENABLED` environment variable sets the instance default.
 
@@ -16,6 +16,14 @@ When AI is disabled:
 - AI-related parts of the interface are hidden
 
 Every image, video and text file is analyzed once in the background after it is uploaded. **Parallel jobs** sets how many files are analyzed at the same time and **Threads per job** how many CPU cores each one uses; on small servers keep both low. A job whose server stops responding is picked up again after **Job heartbeat timeout**, and a file that fails three times waits until you choose **Retry failed** in the AI section of **Administration → Instance**, which also shows the queue. Failed jobs are cleared after 30 days, and those files are then tried again. **Reset AI data** there deletes the captions, OCR text, search data and sensitive content flags of every file and analyzes everything again; choices made with **Not sensitive** or **Mark as sensitive** are kept.
+
+## The AI service
+
+The models run in their own service, `fileship-ml`, next to Fileship: a container of the Docker stack, or a process that Fileship starts and restarts by itself when it runs [without Docker](install/without-docker.md). Fileship reads each file, prepares a small image (or a few video frames, or the text) and sends only that to the service, which keeps nothing.
+
+Because the models live in their own process, running out of memory only restarts the AI service; Fileship keeps serving, and the jobs that were running are tried again.
+
+When the AI service cannot be reached, files wait for their analysis (none is marked failed), smart search falls back to full-text search and text capture in the Windows app is unavailable. Super admins see a warning in the sidebar; see [The AI service is not reachable](troubleshooting/ai.md#the-ai-service-is-not-reachable).
 
 ## AI presets
 
@@ -31,17 +39,17 @@ The preset sets which models are used and how long they stay in memory. Choose i
 
 ## Models
 
-The models are downloaded from Hugging Face the first time they are needed and kept in `data/models`, so updates and both blue/green containers reuse them. To run without internet access, copy that folder from another installation.
+The AI service downloads the models from Hugging Face the first time they are needed and keeps them in `data/models`, so updates reuse them. To run without internet access, copy that folder from another installation.
 
 | Task                                   | Model                                                                                                                                                                  |
 | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Image and video search                 | [mSigLIP base](https://huggingface.co/google/siglip-base-patch16-256-multilingual) ([ONNX](https://huggingface.co/pulsejet/siglip-base-patch16-256-multilingual-onnx)) |
 | Captions                               | [Florence-2 base](https://huggingface.co/onnx-community/Florence-2-base)                                                                                               |
-| OCR                                    | [PaddleOCR PP-OCRv6 and PP-OCRv5 script models](https://github.com/PT-Perkasa-Pilar-Utama/ppu-paddle-ocr)                                                              |
+| OCR                                    | [PaddleOCR PP-OCRv6, PP-OCRv5 script models and the text line orientation model](https://github.com/PaddlePaddle/PaddleOCR)                                            |
 | Search in captions, OCR and text files | [Multilingual MiniLM](https://huggingface.co/Xenova/paraphrase-multilingual-MiniLM-L12-v2)                                                                             |
 | Sensitive content                      | [OpenAI Privacy Filter](https://huggingface.co/openai/privacy-filter)                                                                                                  |
 
-The models were chosen by measuring them on 400 images of [Crossmodal-3600](https://google.github.io/crossmodal-3600/) with human captions in English, Turkish, German, Spanish, French, Arabic, Russian, Japanese and Chinese. Compared with v5, the `medium` preset finds the right image first for 76% of non-English queries instead of 58%, and a query that describes nothing in the library returns about 1.5 results instead of 12. OCR reads Latin, Cyrillic, Greek, Thai, Korean, Japanese and Chinese text (Arabic only partly), and no longer invents text on photos that have none.
+The models were chosen by measuring them on 400 images of [Crossmodal-3600](https://google.github.io/crossmodal-3600/) with human captions in English, Turkish, German, Spanish, French, Arabic, Russian, Japanese and Chinese. Compared with v5, the `medium` preset finds the right image first for 76% of non-English queries instead of 58%, and a query that describes nothing in the library returns about 1.5 results instead of 12. OCR reads Latin, Cyrillic, Greek, Thai, Korean, Japanese and Chinese text (Arabic only partly), also when it is rotated or upside down, and no longer invents text on photos that have none.
 
 ## Smart search
 

@@ -5,11 +5,20 @@ description: Fix Fileship's AI analysis - model downloads, out of memory and kil
 
 # AI problems
 
-The **AI** section of **Administration → Instance** shows the **Queue**: how many files are waiting, running and failed, and how much space the models use. The server output shows errors from AI jobs.
+The **AI** section of **Administration → Instance** shows the **Queue**: how many files are waiting, running and failed, and how much space the models use. The server output shows errors from AI jobs; the models run in the AI service, whose output is `docker compose logs fileship-ml` with Docker and part of the Fileship log without Docker.
+
+## The AI service is not reachable
+
+Super admins see **AI service unreachable** in the sidebar. Files wait for their analysis and nothing is lost; once the service answers again, the queue continues by itself.
+
+- **Docker, updated from the dashboard or by scheduled updates:** the updater agent adds the `fileship-ml` container after it has updated itself. Wait a few minutes, or restart it with `docker compose restart updater-agent`.
+- **Docker, updated by hand:** the Compose file needs the `fileship-ml` service. Run `git pull`, `docker compose pull` and `docker compose up -d` in the Fileship folder.
+- **Without Docker:** Fileship starts the service from `apps/ml/.venv`. Install [uv](../install/without-docker.md#1-install-nodejs-pnpm-and-the-build-tools) if it is missing, run `pnpm --filter ml build` as the user that runs Fileship and restart Fileship.
+- **Still unreachable:** read the service's output (`docker compose logs fileship-ml`, or the Fileship log without Docker). On a machine that is out of memory, see [Out of memory](#out-of-memory).
 
 ## Models don't download
 
-The models come from Hugging Face the first time they are needed and are kept in `data/models` (up to 3 GB). Without internet access, or with `huggingface.co` blocked, jobs fail and retry.
+The AI service downloads the models from Hugging Face the first time they are needed and are kept in `data/models` (up to 3 GB). Without internet access, or with `huggingface.co` blocked, jobs fail and retry.
 
 - Allow outgoing HTTPS to `huggingface.co` and its download hosts.
 - Or copy `data/models` from another installation with the same preset.
@@ -17,13 +26,13 @@ The models come from Hugging Face the first time they are needed and are kept in
 
 ## Out of memory
 
-The server, or the Docker container, is killed (exit code 137, or `Killed` in the log) while files are analyzed. The models run inside the Fileship process, so the whole process restarts.
+The AI service is killed (exit code 137, or `Killed` in its log) while files are analyzed. It restarts by itself and Fileship keeps running; a file that keeps crashing the service is marked failed after three tries.
 
 - Choose a smaller **Preset**: **Low (4 GB RAM)**, **Medium (6 GB RAM)** or **High (8 GB RAM)** are the memory each needs.
 - Keep **Parallel jobs** at 1 on small servers. Each parallel job needs its own memory.
 - Turn **AI features** off if the server has 2 GB or less.
 
-After a crash, the running jobs are picked up again after **Job heartbeat timeout**; a file that fails three times is marked failed.
+After a crash, the running jobs are tried again; a file that fails three times is marked failed.
 
 ## The server is slow while files are analyzed
 

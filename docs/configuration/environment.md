@@ -78,6 +78,10 @@ Email stays off until `NUXT_SITE_URL`, `NUXT_SMTP_HOST` and `NUXT_SMTP_FROM` are
 | `NUXT_AI_INFERENCE_THREADS` | `2`      | **Threads per job**            | 1 to 64 CPU threads per job.            |
 | `NUXT_AI_JOB_LEASE_MS`      | `120000` | **Job heartbeat timeout (ms)** | At least 60000.                         |
 
+`NUXT_AI_SERVICE_URL` is the address of the [AI service](../ai.md#the-ai-service). The Docker image sets it to `http://fileship-ml:3003`. Left empty (the default without Docker), Fileship starts the AI service from `apps/ml/.venv` itself on `127.0.0.1:3003`. The AI service has no login of its own, so only point it at a service on a network you trust.
+
+The AI service itself reads `FILESHIP_ML_HOST` (default `127.0.0.1`), `FILESHIP_ML_PORT` (`3003`) and `FILESHIP_ML_MODELS_DIR` (`data/models` of the repository). Its Docker image sets `0.0.0.0` and `/models`, and Fileship passes its own data directory when it starts the service.
+
 ## Logs and telemetry
 
 | Variable                 | Default                                | Instance setting        | Description                                                              |

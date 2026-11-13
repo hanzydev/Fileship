@@ -59,6 +59,10 @@ docker compose up -d
 
 The database is upgraded from PostgreSQL 16 to 18 during this start, and every later update is automatic. The volume is now mounted at `/var/lib/postgresql` instead of `/var/lib/postgresql/data`; if you changed the `postgres` service (for example a bind mount), change its target the same way and keep the `healthcheck` without a `test`.
 
+## Installations from before 6.9
+
+Since 6.9, AI runs in its own container, `fileship-ml`. One-click and scheduled updates add it by themselves: after the update the new updater agent starts the container from its own copy of the service definition, without changing your `docker-compose.yml`. If you update by hand, run `git pull` once so the Compose file has the service, then `docker compose pull` and `docker compose up -d`. Until the AI service runs, files wait for their analysis and super admins see a warning; nothing is lost and no file is analyzed again.
+
 Running Fileship without Docker? See [Updating without Docker](updating/without-docker.md). If an update fails, see [Update problems](troubleshooting/updates.md).
 
 Coming from 5.x? See [Upgrading to 6.0](upgrading.md).

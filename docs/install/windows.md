@@ -104,6 +104,7 @@ Fileship needs Node.js 24. As administrator:
 winget install -e --id OpenJS.NodeJS.LTS --version 24.22.1
 winget install -e --id Git.Git
 winget install -e --id PostgreSQL.PostgreSQL.18
+winget install -e --id astral-sh.uv
 ```
 
 Use the newest `24.x` that `winget show --id OpenJS.NodeJS.LTS --versions` lists. You can also download the Node.js 24 installer from [nodejs.org](https://nodejs.org/en/download); if it offers **Tools for Native Modules**, tick it.
@@ -154,8 +155,10 @@ Write the data directory with forward slashes and as an absolute path. Use `HOST
 ```powershell
 cd C:\Fileship
 pnpm install --frozen-lockfile --filter dashboard... --os=current --cpu=current
-pnpm --filter dashboard... build
+pnpm --filter dashboard... --filter ml build
 ```
+
+`--filter ml` sets up the [AI service](../ai.md#the-ai-service) in `appsml.venv`; Fileship starts it by itself.
 
 ### 5. Create the tables and start
 
@@ -205,7 +208,7 @@ nssm stop Fileship
 cd C:\Fileship
 git pull
 pnpm install --frozen-lockfile --filter dashboard... --os=current --cpu=current
-pnpm --filter dashboard... build
+pnpm --filter dashboard... --filter ml build
 nssm start Fileship
 ```
 
