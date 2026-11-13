@@ -428,6 +428,8 @@ importers:
         specifier: ^3.3.13
         version: 3.3.13(typescript@6.0.3)
 
+  apps/ml: {}
+
   apps/telemetry:
     dependencies:
       '@fileship/telemetry':

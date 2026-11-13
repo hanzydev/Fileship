@@ -1,0 +1,12 @@
+{
+    "name": "ml",
+    "license": "AGPL-3.0-only",
+    "private": true,
+    "scripts": {
+        "build": "uv sync --frozen --no-dev",
+        "dev": "uv run fileship-ml",
+        "lint": "uv run ruff check --fix . && uv run ruff format .",
+        "lint:types": "uv run pyright",
+        "test": "uv run pytest"
+    }
+}

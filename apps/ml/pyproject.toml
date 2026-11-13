@@ -1,0 +1,51 @@
+[project]
+name = "fileship-ml"
+version = "1.0.0"
+description = "AI inference service for Fileship"
+license = "AGPL-3.0-only"
+requires-python = "==3.13.*"
+dependencies = [
+    "fastapi>=0.162.7",
+    "httpx>=0.28.1",
+    "numpy>=2.5.4",
+    "onnxruntime>=1.32.0",
+    "opencv-python-headless>=5.0.0.93",
+    "pillow>=13.0.0",
+    "pyclipper>=1.4.0",
+    "python-multipart>=0.0.33",
+    "tokenizers>=0.23.3",
+    "uvicorn>=0.54.0",
+]
+
+[project.scripts]
+fileship-ml = "fileship_ml.app:main"
+
+[build-system]
+requires = ["uv_build>=0.13,<0.14"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "psutil>=7.2.2",
+    "pyright>=1.1.414",
+    "pytest>=9.2.0",
+    "ruff>=0.17.5",
+    "types-psutil>=7.2.2.20261111",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF", "PL", "PTH", "C4", "PERF", "FURB", "ERA"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.pyright]
+typeCheckingMode = "strict"
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -47,3 +47,9 @@ apps/telemetry/generated/prisma
 
 # Browser extension
 apps/extension/.wxt
+
+# Python
+.venv
+__pycache__
+.ruff_cache
+.pytest_cache
