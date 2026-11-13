@@ -847,6 +847,11 @@
                 "description": "Kullanıcıların eklediği webhook'lar için kurallar.",
                 "saved": "Webhook ayarları kaydedildi"
             },
+            "updates": {
+                "title": "Güncellemeler",
+                "description": "Bu sunucunun hangi sürümleri kuracağı.",
+                "saved": "Güncelleme ayarları kaydedildi"
+            },
             "oidc": {
                 "title": "Tek oturum açma (SSO)",
                 "description": "Kullanıcıların Authentik, Authelia, Keycloak, Pocket ID, Zitadel ya da Google gibi bir OpenID Connect sağlayıcısıyla giriş yapmasına izin ver.",
@@ -909,6 +914,10 @@
             "smtpFromDescription": "E-postalar bu adresten, site adıyla gönderilir.",
             "webhookPrivateTargets": "Özel adreslere izin ver",
             "webhookPrivateTargetsDescription": "Webhook'ların localhost'a, özel ağlara ve link-local adreslere ulaşmasına izin verir. Yalnızca tüm kullanıcılara güveniyorsan aç, çünkü webhook'lar böylece ağındaki servislere ulaşabilir.",
+            "updateChannel": "Güncelleme kanalı",
+            "updateChannelDescription": "Deneysel kanal ön sürümleri erkenden kurar. Hata içerebilirler, önce yedek al. Kararlıya dönmek hiçbir zaman eski bir sürüm kurmaz: Fileship daha yeni bir kararlı sürüm çıkana kadar bulunduğu sürümde kalır.",
+            "updateChannelStable": "Kararlı",
+            "updateChannelExperimental": "Deneysel",
             "oidcEnabled": "Tek oturum açmayı aç",
             "oidcEnabledDescription": "Panel adresi, issuer URL'si ve client ID ayarlanınca giriş sayfasına bir düğme eklenir.",
             "oidcIssuerUrl": "Issuer URL",

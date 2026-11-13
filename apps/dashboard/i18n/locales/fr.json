@@ -847,6 +847,11 @@
                 "description": "Règles pour les webhooks des utilisateurs.",
                 "saved": "Paramètres des webhooks enregistrés"
             },
+            "updates": {
+                "title": "Mises à jour",
+                "description": "Les versions que ce serveur installe.",
+                "saved": "Paramètres de mise à jour enregistrés"
+            },
             "oidc": {
                 "title": "Authentification unique (SSO)",
                 "description": "Permettez la connexion avec un fournisseur OpenID Connect comme Authentik, Authelia, Keycloak, Pocket ID, Zitadel ou Google.",
@@ -909,6 +914,10 @@
             "smtpFromDescription": "Les e-mails sont envoyés depuis cette adresse, au nom du site.",
             "webhookPrivateTargets": "Autoriser les adresses privées",
             "webhookPrivateTargetsDescription": "Permet aux webhooks d'atteindre localhost, les réseaux privés et les adresses link-local. Activez cette option uniquement si vous faites confiance à tous les utilisateurs, car les webhooks pourraient alors atteindre des services de votre réseau.",
+            "updateChannel": "Canal de mise à jour",
+            "updateChannelDescription": "Le canal expérimental installe les préversions en avance. Elles peuvent contenir des bugs, faites donc une sauvegarde avant. Revenir à Stable n'installe jamais une version plus ancienne : Fileship reste sur sa version jusqu'à la sortie d'une version stable plus récente.",
+            "updateChannelStable": "Stable",
+            "updateChannelExperimental": "Expérimental",
             "oidcEnabled": "Activer l'authentification unique",
             "oidcEnabledDescription": "Ajoute un bouton à la page de connexion une fois l'adresse du tableau de bord, l'URL de l'émetteur et l'ID client définis.",
             "oidcIssuerUrl": "URL de l'émetteur",

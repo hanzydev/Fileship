@@ -1209,11 +1209,26 @@ const sections: SettingSection[] = [
             },
         ],
     },
+    {
+        id: 'updates',
+        fields: [
+            {
+                key: 'updateChannel',
+                label: 'instance.fields.updateChannel',
+                type: 'select',
+                options: [
+                    { value: 'stable', label: 'instance.fields.updateChannelStable' },
+                    { value: 'experimental', label: 'instance.fields.updateChannelExperimental' },
+                ],
+                description: 'instance.fields.updateChannelDescription',
+            },
+        ],
+    },
 ];
 
 const columns = [
     [sections[0]!, sections[1]!, sections[2]!, sections[6]!, sections[8]!],
-    [sections[5]!, sections[4]!, sections[3]!, sections[7]!],
+    [sections[5]!, sections[4]!, sections[3]!, sections[7]!, sections[9]!],
 ];
 
 const storageTypeLabels = computed(() => ({

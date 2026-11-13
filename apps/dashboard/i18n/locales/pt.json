@@ -847,6 +847,11 @@
                 "description": "Regras para os webhooks que os usuários adicionam.",
                 "saved": "Configurações de webhooks salvas"
             },
+            "updates": {
+                "title": "Atualizações",
+                "description": "Quais versões este servidor instala.",
+                "saved": "Configurações de atualização salvas"
+            },
             "oidc": {
                 "title": "Login único (SSO)",
                 "description": "Permite que as pessoas entrem com um provedor OpenID Connect, como Authentik, Authelia, Keycloak, Pocket ID, Zitadel ou Google.",
@@ -909,6 +914,10 @@
             "smtpFromDescription": "Os e-mails são enviados deste endereço, com o nome do site.",
             "webhookPrivateTargets": "Permitir endereços privados",
             "webhookPrivateTargetsDescription": "Permite que os webhooks acessem localhost, redes privadas e endereços link-local. Ative só se você confiar em todos os usuários, porque os webhooks poderão acessar serviços dentro da sua rede.",
+            "updateChannel": "Canal de atualização",
+            "updateChannelDescription": "O canal experimental instala versões prévias antes. Elas podem ter erros, então faça um backup primeiro. Voltar para Estável nunca instala uma versão mais antiga: o Fileship continua na versão atual até sair uma versão estável mais recente.",
+            "updateChannelStable": "Estável",
+            "updateChannelExperimental": "Experimental",
             "oidcEnabled": "Ativar login único",
             "oidcEnabledDescription": "Adiciona um botão à página de login quando o endereço do painel, a URL do emissor e o ID do cliente estão definidos.",
             "oidcIssuerUrl": "URL do emissor",

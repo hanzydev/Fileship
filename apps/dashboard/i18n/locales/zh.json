@@ -847,6 +847,11 @@
                 "description": "用户添加的 Webhook 的规则。",
                 "saved": "Webhook 设置已保存"
             },
+            "updates": {
+                "title": "更新",
+                "description": "此服务器安装哪些版本。",
+                "saved": "更新设置已保存"
+            },
             "oidc": {
                 "title": "单点登录",
                 "description": "允许用户通过 Authentik、Authelia、Keycloak、Pocket ID、Zitadel 或 Google 等 OpenID Connect 提供方登录。",
@@ -909,6 +914,10 @@
             "smtpFromDescription": "邮件将以站点名称从此地址发出。",
             "webhookPrivateTargets": "允许私有地址",
             "webhookPrivateTargetsDescription": "允许 Webhook 访问 localhost、私有网络和链路本地地址。开启后 Webhook 可以访问你网络中的服务，因此只有在信任所有用户时才开启。",
+            "updateChannel": "更新通道",
+            "updateChannelDescription": "实验版通道会提前安装预发布版本，可能存在问题，请先备份。切回稳定版不会安装更旧的版本：Fileship 会保持当前版本，直到有更新的稳定版发布。",
+            "updateChannelStable": "稳定版",
+            "updateChannelExperimental": "实验版",
             "oidcEnabled": "启用单点登录",
             "oidcEnabledDescription": "设置控制台地址、颁发者 URL 和客户端 ID 后，登录页会显示登录按钮。",
             "oidcIssuerUrl": "颁发者 URL",

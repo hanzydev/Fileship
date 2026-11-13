@@ -847,6 +847,11 @@
                 "description": "Regeln für die Webhooks der Benutzer.",
                 "saved": "Webhook-Einstellungen gespeichert"
             },
+            "updates": {
+                "title": "Updates",
+                "description": "Welche Versionen dieser Server installiert.",
+                "saved": "Update-Einstellungen gespeichert"
+            },
             "oidc": {
                 "title": "Single Sign-On",
                 "description": "Lass Leute sich mit einem OpenID-Connect-Anbieter wie Authentik, Authelia, Keycloak, Pocket ID, Zitadel oder Google anmelden.",
@@ -909,6 +914,10 @@
             "smtpFromDescription": "E-Mails werden von dieser Adresse mit dem Website-Namen als Absender gesendet.",
             "webhookPrivateTargets": "Private Adressen erlauben",
             "webhookPrivateTargetsDescription": "Erlaubt Webhooks, localhost, private Netzwerke und Link-Local-Adressen zu erreichen. Schalte es nur ein, wenn du allen Benutzern vertraust, denn Webhooks könnten dann Dienste in deinem Netzwerk erreichen.",
+            "updateChannel": "Update-Kanal",
+            "updateChannelDescription": "Der experimentelle Kanal installiert Vorabversionen früher. Sie können Fehler enthalten, erstelle also vorher ein Backup. Ein Wechsel zurück zu Stabil installiert nie eine ältere Version: Fileship bleibt auf seiner Version, bis eine neuere stabile Version erscheint.",
+            "updateChannelStable": "Stabil",
+            "updateChannelExperimental": "Experimentell",
             "oidcEnabled": "Single Sign-On aktivieren",
             "oidcEnabledDescription": "Fügt der Anmeldeseite eine Schaltfläche hinzu, sobald Dashboard-Adresse, Issuer-URL und Client-ID festgelegt sind.",
             "oidcIssuerUrl": "Issuer-URL",

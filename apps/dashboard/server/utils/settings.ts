@@ -70,6 +70,7 @@ export const getSettingDefaults = (): InstanceSettings => {
         aiJobLeaseMs: parseDefault('aiJobLeaseMs', +config.ai.jobLeaseMs, 2 * 60_000),
         logLevel: parseDefault('logLevel', +config.logLevel, 2),
         telemetryEnabled: parseDefault('telemetryEnabled', !!config.telemetryEnabled, true),
+        updateChannel: 'stable',
         siteUrl: parseDefault('siteUrl', config.siteUrl, ''),
         smtpHost: parseDefault('smtpHost', config.smtp.host, ''),
         smtpPort: parseDefault('smtpPort', +config.smtp.port, 587),

@@ -847,6 +847,11 @@
                 "description": "Reglas para los webhooks que agregan los usuarios.",
                 "saved": "Configuración de webhooks guardada"
             },
+            "updates": {
+                "title": "Actualizaciones",
+                "description": "Qué versiones instala este servidor.",
+                "saved": "Configuración de actualizaciones guardada"
+            },
             "oidc": {
                 "title": "Inicio de sesión único",
                 "description": "Permite iniciar sesión con un proveedor de OpenID Connect como Authentik, Authelia, Keycloak, Pocket ID, Zitadel o Google.",
@@ -909,6 +914,10 @@
             "smtpFromDescription": "Los correos se envían desde esta dirección con el nombre del sitio.",
             "webhookPrivateTargets": "Permitir direcciones privadas",
             "webhookPrivateTargetsDescription": "Permite que los webhooks lleguen a localhost, a redes privadas y a direcciones de enlace local. Actívalo solo si confías en todos los usuarios, ya que los webhooks podrían acceder a servicios dentro de tu red.",
+            "updateChannel": "Canal de actualizaciones",
+            "updateChannelDescription": "El canal experimental instala antes las versiones preliminares. Pueden tener errores, así que haz una copia de seguridad primero. Volver a Estable nunca instala una versión anterior: Fileship se queda en su versión hasta que salga una versión estable más reciente.",
+            "updateChannelStable": "Estable",
+            "updateChannelExperimental": "Experimental",
             "oidcEnabled": "Activar inicio de sesión único",
             "oidcEnabledDescription": "Agrega un botón a la página de inicio de sesión cuando se definen la dirección del panel, la URL del emisor y el ID de cliente.",
             "oidcIssuerUrl": "URL del emisor",

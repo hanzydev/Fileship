@@ -847,6 +847,11 @@
                 "description": "ユーザーが追加する Webhook のルールを設定します。",
                 "saved": "Webhook の設定を保存しました"
             },
+            "updates": {
+                "title": "アップデート",
+                "description": "このサーバーがインストールするバージョンです。",
+                "saved": "アップデートの設定を保存しました"
+            },
             "oidc": {
                 "title": "シングルサインオン",
                 "description": "Authentik、Authelia、Keycloak、Pocket ID、Zitadel、Google などの OpenID Connect プロバイダーでログインできるようにします。",
@@ -909,6 +914,10 @@
             "smtpFromDescription": "メールはサイト名を差出人として、このアドレスから送信されます。",
             "webhookPrivateTargets": "プライベートアドレスを許可",
             "webhookPrivateTargetsDescription": "Webhook から localhost、プライベートネットワーク、リンクローカルアドレスへの送信を許可します。Webhook からネットワーク内のサービスにアクセスできるようになるため、すべてのユーザーを信頼できる場合にのみオンにしてください。",
+            "updateChannel": "アップデートチャンネル",
+            "updateChannelDescription": "試験版チャンネルではプレリリースを先行してインストールします。不具合を含む場合があるため、先にバックアップを取ってください。安定版に戻しても古いバージョンがインストールされることはなく、より新しい安定版が出るまで現在のバージョンのままです。",
+            "updateChannelStable": "安定版",
+            "updateChannelExperimental": "試験版",
             "oidcEnabled": "シングルサインオンを有効にする",
             "oidcEnabledDescription": "ダッシュボードのアドレス、発行者 URL、クライアント ID を設定すると、ログインページにボタンが表示されます。",
             "oidcIssuerUrl": "発行者 URL",

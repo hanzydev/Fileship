@@ -847,6 +847,11 @@
                 "description": "İstifadəçilərin əlavə etdiyi webhook-lar üçün qaydalar.",
                 "saved": "Webhook ayarları yadda saxlanıldı"
             },
+            "updates": {
+                "title": "Yeniləmələr",
+                "description": "Bu serverin hansı versiyaları quraşdırdığı.",
+                "saved": "Yeniləmə ayarları yadda saxlanıldı"
+            },
             "oidc": {
                 "title": "SSO ilə giriş",
                 "description": "İstifadəçilərə Authentik, Authelia, Keycloak, Pocket ID, Zitadel və ya Google kimi OpenID Connect provayderi ilə daxil olmağa icazə ver.",
@@ -909,6 +914,10 @@
             "smtpFromDescription": "E-poçtlar bu ünvandan sayt adı ilə göndərilir.",
             "webhookPrivateTargets": "Daxili ünvanlara icazə ver",
             "webhookPrivateTargetsDescription": "Webhook-ların localhost-a, daxili şəbəkələrə və link-local ünvanlara çatmasına icazə verir. Yalnız bütün istifadəçilərə güvənirsənsə aktiv et, çünki webhook-lar o zaman şəbəkəndəki xidmətlərə çata bilər.",
+            "updateChannel": "Yeniləmə kanalı",
+            "updateChannelDescription": "Eksperimental kanal ilkin versiyaları erkən quraşdırır. Onlarda xəta ola bilər, ona görə əvvəlcə ehtiyat nüsxə çıxar. Stabil kanala qayıtmaq heç vaxt köhnə versiya quraşdırmır: Fileship daha yeni stabil versiya çıxana qədər öz versiyasında qalır.",
+            "updateChannelStable": "Stabil",
+            "updateChannelExperimental": "Eksperimental",
             "oidcEnabled": "SSO ilə girişi aktivləşdir",
             "oidcEnabledDescription": "İdarə paneli ünvanı, Issuer URL və Client ID təyin olunanda giriş səhifəsinə düymə əlavə olunur.",
             "oidcIssuerUrl": "Issuer URL",

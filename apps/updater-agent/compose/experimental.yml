@@ -1,0 +1,9 @@
+services:
+    fileship-blue:
+        image: ghcr.io/hanzydev/fileship:${FILESHIP_VERSION}
+
+    fileship-green:
+        image: ghcr.io/hanzydev/fileship:${FILESHIP_VERSION}
+
+    updater-agent:
+        image: ghcr.io/hanzydev/fileship-updater-agent:${FILESHIP_VERSION}

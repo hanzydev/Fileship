@@ -1,9 +1,28 @@
+import semver from 'semver';
+
 import pkg from '../../../../../package.json';
 
 const repoUrl = 'hanzydev/Fileship';
 
+type Channel = InstanceSettings['updateChannel'];
+type Release = { tag_name: string; draft: boolean; prerelease: boolean };
+
+const latestRelease = async (channel: Channel) => {
+    const releases = await $fetch<Release[]>(`https://api.github.com/repos/${repoUrl}/releases`, {
+        query: { per_page: 30 },
+        headers: { 'User-Agent': 'Fileship-App' },
+        timeout: 5_000,
+    });
+
+    return releases
+        .filter((release) => !release.draft && (channel === 'experimental' || !release.prerelease))
+        .map((release) => semver.clean(release.tag_name))
+        .filter((version) => version !== null)
+        .sort(semver.rcompare)[0];
+};
+
 const cachedCheckVersion = defineCachedFunction(
-    async () => {
+    async (channel: Channel) => {
         try {
             const updaterStatus = await updaterFetch<{
                 hasUpdate: boolean;
@@ -22,19 +41,11 @@ const cachedCheckVersion = defineCachedFunction(
         }
 
         try {
-            const release = await $fetch<{ tag_name: string }>(
-                `https://api.github.com/repos/${repoUrl}/releases/latest`,
-                {
-                    headers: { 'User-Agent': 'Fileship-App' },
-                    timeout: 5_000,
-                },
-            );
-
-            const cleanTag = release.tag_name.replace(/^v/, '');
+            const latestVersion = (await latestRelease(channel)) ?? pkg.version;
 
             return {
-                hasUpdate: pkg.version !== cleanTag,
-                latestVersion: cleanTag,
+                hasUpdate: semver.gt(latestVersion, pkg.version),
+                latestVersion,
                 updaterAvailable: false,
             };
         } catch {
@@ -47,14 +58,14 @@ const cachedCheckVersion = defineCachedFunction(
     },
     {
         maxAge: 1_800,
-        getKey: () => `ua-status-${pkg.version}`,
+        getKey: (channel: Channel) => `ua-status-${pkg.version}-${channel}`,
     },
 );
 
 export default defineEventHandler(async (event) => {
     adminOnly(event);
 
-    const versionInfo = await cachedCheckVersion();
+    const versionInfo = await cachedCheckVersion((await getSettings()).updateChannel);
 
     const targetTag = versionInfo.hasUpdate ? versionInfo.latestVersion : pkg.version;
 

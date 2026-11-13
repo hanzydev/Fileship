@@ -35,6 +35,7 @@ export const settingsSchema = z.object({
     aiJobLeaseMs: z.number().int().min(60_000),
     logLevel: z.union([z.literal(0), z.literal(1), z.literal(2)]),
     telemetryEnabled: z.boolean(),
+    updateChannel: z.enum(['stable', 'experimental']),
     siteUrl: z
         .string()
         .trim()

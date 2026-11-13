@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
     return {
         status: appState.ready ? 'ok' : 'starting',
         version: pkg.version,
+        channel: (await getSettings()).updateChannel,
         ready: appState.ready,
         busy: await getBusy(),
     };

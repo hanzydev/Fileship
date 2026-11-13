@@ -847,6 +847,11 @@
                 "description": "사용자가 추가하는 웹훅의 규칙이에요.",
                 "saved": "웹훅 설정을 저장했어요"
             },
+            "updates": {
+                "title": "업데이트",
+                "description": "이 서버가 설치하는 버전이에요.",
+                "saved": "업데이트 설정을 저장했어요"
+            },
             "oidc": {
                 "title": "싱글 사인온(SSO)",
                 "description": "Authentik, Authelia, Keycloak, Pocket ID, Zitadel, Google 같은 OpenID Connect 공급자로 로그인할 수 있게 해요.",
@@ -909,6 +914,10 @@
             "smtpFromDescription": "이메일은 사이트 이름으로 이 주소에서 보내져요.",
             "webhookPrivateTargets": "사설 주소 허용",
             "webhookPrivateTargetsDescription": "웹훅이 localhost, 사설 네트워크, 링크 로컬 주소로 보낼 수 있게 해요. 웹훅이 네트워크 안의 서비스에 접근할 수 있게 되므로 모든 사용자를 신뢰할 때만 켜세요.",
+            "updateChannel": "업데이트 채널",
+            "updateChannelDescription": "실험 채널은 사전 출시 버전을 먼저 설치해요. 버그가 있을 수 있으니 먼저 백업하세요. 안정 채널로 돌아가도 이전 버전을 설치하지 않으며, 더 새로운 안정 버전이 나올 때까지 현재 버전을 유지해요.",
+            "updateChannelStable": "안정",
+            "updateChannelExperimental": "실험",
             "oidcEnabled": "SSO 사용",
             "oidcEnabledDescription": "대시보드 주소, 발급자 URL, 클라이언트 ID를 설정하면 로그인 페이지에 버튼이 표시돼요.",
             "oidcIssuerUrl": "발급자 URL",

@@ -1,4 +1,3 @@
-import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { hostname } from 'node:os';
 
@@ -18,7 +17,10 @@ import { ofetch } from 'ofetch';
 import { join } from 'pathe';
 import semver from 'semver';
 
+import { type Channel, pickRelease, type Release } from './releases';
+
 const rootDir = join(process.cwd(), '..', '..');
+const EXPERIMENTAL_COMPOSE_FILE = join(process.cwd(), 'compose', 'experimental.yml');
 
 const IS_DEV = process.env.DEV_MODE === 'true';
 const AUTOUPDATER_ENABLED = process.env.AUTOUPDATER_ENABLED === 'true';
@@ -38,6 +40,7 @@ type Color = (typeof COLORS)[number];
 type UpdateStatus = 'Pulling' | 'Starting' | 'Switching' | 'Success' | 'Error';
 
 let isUpdating = false;
+let pinnedVersion: string | undefined;
 
 const ghFetch = ofetch.create({
     baseURL: 'https://api.github.com',
@@ -82,34 +85,25 @@ const isImageAvailableOnGHCR = async (version: string) => {
     }
 };
 
-const getClientVersion = async (): Promise<string> => {
-    try {
-        const { version } = await fsFetch<{ version: string }>('/healthz');
-        return version;
-    } catch {
-        const rootPkgPath = join(rootDir, 'package.json');
-        return JSON.parse(await readFile(rootPkgPath, 'utf-8')).version;
-    }
-};
+const getClientInfo = () => fsFetch<{ version: string; channel: Channel }>('/healthz');
 
 const isUpdateAvailable = async () => {
-    const currentVersion = await getClientVersion();
+    const { version: currentVersion, channel } = await getClientInfo();
 
-    const latestRelease = await ghFetch('/repos/hanzydev/Fileship/releases/latest', {
-        ignoreResponseError: true,
+    const releases = await ghFetch<Release[]>('/repos/hanzydev/Fileship/releases', {
+        query: { per_page: 30 },
     });
 
-    const latestVersion = latestRelease?.tag_name?.replace(/^v/, '');
-    if (!latestVersion) return { hasUpdate: false, latestVersion: null, currentVersion };
+    const latestVersion = pickRelease(releases, channel);
+    if (!latestVersion) return { hasUpdate: false, latestVersion: null, currentVersion, channel };
 
     const isImageAvailable = await isImageAvailableOnGHCR(latestVersion);
 
     return {
-        hasUpdate:
-            isImageAvailable &&
-            (IS_DEV || !!(semver.valid(latestVersion) && semver.gt(latestVersion, currentVersion))),
+        hasUpdate: isImageAvailable && (IS_DEV || semver.gt(latestVersion, currentVersion)),
         latestVersion,
         currentVersion,
+        channel,
     };
 };
 
@@ -127,12 +121,22 @@ const getComposeArgs = async () => {
         .replace(/^([a-z]):[\\/]/i, (_, drive) => `/run/desktop/mnt/host/${drive.toLowerCase()}/`)
         .replaceAll('\\', '/');
 
-    return ['compose', '-p', project!, '--project-directory', projectDir, '-f', COMPOSE_FILE];
+    return [
+        'compose',
+        '-p',
+        project!,
+        '--project-directory',
+        projectDir,
+        '-f',
+        COMPOSE_FILE,
+        ...(pinnedVersion ? ['-f', EXPERIMENTAL_COMPOSE_FILE] : []),
+    ];
 };
 
 const compose = async (...args: string[]) =>
     execa('docker', [...(await getComposeArgs()), '--profile', 'green', ...args], {
         cwd: rootDir,
+        env: { FILESHIP_VERSION: pinnedVersion },
     });
 
 const getRunningColors = async () => {
@@ -254,6 +258,7 @@ const updateSelf = async () => {
         hostname(),
         '-w',
         rootDir,
+        ...(pinnedVersion ? ['-e', `FILESHIP_VERSION=${pinnedVersion}`] : []),
         latest,
         'docker',
         ...(await getComposeArgs()),
@@ -285,6 +290,16 @@ const handleUpdate = async (onStatus?: (status: UpdateStatus) => Promise<void>) 
     let isSwitched = false;
 
     try {
+        const update = await isUpdateAvailable();
+
+        if (!update.hasUpdate) {
+            throw new Error(
+                `No version newer than ${update.currentVersion} on the ${update.channel} channel`,
+            );
+        }
+
+        pinnedVersion = update.channel === 'experimental' ? update.latestVersion! : undefined;
+
         const running = await getRunningColors();
         target = running.includes('green') ? 'blue' : 'green';
 
@@ -296,7 +311,7 @@ const handleUpdate = async (onStatus?: (status: UpdateStatus) => Promise<void>) 
 
         await updatePostgres();
 
-        consola.info(`Pulling latest fileship image...`);
+        consola.info(`Pulling fileship ${update.latestVersion}...`);
 
         await compose('pull', '--ignore-buildable', `fileship-${target}`);
 
@@ -357,6 +372,7 @@ const handleUpdate = async (onStatus?: (status: UpdateStatus) => Promise<void>) 
         return false;
     } finally {
         isUpdating = false;
+        pinnedVersion = undefined;
     }
 };
 
@@ -367,7 +383,13 @@ cron.schedule(AUTOUPDATER_CRON, async () => {
         );
     }
 
-    const updateAvailable = await isUpdateAvailable();
+    const updateAvailable = await isUpdateAvailable().catch((error) => {
+        consola.warn('Could not check for updates, skipping this auto-update:', error);
+        return null;
+    });
+
+    if (!updateAvailable) return;
+
     if (!updateAvailable.hasUpdate) {
         return consola.info(
             `Fileship is already at the latest version (${updateAvailable.currentVersion})`,
