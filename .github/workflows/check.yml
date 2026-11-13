@@ -21,6 +21,8 @@ jobs:
                   node-version: 24
                   cache: 'pnpm'
 
+            - uses: astral-sh/setup-uv@v10.3.3
+
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
 
