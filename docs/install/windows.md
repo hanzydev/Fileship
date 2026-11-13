@@ -209,7 +209,7 @@ pnpm --filter dashboard... build
 nssm start Fileship
 ```
 
-`start.cmd` applies the new migrations. See [Updating without Docker](../updating/without-docker.md) for what to check before an update.
+`start.cmd` applies the new migrations. On the [experimental channel](../updating.md#update-channels), run `git fetch --tags` and `git checkout v6.9.0-beta.1` (the pre-release the sidebar offers) instead of `git pull`. See [Updating without Docker](../updating/without-docker.md) for what to check before an update.
 
 ## What was tested
 

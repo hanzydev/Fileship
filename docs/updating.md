@@ -22,6 +22,23 @@ updater-agent:
         AUTOUPDATER_CRON: '0 3 * * *' # cron expression (default: every day at 3:00 AM)
 ```
 
+## Update channels
+
+Super admins choose the channel under **Administration → Instance → Updates**:
+
+- **Stable** (the default) installs releases. Its images are the `latest` tags in `docker-compose.yml`.
+- **Experimental** also installs pre-releases (for example `6.9.0-beta.1`) before they become stable releases. They can contain bugs. When a stable release is newer than every pre-release, the experimental channel installs it too.
+
+Nothing is ever downgraded. If you switch from Experimental back to Stable while you run a pre-release, Fileship stays on that version until a newer stable release is out, and then updates to it.
+
+Before you switch to Experimental:
+
+- Back up the database and the data directory (see [Backing up the database](backups/database.md)). A pre-release can change the database, and going back to an older version needs that backup.
+- Scheduled updates install pre-releases too, so turn them off if you want to choose when.
+- Update from the dashboard only. On the experimental channel the updater agent runs the exact pre-release images (`ghcr.io/hanzydev/fileship:6.9.0-beta.1`), while a `docker compose pull` or `docker compose up -d` you run yourself uses the `latest` images of `docker-compose.yml`, which are the stable release.
+
+PostgreSQL follows the stable releases on both channels, so switching channels never changes the database version.
+
 ## PostgreSQL
 
 The database runs on `ghcr.io/hanzydev/fileship-postgres`, a Fileship image based on [pgautoupgrade](https://github.com/pgautoupgrade/docker-pgautoupgrade). When it starts on a data folder from an older major version, it upgrades the data in place with `pg_upgrade`, refreshes the statistics, rebuilds the indexes and then starts as usual. Fileship waits until it is healthy.

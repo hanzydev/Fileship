@@ -25,7 +25,9 @@ sudo -u fileship pnpm --filter dashboard... build
 sudo systemctl restart fileship
 ```
 
-To pin a release instead of following `main`, check out its tag (`sudo -u fileship git checkout v6.6.0`) instead of the `checkout main` and `pull` lines.
+`main` always holds the latest stable release. To pin a release instead of following `main`, check out its tag (`sudo -u fileship git checkout v6.6.0`) instead of the `checkout main` and `pull` lines.
+
+On the [experimental channel](../updating.md#update-channels) the sidebar also offers pre-releases. Install one by checking out its tag (`sudo -u fileship git checkout v6.9.0-beta.1`) instead of the `checkout main` and `pull` lines. Stay on pre-release tags until the sidebar offers a stable release newer than yours; going back to `main` before that would install an older version.
 
 The systemd unit runs the database migrations before it starts. With PM2 or by hand, run them yourself before the restart:
 
