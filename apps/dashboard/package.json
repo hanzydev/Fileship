@@ -35,7 +35,7 @@
         "@unovis/ts": "^1.7.1",
         "@unovis/vue": "^1.7.1",
         "argon2": "^0.45.1",
-        "basic-ftp": "^6.2.3",
+        "basic-ftp": "^6.2.4",
         "busboy": "^1.6.0",
         "consola": "^3.4.2",
         "defu": "^6.1.7",
