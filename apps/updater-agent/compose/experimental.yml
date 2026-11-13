@@ -5,5 +5,8 @@ services:
     fileship-green:
         image: ghcr.io/hanzydev/fileship:${FILESHIP_VERSION}
 
+    fileship-ml:
+        image: ghcr.io/hanzydev/fileship-ml:${FILESHIP_VERSION}
+
     updater-agent:
         image: ghcr.io/hanzydev/fileship-updater-agent:${FILESHIP_VERSION}

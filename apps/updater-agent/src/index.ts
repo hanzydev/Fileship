@@ -21,6 +21,7 @@ import { type Channel, pickRelease, type Release } from './releases';
 
 const rootDir = join(process.cwd(), '..', '..');
 const EXPERIMENTAL_COMPOSE_FILE = join(process.cwd(), 'compose', 'experimental.yml');
+const ML_COMPOSE_FILE = join(process.cwd(), 'compose', 'fileship-ml.yml');
 
 const IS_DEV = process.env.DEV_MODE === 'true';
 const AUTOUPDATER_ENABLED = process.env.AUTOUPDATER_ENABLED === 'true';
@@ -121,14 +122,15 @@ const getComposeArgs = async () => {
         .replace(/^([a-z]):[\\/]/i, (_, drive) => `/run/desktop/mnt/host/${drive.toLowerCase()}/`)
         .replaceAll('\\', '/');
 
+    const args = ['compose', '-p', project!, '--project-directory', projectDir, '-f', COMPOSE_FILE];
+
+    const { stdout: services } = await execa('docker', [...args, 'config', '--services'], {
+        cwd: rootDir,
+    });
+
     return [
-        'compose',
-        '-p',
-        project!,
-        '--project-directory',
-        projectDir,
-        '-f',
-        COMPOSE_FILE,
+        ...args,
+        ...(services.split('\n').includes('fileship-ml') ? [] : ['-f', ML_COMPOSE_FILE]),
         ...(pinnedVersion ? ['-f', EXPERIMENTAL_COMPOSE_FILE] : []),
     ];
 };
@@ -271,6 +273,22 @@ const updateSelf = async () => {
     );
 };
 
+const ensureMLService = async () => {
+    if (IS_DEV || isUpdating) return;
+
+    isUpdating = true;
+
+    try {
+        const { version, channel } = await getClientInfo();
+        pinnedVersion = channel === 'experimental' ? version : undefined;
+
+        await compose('up', '-d', '--no-deps', '--no-build', '--no-recreate', 'fileship-ml');
+    } finally {
+        isUpdating = false;
+        pinnedVersion = undefined;
+    }
+};
+
 const isFileshipBusy = async () => {
     const health = await fsFetch<{ busy?: boolean }>('/healthz').catch(() => null);
     return !!health?.busy;
@@ -310,6 +328,11 @@ const handleUpdate = async (onStatus?: (status: UpdateStatus) => Promise<void>) 
         consola.info('Checking for a new postgres image...');
 
         await updatePostgres();
+
+        consola.info('Updating the AI service...');
+
+        await compose('pull', '--ignore-buildable', 'fileship-ml');
+        await compose('up', '-d', '--no-deps', '--no-build', 'fileship-ml');
 
         consola.info(`Pulling fileship ${update.latestVersion}...`);
 
@@ -453,4 +476,6 @@ server.listen(PORT, '0.0.0.0', () => {
             'SECRET_TOKEN is not set, so the dashboard cannot start updates. Add it to the .env file next to docker-compose.yml.',
         );
     }
+
+    ensureMLService().catch((error) => consola.error('Starting the AI service failed:', error));
 });
