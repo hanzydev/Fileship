@@ -1,0 +1,11 @@
+diff --git a/index.js b/index.js
+--- a/index.js
++++ b/index.js
+@@ -1,6 +1,6 @@
+ var atob = require("atob")
+ var urlLib = require("url")
+ var pathLib = require("path")
+-var decodeUriComponentLib = require("decode-uri-component")
++var decodeUriComponentLib = require("decode-uri-component").default
+ 
+ 
