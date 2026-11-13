@@ -289,6 +289,12 @@ const ensureMLService = async () => {
     }
 };
 
+const startMLService = () =>
+    ensureMLService().catch((error) => {
+        consola.warn('Starting the AI service failed, trying again in a minute:', error);
+        setTimeout(startMLService, 60_000);
+    });
+
 const isFileshipBusy = async () => {
     const health = await fsFetch<{ busy?: boolean }>('/healthz').catch(() => null);
     return !!health?.busy;
@@ -477,5 +483,5 @@ server.listen(PORT, '0.0.0.0', () => {
         );
     }
 
-    ensureMLService().catch((error) => consola.error('Starting the AI service failed:', error));
+    startMLService();
 });
