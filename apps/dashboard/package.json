@@ -23,7 +23,6 @@
         "@aws-sdk/lib-storage": "^3.1149.0",
         "@ffmpeg-installer/ffmpeg": "^1.1.0",
         "@ffprobe-installer/ffprobe": "^2.1.2",
-        "@fileship/ai": "workspace:*",
         "@fileship/pdf": "workspace:*",
         "@fileship/telemetry": "workspace:*",
         "@fileship/ui": "workspace:*",

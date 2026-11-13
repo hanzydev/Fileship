@@ -3,7 +3,7 @@ import { existsSync, promises as fsp } from 'node:fs';
 import fluentFfmpeg from 'fluent-ffmpeg';
 import type { H3Event } from 'h3';
 import { join } from 'pathe';
-import sharp from 'sharp';
+import sharp, { type SharpInput } from 'sharp';
 
 import ffmpeg from '@ffmpeg-installer/ffmpeg';
 import ffprobe from '@ffprobe-installer/ffprobe';
@@ -81,6 +81,56 @@ const createPdfThumbnail = async (filePath: string, outputPath: string) => {
         .jpeg({ quality: 80, mozjpeg: true })
         .toFile(outputPath)
         .catch(() => null);
+};
+
+const fitImage = (input: SharpInput, size: number) =>
+    openImage(input).rotate().resize(size, size, { fit: 'inside', withoutEnlargement: true });
+
+export const aiImage = (input: SharpInput) => fitImage(input, 1024).removeAlpha().png().toBuffer();
+
+export const aiOcrImage = (input: SharpInput) => fitImage(input, 1600).png().toBuffer();
+
+const readVideoFrame = (filePath: string, seconds: number) =>
+    new Promise<Buffer>((resolve, reject) => {
+        const chunks: Buffer[] = [];
+        const command = fluentFfmpeg(filePath)
+            .seekInput(seconds)
+            .inputOptions('-threads 1')
+            .frames(1)
+            .videoFilters('scale=448:-2')
+            .outputOptions(['-f image2pipe', '-vcodec mjpeg', '-threads 1'])
+            .on('error', reject);
+
+        const timeout = setTimeout(() => {
+            command.kill('SIGKILL');
+            reject(new Error('Reading a video frame timed out'));
+        }, 60_000);
+
+        const stream = command.pipe();
+        stream.on('data', (chunk: Buffer) => chunks.push(chunk));
+        stream.on('end', () => {
+            clearTimeout(timeout);
+            resolve(Buffer.concat(chunks));
+        });
+    });
+
+export const extractVideoFrames = async (
+    filePath: string,
+    duration: number | undefined,
+    count: number,
+) => {
+    const frames: Buffer[] = [];
+
+    for (let i = 0; i < count; i++) {
+        const seconds = duration ? (duration * (i + 0.5)) / count : i * 10;
+        const frame = await readVideoFrame(filePath, seconds).catch(() => null);
+
+        if (frame?.length) frames.push(await aiImage(frame));
+    }
+
+    if (!frames.length) throw new Error('No frames could be read from the video');
+
+    return frames;
 };
 
 export const createThumbnail = async (file: { id: string; mimeType: string }, filePath: string) => {

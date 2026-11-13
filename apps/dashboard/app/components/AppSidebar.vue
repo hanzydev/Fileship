@@ -78,6 +78,28 @@
                 </span>
                 <StorageMeter :used="storageUsage.used" :limit="storageUsage.limit" />
             </NuxtLink>
+            <UiCard v-if="isAIServiceDown" size="sm" class="group-data-[collapsible=icon]:hidden">
+                <UiCardHeader>
+                    <UiCardTitle class="flex items-center gap-2">
+                        <ITriangleAlert class="size-4 text-destructive" />
+                        {{ $t('sidebar.aiServiceDown') }}
+                    </UiCardTitle>
+                    <UiCardDescription>
+                        {{ $t('sidebar.aiServiceDownDescription') }}
+                    </UiCardDescription>
+                </UiCardHeader>
+                <UiCardFooter>
+                    <UiButton size="sm" variant="outline" class="flex-1" as-child>
+                        <a
+                            :href="docsUrl('troubleshooting/ai#the-ai-service-is-not-reachable')"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {{ $t('sidebar.aiServiceHelp') }}
+                        </a>
+                    </UiButton>
+                </UiCardFooter>
+            </UiCard>
             <template v-if="updaterStatus?.hasUpdate">
                 <UiCard size="sm" class="group-data-[collapsible=icon]:hidden">
                     <UiCardHeader>
@@ -352,6 +374,18 @@ const updaterStatus = ref<{
     updaterAvailable: boolean;
 } | null>(null);
 
+const publicSettings = usePublicSettings();
+const isAIServiceDown = ref(false);
+
+const { resume: watchAIService } = useIntervalFn(
+    async () => {
+        const status = await $fetch('/api/settings/ai-status').catch(() => null);
+        isAIServiceDown.value = status?.serviceUp === false;
+    },
+    30_000,
+    { immediate: false, immediateCallback: true },
+);
+
 const canUpdate = computed(
     () => !!updaterStatus.value?.updaterAvailable && !!authUser.value?.superAdmin,
 );
@@ -530,6 +564,8 @@ const handleLogout = async () => {
 };
 
 onMounted(async () => {
+    if (authUser.value!.superAdmin && publicSettings.value.aiEnabled) watchAIService();
+
     if (isAdmin(authUser.value)) {
         try {
             updaterStatus.value = await $fetch<never>('/api/updater/status');

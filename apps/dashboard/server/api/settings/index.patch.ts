@@ -39,12 +39,6 @@ export default defineEventHandler(async (event) => {
 
     const settings = await getSettings();
 
-    if (
-        settings.aiPreset !== previous.aiPreset ||
-        settings.aiInferenceThreads !== previous.aiInferenceThreads
-    )
-        await unloadAIModels();
-
     if (settings.aiPreset !== previous.aiPreset && appState.ready) await reloadFileVectors();
 
     if (

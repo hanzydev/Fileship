@@ -55,6 +55,17 @@ export const failAIJob = (jobId: string, error: string) =>
         data: { status: AIJobStatus.Failed, lockedAt: null, lockedBy: null, error },
     });
 
+export const releaseAIJob = (jobId: string) =>
+    prisma.aIJob.updateMany({
+        where: { id: jobId },
+        data: {
+            status: AIJobStatus.Pending,
+            lockedAt: null,
+            lockedBy: null,
+            attempts: { decrement: 1 },
+        },
+    });
+
 export const retryAIJobLater = (jobId: string, error: string) =>
     prisma.aIJob.updateMany({
         where: { id: jobId },

@@ -249,7 +249,8 @@ export const searchFileIds = async (
         );
     };
 
-    if (mode === 'fulltext' || !(await isSmartSearchEnabled(authorId))) return runFulltext();
+    if (mode === 'fulltext' || !aiService.up || !(await isSmartSearchEnabled(authorId)))
+        return runFulltext();
 
     const preset = await getAIPreset();
 
@@ -279,7 +280,11 @@ export const searchFileIds = async (
     };
 
     const [textIds, imageIds, fulltextIds] = await Promise.all([
-        runVectors('text', preset.text.cutoff, () => ai.embedText(query, true)).catch(skipOnError),
+        runVectors(
+            'text',
+            preset.text.cutoff,
+            async () => (await ai.embedText(query, true)).vector,
+        ).catch(skipOnError),
         runVectors('image', preset.image.cutoff, () => ai.embedImageQuery(query)).catch(
             skipOnError,
         ),

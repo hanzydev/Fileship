@@ -1,5 +1,3 @@
-import type { PrivacyEntity } from '@fileship/ai';
-
 const MIN_ENTITY_SCORE = 0.5;
 
 const ENTITY_REASONS: Record<string, string> = {
@@ -124,7 +122,7 @@ export const findPii = (text: string, entities: PrivacyEntity[], caption = '') =
             if (pattern.test(caption)) reasons.add(reason);
 
     for (const entity of entities) {
-        const reason = ENTITY_REASONS[entity.entity_group];
+        const reason = ENTITY_REASONS[entity.group];
         if (!reason || entity.score < MIN_ENTITY_SCORE) continue;
 
         const value = compact(entity.word);

@@ -9,6 +9,8 @@ export default defineEventHandler(async (event) => {
         throw apiError(403, 'errorsSystem.aiDisabled');
     }
 
+    if (!aiService.up) throw apiError(503, 'errorsSystem.aiServiceUnavailable');
+
     if (+(getRequestHeader(event, 'content-length') ?? 0) > MAX_IMAGE_SIZE) {
         throw apiError(413, 'errorsSystem.imageTooLarge');
     }
@@ -25,9 +27,11 @@ export default defineEventHandler(async (event) => {
         throw apiError(413, 'errorsSystem.imageTooLarge');
     }
 
-    const text = await ai.recognizeText(new Uint8Array(await image.arrayBuffer())).catch(() => {
-        throw apiError(422, 'errorsSystem.imageUnreadable');
-    });
+    const text = await aiOcrImage(Buffer.from(await image.arrayBuffer()))
+        .then(ai.recognizeText)
+        .catch(() => {
+            throw apiError(422, 'errorsSystem.imageUnreadable');
+        });
 
     return { text };
 });

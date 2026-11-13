@@ -8,11 +8,6 @@ import pkg from '../../package.json' with { type: 'json' };
 
 const packageRequire = createRequire(import.meta.url);
 
-const aiWorkerPath = join(
-    dirname(packageRequire.resolve('@fileship/ai/package.json')),
-    'dist/worker.mjs',
-);
-
 const pdfPackagePath = dirname(packageRequire.resolve('@fileship/pdf/package.json'));
 const pdfWorkerPath = join(pdfPackagePath, 'dist/pdf-worker.mjs');
 const pdfiumPath = createRequire(join(pdfPackagePath, 'package.json')).resolve(
@@ -171,7 +166,7 @@ export default defineNuxtConfig({
             autoImport: true,
         },
         externals: {
-            traceInclude: [ffprobe.path, aiWorkerPath, pdfWorkerPath, pdfiumPath],
+            traceInclude: [ffprobe.path, pdfWorkerPath, pdfiumPath],
         },
         publicAssets: ['cmaps', 'iccs', 'standard_fonts', 'wasm'].map((dir) => ({
             baseURL: `_pdfjs/${pdfjsVersion}/${dir}`,
@@ -182,7 +177,6 @@ export default defineNuxtConfig({
             compiled: async (nitro) => {
                 if (nitro.options.dev) return;
 
-                await copyFile(aiWorkerPath, join(nitro.options.output.serverDir, 'worker.mjs'));
                 await copyFile(
                     pdfWorkerPath,
                     join(nitro.options.output.serverDir, 'pdf-worker.mjs'),
@@ -247,6 +241,7 @@ export default defineNuxtConfig({
             secret: 'dev-secret-token',
         },
         ai: {
+            serviceUrl: '',
             preset: 'medium',
             queueConcurrency: 1,
             inferenceThreads: 2,

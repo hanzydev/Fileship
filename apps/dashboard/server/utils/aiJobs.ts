@@ -154,24 +154,32 @@ const finishAnalysis = async (file: AnalysisFile) => {
     sendToUser(file.authorId, 'file:update', { id: file.id, aiAnalyzedAt });
 };
 
+const saveTextEmbedding = async (file: AnalysisFile, text: string) => {
+    const { model, vector } = await ai.embedText(text);
+
+    await saveFile(file, { textEmbedding: vector ?? DbNull, textEmbeddingModel: model });
+};
+
 const analyzeImage = async (file: AnalysisFile, path: string) => {
     const preset = await getAIPreset();
+    let image: Promise<Buffer> | undefined;
     let textChanged = false;
 
+    const viewImage = () => (image ??= aiImage(path));
+
     if (file.embeddingModel !== preset.image.key) {
-        await saveFile(file, {
-            embedding: await ai.embedImage(path),
-            embeddingModel: preset.image.key,
-        });
+        const { model, vector } = await ai.embedImage(await viewImage());
+
+        await saveFile(file, { embedding: vector, embeddingModel: model });
     }
 
     if (file.ocrText === null) {
-        await saveFile(file, { ocrText: await ai.recognizeText(path) });
+        await saveFile(file, { ocrText: await ai.recognizeText(await aiOcrImage(path)) });
         textChanged = true;
     }
 
     if (file.caption === null) {
-        const caption = await ai.captionImage(path);
+        const caption = await ai.captionImage(await viewImage());
 
         await saveFile(file, { caption });
         sendToUser(file.authorId, 'file:update', { id: file.id, caption });
@@ -181,12 +189,7 @@ const analyzeImage = async (file: AnalysisFile, path: string) => {
     const text = [file.caption, file.ocrText].filter(Boolean).join('\n');
 
     if (textChanged || file.textEmbeddingModel !== preset.text.key) {
-        const textEmbedding = await ai.embedText(text);
-
-        await saveFile(file, {
-            textEmbedding: textEmbedding ?? DbNull,
-            textEmbeddingModel: preset.text.key,
-        });
+        await saveTextEmbedding(file, text);
     }
 
     if (textChanged || !file.aiAnalyzedAt) await detectFilePii(file, file.ocrText ?? '');
@@ -197,10 +200,14 @@ const analyzeVideo = async (file: AnalysisFile, path: string) => {
 
     if (file.embeddingModel === preset.image.key) return;
 
-    await saveFile(file, {
-        embedding: await ai.embedVideo(path, (file.metadata as any)?.duration),
-        embeddingModel: preset.image.key,
-    });
+    const frames = await extractVideoFrames(
+        path,
+        (file.metadata as any)?.duration,
+        preset.videoFrames,
+    );
+    const { model, vector } = await ai.embedVideo(frames);
+
+    await saveFile(file, { embedding: vector, embeddingModel: model });
 };
 
 const analyzeText = async (file: AnalysisFile, path: string) => {
@@ -208,12 +215,7 @@ const analyzeText = async (file: AnalysisFile, path: string) => {
     const text = await readFileText(path);
 
     if (!file.aiAnalyzedAt || file.textEmbeddingModel !== preset.text.key) {
-        const textEmbedding = await ai.embedText(text);
-
-        await saveFile(file, {
-            textEmbedding: textEmbedding ?? DbNull,
-            textEmbeddingModel: preset.text.key,
-        });
+        await saveTextEmbedding(file, text);
     }
 
     if (!file.aiAnalyzedAt) await detectFilePii(file, text);
@@ -278,7 +280,8 @@ export const runAIJob = async (job: AIJob, workerId: string) => {
     } catch (error: any) {
         const message = error?.message || 'Unknown error';
 
-        if (job.attempts >= AI_MAX_ATTEMPTS) await failAIJob(job.id, message);
+        if (isAIServiceUnreachable(error)) await releaseAIJob(job.id);
+        else if (job.attempts >= AI_MAX_ATTEMPTS) await failAIJob(job.id, message);
         else await retryAIJobLater(job.id, message);
 
         consola.error(

@@ -47,7 +47,6 @@ allowBuilds:
   electron-winstaller: false
   esbuild: true
   koffi: true
-  onnxruntime-node: false
   prisma: true
   protobufjs: false
   sharp: true
