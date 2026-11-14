@@ -258,6 +258,8 @@ const updateSelf = async () => {
         hostname(),
         '-w',
         rootDir,
+        '-e',
+        'SECRET_TOKEN',
         ...(pinnedVersion ? ['-e', `FILESHIP_VERSION=${pinnedVersion}`] : []),
         latest,
         'docker',
