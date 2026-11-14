@@ -13,7 +13,7 @@
 const props = defineProps<{ href?: string; target?: string }>();
 
 const source = inject<Ref<string> | undefined>('docsSource', undefined);
-const root = inject<Ref<string> | undefined>('docsRoot', undefined);
+const version = inject<Ref<DocsVersion> | undefined>('docsVersion', undefined);
 
 const headingId = (hash: string) =>
     hash && `#${hash.slice(1).replace(/-+/g, '-').replace(/^-|-$/g, '').replace(/^(\d)/, '_$1')}`;
@@ -27,7 +27,7 @@ const url = computed(() => {
     const { pathname, hash } = new URL(href, `https://fileship.local${folder}`);
 
     if (pathname.startsWith('/docs/'))
-        return `${root!.value}${pathname
+        return `${version!.value.root}${pathname
             .slice('/docs'.length)
             .replace(/\.md$/, '')
             .replace(/\/index$/, '')}${headingId(hash)}`;
@@ -35,7 +35,7 @@ const url = computed(() => {
     const file = pathname.split('/').pop()!;
     const path = file.includes('.') ? pathname : `${pathname}.md`;
 
-    return `https://github.com/hanzydev/Fileship/blob/main${path}${hash}`;
+    return `https://github.com/hanzydev/Fileship/blob/${version!.value.branch}${path}${hash}`;
 });
 
 const isExternal = computed(() => /^https?:\/\//.test(url.value));

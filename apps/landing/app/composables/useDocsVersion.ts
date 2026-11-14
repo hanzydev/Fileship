@@ -3,6 +3,7 @@ export interface DocsVersion {
     version: string;
     root: string;
     collection: 'docs' | 'docsExperimental';
+    branch: 'main' | 'next';
 }
 
 export const useDocsVersion = () => {
@@ -10,7 +11,13 @@ export const useDocsVersion = () => {
     const { docsVersions } = useAppConfig();
 
     const versions: DocsVersion[] = [
-        { key: 'stable', version: docsVersions.stable, root: '/docs', collection: 'docs' },
+        {
+            key: 'stable',
+            version: docsVersions.stable,
+            root: '/docs',
+            collection: 'docs',
+            branch: 'main',
+        },
     ];
 
     if (docsVersions.experimental)
@@ -19,6 +26,7 @@ export const useDocsVersion = () => {
             version: docsVersions.experimental,
             root: '/docs/experimental',
             collection: 'docsExperimental',
+            branch: 'next',
         });
 
     const version = computed(() =>
