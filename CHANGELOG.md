@@ -1,5 +1,26 @@
 # Changelog
 
+## v6.8.1
+
+[compare changes](https://github.com/hanzydev/Fileship/compare/v6.8.0...v6.8.1)
+
+Fileship 6.8.1 fixes updates from the dashboard after the updater agent has updated itself.
+
+### ⚠️ Before you update
+
+- **If the updater agent logs `SECRET_TOKEN is not set`**, updates from the dashboard are refused. Run `docker compose up -d updater-agent` once next to your `docker-compose.yml`, then update from the dashboard as usual.
+
+### 🩹 Fixes
+
+- **updater:** Keep `SECRET_TOKEN` when the agent updates itself; since 6.6 the recreated agent started without it and refused the next update ([18c70e70](https://github.com/hanzydev/Fileship/commit/18c70e70))
+- **landing:** Switch docs versions on the docs home page ([92384ede](https://github.com/hanzydev/Fileship/commit/92384ede))
+- **landing:** Stay on the page when the current docs version is picked ([d8d5885e](https://github.com/hanzydev/Fileship/commit/d8d5885e))
+- **landing:** Link experimental docs to the next branch ([e7f82f22](https://github.com/hanzydev/Fileship/commit/e7f82f22))
+
+### ❤️ Contributors
+
+- Hanzydev <contact@hanzy.dev>
+
 ## v6.8.0
 
 [compare changes](https://github.com/hanzydev/Fileship/compare/v6.7.0...v6.8.0)
