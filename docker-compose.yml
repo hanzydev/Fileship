@@ -48,7 +48,7 @@ services:
         restart: unless-stopped
         command: caddy run --config /etc/caddy/caddy.json
         ports:
-            - '3000:3000'
+            - '${FILESHIP_PORT:-3000}:3000'
         volumes:
             - ./caddy.json:/etc/caddy/caddy.json:ro
 
