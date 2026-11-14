@@ -20,6 +20,7 @@ const emit = defineEmits<{ navigate: [] }>();
 const { versions, version } = useDocsVersion();
 
 const handleChange = (key: string) => {
+    if (key === version.value.key) return;
     emit('navigate');
     navigateTo(props.paths[key]);
 };
