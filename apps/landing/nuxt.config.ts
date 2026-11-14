@@ -71,6 +71,15 @@ export default defineNuxtConfig({
         '/docs/experimental/**': { robots: 'noindex, follow' },
     },
 
+    hooks: {
+        'pages:extend'(pages) {
+            if (!docsVersions.experimental) return;
+
+            const docs = pages.find((page) => page.name === 'docs')!;
+            pages.push({ ...docs, name: 'docs-experimental', path: '/docs/experimental' });
+        },
+    },
+
     components: [
         {
             path: '~/components',

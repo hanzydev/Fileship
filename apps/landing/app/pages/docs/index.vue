@@ -100,6 +100,5 @@ defineOgImage('Fileship', {
 
 definePageMeta({
     layout: 'docs',
-    alias: '/docs/experimental',
 });
 </script>
