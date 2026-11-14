@@ -131,13 +131,12 @@ const toc = computed(() =>
 
 const source = computed(() => `docs${page.value!.stem.slice(version.value.root.length - 1)}`);
 
-const editUrl = computed(() => `https://github.com/hanzydev/Fileship/edit/main/${source.value}.md`);
+const editUrl = computed(
+    () => `https://github.com/hanzydev/Fileship/edit/${version.value.branch}/${source.value}.md`,
+);
 
 provide('docsSource', source);
-provide(
-    'docsRoot',
-    computed(() => version.value.root),
-);
+provide('docsVersion', version);
 
 const { copy, copied } = useClipboard({ legacy: true });
 
