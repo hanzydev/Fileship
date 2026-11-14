@@ -97,6 +97,15 @@ The AI service itself reads `FILESHIP_ML_HOST` (default `127.0.0.1`), `FILESHIP_
 | `NUXT_UPDATER_URL`    | `http://updater-agent:3001` | How the dashboard reaches the updater agent. Compose sets it. |
 | `NUXT_UPDATER_SECRET` | `dev-secret-token`          | Shared secret. Compose sets it to `SECRET_TOKEN` from `.env`. |
 
+## Docker Compose
+
+`docker-compose.yml` reads these from `.env` next to it. Run `docker compose up -d` after changing them.
+
+| Variable        | Default        | Description                                                                                          |
+| --------------- | -------------- | ---------------------------------------------------------------------------------------------------- |
+| `SECRET_TOKEN`  | none, required | The secret the dashboard and the updater agent share.                                                |
+| `FILESHIP_PORT` | `3000`         | The port Fileship is published on. `127.0.0.1:8080` publishes it on port 8080 for this machine only. |
+
 ## Build time
 
 These are read when Fileship is built, so they only matter when you build it yourself ([without Docker](../install/without-docker.md), or with `docker-compose.dev.yml`). The published image uses the defaults.

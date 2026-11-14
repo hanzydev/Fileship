@@ -38,6 +38,14 @@ docker compose up -d
 
 Fileship is now available at `http://localhost:3000`, or `http://<server address>:3000` from another machine. The first start downloads the images and creates the database, which takes a minute or two.
 
+To use another port, add it to `.env` and run `docker compose up -d` again:
+
+```sh
+echo "FILESHIP_PORT=8080" >> .env
+```
+
+`FILESHIP_PORT=127.0.0.1:8080` opens the port to this machine only, for a reverse proxy on the same server. If you already set the dashboard address, change its port too.
+
 ## Default credentials
 
 - Username: `admin`
@@ -52,14 +60,14 @@ Fileship is now available at `http://localhost:3000`, or `http://<server address
 
 `docker-compose.yml` starts these services:
 
-| Service          | What it does                                                                                          |
-| ---------------- | ----------------------------------------------------------------------------------------------------- |
-| `postgres`       | PostgreSQL 18 (`ghcr.io/hanzydev/fileship-postgres`), data in the `pg_data` volume                    |
-| `proxy`          | Caddy on port 3000 (`caddy.json`), sends each request to the healthy Fileship container               |
-| `fileship-blue`  | Fileship itself (`ghcr.io/hanzydev/fileship`)                                                         |
-| `fileship-green` | The second Fileship container, started only during an update                                          |
-| `fileship-ml`    | The [AI service](ai.md#the-ai-service) (`ghcr.io/hanzydev/fileship-ml`), models in `data/models`      |
-| `updater-agent`  | Performs [updates](updating.md) through the Docker socket (`ghcr.io/hanzydev/fileship-updater-agent`) |
+| Service          | What it does                                                                                               |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| `postgres`       | PostgreSQL 18 (`ghcr.io/hanzydev/fileship-postgres`), data in the `pg_data` volume                         |
+| `proxy`          | Caddy on port 3000 or `FILESHIP_PORT` (`caddy.json`), sends each request to the healthy Fileship container |
+| `fileship-blue`  | Fileship itself (`ghcr.io/hanzydev/fileship`)                                                              |
+| `fileship-green` | The second Fileship container, started only during an update                                               |
+| `fileship-ml`    | The [AI service](ai.md#the-ai-service) (`ghcr.io/hanzydev/fileship-ml`), models in `data/models`           |
+| `updater-agent`  | Performs [updates](updating.md) through the Docker socket (`ghcr.io/hanzydev/fileship-updater-agent`)      |
 
 Your files live in the `data` folder next to `docker-compose.yml` (mounted at `/fileship/data`), and the database in the `pg_data` volume. Back up both, and keep `data/secret.key`: storage credentials, upload tokens, webhook URLs and email and single sign-on secrets are encrypted with it. See [Backing up the database](backups/database.md).
 
