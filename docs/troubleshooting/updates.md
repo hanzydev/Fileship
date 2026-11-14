@@ -22,6 +22,7 @@ docker compose logs --tail=200 updater-agent
 The sidebar shows **Update available** with a link but no **Update** button, and the agent's log shows `401` or nothing:
 
 - `.env` next to `docker-compose.yml` must contain `SECRET_TOKEN=…`, and both services read it (`NUXT_UPDATER_SECRET: ${SECRET_TOKEN}` and `SECRET_TOKEN: ${SECRET_TOKEN}`). After creating or changing it, run `docker compose up -d`.
+- The agent logs `SECRET_TOKEN is not set` although `.env` has it: up to 6.8.0, the agent lost the secret when it updated itself, so the next update from the dashboard was refused. Run `docker compose up -d updater-agent` once next to `docker-compose.yml`; from 6.8.1 the agent keeps it.
 - On Windows, a `.env` written as UTF-16 is not read; see [Windows](../install/windows.md#3-generate-the-updater-secret).
 - `NUXT_UPDATER_URL` must stay `http://updater-agent:3001`.
 
