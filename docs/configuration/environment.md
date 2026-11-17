@@ -101,10 +101,11 @@ The AI service itself reads `FILESHIP_ML_HOST` (default `127.0.0.1`), `FILESHIP_
 
 `docker-compose.yml` reads these from `.env` next to it. Run `docker compose up -d` after changing them.
 
-| Variable        | Default        | Description                                                                                          |
-| --------------- | -------------- | ---------------------------------------------------------------------------------------------------- |
-| `SECRET_TOKEN`  | none, required | The secret the dashboard and the updater agent share.                                                |
-| `FILESHIP_PORT` | `3000`         | The port Fileship is published on. `127.0.0.1:8080` publishes it on port 8080 for this machine only. |
+| Variable           | Default        | Description                                                                                                                                                                                                                                                    |
+| ------------------ | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SECRET_TOKEN`     | none, required | The secret the dashboard and the updater agent share.                                                                                                                                                                                                          |
+| `FILESHIP_PORT`    | `3000`         | The port Fileship is published on. `127.0.0.1:8080` publishes it on port 8080 for this machine only.                                                                                                                                                           |
+| `FILESHIP_VERSION` | `latest`       | The version of the Fileship, AI service and updater images. The updater agent writes it on the experimental channel and while a pre-release runs; leave it to the agent (see [Restarting with docker compose](../updating.md#restarting-with-docker-compose)). |
 
 ## Build time
 
@@ -120,15 +121,15 @@ These are read when Fileship is built, so they only matter when you build it you
 
 The `updater-agent` service in `docker-compose.yml` reads its own variables:
 
-| Variable              | Default              | Description                                                              |
-| --------------------- | -------------------- | ------------------------------------------------------------------------ |
-| `SECRET_TOKEN`        | none, required       | The secret from `.env`. The agent refuses requests without it.           |
-| `PORT`                | `3001`               | Port the agent listens on inside the Docker network.                     |
-| `AUTOUPDATER_ENABLED` | off                  | `true` turns on scheduled updates. Compose sets `true`.                  |
-| `AUTOUPDATER_CRON`    | `0 3 * * *`          | When scheduled updates run, in the agent's time zone.                    |
-| `TZ`                  | UTC                  | Time zone for `AUTOUPDATER_CRON`, for example `Europe/Istanbul`.         |
-| `COMPOSE_FILE`        | `docker-compose.yml` | The Compose file the agent runs, relative to the mounted project folder. |
-| `FILESHIP_URL`        | `http://proxy:3000`  | Where the agent asks Fileship for its version.                           |
-| `DEV_MODE`            | `false`              | Development mode; never turn it on for a real installation.              |
+| Variable              | Default              | Description                                                                                                                                |
+| --------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SECRET_TOKEN`        | none, required       | The secret from `.env`. The agent refuses requests without it.                                                                             |
+| `PORT`                | `3001`               | Port the agent listens on inside the Docker network.                                                                                       |
+| `AUTOUPDATER_ENABLED` | off                  | `true` turns on scheduled updates. Compose sets `true`.                                                                                    |
+| `AUTOUPDATER_CRON`    | `0 3 * * *`          | When scheduled updates run, in the agent's time zone.                                                                                      |
+| `TZ`                  | UTC                  | Time zone for `AUTOUPDATER_CRON`, for example `Europe/Istanbul`.                                                                           |
+| `COMPOSE_FILE`        | `docker-compose.yml` | The Compose file the agent runs. Compose sets `project/docker-compose.yml`, the file in the project folder mounted at `/fileship/project`. |
+| `FILESHIP_URL`        | `http://proxy:3000`  | Where the agent asks Fileship for its version.                                                                                             |
+| `DEV_MODE`            | `false`              | Development mode; never turn it on for a real installation.                                                                                |
 
 See [Updating](../updating.md).

@@ -18,6 +18,16 @@ docker compose logs --tail=200 updater-agent
 - Pre-releases (`6.9.0-beta.1`, …) are only offered on the **Experimental** channel.
 - **Couldn't check for updates** usually means the server cannot reach `api.github.com`, or GitHub's limit of 60 requests an hour per IP address was used up (by other software on the same address too). Try again later.
 
+## Fileship went back to an older version after docker compose up
+
+On the experimental channel, a `docker-compose.yml` from before 6.9 runs the stable `latest` images, so `docker compose up -d` (or `down` and `up -d`) replaces the pre-release with the stable release. To get back:
+
+1. Back up the database (see [Backing up the database](../backups/database.md)).
+2. Click **Update** in the sidebar card. The updater agent of the stable version still follows the experimental channel and installs the newest pre-release again. Versions before 6.9 have no **Check now** and can take up to half an hour to show the card; reload the page.
+3. Update the Compose file once, so restarts keep the version: see [Restarting with docker compose](../updating.md#restarting-with-docker-compose).
+
+Until then, restart with `docker compose restart`, which keeps the containers and their images.
+
 ## No Update button
 
 - Only super admins see **Update**; admins only see **Update available**.
@@ -29,7 +39,7 @@ docker compose logs --tail=200 updater-agent
 The sidebar shows **Update available** with a link but no **Update** button, and the agent's log shows `401` or nothing:
 
 - `.env` next to `docker-compose.yml` must contain `SECRET_TOKEN=…`, and both services read it (`NUXT_UPDATER_SECRET: ${SECRET_TOKEN}` and `SECRET_TOKEN: ${SECRET_TOKEN}`). After creating or changing it, run `docker compose up -d`.
-- The agent logs `SECRET_TOKEN is not set` although `.env` has it: from 6.6 to 6.8.0 the agent lost the secret when it updated itself, and the Fileship version it started next lost it too. Updates kept working because the agent did not check the secret until 6.9.0; since then it refuses them. Run `docker compose up -d` once next to `docker-compose.yml`, so both read it from `.env` again. On the experimental channel, `docker compose up -d` would start the stable images, so run `docker compose up -d updater-agent` instead; Fileship gets the secret back with the next update.
+- The agent logs `SECRET_TOKEN is not set` although `.env` has it: from 6.6 to 6.8.0 the agent lost the secret when it updated itself, and the Fileship version it started next lost it too. Updates kept working because the agent did not check the secret until 6.9.0; since then it refuses them. Run `docker compose up -d` once next to `docker-compose.yml`, so both read it from `.env` again. On the experimental channel, make sure first that your Compose file keeps the version (see [Restarting with docker compose](../updating.md#restarting-with-docker-compose)), or `docker compose up -d` starts the stable images.
 - On Windows, a `.env` written as UTF-16 is not read; see [Windows](../install/windows.md#3-generate-the-updater-secret).
 - `NUXT_UPDATER_URL` must stay `http://updater-agent:3001`.
 

@@ -28,7 +28,7 @@ updater-agent:
 
 Super admins choose the channel under **Administration → Instance → Updates**:
 
-- **Stable** (the default) installs releases. Its images are the `latest` tags in `docker-compose.yml`.
+- **Stable** (the default) installs releases. Its images are the `latest` tags.
 - **Experimental** also installs pre-releases (for example `6.9.0-beta.1`) before they become stable releases. They can contain bugs. When a stable release is newer than every pre-release, the experimental channel installs it too.
 
 Nothing is ever downgraded. If you switch from Experimental back to Stable while you run a pre-release, Fileship stays on that version until a newer stable release is out, and then updates to it.
@@ -37,9 +37,23 @@ Before you switch to Experimental:
 
 - Back up the database and the data directory (see [Backing up the database](backups/database.md)). A pre-release can change the database, and going back to an older version needs that backup.
 - Scheduled updates install pre-releases too, so turn them off if you want to choose when.
-- Update from the dashboard only. On the experimental channel the updater agent runs the exact pre-release images (`ghcr.io/hanzydev/fileship:6.9.0-beta.1`), while a `docker compose pull` or `docker compose up -d` you run yourself uses the `latest` images of `docker-compose.yml`, which are the stable release.
+- Update from the dashboard. On the experimental channel the updater agent runs the exact pre-release images (`ghcr.io/hanzydev/fileship:6.9.0-beta.1`). Check that your `docker-compose.yml` keeps that version when you restart the stack yourself (see [Restarting with docker compose](#restarting-with-docker-compose)).
 
 PostgreSQL follows the stable releases on both channels, so switching channels never changes the database version.
+
+### Restarting with docker compose
+
+On the experimental channel, and while a pre-release still runs after you switched back to Stable, the updater agent writes the version it runs into `.env` (for example `FILESHIP_VERSION=6.9.0-beta.5`). `docker-compose.yml` takes the Fileship, AI service and updater images from it, so `docker compose up -d`, `docker compose down` followed by `up -d` and `docker compose pull` keep that version. Leave the line to the agent: it changes it with every update and removes it once a stable release runs on the Stable channel, where the images are `latest` again.
+
+A `docker-compose.yml` from before 6.9 does not read `FILESHIP_VERSION`. On the experimental channel, `docker compose up -d` then starts the stable images and Fileship goes back to an older version; **Administration → Instance → Updates** warns about this. Update the file once. On the experimental channel, first write the version Fileship runs now (the sidebar shows it), or the restart starts the stable images:
+
+```sh
+echo "FILESHIP_VERSION=6.9.0-beta.5" >> .env
+git pull
+docker compose up -d
+```
+
+On the stable channel, `git pull` and `docker compose up -d` are enough. Until the file is updated, restart with `docker compose restart`, which keeps the containers and their images.
 
 ## PostgreSQL
 
