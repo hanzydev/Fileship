@@ -38,7 +38,30 @@
         "shadow": "그림자",
         "undo": "실행 취소",
         "redo": "다시 실행",
-        "delete": "삭제"
+        "delete": "삭제",
+        "scan": {
+            "detecting": "민감한 정보를 감지하는 중…",
+            "screen": "화면을 스캔하는 중…",
+            "text": "텍스트를 읽는 중…",
+            "keys": "API 키를 찾는 중…",
+            "secrets": "비밀번호와 토큰을 확인하는 중…",
+            "contacts": "이메일과 전화번호를 찾는 중…",
+            "cards": "카드 번호와 IBAN을 확인하는 중…",
+            "addresses": "IP 주소를 확인하는 중…",
+            "almost": "거의 다 됐어요…",
+            "found": "민감한 정보 {count}개를 가렸어요",
+            "none": "민감한 정보를 찾지 못했어요",
+            "failed": "민감한 정보를 확인하지 못했어요",
+            "kinds": {
+                "secret": "비밀 키",
+                "email": "이메일",
+                "phone": "전화번호",
+                "card": "카드 번호",
+                "account": "은행 계좌",
+                "document": "신분증",
+                "ip": "IP 주소"
+            }
+        }
     },
     "app": {
         "somethingWentWrong": "문제가 발생했어요",

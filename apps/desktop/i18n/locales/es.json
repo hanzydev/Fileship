@@ -38,7 +38,30 @@
         "shadow": "Sombra",
         "undo": "Deshacer",
         "redo": "Rehacer",
-        "delete": "Eliminar"
+        "delete": "Eliminar",
+        "scan": {
+            "detecting": "Detectando información sensible…",
+            "screen": "Analizando la pantalla…",
+            "text": "Leyendo el texto…",
+            "keys": "Buscando claves de API…",
+            "secrets": "Comprobando contraseñas y tokens…",
+            "contacts": "Buscando correos y teléfonos…",
+            "cards": "Comprobando números de tarjeta e IBAN…",
+            "addresses": "Comprobando direcciones IP…",
+            "almost": "Ya casi está…",
+            "found": "{count} dato sensible censurado | {count} datos sensibles censurados",
+            "none": "No se encontró información sensible",
+            "failed": "No se pudo comprobar si hay información sensible",
+            "kinds": {
+                "secret": "Clave secreta",
+                "email": "Correo electrónico",
+                "phone": "Número de teléfono",
+                "card": "Número de tarjeta",
+                "account": "Cuenta bancaria",
+                "document": "Documento de identidad",
+                "ip": "Dirección IP"
+            }
+        }
     },
     "app": {
         "somethingWentWrong": "Algo salió mal",

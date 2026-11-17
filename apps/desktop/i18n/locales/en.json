@@ -38,7 +38,30 @@
         "shadow": "Shadow",
         "undo": "Undo",
         "redo": "Redo",
-        "delete": "Delete"
+        "delete": "Delete",
+        "scan": {
+            "detecting": "Detecting sensitive information…",
+            "screen": "Scanning the screen…",
+            "text": "Reading the text…",
+            "keys": "Looking for API keys…",
+            "secrets": "Checking passwords and tokens…",
+            "contacts": "Looking for emails and phone numbers…",
+            "cards": "Checking card and IBAN numbers…",
+            "addresses": "Checking IP addresses…",
+            "almost": "Almost done…",
+            "found": "{count} sensitive item redacted | {count} sensitive items redacted",
+            "none": "No sensitive information found",
+            "failed": "Could not check for sensitive information",
+            "kinds": {
+                "secret": "Secret",
+                "email": "Email",
+                "phone": "Phone number",
+                "card": "Card number",
+                "account": "Bank account",
+                "document": "ID document",
+                "ip": "IP address"
+            }
+        }
     },
     "app": {
         "somethingWentWrong": "Something went wrong",

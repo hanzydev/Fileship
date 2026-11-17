@@ -38,7 +38,30 @@
         "shadow": "Kölgə",
         "undo": "Geri al",
         "redo": "Təkrarla",
-        "delete": "Sil"
+        "delete": "Sil",
+        "scan": {
+            "detecting": "Həssas məlumatlar aşkarlanır…",
+            "screen": "Ekran skan edilir…",
+            "text": "Mətnlər oxunur…",
+            "keys": "API açarları axtarılır…",
+            "secrets": "Şifrələr və tokenlər yoxlanılır…",
+            "contacts": "E-poçt və telefonlar axtarılır…",
+            "cards": "Kart və IBAN nömrələri yoxlanılır…",
+            "addresses": "IP ünvanları yoxlanılır…",
+            "almost": "Az qaldı…",
+            "found": "{count} həssas məlumat gizlədildi",
+            "none": "Həssas məlumat tapılmadı",
+            "failed": "Həssas məlumatları yoxlamaq mümkün olmadı",
+            "kinds": {
+                "secret": "Gizli açar",
+                "email": "E-poçt",
+                "phone": "Telefon nömrəsi",
+                "card": "Kart nömrəsi",
+                "account": "Bank hesabı",
+                "document": "Şəxsiyyət sənədi",
+                "ip": "IP ünvanı"
+            }
+        }
     },
     "app": {
         "somethingWentWrong": "Xəta baş verdi",

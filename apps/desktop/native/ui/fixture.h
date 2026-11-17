@@ -10,6 +10,13 @@
 
 namespace fileship::ui {
 
+struct FixtureScan {
+    double elapsedMs = 0;
+    std::optional<double> deliveredMs;
+    std::vector<Redaction> redactions;
+    ScanOutcome outcome = ScanOutcome::Found;
+};
+
 struct FixtureScene {
     std::optional<Point> pointer;
     std::optional<Tool> tool;
@@ -17,6 +24,7 @@ struct FixtureScene {
     std::optional<std::string> selectedId;
     int popover = -1;
     std::optional<Box> selection;
+    std::optional<FixtureScan> scan;
 };
 
 struct FixtureImage {

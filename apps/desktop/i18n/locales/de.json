@@ -38,7 +38,30 @@
         "shadow": "Schatten",
         "undo": "Rückgängig",
         "redo": "Wiederholen",
-        "delete": "Löschen"
+        "delete": "Löschen",
+        "scan": {
+            "detecting": "Sensible Daten werden erkannt…",
+            "screen": "Bildschirm wird gescannt…",
+            "text": "Text wird gelesen…",
+            "keys": "Suche nach API-Schlüsseln…",
+            "secrets": "Passwörter und Tokens werden geprüft…",
+            "contacts": "Suche nach E-Mail-Adressen und Telefonnummern…",
+            "cards": "Karten- und IBAN-Nummern werden geprüft…",
+            "addresses": "IP-Adressen werden geprüft…",
+            "almost": "Fast fertig…",
+            "found": "{count} sensible Angabe geschwärzt | {count} sensible Angaben geschwärzt",
+            "none": "Keine sensiblen Daten gefunden",
+            "failed": "Sensible Daten konnten nicht geprüft werden",
+            "kinds": {
+                "secret": "Geheimer Schlüssel",
+                "email": "E-Mail-Adresse",
+                "phone": "Telefonnummer",
+                "card": "Kartennummer",
+                "account": "Bankkonto",
+                "document": "Ausweisdokument",
+                "ip": "IP-Adresse"
+            }
+        }
     },
     "app": {
         "somethingWentWrong": "Etwas ist schiefgelaufen",

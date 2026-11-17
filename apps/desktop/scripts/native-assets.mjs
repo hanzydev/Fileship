@@ -53,6 +53,8 @@ const ICONS = [
     'play',
     'redo-2',
     'scan',
+    'shield-alert',
+    'shield-check',
     'sliders-horizontal',
     'smile',
     'square',

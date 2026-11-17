@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <functional>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -35,6 +36,15 @@ struct WindowTarget {
     std::vector<ScreenRect> controls;
 };
 
+enum class RedactionKind { Secret, Email, Phone, Card, Account, Document, Ip };
+
+struct Redaction {
+    ScreenRect rect;
+    RedactionKind kind = RedactionKind::Secret;
+};
+
+enum class ScanOutcome { Found, Failed, Unavailable };
+
 struct OverlayRequest {
     OverlayPurpose purpose = OverlayPurpose::Capture;
     ScreenRect bounds;
@@ -43,6 +53,7 @@ struct OverlayRequest {
     POINT cursor{};
     bool showMagnifier = true;
     ThemeMode theme = ThemeMode::Dark;
+    std::optional<uint64_t> scanId;
 };
 
 enum class OverlayResultType { Cancel, Area, Region };
@@ -67,5 +78,7 @@ void setUiResourcesPath(std::filesystem::path const& path);
 bool openOverlay(OverlayRequest request, OverlayCallback done);
 bool isOverlayOpen();
 void closeOverlay();
+void deliverScan(uint64_t scanId, std::vector<Redaction> redactions, ScanOutcome outcome);
+void finishScan(uint64_t scanId);
 
 }
