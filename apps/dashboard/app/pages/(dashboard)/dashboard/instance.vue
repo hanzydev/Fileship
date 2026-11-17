@@ -357,6 +357,34 @@
                                             </div>
                                         </UiField>
                                     </template>
+
+                                    <template v-if="section.id === 'updates'">
+                                        <UiFieldSeparator class="sm:col-span-2" />
+                                        <UiField
+                                            orientation="horizontal"
+                                            class="has-[>[data-slot=field-content]]:items-center sm:col-span-2"
+                                        >
+                                            <UiFieldContent>
+                                                <UiFieldLabel>
+                                                    {{ $t('instance.updates.check') }}
+                                                </UiFieldLabel>
+                                                <UiFieldDescription>
+                                                    {{ updateCheckText }}
+                                                </UiFieldDescription>
+                                            </UiFieldContent>
+                                            <UiButton
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                :disabled="isCheckingUpdates"
+                                                @click="handleCheckUpdates"
+                                            >
+                                                <UiSpinner v-if="isCheckingUpdates" />
+                                                <IRefreshCw v-else />
+                                                {{ $t('instance.updates.checkNow') }}
+                                            </UiButton>
+                                        </UiField>
+                                    </template>
                                 </UiFieldGroup>
                             </UiCardContent>
                             <UiCardFooter class="justify-end">
@@ -1473,6 +1501,7 @@ const handleSave = async (section: SettingSection) => {
 
         if (result) {
             await refresh();
+            if (section.id === 'updates') handleCheckUpdates();
             $toast.success(t(`instance.sections.${section.id}.saved`));
         }
     } catch (error: any) {
@@ -1520,6 +1549,30 @@ const oidcRedirectUri = computed(() =>
 );
 
 const isTestingOidc = ref(false);
+
+const updaterStatus = useUpdaterStatus();
+const isCheckingUpdates = ref(false);
+
+const updateCheckText = computed(() =>
+    updaterStatus.value
+        ? t(`instance.updates.${updaterStatus.value.state}`, {
+              version: updaterStatus.value.version,
+              latest: updaterStatus.value.latestVersion,
+          })
+        : t('instance.updates.checkDescription'),
+);
+
+const handleCheckUpdates = async () => {
+    isCheckingUpdates.value = true;
+
+    try {
+        updaterStatus.value = await $fetch('/api/updater/status', { query: { refresh: true } });
+    } catch (error: any) {
+        $toast.error(getErrorMessage(error));
+    }
+
+    isCheckingUpdates.value = false;
+};
 
 const handleCopyRedirectUri = async () => {
     await copy(oidcRedirectUri.value);

@@ -1089,6 +1089,15 @@
             "testDescription": "保存する前でも、上の発行者 URL のディスカバリードキュメントを読み込みます。",
             "testButton": "テスト",
             "testWorks": "見つかりました：{issuer}"
+        },
+        "updates": {
+            "check": "アップデートの確認",
+            "checkNow": "今すぐ確認",
+            "checkDescription": "上のアップデートチャンネルで新しいバージョンを確認します。",
+            "upToDate": "Fileship {version} はこのチャンネルの最新バージョンです。",
+            "available": "Fileship {latest} を利用できます。このサーバーは {version} で動作しています。",
+            "publishing": "Fileship {latest} がリリースされましたが、まだインストールできません。数分後にもう一度確認してください。",
+            "failed": "アップデートを確認できませんでした。しばらくしてからもう一度お試しください。"
         }
     },
     "integrations": {

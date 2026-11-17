@@ -100,7 +100,7 @@
                     </UiButton>
                 </UiCardFooter>
             </UiCard>
-            <template v-if="updaterStatus?.hasUpdate">
+            <template v-if="updaterStatus?.state === 'available'">
                 <UiCard size="sm" class="group-data-[collapsible=icon]:hidden">
                     <UiCardHeader>
                         <UiCardTitle class="flex items-center gap-2">
@@ -366,13 +366,7 @@ const roleLabel = computed(() =>
     ),
 );
 
-const updaterStatus = ref<{
-    version: string;
-    url: string;
-    hasUpdate: boolean;
-    latestVersion: string;
-    updaterAvailable: boolean;
-} | null>(null);
+const updaterStatus = useUpdaterStatus();
 
 const publicSettings = usePublicSettings();
 const isAIServiceDown = ref(false);
@@ -568,7 +562,7 @@ onMounted(async () => {
 
     if (isAdmin(authUser.value)) {
         try {
-            updaterStatus.value = await $fetch<never>('/api/updater/status');
+            updaterStatus.value = await $fetch('/api/updater/status');
         } catch {
             //
         }

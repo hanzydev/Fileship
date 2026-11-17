@@ -1089,6 +1089,15 @@
             "testDescription": "Reads the discovery document of the issuer URL above, even before you save it.",
             "testButton": "Test",
             "testWorks": "Found {issuer}"
+        },
+        "updates": {
+            "check": "Check for updates",
+            "checkNow": "Check now",
+            "checkDescription": "Looks for a newer release on the update channel above.",
+            "upToDate": "Fileship {version} is the latest version on this channel.",
+            "available": "Fileship {latest} is available. This server runs {version}.",
+            "publishing": "Fileship {latest} is out, but it isn't ready to install yet. Check again in a few minutes.",
+            "failed": "Couldn't check for updates. Try again later."
         }
     },
     "integrations": {

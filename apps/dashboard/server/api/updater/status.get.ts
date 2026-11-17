@@ -6,6 +6,11 @@ const repoUrl = 'hanzydev/Fileship';
 
 type Channel = InstanceSettings['updateChannel'];
 type Release = { tag_name: string; draft: boolean; prerelease: boolean };
+type VersionInfo = {
+    state: 'upToDate' | 'available' | 'publishing' | 'failed';
+    latestVersion: string;
+    updaterAvailable: boolean;
+};
 
 const latestRelease = async (channel: Channel) => {
     const releases = await $fetch<Release[]>(`https://api.github.com/repos/${repoUrl}/releases`, {
@@ -21,58 +26,68 @@ const latestRelease = async (channel: Channel) => {
         .sort(semver.rcompare)[0];
 };
 
+const checkVersion = async (channel: Channel): Promise<VersionInfo> => {
+    try {
+        const updaterStatus = await updaterFetch<{
+            hasUpdate: boolean;
+            publishing?: boolean;
+            latestVersion: string | null;
+        }>(`/api/status`);
+
+        return {
+            state: updaterStatus.hasUpdate
+                ? 'available'
+                : updaterStatus.publishing
+                  ? 'publishing'
+                  : 'upToDate',
+            latestVersion: updaterStatus.latestVersion || pkg.version,
+            updaterAvailable: true,
+        };
+    } catch {
+        //
+    }
+
+    try {
+        const latestVersion = (await latestRelease(channel)) ?? pkg.version;
+
+        return {
+            state: semver.gt(latestVersion, pkg.version) ? 'available' : 'upToDate',
+            latestVersion,
+            updaterAvailable: false,
+        };
+    } catch {
+        return { state: 'failed', latestVersion: pkg.version, updaterAvailable: false };
+    }
+};
+
 const cachedCheckVersion = defineCachedFunction(
-    async (channel: Channel) => {
-        try {
-            const updaterStatus = await updaterFetch<{
-                hasUpdate: boolean;
-                latestVersion?: string;
-            }>(`/api/status`);
-
-            if (updaterStatus) {
-                return {
-                    hasUpdate: updaterStatus.hasUpdate,
-                    latestVersion: updaterStatus.latestVersion || pkg.version,
-                    updaterAvailable: true,
-                };
-            }
-        } catch {
-            //
-        }
-
-        try {
-            const latestVersion = (await latestRelease(channel)) ?? pkg.version;
-
-            return {
-                hasUpdate: semver.gt(latestVersion, pkg.version),
-                latestVersion,
-                updaterAvailable: false,
-            };
-        } catch {
-            return {
-                hasUpdate: false,
-                latestVersion: pkg.version,
-                updaterAvailable: false,
-            };
-        }
-    },
+    (channel: Channel, _refresh: boolean) => checkVersion(channel),
     {
-        maxAge: 1_800,
-        getKey: (channel: Channel) => `ua-status-${pkg.version}-${channel}`,
+        maxAge: 300,
+        swr: false,
+        getKey: (channel) => `ua-status-${pkg.version}-${channel}`,
+        shouldInvalidateCache: (_channel, refresh) => refresh,
+        validate: (entry) =>
+            !!entry.value &&
+            (['upToDate', 'available'].includes(entry.value.state) ||
+                Date.now() - entry.mtime! < 60_000),
     },
 );
 
 export default defineEventHandler(async (event) => {
     adminOnly(event);
 
-    const versionInfo = await cachedCheckVersion((await getSettings()).updateChannel);
+    const versionInfo = await cachedCheckVersion(
+        (await getSettings()).updateChannel,
+        getQuery(event).refresh === 'true',
+    );
 
-    const targetTag = versionInfo.hasUpdate ? versionInfo.latestVersion : pkg.version;
+    const targetTag = versionInfo.state === 'available' ? versionInfo.latestVersion : pkg.version;
 
     return {
         version: pkg.version,
         url: `https://github.com/${repoUrl}/releases/tag/v${targetTag}`,
-        hasUpdate: versionInfo.hasUpdate,
+        state: versionInfo.state,
         latestVersion: versionInfo.latestVersion,
         updaterAvailable: versionInfo.updaterAvailable,
     };

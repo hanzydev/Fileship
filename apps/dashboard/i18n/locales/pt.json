@@ -1089,6 +1089,15 @@
             "testDescription": "Lê o documento de descoberta da URL do emissor acima, mesmo antes de salvar.",
             "testButton": "Testar",
             "testWorks": "Encontrado: {issuer}"
+        },
+        "updates": {
+            "check": "Verificar atualizações",
+            "checkNow": "Verificar agora",
+            "checkDescription": "Procura uma versão mais recente no canal de atualização acima.",
+            "upToDate": "O Fileship {version} é a versão mais recente deste canal.",
+            "available": "O Fileship {latest} está disponível. Este servidor está na versão {version}.",
+            "publishing": "O Fileship {latest} foi lançado, mas ainda não pode ser instalado. Verifique de novo em alguns minutos.",
+            "failed": "Não foi possível verificar as atualizações. Tente de novo mais tarde."
         }
     },
     "integrations": {

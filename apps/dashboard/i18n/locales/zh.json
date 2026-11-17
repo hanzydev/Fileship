@@ -1089,6 +1089,15 @@
             "testDescription": "读取上方颁发者 URL 的发现文档，无需先保存。",
             "testButton": "测试",
             "testWorks": "已找到：{issuer}"
+        },
+        "updates": {
+            "check": "检查更新",
+            "checkNow": "立即检查",
+            "checkDescription": "在上方的更新通道中查找更新的版本。",
+            "upToDate": "Fileship {version} 是此通道的最新版本。",
+            "available": "Fileship {latest} 现已推出。此服务器运行的是 {version}。",
+            "publishing": "Fileship {latest} 已发布，但暂时还无法安装。请几分钟后再检查。",
+            "failed": "无法检查更新。请稍后再试。"
         }
     },
     "integrations": {

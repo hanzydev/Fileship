@@ -1089,6 +1089,15 @@
             "testDescription": "Yukarıdaki issuer URL'sinin keşif belgesini kaydetmeden önce de okur.",
             "testButton": "Test et",
             "testWorks": "Bulundu: {issuer}"
+        },
+        "updates": {
+            "check": "Güncellemeleri denetle",
+            "checkNow": "Şimdi denetle",
+            "checkDescription": "Yukarıdaki güncelleme kanalında daha yeni bir sürüm arar.",
+            "upToDate": "Fileship {version} bu kanaldaki en son sürüm.",
+            "available": "Fileship {latest} yayında. Bu sunucuda {version} çalışıyor.",
+            "publishing": "Fileship {latest} yayınlandı ama henüz kurulmaya hazır değil. Birkaç dakika sonra tekrar denetle.",
+            "failed": "Güncellemeler denetlenemedi. Daha sonra tekrar dene."
         }
     },
     "integrations": {

@@ -1089,6 +1089,15 @@
             "testDescription": "Yuxarıdakı Issuer URL-in discovery sənədini yadda saxlamadan əvvəl də oxuyur.",
             "testButton": "Yoxla",
             "testWorks": "Tapıldı: {issuer}"
+        },
+        "updates": {
+            "check": "Yeniləmələri yoxla",
+            "checkNow": "İndi yoxla",
+            "checkDescription": "Yuxarıdakı yeniləmə kanalında daha yeni versiya axtarır.",
+            "upToDate": "Fileship {version} bu kanalda ən son versiyadır.",
+            "available": "Fileship {latest} mövcuddur. Bu serverdə {version} versiyası işləyir.",
+            "publishing": "Fileship {latest} buraxılıb, amma hələ quraşdırmaq olmur. Bir neçə dəqiqədən sonra yenidən yoxla.",
+            "failed": "Yeniləmələri yoxlamaq mümkün olmadı. Bir az sonra yenidən yoxla."
         }
     },
     "integrations": {

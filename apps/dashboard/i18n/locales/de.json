@@ -1089,6 +1089,15 @@
             "testDescription": "Liest das Discovery-Dokument der Issuer-URL oben, auch bevor du sie speicherst.",
             "testButton": "Testen",
             "testWorks": "Gefunden: {issuer}"
+        },
+        "updates": {
+            "check": "Nach Updates suchen",
+            "checkNow": "Jetzt suchen",
+            "checkDescription": "Sucht im Update-Kanal oben nach einer neueren Version.",
+            "upToDate": "Fileship {version} ist die neueste Version in diesem Kanal.",
+            "available": "Fileship {latest} ist verfügbar. Auf diesem Server läuft {version}.",
+            "publishing": "Fileship {latest} ist erschienen, kann aber noch nicht installiert werden. Such in ein paar Minuten noch einmal.",
+            "failed": "Die Suche nach Updates ist fehlgeschlagen. Versuch es später noch einmal."
         }
     },
     "integrations": {
