@@ -17,7 +17,7 @@ import { ofetch } from 'ofetch';
 import { join } from 'pathe';
 import semver from 'semver';
 
-import { type Channel, pickRelease, type Release } from './releases';
+import { cacheReleases, type Channel, pickRelease, type Release } from './releases';
 
 const rootDir = join(process.cwd(), '..', '..');
 const EXPERIMENTAL_COMPOSE_FILE = join(process.cwd(), 'compose', 'experimental.yml');
@@ -88,20 +88,29 @@ const isImageAvailableOnGHCR = async (version: string) => {
 
 const getClientInfo = () => fsFetch<{ version: string; channel: Channel }>('/healthz');
 
+const getReleases = cacheReleases(
+    () =>
+        ghFetch<Release[]>('/repos/hanzydev/Fileship/releases', {
+            query: { per_page: 30 },
+            timeout: 10_000,
+        }),
+    60_000,
+);
+
 const isUpdateAvailable = async () => {
     const { version: currentVersion, channel } = await getClientInfo();
 
-    const releases = await ghFetch<Release[]>('/repos/hanzydev/Fileship/releases', {
-        query: { per_page: 30 },
-    });
+    const latestVersion = pickRelease(await getReleases(), channel) ?? null;
 
-    const latestVersion = pickRelease(releases, channel);
-    if (!latestVersion) return { hasUpdate: false, latestVersion: null, currentVersion, channel };
+    if (!latestVersion || !(IS_DEV || semver.gt(latestVersion, currentVersion))) {
+        return { hasUpdate: false, publishing: false, latestVersion, currentVersion, channel };
+    }
 
     const isImageAvailable = await isImageAvailableOnGHCR(latestVersion);
 
     return {
-        hasUpdate: isImageAvailable && (IS_DEV || semver.gt(latestVersion, currentVersion)),
+        hasUpdate: isImageAvailable,
+        publishing: !isImageAvailable,
         latestVersion,
         currentVersion,
         channel,

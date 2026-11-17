@@ -1,7 +1,8 @@
+import { consola } from 'consola';
 import semver from 'semver';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { pickRelease, type Release } from './releases';
+import { cacheReleases, pickRelease, type Release } from './releases';
 
 const release = (tag: string, prerelease = false, draft = false): Release => ({
     tag_name: tag,
@@ -39,5 +40,62 @@ describe('pickRelease', () => {
 
     it('returns nothing without releases', () => {
         expect(pickRelease([], 'stable')).toBeUndefined();
+    });
+});
+
+describe('cacheReleases', () => {
+    beforeEach(() => {
+        vi.useFakeTimers();
+        vi.spyOn(consola, 'warn').mockImplementation(() => undefined);
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+        vi.restoreAllMocks();
+    });
+
+    it('asks GitHub once while the list is fresh', async () => {
+        const fetchReleases = vi.fn().mockResolvedValue(releases);
+        const getReleases = cacheReleases(fetchReleases, 60_000);
+
+        expect(await getReleases()).toBe(releases);
+        vi.advanceTimersByTime(59_000);
+        expect(await getReleases()).toBe(releases);
+        expect(fetchReleases).toHaveBeenCalledTimes(1);
+    });
+
+    it('asks again once the list is older than its maximum age', async () => {
+        const newer = [release('v6.9.0-beta.3', true), ...releases];
+        const fetchReleases = vi.fn().mockResolvedValueOnce(releases).mockResolvedValue(newer);
+        const getReleases = cacheReleases(fetchReleases, 60_000);
+
+        await getReleases();
+        vi.advanceTimersByTime(60_000);
+
+        expect(await getReleases()).toBe(newer);
+        expect(fetchReleases).toHaveBeenCalledTimes(2);
+    });
+
+    it('keeps the last list when GitHub refuses', async () => {
+        const fetchReleases = vi
+            .fn()
+            .mockResolvedValueOnce(releases)
+            .mockRejectedValue(new Error('rate limit exceeded'));
+        const getReleases = cacheReleases(fetchReleases, 60_000);
+
+        await getReleases();
+        vi.advanceTimersByTime(60_000);
+
+        expect(await getReleases()).toBe(releases);
+        expect(fetchReleases).toHaveBeenCalledTimes(2);
+    });
+
+    it('fails when GitHub refuses before any list was fetched', async () => {
+        const getReleases = cacheReleases(
+            vi.fn().mockRejectedValue(new Error('rate limit exceeded')),
+            60_000,
+        );
+
+        await expect(getReleases()).rejects.toThrow('rate limit exceeded');
     });
 });
