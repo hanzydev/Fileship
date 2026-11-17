@@ -73,7 +73,7 @@
 
 ## 🖥️ Fileship Windows 版
 
-在通知区域中以 ShareX 的方式截图、录制并上传到你的 Fileship，还能通过 Fileship Harbor 在文件资源管理器中浏览你的文件。需要 64 位 Windows 11 24H2 或更高版本，以及 Fileship 6.0 服务器。
+在通知区域中以 ShareX 的方式截图、录制并上传到你的 Fileship，还能通过 Fileship Harbor 在文件资源管理器中浏览你的文件。截图中的 API 密钥、密码等敏感信息会在离开你的电脑前被遮盖。需要 64 位 Windows 11 24H2 或更高版本，以及 Fileship 6.0 服务器。
 
 **[下载最新版本](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [功能与设置](../../docs/desktop.md)
 

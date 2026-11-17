@@ -73,7 +73,7 @@ Compared with Zipline 4.8, XBackBone 3.8 and Chibisafe 6.7 in October 2026. Some
 
 ## 🖥️ Fileship for Windows
 
-Capture, record and upload to your Fileship from the system tray, ShareX style, and browse your files in File Explorer with Fileship Harbor. Needs 64-bit Windows 11 version 24H2 or newer and a Fileship 6.0 server.
+Capture, record and upload to your Fileship from the system tray, ShareX style, and browse your files in File Explorer with Fileship Harbor. API keys, passwords and other secrets in your screenshots are blacked out before they leave your PC. Needs 64-bit Windows 11 version 24H2 or newer and a Fileship 6.0 server.
 
 **[Download the latest version](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Features and setup](docs/desktop.md)
 

@@ -73,7 +73,7 @@
 
 ## 🖥️ Windows용 Fileship
 
-알림 영역에서 ShareX처럼 캡처하고 녹화해서 Fileship에 업로드하고, Fileship Harbor로 파일 탐색기에서 내 파일을 둘러볼 수 있어요. 64비트 Windows 11 버전 24H2 이상과 Fileship 6.0 서버가 필요해요.
+알림 영역에서 ShareX처럼 캡처하고 녹화해서 Fileship에 업로드하고, Fileship Harbor로 파일 탐색기에서 내 파일을 둘러볼 수 있어요. 스크린샷 속 API 키, 비밀번호 같은 민감한 정보는 PC를 떠나기 전에 가려져요. 64비트 Windows 11 버전 24H2 이상과 Fileship 6.0 서버가 필요해요.
 
 **[최신 버전 다운로드](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [기능 및 설정 방법](../../docs/desktop.md)
 
