@@ -7,6 +7,14 @@ type Embedding = { model: string; vector: number[] };
 
 export type PrivacyEntity = { group: string; score: number; word: string };
 
+type OcrPoint = [number, number];
+
+export type OcrLine = {
+    text: string;
+    box: [OcrPoint, OcrPoint, OcrPoint, OcrPoint];
+    characters: number[] | null;
+};
+
 const serviceUrl = useRuntimeConfig().ai.serviceUrl;
 
 export const aiService = {
@@ -37,6 +45,14 @@ const request = async <T>(path: string, body?: FormData | Record<string, unknown
     });
 };
 
+const findPrivacyEntities = async (text: string) => {
+    const input = text.slice(0, PRIVACY_FILTER_MAX_CHARS);
+    if (!input.trim()) return [];
+
+    return (await request<{ entities: PrivacyEntity[] }>('/text/entities', { text: input }))
+        .entities;
+};
+
 const images = (files: Buffer[]) => {
     const form = new FormData();
     for (const file of files) {
@@ -64,14 +80,16 @@ export const ai = {
     recognizeText: async (image: Buffer) =>
         (await request<{ text: string }>('/image/ocr', images([image]))).text,
 
+    readLines: (image: Buffer) =>
+        request<{ text: string; lines: OcrLine[] }>('/image/ocr/lines', images([image])),
+
+    findPrivacyEntities,
+
     async detectPII(text: string, caption = '') {
         const input = text.slice(0, PRIVACY_FILTER_MAX_CHARS);
         if (!input.trim()) return { piiDetected: false, reasons: [] };
 
-        const { entities } = await request<{ entities: PrivacyEntity[] }>('/text/entities', {
-            text: input,
-        });
-        const reasons = findPii(input, entities, caption);
+        const reasons = findPii(input, await findPrivacyEntities(input), caption);
 
         return { piiDetected: reasons.size > 0, reasons: [...reasons] };
     },
