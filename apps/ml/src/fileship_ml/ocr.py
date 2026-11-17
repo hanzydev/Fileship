@@ -1,4 +1,5 @@
 import asyncio
+import itertools
 import math
 import re
 from collections import Counter
@@ -82,11 +83,27 @@ class Reader:
 
 
 @dataclass(slots=True, frozen=True)
+class Reading:
+    text: str
+    confidence: float
+    bounds: tuple[float, ...] | None
+
+
+@dataclass(slots=True, frozen=True)
 class Line:
     crop: MatLike
     box: Box
+    corners: Box
     text: str
     confidence: float
+    bounds: tuple[float, ...] | None
+
+
+@dataclass(slots=True, frozen=True)
+class TextLine:
+    text: str
+    box: tuple[tuple[float, float], ...]
+    characters: tuple[float, ...] | None
 
 
 @dataclass(slots=True, frozen=True)
@@ -200,7 +217,25 @@ def _flipped(orientation: ort.InferenceSession, crops: list[MatLike]) -> list[bo
     return flipped
 
 
-def _recognize(recognizer: Recognizer, crop: MatLike) -> tuple[str, float]:
+def _bounds(symbols: list[str], steps: list[int], total: int) -> tuple[float, ...]:
+    spans: list[tuple[int, int]] = []
+    gap: tuple[int, int] | None = None
+
+    for symbol, step in zip(symbols, steps, strict=True):
+        for char in symbol:
+            if not char.isspace():
+                if gap:
+                    spans.append(gap)
+                gap = None
+                spans.append((step, step))
+            elif spans:
+                gap = (gap[0] if gap else step, step)
+
+    inner = [(end + 1 + start) / 2 / total for (_, end), (start, _) in itertools.pairwise(spans)]
+    return (0.0, *(round(edge, 4) for edge in inner), 1.0)
+
+
+def _recognize(recognizer: Recognizer, crop: MatLike) -> Reading:
     height, width = crop.shape[:2]
     resized = cv2.resize(
         crop,
@@ -213,10 +248,13 @@ def _recognize(recognizer: Recognizer, crop: MatLike) -> tuple[str, float]:
     keep = (indices != 0) & np.concatenate([[True], indices[1:] != indices[:-1]])
 
     if not keep.any():
-        return '', 0.0
+        return Reading('', 0.0, None)
 
-    text = ' '.join(''.join(recognizer.characters[indices[keep]]).split())
-    return text, float(output[0].max(1)[keep].mean())
+    symbols: list[str] = recognizer.characters[indices[keep]].tolist()
+    text = ' '.join(''.join(symbols).split())
+    bounds = _bounds(symbols, np.nonzero(keep)[0].tolist(), output.shape[1]) if text else None
+
+    return Reading(text, float(output[0].max(1)[keep].mean()), bounds)
 
 
 def _letters(text: str) -> int:
@@ -252,7 +290,9 @@ def _read(reader: Reader, image: Pixels) -> Page:
     for box, (crop, vertical), flip in zip(boxes, crops, flips, strict=True):
         flipped = orientation[1] if vertical == orientation[0] else flip
         upright = cv2.rotate(crop, cv2.ROTATE_180) if flipped else crop
-        lines.append(Line(upright, box, *_recognize(reader.recognizer, upright)))
+        reading = _recognize(reader.recognizer, upright)
+        corners = np.roll(box, -(vertical + 2 * flipped), 0)
+        lines.append(Line(upright, box, corners, reading.text, reading.confidence, reading.bounds))
 
     return Page(lines, orientation)
 
@@ -265,11 +305,12 @@ def _reread(recognizer: Recognizer, lines: list[Line], right_to_left: bool) -> l
     alternatives: list[Line] = []
 
     for line in lines:
-        text, confidence = _recognize(recognizer, line.crop)
+        reading = _recognize(recognizer, line.crop)
         alternative = replace(
             line,
-            text=_fix_right_to_left(text) if right_to_left else text,
-            confidence=confidence,
+            text=_fix_right_to_left(reading.text) if right_to_left else reading.text,
+            confidence=reading.confidence,
+            bounds=None if right_to_left else reading.bounds,
         )
         alternatives.append(alternative if _score(alternative) > _score(line) else line)
 
@@ -292,7 +333,7 @@ def _height(group: list[tuple[Rect, Line]]) -> float:
     return sum(rect[3] for rect, _ in group) / len(group)
 
 
-def _text(lines: list[Line], orientation: Orientation, width: int, height: int) -> str:
+def _rows(lines: list[Line], orientation: Orientation, width: int, height: int) -> list[list[Line]]:
     items = sorted(
         (
             (cv2.boundingRect(_upright(line.box, orientation, width, height)), line)
@@ -309,11 +350,17 @@ def _text(lines: list[Line], orientation: Orientation, width: int, height: int) 
         else:
             groups.append([(rect, line)])
 
-    texts: list[str] = []
     for group in groups:
         group.sort(key=lambda item: item[0][0])
-        text = ' '.join(line.text for _, line in group).strip()
-        confidence = sum(line.confidence for _, line in group) / len(group)
+
+    return [[line for _, line in group] for group in groups]
+
+
+def _text(rows: list[list[Line]]) -> str:
+    texts: list[str] = []
+    for row in rows:
+        text = ' '.join(line.text for line in row).strip()
+        confidence = sum(line.confidence for line in row) / len(row)
 
         if confidence >= MIN_CONFIDENCE and _letters(text):
             texts.append(text)
@@ -321,7 +368,12 @@ def _text(lines: list[Line], orientation: Orientation, width: int, height: int) 
     return '\n'.join(texts)
 
 
-async def read(image: Pixels) -> str:
+def _text_line(line: Line) -> TextLine:
+    corners: list[list[float]] = line.corners.tolist()
+    return TextLine(line.text, tuple((round(x, 1), round(y, 1)) for x, y in corners), line.bounds)
+
+
+async def _scan(image: Pixels) -> list[list[Line]]:
     height, width = image.shape[:2]
     tier = models.preset().ocr
 
@@ -342,4 +394,13 @@ async def read(image: Pixels) -> str:
             ) as recognizer:
                 lines = await asyncio.to_thread(_reread, recognizer, lines, name == 'arabic')
 
-    return _text(lines, page.orientation, width, height)
+    return _rows(lines, page.orientation, width, height)
+
+
+async def read(image: Pixels) -> str:
+    return _text(await _scan(image))
+
+
+async def read_lines(image: Pixels) -> tuple[str, list[TextLine]]:
+    rows = await _scan(image)
+    return _text(rows), [_text_line(line) for row in rows for line in row if line.text]
