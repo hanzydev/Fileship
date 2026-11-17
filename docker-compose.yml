@@ -1,5 +1,5 @@
 x-fileship: &fileship
-    image: ghcr.io/hanzydev/fileship:latest
+    image: ghcr.io/hanzydev/fileship:${FILESHIP_VERSION:-latest}
     restart: unless-stopped
     init: true
     stop_grace_period: 30s
@@ -60,16 +60,16 @@ services:
         profiles: [green]
 
     updater-agent:
-        image: ghcr.io/hanzydev/fileship-updater-agent:latest
+        image: ghcr.io/hanzydev/fileship-updater-agent:${FILESHIP_VERSION:-latest}
         restart: unless-stopped
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
-            - ./docker-compose.yml:/fileship/docker-compose.yml
+            - .:/fileship/project
         environment:
             DEV_MODE: false
             AUTOUPDATER_ENABLED: true
             SECRET_TOKEN: ${SECRET_TOKEN}
-            COMPOSE_FILE: docker-compose.yml
+            COMPOSE_FILE: project/docker-compose.yml
             FILESHIP_URL: http://proxy:3000
 
 volumes:
