@@ -194,9 +194,6 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
     registerHotkeys();
     startUpdater();
     runAsync([] { harbor::startHarbor(); });
-    runAsync([] {
-        if (isConnected()) refreshServerAi();
-    });
 
     auto const& arguments = launchOptions().arguments;
     if (!handleLaunch(arguments, std::filesystem::current_path()) && !launchOptions().hidden) showMainWindow();

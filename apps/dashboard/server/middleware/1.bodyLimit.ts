@@ -8,7 +8,7 @@ const STREAMED_ROUTES = [
 ];
 
 const bodyLimitOf = (method: string, path: string) => {
-    if (path === '/api/ai/ocr' || path === '/api/ai/redact') return 21 * MB;
+    if (path === '/api/ai/ocr') return 21 * MB;
 
     if (method === 'PATCH' && /^\/api\/users\/[^/]+$/.test(path))
         return Math.ceil((getSettingsSync().avatarMaxSize * MB * 4) / 3) + MB;

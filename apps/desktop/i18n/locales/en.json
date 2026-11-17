@@ -25,7 +25,6 @@
             "step": "Step number",
             "blur": "Blur",
             "pixelate": "Pixelate",
-            "redact": "Redact",
             "eraser": "Smart eraser",
             "emoji": "Emoji"
         },
@@ -38,30 +37,7 @@
         "shadow": "Shadow",
         "undo": "Undo",
         "redo": "Redo",
-        "delete": "Delete",
-        "scan": {
-            "detecting": "Detecting sensitive information…",
-            "screen": "Scanning the screen…",
-            "text": "Reading the text…",
-            "keys": "Looking for API keys…",
-            "secrets": "Checking passwords and tokens…",
-            "contacts": "Looking for emails and phone numbers…",
-            "cards": "Checking card and IBAN numbers…",
-            "addresses": "Checking IP addresses…",
-            "almost": "Almost done…",
-            "found": "{count} sensitive item redacted | {count} sensitive items redacted",
-            "none": "No sensitive information found",
-            "failed": "Could not check for sensitive information",
-            "kinds": {
-                "secret": "Secret",
-                "email": "Email",
-                "phone": "Phone number",
-                "card": "Card number",
-                "account": "Bank account",
-                "document": "ID document",
-                "ip": "IP address"
-            }
-        }
+        "delete": "Delete"
     },
     "app": {
         "somethingWentWrong": "Something went wrong",
@@ -100,11 +76,6 @@
         "capture": {
             "title": "Region capture",
             "description": "How the screen looks while you pick an area.",
-            "redact": {
-                "label": "Redact sensitive information",
-                "description": "Your Fileship finds API keys, passwords, tokens, emails, phone numbers, card numbers, IBANs and public IP addresses in screenshots with its AI and blacks them out before they are copied, saved or uploaded. In region capture you can see and edit the result.",
-                "unavailable": "Needs Fileship 6.9 or newer with AI turned on for your account."
-            },
             "detectWindows": {
                 "label": "Detect windows",
                 "description": "Highlight the window under the mouse so one click captures it."
@@ -616,9 +587,6 @@
         "imageSaved": "Image saved",
         "screenshotCopied": "Screenshot copied",
         "uploadsOff": "Uploading is turned off in the after capture settings.",
-        "redacted": "{count} sensitive item redacted | {count} sensitive items redacted",
-        "redactFailed": "Sensitive information not checked",
-        "redactFailedBody": "The screenshot could not be scanned, so nothing was blacked out.",
         "recordingKept": "Upload failed, recording saved",
         "recordingSaved": "Recording saved",
         "textCaptureOff": "Text capture is off",

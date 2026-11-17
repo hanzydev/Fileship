@@ -73,7 +73,7 @@
 
 ## 🖥️ Windows üçün Fileship
 
-Bildiriş sahəsindən ShareX üslubunda ekran görüntüsü çək, ekranı qeydə al və Fileship-ə yüklə, fayllarına isə Fileship Harbor ilə Fayl Bələdçisində bax. Ekran görüntülərindəki API açarları, şifrələr və digər gizli məlumatlar kompüterindən çıxmadan gizlədilir. 64 bitlik Windows 11 24H2 və ya daha yeni versiya, həmçinin Fileship 6.0 serveri lazımdır.
+Bildiriş sahəsindən ShareX üslubunda ekran görüntüsü çək, ekranı qeydə al və Fileship-ə yüklə, fayllarına isə Fileship Harbor ilə Fayl Bələdçisində bax. 64 bitlik Windows 11 24H2 və ya daha yeni versiya, həmçinin Fileship 6.0 serveri lazımdır.
 
 **[Son versiyanı endir](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [İmkanlar və quraşdırma](../../docs/desktop.md)
 

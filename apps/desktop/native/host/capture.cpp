@@ -62,39 +62,7 @@ void finishRegionCapture(PendingCapture const& pending, ui::OverlayResult const&
     }
 
     playShutter();
-    handleImage(fromOverlay(result), {}, L"screenshot", false);
-}
-
-void showOverlay(PendingCapture pending, ui::OverlayRequest request) {
-    std::optional<uint64_t> scanId;
-    std::shared_ptr<std::vector<ui::DisplaySnapshot>> scanDisplays;
-
-    if (pending.purpose == ui::OverlayPurpose::Capture) scanId = newScanId();
-    if (scanId) {
-        scanDisplays = std::make_shared<std::vector<ui::DisplaySnapshot>>(request.displays);
-        request.scanId = scanId;
-    }
-
-    auto cursor = request.cursor;
-    auto shared = std::make_shared<PendingCapture>(std::move(pending));
-    auto requestPointer = std::make_shared<ui::OverlayRequest>(std::move(request));
-
-    postToMainThread([shared, requestPointer, scanId, scanDisplays, cursor] {
-        bool isOpened = ui::openOverlay(std::move(*requestPointer), [shared](ui::OverlayResult result) {
-            isOpen = false;
-            notifyIdle();
-            runAsync([shared, result = std::move(result)] { finishRegionCapture(*shared, result); });
-        });
-
-        if (isOpened) {
-            if (scanId) runScan(*scanId, std::move(*scanDisplays), cursor);
-            return;
-        }
-
-        isOpen = false;
-        logError(L"Could not open region capture");
-        notify(t(L"app.overlayFailed"), t(L"app.tryAgain"));
-    });
+    handleImage(fromOverlay(result));
 }
 
 void recognize(core::Bitmap const& image) {
@@ -246,35 +214,27 @@ void openRegionCapture(ui::OverlayPurpose purpose, AreaCallback onArea, std::fun
             }
         }
 
-        showOverlay(std::move(pending), std::move(request));
+        auto shared = std::make_shared<PendingCapture>(std::move(pending));
+        auto requestPointer = std::make_shared<ui::OverlayRequest>(std::move(request));
+
+        postToMainThread([shared, requestPointer] {
+            bool isOpened = ui::openOverlay(std::move(*requestPointer), [shared](ui::OverlayResult result) {
+                isOpen = false;
+                notifyIdle();
+                runAsync([shared, result = std::move(result)] { finishRegionCapture(*shared, result); });
+            });
+
+            if (isOpened) return;
+
+            isOpen = false;
+            logError(L"Could not open region capture");
+            notify(t(L"app.overlayFailed"), t(L"app.tryAgain"));
+        });
     } catch (std::exception const& error) {
         logError(L"Could not open region capture: " + errorMessage(error));
         isOpen = false;
         notify(t(L"app.overlayFailed"), t(L"app.tryAgain"));
     }
-}
-
-void openSyntheticCapture(core::Bitmap image) {
-    if (isOpen.exchange(true)) return;
-
-    auto width = static_cast<int>(image.width);
-    auto height = static_cast<int>(image.height);
-    auto capture = jsonObject(settings(), L"capture");
-
-    ui::OverlayRequest request;
-    request.bounds = {0, 0, width, height};
-    request.showMagnifier = jsonBool(capture, L"showMagnifier", true);
-    request.theme = themeMode();
-    request.cursor = {width / 2, height / 2};
-
-    ui::DisplaySnapshot snapshot;
-    snapshot.id = 1;
-    snapshot.rect = {0, 0, width, height};
-    snapshot.isPrimary = true;
-    snapshot.bgra = std::move(image.pixels);
-    request.displays.push_back(std::move(snapshot));
-
-    showOverlay({}, std::move(request));
 }
 
 void pickArea(ui::OverlayPurpose purpose, AreaCallback onArea) {

@@ -1,4 +1,4 @@
-export const MIN_ENTITY_SCORE = 0.5;
+const MIN_ENTITY_SCORE = 0.5;
 
 const ENTITY_REASONS: Record<string, string> = {
     private_email: 'EMAIL',
@@ -12,7 +12,7 @@ const ENTITY_REASONS: Record<string, string> = {
 
 const SUPPORTING_REASONS = ['PERSON_NAME', 'PRIVATE_DATE'];
 
-export const CARD_PATTERN =
+const CARD_PATTERN =
     /^(?:4\d{12}(?:\d{3}){0,2}|5[1-5]\d{14}|2(?:2[2-9]|[3-6]\d|7[01]|720)\d{12,13}|3[47]\d{13}|3(?:0[0-5]|[689]\d)\d{11,16}|35\d{14,17}|6\d{15,18}|220[0-4]\d{12}|9792\d{12})$/;
 
 const CARD_PRINT = /\b(?:valid|good)\s?(?:thru|until)\b|\bexp(?:iry|ires)?\b/i;
@@ -25,11 +25,11 @@ const CAPTION_DOCUMENTS: [RegExp, string][] = [
     ],
 ];
 
-export const IBAN_PATTERN = /\b[A-Z]{2}\d{2}(?:\s?[A-Z0-9]{4}){2,7}(?:\s?[A-Z0-9]{1,4})?\b/g;
+const IBAN_PATTERN = /\b[A-Z]{2}\d{2}(?:\s?[A-Z0-9]{4}){2,7}(?:\s?[A-Z0-9]{1,4})?\b/g;
 
-export const compactPii = (value: string) => value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+const compact = (value: string) => value.toUpperCase().replace(/[^A-Z0-9]/g, '');
 
-export const isValidLuhn = (digits: string) => {
+const isValidLuhn = (digits: string) => {
     let sum = 0;
 
     for (let index = 0; index < digits.length; index++) {
@@ -41,7 +41,7 @@ export const isValidLuhn = (digits: string) => {
     return sum % 10 === 0;
 };
 
-export const isValidIban = (iban: string) => {
+const isValidIban = (iban: string) => {
     const rearranged = `${iban.slice(4)}${iban.slice(0, 4)}`.replace(/[A-Z]/g, (letter) =>
         String(letter.charCodeAt(0) - 55),
     );
@@ -55,7 +55,7 @@ const mrzCheckDigit = (value: string) =>
         return sum + code * [7, 3, 1][index % 3]!;
     }, 0) % 10;
 
-export const hasValidMrz = (text: string) => {
+const hasValidMrz = (text: string) => {
     if (!text.includes('<<')) return false;
 
     const compacted = text.toUpperCase().replace(/\s+/g, '');
@@ -89,7 +89,7 @@ const findValidatedPii = (text: string) => {
     const upper = text.toUpperCase();
 
     for (const match of upper.match(IBAN_PATTERN) ?? []) {
-        const iban = compactPii(match);
+        const iban = compact(match);
 
         if (isValidIban(iban)) {
             reasons.add('IBAN');
@@ -98,7 +98,7 @@ const findValidatedPii = (text: string) => {
     }
 
     for (const match of upper.replace(IBAN_PATTERN, ' ').match(/\d(?:[\s-]?\d){11,18}/g) ?? []) {
-        const digits = compactPii(match);
+        const digits = compact(match);
 
         if (CARD_PATTERN.test(digits) && isValidLuhn(digits)) {
             reasons.add('PAYMENT_CARD');
@@ -125,7 +125,7 @@ export const findPii = (text: string, entities: PrivacyEntity[], caption = '') =
         const reason = ENTITY_REASONS[entity.group];
         if (!reason || entity.score < MIN_ENTITY_SCORE) continue;
 
-        const value = compactPii(entity.word);
+        const value = compact(entity.word);
 
         if (
             value.length < 3 ||

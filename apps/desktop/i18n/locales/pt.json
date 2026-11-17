@@ -25,7 +25,6 @@
             "step": "Número de etapa",
             "blur": "Desfoque",
             "pixelate": "Pixelizar",
-            "redact": "Censurar",
             "eraser": "Borracha inteligente",
             "emoji": "Emoji"
         },
@@ -38,30 +37,7 @@
         "shadow": "Sombra",
         "undo": "Desfazer",
         "redo": "Refazer",
-        "delete": "Excluir",
-        "scan": {
-            "detecting": "Detectando informações sensíveis…",
-            "screen": "Analisando a tela…",
-            "text": "Lendo o texto…",
-            "keys": "Procurando chaves de API…",
-            "secrets": "Verificando senhas e tokens…",
-            "contacts": "Procurando e-mails e telefones…",
-            "cards": "Verificando números de cartão e IBAN…",
-            "addresses": "Verificando endereços IP…",
-            "almost": "Quase pronto…",
-            "found": "{count} informação sensível censurada | {count} informações sensíveis censuradas",
-            "none": "Nenhuma informação sensível encontrada",
-            "failed": "Não foi possível verificar informações sensíveis",
-            "kinds": {
-                "secret": "Chave secreta",
-                "email": "E-mail",
-                "phone": "Telefone",
-                "card": "Número do cartão",
-                "account": "Conta bancária",
-                "document": "Documento de identidade",
-                "ip": "Endereço IP"
-            }
-        }
+        "delete": "Excluir"
     },
     "app": {
         "somethingWentWrong": "Algo deu errado",
@@ -100,11 +76,6 @@
         "capture": {
             "title": "Captura de área",
             "description": "Como a tela fica enquanto você escolhe uma área.",
-            "redact": {
-                "label": "Ocultar informações sensíveis",
-                "description": "A IA do seu servidor encontra chaves de API, senhas, tokens, e-mails, números de telefone e de cartão, IBANs e endereços IP públicos nas capturas de tela e os oculta antes de copiar, salvar ou enviar. Na captura de área, dá para ver e editar o resultado.",
-                "unavailable": "Requer Fileship 6.9 ou mais recente com a IA ativada na sua conta."
-            },
             "detectWindows": {
                 "label": "Detectar janelas",
                 "description": "Destaca a janela sob o mouse para capturá-la com um clique."
@@ -616,9 +587,6 @@
         "imageSaved": "Imagem salva",
         "screenshotCopied": "Captura de tela copiada",
         "uploadsOff": "O envio está desativado nas configurações, em Após a captura.",
-        "redacted": "{count} informação sensível ocultada | {count} informações sensíveis ocultadas",
-        "redactFailed": "Informações sensíveis não verificadas",
-        "redactFailedBody": "Não foi possível analisar a captura de tela, então nada foi ocultado.",
         "recordingKept": "Falha no envio, gravação salva",
         "recordingSaved": "Gravação salva",
         "textCaptureOff": "A captura de texto está desativada",

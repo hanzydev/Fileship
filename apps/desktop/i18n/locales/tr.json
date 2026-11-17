@@ -25,7 +25,6 @@
             "step": "Adım numarası",
             "blur": "Bulanıklaştır",
             "pixelate": "Pikselleştir",
-            "redact": "Sansürle",
             "eraser": "Akıllı silgi",
             "emoji": "Emoji"
         },
@@ -38,30 +37,7 @@
         "shadow": "Gölge",
         "undo": "Geri al",
         "redo": "Yinele",
-        "delete": "Sil",
-        "scan": {
-            "detecting": "Hassas bilgiler tespit ediliyor…",
-            "screen": "Ekran taranıyor…",
-            "text": "Metinler okunuyor…",
-            "keys": "API anahtarları aranıyor…",
-            "secrets": "Şifreler ve tokenlar kontrol ediliyor…",
-            "contacts": "E-postalar ve telefonlar aranıyor…",
-            "cards": "Kart ve IBAN numaraları kontrol ediliyor…",
-            "addresses": "IP adresleri kontrol ediliyor…",
-            "almost": "Neredeyse bitti…",
-            "found": "{count} hassas bilgi karartıldı",
-            "none": "Hassas bilgi bulunamadı",
-            "failed": "Hassas bilgiler kontrol edilemedi",
-            "kinds": {
-                "secret": "Gizli anahtar",
-                "email": "E-posta",
-                "phone": "Telefon numarası",
-                "card": "Kart numarası",
-                "account": "Banka hesabı",
-                "document": "Kimlik belgesi",
-                "ip": "IP adresi"
-            }
-        }
+        "delete": "Sil"
     },
     "app": {
         "somethingWentWrong": "Bir sorun oluştu",
@@ -100,11 +76,6 @@
         "capture": {
             "title": "Bölge yakalama",
             "description": "Alan seçerken ekranda görünenler.",
-            "redact": {
-                "label": "Hassas bilgileri karart",
-                "description": "Ekran görüntülerindeki API anahtarları, şifreler, tokenlar, e-postalar, telefon ve kart numaraları, IBAN'lar ve herkese açık IP adresleri sunucundaki AI ile bulunur; kopyalanmadan, kaydedilmeden ve yüklenmeden önce karartılır. Bölge yakalamada sonucu görüp düzenleyebilirsin.",
-                "unavailable": "Fileship 6.9 veya daha yeni bir sunucu ve hesabında açık AI gerekir."
-            },
             "detectWindows": {
                 "label": "Pencereleri algıla",
                 "description": "Farenin altındaki pencere vurgulanır, tek tıklamayla yakalanır."
@@ -616,9 +587,6 @@
         "imageSaved": "Görüntü kaydedildi",
         "screenshotCopied": "Ekran görüntüsü kopyalandı",
         "uploadsOff": "Yükleme, \"Yakaladıktan sonra\" ayarlarında kapalı.",
-        "redacted": "{count} hassas bilgi karartıldı",
-        "redactFailed": "Hassas bilgiler kontrol edilemedi",
-        "redactFailedBody": "Ekran görüntüsü taranamadı, hiçbir şey karartılmadı.",
         "recordingKept": "Kayıt yüklenemedi, bilgisayara kaydedildi",
         "recordingSaved": "Ekran kaydı kaydedildi",
         "textCaptureOff": "Metin yakalama kapalı",

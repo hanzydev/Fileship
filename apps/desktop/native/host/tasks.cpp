@@ -91,8 +91,7 @@ std::optional<std::filesystem::path> notificationImage(std::wstring const& histo
 
 std::optional<std::wstring> uploadAndFinish(std::wstring const& historyId, UploadSource source,
                                             std::optional<std::wstring> const& thumbnail = {},
-                                            std::function<void(std::wstring const&)> const& onFailure = {},
-                                            std::wstring const& note = {}) {
+                                            std::function<void(std::wstring const&)> const& onFailure = {}) {
     UploadToast toast(historyId, source.name);
 
     try {
@@ -100,7 +99,7 @@ std::optional<std::wstring> uploadAndFinish(std::wstring const& historyId, Uploa
         auto uploaded =
             uploadFile(source, uploadOptions(), [&](int64_t sent, int64_t total) { toast.update(sent, total); });
         toast.close();
-        return finishUpload(historyId, uploaded, notificationImage(historyId, thumbnail), note);
+        return finishUpload(historyId, uploaded, notificationImage(historyId, thumbnail));
     } catch (UploadCanceled const&) {
         toast.close();
         updateHistory(historyId, {{L"error", t(L"tasks.uploadCanceled")}});
@@ -118,12 +117,8 @@ std::optional<std::wstring> uploadAndFinish(std::wstring const& historyId, Uploa
     }
 }
 
-std::wstring withNote(std::wstring const& body, std::wstring const& note) {
-    return note.empty() ? body : body + L"\n" + note;
-}
-
-void notifySaved(std::filesystem::path const& path, std::wstring const& note = {}) {
-    notify(t(L"tasks.imageSaved"), withNote(path.wstring(), note), [path] { showItemInFolder(path); });
+void notifySaved(std::filesystem::path const& path) {
+    notify(t(L"tasks.imageSaved"), path.wstring(), [path] { showItemInFolder(path); });
 }
 
 std::optional<std::wstring> saveImage(std::vector<uint8_t> const& png, std::wstring const& name) {
@@ -286,7 +281,7 @@ std::wstring thumbnailOf(core::Bitmap const& bitmap) {
 }
 
 std::wstring finishUpload(std::wstring const& historyId, UploadedFile const& file,
-                          std::optional<std::filesystem::path> const& image, std::wstring const& note) {
+                          std::optional<std::filesystem::path> const& image) {
     auto afterUpload = jsonObject(settings(), L"afterUpload");
     auto url = file.url;
     std::optional<std::wstring> shortUrl;
@@ -311,13 +306,13 @@ std::wstring finishUpload(std::wstring const& historyId, UploadedFile const& fil
         std::function<void()> onClick = [url] { openWebUrl(url); };
         if (image && !file.id.empty()) onClick = [id = file.id] { openDashboard(L"/dashboard/files?file=" + id); };
 
-        notify(t(copyUrl ? L"tasks.uploadedLinkCopied" : L"tasks.uploaded"), withNote(url, note), onClick, image);
+        notify(t(copyUrl ? L"tasks.uploadedLinkCopied" : L"tasks.uploaded"), url, onClick, image);
     }
 
     return url;
 }
 
-void handleImage(core::Bitmap const& captured, std::wstring const& title, std::wstring const& kind, bool redact) {
+void handleImage(core::Bitmap const& image, std::wstring const& title, std::wstring const& kind) {
     BusyScope busy;
 
     auto current = settings();
@@ -325,24 +320,7 @@ void handleImage(core::Bitmap const& captured, std::wstring const& title, std::w
     auto base = formatFileName(jsonString(jsonObject(current, L"save"), L"pattern", L"%yyyy-%mo-%d_%h-%mi-%s"), title);
     auto name = (base.empty() ? L"capture" : base) + L".png";
 
-    auto png = core::encodeImage(captured.pixels.data(), captured.width, captured.height, {});
-    std::optional<core::Bitmap> redacted;
-    std::wstring note;
-
-    if (redact && isRedactionEnabled()) {
-        auto result = findRedactions(png);
-
-        if (result.outcome == ui::ScanOutcome::Failed) {
-            notify(t(L"tasks.redactFailed"), t(L"tasks.redactFailedBody"));
-        } else if (!result.regions.empty()) {
-            redacted = captured;
-            applyRedactions(*redacted, result.regions);
-            png = core::encodeImage(redacted->pixels.data(), redacted->width, redacted->height, {});
-            note = t(L"tasks.redacted", {{L"count", std::to_wstring(result.regions.size())}});
-        }
-    }
-
-    auto const& image = redacted ? *redacted : captured;
+    auto png = core::encodeImage(image.pixels.data(), image.width, image.height, {});
     auto thumbnail = thumbnailOf(image);
 
     std::optional<std::wstring> localPath;
@@ -357,12 +335,12 @@ void handleImage(core::Bitmap const& captured, std::wstring const& title, std::w
         std::function<void(std::wstring const&)> onFailure;
         if (!localPath) onFailure = [&](std::wstring const& message) { keepImage(id, png, name, message); };
 
-        uploadAndFinish(id, std::move(source), thumbnail, onFailure, note);
+        uploadAndFinish(id, std::move(source), thumbnail, onFailure);
     } else if (localPath) {
-        notifySaved(*localPath, note);
+        notifySaved(*localPath);
     } else {
         if (!jsonBool(afterCapture, L"copyImage")) writeClipboardImage(png, image);
-        notify(t(L"tasks.screenshotCopied"), withNote(t(L"tasks.uploadsOff"), note));
+        notify(t(L"tasks.screenshotCopied"), t(L"tasks.uploadsOff"));
     }
 }
 

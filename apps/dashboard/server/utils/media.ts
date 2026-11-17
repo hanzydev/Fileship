@@ -90,21 +90,6 @@ export const aiImage = (input: SharpInput) => fitImage(input, 1024).removeAlpha(
 
 export const aiOcrImage = (input: SharpInput) => fitImage(input, 1600).png().toBuffer();
 
-export const aiRedactImage = async (input: Buffer) => {
-    const metadata = await openImage(input).metadata();
-    const isRotated = metadata.orientation! >= 5;
-    const { data, info } = await fitImage(input, 2560).png().toBuffer({ resolveWithObject: true });
-
-    return {
-        image: data,
-        scanned: { width: info.width, height: info.height },
-        original: {
-            width: isRotated ? metadata.height : metadata.width,
-            height: isRotated ? metadata.width : metadata.height,
-        },
-    };
-};
-
 const readVideoFrame = (filePath: string, seconds: number) =>
     new Promise<Buffer>((resolve, reject) => {
         const chunks: Buffer[] = [];

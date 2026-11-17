@@ -1,8 +1,7 @@
 from typing import Any
 
 import numpy as np
-from harness import FIXTURES, INPUTS, REFERENCE, VIDEO_FRAMES, Run, cosine, error_rate, vector
-from PIL import Image
+from harness import INPUTS, REFERENCE, VIDEO_FRAMES, Run, cosine, error_rate, vector
 
 from fileship_ml.presets import PRESETS
 
@@ -50,24 +49,6 @@ def test_ocr_not_worse(run: Run) -> None:
     references = REFERENCE['ocr'][PRESETS[run.preset].ocr]
     for name, truth in INPUTS['ocr'].items():
         assert error_rate(run.ocr[name], truth) <= error_rate(references[name], truth), name
-
-
-def test_ocr_lines(run: Run) -> None:
-    for name, result in run.lines.items():
-        assert result['text'] == run.ocr[name], name
-        width, height = Image.open(FIXTURES / f'{name}.png').size
-
-        for line in result['lines']:
-            assert all(0 <= x <= width and 0 <= y <= height for x, y in line['box']), name
-
-            characters = line['characters']
-            if characters is not None:
-                assert len(characters) == len(line['text']) + 1, name
-                assert characters == sorted(characters), name
-                assert characters[0] == 0 and characters[-1] == 1, name
-
-    start, end, _, _ = run.lines['rotated-180']['lines'][0]['box']
-    assert start[0] > end[0]
 
 
 def test_captions(run: Run) -> None:

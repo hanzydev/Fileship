@@ -73,7 +73,7 @@ Zipline 4.8, XBackBone 3.8 ve Chibisafe 6.7 ile Ekim 2026'da karşılaştırıld
 
 ## 🖥️ Windows için Fileship
 
-Bildirim alanından ShareX tarzında ekran görüntüsü al, kayıt yap ve Fileship'ine yükle; dosyalarına da Fileship Harbor ile Dosya Gezgini'nden göz at. Ekran görüntülerindeki API anahtarları, şifreler ve diğer sırlar bilgisayarından çıkmadan karartılır. 64 bit Windows 11 24H2 veya daha yeni bir sürüm ve Fileship 6.0 sunucusu gerekir.
+Bildirim alanından ShareX tarzında ekran görüntüsü al, kayıt yap ve Fileship'ine yükle; dosyalarına da Fileship Harbor ile Dosya Gezgini'nden göz at. 64 bit Windows 11 24H2 veya daha yeni bir sürüm ve Fileship 6.0 sunucusu gerekir.
 
 **[Son sürümü indir](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Özellikler ve kurulum](../../docs/desktop.md)
 

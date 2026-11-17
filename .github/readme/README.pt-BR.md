@@ -73,7 +73,7 @@ Comparado com Zipline 4.8, XBackBone 3.8 e Chibisafe 6.7 em outubro de 2026. Alg
 
 ## 🖥️ Fileship para Windows
 
-Capture, grave e envie para o seu Fileship pela área de notificação, no estilo do ShareX, e navegue pelos seus arquivos no Explorador de Arquivos com o Fileship Harbor. Chaves de API, senhas e outros segredos nas suas capturas de tela são ocultados antes de saírem do seu PC. Requer Windows 11 de 64 bits, versão 24H2 ou mais recente, e um servidor Fileship 6.0.
+Capture, grave e envie para o seu Fileship pela área de notificação, no estilo do ShareX, e navegue pelos seus arquivos no Explorador de Arquivos com o Fileship Harbor. Requer Windows 11 de 64 bits, versão 24H2 ou mais recente, e um servidor Fileship 6.0.
 
 **[Baixar a versão mais recente](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Recursos e configuração](../../docs/desktop.md)
 

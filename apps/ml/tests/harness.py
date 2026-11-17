@@ -48,7 +48,6 @@ class Run:
     privacy: list[list[dict[str, Any]]] = field(default_factory=list[list[dict[str, Any]]])
     captions: dict[str, str] = field(default_factory=dict[str, str])
     ocr: dict[str, str] = field(default_factory=dict[str, str])
-    lines: dict[str, dict[str, Any]] = field(default_factory=dict[str, dict[str, Any]])
     timings: dict[str, list[float]] = field(default_factory=dict[str, list[float]])
     peak_rss: int = 0
 
@@ -117,11 +116,6 @@ def _collect(run: Run, client: httpx.Client) -> None:
 
     for name in INPUTS['ocr']:
         run.ocr[name] = call('/image/ocr', files=[_image(name)])['text']
-
-    for name in INPUTS['ocr']:
-        response = client.post('/image/ocr/lines', files=[_image(name)])
-        response.raise_for_status()
-        run.lines[name] = response.json()
 
 
 def _summary(run: Run) -> list[str]:

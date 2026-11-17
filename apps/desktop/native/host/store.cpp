@@ -189,9 +189,6 @@ std::optional<JsonObject> normalizeUser(IJsonValue const& value) {
 
     result.SetNamedValue(L"permissions", permissions);
     result.SetNamedValue(L"superAdmin", JsonValue::CreateBooleanValue(jsonBool(user, L"superAdmin")));
-    result.SetNamedValue(L"aiEnabled", JsonValue::CreateBooleanValue(
-                                           jsonBool(jsonObject(user, L"aiSettings"), L"enabled", true) &&
-                                           jsonBool(user, L"aiEnabled", true)));
     return result;
 }
 

@@ -94,11 +94,6 @@ bool canUseDesktop(JsonObject const& user) {
 
 }
 
-bool isFileshipAtLeast(std::wstring const& reported, std::wstring const& minimum) {
-    auto version = coerceVersion(reported);
-    return version && !isOlder(*version, *coerceVersion(minimum));
-}
-
 JsonValue request(std::wstring const& baseUrl, std::wstring const& method, std::wstring const& path,
                   std::vector<char> body, std::wstring const& contentType, std::wstring const& bearer,
                   int timeoutMs, std::function<void(size_t, size_t)> const& onSent) {
@@ -201,8 +196,6 @@ JsonObject checkInstance(std::wstring const& input) {
     auto version = coerceVersion(reported);
     if (!version) throw translatedError(t(L"app.serverNotFound", {{L"url", url}}));
 
-    noteServerVersion(reported);
-
     auto minimum = *coerceVersion(MIN_FILESHIP_VERSION);
     if (isOlder(*version, minimum)) {
         throw translatedError(t(L"app.serverTooOld",
@@ -215,7 +208,6 @@ JsonObject checkInstance(std::wstring const& input) {
         if (publicSettings.ValueType() == JsonValueType::Object) {
             auto value = jsonString(publicSettings.GetObject(), L"siteName");
             if (!value.empty()) name = value;
-            noteServerAi(jsonBool(publicSettings.GetObject(), L"aiEnabled", true));
         }
     } catch (std::exception const&) {
     }
@@ -240,7 +232,6 @@ IJsonValue accountJson() {
     account.SetNamedValue(L"instanceUrl", JsonValue::CreateStringValue(url));
     account.SetNamedValue(L"siteName", JsonValue::CreateStringValue(jsonString(store, L"siteName", L"Fileship")));
     account.SetNamedValue(L"user", user);
-    account.SetNamedValue(L"aiEnabled", JsonValue::CreateBooleanValue(isAiAvailable()));
     return account;
 }
 
@@ -251,7 +242,6 @@ IJsonValue getAccount() {
 
     try {
         setSession(url, siteName(), sessionToken, fetchUser(url, sessionToken));
-        refreshServerAi();
     } catch (ApiError const& error) {
         if (error.status == 401) {
             handleUnauthorized();

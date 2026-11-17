@@ -38,11 +38,6 @@ class Text(BaseModel):
     text: str
 
 
-class Lines(BaseModel):
-    text: str
-    lines: list[ocr.TextLine]
-
-
 class Entities(BaseModel):
     entities: list[privacy.Entity]
 
@@ -93,12 +88,6 @@ async def caption_image(image: Annotated[UploadFile, File()]) -> Caption:
 @router.post('/image/ocr')
 async def read_image(image: Annotated[UploadFile, File()]) -> Text:
     return Text(text=await ocr.read(await pixels(image)))
-
-
-@router.post('/image/ocr/lines')
-async def read_image_lines(image: Annotated[UploadFile, File()]) -> Lines:
-    text, lines = await ocr.read_lines(await pixels(image))
-    return Lines(text=text, lines=lines)
 
 
 @router.post('/text/embed')

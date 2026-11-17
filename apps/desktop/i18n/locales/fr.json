@@ -25,7 +25,6 @@
             "step": "Numéro d'étape",
             "blur": "Flou",
             "pixelate": "Pixeliser",
-            "redact": "Caviarder",
             "eraser": "Gomme intelligente",
             "emoji": "Emoji"
         },
@@ -38,30 +37,7 @@
         "shadow": "Ombre",
         "undo": "Annuler",
         "redo": "Rétablir",
-        "delete": "Supprimer",
-        "scan": {
-            "detecting": "Détection des informations sensibles…",
-            "screen": "Analyse de l'écran…",
-            "text": "Lecture du texte…",
-            "keys": "Recherche de clés d'API…",
-            "secrets": "Vérification des mots de passe et des jetons…",
-            "contacts": "Recherche d'adresses e-mail et de numéros de téléphone…",
-            "cards": "Vérification des numéros de carte et d'IBAN…",
-            "addresses": "Vérification des adresses IP…",
-            "almost": "Presque terminé…",
-            "found": "{count} information sensible caviardée | {count} informations sensibles caviardées",
-            "none": "Aucune information sensible trouvée",
-            "failed": "Impossible de vérifier les informations sensibles",
-            "kinds": {
-                "secret": "Clé secrète",
-                "email": "Adresse e-mail",
-                "phone": "Numéro de téléphone",
-                "card": "Numéro de carte",
-                "account": "Compte bancaire",
-                "document": "Pièce d'identité",
-                "ip": "Adresse IP"
-            }
-        }
+        "delete": "Supprimer"
     },
     "app": {
         "somethingWentWrong": "Un problème est survenu",
@@ -100,11 +76,6 @@
         "capture": {
             "title": "Capture de zone",
             "description": "Ce qui s'affiche à l'écran pendant que vous sélectionnez une zone.",
-            "redact": {
-                "label": "Masquer les informations sensibles",
-                "description": "L'IA de votre serveur repère les clés d'API, mots de passe, jetons, adresses e-mail, numéros de téléphone et de carte, IBAN et adresses IP publiques dans les captures d'écran, et les masque avant qu'elles ne soient copiées, enregistrées ou importées. Lors de la capture d'une zone, vous voyez le résultat et pouvez le modifier.",
-                "unavailable": "Nécessite Fileship 6.9 ou ultérieur avec l'IA activée pour votre compte."
-            },
             "detectWindows": {
                 "label": "Détecter les fenêtres",
                 "description": "Met en surbrillance la fenêtre sous la souris pour la capturer d'un simple clic."
@@ -616,9 +587,6 @@
         "imageSaved": "Image enregistrée",
         "screenshotCopied": "Capture d'écran copiée",
         "uploadsOff": "L'importation est désactivée dans les paramètres « Après la capture ».",
-        "redacted": "{count} information sensible masquée | {count} informations sensibles masquées",
-        "redactFailed": "Informations sensibles non vérifiées",
-        "redactFailedBody": "La capture d'écran n'a pas pu être analysée, rien n'a été masqué.",
         "recordingKept": "Échec de l'importation, enregistrement conservé sur cet ordinateur",
         "recordingSaved": "Enregistrement sauvegardé",
         "textCaptureOff": "La capture de texte est désactivée",

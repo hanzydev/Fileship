@@ -70,5 +70,3 @@ Public information such as company addresses, support emails, brands and public 
 Sensitive files are hidden from public folders and their archives, and can be blurred for you with **Hide sensitive previews** in your AI settings. While AI is enabled, images and text files are also kept out of public folders until they have been checked.
 
 If Fileship gets it wrong, choose **Not sensitive** or **Mark as sensitive** from the file's menu. Your choice is kept when the file is checked again.
-
-[Fileship for Windows](desktop.md#redacting-sensitive-information) uses the same OCR and model, plus rules for API keys, tokens and public IP addresses, to black out sensitive information in screenshots before they are shared. Those screenshots are scanned without being stored.

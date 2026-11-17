@@ -224,24 +224,6 @@ void registerHandlers() {
         return none();
     });
 
-    if (launchOptions().dev) {
-        registerHandler(L"dev:handleImage", [](JsonArray const& args) -> IJsonValue {
-            auto image = core::decodeImageFile(stringArg(args, 0));
-            if (!image) throw std::runtime_error("Could not read the image");
-
-            runAsync([image = std::move(*image)] { handleImage(image); });
-            return none();
-        });
-
-        registerHandler(L"dev:regionCapture", [](JsonArray const& args) -> IJsonValue {
-            auto image = core::decodeImageFile(stringArg(args, 0));
-            if (!image) throw std::runtime_error("Could not read the image");
-
-            openSyntheticCapture(std::move(*image));
-            return none();
-        });
-    }
-
     registerHandler(L"history:list", [](JsonArray const& args) -> IJsonValue {
         return listHistory(static_cast<int64_t>(numberArg(args, 0)), static_cast<int64_t>(numberArg(args, 1)));
     });

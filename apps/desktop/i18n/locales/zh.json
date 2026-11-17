@@ -25,7 +25,6 @@
             "step": "步骤编号",
             "blur": "模糊",
             "pixelate": "像素化",
-            "redact": "遮盖",
             "eraser": "智能橡皮擦",
             "emoji": "表情符号"
         },
@@ -38,30 +37,7 @@
         "shadow": "阴影",
         "undo": "撤销",
         "redo": "重做",
-        "delete": "删除",
-        "scan": {
-            "detecting": "正在检测敏感信息…",
-            "screen": "正在扫描屏幕…",
-            "text": "正在识别文字…",
-            "keys": "正在查找 API 密钥…",
-            "secrets": "正在检查密码和令牌…",
-            "contacts": "正在查找邮箱和电话号码…",
-            "cards": "正在检查银行卡号和 IBAN…",
-            "addresses": "正在检查 IP 地址…",
-            "almost": "即将完成…",
-            "found": "已遮盖 {count} 处敏感信息",
-            "none": "未发现敏感信息",
-            "failed": "无法检查敏感信息",
-            "kinds": {
-                "secret": "密钥",
-                "email": "邮箱",
-                "phone": "电话号码",
-                "card": "银行卡号",
-                "account": "银行账户",
-                "document": "身份证件",
-                "ip": "IP 地址"
-            }
-        }
+        "delete": "删除"
     },
     "app": {
         "somethingWentWrong": "出了点问题",
@@ -100,11 +76,6 @@
         "capture": {
             "title": "区域截图",
             "description": "选择区域时屏幕上的显示效果。",
-            "redact": {
-                "label": "隐藏敏感信息",
-                "description": "你的服务器上的 AI 会查找截图中的 API 密钥、密码、令牌、邮箱地址、电话号码、银行卡号、IBAN 和公网 IP 地址，并在复制、保存或上传前将其遮盖。区域截取时，你可以查看并编辑结果。",
-                "unavailable": "需要 Fileship 6.9 或更高版本，并为你的账户开启 AI。"
-            },
             "detectWindows": {
                 "label": "检测窗口",
                 "description": "高亮显示鼠标下方的窗口，单击即可截取。"
@@ -616,9 +587,6 @@
         "imageSaved": "图片已保存",
         "screenshotCopied": "截图已复制",
         "uploadsOff": "“截图后”设置中已关闭上传。",
-        "redacted": "已遮盖 {count} 处敏感信息",
-        "redactFailed": "未能检查敏感信息",
-        "redactFailedBody": "无法扫描截图，因此未遮盖任何内容。",
         "recordingKept": "上传失败，录屏已保存",
         "recordingSaved": "录屏已保存",
         "textCaptureOff": "文字提取已关闭",

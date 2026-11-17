@@ -25,7 +25,6 @@
             "step": "단계 번호",
             "blur": "흐리게",
             "pixelate": "모자이크",
-            "redact": "가리기",
             "eraser": "스마트 지우개",
             "emoji": "이모지"
         },
@@ -38,30 +37,7 @@
         "shadow": "그림자",
         "undo": "실행 취소",
         "redo": "다시 실행",
-        "delete": "삭제",
-        "scan": {
-            "detecting": "민감한 정보를 감지하는 중…",
-            "screen": "화면을 스캔하는 중…",
-            "text": "텍스트를 읽는 중…",
-            "keys": "API 키를 찾는 중…",
-            "secrets": "비밀번호와 토큰을 확인하는 중…",
-            "contacts": "이메일과 전화번호를 찾는 중…",
-            "cards": "카드 번호와 IBAN을 확인하는 중…",
-            "addresses": "IP 주소를 확인하는 중…",
-            "almost": "거의 다 됐어요…",
-            "found": "민감한 정보 {count}개를 가렸어요",
-            "none": "민감한 정보를 찾지 못했어요",
-            "failed": "민감한 정보를 확인하지 못했어요",
-            "kinds": {
-                "secret": "비밀 키",
-                "email": "이메일",
-                "phone": "전화번호",
-                "card": "카드 번호",
-                "account": "은행 계좌",
-                "document": "신분증",
-                "ip": "IP 주소"
-            }
-        }
+        "delete": "삭제"
     },
     "app": {
         "somethingWentWrong": "문제가 발생했어요",
@@ -100,11 +76,6 @@
         "capture": {
             "title": "영역 캡처",
             "description": "영역을 선택하는 동안 화면에 표시할 요소예요.",
-            "redact": {
-                "label": "민감한 정보 가리기",
-                "description": "서버의 AI가 스크린샷에서 API 키, 비밀번호, 토큰, 이메일, 전화번호, 카드 번호, IBAN, 공개 IP 주소를 찾아 복사, 저장, 업로드 전에 가려요. 영역 캡처에서는 결과를 보고 수정할 수 있어요.",
-                "unavailable": "Fileship 6.9 이상과 계정에서 켜진 AI가 필요해요."
-            },
             "detectWindows": {
                 "label": "창 감지",
                 "description": "마우스 아래에 있는 창을 강조 표시해 한 번 클릭으로 캡처할 수 있어요."
@@ -616,9 +587,6 @@
         "imageSaved": "이미지를 저장했어요",
         "screenshotCopied": "스크린샷을 복사했어요",
         "uploadsOff": "캡처 후 설정에서 업로드가 꺼져 있어요.",
-        "redacted": "민감한 정보 {count}개를 가렸어요",
-        "redactFailed": "민감한 정보를 확인하지 못했어요",
-        "redactFailedBody": "스크린샷을 확인할 수 없어서 아무것도 가리지 않았어요.",
         "recordingKept": "업로드하지 못해 녹화 파일을 저장했어요",
         "recordingSaved": "녹화 파일을 저장했어요",
         "textCaptureOff": "텍스트 캡처가 꺼져 있어요",

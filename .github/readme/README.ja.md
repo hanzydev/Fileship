@@ -73,7 +73,7 @@
 
 ## 🖥️ Fileship for Windows
 
-通知領域から ShareX のようにキャプチャ、録画、Fileship へのアップロードができ、Fileship Harbor を使えばエクスプローラーでファイルを閲覧できます。スクリーンショット内の API キーやパスワードなどの機密情報は、PC から送信される前に隠されます。64 ビット版 Windows 11 バージョン 24H2 以降と、Fileship 6.0 のサーバーが必要です。
+通知領域から ShareX のようにキャプチャ、録画、Fileship へのアップロードができ、Fileship Harbor を使えばエクスプローラーでファイルを閲覧できます。64 ビット版 Windows 11 バージョン 24H2 以降と、Fileship 6.0 のサーバーが必要です。
 
 **[最新版をダウンロード](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [機能とセットアップ](../../docs/desktop.md)
 

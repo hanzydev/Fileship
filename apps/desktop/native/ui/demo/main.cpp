@@ -1,4 +1,3 @@
-#include <ui/effects.h>
 #include <ui/fixture.h>
 #include <ui/overlay.h>
 #include <ui/recorderUi.h>
@@ -345,14 +344,7 @@ void runScript(std::filesystem::path const& path, HWND window, ScreenRect const&
 
 std::vector<uint8_t> fixtureSnapshot(int width, int height);
 
-struct ScanScreen {
-    std::vector<uint8_t> pixels;
-    std::vector<Redaction> redactions;
-};
-
-ScanScreen scanScreen(int width, int height, POINT origin);
-
-OverlayRequest syntheticRequest(OverlayPurpose purpose, ThemeMode theme, std::vector<Redaction>* redactions) {
+OverlayRequest syntheticRequest(OverlayPurpose purpose, ThemeMode theme) {
     HMONITOR monitor = MonitorFromPoint({0, 0}, MONITOR_DEFAULTTOPRIMARY);
     MONITORINFO info{sizeof(info)};
     GetMonitorInfoW(monitor, &info);
@@ -374,14 +366,7 @@ OverlayRequest syntheticRequest(OverlayPurpose purpose, ThemeMode theme, std::ve
     display.rect = request.bounds;
     display.scaleFactor = dpiX / 96.0;
     display.isPrimary = true;
-    if (redactions) {
-        auto screen = scanScreen(width, height, {rect.left, rect.top});
-        display.bgra = std::move(screen.pixels);
-        *redactions = std::move(screen.redactions);
-        request.scanId = 1;
-    } else {
-        display.bgra = fixtureSnapshot(width, height);
-    }
+    display.bgra = fixtureSnapshot(width, height);
     request.displays.push_back(std::move(display));
 
     WindowTarget first;
@@ -393,12 +378,6 @@ OverlayRequest syntheticRequest(OverlayPurpose purpose, ThemeMode theme, std::ve
     return request;
 }
 
-ScanOutcome parseOutcome(std::string const& value) {
-    if (value == "failed") return ScanOutcome::Failed;
-    if (value == "unavailable") return ScanOutcome::Unavailable;
-    return ScanOutcome::Found;
-}
-
 OverlayPurpose parsePurpose(std::string const& value) {
     if (value == "ocr") return OverlayPurpose::Ocr;
     if (value == "video") return OverlayPurpose::Video;
@@ -407,15 +386,12 @@ OverlayPurpose parsePurpose(std::string const& value) {
 }
 
 int runOverlay(OverlayPurpose purpose, ThemeMode theme, std::filesystem::path const& output,
-               std::filesystem::path const& script, bool synthetic, int scanDelay, std::string const& outcome) {
+               std::filesystem::path const& script, bool synthetic) {
     auto before = memory();
     print("before capture: working set " + megabytes(before.workingSet) + ", private " + megabytes(before.privateBytes));
 
-    std::vector<Redaction> redactions;
-    auto request = synthetic ? syntheticRequest(purpose, theme, scanDelay >= 0 ? &redactions : nullptr)
-                             : captureRequest(purpose, theme);
+    auto request = synthetic ? syntheticRequest(purpose, theme) : captureRequest(purpose, theme);
     auto bounds = request.bounds;
-    auto scanId = request.scanId;
     auto captured = memory();
     print("after GDI capture: working set " + megabytes(captured.workingSet) + ", private " +
           megabytes(captured.privateBytes));
@@ -440,17 +416,6 @@ int runOverlay(OverlayPurpose purpose, ThemeMode theme, std::filesystem::path co
         return 1;
     }
 
-    std::thread scanner;
-    if (scanId) {
-        scanner = std::thread([&] {
-            Sleep(static_cast<DWORD>(scanDelay));
-            auto found = outcome == "none" ? std::vector<Redaction>{} : redactions;
-            print("scan delivered: " + std::to_string(found.size()) + " redactions, outcome " + outcome);
-            deliverScan(*scanId, std::move(found), parseOutcome(outcome));
-            finishScan(*scanId);
-        });
-    }
-
     HWND window = findOverlay();
     print("overlay visible after " + std::to_string(static_cast<int>(GetTickCount64() - start)) + " ms");
     Sleep(300);
@@ -462,7 +427,6 @@ int runOverlay(OverlayPurpose purpose, ThemeMode theme, std::filesystem::path co
     waiter.wait();
     isSampling = false;
     sampler.join();
-    if (scanner.joinable()) scanner.join();
     Sleep(200);
 
     auto after = memory();
@@ -621,127 +585,6 @@ std::vector<uint8_t> fixtureSnapshot(int width, int height) {
             set(x, y, channel(value), channel(255 - value), channel(180));
         }
 
-    return pixels;
-}
-
-ScanScreen scanScreen(int width, int height, POINT origin) {
-    BITMAPINFO info{};
-    info.bmiHeader.biSize = sizeof(info.bmiHeader);
-    info.bmiHeader.biWidth = width;
-    info.bmiHeader.biHeight = -height;
-    info.bmiHeader.biPlanes = 1;
-    info.bmiHeader.biBitCount = 32;
-    info.bmiHeader.biCompression = BI_RGB;
-
-    void* bits = nullptr;
-    HDC dc = CreateCompatibleDC(nullptr);
-    HBITMAP bitmap = CreateDIBSection(dc, &info, DIB_RGB_COLORS, &bits, nullptr, 0);
-    auto previous = SelectObject(dc, bitmap);
-    auto pixels = static_cast<uint8_t*>(bits);
-
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            double fx = static_cast<double>(x) / width;
-            double fy = static_cast<double>(y) / height;
-            size_t index = (static_cast<size_t>(y) * width + x) * 4;
-            pixels[index] = channel(140 + 80 * (1 - fx));
-            pixels[index + 1] = channel(70 + 90 * fy);
-            pixels[index + 2] = channel(40 + 120 * fx);
-        }
-    }
-
-    auto fill = [&](RECT rect, COLORREF value) {
-        HBRUSH brush = CreateSolidBrush(value);
-        FillRect(dc, &rect, brush);
-        DeleteObject(brush);
-    };
-
-    fill({120, 100, 840, 520}, RGB(250, 250, 252));
-    fill({120, 100, 840, 136}, RGB(229, 231, 235));
-    fill({880, 160, 1500, 640}, RGB(24, 24, 27));
-    fill({880, 160, 1500, 196}, RGB(46, 46, 52));
-
-    HFONT title = CreateFontW(-15, 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
-                              CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH, L"Segoe UI");
-    HFONT mono = CreateFontW(-17, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
-                             CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, FIXED_PITCH, L"Consolas");
-    auto font = SelectObject(dc, title);
-    SetBkMode(dc, TRANSPARENT);
-
-    ScanScreen result;
-    auto line = [&](HFONT face, COLORREF tint, int x, int y, std::wstring const& text, std::wstring const& secret = L"",
-                    RedactionKind kind = RedactionKind::Secret) {
-        SelectObject(dc, face);
-        SetTextColor(dc, tint);
-        TextOutW(dc, x, y, text.c_str(), static_cast<int>(text.size()));
-        if (secret.empty()) return;
-
-        SIZE before{};
-        SIZE size{};
-        GetTextExtentPoint32W(dc, text.c_str(), static_cast<int>(text.find(secret)), &before);
-        GetTextExtentPoint32W(dc, secret.c_str(), static_cast<int>(secret.size()), &size);
-        int pad = std::max(2, static_cast<int>(size.cy * 0.15));
-        result.redactions.push_back({{origin.x + x + before.cx - pad, origin.y + y - pad, size.cx + pad * 2,
-                                      size.cy + pad * 2},
-                                     kind});
-    };
-
-    auto ink = RGB(31, 41, 55);
-    auto light = RGB(228, 228, 231);
-    line(title, RGB(55, 65, 81), 140, 108, L"settings.env");
-    line(title, RGB(212, 212, 216), 900, 168, L"Terminal");
-
-    int y = 156;
-    line(mono, RGB(107, 114, 128), 150, y, L"# Production settings");
-    line(mono, ink, 150, y += 34, L"APP_NAME=Fileship");
-    line(mono, ink, 150, y += 34, L"AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE", L"AKIAIOSFODNN7EXAMPLE");
-    line(mono, ink, 150, y += 34, L"STRIPE_SECRET=sk_test_EXAMPLE_NOT_A_REAL_KEY", L"sk_test_EXAMPLE_NOT_A_REAL_KEY");
-    line(mono, ink, 150, y += 34, L"SUPPORT_EMAIL=jane.doe@example.com", L"jane.doe@example.com",
-         RedactionKind::Email);
-    line(mono, ink, 150, y += 34, L"SUPPORT_PHONE=+1 415 555 0132", L"+1 415 555 0132", RedactionKind::Phone);
-    line(mono, ink, 150, y += 34, L"BILLING_IBAN=DE89 3704 0044 0532 0130 00", L"DE89 3704 0044 0532 0130 00",
-         RedactionKind::Account);
-    line(mono, ink, 150, y += 34, L"TEST_CARD=4111 1111 1111 1111", L"4111 1111 1111 1111", RedactionKind::Card);
-    line(mono, ink, 150, y += 34, L"UPSTREAM_DNS=8.8.8.8", L"8.8.8.8", RedactionKind::Ip);
-    line(mono, ink, 150, y += 34, L"LOCAL_HOST=192.168.1.10");
-
-    y = 212;
-    line(mono, light, 900, y, L"$ git push origin main");
-    line(mono, RGB(161, 161, 170), 900, y += 34, L"Everything up-to-date");
-    line(mono, light, 900, y += 34, L"$ export GITHUB_TOKEN=ghp_EXAMPLE_NOT_A_REAL_TOKEN",
-         L"ghp_EXAMPLE_NOT_A_REAL_TOKEN");
-    line(mono, light, 900, y += 34, L"$ curl -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.e30.EXAMPLE\"",
-         L"eyJhbGciOiJIUzI1NiJ9.e30.EXAMPLE");
-    line(mono, RGB(161, 161, 170), 900, y += 34, L"Connecting to 8.8.4.4:443 ... ok", L"8.8.4.4", RedactionKind::Ip);
-    line(mono, light, 900, y += 34, L"$ psql postgres://admin:hunter2@db.internal/app", L"hunter2");
-    line(mono, light, 900, y += 34, L"$ ssh deploy@10.0.0.12");
-
-    GdiFlush();
-    result.pixels.assign(pixels, pixels + static_cast<size_t>(width) * height * 4);
-    for (size_t index = 3; index < result.pixels.size(); index += 4) result.pixels[index] = 255;
-
-    SelectObject(dc, font);
-    DeleteObject(title);
-    DeleteObject(mono);
-    SelectObject(dc, previous);
-    DeleteObject(bitmap);
-    DeleteDC(dc);
-    return result;
-}
-
-std::vector<uint8_t> scrambleInside(std::vector<uint8_t> pixels, int width, ScreenRect const& rect) {
-    uint32_t state = 0x2545f491U;
-    for (int y = rect.y; y < rect.y + rect.height; y++) {
-        for (int x = rect.x; x < rect.x + rect.width; x++) {
-            size_t index = (static_cast<size_t>(y) * width + x) * 4;
-            for (int part = 0; part < 3; part++) {
-                state ^= state << 13;
-                state ^= state >> 17;
-                state ^= state << 5;
-                pixels[index + part] = static_cast<uint8_t>(state);
-            }
-        }
-    }
     return pixels;
 }
 
@@ -992,103 +835,6 @@ int runFixture(std::filesystem::path const& directory) {
     auto region = renderFixtureRegion(request, hover, Box{140, 120, 700, 560});
     savePng(directory / L"native-region.png", region.width, region.height, region.bgra);
 
-    auto screen = scanScreen(WIDTH, HEIGHT, {0, 0});
-    savePng(directory / L"scan-snapshot.png", WIDTH, HEIGHT, screen.pixels);
-
-    auto scanRequest = request;
-    scanRequest.scanId = 1;
-    scanRequest.displays.front().bgra = screen.pixels;
-
-    FixtureScan pending;
-    pending.elapsedMs = 2350;
-
-    FixtureScan delivered;
-    delivered.deliveredMs = 1600;
-    delivered.redactions = screen.redactions;
-
-    FixtureScan revealing = delivered;
-    revealing.elapsedMs = 1940;
-    FixtureScan dropping = delivered;
-    dropping.elapsedMs = 2150;
-    FixtureScan labels = delivered;
-    labels.elapsedMs = 2700;
-    FixtureScan done = delivered;
-    done.elapsedMs = 12000;
-
-    FixtureScan failed;
-    failed.deliveredMs = 1600;
-    failed.elapsedMs = 2100;
-    failed.outcome = ScanOutcome::Failed;
-
-    std::vector<Scene> scanScenes;
-    std::pair<char const*, FixtureScan> states[] = {
-        {"scanning", pending}, {"revealing", revealing}, {"dropping", dropping},
-        {"labels", labels},    {"done", done},           {"failed", failed}};
-    for (auto const& [name, state] : states) {
-        FixtureScene scene;
-        scene.pointer = std::string(name) == "done" ? Point{300, 300} : Point{1000, 600};
-        scene.scan = state;
-        scanScenes.push_back({name, scene});
-    }
-
-    for (auto theme : {ThemeMode::Light, ThemeMode::Dark}) {
-        scanRequest.theme = theme;
-        auto suffix = theme == ThemeMode::Light ? "light" : "dark";
-
-        for (auto const& [name, scene] : scanScenes) {
-            auto image = renderFixture(scanRequest, scene);
-            auto file = directory / (std::string("native-scan-") + name + "-" + suffix + ".png");
-            savePng(file, image.width, image.height, image.bgra);
-            print("wrote " + toUtf8(file.wstring()));
-        }
-    }
-
-    auto const& target = screen.redactions.front().rect;
-    RECT inside{target.x, target.y, target.x + target.width, target.y + target.height};
-    auto scrambled = scrambleInside(screen.pixels, WIDTH, target);
-    auto original = screen.pixels;
-    auto noise = scrambled;
-    redactFill(original.data(), WIDTH, HEIGHT, WIDTH * 4, inside, 7);
-    redactFill(noise.data(), WIDTH, HEIGHT, WIDTH * 4, inside, 7);
-
-    bool isUntouched = true;
-    for (int y = 0; y < HEIGHT; y++) {
-        for (int x = 0; x < WIDTH; x++) {
-            if (x >= inside.left && x < inside.right && y >= inside.top && y < inside.bottom) continue;
-            size_t index = (static_cast<size_t>(y) * WIDTH + x) * 4;
-            if (memcmp(original.data() + index, screen.pixels.data() + index, 4)) isUntouched = false;
-        }
-    }
-
-    bool isFillSame = scrambled != screen.pixels && original == noise;
-    savePng(directory / L"redact-fill.png", WIDTH, HEIGHT, original);
-    savePng(directory / L"redact-fill-scrambled-input.png", WIDTH, HEIGHT, scrambled);
-    print(std::string("redactFill ignores the pixels inside the rect: ") + (isFillSame ? "yes" : "NO"));
-    print(std::string("redactFill leaves the pixels outside the rect alone: ") + (isUntouched ? "yes" : "NO"));
-
-    Shape redact;
-    redact.id = "r1";
-    redact.type = Tool::Redact;
-    redact.x = target.x;
-    redact.y = target.y;
-    redact.width = target.width;
-    redact.height = target.height;
-
-    FixtureScene exported;
-    exported.shapes = {redact};
-    Box around{target.x - 40.0, target.y - 30.0, target.width + 80.0, target.height + 60.0};
-
-    auto plain = request;
-    plain.displays.front().bgra = screen.pixels;
-    auto noisy = request;
-    noisy.displays.front().bgra = scrambled;
-    auto clean = renderFixtureRegion(plain, exported, around);
-    auto dirty = renderFixtureRegion(noisy, exported, around);
-    savePng(directory / L"native-redact-export.png", clean.width, clean.height, clean.bgra);
-    savePng(directory / L"native-redact-export-scrambled.png", dirty.width, dirty.height, dirty.bgra);
-    bool isExportSame = clean.bgra == dirty.bgra;
-    print(std::string("an exported redaction ignores the pixels inside it: ") + (isExportSame ? "yes" : "NO"));
-
     std::ofstream json(directory / L"scene.json");
     json << "{\"width\":" << WIDTH << ",\"height\":" << HEIGHT << ",\"cursor\":{\"x\":300,\"y\":330},";
     json << "\"windows\":[{\"x\":120,\"y\":100,\"width\":640,\"height\":460,\"title\":\"\",\"controls\":[{\"x\":160,"
@@ -1099,7 +845,7 @@ int runFixture(std::filesystem::path const& directory) {
     for (size_t index = 0; index < shapes.size(); index++) json << (index ? "," : "") << shapeJson(shapes[index]);
     json << "]}";
     print("wrote scene.json");
-    return isFillSame && isUntouched && isExportSame ? 0 : 1;
+    return 0;
 }
 
 }
@@ -1155,12 +901,9 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
         auto purpose = parsePurpose(toUtf8(option(L"--purpose", L"capture")));
         auto output = std::filesystem::path(option(L"--out", (executableDirectory() / L"capture.png").wstring()));
         int repeat = std::stoi(option(L"--repeat", L"1"));
-        int scanDelay = flag(L"--scan-demo") ? std::stoi(option(L"--scan-demo", L"2500")) : -1;
-        auto outcome = toUtf8(option(L"--scan-outcome", L"found"));
-        bool synthetic = flag(L"--synthetic") || scanDelay >= 0;
         int code = 0;
         for (int index = 0; index < repeat; index++)
-            code = runOverlay(purpose, theme, output, option(L"--script"), synthetic, scanDelay, outcome);
+            code = runOverlay(purpose, theme, output, option(L"--script"), flag(L"--synthetic"));
         return code;
     } catch (winrt::hresult_error const& error) {
         print("error: " + toUtf8(std::wstring(error.message())));

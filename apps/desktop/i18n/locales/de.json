@@ -25,7 +25,6 @@
             "step": "Schrittnummer",
             "blur": "Weichzeichnen",
             "pixelate": "Verpixeln",
-            "redact": "Schwärzen",
             "eraser": "Intelligenter Radierer",
             "emoji": "Emoji"
         },
@@ -38,30 +37,7 @@
         "shadow": "Schatten",
         "undo": "Rückgängig",
         "redo": "Wiederholen",
-        "delete": "Löschen",
-        "scan": {
-            "detecting": "Sensible Daten werden erkannt…",
-            "screen": "Bildschirm wird gescannt…",
-            "text": "Text wird gelesen…",
-            "keys": "Suche nach API-Schlüsseln…",
-            "secrets": "Passwörter und Tokens werden geprüft…",
-            "contacts": "Suche nach E-Mail-Adressen und Telefonnummern…",
-            "cards": "Karten- und IBAN-Nummern werden geprüft…",
-            "addresses": "IP-Adressen werden geprüft…",
-            "almost": "Fast fertig…",
-            "found": "{count} sensible Angabe geschwärzt | {count} sensible Angaben geschwärzt",
-            "none": "Keine sensiblen Daten gefunden",
-            "failed": "Sensible Daten konnten nicht geprüft werden",
-            "kinds": {
-                "secret": "Geheimer Schlüssel",
-                "email": "E-Mail-Adresse",
-                "phone": "Telefonnummer",
-                "card": "Kartennummer",
-                "account": "Bankkonto",
-                "document": "Ausweisdokument",
-                "ip": "IP-Adresse"
-            }
-        }
+        "delete": "Löschen"
     },
     "app": {
         "somethingWentWrong": "Etwas ist schiefgelaufen",
@@ -100,11 +76,6 @@
         "capture": {
             "title": "Bereichsaufnahme",
             "description": "So sieht der Bildschirm aus, während du einen Bereich auswählst.",
-            "redact": {
-                "label": "Sensible Daten schwärzen",
-                "description": "Die KI deines Servers findet API-Schlüssel, Passwörter, Tokens, E-Mail-Adressen, Telefon- und Kartennummern, IBANs und öffentliche IP-Adressen in Screenshots und schwärzt sie, bevor sie kopiert, gespeichert oder hochgeladen werden. Bei der Bereichsaufnahme siehst du das Ergebnis und kannst es bearbeiten.",
-                "unavailable": "Erfordert Fileship 6.9 oder neuer mit eingeschalteter KI für dein Konto."
-            },
             "detectWindows": {
                 "label": "Fenster erkennen",
                 "description": "Hebt das Fenster unter der Maus hervor, damit du es mit einem Klick aufnimmst."
@@ -616,9 +587,6 @@
         "imageSaved": "Bild gespeichert",
         "screenshotCopied": "Screenshot kopiert",
         "uploadsOff": "Das Hochladen ist in den Einstellungen unter „Nach der Aufnahme“ ausgeschaltet.",
-        "redacted": "{count} sensible Angabe geschwärzt | {count} sensible Angaben geschwärzt",
-        "redactFailed": "Sensible Daten nicht geprüft",
-        "redactFailedBody": "Der Screenshot konnte nicht geprüft werden, es wurde nichts geschwärzt.",
         "recordingKept": "Upload fehlgeschlagen, Aufnahme gespeichert",
         "recordingSaved": "Aufnahme gespeichert",
         "textCaptureOff": "Texterfassung ist aus",

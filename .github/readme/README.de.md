@@ -73,7 +73,7 @@ Verglichen mit Zipline 4.8, XBackBone 3.8 und Chibisafe 6.7 im Oktober 2026. Etw
 
 ## 🖥️ Fileship für Windows
 
-Nimm Screenshots und Videos auf und lade sie wie mit ShareX direkt aus dem Infobereich auf dein Fileship hoch, und durchsuche deine Dateien mit Fileship Harbor im Explorer. API-Schlüssel, Passwörter und andere Geheimnisse in deinen Screenshots werden geschwärzt, bevor sie deinen PC verlassen. Erfordert Windows 11 (64 Bit) ab Version 24H2 und einen Server mit Fileship 6.0.
+Nimm Screenshots und Videos auf und lade sie wie mit ShareX direkt aus dem Infobereich auf dein Fileship hoch, und durchsuche deine Dateien mit Fileship Harbor im Explorer. Erfordert Windows 11 (64 Bit) ab Version 24H2 und einen Server mit Fileship 6.0.
 
 **[Neueste Version herunterladen](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Funktionen und Einrichtung](../../docs/desktop.md)
 

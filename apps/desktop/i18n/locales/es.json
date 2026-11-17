@@ -25,7 +25,6 @@
             "step": "Número de paso",
             "blur": "Desenfocar",
             "pixelate": "Pixelar",
-            "redact": "Censurar",
             "eraser": "Borrador inteligente",
             "emoji": "Emoji"
         },
@@ -38,30 +37,7 @@
         "shadow": "Sombra",
         "undo": "Deshacer",
         "redo": "Rehacer",
-        "delete": "Eliminar",
-        "scan": {
-            "detecting": "Detectando información sensible…",
-            "screen": "Analizando la pantalla…",
-            "text": "Leyendo el texto…",
-            "keys": "Buscando claves de API…",
-            "secrets": "Comprobando contraseñas y tokens…",
-            "contacts": "Buscando correos y teléfonos…",
-            "cards": "Comprobando números de tarjeta e IBAN…",
-            "addresses": "Comprobando direcciones IP…",
-            "almost": "Ya casi está…",
-            "found": "{count} dato sensible censurado | {count} datos sensibles censurados",
-            "none": "No se encontró información sensible",
-            "failed": "No se pudo comprobar si hay información sensible",
-            "kinds": {
-                "secret": "Clave secreta",
-                "email": "Correo electrónico",
-                "phone": "Número de teléfono",
-                "card": "Número de tarjeta",
-                "account": "Cuenta bancaria",
-                "document": "Documento de identidad",
-                "ip": "Dirección IP"
-            }
-        }
+        "delete": "Eliminar"
     },
     "app": {
         "somethingWentWrong": "Algo salió mal",
@@ -100,11 +76,6 @@
         "capture": {
             "title": "Captura de área",
             "description": "Cómo se ve la pantalla mientras eliges un área.",
-            "redact": {
-                "label": "Ocultar información sensible",
-                "description": "La IA de tu servidor busca claves de API, contraseñas, tokens, correos, números de teléfono y de tarjeta, IBAN y direcciones IP públicas en las capturas de pantalla y los tapa antes de copiarlas, guardarlas o subirlas. En la captura de área puedes ver y editar el resultado.",
-                "unavailable": "Requiere Fileship 6.9 o posterior con la IA activada para tu cuenta."
-            },
             "detectWindows": {
                 "label": "Detectar ventanas",
                 "description": "Resalta la ventana que está bajo el puntero para capturarla con un solo clic."
@@ -616,9 +587,6 @@
         "imageSaved": "Imagen guardada",
         "screenshotCopied": "Captura de pantalla copiada",
         "uploadsOff": "La subida está desactivada en las opciones de Después de capturar.",
-        "redacted": "Se ocultó {count} dato sensible | Se ocultaron {count} datos sensibles",
-        "redactFailed": "No se revisó la información sensible",
-        "redactFailedBody": "No se pudo analizar la captura de pantalla, así que no se ocultó nada.",
         "recordingKept": "Error al subir, grabación guardada",
         "recordingSaved": "Grabación guardada",
         "textCaptureOff": "La captura de texto está desactivada",
