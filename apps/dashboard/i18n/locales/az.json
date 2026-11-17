@@ -1097,7 +1097,10 @@
             "upToDate": "Fileship {version} bu kanalda ən son versiyadır.",
             "available": "Fileship {latest} mövcuddur. Bu serverdə {version} versiyası işləyir.",
             "publishing": "Fileship {latest} buraxılıb, amma hələ quraşdırmaq olmur. Bir neçə dəqiqədən sonra yenidən yoxla.",
-            "failed": "Yeniləmələri yoxlamaq mümkün olmadı. Bir az sonra yenidən yoxla."
+            "failed": "Yeniləmələri yoxlamaq mümkün olmadı. Bir az sonra yenidən yoxla.",
+            "composeOutdated": "docker compose ilə yenidən başlatmaq versiyanı dəyişər",
+            "composeOutdatedDescription": "docker-compose.yml faylın {version} versiyasını saxlaya bilmir, buna görə docker compose up -d onun yerinə stabil versiyanı başladar. Bunu düzəltmək üçün faylı bir dəfə yenilə.",
+            "composeOutdatedLink": "Necə yeniləmək olar"
         }
     },
     "integrations": {

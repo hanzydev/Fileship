@@ -1097,7 +1097,10 @@
             "upToDate": "Fileship {version} はこのチャンネルの最新バージョンです。",
             "available": "Fileship {latest} を利用できます。このサーバーは {version} で動作しています。",
             "publishing": "Fileship {latest} がリリースされましたが、まだインストールできません。数分後にもう一度確認してください。",
-            "failed": "アップデートを確認できませんでした。しばらくしてからもう一度お試しください。"
+            "failed": "アップデートを確認できませんでした。しばらくしてからもう一度お試しください。",
+            "composeOutdated": "docker compose で再起動するとバージョンが変わります",
+            "composeOutdatedDescription": "docker-compose.yml で {version} を維持できないため、docker compose up -d を実行すると代わりに安定版が起動します。ファイルを一度更新すると解決します。",
+            "composeOutdatedLink": "更新方法"
         }
     },
     "integrations": {

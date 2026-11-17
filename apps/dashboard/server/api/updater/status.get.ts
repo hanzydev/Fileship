@@ -10,6 +10,7 @@ type VersionInfo = {
     state: 'upToDate' | 'available' | 'publishing' | 'failed';
     latestVersion: string;
     updaterAvailable: boolean;
+    composeOutdated: boolean;
 };
 
 const latestRelease = async (channel: Channel) => {
@@ -31,6 +32,7 @@ const checkVersion = async (channel: Channel): Promise<VersionInfo> => {
         const updaterStatus = await updaterFetch<{
             hasUpdate: boolean;
             publishing?: boolean;
+            keepsVersion?: boolean;
             latestVersion: string | null;
         }>(`/api/status`);
 
@@ -42,6 +44,7 @@ const checkVersion = async (channel: Channel): Promise<VersionInfo> => {
                   : 'upToDate',
             latestVersion: updaterStatus.latestVersion || pkg.version,
             updaterAvailable: true,
+            composeOutdated: updaterStatus.keepsVersion === false,
         };
     } catch {
         //
@@ -54,9 +57,15 @@ const checkVersion = async (channel: Channel): Promise<VersionInfo> => {
             state: semver.gt(latestVersion, pkg.version) ? 'available' : 'upToDate',
             latestVersion,
             updaterAvailable: false,
+            composeOutdated: false,
         };
     } catch {
-        return { state: 'failed', latestVersion: pkg.version, updaterAvailable: false };
+        return {
+            state: 'failed',
+            latestVersion: pkg.version,
+            updaterAvailable: false,
+            composeOutdated: false,
+        };
     }
 };
 
@@ -90,5 +99,6 @@ export default defineEventHandler(async (event) => {
         state: versionInfo.state,
         latestVersion: versionInfo.latestVersion,
         updaterAvailable: versionInfo.updaterAvailable,
+        composeOutdated: versionInfo.composeOutdated,
     };
 });

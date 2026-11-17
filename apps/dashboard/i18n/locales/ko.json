@@ -1097,7 +1097,10 @@
             "upToDate": "Fileship {version} 버전이 이 채널의 최신 버전이에요.",
             "available": "Fileship {latest} 버전을 사용할 수 있어요. 이 서버는 {version} 버전을 실행하고 있어요.",
             "publishing": "Fileship {latest} 버전이 출시되었지만 아직 설치할 수 없어요. 몇 분 후에 다시 확인해 주세요.",
-            "failed": "업데이트를 확인할 수 없어요. 나중에 다시 시도해 주세요."
+            "failed": "업데이트를 확인할 수 없어요. 나중에 다시 시도해 주세요.",
+            "composeOutdated": "docker compose로 다시 시작하면 버전이 바뀌어요",
+            "composeOutdatedDescription": "docker-compose.yml이 {version} 버전을 유지할 수 없어서 docker compose up -d를 실행하면 대신 안정 버전이 시작돼요. 파일을 한 번 업데이트하면 해결돼요.",
+            "composeOutdatedLink": "업데이트 방법"
         }
     },
     "integrations": {

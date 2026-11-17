@@ -384,6 +384,35 @@
                                                 {{ $t('instance.updates.checkNow') }}
                                             </UiButton>
                                         </UiField>
+                                        <UiAlert
+                                            v-if="updaterStatus?.composeOutdated"
+                                            class="sm:col-span-2"
+                                        >
+                                            <ITriangleAlert />
+                                            <UiAlertTitle>
+                                                {{ $t('instance.updates.composeOutdated') }}
+                                            </UiAlertTitle>
+                                            <UiAlertDescription>
+                                                {{
+                                                    $t(
+                                                        'instance.updates.composeOutdatedDescription',
+                                                        { version: updaterStatus.version },
+                                                    )
+                                                }}
+                                                <a
+                                                    :href="
+                                                        docsUrl(
+                                                            'updating#restarting-with-docker-compose',
+                                                        )
+                                                    "
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="underline underline-offset-4"
+                                                >
+                                                    {{ $t('instance.updates.composeOutdatedLink') }}
+                                                </a>
+                                            </UiAlertDescription>
+                                        </UiAlert>
                                     </template>
                                 </UiFieldGroup>
                             </UiCardContent>

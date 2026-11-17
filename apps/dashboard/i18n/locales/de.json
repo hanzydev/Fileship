@@ -1097,7 +1097,10 @@
             "upToDate": "Fileship {version} ist die neueste Version in diesem Kanal.",
             "available": "Fileship {latest} ist verfügbar. Auf diesem Server läuft {version}.",
             "publishing": "Fileship {latest} ist erschienen, kann aber noch nicht installiert werden. Such in ein paar Minuten noch einmal.",
-            "failed": "Die Suche nach Updates ist fehlgeschlagen. Versuch es später noch einmal."
+            "failed": "Die Suche nach Updates ist fehlgeschlagen. Versuch es später noch einmal.",
+            "composeOutdated": "Ein Neustart mit docker compose würde die Version wechseln",
+            "composeOutdatedDescription": "Deine docker-compose.yml kann {version} nicht beibehalten, daher würde docker compose up -d stattdessen die stabile Version starten. Aktualisiere die Datei einmal, um das zu beheben.",
+            "composeOutdatedLink": "So aktualisierst du sie"
         }
     },
     "integrations": {

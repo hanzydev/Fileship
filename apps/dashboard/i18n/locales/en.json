@@ -1097,7 +1097,10 @@
             "upToDate": "Fileship {version} is the latest version on this channel.",
             "available": "Fileship {latest} is available. This server runs {version}.",
             "publishing": "Fileship {latest} is out, but it isn't ready to install yet. Check again in a few minutes.",
-            "failed": "Couldn't check for updates. Try again later."
+            "failed": "Couldn't check for updates. Try again later.",
+            "composeOutdated": "Restarting with docker compose would change the version",
+            "composeOutdatedDescription": "Your docker-compose.yml can't keep {version}, so docker compose up -d would start the stable version instead. Update the file once to fix this.",
+            "composeOutdatedLink": "How to update it"
         }
     },
     "integrations": {
