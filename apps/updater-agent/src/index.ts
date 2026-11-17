@@ -3,20 +3,13 @@ import { hostname } from 'node:os';
 
 import { consola } from 'consola';
 import { execa } from 'execa';
-import {
-    createApp,
-    createError,
-    createEventStream,
-    createRouter,
-    defineEventHandler,
-    getRequestHeader,
-    toNodeListener,
-} from 'h3';
+import { createError, createEventStream, defineEventHandler, toNodeListener } from 'h3';
 import cron from 'node-cron';
 import { ofetch } from 'ofetch';
 import { join } from 'pathe';
 import semver from 'semver';
 
+import { createAgentApp } from './app';
 import { cacheReleases, type Channel, pickRelease, type Release } from './releases';
 
 const rootDir = join(process.cwd(), '..', '..');
@@ -445,24 +438,9 @@ cron.schedule(AUTOUPDATER_CRON, async () => {
     await handleUpdate();
 });
 
-const app = createApp();
-const router = createRouter();
-
-app.use(router);
-
-router.use(
-    '/api/**',
-    defineEventHandler((event) => {
-        const authHeader = getRequestHeader(event, 'Authorization');
-        if (!SECRET_TOKEN || authHeader !== SECRET_TOKEN) {
-            throw createError({ status: 401, statusText: 'Unauthorized' });
-        }
-    }),
-);
-
-router.post(
-    '/api/update',
-    defineEventHandler((event) => {
+const app = createAgentApp(SECRET_TOKEN, {
+    status: defineEventHandler(isUpdateAvailable),
+    update: defineEventHandler((event) => {
         if (isUpdating) {
             throw createError({
                 status: 409,
@@ -479,9 +457,7 @@ router.post(
 
         return eventStream.send();
     }),
-);
-
-router.get('/api/status', defineEventHandler(isUpdateAvailable));
+});
 
 const server = createServer(toNodeListener(app));
 

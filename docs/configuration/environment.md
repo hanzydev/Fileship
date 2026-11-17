@@ -122,7 +122,7 @@ The `updater-agent` service in `docker-compose.yml` reads its own variables:
 
 | Variable              | Default              | Description                                                              |
 | --------------------- | -------------------- | ------------------------------------------------------------------------ |
-| `SECRET_TOKEN`        | none, required       | The secret from `.env`. The dashboard sends it with every request.       |
+| `SECRET_TOKEN`        | none, required       | The secret from `.env`. The agent refuses requests without it.           |
 | `PORT`                | `3001`               | Port the agent listens on inside the Docker network.                     |
 | `AUTOUPDATER_ENABLED` | off                  | `true` turns on scheduled updates. Compose sets `true`.                  |
 | `AUTOUPDATER_CRON`    | `0 3 * * *`          | When scheduled updates run, in the agent's time zone.                    |
