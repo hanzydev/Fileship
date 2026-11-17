@@ -25,6 +25,7 @@
             "step": "番号",
             "blur": "ぼかし",
             "pixelate": "モザイク",
+            "redact": "黒塗り",
             "eraser": "スマート消しゴム",
             "emoji": "絵文字"
         },

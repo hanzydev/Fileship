@@ -25,6 +25,7 @@
             "step": "Schrittnummer",
             "blur": "Weichzeichnen",
             "pixelate": "Verpixeln",
+            "redact": "Schwärzen",
             "eraser": "Intelligenter Radierer",
             "emoji": "Emoji"
         },

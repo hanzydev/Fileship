@@ -25,6 +25,7 @@
             "step": "Adım numarası",
             "blur": "Bulanıklaştır",
             "pixelate": "Pikselleştir",
+            "redact": "Sansürle",
             "eraser": "Akıllı silgi",
             "emoji": "Emoji"
         },

@@ -25,6 +25,7 @@
             "step": "步骤编号",
             "blur": "模糊",
             "pixelate": "像素化",
+            "redact": "遮盖",
             "eraser": "智能橡皮擦",
             "emoji": "表情符号"
         },

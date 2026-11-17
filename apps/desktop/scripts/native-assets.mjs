@@ -35,6 +35,7 @@ const ICONS = [
     'circle',
     'droplets',
     'eraser',
+    'eye-off',
     'grid-3x3',
     'grip-horizontal',
     'grip-vertical',

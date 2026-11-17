@@ -6,13 +6,29 @@
 #include <functional>
 #include <optional>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace fileship::ui {
 
-enum class Tool { Select, Rectangle, Ellipse, Arrow, Line, Freehand, Highlight, Text, Step, Blur, Pixelate, Eraser, Emoji };
+enum class Tool {
+    Select,
+    Rectangle,
+    Ellipse,
+    Arrow,
+    Line,
+    Freehand,
+    Highlight,
+    Text,
+    Step,
+    Blur,
+    Pixelate,
+    Redact,
+    Eraser,
+    Emoji
+};
 
-constexpr size_t TOOL_COUNT = 13;
+constexpr size_t TOOL_COUNT = 14;
 
 struct ToolInfo {
     Tool tool;
@@ -67,6 +83,8 @@ bool isLineShape(Tool type);
 
 struct AnnotationSource {
     double scale = 1;
+    int width = 0;
+    int height = 0;
     std::function<std::vector<uint8_t>(RECT const&)> read;
 };
 
@@ -85,6 +103,12 @@ public:
     AnnotationOptions options;
     std::vector<Shape> shapes;
     std::optional<std::string> selectedId;
+    std::unordered_set<std::string> hidden;
+
+    struct EffectPixels {
+        RECT crop{};
+        std::vector<uint8_t> pixels;
+    };
 
     bool canUndo() const {
         return !past.empty();
@@ -112,6 +136,8 @@ public:
     void setEmoji(std::wstring const& value);
 
     void reset();
+    std::vector<std::string> addShapes(std::vector<Shape> list);
+    std::optional<EffectPixels> effectPixels(Shape const& shape);
     void undo();
     void redo();
     bool removeSelected();

@@ -25,6 +25,7 @@
             "step": "Numero progressivo",
             "blur": "Sfoca",
             "pixelate": "Pixelizza",
+            "redact": "Oscura",
             "eraser": "Gomma intelligente",
             "emoji": "Emoji"
         },

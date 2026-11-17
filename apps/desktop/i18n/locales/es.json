@@ -25,6 +25,7 @@
             "step": "Número de paso",
             "blur": "Desenfocar",
             "pixelate": "Pixelar",
+            "redact": "Censurar",
             "eraser": "Borrador inteligente",
             "emoji": "Emoji"
         },

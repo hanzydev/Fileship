@@ -25,6 +25,7 @@
             "step": "Step number",
             "blur": "Blur",
             "pixelate": "Pixelate",
+            "redact": "Redact",
             "eraser": "Smart eraser",
             "emoji": "Emoji"
         },

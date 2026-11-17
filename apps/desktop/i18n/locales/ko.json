@@ -25,6 +25,7 @@
             "step": "단계 번호",
             "blur": "흐리게",
             "pixelate": "모자이크",
+            "redact": "가리기",
             "eraser": "스마트 지우개",
             "emoji": "이모지"
         },

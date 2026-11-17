@@ -54,6 +54,33 @@ double premultiply(double channel, double alpha) {
     return alpha == 255 ? channel : channel * alpha / 255;
 }
 
+constexpr int RING = 2;
+constexpr int MIN_BLOCK = 6;
+constexpr double NOISE = 0.06;
+
+uint32_t hashBits(uint32_t value) {
+    value ^= value >> 16;
+    value *= 0x7feb352dU;
+    value ^= value >> 15;
+    value *= 0x846ca68bU;
+    value ^= value >> 16;
+    return value;
+}
+
+struct Average {
+    double b = 0;
+    double g = 0;
+    double r = 0;
+    double count = 0;
+
+    void add(uint8_t const* pixel) {
+        b += pixel[0];
+        g += pixel[1];
+        r += pixel[2];
+        count++;
+    }
+};
+
 }
 
 void stackBlur(uint8_t* pixels, int width, int height, int radius) {
@@ -305,6 +332,97 @@ void pixelate(uint8_t* pixels, int width, int height, int pixelSize) {
                     pixels[index + 1] = clamped(green);
                     pixels[index + 2] = clamped(blue);
                     pixels[index + 3] = clamped(alpha);
+                }
+            }
+        }
+    }
+}
+
+int redactBlock(int width, int height) {
+    return std::max(MIN_BLOCK, std::min(width, height) / 2);
+}
+
+void redactFill(uint8_t* bgra, int width, int height, int stride, RECT rect, uint32_t seed) {
+    int left = std::max(0, static_cast<int>(rect.left));
+    int top = std::max(0, static_cast<int>(rect.top));
+    int right = std::min(width, static_cast<int>(rect.right));
+    int bottom = std::min(height, static_cast<int>(rect.bottom));
+    if (right <= left || bottom <= top) return;
+
+    int areaWidth = right - left;
+    int areaHeight = bottom - top;
+    int block = redactBlock(areaWidth, areaHeight);
+    int columns = (areaWidth + block - 1) / block;
+    int rows = (areaHeight + block - 1) / block;
+
+    auto pixel = [&](int x, int y) { return bgra + static_cast<size_t>(y) * stride + static_cast<size_t>(x) * 4; };
+
+    auto horizontal = [&](int from, int to) {
+        std::vector<Average> result(columns);
+        for (int y = std::max(from, 0); y < std::min(to, height); y++)
+            for (int x = left; x < right; x++) result[(x - left) / block].add(pixel(x, y));
+        return result;
+    };
+
+    auto vertical = [&](int from, int to) {
+        std::vector<Average> result(rows);
+        for (int y = top; y < bottom; y++)
+            for (int x = std::max(from, 0); x < std::min(to, width); x++) result[(y - top) / block].add(pixel(x, y));
+        return result;
+    };
+
+    auto above = horizontal(top - RING, top);
+    auto below = horizontal(bottom, bottom + RING);
+    auto before = vertical(left - RING, left);
+    auto after = vertical(right, right + RING);
+
+    for (int row = 0; row < rows; row++) {
+        int y0 = top + row * block;
+        int y1 = std::min(bottom, y0 + block);
+        double v = ((y0 + y1) / 2.0 - top) / areaHeight;
+
+        for (int column = 0; column < columns; column++) {
+            int x0 = left + column * block;
+            int x1 = std::min(right, x0 + block);
+            double u = ((x0 + x1) / 2.0 - left) / areaWidth;
+
+            double b = 0;
+            double g = 0;
+            double r = 0;
+            double total = 0;
+            auto blend = [&](Average const& edge, double weight) {
+                if (!edge.count) return;
+                weight = std::max(weight, 0.05);
+                b += edge.b / edge.count * weight;
+                g += edge.g / edge.count * weight;
+                r += edge.r / edge.count * weight;
+                total += weight;
+            };
+
+            blend(above[column], 1 - v);
+            blend(below[column], v);
+            blend(before[row], 1 - u);
+            blend(after[row], u);
+
+            if (!total) {
+                b = g = r = 128;
+                total = 1;
+            }
+
+            uint32_t cell = static_cast<uint32_t>(row) * 0x9e3779b9U + static_cast<uint32_t>(column);
+            uint32_t bits = hashBits(seed ^ hashBits(cell));
+            double noise = (bits / 4294967295.0 * 2 - 1) * NOISE * 255;
+            uint8_t blue = clamped(b / total + noise);
+            uint8_t green = clamped(g / total + noise);
+            uint8_t red = clamped(r / total + noise);
+
+            for (int y = y0; y < y1; y++) {
+                for (int x = x0; x < x1; x++) {
+                    auto target = pixel(x, y);
+                    target[0] = blue;
+                    target[1] = green;
+                    target[2] = red;
+                    target[3] = 255;
                 }
             }
         }

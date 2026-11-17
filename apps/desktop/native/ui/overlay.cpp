@@ -152,7 +152,8 @@ public:
             source.bgra.shrink_to_fit();
         }
 
-        annotator->setSource({ratio, [this](RECT const& rect) { return readSource(rect); }});
+        annotator->setSource(
+            {ratio, bounds.width, bounds.height, [this](RECT const& rect) { return readSource(rect); }});
         return true;
     }
 
