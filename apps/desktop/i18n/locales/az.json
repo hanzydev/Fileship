@@ -103,7 +103,7 @@
             "redact": {
                 "label": "Həssas məlumatları gizlət",
                 "description": "Ekran görüntülərindəki API açarları, şifrələr, tokenlər, e-poçt ünvanları, telefon və kart nömrələri, IBAN-lar və hamıya açıq IP ünvanları serverindəki AI ilə tapılır və kopyalanmadan, yadda saxlanmadan və yüklənmədən əvvəl gizlədilir. Sahə çəkərkən nəticəni görüb dəyişə bilərsən.",
-                "unavailable": "Serverində AI söndürülüb, ona görə ekran görüntüləri yoxlanıla bilmir."
+                "unavailable": "Fileship 6.9 və ya daha yeni server və hesabında aktiv AI lazımdır."
             },
             "detectWindows": {
                 "label": "Pəncərələri tanı",

@@ -103,7 +103,7 @@
             "redact": {
                 "label": "Ocultar informações sensíveis",
                 "description": "A IA do seu servidor encontra chaves de API, senhas, tokens, e-mails, números de telefone e de cartão, IBANs e endereços IP públicos nas capturas de tela e os oculta antes de copiar, salvar ou enviar. Na captura de área, dá para ver e editar o resultado.",
-                "unavailable": "A IA está desativada no seu servidor, então as capturas de tela não podem ser verificadas."
+                "unavailable": "Requer Fileship 6.9 ou mais recente com a IA ativada na sua conta."
             },
             "detectWindows": {
                 "label": "Detectar janelas",

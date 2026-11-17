@@ -103,7 +103,7 @@
             "redact": {
                 "label": "Oscura le informazioni sensibili",
                 "description": "L'IA del tuo server trova chiavi API, password, token, email, numeri di telefono e di carta, IBAN e indirizzi IP pubblici negli screenshot e li oscura prima che vengano copiati, salvati o caricati. Nell'acquisizione di un'area vedi il risultato e puoi modificarlo.",
-                "unavailable": "L'IA è disattivata sul tuo server, quindi gli screenshot non possono essere controllati."
+                "unavailable": "Richiede Fileship 6.9 o successivo con l'IA attiva per il tuo account."
             },
             "detectWindows": {
                 "label": "Rileva finestre",

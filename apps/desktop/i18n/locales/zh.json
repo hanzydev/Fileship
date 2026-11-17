@@ -103,7 +103,7 @@
             "redact": {
                 "label": "隐藏敏感信息",
                 "description": "你的服务器上的 AI 会查找截图中的 API 密钥、密码、令牌、邮箱地址、电话号码、银行卡号、IBAN 和公网 IP 地址，并在复制、保存或上传前将其遮盖。区域截取时，你可以查看并编辑结果。",
-                "unavailable": "你的服务器已关闭 AI，因此无法检查截图中的敏感信息。"
+                "unavailable": "需要 Fileship 6.9 或更高版本，并为你的账户开启 AI。"
             },
             "detectWindows": {
                 "label": "检测窗口",

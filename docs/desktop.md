@@ -74,7 +74,7 @@ The active monitor, the active window, the entire screen and the last region are
 
 - Redactions cannot be undone in the saved or uploaded image. The blocks are filled with the colors around the text, not the text itself, so tools that recover pixelated text get nothing from them
 - The screenshot is sent to your own Fileship server to be scanned and is not stored there
-- It needs AI to be on for the server and for your account. Without it the setting is turned off in the app
+- It needs Fileship 6.9 or newer, with AI on for the server and for your account. Without them the setting is turned off in the app
 - If the scan fails (the AI service is down, the server cannot be reached), the screenshot is kept without redaction and a notification tells you
 - Turn it off with **Settings → Capture → Redact sensitive information**
 

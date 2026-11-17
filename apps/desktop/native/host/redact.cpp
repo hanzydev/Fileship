@@ -11,6 +11,7 @@ namespace fileship::host {
 
 namespace {
 
+constexpr wchar_t const* MIN_REDACTION_VERSION = L"6.9.0";
 constexpr int REQUEST_TIMEOUT_MS = 20000;
 constexpr int64_t UNAVAILABLE_MS = 30 * 60 * 1000;
 constexpr size_t SCAN_WORKERS = 2;
@@ -24,6 +25,7 @@ constexpr std::pair<wchar_t const*, ui::RedactionKind> KINDS[] = {
 
 std::mutex mutex;
 std::optional<int64_t> unavailableAt;
+std::optional<bool> isSupported;
 std::atomic<uint64_t> lastScanId = 0;
 
 struct ScanSource {
@@ -94,6 +96,7 @@ bool isAiAvailable() {
     if (auto user = currentUser(); user && !jsonBool(*user, L"aiEnabled", true)) return false;
 
     std::lock_guard lock(mutex);
+    if (isSupported == false) return false;
     return !unavailableAt || nowMs() - *unavailableAt > UNAVAILABLE_MS;
 }
 
@@ -101,9 +104,17 @@ void noteServerAi(bool enabled) {
     setAiAvailable(enabled);
 }
 
+void noteServerVersion(std::wstring const& version) {
+    std::lock_guard lock(mutex);
+    isSupported = isFileshipAtLeast(version, MIN_REDACTION_VERSION);
+}
+
 void refreshServerAi() {
     try {
-        auto value = api(L"GET", L"/api/settings/public");
+        auto health = api(L"GET", L"/api/healthz", std::nullopt, 10000);
+        if (health.ValueType() == JsonValueType::Object) noteServerVersion(jsonString(health.GetObject(), L"version"));
+
+        auto value = api(L"GET", L"/api/settings/public", std::nullopt, 10000);
         if (value.ValueType() == JsonValueType::Object) setAiAvailable(jsonBool(value.GetObject(), L"aiEnabled", true));
     } catch (std::exception const& error) {
         logWarn(L"Could not read the instance settings: " + errorMessage(error));

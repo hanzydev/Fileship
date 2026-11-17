@@ -103,7 +103,7 @@
             "redact": {
                 "label": "민감한 정보 가리기",
                 "description": "서버의 AI가 스크린샷에서 API 키, 비밀번호, 토큰, 이메일, 전화번호, 카드 번호, IBAN, 공개 IP 주소를 찾아 복사, 저장, 업로드 전에 가려요. 영역 캡처에서는 결과를 보고 수정할 수 있어요.",
-                "unavailable": "서버에서 AI가 꺼져 있어서 스크린샷의 민감한 정보를 확인할 수 없어요."
+                "unavailable": "Fileship 6.9 이상과 계정에서 켜진 AI가 필요해요."
             },
             "detectWindows": {
                 "label": "창 감지",

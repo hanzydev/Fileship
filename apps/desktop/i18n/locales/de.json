@@ -103,7 +103,7 @@
             "redact": {
                 "label": "Sensible Daten schwärzen",
                 "description": "Die KI deines Servers findet API-Schlüssel, Passwörter, Tokens, E-Mail-Adressen, Telefon- und Kartennummern, IBANs und öffentliche IP-Adressen in Screenshots und schwärzt sie, bevor sie kopiert, gespeichert oder hochgeladen werden. Bei der Bereichsaufnahme siehst du das Ergebnis und kannst es bearbeiten.",
-                "unavailable": "Die KI ist auf deinem Server ausgeschaltet, daher können Screenshots nicht auf sensible Daten geprüft werden."
+                "unavailable": "Erfordert Fileship 6.9 oder neuer mit eingeschalteter KI für dein Konto."
             },
             "detectWindows": {
                 "label": "Fenster erkennen",

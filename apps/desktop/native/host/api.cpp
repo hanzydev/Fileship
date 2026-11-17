@@ -94,6 +94,11 @@ bool canUseDesktop(JsonObject const& user) {
 
 }
 
+bool isFileshipAtLeast(std::wstring const& reported, std::wstring const& minimum) {
+    auto version = coerceVersion(reported);
+    return version && !isOlder(*version, *coerceVersion(minimum));
+}
+
 JsonValue request(std::wstring const& baseUrl, std::wstring const& method, std::wstring const& path,
                   std::vector<char> body, std::wstring const& contentType, std::wstring const& bearer,
                   int timeoutMs, std::function<void(size_t, size_t)> const& onSent) {
@@ -195,6 +200,8 @@ JsonObject checkInstance(std::wstring const& input) {
     auto reported = health.ValueType() == JsonValueType::Object ? jsonString(health.GetObject(), L"version") : L"";
     auto version = coerceVersion(reported);
     if (!version) throw translatedError(t(L"app.serverNotFound", {{L"url", url}}));
+
+    noteServerVersion(reported);
 
     auto minimum = *coerceVersion(MIN_FILESHIP_VERSION);
     if (isOlder(*version, minimum)) {

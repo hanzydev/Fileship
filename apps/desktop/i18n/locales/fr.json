@@ -103,7 +103,7 @@
             "redact": {
                 "label": "Masquer les informations sensibles",
                 "description": "L'IA de votre serveur repère les clés d'API, mots de passe, jetons, adresses e-mail, numéros de téléphone et de carte, IBAN et adresses IP publiques dans les captures d'écran, et les masque avant qu'elles ne soient copiées, enregistrées ou importées. Lors de la capture d'une zone, vous voyez le résultat et pouvez le modifier.",
-                "unavailable": "L'IA est désactivée sur votre serveur : les captures d'écran ne peuvent pas être vérifiées."
+                "unavailable": "Nécessite Fileship 6.9 ou ultérieur avec l'IA activée pour votre compte."
             },
             "detectWindows": {
                 "label": "Détecter les fenêtres",

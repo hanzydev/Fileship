@@ -136,8 +136,10 @@ struct RedactResult {
     std::vector<ui::Redaction> regions;
 };
 
+bool isFileshipAtLeast(std::wstring const& reported, std::wstring const& minimum);
 bool isAiAvailable();
 void noteServerAi(bool enabled);
+void noteServerVersion(std::wstring const& version);
 void refreshServerAi();
 bool isRedactionEnabled();
 RedactResult findRedactions(std::vector<uint8_t> const& png);
