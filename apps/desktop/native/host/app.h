@@ -103,10 +103,11 @@ void removeHistory(std::wstring const& id);
 void clearHistory();
 
 std::wstring thumbnailOf(core::Bitmap const& bitmap);
-void handleImage(core::Bitmap const& image, std::wstring const& title = {}, std::wstring const& kind = L"screenshot");
+void handleImage(core::Bitmap const& image, std::wstring const& title = {}, std::wstring const& kind = L"screenshot",
+                 bool redact = true);
 void handleFile(UploadSource const& source);
 std::wstring finishUpload(std::wstring const& historyId, UploadedFile const& file,
-                          std::optional<std::filesystem::path> const& image = {});
+                          std::optional<std::filesystem::path> const& image = {}, std::wstring const& note = {});
 
 bool writeClipboardImage(std::vector<uint8_t> const& png, core::Bitmap const& bitmap);
 std::wstring readClipboardText();
@@ -129,6 +130,7 @@ void openRegionCapture(ui::OverlayPurpose purpose = ui::OverlayPurpose::Capture,
                        std::function<void(core::Bitmap)> onImage = {});
 void captureLastRegion();
 void captureText();
+void openSyntheticCapture(core::Bitmap image);
 
 void uploadPaths(std::vector<std::filesystem::path> const& paths);
 

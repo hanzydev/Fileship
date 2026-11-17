@@ -100,6 +100,11 @@
         "capture": {
             "title": "Bölge yakalama",
             "description": "Alan seçerken ekranda görünenler.",
+            "redact": {
+                "label": "Hassas bilgileri karart",
+                "description": "Ekran görüntülerindeki API anahtarları, şifreler, tokenlar, e-postalar, telefon ve kart numaraları, IBAN'lar ve herkese açık IP adresleri sunucundaki AI ile bulunur; kopyalanmadan, kaydedilmeden ve yüklenmeden önce karartılır. Bölge yakalamada sonucu görüp düzenleyebilirsin.",
+                "unavailable": "Sunucunda AI kapalı olduğu için ekran görüntüleri hassas bilgi açısından kontrol edilemiyor."
+            },
             "detectWindows": {
                 "label": "Pencereleri algıla",
                 "description": "Farenin altındaki pencere vurgulanır, tek tıklamayla yakalanır."
@@ -611,6 +616,9 @@
         "imageSaved": "Görüntü kaydedildi",
         "screenshotCopied": "Ekran görüntüsü kopyalandı",
         "uploadsOff": "Yükleme, \"Yakaladıktan sonra\" ayarlarında kapalı.",
+        "redacted": "{count} hassas bilgi karartıldı",
+        "redactFailed": "Hassas bilgiler kontrol edilemedi",
+        "redactFailedBody": "Ekran görüntüsü taranamadı, hiçbir şey karartılmadı.",
         "recordingKept": "Kayıt yüklenemedi, bilgisayara kaydedildi",
         "recordingSaved": "Ekran kaydı kaydedildi",
         "textCaptureOff": "Metin yakalama kapalı",

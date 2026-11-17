@@ -14,12 +14,14 @@ export type AccountUser = {
     avatar: string | null;
     permissions: Permission[];
     superAdmin: boolean;
+    aiEnabled: boolean;
 };
 
 export type Account = {
     instanceUrl: string;
     siteName: string;
     user: AccountUser;
+    aiEnabled: boolean;
 };
 
 export type InstanceInfo = {

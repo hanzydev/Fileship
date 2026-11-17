@@ -100,6 +100,11 @@
         "capture": {
             "title": "Acquisizione di un'area",
             "description": "Come appare lo schermo mentre scegli un'area.",
+            "redact": {
+                "label": "Oscura le informazioni sensibili",
+                "description": "L'IA del tuo server trova chiavi API, password, token, email, numeri di telefono e di carta, IBAN e indirizzi IP pubblici negli screenshot e li oscura prima che vengano copiati, salvati o caricati. Nell'acquisizione di un'area vedi il risultato e puoi modificarlo.",
+                "unavailable": "L'IA è disattivata sul tuo server, quindi gli screenshot non possono essere controllati."
+            },
             "detectWindows": {
                 "label": "Rileva finestre",
                 "description": "Evidenzia la finestra sotto il mouse, così la acquisisci con un clic."
@@ -611,6 +616,9 @@
         "imageSaved": "Immagine salvata",
         "screenshotCopied": "Screenshot copiato",
         "uploadsOff": "Il caricamento è disattivato nelle impostazioni \"Dopo l'acquisizione\".",
+        "redacted": "{count} informazione sensibile oscurata | {count} informazioni sensibili oscurate",
+        "redactFailed": "Informazioni sensibili non controllate",
+        "redactFailedBody": "Non è stato possibile analizzare lo screenshot, quindi non è stato oscurato nulla.",
         "recordingKept": "Caricamento non riuscito, registrazione salvata",
         "recordingSaved": "Registrazione salvata",
         "textCaptureOff": "L'acquisizione del testo è disattivata",

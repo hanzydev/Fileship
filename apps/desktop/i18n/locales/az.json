@@ -100,6 +100,11 @@
         "capture": {
             "title": "Sahə çəkilişi",
             "description": "Sahə seçərkən ekranda görünənlər.",
+            "redact": {
+                "label": "Həssas məlumatları gizlət",
+                "description": "Ekran görüntülərindəki API açarları, şifrələr, tokenlər, e-poçt ünvanları, telefon və kart nömrələri, IBAN-lar və hamıya açıq IP ünvanları serverindəki AI ilə tapılır və kopyalanmadan, yadda saxlanmadan və yüklənmədən əvvəl gizlədilir. Sahə çəkərkən nəticəni görüb dəyişə bilərsən.",
+                "unavailable": "Serverində AI söndürülüb, ona görə ekran görüntüləri yoxlanıla bilmir."
+            },
             "detectWindows": {
                 "label": "Pəncərələri tanı",
                 "description": "Siçanın altındakı pəncərə vurğulanır və bir kliklə çəkilir."
@@ -611,6 +616,9 @@
         "imageSaved": "Şəkil saxlanıldı",
         "screenshotCopied": "Ekran görüntüsü kopyalandı",
         "uploadsOff": "Yükləmə \"Çəkdikdən sonra\" ayarlarında deaktiv edilib.",
+        "redacted": "{count} həssas məlumat gizlədildi",
+        "redactFailed": "Həssas məlumatlar yoxlanılmadı",
+        "redactFailedBody": "Ekran görüntüsü yoxlanıla bilmədi, heç nə gizlədilmədi.",
         "recordingKept": "Yazı yüklənmədi, kompüterdə saxlanıldı",
         "recordingSaved": "Yazı saxlanıldı",
         "textCaptureOff": "Mətn tanıma deaktivdir",

@@ -100,6 +100,11 @@
         "capture": {
             "title": "Bereichsaufnahme",
             "description": "So sieht der Bildschirm aus, während du einen Bereich auswählst.",
+            "redact": {
+                "label": "Sensible Daten schwärzen",
+                "description": "Die KI deines Servers findet API-Schlüssel, Passwörter, Tokens, E-Mail-Adressen, Telefon- und Kartennummern, IBANs und öffentliche IP-Adressen in Screenshots und schwärzt sie, bevor sie kopiert, gespeichert oder hochgeladen werden. Bei der Bereichsaufnahme siehst du das Ergebnis und kannst es bearbeiten.",
+                "unavailable": "Die KI ist auf deinem Server ausgeschaltet, daher können Screenshots nicht auf sensible Daten geprüft werden."
+            },
             "detectWindows": {
                 "label": "Fenster erkennen",
                 "description": "Hebt das Fenster unter der Maus hervor, damit du es mit einem Klick aufnimmst."
@@ -611,6 +616,9 @@
         "imageSaved": "Bild gespeichert",
         "screenshotCopied": "Screenshot kopiert",
         "uploadsOff": "Das Hochladen ist in den Einstellungen unter „Nach der Aufnahme“ ausgeschaltet.",
+        "redacted": "{count} sensible Angabe geschwärzt | {count} sensible Angaben geschwärzt",
+        "redactFailed": "Sensible Daten nicht geprüft",
+        "redactFailedBody": "Der Screenshot konnte nicht geprüft werden, es wurde nichts geschwärzt.",
         "recordingKept": "Upload fehlgeschlagen, Aufnahme gespeichert",
         "recordingSaved": "Aufnahme gespeichert",
         "textCaptureOff": "Texterfassung ist aus",

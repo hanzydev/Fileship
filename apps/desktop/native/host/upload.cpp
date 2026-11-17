@@ -110,6 +110,7 @@ Limits uploadLimits() {
                 nowMs()};
 
     if (publicSettings) {
+        noteServerAi(jsonBool(*publicSettings, L"aiEnabled", true));
         std::lock_guard lock(mutex);
         cachedLimits = next;
     }

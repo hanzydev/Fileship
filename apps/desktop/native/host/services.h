@@ -131,6 +131,20 @@ std::filesystem::path uniquePath(std::filesystem::path const& folder, std::wstri
 std::wstring formatStorageSize(int64_t bytes);
 int64_t nowMs();
 
+struct RedactResult {
+    ui::ScanOutcome outcome = ui::ScanOutcome::Unavailable;
+    std::vector<ui::Redaction> regions;
+};
+
+bool isAiAvailable();
+void noteServerAi(bool enabled);
+void refreshServerAi();
+bool isRedactionEnabled();
+RedactResult findRedactions(std::vector<uint8_t> const& png);
+void applyRedactions(core::Bitmap& image, std::vector<ui::Redaction> const& regions);
+std::optional<uint64_t> newScanId();
+void runScan(uint64_t id, std::vector<ui::DisplaySnapshot> displays, POINT cursor);
+
 using AreaCallback = std::function<void(core::Rect)>;
 
 void pickArea(ui::OverlayPurpose purpose, AreaCallback onArea);

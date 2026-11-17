@@ -100,6 +100,11 @@
         "capture": {
             "title": "区域截图",
             "description": "选择区域时屏幕上的显示效果。",
+            "redact": {
+                "label": "隐藏敏感信息",
+                "description": "你的服务器上的 AI 会查找截图中的 API 密钥、密码、令牌、邮箱地址、电话号码、银行卡号、IBAN 和公网 IP 地址，并在复制、保存或上传前将其遮盖。区域截取时，你可以查看并编辑结果。",
+                "unavailable": "你的服务器已关闭 AI，因此无法检查截图中的敏感信息。"
+            },
             "detectWindows": {
                 "label": "检测窗口",
                 "description": "高亮显示鼠标下方的窗口，单击即可截取。"
@@ -611,6 +616,9 @@
         "imageSaved": "图片已保存",
         "screenshotCopied": "截图已复制",
         "uploadsOff": "“截图后”设置中已关闭上传。",
+        "redacted": "已遮盖 {count} 处敏感信息",
+        "redactFailed": "未能检查敏感信息",
+        "redactFailedBody": "无法扫描截图，因此未遮盖任何内容。",
         "recordingKept": "上传失败，录屏已保存",
         "recordingSaved": "录屏已保存",
         "textCaptureOff": "文字提取已关闭",

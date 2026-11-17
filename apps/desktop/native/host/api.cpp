@@ -208,6 +208,7 @@ JsonObject checkInstance(std::wstring const& input) {
         if (publicSettings.ValueType() == JsonValueType::Object) {
             auto value = jsonString(publicSettings.GetObject(), L"siteName");
             if (!value.empty()) name = value;
+            noteServerAi(jsonBool(publicSettings.GetObject(), L"aiEnabled", true));
         }
     } catch (std::exception const&) {
     }
@@ -232,6 +233,7 @@ IJsonValue accountJson() {
     account.SetNamedValue(L"instanceUrl", JsonValue::CreateStringValue(url));
     account.SetNamedValue(L"siteName", JsonValue::CreateStringValue(jsonString(store, L"siteName", L"Fileship")));
     account.SetNamedValue(L"user", user);
+    account.SetNamedValue(L"aiEnabled", JsonValue::CreateBooleanValue(isAiAvailable()));
     return account;
 }
 
@@ -242,6 +244,7 @@ IJsonValue getAccount() {
 
     try {
         setSession(url, siteName(), sessionToken, fetchUser(url, sessionToken));
+        refreshServerAi();
     } catch (ApiError const& error) {
         if (error.status == 401) {
             handleUnauthorized();

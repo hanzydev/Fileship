@@ -100,6 +100,11 @@
         "capture": {
             "title": "Capture de zone",
             "description": "Ce qui s'affiche à l'écran pendant que vous sélectionnez une zone.",
+            "redact": {
+                "label": "Masquer les informations sensibles",
+                "description": "L'IA de votre serveur repère les clés d'API, mots de passe, jetons, adresses e-mail, numéros de téléphone et de carte, IBAN et adresses IP publiques dans les captures d'écran, et les masque avant qu'elles ne soient copiées, enregistrées ou importées. Lors de la capture d'une zone, vous voyez le résultat et pouvez le modifier.",
+                "unavailable": "L'IA est désactivée sur votre serveur : les captures d'écran ne peuvent pas être vérifiées."
+            },
             "detectWindows": {
                 "label": "Détecter les fenêtres",
                 "description": "Met en surbrillance la fenêtre sous la souris pour la capturer d'un simple clic."
@@ -611,6 +616,9 @@
         "imageSaved": "Image enregistrée",
         "screenshotCopied": "Capture d'écran copiée",
         "uploadsOff": "L'importation est désactivée dans les paramètres « Après la capture ».",
+        "redacted": "{count} information sensible masquée | {count} informations sensibles masquées",
+        "redactFailed": "Informations sensibles non vérifiées",
+        "redactFailedBody": "La capture d'écran n'a pas pu être analysée, rien n'a été masqué.",
         "recordingKept": "Échec de l'importation, enregistrement conservé sur cet ordinateur",
         "recordingSaved": "Enregistrement sauvegardé",
         "textCaptureOff": "La capture de texte est désactivée",
