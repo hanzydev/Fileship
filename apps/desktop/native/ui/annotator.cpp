@@ -27,11 +27,24 @@ std::string contrastColor(std::string const& value) {
 }
 
 bool hasColor(Tool type) {
-    return type != Tool::Emoji;
+    return type != Tool::Emoji && type != Tool::Redact;
 }
 
 bool hasShadow(Tool type) {
-    return type != Tool::Emoji;
+    return type != Tool::Emoji && type != Tool::Redact;
+}
+
+bool hasFill(Tool type) {
+    return isBoxShape(type) && type != Tool::Eraser && type != Tool::Redact;
+}
+
+uint32_t seedOf(Shape const& shape) {
+    uint32_t hash = 2166136261U;
+    for (char character : shape.id) {
+        hash ^= static_cast<uint8_t>(character);
+        hash *= 16777619U;
+    }
+    return hash;
 }
 
 bool keepsRatio(Tool type) {
@@ -121,6 +134,7 @@ ToolInfo const TOOLS[TOOL_COUNT] = {
     {Tool::Step, "step", L'n', &icons::listOrdered},
     {Tool::Blur, "blur", L'b', &icons::droplets},
     {Tool::Pixelate, "pixelate", L'p', &icons::grid3x3},
+    {Tool::Redact, "redact", L'd', &icons::eyeOff},
     {Tool::Eraser, "eraser", L'x', &icons::eraser},
     {Tool::Emoji, "emoji", L'j', &icons::smile},
 };
@@ -178,6 +192,7 @@ AnnotationOptions defaultAnnotationOptions() {
         {RED, 12},
         {RED, 12},
         {RED, 0},
+        {RED, 0},
         {RED, 64},
     }};
     return result;
@@ -190,6 +205,7 @@ bool isBoxShape(Tool type) {
     case Tool::Highlight:
     case Tool::Blur:
     case Tool::Pixelate:
+    case Tool::Redact:
     case Tool::Eraser:
         return true;
     default:
@@ -262,7 +278,7 @@ void Annotator::syncSelected() {
     auto styled = [&](Shape next) {
         if (hasColor(next.type) && next.type != Tool::Eraser) next.color = toolOptions.color;
         next.size = toolOptions.size;
-        if (isBoxShape(next.type) && next.type != Tool::Eraser) next.fill = options.fill;
+        if (hasFill(next.type)) next.fill = options.fill;
         if (next.type == Tool::Text) next.background = options.background;
         if (hasShadow(next.type)) next.shadow = options.shadow;
         return next;
@@ -343,7 +359,7 @@ void Annotator::select(std::optional<std::string> id) {
         auto& toolOptions = options.tools[static_cast<size_t>(shape->type)];
         if (hasColor(shape->type) && shape->type != Tool::Eraser) toolOptions.color = shape->color;
         toolOptions.size = shape->size;
-        if (isBoxShape(shape->type) && shape->type != Tool::Eraser) options.fill = shape->fill;
+        if (hasFill(shape->type)) options.fill = shape->fill;
         if (shape->type == Tool::Text) options.background = shape->background;
         if (hasShadow(shape->type)) options.shadow = shape->shadow;
     }
@@ -360,8 +376,26 @@ void Annotator::reset() {
     past.clear();
     future.clear();
     selectedId.reset();
+    hidden.clear();
     effects.clear();
     changed();
+}
+
+std::vector<std::string> Annotator::addShapes(std::vector<Shape> list) {
+    std::vector<std::string> ids;
+    if (list.empty()) return ids;
+
+    finishTextEdit();
+    auto next = shapes;
+    for (auto& shape : list) {
+        if (shape.id.empty()) shape.id = newId();
+        ids.push_back(shape.id);
+        next.push_back(std::move(shape));
+    }
+
+    commit(std::move(next));
+    changed();
+    return ids;
 }
 
 void Annotator::undo() {
@@ -452,6 +486,11 @@ std::optional<Shape> Annotator::startShape(Point point) {
     case Tool::Pixelate:
         shape.type = *tool;
         shape.fill = options.fill;
+        return shape;
+    case Tool::Redact:
+        shape.type = Tool::Redact;
+        shape.color.clear();
+        shape.shadow = false;
         return shape;
     case Tool::Eraser:
         shape.type = Tool::Eraser;
@@ -952,6 +991,7 @@ bool Annotator::hitShape(Shape const& shape, Point point) {
     case Tool::Eraser:
     case Tool::Blur:
     case Tool::Pixelate:
+    case Tool::Redact:
         return local.x >= 0 && local.y >= 0 && local.x < shape.width && local.y < shape.height;
     case Tool::Arrow:
     case Tool::Line:
@@ -1057,6 +1097,59 @@ com_ptr<ID2D1PathGeometry> Annotator::arrowHead(Shape const& shape) {
     return geometry;
 }
 
+std::optional<Annotator::EffectPixels> Annotator::effectPixels(Shape const& shape) {
+    if (shape.width < 1 || shape.height < 1 || !source.read) return std::nullopt;
+
+    double scale = source.scale;
+    RECT crop{std::lround(shape.x * scale), std::lround(shape.y * scale), 0, 0};
+    crop.right = crop.left + std::max(1L, std::lround(shape.width * scale));
+    crop.bottom = crop.top + std::max(1L, std::lround(shape.height * scale));
+
+    if (shape.type != Tool::Redact) {
+        int width = crop.right - crop.left;
+        int height = crop.bottom - crop.top;
+        auto pixels = source.read(crop);
+
+        if (shape.type == Tool::Blur) {
+            stackBlur(pixels.data(), width, height,
+                      static_cast<int>(std::lround(std::min(shape.size * scale, 180.0) * scale)));
+        } else {
+            pixelate(pixels.data(), width, height,
+                     static_cast<int>(std::ceil(std::max(2L, std::lround(shape.size * scale)) * scale)));
+        }
+
+        return EffectPixels{crop, std::move(pixels)};
+    }
+
+    RECT ring{crop.left - 2, crop.top - 2, crop.right + 2, crop.bottom + 2};
+    if (source.width > 0 && source.height > 0) {
+        LONG width = source.width;
+        LONG height = source.height;
+        crop = {std::max(crop.left, 0L), std::max(crop.top, 0L), std::min(crop.right, width),
+                std::min(crop.bottom, height)};
+        ring = {std::max(ring.left, 0L), std::max(ring.top, 0L), std::min(ring.right, width),
+                std::min(ring.bottom, height)};
+    }
+    if (crop.right <= crop.left || crop.bottom <= crop.top) return std::nullopt;
+
+    int ringWidth = ring.right - ring.left;
+    auto pixels = source.read(ring);
+    redactFill(pixels.data(), ringWidth, ring.bottom - ring.top, ringWidth * 4,
+               RECT{crop.left - ring.left, crop.top - ring.top, crop.right - ring.left, crop.bottom - ring.top},
+               seedOf(shape));
+
+    int width = crop.right - crop.left;
+    int height = crop.bottom - crop.top;
+    size_t offsetX = static_cast<size_t>(crop.left - ring.left);
+    size_t offsetY = static_cast<size_t>(crop.top - ring.top);
+    std::vector<uint8_t> area(static_cast<size_t>(width) * height * 4);
+    for (int row = 0; row < height; row++)
+        memcpy(area.data() + static_cast<size_t>(row) * width * 4,
+               pixels.data() + ((offsetY + row) * ringWidth + offsetX) * 4, static_cast<size_t>(width) * 4);
+
+    return EffectPixels{crop, std::move(area)};
+}
+
 void Annotator::drawEffect(ID2D1DeviceContext* context, Shape const& shape) {
     if (shape.width < 1 || shape.height < 1 || !source.read) return;
 
@@ -1081,23 +1174,28 @@ void Annotator::drawEffect(ID2D1DeviceContext* context, Shape const& shape) {
 
     auto& cache = found->second;
     if (cache.key != buffer || !cache.bitmap) {
-        int width = crop.right - crop.left;
-        int height = crop.bottom - crop.top;
-        auto pixels = source.read(crop);
+        auto effect = effectPixels(shape);
+        cache.bitmap = nullptr;
+        cache.key.clear();
+        if (!effect) return;
 
-        if (shape.type == Tool::Blur) {
-            stackBlur(pixels.data(), width, height, strength);
-        } else {
-            pixelate(pixels.data(), width, height, strength);
-        }
-
+        int width = effect->crop.right - effect->crop.left;
+        int height = effect->crop.bottom - effect->crop.top;
         auto properties = D2D1::BitmapProperties1(
             D2D1_BITMAP_OPTIONS_NONE, D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED));
-        cache.bitmap = nullptr;
-        winrt::check_hresult(context->CreateBitmap(D2D1::SizeU(width, height), pixels.data(), width * 4, properties,
-                                                   cache.bitmap.put()));
+        winrt::check_hresult(context->CreateBitmap(D2D1::SizeU(width, height), effect->pixels.data(), width * 4,
+                                                   properties, cache.bitmap.put()));
         cache.key = buffer;
-        cache.crop = crop;
+        cache.crop = effect->crop;
+    }
+
+    if (shape.type == Tool::Redact) {
+        auto const& area = cache.crop;
+        context->DrawBitmap(cache.bitmap.get(),
+                            rect(area.left / scale - shape.x, area.top / scale - shape.y,
+                                 (area.right - area.left) / scale, (area.bottom - area.top) / scale),
+                            1.0f, D2D1_INTERPOLATION_MODE_NEAREST_NEIGHBOR, nullptr, nullptr);
+        return;
     }
 
     context->DrawBitmap(cache.bitmap.get(), rect(0, 0, shape.width, shape.height), 1.0f,
@@ -1131,6 +1229,7 @@ void Annotator::drawShapeBody(ID2D1DeviceContext* context, Painter& painter, Sha
         break;
     case Tool::Blur:
     case Tool::Pixelate:
+    case Tool::Redact:
         drawEffect(context, shape);
         break;
     case Tool::Arrow:
@@ -1233,6 +1332,7 @@ void Annotator::render(ID2D1DeviceContext* context, bool forExport) {
     std::vector<std::pair<std::string, EffectCache>> used;
     for (auto const& shape : shapes) {
         if (editor && editor->shape.id == shape.id) continue;
+        if (hidden.contains(shape.id)) continue;
         drawShape(context, painter, shape);
     }
 

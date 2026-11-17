@@ -25,6 +25,7 @@
             "step": "Adım numarası",
             "blur": "Bulanıklaştır",
             "pixelate": "Pikselleştir",
+            "redact": "Sansürle",
             "eraser": "Akıllı silgi",
             "emoji": "Emoji"
         },
@@ -37,7 +38,30 @@
         "shadow": "Gölge",
         "undo": "Geri al",
         "redo": "Yinele",
-        "delete": "Sil"
+        "delete": "Sil",
+        "scan": {
+            "detecting": "Hassas bilgiler tespit ediliyor…",
+            "screen": "Ekran taranıyor…",
+            "text": "Metinler okunuyor…",
+            "keys": "API anahtarları aranıyor…",
+            "secrets": "Şifreler ve tokenlar kontrol ediliyor…",
+            "contacts": "E-postalar ve telefonlar aranıyor…",
+            "cards": "Kart ve IBAN numaraları kontrol ediliyor…",
+            "addresses": "IP adresleri kontrol ediliyor…",
+            "almost": "Neredeyse bitti…",
+            "found": "{count} hassas bilgi karartıldı",
+            "none": "Hassas bilgi bulunamadı",
+            "failed": "Hassas bilgiler kontrol edilemedi",
+            "kinds": {
+                "secret": "Gizli anahtar",
+                "email": "E-posta",
+                "phone": "Telefon numarası",
+                "card": "Kart numarası",
+                "account": "Banka hesabı",
+                "document": "Kimlik belgesi",
+                "ip": "IP adresi"
+            }
+        }
     },
     "app": {
         "somethingWentWrong": "Bir sorun oluştu",

@@ -25,6 +25,7 @@
             "step": "Número de etapa",
             "blur": "Desfoque",
             "pixelate": "Pixelizar",
+            "redact": "Censurar",
             "eraser": "Borracha inteligente",
             "emoji": "Emoji"
         },
@@ -37,7 +38,30 @@
         "shadow": "Sombra",
         "undo": "Desfazer",
         "redo": "Refazer",
-        "delete": "Excluir"
+        "delete": "Excluir",
+        "scan": {
+            "detecting": "Detectando informações sensíveis…",
+            "screen": "Analisando a tela…",
+            "text": "Lendo o texto…",
+            "keys": "Procurando chaves de API…",
+            "secrets": "Verificando senhas e tokens…",
+            "contacts": "Procurando e-mails e telefones…",
+            "cards": "Verificando números de cartão e IBAN…",
+            "addresses": "Verificando endereços IP…",
+            "almost": "Quase pronto…",
+            "found": "{count} informação sensível censurada | {count} informações sensíveis censuradas",
+            "none": "Nenhuma informação sensível encontrada",
+            "failed": "Não foi possível verificar informações sensíveis",
+            "kinds": {
+                "secret": "Chave secreta",
+                "email": "E-mail",
+                "phone": "Telefone",
+                "card": "Número do cartão",
+                "account": "Conta bancária",
+                "document": "Documento de identidade",
+                "ip": "Endereço IP"
+            }
+        }
     },
     "app": {
         "somethingWentWrong": "Algo deu errado",

@@ -25,6 +25,7 @@
             "step": "Numero progressivo",
             "blur": "Sfoca",
             "pixelate": "Pixelizza",
+            "redact": "Oscura",
             "eraser": "Gomma intelligente",
             "emoji": "Emoji"
         },
@@ -37,7 +38,30 @@
         "shadow": "Ombra",
         "undo": "Annulla",
         "redo": "Ripeti",
-        "delete": "Elimina"
+        "delete": "Elimina",
+        "scan": {
+            "detecting": "Rilevamento delle informazioni sensibili…",
+            "screen": "Scansione dello schermo…",
+            "text": "Lettura del testo…",
+            "keys": "Ricerca delle chiavi API…",
+            "secrets": "Controllo di password e token…",
+            "contacts": "Ricerca di email e numeri di telefono…",
+            "cards": "Controllo dei numeri di carta e IBAN…",
+            "addresses": "Controllo degli indirizzi IP…",
+            "almost": "Quasi fatto…",
+            "found": "{count} informazione sensibile oscurata | {count} informazioni sensibili oscurate",
+            "none": "Nessuna informazione sensibile trovata",
+            "failed": "Impossibile controllare le informazioni sensibili",
+            "kinds": {
+                "secret": "Chiave segreta",
+                "email": "Email",
+                "phone": "Numero di telefono",
+                "card": "Numero di carta",
+                "account": "Conto bancario",
+                "document": "Documento d'identità",
+                "ip": "Indirizzo IP"
+            }
+        }
     },
     "app": {
         "somethingWentWrong": "Si è verificato un problema",

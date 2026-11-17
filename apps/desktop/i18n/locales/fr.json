@@ -25,6 +25,7 @@
             "step": "Numéro d'étape",
             "blur": "Flou",
             "pixelate": "Pixeliser",
+            "redact": "Caviarder",
             "eraser": "Gomme intelligente",
             "emoji": "Emoji"
         },
@@ -37,7 +38,30 @@
         "shadow": "Ombre",
         "undo": "Annuler",
         "redo": "Rétablir",
-        "delete": "Supprimer"
+        "delete": "Supprimer",
+        "scan": {
+            "detecting": "Détection des informations sensibles…",
+            "screen": "Analyse de l'écran…",
+            "text": "Lecture du texte…",
+            "keys": "Recherche de clés d'API…",
+            "secrets": "Vérification des mots de passe et des jetons…",
+            "contacts": "Recherche d'adresses e-mail et de numéros de téléphone…",
+            "cards": "Vérification des numéros de carte et d'IBAN…",
+            "addresses": "Vérification des adresses IP…",
+            "almost": "Presque terminé…",
+            "found": "{count} information sensible caviardée | {count} informations sensibles caviardées",
+            "none": "Aucune information sensible trouvée",
+            "failed": "Impossible de vérifier les informations sensibles",
+            "kinds": {
+                "secret": "Clé secrète",
+                "email": "Adresse e-mail",
+                "phone": "Numéro de téléphone",
+                "card": "Numéro de carte",
+                "account": "Compte bancaire",
+                "document": "Pièce d'identité",
+                "ip": "Adresse IP"
+            }
+        }
     },
     "app": {
         "somethingWentWrong": "Un problème est survenu",

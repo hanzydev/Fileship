@@ -1,12 +1,14 @@
 #include "overlay.h"
 
 #include "annotator.h"
+#include "effects.h"
 #include "fixture.h"
 #include "gfx.h"
 #include "preferences.h"
 #include "toolbar.h"
 #include "uiThread.h"
 
+#include <shared/i18n.h>
 #include <shared/log.h>
 
 #include <commdlg.h>
@@ -17,6 +19,8 @@
 #include <atomic>
 #include <cmath>
 #include <cwctype>
+#include <iterator>
+#include <numeric>
 
 namespace fileship::ui {
 
@@ -31,6 +35,50 @@ constexpr double TOOLBAR_EDGE = 96;
 constexpr double TOOLBAR_EDGE_Y = 64;
 constexpr double TOOLBAR_MAGNET = 72;
 constexpr UINT_PTR CARET_TIMER = 1;
+constexpr double SCAN_OPEN_MS = 250;
+constexpr double SCAN_MIN_MS = 900;
+constexpr double SCAN_PHASE_MS = 1200;
+constexpr double SCAN_TEXT_MS = 300;
+constexpr double SCAN_RESULT_MS = 1400;
+constexpr double SCAN_FADE_MS = 400;
+constexpr double PILL_OUT_MS = 300;
+constexpr double COMET_MS = 2400;
+constexpr double BEAM_MS = 1600;
+constexpr double BEAM_FADE_MS = 300;
+constexpr double REVEAL_DELAY_MS = 100;
+constexpr double REVEAL_GAP_MS = 150;
+constexpr double LOCK_MS = 180;
+constexpr double BLUR_MS = 220;
+constexpr double BLOCKS_MS = 250;
+constexpr double BLOCK_DROP_MS = 80;
+constexpr double REVEAL_MS = LOCK_MS + BLUR_MS + BLOCKS_MS;
+constexpr double LABEL_MS = 1000;
+constexpr double LABEL_TOTAL_MS = 150 + LABEL_MS + 250;
+constexpr double TOOLBAR_IN_MS = 300;
+constexpr double FIXTURE_NOW = 1e7;
+
+constexpr CLSID BLUR_EFFECT{0x1feb6d69, 0x2fe6, 0x4ac9, {0x8c, 0x58, 0x1d, 0x7f, 0x93, 0xe7, 0xa6, 0xa5}};
+
+wchar_t const* const SCAN_PHASES[] = {
+    L"annotate.scan.screen",
+    L"annotate.scan.text",
+    L"annotate.scan.keys",
+    L"annotate.scan.secrets",
+    L"annotate.scan.contacts",
+    L"annotate.scan.cards",
+    L"annotate.scan.addresses",
+    L"annotate.scan.almost",
+};
+
+wchar_t const* const KIND_KEYS[] = {
+    L"annotate.scan.kinds.secret",
+    L"annotate.scan.kinds.email",
+    L"annotate.scan.kinds.phone",
+    L"annotate.scan.kinds.card",
+    L"annotate.scan.kinds.account",
+    L"annotate.scan.kinds.document",
+    L"annotate.scan.kinds.ip",
+};
 
 std::atomic<bool> isOpen{false};
 
@@ -63,6 +111,18 @@ Box fromPoints(Point a, Point b) {
 D2D1_RECT_F rectOf(double x, double y, double width, double height) {
     return D2D1::RectF(static_cast<float>(x), static_cast<float>(y), static_cast<float>(x + width),
                        static_cast<float>(y + height));
+}
+
+D2D1_POINT_2F point(double x, double y) {
+    return D2D1::Point2F(static_cast<float>(x), static_cast<float>(y));
+}
+
+double progressOf(double now, double start, double duration) {
+    return std::clamp((now - start) / duration, 0.0, 1.0);
+}
+
+double easeInOut(double t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - std::pow(-2 * t + 2, 3) / 2;
 }
 
 void forceForeground(HWND window) {
@@ -127,6 +187,8 @@ public:
         auto cursor = toLocal({request->cursor.x, request->cursor.y, 0, 0});
         pointer = Point{cursor.x, cursor.y};
         hover = targetAt(*pointer);
+
+        if (request->scanId && hasToolbar()) startScan(*request->scanId, nowMs());
     }
 
     ~Overlay() {
@@ -152,7 +214,8 @@ public:
             source.bgra.shrink_to_fit();
         }
 
-        annotator->setSource({ratio, [this](RECT const& rect) { return readSource(rect); }});
+        annotator->setSource(
+            {ratio, bounds.width, bounds.height, [this](RECT const& rect) { return readSource(rect); }});
         return true;
     }
 
@@ -249,6 +312,24 @@ public:
         finish({});
     }
 
+    void receiveScan(uint64_t id, std::vector<Redaction> redactions, ScanOutcome outcome) {
+        if (!scan || scan->id != id || scan->result != ScanResult::Pending) return;
+
+        scan->deliveries++;
+        if (outcome == ScanOutcome::Failed) scan->failed = true;
+        if (outcome == ScanOutcome::Unavailable) scan->unavailable = true;
+        for (auto& redaction : redactions) scan->found.push_back(redaction);
+        if (scan->deliveries >= displays.size()) endScan(clock());
+        invalidate();
+    }
+
+    void completeScan(uint64_t id) {
+        if (!scan || scan->id != id || scan->result != ScanResult::Pending) return;
+
+        endScan(clock());
+        invalidate();
+    }
+
 private:
     struct Display {
         int64_t id = 0;
@@ -283,6 +364,46 @@ private:
         Point center;
     };
 
+    enum class ScanResult { Pending, Found, Failed, Unavailable };
+
+    struct Reveal {
+        std::string id;
+        RedactionKind kind = RedactionKind::Secret;
+        Box box;
+        size_t display = 0;
+        double start = 0;
+        RECT crop{};
+        int block = 0;
+        int columns = 0;
+        float deviation = 0;
+        std::vector<int> order;
+        com_ptr<ID2D1Bitmap1> final;
+        com_ptr<ID2D1Effect> blur;
+    };
+
+    struct Scan {
+        uint64_t id = 0;
+        double start = 0;
+        size_t pill = 0;
+        size_t deliveries = 0;
+        bool failed = false;
+        bool unavailable = false;
+        std::vector<Redaction> found;
+        ScanResult result = ScanResult::Pending;
+        double resultAt = 0;
+        double unlockAt = 0;
+        double holdUntil = 0;
+        std::wstring from;
+        std::vector<Reveal> reveals;
+        bool isUnlocked = false;
+    };
+
+    struct Beam {
+        double edge = 0;
+        double band = 0;
+        double alpha = 0;
+    };
+
     static bool sameOptions(AnnotationOptions const& a, AnnotationOptions const& b) {
         if (a.fill != b.fill || a.background != b.background || a.shadow != b.shadow || a.emoji != b.emoji) return false;
         for (size_t index = 0; index < TOOL_COUNT; index++)
@@ -306,6 +427,19 @@ private:
         if (scene.popover >= 0) {
             layoutToolbar();
             toolbar->openPopover(scene.popover, nowMs() - 10000);
+        }
+
+        if (scene.scan && hasToolbar()) {
+            frozen = FIXTURE_NOW;
+            startScan(1, FIXTURE_NOW - scene.scan->elapsedMs);
+            reducedMotion = false;
+
+            if (scene.scan->deliveredMs) {
+                frozen = scan->start + *scene.scan->deliveredMs;
+                receiveScan(1, scene.scan->redactions, scene.scan->outcome);
+                completeScan(1);
+                frozen = FIXTURE_NOW;
+            }
         }
     }
 
@@ -622,6 +756,8 @@ private:
     void render(ID2D1DeviceContext* context) {
         Painter painter(context, *resources);
         isAnimatingHover = false;
+        double now = clock();
+        bool locked = isLocked(now);
 
         context->Clear(D2D1::ColorF(0, 0, 0, 1));
         for (auto const& display : displays) {
@@ -636,9 +772,13 @@ private:
         auto scale = static_cast<float>(ratio);
         Transform local(context, D2D1::Matrix3x2F::Scale(scale, scale));
 
+        if (scan) revealShapes(now);
         if (hasToolbar()) annotator->render(context, false);
+        if (scan) drawRevealContent(context, now);
 
-        if (!isAnnotating()) {
+        if (locked) {
+            drawScanDim(painter, now);
+        } else if (!isAnnotating()) {
             auto view = viewport();
             auto region = mode == Mode::Drawing ? selection : animatedHover();
             auto dim = rgba(0, 0, 0, 0.45f);
@@ -672,14 +812,700 @@ private:
             if (request->showMagnifier && pointer) drawMagnifier(painter, *pointer);
         }
 
-        if (hasToolbar()) {
+        if (scan) drawScan(painter, now);
+
+        if (hasToolbar() && !locked) {
             layoutToolbar();
-            toolbar->render(painter, nowMs());
+            double progress = scan ? progressOf(now, scan->unlockAt, TOOLBAR_IN_MS) : 1;
+
+            if (progress < 1) {
+                auto reveal = revealAt(progress, true, toolbarSide(), false, !reducedMotion);
+                painter.pushOpacity(static_cast<float>(reveal.opacity));
+                {
+                    Transform slide(context, D2D1::Matrix3x2F::Translation(reveal.shift.x, reveal.shift.y));
+                    toolbar->render(painter, nowMs());
+                }
+                painter.popOpacity();
+            } else {
+                toolbar->render(painter, nowMs());
+            }
         }
+    }
+
+    double clock() const {
+        return frozen ? *frozen : nowMs();
+    }
+
+    size_t displayIndexAt(Point point) const {
+        for (size_t index = 0; index < displays.size(); index++)
+            if (displays[index].local.contains(point.x, point.y)) return index;
+        for (size_t index = 0; index < displays.size(); index++)
+            if (displays[index].isPrimary) return index;
+        return 0;
+    }
+
+    double zoomOf(size_t index) const {
+        return index < displays.size() ? displays[index].scaleFactor / ratio : 1;
+    }
+
+    void startScan(uint64_t id, double now) {
+        BOOL animations = TRUE;
+        SystemParametersInfoW(SPI_GETCLIENTAREAANIMATION, 0, &animations, 0);
+        reducedMotion = !animations;
+
+        Scan value;
+        value.id = id;
+        value.start = now;
+        value.pill = displayIndexAt(pointer.value_or(Point{}));
+        scan = std::move(value);
+    }
+
+    bool isLocked(double now) const {
+        return scan && (scan->result == ScanResult::Pending || now < scan->unlockAt);
+    }
+
+    static std::wstring phaseText(int index) {
+        if (index <= 0) return t(L"annotate.scan.detecting");
+        return t(SCAN_PHASES[static_cast<size_t>(index - 1) % std::size(SCAN_PHASES)]);
+    }
+
+    std::wstring resultText() const {
+        if (scan->result == ScanResult::Failed) return t(L"annotate.scan.failed");
+        if (scan->reveals.empty()) return t(L"annotate.scan.none");
+        return t(L"annotate.scan.found", {{L"count", std::to_wstring(scan->reveals.size())}});
+    }
+
+    std::vector<std::pair<Box, RedactionKind>> readingOrder(std::vector<Redaction> const& redactions) const {
+        std::vector<std::pair<Box, RedactionKind>> items;
+        for (auto const& redaction : redactions) {
+            auto box = intersect(toLocal(redaction.rect), viewport());
+            if (box && isLargeEnough(*box)) items.push_back({*box, redaction.kind});
+        }
+
+        std::sort(items.begin(), items.end(), [](auto const& a, auto const& b) { return a.first.y < b.first.y; });
+
+        std::vector<std::pair<int, size_t>> keys;
+        int line = -1;
+        double bottom = 0;
+        for (size_t index = 0; index < items.size(); index++) {
+            auto const& box = items[index].first;
+            if (line < 0 || box.y >= bottom - box.height / 2) {
+                line++;
+                bottom = box.bottom();
+            } else {
+                bottom = std::max(bottom, box.bottom());
+            }
+            keys.push_back({line, index});
+        }
+
+        std::stable_sort(keys.begin(), keys.end(), [&](auto const& a, auto const& b) {
+            if (a.first != b.first) return a.first < b.first;
+            return items[a.second].first.x < items[b.second].first.x;
+        });
+
+        std::vector<std::pair<Box, RedactionKind>> result;
+        for (auto const& key : keys) result.push_back(items[key.second]);
+        return result;
+    }
+
+    void prepareReveal(Reveal& reveal, Shape const& shape, size_t index) {
+        try {
+            auto effect = annotator->effectPixels(shape);
+            if (!effect) return;
+
+            auto const& crop = effect->crop;
+            int width = crop.right - crop.left;
+            int height = crop.bottom - crop.top;
+            reveal.crop = crop;
+            reveal.block = redactBlock(width, height);
+            reveal.columns = (width + reveal.block - 1) / reveal.block;
+            reveal.deviation = static_cast<float>(std::clamp(std::min(width, height) * 0.3, 2.0, 20.0));
+
+            int rows = (height + reveal.block - 1) / reveal.block;
+            reveal.order.resize(static_cast<size_t>(reveal.columns) * rows);
+            std::iota(reveal.order.begin(), reveal.order.end(), 0);
+            uint32_t state = static_cast<uint32_t>(index + 1) * 0x9e3779b9U;
+            for (size_t item = reveal.order.size(); item > 1; item--) {
+                state ^= state << 13;
+                state ^= state >> 17;
+                state ^= state << 5;
+                std::swap(reveal.order[item - 1], reveal.order[state % item]);
+            }
+
+            auto context = gpu->context.get();
+            auto properties = D2D1::BitmapProperties1(
+                D2D1_BITMAP_OPTIONS_NONE, D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED));
+            winrt::check_hresult(context->CreateBitmap(D2D1::SizeU(width, height), effect->pixels.data(), width * 4,
+                                                       properties, reveal.final.put()));
+
+            auto pixels = readSource(crop);
+            com_ptr<ID2D1Bitmap1> sharp;
+            winrt::check_hresult(
+                context->CreateBitmap(D2D1::SizeU(width, height), pixels.data(), width * 4, properties, sharp.put()));
+            winrt::check_hresult(context->CreateEffect(BLUR_EFFECT, reveal.blur.put()));
+            reveal.blur->SetInput(0, sharp.get());
+            winrt::check_hresult(reveal.blur->SetValue(D2D1_GAUSSIANBLUR_PROP_BORDER_MODE, D2D1_BORDER_MODE_HARD));
+        } catch (winrt::hresult_error const& error) {
+            logWarn(L"Could not prepare a redaction animation: " + std::wstring(error.message()));
+            reveal.final = nullptr;
+            reveal.blur = nullptr;
+        }
+    }
+
+    void endScan(double now) {
+        auto& value = *scan;
+        bool isMissing = value.deliveries < displays.size();
+        if (value.failed || (isMissing && !value.unavailable)) {
+            value.result = ScanResult::Failed;
+        } else if (value.unavailable && value.found.empty()) {
+            value.result = ScanResult::Unavailable;
+        } else {
+            value.result = ScanResult::Found;
+        }
+
+        double at = std::max(now, value.start + SCAN_MIN_MS);
+        double phase = std::fmod(at - value.start, SCAN_PHASE_MS);
+        if (at - value.start >= SCAN_PHASE_MS && phase < SCAN_TEXT_MS) at += SCAN_TEXT_MS - phase;
+        value.resultAt = at;
+        value.from = phaseText(static_cast<int>((at - value.start) / SCAN_PHASE_MS));
+
+        auto findings = readingOrder(value.found);
+        std::vector<Shape> shapes;
+        for (auto const& [box, kind] : findings) {
+            Shape shape;
+            shape.type = Tool::Redact;
+            shape.x = box.x;
+            shape.y = box.y;
+            shape.width = box.width;
+            shape.height = box.height;
+            shapes.push_back(std::move(shape));
+        }
+
+        auto ids = annotator->addShapes(shapes);
+        for (size_t index = 0; index < ids.size(); index++) {
+            auto shape = shapes[index];
+            shape.id = ids[index];
+
+            Reveal reveal;
+            reveal.id = ids[index];
+            reveal.kind = findings[index].second;
+            reveal.box = findings[index].first;
+            reveal.display = displayIndexAt({reveal.box.x + reveal.box.width / 2, reveal.box.y + reveal.box.height / 2});
+            reveal.start = at + REVEAL_DELAY_MS + static_cast<double>(index) * REVEAL_GAP_MS;
+            prepareReveal(reveal, shape, index);
+            annotator->hidden.insert(reveal.id);
+            value.reveals.push_back(std::move(reveal));
+        }
+
+        value.unlockAt = at + BEAM_FADE_MS;
+        if (!value.reveals.empty()) value.unlockAt = std::max(value.unlockAt, value.reveals.back().start + REVEAL_MS);
+        value.holdUntil =
+            value.result == ScanResult::Unavailable ? at : std::max(at + SCAN_RESULT_MS, value.unlockAt);
+    }
+
+    double scanEnd() const {
+        double end = std::max({scan->holdUntil + SCAN_FADE_MS, scan->unlockAt + TOOLBAR_IN_MS,
+                               scan->resultAt + BEAM_FADE_MS});
+        if (!scan->reveals.empty()) end = std::max(end, scan->reveals.back().start + REVEAL_MS + LABEL_TOTAL_MS);
+        return end;
+    }
+
+    bool isScanAnimating(double now) const {
+        return scan && (scan->result == ScanResult::Pending || now < scanEnd());
+    }
+
+    void revealShapes(double now) {
+        for (auto const& reveal : scan->reveals)
+            if (now >= reveal.start + REVEAL_MS) annotator->hidden.erase(reveal.id);
+    }
+
+    std::optional<Beam> beamAt(Display const& display, double now) const {
+        if (reducedMotion) return std::nullopt;
+
+        double elapsed = now - scan->start;
+        double alpha = ease(Easing::Ease, progressOf(elapsed, 0, SCAN_OPEN_MS));
+        if (scan->result != ScanResult::Pending && now >= scan->resultAt) {
+            double lastPass = std::floor((scan->resultAt - scan->start) / BEAM_MS);
+            if (std::floor(elapsed / BEAM_MS) > lastPass) return std::nullopt;
+            alpha *= 1 - progressOf(now, scan->resultAt, BEAM_FADE_MS);
+        }
+        if (alpha <= 0) return std::nullopt;
+
+        double band = display.local.height * 0.22;
+        double travel = easeInOut(std::fmod(elapsed, BEAM_MS) / BEAM_MS);
+        return Beam{display.local.y + travel * (display.local.height + band), band, alpha};
+    }
+
+    com_ptr<ID2D1LinearGradientBrush> gradient(ID2D1DeviceContext* context, double top, double bottom,
+                                               D2D1_COLOR_F const& from, D2D1_COLOR_F const& to) {
+        D2D1_GRADIENT_STOP stops[] = {{0, from}, {1, to}};
+        com_ptr<ID2D1GradientStopCollection> collection;
+        winrt::check_hresult(context->CreateGradientStopCollection(stops, 2, collection.put()));
+
+        com_ptr<ID2D1LinearGradientBrush> brush;
+        winrt::check_hresult(context->CreateLinearGradientBrush(
+            D2D1::LinearGradientBrushProperties(D2D1::Point2F(0, static_cast<float>(top)),
+                                                D2D1::Point2F(0, static_cast<float>(bottom))),
+            collection.get(), brush.put()));
+        return brush;
+    }
+
+    void drawScanDim(Painter& painter, double now) {
+        auto context = painter.context();
+        auto view = viewport();
+        auto dim = rgba(0, 0, 0, 0.45f);
+
+        struct Band {
+            Display const* display;
+            Beam beam;
+            Box rect;
+        };
+
+        std::vector<Band> bands;
+        for (auto const& display : displays) {
+            auto beam = beamAt(display, now);
+            if (!beam) continue;
+            auto rect = intersect({display.local.x, beam->edge - beam->band, display.local.width, beam->band},
+                                  display.local);
+            if (rect) bands.push_back({&display, *beam, *rect});
+        }
+
+        if (bands.empty()) {
+            painter.fillRect(view.rect(), dim);
+            return;
+        }
+
+        std::vector<com_ptr<ID2D1RectangleGeometry>> rects(bands.size() + 1);
+        std::vector<ID2D1Geometry*> parts;
+        resources->factory()->CreateRectangleGeometry(view.rect(), rects[0].put());
+        parts.push_back(rects[0].get());
+        for (size_t index = 0; index < bands.size(); index++) {
+            resources->factory()->CreateRectangleGeometry(bands[index].rect.rect(), rects[index + 1].put());
+            parts.push_back(rects[index + 1].get());
+        }
+
+        com_ptr<ID2D1GeometryGroup> group;
+        resources->factory()->CreateGeometryGroup(D2D1_FILL_MODE_ALTERNATE, parts.data(),
+                                                  static_cast<UINT32>(parts.size()), group.put());
+        context->FillGeometry(group.get(), painter.brush(dim));
+
+        auto primary = color(palette.theme.primary);
+        auto bright = mix(primary, rgba(255, 255, 255), 0.55f);
+
+        for (auto const& [display, beam, rect] : bands) {
+            double zoom = display->scaleFactor / ratio;
+            float alpha = static_cast<float>(beam.alpha);
+            double top = beam.edge - beam.band;
+
+            auto fade = [&](D2D1_RECT_F const& area, double from, double to, D2D1_COLOR_F const& start,
+                            D2D1_COLOR_F const& end) {
+                context->FillRectangle(area, gradient(context, from, to, start, end).get());
+            };
+
+            double glow = 26 * zoom;
+            double left = display->local.x;
+            double width = display->local.width;
+
+            context->PushAxisAlignedClip(display->local.rect(), D2D1_ANTIALIAS_MODE_ALIASED);
+            fade(rect.rect(), top, beam.edge, dim, rgba(0, 0, 0, 0.45f * (1 - 0.9f * alpha)));
+            fade(rect.rect(), top, beam.edge, withAlpha(primary, 0), withAlpha(primary, 0.12f * alpha));
+            fade(rectOf(left, beam.edge - glow, width, glow), beam.edge - glow, beam.edge, withAlpha(primary, 0),
+                 withAlpha(primary, 0.35f * alpha));
+            fade(rectOf(left, beam.edge, width, 6 * zoom), beam.edge, beam.edge + 6 * zoom,
+                 withAlpha(primary, 0.3f * alpha), withAlpha(primary, 0));
+            painter.fillRect(rectOf(display->local.x, beam.edge - 0.75 * zoom, display->local.width, 1.5 * zoom),
+                             withAlpha(bright, alpha));
+            context->PopAxisAlignedClip();
+        }
+    }
+
+    void drawComet(Painter& painter, Display const& display, double now, float alpha) {
+        auto context = painter.context();
+        double zoom = display.scaleFactor / ratio;
+        double inset = 3 * zoom;
+        double left = display.local.x + inset;
+        double top = display.local.y + inset;
+        double right = display.local.right() - inset;
+        double bottom = display.local.bottom() - inset;
+        double width = right - left;
+        double height = bottom - top;
+        double perimeter = 2 * (width + height);
+        if (perimeter <= 0) return;
+
+        auto edgeOf = [&](double distance) {
+            if (distance < width) return 0;
+            if (distance < width + height) return 1;
+            if (distance < 2 * width + height) return 2;
+            return 3;
+        };
+
+        auto pointAt = [&](double distance) {
+            switch (edgeOf(distance)) {
+            case 0:
+                return point(left + distance, top);
+            case 1:
+                return point(right, top + distance - width);
+            case 2:
+                return point(right - (distance - width - height), bottom);
+            default:
+                return point(left, bottom - (distance - 2 * width - height));
+            }
+        };
+
+        auto corner = [&](int edge) {
+            switch (edge) {
+            case 0:
+                return point(left, top);
+            case 1:
+                return point(right, top);
+            case 2:
+                return point(right, bottom);
+            default:
+                return point(left, bottom);
+            }
+        };
+
+        auto wrap = [&](double distance) {
+            double value = std::fmod(distance, perimeter);
+            return value < 0 ? value + perimeter : value;
+        };
+
+        double head = std::fmod(now - scan->start, COMET_MS) / COMET_MS * perimeter;
+        double tail = perimeter * 0.16;
+        constexpr int SEGMENTS = 48;
+        auto primary = color(palette.theme.primary);
+        auto bright = mix(primary, rgba(255, 255, 255), 0.5f);
+
+        for (int pass = 0; pass < 2; pass++) {
+            float lineWidth = static_cast<float>((pass ? 3 : 10) * zoom);
+            for (int segment = SEGMENTS - 1; segment >= 0; segment--) {
+                double from = wrap(head - tail * (segment + 1) / SEGMENTS);
+                double to = wrap(head - tail * segment / SEGMENTS);
+                float fade = static_cast<float>(std::pow(1 - static_cast<double>(segment) / SEGMENTS, 1.6)) * alpha;
+                auto brush = painter.brush(pass ? withAlpha(bright, fade) : withAlpha(primary, 0.35f * fade));
+
+                int start = edgeOf(from);
+                int end = edgeOf(to);
+                if (start == end && to >= from) {
+                    context->DrawLine(pointAt(from), pointAt(to), brush, lineWidth);
+                } else {
+                    context->DrawLine(pointAt(from), corner(end), brush, lineWidth);
+                    context->DrawLine(corner(end), pointAt(to), brush, lineWidth);
+                }
+            }
+        }
+
+        auto tip = pointAt(head);
+        painter.fillEllipse(tip.x, tip.y, static_cast<float>(9 * zoom), static_cast<float>(9 * zoom),
+                            withAlpha(primary, 0.4f * alpha));
+        painter.fillEllipse(tip.x, tip.y, static_cast<float>(3 * zoom), static_cast<float>(3 * zoom),
+                            withAlpha(rgba(255, 255, 255), alpha));
+    }
+
+    void drawBorder(Painter& painter, Display const& display, double now, float alpha) {
+        auto context = painter.context();
+        double zoom = display.scaleFactor / ratio;
+        auto primary = color(palette.theme.primary);
+        auto const& area = display.local;
+
+        context->PushAxisAlignedClip(area.rect(), D2D1_ANTIALIAS_MODE_ALIASED);
+
+        std::pair<double, float> const glows[] = {{14, 0.06f}, {6, 0.12f}, {2, 0.28f}};
+        for (auto const& [size, opacity] : glows) {
+            double width = size * zoom;
+            context->DrawRectangle(
+                rectOf(area.x + width / 2, area.y + width / 2, area.width - width, area.height - width),
+                painter.brush(withAlpha(primary, opacity * alpha)), static_cast<float>(width));
+        }
+
+        double line = 1.5 * zoom;
+        context->DrawRectangle(rectOf(area.x + line / 2, area.y + line / 2, area.width - line, area.height - line),
+                               painter.brush(withAlpha(primary, 0.9f * alpha)), static_cast<float>(line));
+
+        if (!reducedMotion) drawComet(painter, display, now, alpha);
+        context->PopAxisAlignedClip();
+    }
+
+    void drawRevealContent(ID2D1DeviceContext* context, double now) {
+        D2D1_MATRIX_3X2_F saved{};
+        context->GetTransform(&saved);
+        context->SetTransform(D2D1::Matrix3x2F::Identity());
+
+        for (auto const& reveal : scan->reveals) {
+            double elapsed = now - reveal.start;
+            if (!reveal.final || elapsed < LOCK_MS || elapsed >= REVEAL_MS) continue;
+
+            auto area = D2D1::RectF(static_cast<float>(reveal.crop.left), static_cast<float>(reveal.crop.top),
+                                    static_cast<float>(reveal.crop.right), static_cast<float>(reveal.crop.bottom));
+            context->PushAxisAlignedClip(area, D2D1_ANTIALIAS_MODE_ALIASED);
+
+            double blur = ease(Easing::Standard, progressOf(elapsed, LOCK_MS, BLUR_MS));
+            float deviation = reveal.deviation * static_cast<float>(blur);
+            reveal.blur->SetValue(D2D1_GAUSSIANBLUR_PROP_STANDARD_DEVIATION, deviation);
+            context->DrawImage(reveal.blur.get(), D2D1::Point2F(area.left, area.top));
+
+            double drop = elapsed - LOCK_MS - BLUR_MS;
+            size_t count = reveal.order.size();
+            float block = static_cast<float>(reveal.block);
+            for (size_t rank = 0; rank < count; rank++) {
+                double progress = progressOf(drop, (BLOCKS_MS - BLOCK_DROP_MS) * rank / count, BLOCK_DROP_MS);
+                if (progress <= 0) break;
+
+                double eased = easeOutCubic(progress);
+                int index = reveal.order[rank];
+                float left = area.left + static_cast<float>(index % reveal.columns) * block;
+                float top = area.top + static_cast<float>(index / reveal.columns) * block;
+                float right = std::min(left + block, area.right);
+                float bottom = std::min(top + block, area.bottom);
+                float offset = reducedMotion ? 0 : -static_cast<float>(1 - eased) * block * 0.6f;
+                auto source = D2D1::RectF(left - area.left, top - area.top, right - area.left, bottom - area.top);
+                context->DrawBitmap(reveal.final.get(), D2D1::RectF(left, top + offset, right, bottom + offset),
+                                    static_cast<float>(eased), D2D1_INTERPOLATION_MODE_NEAREST_NEIGHBOR, &source,
+                                    nullptr);
+            }
+
+            context->PopAxisAlignedClip();
+        }
+
+        context->SetTransform(saved);
+    }
+
+    void drawBrackets(Painter& painter, Box const& box, double zoom, D2D1_COLOR_F const& tint) {
+        double arm = std::clamp(std::min(box.width, box.height) * 0.4, 4 * zoom, 14 * zoom);
+        com_ptr<ID2D1PathGeometry> geometry;
+        winrt::check_hresult(resources->factory()->CreatePathGeometry(geometry.put()));
+        com_ptr<ID2D1GeometrySink> sink;
+        winrt::check_hresult(geometry->Open(sink.put()));
+
+        auto corner = [&](double x, double y, double dx, double dy) {
+            sink->BeginFigure(point(x, y + dy * arm), D2D1_FIGURE_BEGIN_HOLLOW);
+            sink->AddLine(point(x, y));
+            sink->AddLine(point(x + dx * arm, y));
+            sink->EndFigure(D2D1_FIGURE_END_OPEN);
+        };
+
+        corner(box.x, box.y, 1, 1);
+        corner(box.right(), box.y, -1, 1);
+        corner(box.right(), box.bottom(), -1, -1);
+        corner(box.x, box.bottom(), 1, -1);
+        winrt::check_hresult(sink->Close());
+
+        painter.context()->DrawGeometry(geometry.get(), painter.brush(tint), static_cast<float>(2 * zoom));
+    }
+
+    void drawRevealDecorations(Painter& painter, double now) {
+        auto primary = color(palette.theme.primary);
+        auto bright = mix(primary, rgba(255, 255, 255), 0.3f);
+
+        for (auto const& reveal : scan->reveals) {
+            double elapsed = now - reveal.start;
+            if (elapsed < 0 || elapsed > REVEAL_MS + LABEL_TOTAL_MS) continue;
+
+            double zoom = zoomOf(reveal.display);
+            auto const& box = reveal.box;
+            float alpha = static_cast<float>(progressOf(elapsed, 0, 120) * (1 - progressOf(elapsed, REVEAL_MS, 150)));
+
+            if (alpha > 0) {
+                double lock = easeOutCubic(progressOf(elapsed, 0, LOCK_MS));
+                double scale = reducedMotion ? 1 : 1.25 - 0.25 * lock;
+                double width = box.width * scale;
+                double height = box.height * scale;
+                Box frame{box.x + (box.width - width) / 2, box.y + (box.height - height) / 2, width, height};
+
+                double spread = 2 * zoom;
+                auto glow = rectOf(box.x - spread, box.y - spread, box.width + spread * 2, box.height + spread * 2);
+                painter.fillRounded(glow, static_cast<float>(3 * zoom),
+                                    withAlpha(primary, 0.2f * alpha * static_cast<float>(lock)));
+                drawBrackets(painter, frame, zoom, withAlpha(bright, alpha));
+            }
+
+            float label = static_cast<float>(progressOf(elapsed, REVEAL_MS, 150) *
+                                             (1 - progressOf(elapsed, REVEAL_MS + 150 + LABEL_MS, 250)));
+            if (label > 0) drawKindLabel(painter, reveal, zoom, label);
+        }
+    }
+
+    void drawKindLabel(Painter& painter, Reveal const& reveal, double zoom, float alpha) {
+        auto text = t(KIND_KEYS[static_cast<size_t>(reveal.kind)]);
+        float width = resources->measure(text, 11, DWRITE_FONT_WEIGHT_SEMI_BOLD) + 12;
+        auto const& host = displays[reveal.display].local;
+        auto const& box = reveal.box;
+
+        double x = std::clamp(box.x, host.x + 4 * zoom, std::max(host.x + 4 * zoom, host.right() - (width + 4) * zoom));
+        double y = box.y - 21 * zoom;
+        if (y < host.y + 4 * zoom) y = box.bottom() + 6 * zoom;
+
+        auto primary = color(palette.theme.primary);
+        float scale = static_cast<float>(zoom);
+        Transform place(painter.context(), D2D1::Matrix3x2F::Scale(scale, scale) *
+                                               D2D1::Matrix3x2F::Translation(static_cast<float>(x), static_cast<float>(y)));
+        painter.fillRounded(D2D1::RectF(0, 0, width, 18), 9, withAlpha(primary, alpha));
+        painter.textAt(text, 6, painter.middleBaseline(9, 11), 11, DWRITE_FONT_WEIGHT_SEMI_BOLD,
+                       withAlpha(color(palette.theme.primaryForeground), alpha));
+    }
+
+    std::wstring scrambled(std::wstring const& text, double progress, int key, double now) const {
+        if (reducedMotion || progress >= 1) return text;
+
+        std::wstring pool;
+        for (wchar_t character : text)
+            if (!std::iswspace(character) && !IS_HIGH_SURROGATE(character) && !IS_LOW_SURROGATE(character))
+                pool += character;
+        if (pool.empty()) return text;
+
+        auto result = text;
+        auto tick = static_cast<uint32_t>(now / 45);
+        for (size_t index = 0; index < result.size(); index++) {
+            if (pool.find(result[index]) == std::wstring::npos) continue;
+            if (progress >= 0.1 + 0.8 * static_cast<double>(index) / result.size()) continue;
+
+            uint32_t value = static_cast<uint32_t>(index) * 0x9e3779b9U ^ tick * 0x85ebca6bU ^
+                             static_cast<uint32_t>(key + 7) * 0xc2b2ae35U;
+            value ^= value >> 15;
+            value *= 0x2c1b3c6dU;
+            value ^= value >> 12;
+            result[index] = pool[value % pool.size()];
+        }
+        return result;
+    }
+
+    void drawPill(Painter& painter, double now) {
+        constexpr float HEIGHT = 40;
+        constexpr float PADDING = 16;
+        constexpr float ICON = 16;
+        constexpr float GAP = 10;
+        constexpr float FONT = 13;
+
+        auto const& display = displays[scan->pill];
+        double zoom = zoomOf(scan->pill);
+        double elapsed = now - scan->start;
+        bool hasResult = scan->result != ScanResult::Pending && now >= scan->resultAt;
+        bool isUnavailable = scan->result == ScanResult::Unavailable;
+
+        double opening = ease(Easing::Ease, progressOf(elapsed, 0, SCAN_OPEN_MS));
+        double closing = hasResult ? progressOf(now, scan->holdUntil, isUnavailable ? BEAM_FADE_MS : PILL_OUT_MS) : 0;
+        float alpha = static_cast<float>(opening * (1 - closing));
+        if (alpha <= 0) return;
+
+        double shift = 0;
+        if (!reducedMotion) shift = -8 * (1 - opening) + (isUnavailable ? 0 : 8 * ease(Easing::Ease, closing));
+
+        std::wstring current;
+        std::wstring previous;
+        double transition = 1;
+        int key = -1;
+        if (hasResult && !isUnavailable) {
+            current = resultText();
+            previous = scan->from;
+            transition = progressOf(now, scan->resultAt, SCAN_TEXT_MS);
+        } else if (hasResult) {
+            current = scan->from;
+        } else {
+            key = static_cast<int>(elapsed / SCAN_PHASE_MS);
+            current = phaseText(key);
+            if (key > 0) {
+                previous = phaseText(key - 1);
+                transition = progressOf(elapsed, key * SCAN_PHASE_MS, SCAN_TEXT_MS);
+            }
+        }
+
+        auto widthOf = [&](std::wstring const& text) {
+            return PADDING + ICON + GAP + resources->measure(text, FONT, DWRITE_FONT_WEIGHT_MEDIUM) + PADDING + 2;
+        };
+
+        double eased = ease(Easing::Standard, transition);
+        double width = widthOf(current);
+        if (!previous.empty() && transition < 1) width = widthOf(previous) + (width - widthOf(previous)) * eased;
+
+        auto const& theme = palette.theme;
+        auto center = Point{display.local.x + display.local.width / 2, display.local.y + display.local.height / 2};
+        auto foreground = color(theme.popoverForeground);
+
+        painter.pushOpacity(alpha);
+        {
+            Transform place(painter.context(),
+                            D2D1::Matrix3x2F::Scale(static_cast<float>(zoom), static_cast<float>(zoom)) *
+                                D2D1::Matrix3x2F::Translation(static_cast<float>(center.x),
+                                                              static_cast<float>(center.y + shift * zoom)));
+
+            float half = static_cast<float>(width / 2);
+            auto frame = D2D1::RectF(-half, -HEIGHT / 2, half, HEIGHT / 2);
+            painter.boxShadow(frame, HEIGHT / 2, 10, 15, -3, 0.1f);
+            painter.boxShadow(frame, HEIGHT / 2, 4, 6, -4, 0.1f);
+            painter.fillRounded(frame, HEIGHT / 2, color(theme.popover));
+            painter.ring(frame, HEIGHT / 2, 1, color(theme.foreground, palette.dark ? 0.1f : 0.05f));
+
+            float iconX = frame.left + PADDING;
+            float iconY = -ICON / 2;
+            double swap = hasResult ? progressOf(now, scan->resultAt, 200) : 0;
+            if (swap < 1)
+                drawSpinner(painter, iconX, iconY, ICON, color(theme.primary, static_cast<float>(1 - swap)), now);
+
+            if (swap > 0 && !isUnavailable) {
+                bool isFailed = scan->result == ScanResult::Failed;
+                auto warning = palette.dark ? rgba(251, 191, 36) : rgba(217, 119, 6);
+                auto tint = isFailed                ? warning
+                            : scan->reveals.empty() ? color(theme.mutedForeground)
+                                                    : color(theme.primary);
+                float grow = static_cast<float>(reducedMotion ? 1 : 0.6 + 0.4 * easeOutCubic(swap));
+                Transform pop(painter.context(),
+                              D2D1::Matrix3x2F::Scale(grow, grow, D2D1::Point2F(iconX + ICON / 2, 0)));
+                painter.icon(isFailed ? icons::shieldAlert : icons::shieldCheck, iconX, iconY, ICON,
+                             withAlpha(tint, static_cast<float>(swap)));
+            }
+
+            float textX = iconX + ICON + GAP;
+            float baseline = painter.middleBaseline(0, FONT);
+            auto clip = D2D1::RectF(textX - 2, frame.top + 1, frame.right - PADDING + 2, frame.bottom - 1);
+            painter.context()->PushAxisAlignedClip(clip, D2D1_ANTIALIAS_MODE_ALIASED);
+
+            if (!previous.empty() && transition < 1) {
+                float distance = reducedMotion ? 0.0f : 10.0f;
+                painter.textAt(previous, textX, baseline - distance * static_cast<float>(eased), FONT,
+                               DWRITE_FONT_WEIGHT_MEDIUM, withAlpha(foreground, static_cast<float>(1 - eased)));
+                painter.textAt(scrambled(current, transition, key, now), textX,
+                               baseline + distance * static_cast<float>(1 - eased), FONT, DWRITE_FONT_WEIGHT_MEDIUM,
+                               withAlpha(foreground, static_cast<float>(eased)));
+            } else {
+                painter.textAt(current, textX, baseline, FONT, DWRITE_FONT_WEIGHT_MEDIUM, foreground);
+            }
+
+            painter.context()->PopAxisAlignedClip();
+        }
+        painter.popOpacity();
+    }
+
+    void drawScan(Painter& painter, double now) {
+        float alpha = static_cast<float>(ease(Easing::Ease, progressOf(now - scan->start, 0, SCAN_OPEN_MS)));
+        if (scan->result != ScanResult::Pending)
+            alpha *= static_cast<float>(1 - progressOf(now, scan->holdUntil, SCAN_FADE_MS));
+        if (alpha > 0)
+            for (auto const& display : displays) drawBorder(painter, display, now, alpha);
+
+        drawRevealDecorations(painter, now);
+        drawPill(painter, now);
+    }
+
+    void unlock() {
+        scan->isUnlocked = true;
+        annotator->hidden.clear();
+        if (pointer) setHover(targetAt(*pointer));
+
+        POINT position;
+        GetCursorPos(&position);
+        if (WindowFromPoint(position) != window) return;
+        ScreenToClient(window, &position);
+        SetCursor(cursorAt({position.x / ratio, position.y / ratio}));
     }
 
     void paint() {
         if (!gpu || !window) return;
+
+        if (scan) {
+            double now = clock();
+            if (!scan->isUnlocked && !isLocked(now)) unlock();
+            if (scan->isUnlocked && !isScanAnimating(now)) scan.reset();
+        }
 
         auto context = surface.begin(*gpu);
         render(context);
@@ -688,7 +1514,7 @@ private:
 
     bool isAnimating() {
         double now = nowMs();
-        return isAnimatingHover || (hasToolbar() && toolbar->isAnimating(now));
+        return isAnimatingHover || (hasToolbar() && toolbar->isAnimating(now)) || isScanAnimating(clock());
     }
 
     OverlayResult exportRegion(Box const& rect) {
@@ -702,6 +1528,7 @@ private:
         }
 
         annotator->finishTextEdit();
+        annotator->hidden.clear();
 
         auto local = toLocal(screen);
         ScreenRect target{static_cast<int>(jsRound(local.x * ratio)), static_cast<int>(jsRound(local.y * ratio)),
@@ -1029,6 +1856,7 @@ private:
             window = nullptr;
         }
 
+        scan.reset();
         surface.release();
         for (auto& display : displays) display.bitmap = nullptr;
         if (annotator) annotator->releaseDeviceResources();
@@ -1070,12 +1898,20 @@ private:
                 TrackMouseEvent(&track);
                 isTrackingLeave = true;
             }
+            if (isLocked(clock())) {
+                pointer = localPoint(lParam);
+                return 0;
+            }
             handlePointerMove(localPoint(lParam), wParam & MK_SHIFT);
             invalidate();
             return 0;
         }
         case WM_MOUSELEAVE:
             isTrackingLeave = false;
+            if (isLocked(clock())) {
+                pointer.reset();
+                return 0;
+            }
             if (!regionDrag && !toolbarDrag && GetCapture() != window) {
                 pointer.reset();
                 setHover(std::nullopt);
@@ -1085,12 +1921,14 @@ private:
             return 0;
         case WM_LBUTTONDOWN:
         case WM_LBUTTONDBLCLK:
+            if (isLocked(clock())) return 0;
             SetCapture(window);
             handlePointerDown(localPoint(lParam), wParam & MK_SHIFT);
             updateIme();
             invalidate();
             return 0;
         case WM_LBUTTONUP:
+            if (isLocked(clock())) return 0;
             isReleasing = true;
             ReleaseCapture();
             isReleasing = false;
@@ -1106,6 +1944,7 @@ private:
             }
             return 0;
         case WM_RBUTTONUP:
+            if (isLocked(clock())) return 0;
             handleRightClick(localPoint(lParam));
             if (!window) return 0;
             invalidate();
@@ -1113,12 +1952,17 @@ private:
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
             if (message == WM_SYSKEYDOWN && wParam == VK_F4) return 0;
+            if (isLocked(clock())) {
+                if (wParam == VK_ESCAPE) finish({});
+                return 0;
+            }
             handleKeyDown(static_cast<UINT>(wParam));
             if (!window) return 0;
             updateIme();
             invalidate();
             return 0;
         case WM_CHAR:
+            if (isLocked(clock())) return 0;
             handleChar(static_cast<wchar_t>(wParam));
             if (!window) return 0;
             updateIme();
@@ -1126,6 +1970,10 @@ private:
             return 0;
         case WM_SETCURSOR:
             if (LOWORD(lParam) == HTCLIENT) {
+                if (isLocked(clock())) {
+                    SetCursor(LoadCursorW(nullptr, IDC_APPSTARTING));
+                    return TRUE;
+                }
                 POINT position;
                 GetCursorPos(&position);
                 ScreenToClient(window, &position);
@@ -1207,6 +2055,9 @@ private:
     bool isReleasing = false;
     bool isImeEnabled = false;
     bool wasCaretVisible = false;
+    std::optional<Scan> scan;
+    std::optional<double> frozen;
+    bool reducedMotion = false;
 
     friend FixtureImage renderFixture(OverlayRequest const& request, FixtureScene const& scene);
     friend FixtureImage renderFixtureRegion(OverlayRequest const& request, FixtureScene const& scene,
@@ -1258,6 +2109,19 @@ bool isOverlayOpen() {
 void closeOverlay() {
     runOnUi([] {
         if (active) active->close();
+    });
+}
+
+void deliverScan(uint64_t scanId, std::vector<Redaction> redactions, ScanOutcome outcome) {
+    auto shared = std::make_shared<std::vector<Redaction>>(std::move(redactions));
+    runOnUi([scanId, shared, outcome] {
+        if (active) active->receiveScan(scanId, std::move(*shared), outcome);
+    });
+}
+
+void finishScan(uint64_t scanId) {
+    runOnUi([scanId] {
+        if (active) active->completeScan(scanId);
     });
 }
 

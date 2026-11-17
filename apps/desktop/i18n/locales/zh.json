@@ -25,6 +25,7 @@
             "step": "步骤编号",
             "blur": "模糊",
             "pixelate": "像素化",
+            "redact": "遮盖",
             "eraser": "智能橡皮擦",
             "emoji": "表情符号"
         },
@@ -37,7 +38,30 @@
         "shadow": "阴影",
         "undo": "撤销",
         "redo": "重做",
-        "delete": "删除"
+        "delete": "删除",
+        "scan": {
+            "detecting": "正在检测敏感信息…",
+            "screen": "正在扫描屏幕…",
+            "text": "正在识别文字…",
+            "keys": "正在查找 API 密钥…",
+            "secrets": "正在检查密码和令牌…",
+            "contacts": "正在查找邮箱和电话号码…",
+            "cards": "正在检查银行卡号和 IBAN…",
+            "addresses": "正在检查 IP 地址…",
+            "almost": "即将完成…",
+            "found": "已遮盖 {count} 处敏感信息",
+            "none": "未发现敏感信息",
+            "failed": "无法检查敏感信息",
+            "kinds": {
+                "secret": "密钥",
+                "email": "邮箱",
+                "phone": "电话号码",
+                "card": "银行卡号",
+                "account": "银行账户",
+                "document": "身份证件",
+                "ip": "IP 地址"
+            }
+        }
     },
     "app": {
         "somethingWentWrong": "出了点问题",
