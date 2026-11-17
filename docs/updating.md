@@ -11,6 +11,8 @@ Fileship updates itself without downtime (a database restart, when a new Postgre
 
 When a new release is available, admins see an update card in the sidebar. Super admins can click **Update** to start it and follow its progress live.
 
+Fileship checks for updates when the dashboard is loaded and remembers the answer for a few minutes. A release can only be installed once its Docker images are published, usually within half an hour of its appearance on GitHub. To check again at once, open **Administration → Instance → Updates** and click **Check now**; it also says when a new version is out but not ready to install yet.
+
 ## Scheduled updates
 
 Automatic updates are enabled by default and run every day at 3:00 AM in the updater agent's time zone (UTC unless you set `TZ` on it). You can change or disable them in `docker-compose.yml`:

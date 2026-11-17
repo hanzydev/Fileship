@@ -11,6 +11,13 @@ Updates with Docker are done by the `updater-agent` service. Its output says wha
 docker compose logs --tail=200 updater-agent
 ```
 
+## A new release does not show up
+
+- Open **Administration → Instance → Updates** and click **Check now**. The dashboard remembers the last answer for up to 5 minutes, and the sidebar card appears after the next page load.
+- **…is out, but it isn't ready to install yet** means the release is on GitHub but its Docker images are still being published, usually within half an hour. Check again later.
+- Pre-releases (`6.9.0-beta.1`, …) are only offered on the **Experimental** channel.
+- **Couldn't check for updates** usually means the server cannot reach `api.github.com`, or GitHub's limit of 60 requests an hour per IP address was used up (by other software on the same address too). Try again later.
+
 ## No Update button
 
 - Only super admins see **Update**; admins only see **Update available**.
@@ -48,7 +55,7 @@ Updates wait (up to 10 minutes) while a user restores a backup, so the restore i
 
 - `AUTOUPDATER_ENABLED` must be `true` on the `updater-agent` service.
 - `AUTOUPDATER_CRON` runs in the agent's time zone, UTC unless you set `TZ`.
-- A new release is only installed once its image is published, usually within an hour of the release.
+- A new release is only installed once its image is published, usually within half an hour of the release.
 
 ## Installations from before 6.6
 
