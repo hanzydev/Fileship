@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { hostname } from 'node:os';
 
@@ -11,8 +13,11 @@ import semver from 'semver';
 
 import { createAgentApp } from './app';
 import { cacheReleases, type Channel, pickRelease, type Release } from './releases';
+import { setEnvValue, versionToPin } from './versionPin';
 
 const rootDir = join(process.cwd(), '..', '..');
+const PROJECT_DIR = join(rootDir, 'project');
+const ENV_FILE = join(PROJECT_DIR, '.env');
 const EXPERIMENTAL_COMPOSE_FILE = join(process.cwd(), 'compose', 'experimental.yml');
 const ML_COMPOSE_FILE = join(process.cwd(), 'compose', 'fileship-ml.yml');
 
@@ -90,13 +95,45 @@ const getReleases = cacheReleases(
     60_000,
 );
 
+const canKeepVersion = () => IS_DEV || existsSync(PROJECT_DIR);
+
+const keepVersion = async (version: string | undefined) => {
+    if (IS_DEV || !canKeepVersion()) return;
+
+    const content = await readFile(ENV_FILE, 'utf8').catch((error) => {
+        if (error.code === 'ENOENT') return '';
+        throw error;
+    });
+
+    if (content.includes('\0')) throw new Error('.env is not UTF-8 text');
+
+    const updated = setEnvValue(content, 'FILESHIP_VERSION', version);
+    if (updated === content) return;
+
+    await writeFile(ENV_FILE, updated);
+
+    consola.info(
+        version
+            ? `Set FILESHIP_VERSION=${version} in .env, so docker compose keeps this version.`
+            : 'Removed FILESHIP_VERSION from .env, docker compose follows the latest images.',
+    );
+};
+
 const isUpdateAvailable = async () => {
     const { version: currentVersion, channel } = await getClientInfo();
 
+    const keepsVersion = !versionToPin(channel, currentVersion) || canKeepVersion();
     const latestVersion = pickRelease(await getReleases(), channel) ?? null;
 
     if (!latestVersion || !(IS_DEV || semver.gt(latestVersion, currentVersion))) {
-        return { hasUpdate: false, publishing: false, latestVersion, currentVersion, channel };
+        return {
+            hasUpdate: false,
+            publishing: false,
+            keepsVersion,
+            latestVersion,
+            currentVersion,
+            channel,
+        };
     }
 
     const isImageAvailable = await isImageAvailableOnGHCR(latestVersion);
@@ -104,6 +141,7 @@ const isUpdateAvailable = async () => {
     return {
         hasUpdate: isImageAvailable,
         publishing: !isImageAvailable,
+        keepsVersion,
         latestVersion,
         currentVersion,
         channel,
@@ -140,7 +178,7 @@ const getComposeArgs = async () => {
 const compose = async (...args: string[]) =>
     execa('docker', [...(await getComposeArgs()), '--profile', 'green', ...args], {
         cwd: rootDir,
-        env: { FILESHIP_VERSION: pinnedVersion },
+        env: { FILESHIP_VERSION: pinnedVersion ?? 'latest' },
     });
 
 const getRunningColors = async () => {
@@ -277,14 +315,18 @@ const updateSelf = async () => {
     );
 };
 
-const ensureMLService = async () => {
+const ensureStack = async () => {
     if (IS_DEV || isUpdating) return;
 
     isUpdating = true;
 
     try {
         const { version, channel } = await getClientInfo();
-        pinnedVersion = channel === 'experimental' ? version : undefined;
+        pinnedVersion = versionToPin(channel, version);
+
+        await keepVersion(pinnedVersion).catch((error) =>
+            consola.warn('Could not write FILESHIP_VERSION to .env:', error),
+        );
 
         await compose('up', '-d', '--no-deps', '--no-build', '--no-recreate', 'fileship-ml');
     } finally {
@@ -293,10 +335,10 @@ const ensureMLService = async () => {
     }
 };
 
-const startMLService = () =>
-    ensureMLService().catch((error) => {
-        consola.warn('Starting the AI service failed, trying again in a minute:', error);
-        setTimeout(startMLService, 60_000);
+const startStack = () =>
+    ensureStack().catch((error) => {
+        consola.warn('Preparing the stack failed, trying again in a minute:', error);
+        setTimeout(startStack, 60_000);
     });
 
 const isFileshipBusy = async () => {
@@ -326,7 +368,7 @@ const handleUpdate = async (onStatus?: (status: UpdateStatus) => Promise<void>) 
             );
         }
 
-        pinnedVersion = update.channel === 'experimental' ? update.latestVersion! : undefined;
+        pinnedVersion = versionToPin(update.channel, update.latestVersion!);
 
         const running = await getRunningColors();
         target = running.includes('green') ? 'blue' : 'green';
@@ -369,6 +411,10 @@ const handleUpdate = async (onStatus?: (status: UpdateStatus) => Promise<void>) 
         await onStatus?.('Switching');
 
         isSwitched = true;
+
+        await keepVersion(pinnedVersion).catch((error) =>
+            consola.warn('Could not write FILESHIP_VERSION to .env:', error),
+        );
 
         await onStatus?.('Success');
 
@@ -470,5 +516,5 @@ server.listen(PORT, '0.0.0.0', () => {
         );
     }
 
-    startMLService();
+    startStack();
 });
