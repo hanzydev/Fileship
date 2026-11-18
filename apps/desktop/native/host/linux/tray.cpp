@@ -106,16 +106,12 @@ std::string menuLabel(std::wstring const& label) {
 }
 
 void addProperties(GVariantBuilder& properties, MenuNode const& node) {
-    if (node.item.separator) {
-        g_variant_builder_add(&properties, "{sv}", "type", g_variant_new_string("separator"));
-        return;
-    }
+    auto add = [&](char const* name, GVariant* value) { g_variant_builder_add(&properties, "{sv}", name, value); };
 
-    if (node.id) g_variant_builder_add(&properties, "{sv}", "label", g_variant_new_string(menuLabel(node.item.label).c_str()));
-    if (!node.item.enabled) g_variant_builder_add(&properties, "{sv}", "enabled", g_variant_new_boolean(FALSE));
-    if (!node.children.empty()) {
-        g_variant_builder_add(&properties, "{sv}", "children-display", g_variant_new_string("submenu"));
-    }
+    add("type", g_variant_new_string(node.item.separator ? "separator" : "standard"));
+    add("label", g_variant_new_string(menuLabel(node.item.label).c_str()));
+    add("enabled", g_variant_new_boolean(node.item.enabled));
+    add("children-display", g_variant_new_string(node.children.empty() ? "" : "submenu"));
 }
 
 GVariant* layoutOf(MenuNode const& node, int depth) {

@@ -167,7 +167,7 @@ bool showUploadProgress(ProgressNotice const& progress, bool isNew) {
     Notification notification;
     notification.replaces = shown;
     notification.title = t(L"tasks.uploadingTitle");
-    notification.body = progress.name + L"\n" + progress.status + L" · " + progress.remaining;
+    notification.body = progress.name + L" · " + progress.status + L" · " + progress.remaining;
     notification.timeout = 0;
     notification.actions.push_back({progress.isPaused ? "resume" : "pause",
                                     t(progress.isPaused ? L"tasks.uploadingResume" : L"tasks.uploadingPause")});
