@@ -67,19 +67,6 @@ void createMainWindow() {
                              windowClass.hInstance, nullptr);
 }
 
-void setOverlayStore() {
-    ui::setOverlayPreferencesStore({
-        [] {
-            auto value = storeValue(L"overlay");
-            return value.ValueType() == JsonValueType::Null ? std::string() : stringify(value);
-        },
-        [](std::string const& text) {
-            JsonValue value{nullptr};
-            if (JsonValue::TryParse(toWide(text), value)) setStoreValue(L"overlay", value);
-        },
-    });
-}
-
 }
 
 HWND mainWindow() {

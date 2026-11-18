@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <cwctype>
 #include <numbers>
+#include <utility>
 
 namespace fileship::ui {
 

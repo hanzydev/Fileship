@@ -18,6 +18,10 @@ const PACKAGES = [
     'libpulse-simple',
     'xkbcommon',
     'libpipewire-0.3',
+    'gtk4',
+    'pangoft2',
+    'freetype2',
+    'fontconfig',
 ];
 
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
@@ -28,7 +32,7 @@ mkdirSync(output, { recursive: true });
 const objects = await compileGroups(
     join(output, 'obj'),
     [...compilerFlags(PACKAGES), `-DFILESHIP_VERSION="${version}"`],
-    groupSources(['shared', 'host', 'core']),
+    groupSources(['shared', 'ui', 'host', 'core'], (path) => !path.startsWith(join('ui', 'demo'))),
 );
 await link(join(output, 'fileship-host'), objects, linkerFlags(PACKAGES));
 cpSync(join(root, 'build', 'icon.png'), join(output, 'icon.png'));

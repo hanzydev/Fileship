@@ -94,6 +94,7 @@ int main(int count, char** values) {
         [](std::string const& token) { setStoreValue(L"screenToken", JsonValue::CreateStringValue(toWide(token))); });
 
     setLanguage(resolveLanguage(jsonString(settings(), L"language", L"system")));
+    setOverlayStore();
 
     registerHandlers();
     harbor::registerHarborHandlers();

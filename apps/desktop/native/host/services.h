@@ -131,6 +131,7 @@ int64_t nowMs();
 
 using AreaCallback = std::function<void(core::Rect)>;
 
+void setOverlayStore();
 void pickArea(ui::OverlayPurpose purpose, AreaCallback onArea);
 bool isCapturing();
 void playShutter();

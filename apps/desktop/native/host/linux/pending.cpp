@@ -4,14 +4,6 @@
 #include <host/recording.h>
 #include <shared/log.h>
 
-namespace fileship::ui {
-
-bool openOverlay(OverlayRequest, OverlayCallback) {
-    return false;
-}
-
-}
-
 namespace fileship::host {
 
 void startUpdater() {}
