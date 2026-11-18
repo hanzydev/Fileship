@@ -98,9 +98,11 @@ std::optional<std::string> WebSocket::receive() {
     g_source_set_callback(timeout, State::handleTimeout, state.get(), nullptr);
     g_source_attach(timeout, state->context);
 
+    g_main_context_push_thread_default(state->context);
     while (state->messages.empty() && !state->isClosed && !state->isTimedOut) {
         g_main_context_iteration(state->context, TRUE);
     }
+    g_main_context_pop_thread_default(state->context);
 
     g_source_destroy(timeout);
     g_source_unref(timeout);
@@ -115,7 +117,9 @@ std::optional<std::string> WebSocket::receive() {
 bool WebSocket::send(std::string const& text) {
     if (state->isClosed) return false;
 
+    g_main_context_push_thread_default(state->context);
     soup_websocket_connection_send_text(state->connection, text.c_str());
+    g_main_context_pop_thread_default(state->context);
     return true;
 }
 
