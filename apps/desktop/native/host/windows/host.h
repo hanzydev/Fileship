@@ -24,4 +24,10 @@ JsonObject setSnippingToolKey(bool enabled);
 void registerShellMenu();
 void applyStartAtLogin(bool enabled);
 
+namespace recording {
+
+void downloadFfmpeg();
+
+}
+
 }

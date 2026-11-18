@@ -21,6 +21,5 @@ std::wstring autoCodec(std::vector<std::wstring> const& encoders);
 JsonObject ffmpegStatus();
 void publishFfmpegStatus();
 void clearFfmpegProbe();
-void downloadFfmpeg();
 
 }

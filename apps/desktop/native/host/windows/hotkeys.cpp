@@ -130,6 +130,11 @@ JsonObject setSnippingToolKey(bool enabled) {
 }
 
 void registerPlatformHandlers() {
+    registerHandler(L"ffmpeg:download", [](JsonArray const&) -> IJsonValue {
+        recording::downloadFfmpeg();
+        return JsonValue::CreateNullValue();
+    });
+
     registerHandler(L"hotkeys:snippingTool", [](JsonArray const&) -> IJsonValue {
         return JsonValue::CreateBooleanValue(isSnippingToolKeyEnabled());
     });

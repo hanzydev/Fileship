@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { groupSources, root } from '../native.mjs';
+import { groupSources, native, root } from '../native.mjs';
 import { compileGroups, compilerFlags, link, linkerFlags } from './gcc.mjs';
 
 const PACKAGES = ['glib-2.0', 'gio-2.0', 'libsoup-3.0'];
@@ -15,7 +15,10 @@ mkdirSync(output, { recursive: true });
 const objects = await compileGroups(
     join(output, 'obj'),
     compilerFlags(PACKAGES),
-    groupSources(['shared', 'tests']),
+    {
+        ...groupSources(['shared', 'tests']),
+        recording: [join(native, 'host', 'recording', 'command.cpp')],
+    },
 );
 await link(executable, objects, linkerFlags(PACKAGES));
 

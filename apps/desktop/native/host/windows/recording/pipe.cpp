@@ -1,6 +1,12 @@
-#include "pipe.h"
+#include <host/recording/pipe.h>
 
+#include <windows.h>
+
+#include <deque>
+#include <mutex>
 #include <stdexcept>
+#include <thread>
+#include <vector>
 
 namespace fileship::host::recording {
 
@@ -22,9 +28,34 @@ bool waitIo(HANDLE pipe, OVERLAPPED& overlapped, HANDLE stopEvent) {
     return GetOverlappedResult(pipe, &overlapped, &transferred, FALSE);
 }
 
-}
+class NamedPipe : public AudioPipe {
+public:
+    NamedPipe(std::wstring name, size_t primingBytes);
+    ~NamedPipe() override;
 
-AudioPipe::AudioPipe(std::wstring name, size_t priming) : pipeName(std::move(name)), primingBytes(priming) {
+    std::wstring const& name() const override {
+        return pipeName;
+    }
+
+    void write(char const* data, size_t size) override;
+    void end() override;
+
+private:
+    void run();
+
+    std::wstring pipeName;
+    size_t primingBytes;
+    HANDLE pipe = INVALID_HANDLE_VALUE;
+    HANDLE stopEvent = nullptr;
+    HANDLE dataEvent = nullptr;
+    std::mutex mutex;
+    std::deque<std::vector<char>> queue;
+    bool isConnected = false;
+    bool isEnding = false;
+    std::thread thread;
+};
+
+NamedPipe::NamedPipe(std::wstring name, size_t priming) : pipeName(std::move(name)), primingBytes(priming) {
     pipe = CreateNamedPipeW(pipeName.c_str(),
                             PIPE_ACCESS_OUTBOUND | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
                             PIPE_TYPE_BYTE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS, 1, PIPE_BUFFER, 0, 0, nullptr);
@@ -37,7 +68,7 @@ AudioPipe::AudioPipe(std::wstring name, size_t priming) : pipeName(std::move(nam
     thread = std::thread([this] { run(); });
 }
 
-AudioPipe::~AudioPipe() {
+NamedPipe::~NamedPipe() {
     SetEvent(stopEvent);
     if (thread.joinable()) thread.join();
 
@@ -46,7 +77,7 @@ AudioPipe::~AudioPipe() {
     CloseHandle(dataEvent);
 }
 
-void AudioPipe::write(char const* data, size_t size) {
+void NamedPipe::write(char const* data, size_t size) {
     {
         std::lock_guard lock(mutex);
         if (!isConnected || isEnding) return;
@@ -56,7 +87,7 @@ void AudioPipe::write(char const* data, size_t size) {
     SetEvent(dataEvent);
 }
 
-void AudioPipe::end() {
+void NamedPipe::end() {
     {
         std::lock_guard lock(mutex);
         isEnding = true;
@@ -65,7 +96,7 @@ void AudioPipe::end() {
     SetEvent(dataEvent);
 }
 
-void AudioPipe::run() {
+void NamedPipe::run() {
     OVERLAPPED overlapped{};
     overlapped.hEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
 
@@ -119,6 +150,16 @@ void AudioPipe::run() {
     CloseHandle(pipe);
     pipe = INVALID_HANDLE_VALUE;
     CloseHandle(overlapped.hEvent);
+}
+
+}
+
+std::wstring AudioPipe::nameOf(std::wstring const& label) {
+    return L"\\\\.\\pipe\\fileship-" + label;
+}
+
+std::unique_ptr<AudioPipe> AudioPipe::create(std::wstring const& label, size_t primingBytes) {
+    return std::make_unique<NamedPipe>(nameOf(std::to_wstring(GetCurrentProcessId()) + L"-" + label), primingBytes);
 }
 
 }

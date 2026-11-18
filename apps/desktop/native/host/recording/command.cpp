@@ -1,5 +1,7 @@
 #include "command.h"
 
+#include "process.h"
+
 #include <shared/i18n.h>
 
 #include <algorithm>
@@ -177,38 +179,36 @@ std::optional<std::wstring> containerProblem(std::wstring const& container, std:
     return t(L"recording.webmCodec");
 }
 
+VideoRequest videoRequest(JsonObject const& settings, std::wstring const& kind, std::wstring const& codec,
+                          ui::ScreenRect const& rect) {
+    auto recording = section(settings, L"recording");
+    bool isGif = kind == L"gif";
+
+    return {rect, std::to_wstring(isGif ? number(section(settings, L"gif"), L"fps", 15) : number(recording, L"fps", 30)),
+            std::to_wstring(even(rect.width)) + L"x" + std::to_wstring(even(rect.height)),
+            isGif ? std::wstring(L"yuv444p") : pixelFormat(codec), flag(recording, L"showCursor", true)};
+}
+
+std::string lastLine(std::string const& text) {
+    size_t end = text.find_last_not_of(" \t\r\n");
+    if (end == std::string::npos) return {};
+
+    size_t start = text.find_last_of("\r\n", end);
+    start = start == std::string::npos ? 0 : start + 1;
+
+    return text.substr(start, std::min<size_t>(end - start + 1, 200));
+}
+
 std::vector<std::wstring> recordArgs(JsonObject const& settings, RecordCommand const& command) {
     auto recording = section(settings, L"recording");
     auto audio = section(settings, L"audio");
-    auto gif = section(settings, L"gif");
-    auto const& rect = command.target.rect;
-    auto const& output = command.target.output;
     bool isGif = command.kind == L"gif";
-    auto fps = std::to_wstring(isGif ? number(gif, L"fps", 15) : number(recording, L"fps", 30));
-    auto size = std::to_wstring(even(rect.width)) + L"x" + std::to_wstring(even(rect.height));
-    auto format = isGif ? std::wstring(L"yuv444p") : pixelFormat(command.codec);
-    auto cursor = std::wstring(flag(recording, L"showCursor", true) ? L"1" : L"0");
 
     std::vector<std::wstring> args = {L"-hide_banner", L"-loglevel", L"repeat+level+info", L"-nostats", L"-y"};
     append(args, splitArgs(text(recording, L"inputArgs")));
-    std::wstring video;
+    append(args, command.video.args);
 
-    if (command.useDda && output) {
-        auto options = L"output_idx=" + std::to_wstring(output->index) + L":framerate=" + fps +
-                       L":draw_mouse=" + cursor + L":offset_x=" + std::to_wstring(rect.x - output->bounds.x) +
-                       L":offset_y=" + std::to_wstring(rect.y - output->bounds.y) + L":video_size=" + size;
-
-        append(args, {L"-init_hw_device", L"d3d11va=dda:" + std::to_wstring(output->adapter),
-                      L"-filter_hw_device", L"dda"});
-        video = L"ddagrab=" + options + L",showinfo=checksum=0,hwdownload,format=bgra,format=" + format + L"[v]";
-    } else {
-        append(args, {L"-f", L"gdigrab", L"-framerate", fps, L"-draw_mouse", cursor, L"-offset_x",
-                      std::to_wstring(rect.x), L"-offset_y", std::to_wstring(rect.y), L"-video_size", size,
-                      L"-i", L"desktop"});
-        video = L"[0:v]showinfo=checksum=0,fps=" + fps + L",format=" + format + L"[v]";
-    }
-
-    size_t firstAudio = command.useDda && output ? 0 : 1;
+    size_t firstAudio = command.video.isInput ? 1 : 0;
     auto tracks = isGif ? std::vector<AudioTrack>{} : command.tracks;
     auto offset = decimal(number(audio, L"delay", 0) / 1000.0 - PRIMING_SECONDS);
 
@@ -218,7 +218,7 @@ std::vector<std::wstring> recordArgs(JsonObject const& settings, RecordCommand c
                       L"2", L"-i", command.pipes[index]});
     }
 
-    append(args, {L"-filter_complex", video, L"-map", L"[v]"});
+    append(args, {L"-filter_complex", command.video.filter, L"-map", L"[v]"});
 
     for (size_t index = 0; index < tracks.size(); index++) {
         auto stream = std::to_wstring(index);

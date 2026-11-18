@@ -10,6 +10,10 @@ const objects = join(output, 'obj');
 const executable = join(output, 'tests.exe');
 
 const groups = groupSources(['shared', 'tests']);
+groups.recording = [
+    join(native, 'host', 'recording', 'command.cpp'),
+    join(native, 'host', 'windows', 'recording', 'videoInput.cpp'),
+];
 
 const flags = [
     '/std:c++20 /EHsc /O2 /MT /W4 /permissive- /utf-8 /MP',

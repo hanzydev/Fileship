@@ -28,22 +28,24 @@ struct AudioTrack {
     std::vector<std::wstring> sources;
 };
 
-struct OutputTarget {
-    int adapter = 0;
-    int index = 0;
-    ui::ScreenRect bounds;
+struct VideoRequest {
+    ui::ScreenRect rect;
+    std::wstring fps;
+    std::wstring size;
+    std::wstring format;
+    bool showsCursor = true;
 };
 
-struct RecordTarget {
-    ui::ScreenRect rect;
-    std::optional<OutputTarget> output;
+struct VideoInput {
+    std::vector<std::wstring> args;
+    std::wstring filter;
+    bool isInput = true;
 };
 
 struct RecordCommand {
     std::wstring kind;
     std::wstring codec;
-    bool useDda = false;
-    RecordTarget target;
+    VideoInput video;
     std::vector<std::wstring> pipes;
     std::vector<AudioTrack> tracks;
     std::wstring output;
@@ -55,6 +57,8 @@ std::wstring defaultPreset(std::wstring const& codec);
 std::wstring pixelFormat(std::wstring const& codec);
 std::vector<std::wstring> videoCodecArgs(std::wstring const& codec, JsonObject const& recording);
 std::optional<std::wstring> containerProblem(std::wstring const& container, std::wstring const& codec);
+VideoRequest videoRequest(JsonObject const& settings, std::wstring const& kind, std::wstring const& codec,
+                          ui::ScreenRect const& rect);
 std::vector<std::wstring> recordArgs(JsonObject const& settings, RecordCommand const& command);
 std::vector<std::wstring> segmentInput(std::vector<std::wstring> const& segments, std::wstring const& list);
 std::vector<std::wstring> joinArgs(std::vector<std::wstring> const& input, std::wstring const& output,

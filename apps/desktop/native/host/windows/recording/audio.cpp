@@ -1,8 +1,9 @@
-#include "audio.h"
-
+#include <host/recording/audio.h>
 #include <shared/i18n.h>
 #include <shared/log.h>
 #include <shared/utf8.h>
+
+#include <windows.h>
 
 #include <audioclient.h>
 #include <audiopolicy.h>
@@ -12,10 +13,12 @@
 #include <mmdeviceapi.h>
 #include <winrt/base.h>
 
+#include <atomic>
 #include <deque>
 #include <future>
 #include <mutex>
 #include <stdexcept>
+#include <thread>
 
 namespace fileship::host::recording {
 
@@ -292,7 +295,37 @@ private:
     std::deque<float> fifo;
 };
 
-AudioEngine::AudioEngine(JsonObject const& audio, std::vector<AudioTrack> const& tracks, ChunkHandler handler)
+class WasapiEngine : public AudioEngine {
+public:
+    WasapiEngine(JsonObject const& audio, std::vector<AudioTrack> const& tracks, ChunkHandler onChunk);
+    ~WasapiEngine() override;
+
+    void setMuted(std::wstring const& source, bool muted) override;
+
+private:
+    struct Input {
+        std::wstring id;
+        std::unique_ptr<CaptureSource> capture;
+        float volume = 1;
+        std::atomic<bool> muted = false;
+        std::vector<float> buffer;
+    };
+
+    void mix();
+
+    std::vector<std::unique_ptr<Input>> inputs;
+    std::vector<std::vector<size_t>> trackInputs;
+    ChunkHandler onChunk;
+    HANDLE stopEvent = nullptr;
+    std::thread mixer;
+};
+
+std::unique_ptr<AudioEngine> AudioEngine::create(JsonObject const& audio, std::vector<AudioTrack> const& tracks,
+                                                 ChunkHandler onChunk) {
+    return std::make_unique<WasapiEngine>(audio, tracks, std::move(onChunk));
+}
+
+WasapiEngine::WasapiEngine(JsonObject const& audio, std::vector<AudioTrack> const& tracks, ChunkHandler handler)
     : onChunk(std::move(handler)) {
     for (auto const& track : tracks) {
         std::vector<size_t> indexes;
@@ -341,19 +374,19 @@ AudioEngine::AudioEngine(JsonObject const& audio, std::vector<AudioTrack> const&
     mixer = std::thread([this] { mix(); });
 }
 
-AudioEngine::~AudioEngine() {
+WasapiEngine::~WasapiEngine() {
     if (stopEvent) SetEvent(stopEvent);
     if (mixer.joinable()) mixer.join();
     if (stopEvent) CloseHandle(stopEvent);
 }
 
-void AudioEngine::setMuted(std::wstring const& source, bool muted) {
+void WasapiEngine::setMuted(std::wstring const& source, bool muted) {
     for (auto& input : inputs) {
         if (input->id == source) input->muted = muted;
     }
 }
 
-void AudioEngine::mix() {
+void WasapiEngine::mix() {
     MmcssScope mmcss;
     HANDLE timer = CreateWaitableTimerExW(nullptr, nullptr, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
     LARGE_INTEGER due{};

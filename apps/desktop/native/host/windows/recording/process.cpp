@@ -1,8 +1,10 @@
-#include "process.h"
-
+#include <host/recording/process.h>
 #include <shared/utf8.h>
 
+#include <windows.h>
+
 #include <array>
+#include <thread>
 
 namespace fileship::host::recording {
 
@@ -64,6 +66,12 @@ HANDLE openNull() {
     SECURITY_ATTRIBUTES attributes{sizeof(attributes), nullptr, TRUE};
     return CreateFileW(L"NUL", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
                        &attributes, OPEN_EXISTING, 0, nullptr);
+}
+
+std::wstring commandLine(std::wstring const& path, std::vector<std::wstring> const& args) {
+    auto line = quote(path);
+    for (auto const& arg : args) line += L" " + quote(arg);
+    return line;
 }
 
 Spawned spawn(std::wstring const& path, std::vector<std::wstring> const& args, bool withInput,
@@ -143,22 +151,6 @@ std::string readAll(HANDLE handle) {
 
 }
 
-std::wstring commandLine(std::wstring const& path, std::vector<std::wstring> const& args) {
-    auto line = quote(path);
-    for (auto const& arg : args) line += L" " + quote(arg);
-    return line;
-}
-
-std::string lastLine(std::string const& text) {
-    size_t end = text.find_last_not_of(" \t\r\n");
-    if (end == std::string::npos) return {};
-
-    size_t start = text.find_last_of("\r\n", end);
-    start = start == std::string::npos ? 0 : start + 1;
-
-    return text.substr(start, std::min<size_t>(end - start + 1, 200));
-}
-
 ProcessResult runProcess(std::wstring const& path, std::vector<std::wstring> const& args) {
     auto spawned = spawn(path, args, false, true);
     ProcessResult result;
@@ -167,8 +159,10 @@ ProcessResult runProcess(std::wstring const& path, std::vector<std::wstring> con
     result.out = readAll(spawned.output);
     errors.join();
 
+    DWORD code = 0;
     WaitForSingleObject(spawned.process, INFINITE);
-    GetExitCodeProcess(spawned.process, &result.code);
+    GetExitCodeProcess(spawned.process, &code);
+    result.code = code;
 
     closeHandle(spawned.output);
     closeHandle(spawned.errors);
@@ -182,8 +176,30 @@ ProcessResult runProcess(std::wstring const& path, std::vector<std::wstring> con
     return result;
 }
 
-ChildProcess::ChildProcess(std::wstring const& path, std::vector<std::wstring> const& args,
-                           LineHandler onLine) {
+class Win32Process : public ChildProcess {
+public:
+    Win32Process(std::wstring const& path, std::vector<std::wstring> const& args, LineHandler onLine);
+    ~Win32Process() override;
+
+    void write(std::string const& text) override;
+    void kill() override;
+    void wait() override;
+    bool wait(int64_t timeoutMs) override;
+    uint32_t exitCode() const override;
+
+private:
+    HANDLE process = nullptr;
+    HANDLE input = nullptr;
+    HANDLE errors = nullptr;
+    std::thread reader;
+};
+
+std::unique_ptr<ChildProcess> ChildProcess::start(std::wstring const& path, std::vector<std::wstring> const& args,
+                                                  LineHandler onLine) {
+    return std::make_unique<Win32Process>(path, args, std::move(onLine));
+}
+
+Win32Process::Win32Process(std::wstring const& path, std::vector<std::wstring> const& args, LineHandler onLine) {
     auto spawned = spawn(path, args, true, false);
     process = spawned.process;
     input = spawned.input;
@@ -210,7 +226,7 @@ ChildProcess::ChildProcess(std::wstring const& path, std::vector<std::wstring> c
     });
 }
 
-ChildProcess::~ChildProcess() {
+Win32Process::~Win32Process() {
     closeHandle(input);
     if (WaitForSingleObject(process, 0) == WAIT_TIMEOUT) TerminateProcess(process, 1);
     if (reader.get_id() == std::this_thread::get_id()) {
@@ -222,20 +238,24 @@ ChildProcess::~ChildProcess() {
     closeHandle(process);
 }
 
-void ChildProcess::write(std::string const& text) {
+void Win32Process::write(std::string const& text) {
     DWORD written = 0;
     if (input) WriteFile(input, text.data(), static_cast<DWORD>(text.size()), &written, nullptr);
 }
 
-void ChildProcess::kill() {
+void Win32Process::kill() {
     TerminateProcess(process, 1);
 }
 
-bool ChildProcess::wait(DWORD timeoutMs) {
-    return WaitForSingleObject(process, timeoutMs) == WAIT_OBJECT_0;
+void Win32Process::wait() {
+    WaitForSingleObject(process, INFINITE);
 }
 
-DWORD ChildProcess::exitCode() const {
+bool Win32Process::wait(int64_t timeoutMs) {
+    return WaitForSingleObject(process, static_cast<DWORD>(timeoutMs)) == WAIT_OBJECT_0;
+}
+
+uint32_t Win32Process::exitCode() const {
     DWORD code = 0;
     GetExitCodeProcess(process, &code);
     return code;
