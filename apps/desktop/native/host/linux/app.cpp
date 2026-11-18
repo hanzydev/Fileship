@@ -1,5 +1,6 @@
 #include "host.h"
 
+#include <core/linux/screen.h>
 #include <host/platform.h>
 #include <shared/log.h>
 #include <shared/platform.h>
@@ -76,6 +77,11 @@ void registerPlatformHandlers() {
 
     registerHandler(L"hotkeys:configure", [](JsonArray const&) -> IJsonValue {
         configurePortalHotkeys();
+        return JsonValue::CreateNullValue();
+    });
+
+    registerHandler(L"capture:chooseScreens", [](JsonArray const&) -> IJsonValue {
+        runAsync([] { core::wayland::chooseScreens(); });
         return JsonValue::CreateNullValue();
     });
 }

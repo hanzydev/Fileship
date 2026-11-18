@@ -136,6 +136,11 @@
                 "label": "Som de envio",
                 "description": "Toca um som curto quando um envio termina."
             }
+        },
+        "screens": {
+            "title": "Telas",
+            "description": "No Wayland, o sistema pergunta quais telas o Fileship pode capturar e lembra a resposta. Somente essas telas podem ser capturadas. No GNOME, mantenha Ctrl pressionada nessa janela para selecionar mais de uma.",
+            "choose": "Escolher telas novamente"
         }
     },
     "connect": {
@@ -698,7 +703,8 @@
         },
         "app": {
             "chooseFfmpeg": "Escolher ffmpeg",
-            "serverTooOld": "Este servidor usa o Fileship v{version}. O Fileship para Linux precisa da v{minVersion} ou mais recente."
+            "serverTooOld": "Este servidor usa o Fileship v{version}. O Fileship para Linux precisa da v{minVersion} ou mais recente.",
+            "noActiveWindow": "Nenhuma janela selecionada."
         },
         "general": {
             "startupDescription": "O Fileship inicia na área de notificação, para que seus atalhos de teclado funcionem logo depois que você entra.",

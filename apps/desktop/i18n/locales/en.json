@@ -136,6 +136,11 @@
                 "label": "Upload sound",
                 "description": "Play a short chime when an upload finishes."
             }
+        },
+        "screens": {
+            "title": "Screens",
+            "description": "On Wayland the system asks which screens Fileship may capture and remembers the answer. Only those screens can be captured. On GNOME, hold Ctrl in that dialog to select more than one.",
+            "choose": "Choose screens again"
         }
     },
     "connect": {
@@ -698,7 +703,8 @@
         },
         "app": {
             "chooseFfmpeg": "Choose ffmpeg",
-            "serverTooOld": "This server runs Fileship v{version}. Fileship for Linux needs v{minVersion} or later."
+            "serverTooOld": "This server runs Fileship v{version}. Fileship for Linux needs v{minVersion} or later.",
+            "noActiveWindow": "No window is selected."
         },
         "general": {
             "startupDescription": "Fileship starts in the tray, so your hotkeys work right after you log in.",

@@ -51,12 +51,17 @@ struct Bitmap {
     uint32_t height = 0;
 };
 
+struct WindowShot {
+    Bitmap image;
+    std::wstring title;
+};
+
 bool captureRectInto(Rect const& rect, bool cursor, uint8_t* pixels);
 bool captureRects(std::vector<Rect> const& rects, bool cursor, std::vector<uint8_t*> const& targets);
 std::optional<Bitmap> captureRect(Rect const& rect, bool cursor);
 
 std::vector<WindowInfo> listWindows(std::vector<uint64_t> const& ignored, bool controls);
-std::optional<WindowInfo> foregroundWindow(std::vector<uint64_t> const& ignored);
+std::optional<WindowShot> captureForegroundWindow(std::vector<uint64_t> const& ignored, bool cursor);
 std::vector<uint64_t> processWindows(std::vector<uint32_t> const& processes);
 
 std::vector<DisplayInfo> listDisplays();

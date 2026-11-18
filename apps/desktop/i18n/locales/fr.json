@@ -136,6 +136,11 @@
                 "label": "Son d'importation",
                 "description": "Joue un court carillon à la fin d'une importation."
             }
+        },
+        "screens": {
+            "title": "Écrans",
+            "description": "Sous Wayland, le système demande quels écrans Fileship peut capturer et mémorise la réponse. Seuls ces écrans peuvent être capturés. Sous GNOME, maintenez Ctrl enfoncée dans cette fenêtre pour en sélectionner plusieurs.",
+            "choose": "Choisir à nouveau les écrans"
         }
     },
     "connect": {
@@ -698,7 +703,8 @@
         },
         "app": {
             "chooseFfmpeg": "Choisir ffmpeg",
-            "serverTooOld": "Ce serveur exécute Fileship v{version}. Fileship pour Linux nécessite la v{minVersion} ou une version ultérieure."
+            "serverTooOld": "Ce serveur exécute Fileship v{version}. Fileship pour Linux nécessite la v{minVersion} ou une version ultérieure.",
+            "noActiveWindow": "Aucune fenêtre n'est sélectionnée."
         },
         "general": {
             "startupDescription": "Fileship démarre dans la zone de notification, pour que vos raccourcis fonctionnent dès que vous ouvrez votre session.",

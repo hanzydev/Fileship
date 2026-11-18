@@ -136,6 +136,11 @@
                 "label": "Yükleme sesi",
                 "description": "Yükleme bitince kısa bir ses çalar."
             }
+        },
+        "screens": {
+            "title": "Ekranlar",
+            "description": "Wayland'de Fileship'in hangi ekranları yakalayabileceğini sistem sorar ve seçimi hatırlar. Yalnızca bu ekranlar yakalanabilir. GNOME'da birden fazla ekran seçmek için o pencerede Ctrl'yi basılı tut.",
+            "choose": "Ekranları yeniden seç"
         }
     },
     "connect": {
@@ -698,7 +703,8 @@
         },
         "app": {
             "chooseFfmpeg": "ffmpeg dosyasını seç",
-            "serverTooOld": "Bu sunucuda Fileship v{version} çalışıyor. Linux için Fileship en az v{minVersion} sürümünü gerektirir."
+            "serverTooOld": "Bu sunucuda Fileship v{version} çalışıyor. Linux için Fileship en az v{minVersion} sürümünü gerektirir.",
+            "noActiveWindow": "Seçili pencere yok."
         },
         "general": {
             "startupDescription": "Fileship bildirim alanında başlar; oturum açılır açılmaz kısayollar çalışır.",

@@ -136,6 +136,11 @@
                 "label": "Upload-Ton",
                 "description": "Spielt einen kurzen Ton ab, wenn ein Upload fertig ist."
             }
+        },
+        "screens": {
+            "title": "Bildschirme",
+            "description": "Unter Wayland fragt das System, welche Bildschirme Fileship aufnehmen darf, und merkt sich die Antwort. Nur diese Bildschirme können aufgenommen werden. Unter GNOME hältst du in diesem Dialog Strg gedrückt, um mehrere auszuwählen.",
+            "choose": "Bildschirme neu auswählen"
         }
     },
     "connect": {
@@ -698,7 +703,8 @@
         },
         "app": {
             "chooseFfmpeg": "ffmpeg auswählen",
-            "serverTooOld": "Auf diesem Server läuft Fileship v{version}. Fileship für Linux benötigt v{minVersion} oder neuer."
+            "serverTooOld": "Auf diesem Server läuft Fileship v{version}. Fileship für Linux benötigt v{minVersion} oder neuer.",
+            "noActiveWindow": "Kein Fenster ausgewählt."
         },
         "general": {
             "startupDescription": "Fileship startet im Infobereich, damit deine Tastenkürzel direkt nach der Anmeldung funktionieren.",

@@ -136,6 +136,11 @@
                 "label": "Suono di caricamento",
                 "description": "Riproduci un breve suono al termine di un caricamento."
             }
+        },
+        "screens": {
+            "title": "Schermi",
+            "description": "Su Wayland il sistema chiede quali schermi Fileship può acquisire e ricorda la risposta. Solo quegli schermi possono essere acquisiti. Su GNOME, tieni premuto Ctrl in quella finestra per selezionarne più di uno.",
+            "choose": "Scegli di nuovo gli schermi"
         }
     },
     "connect": {
@@ -698,7 +703,8 @@
         },
         "app": {
             "chooseFfmpeg": "Scegli ffmpeg",
-            "serverTooOld": "Su questo server è installato Fileship v{version}. Fileship per Linux richiede la v{minVersion} o successiva."
+            "serverTooOld": "Su questo server è installato Fileship v{version}. Fileship per Linux richiede la v{minVersion} o successiva.",
+            "noActiveWindow": "Nessuna finestra selezionata."
         },
         "general": {
             "startupDescription": "Fileship si avvia nell'area di notifica, così le scorciatoie funzionano appena accedi.",

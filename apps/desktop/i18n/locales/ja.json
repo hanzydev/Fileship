@@ -136,6 +136,11 @@
                 "label": "アップロード音",
                 "description": "アップロードが完了したら短いチャイムを鳴らします。"
             }
+        },
+        "screens": {
+            "title": "モニター",
+            "description": "Wayland では、Fileship がキャプチャできるモニターをシステムが確認し、その選択を記憶します。キャプチャできるのは選択したモニターだけです。GNOME で複数選択するには、そのダイアログで Ctrl キーを押しながらクリックします。",
+            "choose": "モニターを選び直す"
         }
     },
     "connect": {
@@ -698,7 +703,8 @@
         },
         "app": {
             "chooseFfmpeg": "ffmpeg を選択",
-            "serverTooOld": "このサーバーは Fileship v{version} で動作しています。Fileship for Linux には v{minVersion} 以降が必要です。"
+            "serverTooOld": "このサーバーは Fileship v{version} で動作しています。Fileship for Linux には v{minVersion} 以降が必要です。",
+            "noActiveWindow": "ウィンドウが選択されていません。"
         },
         "general": {
             "startupDescription": "Fileship は通知領域で起動するため、ログインした直後からショートカットキーを使えます。",

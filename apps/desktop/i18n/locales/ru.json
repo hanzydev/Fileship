@@ -136,6 +136,11 @@
                 "label": "Звук загрузки",
                 "description": "Воспроизводить короткий сигнал, когда загрузка завершена."
             }
+        },
+        "screens": {
+            "title": "Мониторы",
+            "description": "В Wayland система спрашивает, какие мониторы Fileship может захватывать, и запоминает ответ. Захватывать можно только их. В GNOME удерживайте Ctrl в этом окне, чтобы выбрать несколько.",
+            "choose": "Выбрать мониторы заново"
         }
     },
     "connect": {
@@ -698,7 +703,8 @@
         },
         "app": {
             "chooseFfmpeg": "Выберите ffmpeg",
-            "serverTooOld": "На этом сервере работает Fileship v{version}. Приложению Fileship для Linux нужна версия v{minVersion} или новее."
+            "serverTooOld": "На этом сервере работает Fileship v{version}. Приложению Fileship для Linux нужна версия v{minVersion} или новее.",
+            "noActiveWindow": "Окно не выбрано."
         },
         "general": {
             "startupDescription": "Fileship запускается в области уведомлений, поэтому горячие клавиши работают сразу после входа в систему.",

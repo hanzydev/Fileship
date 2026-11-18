@@ -136,6 +136,11 @@
                 "label": "업로드 소리",
                 "description": "업로드가 끝나면 짧은 알림음을 재생해요."
             }
+        },
+        "screens": {
+            "title": "모니터",
+            "description": "Wayland에서는 Fileship이 캡처할 수 있는 모니터를 시스템이 묻고 선택을 기억해요. 선택한 모니터만 캡처할 수 있어요. GNOME에서는 해당 창에서 Ctrl 키를 누른 채 클릭하면 여러 개를 선택할 수 있어요.",
+            "choose": "모니터 다시 선택"
         }
     },
     "connect": {
@@ -698,7 +703,8 @@
         },
         "app": {
             "chooseFfmpeg": "ffmpeg 선택",
-            "serverTooOld": "이 서버는 Fileship v{version} 버전을 사용하고 있어요. Linux용 Fileship에는 v{minVersion} 이상이 필요해요."
+            "serverTooOld": "이 서버는 Fileship v{version} 버전을 사용하고 있어요. Linux용 Fileship에는 v{minVersion} 이상이 필요해요.",
+            "noActiveWindow": "선택한 창이 없어요."
         },
         "general": {
             "startupDescription": "Fileship은 알림 영역에서 시작되므로 로그인하자마자 단축키를 사용할 수 있어요.",

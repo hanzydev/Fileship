@@ -24,6 +24,8 @@ Point cursorPosition();
 namespace wayland {
 
 void setRestoreToken(std::string token, std::function<void(std::string const&)> onChanged);
+bool chooseScreens();
+std::optional<WindowShot> captureWindow(bool cursor);
 bool captureRects(std::vector<Rect> const& rects, bool cursor, std::vector<uint8_t*> const& targets);
 std::vector<DisplayInfo> listDisplays();
 Rect virtualScreen();

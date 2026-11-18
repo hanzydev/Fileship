@@ -142,12 +142,12 @@ std::optional<Shot> captureActiveMonitor() {
 }
 
 std::optional<Shot> captureActiveWindow() {
-    auto window = core::foregroundWindow(ignoredWindows());
+    auto cursor = jsonBool(jsonObject(settings(), L"capture"), L"showCursor", true);
+    auto window = core::captureForegroundWindow(ignoredWindows(), cursor);
     if (!window) return std::nullopt;
 
-    auto shot = captureRect(window->frame);
-    shot->title = window->title;
-    return shot;
+    playShutter();
+    return Shot{std::move(window->image), std::move(window->title)};
 }
 
 void setOverlayStore() {

@@ -160,6 +160,7 @@ export type IpcInvoke = {
     'hotkeys:setSnippingTool': (enabled: boolean) => HotkeyStatus;
     'hotkeys:triggers': () => HotkeyTriggers;
     'hotkeys:configure': () => void;
+    'capture:chooseScreens': () => void;
     'folders:list': () => Folder[];
     'dialog:pickFolder': () => string | null;
     'dialog:pickFfmpeg': () => string | null;
@@ -222,6 +223,7 @@ export const INVOKE_CHANNELS = [
     'hotkeys:setSnippingTool',
     'hotkeys:triggers',
     'hotkeys:configure',
+    'capture:chooseScreens',
     'folders:list',
     'dialog:pickFolder',
     'dialog:pickFfmpeg',

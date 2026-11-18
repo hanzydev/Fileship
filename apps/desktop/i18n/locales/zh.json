@@ -136,6 +136,11 @@
                 "label": "上传提示音",
                 "description": "上传完成时播放一段简短的提示音。"
             }
+        },
+        "screens": {
+            "title": "显示器",
+            "description": "在 Wayland 上，系统会询问 Fileship 可以截取哪些显示器，并记住你的选择。只有这些显示器可以被截取。在 GNOME 中，在该对话框里按住 Ctrl 可以选择多个。",
+            "choose": "重新选择显示器"
         }
     },
     "connect": {
@@ -698,7 +703,8 @@
         },
         "app": {
             "chooseFfmpeg": "选择 ffmpeg",
-            "serverTooOld": "这台服务器运行的是 Fileship v{version}。Fileship Linux 版需要 v{minVersion} 或更高版本。"
+            "serverTooOld": "这台服务器运行的是 Fileship v{version}。Fileship Linux 版需要 v{minVersion} 或更高版本。",
+            "noActiveWindow": "未选择窗口。"
         },
         "general": {
             "startupDescription": "Fileship 会在通知区域中启动，登录后快捷键立即可用。",

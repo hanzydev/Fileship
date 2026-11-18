@@ -5,6 +5,7 @@
 #include <dwmapi.h>
 
 #include <algorithm>
+#include <stdexcept>
 
 namespace fileship::core {
 
@@ -98,15 +99,17 @@ std::vector<WindowInfo> listWindows(std::vector<uint64_t> const& ignored, bool c
     return std::move(state.windows);
 }
 
-std::optional<WindowInfo> foregroundWindow(std::vector<uint64_t> const& ignored) {
+std::optional<WindowShot> captureForegroundWindow(std::vector<uint64_t> const& ignored, bool cursor) {
     HWND window = GetForegroundWindow();
     if (!window || isIgnored(ignored, window)) return std::nullopt;
 
-    WindowInfo info;
-    if (!readFrame(window, info.frame)) return std::nullopt;
+    Rect frame;
+    if (!readFrame(window, frame)) return std::nullopt;
 
-    info.title = readTitle(window);
-    return info;
+    auto image = captureRect(frame, cursor);
+    if (!image) throw std::runtime_error("Could not capture the screen");
+
+    return WindowShot{std::move(*image), readTitle(window)};
 }
 
 std::vector<uint64_t> processWindows(std::vector<uint32_t> const& processes) {

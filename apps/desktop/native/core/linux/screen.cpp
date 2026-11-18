@@ -1,6 +1,7 @@
 #include "screen.h"
 
 #include <cstdlib>
+#include <stdexcept>
 
 namespace fileship::core {
 
@@ -30,8 +31,16 @@ std::vector<WindowInfo> listWindows(std::vector<uint64_t> const& ignored, bool) 
     return isWayland() ? std::vector<WindowInfo>() : x11::listWindows(ignored);
 }
 
-std::optional<WindowInfo> foregroundWindow(std::vector<uint64_t> const& ignored) {
-    return isWayland() ? std::nullopt : x11::foregroundWindow(ignored);
+std::optional<WindowShot> captureForegroundWindow(std::vector<uint64_t> const& ignored, bool cursor) {
+    if (isWayland()) return wayland::captureWindow(cursor);
+
+    auto window = x11::foregroundWindow(ignored);
+    if (!window) return std::nullopt;
+
+    auto image = captureRect(window->frame, cursor);
+    if (!image) throw std::runtime_error("Could not capture the screen");
+
+    return WindowShot{std::move(*image), std::move(window->title)};
 }
 
 std::vector<uint64_t> processWindows(std::vector<uint32_t> const& processes) {

@@ -136,6 +136,11 @@
                 "label": "Sonido de subida",
                 "description": "Reproduce un breve sonido al terminar una subida."
             }
+        },
+        "screens": {
+            "title": "Pantallas",
+            "description": "En Wayland, el sistema pregunta qué pantallas puede capturar Fileship y recuerda la respuesta. Solo se pueden capturar esas pantallas. En GNOME, mantén pulsada la tecla Ctrl en ese cuadro de diálogo para seleccionar más de una.",
+            "choose": "Elegir pantallas de nuevo"
         }
     },
     "connect": {
@@ -698,7 +703,8 @@
         },
         "app": {
             "chooseFfmpeg": "Elegir ffmpeg",
-            "serverTooOld": "Este servidor ejecuta Fileship v{version}. Fileship para Linux necesita v{minVersion} o posterior."
+            "serverTooOld": "Este servidor ejecuta Fileship v{version}. Fileship para Linux necesita v{minVersion} o posterior.",
+            "noActiveWindow": "No hay ninguna ventana seleccionada."
         },
         "general": {
             "startupDescription": "Fileship se inicia en el área de notificación, así que tus atajos de teclado funcionan en cuanto inicias sesión.",
