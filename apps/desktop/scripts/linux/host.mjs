@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { groupSources, root } from '../native.mjs';
@@ -25,3 +25,4 @@ const objects = await compileGroups(
     groupSources(['shared', 'host', 'core']),
 );
 await link(join(output, 'fileship-host'), objects, linkerFlags(PACKAGES));
+cpSync(join(root, 'build', 'icon.png'), join(output, 'icon.png'));

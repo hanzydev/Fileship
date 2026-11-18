@@ -58,12 +58,6 @@ bool openOverlay(OverlayRequest, OverlayCallback) {
 
 namespace fileship::host {
 
-void createTray() {}
-
-void removeTray() {}
-
-void refreshTray() {}
-
 JsonObject registerHotkeys() {
     return JsonObject();
 }
@@ -141,8 +135,14 @@ namespace fileship::host::recording {
 
 void toggleRecording(std::wstring const&) {}
 
+void controlRecording(std::wstring const&) {}
+
 bool isRecording() {
     return false;
+}
+
+JsonObject recorderState() {
+    return JsonObject();
 }
 
 void resetFfmpegProbe() {}
@@ -159,6 +159,21 @@ void startHarbor() {}
 
 void stopHarbor(StopOptions) {}
 
+JsonObject harborStatus() {
+    JsonObject status;
+    status.SetNamedValue(L"state", JsonValue::CreateStringValue(L"off"));
+    status.SetNamedValue(L"root", JsonValue::CreateStringValue(L""));
+    status.SetNamedValue(L"files", JsonValue::CreateNumberValue(0));
+    status.SetNamedValue(L"folders", JsonValue::CreateNumberValue(0));
+    status.SetNamedValue(L"error", JsonValue::CreateNullValue());
+    status.SetNamedValue(L"storage", JsonValue::CreateNullValue());
+    status.SetNamedValue(L"localSize", JsonValue::CreateNullValue());
+    status.SetNamedValue(L"lastSyncedAt", JsonValue::CreateNullValue());
+    return status;
+}
+
+void pauseHarbor(bool) {}
+
 void runHarborAction(std::wstring const&, std::vector<std::wstring> const&) {}
 
 std::optional<std::filesystem::path> harborPathFor(std::wstring const&) {
@@ -166,18 +181,7 @@ std::optional<std::filesystem::path> harborPathFor(std::wstring const&) {
 }
 
 void registerHarborHandlers() {
-    registerHandler(L"harbor:status", [](JsonArray const&) -> IJsonValue {
-        JsonObject status;
-        status.SetNamedValue(L"state", JsonValue::CreateStringValue(L"off"));
-        status.SetNamedValue(L"root", JsonValue::CreateStringValue(L""));
-        status.SetNamedValue(L"files", JsonValue::CreateNumberValue(0));
-        status.SetNamedValue(L"folders", JsonValue::CreateNumberValue(0));
-        status.SetNamedValue(L"error", JsonValue::CreateNullValue());
-        status.SetNamedValue(L"storage", JsonValue::CreateNullValue());
-        status.SetNamedValue(L"localSize", JsonValue::CreateNullValue());
-        status.SetNamedValue(L"lastSyncedAt", JsonValue::CreateNullValue());
-        return status;
-    });
+    registerHandler(L"harbor:status", [](JsonArray const&) -> IJsonValue { return harborStatus(); });
 }
 
 }
