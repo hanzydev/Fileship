@@ -2,6 +2,7 @@
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+#include <algorithm>
 #include <fstream>
 #include <stdexcept>
 
@@ -15,6 +16,26 @@ void swapChannels(uint8_t* pixels, size_t count) {
 
 void freePixels(guchar* pixels, gpointer) {
     delete[] pixels;
+}
+
+GdkPixbuf* withoutAlpha(GdkPixbuf* image) {
+    int width = gdk_pixbuf_get_width(image);
+    int height = gdk_pixbuf_get_height(image);
+    GdkPixbuf* opaque = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8, width, height);
+
+    auto source = gdk_pixbuf_read_pixels(image);
+    auto target = gdk_pixbuf_get_pixels(opaque);
+    auto sourceStride = static_cast<size_t>(gdk_pixbuf_get_rowstride(image));
+    auto targetStride = static_cast<size_t>(gdk_pixbuf_get_rowstride(opaque));
+
+    for (int row = 0; row < height; row++) {
+        for (int column = 0; column < width; column++) {
+            std::copy_n(source + row * sourceStride + column * 4, 3, target + row * targetStride + column * 3);
+        }
+    }
+
+    g_object_unref(image);
+    return opaque;
 }
 
 Bitmap toBitmap(GdkPixbuf* source) {
@@ -67,6 +88,7 @@ std::vector<uint8_t> encodeImage(uint8_t const* pixels, uint32_t width, uint32_t
 
     if (options.format == ImageFormat::Jpeg) {
         auto quality = std::to_string(static_cast<int>(options.quality * 100));
+        image = withoutAlpha(image);
         isSaved = gdk_pixbuf_save_to_buffer(image, &buffer, &size, "jpeg", &error, "quality", quality.c_str(), nullptr);
     } else {
         isSaved = gdk_pixbuf_save_to_buffer(image, &buffer, &size, "png", &error, nullptr);
