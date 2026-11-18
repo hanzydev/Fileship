@@ -34,19 +34,21 @@
                 <dt class="text-muted-foreground">{{ $t('recordingSettings.location') }}</dt>
                 <dd class="truncate text-right" :title="ffmpeg.path ?? ''">
                     {{
-                        ffmpeg.isManaged
+                        ffmpeg.isManaged && !isLinux
                             ? $t('recordingSettings.downloadedByFileship')
                             : ffmpeg.path
                     }}
                 </dd>
-                <dt class="text-muted-foreground">{{ $t('recordingSettings.capture') }}</dt>
-                <dd class="text-right">
-                    {{
-                        ffmpeg.ddagrab
-                            ? $t('recordingSettings.captureBoth')
-                            : $t('recordingSettings.captureGdiOnly')
-                    }}
-                </dd>
+                <template v-if="!isLinux">
+                    <dt class="text-muted-foreground">{{ $t('recordingSettings.capture') }}</dt>
+                    <dd class="text-right">
+                        {{
+                            ffmpeg.ddagrab
+                                ? $t('recordingSettings.captureBoth')
+                                : $t('recordingSettings.captureGdiOnly')
+                        }}
+                    </dd>
+                </template>
                 <dt class="text-muted-foreground">{{ $t('recordingSettings.gpuEncoders') }}</dt>
                 <dd class="flex flex-wrap justify-end gap-1">
                     <UiBadge v-for="encoder in gpuEncoders" :key="encoder" variant="secondary">
@@ -67,7 +69,11 @@
             </UiAlert>
         </UiCardContent>
         <UiCardFooter class="flex-wrap gap-2">
-            <UiButton v-if="ffmpeg?.isManaged" :disabled="isDownloading" @click="handleDownload">
+            <UiButton
+                v-if="ffmpeg?.isManaged && !isLinux"
+                :disabled="isDownloading"
+                @click="handleDownload"
+            >
                 <IDownload />
                 {{
                     ffmpeg?.isInstalled
@@ -111,7 +117,7 @@
                             </UiSelectTrigger>
                             <UiSelectContent>
                                 <UiSelectItem
-                                    v-for="codec in VIDEO_CODECS"
+                                    v-for="codec in codecs"
                                     :key="codec"
                                     :value="codec"
                                     :disabled="!isAvailable(codec)"
@@ -262,7 +268,7 @@
                         </UiFieldError>
                     </UiField>
 
-                    <UiField class="sm:col-span-2">
+                    <UiField v-if="!isLinux" class="sm:col-span-2">
                         <UiFieldLabel>{{ $t('recordingSettings.captureMethod') }}</UiFieldLabel>
                         <UiSelect
                             :model-value="recording.source"
@@ -432,7 +438,7 @@
                     </div>
 
                     <UiField
-                        v-for="field in MICROPHONE_SWITCHES"
+                        v-for="field in microphoneSwitches"
                         :key="field.key"
                         orientation="horizontal"
                         class="has-[>[data-slot=field-content]]:items-center"
@@ -757,7 +763,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FfmpegStatus, Microphone } from '../../../shared/ipc';
+import type { AppInfo, FfmpegStatus, Microphone } from '../../../shared/ipc';
 import {
     AUDIO_CODECS,
     AUDIO_TRACKS,
@@ -783,6 +789,7 @@ const SOURCE_LABELS: Record<(typeof VIDEO_SOURCES)[number], string> = {
 
 const CODEC_LABELS: Record<Exclude<VideoCodec, 'auto'>, string> = {
     libx264: 'H.264 · x264 (CPU)',
+    libopenh264: 'H.264 · OpenH264 (CPU)',
     libx265: 'HEVC · x265 (CPU)',
     h264_nvenc: 'H.264 · NVIDIA NVENC',
     hevc_nvenc: 'HEVC · NVIDIA NVENC',
@@ -793,6 +800,9 @@ const CODEC_LABELS: Record<Exclude<VideoCodec, 'auto'>, string> = {
     h264_qsv: 'H.264 · Intel Quick Sync',
     hevc_qsv: 'HEVC · Intel Quick Sync',
     av1_qsv: 'AV1 · Intel Quick Sync',
+    h264_vaapi: 'H.264 · VAAPI',
+    hevc_vaapi: 'HEVC · VAAPI',
+    av1_vaapi: 'AV1 · VAAPI',
     'libvpx-vp9': 'VP9 · libvpx (CPU)',
     libsvtav1: 'AV1 · SVT-AV1 (CPU)',
 };
@@ -888,6 +898,7 @@ const settings = useSettings();
 const { $toast } = useNuxtApp();
 const { t } = useI18n();
 
+const info = ref<AppInfo>();
 const ffmpeg = ref<FfmpegStatus | null>(null);
 const preview = ref('');
 const microphones = ref<Microphone[]>([]);
@@ -902,18 +913,34 @@ const recording = computed(() => settings.value!.recording);
 const audio = computed(() => settings.value!.audio);
 const gif = computed(() => settings.value!.gif);
 
+const isLinux = computed(() => info.value?.platform === 'linux');
+const codecs = computed(() =>
+    VIDEO_CODECS.filter((codec) =>
+        isLinux.value
+            ? !codec.endsWith('_amf')
+            : !codec.endsWith('_vaapi') && codec !== 'libopenh264',
+    ),
+);
+const microphoneSwitches = computed(() => (isLinux.value ? [] : MICROPHONE_SWITCHES));
 const isDownloading = computed(() => !!ffmpeg.value?.download && !ffmpeg.value.download.error);
 const gpuEncoders = computed(
-    () => ffmpeg.value?.encoders.filter((name) => /_(nvenc|amf|qsv)$/.test(name)) ?? [],
+    () => ffmpeg.value?.encoders.filter((name) => /_(nvenc|amf|qsv|vaapi)$/.test(name)) ?? [],
 );
 const hasBothSources = computed(() => audio.value.microphone && audio.value.system);
 
 const effectiveCodec = computed(() => {
     if (recording.value.codec !== 'auto') return recording.value.codec;
+
+    const encoders = ffmpeg.value?.encoders ?? [];
+    const software =
+        !encoders.includes('libx264') && encoders.includes('libopenh264')
+            ? 'libopenh264'
+            : 'libx264';
+
     return (
-        (['h264_nvenc', 'h264_amf', 'h264_qsv'] as const).find((codec) =>
-            ffmpeg.value?.encoders.includes(codec),
-        ) ?? 'libx264'
+        (['h264_nvenc', 'h264_amf', 'h264_qsv', 'h264_vaapi'] as const).find((codec) =>
+            encoders.includes(codec),
+        ) ?? software
     );
 });
 
@@ -932,7 +959,8 @@ const presets = computed(() => {
 const qualityLabel = computed(() => {
     const codec = effectiveCodec.value;
     if (codec.endsWith('_nvenc')) return 'recordingSettings.constantQuality';
-    if (codec.endsWith('_amf')) return 'recordingSettings.quantizer';
+    if (codec.endsWith('_amf') || codec.endsWith('_vaapi') || codec === 'libopenh264')
+        return 'recordingSettings.quantizer';
     if (codec.endsWith('_qsv')) return 'recordingSettings.globalQuality';
     return 'recordingSettings.constantRateFactor';
 });
@@ -1012,6 +1040,7 @@ onMounted(async () => {
 
     onBeforeUnmount(off);
 
+    info.value = await desktop('app:info');
     ffmpeg.value = await desktop('ffmpeg:status');
     loadMicrophones();
 });

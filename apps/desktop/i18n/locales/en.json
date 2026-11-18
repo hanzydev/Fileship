@@ -431,7 +431,9 @@
         "processing": "Processing…",
         "systemAudioUnavailable": "Could not capture system audio.",
         "audioDevicesFailed": "Could not open the audio devices.",
-        "microphoneUnavailable": "Could not open the microphone."
+        "microphoneUnavailable": "Could not open the microphone.",
+        "recording": "Recording…",
+        "paused": "Paused"
     },
     "recording": {
         "microphone": "Microphone",
@@ -722,6 +724,12 @@
         },
         "nav": {
             "forWindows": "for Linux"
+        },
+        "recordingSettings": {
+            "ffmpegDescription": "Fileship records with FFmpeg. It uses the one installed on this computer, or your own copy.",
+            "notInstalledDescription": "Screen and GIF recording need it. Install the ffmpeg package with your package manager.",
+            "useOwn": "Use my own ffmpeg",
+            "useDownloaded": "Use the system FFmpeg"
         }
     }
 }

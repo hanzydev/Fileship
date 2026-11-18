@@ -12,11 +12,12 @@
 namespace fileship::host::recording {
 
 std::vector<std::wstring> const VIDEO_CODECS = {
-    L"auto",     L"libx264",  L"libx265",  L"h264_nvenc", L"hevc_nvenc", L"av1_nvenc",  L"h264_amf",
-    L"hevc_amf", L"av1_amf",  L"h264_qsv", L"hevc_qsv",   L"av1_qsv",    L"libvpx-vp9", L"libsvtav1",
+    L"auto",      L"libx264",    L"libopenh264", L"libx265",   L"h264_nvenc", L"hevc_nvenc",
+    L"av1_nvenc", L"h264_amf",   L"hevc_amf",    L"av1_amf",   L"h264_qsv",   L"hevc_qsv",
+    L"av1_qsv",   L"h264_vaapi", L"hevc_vaapi",  L"av1_vaapi", L"libvpx-vp9", L"libsvtav1",
 };
 
-std::vector<std::wstring> const HARDWARE_CODECS = {L"h264_nvenc", L"h264_amf", L"h264_qsv"};
+std::vector<std::wstring> const HARDWARE_CODECS = {L"h264_nvenc", L"h264_amf", L"h264_qsv", L"h264_vaapi"};
 
 namespace {
 
@@ -40,6 +41,12 @@ std::wstring decimal(double value) {
     char buffer[64]{};
     auto result = std::to_chars(buffer, buffer + sizeof(buffer), value);
     return std::wstring(buffer, result.ptr);
+}
+
+constexpr wchar_t const* VAAPI_DEVICE = L"/dev/dri/renderD128";
+
+bool has(std::vector<std::wstring> const& values, std::wstring const& value) {
+    return std::find(values.begin(), values.end(), value) != values.end();
 }
 
 int even(int value) {
@@ -97,6 +104,30 @@ std::vector<std::wstring> splitArgs(std::wstring const& value) {
     return args;
 }
 
+std::wstring autoCodec(std::vector<std::wstring> const& encoders) {
+    for (auto const& codec : HARDWARE_CODECS) {
+        if (has(encoders, codec)) return codec;
+    }
+
+    return !has(encoders, L"libx264") && has(encoders, L"libopenh264") ? L"libopenh264" : L"libx264";
+}
+
+std::wstring gifCodec(std::vector<std::wstring> const& encoders) {
+    return has(encoders, L"libx264") ? L"libx264" : L"ffv1";
+}
+
+std::vector<std::wstring> testEncodeArgs(std::wstring const& codec) {
+    std::vector<std::wstring> args = {L"-hide_banner", L"-loglevel", L"error"};
+    bool isVaapi = endsWith(codec, L"_vaapi");
+
+    if (isVaapi) append(args, {L"-vaapi_device", VAAPI_DEVICE});
+    append(args, {L"-f", L"lavfi", L"-i", L"color=c=black:s=256x256:r=30", L"-frames:v", L"3"});
+    if (isVaapi) append(args, {L"-vf", L"format=nv12,hwupload"});
+    append(args, {L"-c:v", codec, L"-f", L"null", L"-"});
+
+    return args;
+}
+
 std::vector<AudioTrack> audioTracks(JsonObject const& audio) {
     std::vector<std::wstring> sources;
     if (flag(audio, L"microphone", false)) sources.push_back(L"microphone");
@@ -125,6 +156,7 @@ std::wstring defaultPreset(std::wstring const& codec) {
 }
 
 std::wstring pixelFormat(std::wstring const& codec) {
+    if (endsWith(codec, L"_vaapi")) return L"nv12,hwupload";
     return endsWith(codec, L"_qsv") ? L"nv12" : L"yuv420p";
 }
 
@@ -162,6 +194,22 @@ std::vector<std::wstring> videoCodecArgs(std::wstring const& codec, JsonObject c
     } else if (endsWith(codec, L"_qsv")) {
         args = {L"-c:v", codec, L"-preset", preset};
         append(args, rate({L"-global_quality", quality}));
+    } else if (endsWith(codec, L"_vaapi")) {
+        args = {L"-c:v", codec};
+        if (bitrate) {
+            append(args, {L"-rc_mode", L"VBR"});
+            append(args, *bitrate);
+        } else {
+            append(args, {L"-rc_mode", L"CQP", L"-qp", quality});
+        }
+    } else if (codec == L"libopenh264") {
+        args = {L"-c:v", codec};
+        if (bitrate) {
+            append(args, {L"-rc_mode", L"bitrate"});
+            append(args, *bitrate);
+        } else {
+            append(args, {L"-rc_mode", L"off", L"-qmin", quality, L"-qmax", quality});
+        }
     } else if (codec == L"libvpx-vp9") {
         args = {L"-c:v", codec, L"-deadline", L"realtime", L"-cpu-used", preset, L"-row-mt", L"1"};
         append(args, rate({L"-crf", quality, L"-b:v", L"0"}));
@@ -184,9 +232,12 @@ VideoRequest videoRequest(JsonObject const& settings, std::wstring const& kind, 
     auto recording = section(settings, L"recording");
     bool isGif = kind == L"gif";
 
-    return {rect, std::to_wstring(isGif ? number(section(settings, L"gif"), L"fps", 15) : number(recording, L"fps", 30)),
-            std::to_wstring(even(rect.width)) + L"x" + std::to_wstring(even(rect.height)),
-            isGif ? std::wstring(L"yuv444p") : pixelFormat(codec), flag(recording, L"showCursor", true)};
+    return {rect,
+            isGif ? number(section(settings, L"gif"), L"fps", 15) : number(recording, L"fps", 30),
+            even(rect.width),
+            even(rect.height),
+            isGif ? std::wstring(L"yuv444p") : pixelFormat(codec),
+            flag(recording, L"showCursor", true)};
 }
 
 std::string lastLine(std::string const& text) {
@@ -206,6 +257,7 @@ std::vector<std::wstring> recordArgs(JsonObject const& settings, RecordCommand c
 
     std::vector<std::wstring> args = {L"-hide_banner", L"-loglevel", L"repeat+level+info", L"-nostats", L"-y"};
     append(args, splitArgs(text(recording, L"inputArgs")));
+    if (endsWith(command.codec, L"_vaapi")) append(args, {L"-vaapi_device", VAAPI_DEVICE});
     append(args, command.video.args);
 
     size_t firstAudio = command.video.isInput ? 1 : 0;
@@ -226,7 +278,9 @@ std::vector<std::wstring> recordArgs(JsonObject const& settings, RecordCommand c
                       L"atrim=start=0", L"-metadata:s:a:" + stream, L"title=" + tracks[index].title});
     }
 
-    if (isGif) {
+    if (isGif && command.codec == L"ffv1") {
+        append(args, {L"-c:v", L"ffv1"});
+    } else if (isGif) {
         append(args, {L"-c:v", L"libx264", L"-preset", L"ultrafast", L"-qp", L"0"});
     } else {
         append(args, videoCodecArgs(command.codec, recording));

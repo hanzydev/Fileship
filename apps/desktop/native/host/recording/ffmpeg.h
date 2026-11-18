@@ -17,7 +17,6 @@ struct Ffmpeg {
 
 std::optional<std::wstring> ffmpegPath();
 std::optional<Ffmpeg> getFfmpeg();
-std::wstring autoCodec(std::vector<std::wstring> const& encoders);
 JsonObject ffmpegStatus();
 void publishFfmpegStatus();
 void clearFfmpegProbe();

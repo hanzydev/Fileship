@@ -3,6 +3,7 @@
 #include <core/core.h>
 
 #include <functional>
+#include <memory>
 #include <string>
 
 namespace fileship::core {
@@ -26,6 +27,22 @@ namespace wayland {
 void setRestoreToken(std::string token, std::function<void(std::string const&)> onChanged);
 bool chooseScreens();
 std::optional<WindowShot> captureWindow(bool cursor);
+
+class FrameStream {
+public:
+    FrameStream(Rect const& rect, bool cursor);
+    ~FrameStream();
+
+    FrameStream(FrameStream const&) = delete;
+    FrameStream& operator=(FrameStream const&) = delete;
+
+    bool copy(uint8_t* target);
+
+    struct State;
+
+private:
+    std::unique_ptr<State> state;
+};
 bool captureRects(std::vector<Rect> const& rects, bool cursor, std::vector<uint8_t*> const& targets);
 std::vector<DisplayInfo> listDisplays();
 Rect virtualScreen();

@@ -431,7 +431,9 @@
         "processing": "Обработка…",
         "systemAudioUnavailable": "Не удалось захватить системный звук.",
         "audioDevicesFailed": "Не удалось открыть аудиоустройства.",
-        "microphoneUnavailable": "Не удалось открыть микрофон."
+        "microphoneUnavailable": "Не удалось открыть микрофон.",
+        "recording": "Идёт запись…",
+        "paused": "Пауза"
     },
     "recording": {
         "microphone": "Микрофон",
@@ -722,6 +724,12 @@
         },
         "nav": {
             "forWindows": "для Linux"
+        },
+        "recordingSettings": {
+            "ffmpegDescription": "Fileship записывает с помощью FFmpeg. Используется версия, установленная на этом компьютере, или ваша собственная.",
+            "notInstalledDescription": "Он нужен для записи экрана и GIF. Установите пакет ffmpeg через менеджер пакетов.",
+            "useOwn": "Использовать свой ffmpeg",
+            "useDownloaded": "Использовать системный FFmpeg"
         }
     }
 }

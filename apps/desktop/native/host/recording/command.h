@@ -30,10 +30,23 @@ struct AudioTrack {
 
 struct VideoRequest {
     ui::ScreenRect rect;
-    std::wstring fps;
-    std::wstring size;
+    int fps = 30;
+    int width = 0;
+    int height = 0;
     std::wstring format;
     bool showsCursor = true;
+
+    std::wstring rate() const {
+        return std::to_wstring(fps);
+    }
+
+    std::wstring size() const {
+        return std::to_wstring(width) + L"x" + std::to_wstring(height);
+    }
+
+    std::wstring cursor() const {
+        return showsCursor ? L"1" : L"0";
+    }
 };
 
 struct VideoInput {
@@ -52,6 +65,9 @@ struct RecordCommand {
 };
 
 std::vector<std::wstring> splitArgs(std::wstring const& value);
+std::wstring autoCodec(std::vector<std::wstring> const& encoders);
+std::wstring gifCodec(std::vector<std::wstring> const& encoders);
+std::vector<std::wstring> testEncodeArgs(std::wstring const& codec);
 std::vector<AudioTrack> audioTracks(JsonObject const& audio);
 std::wstring defaultPreset(std::wstring const& codec);
 std::wstring pixelFormat(std::wstring const& codec);

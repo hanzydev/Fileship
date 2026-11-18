@@ -431,7 +431,9 @@
         "processing": "処理しています…",
         "systemAudioUnavailable": "システム音声をキャプチャできませんでした。",
         "audioDevicesFailed": "オーディオデバイスを開けませんでした。",
-        "microphoneUnavailable": "マイクを開けませんでした。"
+        "microphoneUnavailable": "マイクを開けませんでした。",
+        "recording": "録画中…",
+        "paused": "一時停止中"
     },
     "recording": {
         "microphone": "マイク",
@@ -722,6 +724,12 @@
         },
         "nav": {
             "forWindows": "for Linux"
+        },
+        "recordingSettings": {
+            "ffmpegDescription": "Fileship は FFmpeg で録画します。このコンピューターにインストールされているもの、または指定したものを使用します。",
+            "notInstalledDescription": "画面と GIF の録画に必要です。パッケージマネージャーで ffmpeg パッケージをインストールしてください。",
+            "useOwn": "自分の ffmpeg を使う",
+            "useDownloaded": "システムの FFmpeg を使う"
         }
     }
 }

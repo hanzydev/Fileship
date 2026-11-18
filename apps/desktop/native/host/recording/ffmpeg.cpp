@@ -65,16 +65,14 @@ Ffmpeg runProbe(std::wstring const& path) {
         if (name.find(L'_') == std::wstring::npos) working.push_back(name);
     }
 
-    static std::wregex const hardwarePattern(L"_(nvenc|amf|qsv)$");
+    static std::wregex const hardwarePattern(L"_(nvenc|amf|qsv|vaapi)$");
 
     for (auto const& encoder : available) {
         if (std::find(VIDEO_CODECS.begin(), VIDEO_CODECS.end(), encoder) == VIDEO_CODECS.end()) continue;
         if (!std::regex_search(encoder, hardwarePattern)) continue;
 
         try {
-            runProcess(path, {L"-hide_banner", L"-loglevel", L"error", L"-f", L"lavfi", L"-i",
-                              L"color=c=black:s=256x256:r=30", L"-frames:v", L"3", L"-c:v", encoder, L"-f",
-                              L"null", L"-"});
+            runProcess(path, testEncodeArgs(encoder));
             working.push_back(encoder);
         } catch (...) {
         }
@@ -115,13 +113,6 @@ std::optional<Ffmpeg> getFfmpeg() {
         logWarn(L"Could not run ffmpeg: " + toWide(error.what()));
         return std::nullopt;
     }
-}
-
-std::wstring autoCodec(std::vector<std::wstring> const& encoders) {
-    for (auto const& codec : HARDWARE_CODECS) {
-        if (std::find(encoders.begin(), encoders.end(), codec) != encoders.end()) return codec;
-    }
-    return L"libx264";
 }
 
 JsonObject ffmpegStatus() {

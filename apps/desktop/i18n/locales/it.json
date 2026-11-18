@@ -431,7 +431,9 @@
         "processing": "Elaborazione…",
         "systemAudioUnavailable": "Impossibile acquisire l'audio di sistema.",
         "audioDevicesFailed": "Impossibile aprire i dispositivi audio.",
-        "microphoneUnavailable": "Impossibile aprire il microfono."
+        "microphoneUnavailable": "Impossibile aprire il microfono.",
+        "recording": "Registrazione…",
+        "paused": "In pausa"
     },
     "recording": {
         "microphone": "Microfono",
@@ -722,6 +724,12 @@
         },
         "nav": {
             "forWindows": "per Linux"
+        },
+        "recordingSettings": {
+            "ffmpegDescription": "Fileship registra con FFmpeg. Usa quello installato su questo computer oppure la tua copia.",
+            "notInstalledDescription": "Serve per registrare lo schermo e le GIF. Installa il pacchetto ffmpeg con il tuo gestore di pacchetti.",
+            "useOwn": "Usa il mio ffmpeg",
+            "useDownloaded": "Usa FFmpeg di sistema"
         }
     }
 }

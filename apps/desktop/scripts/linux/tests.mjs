@@ -12,14 +12,13 @@ const executable = join(output, 'tests');
 
 mkdirSync(output, { recursive: true });
 
-const objects = await compileGroups(
-    join(output, 'obj'),
-    compilerFlags(PACKAGES),
-    {
-        ...groupSources(['shared', 'tests']),
-        recording: [join(native, 'host', 'recording', 'command.cpp')],
-    },
-);
+const objects = await compileGroups(join(output, 'obj'), compilerFlags(PACKAGES), {
+    ...groupSources(['shared', 'tests']),
+    recording: [
+        join(native, 'host', 'recording', 'command.cpp'),
+        join(native, 'host', 'linux', 'recording', 'videoInput.cpp'),
+    ],
+});
 await link(executable, objects, linkerFlags(PACKAGES));
 
 const result = spawnSync(executable, process.argv.slice(3), { stdio: 'inherit' });

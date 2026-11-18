@@ -15,6 +15,7 @@ const PACKAGES = [
     'xcb',
     'xcb-randr',
     'xcb-xfixes',
+    'libpulse',
     'libpulse-simple',
     'xkbcommon',
     'libpipewire-0.3',

@@ -431,7 +431,9 @@
         "processing": "Processando…",
         "systemAudioUnavailable": "Não foi possível capturar o áudio do sistema.",
         "audioDevicesFailed": "Não foi possível abrir os dispositivos de áudio.",
-        "microphoneUnavailable": "Não foi possível abrir o microfone."
+        "microphoneUnavailable": "Não foi possível abrir o microfone.",
+        "recording": "Gravando…",
+        "paused": "Pausada"
     },
     "recording": {
         "microphone": "Microfone",
@@ -722,6 +724,12 @@
         },
         "nav": {
             "forWindows": "para Linux"
+        },
+        "recordingSettings": {
+            "ffmpegDescription": "O Fileship grava com o FFmpeg. Ele usa o que está instalado neste computador ou a sua própria cópia.",
+            "notInstalledDescription": "A gravação de tela e de GIF precisa dele. Instale o pacote ffmpeg com o gerenciador de pacotes.",
+            "useOwn": "Usar meu próprio ffmpeg",
+            "useDownloaded": "Usar o FFmpeg do sistema"
         }
     }
 }

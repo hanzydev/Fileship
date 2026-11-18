@@ -192,6 +192,39 @@ bool showUploadProgress(ProgressNotice const& progress, bool isNew) {
     return true;
 }
 
+uint32_t showNotice(uint32_t replaces, Notice const& notice, std::function<void(std::string const&)> onAction) {
+    try {
+        Notification notification;
+        notification.replaces = replaces;
+        notification.title = notice.title;
+        notification.body = notice.body;
+        notification.actions = notice.actions;
+        notification.timeout = 0;
+
+        g_variant_builder_add(&notification.hints, "{sv}", "resident", g_variant_new_boolean(TRUE));
+        g_variant_builder_add(&notification.hints, "{sv}", "suppress-sound", g_variant_new_boolean(TRUE));
+
+        auto id = send(notification);
+
+        std::lock_guard lock(mutex);
+        handlers[id] = std::move(onAction);
+        return id;
+    } catch (std::exception const& error) {
+        logWarn(L"Could not show a notification: " + errorMessage(error));
+        return 0;
+    }
+}
+
+void closeNotice(uint32_t id) {
+    {
+        std::lock_guard lock(mutex);
+        handlers.erase(id);
+    }
+
+    g_dbus_connection_call(sessionBus(), SERVICE, PATH, SERVICE, "CloseNotification", g_variant_new("(u)", id), nullptr,
+                           G_DBUS_CALL_FLAGS_NONE, -1, nullptr, nullptr, nullptr);
+}
+
 void hideUploadProgress(std::wstring const& tag) {
     uint32_t id = 0;
 

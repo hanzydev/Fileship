@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <condition_variable>
 #include <deque>
 #include <filesystem>
@@ -616,7 +617,7 @@ void begin(std::wstring const& kind, ui::ScreenRect const& rect) {
     auto recordingSettings = section(values, L"recording");
     auto codec = text(recordingSettings, L"codec", L"auto");
     if (kind == L"gif") {
-        codec = L"libx264";
+        codec = gifCodec(ffmpeg->encoders);
     } else if (codec == L"auto") {
         codec = autoCodec(ffmpeg->encoders);
     }

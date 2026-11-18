@@ -42,6 +42,7 @@ struct Screen {
     spa_hook listener{};
     spa_video_info_raw format{};
     Reader* reader = nullptr;
+    FrameStream::State* live = nullptr;
 };
 
 struct Reader {
@@ -266,14 +267,7 @@ void handleTimeout(void* data, uint64_t) {
     pw_main_loop_quit(static_cast<pw_main_loop*>(data));
 }
 
-void readStreams(std::vector<Screen>& screens, Source source, CursorMode mode, int remote, long timeoutMs) {
-    pw_init(nullptr, nullptr);
-
-    auto loop = pw_main_loop_new(nullptr);
-    auto context = pw_context_new(pw_main_loop_get_loop(loop), nullptr, 0);
-    auto core = pw_context_connect_fd(context, remote, nullptr, 0);
-    Reader reader{loop, &screens, source, mode};
-
+void connectStream(Screen& screen, pw_core* core, Reader& reader, pw_stream_events const& events) {
     spa_rectangle size = SPA_RECTANGLE(1920, 1080);
     spa_rectangle smallest = SPA_RECTANGLE(1, 1);
     spa_rectangle largest = SPA_RECTANGLE(16384, 16384);
@@ -282,30 +276,37 @@ void readStreams(std::vector<Screen>& screens, Source source, CursorMode mode, i
     spa_fraction fastest = SPA_FRACTION(1000, 1);
     std::array<spa_video_format, 4> formats{SPA_VIDEO_FORMAT_BGRx, SPA_VIDEO_FORMAT_BGRA, SPA_VIDEO_FORMAT_RGBx,
                                             SPA_VIDEO_FORMAT_RGBA};
-    if (source == Source::Window) std::swap(formats[0], formats[1]);
+    if (reader.source == Source::Window) std::swap(formats[0], formats[1]);
 
-    for (auto& screen : screens) {
-        screen.reader = &reader;
-        screen.stream = pw_stream_new(core, "fileship",
-                                      pw_properties_new(PW_KEY_MEDIA_TYPE, "Video", PW_KEY_MEDIA_CATEGORY, "Capture",
-                                                        PW_KEY_MEDIA_ROLE, "Screen", nullptr));
-        pw_stream_add_listener(screen.stream, &screen.listener, &STREAM_EVENTS, &screen);
+    screen.reader = &reader;
+    screen.stream = pw_stream_new(core, "fileship",
+                                  pw_properties_new(PW_KEY_MEDIA_TYPE, "Video", PW_KEY_MEDIA_CATEGORY, "Capture",
+                                                    PW_KEY_MEDIA_ROLE, "Screen", nullptr));
+    pw_stream_add_listener(screen.stream, &screen.listener, &events, &screen);
 
-        uint8_t storage[1024];
-        spa_pod_builder builder = SPA_POD_BUILDER_INIT(storage, sizeof(storage));
-        spa_pod const* params[1];
-        params[0] = static_cast<spa_pod const*>(spa_pod_builder_add_object(
-            &builder, SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat, SPA_FORMAT_mediaType,
-            SPA_POD_Id(SPA_MEDIA_TYPE_video), SPA_FORMAT_mediaSubtype, SPA_POD_Id(SPA_MEDIA_SUBTYPE_raw),
-            SPA_FORMAT_VIDEO_format,
-            SPA_POD_CHOICE_ENUM_Id(5, formats[0], formats[0], formats[1], formats[2], formats[3]),
-            SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle(&size, &smallest, &largest),
-            SPA_FORMAT_VIDEO_framerate, SPA_POD_CHOICE_RANGE_Fraction(&rate, &slowest, &fastest)));
+    uint8_t storage[1024];
+    spa_pod_builder builder = SPA_POD_BUILDER_INIT(storage, sizeof(storage));
+    spa_pod const* params[1];
+    params[0] = static_cast<spa_pod const*>(spa_pod_builder_add_object(
+        &builder, SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat, SPA_FORMAT_mediaType, SPA_POD_Id(SPA_MEDIA_TYPE_video),
+        SPA_FORMAT_mediaSubtype, SPA_POD_Id(SPA_MEDIA_SUBTYPE_raw), SPA_FORMAT_VIDEO_format,
+        SPA_POD_CHOICE_ENUM_Id(5, formats[0], formats[0], formats[1], formats[2], formats[3]), SPA_FORMAT_VIDEO_size,
+        SPA_POD_CHOICE_RANGE_Rectangle(&size, &smallest, &largest), SPA_FORMAT_VIDEO_framerate,
+        SPA_POD_CHOICE_RANGE_Fraction(&rate, &slowest, &fastest)));
 
-        pw_stream_connect(screen.stream, PW_DIRECTION_INPUT, screen.node,
-                          static_cast<pw_stream_flags>(PW_STREAM_FLAG_AUTOCONNECT | PW_STREAM_FLAG_MAP_BUFFERS), params,
-                          1);
-    }
+    pw_stream_connect(screen.stream, PW_DIRECTION_INPUT, screen.node,
+                      static_cast<pw_stream_flags>(PW_STREAM_FLAG_AUTOCONNECT | PW_STREAM_FLAG_MAP_BUFFERS), params, 1);
+}
+
+void readStreams(std::vector<Screen>& screens, Source source, CursorMode mode, int remote, long timeoutMs) {
+    pw_init(nullptr, nullptr);
+
+    auto loop = pw_main_loop_new(nullptr);
+    auto context = pw_context_new(pw_main_loop_get_loop(loop), nullptr, 0);
+    auto core = pw_context_connect_fd(context, remote, nullptr, 0);
+    Reader reader{loop, &screens, source, mode};
+
+    for (auto& screen : screens) connectStream(screen, core, reader, STREAM_EVENTS);
 
     auto timer = pw_loop_add_timer(pw_main_loop_get_loop(loop), handleTimeout, loop);
     timespec timeout{timeoutMs / 1000, (timeoutMs % 1000) * 1'000'000};
@@ -355,6 +356,129 @@ Grab const& grab(std::optional<CursorMode> mode = {}) {
     return *current;
 }
 
+void handleLiveProcess(void* data);
+
+pw_stream_events const LIVE_EVENTS = [] {
+    pw_stream_events events{};
+    events.version = PW_VERSION_STREAM_EVENTS;
+    events.param_changed = handleFormat;
+    events.process = handleLiveProcess;
+    return events;
+}();
+
+}
+
+struct FrameStream::State {
+    Rect rect;
+    std::string session;
+    std::vector<Screen> screens;
+    Reader reader;
+    pw_thread_loop* loop = nullptr;
+    pw_context* context = nullptr;
+    pw_core* core = nullptr;
+    std::mutex mutex;
+    std::vector<uint8_t> frame;
+    bool hasFrame = false;
+
+    void blit(Screen const& screen, spa_data const& data) {
+        Rect drawn{screen.display.rect.x, screen.display.rect.y, static_cast<int32_t>(screen.format.size.width),
+                   static_cast<int32_t>(screen.format.size.height)};
+        auto visible = intersectRects(rect, drawn);
+        if (!visible) return;
+
+        bool isRgb = screen.format.format == SPA_VIDEO_FORMAT_RGBA || screen.format.format == SPA_VIDEO_FORMAT_RGBx;
+        auto source = SPA_PTROFF(data.data, data.chunk->offset, uint8_t);
+
+        std::lock_guard lock(mutex);
+
+        for (int32_t row = 0; row < visible->height; row++) {
+            auto from = source + static_cast<size_t>(visible->y - drawn.y + row) * data.chunk->stride +
+                        static_cast<size_t>(visible->x - drawn.x) * 4;
+            auto to = frame.data() +
+                      (static_cast<size_t>(visible->y - rect.y + row) * rect.width + (visible->x - rect.x)) * 4;
+
+            if (!isRgb) {
+                std::memcpy(to, from, static_cast<size_t>(visible->width) * 4);
+                continue;
+            }
+
+            for (int32_t column = 0; column < visible->width; column++) {
+                to[column * 4] = from[column * 4 + 2];
+                to[column * 4 + 1] = from[column * 4 + 1];
+                to[column * 4 + 2] = from[column * 4];
+            }
+        }
+
+        hasFrame = true;
+    }
+};
+
+namespace {
+
+void handleLiveProcess(void* data) {
+    auto& screen = *static_cast<Screen*>(data);
+    auto buffer = pw_stream_dequeue_buffer(screen.stream);
+    if (!buffer) return;
+
+    auto const& first = buffer->buffer->datas[0];
+    if (first.data && first.chunk->size) screen.live->blit(screen, first);
+    pw_stream_queue_buffer(screen.stream, buffer);
+}
+
+}
+
+FrameStream::FrameStream(Rect const& rect, bool cursor) : state(std::make_unique<State>()) {
+    std::lock_guard lock(mutex);
+    auto mode = cursor ? CursorMode::Embedded : CursorMode::Hidden;
+    auto known = grab().screens;
+    int remote = -1;
+
+    state->rect = rect;
+    state->frame.resize(static_cast<size_t>(rect.width) * rect.height * 4);
+    state->screens = startSession(Source::Screens, mode, state->session, remote);
+    if (state->screens.empty()) {
+        closeSession(state->session);
+        throw std::runtime_error("Screen capture was not allowed");
+    }
+
+    for (auto& screen : state->screens) {
+        for (auto const& other : known) {
+            if (other.logical.x == screen.logical.x && other.logical.y == screen.logical.y) screen.display = other.display;
+        }
+    }
+
+    std::erase_if(state->screens, [&](Screen const& screen) { return !intersectRects(rect, screen.display.rect); });
+
+    pw_init(nullptr, nullptr);
+    state->reader = Reader{nullptr, &state->screens, Source::Screens, mode};
+    state->loop = pw_thread_loop_new("fileship-recording", nullptr);
+    state->context = pw_context_new(pw_thread_loop_get_loop(state->loop), nullptr, 0);
+    pw_thread_loop_start(state->loop);
+
+    pw_thread_loop_lock(state->loop);
+    state->core = pw_context_connect_fd(state->context, remote, nullptr, 0);
+    for (auto& screen : state->screens) {
+        screen.live = state.get();
+        connectStream(screen, state->core, state->reader, LIVE_EVENTS);
+    }
+    pw_thread_loop_unlock(state->loop);
+}
+
+FrameStream::~FrameStream() {
+    pw_thread_loop_stop(state->loop);
+    for (auto& screen : state->screens) pw_stream_destroy(screen.stream);
+    pw_core_disconnect(state->core);
+    pw_context_destroy(state->context);
+    pw_thread_loop_destroy(state->loop);
+    closeSession(state->session);
+}
+
+bool FrameStream::copy(uint8_t* target) {
+    std::lock_guard lock(state->mutex);
+    if (!state->hasFrame) return false;
+
+    std::memcpy(target, state->frame.data(), state->frame.size());
+    return true;
 }
 
 void setRestoreToken(std::string token, std::function<void(std::string const&)> onChanged) {

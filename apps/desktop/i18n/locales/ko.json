@@ -431,7 +431,9 @@
         "processing": "처리 중…",
         "systemAudioUnavailable": "시스템 오디오를 캡처할 수 없어요.",
         "audioDevicesFailed": "오디오 장치를 열 수 없어요.",
-        "microphoneUnavailable": "마이크를 열 수 없어요."
+        "microphoneUnavailable": "마이크를 열 수 없어요.",
+        "recording": "녹화 중…",
+        "paused": "일시 정지됨"
     },
     "recording": {
         "microphone": "마이크",
@@ -722,6 +724,12 @@
         },
         "nav": {
             "forWindows": "Linux용"
+        },
+        "recordingSettings": {
+            "ffmpegDescription": "Fileship은 FFmpeg로 녹화해요. 이 컴퓨터에 설치된 FFmpeg나 직접 고른 파일을 사용해요.",
+            "notInstalledDescription": "화면 녹화와 GIF 녹화에 필요해요. 패키지 관리자로 ffmpeg 패키지를 설치하세요.",
+            "useOwn": "내 ffmpeg 사용",
+            "useDownloaded": "시스템 FFmpeg 사용"
         }
     }
 }

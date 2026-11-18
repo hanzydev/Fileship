@@ -431,7 +431,9 @@
         "processing": "Hazırlanır…",
         "systemAudioUnavailable": "Sistem səsini götürmək mümkün olmadı.",
         "audioDevicesFailed": "Səs cihazlarını açmaq mümkün olmadı.",
-        "microphoneUnavailable": "Mikrofonu açmaq mümkün olmadı."
+        "microphoneUnavailable": "Mikrofonu açmaq mümkün olmadı.",
+        "recording": "Qeydə alınır…",
+        "paused": "Dayandırılıb"
     },
     "recording": {
         "microphone": "Mikrofon",
@@ -722,6 +724,12 @@
         },
         "nav": {
             "forWindows": "Linux üçün"
+        },
+        "recordingSettings": {
+            "ffmpegDescription": "Fileship qeydləri FFmpeg ilə aparır. Bu kompüterdə quraşdırılmış olanı və ya sənin seçdiyin nüsxəni istifadə edir.",
+            "notInstalledDescription": "Ekran və GIF qeydi üçün lazımdır. ffmpeg paketini paket meneceri ilə quraşdır.",
+            "useOwn": "Öz ffmpeg faylımı istifadə et",
+            "useDownloaded": "Sistemdəki FFmpeg-i istifadə et"
         }
     }
 }

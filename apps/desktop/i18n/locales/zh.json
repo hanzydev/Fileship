@@ -431,7 +431,9 @@
         "processing": "正在处理…",
         "systemAudioUnavailable": "无法录制系统声音。",
         "audioDevicesFailed": "无法打开音频设备。",
-        "microphoneUnavailable": "无法打开麦克风。"
+        "microphoneUnavailable": "无法打开麦克风。",
+        "recording": "正在录制…",
+        "paused": "已暂停"
     },
     "recording": {
         "microphone": "麦克风",
@@ -722,6 +724,12 @@
         },
         "nav": {
             "forWindows": "Linux 版"
+        },
+        "recordingSettings": {
+            "ffmpegDescription": "Fileship 使用 FFmpeg 录制。它会使用这台电脑上已安装的 FFmpeg，或你自己指定的副本。",
+            "notInstalledDescription": "屏幕录制和 GIF 录制需要它。请用包管理器安装 ffmpeg 软件包。",
+            "useOwn": "使用我自己的 ffmpeg",
+            "useDownloaded": "使用系统的 FFmpeg"
         }
     }
 }

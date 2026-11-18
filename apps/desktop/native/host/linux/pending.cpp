@@ -1,7 +1,6 @@
 #include <host/app.h>
 #include <host/harbor.h>
 #include <host/platform.h>
-#include <host/recording.h>
 #include <shared/log.h>
 
 namespace fileship::host {
@@ -21,28 +20,6 @@ void installUpdate() {}
 void notifyIdle() {}
 
 void setShellHarborRoot(std::optional<std::filesystem::path> const&) {}
-
-}
-
-namespace fileship::host::recording {
-
-void toggleRecording(std::wstring const&) {}
-
-void controlRecording(std::wstring const&) {}
-
-bool isRecording() {
-    return false;
-}
-
-JsonObject recorderState() {
-    return JsonObject();
-}
-
-void resetFfmpegProbe() {}
-
-void quitRecorder() {}
-
-void registerRecordingHandlers() {}
 
 }
 

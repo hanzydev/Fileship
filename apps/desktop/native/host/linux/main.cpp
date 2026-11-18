@@ -12,8 +12,10 @@
 
 #include <fcntl.h>
 #include <sys/file.h>
+#include <unistd.h>
 
 #include <clocale>
+#include <csignal>
 
 namespace fileship::host {
 
@@ -99,6 +101,10 @@ int main(int count, char** values) {
     registerHandlers();
     harbor::registerHarborHandlers();
     recording::registerRecordingHandlers();
+    recording::setAreaPicker([](ui::OverlayPurpose purpose, recording::AreaCallback done) {
+        pickArea(purpose, [done](core::Rect area) { done({area.x, area.y, area.width, area.height}); });
+        return true;
+    });
     startRpcServer();
 
     applySettings();
@@ -113,11 +119,12 @@ int main(int count, char** values) {
     }
 
     loop = g_main_loop_new(nullptr, FALSE);
+    signal(SIGPIPE, SIG_IGN);
     g_unix_signal_add(SIGTERM, handleSignal, nullptr);
     g_unix_signal_add(SIGINT, handleSignal, nullptr);
     g_main_loop_run(loop);
 
     stopRpcServer();
     logInfo(L"Stopped");
-    return 0;
+    _exit(0);
 }
