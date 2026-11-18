@@ -12,6 +12,7 @@ const PACKAGES = [
     'libsecret-1',
     'sqlite3',
     'gdk-pixbuf-2.0',
+    'xcb',
 ];
 
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));

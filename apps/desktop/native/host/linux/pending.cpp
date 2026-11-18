@@ -70,24 +70,6 @@ void pauseHotkeys() {}
 
 void unregisterHotkeys() {}
 
-void writeClipboardText(std::wstring const&) {}
-
-bool writeClipboardImage(std::vector<uint8_t> const&, core::Bitmap const&) {
-    return false;
-}
-
-std::wstring readClipboardText() {
-    return {};
-}
-
-std::optional<core::Bitmap> readClipboardImage() {
-    return std::nullopt;
-}
-
-std::optional<std::filesystem::path> readClipboardFilePath() {
-    return std::nullopt;
-}
-
 void startUpdater() {}
 
 JsonObject updateStatus() {
