@@ -2,6 +2,9 @@
 
 #include <core/core.h>
 
+#include <functional>
+#include <string>
+
 namespace fileship::core {
 
 bool isWayland();
@@ -20,6 +23,7 @@ Point cursorPosition();
 
 namespace wayland {
 
+void setRestoreToken(std::string token, std::function<void(std::string const&)> onChanged);
 bool captureRects(std::vector<Rect> const& rects, bool cursor, std::vector<uint8_t*> const& targets);
 std::vector<DisplayInfo> listDisplays();
 Rect virtualScreen();

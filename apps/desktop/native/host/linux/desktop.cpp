@@ -1,5 +1,4 @@
 #include "host.h"
-#include "portal.h"
 
 #include <shared/log.h>
 

@@ -1,12 +1,13 @@
 #include "portal.h"
 
-#include "host.h"
-
 #include <shared/log.h>
+#include <shared/utf8.h>
 
 #include <atomic>
+#include <condition_variable>
+#include <mutex>
 
-namespace fileship::host {
+namespace fileship {
 
 namespace {
 
@@ -47,13 +48,18 @@ void handleCalled(GObject*, GAsyncResult* result, gpointer data) {
 
 }
 
-void registerPortalApp() {
+GDBusConnection* sessionBus() {
+    static GDBusConnection* const bus = g_bus_get_sync(G_BUS_TYPE_SESSION, nullptr, nullptr);
+    return bus;
+}
+
+void registerPortalApp(char const* appId) {
     GVariantBuilder options;
     g_variant_builder_init(&options, G_VARIANT_TYPE("a{sv}"));
 
     GVariant* reply =
         g_dbus_connection_call_sync(sessionBus(), PORTAL_NAME, PORTAL_PATH, "org.freedesktop.host.portal.Registry",
-                                    "Register", g_variant_new("(sa{sv})", APP_ID, &options), nullptr,
+                                    "Register", g_variant_new("(sa{sv})", appId, &options), nullptr,
                                     G_DBUS_CALL_FLAGS_NONE, 5000, nullptr, nullptr);
     if (reply) g_variant_unref(reply);
 }
@@ -94,6 +100,29 @@ void portalRequest(char const* interface, char const* method, PortalParameters c
 
     g_dbus_connection_call(sessionBus(), PORTAL_NAME, PORTAL_PATH, interface, method, parameters(token.c_str()),
                            G_VARIANT_TYPE("(o)"), G_DBUS_CALL_FLAGS_NONE, -1, nullptr, handleCalled, pending);
+}
+
+PortalReply portalWait(char const* interface, char const* method, PortalParameters const& parameters) {
+    struct State {
+        std::mutex mutex;
+        std::condition_variable changed;
+        bool isDone = false;
+        PortalReply reply;
+    };
+
+    auto state = std::make_shared<State>();
+
+    portalRequest(interface, method, parameters, [state](uint32_t response, GVariant* results) {
+        std::lock_guard lock(state->mutex);
+        state->reply.response = response;
+        state->reply.results = results ? g_variant_ref(results) : nullptr;
+        state->isDone = true;
+        state->changed.notify_all();
+    });
+
+    std::unique_lock lock(state->mutex);
+    state->changed.wait(lock, [&] { return state->isDone; });
+    return std::move(state->reply);
 }
 
 }

@@ -17,6 +17,7 @@ const PACKAGES = [
     'xcb-xfixes',
     'libpulse-simple',
     'xkbcommon',
+    'libpipewire-0.3',
 ];
 
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));

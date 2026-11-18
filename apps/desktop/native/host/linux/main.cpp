@@ -1,5 +1,6 @@
 #include "host.h"
-#include "portal.h"
+
+#include <core/linux/screen.h>
 
 #include <host/harbor.h>
 #include <host/recording.h>
@@ -83,9 +84,15 @@ int main(int count, char** values) {
         return 1;
     }
 
-    registerPortalApp();
+    registerPortalApp(APP_ID);
 
     loadStore();
+
+    auto screenToken = storeValue(L"screenToken");
+    core::wayland::setRestoreToken(
+        screenToken.ValueType() == JsonValueType::String ? toUtf8(std::wstring(screenToken.GetString())) : "",
+        [](std::string const& token) { setStoreValue(L"screenToken", JsonValue::CreateStringValue(toWide(token))); });
+
     setLanguage(resolveLanguage(jsonString(settings(), L"language", L"system")));
 
     registerHandlers();

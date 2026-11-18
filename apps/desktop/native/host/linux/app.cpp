@@ -130,11 +130,6 @@ void openExternal(std::wstring const& url) {
     }
 }
 
-GDBusConnection* sessionBus() {
-    static GDBusConnection* const bus = g_bus_get_sync(G_BUS_TYPE_SESSION, nullptr, nullptr);
-    return bus;
-}
-
 void showItemInFolder(std::filesystem::path const& path) {
     gchar* uri = g_filename_to_uri(path.c_str(), nullptr, nullptr);
     GVariantBuilder items;
