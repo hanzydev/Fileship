@@ -4,7 +4,7 @@
 #include "process.h"
 
 #include <host/rpc.h>
-#include <host/services.h>
+#include <host/windows/host.h>
 #include <shared/log.h>
 #include <shared/windows/winhttp.h>
 

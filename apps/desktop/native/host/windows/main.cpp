@@ -1,5 +1,5 @@
-#include "app.h"
-#include "rpc.h"
+#include "host.h"
+#include <host/rpc.h>
 
 #include <host/harbor.h>
 #include <host/recording.h>
@@ -24,29 +24,6 @@ std::vector<std::wstring> commandLine() {
     std::vector<std::wstring> arguments(values + 1, values + count);
     LocalFree(values);
     return arguments;
-}
-
-void parseOptions(std::vector<std::wstring> const& arguments) {
-    auto& options = launchOptions();
-    std::vector<std::wstring> rest;
-
-    for (size_t index = 0; index < arguments.size(); index++) {
-        auto const& argument = arguments[index];
-        bool hasValue = index + 1 < arguments.size();
-
-        if (argument == L"--hidden") options.hidden = true;
-        else if (argument == L"--dev") options.dev = true;
-        else if (argument == L"--user-data-dir" && hasValue) options.userData = arguments[++index];
-        else if (argument.starts_with(L"--user-data-dir=")) options.userData = argument.substr(16);
-        else if (argument == L"--renderer-url" && hasValue) options.rendererUrl = arguments[++index];
-        else if (argument == L"--electron" && hasValue) options.electronCommand = arguments[++index];
-        else if (argument == L"--update-feed" && hasValue) options.updateFeed = arguments[++index];
-        else if (argument == L"--pipe" && hasValue) options.pipe = arguments[++index];
-        else rest.push_back(argument);
-    }
-
-    if (options.hidden) rest.push_back(L"--hidden");
-    options.arguments = rest;
 }
 
 LRESULT CALLBACK handleMessage(HWND handle, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -165,6 +142,7 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
     initI18n(resourcesPath() / L"i18n");
     logInfo(L"Fileship host " + appVersion() + (isPackaged() ? L"" : L" (development)"));
 
+    migrateElectronStore();
     loadStore();
     setLanguage(resolveLanguage(jsonString(settings(), L"language", L"system")));
 

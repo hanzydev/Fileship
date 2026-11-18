@@ -1,4 +1,5 @@
 #include "app.h"
+#include "platform.h"
 #include "rpc.h"
 
 #include <host/harbor.h>
@@ -96,11 +97,8 @@ IJsonValue listFolders() {
     std::vector<std::pair<std::wstring, std::wstring>> named;
     for (auto const& folder : folders) named.emplace_back(folder.id, pathOf(folder, 0));
 
-    auto locale = language();
-    std::sort(named.begin(), named.end(), [&](auto const& a, auto const& b) {
-        return CompareStringEx(locale.c_str(), LINGUISTIC_IGNORECASE, a.second.c_str(), -1, b.second.c_str(), -1,
-                               nullptr, nullptr, 0) == CSTR_LESS_THAN;
-    });
+    std::sort(named.begin(), named.end(),
+              [](auto const& a, auto const& b) { return isNameBefore(a.second, b.second); });
 
     JsonArray result;
     for (auto const& [id, name] : named) {
@@ -138,20 +136,19 @@ IJsonValue setSettings(JsonObject const& patch) {
 
 void applySettings() {
     auto current = settings();
-    applyStartAtLogin(jsonBool(current, L"startAtLogin", true));
-    applyMenuTheme();
+    bool isLanguageChanged = setLanguage(resolveLanguage(jsonString(current, L"language", L"system")));
 
-    if (setLanguage(resolveLanguage(jsonString(current, L"language", L"system")))) {
-        refreshTray();
-        registerShellMenu();
-        broadcast(L"app:language", JsonValue::CreateStringValue(language()));
-    }
+    applyDesktopIntegration(current, isLanguageChanged);
+    if (!isLanguageChanged) return;
+
+    refreshTray();
+    broadcast(L"app:language", JsonValue::CreateStringValue(language()));
 }
 
 void registerHandlers() {
     registerHandler(L"client:hello", [](JsonArray const& args) -> IJsonValue {
         auto client = currentClient();
-        handleWindowClient(client, static_cast<DWORD>(jsonNumber(objectArg(args, 0), L"pid")));
+        handleWindowClient(client, static_cast<uint32_t>(jsonNumber(objectArg(args, 0), L"pid")));
         flushWindowEvents(client);
 
         JsonObject result;
@@ -305,13 +302,9 @@ void registerHandlers() {
         return hotkeyStatus();
     });
 
-    registerHandler(L"hotkeys:snippingTool", [](JsonArray const&) -> IJsonValue {
-        return JsonValue::CreateBooleanValue(isSnippingToolKeyEnabled());
-    });
-
-    registerHandler(L"hotkeys:setSnippingTool", [](JsonArray const& args) -> IJsonValue { return setSnippingToolKey(boolArg(args, 0)); });
-
     registerHandler(L"folders:list", [](JsonArray const&) -> IJsonValue { return listFolders(); });
+
+    registerPlatformHandlers();
 
     onClientClosed([](uint64_t client) {
         bool wasPausing = false;

@@ -1,11 +1,10 @@
 #include "app.h"
 
+#include "platform.h"
+
 #include <host/recording.h>
 #include <shared/log.h>
-
-#include <objbase.h>
-#include <shobjidl.h>
-#include <winrt/base.h>
+#include <shared/platform.h>
 
 #include <mutex>
 #include <regex>
@@ -46,37 +45,6 @@ void uploadClipboard() {
 
     auto utf8 = toUtf8(text);
     handleFile({{}, std::vector<char>(utf8.begin(), utf8.end()), L"clipboard.txt", L"text/plain", {}});
-}
-
-std::vector<std::filesystem::path> pickFiles() {
-    std::vector<std::filesystem::path> paths;
-
-    auto dialog = winrt::create_instance<IFileOpenDialog>(CLSID_FileOpenDialog);
-    FILEOPENDIALOGOPTIONS options{};
-    dialog->GetOptions(&options);
-    dialog->SetOptions(options | FOS_ALLOWMULTISELECT | FOS_FORCEFILESYSTEM | FOS_FILEMUSTEXIST);
-    auto title = t(L"app.uploadDialogTitle");
-    dialog->SetTitle(title.c_str());
-
-    if (FAILED(dialog->Show(nullptr))) return paths;
-
-    winrt::com_ptr<IShellItemArray> items;
-    if (FAILED(dialog->GetResults(items.put()))) return paths;
-
-    DWORD count = 0;
-    items->GetCount(&count);
-
-    for (DWORD index = 0; index < count; index++) {
-        winrt::com_ptr<IShellItem> item;
-        PWSTR path = nullptr;
-
-        if (SUCCEEDED(items->GetItemAt(index, item.put())) && SUCCEEDED(item->GetDisplayName(SIGDN_FILESYSPATH, &path))) {
-            paths.emplace_back(path);
-            CoTaskMemFree(path);
-        }
-    }
-
-    return paths;
 }
 
 void uploadFromDialog() {
@@ -152,12 +120,10 @@ void runGuarded(std::wstring const& name, bool requiresAccount, std::function<vo
 
     try {
         task();
-    } catch (std::exception const& error) {
-        logError(name + L" failed: " + errorMessage(error));
-        notify(t(L"app.somethingWentWrong"), errorMessage(error));
-    } catch (winrt::hresult_error const& error) {
-        logError(name + L" failed: " + std::wstring(error.message()));
-        notify(t(L"app.somethingWentWrong"), std::wstring(error.message()));
+    } catch (...) {
+        auto message = exceptionMessage();
+        logError(name + L" failed: " + message);
+        notify(t(L"app.somethingWentWrong"), message);
     }
 }
 

@@ -1,4 +1,6 @@
-#include "core.h"
+#include "outputs.h"
+
+#include <windows.h>
 
 #include <dxgi1_2.h>
 #include <shellscalingapi.h>
@@ -94,21 +96,17 @@ Rect virtualScreen() {
     return Rect{left, top, GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN)};
 }
 
-DisplayInfo displayNearest(POINT point) {
-    HMONITOR monitor = MonitorFromPoint(point, MONITOR_DEFAULTTONEAREST);
+DisplayInfo displayNearest(Point point) {
+    HMONITOR monitor = MonitorFromPoint(POINT{point.x, point.y}, MONITOR_DEFAULTTONEAREST);
     std::vector<DisplayInfo> displays;
     handleMonitor(monitor, nullptr, nullptr, reinterpret_cast<LPARAM>(&displays));
     return displays.empty() ? DisplayInfo{0, virtualScreen(), 1, true} : displays[0];
 }
 
-std::optional<Rect> intersectRects(Rect const& a, Rect const& b) {
-    int x = std::max(a.x, b.x);
-    int y = std::max(a.y, b.y);
-    int right = std::min(a.x + a.width, b.x + b.width);
-    int bottom = std::min(a.y + a.height, b.y + b.height);
-
-    if (right <= x || bottom <= y) return std::nullopt;
-    return Rect{x, y, right - x, bottom - y};
+Point cursorPosition() {
+    POINT point{};
+    GetCursorPos(&point);
+    return {point.x, point.y};
 }
 
 }

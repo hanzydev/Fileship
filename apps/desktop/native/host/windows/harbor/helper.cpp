@@ -2,7 +2,7 @@
 
 #include "support.h"
 
-#include <host/services.h>
+#include <host/windows/host.h>
 #include <shared/i18n.h>
 #include <shared/log.h>
 #include <shared/platform.h>

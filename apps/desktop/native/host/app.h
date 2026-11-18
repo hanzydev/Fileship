@@ -3,10 +3,10 @@
 #include "rpc.h"
 #include "services.h"
 
+#include <shared/base64.h>
+
 #include <future>
 #include <map>
-
-#undef GetObject
 
 namespace fileship::host {
 
@@ -22,10 +22,9 @@ struct LaunchOptions {
 };
 
 LaunchOptions& launchOptions();
+void parseOptions(std::vector<std::wstring> const& arguments);
+std::wstring profileSuffix();
 std::wstring pipeName();
-std::wstring mutexName();
-std::wstring appUserModelId();
-HWND mainWindow();
 void runMainQueue();
 bool isMainThread();
 void quitApp();
@@ -50,8 +49,6 @@ JsonObject cloneObject(JsonObject const& object);
 std::string prettyJson(IJsonValue const& value);
 std::wstring randomHex(size_t bytes);
 std::wstring randomUuid();
-std::wstring base64(void const* data, size_t size);
-std::vector<uint8_t> fromBase64(std::wstring const& text);
 std::vector<char> readFileBytes(std::filesystem::path const& path);
 bool writeFileAtomic(std::filesystem::path const& path, std::string const& content);
 std::wstring argumentOf(std::vector<std::wstring> const& arguments, std::wstring const& name);
@@ -61,12 +58,6 @@ JsonObject storeData();
 void setSession(std::wstring const& instanceUrl, std::wstring const& siteName, std::wstring const& token,
                 JsonObject const& user);
 void clearSession();
-std::optional<std::string> unprotectElectronValue(std::wstring const& value);
-
-struct HttpResult {
-    DWORD status = 0;
-    JsonValue body{nullptr};
-};
 
 JsonValue request(std::wstring const& baseUrl, std::wstring const& method, std::wstring const& path,
                   std::vector<char> body = {}, std::wstring const& contentType = {},
@@ -119,8 +110,8 @@ struct Shot {
 };
 
 std::vector<uint64_t> ignoredWindows();
-void addWindowProcess(DWORD pid);
-void removeWindowProcess(DWORD pid);
+void addWindowProcess(uint32_t pid);
+void removeWindowProcess(uint32_t pid);
 std::optional<Shot> captureRect(core::Rect const& rect, bool sound = true);
 std::optional<Shot> captureFullscreen();
 std::optional<Shot> captureActiveMonitor();
@@ -134,21 +125,12 @@ void uploadPaths(std::vector<std::filesystem::path> const& paths);
 
 void createTray();
 void removeTray();
-void applyMenuTheme();
-bool handleTrayMessage(UINT message, WPARAM wParam, LPARAM lParam);
 
 JsonObject registerHotkeys();
 JsonObject hotkeyStatus();
 void pauseHotkeys();
 void unregisterHotkeys();
-void handleHotkey(int id);
-bool isSnippingToolKeyEnabled();
-JsonObject setSnippingToolKey(bool enabled);
 
-void initNotifications();
-
-void registerShellMenu();
-void applyStartAtLogin(bool enabled);
 bool handleLaunch(std::vector<std::wstring> const& arguments, std::filesystem::path const& cwd);
 
 void startUpdater();
@@ -159,8 +141,8 @@ void installOnQuit();
 
 void registerHandlers();
 void applySettings();
-void launchElectron(std::vector<std::wstring> const& arguments);
-void handleWindowClient(uint64_t client, DWORD pid);
+bool launchElectron(std::vector<std::wstring> const& arguments);
+void handleWindowClient(uint64_t client, uint32_t pid);
 void flushWindowEvents(uint64_t client);
 IJsonValue invokeHandler(std::wstring const& channel, JsonArray const& args);
 void startRpcServer();

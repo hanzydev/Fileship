@@ -1,9 +1,9 @@
 #include "app.h"
 
+#include "platform.h"
+
 #include <host/recording.h>
 #include <shared/log.h>
-
-#include <shlobj.h>
 
 #include <algorithm>
 #include <atomic>
@@ -145,8 +145,12 @@ void keepImage(std::wstring const& historyId, std::vector<uint8_t> const& png, s
 }
 
 void moveFile(std::filesystem::path const& from, std::filesystem::path const& to) {
-    if (MoveFileExW(from.c_str(), to.c_str(), MOVEFILE_COPY_ALLOWED)) return;
-    throw std::runtime_error("move failed");
+    std::error_code error;
+    std::filesystem::rename(from, to, error);
+    if (!error) return;
+
+    std::filesystem::copy_file(from, to);
+    std::filesystem::remove(from, error);
 }
 
 void keepRecording(std::wstring const& historyId, std::filesystem::path const& path, std::wstring const& name,
@@ -201,17 +205,16 @@ bool isBusy() {
 }
 
 std::wstring formatFileName(std::wstring const& pattern, std::wstring const& title) {
-    SYSTEMTIME now{};
-    GetLocalTime(&now);
+    auto now = localTime();
 
     auto result = pattern;
-    replaceAll(result, L"%yyyy", std::to_wstring(now.wYear));
-    replaceAll(result, L"%mo", pad(now.wMonth));
-    replaceAll(result, L"%d", pad(now.wDay));
-    replaceAll(result, L"%h", pad(now.wHour));
-    replaceAll(result, L"%mi", pad(now.wMinute));
-    replaceAll(result, L"%ms", pad(now.wMilliseconds, 3));
-    replaceAll(result, L"%s", pad(now.wSecond));
+    replaceAll(result, L"%yyyy", std::to_wstring(now.year));
+    replaceAll(result, L"%mo", pad(now.month));
+    replaceAll(result, L"%d", pad(now.day));
+    replaceAll(result, L"%h", pad(now.hour));
+    replaceAll(result, L"%mi", pad(now.minute));
+    replaceAll(result, L"%ms", pad(now.millisecond, 3));
+    replaceAll(result, L"%s", pad(now.second));
     replaceAll(result, L"%pn", title);
     replaceAll(result, L"%ra", randomBase36());
 
@@ -226,11 +229,7 @@ std::filesystem::path saveFolder() {
     auto folder = jsonString(jsonObject(settings(), L"save"), L"folder");
     if (!folder.empty()) return folder;
 
-    PWSTR pictures = nullptr;
-    SHGetKnownFolderPath(FOLDERID_Pictures, 0, nullptr, &pictures);
-    std::filesystem::path result = std::filesystem::path(pictures) / L"Fileship";
-    CoTaskMemFree(pictures);
-    return result;
+    return picturesPath() / L"Fileship";
 }
 
 std::filesystem::path uniquePath(std::filesystem::path const& folder, std::wstring const& name) {

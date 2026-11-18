@@ -1,5 +1,5 @@
-#include "app.h"
-#include "rpc.h"
+#include "host.h"
+#include <host/rpc.h>
 
 #include <shared/log.h>
 

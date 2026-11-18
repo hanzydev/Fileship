@@ -4,6 +4,8 @@
 
 #include <shared/json.h>
 
+#include <windows.h>
+
 #include <atomic>
 #include <functional>
 #include <memory>

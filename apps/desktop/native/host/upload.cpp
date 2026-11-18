@@ -2,9 +2,9 @@
 #include "rpc.h"
 
 #include <shared/log.h>
+#include <shared/random.h>
 
-#include <bcrypt.h>
-
+#include <algorithm>
 #include <atomic>
 #include <cmath>
 #include <condition_variable>
@@ -161,7 +161,7 @@ UploadedFile runJob(UploadSource const& job, std::wstring const& id, UploadOptio
     auto size = limits.chunkSize;
 
     std::vector<uint8_t> random(12);
-    BCryptGenRandom(nullptr, random.data(), static_cast<ULONG>(random.size()), BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+    randomBytes(random.data(), random.size());
     auto uploadId = base64(random.data(), random.size());
     for (auto& character : uploadId) {
         if (character == L'+') character = L'-';

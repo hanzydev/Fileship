@@ -23,7 +23,7 @@ const groups = groupSources(
 const flags = [
     '/std:c++20 /EHsc /O2 /MT /W4 /permissive- /utf-8 /MP',
     '/DUNICODE /D_UNICODE /DNOMINMAX /DWIN32_LEAN_AND_MEAN',
-    `/I"${native}" /I"${generated}"`,
+    `/I"${native}" /I"${generated}" /I"${join(native, 'host', 'windows', 'include')}"`,
 ].join(' ');
 
 mkdirSync(objects, { recursive: true });
@@ -44,7 +44,7 @@ runWithMsvc(join(output, 'build.cmd'), [
         ...objectFiles(objects, groups),
         `"${compiledResource}"`,
         '/SUBSYSTEM:WINDOWS /ENTRY:wWinMainCRTStartup',
-        `/MANIFEST:EMBED /MANIFESTINPUT:"${join(native, 'host', 'host.manifest')}"`,
+        `/MANIFEST:EMBED /MANIFESTINPUT:"${join(native, 'host', 'windows', 'host.manifest')}"`,
         'd2d1.lib d3d11.lib dxgi.lib dwrite.lib dcomp.lib windowscodecs.lib winhttp.lib winsqlite3.lib',
         'crypt32.lib bcrypt.lib shell32.lib ole32.lib oleaut32.lib windowsapp.lib mmdevapi.lib',
         'avrt.lib winmm.lib user32.lib gdi32.lib dwmapi.lib imm32.lib advapi32.lib comctl32.lib',

@@ -1,5 +1,6 @@
-#include "app.h"
+#include "host.h"
 
+#include <host/platform.h>
 #include <shared/log.h>
 
 #include <mutex>
@@ -209,6 +210,17 @@ JsonObject setSnippingToolKey(bool enabled) {
     if (result != ERROR_SUCCESS) throw std::runtime_error("Could not change the Print Screen key setting");
 
     return registerHotkeys();
+}
+
+void registerPlatformHandlers() {
+    registerHandler(L"hotkeys:snippingTool", [](JsonArray const&) -> IJsonValue {
+        return JsonValue::CreateBooleanValue(isSnippingToolKeyEnabled());
+    });
+
+    registerHandler(L"hotkeys:setSnippingTool", [](JsonArray const& args) -> IJsonValue {
+        return setSnippingToolKey(args.Size() > 0 && args.GetAt(0).ValueType() == JsonValueType::Boolean &&
+                                  args.GetBooleanAt(0));
+    });
 }
 
 }

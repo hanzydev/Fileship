@@ -25,7 +25,7 @@ runWithMsvc(join(output, 'build.cmd'), [
         `link /nologo /OUT:"${executable}"`,
         ...objectFiles(objects, groups),
         '/SUBSYSTEM:WINDOWS /ENTRY:wWinMainCRTStartup',
-        `/MANIFEST:EMBED /MANIFESTINPUT:"${join(native, 'host', 'host.manifest')}"`,
+        `/MANIFEST:EMBED /MANIFESTINPUT:"${join(native, 'host', 'windows', 'host.manifest')}"`,
         'd2d1.lib d3d11.lib dxgi.lib dwrite.lib dcomp.lib windowscodecs.lib winhttp.lib ole32.lib',
         'oleaut32.lib windowsapp.lib user32.lib gdi32.lib dwmapi.lib imm32.lib advapi32.lib comdlg32.lib',
         'shell32.lib shcore.lib psapi.lib bcrypt.lib',

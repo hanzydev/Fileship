@@ -1,4 +1,6 @@
-#include "core.h"
+#include "outputs.h"
+
+#include <windows.h>
 
 #include <d3d11.h>
 #include <dwmapi.h>

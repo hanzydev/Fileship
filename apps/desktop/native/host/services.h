@@ -39,10 +39,10 @@ std::filesystem::path harborRoot();
 void setHarborRoot(std::filesystem::path const& root);
 
 struct ApiError : std::runtime_error {
-    DWORD status;
+    uint32_t status;
     JsonObject data;
 
-    ApiError(std::string const& message, DWORD status, JsonObject data)
+    ApiError(std::string const& message, uint32_t status, JsonObject data)
         : std::runtime_error(message), status(status), data(std::move(data)) {}
 };
 
