@@ -4,46 +4,6 @@
 #include <host/recording.h>
 #include <shared/log.h>
 
-namespace fileship::core {
-
-bool captureRects(std::vector<Rect> const&, bool, std::vector<uint8_t*> const&) {
-    return false;
-}
-
-std::optional<Bitmap> captureRect(Rect const&, bool) {
-    return std::nullopt;
-}
-
-std::vector<WindowInfo> listWindows(std::vector<uint64_t> const&, bool) {
-    return {};
-}
-
-std::optional<WindowInfo> foregroundWindow(std::vector<uint64_t> const&) {
-    return std::nullopt;
-}
-
-std::vector<uint64_t> processWindows(std::vector<uint32_t> const&) {
-    return {};
-}
-
-std::vector<DisplayInfo> listDisplays() {
-    return {};
-}
-
-Rect virtualScreen() {
-    return {};
-}
-
-DisplayInfo displayNearest(Point) {
-    return {};
-}
-
-Point cursorPosition() {
-    return {};
-}
-
-}
-
 namespace fileship::ui {
 
 bool openOverlay(OverlayRequest, OverlayCallback) {

@@ -13,6 +13,8 @@ const PACKAGES = [
     'sqlite3',
     'gdk-pixbuf-2.0',
     'xcb',
+    'xcb-randr',
+    'xcb-xfixes',
     'libpulse-simple',
     'xkbcommon',
 ];
