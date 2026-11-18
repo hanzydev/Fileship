@@ -3,28 +3,16 @@
 #include <host/platform.h>
 #include <shared/log.h>
 
-#include <mutex>
+#include <map>
 
 namespace fileship::host {
 
 namespace {
 
-constexpr wchar_t const* ACTIONS[] = {
-    L"captureMonitor", L"captureRegion",     L"captureWindow",   L"captureText",  L"recordVideo",      L"recordGif",
-    L"captureFullscreen", L"captureLastRegion", L"uploadClipboard", L"uploadFile", L"shortenClipboard", L"openMain",
-};
-
 constexpr wchar_t const* KEYBOARD_KEY = L"Control Panel\\Keyboard";
 constexpr wchar_t const* SNIPPING_VALUE = L"PrintScreenKeyForSnippingEnabled";
 
-std::mutex mutex;
-JsonObject status;
-std::vector<int> registered;
-
-struct Accelerator {
-    UINT modifiers = 0;
-    UINT key = 0;
-};
+std::vector<std::wstring> bound;
 
 std::wstring lower(std::wstring text) {
     for (auto& character : text) character = static_cast<wchar_t>(towlower(character));
@@ -92,106 +80,35 @@ std::optional<UINT> keyCode(std::wstring const& name) {
     return std::nullopt;
 }
 
-std::optional<Accelerator> parseAccelerator(std::wstring const& text) {
-    Accelerator result;
-    bool hasKey = false;
-    size_t start = 0;
+}
 
-    while (start <= text.size()) {
-        auto plus = text.find(L'+', start);
-        auto token = text.substr(start, plus == std::wstring::npos ? std::wstring::npos : plus - start);
+std::vector<std::wstring> bindHotkeys(std::vector<Hotkey> const& hotkeys) {
+    for (size_t index = 0; index < bound.size(); index++) UnregisterHotKey(mainWindow(), static_cast<int>(index) + 1);
+    bound.clear();
 
-        if (token.empty() && plus != std::wstring::npos) {
-            token = L"Plus";
-            plus++;
+    std::vector<std::wstring> results;
+
+    for (auto const& hotkey : hotkeys) {
+        bound.push_back(hotkey.action);
+
+        auto key = keyCode(hotkey.accelerator.key);
+        if (!key) {
+            results.push_back(L"invalid");
+            continue;
         }
 
-        auto name = lower(token);
-
-        if (name == L"command" || name == L"cmd" || name == L"commandorcontrol" || name == L"cmdorctrl" ||
-            name == L"control" || name == L"ctrl") {
-            result.modifiers |= MOD_CONTROL;
-        } else if (name == L"alt" || name == L"option") {
-            result.modifiers |= MOD_ALT;
-        } else if (name == L"altgr") {
-            result.modifiers |= MOD_CONTROL | MOD_ALT;
-        } else if (name == L"shift") {
-            result.modifiers |= MOD_SHIFT;
-        } else if (name == L"super" || name == L"meta") {
-            result.modifiers |= MOD_WIN;
-        } else {
-            auto key = keyCode(token);
-            if (!key || hasKey) return std::nullopt;
-            result.key = *key;
-            hasKey = true;
-        }
-
-        if (plus == std::wstring::npos) break;
-        start = plus + 1;
+        UINT modifiers = (hotkey.accelerator.control ? MOD_CONTROL : 0) | (hotkey.accelerator.alt ? MOD_ALT : 0) |
+                         (hotkey.accelerator.shift ? MOD_SHIFT : 0) | (hotkey.accelerator.super ? MOD_WIN : 0);
+        bool isRegistered =
+            RegisterHotKey(mainWindow(), static_cast<int>(bound.size()), modifiers | MOD_NOREPEAT, *key) != FALSE;
+        results.push_back(isRegistered ? L"ok" : L"conflict");
     }
 
-    if (!hasKey) return std::nullopt;
-    return result;
-}
-
-void unregisterAll() {
-    for (int id : registered) UnregisterHotKey(mainWindow(), id);
-    registered.clear();
-}
-
-}
-
-JsonObject registerHotkeys() {
-    return runOnMainThread<JsonObject>([] {
-        std::lock_guard lock(mutex);
-        unregisterAll();
-        status = JsonObject();
-
-        auto current = settings();
-        if (!jsonBool(current, L"hotkeysEnabled", true)) return cloneObject(status);
-
-        auto hotkeys = jsonObject(current, L"hotkeys");
-
-        for (int index = 0; index < static_cast<int>(std::size(ACTIONS)); index++) {
-            auto accelerator = jsonString(hotkeys, ACTIONS[index]);
-            if (accelerator.empty()) continue;
-
-            auto parsed = parseAccelerator(accelerator);
-            if (!parsed) {
-                status.SetNamedValue(ACTIONS[index], JsonValue::CreateStringValue(L"invalid"));
-                continue;
-            }
-
-            int id = index + 1;
-            bool isRegistered = RegisterHotKey(mainWindow(), id, parsed->modifiers | MOD_NOREPEAT, parsed->key) != FALSE;
-            if (isRegistered) registered.push_back(id);
-            status.SetNamedValue(ACTIONS[index], JsonValue::CreateStringValue(isRegistered ? L"ok" : L"conflict"));
-        }
-
-        return cloneObject(status);
-    });
-}
-
-JsonObject hotkeyStatus() {
-    std::lock_guard lock(mutex);
-    return cloneObject(status ? status : JsonObject());
-}
-
-void pauseHotkeys() {
-    runOnMainThread<bool>([] {
-        std::lock_guard lock(mutex);
-        unregisterAll();
-        return true;
-    });
-}
-
-void unregisterHotkeys() {
-    std::lock_guard lock(mutex);
-    unregisterAll();
+    return results;
 }
 
 void handleHotkey(int id) {
-    if (id >= 1 && id <= static_cast<int>(std::size(ACTIONS))) runAction(ACTIONS[id - 1]);
+    if (id >= 1 && id <= static_cast<int>(bound.size())) runAction(bound[id - 1]);
 }
 
 bool isSnippingToolKeyEnabled() {

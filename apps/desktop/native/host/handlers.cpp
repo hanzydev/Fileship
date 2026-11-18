@@ -196,6 +196,7 @@ void registerHandlers() {
         JsonObject info;
         info.SetNamedValue(L"version", JsonValue::CreateStringValue(appVersion()));
         info.SetNamedValue(L"isPackaged", JsonValue::CreateBooleanValue(isPackaged()));
+        describePlatform(info);
         return info;
     });
 

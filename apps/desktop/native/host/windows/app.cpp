@@ -95,6 +95,11 @@ std::filesystem::path picturesPath() {
     return knownFolder(FOLDERID_Pictures);
 }
 
+void describePlatform(JsonObject& info) {
+    info.SetNamedValue(L"platform", JsonValue::CreateStringValue(L"windows"));
+    info.SetNamedValue(L"hotkeys", JsonValue::CreateStringValue(L"native"));
+}
+
 std::wstring platformName() {
     return L"Windows";
 }

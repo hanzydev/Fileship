@@ -38,6 +38,19 @@ struct ProgressNotice {
     bool isPaused = false;
 };
 
+struct Accelerator {
+    bool control = false;
+    bool alt = false;
+    bool shift = false;
+    bool super = false;
+    std::wstring key;
+};
+
+struct Hotkey {
+    std::wstring action;
+    Accelerator accelerator;
+};
+
 std::filesystem::path executablePath();
 std::filesystem::path defaultUserDataPath();
 std::filesystem::path picturesPath();
@@ -52,12 +65,15 @@ bool isSystemDark();
 bool isNameBefore(std::wstring const& a, std::wstring const& b);
 std::vector<std::filesystem::path> pickFiles();
 
+std::vector<std::wstring> bindHotkeys(std::vector<Hotkey> const& hotkeys);
+
 bool showUploadProgress(ProgressNotice const& progress, bool isNew);
 void hideUploadProgress(std::wstring const& tag);
 
 std::wstring storeSecret(std::wstring const& name, std::wstring const& value);
 std::wstring loadSecret(std::wstring const& name, std::wstring const& stored);
 
+void describePlatform(JsonObject& info);
 void applyDesktopIntegration(JsonObject const& settings, bool isLanguageChanged);
 void registerPlatformHandlers();
 

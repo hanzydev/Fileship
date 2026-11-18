@@ -61,6 +61,24 @@ std::filesystem::path picturesPath() {
     return pictures ? folder(pictures) : folder(g_get_home_dir()) / "Pictures";
 }
 
+void describePlatform(JsonObject& info) {
+    info.SetNamedValue(L"platform", JsonValue::CreateStringValue(L"linux"));
+    info.SetNamedValue(L"session", JsonValue::CreateStringValue(isWayland() ? L"wayland" : L"x11"));
+    info.SetNamedValue(L"hotkeys", JsonValue::CreateStringValue(!isWayland() ? L"native"
+                                                                : hasPortalHotkeys() ? L"portal"
+                                                                                     : L"command"));
+    info.SetNamedValue(L"hostPath", JsonValue::CreateStringValue(hostExecutable().wstring()));
+}
+
+void registerPlatformHandlers() {
+    registerHandler(L"hotkeys:triggers", [](JsonArray const&) -> IJsonValue { return portalHotkeyTriggers(); });
+
+    registerHandler(L"hotkeys:configure", [](JsonArray const&) -> IJsonValue {
+        configurePortalHotkeys();
+        return JsonValue::CreateNullValue();
+    });
+}
+
 std::wstring platformName() {
     return L"Linux";
 }

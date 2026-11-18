@@ -106,6 +106,12 @@ bool handleLaunch(std::vector<std::wstring> const& arguments, std::filesystem::p
         return true;
     }
 
+    auto action = argumentOf(arguments, L"--action");
+    if (!action.empty()) {
+        runAction(action);
+        return true;
+    }
+
     auto route = argumentOf(arguments, L"--show");
     if (!route.empty()) {
         showMainWindow(route);

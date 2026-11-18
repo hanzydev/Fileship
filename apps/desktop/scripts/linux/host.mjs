@@ -14,6 +14,7 @@ const PACKAGES = [
     'gdk-pixbuf-2.0',
     'xcb',
     'libpulse-simple',
+    'xkbcommon',
 ];
 
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));

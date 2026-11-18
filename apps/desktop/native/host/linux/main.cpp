@@ -1,4 +1,5 @@
 #include "host.h"
+#include "portal.h"
 
 #include <host/harbor.h>
 #include <host/recording.h>
@@ -77,6 +78,8 @@ int main(int count, char** values) {
         logError(L"There is no D-Bus session bus");
         return 1;
     }
+
+    registerPortalApp();
 
     loadStore();
     setLanguage(resolveLanguage(jsonString(settings(), L"language", L"system")));

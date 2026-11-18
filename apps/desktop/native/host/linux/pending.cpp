@@ -54,18 +54,6 @@ bool openOverlay(OverlayRequest, OverlayCallback) {
 
 namespace fileship::host {
 
-JsonObject registerHotkeys() {
-    return JsonObject();
-}
-
-JsonObject hotkeyStatus() {
-    return JsonObject();
-}
-
-void pauseHotkeys() {}
-
-void unregisterHotkeys() {}
-
 void startUpdater() {}
 
 JsonObject updateStatus() {
@@ -85,8 +73,6 @@ std::vector<std::filesystem::path> pickFiles() {
 }
 
 void applyDesktopIntegration(JsonObject const&, bool) {}
-
-void registerPlatformHandlers() {}
 
 void setShellHarborRoot(std::optional<std::filesystem::path> const&) {}
 
