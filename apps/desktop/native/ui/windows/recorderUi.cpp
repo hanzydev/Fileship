@@ -1,9 +1,9 @@
-#include "recorderUi.h"
+#include "d2d.h"
 
-#include "fixture.h"
-#include "gfx.h"
-#include "uiThread.h"
-#include "widgets.h"
+#include <ui/fixture.h>
+#include <ui/recorderUi.h>
+#include <ui/uiThread.h>
+#include <ui/widgets.h>
 
 #include <shared/i18n.h>
 #include <shared/log.h>
@@ -70,7 +70,7 @@ struct LayeredWindow {
     BYTE opacity = 0;
     POINT position{};
 
-    bool create(Resources& resources, RECT const& rect, DWORD exStyle, void* owner) {
+    bool create(D2DResources& resources, RECT const& rect, DWORD exStyle, void* owner) {
         width = rect.right - rect.left;
         height = rect.bottom - rect.top;
         position = {rect.left, rect.top};
@@ -106,7 +106,7 @@ struct LayeredWindow {
         return true;
     }
 
-    template <typename Draw> void draw(Resources& resources, Draw&& paint) {
+    template <typename Draw> void draw(D2DResources& resources, Draw&& paint) {
         RECT area{0, 0, width, height};
         winrt::check_hresult(target->BindDC(memory, &area));
         auto context = target.as<ID2D1DeviceContext>();
@@ -114,8 +114,8 @@ struct LayeredWindow {
         target->BeginDraw();
         target->SetTransform(D2D1::Matrix3x2F::Identity());
         target->Clear(D2D1::ColorF(0, 0, 0, 0));
-        Painter painter(context.get(), resources);
-        paint(context.get(), painter);
+        D2DPainter painter(context.get(), resources);
+        paint(painter);
         target->EndDraw();
         present();
     }
@@ -152,7 +152,7 @@ enum class Control { None, Microphone, System, Pause, Discard, Stop };
 
 struct ControlRect {
     Control control;
-    D2D1_RECT_F rect;
+    RectF rect;
     bool isDisabled;
 };
 
@@ -160,7 +160,7 @@ class RecorderUi {
 public:
     RecorderUi(ScreenRect area, ThemeMode theme, RecorderUiCallbacks value, bool showBorder)
         : callbacks(std::move(value)) {
-        resources = Resources::acquire();
+        resources = D2DResources::acquire();
         palette = {theme == ThemeMode::Dark ? DARK_THEME : LIGHT_THEME, theme == ThemeMode::Dark};
         state.phase = RecorderPhase::Preparing;
 
@@ -192,7 +192,7 @@ public:
     }
 
     RecorderUi(ThemeMode theme, RecorderViewState const& value, double factor) : state(value), scale(factor) {
-        resources = Resources::acquire();
+        resources = D2DResources::acquire();
         palette = {theme == ThemeMode::Dark ? DARK_THEME : LIGHT_THEME, theme == ThemeMode::Dark};
     }
 
@@ -216,8 +216,8 @@ public:
 
         target->BeginDraw();
         target->Clear(D2D1::ColorF(0, 0, 0, 0));
-        Painter painter(context.get(), *resources);
-        paint(context.get(), painter, nowMs());
+        D2DPainter painter(context.get(), *resources);
+        paint(painter, nowMs());
         winrt::check_hresult(target->EndDraw());
 
         std::vector<uint8_t> pixels(static_cast<size_t>(width) * height * 4);
@@ -307,13 +307,13 @@ private:
             int length = isHorizontal ? border.width : border.height;
             float offset = isHorizontal ? static_cast<float>(rect.left - left) : static_cast<float>(rect.top - top);
 
-            border.draw(*resources, [&](ID2D1DeviceContext*, Painter& painter) {
+            border.draw(*resources, [&](Painter& painter) {
                 for (float start = -std::fmod(offset, dash * 2); start < length; start += dash * 2) {
                     float end = std::min(static_cast<float>(length), start + dash);
                     float begin = std::max(0.0f, start);
                     if (end <= begin) continue;
-                    painter.fillRect(isHorizontal ? D2D1::RectF(begin, 0, end, static_cast<float>(border.height))
-                                                  : D2D1::RectF(0, begin, static_cast<float>(border.width), end),
+                    painter.fillRect(isHorizontal ? RectF(begin, 0, end, static_cast<float>(border.height))
+                                                  : RectF(0, begin, static_cast<float>(border.width), end),
                                      tint);
                 }
             });
@@ -389,11 +389,11 @@ private:
 
     std::vector<ControlRect> layout(float& pillLeft, float& pillWidth, float& statusWidth) {
         auto text = label();
-        float textWidth = resources->measure(text, 14, DWRITE_FONT_WEIGHT_MEDIUM, FontKind::Sans, true);
+        float textWidth = resources->measure(text, 14, FontWeight::Medium, FontKind::Sans, true);
         float indicator = isBusy() || state.phase == RecorderPhase::Paused ? 16.0f : 10.0f;
         statusWidth = std::max(96.0f, 10 + indicator + 8 + textWidth);
 
-        float stopWidth = 12 + 16 + 4 + resources->measure(t(L"recorder.stop"), 14, DWRITE_FONT_WEIGHT_MEDIUM) + 12;
+        float stopWidth = 12 + 16 + 4 + resources->measure(t(L"recorder.stop"), 14, FontWeight::Medium) + 12;
         std::vector<Control> buttons;
         std::vector<AudioSource> unique;
         for (auto source : state.sources)
@@ -416,12 +416,12 @@ private:
                                                                  state.phase != RecorderPhase::Paused
                               : control == Control::Discard ? state.phase == RecorderPhase::Processing
                                                             : isBusy();
-            result.push_back({control, D2D1::RectF(x, top, x + BUTTON_SIZE, top + BUTTON_SIZE), isDisabled});
+            result.push_back({control, RectF(x, top, x + BUTTON_SIZE, top + BUTTON_SIZE), isDisabled});
             x += BUTTON_SIZE;
         }
 
         x += 4;
-        result.push_back({Control::Stop, D2D1::RectF(x, top, x + stopWidth, top + BUTTON_SIZE), isBusy()});
+        result.push_back({Control::Stop, RectF(x, top, x + stopWidth, top + BUTTON_SIZE), isBusy()});
         return result;
     }
 
@@ -433,12 +433,12 @@ private:
         if (!toolbar.window) return;
 
         double now = nowMs();
-        toolbar.draw(*resources, [&](ID2D1DeviceContext* context, Painter& painter) { paint(context, painter, now); });
+        toolbar.draw(*resources, [&](Painter& painter) { paint(painter, now); });
     }
 
-    void paint(ID2D1DeviceContext* context, Painter& painter, double now) {
+    void paint(Painter& painter, double now) {
         auto s = static_cast<float>(scale);
-        Transform transform(context, D2D1::Matrix3x2F::Scale(s, s));
+        Transform transform(painter, Matrix::scale(s, s));
         auto const& theme = palette.theme;
 
         float pillLeft = 0;
@@ -446,11 +446,11 @@ private:
         float statusWidth = 0;
         auto controls = layout(pillLeft, pillWidth, statusWidth);
 
-        auto pill = D2D1::RectF(pillLeft, 8, pillLeft + pillWidth, 56);
+        auto pill = RectF(pillLeft, 8, pillLeft + pillWidth, 56);
         painter.boxShadow(pill, 24, 4, 6, -1, 0.1f);
         painter.boxShadow(pill, 24, 2, 4, -2, 0.1f);
         painter.fillRounded(pill, 24, color(theme.popover));
-        painter.strokeRounded(D2D1::RectF(pill.left + 0.5f, pill.top + 0.5f, pill.right - 0.5f, pill.bottom - 0.5f),
+        painter.strokeRounded(RectF(pill.left + 0.5f, pill.top + 0.5f, pill.right - 0.5f, pill.bottom - 0.5f),
                               23.5f, color(theme.border), 1);
 
         auto foreground = color(theme.popoverForeground);
@@ -472,14 +472,11 @@ private:
 
         x += 8;
         auto text = label();
-        auto layout = resources->layout(text, 14, DWRITE_FONT_WEIGHT_MEDIUM, FontKind::Sans, 0, true);
-        DWRITE_LINE_METRICS line{};
-        UINT32 count = 0;
-        layout->GetLineMetrics(&line, 1, &count);
-        painter.text(layout.get(), x, painter.middleBaseline(center, 14) - line.baseline, foreground);
+        auto layout = resources->layout(text, 14, FontWeight::Medium, FontKind::Sans, 0, true);
+        painter.text(*layout, x, painter.middleBaseline(center, 14) - layout->baseline(), foreground);
 
         float separatorX = pillLeft + 7 + statusWidth + 4 + 4;
-        painter.fillRect(D2D1::RectF(separatorX, 20, separatorX + 1, 44), color(theme.border));
+        painter.fillRect(RectF(separatorX, 20, separatorX + 1, 44), color(theme.border));
 
         for (auto const& control : controls) {
             ButtonStyle style;
@@ -516,7 +513,7 @@ private:
                 float left = control.rect.left + 12;
                 painter.icon(icons::square, left, iconY, 16, tint, true);
                 painter.textAt(t(L"recorder.stop"), left + 20, painter.middleBaseline(center + offset, 14), 14,
-                               DWRITE_FONT_WEIGHT_MEDIUM, tint);
+                               FontWeight::Medium, tint);
                 break;
             }
             default:
@@ -665,7 +662,7 @@ private:
     }
 
     RecorderUiCallbacks callbacks;
-    std::shared_ptr<Resources> resources;
+    std::shared_ptr<D2DResources> resources;
     Palette palette;
     RecorderViewState state;
     LayeredWindow toolbar;

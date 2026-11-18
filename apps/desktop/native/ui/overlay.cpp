@@ -3,19 +3,18 @@
 #include "annotator.h"
 #include "fixture.h"
 #include "gfx.h"
+#include "overlayWindow.h"
 #include "preferences.h"
 #include "toolbar.h"
 #include "uiThread.h"
 
 #include <shared/log.h>
-
-#include <commdlg.h>
-#include <imm.h>
-#include <windowsx.h>
+#include <shared/utf8.h>
 
 #include <algorithm>
 #include <atomic>
 #include <cmath>
+#include <cstring>
 #include <cwctype>
 
 namespace fileship::ui {
@@ -30,7 +29,6 @@ constexpr double TOOLBAR_MARGIN = 16;
 constexpr double TOOLBAR_EDGE = 96;
 constexpr double TOOLBAR_EDGE_Y = 64;
 constexpr double TOOLBAR_MAGNET = 72;
-constexpr UINT_PTR CARET_TIMER = 1;
 
 std::atomic<bool> isOpen{false};
 
@@ -60,28 +58,15 @@ Box fromPoints(Point a, Point b) {
     return {std::min(a.x, b.x), std::min(a.y, b.y), std::abs(a.x - b.x), std::abs(a.y - b.y)};
 }
 
-D2D1_RECT_F rectOf(double x, double y, double width, double height) {
-    return D2D1::RectF(static_cast<float>(x), static_cast<float>(y), static_cast<float>(x + width),
-                       static_cast<float>(y + height));
-}
-
-void forceForeground(HWND window) {
-    HWND foreground = GetForegroundWindow();
-    DWORD current = GetCurrentThreadId();
-    DWORD target = foreground ? GetWindowThreadProcessId(foreground, nullptr) : 0;
-    bool shouldAttach = target != 0 && target != current;
-
-    if (shouldAttach) AttachThreadInput(current, target, TRUE);
-    BringWindowToTop(window);
-    SetForegroundWindow(window);
-    SetFocus(window);
-    if (shouldAttach) AttachThreadInput(current, target, FALSE);
+RectF rectOf(double x, double y, double width, double height) {
+    return RectF(static_cast<float>(x), static_cast<float>(y), static_cast<float>(x + width),
+                 static_cast<float>(y + height));
 }
 
 class Overlay;
 Overlay* active = nullptr;
 
-class Overlay {
+class Overlay : public OverlayClient {
 public:
     Overlay(std::shared_ptr<OverlayRequest> value, OverlayCallback callback)
         : request(std::move(value)), done(std::move(callback)) {
@@ -122,67 +107,36 @@ public:
         toolbar = std::make_unique<AnnotationToolbar>(*resources, *annotator, palette);
         toolbar->onCancel = [this] { finish({}); };
         toolbar->onDragStart = [this](Point point) { startToolbarDrag(point); };
-        toolbar->chooseColor = [this](std::string const& current) { return pickColor(current); };
+        toolbar->chooseColor = [this](std::string const& current) { return window->pickColor(current); };
 
         auto cursor = toLocal({request->cursor.x, request->cursor.y, 0, 0});
         pointer = Point{cursor.x, cursor.y};
         hover = targetAt(*pointer);
     }
 
-    ~Overlay() {
-        destroyWindow();
+    ~Overlay() override {
+        release();
     }
 
-    bool initializeGpu() {
-        gpu = Gpu::create(*resources);
-        auto context = gpu->context.get();
+    void prepare() {
+        canvas = Canvas::create(*resources);
 
         for (size_t index = 0; index < displays.size(); index++) {
             auto& source = request->displays[index];
-            auto& display = displays[index];
             if (source.bgra.size() < static_cast<size_t>(source.rect.width) * source.rect.height * 4) continue;
 
-            auto properties = D2D1::BitmapProperties1(
-                D2D1_BITMAP_OPTIONS_NONE, D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE));
-            winrt::check_hresult(context->CreateBitmap(
-                D2D1::SizeU(source.rect.width, source.rect.height), source.bgra.data(), source.rect.width * 4,
-                properties, display.bitmap.put()));
-
+            displays[index].image = canvas->image(source.bgra.data(), source.rect.width, source.rect.height);
             source.bgra.clear();
             source.bgra.shrink_to_fit();
         }
 
-        annotator->setSource({ratio, [this](RECT const& rect) { return readSource(rect); }});
-        return true;
+        annotator->setSource({ratio, [this](PixelRect const& rect) { return readSource(rect); }});
     }
 
     bool open() {
-        initializeGpu();
-
-        static bool isRegistered = false;
-        if (!isRegistered) {
-            WNDCLASSW windowClass{};
-            windowClass.lpfnWndProc = handleMessage;
-            windowClass.hInstance = GetModuleHandleW(nullptr);
-            windowClass.lpszClassName = L"FileshipOverlay";
-            windowClass.hCursor = nullptr;
-            RegisterClassW(&windowClass);
-            isRegistered = true;
-        }
-
-        window = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOREDIRECTIONBITMAP, L"FileshipOverlay",
-                                 L"Fileship", WS_POPUP, bounds.x, bounds.y, bounds.width, bounds.height, nullptr,
-                                 nullptr, GetModuleHandleW(nullptr), this);
-        if (!window) return false;
-
-        ImmAssociateContextEx(window, nullptr, 0);
-        surface.create(*gpu, window, bounds.width, bounds.height, false);
-        paint();
-        gpu->composition->WaitForCommitCompletion();
-
-        ShowWindow(window, SW_SHOW);
-        forceForeground(window);
-        return true;
+        prepare();
+        window = OverlayWindow::open(*canvas, *request, ratio, *this, *annotator);
+        return window != nullptr;
     }
 
     void finish(OverlayResult result) {
@@ -196,7 +150,7 @@ public:
             savePreferences(preferences);
         }
 
-        destroyWindow();
+        release();
         if (active == this) active = nullptr;
 
         auto callback = std::move(done);
@@ -211,26 +165,10 @@ public:
     FixtureImage renderOffscreen(FixtureScene const& scene) {
         applyScene(scene);
 
-        auto context = gpu->context.get();
-        com_ptr<ID2D1Bitmap1> target;
-        auto properties =
-            D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET,
-                                    D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED));
-        winrt::check_hresult(context->CreateBitmap(D2D1::SizeU(bounds.width, bounds.height), nullptr, 0, properties,
-                                                   target.put()));
-
-        context->SetTarget(target.get());
-        context->BeginDraw();
-        context->SetTransform(D2D1::Matrix3x2F::Identity());
-        render(context);
-        winrt::check_hresult(context->EndDraw());
-        context->SetTarget(nullptr);
-
         FixtureImage image;
         image.width = bounds.width;
         image.height = bounds.height;
-        image.bgra = readBitmap(context, target.get(),
-                                D2D1::RectU(0, 0, static_cast<UINT32>(bounds.width), static_cast<UINT32>(bounds.height)));
+        image.bgra = canvas->render(bounds.width, bounds.height, [&](Painter& painter) { paint(painter); });
         return image;
     }
 
@@ -249,6 +187,262 @@ public:
         finish({});
     }
 
+    void paint(Painter& painter) override {
+        isAnimatingHover = false;
+
+        painter.clear(Color(0, 0, 0, 1));
+        for (auto const& display : displays) {
+            if (!display.image) continue;
+            auto left = static_cast<float>(display.physical.x - bounds.x);
+            auto top = static_cast<float>(display.physical.y - bounds.y);
+            auto width = static_cast<float>(display.physical.width);
+            auto height = static_cast<float>(display.physical.height);
+            painter.drawPixels(*display.image, RectF(0, 0, width, height), RectF(left, top, left + width, top + height));
+        }
+
+        auto scale = static_cast<float>(ratio);
+        Transform local(painter, Matrix::scale(scale, scale));
+
+        if (hasToolbar()) annotator->render(painter, false);
+
+        if (!isAnnotating()) {
+            auto view = viewport();
+            auto region = mode == Mode::Drawing ? selection : animatedHover();
+            auto dim = rgba(0, 0, 0, 0.45f);
+
+            if (region) {
+                painter.fillFrame(view.rect(), region->rect(), dim);
+
+                bool isDrawing = mode == Mode::Drawing;
+                float width = isDrawing ? 2.0f : 1.5f;
+                painter.strokeRect(region->rect(), color(palette.theme.primary), width,
+                                   isDrawing ? Stroke{} : Stroke{false, 6 / width, 4 / width});
+            } else {
+                painter.fillRect(view.rect(), dim);
+            }
+
+            if (mode == Mode::Drawing && selection) {
+                auto physical = toPhysical(*selection);
+                double labelY = selection->y >= 28 ? selection->y - 26 : selection->y + 6;
+                drawLabel(painter,
+                          std::to_wstring(physical.width) + L" × " + std::to_wstring(physical.height),
+                          selection->x, labelY);
+            }
+
+            if (request->showMagnifier && pointer) drawMagnifier(painter, *pointer);
+        }
+
+        if (hasToolbar()) {
+            layoutToolbar();
+            toolbar->render(painter, nowMs());
+        }
+    }
+
+    bool isAnimating() override {
+        double now = nowMs();
+        return isAnimatingHover || (hasToolbar() && toolbar->isAnimating(now));
+    }
+
+    void pointerMove(Point point, bool shift) override {
+        if (toolbarDrag) {
+            moveToolbarDrag(point);
+            return;
+        }
+
+        bool isBusy = regionDrag.has_value() || annotator->isBusy();
+
+        if (hasToolbar() && !isBusy) {
+            toolbar->pointerMove(point, nowMs());
+
+            if (toolbar->isInteracting()) return;
+
+            if (toolbar->popoverContains(point)) {
+                pointer.reset();
+                setHover(std::nullopt);
+                return;
+            }
+
+            if (toolbar->contains(point)) return;
+        }
+
+        pointer = point;
+
+        if (regionDrag) {
+            double distance = std::hypot(point.x - regionDrag->start.x, point.y - regionDrag->start.y);
+            if (mode == Mode::Pending && distance >= DRAG_THRESHOLD) mode = Mode::Drawing;
+
+            if (mode == Mode::Drawing) {
+                auto end = point;
+                if (shift) {
+                    double size = std::max(std::abs(point.x - regionDrag->start.x), std::abs(point.y - regionDrag->start.y));
+                    auto sign = [](double value) { return value > 0 ? 1.0 : value < 0 ? -1.0 : 0.0; };
+                    end = {regionDrag->start.x + sign(point.x - regionDrag->start.x) * size,
+                           regionDrag->start.y + sign(point.y - regionDrag->start.y) * size};
+                }
+                selection = intersect(fromPoints(regionDrag->start, end), viewport());
+            }
+        } else {
+            setHover(targetAt(point));
+        }
+
+        if (hasToolbar()) annotator->pointerMove(point, shift);
+    }
+
+    void pointerLeave() override {
+        if (regionDrag || toolbarDrag) return;
+
+        pointer.reset();
+        setHover(std::nullopt);
+        if (hasToolbar()) toolbar->pointerLeave(nowMs());
+    }
+
+    void pointerDown(Point point, bool shift) override {
+        if (hasToolbar() && toolbar->pointerDown(point, nowMs())) return;
+
+        if (annotator->isEditingText()) {
+            if (annotator->editorContains(point)) {
+                annotator->editorClick(point, shift);
+            } else {
+                annotator->finishTextEdit();
+            }
+            return;
+        }
+
+        if (!isAnnotating() && !regionDrag && !(hasToolbar() && annotator->isOverShape(point))) {
+            regionDrag = RegionDrag{point, annotator->selectedId.has_value()};
+            selection.reset();
+            mode = Mode::Pending;
+        }
+
+        if (hasToolbar()) annotator->pointerDown(point);
+    }
+
+    void pointerUp(Point point) override {
+        if (toolbarDrag) {
+            endToolbarDrag();
+            return;
+        }
+
+        if (hasToolbar()) {
+            toolbar->pointerUp(point, nowMs());
+            annotator->pointerUp(point);
+        }
+
+        if (!regionDrag) return;
+
+        bool isClick = mode == Mode::Pending;
+        auto drag = *regionDrag;
+        std::optional<Box> rect = isClick ? std::optional<Box>(targetAt(point)) : selection;
+        regionDrag.reset();
+
+        if (isClick && drag.isDeselect) return cancelRegion();
+        if (rect && isLargeEnough(*rect)) return finishRegion(*rect);
+        cancelRegion();
+    }
+
+    void pointerCancel() override {
+        if (toolbarDrag) endToolbarDrag();
+        if (regionDrag) cancelRegion();
+        if (hasToolbar() && pointer) annotator->pointerUp(*pointer);
+    }
+
+    void rightClick(Point point) override {
+        if (regionDrag) return cancelRegion();
+        if (annotator->isEditingText()) return;
+        if (hasToolbar() && (toolbar->contains(point) || toolbar->popoverContains(point))) return;
+        if (annotator->selectedId) return annotator->select(std::nullopt);
+        if (annotator->tool) return annotator->setTool(std::nullopt);
+        finish({});
+    }
+
+    void keyDown(Key key, Modifiers modifiers) override {
+        if (annotator->isEditingText()) {
+            annotator->editorKey(key, modifiers.ctrl, modifiers.shift);
+            return;
+        }
+
+        if (hasToolbar() && toolbar->key(key, nowMs())) return;
+
+        if (key == Key::Escape) {
+            if (regionDrag) return cancelRegion();
+            if (annotator->selectedId) return annotator->select(std::nullopt);
+            return finish({});
+        }
+
+        if (hasToolbar() && annotator->handleKey(key, modifiers.ctrl, modifiers.shift)) return;
+        if (regionDrag) return;
+
+        if (key == Key::Space) return finishRegion(viewport());
+
+        if (key == Key::Enter) {
+            auto rect = pointer ? std::optional<Box>(targetAt(*pointer)) : hover;
+            if (rect) finishRegion(*rect);
+            return;
+        }
+
+        if (modifiers.ctrl || modifiers.alt || modifiers.shift) return;
+
+        int digit = 0;
+        if (key >= keyOf('1') && key <= keyOf('9')) digit = static_cast<int>(key) - '0';
+        if (key >= Key::Numpad1 && key <= Key::Numpad9) digit = static_cast<int>(key) - static_cast<int>(Key::Numpad0);
+        if (digit && digit <= static_cast<int>(displays.size())) finishRegion(displays[digit - 1].local);
+    }
+
+    void character(wchar_t character, Modifiers modifiers) override {
+        if (annotator->isEditingText()) {
+            annotator->editorChar(character);
+            return;
+        }
+
+        if (!hasToolbar() || character <= 32) return;
+        if (modifiers.ctrl || modifiers.alt) return;
+
+        if (std::towlower(character) == L'c') {
+            annotator->setTool(std::nullopt);
+            return;
+        }
+
+        annotator->handleShortcut(character);
+    }
+
+    Cursor cursorAt(Point point) override {
+        if (toolbarDrag) return Cursor::Hand;
+
+        if (hasToolbar()) {
+            if (toolbar->popoverContains(point)) return Cursor::Arrow;
+            if (toolbar->contains(point)) return toolbar->isOverGrip(point) ? Cursor::Hand : Cursor::Arrow;
+
+            if (auto anchor = annotator->anchorAt(point)) {
+                switch (*anchor) {
+                case Anchor::TopLeft:
+                case Anchor::BottomRight:
+                    return Cursor::ResizeNwse;
+                case Anchor::TopRight:
+                case Anchor::BottomLeft:
+                    return Cursor::ResizeNesw;
+                case Anchor::Top:
+                case Anchor::Bottom:
+                    return Cursor::ResizeNs;
+                default:
+                    return Cursor::ResizeWe;
+                }
+            }
+
+            if (annotator->isEditingText() && annotator->editorContains(point)) return Cursor::Text;
+
+            if (annotator->tool == Tool::Select) return Cursor::Arrow;
+            if (annotator->tool == Tool::Text) return Cursor::Text;
+            if (annotator->tool) return Cursor::Cross;
+            if (!regionDrag && annotator->isOverShape(point)) return Cursor::Move;
+        }
+
+        return Cursor::Cross;
+    }
+
+    void cancel() override {
+        finish({});
+    }
+
 private:
     struct Display {
         int64_t id = 0;
@@ -256,7 +450,7 @@ private:
         Box local;
         double scaleFactor = 1;
         bool isPrimary = false;
-        com_ptr<ID2D1Bitmap1> bitmap;
+        std::shared_ptr<Image> image;
     };
 
     struct Target {
@@ -288,6 +482,13 @@ private:
         for (size_t index = 0; index < TOOL_COUNT; index++)
             if (a.tools[index].color != b.tools[index].color || a.tools[index].size != b.tools[index].size) return false;
         return true;
+    }
+
+    void release() {
+        if (window) window->close();
+        for (auto& display : displays) display.image.reset();
+        annotator->releaseDeviceResources();
+        canvas.reset();
     }
 
     void applyScene(FixtureScene const& scene) {
@@ -508,7 +709,7 @@ private:
         }
     }
 
-    std::vector<uint8_t> readSource(RECT const& rect) {
+    std::vector<uint8_t> readSource(PixelRect const& rect) {
         int width = rect.right - rect.left;
         int height = rect.bottom - rect.top;
         std::vector<uint8_t> pixels(static_cast<size_t>(std::max(0, width)) * std::max(0, height) * 4, 0);
@@ -516,21 +717,19 @@ private:
         if (width <= 0 || height <= 0) return pixels;
 
         for (auto const& display : displays) {
-            if (!display.bitmap) continue;
+            if (!display.image) continue;
 
-            LONG left = display.physical.x - bounds.x;
-            LONG top = display.physical.y - bounds.y;
-            LONG x0 = std::max(rect.left, left);
-            LONG y0 = std::max(rect.top, top);
-            LONG x1 = std::min(rect.right, left + display.physical.width);
-            LONG y1 = std::min(rect.bottom, top + display.physical.height);
+            int32_t left = display.physical.x - bounds.x;
+            int32_t top = display.physical.y - bounds.y;
+            int32_t x0 = std::max(rect.left, left);
+            int32_t y0 = std::max(rect.top, top);
+            int32_t x1 = std::min(rect.right, left + display.physical.width);
+            int32_t y1 = std::min(rect.bottom, top + display.physical.height);
             if (x1 <= x0 || y1 <= y0) continue;
 
-            auto part = readBitmap(gpu->context.get(), display.bitmap.get(),
-                                   D2D1::RectU(static_cast<UINT32>(x0 - left), static_cast<UINT32>(y0 - top),
-                                               static_cast<UINT32>(x1 - left), static_cast<UINT32>(y1 - top)));
-            LONG partWidth = x1 - x0;
-            for (LONG row = 0; row < y1 - y0; row++) {
+            auto part = canvas->read(*display.image, PixelRect{x0 - left, y0 - top, x1 - left, y1 - top});
+            int32_t partWidth = x1 - x0;
+            for (int32_t row = 0; row < y1 - y0; row++) {
                 memcpy(pixels.data() + ((static_cast<size_t>(row + y0 - rect.top) * width) + (x0 - rect.left)) * 4,
                        part.data() + static_cast<size_t>(row) * partWidth * 4, static_cast<size_t>(partWidth) * 4);
             }
@@ -541,18 +740,18 @@ private:
     }
 
     void drawLabel(Painter& painter, std::wstring const& text, double x, double y) {
-        float width = painter.resources().measure(text, 12, DWRITE_FONT_WEIGHT_MEDIUM) + 12;
+        float width = painter.resources().measure(text, 12, FontWeight::Medium) + 12;
         painter.fillRounded(rectOf(x, y, width, 20), 6, rgba(0, 0, 0, 0.75f));
         painter.textAt(text, static_cast<float>(x + 6), painter.middleBaseline(static_cast<float>(y + 10), 12), 12,
-                       DWRITE_FONT_WEIGHT_MEDIUM, rgba(255, 255, 255));
+                       FontWeight::Medium, rgba(255, 255, 255));
     }
 
-    void drawSourcePixels(ID2D1DeviceContext* context, ScreenRect const& source, D2D1_RECT_F const& destination) {
+    void drawSourcePixels(Painter& painter, ScreenRect const& source, RectF const& destination) {
         double scaleX = (destination.right - destination.left) / source.width;
         double scaleY = (destination.bottom - destination.top) / source.height;
 
         for (auto const& display : displays) {
-            if (!display.bitmap) continue;
+            if (!display.image) continue;
 
             int left = display.physical.x - bounds.x;
             int top = display.physical.y - bounds.y;
@@ -562,19 +761,17 @@ private:
             int y1 = std::min(source.y + source.height, top + display.physical.height);
             if (x1 <= x0 || y1 <= y0) continue;
 
-            auto target = D2D1::RectF(destination.left + static_cast<float>((x0 - source.x) * scaleX),
-                                      destination.top + static_cast<float>((y0 - source.y) * scaleY),
-                                      destination.left + static_cast<float>((x1 - source.x) * scaleX),
-                                      destination.top + static_cast<float>((y1 - source.y) * scaleY));
-            auto cut = D2D1::RectF(static_cast<float>(x0 - left), static_cast<float>(y0 - top),
-                                   static_cast<float>(x1 - left), static_cast<float>(y1 - top));
-            context->DrawBitmap(display.bitmap.get(), target, 1.0f, D2D1_INTERPOLATION_MODE_NEAREST_NEIGHBOR, &cut,
-                                nullptr);
+            auto target = RectF(destination.left + static_cast<float>((x0 - source.x) * scaleX),
+                                destination.top + static_cast<float>((y0 - source.y) * scaleY),
+                                destination.left + static_cast<float>((x1 - source.x) * scaleX),
+                                destination.top + static_cast<float>((y1 - source.y) * scaleY));
+            auto cut = RectF(static_cast<float>(x0 - left), static_cast<float>(y0 - top), static_cast<float>(x1 - left),
+                             static_cast<float>(y1 - top));
+            painter.drawPixels(*display.image, cut, target);
         }
     }
 
     void drawMagnifier(Painter& painter, Point point) {
-        auto context = painter.context();
         auto display = displayAt(point);
         auto host = display ? display->local : viewport();
         double size = MAGNIFIER_PIXELS * MAGNIFIER_ZOOM;
@@ -587,12 +784,11 @@ private:
         if (y + size + 28 > host.bottom()) y = point.y - size - 52;
 
         auto frame = rectOf(x, y, size, size);
-        com_ptr<ID2D1RoundedRectangleGeometry> clip;
-        resources->factory()->CreateRoundedRectangleGeometry(D2D1::RoundedRect(frame, 8, 8), clip.put());
-        context->PushLayer(D2D1::LayerParameters(D2D1::InfiniteRect(), clip.get()), nullptr);
+        auto clip = resources->roundedRect(frame, 8);
+        painter.pushClip(*clip);
 
         painter.fillRect(frame, rgba(0, 0, 0));
-        drawSourcePixels(context,
+        drawSourcePixels(painter,
                          {physical.x - half, physical.y - half, static_cast<int>(MAGNIFIER_PIXELS),
                           static_cast<int>(MAGNIFIER_PIXELS)},
                          frame);
@@ -600,95 +796,21 @@ private:
         auto grid = rgba(255, 255, 255, 0.12f);
         for (int index = 1; index < static_cast<int>(MAGNIFIER_PIXELS); index++) {
             float offset = static_cast<float>(index * MAGNIFIER_ZOOM) + 0.5f;
-            context->DrawLine(D2D1::Point2F(frame.left + offset, frame.top),
-                              D2D1::Point2F(frame.left + offset, frame.bottom), painter.brush(grid), 1);
-            context->DrawLine(D2D1::Point2F(frame.left, frame.top + offset),
-                              D2D1::Point2F(frame.right, frame.top + offset), painter.brush(grid), 1);
+            painter.line(PointF(frame.left + offset, frame.top), PointF(frame.left + offset, frame.bottom), grid, 1);
+            painter.line(PointF(frame.left, frame.top + offset), PointF(frame.right, frame.top + offset), grid, 1);
         }
 
         float center = static_cast<float>(half * MAGNIFIER_ZOOM);
-        context->DrawRectangle(D2D1::RectF(frame.left + center, frame.top + center,
-                                           frame.left + center + static_cast<float>(MAGNIFIER_ZOOM),
-                                           frame.top + center + static_cast<float>(MAGNIFIER_ZOOM)),
-                               painter.brush(color(palette.theme.primary)), 2);
-        context->PopLayer();
+        painter.strokeRect(RectF(frame.left + center, frame.top + center,
+                                 frame.left + center + static_cast<float>(MAGNIFIER_ZOOM),
+                                 frame.top + center + static_cast<float>(MAGNIFIER_ZOOM)),
+                           color(palette.theme.primary), 2);
+        painter.popClip();
 
         painter.strokeRounded(rectOf(x - 0.5, y - 0.5, size + 1, size + 1), 8, rgba(255, 255, 255, 0.8f), 1);
 
         auto label = std::to_wstring(physical.x + bounds.x) + L", " + std::to_wstring(physical.y + bounds.y);
         drawLabel(painter, label, x, y + size + 6);
-    }
-
-    void render(ID2D1DeviceContext* context) {
-        Painter painter(context, *resources);
-        isAnimatingHover = false;
-
-        context->Clear(D2D1::ColorF(0, 0, 0, 1));
-        for (auto const& display : displays) {
-            if (!display.bitmap) continue;
-            float left = static_cast<float>(display.physical.x - bounds.x);
-            float top = static_cast<float>(display.physical.y - bounds.y);
-            context->DrawBitmap(display.bitmap.get(),
-                                D2D1::RectF(left, top, left + display.physical.width, top + display.physical.height), 1.0f,
-                                D2D1_INTERPOLATION_MODE_NEAREST_NEIGHBOR, nullptr, nullptr);
-        }
-
-        auto scale = static_cast<float>(ratio);
-        Transform local(context, D2D1::Matrix3x2F::Scale(scale, scale));
-
-        if (hasToolbar()) annotator->render(context, false);
-
-        if (!isAnnotating()) {
-            auto view = viewport();
-            auto region = mode == Mode::Drawing ? selection : animatedHover();
-            auto dim = rgba(0, 0, 0, 0.45f);
-
-            if (region) {
-                com_ptr<ID2D1RectangleGeometry> outer;
-                com_ptr<ID2D1RectangleGeometry> inner;
-                resources->factory()->CreateRectangleGeometry(view.rect(), outer.put());
-                resources->factory()->CreateRectangleGeometry(region->rect(), inner.put());
-                ID2D1Geometry* parts[] = {outer.get(), inner.get()};
-                com_ptr<ID2D1GeometryGroup> group;
-                resources->factory()->CreateGeometryGroup(D2D1_FILL_MODE_ALTERNATE, parts, 2, group.put());
-                context->FillGeometry(group.get(), painter.brush(dim));
-
-                bool isDrawing = mode == Mode::Drawing;
-                float width = isDrawing ? 2.0f : 1.5f;
-                auto style = isDrawing ? nullptr : resources->dashStroke(6 / width, 4 / width);
-                context->DrawRectangle(region->rect(), painter.brush(color(palette.theme.primary)), width, style);
-            } else {
-                painter.fillRect(view.rect(), dim);
-            }
-
-            if (mode == Mode::Drawing && selection) {
-                auto physical = toPhysical(*selection);
-                double labelY = selection->y >= 28 ? selection->y - 26 : selection->y + 6;
-                drawLabel(painter,
-                          std::to_wstring(physical.width) + L" × " + std::to_wstring(physical.height),
-                          selection->x, labelY);
-            }
-
-            if (request->showMagnifier && pointer) drawMagnifier(painter, *pointer);
-        }
-
-        if (hasToolbar()) {
-            layoutToolbar();
-            toolbar->render(painter, nowMs());
-        }
-    }
-
-    void paint() {
-        if (!gpu || !window) return;
-
-        auto context = surface.begin(*gpu);
-        render(context);
-        surface.present(*gpu);
-    }
-
-    bool isAnimating() {
-        double now = nowMs();
-        return isAnimatingHover || (hasToolbar() && toolbar->isAnimating(now));
     }
 
     OverlayResult exportRegion(Box const& rect) {
@@ -708,35 +830,20 @@ private:
                           std::max(1, static_cast<int>(jsRound(local.width * ratio))),
                           std::max(1, static_cast<int>(jsRound(local.height * ratio)))};
 
-        auto context = gpu->context.get();
-        com_ptr<ID2D1Bitmap1> bitmap;
-        auto properties =
-            D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET,
-                                    D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED));
-        winrt::check_hresult(
-            context->CreateBitmap(D2D1::SizeU(target.width, target.height), nullptr, 0, properties, bitmap.put()));
-
-        context->SetTarget(bitmap.get());
-        context->BeginDraw();
-        context->SetTransform(D2D1::Matrix3x2F::Identity());
-        context->Clear(D2D1::ColorF(0, 0, 0, 1));
-        drawSourcePixels(context, target, rectOf(0, 0, target.width, target.height));
-
-        if (hasToolbar() && !annotator->shapes.empty()) {
-            context->SetTransform(
-                D2D1::Matrix3x2F::Translation(static_cast<float>(-local.x), static_cast<float>(-local.y)) *
-                D2D1::Matrix3x2F::Scale(static_cast<float>(ratio), static_cast<float>(ratio)));
-            annotator->render(context, true);
-        }
-
-        winrt::check_hresult(context->EndDraw());
-        context->SetTarget(nullptr);
-
         result.type = OverlayResultType::Region;
         result.width = target.width;
         result.height = target.height;
-        result.bgra = readBitmap(context, bitmap.get(),
-                                 D2D1::RectU(0, 0, static_cast<UINT32>(target.width), static_cast<UINT32>(target.height)));
+        result.bgra = canvas->render(target.width, target.height, [&](Painter& painter) {
+            painter.clear(Color(0, 0, 0, 1));
+            drawSourcePixels(painter, target, rectOf(0, 0, target.width, target.height));
+
+            if (hasToolbar() && !annotator->shapes.empty()) {
+                Transform view(painter,
+                               Matrix::translation(static_cast<float>(-local.x), static_cast<float>(-local.y)) *
+                                   Matrix::scale(static_cast<float>(ratio), static_cast<float>(ratio)));
+                annotator->render(painter, true);
+            }
+        });
         for (size_t index = 3; index < result.bgra.size(); index += 4) result.bgra[index] = 255;
         return result;
     }
@@ -745,8 +852,8 @@ private:
         OverlayResult result;
         try {
             result = exportRegion(rect);
-        } catch (winrt::hresult_error const& error) {
-            logError(L"Could not export the capture region: " + std::wstring(error.message()));
+        } catch (std::exception const& error) {
+            logError(L"Could not export the capture region: " + toWide(error.what()));
             result = {};
         }
         finish(std::move(result));
@@ -764,425 +871,11 @@ private:
         if (pointer) setHover(targetAt(*pointer));
     }
 
-    std::optional<std::string> pickColor(std::string const& current) {
-        static COLORREF custom[16]{};
-        auto parsed = parseHex(current);
-        CHOOSECOLORW dialog{};
-        dialog.lStructSize = sizeof(dialog);
-        dialog.hwndOwner = window;
-        dialog.rgbResult = RGB(std::lround(parsed.r * 255), std::lround(parsed.g * 255), std::lround(parsed.b * 255));
-        dialog.lpCustColors = custom;
-        dialog.Flags = CC_FULLOPEN | CC_RGBINIT;
-
-        if (!ChooseColorW(&dialog)) return std::nullopt;
-        return toHex(rgba(GetRValue(dialog.rgbResult), GetGValue(dialog.rgbResult), GetBValue(dialog.rgbResult)));
-    }
-
-    Point localPoint(LPARAM lParam) const {
-        return {GET_X_LPARAM(lParam) / ratio, GET_Y_LPARAM(lParam) / ratio};
-    }
-
-    void invalidate() {
-        if (window) InvalidateRect(window, nullptr, FALSE);
-    }
-
-    void updateIme() {
-        bool editing = annotator->isEditingText();
-        if (editing == isImeEnabled) return;
-
-        isImeEnabled = editing;
-        ImmAssociateContextEx(window, nullptr, editing ? IACE_DEFAULT : 0);
-        if (editing) {
-            SetTimer(window, CARET_TIMER, 50, nullptr);
-        } else {
-            KillTimer(window, CARET_TIMER);
-        }
-    }
-
-    void positionIme() {
-        if (!annotator->isEditingText()) return;
-
-        float height = 0;
-        auto caret = annotator->editorCaret(height);
-        HIMC context = ImmGetContext(window);
-        if (!context) return;
-
-        COMPOSITIONFORM composition{};
-        composition.dwStyle = CFS_POINT;
-        composition.ptCurrentPos = {static_cast<LONG>(caret.x * ratio), static_cast<LONG>(caret.y * ratio)};
-        ImmSetCompositionWindow(context, &composition);
-
-        CANDIDATEFORM candidate{};
-        candidate.dwIndex = 0;
-        candidate.dwStyle = CFS_CANDIDATEPOS;
-        candidate.ptCurrentPos = {static_cast<LONG>(caret.x * ratio), static_cast<LONG>((caret.y + height) * ratio)};
-        ImmSetCandidateWindow(context, &candidate);
-        ImmReleaseContext(window, context);
-    }
-
-    std::wstring compositionString(HIMC context, DWORD kind) {
-        LONG bytes = ImmGetCompositionStringW(context, kind, nullptr, 0);
-        if (bytes <= 0) return {};
-        std::wstring text(static_cast<size_t>(bytes) / sizeof(wchar_t), L'\0');
-        ImmGetCompositionStringW(context, kind, text.data(), bytes);
-        return text;
-    }
-
-    void handlePointerMove(Point point, bool shift) {
-        if (toolbarDrag) {
-            moveToolbarDrag(point);
-            return;
-        }
-
-        bool isBusy = regionDrag.has_value() || annotator->isBusy();
-
-        if (hasToolbar() && !isBusy) {
-            toolbar->pointerMove(point, nowMs());
-
-            if (toolbar->isInteracting()) return;
-
-            if (toolbar->popoverContains(point)) {
-                pointer.reset();
-                setHover(std::nullopt);
-                return;
-            }
-
-            if (toolbar->contains(point)) return;
-        }
-
-        pointer = point;
-
-        if (regionDrag) {
-            double distance = std::hypot(point.x - regionDrag->start.x, point.y - regionDrag->start.y);
-            if (mode == Mode::Pending && distance >= DRAG_THRESHOLD) mode = Mode::Drawing;
-
-            if (mode == Mode::Drawing) {
-                auto end = point;
-                if (shift) {
-                    double size = std::max(std::abs(point.x - regionDrag->start.x), std::abs(point.y - regionDrag->start.y));
-                    auto sign = [](double value) { return value > 0 ? 1.0 : value < 0 ? -1.0 : 0.0; };
-                    end = {regionDrag->start.x + sign(point.x - regionDrag->start.x) * size,
-                           regionDrag->start.y + sign(point.y - regionDrag->start.y) * size};
-                }
-                selection = intersect(fromPoints(regionDrag->start, end), viewport());
-            }
-        } else {
-            setHover(targetAt(point));
-        }
-
-        if (hasToolbar()) annotator->pointerMove(point, shift);
-    }
-
-    void handlePointerDown(Point point, bool shift) {
-        if (hasToolbar() && toolbar->pointerDown(point, nowMs())) return;
-
-        if (annotator->isEditingText()) {
-            if (annotator->editorContains(point)) {
-                annotator->editorClick(point, shift);
-            } else {
-                annotator->finishTextEdit();
-            }
-            return;
-        }
-
-        if (!isAnnotating() && !regionDrag && !(hasToolbar() && annotator->isOverShape(point))) {
-            regionDrag = RegionDrag{point, annotator->selectedId.has_value()};
-            selection.reset();
-            mode = Mode::Pending;
-        }
-
-        if (hasToolbar()) annotator->pointerDown(point);
-    }
-
-    void handlePointerUp(Point point) {
-        if (toolbarDrag) {
-            endToolbarDrag();
-            return;
-        }
-
-        if (hasToolbar()) {
-            toolbar->pointerUp(point, nowMs());
-            annotator->pointerUp(point);
-        }
-
-        if (!regionDrag) return;
-
-        bool isClick = mode == Mode::Pending;
-        auto drag = *regionDrag;
-        std::optional<Box> rect = isClick ? std::optional<Box>(targetAt(point)) : selection;
-        regionDrag.reset();
-
-        if (isClick && drag.isDeselect) return cancelRegion();
-        if (rect && isLargeEnough(*rect)) return finishRegion(*rect);
-        cancelRegion();
-    }
-
-    void handlePointerCancel() {
-        if (toolbarDrag) endToolbarDrag();
-        if (regionDrag) cancelRegion();
-        if (hasToolbar() && pointer) annotator->pointerUp(*pointer);
-    }
-
-    void handleRightClick(Point point) {
-        if (regionDrag) return cancelRegion();
-        if (annotator->isEditingText()) return;
-        if (hasToolbar() && (toolbar->contains(point) || toolbar->popoverContains(point))) return;
-        if (annotator->selectedId) return annotator->select(std::nullopt);
-        if (annotator->tool) return annotator->setTool(std::nullopt);
-        finish({});
-    }
-
-    void handleKeyDown(UINT key) {
-        bool ctrl = GetKeyState(VK_CONTROL) < 0;
-        bool shift = GetKeyState(VK_SHIFT) < 0;
-        bool alt = GetKeyState(VK_MENU) < 0;
-
-        if (annotator->isEditingText()) {
-            annotator->editorKey(key, ctrl, shift);
-            return;
-        }
-
-        if (hasToolbar() && toolbar->key(key, nowMs())) return;
-
-        if (key == VK_ESCAPE) {
-            if (regionDrag) return cancelRegion();
-            if (annotator->selectedId) return annotator->select(std::nullopt);
-            return finish({});
-        }
-
-        if (hasToolbar() && annotator->handleKey(key, ctrl, shift)) return;
-        if (regionDrag) return;
-
-        if (key == VK_SPACE) return finishRegion(viewport());
-
-        if (key == VK_RETURN) {
-            auto rect = pointer ? std::optional<Box>(targetAt(*pointer)) : hover;
-            if (rect) finishRegion(*rect);
-            return;
-        }
-
-        if (ctrl || alt || shift) return;
-
-        int digit = 0;
-        if (key >= '1' && key <= '9') digit = static_cast<int>(key - '0');
-        if (key >= VK_NUMPAD1 && key <= VK_NUMPAD9) digit = static_cast<int>(key - VK_NUMPAD0);
-        if (digit && digit <= static_cast<int>(displays.size())) finishRegion(displays[digit - 1].local);
-    }
-
-    void handleChar(wchar_t character) {
-        if (annotator->isEditingText()) {
-            annotator->editorChar(character);
-            return;
-        }
-
-        if (!hasToolbar() || character <= 32) return;
-        if (GetKeyState(VK_CONTROL) < 0 || GetKeyState(VK_MENU) < 0) return;
-
-        if (std::towlower(character) == L'c') {
-            annotator->setTool(std::nullopt);
-            return;
-        }
-
-        annotator->handleShortcut(character);
-    }
-
-    HCURSOR cursorAt(Point point) {
-        if (toolbarDrag) return LoadCursorW(nullptr, IDC_HAND);
-
-        if (hasToolbar()) {
-            if (toolbar->popoverContains(point)) return LoadCursorW(nullptr, IDC_ARROW);
-            if (toolbar->contains(point))
-                return LoadCursorW(nullptr, toolbar->isOverGrip(point) ? IDC_HAND : IDC_ARROW);
-
-            if (auto anchor = annotator->anchorAt(point)) {
-                switch (*anchor) {
-                case Anchor::TopLeft:
-                case Anchor::BottomRight:
-                    return LoadCursorW(nullptr, IDC_SIZENWSE);
-                case Anchor::TopRight:
-                case Anchor::BottomLeft:
-                    return LoadCursorW(nullptr, IDC_SIZENESW);
-                case Anchor::Top:
-                case Anchor::Bottom:
-                    return LoadCursorW(nullptr, IDC_SIZENS);
-                default:
-                    return LoadCursorW(nullptr, IDC_SIZEWE);
-                }
-            }
-
-            if (annotator->isEditingText() && annotator->editorContains(point)) return LoadCursorW(nullptr, IDC_IBEAM);
-
-            if (annotator->tool == Tool::Select) return LoadCursorW(nullptr, IDC_ARROW);
-            if (annotator->tool == Tool::Text) return LoadCursorW(nullptr, IDC_IBEAM);
-            if (annotator->tool) return LoadCursorW(nullptr, IDC_CROSS);
-            if (!regionDrag && annotator->isOverShape(point)) return LoadCursorW(nullptr, IDC_SIZEALL);
-        }
-
-        return LoadCursorW(nullptr, IDC_CROSS);
-    }
-
-    void destroyWindow() {
-        if (window) {
-            KillTimer(window, CARET_TIMER);
-            SetWindowLongPtrW(window, GWLP_USERDATA, 0);
-            DestroyWindow(window);
-            window = nullptr;
-        }
-
-        surface.release();
-        for (auto& display : displays) display.bitmap = nullptr;
-        if (annotator) annotator->releaseDeviceResources();
-        gpu.reset();
-    }
-
-    static LRESULT CALLBACK handleMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam) {
-        if (message == WM_NCCREATE) {
-            auto create = reinterpret_cast<CREATESTRUCTW*>(lParam);
-            SetWindowLongPtrW(window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(create->lpCreateParams));
-            reinterpret_cast<Overlay*>(create->lpCreateParams)->window = window;
-        }
-
-        auto self = reinterpret_cast<Overlay*>(GetWindowLongPtrW(window, GWLP_USERDATA));
-        if (!self) return DefWindowProcW(window, message, wParam, lParam);
-
-        try {
-            return self->handle(message, wParam, lParam);
-        } catch (winrt::hresult_error const& error) {
-            logError(L"The capture overlay failed: " + std::wstring(error.message()));
-            self->finish({});
-            return 0;
-        }
-    }
-
-    LRESULT handle(UINT message, WPARAM wParam, LPARAM lParam) {
-        switch (message) {
-        case WM_PAINT: {
-            ValidateRect(window, nullptr);
-            paint();
-            if (window && isAnimating()) invalidate();
-            return 0;
-        }
-        case WM_ERASEBKGND:
-            return 1;
-        case WM_MOUSEMOVE: {
-            if (!isTrackingLeave) {
-                TRACKMOUSEEVENT track{sizeof(track), TME_LEAVE, window, 0};
-                TrackMouseEvent(&track);
-                isTrackingLeave = true;
-            }
-            handlePointerMove(localPoint(lParam), wParam & MK_SHIFT);
-            invalidate();
-            return 0;
-        }
-        case WM_MOUSELEAVE:
-            isTrackingLeave = false;
-            if (!regionDrag && !toolbarDrag && GetCapture() != window) {
-                pointer.reset();
-                setHover(std::nullopt);
-                if (hasToolbar()) toolbar->pointerLeave(nowMs());
-                invalidate();
-            }
-            return 0;
-        case WM_LBUTTONDOWN:
-        case WM_LBUTTONDBLCLK:
-            SetCapture(window);
-            handlePointerDown(localPoint(lParam), wParam & MK_SHIFT);
-            updateIme();
-            invalidate();
-            return 0;
-        case WM_LBUTTONUP:
-            isReleasing = true;
-            ReleaseCapture();
-            isReleasing = false;
-            handlePointerUp(localPoint(lParam));
-            if (!window) return 0;
-            updateIme();
-            invalidate();
-            return 0;
-        case WM_CAPTURECHANGED:
-            if (!isReleasing && reinterpret_cast<HWND>(lParam) != window) {
-                handlePointerCancel();
-                invalidate();
-            }
-            return 0;
-        case WM_RBUTTONUP:
-            handleRightClick(localPoint(lParam));
-            if (!window) return 0;
-            invalidate();
-            return 0;
-        case WM_KEYDOWN:
-        case WM_SYSKEYDOWN:
-            if (message == WM_SYSKEYDOWN && wParam == VK_F4) return 0;
-            handleKeyDown(static_cast<UINT>(wParam));
-            if (!window) return 0;
-            updateIme();
-            invalidate();
-            return 0;
-        case WM_CHAR:
-            handleChar(static_cast<wchar_t>(wParam));
-            if (!window) return 0;
-            updateIme();
-            invalidate();
-            return 0;
-        case WM_SETCURSOR:
-            if (LOWORD(lParam) == HTCLIENT) {
-                POINT position;
-                GetCursorPos(&position);
-                ScreenToClient(window, &position);
-                SetCursor(cursorAt({position.x / ratio, position.y / ratio}));
-                return TRUE;
-            }
-            break;
-        case WM_TIMER:
-            if (wParam == CARET_TIMER) {
-                bool visible = annotator->caretVisible();
-                if (visible != wasCaretVisible) {
-                    wasCaretVisible = visible;
-                    invalidate();
-                }
-            }
-            return 0;
-        case WM_IME_SETCONTEXT:
-            lParam &= ~ISC_SHOWUICOMPOSITIONWINDOW;
-            return DefWindowProcW(window, message, wParam, lParam);
-        case WM_IME_STARTCOMPOSITION:
-            positionIme();
-            return 0;
-        case WM_IME_COMPOSITION: {
-            if (!annotator->isEditingText()) break;
-            HIMC context = ImmGetContext(window);
-            if (context) {
-                if (lParam & GCS_RESULTSTR) annotator->editorCommit(compositionString(context, GCS_RESULTSTR));
-                if (lParam & GCS_COMPSTR) annotator->editorComposition(compositionString(context, GCS_COMPSTR));
-                ImmReleaseContext(window, context);
-            }
-            positionIme();
-            invalidate();
-            return 0;
-        }
-        case WM_IME_ENDCOMPOSITION:
-            annotator->editorComposition(L"");
-            invalidate();
-            return 0;
-        case WM_DPICHANGED:
-            return 0;
-        case WM_CLOSE:
-            finish({});
-            return 0;
-        case WM_MOUSEACTIVATE:
-            return MA_ACTIVATE;
-        default:
-            break;
-        }
-
-        return DefWindowProcW(window, message, wParam, lParam);
-    }
-
     std::shared_ptr<OverlayRequest> request;
     OverlayCallback done;
     std::shared_ptr<Resources> resources;
-    std::unique_ptr<Gpu> gpu;
-    SwapSurface surface;
+    std::unique_ptr<Canvas> canvas;
+    std::unique_ptr<OverlayWindow> window;
     Palette palette;
     ScreenRect bounds;
     double ratio = 1;
@@ -1192,7 +885,6 @@ private:
     OverlayPreferences loaded;
     std::unique_ptr<Annotator> annotator;
     std::unique_ptr<AnnotationToolbar> toolbar;
-    HWND window = nullptr;
 
     Mode mode = Mode::Idle;
     std::optional<Box> selection;
@@ -1203,14 +895,6 @@ private:
     std::optional<ToolbarDrag> toolbarDrag;
     bool isFinishing = false;
     bool isAnimatingHover = false;
-    bool isTrackingLeave = false;
-    bool isReleasing = false;
-    bool isImeEnabled = false;
-    bool wasCaretVisible = false;
-
-    friend FixtureImage renderFixture(OverlayRequest const& request, FixtureScene const& scene);
-    friend FixtureImage renderFixtureRegion(OverlayRequest const& request, FixtureScene const& scene,
-                                            Box const& region);
 };
 
 }
@@ -1232,10 +916,8 @@ bool openOverlay(OverlayRequest request, OverlayCallback done) {
             active = overlay;
             if (overlay->open()) return;
             logError(L"Could not create the capture overlay window");
-        } catch (winrt::hresult_error const& error) {
-            logError(L"Could not open the capture overlay: " + std::wstring(error.message()));
-        } catch (std::exception const&) {
-            logError(L"Could not open the capture overlay");
+        } catch (std::exception const& error) {
+            logError(L"Could not open the capture overlay: " + toWide(error.what()));
         }
 
         if (overlay) {
@@ -1264,14 +946,14 @@ void closeOverlay() {
 FixtureImage renderFixture(OverlayRequest const& request, FixtureScene const& scene) {
     auto shared = std::make_shared<OverlayRequest>(request);
     Overlay overlay(shared, nullptr);
-    overlay.initializeGpu();
+    overlay.prepare();
     return overlay.renderOffscreen(scene);
 }
 
 FixtureImage renderFixtureRegion(OverlayRequest const& request, FixtureScene const& scene, Box const& region) {
     auto shared = std::make_shared<OverlayRequest>(request);
     Overlay overlay(shared, nullptr);
-    overlay.initializeGpu();
+    overlay.prepare();
     return overlay.renderRegion(scene, region);
 }
 
