@@ -68,12 +68,6 @@ void installUpdate() {}
 
 void notifyIdle() {}
 
-std::vector<std::filesystem::path> pickFiles() {
-    return {};
-}
-
-void applyDesktopIntegration(JsonObject const&, bool) {}
-
 void setShellHarborRoot(std::optional<std::filesystem::path> const&) {}
 
 }

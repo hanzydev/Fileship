@@ -34,6 +34,10 @@ gboolean handleSignal(gpointer) {
 
 }
 
+bool isHostQuitting() {
+    return isQuitting;
+}
+
 void quitApp() {
     if (isQuitting) return;
     isQuitting = true;

@@ -11,6 +11,7 @@ constexpr char const* APP_ID = "dev.hanzy.fileship";
 
 GDBusConnection* sessionBus();
 bool isWayland();
+bool isHostQuitting();
 
 void initNotifications();
 
