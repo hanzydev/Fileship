@@ -4,6 +4,7 @@ import { app, BrowserWindow, nativeTheme, Notification, shell } from 'electron';
 
 import type { IpcEvents } from '../shared/ipc';
 import { t } from './i18n';
+import { platformName } from './platform';
 
 const DARK = '#0a0a0a';
 const LIGHT = '#ffffff';
@@ -16,7 +17,7 @@ export const iconPath = () => join(app.getAppPath(), 'resources', 'icon.png');
 
 export const themeBackground = () => (nativeTheme.shouldUseDarkColors ? DARK : LIGHT);
 
-export const desktopUserAgent = () => `FileshipDesktop/${app.getVersion()} (Windows)`;
+export const desktopUserAgent = () => `FileshipDesktop/${app.getVersion()} (${platformName})`;
 
 export const rendererUrl = (route = '/') =>
     process.env.DESKTOP_RENDERER_URL

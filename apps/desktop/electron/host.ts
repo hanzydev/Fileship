@@ -1,4 +1,4 @@
-import { execFileSync, spawn } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { connect, type Socket } from 'node:net';
 import { join } from 'node:path';
@@ -8,6 +8,7 @@ import { app } from 'electron';
 import log from 'electron-log/main';
 
 import type { HostEvents, HostInvoke } from '../shared/ipc';
+import { defaultHostPipe, hostFileName } from './platform';
 
 type Pending = { resolve: (value: unknown) => void; reject: (error: Error) => void };
 
@@ -16,6 +17,7 @@ type Listener = (payload: unknown) => void;
 const CONNECT_TIMEOUT_MS = 10_000;
 const RECONNECT_TIMEOUT_MS = 5_000;
 const RETRY_MS = 200;
+const NOT_RUNNING = ['ENOENT', 'ECONNREFUSED'];
 
 const pending = new Map<number, Pending>();
 const listeners = new Map<string, Set<Listener>>();
@@ -39,23 +41,12 @@ const argumentValue = (name: string) => {
     return index === -1 ? null : (process.argv[index + 1] ?? null);
 };
 
-const currentUserSid = () => {
-    const output = execFileSync('whoami', ['/user', '/fo', 'csv', '/nh'], {
-        encoding: 'utf8',
-        windowsHide: true,
-    });
-
-    return output.trim().split(',').at(-1)!.replaceAll('"', '');
-};
-
-const pipeName = () =>
-    argumentValue('--host-pipe') ?? `\\\\.\\pipe\\fileship-host-${currentUserSid()}`;
+const pipeName = () => argumentValue('--host-pipe') ?? defaultHostPipe();
 
 const hostPath = () =>
     app.isPackaged
-        ? join(process.resourcesPath, 'host', 'fileship-host.exe')
-        : (process.env.DESKTOP_HOST_PATH ??
-          join(app.getAppPath(), 'build', 'host', 'fileship-host.exe'));
+        ? join(process.resourcesPath, 'host', hostFileName)
+        : (process.env.DESKTOP_HOST_PATH ?? join(app.getAppPath(), 'build', 'host', hostFileName));
 
 const startHost = () => {
     const path = hostPath();
@@ -131,7 +122,7 @@ const connectWithin = async (timeout: number, start: boolean) => {
             await invokeHost('client:hello', { pid: process.pid });
             return;
         } catch (error: any) {
-            if (!started && error?.code === 'ENOENT') {
+            if (!started && NOT_RUNNING.includes(error?.code)) {
                 startHost();
                 started = true;
             }

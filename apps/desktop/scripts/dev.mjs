@@ -1,19 +1,25 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, watch } from 'node:fs';
 import { createRequire } from 'node:module';
-import { resolve } from 'node:path';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
+
+import { platform } from './native.mjs';
 
 const require = createRequire(import.meta.url);
 const electronPath = require('electron');
 
+const isWindows = platform === 'windows';
 const RENDERER_URL = 'http://localhost:3020';
 const MAIN = 'dist-electron/main.cjs';
-const HOST = 'build/host/fileship-host.exe';
-const PIPE = `\\\\.\\pipe\\fileship-host-dev-${process.pid}`;
+const HOST = isWindows ? 'build/host/fileship-host.exe' : 'build/host/fileship-host';
+const HARBOR = isWindows ? 'build/harbor/fileship-harbor.exe' : 'build/harbor/fileship-harbor';
+const PIPE = isWindows
+    ? `\\\\.\\pipe\\fileship-host-dev-${process.pid}`
+    : join(tmpdir(), `fileship-host-dev-${process.pid}.sock`);
 
-const run = (command, args) =>
-    spawn(command, args, { stdio: 'inherit', shell: process.platform === 'win32' });
+const run = (command, args) => spawn(command, args, { stdio: 'inherit', shell: isWindows });
 
 const build = (...args) => {
     const result = spawnSync(process.execPath, args, { stdio: 'inherit' });
@@ -22,7 +28,7 @@ const build = (...args) => {
 
 build('scripts/native-assets.mjs');
 build('scripts/host-settings.mjs');
-if (!existsSync('build/harbor/fileship-harbor.exe')) build('scripts/build.mjs', 'harbor');
+if (!existsSync(HARBOR)) build('scripts/build.mjs', 'harbor');
 build('scripts/build.mjs', 'host');
 
 const passthrough = process.argv.slice(2).filter((arg) => arg !== '--');

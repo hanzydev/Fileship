@@ -17,6 +17,7 @@ import {
 } from './dashboard';
 import { invokeHost, onHost } from './host';
 import { setLanguage, t } from './i18n';
+import { ffmpegFilters } from './platform';
 import {
     broadcast,
     isAppUrl,
@@ -49,7 +50,7 @@ const handlers: Handlers = {
         const result = await dialog.showOpenDialog({
             title: t('app.chooseFfmpeg'),
             properties: ['openFile'],
-            filters: [{ name: 'ffmpeg', extensions: ['exe'] }],
+            filters: ffmpegFilters,
         });
 
         return result.filePaths[0] ?? null;
