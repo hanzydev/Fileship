@@ -337,7 +337,7 @@
                 <UiFieldSeparator />
 
                 <UiField
-                    v-for="field in VIDEO_SWITCHES"
+                    v-for="field in videoSwitches"
                     :key="field.key"
                     orientation="horizontal"
                     class="has-[>[data-slot=field-content]]:items-center"
@@ -919,6 +919,11 @@ const codecs = computed(() =>
         isLinux.value
             ? !codec.endsWith('_amf')
             : !codec.endsWith('_vaapi') && codec !== 'libopenh264',
+    ),
+);
+const videoSwitches = computed(() =>
+    VIDEO_SWITCHES.filter(
+        (field) => field.key !== 'showBorder' || info.value?.session !== 'wayland',
     ),
 );
 const microphoneSwitches = computed(() => (isLinux.value ? [] : MICROPHONE_SWITCHES));

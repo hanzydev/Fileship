@@ -14,6 +14,7 @@ const PACKAGES = [
     'gdk-pixbuf-2.0',
     'xcb',
     'xcb-randr',
+    'xcb-shape',
     'xcb-xfixes',
     'libpulse',
     'libpulse-simple',

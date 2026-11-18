@@ -18,6 +18,7 @@ const objects = await compileGroups(join(output, 'obj'), compilerFlags(PACKAGES)
         join(native, 'host', 'recording', 'command.cpp'),
         join(native, 'host', 'linux', 'recording', 'videoInput.cpp'),
     ],
+    recorder: [join(native, 'ui', 'linux', 'recorderPlacement.cpp')],
 });
 await link(executable, objects, linkerFlags(PACKAGES));
 

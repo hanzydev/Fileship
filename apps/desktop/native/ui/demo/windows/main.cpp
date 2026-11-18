@@ -531,27 +531,7 @@ int runRecorder(ThemeMode theme, int seconds, bool flag) {
 int runFixture(std::filesystem::path const& directory) {
     writeOverlayFixtures(directory);
 
-    for (auto theme : {ThemeMode::Light, ThemeMode::Dark}) {
-        auto suffix = theme == ThemeMode::Light ? "light" : "dark";
-        RecorderViewState recording;
-        recording.phase = RecorderPhase::Recording;
-        recording.elapsedMs = 83000;
-        recording.sources = {AudioSource::Microphone, AudioSource::System};
-        RecorderViewState paused = recording;
-        paused.phase = RecorderPhase::Paused;
-        paused.muted = {AudioSource::Microphone};
-        RecorderViewState preparing;
-        preparing.phase = RecorderPhase::Preparing;
-
-        std::pair<char const*, RecorderViewState> states[] = {
-            {"recording", recording}, {"paused", paused}, {"preparing", preparing}};
-        for (auto const& [name, state] : states) {
-            auto image = renderRecorderFixture(state, theme, 1);
-            savePng(directory / (std::string("native-recorder-") + name + "-" + suffix + ".png"), image.width,
-                    image.height, image.bgra);
-        }
-    }
-
+    writeRecorderFixtures(directory);
     return 0;
 }
 

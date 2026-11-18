@@ -36,6 +36,8 @@ int main(int count, char** arguments) {
     setUiResourcesPath(resources);
     setOverlayPreferencesStore({[] { return std::string(); }, [](std::string const&) {}});
 
-    writeOverlayFixtures(option("--fixture", "fixtures"));
+    std::filesystem::path fixtures = option("--fixture", "fixtures");
+    writeOverlayFixtures(fixtures);
+    writeRecorderFixtures(fixtures);
     return 0;
 }

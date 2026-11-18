@@ -9,6 +9,9 @@
 
 namespace fileship::ui {
 
+constexpr float RECORDER_WIDTH = 440;
+constexpr float RECORDER_HEIGHT = 64;
+
 enum class RecorderPhase { Idle, Preparing, Countdown, Recording, Paused, Processing };
 
 enum class RecorderAction { Stop, Pause, Resume, Abort };

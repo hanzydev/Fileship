@@ -42,6 +42,18 @@ Color RecorderToolbar::borderColor() const {
     return color(palette.theme.destructive);
 }
 
+Color RecorderToolbar::surfaceColor() const {
+    return color(palette.theme.popover);
+}
+
+RectF RecorderToolbar::pill() {
+    float pillLeft = 0;
+    float pillWidth = 0;
+    float statusWidth = 0;
+    layout(pillLeft, pillWidth, statusWidth);
+    return RectF(pillLeft, 8, pillLeft + pillWidth, 56);
+}
+
 bool RecorderToolbar::isBusy() const {
     return state.phase == RecorderPhase::Preparing || state.phase == RecorderPhase::Countdown ||
            state.phase == RecorderPhase::Processing;
@@ -220,13 +232,10 @@ RecorderToolbar::Control RecorderToolbar::controlAt(double x, double y) {
 }
 
 bool RecorderToolbar::contains(double x, double y) {
-    float pillLeft = 0;
-    float pillWidth = 0;
-    float statusWidth = 0;
-    layout(pillLeft, pillWidth, statusWidth);
+    auto area = pill();
     x /= scale;
     y /= scale;
-    return x >= pillLeft && x < pillLeft + pillWidth && y >= 8 && y < 56;
+    return x >= area.left && x < area.right && y >= area.top && y < area.bottom;
 }
 
 void RecorderToolbar::activate(Control control) {

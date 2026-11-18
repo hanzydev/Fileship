@@ -2,10 +2,15 @@
 #include <host/linux/host.h>
 #include <host/recording/platform.h>
 
+#include <core/core.h>
+#include <ui/linux/recorderPlacement.h>
+#include <ui/linux/recorderWindows.h>
+
 #include <glib.h>
 
 #include <filesystem>
 #include <mutex>
+#include <utility>
 
 namespace fileship::host::recording {
 
@@ -15,6 +20,7 @@ std::mutex mutex;
 ui::RecorderUiCallbacks callbacks;
 std::optional<ui::RecorderPhase> shown;
 uint32_t notice = 0;
+bool hasToolbar = false;
 
 void handleAction(std::string const& action) {
     ui::RecorderUiCallbacks current;
@@ -54,14 +60,33 @@ void describeFfmpeg(JsonObject& status) {
     status.SetNamedValue(L"download", JsonValue::CreateNullValue());
 }
 
-void showRecorderControls(ui::ScreenRect const&, ui::ThemeMode, ui::RecorderUiCallbacks value, bool) {
+void showRecorderControls(ui::ScreenRect const& area, ui::ThemeMode theme, ui::RecorderUiCallbacks value,
+                          bool showBorder) {
     std::lock_guard lock(mutex);
-    callbacks = std::move(value);
     shown.reset();
+
+    if (!isWayland()) {
+        auto display = core::displayNearest({area.x + area.width / 2, area.y + area.height / 2});
+        ui::ScreenRect monitor{display.rect.x, display.rect.y, display.rect.width, display.rect.height};
+
+        if (auto toolbar = ui::placeRecorderToolbar(area, monitor, display.scaleFactor)) {
+            hasToolbar = true;
+            ui::showRecorderWindows(area, *toolbar, display.scaleFactor, theme, std::move(value), showBorder);
+            return;
+        }
+    }
+
+    callbacks = std::move(value);
 }
 
 void updateRecorderControls(ui::RecorderViewState const& state) {
     std::lock_guard lock(mutex);
+
+    if (hasToolbar) {
+        ui::updateRecorderUi(state);
+        return;
+    }
+
     if (state.phase == ui::RecorderPhase::Idle || state.phase == shown) return;
     shown = state.phase;
 
@@ -91,6 +116,7 @@ void updateRecorderControls(ui::RecorderViewState const& state) {
 
 void hideRecorderControls() {
     std::lock_guard lock(mutex);
+    if (std::exchange(hasToolbar, false)) ui::hideRecorderUi();
     if (notice) closeNotice(notice);
     notice = 0;
     shown.reset();

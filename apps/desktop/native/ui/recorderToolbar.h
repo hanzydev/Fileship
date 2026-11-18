@@ -10,9 +10,6 @@
 
 namespace fileship::ui {
 
-constexpr float RECORDER_WIDTH = 440;
-constexpr float RECORDER_HEIGHT = 64;
-
 class RecorderToolbar {
 public:
     RecorderToolbar(Resources& resources, ThemeMode theme, RecorderUiCallbacks callbacks);
@@ -28,6 +25,8 @@ public:
     void pointerDown(double x, double y);
     void pointerUp(double x, double y);
     Color borderColor() const;
+    Color surfaceColor() const;
+    RectF pill();
 
 private:
     enum class Control { None, Microphone, System, Pause, Discard, Stop };
