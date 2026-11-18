@@ -1,8 +1,8 @@
 #pragma once
 
-#include <shared/json.h>
+#include "process.h"
 
-#include <windows.h>
+#include <shared/json.h>
 
 #include <atomic>
 #include <cstdint>
@@ -47,17 +47,13 @@ struct PathIdentity {
     std::optional<std::wstring> identity;
 };
 
-std::filesystem::path helperPath();
 bool isHelperAvailable();
-std::filesystem::path harborSessionPath();
 
 constexpr int DEFAULT_TIMEOUT_MS = 120000;
 
 class HarborHelper : public std::enable_shared_from_this<HarborHelper> {
 public:
     using Callback = std::function<void(std::optional<JsonObject> const& result, std::wstring const& error)>;
-
-    ~HarborHelper();
 
     void start();
     bool isRunning() const;
@@ -74,7 +70,7 @@ public:
     bool remove(std::wstring const& path);
 
     std::function<void(HelperEvent const&)> onEvent;
-    std::function<void(std::optional<DWORD>)> onExit;
+    std::function<void(std::optional<uint32_t>)> onExit;
 
 private:
     struct Pending {
@@ -83,16 +79,11 @@ private:
         std::wstring type;
     };
 
-    void write(std::string const& line);
-    void readOutput(HANDLE output);
-    void readErrors(HANDLE errors);
     void handleLine(std::string const& line);
     void finish();
 
     std::mutex mutex;
-    std::mutex writeMutex;
-    HANDLE process = nullptr;
-    HANDLE input = nullptr;
+    std::unique_ptr<HelperProcess> process;
     std::atomic<bool> running = false;
     uint64_t nextId = 1;
     std::map<uint64_t, Pending> pending;

@@ -1,5 +1,4 @@
 #include <host/app.h>
-#include <host/harbor.h>
 #include <host/platform.h>
 #include <shared/log.h>
 
@@ -20,38 +19,5 @@ void installUpdate() {}
 void notifyIdle() {}
 
 void setShellHarborRoot(std::optional<std::filesystem::path> const&) {}
-
-}
-
-namespace fileship::host::harbor {
-
-void startHarbor() {}
-
-void stopHarbor(StopOptions) {}
-
-JsonObject harborStatus() {
-    JsonObject status;
-    status.SetNamedValue(L"state", JsonValue::CreateStringValue(L"off"));
-    status.SetNamedValue(L"root", JsonValue::CreateStringValue(L""));
-    status.SetNamedValue(L"files", JsonValue::CreateNumberValue(0));
-    status.SetNamedValue(L"folders", JsonValue::CreateNumberValue(0));
-    status.SetNamedValue(L"error", JsonValue::CreateNullValue());
-    status.SetNamedValue(L"storage", JsonValue::CreateNullValue());
-    status.SetNamedValue(L"localSize", JsonValue::CreateNullValue());
-    status.SetNamedValue(L"lastSyncedAt", JsonValue::CreateNullValue());
-    return status;
-}
-
-void pauseHarbor(bool) {}
-
-void runHarborAction(std::wstring const&, std::vector<std::wstring> const&) {}
-
-std::optional<std::filesystem::path> harborPathFor(std::wstring const&) {
-    return std::nullopt;
-}
-
-void registerHarborHandlers() {
-    registerHandler(L"harbor:status", [](JsonArray const&) -> IJsonValue { return harborStatus(); });
-}
 
 }

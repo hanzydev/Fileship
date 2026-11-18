@@ -1,7 +1,8 @@
 #include "paths.h"
 
+#include "platform.h"
+
 #include <algorithm>
-#include <cwctype>
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
@@ -11,23 +12,6 @@ namespace fileship::host::harbor {
 namespace {
 
 using NameSet = std::unordered_set<std::wstring>;
-
-bool isInvalid(wchar_t character) {
-    return std::wstring_view(L"\\/:*?\"<>|").find(character) != std::wstring_view::npos ||
-           character <= 0x1f || (character >= 0x7f && character <= 0x9f);
-}
-
-bool isSpace(wchar_t character) {
-    return std::iswspace(character) || character == 0xfeff || character == 0xa0;
-}
-
-bool isReserved(std::wstring const& value) {
-    auto stem = lower(value.substr(0, value.find(L'.')));
-
-    if (stem == L"con" || stem == L"prn" || stem == L"aux" || stem == L"nul") return true;
-    return stem.size() == 4 && (startsWith(stem, L"com") || startsWith(stem, L"lpt")) &&
-           stem[3] >= L'0' && stem[3] <= L'9';
-}
 
 std::pair<std::wstring, std::wstring> splitExtension(std::wstring const& name) {
     auto dot = name.find_last_of(L'.');
@@ -39,11 +23,11 @@ std::wstring uniqueName(std::wstring const& name, NameSet& taken) {
     auto [base, extension] = splitExtension(name);
     std::wstring candidate = name;
 
-    for (int index = 2; taken.contains(lower(candidate)); index++) {
+    for (int index = 2; taken.contains(pathKey(candidate)); index++) {
         candidate = base + L" (" + std::to_wstring(index) + L")" + extension;
     }
 
-    taken.insert(lower(candidate));
+    taken.insert(pathKey(candidate));
     return candidate;
 }
 
@@ -63,22 +47,6 @@ std::vector<T> sortedByAge(std::vector<T> items) {
 
 std::wstring linkShortcut(std::wstring const& instanceUrl, std::wstring const& code) {
     return L"[InternetShortcut]\r\nURL=" + instanceUrl + L"/s/" + code + L"\r\n";
-}
-
-std::wstring safeName(std::wstring const& name, std::wstring const& fallback) {
-    std::wstring value;
-    for (auto character : name) {
-        if (!isInvalid(character)) value += character;
-    }
-
-    while (!value.empty() && isSpace(value.front())) value.erase(value.begin());
-    while (!value.empty() && isSpace(value.back())) value.pop_back();
-    while (!value.empty() && (value.back() == L'.' || value.back() == L' ')) value.pop_back();
-
-    if (value.empty()) value = fallback;
-    if (isReserved(value)) value = L"_" + value;
-
-    return value.substr(0, 200);
 }
 
 Layout buildLayout(std::vector<RemoteFolder> const& folders, std::vector<RemoteFile> const& files,
@@ -106,7 +74,7 @@ Layout buildLayout(std::vector<RemoteFolder> const& folders, std::vector<RemoteF
         [&](std::vector<RemoteFolder> const& list, std::wstring const& parentPath, NameSet& names) {
             for (auto const& folder : list) {
                 auto name = uniqueName(safeName(folder.name, L"Folder"), names);
-                auto path = parentPath.empty() ? name : parentPath + L"\\" + name;
+                auto path = parentPath.empty() ? name : parentPath + SEPARATOR + name;
 
                 folderPaths[folder.id] = path;
                 folderNames[folder.id] = {};
@@ -127,7 +95,7 @@ Layout buildLayout(std::vector<RemoteFolder> const& folders, std::vector<RemoteF
         auto name = uniqueName(safeName(file.name, L"File"), names);
 
         layout.set(fileIdentity(file.id), {fileIdentity(file.id),
-                                           hasParent ? parent->second + L"\\" + name : name, false,
+                                           hasParent ? parent->second + SEPARATOR + name : name, false,
                                            file.size, file.createdAt});
     }
 
@@ -140,7 +108,7 @@ Layout buildLayout(std::vector<RemoteFolder> const& folders, std::vector<RemoteF
         for (auto const& note : sortedByAge(notes->items)) {
             auto name = uniqueName(safeName(note.title, L"Note") + L".md", names);
             layout.set(noteIdentity(note.id),
-                       {noteIdentity(note.id), path + L"\\" + name, false, note.size, note.createdAt});
+                       {noteIdentity(note.id), path + SEPARATOR + name, false, note.size, note.createdAt});
         }
     }
 
@@ -154,7 +122,7 @@ Layout buildLayout(std::vector<RemoteFolder> const& folders, std::vector<RemoteF
             auto name = uniqueName(safeName(link.code, L"Link") + L".url", names);
             auto size = static_cast<int64_t>(toUtf8(linkShortcut(instanceUrl, link.code)).size());
             layout.set(linkIdentity(link.code),
-                       {linkIdentity(link.code), path + L"\\" + name, false, size, link.createdAt});
+                       {linkIdentity(link.code), path + SEPARATOR + name, false, size, link.createdAt});
         }
     }
 

@@ -2,18 +2,17 @@
 
 #include "helper.h"
 #include "paths.h"
+#include "platform.h"
 #include "support.h"
 
+#include <host/app.h>
+#include <host/platform.h>
 #include <host/rpc.h>
-#include <host/windows/host.h>
 #include <shared/i18n.h>
 #include <shared/log.h>
 #include <shared/platform.h>
 #include <shared/socketio.h>
-
-#include <commctrl.h>
-#include <shellapi.h>
-#include <shlobj.h>
+#include <shared/utf8.h>
 
 #include <algorithm>
 #include <array>
@@ -22,10 +21,6 @@
 #include <future>
 #include <set>
 #include <sstream>
-
-#pragma comment(lib, "comctl32.lib")
-
-#undef GetObject
 
 namespace fileship::host::harbor {
 
@@ -85,7 +80,7 @@ struct Activity {
 
 struct Failure {
     std::wstring message;
-    DWORD status = 0;
+    uint32_t status = 0;
     bool quotaExceeded = false;
 };
 
@@ -279,14 +274,6 @@ bool isEmptyFolder(std::filesystem::path const& path) {
     return iterator == std::filesystem::directory_iterator();
 }
 
-std::filesystem::path homeFolder() {
-    PWSTR folder = nullptr;
-    SHGetKnownFolderPath(FOLDERID_Profile, 0, nullptr, &folder);
-    std::filesystem::path result(folder);
-    CoTaskMemFree(folder);
-    return result;
-}
-
 JsonObject harborSettings() {
     auto current = settings();
     if (current && current.HasKey(L"harbor") &&
@@ -295,19 +282,6 @@ JsonObject harborSettings() {
     }
 
     return JsonObject();
-}
-
-std::filesystem::path executablePath() {
-    std::wstring path(MAX_PATH, L'\0');
-
-    while (true) {
-        DWORD length = GetModuleFileNameW(nullptr, path.data(), static_cast<DWORD>(path.size()));
-        if (length < path.size()) {
-            path.resize(length);
-            return path;
-        }
-        path.resize(path.size() * 2);
-    }
 }
 
 std::wstring storeString(std::wstring const& key) {
@@ -691,10 +665,10 @@ void loadRemote() {
 
 std::optional<std::wstring> folderIdAt(std::wstring const& path) {
     Lock lock(guard);
-    auto target = lower(path);
+    auto target = pathKey(path);
 
     for (auto const& [identity, item] : local.entries()) {
-        if (item.isFolder && startsWith(identity, L"d:") && lower(item.path) == target) return idOf(identity);
+        if (item.isFolder && startsWith(identity, L"d:") && pathKey(item.path) == target) return idOf(identity);
     }
 
     return std::nullopt;
@@ -725,10 +699,10 @@ std::set<std::wstring> subtreeOf(std::wstring const& id) {
 
 std::optional<std::wstring> occupantOf(std::wstring const& path) {
     Lock lock(guard);
-    auto target = lower(path);
+    auto target = pathKey(path);
 
     for (auto const& [identity, item] : local.entries()) {
-        if (lower(item.path) == target) return identity;
+        if (pathKey(item.path) == target) return identity;
     }
 
     return std::nullopt;
@@ -798,7 +772,7 @@ void placeEntry(HarborHelper& current, LayoutEntry const& entry) {
 
         if (entry.isFolder) {
             Lock lock(guard);
-            auto prefix = placed->path + L"\\";
+            auto prefix = placed->path + SEPARATOR;
 
             for (auto& [identity, item] : local) {
                 if (startsWith(item.path, prefix)) item.path = entry.path + item.path.substr(placed->path.size());
@@ -1256,7 +1230,7 @@ void forgetLocal(std::wstring const& identity) {
     if (removed && removed->isFolder) {
         std::vector<std::wstring> inside;
         for (auto const& [key, item] : local.entries()) {
-            if (startsWith(item.path, removed->path + L"\\")) inside.push_back(key);
+            if (startsWith(item.path, removed->path + SEPARATOR)) inside.push_back(key);
         }
         for (auto const& key : inside) local.erase(key);
     }
@@ -1315,16 +1289,6 @@ std::wstring noteTitleOf(std::wstring const& path) {
 std::filesystem::path absoluteOf(std::wstring const& path) {
     Lock lock(guard);
     return std::filesystem::path(root) / path;
-}
-
-std::wstring stampOf(std::filesystem::path const& path) {
-    WIN32_FILE_ATTRIBUTE_DATA data{};
-    if (!GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &data)) return L"";
-
-    auto size = (static_cast<uint64_t>(data.nFileSizeHigh) << 32) | data.nFileSizeLow;
-    auto time = (static_cast<uint64_t>(data.ftLastWriteTime.dwHighDateTime) << 32) |
-                data.ftLastWriteTime.dwLowDateTime;
-    return std::to_wstring(size) + L":" + std::to_wstring(time);
 }
 
 void saveNote(std::wstring const& identity, std::wstring const& path) {
@@ -1516,13 +1480,13 @@ void runDeletions() {
 
     std::set<std::wstring> deletedFolders;
     for (auto const& event : batch) {
-        if (event.isFolder) deletedFolders.insert(lower(event.path));
+        if (event.isFolder) deletedFolders.insert(pathKey(event.path));
     }
 
     for (auto const& event : batch) {
         bool isInside = false;
         for (auto parent = dirnameOf(event.path); parent != L"." && !isInside; parent = dirnameOf(parent)) {
-            isInside = deletedFolders.contains(lower(parent));
+            isInside = deletedFolders.contains(pathKey(parent));
         }
 
         if (!isInside) syncDelete(event);
@@ -1586,17 +1550,15 @@ std::runtime_error folderNameError() {
 }
 
 std::wstring shortFolderName(std::wstring const& name) {
-    if (name.size() <= FOLDER_NAME_LENGTH) return name;
-
-    auto size = IS_HIGH_SURROGATE(name[FOLDER_NAME_LENGTH - 1]) ? FOLDER_NAME_LENGTH - 1 : FOLDER_NAME_LENGTH;
-    return safeName(name.substr(0, size), L"Folder");
+    if (utf16Length(name) <= FOLDER_NAME_LENGTH) return name;
+    return safeName(utf16Prefix(name, FOLDER_NAME_LENGTH), L"Folder");
 }
 
 void renameFolder(std::wstring const& identity, std::wstring const& from, std::wstring const& to) {
     auto id = idOf(identity);
     auto name = basenameOf(to);
     bool isRenamed = name != basenameOf(from);
-    if (isRenamed && name.size() > FOLDER_NAME_LENGTH) throw folderNameError();
+    if (isRenamed && utf16Length(name) > FOLDER_NAME_LENGTH) throw folderNameError();
 
     auto parentId = parentFolderIdOf(to);
     std::optional<RemoteFolder> folder;
@@ -1621,7 +1583,7 @@ void renameFolder(std::wstring const& identity, std::wstring const& from, std::w
     local.set(identity, {to, true});
 
     for (auto& [key, item] : local) {
-        if (startsWith(item.path, from + L"\\")) item.path = to + item.path.substr(from.size());
+        if (startsWith(item.path, from + SEPARATOR)) item.path = to + item.path.substr(from.size());
     }
 }
 
@@ -2056,11 +2018,13 @@ void handleLocalNew(HelperEvent const& event) {
         if (parentIdentity && startsWith(*parentIdentity, L"v:")) return;
 
         auto name = shortFolderName(basenameOf(event.path));
-        auto path = parent == L"." ? name : parent + L"\\" + name;
+        auto path = parent == L"." ? name : parent + SEPARATOR + name;
         bool isShortened = path != event.path;
 
-        if (isShortened && !MoveFileExW(absoluteOf(event.path).c_str(), absoluteOf(path).c_str(), 0)) {
-            throw folderNameError();
+        if (isShortened) {
+            std::error_code error;
+            std::filesystem::rename(absoluteOf(event.path), absoluteOf(path), error);
+            if (error) throw folderNameError();
         }
 
         std::vector<ScanItem> unsynced;
@@ -2607,7 +2571,7 @@ bool launch() {
         if (*listening) handleHelperEvent(event);
     };
 
-    current->onExit = [raw](std::optional<DWORD> code) {
+    current->onExit = [raw](std::optional<uint32_t> code) {
         std::shared_ptr<SocketIo> client;
         bool isRestarting = false;
 
@@ -2737,8 +2701,7 @@ void stopHarborNow(StopOptions options) {
 
     if (options.forget) {
         setStoreValue(L"harborRoot", nul());
-        std::error_code error;
-        std::filesystem::remove(harborSessionPath(), error);
+        forgetHelperSession();
     }
 
     std::shared_ptr<HarborHelper> current;
@@ -2845,7 +2808,7 @@ std::optional<std::wstring> relativeToRoot(std::wstring const& path) {
     while (!base.empty() && (base.back() == L'\\' || base.back() == L'/')) base.pop_back();
     auto target = std::filesystem::path(path).lexically_normal().wstring();
 
-    if (target.size() <= base.size() + 1 || lower(target.substr(0, base.size())) != lower(base) ||
+    if (target.size() <= base.size() + 1 || pathKey(target.substr(0, base.size())) != pathKey(base) ||
         (target[base.size()] != L'\\' && target[base.size()] != L'/')) {
         return std::nullopt;
     }
@@ -2857,47 +2820,14 @@ std::optional<std::wstring> identityAt(std::wstring const& path) {
     auto relative = relativeToRoot(path);
     if (!relative) return std::nullopt;
 
-    auto target = lower(*relative);
+    auto target = pathKey(*relative);
     Lock lock(guard);
 
     for (auto const& [identity, item] : local.entries()) {
-        if (!item.isFolder && lower(item.path) == target) return identity;
+        if (!item.isFolder && pathKey(item.path) == target) return identity;
     }
 
     return std::nullopt;
-}
-
-HRESULT CALLBACK dialogCallback(HWND window, UINT notification, WPARAM, LPARAM, LONG_PTR) {
-    if (notification == TDN_CREATED) {
-        SetWindowPos(window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-        SetForegroundWindow(window);
-    }
-
-    return S_OK;
-}
-
-bool confirmPublic(std::wstring const& message, std::wstring const& detail) {
-    constexpr int MAKE_PUBLIC = 100;
-    constexpr int CANCEL = 101;
-
-    auto makePublic = t(L"harbor.makePublic");
-    auto cancel = t(L"harbor.cancel");
-    TASKDIALOG_BUTTON buttons[] = {{MAKE_PUBLIC, makePublic.c_str()}, {CANCEL, cancel.c_str()}};
-
-    TASKDIALOGCONFIG config{};
-    config.cbSize = sizeof(config);
-    config.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION;
-    config.pszWindowTitle = L"Fileship";
-    config.pszMainInstruction = message.c_str();
-    config.pszContent = detail.c_str();
-    config.cButtons = static_cast<UINT>(std::size(buttons));
-    config.pButtons = buttons;
-    config.nDefaultButton = MAKE_PUBLIC;
-    config.pfCallback = dialogCallback;
-
-    int pressed = CANCEL;
-    if (FAILED(TaskDialogIndirect(&config, &pressed, nullptr, nullptr))) return false;
-    return pressed == MAKE_PUBLIC;
 }
 
 std::optional<Links> noteLinksOf(std::wstring const& id) {
@@ -3155,7 +3085,7 @@ int64_t freeUpHarborSpace() {
 }
 
 void openHarbor() {
-    ShellExecuteW(nullptr, L"open", harborFolder().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+    openFolder(harborFolder());
 }
 
 void runHarborAction(std::wstring const& action, std::vector<std::wstring> const& paths) {

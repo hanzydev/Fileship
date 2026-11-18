@@ -30,3 +30,18 @@ TEST(utf8ReplacesInvalidBytes) {
     CHECK_EQUAL(toWide("\x80"), L"\xfffd");
     CHECK_EQUAL(toWide("\xc0\xaf"), L"\xfffd\xfffd");
 }
+
+TEST(utf16LengthCountsCodeUnits) {
+    CHECK(utf16Length(L"") == 0);
+    CHECK(utf16Length(L"plain") == 5);
+    CHECK(utf16Length(L"\xe9\x20ac") == 2);
+    CHECK(utf16Length(L"a\U0001F600z") == 4);
+}
+
+TEST(utf16PrefixNeverSplitsACharacter) {
+    CHECK_EQUAL(utf16Prefix(L"plain", 3), L"pla");
+    CHECK_EQUAL(utf16Prefix(L"plain", 9), L"plain");
+    CHECK_EQUAL(utf16Prefix(L"ab\U0001F600z", 3), L"ab");
+    CHECK_EQUAL(utf16Prefix(L"ab\U0001F600z", 4), L"ab\U0001F600");
+    CHECK_EQUAL(utf16Prefix(L"\U0001F600", 1), L"");
+}

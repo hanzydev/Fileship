@@ -11,7 +11,7 @@ import {
     writeVersionResource,
 } from './msvc.mjs';
 
-const source = join(native, 'harbor');
+const source = join(native, 'harbor', 'windows');
 const output = join(root, 'build', 'harbor');
 const objects = join(output, 'obj');
 const executable = join(output, 'fileship-harbor.exe');

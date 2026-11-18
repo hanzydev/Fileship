@@ -3,7 +3,7 @@
 #include "support.h"
 
 #include <host/rpc.h>
-#include <host/windows/host.h>
+#include <host/app.h>
 #include <shared/i18n.h>
 
 #undef GetObject
