@@ -42,10 +42,6 @@ Point cursorPosition() {
     return {};
 }
 
-bool playSound(uint8_t const*, size_t) {
-    return false;
-}
-
 }
 
 namespace fileship::ui {

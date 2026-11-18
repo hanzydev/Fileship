@@ -13,6 +13,7 @@ const PACKAGES = [
     'sqlite3',
     'gdk-pixbuf-2.0',
     'xcb',
+    'libpulse-simple',
 ];
 
 const { version } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
