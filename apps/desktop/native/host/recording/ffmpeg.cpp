@@ -6,9 +6,9 @@
 #include <host/rpc.h>
 #include <host/services.h>
 #include <shared/log.h>
+#include <shared/windows/winhttp.h>
 
 #include <bcrypt.h>
-#include <winhttp.h>
 
 #include <algorithm>
 #include <chrono>

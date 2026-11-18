@@ -3,7 +3,9 @@
 
 #include <host/harbor.h>
 #include <shared/log.h>
+#include <shared/url.h>
 
+#include <cwctype>
 #include <mutex>
 
 namespace fileship::host {
@@ -107,12 +109,10 @@ JsonValue request(std::wstring const& baseUrl, std::wstring const& method, std::
         response = httpSend(endpoint, options);
     } catch (HttpInterrupted const&) {
         throw;
-    } catch (std::exception const& error) {
-        std::string what = error.what();
-        bool isTimeout = what.find("12002") != std::string::npos;
-
-        throw ApiError(toUtf8(isTimeout ? t(L"app.serverTimeout") : t(L"app.serverUnreachable", {{L"url", baseUrl}})),
-                       0, JsonObject());
+    } catch (HttpTimeout const&) {
+        throw ApiError(toUtf8(t(L"app.serverTimeout")), 0, JsonObject());
+    } catch (std::exception const&) {
+        throw ApiError(toUtf8(t(L"app.serverUnreachable", {{L"url", baseUrl}})), 0, JsonObject());
     }
 
     if (response.status < 200 || response.status >= 300) throw readError(response);
@@ -162,23 +162,15 @@ std::wstring normalizeInstanceUrl(std::wstring const& input) {
     for (auto& character : lower) character = static_cast<wchar_t>(towlower(character));
     if (lower.rfind(L"http://", 0) != 0 && lower.rfind(L"https://", 0) != 0) trimmed = L"https://" + trimmed;
 
-    URL_COMPONENTS url{};
-    url.dwStructSize = sizeof(url);
-    wchar_t host[256]{};
-    url.lpszHostName = host;
-    url.dwHostNameLength = static_cast<DWORD>(std::size(host));
-    url.dwUrlPathLength = static_cast<DWORD>(-1);
+    auto url = parseHttpUrl(trimmed);
+    if (!url) throw translatedError(t(L"app.invalidAddress"));
 
-    if (!WinHttpCrackUrl(trimmed.c_str(), 0, 0, &url) || !host[0]) throw translatedError(t(L"app.invalidAddress"));
+    for (auto& character : url->host) character = static_cast<wchar_t>(towlower(character));
 
-    std::wstring hostName(host);
-    for (auto& character : hostName) character = static_cast<wchar_t>(towlower(character));
+    bool isDefaultPort = url->port == (url->isSecure ? 443 : 80);
 
-    bool isHttps = url.nScheme == INTERNET_SCHEME_HTTPS;
-    bool isDefaultPort = url.nPort == (isHttps ? INTERNET_DEFAULT_HTTPS_PORT : INTERNET_DEFAULT_HTTP_PORT);
-
-    return std::wstring(isHttps ? L"https://" : L"http://") + hostName +
-           (isDefaultPort ? L"" : L":" + std::to_wstring(url.nPort));
+    return std::wstring(url->isSecure ? L"https://" : L"http://") + url->host +
+           (isDefaultPort ? L"" : L":" + std::to_wstring(url->port));
 }
 
 JsonObject checkInstance(std::wstring const& input) {

@@ -76,7 +76,7 @@ void download(Fetch fetch) {
     while (remaining > 0) {
         if (*fetch.isCancelled) return;
 
-        DWORD read = stream.read(buffer.data(), static_cast<DWORD>(buffer.size()));
+        size_t read = stream.read(buffer.data(), buffer.size());
         if (read == 0) break;
 
         int64_t start = 0;

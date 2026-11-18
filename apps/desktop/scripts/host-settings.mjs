@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { z } from 'zod';
 
 import { settingsSchema } from '../shared/settings.ts';
-import { root } from './msvc.mjs';
+import { root } from './native.mjs';
 
 const output = join(root, 'build', 'host');
 

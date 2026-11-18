@@ -8,6 +8,7 @@
 #include <host/services.h>
 #include <shared/i18n.h>
 #include <shared/log.h>
+#include <shared/platform.h>
 #include <shared/socketio.h>
 
 #include <commctrl.h>
@@ -187,12 +188,8 @@ Failure describe(std::exception_ptr error) {
     } catch (ApiError const& failure) {
         bool quota = failure.data && boolField(failure.data, L"quotaExceeded").value_or(false);
         return {toWide(failure.what()), failure.status, quota};
-    } catch (std::exception const& failure) {
-        return {toWide(failure.what())};
-    } catch (winrt::hresult_error const& failure) {
-        return {std::wstring(failure.message())};
     } catch (...) {
-        return {L"Unknown error"};
+        return {exceptionMessage()};
     }
 }
 
@@ -215,7 +212,6 @@ void tryLog(std::wstring const& what, Function&& function) {
 
 void runDetached(std::function<void()> work) {
     std::thread([work = std::move(work)] {
-        winrt::init_apartment(winrt::apartment_type::multi_threaded);
         tryLog(L"Harbor work failed", work);
     }).detach();
 }
@@ -653,10 +649,7 @@ void loadRemote() {
     bool takesNotes = can(L"TakeNotes");
     bool shortensLinks = can(L"ShortenLinks");
     auto load = [](std::wstring path) {
-        return std::async(std::launch::async, [path] {
-            winrt::init_apartment(winrt::apartment_type::multi_threaded);
-            return loadAll(path);
-        });
+        return std::async(std::launch::async, [path] { return loadAll(path); });
     };
 
     auto remoteFolders = load(L"/api/folders?sort=createdAt:asc");

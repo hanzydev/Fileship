@@ -1,6 +1,7 @@
 #include "app.h"
 
 #include <shared/log.h>
+#include <shared/platform.h>
 
 #include <bcrypt.h>
 #include <shellapi.h>
@@ -78,10 +79,8 @@ void CALLBACK runWork(PTP_CALLBACK_INSTANCE, void* context) {
 
     try {
         (*work)();
-    } catch (std::exception const& error) {
-        logError(L"Background task failed: " + errorMessage(error));
-    } catch (winrt::hresult_error const& error) {
-        logError(L"Background task failed: " + std::wstring(error.message()));
+    } catch (...) {
+        logError(L"Background task failed: " + exceptionMessage());
     }
 }
 
@@ -192,10 +191,8 @@ void runMainQueue() {
 
         try {
             work();
-        } catch (std::exception const& error) {
-            logError(L"Main thread task failed: " + errorMessage(error));
-        } catch (winrt::hresult_error const& error) {
-            logError(L"Main thread task failed: " + std::wstring(error.message()));
+        } catch (...) {
+            logError(L"Main thread task failed: " + exceptionMessage());
         }
     }
 }

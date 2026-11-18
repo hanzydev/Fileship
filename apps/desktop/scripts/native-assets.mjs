@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { root } from './msvc.mjs';
+import { root } from './native.mjs';
 
 const workspace = join(root, '..', '..');
 const generated = join(root, 'build', 'generated');

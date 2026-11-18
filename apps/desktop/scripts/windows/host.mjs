@@ -1,48 +1,29 @@
-import { mkdirSync, readdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 
+import { generated, groupSources, native, root } from '../native.mjs';
 import {
     compileGroups,
     moveAsideLocked,
     objectFiles,
-    root,
     runWithMsvc,
     writeVersionResource,
 } from './msvc.mjs';
 
-if (process.platform !== 'win32') {
-    console.log('Skipping the native host build, it needs Windows and MSVC.');
-    process.exit(0);
-}
-
-const native = join(root, 'native');
 const output = join(root, 'build', 'host');
 const objects = join(output, 'obj');
 const executable = join(output, 'fileship-host.exe');
 const resource = join(output, 'host.rc');
 const compiledResource = join(output, 'host.res');
 
-const groupSources = (...folders) => {
-    const groups = {};
-
-    for (const folder of folders) {
-        for (const file of readdirSync(join(native, folder), { recursive: true })) {
-            if (!file.endsWith('.cpp') || join(folder, file).startsWith(join('ui', 'demo')))
-                continue;
-
-            const group = join(folder, dirname(file)).replaceAll('\\', '-').replace(/-\.$/, '');
-            (groups[group] ??= []).push(`"${join(native, folder, file)}"`);
-        }
-    }
-
-    return groups;
-};
-
-const groups = groupSources('shared', 'ui', 'host', 'core');
+const groups = groupSources(
+    ['shared', 'ui', 'host', 'core'],
+    (path) => !path.startsWith(join('ui', 'demo')),
+);
 const flags = [
     '/std:c++20 /EHsc /O2 /MT /W4 /permissive- /utf-8 /MP',
     '/DUNICODE /D_UNICODE /DNOMINMAX /DWIN32_LEAN_AND_MEAN',
-    `/I"${native}" /I"${join(root, 'build', 'generated')}"`,
+    `/I"${native}" /I"${generated}"`,
 ].join(' ');
 
 mkdirSync(objects, { recursive: true });

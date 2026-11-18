@@ -17,8 +17,6 @@
 
 namespace fileship::host {
 
-using winrt::Windows::Data::Json::IJsonValue;
-
 std::filesystem::path userDataPath();
 std::filesystem::path resourcesPath();
 std::filesystem::path hostExecutable();

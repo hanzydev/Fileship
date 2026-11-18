@@ -264,7 +264,7 @@ void download(Release const& release, std::filesystem::path const& target) {
     int64_t received = 0;
     int reported = -1;
 
-    while (DWORD read = stream->read(buffer.data(), static_cast<DWORD>(buffer.size()))) {
+    while (size_t read = stream->read(buffer.data(), buffer.size())) {
         file.write(buffer.data(), read);
         hasher.update(buffer.data(), read);
         received += read;

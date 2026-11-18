@@ -8,9 +8,9 @@ import {
     rmSync,
     writeFileSync,
 } from 'node:fs';
-import { basename, extname, join, resolve } from 'node:path';
+import { basename, extname, join } from 'node:path';
 
-export const root = resolve(import.meta.dirname, '..');
+import { root } from '../native.mjs';
 
 const vswhere = join(
     process.env['ProgramFiles(x86)'] ?? 'C:\\Program Files (x86)',
@@ -43,7 +43,7 @@ const findInstallation = () => {
 export const sourceFiles = (directory) =>
     readdirSync(directory)
         .filter((name) => name.endsWith('.cpp'))
-        .map((name) => `"${join(directory, name)}"`);
+        .map((name) => join(directory, name));
 
 export const compileGroups = (objects, flags, groups) =>
     Object.entries(groups)
@@ -52,7 +52,8 @@ export const compileGroups = (objects, flags, groups) =>
             const folder = join(objects, name);
             rmSync(folder, { recursive: true, force: true });
             mkdirSync(folder, { recursive: true });
-            return `cl /nologo /c ${flags} /Fo"${folder}\\\\" ${sources.join(' ')} || exit /b 1`;
+            const files = sources.map((source) => `"${source}"`).join(' ');
+            return `cl /nologo /c ${flags} /Fo"${folder}\\\\" ${files} || exit /b 1`;
         });
 
 export const objectFiles = (objects, groups) =>

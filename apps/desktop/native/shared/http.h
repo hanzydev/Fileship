@@ -1,11 +1,8 @@
 #pragma once
 
-#include <windows.h>
-#include <winhttp.h>
-
 #include <cstdint>
 #include <functional>
-#include <optional>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -17,19 +14,6 @@ struct HttpEndpoint {
     std::wstring token;
     std::wstring userAgent;
     std::wstring language;
-};
-
-struct Internet {
-    HINTERNET value = nullptr;
-
-    explicit Internet(HINTERNET handle) : value(handle) {}
-
-    ~Internet() {
-        if (value) WinHttpCloseHandle(value);
-    }
-
-    Internet(Internet const&) = delete;
-    Internet& operator=(Internet const&) = delete;
 };
 
 struct HttpRequest {
@@ -45,8 +29,12 @@ struct HttpInterrupted : std::runtime_error {
     HttpInterrupted() : std::runtime_error("interrupted") {}
 };
 
+struct HttpTimeout : std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
 struct HttpResponse {
-    DWORD status = 0;
+    uint32_t status = 0;
     std::vector<char> body;
 
     std::string text() const { return std::string(body.begin(), body.end()); }
@@ -55,13 +43,18 @@ struct HttpResponse {
 class HttpStream {
 public:
     HttpStream(HttpEndpoint const& endpoint, HttpRequest const& request);
-    DWORD read(char* buffer, DWORD size);
+    ~HttpStream();
 
-    DWORD status = 0;
+    HttpStream(HttpStream const&) = delete;
+    HttpStream& operator=(HttpStream const&) = delete;
+
+    size_t read(char* buffer, size_t size);
+
+    uint32_t status = 0;
 
 private:
-    Internet connection;
-    Internet request;
+    struct State;
+    std::unique_ptr<State> state;
 };
 
 HttpResponse httpSend(HttpEndpoint const& endpoint, HttpRequest const& request);

@@ -5,6 +5,7 @@
 #include <host/services.h>
 #include <shared/i18n.h>
 #include <shared/log.h>
+#include <shared/platform.h>
 
 #include <shlobj.h>
 
@@ -353,10 +354,8 @@ void HarborHelper::handleLine(std::string const& line) {
         if (onEvent) {
             try {
                 onEvent(parseEvent(*message));
-            } catch (std::exception const& error) {
-                logWarn(L"[harbor] event failed: " + errorMessage(error));
-            } catch (winrt::hresult_error const& error) {
-                logWarn(L"[harbor] event failed: " + std::wstring(error.message()));
+            } catch (...) {
+                logWarn(L"[harbor] event failed: " + exceptionMessage());
             }
         }
         return;

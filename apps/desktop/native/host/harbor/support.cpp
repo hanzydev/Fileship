@@ -2,6 +2,9 @@
 
 #include <shared/i18n.h>
 #include <shared/log.h>
+#include <shared/platform.h>
+
+#include <windows.h>
 
 #include <bcrypt.h>
 #include <icu.h>
@@ -73,11 +76,8 @@ void SerialQueue::run() {
         try {
             task();
             promise->set_value();
-        } catch (std::exception const& error) {
-            logError(name + L" task failed: " + errorMessage(error));
-            promise->set_exception(std::current_exception());
-        } catch (winrt::hresult_error const& error) {
-            logError(name + L" task failed: " + std::wstring(error.message()));
+        } catch (...) {
+            logError(name + L" task failed: " + exceptionMessage());
             promise->set_exception(std::current_exception());
         }
     }
@@ -142,10 +142,8 @@ void Timers::run() {
 
         try {
             callback();
-        } catch (std::exception const& error) {
-            logError(L"Harbor timer failed: " + errorMessage(error));
-        } catch (winrt::hresult_error const& error) {
-            logError(L"Harbor timer failed: " + std::wstring(error.message()));
+        } catch (...) {
+            logError(L"Harbor timer failed: " + exceptionMessage());
         }
 
         lock.lock();

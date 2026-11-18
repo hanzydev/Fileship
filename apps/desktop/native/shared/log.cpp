@@ -1,8 +1,9 @@
 #include "log.h"
 
+#include "platform.h"
 #include "utf8.h"
 
-#include <cstdio>
+#include <fstream>
 #include <mutex>
 
 namespace fileship {
@@ -28,25 +29,16 @@ void initLog(std::filesystem::path const& file) {
 }
 
 void writeLog(LogLevel level, std::wstring_view message) {
-    SYSTEMTIME time{};
-    GetLocalTime(&time);
-
-    char prefix[64]{};
-    snprintf(prefix, sizeof(prefix), "[%04u-%02u-%02u %02u:%02u:%02u.%03u] [%s] ", time.wYear, time.wMonth,
-             time.wDay, time.wHour, time.wMinute, time.wSecond, time.wMilliseconds,
-             level == LogLevel::Error ? "error" : level == LogLevel::Warn ? "warn" : "info");
-
-    auto line = prefix + toUtf8(message) + "\n";
-    OutputDebugStringW(toWide(line).c_str());
+    auto line = "[" + logTimestamp() + "] [" +
+                (level == LogLevel::Error ? "error" : level == LogLevel::Warn ? "warn" : "info") + "] " +
+                toUtf8(message) + "\n";
+    debugOutput(line);
 
     std::lock_guard lock(mutex);
     if (logFile.empty()) return;
 
-    FILE* file = nullptr;
-    if (_wfopen_s(&file, logFile.c_str(), L"ab") != 0) return;
-
-    fwrite(line.data(), 1, line.size(), file);
-    fclose(file);
+    std::ofstream file(logFile, std::ios::binary | std::ios::app);
+    file.write(line.data(), static_cast<std::streamsize>(line.size()));
 }
 
 }

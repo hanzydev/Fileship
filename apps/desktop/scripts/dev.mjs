@@ -15,15 +15,15 @@ const PIPE = `\\\\.\\pipe\\fileship-host-dev-${process.pid}`;
 const run = (command, args) =>
     spawn(command, args, { stdio: 'inherit', shell: process.platform === 'win32' });
 
-const build = (script) => {
-    const result = spawnSync(process.execPath, [script], { stdio: 'inherit' });
+const build = (...args) => {
+    const result = spawnSync(process.execPath, args, { stdio: 'inherit' });
     if (result.status !== 0) process.exit(result.status ?? 1);
 };
 
 build('scripts/native-assets.mjs');
 build('scripts/host-settings.mjs');
-if (!existsSync('build/harbor/fileship-harbor.exe')) build('scripts/harbor.mjs');
-build('scripts/host.mjs');
+if (!existsSync('build/harbor/fileship-harbor.exe')) build('scripts/build.mjs', 'harbor');
+build('scripts/build.mjs', 'host');
 
 const passthrough = process.argv.slice(2).filter((arg) => arg !== '--');
 const renderer = run('pnpm', ['exec', 'nuxt', 'dev', '--port', '3020']);

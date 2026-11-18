@@ -3,6 +3,7 @@
 #include "app.h"
 
 #include <shared/log.h>
+#include <shared/platform.h>
 
 #include <aclapi.h>
 #include <sddl.h>
@@ -151,12 +152,9 @@ void respond(std::shared_ptr<Client> const& client, JsonValue const& id, std::st
         response.SetNamedValue(L"ok", JsonValue::CreateBooleanValue(false));
         response.SetNamedValue(L"error", JsonValue::CreateStringValue(errorMessage(error)));
         response.SetNamedValue(L"data", error.data ? error.data : JsonObject());
-    } catch (std::exception const& error) {
+    } catch (...) {
         response.SetNamedValue(L"ok", JsonValue::CreateBooleanValue(false));
-        response.SetNamedValue(L"error", JsonValue::CreateStringValue(errorMessage(error)));
-    } catch (winrt::hresult_error const& error) {
-        response.SetNamedValue(L"ok", JsonValue::CreateBooleanValue(false));
-        response.SetNamedValue(L"error", JsonValue::CreateStringValue(error.message()));
+        response.SetNamedValue(L"error", JsonValue::CreateStringValue(exceptionMessage()));
     }
 
     activeClient = 0;

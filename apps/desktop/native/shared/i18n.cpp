@@ -2,8 +2,11 @@
 
 #include "json.h"
 #include "log.h"
+#include "platform.h"
 
+#include <algorithm>
 #include <cstdlib>
+#include <cwctype>
 #include <fstream>
 #include <mutex>
 #include <optional>
@@ -106,15 +109,8 @@ std::wstring resolveLanguage(std::wstring const& setting) {
     auto supported = languages();
     if (setting != L"system") return setting;
 
-    ULONG count = 0;
-    ULONG size = 0;
-    GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &count, nullptr, &size);
-
-    std::wstring buffer(size, L'\0');
-    if (!GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &count, buffer.data(), &size)) return L"en";
-
-    std::wstring first(buffer.c_str());
-    std::wstring code = first.substr(0, first.find(L'-'));
+    auto first = systemLanguage();
+    std::wstring code = first.substr(0, first.find_first_of(L"-_.@"));
     for (auto& character : code) character = static_cast<wchar_t>(towlower(character));
 
     return std::find(supported.begin(), supported.end(), code) != supported.end() ? code : L"en";
