@@ -1,15 +1,14 @@
 #include "host.h"
 
-#include <host/windows/harbor/support.h>
+#include <host/platform.h>
 #include <shared/log.h>
 
 #include <winrt/Windows.Data.Xml.Dom.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.UI.Notifications.h>
 
-#include <cmath>
+#include <atomic>
 #include <deque>
-#include <map>
 #include <mutex>
 
 namespace fileship::host {
@@ -26,28 +25,14 @@ using winrt::Windows::UI::Notifications::ToastNotificationManager;
 using winrt::Windows::UI::Notifications::ToastNotifier;
 
 constexpr size_t KEEP_NOTIFICATIONS = 20;
-constexpr int64_t PROGRESS_DELAY_MS = 1000;
-constexpr int64_t PROGRESS_INTERVAL_MS = 250;
 constexpr wchar_t const* PROGRESS_GROUP = L"uploads";
 
 std::mutex mutex;
 std::deque<ToastNotification> recent;
-std::mutex toastsMutex;
-std::map<std::wstring, UploadToast*> toasts;
 
 ToastNotifier notifier() {
     static ToastNotifier instance = ToastNotificationManager::CreateToastNotifier(appUserModelId());
     return instance;
-}
-
-std::wstring remainingText(double seconds) {
-    auto value = static_cast<int64_t>(std::ceil(seconds));
-    if (value < 60) return t(L"tasks.uploadingSecondsLeft", {{L"count", std::to_wstring(std::max<int64_t>(value, 1))}});
-
-    auto minutes = (value + 59) / 60;
-    if (minutes < 60) return t(L"tasks.uploadingMinutesLeft", {{L"count", std::to_wstring(minutes)}});
-
-    return t(L"tasks.uploadingHoursLeft", {{L"hours", std::to_wstring(minutes / 60)}, {L"minutes", std::to_wstring(minutes % 60)}});
 }
 
 std::wstring fileUri(std::filesystem::path const& path) {
@@ -113,39 +98,16 @@ void notify(std::wstring const& title, std::wstring const& body, std::function<v
     }
 }
 
-UploadToast::UploadToast(std::wstring tag, std::wstring name)
-    : tag(std::move(tag)), name(std::move(name)),
-      isEnabled(jsonBool(jsonObject(settings(), L"afterUpload"), L"notify", true)) {
-    std::lock_guard lock(toastsMutex);
-    toasts[this->tag] = this;
-}
-
-UploadToast::~UploadToast() {
-    close();
-}
-
-void UploadToast::show() {
-    auto now = nowMs();
-    auto elapsed = std::max<int64_t>((isPaused ? pausedAt : now) - startedAt, 1);
-    auto speed = static_cast<double>(sent) * 1000 / elapsed;
+bool showUploadProgress(ProgressNotice const& progress, bool isNew) {
+    static std::atomic<uint32_t> sequence = 0;
 
     NotificationData data;
     data.SequenceNumber(++sequence);
-    data.Values().Insert(L"progressValue", std::to_wstring(static_cast<double>(sent) / total));
-    data.Values().Insert(L"progressValueString",
-                         !isPaused && speed > 0 ? remainingText(static_cast<double>(total - sent) / speed)
-                                                : std::to_wstring(sent * 100 / total) + L"%");
-    data.Values().Insert(L"progressStatus",
-                         isPaused ? t(L"tasks.uploadPaused")
-                                  : t(L"tasks.uploadingStatus",
-                                      {{L"sent", harbor::formatSize(sent)},
-                                       {L"total", harbor::formatSize(total)},
-                                       {L"speed", harbor::formatSize(static_cast<int64_t>(speed))}}));
+    data.Values().Insert(L"progressValue", std::to_wstring(static_cast<double>(progress.sent) / progress.total));
+    data.Values().Insert(L"progressValueString", progress.remaining);
+    data.Values().Insert(L"progressStatus", progress.status);
 
-    if (isShown && !isRebuilt) {
-        if (notifier().Update(data, tag, PROGRESS_GROUP) != NotificationUpdateResult::Succeeded) isEnabled = false;
-        return;
-    }
+    if (!isNew) return notifier().Update(data, progress.tag, PROGRESS_GROUP) == NotificationUpdateResult::Succeeded;
 
     XmlDocument document;
     document.LoadXml(L"<toast scenario=\"reminder\"><visual><binding template=\"ToastGeneric\"><text/><text/>"
@@ -157,19 +119,19 @@ void UploadToast::show() {
 
     auto texts = document.GetElementsByTagName(L"text");
     texts.Item(0).AppendChild(document.CreateTextNode(t(L"tasks.uploadingTitle")));
-    texts.Item(1).AppendChild(document.CreateTextNode(name));
+    texts.Item(1).AppendChild(document.CreateTextNode(progress.name));
 
     auto actions = document.GetElementsByTagName(L"action");
     auto toggle = actions.Item(0).as<XmlElement>();
-    toggle.SetAttribute(L"arguments", isPaused ? L"resume" : L"pause");
-    toggle.SetAttribute(L"content", t(isPaused ? L"tasks.uploadingResume" : L"tasks.uploadingPause"));
+    toggle.SetAttribute(L"arguments", progress.isPaused ? L"resume" : L"pause");
+    toggle.SetAttribute(L"content", t(progress.isPaused ? L"tasks.uploadingResume" : L"tasks.uploadingPause"));
     actions.Item(1).as<XmlElement>().SetAttribute(L"content", t(L"tasks.uploadingCancel"));
 
     ToastNotification toast(document);
-    toast.Tag(tag);
+    toast.Tag(progress.tag);
     toast.Group(PROGRESS_GROUP);
     toast.Data(data);
-    toast.Activated([id = tag](auto const&, winrt::Windows::Foundation::IInspectable const& args) {
+    toast.Activated([id = progress.tag](auto const&, winrt::Windows::Foundation::IInspectable const& args) {
         auto action = std::wstring(args.as<ToastActivatedEventArgs>().Arguments());
         runAsync([id, action] {
             if (action == L"pause") pauseUpload(id);
@@ -179,73 +141,11 @@ void UploadToast::show() {
     });
 
     notifier().Show(toast);
-    isShown = true;
-    isRebuilt = false;
+    return true;
 }
 
-void UploadToast::update(int64_t sentBytes, int64_t totalBytes) {
-    std::lock_guard lock(mutex);
-    if (!isEnabled || isClosed || isPaused || sentBytes >= totalBytes) return;
-
-    auto now = nowMs();
-    if (!startedAt) startedAt = now;
-    sent = sentBytes;
-    total = totalBytes;
-
-    if (now - startedAt < PROGRESS_DELAY_MS || now - updatedAt < PROGRESS_INTERVAL_MS) return;
-    updatedAt = now;
-
-    try {
-        show();
-    } catch (winrt::hresult_error const& error) {
-        isEnabled = false;
-        logWarn(L"Could not show the upload progress: " + std::wstring(error.message()));
-    }
-}
-
-void UploadToast::setPaused(bool paused) {
-    std::lock_guard lock(mutex);
-    if (isPaused == paused) return;
-
-    auto now = nowMs();
-    if (paused) pausedAt = now;
-    else if (startedAt) startedAt += now - pausedAt;
-
-    isPaused = paused;
-    if (!isEnabled || isClosed || !isShown) return;
-
-    try {
-        isRebuilt = true;
-        show();
-    } catch (winrt::hresult_error const& error) {
-        isEnabled = false;
-        logWarn(L"Could not show the upload progress: " + std::wstring(error.message()));
-    }
-}
-
-void UploadToast::close() {
-    {
-        std::lock_guard lock(toastsMutex);
-        auto found = toasts.find(tag);
-        if (found != toasts.end() && found->second == this) toasts.erase(found);
-    }
-
-    std::lock_guard lock(mutex);
-    if (isClosed) return;
-    isClosed = true;
-    if (!isShown) return;
-
-    try {
-        ToastNotificationManager::History().Remove(tag, PROGRESS_GROUP, appUserModelId());
-    } catch (winrt::hresult_error const& error) {
-        logWarn(L"Could not remove the upload progress: " + std::wstring(error.message()));
-    }
-}
-
-void setUploadToastPaused(std::wstring const& tag, bool paused) {
-    std::lock_guard lock(toastsMutex);
-    auto found = toasts.find(tag);
-    if (found != toasts.end()) found->second->setPaused(paused);
+void hideUploadProgress(std::wstring const& tag) {
+    ToastNotificationManager::History().Remove(tag, PROGRESS_GROUP, appUserModelId());
 }
 
 }

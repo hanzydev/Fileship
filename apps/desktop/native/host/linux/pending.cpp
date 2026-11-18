@@ -70,23 +70,6 @@ void pauseHotkeys() {}
 
 void unregisterHotkeys() {}
 
-void notify(std::wstring const& title, std::wstring const& body, std::function<void()>,
-            std::optional<std::filesystem::path> const&) {
-    logInfo(L"Notification: " + title + L" - " + body);
-}
-
-void setUploadToastPaused(std::wstring const&, bool) {}
-
-UploadToast::UploadToast(std::wstring tag, std::wstring name) : tag(std::move(tag)), name(std::move(name)) {}
-
-UploadToast::~UploadToast() = default;
-
-void UploadToast::update(int64_t, int64_t) {}
-
-void UploadToast::setPaused(bool) {}
-
-void UploadToast::close() {}
-
 void writeClipboardText(std::wstring const&) {}
 
 bool writeClipboardImage(std::vector<uint8_t> const&, core::Bitmap const&) {

@@ -166,7 +166,6 @@ private:
     int64_t pausedAt = 0;
     int64_t sent = 0;
     int64_t total = 0;
-    uint32_t sequence = 0;
 };
 void writeClipboardText(std::wstring const& text);
 void refreshTray();

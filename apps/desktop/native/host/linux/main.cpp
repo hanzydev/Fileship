@@ -1,4 +1,5 @@
-#include <host/app.h>
+#include "host.h"
+
 #include <host/harbor.h>
 #include <host/recording.h>
 #include <shared/i18n.h>
@@ -72,6 +73,11 @@ int main(int count, char** values) {
     initI18n(resourcesPath() / L"i18n");
     logInfo(L"Fileship host " + appVersion() + (isPackaged() ? L"" : L" (development)"));
 
+    if (!sessionBus()) {
+        logError(L"There is no D-Bus session bus");
+        return 1;
+    }
+
     loadStore();
     setLanguage(resolveLanguage(jsonString(settings(), L"language", L"system")));
 
@@ -81,6 +87,7 @@ int main(int count, char** values) {
     startRpcServer();
 
     applySettings();
+    initNotifications();
     createTray();
     registerHotkeys();
     startUpdater();

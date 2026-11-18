@@ -1,9 +1,8 @@
-#include <host/app.h>
+#include "host.h"
+
 #include <host/platform.h>
 #include <shared/log.h>
 #include <shared/platform.h>
-
-#include <gio/gio.h>
 
 #include <ctime>
 
@@ -112,32 +111,29 @@ void openExternal(std::wstring const& url) {
     }
 }
 
-void showItemInFolder(std::filesystem::path const& path) {
-    GDBusConnection* bus = g_bus_get_sync(G_BUS_TYPE_SESSION, nullptr, nullptr);
-    if (!bus) return;
+GDBusConnection* sessionBus() {
+    static GDBusConnection* const bus = g_bus_get_sync(G_BUS_TYPE_SESSION, nullptr, nullptr);
+    return bus;
+}
 
+void showItemInFolder(std::filesystem::path const& path) {
     gchar* uri = g_filename_to_uri(path.c_str(), nullptr, nullptr);
     GVariantBuilder items;
     g_variant_builder_init(&items, G_VARIANT_TYPE("as"));
     g_variant_builder_add(&items, "s", uri);
 
-    g_dbus_connection_call(bus, "org.freedesktop.FileManager1", "/org/freedesktop/FileManager1",
+    g_dbus_connection_call(sessionBus(), "org.freedesktop.FileManager1", "/org/freedesktop/FileManager1",
                            "org.freedesktop.FileManager1", "ShowItems", g_variant_new("(ass)", &items, ""), nullptr,
                            G_DBUS_CALL_FLAGS_NONE, -1, nullptr, nullptr, nullptr);
 
     g_free(uri);
-    g_object_unref(bus);
 }
 
 bool isSystemDark() {
-    GDBusConnection* bus = g_bus_get_sync(G_BUS_TYPE_SESSION, nullptr, nullptr);
-    if (!bus) return false;
-
     GVariant* reply = g_dbus_connection_call_sync(
-        bus, "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop", "org.freedesktop.portal.Settings",
+        sessionBus(), "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop", "org.freedesktop.portal.Settings",
         "ReadOne", g_variant_new("(ss)", "org.freedesktop.appearance", "color-scheme"), G_VARIANT_TYPE("(v)"),
         G_DBUS_CALL_FLAGS_NONE, 1000, nullptr, nullptr);
-    g_object_unref(bus);
     if (!reply) return false;
 
     GVariant* value = nullptr;

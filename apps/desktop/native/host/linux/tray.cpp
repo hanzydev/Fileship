@@ -1,9 +1,9 @@
-#include <host/app.h>
+#include "host.h"
+
 #include <host/tray.h>
 #include <shared/log.h>
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
-#include <gio/gio.h>
 
 #include <unistd.h>
 
@@ -307,9 +307,7 @@ void handleWatcher(GDBusConnection*, gchar const*, gchar const*, gpointer) {
 }
 
 void createTray() {
-    bus = g_bus_get_sync(G_BUS_TYPE_SESSION, nullptr, nullptr);
-    if (!bus) return logWarn(L"There is no session bus, the tray icon is not shown");
-
+    bus = sessionBus();
     busName = "org.kde.StatusNotifierItem-" + std::to_string(getpid()) + "-1";
     iconPixmap = loadIcon();
     rebuildMenu();
@@ -330,7 +328,7 @@ void removeTray() {
     g_bus_unown_name(nameOwner);
     g_dbus_connection_unregister_object(bus, itemRegistration);
     g_dbus_connection_unregister_object(bus, menuRegistration);
-    g_clear_object(&bus);
+    bus = nullptr;
 }
 
 void refreshTray() {

@@ -28,6 +28,16 @@ public:
     virtual void close() = 0;
 };
 
+struct ProgressNotice {
+    std::wstring tag;
+    std::wstring name;
+    int64_t sent = 0;
+    int64_t total = 0;
+    std::wstring remaining;
+    std::wstring status;
+    bool isPaused = false;
+};
+
 std::filesystem::path executablePath();
 std::filesystem::path defaultUserDataPath();
 std::filesystem::path picturesPath();
@@ -41,6 +51,9 @@ void openExternal(std::wstring const& url);
 bool isSystemDark();
 bool isNameBefore(std::wstring const& a, std::wstring const& b);
 std::vector<std::filesystem::path> pickFiles();
+
+bool showUploadProgress(ProgressNotice const& progress, bool isNew);
+void hideUploadProgress(std::wstring const& tag);
 
 std::wstring storeSecret(std::wstring const& name, std::wstring const& value);
 std::wstring loadSecret(std::wstring const& name, std::wstring const& stored);
