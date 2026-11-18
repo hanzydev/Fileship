@@ -4,5 +4,5 @@ export default defineI18nConfig(() => ({
     fallbackLocale: 'en',
     missingWarn: false,
     fallbackWarn: false,
-    messages: messagesFor(window.fileship.platform),
+    messages: messagesFor(import.meta.client ? window.fileship.platform : 'win32'),
 }));
