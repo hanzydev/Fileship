@@ -19,6 +19,7 @@ const bridge: DesktopBridge = {
         return () => ipcRenderer.off(channel, handleEvent);
     },
     pathForFile: (file) => webUtils.getPathForFile(file),
+    platform: process.platform as DesktopBridge['platform'],
 };
 
 contextBridge.exposeInMainWorld('fileship', bridge);

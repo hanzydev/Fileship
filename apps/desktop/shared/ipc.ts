@@ -61,7 +61,11 @@ export type UploadProgress = {
     paused: boolean;
 };
 
-export type HotkeyStatus = Partial<Record<HotkeyAction, 'ok' | 'conflict' | 'invalid'>>;
+export type HotkeyStatus = Partial<
+    Record<HotkeyAction, 'ok' | 'conflict' | 'invalid' | 'unsupported'>
+>;
+
+export type HotkeyTriggers = Partial<Record<HotkeyAction, string>>;
 
 export type FfmpegStatus = {
     path: string | null;
@@ -116,6 +120,11 @@ export type HarborBreakdown = { type: string; size: number };
 export type AppInfo = {
     version: string;
     isPackaged: boolean;
+    platform: 'windows' | 'linux';
+    session?: 'x11' | 'wayland';
+    hotkeys: 'native' | 'portal' | 'command';
+    canConfigureHotkeys?: boolean;
+    hostPath?: string;
 };
 
 export type IpcInvoke = {
@@ -149,6 +158,8 @@ export type IpcInvoke = {
     'hotkeys:pause': (paused: boolean) => HotkeyStatus;
     'hotkeys:snippingTool': () => boolean;
     'hotkeys:setSnippingTool': (enabled: boolean) => HotkeyStatus;
+    'hotkeys:triggers': () => HotkeyTriggers;
+    'hotkeys:configure': () => void;
     'folders:list': () => Folder[];
     'dialog:pickFolder': () => string | null;
     'dialog:pickFfmpeg': () => string | null;
@@ -172,6 +183,7 @@ export type IpcEvents = {
     'updates:status': UpdateStatus;
     'history:changed': null;
     'uploads:progress': UploadProgress[];
+    'hotkeys:triggers': HotkeyTriggers;
     'ffmpeg:status': FfmpegStatus;
     'harbor:status': HarborStatus;
     'harbor:activity': HarborActivity[];
@@ -208,6 +220,8 @@ export const INVOKE_CHANNELS = [
     'hotkeys:pause',
     'hotkeys:snippingTool',
     'hotkeys:setSnippingTool',
+    'hotkeys:triggers',
+    'hotkeys:configure',
     'folders:list',
     'dialog:pickFolder',
     'dialog:pickFfmpeg',
@@ -231,6 +245,7 @@ export const EVENT_CHANNELS = [
     'updates:status',
     'history:changed',
     'uploads:progress',
+    'hotkeys:triggers',
     'ffmpeg:status',
     'harbor:status',
     'harbor:activity',
@@ -276,4 +291,5 @@ export type DesktopBridge = {
         listener: (payload: IpcEvents[K]) => void,
     ) => () => void;
     pathForFile: (file: File) => string;
+    platform: 'win32' | 'linux';
 };

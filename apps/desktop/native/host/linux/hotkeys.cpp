@@ -188,8 +188,10 @@ std::vector<std::wstring> bindX11Hotkeys(std::vector<Hotkey> const& hotkeys) {
     for (auto const& hotkey : hotkeys) {
         auto keysym = keysymOf(hotkey.accelerator.key);
         auto keycode = keysym ? keycodeOf(mapping, setup->min_keycode, *keysym) : std::nullopt;
+        bool isReserved = hotkey.accelerator.control && hotkey.accelerator.alt && keysym >= XKB_KEY_F1 &&
+                          keysym <= XKB_KEY_F12;
 
-        if (!keycode) {
+        if (!keycode || isReserved) {
             results.push_back(L"invalid");
             continue;
         }

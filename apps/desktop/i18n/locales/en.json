@@ -350,7 +350,12 @@
             "uploadFile": "Upload file",
             "shortenClipboard": "Shorten link from clipboard",
             "openMain": "Open Fileship"
-        }
+        },
+        "portalDescription": "On Wayland the system assigns the shortcuts. Fileship suggests its own and you confirm or change them in the system settings.",
+        "configure": "Change in system settings",
+        "commandDescription": "This desktop does not let apps set global shortcuts. Add a custom shortcut in the system settings for each action you need, and give it the command shown here.",
+        "copyCommand": "Copy command",
+        "commandCopied": "Command copied"
     },
     "labels": {
         "expiration": {
@@ -686,5 +691,31 @@
         "pattern": "File name pattern",
         "patternDescription": "{preview}.png · %yyyy year, %mo month, %d day, %h hour, %mi minute, %s second, %ms millisecond, %pn window title, %ra random",
         "sampleWindow": "Window"
+    },
+    "linux": {
+        "account": {
+            "sessionDescription": "This computer appears as \"Fileship for Linux\" in your sessions, where you can also revoke it."
+        },
+        "app": {
+            "chooseFfmpeg": "Choose ffmpeg",
+            "serverTooOld": "This server runs Fileship v{version}. Fileship for Linux needs v{minVersion} or later."
+        },
+        "general": {
+            "startupDescription": "Fileship starts in the tray, so your hotkeys work right after you log in.",
+            "startAtLogin": "Start Fileship when I log in",
+            "themeDescription": "Light, dark or follow the system."
+        },
+        "hotkeys": {
+            "description": "Work everywhere while Fileship runs in the tray. Click a shortcut to change it.",
+            "invalid": "This shortcut cannot be used."
+        },
+        "labels": {
+            "language": {
+                "system": "Same as the system"
+            }
+        },
+        "nav": {
+            "forWindows": "for Linux"
+        }
     }
 }

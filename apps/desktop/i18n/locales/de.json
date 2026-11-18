@@ -350,7 +350,12 @@
             "uploadFile": "Datei hochladen",
             "shortenClipboard": "Link aus Zwischenablage kürzen",
             "openMain": "Fileship öffnen"
-        }
+        },
+        "portalDescription": "Unter Wayland vergibt das System die Tastenkürzel. Fileship schlägt seine eigenen vor, und du bestätigst oder änderst sie in den Systemeinstellungen.",
+        "configure": "In den Systemeinstellungen ändern",
+        "commandDescription": "Auf diesem Desktop können Apps keine globalen Tastenkürzel festlegen. Lege in den Systemeinstellungen für jede gewünschte Aktion ein eigenes Tastenkürzel mit dem hier gezeigten Befehl an.",
+        "copyCommand": "Befehl kopieren",
+        "commandCopied": "Befehl kopiert"
     },
     "labels": {
         "expiration": {
@@ -686,5 +691,31 @@
         "pattern": "Dateinamenmuster",
         "patternDescription": "{preview}.png · %yyyy Jahr, %mo Monat, %d Tag, %h Stunde, %mi Minute, %s Sekunde, %ms Millisekunde, %pn Fenstertitel, %ra Zufall",
         "sampleWindow": "Fenster"
+    },
+    "linux": {
+        "account": {
+            "sessionDescription": "Dieser Computer erscheint in deinen Sitzungen als „Fileship for Linux“. Dort kannst du ihn auch abmelden."
+        },
+        "app": {
+            "chooseFfmpeg": "ffmpeg auswählen",
+            "serverTooOld": "Auf diesem Server läuft Fileship v{version}. Fileship für Linux benötigt v{minVersion} oder neuer."
+        },
+        "general": {
+            "startupDescription": "Fileship startet im Infobereich, damit deine Tastenkürzel direkt nach der Anmeldung funktionieren.",
+            "startAtLogin": "Fileship bei der Anmeldung starten",
+            "themeDescription": "Hell, dunkel oder wie das System."
+        },
+        "hotkeys": {
+            "description": "Funktionieren überall, solange Fileship im Infobereich läuft. Klicke auf ein Tastenkürzel, um es zu ändern.",
+            "invalid": "Dieses Tastenkürzel kann nicht verwendet werden."
+        },
+        "labels": {
+            "language": {
+                "system": "Wie das System"
+            }
+        },
+        "nav": {
+            "forWindows": "für Linux"
+        }
     }
 }

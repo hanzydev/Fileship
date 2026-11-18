@@ -157,13 +157,13 @@ void subscribe() {
 
 }
 
-bool hasPortalHotkeys() {
-    static bool const value = portalVersion(INTERFACE) > 0;
-    return value;
+uint32_t portalHotkeysVersion() {
+    static uint32_t const version = portalVersion(INTERFACE);
+    return version;
 }
 
 std::vector<std::wstring> bindPortalHotkeys(std::vector<Hotkey> const& hotkeys) {
-    if (!hasPortalHotkeys()) return std::vector<std::wstring>(hotkeys.size(), L"unsupported");
+    if (!portalHotkeysVersion()) return std::vector<std::wstring>(hotkeys.size(), L"unsupported");
 
     std::vector<std::wstring> results;
     std::vector<Hotkey> known;
@@ -190,7 +190,7 @@ JsonObject portalHotkeyTriggers() {
 
 void configurePortalHotkeys() {
     postToMainThread([] {
-        if (session.empty() || portalVersion(INTERFACE) < 2) return;
+        if (session.empty()) return;
 
         GVariantBuilder options;
         g_variant_builder_init(&options, G_VARIANT_TYPE("a{sv}"));

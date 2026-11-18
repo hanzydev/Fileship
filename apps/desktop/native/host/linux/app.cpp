@@ -65,8 +65,9 @@ void describePlatform(JsonObject& info) {
     info.SetNamedValue(L"platform", JsonValue::CreateStringValue(L"linux"));
     info.SetNamedValue(L"session", JsonValue::CreateStringValue(isWayland() ? L"wayland" : L"x11"));
     info.SetNamedValue(L"hotkeys", JsonValue::CreateStringValue(!isWayland() ? L"native"
-                                                                : hasPortalHotkeys() ? L"portal"
-                                                                                     : L"command"));
+                                                                : portalHotkeysVersion() ? L"portal"
+                                                                                         : L"command"));
+    info.SetNamedValue(L"canConfigureHotkeys", JsonValue::CreateBooleanValue(isWayland() && portalHotkeysVersion() > 1));
     info.SetNamedValue(L"hostPath", JsonValue::CreateStringValue(hostExecutable().wstring()));
 }
 

@@ -18,7 +18,7 @@ void initNotifications();
 std::optional<uint32_t> keysymOf(std::wstring const& key);
 std::vector<std::wstring> bindX11Hotkeys(std::vector<Hotkey> const& hotkeys);
 std::vector<std::wstring> bindPortalHotkeys(std::vector<Hotkey> const& hotkeys);
-bool hasPortalHotkeys();
+uint32_t portalHotkeysVersion();
 JsonObject portalHotkeyTriggers();
 void configurePortalHotkeys();
 

@@ -1,8 +1,8 @@
-import { messages } from './messages';
+import { messagesFor } from './messages';
 
 export default defineI18nConfig(() => ({
     fallbackLocale: 'en',
     missingWarn: false,
     fallbackWarn: false,
-    messages,
+    messages: messagesFor(window.fileship.platform),
 }));

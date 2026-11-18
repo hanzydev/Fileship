@@ -350,7 +350,12 @@
             "uploadFile": "Subir archivo",
             "shortenClipboard": "Acortar enlace del portapapeles",
             "openMain": "Abrir Fileship"
-        }
+        },
+        "portalDescription": "En Wayland, el sistema asigna los atajos. Fileship propone los suyos y tú los confirmas o los cambias en la configuración del sistema.",
+        "configure": "Cambiar en la configuración del sistema",
+        "commandDescription": "Este escritorio no permite que las aplicaciones definan atajos globales. Añade un atajo personalizado en la configuración del sistema para cada acción que necesites y asígnale el comando que se muestra aquí.",
+        "copyCommand": "Copiar comando",
+        "commandCopied": "Comando copiado"
     },
     "labels": {
         "expiration": {
@@ -686,5 +691,31 @@
         "pattern": "Patrón de nombre de archivo",
         "patternDescription": "{preview}.png · %yyyy año, %mo mes, %d día, %h hora, %mi minuto, %s segundo, %ms milisegundo, %pn título de la ventana, %ra aleatorio",
         "sampleWindow": "Ventana"
+    },
+    "linux": {
+        "account": {
+            "sessionDescription": "Este dispositivo aparece como \"Fileship para Linux\" en tus sesiones, donde también puedes revocar su acceso."
+        },
+        "app": {
+            "chooseFfmpeg": "Elegir ffmpeg",
+            "serverTooOld": "Este servidor ejecuta Fileship v{version}. Fileship para Linux necesita v{minVersion} o posterior."
+        },
+        "general": {
+            "startupDescription": "Fileship se inicia en el área de notificación, así que tus atajos de teclado funcionan en cuanto inicias sesión.",
+            "startAtLogin": "Iniciar Fileship al iniciar sesión",
+            "themeDescription": "Claro, oscuro o igual que el sistema."
+        },
+        "hotkeys": {
+            "description": "Funcionan en todas partes mientras Fileship se ejecuta en el área de notificación. Haz clic en un atajo para cambiarlo.",
+            "invalid": "Este atajo no se puede usar."
+        },
+        "labels": {
+            "language": {
+                "system": "Igual que el sistema"
+            }
+        },
+        "nav": {
+            "forWindows": "para Linux"
+        }
     }
 }

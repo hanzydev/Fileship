@@ -350,7 +350,12 @@
             "uploadFile": "파일 업로드",
             "shortenClipboard": "클립보드의 링크 단축",
             "openMain": "Fileship 열기"
-        }
+        },
+        "portalDescription": "Wayland에서는 시스템이 단축키를 지정해요. Fileship이 기본 단축키를 제안하고, 시스템 설정에서 확인하거나 바꿀 수 있어요.",
+        "configure": "시스템 설정에서 변경",
+        "commandDescription": "이 데스크톱에서는 앱이 전역 단축키를 지정할 수 없어요. 필요한 작업마다 시스템 설정에서 사용자 지정 단축키를 추가하고 여기에 표시된 명령을 입력하세요.",
+        "copyCommand": "명령 복사",
+        "commandCopied": "명령을 복사했어요"
     },
     "labels": {
         "expiration": {
@@ -686,5 +691,31 @@
         "pattern": "파일 이름 패턴",
         "patternDescription": "{preview}.png · %yyyy 연도, %mo 월, %d 일, %h 시, %mi 분, %s 초, %ms 밀리초, %pn 창 제목, %ra 무작위 문자",
         "sampleWindow": "창"
+    },
+    "linux": {
+        "account": {
+            "sessionDescription": "이 컴퓨터는 세션 목록에 \"Fileship for Linux\"로 표시되고, 거기서 로그아웃할 수도 있어요."
+        },
+        "app": {
+            "chooseFfmpeg": "ffmpeg 선택",
+            "serverTooOld": "이 서버는 Fileship v{version} 버전을 사용하고 있어요. Linux용 Fileship에는 v{minVersion} 이상이 필요해요."
+        },
+        "general": {
+            "startupDescription": "Fileship은 알림 영역에서 시작되므로 로그인하자마자 단축키를 사용할 수 있어요.",
+            "startAtLogin": "로그인 시 Fileship 실행",
+            "themeDescription": "라이트, 다크 또는 시스템 설정을 따라요."
+        },
+        "hotkeys": {
+            "description": "Fileship이 알림 영역에서 실행 중이면 어디에서나 작동해요. 바꾸려면 단축키를 클릭하세요.",
+            "invalid": "사용할 수 없는 단축키예요."
+        },
+        "labels": {
+            "language": {
+                "system": "시스템 설정 따르기"
+            }
+        },
+        "nav": {
+            "forWindows": "Linux용"
+        }
     }
 }

@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { root } from './native.mjs';
+import { platform, root } from './native.mjs';
 
 const workspace = join(root, '..', '..');
 const generated = join(root, 'build', 'generated');
@@ -265,10 +265,12 @@ const writeCatalogs = () => {
     const layer = join(workspace, 'packages', 'ui', 'i18n', 'locales');
 
     for (const file of readdirSync(desktop).filter((name) => name.endsWith('.json'))) {
-        const messages = merge(
+        const { linux, ...messages } = merge(
             JSON.parse(readFileSync(join(layer, file), 'utf8')),
             JSON.parse(readFileSync(join(desktop, file), 'utf8')),
         );
+
+        if (platform === 'linux') merge(messages, linux);
 
         writeFileSync(join(catalogs, file), JSON.stringify(messages));
     }

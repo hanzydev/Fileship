@@ -28,4 +28,24 @@ export const LANGUAGES = [
 
 export type Language = (typeof LANGUAGES)[number];
 
-export const messages = { en, tr, de, es, fr, it, pt, ru, az, ja, ko, zh };
+const catalogs = { en, tr, de, es, fr, it, pt, ru, az, ja, ko, zh };
+
+type Messages = { [key: string]: string | Messages };
+
+const merge = (base: Messages, overrides: Messages): Messages =>
+    Object.fromEntries(
+        Object.entries({ ...base, ...overrides }).map(([key, value]) => [
+            key,
+            typeof value === 'object' && typeof base[key] === 'object' && key in overrides
+                ? merge(base[key], overrides[key] as Messages)
+                : value,
+        ]),
+    );
+
+export const messagesFor = (platform: string) =>
+    Object.fromEntries(
+        LANGUAGES.map((code) => {
+            const { linux, ...messages } = catalogs[code];
+            return [code, platform === 'linux' ? merge(messages, linux) : messages];
+        }),
+    ) as Record<Language, Omit<typeof en, 'linux'>>;

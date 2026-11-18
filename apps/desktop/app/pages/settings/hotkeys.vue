@@ -2,8 +2,14 @@
     <UiCard>
         <UiCardHeader>
             <UiCardTitle>{{ $t('hotkeys.title') }}</UiCardTitle>
-            <UiCardDescription>{{ $t('hotkeys.description') }}</UiCardDescription>
-            <UiCardAction>
+            <UiCardDescription v-if="mode === 'portal'">
+                {{ $t('hotkeys.portalDescription') }}
+            </UiCardDescription>
+            <UiCardDescription v-else-if="mode === 'command'">
+                {{ $t('hotkeys.commandDescription') }}
+            </UiCardDescription>
+            <UiCardDescription v-else>{{ $t('hotkeys.description') }}</UiCardDescription>
+            <UiCardAction v-if="mode !== 'command'">
                 <UiSwitch
                     :model-value="settings?.hotkeysEnabled"
                     :disabled="!settings"
@@ -13,11 +19,21 @@
             </UiCardAction>
         </UiCardHeader>
         <UiCardContent>
-            <UiItemGroup :class="cn('gap-2', !settings?.hotkeysEnabled && 'opacity-50')">
+            <UiItemGroup
+                :class="
+                    cn('gap-2', mode !== 'command' && !settings?.hotkeysEnabled && 'opacity-50')
+                "
+            >
                 <UiItem v-for="action in HOTKEY_ACTIONS" :key="action" variant="muted" size="sm">
                     <UiItemContent class="min-w-0">
                         <UiItemTitle>{{ $t(`hotkeys.actions.${action}`) }}</UiItemTitle>
-                        <UiItemDescription v-if="duplicates.has(action)" class="text-destructive">
+                        <UiItemDescription v-if="mode === 'command'" class="font-mono break-all">
+                            {{ commandOf(action) }}
+                        </UiItemDescription>
+                        <UiItemDescription
+                            v-else-if="mode === 'native' && duplicates.has(action)"
+                            class="text-destructive"
+                        >
                             {{ $t('hotkeys.duplicate') }}
                         </UiItemDescription>
                         <UiItemDescription
@@ -33,7 +49,23 @@
                             {{ $t('hotkeys.invalid') }}
                         </UiItemDescription>
                     </UiItemContent>
-                    <UiItemActions>
+                    <UiItemActions v-if="mode === 'portal'">
+                        <UiKbd v-if="triggers[action]">{{ triggers[action] }}</UiKbd>
+                        <span v-else class="text-muted-foreground text-sm">
+                            {{ $t('hotkeys.notSet') }}
+                        </span>
+                    </UiItemActions>
+                    <UiItemActions v-else-if="mode === 'command'">
+                        <UiButton
+                            variant="ghost"
+                            size="icon-sm"
+                            :aria-label="$t('hotkeys.copyCommand')"
+                            @click="handleCopy(action)"
+                        >
+                            <ICopy />
+                        </UiButton>
+                    </UiItemActions>
+                    <UiItemActions v-else>
                         <UiButton
                             :variant="recording === action ? 'default' : 'outline'"
                             size="sm"
@@ -69,15 +101,25 @@
                 </UiItem>
             </UiItemGroup>
         </UiCardContent>
-        <UiCardFooter>
+        <UiCardFooter v-if="mode === 'native'">
             <UiButton variant="outline" :disabled="!settings" @click="handleReset">
                 <IRotateCcw />
                 {{ $t('hotkeys.reset') }}
             </UiButton>
         </UiCardFooter>
+        <UiCardFooter v-else-if="info?.canConfigureHotkeys">
+            <UiButton
+                variant="outline"
+                :disabled="!settings?.hotkeysEnabled"
+                @click="desktop('hotkeys:configure')"
+            >
+                <ISettings2 />
+                {{ $t('hotkeys.configure') }}
+            </UiButton>
+        </UiCardFooter>
     </UiCard>
 
-    <UiCard>
+    <UiCard v-if="info?.platform === 'windows'">
         <UiCardHeader>
             <UiCardTitle>{{ $t('hotkeys.printScreen') }}</UiCardTitle>
             <UiCardDescription>{{ $t('hotkeys.printScreenDescription') }}</UiCardDescription>
@@ -94,12 +136,12 @@
 </template>
 
 <script setup lang="ts">
-import type { HotkeyStatus } from '../../../shared/ipc';
+import type { AppInfo, HotkeyStatus, HotkeyTriggers } from '../../../shared/ipc';
 import { DEFAULT_HOTKEYS, HOTKEY_ACTIONS, type HotkeyAction } from '../../../shared/settings';
 
 const KEY_LABELS: Record<string, string> = {
     Control: 'Ctrl',
-    Super: 'Win',
+    Super: window.fileship.platform === 'win32' ? 'Win' : 'Super',
     PrintScreen: 'Print Screen',
     Up: '↑',
     Down: '↓',
@@ -145,10 +187,15 @@ const MODIFIER_CODES = ['Control', 'Alt', 'Shift', 'Meta', 'OS'];
 
 const settings = useSettings();
 const { $toast } = useNuxtApp();
+const { t } = useI18n();
 
+const info = ref<AppInfo | null>(null);
 const status = ref<HotkeyStatus>({});
+const triggers = ref<HotkeyTriggers>({});
 const recording = ref<HotkeyAction | null>(null);
 const isSnippingToolEnabled = ref<boolean | null>(null);
+
+let stopTriggers = () => {};
 
 const duplicates = computed(() => {
     const result = new Set<HotkeyAction>();
@@ -170,6 +217,10 @@ const duplicates = computed(() => {
 
     return result;
 });
+
+const mode = computed(() => info.value?.hotkeys ?? 'native');
+
+const commandOf = (action: HotkeyAction) => `"${info.value!.hostPath}" --action ${action}`;
 
 const keyFromCode = (code: string) => {
     if (/^Key[A-Z]$/.test(code)) return code.slice(3);
@@ -238,6 +289,11 @@ const handleSnippingTool = async (useFileship: boolean) => {
     }
 };
 
+const handleCopy = async (action: HotkeyAction) => {
+    await navigator.clipboard.writeText(commandOf(action));
+    $toast.success(t('hotkeys.commandCopied'));
+};
+
 const handleKey = (event: KeyboardEvent) => {
     if (!recording.value) return;
 
@@ -265,10 +321,24 @@ useEventListener('keyup', (event: KeyboardEvent) => {
 
 useEventListener('blur', stopRecording);
 
-onBeforeUnmount(stopRecording);
+onBeforeUnmount(() => {
+    stopRecording();
+    stopTriggers();
+});
 
 onMounted(async () => {
-    const [, snippingTool] = await Promise.all([loadStatus(), desktop('hotkeys:snippingTool')]);
-    isSnippingToolEnabled.value = snippingTool;
+    info.value = await desktop('app:info');
+    await loadStatus();
+
+    if (info.value.platform === 'windows') {
+        isSnippingToolEnabled.value = await desktop('hotkeys:snippingTool');
+    }
+
+    if (mode.value !== 'portal') return;
+
+    triggers.value = await desktop('hotkeys:triggers');
+    stopTriggers = window.fileship.on('hotkeys:triggers', (value) => {
+        triggers.value = value;
+    });
 });
 </script>

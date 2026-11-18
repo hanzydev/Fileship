@@ -350,7 +350,12 @@
             "uploadFile": "ファイルをアップロード",
             "shortenClipboard": "クリップボードのリンクを短縮",
             "openMain": "Fileship を開く"
-        }
+        },
+        "portalDescription": "Wayland ではショートカットキーをシステムが割り当てます。Fileship が候補を提案し、システム設定で確認または変更できます。",
+        "configure": "システム設定で変更",
+        "commandDescription": "このデスクトップでは、アプリがグローバルなショートカットキーを設定できません。必要な操作ごとに、システム設定でカスタムショートカットを追加し、ここに表示されているコマンドを指定してください。",
+        "copyCommand": "コマンドをコピー",
+        "commandCopied": "コマンドをコピーしました"
     },
     "labels": {
         "expiration": {
@@ -686,5 +691,31 @@
         "pattern": "ファイル名のパターン",
         "patternDescription": "{preview}.png · %yyyy 年、%mo 月、%d 日、%h 時、%mi 分、%s 秒、%ms ミリ秒、%pn ウィンドウのタイトル、%ra ランダム",
         "sampleWindow": "ウィンドウ"
+    },
+    "linux": {
+        "account": {
+            "sessionDescription": "この PC はセッションの一覧に「Fileship for Linux」として表示され、そこからアクセスを取り消すこともできます。"
+        },
+        "app": {
+            "chooseFfmpeg": "ffmpeg を選択",
+            "serverTooOld": "このサーバーは Fileship v{version} で動作しています。Fileship for Linux には v{minVersion} 以降が必要です。"
+        },
+        "general": {
+            "startupDescription": "Fileship は通知領域で起動するため、ログインした直後からショートカットキーを使えます。",
+            "startAtLogin": "ログイン時に Fileship を開始",
+            "themeDescription": "ライト、ダーク、またはシステムの設定に合わせます。"
+        },
+        "hotkeys": {
+            "description": "Fileship が通知領域で実行されている間は、どこでも使えます。ショートカットキーをクリックすると変更できます。",
+            "invalid": "このショートカットキーは使用できません。"
+        },
+        "labels": {
+            "language": {
+                "system": "システムと同じ"
+            }
+        },
+        "nav": {
+            "forWindows": "for Linux"
+        }
     }
 }

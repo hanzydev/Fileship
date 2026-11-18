@@ -1,8 +1,10 @@
 import { pluralIndex } from '@fileship/ui/i18n/plural';
 
-import { type Language, messages } from '../i18n/messages';
+import { type Language, messagesFor } from '../i18n/messages';
 
 type Params = Record<string, string | number>;
+
+const messages = messagesFor(process.platform);
 
 let language: Language = 'en';
 

@@ -350,7 +350,12 @@
             "uploadFile": "Fayl yüklə",
             "shortenClipboard": "Mübadilə buferindəki keçidi qısalt",
             "openMain": "Fileship-i aç"
-        }
+        },
+        "portalDescription": "Wayland-da qısayolları sistem təyin edir. Fileship öz qısayollarını təklif edir, sən isə onları sistem ayarlarında təsdiqləyir və ya dəyişirsən.",
+        "configure": "Sistem ayarlarında dəyiş",
+        "commandDescription": "Bu iş masası tətbiqlərə ümumi qısayol təyin etməyə icazə vermir. Lazım olan hər əməliyyat üçün sistem ayarlarında xüsusi qısayol əlavə et və burada göstərilən əmri yaz.",
+        "copyCommand": "Əmri kopyala",
+        "commandCopied": "Əmr kopyalandı"
     },
     "labels": {
         "expiration": {
@@ -686,5 +691,31 @@
         "pattern": "Fayl adı şablonu",
         "patternDescription": "{preview}.png · %yyyy il, %mo ay, %d gün, %h saat, %mi dəqiqə, %s saniyə, %ms millisaniyə, %pn pəncərə başlığı, %ra təsadüfi",
         "sampleWindow": "Pəncərə"
+    },
+    "linux": {
+        "account": {
+            "sessionDescription": "Bu kompüter sessiyaların siyahısında \"Fileship for Linux\" kimi görünür. Sessiyanı oradan bitirə bilərsən."
+        },
+        "app": {
+            "chooseFfmpeg": "ffmpeg faylını seç",
+            "serverTooOld": "Bu serverdə Fileship v{version} işləyir. Linux üçün Fileship ən azı v{minVersion} versiyasını tələb edir."
+        },
+        "general": {
+            "startupDescription": "Fileship bildiriş sahəsində işə düşür, buna görə sistemə daxil olan kimi qısayollar işləyir.",
+            "startAtLogin": "Fileship-i sistemə girişdə başlat",
+            "themeDescription": "Açıq, tünd və ya sistemlə eyni."
+        },
+        "hotkeys": {
+            "description": "Fileship bildiriş sahəsində işləyərkən hər yerdə işləyir. Dəyişmək üçün qısayola kliklə.",
+            "invalid": "Bu qısayoldan istifadə etmək olmur."
+        },
+        "labels": {
+            "language": {
+                "system": "Sistemlə eyni"
+            }
+        },
+        "nav": {
+            "forWindows": "Linux üçün"
+        }
     }
 }

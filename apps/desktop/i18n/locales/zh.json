@@ -350,7 +350,12 @@
             "uploadFile": "上传文件",
             "shortenClipboard": "缩短剪贴板中的链接",
             "openMain": "打开 Fileship"
-        }
+        },
+        "portalDescription": "在 Wayland 上，快捷键由系统分配。Fileship 会建议自己的快捷键，你可以在系统设置中确认或更改。",
+        "configure": "在系统设置中更改",
+        "commandDescription": "此桌面不允许应用设置全局快捷键。请在系统设置中为需要的每个操作添加自定义快捷键，并填入此处显示的命令。",
+        "copyCommand": "复制命令",
+        "commandCopied": "命令已复制"
     },
     "labels": {
         "expiration": {
@@ -686,5 +691,31 @@
         "pattern": "文件名格式",
         "patternDescription": "{preview}.png · %yyyy 年，%mo 月，%d 日，%h 时，%mi 分，%s 秒，%ms 毫秒，%pn 窗口标题，%ra 随机字符",
         "sampleWindow": "窗口"
+    },
+    "linux": {
+        "account": {
+            "sessionDescription": "这台电脑在你的会话列表中显示为“Fileship for Linux”，你也可以在那里撤销它。"
+        },
+        "app": {
+            "chooseFfmpeg": "选择 ffmpeg",
+            "serverTooOld": "这台服务器运行的是 Fileship v{version}。Fileship Linux 版需要 v{minVersion} 或更高版本。"
+        },
+        "general": {
+            "startupDescription": "Fileship 会在通知区域中启动，登录后快捷键立即可用。",
+            "startAtLogin": "登录时启动 Fileship",
+            "themeDescription": "浅色、深色或跟随系统。"
+        },
+        "hotkeys": {
+            "description": "Fileship 在通知区域运行时，可在任何位置使用。单击快捷键即可更改。",
+            "invalid": "无法使用此快捷键。"
+        },
+        "labels": {
+            "language": {
+                "system": "跟随系统"
+            }
+        },
+        "nav": {
+            "forWindows": "Linux 版"
+        }
     }
 }

@@ -350,7 +350,12 @@
             "uploadFile": "Dosya yükle",
             "shortenClipboard": "Panodaki bağlantıyı kısalt",
             "openMain": "Fileship'i aç"
-        }
+        },
+        "portalDescription": "Wayland'de kısayolları sistem atar. Fileship kendi kısayollarını önerir; onları sistem ayarlarından onaylayabilir ya da değiştirebilirsin.",
+        "configure": "Sistem ayarlarında değiştir",
+        "commandDescription": "Bu masaüstü, uygulamaların genel kısayol atamasına izin vermiyor. İhtiyacın olan her işlem için sistem ayarlarından özel bir kısayol ekle ve burada gösterilen komutu ver.",
+        "copyCommand": "Komutu kopyala",
+        "commandCopied": "Komut kopyalandı"
     },
     "labels": {
         "expiration": {
@@ -686,5 +691,31 @@
         "pattern": "Dosya adı şablonu",
         "patternDescription": "{preview}.png · %yyyy yıl, %mo ay, %d gün, %h saat, %mi dakika, %s saniye, %ms milisaniye, %pn pencere başlığı, %ra rastgele",
         "sampleWindow": "Pencere"
+    },
+    "linux": {
+        "account": {
+            "sessionDescription": "Bu bilgisayar oturum listende \"Fileship for Linux\" olarak görünür. Oturumu oradan sonlandırabilirsin."
+        },
+        "app": {
+            "chooseFfmpeg": "ffmpeg dosyasını seç",
+            "serverTooOld": "Bu sunucuda Fileship v{version} çalışıyor. Linux için Fileship en az v{minVersion} sürümünü gerektirir."
+        },
+        "general": {
+            "startupDescription": "Fileship bildirim alanında başlar; oturum açılır açılmaz kısayollar çalışır.",
+            "startAtLogin": "Fileship'i oturum açılınca başlat",
+            "themeDescription": "Açık, koyu ya da sistemle aynı."
+        },
+        "hotkeys": {
+            "description": "Fileship bildirim alanında açıkken her yerde kullanılabilir. Değiştirmek için bir kısayola tıkla.",
+            "invalid": "Bu kısayol kullanılamıyor."
+        },
+        "labels": {
+            "language": {
+                "system": "Sistemle aynı"
+            }
+        },
+        "nav": {
+            "forWindows": "Linux için"
+        }
     }
 }

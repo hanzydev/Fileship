@@ -350,7 +350,12 @@
             "uploadFile": "Carica file",
             "shortenClipboard": "Abbrevia link dagli appunti",
             "openMain": "Apri Fileship"
-        }
+        },
+        "portalDescription": "Su Wayland è il sistema ad assegnare le scorciatoie. Fileship propone le sue e tu le confermi o le cambi nelle impostazioni di sistema.",
+        "configure": "Modifica nelle impostazioni di sistema",
+        "commandDescription": "Questo desktop non consente alle app di impostare scorciatoie globali. Aggiungi una scorciatoia personalizzata nelle impostazioni di sistema per ogni azione che ti serve, con il comando mostrato qui.",
+        "copyCommand": "Copia comando",
+        "commandCopied": "Comando copiato"
     },
     "labels": {
         "expiration": {
@@ -686,5 +691,31 @@
         "pattern": "Schema del nome file",
         "patternDescription": "{preview}.png · %yyyy anno, %mo mese, %d giorno, %h ora, %mi minuto, %s secondo, %ms millisecondo, %pn titolo della finestra, %ra casuale",
         "sampleWindow": "Finestra"
+    },
+    "linux": {
+        "account": {
+            "sessionDescription": "Nelle tue sessioni questo computer compare come \"Fileship per Linux\" e da lì puoi anche revocarlo."
+        },
+        "app": {
+            "chooseFfmpeg": "Scegli ffmpeg",
+            "serverTooOld": "Su questo server è installato Fileship v{version}. Fileship per Linux richiede la v{minVersion} o successiva."
+        },
+        "general": {
+            "startupDescription": "Fileship si avvia nell'area di notifica, così le scorciatoie funzionano appena accedi.",
+            "startAtLogin": "Avvia Fileship all'accesso",
+            "themeDescription": "Chiaro, scuro o come il sistema."
+        },
+        "hotkeys": {
+            "description": "Funzionano ovunque mentre Fileship è nell'area di notifica. Fai clic su una scorciatoia per cambiarla.",
+            "invalid": "Questa scorciatoia non può essere usata."
+        },
+        "labels": {
+            "language": {
+                "system": "Come il sistema"
+            }
+        },
+        "nav": {
+            "forWindows": "per Linux"
+        }
     }
 }
