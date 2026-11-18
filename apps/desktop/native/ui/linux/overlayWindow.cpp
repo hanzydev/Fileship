@@ -335,6 +335,7 @@ private:
         bool shift = (gdk_event_get_modifier_state(event) & GDK_SHIFT_MASK) != 0;
 
         switch (type) {
+        case GDK_ENTER_NOTIFY:
         case GDK_MOTION_NOTIFY: {
             auto point = self->pointOf(*screen, event);
             self->focused = screen;
