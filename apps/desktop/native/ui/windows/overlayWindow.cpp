@@ -3,6 +3,7 @@
 #include <ui/overlayWindow.h>
 
 #include <shared/log.h>
+#include <shared/utf8.h>
 
 #include <commdlg.h>
 #include <imm.h>
@@ -225,6 +226,10 @@ private:
             return self->handle(message, wParam, lParam);
         } catch (winrt::hresult_error const& error) {
             logError(L"The capture overlay failed: " + std::wstring(error.message()));
+            self->client.cancel();
+            return 0;
+        } catch (std::exception const& error) {
+            logError(L"The capture overlay failed: " + toWide(error.what()));
             self->client.cancel();
             return 0;
         }
