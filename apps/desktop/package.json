@@ -12,7 +12,7 @@
         "dev": "node scripts/dev.mjs",
         "build": "nuxt generate && tsdown && node scripts/native-assets.mjs && node scripts/host-settings.mjs && node scripts/build.mjs harbor && node scripts/build.mjs host",
         "test": "node scripts/build.mjs tests",
-        "package": "pnpm build && electron-builder --win",
+        "package": "pnpm build && electron-builder",
         "postinstall": "nuxt prepare",
         "lint:types": "nuxt typecheck && tsc -p electron/tsconfig.json --noEmit",
         "lint:code": "eslint --fix .",

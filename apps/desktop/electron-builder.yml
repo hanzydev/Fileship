@@ -2,6 +2,8 @@ appId: dev.hanzy.fileship
 productName: Fileship
 extraMetadata:
     name: Fileship
+    homepage: https://fileship.app
+    desktopName: dev.hanzy.fileship.desktop
 copyright: Copyright © 2024-present Hànzy and Fileship contributors
 
 directories:
@@ -15,18 +17,6 @@ files:
     - package.json
 
 extraResources:
-    - from: build/harbor/fileship-harbor.exe
-      to: harbor/fileship-harbor.exe
-    - from: build/harbor/icons
-      to: harbor/icons
-    - from: build/host
-      to: host
-      filter:
-          - fileship-host.exe
-          - i18n/**
-          - fonts/**
-          - settings-defaults.json
-          - settings-schema.json
     - from: resources/shutter.wav
       to: host/sounds/shutter.wav
     - from: resources/uploaded.wav
@@ -46,6 +36,103 @@ win:
           arch: [x64]
     icon: build/icon.ico
     artifactName: Fileship-Setup-${version}.${ext}
+    extraResources:
+        - from: build/harbor/fileship-harbor.exe
+          to: harbor/fileship-harbor.exe
+        - from: build/harbor/icons
+          to: harbor/icons
+        - from: build/host
+          to: host
+          filter:
+              - fileship-host.exe
+              - i18n/**
+              - fonts/**
+              - settings-defaults.json
+              - settings-schema.json
+
+linux:
+    target:
+        - target: deb
+          arch: [x64]
+        - target: rpm
+          arch: [x64]
+    icon: build/icon.png
+    executableName: fileship
+    syncDesktopName: true
+    artifactName: Fileship-${version}.${ext}
+    category: Utility
+    synopsis: Uploads, screenshots and recordings for your Fileship server
+    description: Capture the screen, record it, upload files and keep your Fileship files in your file manager with Fileship Harbor.
+    extraResources:
+        - from: build/harbor/fileship-harbor
+          to: harbor/fileship-harbor
+        - from: build/host
+          to: host
+          filter:
+              - fileship-host
+              - icon.png
+              - i18n/**
+              - fonts/**
+              - integration/**
+              - settings-defaults.json
+              - settings-schema.json
+
+deb:
+    depends:
+        - libgtk-3-0t64 | libgtk-3-0
+        - libnotify4
+        - libnss3
+        - libxss1
+        - libxtst6
+        - xdg-utils
+        - libatspi2.0-0t64 | libatspi2.0-0
+        - libuuid1
+        - libglib2.0-0t64 | libglib2.0-0
+        - libsoup-3.0-0
+        - libsecret-1-0
+        - libsqlite3-0
+        - libgdk-pixbuf-2.0-0
+        - libgtk-4-1
+        - libxcb1
+        - libxcb-randr0
+        - libxcb-shape0
+        - libxcb-xfixes0
+        - libxkbcommon0
+        - libpulse0
+        - libpipewire-0.3-0t64 | libpipewire-0.3-0
+        - fuse3
+        - pkexec | policykit-1
+    recommends:
+        - ffmpeg
+        - python3-nautilus
+
+rpm:
+    depends:
+        - gtk3
+        - libnotify
+        - nss
+        - libXScrnSaver
+        - libXtst
+        - xdg-utils
+        - at-spi2-core
+        - libuuid
+        - glib2
+        - libsoup3
+        - libsecret
+        - sqlite-libs
+        - gdk-pixbuf2
+        - gtk4
+        - libxcb
+        - libxkbcommon
+        - pulseaudio-libs
+        - pipewire-libs
+        - fuse3
+        - polkit
+    fpm:
+        - --rpm-tag
+        - 'Recommends: /usr/bin/ffmpeg'
+        - --rpm-tag
+        - 'Recommends: nautilus-python'
 
 nsis:
     oneClick: true

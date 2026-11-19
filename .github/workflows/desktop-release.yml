@@ -10,7 +10,37 @@ permissions:
     contents: read
 
 jobs:
-    release:
+    draft:
+        runs-on: ubuntu-latest
+
+        outputs:
+            version: ${{ steps.version.outputs.version }}
+
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Read the version
+              id: version
+              run: echo "version=$(node -p "require('./apps/desktop/package.json').version")" >> "$GITHUB_OUTPUT"
+
+            - name: Check the version
+              if: startsWith(github.ref, 'refs/tags/desktop-v')
+              run: |
+                  if [ "desktop-v${{ steps.version.outputs.version }}" != "${GITHUB_REF_NAME}" ]; then
+                      echo "Tag ${GITHUB_REF_NAME} does not match apps/desktop/package.json (${{ steps.version.outputs.version }})"
+                      exit 1
+                  fi
+
+            - name: Create a draft release
+              run: |
+                  gh release view "v$VERSION" --repo hanzydev/fileship-desktop > /dev/null 2>&1 ||
+                      gh release create "v$VERSION" --repo hanzydev/fileship-desktop --draft --title "$VERSION" --notes ""
+              env:
+                  VERSION: ${{ steps.version.outputs.version }}
+                  GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}
+
+    windows:
+        needs: draft
         runs-on: windows-latest
 
         steps:
@@ -23,32 +53,11 @@ jobs:
                   node-version: 24
                   cache: 'pnpm'
 
-            - name: Read the version
-              shell: bash
-              run: echo "VERSION=$(node -p "require('./apps/desktop/package.json').version")" >> "$GITHUB_ENV"
-
-            - name: Check the version
-              if: startsWith(github.ref, 'refs/tags/desktop-v')
-              shell: bash
-              run: |
-                  if [ "desktop-v$VERSION" != "${GITHUB_REF_NAME}" ]; then
-                      echo "Tag ${GITHUB_REF_NAME} does not match apps/desktop/package.json ($VERSION)"
-                      exit 1
-                  fi
-
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
 
             - name: Build
               run: pnpm --filter desktop... build
-
-            - name: Create a draft release
-              shell: bash
-              run: |
-                  gh release view "v$VERSION" --repo hanzydev/fileship-desktop > /dev/null 2>&1 ||
-                      gh release create "v$VERSION" --repo hanzydev/fileship-desktop --draft --title "$VERSION" --notes ""
-              env:
-                  GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}
 
             - name: Package and upload
               working-directory: apps/desktop
@@ -56,8 +65,44 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}
 
+    linux:
+        needs: draft
+        runs-on: ubuntu-24.04
+
+        steps:
+            - uses: actions/checkout@v6
+            - uses: pnpm/action-setup@v6
+
+            - name: Use Node.js 24
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  cache: 'pnpm'
+
+            - name: Install the native build packages
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y --no-install-recommends libglib2.0-dev libsoup-3.0-dev libsecret-1-dev libsqlite3-dev libgdk-pixbuf-2.0-dev libxcb1-dev libxcb-randr0-dev libxcb-shape0-dev libxcb-xfixes0-dev libpulse-dev libxkbcommon-dev libpipewire-0.3-dev libgtk-4-dev libfuse3-dev rpm
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build
+              run: pnpm --filter desktop... build
+
+            - name: Package and upload
+              working-directory: apps/desktop
+              run: pnpm exec electron-builder --linux --publish always
+              env:
+                  GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}
+
+    publish:
+        needs: [draft, windows, linux]
+        runs-on: ubuntu-latest
+
+        steps:
             - name: Publish the release
-              shell: bash
               run: gh release edit "v$VERSION" --repo hanzydev/fileship-desktop --draft=false --latest
               env:
+                  VERSION: ${{ needs.draft.outputs.version }}
                   GH_TOKEN: ${{ secrets.DESKTOP_RELEASE_TOKEN }}
