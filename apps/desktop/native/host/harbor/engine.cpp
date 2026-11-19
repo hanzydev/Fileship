@@ -2597,8 +2597,6 @@ bool launch() {
     try {
         bool isUnknownRoot = storeString(L"harborRoot") != folder && pathExists(folder) && !isEmptyFolder(folder);
 
-        std::filesystem::create_directories(folder);
-
         {
             Lock lock(guard);
             helper = current;
@@ -2611,6 +2609,7 @@ bool launch() {
 
         JsonObject init;
         init.SetNamedValue(L"root", str(folder));
+        init.SetNamedValue(L"isOwnedRoot", boolean(!isUnknownRoot));
         init.SetNamedValue(L"syncRootId", str(syncRootKey()));
         init.SetNamedValue(L"displayName", str(siteName.empty() ? L"Fileship" : siteName));
         init.SetNamedValue(L"iconPath", str(helperPath().wstring() + L",0"));
@@ -2757,7 +2756,7 @@ void stopHarborNow(StopOptions options) {
 
         std::ranges::stable_sort(placeholders, [](auto const& a, auto const& b) {
             if (a.isFolder != b.isFolder) return a.isFolder < b.isFolder;
-            return std::ranges::count(a.path, L'\\') > std::ranges::count(b.path, L'\\');
+            return std::ranges::count(a.path, SEPARATOR) > std::ranges::count(b.path, SEPARATOR);
         });
 
         for (auto const& item : placeholders) {

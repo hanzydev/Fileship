@@ -72,8 +72,10 @@ void handle(JsonObject const& request) {
             currentConfig.userAgent = request.GetNamedString(L"userAgent");
             currentConfig.token = request.GetNamedString(L"token");
 
+            detachStaleMount();
             std::filesystem::create_directories(currentConfig.root);
             std::filesystem::create_directories(currentConfig.backing);
+            if (request.GetNamedBoolean(L"isOwnedRoot", false)) absorbLocal();
             mountRoot();
         } else if (type == L"create") {
             createPlaceholders(readItems(request));

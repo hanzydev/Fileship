@@ -1,5 +1,7 @@
 #include "support.h"
 
+#include "platform.h"
+
 #include <shared/i18n.h>
 #include <shared/log.h>
 #include <shared/platform.h>
@@ -157,14 +159,14 @@ bool startsWith(std::wstring const& text, std::wstring const& prefix) {
 }
 
 std::wstring dirnameOf(std::wstring const& path) {
-    auto slash = path.find_last_of(L"\\/");
+    auto slash = path.find_last_of(SEPARATOR);
     if (slash == std::wstring::npos) return L".";
     if (slash == 0) return path.substr(0, 1);
     return path.substr(0, slash);
 }
 
 std::wstring basenameOf(std::wstring const& path) {
-    auto slash = path.find_last_of(L"\\/");
+    auto slash = path.find_last_of(SEPARATOR);
     return slash == std::wstring::npos ? path : path.substr(slash + 1);
 }
 

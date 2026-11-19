@@ -14,7 +14,6 @@
 
 #include <chrono>
 #include <condition_variable>
-#include <filesystem>
 #include <map>
 #include <mutex>
 #include <set>
@@ -134,7 +133,12 @@ void moveState(std::string const& from, std::string const& to) {
         writers.insert(std::move(found));
     }
 
-    changes.erase(from);
+    if (auto found = changes.extract(from)) {
+        found.key() = to;
+        changes.insert(std::move(found));
+        stateSignal.notify_all();
+    }
+
     std::erase_if(reported, [&](auto const& item) { return item.first.ends_with("|" + from); });
 }
 
@@ -146,17 +150,6 @@ void sendDelete(std::string const& relative, Entry const& entry) {
     message.SetNamedValue(L"path", text(relative));
     message.SetNamedValue(L"isFolder", JsonValue::CreateBooleanValue(entry.isFolder));
     sendEvent("delete", message);
-}
-
-void forgetTree(std::string const& relative) {
-    std::error_code error;
-    std::filesystem::path backing = config().backing;
-    forgetEntry(relative);
-
-    for (std::filesystem::recursive_directory_iterator iterator(backingOf(relative), error), end;
-         !error && iterator != end; iterator.increment(error)) {
-        forgetEntry(std::filesystem::relative(iterator->path(), backing).string());
-    }
 }
 
 int getAttributes(char const* path, struct stat* info, fuse_file_info*) {
@@ -393,6 +386,8 @@ fuse_operations operations() {
     return value;
 }
 
+}
+
 void detachStaleMount() {
     struct stat info {};
     if (!stat(config().root.c_str(), &info) || errno != ENOTCONN) return;
@@ -408,11 +403,7 @@ void detachStaleMount() {
     }
 }
 
-}
-
 void mountRoot() {
-    detachStaleMount();
-
     static fuse_operations const handlers = operations();
     fuse_args arguments = FUSE_ARGS_INIT(0, nullptr);
     fuse_opt_add_arg(&arguments, "fileship-harbor");

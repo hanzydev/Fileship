@@ -184,7 +184,9 @@ void fetchAll(std::string const& relative) {
 
 void forgetBlocks(std::string const& relative) {
     std::lock_guard lock(downloadsMutex);
-    downloads.erase(relative);
+    std::erase_if(downloads, [&](auto const& item) {
+        return item.first == relative || item.first.starts_with(relative + "/");
+    });
 }
 
 }

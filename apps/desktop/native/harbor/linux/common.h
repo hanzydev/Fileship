@@ -61,6 +61,7 @@ bool isModified(std::string const& relative, Entry const& entry);
 void setAttribute(std::string const& relative, char const* name, std::string const& value);
 void clearAttribute(std::string const& relative, char const* name);
 void forgetEntry(std::string const& relative);
+void forgetTree(std::string const& relative);
 void copyIdentity(std::string const& from, std::string const& to);
 
 void createPlaceholders(std::vector<Item> const& items);
@@ -76,6 +77,7 @@ JsonArray scanRoot();
 int64_t localSize();
 int64_t freeUpSpace();
 void finishHydration(std::string const& relative);
+void absorbLocal();
 void releaseLocal();
 
 void fetchRange(std::string const& relative, int64_t offset, int64_t length);
@@ -86,6 +88,7 @@ fileship::HttpEndpoint endpoint();
 void queueThumbnail(std::string const& relative);
 void stopThumbnails();
 
+void detachStaleMount();
 void mountRoot();
 void unmountRoot();
 bool isOpenForWriting(std::string const& relative);

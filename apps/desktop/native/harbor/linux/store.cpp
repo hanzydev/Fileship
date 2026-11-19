@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdio>
 #include <filesystem>
 #include <stdexcept>
 
@@ -25,30 +26,51 @@ std::optional<std::string> attribute(std::string const& absolute, char const* na
     return std::string(buffer, static_cast<size_t>(size));
 }
 
-bool isIgnoredName(std::string const& name) {
-    if (name.starts_with(".") || name.ends_with("~")) return true;
-
+bool isTemporaryName(std::string const& name) {
     std::string lower(name);
     std::ranges::transform(lower, lower.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     return std::ranges::any_of(TEMPORARY_ENDINGS, [&](char const* ending) { return lower.ends_with(ending); });
+}
+
+bool isIgnoredName(std::string const& name) {
+    return name.starts_with(".") || name.ends_with("~") || isTemporaryName(name);
+}
+
+bool isTemporary(std::string const& relative) {
+    return isTemporaryName(relative.substr(relative.find_last_of('/') + 1)) && !isIgnored(parentOf(relative));
 }
 
 std::string childOf(std::string const& folder, std::string const& name) {
     return folder.empty() ? name : folder + "/" + name;
 }
 
-std::vector<std::string> childrenOf(std::string const& relative) {
+std::vector<std::string> namesIn(std::string const& folder) {
     std::vector<std::string> names;
     std::error_code error;
 
-    for (fs::directory_iterator iterator(backingOf(relative), error), end; !error && iterator != end;
-         iterator.increment(error)) {
+    for (fs::directory_iterator iterator(folder, error), end; !error && iterator != end; iterator.increment(error)) {
         names.push_back(iterator->path().filename().string());
     }
 
     if (error) throw std::runtime_error(error.message());
     std::ranges::sort(names);
     return names;
+}
+
+std::vector<std::string> childrenOf(std::string const& relative) {
+    return namesIn(backingOf(relative));
+}
+
+void forget(std::string const& absolute) {
+    for (auto name : {IDENTITY, IN_SYNC, REMOTE, BASE}) lremovexattr(absolute.c_str(), name);
+}
+
+bool moveFile(std::string const& from, std::string const& to) {
+    if (!renameat2(AT_FDCWD, from.c_str(), AT_FDCWD, to.c_str(), RENAME_NOREPLACE)) return true;
+    if (errno != EXDEV) return false;
+
+    std::error_code error;
+    return fs::copy_file(from, to, error) && fs::remove(from, error);
 }
 
 void setTime(std::string const& absolute, int64_t milliseconds) {
@@ -116,7 +138,7 @@ bool removeEntry(std::string const& relative) {
     auto absolute = backingOf(relative);
     std::error_code error;
 
-    if (!entry.isFolder && !entry.isOwned() && isIgnored(relative)) {
+    if (!entry.isFolder && !entry.isOwned() && isTemporary(relative)) {
         fs::remove(absolute, error);
         return false;
     }
@@ -170,6 +192,51 @@ void walk(std::string const& folder, Visit const& visit) {
 
         visit(relative, entry, isListed);
     }
+}
+
+std::string realOf(std::string const& relative) {
+    return relative.empty() ? config().root : config().root + "/" + relative;
+}
+
+void absorb(std::string const& relative) {
+    for (auto const& name : namesIn(realOf(relative))) {
+        auto child = childOf(relative, name);
+        auto source = realOf(child);
+        struct stat info {};
+        lstat(source.c_str(), &info);
+
+        if (S_ISDIR(info.st_mode)) {
+            mkdir(backingOf(child).c_str(), 0755);
+            absorb(child);
+            rmdir(source.c_str());
+        } else {
+            moveFile(source, backingOf(child));
+        }
+    }
+}
+
+bool release(std::string const& relative) {
+    auto entry = entryOf(relative);
+    auto source = backingOf(relative);
+    auto target = realOf(relative);
+    std::error_code error;
+
+    if (!entry.isFolder) {
+        if (entry.remote) return fs::remove(source, error);
+        if (!moveFile(source, target)) return false;
+
+        forget(target);
+        return true;
+    }
+
+    fs::create_directories(target, error);
+    bool isEmpty = true;
+
+    for (auto const& name : childrenOf(relative)) {
+        if (!release(childOf(relative, name))) isEmpty = false;
+    }
+
+    return isEmpty && fs::remove(source, error);
 }
 
 }
@@ -236,7 +303,27 @@ void clearAttribute(std::string const& relative, char const* name) {
 }
 
 void forgetEntry(std::string const& relative) {
-    for (auto name : {IDENTITY, IN_SYNC, REMOTE, BASE}) clearAttribute(relative, name);
+    forget(backingOf(relative));
+}
+
+void forgetTree(std::string const& relative) {
+    auto entry = entryOf(relative);
+
+    if (entry.remote) {
+        forgetBlocks(relative);
+        unlink(backingOf(relative).c_str());
+        return;
+    }
+
+    forgetEntry(relative);
+    if (!entry.isFolder) return;
+
+    std::error_code error;
+
+    for (fs::directory_iterator iterator(backingOf(relative), error), end; !error && iterator != end;
+         iterator.increment(error)) {
+        forgetTree(childOf(relative, iterator->path().filename().string()));
+    }
 }
 
 void copyIdentity(std::string const& from, std::string const& to) {
@@ -288,7 +375,7 @@ void createPlaceholders(std::vector<Item> const& items) {
 void movePlaceholder(std::string const& from, std::string const& to) {
     requireFolder(parentOf(to));
 
-    if (rename(backingOf(from).c_str(), backingOf(to).c_str())) {
+    if (renameat2(AT_FDCWD, backingOf(from).c_str(), AT_FDCWD, backingOf(to).c_str(), RENAME_NOREPLACE)) {
         throw std::runtime_error("Could not move " + from + " to " + to);
     }
 
@@ -428,28 +515,12 @@ void finishHydration(std::string const& relative) {
     setAttribute(relative, BASE, stampOf(backingOf(relative)));
 }
 
+void absorbLocal() {
+    absorb("");
+}
+
 void releaseLocal() {
-    std::error_code error;
-    fs::path backing = config().backing;
-
-    for (fs::recursive_directory_iterator iterator(backing, error), end; !error && iterator != end;
-         iterator.increment(error)) {
-        auto relative = fs::relative(iterator->path(), backing).string();
-        auto target = fs::path(config().root) / relative;
-        auto entry = entryOf(relative);
-        std::error_code ignored;
-
-        if (entry.isFolder) {
-            fs::create_directories(target, ignored);
-        } else if (!entry.remote) {
-            forgetEntry(relative);
-            fs::create_directories(target.parent_path(), ignored);
-            fs::rename(iterator->path(), target, ignored);
-            if (ignored && fs::copy_file(iterator->path(), target, ignored)) fs::remove(iterator->path(), ignored);
-        }
-    }
-
-    fs::remove_all(backing, error);
+    release("");
 }
 
 }
