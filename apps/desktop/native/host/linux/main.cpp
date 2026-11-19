@@ -110,6 +110,7 @@ int main(int count, char** values) {
     applySettings();
     initNotifications();
     createTray();
+    registerShellMenu();
     registerHotkeys();
     startUpdater();
     runAsync([] { harbor::startHarbor(); });

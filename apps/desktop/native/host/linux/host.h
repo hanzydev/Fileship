@@ -19,6 +19,7 @@ struct Notice {
 };
 
 void initNotifications();
+void registerShellMenu();
 uint32_t showNotice(uint32_t replaces, Notice const& notice, std::function<void(std::string const&)> onAction);
 void closeNotice(uint32_t id);
 

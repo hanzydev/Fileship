@@ -33,8 +33,9 @@ void applyStartAtLogin(bool enabled) {
 
 }
 
-void applyDesktopIntegration(JsonObject const& settings, bool) {
+void applyDesktopIntegration(JsonObject const& settings, bool isLanguageChanged) {
     applyStartAtLogin(jsonBool(settings, L"startAtLogin", true));
+    if (isLanguageChanged) registerShellMenu();
 }
 
 std::vector<std::filesystem::path> pickFiles() {

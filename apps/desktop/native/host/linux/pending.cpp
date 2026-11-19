@@ -18,6 +18,4 @@ void installUpdate() {}
 
 void notifyIdle() {}
 
-void setShellHarborRoot(std::optional<std::filesystem::path> const&) {}
-
 }

@@ -38,3 +38,4 @@ const objects = await compileGroups(
 );
 await link(join(output, 'fileship-host'), objects, linkerFlags(PACKAGES));
 cpSync(join(root, 'build', 'icon.png'), join(output, 'icon.png'));
+cpSync(join(root, 'resources', 'linux'), join(output, 'integration'), { recursive: true });
