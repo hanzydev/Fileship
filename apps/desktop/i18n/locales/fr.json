@@ -655,7 +655,8 @@
         "unreachable": "Impossible de joindre le serveur de mise à jour",
         "checkFailed": "Échec de la recherche de mises à jour",
         "readyTitle": "Fileship v{version} est prêt",
-        "readyBody": "Cliquez pour redémarrer et mettre à jour maintenant, sinon la mise à jour s'installera quand vous quitterez l'application."
+        "readyBody": "Cliquez pour redémarrer et mettre à jour maintenant, sinon la mise à jour s'installera quand vous quitterez l'application.",
+        "installFailed": "Impossible d'installer la mise à jour"
     },
     "updates": {
         "title": "Mises à jour",
@@ -741,6 +742,12 @@
                 "offlineDescription": "Un fichier que vous ouvrez reste téléchargé. « Libérer de l'espace » remet les fichiers téléchargés en ligne uniquement.",
                 "deleteDescription": "Les fichiers que vous supprimez ou placez dans la corbeille depuis le gestionnaire de fichiers vont dans la corbeille Fileship."
             }
+        },
+        "updater": {
+            "readyBody": "Cliquez pour redémarrer et mettre à jour maintenant. Votre système demande votre mot de passe."
+        },
+        "updates": {
+            "description": "Fileship v{version}. Les mises à jour sont téléchargées en arrière-plan et installées lorsque vous redémarrez depuis cette page. Votre système demande votre mot de passe."
         }
     }
 }

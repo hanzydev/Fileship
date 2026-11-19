@@ -20,6 +20,7 @@ const objects = await compileGroups(join(output, 'obj'), compilerFlags(PACKAGES)
     ],
     recorder: [join(native, 'ui', 'linux', 'recorderPlacement.cpp')],
     harbor: [join(native, 'host', 'linux', 'harbor', 'names.cpp')],
+    updater: [join(native, 'host', 'updateFeed.cpp')],
 });
 await link(executable, objects, linkerFlags(PACKAGES));
 

@@ -655,7 +655,8 @@
         "unreachable": "Güncelleme sunucusuna ulaşılamadı",
         "checkFailed": "Güncellemeler denetlenemedi",
         "readyTitle": "Fileship v{version} hazır",
-        "readyBody": "Yeniden başlatıp güncellemek için tıkla. Tıklamazsan uygulamadan çıkınca kurulur."
+        "readyBody": "Yeniden başlatıp güncellemek için tıkla. Tıklamazsan uygulamadan çıkınca kurulur.",
+        "installFailed": "Güncelleme kurulamadı"
     },
     "updates": {
         "title": "Güncellemeler",
@@ -741,6 +742,12 @@
                 "offlineDescription": "Açtığın dosya indirilmiş olarak kalır. \"Yer aç\" seçersen indirilen dosyalar yeniden yalnızca çevrimiçi olur.",
                 "deleteDescription": "Dosya yöneticisinde sildiğin ya da çöpe taşıdığın dosyalar Fileship çöp kutusuna gider."
             }
+        },
+        "updater": {
+            "readyBody": "Yeniden başlatıp güncellemek için tıkla. Sistem şifreni sorar."
+        },
+        "updates": {
+            "description": "Fileship v{version}. Güncellemeler arka planda indirilir ve buradan yeniden başlattığında kurulur. Sistem şifreni sorar."
         }
     }
 }

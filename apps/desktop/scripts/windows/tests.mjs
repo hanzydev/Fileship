@@ -14,6 +14,7 @@ groups.recording = [
     join(native, 'host', 'recording', 'command.cpp'),
     join(native, 'host', 'windows', 'recording', 'videoInput.cpp'),
 ];
+groups.updater = [join(native, 'host', 'updateFeed.cpp')];
 
 const flags = [
     '/std:c++20 /EHsc /O2 /MT /W4 /permissive- /utf-8 /MP',

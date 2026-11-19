@@ -655,7 +655,8 @@
         "unreachable": "Der Update-Server ist nicht erreichbar",
         "checkFailed": "Suche nach Updates fehlgeschlagen",
         "readyTitle": "Fileship v{version} ist bereit",
-        "readyBody": "Klicke, um jetzt neu zu starten und zu aktualisieren. Sonst wird das Update beim Beenden installiert."
+        "readyBody": "Klicke, um jetzt neu zu starten und zu aktualisieren. Sonst wird das Update beim Beenden installiert.",
+        "installFailed": "Das Update konnte nicht installiert werden"
     },
     "updates": {
         "title": "Updates",
@@ -741,6 +742,12 @@
                 "offlineDescription": "Eine geöffnete Datei bleibt heruntergeladen. Mit „Speicherplatz freigeben“ sind heruntergeladene Dateien wieder nur online verfügbar.",
                 "deleteDescription": "Dateien, die du im Dateimanager löschst oder in den Papierkorb verschiebst, landen im Fileship-Papierkorb."
             }
+        },
+        "updater": {
+            "readyBody": "Klicke, um jetzt neu zu starten und zu aktualisieren. Dein System fragt nach deinem Passwort."
+        },
+        "updates": {
+            "description": "Fileship v{version}. Updates werden im Hintergrund heruntergeladen und installiert, wenn du hier neu startest. Dein System fragt nach deinem Passwort."
         }
     }
 }

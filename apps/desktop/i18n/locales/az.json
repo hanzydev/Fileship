@@ -655,7 +655,8 @@
         "unreachable": "Yeniləmə serverinə qoşulmaq mümkün olmadı",
         "checkFailed": "Yeniləmələri yoxlamaq mümkün olmadı",
         "readyTitle": "Fileship v{version} hazırdır",
-        "readyBody": "Yenidən başladıb indi yeniləmək üçün kliklə. Klikləməsən, tətbiqdən çıxanda quraşdırılacaq."
+        "readyBody": "Yenidən başladıb indi yeniləmək üçün kliklə. Klikləməsən, tətbiqdən çıxanda quraşdırılacaq.",
+        "installFailed": "Yeniləmə quraşdırılmadı"
     },
     "updates": {
         "title": "Yeniləmələr",
@@ -741,6 +742,12 @@
                 "offlineDescription": "Açdığın fayl endirilmiş qalır. \"Yer boşalt\" seçsən, endirilmiş fayllar yenidən yalnız onlayn olur.",
                 "deleteDescription": "Fayl menecerində sildiyin və ya zibil qutusuna atdığın fayllar Fileship zibil qutusuna düşür."
             }
+        },
+        "updater": {
+            "readyBody": "Yenidən başladıb yeniləmək üçün kliklə. Sistem şifrəni soruşur."
+        },
+        "updates": {
+            "description": "Fileship v{version}. Yeniləmələr arxa fonda endirilir və buradan yenidən başladanda quraşdırılır. Sistem şifrəni soruşur."
         }
     }
 }

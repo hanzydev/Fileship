@@ -655,7 +655,8 @@
         "unreachable": "无法连接到更新服务器",
         "checkFailed": "检查更新失败",
         "readyTitle": "Fileship v{version} 已就绪",
-        "readyBody": "单击立即重启并更新，或在退出时自动安装。"
+        "readyBody": "单击立即重启并更新，或在退出时自动安装。",
+        "installFailed": "无法安装更新"
     },
     "updates": {
         "title": "更新",
@@ -741,6 +742,12 @@
                 "offlineDescription": "打开过的文件会保持已下载状态；选择“释放空间”后，已下载的文件会重新变为仅在线。",
                 "deleteDescription": "在文件管理器中删除或移到回收站的文件会进入 Fileship 回收站。"
             }
+        },
+        "updater": {
+            "readyBody": "单击立即重启并更新。系统会要求你输入密码。"
+        },
+        "updates": {
+            "description": "Fileship v{version}。更新会在后台下载，从这里重启时安装。系统会要求你输入密码。"
         }
     }
 }

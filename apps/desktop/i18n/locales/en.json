@@ -655,7 +655,8 @@
         "unreachable": "Could not reach the update server",
         "checkFailed": "Update check failed",
         "readyTitle": "Fileship v{version} is ready",
-        "readyBody": "Click to restart and update now, or it installs when you quit."
+        "readyBody": "Click to restart and update now, or it installs when you quit.",
+        "installFailed": "The update could not be installed"
     },
     "updates": {
         "title": "Updates",
@@ -741,6 +742,12 @@
                 "offlineDescription": "A file you open stays downloaded. \"Free up space\" makes downloaded files online only again.",
                 "deleteDescription": "Files you delete or move to the trash in your file manager go to the Fileship trash."
             }
+        },
+        "updater": {
+            "readyBody": "Click to restart and update now. Your system asks for your password."
+        },
+        "updates": {
+            "description": "Fileship v{version}. Updates download in the background and install when you restart from here. Your system asks for your password."
         }
     }
 }

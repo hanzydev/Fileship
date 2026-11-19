@@ -655,7 +655,8 @@
         "unreachable": "업데이트 서버에 연결할 수 없어요",
         "checkFailed": "업데이트를 확인하지 못했어요",
         "readyTitle": "Fileship v{version} 업데이트가 준비됐어요",
-        "readyBody": "클릭하면 다시 시작해 바로 업데이트해요. 아니면 종료할 때 설치돼요."
+        "readyBody": "클릭하면 다시 시작해 바로 업데이트해요. 아니면 종료할 때 설치돼요.",
+        "installFailed": "업데이트를 설치하지 못했어요"
     },
     "updates": {
         "title": "업데이트",
@@ -741,6 +742,12 @@
                 "offlineDescription": "파일을 열면 다운로드된 상태로 남아요. \"공간 확보\" 기능을 쓰면 다운로드된 파일이 다시 온라인 전용이 돼요.",
                 "deleteDescription": "파일 관리자에서 삭제하거나 휴지통으로 옮긴 파일은 Fileship 휴지통으로 이동해요."
             }
+        },
+        "updater": {
+            "readyBody": "클릭하면 다시 시작해 바로 업데이트해요. 시스템이 비밀번호를 물어봐요."
+        },
+        "updates": {
+            "description": "Fileship v{version}. 업데이트는 백그라운드에서 다운로드되고, 여기에서 다시 시작하면 설치돼요. 시스템이 비밀번호를 물어봐요."
         }
     }
 }

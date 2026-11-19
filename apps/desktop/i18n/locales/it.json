@@ -655,7 +655,8 @@
         "unreachable": "Impossibile raggiungere il server degli aggiornamenti",
         "checkFailed": "Controllo degli aggiornamenti non riuscito",
         "readyTitle": "Fileship v{version} è pronto",
-        "readyBody": "Fai clic per riavviare e aggiornare ora, altrimenti l'aggiornamento verrà installato quando esci."
+        "readyBody": "Fai clic per riavviare e aggiornare ora, altrimenti l'aggiornamento verrà installato quando esci.",
+        "installFailed": "Impossibile installare l'aggiornamento"
     },
     "updates": {
         "title": "Aggiornamenti",
@@ -741,6 +742,12 @@
                 "offlineDescription": "Un file che apri resta scaricato. Con \"Libera spazio\" i file scaricati tornano a essere solo online.",
                 "deleteDescription": "I file che elimini o sposti nel cestino dal gestore di file finiscono nel cestino di Fileship."
             }
+        },
+        "updater": {
+            "readyBody": "Fai clic per riavviare e aggiornare ora. Il sistema ti chiede la password."
+        },
+        "updates": {
+            "description": "Fileship v{version}. Gli aggiornamenti vengono scaricati in background e installati quando riavvii da qui. Il sistema ti chiede la password."
         }
     }
 }

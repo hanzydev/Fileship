@@ -655,7 +655,8 @@
         "unreachable": "No se pudo conectar con el servidor de actualizaciones",
         "checkFailed": "No se pudieron buscar actualizaciones",
         "readyTitle": "Fileship v{version} está listo",
-        "readyBody": "Haz clic para reiniciar y actualizar ahora, o se instalará cuando salgas."
+        "readyBody": "Haz clic para reiniciar y actualizar ahora, o se instalará cuando salgas.",
+        "installFailed": "No se pudo instalar la actualización"
     },
     "updates": {
         "title": "Actualizaciones",
@@ -741,6 +742,12 @@
                 "offlineDescription": "Un archivo que abres queda descargado. Con \"Liberar espacio\", los archivos descargados vuelven a estar solo en línea.",
                 "deleteDescription": "Los archivos que eliminas o envías a la papelera en el gestor de archivos van a la papelera de Fileship."
             }
+        },
+        "updater": {
+            "readyBody": "Haz clic para reiniciar y actualizar ahora. El sistema te pedirá tu contraseña."
+        },
+        "updates": {
+            "description": "Fileship v{version}. Las actualizaciones se descargan en segundo plano y se instalan cuando reinicias desde aquí. El sistema te pedirá tu contraseña."
         }
     }
 }
