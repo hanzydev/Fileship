@@ -8,16 +8,15 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <fstream>
-
 extern char** environ;
 
 namespace fileship::host {
 
 namespace {
 
-constexpr int NOT_AUTHORIZED = 126;
-constexpr int DISMISSED = 127;
+constexpr char const* DPKG_ENTRY = "/var/lib/dpkg/info/fileship.list";
+constexpr int DISMISSED = 126;
+constexpr int NOT_AUTHORIZED = 127;
 
 class GlibSha512 : public Sha512 {
 public:
@@ -39,13 +38,6 @@ public:
 private:
     GChecksum* checksum = g_checksum_new(G_CHECKSUM_SHA512);
 };
-
-std::string packageType() {
-    std::ifstream file(resourcesPath().parent_path() / "package-type");
-    std::string type;
-    file >> type;
-    return type;
-}
 
 std::optional<pid_t> spawn(std::vector<std::string> arguments, bool isDetached) {
     std::vector<char*> pointers;
@@ -73,7 +65,7 @@ std::wstring updateFeedFile() {
 }
 
 std::wstring updatePackageSuffix() {
-    return L"." + toWide(packageType());
+    return std::filesystem::exists(DPKG_ENTRY) ? L".deb" : L".rpm";
 }
 
 std::filesystem::path updateDownloadFolder() {
