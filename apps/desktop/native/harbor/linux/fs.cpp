@@ -427,7 +427,16 @@ void mountRoot() {
     }
 
     isStopping = false;
-    loop = std::thread([] { fuse_loop_mt(session, 0); });
+    loop = std::thread([] {
+        fuse_loop_mt(session, 0);
+
+        std::unique_lock lock(stateMutex);
+        if (isStopping) return;
+
+        lock.unlock();
+        log("The Harbor folder was unmounted");
+        _exit(1);
+    });
     reporter = std::thread(runReporter);
 }
 
