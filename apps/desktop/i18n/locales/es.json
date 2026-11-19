@@ -730,6 +730,17 @@
             "notInstalledDescription": "La grabación de pantalla y de GIF lo necesita. Instala el paquete ffmpeg con tu gestor de paquetes.",
             "useOwn": "Usar mi propio ffmpeg",
             "useDownloaded": "Usar el FFmpeg del sistema"
+        },
+        "harborSettings": {
+            "description": "Fileship Harbor muestra tus archivos y carpetas de Fileship en tu gestor de archivos. Los archivos solo se descargan cuando los abres.",
+            "openInExplorer": "Abrir carpeta",
+            "howItWorksDescription": "Qué esperar de tus archivos en el gestor de archivos.",
+            "tips": {
+                "onlineDescription": "No ocupan espacio hasta que los abres, y las miniaturas se muestran sin descargarlos. La carpeta está vacía mientras Fileship no está abierto.",
+                "offline": "Los archivos abiertos se quedan en este dispositivo",
+                "offlineDescription": "Un archivo que abres queda descargado. Con \"Liberar espacio\", los archivos descargados vuelven a estar solo en línea.",
+                "deleteDescription": "Los archivos que eliminas o envías a la papelera en el gestor de archivos van a la papelera de Fileship."
+            }
         }
     }
 }

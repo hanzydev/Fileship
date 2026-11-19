@@ -730,6 +730,17 @@
             "notInstalledDescription": "A gravação de tela e de GIF precisa dele. Instale o pacote ffmpeg com o gerenciador de pacotes.",
             "useOwn": "Usar meu próprio ffmpeg",
             "useDownloaded": "Usar o FFmpeg do sistema"
+        },
+        "harborSettings": {
+            "description": "O Fileship Harbor coloca seus arquivos e pastas do Fileship no seu gerenciador de arquivos. Os arquivos só são baixados quando você os abre.",
+            "openInExplorer": "Abrir pasta",
+            "howItWorksDescription": "O que esperar dos seus arquivos no gerenciador de arquivos.",
+            "tips": {
+                "onlineDescription": "Eles não ocupam espaço até você abri-los, e as miniaturas aparecem sem baixar nada. A pasta fica vazia enquanto o Fileship não está em execução.",
+                "offline": "Arquivos abertos ficam neste dispositivo",
+                "offlineDescription": "Um arquivo que você abre continua baixado. Com \"Liberar espaço\", os arquivos baixados voltam a ficar só online.",
+                "deleteDescription": "Arquivos que você exclui ou move para a lixeira no gerenciador de arquivos vão para a lixeira do Fileship."
+            }
         }
     }
 }

@@ -730,6 +730,17 @@
             "notInstalledDescription": "L'enregistrement d'écran et de GIF en a besoin. Installez le paquet ffmpeg avec votre gestionnaire de paquets.",
             "useOwn": "Utiliser mon propre ffmpeg",
             "useDownloaded": "Utiliser le FFmpeg du système"
+        },
+        "harborSettings": {
+            "description": "Fileship Harbor affiche vos fichiers et dossiers Fileship dans votre gestionnaire de fichiers. Les fichiers ne sont téléchargés que lorsque vous les ouvrez.",
+            "openInExplorer": "Ouvrir le dossier",
+            "howItWorksDescription": "Le comportement de vos fichiers dans le gestionnaire de fichiers.",
+            "tips": {
+                "onlineDescription": "Ils n'occupent aucun espace tant que vous ne les ouvrez pas, et les miniatures s'affichent sans téléchargement. Le dossier est vide tant que Fileship n'est pas lancé.",
+                "offline": "Les fichiers ouverts restent sur cet appareil",
+                "offlineDescription": "Un fichier que vous ouvrez reste téléchargé. « Libérer de l'espace » remet les fichiers téléchargés en ligne uniquement.",
+                "deleteDescription": "Les fichiers que vous supprimez ou placez dans la corbeille depuis le gestionnaire de fichiers vont dans la corbeille Fileship."
+            }
         }
     }
 }

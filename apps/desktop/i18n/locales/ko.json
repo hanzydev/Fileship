@@ -730,6 +730,17 @@
             "notInstalledDescription": "화면 녹화와 GIF 녹화에 필요해요. 패키지 관리자로 ffmpeg 패키지를 설치하세요.",
             "useOwn": "내 ffmpeg 사용",
             "useDownloaded": "시스템 FFmpeg 사용"
+        },
+        "harborSettings": {
+            "description": "Fileship Harbor는 Fileship 파일과 폴더를 파일 관리자에 보여 줘요. 파일은 열 때만 다운로드돼요.",
+            "openInExplorer": "폴더 열기",
+            "howItWorksDescription": "파일 관리자에서 파일이 어떻게 동작하는지 알려 드려요.",
+            "tips": {
+                "onlineDescription": "열기 전까지는 공간을 차지하지 않고, 다운로드하지 않아도 축소판이 표시돼요. Fileship이 실행 중이 아니면 폴더가 비어 있어요.",
+                "offline": "연 파일은 이 장치에 남아요",
+                "offlineDescription": "파일을 열면 다운로드된 상태로 남아요. \"공간 확보\" 기능을 쓰면 다운로드된 파일이 다시 온라인 전용이 돼요.",
+                "deleteDescription": "파일 관리자에서 삭제하거나 휴지통으로 옮긴 파일은 Fileship 휴지통으로 이동해요."
+            }
         }
     }
 }

@@ -730,6 +730,17 @@
             "notInstalledDescription": "屏幕录制和 GIF 录制需要它。请用包管理器安装 ffmpeg 软件包。",
             "useOwn": "使用我自己的 ffmpeg",
             "useDownloaded": "使用系统的 FFmpeg"
+        },
+        "harborSettings": {
+            "description": "Fileship Harbor 会将你的 Fileship 文件和文件夹放进文件管理器。文件仅在你打开时才会下载。",
+            "openInExplorer": "打开文件夹",
+            "howItWorksDescription": "了解你的文件在文件管理器中的表现。",
+            "tips": {
+                "onlineDescription": "打开之前不占用空间，无需下载即可显示缩略图。Fileship 未运行时，文件夹是空的。",
+                "offline": "打开过的文件保留在此设备上",
+                "offlineDescription": "打开过的文件会保持已下载状态；选择“释放空间”后，已下载的文件会重新变为仅在线。",
+                "deleteDescription": "在文件管理器中删除或移到回收站的文件会进入 Fileship 回收站。"
+            }
         }
     }
 }

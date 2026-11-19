@@ -730,6 +730,17 @@
             "notInstalledDescription": "Screen and GIF recording need it. Install the ffmpeg package with your package manager.",
             "useOwn": "Use my own ffmpeg",
             "useDownloaded": "Use the system FFmpeg"
+        },
+        "harborSettings": {
+            "description": "Fileship Harbor puts your Fileship files and folders in your file manager. Files download only when you open them.",
+            "openInExplorer": "Open folder",
+            "howItWorksDescription": "What to expect from your files in your file manager.",
+            "tips": {
+                "onlineDescription": "They take no space until you open them, and thumbnails show without downloading. The folder is empty while Fileship is not running.",
+                "offline": "Opened files stay on this device",
+                "offlineDescription": "A file you open stays downloaded. \"Free up space\" makes downloaded files online only again.",
+                "deleteDescription": "Files you delete or move to the trash in your file manager go to the Fileship trash."
+            }
         }
     }
 }

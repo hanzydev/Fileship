@@ -730,6 +730,17 @@
             "notInstalledDescription": "Ekran və GIF qeydi üçün lazımdır. ffmpeg paketini paket meneceri ilə quraşdır.",
             "useOwn": "Öz ffmpeg faylımı istifadə et",
             "useDownloaded": "Sistemdəki FFmpeg-i istifadə et"
+        },
+        "harborSettings": {
+            "description": "Fileship Harbor Fileship fayllarını və qovluqlarını fayl menecerinə gətirir. Fayllar yalnız onları açanda endirilir.",
+            "openInExplorer": "Qovluğu aç",
+            "howItWorksDescription": "Fayl menecerindəki faylların necə davrandığı.",
+            "tips": {
+                "onlineDescription": "Onları açana qədər yer tutmurlar, miniatürlər isə endirmədən görünür. Fileship işləmədikdə qovluq boş görünür.",
+                "offline": "Açılan fayllar bu cihazda qalır",
+                "offlineDescription": "Açdığın fayl endirilmiş qalır. \"Yer boşalt\" seçsən, endirilmiş fayllar yenidən yalnız onlayn olur.",
+                "deleteDescription": "Fayl menecerində sildiyin və ya zibil qutusuna atdığın fayllar Fileship zibil qutusuna düşür."
+            }
         }
     }
 }

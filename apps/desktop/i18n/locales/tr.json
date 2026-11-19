@@ -730,6 +730,17 @@
             "notInstalledDescription": "Ekran ve GIF kaydı için gerekli. ffmpeg paketini paket yöneticinle kur.",
             "useOwn": "Kendi ffmpeg dosyamı kullan",
             "useDownloaded": "Sistemdeki FFmpeg'i kullan"
+        },
+        "harborSettings": {
+            "description": "Fileship Harbor, Fileship dosyalarını ve klasörlerini dosya yöneticine getirir. Dosyalar yalnızca açtığında indirilir.",
+            "openInExplorer": "Klasörü aç",
+            "howItWorksDescription": "Dosya yöneticisindeki dosyaların nasıl davrandığı.",
+            "tips": {
+                "onlineDescription": "Açana kadar yer kaplamazlar. Küçük resimler dosya indirilmeden görünür. Fileship çalışmıyorken klasör boş görünür.",
+                "offline": "Açılan dosyalar bu cihazda kalır",
+                "offlineDescription": "Açtığın dosya indirilmiş olarak kalır. \"Yer aç\" seçersen indirilen dosyalar yeniden yalnızca çevrimiçi olur.",
+                "deleteDescription": "Dosya yöneticisinde sildiğin ya da çöpe taşıdığın dosyalar Fileship çöp kutusuna gider."
+            }
         }
     }
 }

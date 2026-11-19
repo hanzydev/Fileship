@@ -730,6 +730,17 @@
             "notInstalledDescription": "Wird für Bildschirm- und GIF-Aufnahmen benötigt. Installiere das Paket ffmpeg mit deinem Paketmanager.",
             "useOwn": "Eigenes ffmpeg verwenden",
             "useDownloaded": "FFmpeg des Systems verwenden"
+        },
+        "harborSettings": {
+            "description": "Fileship Harbor zeigt deine Fileship-Dateien und -Ordner in deinem Dateimanager an. Dateien werden erst heruntergeladen, wenn du sie öffnest.",
+            "openInExplorer": "Ordner öffnen",
+            "howItWorksDescription": "Was du von deinen Dateien im Dateimanager erwarten kannst.",
+            "tips": {
+                "onlineDescription": "Sie belegen erst Speicherplatz, wenn du sie öffnest, und Miniaturansichten erscheinen ohne Download. Solange Fileship nicht läuft, ist der Ordner leer.",
+                "offline": "Geöffnete Dateien bleiben auf diesem Gerät",
+                "offlineDescription": "Eine geöffnete Datei bleibt heruntergeladen. Mit „Speicherplatz freigeben“ sind heruntergeladene Dateien wieder nur online verfügbar.",
+                "deleteDescription": "Dateien, die du im Dateimanager löschst oder in den Papierkorb verschiebst, landen im Fileship-Papierkorb."
+            }
         }
     }
 }
