@@ -1,5 +1,6 @@
 #pragma once
 
+#include <shared/http.h>
 #include <shared/json.h>
 
 #include <cstdint>
@@ -80,6 +81,10 @@ void releaseLocal();
 void fetchRange(std::string const& relative, int64_t offset, int64_t length);
 void fetchAll(std::string const& relative);
 void forgetBlocks(std::string const& relative);
+fileship::HttpEndpoint endpoint();
+
+void queueThumbnail(std::string const& relative);
+void stopThumbnails();
 
 void mountRoot();
 void unmountRoot();

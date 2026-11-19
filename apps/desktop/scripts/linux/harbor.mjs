@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { groupSources, root } from '../native.mjs';
 import { compileGroups, compilerFlags, link, linkerFlags } from './gcc.mjs';
 
-const PACKAGES = ['glib-2.0', 'gio-2.0', 'libsoup-3.0'];
+const PACKAGES = ['glib-2.0', 'gio-2.0', 'libsoup-3.0', 'gdk-pixbuf-2.0'];
 
 const output = join(root, 'build', 'harbor');
 

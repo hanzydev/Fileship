@@ -434,6 +434,8 @@ void mountRoot() {
 void unmountRoot() {
     if (!session) return;
 
+    stopThumbnails();
+
     {
         std::lock_guard lock(stateMutex);
         isStopping = true;

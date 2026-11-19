@@ -33,10 +33,6 @@ struct Download {
 std::mutex downloadsMutex;
 std::map<std::string, std::shared_ptr<Download>> downloads;
 
-fileship::HttpEndpoint endpoint() {
-    return {config().instanceUrl, config().token, config().userAgent, {}};
-}
-
 std::shared_ptr<Download> downloadOf(std::string const& relative, int64_t size) {
     std::lock_guard lock(downloadsMutex);
     auto& download = downloads[relative];
@@ -126,6 +122,10 @@ void finish(std::string const& relative, Download const& download) {
 
 }
 
+fileship::HttpEndpoint endpoint() {
+    return {config().instanceUrl, config().token, config().userAgent, {}};
+}
+
 void fetchRange(std::string const& relative, int64_t offset, int64_t length) {
     auto entry = entryOf(relative);
     if (!entry.remote || length <= 0 || offset >= *entry.remote) return;
@@ -164,8 +164,9 @@ void fetchRange(std::string const& relative, int64_t offset, int64_t length) {
     for (int64_t block = offset / BLOCK_SIZE; block <= last; block++) {
         if (download->blocks[block]) continue;
 
+        int64_t ahead = block && download->blocks[block - 1] ? READ_AHEAD : 1;
         int64_t end = block;
-        while (end + 1 < count && !download->blocks[end + 1] && (end < last || end + 1 - block < READ_AHEAD)) end++;
+        while (end + 1 < count && !download->blocks[end + 1] && (end < last || end + 1 - block < ahead)) end++;
 
         int64_t start = block * BLOCK_SIZE;
         downloadBytes(file, identity.substr(2), start, std::min((end + 1) * BLOCK_SIZE, size) - start);

@@ -278,6 +278,7 @@ void createPlaceholders(std::vector<Item> const& items) {
 
         if (item.size) {
             setAttribute(item.path, REMOTE, std::to_string(item.size));
+            queueThumbnail(item.path);
         } else {
             setAttribute(item.path, BASE, stampOf(absolute));
         }
@@ -293,6 +294,7 @@ void movePlaceholder(std::string const& from, std::string const& to) {
 
     forgetBlocks(from);
     markInSync(to);
+    queueThumbnail(to);
 }
 
 void updatePlaceholder(std::string const& path, std::optional<std::string> const& identity) {
