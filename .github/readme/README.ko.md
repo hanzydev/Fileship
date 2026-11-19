@@ -44,7 +44,7 @@
 |                                   | Fileship                       | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | --------------------------------- | ------------------------------ | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX 및 기타 업로더             | ✅                             | ✅                                          | ✅                                                 | ✅                                                  |
-| 캡처와 녹화를 위한 데스크톱 앱    | ✅ Windows                     | ❌                                          | ❌                                                 | ❌                                                  |
+| 캡처와 녹화를 위한 데스크톱 앱    | ✅ Windows, Linux              | ❌                                          | ❌                                                 | ❌                                                  |
 | 파일 탐색기에서 내 파일 보기      | ✅ Fileship Harbor             | ❌                                          | ❌                                                 | ❌                                                  |
 | 브라우저 확장 프로그램            | ✅                             | ❌                                          | ❌                                                 | ✅                                                  |
 | AI 검색, 설명, OCR, 민감한 콘텐츠 | ✅ 내 서버에서 실행            | ❌                                          | ❌                                                 | ❌                                                  |
@@ -73,7 +73,7 @@
 
 ## 🖥️ Windows용 Fileship
 
-알림 영역에서 ShareX처럼 캡처하고 녹화해서 Fileship에 업로드하고, Fileship Harbor로 파일 탐색기에서 내 파일을 둘러볼 수 있어요. 64비트 Windows 11 버전 24H2 이상과 Fileship 6.0 서버가 필요해요.
+알림 영역에서 ShareX처럼 캡처하고 녹화해서 Fileship에 업로드하고, Fileship Harbor로 파일 탐색기에서 내 파일을 둘러볼 수 있어요. 64비트 Windows 11 버전 24H2 이상과 Fileship 6.0 서버가 필요해요. Linux에서도 쓸 수 있고, Ubuntu, Debian, Linux Mint, Fedora용 deb와 rpm 패키지가 있어요.
 
 **[최신 버전 다운로드](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [기능 및 설정 방법](../../docs/desktop.md)
 

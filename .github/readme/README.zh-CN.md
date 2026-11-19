@@ -44,7 +44,7 @@
 |                                   | Fileship                     | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | --------------------------------- | ---------------------------- | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX 及其他上传工具             | ✅                           | ✅                                          | ✅                                                 | ✅                                                  |
-| 用于截图和录制的桌面应用          | ✅ Windows                   | ❌                                          | ❌                                                 | ❌                                                  |
+| 用于截图和录制的桌面应用          | ✅ Windows, Linux            | ❌                                          | ❌                                                 | ❌                                                  |
 | 在文件资源管理器中访问文件        | ✅ Fileship Harbor           | ❌                                          | ❌                                                 | ❌                                                  |
 | 浏览器扩展                        | ✅                           | ❌                                          | ❌                                                 | ✅                                                  |
 | AI 搜索、图片描述、OCR 和敏感内容 | ✅ 在你的服务器上运行        | ❌                                          | ❌                                                 | ❌                                                  |
@@ -73,7 +73,7 @@
 
 ## 🖥️ Fileship Windows 版
 
-在通知区域中以 ShareX 的方式截图、录制并上传到你的 Fileship，还能通过 Fileship Harbor 在文件资源管理器中浏览你的文件。需要 64 位 Windows 11 24H2 或更高版本，以及 Fileship 6.0 服务器。
+在通知区域中以 ShareX 的方式截图、录制并上传到你的 Fileship，还能通过 Fileship Harbor 在文件资源管理器中浏览你的文件。需要 64 位 Windows 11 24H2 或更高版本，以及 Fileship 6.0 服务器。也支持 Linux，提供适用于 Ubuntu、Debian、Linux Mint 和 Fedora 的 deb 和 rpm 软件包。
 
 **[下载最新版本](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [功能与设置](../../docs/desktop.md)
 

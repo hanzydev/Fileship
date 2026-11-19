@@ -44,7 +44,7 @@
 |                                                | Fileship                         | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | ---------------------------------------------- | -------------------------------- | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX などのアップローダー                    | ✅                               | ✅                                          | ✅                                                 | ✅                                                  |
-| キャプチャと録画ができるデスクトップアプリ     | ✅ Windows                       | ❌                                          | ❌                                                 | ❌                                                  |
+| キャプチャと録画ができるデスクトップアプリ     | ✅ Windows, Linux                | ❌                                          | ❌                                                 | ❌                                                  |
 | エクスプローラーでファイルを表示               | ✅ Fileship Harbor               | ❌                                          | ❌                                                 | ❌                                                  |
 | ブラウザー拡張機能                             | ✅                               | ❌                                          | ❌                                                 | ✅                                                  |
 | AI 検索、説明文、OCR、センシティブなコンテンツ | ✅ 自分のサーバーで動作          | ❌                                          | ❌                                                 | ❌                                                  |
@@ -73,7 +73,7 @@
 
 ## 🖥️ Fileship for Windows
 
-通知領域から ShareX のようにキャプチャ、録画、Fileship へのアップロードができ、Fileship Harbor を使えばエクスプローラーでファイルを閲覧できます。64 ビット版 Windows 11 バージョン 24H2 以降と、Fileship 6.0 のサーバーが必要です。
+通知領域から ShareX のようにキャプチャ、録画、Fileship へのアップロードができ、Fileship Harbor を使えばエクスプローラーでファイルを閲覧できます。64 ビット版 Windows 11 バージョン 24H2 以降と、Fileship 6.0 のサーバーが必要です。Linux でも動作し、Ubuntu、Debian、Linux Mint、Fedora 向けの deb パッケージと rpm パッケージがあります。
 
 **[最新版をダウンロード](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [機能とセットアップ](../../docs/desktop.md)
 

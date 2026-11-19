@@ -44,7 +44,7 @@
 |                                                | Fileship                       | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | ---------------------------------------------- | ------------------------------ | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX and other uploaders                     | ✅                             | ✅                                          | ✅                                                 | ✅                                                  |
-| Desktop app for capture and recording          | ✅ Windows                     | ❌                                          | ❌                                                 | ❌                                                  |
+| Desktop app for capture and recording          | ✅ Windows, Linux              | ❌                                          | ❌                                                 | ❌                                                  |
 | Your files in File Explorer                    | ✅ Fileship Harbor             | ❌                                          | ❌                                                 | ❌                                                  |
 | Browser extension                              | ✅                             | ❌                                          | ❌                                                 | ✅                                                  |
 | AI search, captions, OCR and sensitive content | ✅ on your server              | ❌                                          | ❌                                                 | ❌                                                  |
@@ -73,7 +73,7 @@ Compared with Zipline 4.8, XBackBone 3.8 and Chibisafe 6.7 in October 2026. Some
 
 ## 🖥️ Fileship for Windows
 
-Capture, record and upload to your Fileship from the system tray, ShareX style, and browse your files in File Explorer with Fileship Harbor. Needs 64-bit Windows 11 version 24H2 or newer and a Fileship 6.0 server.
+Capture, record and upload to your Fileship from the system tray, ShareX style, and browse your files in File Explorer with Fileship Harbor. Needs 64-bit Windows 11 version 24H2 or newer and a Fileship 6.0 server. It also runs on Linux, as deb and rpm packages for Ubuntu, Debian, Linux Mint and Fedora.
 
 **[Download the latest version](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Features and setup](docs/desktop.md)
 

@@ -44,7 +44,7 @@
 |                                                     | Fileship                              | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | --------------------------------------------------- | ------------------------------------- | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX und andere Uploader                          | ✅                                    | ✅                                          | ✅                                                 | ✅                                                  |
-| Desktop-App für Screenshots und Aufnahmen           | ✅ Windows                            | ❌                                          | ❌                                                 | ❌                                                  |
+| Desktop-App für Screenshots und Aufnahmen           | ✅ Windows, Linux                     | ❌                                          | ❌                                                 | ❌                                                  |
 | Deine Dateien im Explorer                           | ✅ Fileship Harbor                    | ❌                                          | ❌                                                 | ❌                                                  |
 | Browser-Erweiterung                                 | ✅                                    | ❌                                          | ❌                                                 | ✅                                                  |
 | KI-Suche, Bildbeschreibungen, OCR, sensible Inhalte | ✅ auf deinem Server                  | ❌                                          | ❌                                                 | ❌                                                  |
@@ -73,7 +73,7 @@ Verglichen mit Zipline 4.8, XBackBone 3.8 und Chibisafe 6.7 im Oktober 2026. Etw
 
 ## 🖥️ Fileship für Windows
 
-Nimm Screenshots und Videos auf und lade sie wie mit ShareX direkt aus dem Infobereich auf dein Fileship hoch, und durchsuche deine Dateien mit Fileship Harbor im Explorer. Erfordert Windows 11 (64 Bit) ab Version 24H2 und einen Server mit Fileship 6.0.
+Nimm Screenshots und Videos auf und lade sie wie mit ShareX direkt aus dem Infobereich auf dein Fileship hoch, und durchsuche deine Dateien mit Fileship Harbor im Explorer. Erfordert Windows 11 (64 Bit) ab Version 24H2 und einen Server mit Fileship 6.0. Läuft auch unter Linux, als deb- und rpm-Paket für Ubuntu, Debian, Linux Mint und Fedora.
 
 **[Neueste Version herunterladen](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Funktionen und Einrichtung](../../docs/desktop.md)
 

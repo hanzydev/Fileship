@@ -44,7 +44,7 @@
 |                                                        | Fileship                              | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | ------------------------------------------------------ | ------------------------------------- | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX və digər yükləmə alətləri                       | ✅                                    | ✅                                          | ✅                                                 | ✅                                                  |
-| Ekran görüntüsü və qeydə alma üçün masaüstü tətbiq     | ✅ Windows                            | ❌                                          | ❌                                                 | ❌                                                  |
+| Ekran görüntüsü və qeydə alma üçün masaüstü tətbiq     | ✅ Windows, Linux                     | ❌                                          | ❌                                                 | ❌                                                  |
 | Faylların Fayl Bələdçisində                            | ✅ Fileship Harbor                    | ❌                                          | ❌                                                 | ❌                                                  |
 | Brauzer genişləndirməsi                                | ✅                                    | ❌                                          | ❌                                                 | ✅                                                  |
 | Süni intellekt axtarışı, təsvirlər, OCR, həssas məzmun | ✅ öz serverində                      | ❌                                          | ❌                                                 | ❌                                                  |
@@ -73,7 +73,7 @@
 
 ## 🖥️ Windows üçün Fileship
 
-Bildiriş sahəsindən ShareX üslubunda ekran görüntüsü çək, ekranı qeydə al və Fileship-ə yüklə, fayllarına isə Fileship Harbor ilə Fayl Bələdçisində bax. 64 bitlik Windows 11 24H2 və ya daha yeni versiya, həmçinin Fileship 6.0 serveri lazımdır.
+Bildiriş sahəsindən ShareX üslubunda ekran görüntüsü çək, ekranı qeydə al və Fileship-ə yüklə, fayllarına isə Fileship Harbor ilə Fayl Bələdçisində bax. 64 bitlik Windows 11 24H2 və ya daha yeni versiya, həmçinin Fileship 6.0 serveri lazımdır. Linux-da da işləyir: Ubuntu, Debian, Linux Mint və Fedora üçün deb və rpm paketləri var.
 
 **[Son versiyanı endir](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [İmkanlar və quraşdırma](../../docs/desktop.md)
 

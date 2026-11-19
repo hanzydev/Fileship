@@ -44,7 +44,7 @@
 |                                                       | Fileship                                 | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | ----------------------------------------------------- | ---------------------------------------- | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX ve diğer yükleme araçları                      | ✅                                       | ✅                                          | ✅                                                 | ✅                                                  |
-| Ekran görüntüsü ve kayıt için masaüstü uygulaması     | ✅ Windows                               | ❌                                          | ❌                                                 | ❌                                                  |
+| Ekran görüntüsü ve kayıt için masaüstü uygulaması     | ✅ Windows, Linux                        | ❌                                          | ❌                                                 | ❌                                                  |
 | Dosyaların Dosya Gezgini'nde                          | ✅ Fileship Harbor                       | ❌                                          | ❌                                                 | ❌                                                  |
 | Tarayıcı uzantısı                                     | ✅                                       | ❌                                          | ❌                                                 | ✅                                                  |
 | Yapay zekâ araması, açıklamalar, OCR ve hassas içerik | ✅ kendi sunucunda                       | ❌                                          | ❌                                                 | ❌                                                  |
@@ -73,7 +73,7 @@ Zipline 4.8, XBackBone 3.8 ve Chibisafe 6.7 ile Ekim 2026'da karşılaştırıld
 
 ## 🖥️ Windows için Fileship
 
-Bildirim alanından ShareX tarzında ekran görüntüsü al, kayıt yap ve Fileship'ine yükle; dosyalarına da Fileship Harbor ile Dosya Gezgini'nden göz at. 64 bit Windows 11 24H2 veya daha yeni bir sürüm ve Fileship 6.0 sunucusu gerekir.
+Bildirim alanından ShareX tarzında ekran görüntüsü al, kayıt yap ve Fileship'ine yükle; dosyalarına da Fileship Harbor ile Dosya Gezgini'nden göz at. 64 bit Windows 11 24H2 veya daha yeni bir sürüm ve Fileship 6.0 sunucusu gerekir. Linux'ta da çalışır: Ubuntu, Debian, Linux Mint ve Fedora için deb ve rpm paketleri var.
 
 **[Son sürümü indir](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Özellikler ve kurulum](../../docs/desktop.md)
 

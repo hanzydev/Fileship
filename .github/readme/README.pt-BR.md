@@ -44,7 +44,7 @@
 |                                                      | Fileship                                  | [Zipline](https://github.com/diced/zipline) | [XBackBone](https://github.com/sergix44/XBackBone) | [Chibisafe](https://github.com/chibisafe/chibisafe) |
 | ---------------------------------------------------- | ----------------------------------------- | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
 | ShareX e outros clientes de envio                    | ✅                                        | ✅                                          | ✅                                                 | ✅                                                  |
-| App de desktop para captura e gravação               | ✅ Windows                                | ❌                                          | ❌                                                 | ❌                                                  |
+| App de desktop para captura e gravação               | ✅ Windows, Linux                         | ❌                                          | ❌                                                 | ❌                                                  |
 | Seus arquivos no Explorador de Arquivos              | ✅ Fileship Harbor                        | ❌                                          | ❌                                                 | ❌                                                  |
 | Extensão para navegador                              | ✅                                        | ❌                                          | ❌                                                 | ✅                                                  |
 | Pesquisa com IA, descrições, OCR e conteúdo sensível | ✅ no seu servidor                        | ❌                                          | ❌                                                 | ❌                                                  |
@@ -73,7 +73,7 @@ Comparado com Zipline 4.8, XBackBone 3.8 e Chibisafe 6.7 em outubro de 2026. Alg
 
 ## 🖥️ Fileship para Windows
 
-Capture, grave e envie para o seu Fileship pela área de notificação, no estilo do ShareX, e navegue pelos seus arquivos no Explorador de Arquivos com o Fileship Harbor. Requer Windows 11 de 64 bits, versão 24H2 ou mais recente, e um servidor Fileship 6.0.
+Capture, grave e envie para o seu Fileship pela área de notificação, no estilo do ShareX, e navegue pelos seus arquivos no Explorador de Arquivos com o Fileship Harbor. Requer Windows 11 de 64 bits, versão 24H2 ou mais recente, e um servidor Fileship 6.0. Também funciona no Linux, com pacotes deb e rpm para Ubuntu, Debian, Linux Mint e Fedora.
 
 **[Baixar a versão mais recente](https://github.com/hanzydev/fileship-desktop/releases/latest)** · [Recursos e configuração](../../docs/desktop.md)
 
