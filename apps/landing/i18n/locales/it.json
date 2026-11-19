@@ -19,6 +19,7 @@
         "description": "Acquisisci, carica e condividi da un'app nativa per Windows, sfoglia i tuoi file in Esplora file e cercali con un'IA che gira sul tuo server. Open source e self-hosted.",
         "selfHost": "Installa Fileship",
         "download": "Scarica per Windows",
+        "downloadLinux": "Scarica per Linux",
         "license": "Licenza AGPL-3.0",
         "languages": "12 lingue",
         "dashboardAlt": "Home della dashboard di Fileship con i caricamenti recenti e i grafici dello spazio",

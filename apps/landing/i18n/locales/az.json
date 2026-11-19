@@ -19,6 +19,7 @@
         "description": "Yerli Windows tətbiqi ilə çək, yüklə və paylaş, fayllarına Fayl Bələdçisində bax və onları öz serverində işləyən süni intellektlə axtar. Açıq mənbəli və öz serverində.",
         "selfHost": "Fileship-i qur",
         "download": "Windows üçün endir",
+        "downloadLinux": "Linux üçün endir",
         "license": "AGPL-3.0 lisenziyalı",
         "languages": "12 dil",
         "dashboardAlt": "Son yükləmələr və yaddaş qrafikləri ilə Fileship idarə panelinin əsas səhifəsi",

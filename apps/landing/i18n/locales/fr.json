@@ -19,6 +19,7 @@
         "description": "Capturez, importez et partagez depuis une application Windows native, parcourez vos fichiers dans l'Explorateur de fichiers et retrouvez-les grâce à une IA qui tourne sur votre propre serveur. Open source et auto-hébergé.",
         "selfHost": "Héberger Fileship",
         "download": "Télécharger pour Windows",
+        "downloadLinux": "Télécharger pour Linux",
         "license": "Licence AGPL-3.0",
         "languages": "12 langues",
         "dashboardAlt": "Page d'accueil du tableau de bord Fileship avec les importations récentes et les graphiques de stockage",

@@ -19,6 +19,7 @@
         "description": "Capture, envie e compartilhe com um app nativo para Windows, navegue pelos seus arquivos no Explorador de Arquivos e encontre-os com uma IA que roda no seu próprio servidor. Código aberto e auto-hospedado.",
         "selfHost": "Hospedar o Fileship",
         "download": "Baixar para Windows",
+        "downloadLinux": "Baixar para Linux",
         "license": "Licença AGPL-3.0",
         "languages": "12 idiomas",
         "dashboardAlt": "Página inicial do painel do Fileship com envios recentes e gráficos de armazenamento",

@@ -22,7 +22,7 @@
                     @click.prevent="handleDownload"
                 >
                     <WindowsIcon class="size-5" />
-                    {{ $t('hero.download') }}
+                    {{ $t(isLinux ? 'hero.downloadLinux' : 'hero.download') }}
                 </a>
             </UiButton>
         </template>
@@ -39,12 +39,27 @@ const { t } = useI18n();
 
 const DESKTOP_RELEASES = 'https://github.com/hanzydev/fileship-desktop/releases/latest';
 
-const handleDownload = async () => {
-    const release = await $fetch<{ assets: { name: string; browser_download_url: string }[] }>(
-        'https://api.github.com/repos/hanzydev/fileship-desktop/releases/latest',
-    ).catch(() => null);
+const isLinux = ref(false);
 
-    const installer = release?.assets.find((asset) => asset.name.endsWith('.exe'));
+const packageExtension = () => {
+    if (!isLinux.value) return '.exe';
+    if (/Ubuntu|Debian|Mint/i.test(navigator.userAgent)) return '.deb';
+    if (/Fedora|Red Hat|SUSE/i.test(navigator.userAgent)) return '.rpm';
+};
+
+onMounted(() => {
+    isLinux.value = /Linux/.test(navigator.userAgent) && !/Android/.test(navigator.userAgent);
+});
+
+const handleDownload = async () => {
+    const extension = packageExtension();
+    const release = extension
+        ? await $fetch<{ assets: { name: string; browser_download_url: string }[] }>(
+              'https://api.github.com/repos/hanzydev/fileship-desktop/releases/latest',
+          ).catch(() => null)
+        : null;
+
+    const installer = release?.assets.find((asset) => asset.name.endsWith(extension!));
 
     window.location.href = installer?.browser_download_url ?? DESKTOP_RELEASES;
 };

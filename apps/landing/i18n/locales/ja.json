@@ -19,6 +19,7 @@
         "description": "ネイティブの Windows アプリでキャプチャ、アップロード、共有し、エクスプローラーでファイルを閲覧して、自分のサーバーで動く AI で検索できます。オープンソースで、セルフホスト型です。",
         "selfHost": "Fileship をセルフホスト",
         "download": "Windows 版をダウンロード",
+        "downloadLinux": "Linux 版をダウンロード",
         "license": "AGPL-3.0 ライセンス",
         "languages": "12 言語",
         "dashboardAlt": "最近のアップロードとストレージのグラフが表示された Fileship ダッシュボードのホーム",

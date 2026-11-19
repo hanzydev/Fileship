@@ -19,6 +19,7 @@
         "description": "Yerel bir Windows uygulamasıyla yakala, yükle ve paylaş; dosyalarına Dosya Gezgini'nden göz at ve onları kendi sunucunda çalışan yapay zekâyla ara. Açık kaynak ve kendin barındırırsın.",
         "selfHost": "Fileship'i kur",
         "download": "Windows için indir",
+        "downloadLinux": "Linux için indir",
         "license": "AGPL-3.0 lisanslı",
         "languages": "12 dil",
         "dashboardAlt": "Son yüklemeler ve depolama grafikleriyle Fileship panelinin ana sayfası",
