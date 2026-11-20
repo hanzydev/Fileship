@@ -224,6 +224,8 @@ void openRegionCapture(ui::OverlayPurpose purpose, AreaCallback onArea, std::fun
             logError(L"Could not open region capture");
             notify(t(L"app.overlayFailed"), t(L"app.tryAgain"));
         });
+    } catch (core::CaptureCancelled const&) {
+        isOpen = false;
     } catch (std::exception const& error) {
         logError(L"Could not open region capture: " + errorMessage(error));
         isOpen = false;

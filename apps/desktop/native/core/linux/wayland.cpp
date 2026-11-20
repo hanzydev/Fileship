@@ -66,6 +66,13 @@ struct Grab {
 
 std::mutex mutex;
 std::optional<Grab> current;
+struct Refusal {
+    int64_t at = 0;
+    std::string message;
+    bool isCancelled = false;
+};
+
+std::optional<Refusal> refusal;
 CursorMode lastMode = CursorMode::Hidden;
 std::string restoreToken;
 std::function<void(std::string const&)> onRestoreToken;
@@ -118,7 +125,7 @@ std::vector<Screen> startSession(Source source, CursorMode mode, std::string& se
         g_variant_builder_add(&options, "{sv}", "handle_token", g_variant_new_string(token));
         return g_variant_new("(osa{sv})", session.c_str(), "", &options);
     });
-    if (started.response == 1) return {};
+    if (started.response == 1) throw CaptureCancelled();
     if (started.response) throw std::runtime_error("Screen capture was not allowed");
 
     gchar const* token = nullptr;
@@ -333,10 +340,23 @@ std::vector<Screen> read(Source source, CursorMode mode, long timeoutMs) {
 Grab const& grab(std::optional<CursorMode> mode = {}) {
     bool isFresh = current && nowMs() - current->takenAt <= GRAB_LIFETIME_MS && (!mode || current->mode == *mode);
     if (isFresh) return *current;
+    if (refusal && nowMs() - refusal->at <= GRAB_LIFETIME_MS) {
+        if (refusal->isCancelled) throw CaptureCancelled();
+        throw std::runtime_error(refusal->message);
+    }
 
-    auto screens = read(Source::Screens, mode.value_or(lastMode), 5000);
-    std::erase_if(screens, [](Screen const& screen) { return screen.frame.pixels.empty(); });
-    if (screens.empty()) throw std::runtime_error("The system sent no screen image");
+    std::vector<Screen> screens;
+    try {
+        screens = read(Source::Screens, mode.value_or(lastMode), 5000);
+        std::erase_if(screens, [](Screen const& screen) { return screen.frame.pixels.empty(); });
+        if (screens.empty()) throw std::runtime_error("The system sent no screen image");
+    } catch (CaptureCancelled const&) {
+        refusal = Refusal{nowMs(), {}, true};
+        throw;
+    } catch (std::exception const& error) {
+        refusal = Refusal{nowMs(), error.what(), false};
+        throw;
+    }
 
     double largest = 1;
     for (auto& screen : screens) {
@@ -492,6 +512,7 @@ bool chooseScreens() {
     auto previous = restoreToken;
     restoreToken.clear();
     current.reset();
+    refusal.reset();
 
     try {
         grab();
@@ -552,6 +573,8 @@ std::vector<DisplayInfo> listDisplays() {
 
     try {
         for (auto const& screen : grab().screens) displays.push_back(screen.display);
+    } catch (CaptureCancelled const&) {
+        throw;
     } catch (std::exception const& error) {
         logWarn(L"Could not read the screens: " + toWide(error.what()));
     }
@@ -590,6 +613,8 @@ Point cursorPosition() {
                 return Point{screen.display.rect.x + probe.cursor->x, screen.display.rect.y + probe.cursor->y};
             }
         }
+    } catch (CaptureCancelled const&) {
+        throw;
     } catch (std::exception const& error) {
         logWarn(L"Could not read the pointer position: " + toWide(error.what()));
     }

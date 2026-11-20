@@ -5,6 +5,7 @@
 #include "platform.h"
 #include "process.h"
 
+#include <core/core.h>
 #include <host/app.h>
 #include <host/recording.h>
 #include <host/rpc.h>
@@ -725,6 +726,8 @@ void begin(std::wstring const& kind, ui::ScreenRect const& rect) {
 
     try {
         startSegment(recording);
+    } catch (core::CaptureCancelled const&) {
+        return abortRecording();
     } catch (std::exception const& startError) {
         logError(L"Could not start ffmpeg: " + message(startError));
         notify(t(L"recording.startFailed"), message(startError));

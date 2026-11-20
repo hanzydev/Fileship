@@ -4,10 +4,15 @@
 #include <cstdint>
 #include <filesystem>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 namespace fileship::core {
+
+struct CaptureCancelled : std::runtime_error {
+    CaptureCancelled() : std::runtime_error("Screen capture was cancelled") {}
+};
 
 struct Point {
     int32_t x = 0;

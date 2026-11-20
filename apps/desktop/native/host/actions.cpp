@@ -2,6 +2,7 @@
 
 #include "platform.h"
 
+#include <core/core.h>
 #include <host/recording.h>
 #include <shared/log.h>
 #include <shared/platform.h>
@@ -120,6 +121,8 @@ void runGuarded(std::wstring const& name, bool requiresAccount, std::function<vo
 
     try {
         task();
+    } catch (core::CaptureCancelled const&) {
+        logInfo(name + L" was cancelled");
     } catch (...) {
         auto message = exceptionMessage();
         logError(name + L" failed: " + message);
