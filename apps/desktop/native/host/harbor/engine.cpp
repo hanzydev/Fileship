@@ -3147,4 +3147,9 @@ std::optional<std::filesystem::path> harborPathFor(std::wstring const& fileId) {
     return harborPathOf(fileIdentity(fileId));
 }
 
+bool isHarborFile(std::filesystem::path const& path) {
+    auto identity = identityAt(path.wstring());
+    return identity && startsWith(*identity, L"f:");
+}
+
 }

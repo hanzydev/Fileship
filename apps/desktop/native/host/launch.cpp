@@ -101,8 +101,19 @@ bool handleLaunch(std::vector<std::wstring> const& arguments, std::filesystem::p
     }
 
     if (auto upload = targets(L"--upload")) {
-        std::vector<std::filesystem::path> paths(upload->begin(), upload->end());
-        queueUploads(paths);
+        std::vector<std::filesystem::path> paths;
+        std::vector<std::wstring> onFileship;
+
+        for (auto const& path : *upload) {
+            if (harbor::isHarborFile(path)) {
+                onFileship.push_back(path);
+            } else {
+                paths.emplace_back(path);
+            }
+        }
+
+        if (!onFileship.empty()) queueHarborAction(L"copyLink", onFileship);
+        if (!paths.empty()) queueUploads(paths);
         return true;
     }
 

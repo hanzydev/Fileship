@@ -23,6 +23,7 @@ void pauseHarbor(bool paused);
 void openHarbor();
 void runHarborAction(std::wstring const& action, std::vector<std::wstring> const& paths);
 std::optional<std::filesystem::path> harborPathFor(std::wstring const& fileId);
+bool isHarborFile(std::filesystem::path const& path);
 void registerHarborHandlers();
 
 }
