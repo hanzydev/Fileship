@@ -124,6 +124,7 @@ rpm:
         - sqlite-libs
         - gdk-pixbuf2
         - gtk4
+        - libglvnd-gles
         - libxcb
         - libxkbcommon
         - pulseaudio-libs
