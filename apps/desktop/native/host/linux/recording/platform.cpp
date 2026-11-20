@@ -71,6 +71,8 @@ void showRecorderControls(ui::ScreenRect const& area, ui::ThemeMode theme, ui::R
 
         if (auto toolbar = ui::placeRecorderToolbar(area, monitor, display.scaleFactor)) {
             hasToolbar = true;
+            if (notice) closeNotice(notice);
+            notice = 0;
             ui::showRecorderWindows(area, *toolbar, display.scaleFactor, theme, std::move(value), showBorder);
             return;
         }
