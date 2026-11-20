@@ -735,6 +735,7 @@
         "harborSettings": {
             "description": "Fileship Harbor muestra tus archivos y carpetas de Fileship en tu gestor de archivos. Los archivos solo se descargan cuando los abres.",
             "openInExplorer": "Abrir carpeta",
+            "locationPlaceholder": "~/Fileship",
             "howItWorksDescription": "Qué esperar de tus archivos en el gestor de archivos.",
             "tips": {
                 "onlineDescription": "No ocupan espacio hasta que los abres, y las miniaturas se muestran sin descargarlos. La carpeta está vacía mientras Fileship no está abierto.",
@@ -748,6 +749,9 @@
         },
         "updates": {
             "description": "Fileship v{version}. Las actualizaciones se descargan en segundo plano y se instalan cuando reinicias desde aquí. El sistema te pedirá tu contraseña."
+        },
+        "uploadSettings": {
+            "saveFolderPlaceholder": "Imágenes/Fileship"
         }
     }
 }

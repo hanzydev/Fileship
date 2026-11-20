@@ -735,6 +735,7 @@
         "harborSettings": {
             "description": "Fileship Harbor を使うと、Fileship のファイルとフォルダーがファイルマネージャーに表示されます。ファイルは開いたときにだけダウンロードされます。",
             "openInExplorer": "フォルダーを開く",
+            "locationPlaceholder": "~/Fileship",
             "howItWorksDescription": "ファイルマネージャーでのファイルの扱いについて説明します。",
             "tips": {
                 "onlineDescription": "開くまでディスク領域を使わず、縮小版もダウンロードせずに表示されます。Fileship が起動していない間、フォルダーは空になります。",
@@ -748,6 +749,9 @@
         },
         "updates": {
             "description": "Fileship v{version}。アップデートはバックグラウンドでダウンロードされ、ここから再起動するとインストールされます。システムがパスワードを確認します。"
+        },
+        "uploadSettings": {
+            "saveFolderPlaceholder": "ピクチャ/Fileship"
         }
     }
 }

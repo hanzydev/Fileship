@@ -735,6 +735,7 @@
         "harborSettings": {
             "description": "Fileship Harbor показывает ваши файлы и папки из Fileship в файловом менеджере. Файлы скачиваются, только когда вы их открываете.",
             "openInExplorer": "Открыть папку",
+            "locationPlaceholder": "~/Fileship",
             "howItWorksDescription": "Как ведут себя ваши файлы в файловом менеджере.",
             "tips": {
                 "onlineDescription": "Они не занимают место, пока вы их не откроете, а миниатюры видны без скачивания. Пока Fileship не запущен, папка пуста.",
@@ -748,6 +749,9 @@
         },
         "updates": {
             "description": "Fileship v{version}. Обновления скачиваются в фоне и устанавливаются, когда вы перезапускаете приложение отсюда. Система запросит ваш пароль."
+        },
+        "uploadSettings": {
+            "saveFolderPlaceholder": "Изображения/Fileship"
         }
     }
 }

@@ -735,6 +735,7 @@
         "harborSettings": {
             "description": "O Fileship Harbor coloca seus arquivos e pastas do Fileship no seu gerenciador de arquivos. Os arquivos só são baixados quando você os abre.",
             "openInExplorer": "Abrir pasta",
+            "locationPlaceholder": "~/Fileship",
             "howItWorksDescription": "O que esperar dos seus arquivos no gerenciador de arquivos.",
             "tips": {
                 "onlineDescription": "Eles não ocupam espaço até você abri-los, e as miniaturas aparecem sem baixar nada. A pasta fica vazia enquanto o Fileship não está em execução.",
@@ -748,6 +749,9 @@
         },
         "updates": {
             "description": "Fileship v{version}. As atualizações são baixadas em segundo plano e instaladas quando você reinicia por aqui. O sistema pede sua senha."
+        },
+        "uploadSettings": {
+            "saveFolderPlaceholder": "Imagens/Fileship"
         }
     }
 }

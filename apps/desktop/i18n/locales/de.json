@@ -735,6 +735,7 @@
         "harborSettings": {
             "description": "Fileship Harbor zeigt deine Fileship-Dateien und -Ordner in deinem Dateimanager an. Dateien werden erst heruntergeladen, wenn du sie öffnest.",
             "openInExplorer": "Ordner öffnen",
+            "locationPlaceholder": "~/Fileship",
             "howItWorksDescription": "Was du von deinen Dateien im Dateimanager erwarten kannst.",
             "tips": {
                 "onlineDescription": "Sie belegen erst Speicherplatz, wenn du sie öffnest, und Miniaturansichten erscheinen ohne Download. Solange Fileship nicht läuft, ist der Ordner leer.",
@@ -748,6 +749,9 @@
         },
         "updates": {
             "description": "Fileship v{version}. Updates werden im Hintergrund heruntergeladen und installiert, wenn du hier neu startest. Dein System fragt nach deinem Passwort."
+        },
+        "uploadSettings": {
+            "saveFolderPlaceholder": "Bilder/Fileship"
         }
     }
 }

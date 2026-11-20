@@ -735,6 +735,7 @@
         "harborSettings": {
             "description": "Fileship Harbor 会将你的 Fileship 文件和文件夹放进文件管理器。文件仅在你打开时才会下载。",
             "openInExplorer": "打开文件夹",
+            "locationPlaceholder": "~/Fileship",
             "howItWorksDescription": "了解你的文件在文件管理器中的表现。",
             "tips": {
                 "onlineDescription": "打开之前不占用空间，无需下载即可显示缩略图。Fileship 未运行时，文件夹是空的。",
@@ -748,6 +749,9 @@
         },
         "updates": {
             "description": "Fileship v{version}。更新会在后台下载，从这里重启时安装。系统会要求你输入密码。"
+        },
+        "uploadSettings": {
+            "saveFolderPlaceholder": "图片/Fileship"
         }
     }
 }

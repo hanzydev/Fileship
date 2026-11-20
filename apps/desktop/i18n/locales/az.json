@@ -735,6 +735,7 @@
         "harborSettings": {
             "description": "Fileship Harbor Fileship fayllarını və qovluqlarını fayl menecerinə gətirir. Fayllar yalnız onları açanda endirilir.",
             "openInExplorer": "Qovluğu aç",
+            "locationPlaceholder": "~/Fileship",
             "howItWorksDescription": "Fayl menecerindəki faylların necə davrandığı.",
             "tips": {
                 "onlineDescription": "Onları açana qədər yer tutmurlar, miniatürlər isə endirmədən görünür. Fileship işləmədikdə qovluq boş görünür.",
@@ -748,6 +749,9 @@
         },
         "updates": {
             "description": "Fileship v{version}. Yeniləmələr arxa fonda endirilir və buradan yenidən başladanda quraşdırılır. Sistem şifrəni soruşur."
+        },
+        "uploadSettings": {
+            "saveFolderPlaceholder": "Şəkillər/Fileship"
         }
     }
 }

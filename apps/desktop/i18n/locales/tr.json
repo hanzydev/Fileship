@@ -735,6 +735,7 @@
         "harborSettings": {
             "description": "Fileship Harbor, Fileship dosyalarını ve klasörlerini dosya yöneticine getirir. Dosyalar yalnızca açtığında indirilir.",
             "openInExplorer": "Klasörü aç",
+            "locationPlaceholder": "~/Fileship",
             "howItWorksDescription": "Dosya yöneticisindeki dosyaların nasıl davrandığı.",
             "tips": {
                 "onlineDescription": "Açana kadar yer kaplamazlar. Küçük resimler dosya indirilmeden görünür. Fileship çalışmıyorken klasör boş görünür.",
@@ -748,6 +749,9 @@
         },
         "updates": {
             "description": "Fileship v{version}. Güncellemeler arka planda indirilir ve buradan yeniden başlattığında kurulur. Sistem şifreni sorar."
+        },
+        "uploadSettings": {
+            "saveFolderPlaceholder": "Resimler/Fileship"
         }
     }
 }

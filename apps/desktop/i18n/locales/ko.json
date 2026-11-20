@@ -735,6 +735,7 @@
         "harborSettings": {
             "description": "Fileship Harbor는 Fileship 파일과 폴더를 파일 관리자에 보여 줘요. 파일은 열 때만 다운로드돼요.",
             "openInExplorer": "폴더 열기",
+            "locationPlaceholder": "~/Fileship",
             "howItWorksDescription": "파일 관리자에서 파일이 어떻게 동작하는지 알려 드려요.",
             "tips": {
                 "onlineDescription": "열기 전까지는 공간을 차지하지 않고, 다운로드하지 않아도 축소판이 표시돼요. Fileship이 실행 중이 아니면 폴더가 비어 있어요.",
@@ -748,6 +749,9 @@
         },
         "updates": {
             "description": "Fileship v{version}. 업데이트는 백그라운드에서 다운로드되고, 여기에서 다시 시작하면 설치돼요. 시스템이 비밀번호를 물어봐요."
+        },
+        "uploadSettings": {
+            "saveFolderPlaceholder": "사진/Fileship"
         }
     }
 }

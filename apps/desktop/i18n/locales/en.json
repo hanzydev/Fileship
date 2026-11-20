@@ -735,6 +735,7 @@
         "harborSettings": {
             "description": "Fileship Harbor puts your Fileship files and folders in your file manager. Files download only when you open them.",
             "openInExplorer": "Open folder",
+            "locationPlaceholder": "~/Fileship",
             "howItWorksDescription": "What to expect from your files in your file manager.",
             "tips": {
                 "onlineDescription": "They take no space until you open them, and thumbnails show without downloading. The folder is empty while Fileship is not running.",
@@ -748,6 +749,9 @@
         },
         "updates": {
             "description": "Fileship v{version}. Updates download in the background and install when you restart from here. Your system asks for your password."
+        },
+        "uploadSettings": {
+            "saveFolderPlaceholder": "Pictures/Fileship"
         }
     }
 }
