@@ -54,10 +54,9 @@ std::vector<std::filesystem::path> pickFiles() {
         },
         [&](uint32_t response, GVariant* results) {
             isDone = true;
-            if (response) return;
 
             gchar const** uris = nullptr;
-            g_variant_lookup(results, "uris", "^a&s", &uris);
+            if (response || !g_variant_lookup(results, "uris", "^a&s", &uris)) return;
 
             for (auto uri = uris; *uri; uri++) {
                 gchar* path = g_filename_from_uri(*uri, nullptr, nullptr);

@@ -507,7 +507,8 @@ void stopRecording() {
 
     if (result) {
         try {
-            handleRecording({result->output, recording->kind == L"gif" ? L"gif" : L"recording", result->thumbnail});
+            handleRecording(
+                {result->output, recording->kind == L"gif" ? L"gif" : L"recording", result->thumbnail, {}, false});
         } catch (std::exception const& error) {
             logError(L"Could not handle the recording: " + message(error));
             notify(t(L"app.somethingWentWrong"), message(error));

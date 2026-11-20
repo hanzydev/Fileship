@@ -22,8 +22,10 @@ constexpr int RETRY_DELAY_MS = 15 * 60 * 1000;
 std::mutex mutex;
 JsonObject status{nullptr};
 bool installWhenIdle = false;
+bool isInstalling = false;
 uint64_t retryGeneration = 0;
 std::filesystem::path installer;
+std::wstring installerHash;
 
 void setStatus(JsonObject next) {
     bool isChanged = false;
@@ -180,10 +182,29 @@ void scheduleRetry() {
 }
 
 void install() {
-    auto file = pendingUpdate();
+    std::filesystem::path file;
+    std::wstring hash;
+
+    {
+        std::lock_guard lock(mutex);
+        if (isInstalling) return;
+
+        isInstalling = true;
+        file = installer;
+        hash = installerHash;
+    }
+
     logInfo(L"Installing the update");
 
-    auto result = file.empty() ? InstallResult::Started : runUpdateInstaller(file, true);
+    auto result = file.empty()              ? InstallResult::Started
+                  : hashFile(file) != hash ? InstallResult::Failed
+                                           : runUpdateInstaller(file, true);
+
+    {
+        std::lock_guard lock(mutex);
+        isInstalling = false;
+    }
+
     if (result == InstallResult::Refused) return;
 
     if (result == InstallResult::Failed) {
@@ -265,6 +286,7 @@ void checkForUpdates() {
         {
             std::lock_guard lock(mutex);
             installer = target;
+            installerHash = release.sha512;
         }
 
         setStatus(makeStatus(L"ready", release.version));
