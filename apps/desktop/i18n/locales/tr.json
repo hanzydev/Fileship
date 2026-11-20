@@ -724,7 +724,8 @@
             }
         },
         "nav": {
-            "forWindows": "Linux için"
+            "forWindows": "Linux için",
+            "updateReadyDescription": "Şimdi güncellemek için yeniden başlat. Sistem şifreni sorar."
         },
         "recordingSettings": {
             "ffmpegDescription": "Fileship kayıtları FFmpeg ile yapar. Bu bilgisayarda kurulu olanı ya da senin seçtiğin kopyayı kullanır.",
@@ -752,6 +753,9 @@
         },
         "uploadSettings": {
             "saveFolderPlaceholder": "Resimler/Fileship"
+        },
+        "notifications": {
+            "open": "Aç"
         }
     }
 }

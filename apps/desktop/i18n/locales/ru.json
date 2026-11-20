@@ -724,7 +724,8 @@
             }
         },
         "nav": {
-            "forWindows": "для Linux"
+            "forWindows": "для Linux",
+            "updateReadyDescription": "Перезапустите, чтобы обновить сейчас. Система запросит ваш пароль."
         },
         "recordingSettings": {
             "ffmpegDescription": "Fileship записывает с помощью FFmpeg. Используется версия, установленная на этом компьютере, или ваша собственная.",
@@ -752,6 +753,9 @@
         },
         "uploadSettings": {
             "saveFolderPlaceholder": "Изображения/Fileship"
+        },
+        "notifications": {
+            "open": "Открыть"
         }
     }
 }

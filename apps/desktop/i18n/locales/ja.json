@@ -724,7 +724,8 @@
             }
         },
         "nav": {
-            "forWindows": "for Linux"
+            "forWindows": "for Linux",
+            "updateReadyDescription": "再起動するとすぐに更新されます。システムがパスワードを確認します。"
         },
         "recordingSettings": {
             "ffmpegDescription": "Fileship は FFmpeg で録画します。このコンピューターにインストールされているもの、または指定したものを使用します。",
@@ -752,6 +753,9 @@
         },
         "uploadSettings": {
             "saveFolderPlaceholder": "ピクチャ/Fileship"
+        },
+        "notifications": {
+            "open": "開く"
         }
     }
 }

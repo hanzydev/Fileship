@@ -135,7 +135,7 @@ void notify(std::wstring const& title, std::wstring const& body, std::function<v
         notification.title = title;
         notification.body = body;
 
-        if (onClick) notification.actions.push_back({"default", L""});
+        if (onClick) notification.actions.push_back({"default", t(L"notifications.open")});
 
         if (image) {
             gchar* uri = g_filename_to_uri(image->c_str(), nullptr, nullptr);

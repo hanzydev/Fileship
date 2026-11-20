@@ -724,7 +724,8 @@
             }
         },
         "nav": {
-            "forWindows": "Linux 版"
+            "forWindows": "Linux 版",
+            "updateReadyDescription": "立即重启以完成更新。系统会要求你输入密码。"
         },
         "recordingSettings": {
             "ffmpegDescription": "Fileship 使用 FFmpeg 录制。它会使用这台电脑上已安装的 FFmpeg，或你自己指定的副本。",
@@ -752,6 +753,9 @@
         },
         "uploadSettings": {
             "saveFolderPlaceholder": "图片/Fileship"
+        },
+        "notifications": {
+            "open": "打开"
         }
     }
 }

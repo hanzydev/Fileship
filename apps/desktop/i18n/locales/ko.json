@@ -724,7 +724,8 @@
             }
         },
         "nav": {
-            "forWindows": "Linux용"
+            "forWindows": "Linux용",
+            "updateReadyDescription": "지금 다시 시작해 업데이트하세요. 시스템이 비밀번호를 물어봐요."
         },
         "recordingSettings": {
             "ffmpegDescription": "Fileship은 FFmpeg로 녹화해요. 이 컴퓨터에 설치된 FFmpeg나 직접 고른 파일을 사용해요.",
@@ -752,6 +753,9 @@
         },
         "uploadSettings": {
             "saveFolderPlaceholder": "사진/Fileship"
+        },
+        "notifications": {
+            "open": "열기"
         }
     }
 }

@@ -724,7 +724,8 @@
             }
         },
         "nav": {
-            "forWindows": "Linux üçün"
+            "forWindows": "Linux üçün",
+            "updateReadyDescription": "İndi yeniləmək üçün yenidən başlat. Sistem şifrəni soruşur."
         },
         "recordingSettings": {
             "ffmpegDescription": "Fileship qeydləri FFmpeg ilə aparır. Bu kompüterdə quraşdırılmış olanı və ya sənin seçdiyin nüsxəni istifadə edir.",
@@ -752,6 +753,9 @@
         },
         "uploadSettings": {
             "saveFolderPlaceholder": "Şəkillər/Fileship"
+        },
+        "notifications": {
+            "open": "Aç"
         }
     }
 }

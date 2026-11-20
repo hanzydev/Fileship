@@ -724,7 +724,8 @@
             }
         },
         "nav": {
-            "forWindows": "para Linux"
+            "forWindows": "para Linux",
+            "updateReadyDescription": "Reinicia para actualizar ahora. El sistema te pedirá tu contraseña."
         },
         "recordingSettings": {
             "ffmpegDescription": "Fileship graba con FFmpeg. Usa el que está instalado en este equipo o tu propia copia.",
@@ -752,6 +753,9 @@
         },
         "uploadSettings": {
             "saveFolderPlaceholder": "Imágenes/Fileship"
+        },
+        "notifications": {
+            "open": "Abrir"
         }
     }
 }

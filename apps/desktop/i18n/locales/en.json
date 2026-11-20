@@ -724,7 +724,8 @@
             }
         },
         "nav": {
-            "forWindows": "for Linux"
+            "forWindows": "for Linux",
+            "updateReadyDescription": "Restart to update now. Your system asks for your password."
         },
         "recordingSettings": {
             "ffmpegDescription": "Fileship records with FFmpeg. It uses the one installed on this computer, or your own copy.",
@@ -752,6 +753,9 @@
         },
         "uploadSettings": {
             "saveFolderPlaceholder": "Pictures/Fileship"
+        },
+        "notifications": {
+            "open": "Open"
         }
     }
 }
