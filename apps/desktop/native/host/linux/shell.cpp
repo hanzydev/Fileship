@@ -3,6 +3,7 @@
 #include <shared/log.h>
 
 #include <fstream>
+#include <iterator>
 #include <mutex>
 
 namespace fileship::host {
@@ -149,6 +150,107 @@ void writeDolphin(fs::path const& exe, std::optional<fs::path> const& root) {
     }
 }
 
+std::string xmlEscaped(std::string const& text) {
+    std::string escaped;
+
+    for (char character : text) {
+        if (character == '&') {
+            escaped += "&amp;";
+        } else if (character == '<') {
+            escaped += "&lt;";
+        } else if (character == '>') {
+            escaped += "&gt;";
+        } else {
+            escaped += character;
+        }
+    }
+
+    return escaped;
+}
+
+std::string thunarAction(fs::path const& exe, std::string const& id, std::string const& name, std::string const& command,
+                         bool isForFolders) {
+    return "\t<action>\n\t\t<icon>" + xmlEscaped((resourcesPath() / "icon.png").string()) + "</icon>\n\t\t<name>" +
+           xmlEscaped(name) + "</name>\n\t\t<submenu></submenu>\n\t\t<unique-id>fileship-" + id +
+           "</unique-id>\n\t\t<command>" + xmlEscaped("\"" + exe.string() + "\" " + command + " %F") +
+           "</command>\n\t\t<description></description>\n\t\t<range></range>\n\t\t<patterns>*</patterns>\n" +
+           (isForFolders ? "\t\t<directories/>\n"
+                         : "\t\t<audio-files/>\n\t\t<image-files/>\n\t\t<other-files/>\n\t\t<text-files/>\n\t\t<video-files/>\n") +
+           "\t</action>\n";
+}
+
+std::optional<std::string> readText(fs::path const& file) {
+    std::ifstream input(file, std::ios::binary);
+    if (!input) return std::nullopt;
+    return std::string(std::istreambuf_iterator<char>(input), {});
+}
+
+std::optional<std::string> thunarActions() {
+    auto own = fs::path(g_get_user_config_dir()) / "Thunar" / "uca.xml";
+    if (auto text = readText(own)) return text;
+
+    gchar* thunar = g_find_program_in_path("thunar");
+    if (!thunar) return std::nullopt;
+    g_free(thunar);
+
+    for (auto folder = g_get_system_config_dirs(); *folder; folder++) {
+        if (auto text = readText(fs::path(*folder) / "Thunar" / "uca.xml")) return text;
+    }
+
+    return std::string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<actions>\n</actions>\n");
+}
+
+void writeThunar(fs::path const& exe, std::optional<fs::path> const& root) {
+    auto current = thunarActions();
+    if (!current) return;
+
+    auto end = current->rfind("</actions>");
+    if (end == std::string::npos) {
+        logWarn(L"The Thunar custom actions are not readable, so Fileship leaves them alone");
+        return;
+    }
+
+    std::string kept;
+    size_t position = 0;
+
+    while (position < end) {
+        auto start = current->find("<action>", position);
+        if (start == std::string::npos || start >= end) break;
+
+        auto finish = current->find("</action>", start);
+        if (finish == std::string::npos || finish >= end) break;
+        finish += std::string("</action>").size();
+
+        auto block = current->substr(start, finish - start);
+        kept += current->substr(position, start - position);
+        if (block.find("<unique-id>fileship-") == std::string::npos) {
+            kept += block;
+        } else {
+            while (!kept.empty() && (kept.back() == '\t' || kept.back() == ' ')) kept.pop_back();
+            if (finish < current->size() && (*current)[finish] == '\n') finish++;
+        }
+
+        position = finish;
+    }
+
+    kept += current->substr(position, end - position);
+
+    std::string actions = thunarAction(exe, "upload", labelOf(L"shell.upload"), "--upload", false);
+    for (auto const& verb : HARBOR_VERBS) {
+        if (!root) break;
+        actions += thunarAction(exe, verb.action, labelOf(verb.label), std::string("--harbor-action ") + verb.action,
+                                verb.isForFolders);
+    }
+
+    auto text = kept + actions + current->substr(end);
+    if (text == *current) return;
+
+    auto file = fs::path(g_get_user_config_dir()) / "Thunar" / "uca.xml";
+    auto temporary = fs::path(file).concat(".fileship");
+    writeFile(temporary, text);
+    fs::rename(temporary, file);
+}
+
 }
 
 void registerShellMenu() {
@@ -161,6 +263,7 @@ void registerShellMenu() {
         writeNautilus(exe, shellRoot);
         writeNemo(exe, shellRoot);
         writeDolphin(exe, shellRoot);
+        writeThunar(exe, shellRoot);
     } catch (std::exception const& error) {
         logError(L"Could not write the file manager menus: " + toWide(error.what()));
     }
