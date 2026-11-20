@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include <glib.h>
+
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/xattr.h>
@@ -8,6 +10,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdio>
+#include <ctime>
 #include <filesystem>
 #include <stdexcept>
 
@@ -18,6 +21,8 @@ namespace {
 namespace fs = std::filesystem;
 
 constexpr std::array<char const*, 4> TEMPORARY_ENDINGS = {".tmp", ".part", ".crdownload", ".swp"};
+
+enum class Removal { Gone, Hidden, Kept };
 
 std::optional<std::string> attribute(std::string const& absolute, char const* name) {
     char buffer[512];
@@ -42,6 +47,10 @@ bool isTemporary(std::string const& relative) {
 
 std::string childOf(std::string const& folder, std::string const& name) {
     return folder.empty() ? name : folder + "/" + name;
+}
+
+std::string realOf(std::string const& relative) {
+    return relative.empty() ? config().root : config().root + "/" + relative;
 }
 
 std::vector<std::string> namesIn(std::string const& folder) {
@@ -85,36 +94,74 @@ void requireFolder(std::string const& relative) {
 }
 
 void dehydrate(std::string const& relative, int64_t size) {
-    auto absolute = backingOf(relative);
-    struct stat info {};
-    lstat(absolute.c_str(), &info);
+    replaceContent(relative, [&] {
+        auto absolute = backingOf(relative);
+        struct stat info {};
+        lstat(absolute.c_str(), &info);
 
-    if (truncate(absolute.c_str(), 0) || truncate(absolute.c_str(), size)) {
-        throw std::runtime_error("Could not free up " + relative);
-    }
+        if (truncate(absolute.c_str(), 0) || truncate(absolute.c_str(), size)) {
+            throw std::runtime_error("Could not free up " + relative);
+        }
 
-    timespec times[2] = {info.st_atim, info.st_mtim};
-    utimensat(AT_FDCWD, absolute.c_str(), times, AT_SYMLINK_NOFOLLOW);
-    forgetBlocks(relative);
+        timespec times[2] = {info.st_atim, info.st_mtim};
+        utimensat(AT_FDCWD, absolute.c_str(), times, AT_SYMLINK_NOFOLLOW);
 
-    if (size) {
-        setAttribute(relative, REMOTE, std::to_string(size));
-        clearAttribute(relative, BASE);
-    } else {
-        clearAttribute(relative, REMOTE);
-        setAttribute(relative, BASE, stampOf(absolute));
-    }
+        if (size) {
+            setAttribute(relative, REMOTE, std::to_string(size));
+            clearAttribute(relative, BASE);
+        } else {
+            clearAttribute(relative, REMOTE);
+            setAttribute(relative, BASE, stampOf(absolute));
+        }
+    });
 }
 
 bool childrenInSync(std::string const& relative) {
     for (auto const& name : childrenOf(relative)) {
-        if (isIgnoredName(name)) continue;
+        auto child = childOf(relative, name);
+        if (isIgnored(child)) continue;
 
-        auto entry = entryOf(childOf(relative, name));
+        auto entry = entryOf(child);
         if (!entry.isOwned() || !entry.inSync) return false;
     }
 
     return true;
+}
+
+bool moveToTrash(std::string const& relative) {
+    fs::path trash = fs::path(g_get_user_data_dir()) / "Trash";
+    std::error_code error;
+    fs::create_directories(trash / "files", error);
+    fs::create_directories(trash / "info", error);
+
+    gchar* escaped = g_uri_escape_string(realOf(relative).c_str(), "/", FALSE);
+    time_t now = time(nullptr);
+    tm local{};
+    localtime_r(&now, &local);
+    char date[32];
+    strftime(date, sizeof(date), "%Y-%m-%dT%H:%M:%S", &local);
+    std::string info = "[Trash Info]\nPath=" + std::string(escaped) + "\nDeletionDate=" + date + "\n";
+    g_free(escaped);
+
+    auto name = relative.substr(relative.find_last_of('/') + 1);
+
+    for (int attempt = 1;; attempt++) {
+        auto unique = attempt == 1 ? name : name + "." + std::to_string(attempt);
+        auto record = (trash / "info" / (unique + ".trashinfo")).string();
+        int file = open(record.c_str(), O_CREAT | O_EXCL | O_WRONLY | O_CLOEXEC, 0600);
+
+        if (file < 0 && errno == EEXIST) continue;
+        if (file < 0) return false;
+
+        bool isWritten = write(file, info.data(), info.size()) == static_cast<ssize_t>(info.size());
+        close(file);
+        forgetTree(relative);
+
+        if (isWritten && !rename(backingOf(relative).c_str(), (trash / "files" / unique).c_str())) return true;
+
+        unlink(record.c_str());
+        return false;
+    }
 }
 
 void claimExisting(Item const& item, Entry const& existing) {
@@ -124,42 +171,41 @@ void claimExisting(Item const& item, Entry const& existing) {
     }
 
     if (item.isFolder && !existing.identity && existing.isFolder) {
-        adoptPath(item.path, item.identity, false);
+        adoptPath(item.path, item.identity, {});
         return;
     }
 
     throw std::runtime_error(item.path + " already exists");
 }
 
-bool removeEntry(std::string const& relative) {
+Removal removeEntry(std::string const& relative) {
     auto entry = entryOf(relative);
-    if (!entry.exists) return false;
+    if (!entry.exists) return Removal::Gone;
 
     auto absolute = backingOf(relative);
     std::error_code error;
 
     if (!entry.isFolder && !entry.isOwned() && isTemporary(relative)) {
         fs::remove(absolute, error);
-        return false;
+        return Removal::Gone;
     }
 
-    bool isKept = !entry.isOwned() || (!entry.isFolder && (!entry.inSync || isModified(relative, entry)));
+    auto result = entry.isOwned()         ? Removal::Gone
+                  : isIgnored(relative) ? Removal::Hidden
+                                        : Removal::Kept;
+    if (!entry.isFolder && entry.isOwned() && (!entry.inSync || isModified(relative, entry))) result = Removal::Kept;
 
     if (entry.isFolder) {
-        for (auto const& name : childrenOf(relative)) {
-            if (removeEntry(childOf(relative, name))) isKept = true;
-        }
+        for (auto const& name : childrenOf(relative)) result = std::max(result, removeEntry(childOf(relative, name)));
     }
 
-    if (isKept) {
-        if (entry.isFolder && entry.isOwned()) forgetEntry(relative);
-        return true;
-    }
+    if (result == Removal::Kept && entry.isFolder && entry.isOwned()) forgetEntry(relative);
+    if (result != Removal::Gone) return result;
 
     forgetBlocks(relative);
     fs::remove(absolute, error);
     if (error) throw std::runtime_error(error.message());
-    return false;
+    return Removal::Gone;
 }
 
 JsonObject describe(std::string const& relative, Entry const& entry) {
@@ -174,9 +220,9 @@ JsonObject describe(std::string const& relative, Entry const& entry) {
 template <typename Visit>
 void walk(std::string const& folder, Visit const& visit) {
     for (auto const& name : childrenOf(folder)) {
-        if (isIgnoredName(name)) continue;
-
         auto relative = childOf(folder, name);
+        if (isIgnored(relative)) continue;
+
         auto entry = entryOf(relative);
         if (!entry.exists) continue;
 
@@ -192,10 +238,6 @@ void walk(std::string const& folder, Visit const& visit) {
 
         visit(relative, entry, isListed);
     }
-}
-
-std::string realOf(std::string const& relative) {
-    return relative.empty() ? config().root : config().root + "/" + relative;
 }
 
 void absorb(std::string const& relative) {
@@ -256,7 +298,8 @@ bool isIgnored(std::string const& relative) {
     while (start <= relative.size()) {
         auto end = relative.find('/', start);
         if (end == std::string::npos) end = relative.size();
-        if (isIgnoredName(relative.substr(start, end - start))) return true;
+        bool isHidden = isIgnoredName(relative.substr(start, end - start));
+        if (isHidden && !entryOf(relative.substr(0, end)).isOwned()) return true;
         start = end + 1;
     }
 
@@ -384,13 +427,14 @@ void movePlaceholder(std::string const& from, std::string const& to) {
     queueThumbnail(to);
 }
 
-void updatePlaceholder(std::string const& path, std::optional<std::string> const& identity) {
+void updatePlaceholder(std::string const& path, std::optional<std::string> const& identity, std::string const& stamp) {
     auto entry = entryOf(path);
     if (!entry.exists) throw std::runtime_error(path + " does not exist");
 
     if (identity) setAttribute(path, IDENTITY, *identity);
-    if (!entry.isFolder && !entry.remote) setAttribute(path, BASE, stampOf(backingOf(path)));
+    if (!entry.isFolder && !entry.remote) setAttribute(path, BASE, stamp.empty() ? stampOf(backingOf(path)) : stamp);
     setAttribute(path, IN_SYNC, "1");
+    forgetReports(path);
 }
 
 bool refreshPlaceholder(std::string const& path, int64_t size) {
@@ -403,21 +447,27 @@ bool refreshPlaceholder(std::string const& path, int64_t size) {
 }
 
 bool removePath(std::string const& path) {
-    return removeEntry(path);
+    auto result = removeEntry(path);
+    if (result != Removal::Hidden) return result == Removal::Kept;
+    if (moveToTrash(path)) return false;
+
+    forgetEntry(path);
+    return true;
 }
 
-void adoptPath(std::string const& path, std::string const& identity, bool isChanged) {
+void adoptPath(std::string const& path, std::string const& identity, std::string const& stamp) {
     auto entry = entryOf(path);
     if (!entry.exists) throw std::runtime_error(path + " does not exist");
 
-    if (isChanged) {
+    if (!stamp.empty() && stampOf(backingOf(path)) != stamp) {
         if (!entry.identity) return;
         setAttribute(path, IDENTITY, identity);
         clearAttribute(path, IN_SYNC);
+        recheck(path);
         return;
     }
 
-    updatePlaceholder(path, identity);
+    updatePlaceholder(path, identity, stamp);
 }
 
 JsonArray unsyncedChildren(std::string const& path) {
@@ -425,9 +475,9 @@ JsonArray unsyncedChildren(std::string const& path) {
     if (!entryOf(path).isFolder) return items;
 
     for (auto const& name : childrenOf(path)) {
-        if (isIgnoredName(name)) continue;
-
         auto relative = childOf(path, name);
+        if (isIgnored(relative)) continue;
+
         auto entry = entryOf(relative);
         if (!entry.exists) continue;
 
@@ -497,11 +547,10 @@ int64_t freeUpSpace() {
     walk("", [&](std::string const& relative, Entry const& entry, bool) {
         if (entry.isFolder || entry.remote || !entry.size || !entry.inSync || !entry.identity) return;
         if (!entry.identity->starts_with("f:") && !entry.identity->starts_with("n:")) return;
-        if (isModified(relative, entry) || isOpenForWriting(relative)) return;
+        if (isModified(relative, entry)) return;
 
         try {
-            dehydrate(relative, entry.size);
-            freed += entry.size;
+            if (unlessWriting(relative, [&] { dehydrate(relative, entry.size); })) freed += entry.size;
         } catch (std::exception const& error) {
             log(error.what());
         }

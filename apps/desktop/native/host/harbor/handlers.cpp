@@ -1,5 +1,6 @@
 #include "engine.h"
 #include "paths.h"
+#include "platform.h"
 #include "support.h"
 
 #include <host/rpc.h>
@@ -25,8 +26,8 @@ bool boolArg(JsonArray const& args, uint32_t index) {
 std::wstring resolved(std::filesystem::path const& path) {
     std::error_code error;
     auto absolute = std::filesystem::absolute(path, error).lexically_normal().wstring();
-    while (absolute.size() > 3 && (absolute.back() == L'\\' || absolute.back() == L'/')) absolute.pop_back();
-    return lower(absolute);
+    while (absolute.size() > 3 && absolute.back() == SEPARATOR) absolute.pop_back();
+    return pathKey(absolute);
 }
 
 JsonValue locate(std::wstring const& kind, std::wstring const& id) {

@@ -28,6 +28,7 @@ std::mutex answerMutex;
 std::condition_variable answerSignal;
 std::map<uint64_t, std::optional<bool>> answers;
 uint64_t nextRequest = 1;
+bool isAnsweringRequests = true;
 
 std::string field(JsonObject const& request, wchar_t const* key) {
     return toUtf8(request.GetNamedString(key));
@@ -82,18 +83,14 @@ void handle(JsonObject const& request) {
         } else if (type == L"move") {
             movePlaceholder(field(request, L"from"), field(request, L"to"));
         } else if (type == L"update") {
-            updatePlaceholder(field(request, L"path"), request.HasKey(L"identity")
-                                                           ? std::optional(field(request, L"identity"))
-                                                           : std::nullopt);
+            updatePlaceholder(field(request, L"path"),
+                              request.HasKey(L"identity") ? std::optional(field(request, L"identity")) : std::nullopt,
+                              {});
         } else if (type == L"remove") {
             response.SetNamedValue(L"kept", JsonValue::CreateBooleanValue(removePath(field(request, L"path"))));
         } else if (type == L"adopt") {
             auto path = field(request, L"path");
-            auto stamp = toUtf8(request.GetNamedString(L"stamp", L""));
-            bool isChanged = !stamp.empty() && stampOf(backingOf(path)) != stamp;
-
-            adoptPath(path, field(request, L"identity"), isChanged);
-            if (isChanged) recheck(path);
+            adoptPath(path, field(request, L"identity"), toUtf8(request.GetNamedString(L"stamp", L"")));
             response.SetNamedValue(L"items", unsyncedChildren(path));
         } else if (type == L"markInSync") {
             std::vector<std::string> paths;
@@ -175,6 +172,8 @@ bool askHost(std::string const& type, JsonObject message) {
 
     {
         std::lock_guard lock(answerMutex);
+        if (!isAnsweringRequests) return false;
+
         id = nextRequest++;
         answers[id] = std::nullopt;
     }
@@ -188,6 +187,16 @@ bool askHost(std::string const& type, JsonObject message) {
     bool isAllowed = answers[id].value_or(false);
     answers.erase(id);
     return isAllowed;
+}
+
+void answerRequests(bool isAnswering) {
+    std::lock_guard lock(answerMutex);
+    isAnsweringRequests = isAnswering;
+
+    if (!isAnswering) {
+        for (auto& [id, answer] : answers) answer = false;
+        answerSignal.notify_all();
+    }
 }
 
 JsonValue text(std::string const& value) {
@@ -211,7 +220,7 @@ int main() {
         if (fileship::JsonObject::TryParse(fileship::toWide(line), request)) {
             harbor::handle(request);
         } else if (!line.empty()) {
-            harbor::log("Invalid command: " + line);
+            harbor::log("Invalid command");
         }
     }
 

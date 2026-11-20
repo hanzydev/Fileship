@@ -59,6 +59,10 @@ std::wstring pathKey(std::wstring const& path) {
     return lower(path);
 }
 
+bool isHiddenName(std::wstring const&) {
+    return false;
+}
+
 bool confirmPublic(std::wstring const& message, std::wstring const& detail) {
     constexpr int MAKE_PUBLIC = 100;
     constexpr int CANCEL = 101;

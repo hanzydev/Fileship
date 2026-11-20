@@ -220,6 +220,7 @@ int writeFile(char const* path, char const* buffer, size_t size, off_t offset, f
     ssize_t count = pwrite(handleOf(info)->descriptor, buffer, size, offset);
     if (count < 0) return -errno;
 
+    clearAttribute(relative, BASE);
     scheduleChange(relative);
     return static_cast<int>(count);
 }
@@ -231,8 +232,7 @@ int truncateFile(char const* path, off_t size, fuse_file_info*) {
         if (size) {
             fetchAll(relative);
         } else if (entryOf(relative).remote) {
-            forgetBlocks(relative);
-            clearAttribute(relative, REMOTE);
+            replaceContent(relative, [&] { clearAttribute(relative, REMOTE); });
         }
     } catch (std::exception const& error) {
         log(error.what());
@@ -241,6 +241,7 @@ int truncateFile(char const* path, off_t size, fuse_file_info*) {
 
     if (truncate(backingOf(relative).c_str(), size)) return -errno;
 
+    clearAttribute(relative, BASE);
     scheduleChange(relative);
     return 0;
 }
@@ -273,6 +274,7 @@ int removeFile(char const* path) {
     if (unlink(backingOf(relative).c_str())) return -errno;
 
     forgetBlocks(relative);
+    forgetReports(relative);
     sendDelete(relative, entry);
     return 0;
 }
@@ -282,6 +284,7 @@ int removeFolder(char const* path) {
     auto entry = entryOf(relative);
     if (rmdir(backingOf(relative).c_str())) return -errno;
 
+    forgetReports(relative);
     sendDelete(relative, entry);
     return 0;
 }
@@ -328,6 +331,10 @@ int renameEntry(char const* fromPath, char const* toPath, unsigned int flags) {
     forgetBlocks(from);
     forgetBlocks(to);
     moveState(from, to);
+
+    bool isFileReplaced = isTracked && isInScope && !(flags & RENAME_EXCHANGE) && target.isOwned() &&
+                          target.identity->starts_with("f:");
+    if (isFileReplaced) sendDelete(to, target);
 
     if (isTracked && !isInScope) forgetTree(to);
     if (isTracked && isInScope) markInSync(to);
@@ -418,6 +425,7 @@ void mountRoot() {
     }
 
     isStopping = false;
+    answerRequests(true);
     loop = std::thread([] {
         fuse_loop_mt(session, 0);
 
@@ -434,6 +442,7 @@ void mountRoot() {
 void unmountRoot() {
     if (!session) return;
 
+    answerRequests(false);
     stopThumbnails();
 
     {
@@ -461,12 +470,21 @@ void scheduleChange(std::string const& relative) {
     stateSignal.notify_all();
 }
 
-void recheck(std::string const& relative) {
-    {
-        std::lock_guard lock(stateMutex);
-        std::erase_if(reported, [&](auto const& item) { return item.first.ends_with("|" + relative); });
-    }
+void forgetReports(std::string const& relative) {
+    std::lock_guard lock(stateMutex);
+    std::erase_if(reported, [&](auto const& item) { return item.first.ends_with("|" + relative); });
+}
 
+bool unlessWriting(std::string const& relative, std::function<void()> const& run) {
+    std::lock_guard lock(stateMutex);
+    if (writers.contains(relative)) return false;
+
+    run();
+    return true;
+}
+
+void recheck(std::string const& relative) {
+    forgetReports(relative);
     scheduleChange(relative);
 }
 

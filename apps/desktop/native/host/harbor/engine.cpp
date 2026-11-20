@@ -274,6 +274,17 @@ bool isEmptyFolder(std::filesystem::path const& path) {
     return iterator == std::filesystem::directory_iterator();
 }
 
+bool holdsFiles(std::filesystem::path const& path) {
+    std::error_code error;
+
+    for (std::filesystem::directory_iterator iterator(path, error), end; !error && iterator != end;
+         iterator.increment(error)) {
+        if (!isHiddenName(iterator->path().filename().wstring())) return true;
+    }
+
+    return false;
+}
+
 JsonObject harborSettings() {
     auto current = settings();
     if (current && current.HasKey(L"harbor") &&
@@ -2595,7 +2606,7 @@ bool launch() {
     };
 
     try {
-        bool isUnknownRoot = storeString(L"harborRoot") != folder && pathExists(folder) && !isEmptyFolder(folder);
+        bool isUnknownRoot = storeString(L"harborRoot") != folder && holdsFiles(folder);
 
         {
             Lock lock(guard);
@@ -2804,11 +2815,11 @@ std::optional<std::wstring> relativeToRoot(std::wstring const& path) {
     if (root.empty()) return std::nullopt;
 
     auto base = std::filesystem::path(root).lexically_normal().wstring();
-    while (!base.empty() && (base.back() == L'\\' || base.back() == L'/')) base.pop_back();
+    while (!base.empty() && base.back() == SEPARATOR) base.pop_back();
     auto target = std::filesystem::path(path).lexically_normal().wstring();
 
     if (target.size() <= base.size() + 1 || pathKey(target.substr(0, base.size())) != pathKey(base) ||
-        (target[base.size()] != L'\\' && target[base.size()] != L'/')) {
+        target[base.size()] != SEPARATOR) {
         return std::nullopt;
     }
 

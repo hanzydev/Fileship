@@ -4,6 +4,7 @@
 #include <shared/json.h>
 
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
@@ -49,6 +50,7 @@ void send(JsonObject const& message);
 void sendEvent(std::string const& type, JsonObject message);
 void log(std::string const& text);
 bool askHost(std::string const& type, JsonObject message);
+void answerRequests(bool isAnswering);
 JsonValue text(std::string const& value);
 JsonValue number(int64_t value);
 
@@ -66,10 +68,10 @@ void copyIdentity(std::string const& from, std::string const& to);
 
 void createPlaceholders(std::vector<Item> const& items);
 void movePlaceholder(std::string const& from, std::string const& to);
-void updatePlaceholder(std::string const& path, std::optional<std::string> const& identity);
+void updatePlaceholder(std::string const& path, std::optional<std::string> const& identity, std::string const& stamp);
 bool refreshPlaceholder(std::string const& path, int64_t size);
 bool removePath(std::string const& path);
-void adoptPath(std::string const& path, std::string const& identity, bool isChanged);
+void adoptPath(std::string const& path, std::string const& identity, std::string const& stamp);
 JsonArray unsyncedChildren(std::string const& path);
 std::string preparePath(std::string const& path, std::string const& identity);
 bool markInSync(std::string const& path);
@@ -83,6 +85,7 @@ void releaseLocal();
 void fetchRange(std::string const& relative, int64_t offset, int64_t length);
 void fetchAll(std::string const& relative);
 void forgetBlocks(std::string const& relative);
+void replaceContent(std::string const& relative, std::function<void()> const& change);
 fileship::HttpEndpoint endpoint();
 
 void queueThumbnail(std::string const& relative);
@@ -92,7 +95,9 @@ void detachStaleMount();
 void mountRoot();
 void unmountRoot();
 bool isOpenForWriting(std::string const& relative);
+bool unlessWriting(std::string const& relative, std::function<void()> const& run);
 void scheduleChange(std::string const& relative);
+void forgetReports(std::string const& relative);
 void recheck(std::string const& relative);
 
 constexpr char const* IDENTITY = "user.fileship.id";

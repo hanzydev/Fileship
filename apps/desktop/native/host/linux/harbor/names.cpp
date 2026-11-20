@@ -22,6 +22,10 @@ std::wstring pathKey(std::wstring const& path) {
     return path;
 }
 
+bool isHiddenName(std::wstring const& name) {
+    return name.starts_with(L".") || name.ends_with(L"~");
+}
+
 std::wstring safeName(std::wstring const& name, std::wstring const& fallback) {
     std::wstring value;
     for (auto character : name) {

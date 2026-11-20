@@ -33,7 +33,7 @@ struct Download {
 std::mutex downloadsMutex;
 std::map<std::string, std::shared_ptr<Download>> downloads;
 
-std::shared_ptr<Download> downloadOf(std::string const& relative, int64_t size) {
+std::shared_ptr<Download> downloadOf(std::string const& relative) {
     std::lock_guard lock(downloadsMutex);
     auto& download = downloads[relative];
 
@@ -42,12 +42,30 @@ std::shared_ptr<Download> downloadOf(std::string const& relative, int64_t size) 
         lstat(backingOf(relative).c_str(), &info);
 
         download = std::make_shared<Download>();
-        download->blocks.assign(static_cast<size_t>((size + BLOCK_SIZE - 1) / BLOCK_SIZE), false);
         download->times[0] = info.st_atim;
         download->times[1] = info.st_mtim;
     }
 
     return download;
+}
+
+bool isCurrent(std::string const& relative, std::shared_ptr<Download> const& download) {
+    std::lock_guard lock(downloadsMutex);
+    auto found = downloads.find(relative);
+    return found != downloads.end() && found->second == download;
+}
+
+template <typename Run>
+void withDownload(std::string const& relative, Run const& run) {
+    while (true) {
+        auto download = downloadOf(relative);
+        std::lock_guard lock(download->mutex);
+
+        if (isCurrent(relative, download)) {
+            run(download);
+            return;
+        }
+    }
 }
 
 struct File {
@@ -114,26 +132,16 @@ std::string contentOf(std::string const& identity) {
     return toUtf8(JsonObject::Parse(toWide(response.text())).GetNamedString(L"content"));
 }
 
-void finish(std::string const& relative, Download const& download) {
-    utimensat(AT_FDCWD, backingOf(relative).c_str(), download.times, AT_SYMLINK_NOFOLLOW);
+void finish(std::string const& relative, std::shared_ptr<Download> const& download) {
+    if (!isCurrent(relative, download)) return;
+
+    utimensat(AT_FDCWD, backingOf(relative).c_str(), download->times, AT_SYMLINK_NOFOLLOW);
     finishHydration(relative);
     forgetBlocks(relative);
 }
 
-}
-
-fileship::HttpEndpoint endpoint() {
-    return {config().instanceUrl, config().token, config().userAgent, {}};
-}
-
-void fetchRange(std::string const& relative, int64_t offset, int64_t length) {
+void fetch(std::string const& relative, int64_t offset, int64_t length, std::shared_ptr<Download> const& download) {
     auto entry = entryOf(relative);
-    if (!entry.remote || length <= 0 || offset >= *entry.remote) return;
-
-    auto download = downloadOf(relative, *entry.remote);
-    std::lock_guard lock(download->mutex);
-
-    entry = entryOf(relative);
     if (!entry.remote) return;
 
     int64_t size = *entry.remote;
@@ -154,32 +162,55 @@ void fetchRange(std::string const& relative, int64_t offset, int64_t length) {
         }
 
         file.write(content.data(), content.size(), 0);
-        finish(relative, *download);
+        finish(relative, download);
         return;
     }
 
-    auto count = static_cast<int64_t>(download->blocks.size());
+    int64_t count = (size + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    auto& blocks = download->blocks;
+    if (static_cast<int64_t>(blocks.size()) != count) blocks.assign(static_cast<size_t>(count), false);
+
     int64_t last = std::min((offset + length - 1) / BLOCK_SIZE, count - 1);
 
     for (int64_t block = offset / BLOCK_SIZE; block <= last; block++) {
-        if (download->blocks[block]) continue;
+        if (blocks[block]) continue;
 
-        int64_t ahead = block && download->blocks[block - 1] ? READ_AHEAD : 1;
+        int64_t ahead = block && blocks[block - 1] ? READ_AHEAD : 1;
         int64_t end = block;
-        while (end + 1 < count && !download->blocks[end + 1] && (end < last || end + 1 - block < ahead)) end++;
+        while (end + 1 < count && !blocks[end + 1] && (end < last || end + 1 - block < ahead)) end++;
 
         int64_t start = block * BLOCK_SIZE;
         downloadBytes(file, identity.substr(2), start, std::min((end + 1) * BLOCK_SIZE, size) - start);
-        std::fill(download->blocks.begin() + block, download->blocks.begin() + end + 1, true);
+        std::fill(blocks.begin() + block, blocks.begin() + end + 1, true);
         block = end;
     }
 
-    if (std::ranges::all_of(download->blocks, [](bool isPresent) { return isPresent; })) finish(relative, *download);
+    if (std::ranges::all_of(blocks, [](bool isPresent) { return isPresent; })) finish(relative, download);
+}
+
+}
+
+fileship::HttpEndpoint endpoint() {
+    return {config().instanceUrl, config().token, config().userAgent, {}};
+}
+
+void fetchRange(std::string const& relative, int64_t offset, int64_t length) {
+    auto entry = entryOf(relative);
+    if (!entry.remote || length <= 0 || offset >= *entry.remote) return;
+
+    withDownload(relative, [&](std::shared_ptr<Download> const& download) { fetch(relative, offset, length, download); });
 }
 
 void fetchAll(std::string const& relative) {
     auto entry = entryOf(relative);
     if (entry.remote) fetchRange(relative, 0, *entry.remote);
+}
+
+void replaceContent(std::string const& relative, std::function<void()> const& change) {
+    withDownload(relative, [&](std::shared_ptr<Download> const&) {
+        change();
+        forgetBlocks(relative);
+    });
 }
 
 void forgetBlocks(std::string const& relative) {
