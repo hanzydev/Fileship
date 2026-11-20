@@ -1644,6 +1644,19 @@ bool isFixedRename(HelperEvent const& event) {
            (startsWith(event.identity, L"n:") && event.to && dirnameOf(*event.to) != dirnameOf(event.from));
 }
 
+void dropDeletionsInside(std::wstring const& folder) {
+    auto prefix = pathKey(folder + SEPARATOR);
+    Lock lock(guard);
+
+    std::erase_if(deletions, [&](HelperEvent const& event) {
+        if (!startsWith(pathKey(event.path), prefix)) return false;
+
+        hiddenFiles.erase(idOf(event.identity));
+        replacedNotes.erase(event.path);
+        return true;
+    });
+}
+
 void ack(uint64_t requestId, bool ok) {
     if (auto current = currentHelper()) current->ack(requestId, ok);
 }
@@ -1657,6 +1670,7 @@ void handleRename(HelperEvent const& event) {
     try {
         if (!event.to) {
             deleteRemote(event.identity);
+            if (event.isFolder) dropDeletionsInside(event.from);
             addActivity(L"trash", basenameOf(event.from));
         } else if (startsWith(event.identity, L"n:")) {
             renameNote(event.identity, *event.to);
@@ -2702,7 +2716,6 @@ void stopHarborNow(StopOptions options) {
     {
         Lock lock(guard);
         retries = 0;
-        isPaused = false;
         timers().clear(storageTimer);
         storageTimer = 0;
     }
@@ -2723,6 +2736,8 @@ void stopHarborNow(StopOptions options) {
         folder = root;
 
         if (!current) {
+            isPaused = false;
+
             if (status.state != L"off") {
                 setStatus([](Status& value) {
                     value.state = L"off";
@@ -2740,6 +2755,15 @@ void stopHarborNow(StopOptions options) {
 
     if (auto client = takeSocket()) client->close();
 
+    bool hasDeletions = false;
+    {
+        Lock lock(guard);
+        timers().clear(deleteTimer);
+        deleteTimer = 0;
+        hasDeletions = !deletions.empty();
+    }
+
+    if (hasDeletions) enqueue(runDeletions);
     queue().drain();
 
     if (options.remove) {
@@ -2787,6 +2811,7 @@ void stopHarborNow(StopOptions options) {
     {
         Lock lock(guard);
         helper = nullptr;
+        isPaused = false;
         local.clear();
         sentStates.clear();
         files.clear();
