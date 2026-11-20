@@ -89,6 +89,7 @@ deb:
         - libuuid1
         - libglib2.0-0t64 | libglib2.0-0
         - libsoup-3.0-0
+        - glib-networking
         - libsecret-1-0
         - libsqlite3-0
         - libgdk-pixbuf-2.0-0
@@ -118,6 +119,7 @@ rpm:
         - libuuid
         - glib2
         - libsoup3
+        - glib-networking
         - libsecret
         - sqlite-libs
         - gdk-pixbuf2
