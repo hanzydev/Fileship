@@ -19,6 +19,7 @@ using ActionHandler = std::function<void(std::string const& action)>;
 std::mutex mutex;
 std::map<uint32_t, ActionHandler> handlers;
 std::map<std::wstring, uint32_t> progressIds;
+std::map<uint32_t, std::wstring> contents;
 
 GVariant* call(char const* method, GVariant* parameters, char const* reply) {
     GError* error = nullptr;
@@ -74,7 +75,21 @@ struct Notification {
     }
 };
 
+std::wstring contentOf(Notification const& notification) {
+    auto content = notification.title + L'\n' + notification.body;
+    for (auto const& [key, label] : notification.actions) content += L'\n' + toWide(key) + L'\t' + label;
+    return content;
+}
+
 uint32_t send(Notification& notification) {
+    auto content = contentOf(notification);
+
+    {
+        std::lock_guard lock(mutex);
+        auto found = contents.find(notification.replaces);
+        if (found != contents.end() && found->second == content) return notification.replaces;
+    }
+
     auto body = bodyText(notification.body);
     auto icon = (resourcesPath() / "icon.png").string();
 
@@ -95,6 +110,10 @@ uint32_t send(Notification& notification) {
     guint32 id = 0;
     g_variant_get(reply, "(u)", &id);
     g_variant_unref(reply);
+
+    std::lock_guard lock(mutex);
+    contents.erase(notification.replaces);
+    contents[id] = content;
     return id;
 }
 
@@ -116,6 +135,7 @@ void handleClosed(GDBusConnection*, gchar const*, gchar const*, gchar const*, gc
 
     std::lock_guard lock(mutex);
     handlers.erase(id);
+    contents.erase(id);
     std::erase_if(progressIds, [id](auto const& entry) { return entry.second == id; });
 }
 
@@ -203,6 +223,7 @@ uint32_t showNotice(uint32_t replaces, Notice const& notice, std::function<void(
 
         g_variant_builder_add(&notification.hints, "{sv}", "resident", g_variant_new_boolean(TRUE));
         g_variant_builder_add(&notification.hints, "{sv}", "suppress-sound", g_variant_new_boolean(TRUE));
+        g_variant_builder_add(&notification.hints, "{sv}", "urgency", g_variant_new_byte(2));
 
         auto id = send(notification);
 
@@ -219,6 +240,7 @@ void closeNotice(uint32_t id) {
     {
         std::lock_guard lock(mutex);
         handlers.erase(id);
+        contents.erase(id);
     }
 
     g_dbus_connection_call(sessionBus(), SERVICE, PATH, SERVICE, "CloseNotification", g_variant_new("(u)", id), nullptr,
@@ -236,6 +258,7 @@ void hideUploadProgress(std::wstring const& tag) {
         id = found->second;
         progressIds.erase(found);
         handlers.erase(id);
+        contents.erase(id);
     }
 
     g_variant_unref(call("CloseNotification", g_variant_new("(u)", id), "()"));
